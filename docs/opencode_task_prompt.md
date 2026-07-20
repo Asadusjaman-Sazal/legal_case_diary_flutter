@@ -15,13 +15,17 @@ You are implementing Task {NN} of the Legal Case Diary Flutter app. All rules in
 1. `docs/currentlyWorking.md` — resume point.
 2. `docs/tasks/{NN}_*.md` — the full task file, including its Revision 2.4 Alignment Addendum (Addendum overrides contradictory earlier wording in the same file).
 3. From `docs/implementation_plan.md`, ONLY the sections the task file explicitly cites. Do NOT read the whole plan.
-4. Mockup HTML files under `legal_case_diary_flutter\mockup_html_screens\` ONLY for the screens this task builds.
+4. Mockup HTML files under `legal_case_diary_flutter\mockup_html_screens\` ONLY for the screens this task builds. Do Not load them if they are not required for this task.
 
 Do not re-read files already summarized in your context. Do not read other task files unless this task file cites them. You do not need to read `docs/tasks/00_INDEX.md` — its Universal Working Rules are already captured in `AGENTS.md`.
 
 ### PLAN phase (Architect)
 
-- Produce a terse phase-by-phase plan: files to create/modify, key decisions, and which plan sections govern each decision. Bullet points only, no code.
+- Preserve the task file’s existing phases and order. For each phase, briefly
+  identify the files to create/modify, key implementation decisions, applicable
+  plan sections, and validation steps. Do not add, remove, merge, split, or
+  reorder phases unless a conflict makes this necessary; flag such a conflict
+  and wait for approval. Bullet points only, no code.
 - State the table class (per AGENTS.md rule 4) for every table you touch.
 - If anything is unclear or conflicting: STOP and ask me (batched list). If the task file and implementation plan disagree, the plan wins — flag it.
 - Wait for my approval before building.

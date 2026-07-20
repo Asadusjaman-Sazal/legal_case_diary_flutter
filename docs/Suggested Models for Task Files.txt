@@ -1,0 +1,461 @@
+Yes. I recommend selecting models by **task cluster**, because related tasks share architecture, files, and invariants. Use the Architecture model to analyze the task files, inspect dependencies, prepare an implementation plan, and review the result; use the Builder model for implementation and tests.
+
+The rankings below are based on the expected strengths of the model roles and the technical demands of your project. They are not benchmark claims about unpublished model versions.
+
+## Recommended workflow
+
+For each cluster:
+
+1. Give the Architecture model:
+
+1. `docs/tasks/00_INDEX.md`
+2. The current task file(s)
+3. Relevant sections of `docs/implementation_plan.md`
+4. `docs/currentlyWorking.md`
+5. Existing source files related to the task
+
+
+
+2. Ask it for a phase-by-phase implementation plan, affected files, invariants, risks, and tests.
+3. Give that approved plan to the Builder model.
+4. After each phase, require:
+
+1. Formatting
+2. Generated-code refresh where applicable
+3. Tests
+4. `flutter analyze`
+5. `docs/version_history.md` update
+6. `docs/currentlyWorking.md` update
+
+
+
+5. Have an Architecture model review the Builder’s diff before continuing.
+
+
+---
+
+# Model recommendations by task cluster
+
+## Task 01 — Project setup and architecture
+
+This task requires repository organization, Flutter dependency decisions, Riverpod/MVVM boundaries, and strict Part A/Part B separation.
+
+### Architecture — top 5
+
+1. **claude-opus-4-7**
+2. **gpt-5.5**
+3. **claude-opus-4-6-thinking**
+4. **gemini-3.1-pro-high**
+5. **gpt-5.4**
+
+
+### Builder — top 5
+
+1. **claude-sonnet-4-6**
+2. **gpt-5.3-codex**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `claude-opus-4-7` → `claude-sonnet-4-6`
+
+---
+
+## Tasks 02 and 06 — Design system, localization, widgets, navigation
+
+These should be handled together because the shared design tokens, localization, responsive rules, navigation shell, and reusable widgets establish the UI foundation.
+
+### Architecture — top 5
+
+1. **gemini-3.1-pro-high**
+2. **claude-opus-4-7**
+3. **gpt-5.5**
+4. **claude-opus-4-6-thinking**
+5. **gpt-5.4**
+
+
+### Builder — top 5
+
+1. **claude-sonnet-4-6**
+2. **gpt-5.3-codex**
+3. **Kimi-K2.7-Code**
+4. **gemini-3-flash-preview**
+5. **qwen3-coder-next**
+
+
+**Preferred pair:** `gemini-3.1-pro-high` → `claude-sonnet-4-6`
+
+Use the mockup HTML files as mandatory references. Do not let the models redesign the screens from general descriptions.
+
+---
+
+## Tasks 03 and 04 — Drift, encryption, schema, and seed migrations
+
+These are among the highest-risk Part A tasks. They involve SQLCipher, Drift schemas, table classifications, migrations, durable sync metadata, seed ownership, and idempotency.
+
+### Architecture — top 5
+
+1. **claude-opus-4-6-thinking**
+2. **gpt-5.5**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `claude-opus-4-6-thinking` → `gpt-5.3-codex`
+
+I strongly recommend a second review by `gpt-5.5` before accepting schema or migration changes. Database mistakes can affect every subsequent task.
+
+---
+
+## Task 05 — DAOs, repositories, state management, and sync-ready writes
+
+This task establishes transaction ownership, repository boundaries, queue compaction, history behavior, and Riverpod state flow. It is another critical architectural task.
+
+### Architecture — top 5
+
+1. **gpt-5.5**
+2. **claude-opus-4-6-thinking**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `gpt-5.5` → `gpt-5.3-codex`
+
+Require repository-level transaction tests before UI development begins. UI code must not write directly through DAOs.
+
+---
+
+## Tasks 07–10 — Case workflows and core case screens
+
+This cluster covers the Add/Edit form, case lists, calendar/cause list, details, and Quick Update history. These tasks share case ViewModels, filtering, validation, and navigation.
+
+### Architecture — top 5
+
+1. **claude-opus-4-7**
+2. **gpt-5.5**
+3. **gemini-3.1-pro-high**
+4. **claude-opus-4-6-thinking**
+5. **gpt-5.4**
+
+
+### Builder — top 5
+
+1. **claude-sonnet-4-6**
+2. **gpt-5.3-codex**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **gemini-3-flash-preview**
+
+
+**Preferred pair:** `claude-opus-4-7` → `claude-sonnet-4-6`
+
+Implement these task files sequentially even though they use one model cluster:
+
+1. Task 07
+2. Task 08
+3. Task 09
+4. Task 10
+
+
+Do not combine all four into one giant coding prompt. Preserve the critical rule that automatic history is created only by a Quick Update that changes `next_date`.
+
+---
+
+## Tasks 11 and 12 — Notes, references, and settings
+
+These are primarily repository-backed CRUD, search, preference persistence, hierarchical editors, and mockup-driven UI.
+
+### Architecture — top 5
+
+1. **claude-opus-4-7**
+2. **gpt-5.5**
+3. **gemini-3.1-pro-high**
+4. **gpt-5.4**
+5. **claude-opus-4-6-thinking**
+
+
+### Builder — top 5
+
+1. **claude-sonnet-4-6**
+2. **gpt-5.3-codex**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **gemini-3-flash-preview**
+
+
+**Preferred pair:** `claude-opus-4-7` → `claude-sonnet-4-6`
+
+Pay special attention to per-user settings. They must not accidentally become firm-shared data in Part B.
+
+---
+
+## Task 13 — Notification system
+
+This task involves Android/iOS platform behavior, exact alarms, boot rescheduling, permissions, OEM guidance, and notification reconciliation.
+
+### Architecture — top 5
+
+1. **claude-opus-4-6-thinking**
+2. **gpt-5.5**
+3. **claude-opus-4-7**
+4. **gemini-3.1-pro-high**
+5. **gpt-5.4**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `claude-opus-4-6-thinking` → `gpt-5.3-codex`
+
+Require the model to verify current plugin APIs from installed package versions rather than relying on remembered APIs. Test permission denial, timezone changes, reboot restoration, case edits, case deletion, and disposed cases.
+
+---
+
+## Tasks 14 and 15 — PDF/actions/search, backup/restore, and free-tier gating
+
+These tasks involve platform integrations, Bengali-safe PDF generation, scoped search, portable data formats, encryption, checksums, atomic restore, and entitlement enforcement.
+
+### Architecture — top 5
+
+1. **gpt-5.5**
+2. **claude-opus-4-6-thinking**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `gpt-5.5` → `gpt-5.3-codex`
+
+Task 15 deserves an independent architecture review before Part A is considered complete. Test restore from corrupted, wrong-password, older-version, partial, and incompatible backups.
+
+---
+
+## Task 16 — Supabase schema, RLS, triggers, and RPC foundations
+
+This is probably the most security-sensitive task. It requires exact table classification, ownership rules, RLS, server-managed fields, triggers, indexes, and migration safety.
+
+### Architecture — top 5
+
+1. **claude-opus-4-6-thinking**
+2. **gpt-5.5**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `claude-opus-4-6-thinking` → `gpt-5.3-codex`
+
+Use two independent reviews:
+
+- `gpt-5.5` for schema and synchronization consistency.
+- `claude-opus-4-7` for RLS and authorization review.
+
+
+Do not proceed to Task 17 until automated RLS tests cover owner, authorized associate, unauthorized associate, removed member, and unrelated user.
+
+---
+
+## Tasks 17 and 20 — Authentication, firm onboarding, membership, and deletion
+
+These tasks are tightly related because identity adoption, invitations, membership permissions, associate removal, sessions, and deletion requests share the same authorization model.
+
+### Architecture — top 5
+
+1. **gpt-5.5**
+2. **claude-opus-4-6-thinking**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `gpt-5.5` → `gpt-5.3-codex`
+
+Implement Task 17 first, then Task 20 after the sync and recovery infrastructure exists. The shared architecture review can happen early, but Task 20 implementation should remain in its numbered position.
+
+---
+
+## Tasks 18 and 19 — Sync, Realtime, conflicts, and recovery
+
+This is the most reasoning-intensive cluster. It includes idempotency, mutation receipts, optimistic concurrency, queue recovery, composite cursors, transactional imports, conflict resolution, membership changes, and extended-offline recovery.
+
+### Architecture — top 5
+
+1. **claude-opus-4-6-thinking**
+2. **gpt-5.5**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `claude-opus-4-6-thinking` → `gpt-5.3-codex`
+
+For these tasks, I recommend a three-model process:
+
+1. `claude-opus-4-6-thinking` creates the state machine and failure matrix.
+2. `gpt-5.3-codex` implements it.
+3. `gpt-5.5` reviews idempotency, crash recovery, ordering, and authorization.
+
+
+Do not accept a sync implementation tested only on a successful online path.
+
+---
+
+## Task 21 — Payments and subscription entitlement
+
+This task combines secure server approval, payment submissions, remote payment configuration, entitlement derivation, expiration, grace periods, and offline behavior.
+
+### Architecture — top 5
+
+1. **gpt-5.5**
+2. **claude-opus-4-6-thinking**
+3. **claude-opus-4-7**
+4. **gpt-5.4**
+5. **gemini-3.1-pro-high**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `gpt-5.5` → `gpt-5.3-codex`
+
+Require server-authoritative entitlement tests. Never let the client directly mark a payment approved or make itself premium.
+
+---
+
+## Task 22 — Complete verification
+
+Task 22 requires broad reasoning, test design, adversarial scenarios, traceability, and implementation of test suites across Flutter, Drift, platform services, Supabase, RLS, and synchronization.
+
+### Architecture — top 5
+
+1. **gpt-5.5**
+2. **claude-opus-4-6-thinking**
+3. **claude-opus-4-7**
+4. **gemini-3.1-pro-high**
+5. **gpt-5.4**
+
+
+### Builder — top 5
+
+1. **gpt-5.3-codex**
+2. **claude-sonnet-4-6**
+3. **Kimi-K2.7-Code**
+4. **qwen3-coder-next**
+5. **devstral-latest**
+
+
+**Preferred pair:** `gpt-5.5` → `gpt-5.3-codex`
+
+Use `claude-opus-4-6-thinking` as an adversarial second reviewer. It should identify missing failure scenarios rather than rewrite tests already present.
+
+---
+
+# Condensed assignment table
+
+| Tasks | Best Architecture | Best Builder
+|-----|-----|-----
+| 01 | claude-opus-4-7 | claude-sonnet-4-6
+| 02 + 06 | gemini-3.1-pro-high | claude-sonnet-4-6
+| 03 + 04 | claude-opus-4-6-thinking | gpt-5.3-codex
+| 05 | gpt-5.5 | gpt-5.3-codex
+| 07–10 | claude-opus-4-7 | claude-sonnet-4-6
+| 11 + 12 | claude-opus-4-7 | claude-sonnet-4-6
+| 13 | claude-opus-4-6-thinking | gpt-5.3-codex
+| 14 + 15 | gpt-5.5 | gpt-5.3-codex
+| 16 | claude-opus-4-6-thinking | gpt-5.3-codex
+| 17 + 20 | gpt-5.5 | gpt-5.3-codex
+| 18 + 19 | claude-opus-4-6-thinking | gpt-5.3-codex
+| 21 | gpt-5.5 | gpt-5.3-codex
+| 22 | gpt-5.5 | gpt-5.3-codex
+
+
+## Overall model hierarchy for this project
+
+### Architecture
+
+1. **gpt-5.5** — requirements reconciliation, cross-task consistency, reviews
+2. **claude-opus-4-6-thinking** — databases, sync state machines, recovery, security
+3. **claude-opus-4-7** — Flutter architecture, UI workflows, maintainability
+4. **gemini-3.1-pro-high** — visual/UI interpretation and broad-context review
+5. **gpt-5.4** — dependable secondary architecture review
+
+
+### Builder
+
+1. **gpt-5.3-codex** — databases, migrations, synchronization, tests, backend work
+2. **claude-sonnet-4-6** — Flutter widgets, forms, navigation, UI integration
+3. **Kimi-K2.7-Code** — secondary implementation and refactoring
+4. **qwen3-coder-next** — targeted code generation and test expansion
+5. **devstral-latest** — focused implementation and independent fixes
+
+
+For the critical tasks—03, 05, 15, 16, 18, 19, and 21—avoid using the smaller or speed-oriented models as the primary Builder. They are better suited to isolated widgets, translations, repetitive tests, formatting fixes, and narrowly scoped refactors.

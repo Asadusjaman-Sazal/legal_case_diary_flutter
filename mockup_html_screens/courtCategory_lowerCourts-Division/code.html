@@ -1,0 +1,311 @@
+<!DOCTYPE html><html class="light" lang="en" style="width: 390px; height: 1349px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Dhaka Division Districts - Legal Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100..900&amp;family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1e",
+                        "court-notice": "#DC2626",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "outline-variant": "#c6c6cd",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-variant": "#e0e3e5",
+                        "ink-dark": "#020617",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-tint": "#565e74",
+                        "on-secondary-container": "#fefcff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#0051d5",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-container": "#316bf3",
+                        "primary": "#000000",
+                        "on-background": "#191c1e",
+                        "primary-fixed": "#dae2fd",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-container": "#75859d",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#d3e4fe",
+                        "surface-container": "#eceef0",
+                        "status-active": "#059669",
+                        "tertiary": "#000000",
+                        "outline": "#76777d",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-container": "#0b1c30",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#38485d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "unit": "4px",
+                        "gutter": "12px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "edge-margin": "16px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "title-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "case-number": ["IBM Plex Sans"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["IBM Plex Sans"],
+                        "label-lg": ["IBM Plex Sans"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-secondary/20 min-h-screen flex flex-col">
+<!-- Top Navigation Anchor -->
+<header class="sticky top-0 z-40 bg-surface-container-low border-b border-outline-variant flex justify-between items-center w-full px-edge-margin h-16">
+<div class="flex items-center gap-4">
+<button aria-label="Open menu" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">menu</span>
+</button><button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">&nbsp;Lower Courts</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 max-w-4xl mx-auto w-full px-edge-margin py-md">
+<!-- Descriptive Header -->
+<div class="mb-lg">
+<h2 class="font-title-lg text-title-lg text-primary mb-xs">Divisions</h2>
+</div>
+<!-- District List Cluster -->
+<div class="space-y-unit"><div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Dhaka</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Chattagram</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Rajshahi</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Khulna</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Barishal</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Sylhet</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Rangpur</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div>
+<div class="group flex items-center justify-between p-md bg-surface-container-lowest border border-outline-variant rounded-lg cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">location_city</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Mymensingh</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
+</div></div>
+<!-- Bottom Padding for Floating Actions or Nav -->
+<div class="h-24"></div>
+</main>
+<!-- Side Navigation (Web) -->
+<aside class="hidden md:flex flex-col h-screen sticky left-0 top-0 border-r border-outline-variant bg-surface w-64 fixed top-0 left-0">
+<div class="p-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Legal Diary</h1>
+<p class="font-body-sm text-on-surface-variant">Bangladesh Supreme Court</p>
+</div>
+<nav class="flex-1 px-md py-md space-y-unit overflow-y-auto custom-scrollbar">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-secondary/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-secondary font-bold border-l-4 border-secondary bg-secondary/5 transition-colors" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-body-md text-body-md">Daily Cause List</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-secondary/5 transition-colors" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-body-md text-body-md">Active Cases</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-secondary/5 transition-colors" href="#">
+<span class="material-symbols-outlined">history_toggle_off</span>
+<span class="font-body-md text-body-md">Missed Dates</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-secondary/5 transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Archived</span>
+</a>
+</nav>
+<div class="p-md border-t border-outline-variant">
+<div class="flex items-center gap-md p-md mb-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Lawyer Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEUHHBY9avNIFDLC8d0ETM35YqmYC-hZiY9S3uvInXaZ-DUX270LylKlZ4qHm1ICwD6t5imlp7Os6vIc4-YDEEo9JrQtGhggh2xDianJEEnKqIkhJWef7fp0lHjinjB461LX_2TQ-1hg2o7oUpF-atmvmBE5EIBBv9hNsUIaZFHTPuO8o7Qq3YdkP6yMBER9fpSZzyNIp2eCC4vjR53mb-3rFDUTNxqthHY6G6p0vkR9K9BqF7TGI3hzru7Uu9FaHEB2TIy4JzI1o">
+</div>
+<div class="overflow-hidden">
+<p class="font-title-md text-title-md text-on-surface truncate">Barrister Ahmad</p>
+<p class="font-body-sm text-on-surface-variant truncate">Premium Account</p>
+</div>
+</div>
+<button class="w-full py-md bg-primary text-on-primary rounded-lg font-title-md mb-md hover:opacity-90 transition-opacity">
+                New Entry
+            </button>
+<div class="space-y-xs">
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Bottom Navigation Shell (Mobile Only) -->
+<!-- Micro-interaction script -->
+<script>
+        document.querySelectorAll('.group').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.add('bg-secondary/10');
+                setTimeout(() => {
+                    this.classList.remove('bg-secondary/10');
+                }, 300);
+            });
+        });
+    </script>
+
+
+</body></html>

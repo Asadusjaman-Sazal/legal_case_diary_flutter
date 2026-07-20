@@ -1,0 +1,245 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Guidelines - Justice Ledger</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#76777d",
+                        "surface-tint": "#565e74",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "outline-variant": "#c6c6cd",
+                        "primary-fixed": "#dae2fd",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "surface-container": "#eceef0",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "primary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#75859d",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "court-notice": "#DC2626",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-surface": "#191c1e",
+                        "tertiary": "#000000",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-container": "#316bf3",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-container": "#0b1c30",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-secondary-container": "#fefcff",
+                        "inverse-primary": "#bec6e0",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-fixed": "#dbe1ff",
+                        "status-active": "#059669",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "surface": "#f7f9fb",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "secondary": "#0051d5",
+                        "on-primary-container": "#7c839b",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-container": "#131b2e",
+                        "ink-dark": "#020617",
+                        "on-background": "#191c1e"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "sm": "8px",
+                        "gutter": "12px",
+                        "edge-margin": "16px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "unit": "4px"
+                    },
+                    fontFamily: {
+                        "title-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "label-md": ["IBM Plex Sans"],
+                        "title-md": ["Inter"],
+                        "label-lg": ["IBM Plex Sans"],
+                        "headline-lg": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "case-number": ["IBM Plex Sans"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.5px", fontWeight: "500" }],
+                        "title-md": ["16px", { lineHeight: "24px", fontWeight: "600" }],
+                        "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.1px", fontWeight: "500" }],
+                        "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "case-number": ["14px", { lineHeight: "20px", letterSpacing: "0.2px", fontWeight: "700" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopAppBar -->
+<header class="flex items-center px-edge-margin h-16 w-full bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline sticky top-0 z-40">
+<button class="mr-gutter text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-high p-sm rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-title-lg text-title-lg text-primary dark:text-on-surface flex-1 truncate">Guidelines</h1>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto px-edge-margin py-lg pb-[96px] space-y-md">
+<div class="mb-lg">
+
+<p class="font-body-md text-body-md text-on-surface-variant">Tap on any topic below to expand and view detailed administrative procedures.</p>
+</div>
+<!-- Accordion Container -->
+<div class="space-y-sm" id="guidelines-accordion">
+<!-- Topic 1 -->
+<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
+<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
+<div class="flex items-center space-x-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">event_note</span>
+</div>
+<span class="font-title-md text-title-md text-primary">Daily Cause List Management</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
+</button>
+<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
+<div class="p-md text-on-surface-variant font-body-md space-y-sm">
+<p class="">To ensure your daily schedule is accurate, synchronize your local diary with the court's official cause list. Navigate to the 'Cause List' tab and tap the sync icon in the top right corner.</p>
+<p class=""><strong>Note:</strong> Disposed cases will automatically move to the archive unless marked for active monitoring.</p>
+</div>
+</div>
+</div>
+<!-- Topic 2 -->
+<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
+<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
+<div class="flex items-center space-x-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">library_books</span>
+</div>
+<span class="font-title-md text-title-md text-primary">Managing Case References</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
+</button>
+<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
+<div class="p-md text-on-surface-variant font-body-md space-y-sm">
+<p class="">When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).</p>
+<p class="">You can link relevant legal precedents to specific active cases within the 'Case Details' view under the 'Notes' section.</p>
+</div>
+</div>
+</div>
+<!-- Topic 3 -->
+<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
+<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
+<div class="flex items-center space-x-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">cloud_sync</span>
+</div>
+<span class="font-title-md text-title-md text-primary">Offline Backup &amp; Restore</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
+</button>
+<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
+<div class="p-md text-on-surface-variant font-body-md space-y-sm">
+<p class="">The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings &gt; Backup Options.</p>
+<p class="">If you need to restore data, ensure you have your encryption key available before initiating the recovery process.</p>
+</div>
+</div>
+</div>
+<!-- Topic 4 -->
+<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
+<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
+<div class="flex items-center space-x-gutter">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">shield_lock</span>
+</div>
+<span class="font-title-md text-title-md text-primary">Security &amp; Encryption</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
+</button>
+<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
+<div class="p-md text-on-surface-variant font-body-md space-y-sm">
+<p class="">All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.</p>
+<p class="">We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+
+<!-- Accordion Logic -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const item = header.closest('.accordion-item');
+                    const content = item.querySelector('.accordion-content');
+                    const icon = header.querySelector('.accordion-icon');
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+
+                    // Close all active items
+                    document.querySelectorAll('.accordion-item').forEach(i => {
+                        i.classList.remove('border-primary', 'shadow-sm');
+                        i.classList.add('border-outline-variant');
+                        const h = i.querySelector('.accordion-header');
+                        h.setAttribute('aria-expanded', 'false');
+                        i.querySelector('.accordion-content').classList.add('hidden');
+                        i.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
+                    });
+
+                    // If it wasn't expanded, open it
+                    if (!isExpanded) {
+                        item.classList.remove('border-outline-variant');
+                        item.classList.add('border-primary', 'shadow-sm');
+                        header.setAttribute('aria-expanded', 'true');
+                        content.classList.remove('hidden');
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+    </script>
+
+
+</body></html>

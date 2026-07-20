@@ -1,0 +1,857 @@
+<!DOCTYPE html><html lang="en" style="width: 390px; height: 885px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Daily Cause List - Digital Case Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Mobile Drawer Transitions */
+        #mobile-drawer {
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+        }
+        #mobile-drawer.closed-mobile {
+            transform: translateX(-100%);
+        }
+        #mobile-drawer.open-mobile {
+            transform: translateX(0);
+        }
+        
+        /* Desktop Sidebar Transitions */
+        @media (min-width: 1024px) {
+            #mobile-drawer.desktop-rail {
+                width: 80px;
+            }
+            #mobile-drawer.desktop-expanded {
+                width: 280px;
+            }
+            #mobile-drawer.desktop-rail .nav-label,
+            #mobile-drawer.desktop-rail .profile-info,
+            #mobile-drawer.desktop-rail .app-subtitle {
+                display: none;
+            }
+            #mobile-drawer.desktop-rail .nav-item {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
+        #drawer-overlay {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #drawer-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Modal Transitions */
+        #calendar-modal, #new-case-modal {
+            transition: opacity 0.2s ease-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #calendar-modal.open, #new-case-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#38485d",
+                      "surface-tint": "#565e74",
+                      "tertiary-container": "#0b1c30",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "secondary": "#0051d5",
+                      "on-primary": "#ffffff",
+                      "on-secondary-fixed": "#00174b",
+                      "primary-fixed": "#dae2fd",
+                      "ink-dark": "#020617",
+                      "outline-variant": "#c6c6cd",
+                      "primary": "#000000",
+                      "error": "#ba1a1a",
+                      "on-tertiary-container": "#75859d",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "status-active": "#059669",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-variant": "#e0e3e5",
+                      "primary-container": "#131b2e",
+                      "tertiary-fixed-dim": "#b7c8e1",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "tertiary": "#000000",
+                      "on-tertiary-fixed": "#0b1c30",
+                      "inverse-on-surface": "#eff1f3",
+                      "on-error-container": "#93000a",
+                      "court-notice": "#DC2626",
+                      "secondary-fixed": "#dbe1ff",
+                      "on-surface": "#191c1e",
+                      "surface-container-high": "#e6e8ea",
+                      "surface": "#f7f9fb",
+                      "outline": "#76777d",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "surface-container": "#eceef0",
+                      "primary-fixed-dim": "#bec6e0",
+                      "secondary-container": "#316bf3",
+                      "surface-bright": "#f7f9fb",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#131b2e",
+                      "background": "#f7f9fb",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed": "#d3e4fe",
+                      "inverse-primary": "#bec6e0",
+                      "on-background": "#191c1e",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-primary-container": "#7c839b",
+                      "on-secondary-container": "#fefcff",
+                      "surface-dim": "#d8dadc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "edge-margin": "16px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "gutter": "12px",
+                      "unit": "4px",
+                      "lg": "24px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "case-number": ["IBM Plex Sans"],
+                      "title-md": ["Inter"],
+                      "headline-md": ["Manrope"],
+                      "label-md": ["IBM Plex Sans"],
+                      "title-lg": ["Manrope"],
+                      "body-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-lg": ["Manrope"],
+                      "label-lg": ["IBM Plex Sans"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
+                      "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md flex min-h-screen overflow-x-hidden">
+<!-- Mobile Drawer Overlay -->
+<div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden" id="drawer-overlay" onclick="toggleDrawer()"></div>
+<!-- Navigation Drawer (Rail on Desktop, Full Drawer on Mobile) -->
+<aside class="fixed left-0 top-0 h-full bg-surface-container-lowest border-r border-outline-variant shadow-xl z-[70] flex flex-col overflow-y-auto lg:z-50 closed-mobile" id="mobile-drawer">
+<div class="p-lg flex flex-col gap-sm">
+<div class="flex items-center gap-md overflow-hidden">
+<img alt="Lawyer's Profile Avatar" class="w-12 h-12 rounded-full border border-outline-variant shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlDbefh84pFG_OrLbGssan9uYP3DzWLxmF7atC3BtAy0ATyrdrla4EWciUuginlcdp8QWJgm0o20WgZ1O5CfhOkwICgfylgqkKkPcUetOR9wbGuYTTaPNqwq_EkzKOtu0lEPByLRsdY7lh9uI-VDDbSgjIHZiGupDAgxgvrX5rleoKtGq9Gt3kxNOerncfl6FLqIlEnjz9VP1f8_RJlWscQc2jxRjUjKW23H0hi_YN3sGM6aTZHWqHvoA8jJUtwl9nx5Pz7JsG6WY">
+<div class="profile-info">
+<h2 class="font-title-lg text-title-lg text-primary whitespace-nowrap">Asadusjaman</h2>
+<p class="font-label-lg text-label-lg text-on-surface-variant">Advocate</p>
+</div>
+</div>
+<p class="app-subtitle font-label-md text-label-md text-primary mt-xs tracking-wider opacity-60 whitespace-nowrap">Digital Case Diary</p>
+</div>
+<nav class="flex-1 mt-md">
+<div class="flex flex-col gap-1">
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span class="nav-label font-label-lg text-label-lg">Upcoming Cases</span>
+</a>
+<a class="nav-item bg-secondary-container text-on-secondary-container rounded-full mx-2 px-4 py-2 flex items-center gap-md font-bold transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="nav-label font-label-lg text-label-lg">Daily Cause List</span>
+</a>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="nav-label font-label-lg text-label-lg">All Cases</span>
+</a>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="nav-label font-label-lg text-label-lg">Disposed Cases</span>
+</a>
+<div class="my-md mx-6 border-t border-outline-variant"></div>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="nav-label font-label-lg text-label-lg">Case Reference</span>
+</a>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="sticky_note_2">sticky_note_2</span>
+<span class="nav-label font-label-lg text-label-lg">Notes</span>
+</a>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="nav-label font-label-lg text-label-lg">Settings</span>
+</a>
+<div class="my-md mx-6 border-t border-outline-variant"></div>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="print">print</span>
+<span class="nav-label font-label-lg text-label-lg">Print</span>
+</a>
+<a class="nav-item text-on-surface-variant hover:bg-surface-container-high transition-all mx-2 px-4 py-2 flex items-center gap-md rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+<span class="nav-label font-label-lg text-label-lg">Share</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col lg:ml-[80px] pb-[72px] lg:pb-0 transition-all duration-300" id="main-content" style="margin-left: 0px;">
+<!-- TopAppBar -->
+<header class="bg-surface sticky top-0 z-50 border-b border-outline-variant flex justify-between items-center px-edge-margin h-[56px] w-full">
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container transition-colors rounded-full active:scale-95" onclick="toggleDrawer()">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-title-lg font-bold text-primary">Daily Cause List</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 hover:bg-surface-container transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined text-primary" data-icon="search">search</span>
+</button><button class="p-2 hover:bg-surface-container transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined !text-black" data-icon="grid_on">grid_on</span>
+</button>
+<button class="p-2 hover:bg-surface-container transition-colors rounded-full active:scale-95">
+<span class="material-symbols-outlined !text-black" data-icon="grid_view">grid_view</span>
+</button>
+<button class="hidden md:flex items-center gap-xs bg-primary text-on-primary px-md py-1.5 rounded-full hover:opacity-90 active:scale-95 transition-all" onclick="openNewCaseModal()">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+<span class="font-label-lg text-label-lg">New Case</span>
+</button>
+</div>
+</header>
+<!-- Date Switcher Section -->
+<div class="bg-surface border-b border-outline-variant px-edge-margin py-sm sticky top-[56px] z-40">
+<div class="flex items-center justify-center max-w-5xl mx-auto">
+<div class="flex gap-2 items-center bg-surface-container/30 p-1 rounded-full border border-outline-variant/30"><button class="bg-primary text-white px-4 py-1.5 rounded-full font-bold font-label-lg text-label-lg transition-all active:scale-95 shadow-sm border border-primary/10" id="btn-today" onclick="updateDateView('today')">Today</button><button class="bg-primary text-white px-4 py-1.5 rounded-full font-label-lg text-label-lg transition-all active:scale-95 shadow-sm border border-primary/10" id="btn-tomorrow" onclick="updateDateView('tomorrow')">Tomorrow</button><div class="w-px h-4 bg-outline-variant/50 mx-1"></div><button class="flex items-center gap-1.5 text-secondary hover:bg-secondary/5 px-3 py-1.5 rounded-full transition-all active:scale-95" id="date-picker-display" onclick="openCalendar()"><span class="material-symbols-outlined text-[18px] !text-black" data-icon="calendar_month">calendar_month</span><span class="font-label-lg text-label-lg font-bold !text-black">June 7, 2026</span></button></div>
+</div>
+</div>
+<!-- Content Grid -->
+<section class="max-w-5xl w-full mx-auto p-edge-margin space-y-xl">
+<!-- Court Group: Senior Judicial Magistrate Court -->
+<div class="space-y-md">
+<div class="flex items-center gap-sm">
+<div class="w-1.5 h-6 bg-secondary rounded-full"></div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Senior Judicial Magistrate Court, Cumilla</h3>
+<span class="bg-surface-container-highest px-sm py-0.5 rounded-lg text-on-surface-variant font-label-md text-label-md whitespace-nowrap">2 Cases</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Case Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:shadow-md transition-all group flex flex-col gap-md" style="transform: translateY(0px);">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-case-number text-case-number text-secondary mb-xs block">CR-1254/2023</span>
+<h4 class="font-title-md text-title-md text-on-surface leading-tight">Abdur Rahim vs State and others</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Section 323, 379, 506 of Penal Code</p>
+</div>
+<div class="px-sm py-0.5 rounded-lg font-label-md text-label-md flex items-center gap-xs bg-surface-container-high text-on-surface-variant">Accused</div>
+</div>
+<div class="flex items-center gap-md py-sm border-y border-outline-variant/30">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Step</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold"><span style="font-weight: 500; letter-spacing: 0.1px;" class="">Warrant issued</span></span>
+</div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Note</span>
+<span class="font-label-lg text-label-lg text-on-surface">Submit Process</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-sm relative">
+<div class="flex gap-sm relative">
+<button class="p-2 bg-surface-container-low text-secondary rounded-lg hover:bg-secondary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button><div class="hidden absolute bottom-full left-0 mb-2 w-48 bg-white rounded-xl shadow-xl border border-outline-variant/30 z-[120] animate-in zoom-in-95 duration-200 origin-bottom-left" id="call-popover"><div class="p-1"><button class="w-full flex items-center gap-md px-4 py-3 hover:bg-surface-container-low rounded-lg transition-colors text-left"><span class="material-symbols-outlined text-secondary">call</span><span class="font-title-md text-on-surface">Phone Call</span></button><button class="w-full flex items-center gap-md px-4 py-3 hover:bg-surface-container-low rounded-lg transition-colors text-left"><span class="material-symbols-outlined text-status-active">chat</span><span class="font-title-md text-on-surface">WhatsApp</span></button></div></div><script>document.querySelector('section > div:nth-child(1) .grid > div:nth-child(1) .flex.gap-sm > button:nth-child(1)').onclick = function(e) { e.stopPropagation(); const menu = document.getElementById('call-popover'); menu.classList.toggle('hidden'); }; document.addEventListener('click', function() { const menu = document.getElementById('call-popover'); if (menu) menu.classList.add('hidden'); });</script>
+<button class="p-2 bg-surface-container-low text-status-active rounded-lg hover:bg-status-active/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+</div>
+<button class="flex items-center gap-xs text-on-secondary bg-primary px-lg py-1.5 rounded-lg font-label-lg text-label-lg hover:opacity-90 transition-all active:scale-95" onclick="openUpdateModal()">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                                Update
+                            </button>
+</div>
+</div>
+<!-- Case Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:shadow-md transition-all group flex flex-col gap-md" style="transform: translateY(0px);">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-case-number text-case-number text-secondary mb-xs block">GR-882/2021</span>
+<h4 class="font-title-md text-title-md text-on-surface leading-tight">Mofizul Islam vs The State</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Section 302 of Penal Code</p>
+</div>
+<div class="bg-surface-container text-on-surface-variant px-sm py-0.5 rounded-lg font-label-md text-label-md flex items-center gap-xs">Accused</div>
+</div>
+<div class="flex items-center gap-md py-sm border-y border-outline-variant/30">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Step</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold"><span style="font-weight: 500;" class="">Summons</span></span>
+</div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Note</span>
+<span class="font-label-lg text-label-lg text-on-surface">Summon re-issued</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-sm">
+<div class="flex gap-sm">
+<button class="p-2 bg-surface-container-low text-secondary rounded-lg hover:bg-secondary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="p-2 bg-surface-container-low text-status-active rounded-lg hover:bg-status-active/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+</div>
+<button class="flex items-center gap-xs text-on-secondary bg-primary px-lg py-1.5 rounded-lg font-label-lg text-label-lg hover:opacity-90 transition-all active:scale-95" onclick="openUpdateModal()">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                                Update
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Court Group: District & Sessions Judge Court -->
+<div class="space-y-md">
+<div class="flex items-center gap-sm">
+<div class="w-1.5 h-6 bg-secondary rounded-full"></div>
+<h3 class="font-title-lg text-title-lg text-on-surface">District &amp; Sessions Judge Court, Dhaka</h3>
+<span class="bg-surface-container-highest px-sm py-0.5 rounded-lg text-on-surface-variant font-label-md text-label-md whitespace-nowrap">2 Cases</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Case Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:shadow-md transition-all group flex flex-col gap-md" style="transform: translateY(0px);">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-case-number text-case-number text-secondary mb-xs block">Civil Suit No. 54/2019</span>
+<h4 class="font-title-md text-title-md text-on-surface leading-tight">Begum Akhter vs Md. Jalal Uddin and Others&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Partition Suit - Declaration of Title</p>
+</div>
+<div class="bg-surface-container text-on-surface-variant px-sm py-0.5 rounded-lg font-label-md text-label-md flex items-center gap-xs">Plaintiff</div>
+</div>
+<div class="flex items-center gap-md py-sm border-y border-outline-variant/30">
+<div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface-variant">Step</span><span class="font-label-lg text-label-lg text-on-surface font-bold"><span style="font-weight: 500; letter-spacing: 0.1px;" class="">Summons</span></span></div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Note</span>
+<span class="font-label-lg text-label-lg text-on-surface">Submit Summons</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-sm">
+<div class="flex gap-sm">
+<button class="p-2 bg-surface-container-low text-secondary rounded-lg hover:bg-secondary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="p-2 bg-surface-container-low text-status-active rounded-lg hover:bg-status-active/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+</div>
+<button class="flex items-center gap-xs text-on-secondary bg-primary px-lg py-1.5 rounded-lg font-label-lg text-label-lg hover:opacity-90 transition-all active:scale-95" onclick="openUpdateModal()">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                                Update
+                            </button>
+</div>
+</div>
+<!-- Case Card 4 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md hover:shadow-md transition-all group flex flex-col gap-md" style="transform: translateY(0px);">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-case-number text-case-number text-secondary mb-xs block">Misc. Case 22/2024</span>
+<h4 class="font-title-md text-title-md text-on-surface leading-tight">Rahima Begum vs Govt of Bangladesh</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Application for Stay Order</p>
+</div>
+<div class="bg-surface-container text-on-surface-variant px-sm py-0.5 rounded-lg font-label-md text-label-md flex items-center gap-xs">Plaintiff&nbsp;</div>
+</div>
+<div class="flex items-center gap-md py-sm border-y border-outline-variant/30">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Step</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold"><span style="font-weight: 500; letter-spacing: 0.1px;" class="">Parties present</span></span>
+</div>
+<div class="w-px h-8 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Note</span>
+<span class="font-label-lg text-label-lg text-on-surface">Must present the party</span>
+</div>
+</div>
+<div class="flex items-center justify-between gap-sm">
+<div class="flex gap-sm">
+<button class="p-2 bg-surface-container-low text-secondary rounded-lg hover:bg-secondary/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="p-2 bg-surface-container-low text-status-active rounded-lg hover:bg-status-active/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+</div>
+<button class="flex items-center gap-xs text-on-secondary bg-primary px-lg py-1.5 rounded-lg font-label-lg text-label-lg hover:opacity-90 transition-all active:scale-95" onclick="openUpdateModal()">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                                Update
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<footer class="lg:hidden fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant shadow-lg rounded-t-xl h-[64px] px-2 flex justify-around items-center">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low px-4 transition-all opacity-60" href="#">
+<span class="material-symbols-outlined" data-icon="error">error</span>
+<span class="font-label-md text-label-md">Missed</span>
+</a>
+<a class="flex flex-col items-center justify-center !text-black font-bold hover:bg-surface-container-low px-4 transition-all" href="#"><span class="material-symbols-outlined" data-icon="calendar_today" style="font-variation-settings: &quot;FILL&quot; 1;">calendar_today</span><span class="font-label-md text-label-md">Cause List</span></a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low px-4 transition-all opacity-60" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="font-label-md text-label-md">Active</span>
+</a>
+</footer>
+<!-- Contextual FAB -->
+<button class="md:hidden fixed bottom-24 right-edge-margin bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-xl z-50 active:scale-90 transition-all" onclick="openNewCaseModal()">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+<!-- Calendar Picker Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center px-edge-margin" id="calendar-modal">
+<div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCalendar()"></div>
+<div class="relative bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+<div class="p-lg">
+<div class="flex items-center justify-between mb-lg">
+<button class="p-2 hover:bg-surface-container rounded-full"><span class="material-symbols-outlined">chevron_left</span></button>
+<div class="text-center">
+<h3 class="font-title-lg text-title-lg font-bold">June 2026</h3>
+<span class="inline-block mt-1 bg-secondary/5 text-secondary px-3 py-0.5 rounded-full text-xs font-bold border border-secondary/10 uppercase tracking-tighter">TOTAL CASE: 3</span>
+</div>
+<button class="p-2 hover:bg-surface-container rounded-full"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="grid grid-cols-7 gap-y-4 text-center mb-4">
+<div class="text-xs font-bold text-on-surface-variant uppercase">Sun</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Mon</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Tue</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Wed</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Thu</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Fri</div>
+<div class="text-xs font-bold text-on-surface-variant uppercase">Sat</div>
+<div></div>
+<div class="p-2 text-sm">1</div><div class="p-2 text-sm">2</div><div class="p-2 text-sm">3</div>
+<div class="relative p-2 text-sm">4<span class="absolute top-1 right-1 w-4 h-4 bg-surface-dim text-[10px] flex items-center justify-center rounded-full text-on-surface-variant border border-white">1</span></div>
+<div class="relative p-2 text-sm bg-secondary text-white rounded-xl shadow-lg ring-2 ring-secondary/20">5<span class="absolute -top-1 -right-1 w-5 h-5 bg-white text-secondary text-[10px] font-bold flex items-center justify-center rounded-full shadow-md">2</span></div>
+<div class="p-2 text-sm">6</div><div class="p-2 text-sm">7</div><div class="p-2 text-sm">8</div><div class="p-2 text-sm">9</div><div class="p-2 text-sm">10</div><div class="p-2 text-sm">11</div><div class="p-2 text-sm">12</div><div class="p-2 text-sm">13</div><div class="p-2 text-sm">14</div><div class="p-2 text-sm">15</div><div class="p-2 text-sm">16</div><div class="p-2 text-sm">17</div><div class="p-2 text-sm">18</div><div class="p-2 text-sm">19</div><div class="p-2 text-sm">20</div><div class="p-2 text-sm">21</div><div class="p-2 text-sm">22</div><div class="p-2 text-sm">23</div><div class="p-2 text-sm">24</div><div class="p-2 text-sm">25</div><div class="p-2 text-sm">26</div><div class="p-2 text-sm">27</div><div class="p-2 text-sm">28</div><div class="p-2 text-sm">29</div><div class="p-2 text-sm">30</div>
+</div>
+</div>
+<div class="p-md bg-surface-container-low flex justify-center">
+<button class="w-full max-w-[200px] py-3 bg-white border border-outline-variant text-on-surface-variant font-bold rounded-xl hover:bg-surface-container-high transition-all active:scale-95" onclick="closeCalendar()">Close</button>
+</div>
+</div>
+</div>
+<!-- Add New Case Modal Form -->
+<div class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center" id="new-case-modal">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeNewCaseModal()"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-lg h-full sm:h-auto sm:max-h-[85vh] rounded-none sm:rounded-xl overflow-hidden shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 max-h-full">
+<!-- Modal Header -->
+<div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10"><div class="w-10"></div><h2 class="font-headline-md text-title-lg flex-1 text-center">Add New Case</h2><button class="p-2 hover:bg-white/10 rounded-full transition-colors" onclick="closeNewCaseModal()"><span class="material-symbols-outlined">close</span></button></div>
+<!-- Form Content -->
+<div class="flex-1 overflow-y-auto p-lg space-y-md custom-scrollbar" style="scrollbar-color: #45464d #eceef0; scrollbar-width: thin;">
+<!-- Court Hierarchy -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Higher or Lower Court</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 focus:ring-2 focus:ring-secondary/20 outline-none transition-all">
+<option>Appellate Division</option>
+<option>High Court Division</option>
+<option selected="">Lower Divisional Courts</option>
+</select>
+</div>
+<!-- Category -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Category</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none">
+<option>জেলা জজ আদালত (দেওয়ানী)</option>
+<option>দায়রা জজ আদালত (ফৌজদারী)</option>
+</select>
+</div>
+<!-- Court -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Court</label>
+<div class="relative group"><button class="w-full flex items-center justify-between bg-surface-container-low border border-outline-variant rounded-none px-md py-2.5 outline-none transition-all hover:bg-surface-container-high" onclick="openCustomDropdown('court-dropdown')" type="button">
+<span class="text-on-surface" id="court-selected-value">Joint District Judge 1st Court, Sylhet</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</button></div>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<!-- Case Type -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Case Type</label>
+<div class="relative group"><button class="w-full flex items-center justify-between bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none transition-all hover:bg-surface-container-high" onclick="openCustomDropdown('case-type-dropdown')" type="button"><span class="text-on-surface" id="case-type-selected-value">CR</span><span class="material-symbols-outlined text-on-surface-variant">expand_more</span></button></div>
+</div>
+<!-- Case No -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Case No</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none focus:border-secondary" placeholder="1234/2024" type="text">
+</div>
+</div>
+<!-- Petitioner -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Petitioner</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none" oninput="const searchTerm = this.value.toLowerCase(); const items = this.closest('.relative').nextElementSibling.querySelectorAll('button'); let hasMatch = false; items.forEach(item =&gt; { const text = item.textContent.toLowerCase(); const matches = text.includes(searchTerm); item.style.display = matches ? 'block' : 'none'; if (matches) hasMatch = true; }); let noResult = this.closest('.relative').nextElementSibling.querySelector('.no-results-msg'); if (!hasMatch) { if (!noResult) { const msg = document.createElement('div'); msg.className = 'no-results-msg p-lg text-center text-on-surface-variant font-body-md'; msg.textContent = 'No results found'; this.closest('.relative').nextElementSibling.appendChild(msg); } } else if (noResult) { noResult.remove(); }" type="text">
+</div>
+<!-- Respondent -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Respondent</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none" oninput="const searchTerm = this.value.toLowerCase(); const items = this.closest('.relative').nextElementSibling.querySelectorAll('button'); let hasMatch = false; items.forEach(item =&gt; { const text = item.textContent.toLowerCase(); const matches = text.includes(searchTerm); item.style.display = matches ? 'block' : 'none'; if (matches) hasMatch = true; }); let noResult = this.closest('.relative').nextElementSibling.querySelector('.no-results-msg'); if (!hasMatch) { if (!noResult) { const msg = document.createElement('div'); msg.className = 'no-results-msg p-lg text-center text-on-surface-variant font-body-md'; msg.textContent = 'No results found'; this.closest('.relative').nextElementSibling.appendChild(msg); } } else if (noResult) { noResult.remove(); }" type="text">
+</div>
+<!-- On Behalf & Mobile -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">On Behalf of</label>
+<div class="relative group"><button class="w-full flex items-center justify-between bg-surface-container-low border border-outline-variant rounded-none px-md py-2.5 outline-none transition-all hover:bg-surface-container-high" onclick="openCustomDropdown('on-behalf-dropdown')" type="button"><span class="text-on-surface" id="on-behalf-selected-value">Third Party</span><span class="material-symbols-outlined text-on-surface-variant">expand_more</span></button></div>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Mobile No</label>
+<div class="flex items-center bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-secondary/20 transition-all"><span class="px-3 py-2.5 text-on-surface-variant bg-surface-container-high border-r border-outline-variant font-label-lg">+880</span><input class="flex-1 bg-transparent border-none px-md py-2.5 outline-none focus:ring-0 text-on-surface" inputmode="numeric" maxlength="10" pattern="[0-9]*" placeholder="1XXXXXXXXX" type="number"></div>
+</div>
+</div>
+<!-- Remark -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Case Title &amp; Remarks</label>
+<div class="w-full bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden flex flex-col"><textarea class="w-full bg-transparent px-md py-2.5 outline-none resize-none font-body-md text-on-surface" placeholder="Sections or Case Title" rows="2"></textarea><div class="border-t border-outline-variant"></div><textarea class="w-full bg-transparent px-md py-2.5 outline-none resize-none font-body-md text-on-surface" placeholder="Result..." rows="2"></textarea></div>
+</div>
+<!-- Next Date with Notification -->
+<div class="space-y-1.5">
+<label class="font-label-lg text-label-lg flex justify-between items-center font-label-md text-on-surface">
+                    Next Date <span class="text-error text-xs">*</span>
+</label>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none" type="date">
+</div>
+<button class="bg-surface-container-high p-2.5 rounded-lg text-on-surface-variant border border-outline-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+<!-- Step -->
+<div class="space-y-1.5">
+  <label class="font-label-md text-label-md text-on-surface uppercase tracking-wider">Day Offset</label>
+  <div class="relative">
+    <div class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-md py-2.5 flex items-center justify-between cursor-pointer hover:bg-surface-container-high transition-all">
+      <span class="text-on-surface">The day before</span>
+      <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+    </div>
+  </div>
+</div><div class="space-y-1.5">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Step</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none pr-10 cursor-pointer" placeholder="Select steps..." readonly="" type="text">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+<!-- Note/Result -->
+<div class="space-y-1.5 pb-4">
+<label class="font-label-lg text-label-lg font-label-md text-on-surface">Note/Result</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-2.5 outline-none resize-none" rows="3"></textarea>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="p-md bg-surface-container-lowest border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold font-title-md shadow-lg active:scale-[0.98] transition-all" onclick="closeNewCaseModal()">
+                Save Case
+            </button>
+</div>
+</div>
+</div>
+<script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('mobile-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            const mainContent = document.getElementById('main-content');
+            
+            if (window.innerWidth >= 1024) {
+                // Desktop toggle logic: switch between rail and expanded
+                if (drawer.classList.contains('desktop-rail')) {
+                    drawer.classList.remove('desktop-rail');
+                    drawer.classList.add('desktop-expanded');
+                    mainContent.style.marginLeft = '280px';
+                } else {
+                    drawer.classList.add('desktop-rail');
+                    drawer.classList.remove('desktop-expanded');
+                    mainContent.style.marginLeft = '80px';
+                }
+            } else {
+                // Mobile/Tablet toggle logic: slide over
+                const isOpen = drawer.classList.contains('open-mobile');
+                if (isOpen) {
+                    drawer.classList.remove('open-mobile');
+                    drawer.classList.add('closed-mobile');
+                    overlay.classList.remove('open');
+                    document.body.style.overflow = '';
+                } else {
+                    drawer.classList.add('open-mobile');
+                    drawer.classList.remove('closed-mobile');
+                    overlay.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+        }
+
+        function openCalendar() {
+            document.getElementById('calendar-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendar-modal').classList.remove('open');
+            if(!document.getElementById('new-case-modal').classList.contains('open')) {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function openNewCaseModal() {
+            document.getElementById('new-case-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNewCaseModal() {
+            document.getElementById('new-case-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Initialize view based on screen size
+        function initView() {
+            const drawer = document.getElementById('mobile-drawer');
+            const mainContent = document.getElementById('main-content');
+            if (window.innerWidth >= 1024) {
+                drawer.classList.remove('closed-mobile', 'open-mobile');
+                drawer.classList.add('desktop-rail');
+                mainContent.style.marginLeft = '80px';
+            } else {
+                drawer.classList.add('closed-mobile');
+                drawer.classList.remove('desktop-rail', 'desktop-expanded');
+                mainContent.style.marginLeft = '0';
+            }
+        }
+
+        window.addEventListener('resize', initView);
+        document.addEventListener('DOMContentLoaded', initView);
+
+        // Micro-interactions for case cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (window.innerWidth > 1024) card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                if (window.innerWidth > 1024) card.style.transform = 'translateY(0px)';
+            });
+        });
+    </script>
+<script>function updateDateView(type) { const today = new Date(); const targetDate = new Date(); if (type === 'tomorrow') { targetDate.setDate(today.getDate() + 1); } const options = { month: 'long', day: 'numeric', year: 'numeric' }; const formattedDate = targetDate.toLocaleDateString('en-US', options); const btnToday = document.getElementById('btn-today'); const btnTomorrow = document.getElementById('btn-tomorrow'); const dateDisplay = document.querySelector('#date-picker-display span.font-label-lg'); dateDisplay.textContent = formattedDate; if (type === 'today') { btnToday.className = 'bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full font-bold font-label-lg text-label-lg transition-all active:scale-95 shadow-sm border border-primary/10'; btnTomorrow.className = 'hover:bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full font-label-lg text-label-lg transition-all'; } else { btnTomorrow.className = 'bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full font-bold font-label-lg text-label-lg transition-all active:scale-95 shadow-sm border border-primary/10'; btnToday.className = 'hover:bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full font-label-lg text-label-lg transition-all'; } }</script>
+<!-- Custom Dropdown Modal -->
+<div class="fixed inset-0 z-[120] hidden" id="court-dropdown">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCustomDropdown('court-dropdown')"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-lg mx-auto sm:h-auto sm:max-h-[85vh] sm:mt-[7.5vh] rounded-none shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 h-auto">
+<!-- Modal Header -->
+<div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10">
+<div class="w-10"></div>
+<h2 class="font-headline-md text-title-lg flex-1 text-center">Court</h2>
+<button class="p-2 hover:bg-white/10 rounded-none transition-colors" onclick="closeCustomDropdown('court-dropdown')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="p-md border-b border-outline-variant">
+<div class="relative flex items-center bg-surface-container-low border border-outline-variant rounded-none px-md py-2">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface search-input" oninput="const searchTerm = this.value.toLowerCase(); const items = this.closest('.relative.bg-surface-container-lowest').querySelectorAll('.flex-1.overflow-y-auto button'); items.forEach(item =&gt; { const text = item.textContent.toLowerCase(); item.style.display = text.includes(searchTerm) ? 'block' : 'none'; });" placeholder="Search" type="text">
+</div>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto custom-scrollbar" style="max-height: 300px; scrollbar-width: thin; scrollbar-color: rgb(198, 198, 205) transparent;">
+<div class="flex flex-col">
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface list-item" onclick="selectDropdownItem('court-dropdown', 'District and Sessions Judge Court, Dhaka')" style="display: block;">District and Sessions Judge Court, Dhaka</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface list-item" onclick="selectDropdownItem('court-dropdown', 'Chief Metropolitan Magistrate Court, Chattogram')" style="display: block;">Chief Metropolitan Magistrate Court, Chattogram</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface list-item" onclick="selectDropdownItem('court-dropdown', 'Senior Judicial Magistrate Court, Cumilla')" style="display: block;">Senior Judicial Magistrate Court, Cumilla</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface list-item" onclick="selectDropdownItem('court-dropdown', 'Joint District Judge 1st Court, Sylhet')" style="display: block;">Joint District Judge 1st Court, Sylhet</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface list-item" onclick="selectDropdownItem('court-dropdown', 'Assistant Judge Court, Rajshahi')" style="display: block;">Assistant Judge Court, Rajshahi</button>
+</div>
+</div>
+<!-- Footer -->
+<div class="p-md bg-surface-container-lowest border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-3.5 rounded-none font-bold font-title-md shadow-lg active:scale-[0.98] transition-all" onclick="closeCustomDropdown('court-dropdown')">Close</button>
+</div>
+</div>
+</div>
+<script>
+function openCustomDropdown(id) {
+    document.getElementById(id).classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCustomDropdown(id) {
+    document.getElementById(id).classList.add('hidden');
+    if(!document.getElementById('new-case-modal').classList.contains('open')) {
+        document.body.style.overflow = '';
+    }
+}
+
+function selectDropdownItem(modalId, value) {
+    const displayId = modalId.replace('-dropdown', '-selected-value');
+    const displayElement = document.getElementById(displayId);
+    if(displayElement) {
+        displayElement.textContent = value;
+        displayElement.classList.remove('text-on-surface-variant');
+        displayElement.classList.add('text-on-surface');
+    }
+    closeCustomDropdown(modalId);
+}
+</script>
+<div class="fixed inset-0 z-[120] hidden" id="case-type-dropdown"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCustomDropdown('case-type-dropdown')"></div><div class="relative bg-surface-container-lowest w-full max-w-lg mx-auto sm:h-auto sm:max-h-[85vh] sm:mt-[7.5vh] rounded-none shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 h-auto"><div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10"><div class="w-10"></div><h2 class="font-headline-md text-title-lg flex-1 text-center">Case Type</h2><button class="p-2 hover:bg-white/10 rounded-none transition-colors" onclick="closeCustomDropdown('case-type-dropdown')"><span class="material-symbols-outlined">close</span></button></div><div class="p-md border-b border-outline-variant"><div class="relative flex items-center bg-surface-container-low border border-outline-variant rounded-none px-md py-2"><span class="material-symbols-outlined text-on-surface-variant mr-2">search</span><input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface" placeholder="Search" type="text"></div></div><div class="flex-1 overflow-y-auto custom-scrollbar" style="max-height: 300px; scrollbar-width: thin; scrollbar-color: rgb(198, 198, 205) transparent;"><div class="flex flex-col"><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('case-type-dropdown', 'CR')">CR</button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('case-type-dropdown', 'GR')">GR</button></div></div><div class="p-md bg-surface-container-lowest border-t border-outline-variant"><button class="w-full bg-primary text-on-primary py-3.5 rounded-none font-bold font-title-md shadow-lg active:scale-[0.98] transition-all" onclick="closeCustomDropdown('case-type-dropdown')">Close</button></div></div></div><div class="fixed inset-0 z-[120] hidden" id="on-behalf-dropdown"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCustomDropdown('on-behalf-dropdown')"></div><div class="relative bg-surface-container-lowest w-full max-w-lg mx-auto sm:h-auto sm:max-h-[85vh] sm:mt-[7.5vh] rounded-none shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 h-auto"><div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10"><div class="w-10"></div><h2 class="font-headline-md text-title-lg flex-1 text-center">On Behalf</h2><button class="p-2 hover:bg-white/10 rounded-none transition-colors" onclick="closeCustomDropdown('on-behalf-dropdown')"><span class="material-symbols-outlined">close</span></button></div><div class="p-md border-b border-outline-variant"><div class="relative flex items-center bg-surface-container-low border border-outline-variant rounded-none px-md py-2"><span class="material-symbols-outlined text-on-surface-variant mr-2">search</span><input class="bg-transparent border-none w-full outline-none focus:ring-0 text-on-surface" placeholder="Search" type="text"></div></div><div class="flex-1 overflow-y-auto custom-scrollbar" style="max-height: 300px; scrollbar-width: thin; scrollbar-color: rgb(198, 198, 205) transparent;"><div class="flex flex-col"><button class="px-lg py-4 text-left hover:bg-secondary/5 border-b border-outline-variant/30 transition-colors text-secondary font-bold flex items-center justify-between" onclick="selectDropdownItem('on-behalf-dropdown', 'Petitioner')"><span class="">Petitioner</span><span class="material-symbols-outlined text-[20px]">check</span></button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('on-behalf-dropdown', 'Respondent')">Respondent</button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('on-behalf-dropdown', 'Accused')">Accused</button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('on-behalf-dropdown', 'Third Party')">Third Party</button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('on-behalf-dropdown', 'Intervenor')">Intervenor</button><button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface" onclick="selectDropdownItem('on-behalf-dropdown', 'Amicus Curiae')">Amicus Curiae</button></div></div><div class="p-md bg-surface-container-lowest border-t border-outline-variant"><button class="w-full bg-primary text-on-primary py-3.5 rounded-none font-bold font-title-md shadow-lg active:scale-[0.98] transition-all" onclick="closeCustomDropdown('on-behalf-dropdown')">Close</button></div></div></div><script class="">
+(function() {
+  const searchInput = document.querySelector('#court-dropdown .search-input');
+  const listItems = document.querySelectorAll('#court-dropdown .list-item');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      listItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(query)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  }
+})();
+</script>
+<!-- Update Case Modal -->
+<div class="fixed inset-0 z-[130] items-center justify-center px-edge-margin hidden" id="update-case-modal">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUpdateModal()"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-lg rounded-xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
+<!-- Modal Header -->
+<div class="bg-primary text-on-primary px-lg py-md flex items-center justify-between">
+<div class="w-10"></div>
+<h2 class="font-headline-md text-title-lg flex-1 text-center">Update</h2>
+<button class="p-2 hover:bg-white/10 rounded-full transition-colors" onclick="closeUpdateModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Form Content -->
+<div class="p-lg space-y-md overflow-y-auto max-h-[70vh] custom-scrollbar"><div class="bg-secondary/5 rounded-xl p-md text-center space-y-1">
+  <h3 class="font-headline-md text-primary">দেঃ- ৩২/১২</h3>
+  <p class="font-body-md text-on-surface-variant">Current Date: <span class="text-secondary font-bold">10/03/2026</span></p>
+</div>
+
+<div class="grid grid-cols-2 gap-md">
+  <div class="space-y-2">
+    <label class="font-label-md text-on-tertiary-container uppercase tracking-wider">Notification</label>
+    <button class="w-full flex items-center justify-center gap-2 bg-surface-container-low border border-outline-variant/30 py-3 rounded-xl text-on-surface-variant font-bold">
+      <span class="uppercase">Off</span>
+      <span class="material-symbols-outlined text-[20px]">notifications_off</span>
+    </button>
+  </div>
+  <div class="space-y-2">
+    <label class="font-label-md text-on-tertiary-container uppercase tracking-wider">Next Date</label>
+    <div class="relative">
+      <input type="text" value="19/03/2026" readonly="" class="w-full bg-surface-container-low border border-outline-variant/30 py-3 px-md rounded-xl text-on-surface font-bold text-center outline-none">
+      
+    </div>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <label class="font-label-md text-on-tertiary-container uppercase tracking-wider">Notification Day Offset</label>
+  <div class="relative">
+    <select class="w-full bg-white border border-outline-variant/30 py-3 px-md rounded-xl text-on-surface outline-none appearance-none">
+      <option>The same day</option>
+      <option selected="">The day before</option>
+      <option>Before 2 days</option>
+    </select>
+    
+  </div>
+</div>
+
+<div class="space-y-2">
+  <label class="font-label-md text-on-tertiary-container uppercase tracking-wider">Step</label>
+  <div class="relative">
+    <div class="w-full bg-white border border-outline-variant/30 py-3 px-md rounded-xl text-on-surface flex justify-between items-center cursor-pointer">
+      <span class="">আগমন</span>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </div>
+  </div>
+</div>
+
+<div class="space-y-2">
+  <label class="font-label-md text-on-tertiary-container uppercase tracking-wider">Note/Result</label>
+  <textarea class="w-full bg-white border border-outline-variant/30 py-3 px-md rounded-xl text-on-surface outline-none resize-none" rows="3">টেস্ট</textarea>
+</div></div>
+<!-- Footer Action -->
+<div class="p-md border-t border-outline-variant"><button class="w-full bg-black text-white py-4 rounded-xl font-bold font-title-md shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="closeUpdateModal()">
+  <span class="material-symbols-outlined">calendar_today</span>
+  Update
+</button></div>
+</div>
+</div><script>
+function openUpdateModal() {
+    const modal = document.getElementById('update-case-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeUpdateModal() {
+    const modal = document.getElementById('update-case-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+</script>
+
+
+
+
+
+</body></html>

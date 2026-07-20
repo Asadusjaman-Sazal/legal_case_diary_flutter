@@ -1,0 +1,198 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>More About the App - Justice Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#316bf3",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-secondary-container": "#fefcff",
+                        "status-active": "#059669",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#000000",
+                        "primary-container": "#131b2e",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "background": "#f7f9fb",
+                        "tertiary-container": "#0b1c30",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-surface-variant": "#45464d",
+                        "surface-bright": "#f7f9fb",
+                        "court-notice": "#DC2626",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-tint": "#565e74",
+                        "secondary": "#0051d5",
+                        "ink-dark": "#020617",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-variant": "#F1F5F9",
+                        "surface-container": "#eceef0",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "on-tertiary-container": "#75859d",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "inverse-primary": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-secondary-fixed": "#00174b",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "outline-variant": "#c6c6cd",
+                        "surface": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "on-background": "#191c1e",
+                        "inverse-on-surface": "#eff1f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "12px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "edge-margin": "16px",
+                        "sm": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Inter"],
+                        "label-lg": ["IBM Plex Sans"],
+                        "headline-lg": ["Manrope"],
+                        "title-lg": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "case-number": ["IBM Plex Sans"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["IBM Plex Sans"]
+                    },
+                    "fontSize": {
+                        "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopAppBar (SubPageHeader Pattern) -->
+<header class="bg-surface sticky top-0 w-full z-40 border-b border-outline-variant flat no shadows">
+<div class="flex items-center px-edge-margin h-16 w-full max-w-screen-xl mx-auto">
+<button aria-label="Go back" class="text-primary p-2 -ml-2 rounded-full hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-70 focus:outline-none focus:ring-2 focus:ring-secondary">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-ink-dark ml-2">More About the App</h1>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col w-full max-w-screen-xl mx-auto p-edge-margin space-y-lg pb-xl">
+<!-- App Version Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-row items-center justify-between">
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-ink-dark">Legal Case Diary</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Version 2.4.0</span>
+</div>
+<button aria-label="Check for updates" class="px-4 py-2 border border-secondary text-secondary font-label-lg text-label-lg rounded hover:bg-secondary/5 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1">
+                Check for updates
+            </button>
+</section>
+<!-- App Description Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.
+            </p>
+</section>
+<!-- Feature List Section -->
+<section class="flex flex-col space-y-sm">
+<h2 class="font-label-lg text-label-lg text-on-surface-variant px-sm uppercase tracking-wider">Key Features</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col">
+<!-- Feature 1 -->
+<div class="flex items-center p-md border-b border-outline-variant last:border-0 hover:bg-surface-container-high transition-colors">
+<div class="bg-surface-container w-10 h-10 rounded-full flex items-center justify-center mr-md text-ink-dark">
+<span class="material-symbols-outlined text-[20px]" data-icon="calendar_month">calendar_month</span>
+</div>
+<span class="font-title-md text-title-md text-ink-dark flex-grow">Daily Cause List</span>
+</div>
+<!-- Feature 2 -->
+<div class="flex items-center p-md border-b border-outline-variant last:border-0 hover:bg-surface-container-high transition-colors">
+<div class="bg-surface-container w-10 h-10 rounded-full flex items-center justify-center mr-md text-ink-dark">
+<span class="material-symbols-outlined text-[20px]" data-icon="cloud_download">cloud_download</span>
+</div>
+<span class="font-title-md text-title-md text-ink-dark flex-grow">Offline Backup</span>
+</div>
+<!-- Feature 3 -->
+<div class="flex items-center p-md border-b border-outline-variant last:border-0 hover:bg-surface-container-high transition-colors">
+<div class="bg-surface-container w-10 h-10 rounded-full flex items-center justify-center mr-md text-ink-dark">
+<span class="material-symbols-outlined text-[20px]" data-icon="menu_book">menu_book</span>
+</div>
+<span class="font-title-md text-title-md text-ink-dark flex-grow">Case References</span>
+</div>
+<!-- Feature 4 -->
+<div class="flex items-center p-md border-b border-outline-variant last:border-0 hover:bg-surface-container-high transition-colors">
+<div class="bg-surface-container w-10 h-10 rounded-full flex items-center justify-center mr-md text-ink-dark">
+<span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+</div>
+<span class="font-title-md text-title-md text-ink-dark flex-grow">Secure Sync</span>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="flex flex-col space-y-md mt-lg">
+<button class="w-full bg-ink-dark text-on-primary font-label-lg text-label-lg py-3 px-4 rounded flex items-center justify-center hover:bg-ink-dark/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ink-dark focus:ring-offset-2">
+<span class="material-symbols-outlined mr-2 text-[20px]" data-icon="star">star</span>
+                Rate App
+            </button>
+<button class="w-full bg-surface-container-lowest text-ink-dark border border-outline-variant font-label-lg text-label-lg py-3 px-4 rounded flex items-center justify-center hover:bg-surface-container-high transition-colors focus:outline-none focus:ring-2 focus:ring-ink-dark focus:ring-offset-2">
+<span class="material-symbols-outlined mr-2 text-[20px]" data-icon="share">share</span>
+                Share App
+            </button>
+</section>
+<!-- Developer Info Footer -->
+<footer class="mt-auto pt-xl pb-sm text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Designed &amp; Developed by <br> <span class="font-medium text-ink-dark">Adv. Asadusjaman Sazal</span>
+</p>
+</footer>
+</main>
+
+
+</body></html>

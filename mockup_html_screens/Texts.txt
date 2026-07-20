@@ -1,0 +1,216 @@
+5. Case Detail Screen
+UI Design: Must use legal_case_diary_flutter\mockup_html_screens\caseDetails\code.html file to design the UI.
+UI Logic: The screen is displayed when the user clicks/touches on a case card/row over all case related pages.
+Source of Truth: shows data from various data tables.
+Description:
+
+Line 1: case_type and case_no in big font.
+Line 2: A location icon and the name of the court.
+Line 3: Delete (red) button to delete the case, Edit Case button to edit the case info and Close button to close the detail view.
+Line 4: In a kan ban style board/card the followings are shown:
+- On Behalf Of:
+- Petitioner (Title)
+- Name of the Petitioner, Lead Councel: (of Petitioner)
+- Phone Number with Phone & Message button (if inserted)
+- Respondant (Title)
+- Name of the Respondant, Lead Councel: (of Respondant)
+- Phone Number with Phone & Message button (if inserted)
+Line 5: Another kan ban board/card showing:
+- Case Title & Remark (Title)
+- Two text boxes for Sections or Case Title and Remarks or Case Summary
+Line 6: Another kan ban board/card showing:
+- "Case History" with a time logo and a status showing total history entry titled "x Entries Total"
+- List of previous next_date, last_step and note_result. Where Next Dates are shown in the left, Steps are shown in the right and right under Steps, Note is shown.
+* Case History Logic:
+- Every time the user enters a new next_date in the app, along with or without last_step, note_result (Next Date), previous next_date, last_step, note_result are saved in case_history table.
+- Case history entries are shown in the Case Detail screen ordered chronologically by next_date decending, so the latest entries sits at the top.
+- When the user long-press an history item, show 2 options: Edit, Delete. If the user selects Edit button, show a form to change Next Date, Step, Note entries. If the user selects Delete, show the user a confirmation window before deleting the entry.
+
+
+6. Disposed Cases Screen
+UI Design: Must use legal_case_diary_flutter\mockup_html_screens\disposedCases\code.html file to design the UI of the screen's body. For the App header and bottom nav bar, use the reusable cases_screen_modal.dart modal.
+Source of Truth: Sorted out subset of cases from the "All Cases" dataset.
+Step Filter: Shows only cases with steps defined as disposed in pre_seeded_data.dart.
+Sorting: Case cards are arranged by sorting the "Next Date" (next_date) field, listing the newest entry at the top (ordered chronologically by next_date decending, so the latest disposed case sits at the top).
+Case Card UI Layout: Case Card UI Layout must match exactly like the mockup html file's case card (legal_case_diary_flutter\mockup_html_screens\disposedCases\code.html)
+Line 1: last_step | Top-Right: "Disposed:", 
+Line 2: Left: Case Type & Case No, Right: Right below "Disposed:", next_date (the last date on which the case disposed)
+Line 3: Petitioner vs Respondent
+Line 4: Note, in a beautifully designed box just like the mock html.
+Line 5: Case History, showing last two case history entry from the Case History table.
+
+
+7. Active Cases Screen
+Active Cases Screen shows the exactly the same screen with the same logic as the All Cases Screen, except-
+* it doesn't show the Active Cases, Disposed Cases count, filter option by Court Name or Chronology.
+* it only shows cases with steps not defined as Disposed in pre_seeded_data.dart file.
+
+
+8. Settings (main page and sub-menu pages)
+UI Design of Main Settings Page: The UI of main settings page must be designed exactly like the legal_case_diary_flutter\mockup_html_screens\settings_main\code.html mockup file. Only add Guideline sub-menu before About.
+UI Design of Sub Menu Pages: The UI of sub menu's body must be made exactly like the reference html mockup files mentioned below. For App header with back button we will use settings_sub_page_modal.dart file-
+- Profile menu screen = legal_case_diary_flutter\mockup_html_screens\settings_profile\code.html
+
+- Manage Account menu screen = legal_case_diary_flutter\mockup_html_screens\settings_manageProfileAccount\code.html
+
+- Online Sync menu screen = legal_case_diary_flutter\mockup_html_screens\settings_onlineSync\code.html
+
+- BackupRestoreScreen menu screen = legal_case_diary_flutter\mockup_html_screens\settings_backupRestore\code.html 
+
+- EditCourtStepsMenuScreen = legal_case_diary_flutter\mockup_html_screens\settings_editCourtSteps\code.html
+
+- Edit Court Names & Categories = legal_case_diary_flutter\mockup_html_screens\settings_editCourtSteps_editCourtNamesCategory\code.html
+
+- Divisions = legal_case_diary_flutter\mockup_html_screens\courtCategory_lowerCourts-Division\code.html
+
+- Districts = legal_case_diary_flutter\mockup_html_screens\courtCategory_lowerCourts-Districts\code.html
+
+- List of Court Names = legal_case_diary_flutter\mockup_html_screens\courtCategory_lowerCourts-Districts_listOfCourts\code.html
+
+- Edit Case Types, Steps etc = legal_case_diary_flutter\mockup_html_screens\settings_courtNamesSteps\code.html. Except, remove Court Names button, as the court names are added/edited in another section of the settings.
+
+- Notifications = legal_case_diary_flutter\mockup_html_screens\settings_notifications\code.html
+
+- Guidelines = legal_case_diary_flutter\mockup_html_screens\guidelines\code.html
+
+- About = legal_case_diary_flutter\mockup_html_screens\settings_about\code.html
+
+Settings Page Description:
+("General" section)
+- Account & Profile > a sub menu showing 2 buttons:
+	|--> Profile > Profile menu screen.
+	|--> Manage Account > Manage Account menu screen.
+- Online Sync > Online Sync menu screen.
+- Backup & Restore > BackupRestoreScreen
+
+("Preferences" section)
+- Edit Court/Steps
+	|--> EditCourtStepsMenuScreen
+		|-->  Edit Court Names & Categories
+		|	|--> Supreme Court of Bangladesh
+		|	|	|--> Appellate Division > List of Court Names with drag & drop, FAB add, edit, delete buttons. 
+		|	|	|--> High Court Division > List of Court Names with drag & drop, FAB add, edit, delete buttons.
+		|	|
+		|	|--> Lower Courts
+		|		|--> Divisions > List of 8 divisions of BD, e.g., Dhaka, Chittagong, Rajshahi, etc
+		|			|--> Dhaka > List of all Districts of that division, e.g.,-
+		|			|	|--> Dhaka > List of Court Categories like followings
+		|			|	|	|--> District Sessions Courts (Criminal) > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|	|--> District Courts (Civil) > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|	|--> Chief Judicial Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|	|--> Chief Metropolitan Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|	|--> Executive Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|	|--> Tribunals. > List of Court Names with drag & drop, edit, delete buttons
+		|			|	|--> Narayanganj > List of Court Categories like followings
+		|			|		|--> District Sessions Courts (Criminal) > List of Court Names with drag & drop, edit, delete buttons
+		|			|		|--> District Courts (Civil) > List of Court Names with drag & drop, edit, delete buttons
+		|			|		|--> Chief Judicial Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|			|		|--> Executive Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|			|		|--> Tribunals. > List of Court Names with drag & drop, edit, delete buttons
+		|			|--> Chittagong> List of all Districts of that division, e.g.,-
+		|				|--> Cumilla > List of Court Categories like followings
+		|				|	|--> District Sessions Courts (Criminal) > List of Court Names with drag & drop, edit, delete buttons
+		|				|	|--> District Courts (Civil) > List of Court Names with drag & drop, edit, delete buttons
+		|				|	|--> Chief Judicial Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|				|	|--> Chief Metropolitan Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|				|	|--> Executive Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|				|	|--> Tribunals. > List of Court Names with drag & drop, edit, delete buttons
+		|				|
+		|				|--> Feni > List of Court Categories like followings
+		|					|--> District Sessions Courts (Criminal) > List of Court Names with drag & drop, edit, delete buttons
+		|					|--> District Courts (Civil) > List of Court Names with drag & drop, edit, delete buttons
+		|					|--> Chief Judicial Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|					|--> Chief Metropolitan Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|					|--> Executive Magistrate Courts > List of Court Names with drag & drop, edit, delete buttons
+		|					|--> Tribunals. > List of Court Names with drag & drop, edit, delete buttons
+		|
+		|
+		|
+		|--> Edit Case Types, Steps etc > A sub menu page, where all court categories are shown with a kan ban card. Under each category name Case Types, Steps, On Behalf buttons are listed. When the user clicks on any of the buttons, the user is shown a list of Case Types, Steps, On Behalf items with drag & drop, FAB add, edit, delete buttons.
+
+- Notifications
+- Language
+- View Settings
+
+("App Info" section)
+- Guidelines
+- About
+
+Notes:
+* List of Divisions, Districts, Court Categories under all districts, list of court names under all categories in a district, Court Names for Appellate Division, High Court Division are to be pre-seeded in pre_seeded_data.dart file. Though the users can add items later through this sub menu page.
+* List of Court Categories under a district and Court Names are to be presented with with drag & drop, FAB add, edit, delete buttons like legal_case_diary_flutter\mockup_html_screens\courtCategory_lowerCourts-Districts_listOfCourts\code.html mockup file for user convenience.
+
+
+
+
+
+
+
+
+
+
+
+
+9. Notes Screen
+UI Design of Screen and Form: Must use legal_case_diary_flutter\mockup_html_screens\notes\code.html file to design the UI of the screen and form. Just add a search button to the right of the app header to search through notes title, texts.
+Sorting: Note cards are arranged by sorting the created_at field, listing the newest entry at the top (ordered chronologically by created_at decending, so the latest notes sits at the top).
+Notes Card UI Layout: Notes Card UI Layout must match exactly like the mockup html file's case card (legal_case_diary_flutter\mockup_html_screens\notes\code.html)
+Part 1: Modified: (date, time in DD/MM/YY, HH:MM AM/PM format), to the right a delete and pin button. For deletion show a confirmation window.
+Part 2: Show the title of the note in bold and a slightly bigger text.
+Part 3: Note body texts.
+Note: Keep the hovering/selection effects intact from the mockup html file. 
+
+
+10. Case Reference Screen
+UI Design of Screen and Form:
+- App header: The same nav. panel button from the cases screen on the left, right next to it the Case Reference title, a search button to the very right of the app header.
+- Form: The Add Case Reference form must have the Reference & Page No, Statute, Section/Article, Title & Description, Comments/Notes text fields.
+- Must use legal_case_diary_flutter\mockup_html_screens\caseReference\code.html file to design the UI of the screen and form.
+Sorting: Case reference cards are arranged by sorting the created_at field, listing the newest entry at the top (ordered chronologically by created_at decending, so the latest notes sits at the top).
+Case Reference Card UI Layout: Card UI Layout must match exactly like the mockup html file's case card (legal_case_diary_flutter\mockup_html_screens\caseReference\code.html)
+Line 1: Reference & Page No. and Statute with a 3-dot button to the right. Upon clicking the 3-dot button, show 2 options: Pin, Delete. If Pin is selected, pin the reference at top. If Delete is selected, show a confirmation window before deleting the reference.
+Line 2: Section/Article
+Line 3: Title & Description
+Line 4: Comments/Notes
+Note: Keep the hovering/selection effects intact from the mockup html file. 
+
+
+
+
+
+
+
+
+3. The mockup for the Case Reference page and the form to add new case reference is present at legal_case_diary_flutter\mockup_html_screens\caseReference\code.html.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

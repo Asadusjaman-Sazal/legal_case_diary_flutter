@@ -25,7 +25,7 @@ Binding project-wide rules for all agents. Task-specific requirements live in `d
 ## Phase completion protocol (end of EVERY phase)
 
 1. Run `flutter analyze`; fix ALL errors and warnings you introduced. Phase is not complete until clean.
-2. Append to `docs/version_history.md`: `Version: X.Y.Z - [brief summary]` (sequential bump) and update its `## Current Version` section.
+2. Append to `docs/version_history.md`: `Version: X.Y.Z - [brief summary]` (sequential bump), update its `## Current Version` section and `pubspec.yaml`: version:[Only Version Number from Current Version].
 3. Update `docs/currentlyWorking.md`: `### [Date Time] — Current Task: [brief description]`.
 
 ## Session protocol

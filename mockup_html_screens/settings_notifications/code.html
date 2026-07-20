@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Notifications Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#316bf3",
+                        "outline": "#76777d",
+                        "on-primary-container": "#7c839b",
+                        "inverse-surface": "#2d3133",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "outline-variant": "#c6c6cd",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary": "#0051d5",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary-container": "#131b2e",
+                        "tertiary-fixed": "#d3e4fe",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "ink-dark": "#020617",
+                        "on-tertiary-container": "#75859d",
+                        "tertiary": "#000000",
+                        "tertiary-container": "#0b1c30",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "on-error-container": "#93000a",
+                        "status-active": "#059669",
+                        "primary": "#000000",
+                        "surface-dim": "#d8dadc",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#00174b",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary-container": "#fefcff",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "primary-fixed": "#dae2fd",
+                        "on-surface": "#191c1e",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error": "#ffffff",
+                        "court-notice": "#DC2626"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "12px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "edge-margin": "16px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["IBM Plex Sans"],
+                        "case-number": ["IBM Plex Sans"],
+                        "title-md": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "title-lg": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "label-md": ["IBM Plex Sans"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+                        "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+                        "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen">
+<!-- SubPage Header -->
+<header class="bg-surface-container-lowest px-edge-margin pt-md pb-md sticky top-0 z-50">
+<div class="flex flex-col gap-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Notifications</h1>
+<button class="flex items-center text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors w-fit">
+<span class="material-symbols-outlined mr-sm text-[20px]">arrow_back</span><br></button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="p-edge-margin">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg shadow-sm">
+<!-- Default Notification Status -->
+<div class="mb-xl">
+<label class="font-label-md text-label-md text-on-surface-variant block mb-md">DEFAULT NOTIFICATION STATUS</label>
+<div class="flex gap-md h-12">
+<button class="flex-1 rounded border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg transition-colors hover:bg-surface-container-low active:scale-95">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+                        ON
+                    </button>
+<button class="flex-1 rounded border border-on-primary-fixed bg-on-primary-fixed text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[20px]">notifications_off</span>
+                        OFF
+                    </button>
+</div>
+</div>
+<!-- Notification Day Offset -->
+<div class="mb-xl">
+<label class="font-label-md text-label-md text-on-surface-variant block mb-md">NOTIFICATION DAY OFFSET</label>
+<div class="relative">
+<button class="w-full h-12 rounded border border-outline-variant bg-surface-container-lowest px-md font-body-lg text-primary flex items-center justify-between outline-none cursor-pointer transition-colors hover:border-outline" onclick="document.getElementById('day-offset-modal').classList.remove('hidden')">
+<span class="">The day before</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Notification Time -->
+<div class="mb-xl">
+<label class="font-label-md text-label-md text-on-surface-variant block mb-md">NOTIFICATION TIME</label>
+<div class="relative">
+<button class="w-full h-12 rounded border border-outline-variant bg-surface-container-lowest px-md font-body-lg text-primary flex items-center justify-between outline-none cursor-pointer transition-colors hover:border-outline" onclick="document.getElementById('time-picker-modal').classList.remove('hidden')">
+<span class="">05:00 PM</span>
+<span class="material-symbols-outlined text-on-surface-variant">schedule</span>
+</button>
+</div>
+</div>
+<!-- Test Notification Button -->
+<div class="mt-xl pt-lg border-t border-surface-variant">
+</div>
+</div>
+</main>
+<!-- Day Offset Selection Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-md hidden" id="day-offset-modal">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('day-offset-modal').classList.add('hidden')"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-[400px] max-h-[80vh] rounded-xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
+<!-- Modal Header -->
+<div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10">
+<h2 class="font-headline-md text-title-lg flex-1 text-center">Select Day Offset</h2>
+<button class="p-2 hover:bg-white/10 rounded-full transition-colors" onclick="document.getElementById('day-offset-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="p-md border-b border-outline-variant">
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto">
+<div class="flex flex-col">
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
+<span class="">The same day</span>
+</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-secondary font-bold flex items-center justify-between">
+<span class="">The day before</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
+<span class="">Before 2 days</span>
+</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
+<span class="">Before 3 days</span>
+</button>
+<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
+<span class="">Before 7 days</span>
+</button>
+</div>
+</div>
+<!-- Footer Actions -->
+</div>
+</div>
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-md" id="time-picker-modal">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('time-picker-modal').classList.add('hidden')"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-[320px] rounded-xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
+<!-- Header / Digital Display -->
+<div class="p-lg bg-surface-container-low">
+<div class="text-label-md text-on-surface-variant mb-md">SELECT TIME</div>
+<div class="flex items-center justify-center gap-xs">
+<div class="text-on-secondary-container rounded-lg p-md text-[48px] font-headline-md leading-none bg-black text-white">05</div>
+<div class="text-[48px] font-headline-md text-on-surface">:</div>
+<div class="bg-surface-container-highest text-on-surface-variant rounded-lg p-md text-[48px] font-headline-md leading-none">00</div>
+<div class="flex flex-col gap-xs ml-md">
+<div class="px-md py-sm text-on-secondary-container rounded font-bold text-label-lg bg-black text-white">PM</div>
+<div class="px-md py-sm bg-surface-container-highest text-on-surface-variant rounded font-bold text-label-lg">AM</div>
+</div>
+</div>
+</div>
+<!-- Analog Clock Dial -->
+<div class="p-lg flex justify-center">
+<div class="relative w-64 h-64 bg-surface-container-high rounded-full flex items-center justify-center">
+<!-- Clock Hand -->
+<div class="absolute w-1 h-14 bg-black origin-bottom bottom-1/2 left-1/2 -translate-x-1/2 rounded-full">
+  <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[10px] border-b-black"></div>
+</div>
+<!-- Center Dot -->
+<div class="w-2 h-2 bg-black rounded-full z-10"></div>
+<!-- Numbers -->
+<div class="absolute inset-4">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 font-label-lg text-primary">12</div>
+<div class="absolute right-0 top-1/2 -translate-y-1/2 font-label-lg">3</div>
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 font-label-lg">6</div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 font-label-lg">9</div>
+<div class="absolute top-[10%] right-[25%] font-label-lg">1</div>
+<div class="absolute top-[25%] right-[10%] font-label-lg">2</div>
+<div class="absolute bottom-[25%] right-[10%] font-label-lg">4</div>
+<div class="absolute bottom-[10%] right-[25%] font-label-lg">5</div>
+<div class="absolute bottom-[10%] left-[25%] font-label-lg">7</div>
+<div class="absolute bottom-[25%] left-[10%] font-label-lg">8</div>
+<div class="absolute top-[25%] left-[10%] font-label-lg">10</div>
+<div class="absolute top-[10%] left-[25%] font-label-lg">11</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-md flex justify-end gap-md">
+<button class="px-lg py-md font-label-lg hover:bg-surface-container-low rounded transition-colors text-primary" onclick="document.getElementById('time-picker-modal').classList.add('hidden')">CANCEL</button>
+<button class="px-lg py-md font-label-lg hover:bg-surface-container-low rounded transition-colors text-primary" onclick="document.getElementById('time-picker-modal').classList.add('hidden')">OK</button>
+</div>
+</div>
+</div></body></html>

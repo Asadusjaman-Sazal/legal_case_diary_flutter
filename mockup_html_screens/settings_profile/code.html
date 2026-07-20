@@ -1,0 +1,304 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><!-- Screen: Profile Settings --><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Profile Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;family=Inter:wght@400;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100..900&amp;family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface-variant": "#45464d",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eceef0",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "background": "#f7f9fb",
+                        "outline-variant": "#c6c6cd",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "on-background": "#191c1e",
+                        "outline": "#76777d",
+                        "secondary-fixed": "#dbe1ff",
+                        "status-active": "#059669",
+                        "surface-dim": "#d8dadc",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "ink-dark": "#020617",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#e6e8ea",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#0b1c30",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#316bf3",
+                        "on-tertiary-container": "#75859d",
+                        "primary": "#000000",
+                        "secondary": "#0051d5",
+                        "on-secondary-container": "#fefcff",
+                        "tertiary-fixed": "#d3e4fe",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary-fixed": "#131b2e",
+                        "court-notice": "#DC2626",
+                        "tertiary": "#000000",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "gutter": "12px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "edge-margin": "16px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["IBM Plex Sans"],
+                        "headline-lg": ["Manrope"],
+                        "case-number": ["IBM Plex Sans"],
+                        "title-lg": ["Manrope"],
+                        "label-lg": ["IBM Plex Sans"],
+                        "headline-md": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "title-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .filled-input {
+            background-color: #F1F5F9;
+            border: none;
+            border-bottom: 2px solid #E2E8F0;
+            transition: border-color 0.2s ease;
+        }
+        .filled-input:focus {
+            outline: none;
+            border-bottom-color: #0F172A;
+            box-shadow: none;
+        }
+        .active-nav-item {
+            background-color: #dbe1ff; /* secondary-fixed */
+            color: #00174b; /* on-secondary-fixed */
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body-md selection:bg-secondary-fixed">
+<div class="flex h-screen overflow-hidden">
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden lg:flex flex-col h-screen fixed left-0 top-0 overflow-y-auto w-[280px] bg-surface-container-lowest border-r border-outline-variant z-40">
+<div class="p-lg flex flex-col gap-sm">
+<div class="flex items-center gap-md mb-lg">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-headline-md">account_balance</span>
+</div>
+<div>
+<h2 class="font-title-lg text-title-lg text-primary">Asadusjaman</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Advocate</p>
+</div>
+</div>
+<nav class="flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">event</span>
+<span class="font-label-lg text-label-lg">Upcoming Cases</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
+<span class="font-label-lg text-label-lg">All Cases</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">gavel</span>
+<span class="font-label-lg text-label-lg">Disposed Cases</span>
+</a>
+<div class="h-px bg-outline-variant my-sm mx-md"></div>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant bg-secondary-container text-on-secondary-container rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-md">
+<p class="font-label-md text-label-md text-on-surface-variant opacity-60 px-md">Digital Case Diary v2.4</p>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-[280px] flex flex-col h-full bg-surface-bright relative">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-30 flex justify-between items-center px-edge-margin h-[56px] w-full bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-md">
+<button class="p-sm hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Profile</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-sm hover:bg-surface-container rounded-full transition-colors">
+
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto pb-24">
+<div class="max-w-[720px] mx-auto px-edge-margin pt-sm"><div class="mb-md"><button class="p-sm hover:bg-surface-container rounded-full transition-colors flex items-center justify-center" aria-label="Go back"><span class="material-symbols-outlined text-on-surface">arrow_back</span></button></div>
+<!-- Profile Picture Section -->
+<div class="flex flex-col items-center mb-xl">
+<div class="relative group cursor-pointer">
+<div class="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-surface-container-highest">
+<img alt="Lawyer's Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a lawyer of South Asian descent, dressed in a formal black suit and white shirt, set against a clean, minimalist studio background with soft side lighting. The aesthetic is modern and corporate, reflecting the high-end digital identity of a legal professional tools app. The lighting is bright and crisp, consistent with a modern light-mode UI design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuyGP2EWzISwhBQAH7KGdhKiTZjKLKy6pM44408wiGSgATt0s4DJHJV1BbqzSl2NujWm-uAXdi8U3BTK-9VdkqRcADriVhESF571NJS0RqacR_KZwd3ZDAA1gFzGX-u9dyk2_0tDh2SAZs2gA-SDyEsujZO8MxBGKjvfW8LgTf1XNKWnOQ6ITofZCh3pBgF5gjm_W9nbanKTc0gdEgFWaOZLzQEcEXPhC-5NIp-bi12Fn_KofHhqdwgjnSm1zFkYacVV89yjkJSdw">
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-on-primary p-xs rounded-full border-2 border-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</div>
+</div>
+<div class="mt-md text-center">
+<h2 class="font-title-lg text-title-lg text-on-background">Adv. Asadusjaman</h2>
+
+</div>
+</div>
+<!-- Profile Form -->
+<form class="bg-white rounded-xl border border-outline-variant p-lg flex flex-col gap-lg shadow-sm">
+<!-- Name Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant px-1"><span class="material-symbols-outlined text-[18px] mr-xs">person</span>Full Name</label>
+<div class="relative">
+<input class="filled-input w-full h-12 px-md font-body-md rounded-t-lg focus:rounded-t-lg" placeholder="Enter your full name" type="text" value="Asadusjaman">
+
+</div>
+</div>
+<!-- Bar Association -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant px-1"><span class="material-symbols-outlined text-[18px] mr-xs">account_balance</span>Bar Association</label>
+<div class="relative">
+<input class="filled-input w-full h-12 px-md font-body-md rounded-t-lg" placeholder="Enter bar association name" type="text" value="Dhaka Bar Association">
+
+</div>
+</div>
+<!-- Membership No -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant px-1"><span class="material-symbols-outlined text-[18px] mr-xs">badge</span>Membershi p No.</label>
+<div class="relative">
+<input class="filled-input w-full h-12 px-md font-body-md rounded-t-lg" placeholder="Enter registration number" type="text" value="1557">
+
+</div>
+</div>
+<!-- Address -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant px-1"><span class="material-symbols-outlined text-[18px] mr-xs">location_on</span>Office Address</label>
+<div class="relative">
+<textarea class="filled-input w-full p-md font-body-md rounded-t-lg resize-none" placeholder="Enter your office address" rows="3">Chamber 402, High Court Annex, Dhaka-1000</textarea>
+
+</div>
+</div>
+<!-- Mobile No -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant px-1"><span class="material-symbols-outlined text-[18px] mr-xs">call</span>Mobile No.</label>
+<div class="flex gap-xs">
+<div class="bg-surface-container-high h-12 px-md flex items-center rounded-t-lg border-b-2 border-outline-variant">
+<span class="font-body-md">+880</span>
+</div>
+<div class="relative flex-1">
+<input class="filled-input w-full h-12 px-md font-body-md rounded-t-lg" placeholder="1XXXXXXXXX" type="tel" value="1812332721">
+
+</div>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="bg-primary text-on-primary h-14 rounded-xl font-title-md text-title-md hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-md mt-md shadow-lg shadow-black/10" type="submit">
+<span class="material-symbols-outlined">save</span>
+                            Save Profile
+                        </button>
+</form>
+<div class="mt-lg p-md bg-secondary-container/10 border border-secondary/20 rounded-lg flex gap-md">
+<span class="material-symbols-outlined text-secondary">info</span>
+<p class="font-body-sm text-body-sm text-on-secondary-fixed-variant">
+                            These details will be used to automatically populate headers on generated Cause Lists and Client Reports.
+                        </p>
+</div>
+</div>
+</div>
+<!-- BottomNavBar (Mobile) -->
+
+</main>
+</div>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('focus', () => {
+                element.parentElement.querySelector('.material-symbols-outlined').style.opacity = '1';
+                element.parentElement.querySelector('.material-symbols-outlined').style.color = '#2563EB';
+            });
+            element.addEventListener('blur', () => {
+                element.parentElement.querySelector('.material-symbols-outlined').style.opacity = '0.5';
+                element.parentElement.querySelector('.material-symbols-outlined').style.color = '#45464d';
+            });
+        });
+
+        const saveBtn = document.querySelector('button[type="submit"]');
+        saveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            saveBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Saving...';
+            setTimeout(() => {
+                saveBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Saved Successfully';
+                saveBtn.classList.replace('bg-primary', 'bg-status-active');
+                setTimeout(() => {
+                    saveBtn.innerHTML = '<span class="material-symbols-outlined">save</span> Save Profile';
+                    saveBtn.classList.replace('bg-status-active', 'bg-primary');
+                }, 2000);
+            }, 1000);
+        });
+    </script>
+
+
+
+
+
+
+</body></html>

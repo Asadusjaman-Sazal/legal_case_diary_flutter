@@ -1,0 +1,371 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "surface-tint": "#565e74",
+                    "tertiary-container": "#0b1c30",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "secondary": "#0051d5",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#00174b",
+                    "primary-fixed": "#dae2fd",
+                    "ink-dark": "#020617",
+                    "outline-variant": "#c6c6cd",
+                    "primary": "#000000",
+                    "error": "#ba1a1a",
+                    "on-tertiary-container": "#75859d",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "status-active": "#059669",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "surface-variant": "#e0e3e5",
+                    "primary-container": "#131b2e",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "tertiary": "#000000",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-error-container": "#93000a",
+                    "court-notice": "#DC2626",
+                    "secondary-fixed": "#dbe1ff",
+                    "on-surface": "#191c1e",
+                    "surface-container-high": "#e6e8ea",
+                    "surface": "#f7f9fb",
+                    "outline": "#76777d",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "surface-container": "#eceef0",
+                    "primary-fixed-dim": "#bec6e0",
+                    "secondary-container": "#316bf3",
+                    "surface-bright": "#f7f9fb",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#131b2e",
+                    "background": "#f7f9fb",
+                    "inverse-surface": "#2d3133",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#d3e4fe",
+                    "inverse-primary": "#bec6e0",
+                    "on-background": "#191c1e",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-primary-container": "#7c839b",
+                    "on-secondary-container": "#fefcff",
+                    "surface-dim": "#d8dadc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "edge-margin": "16px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "gutter": "12px",
+                    "unit": "4px",
+                    "lg": "24px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "case-number": ["IBM Plex Sans"],
+                    "title-md": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "label-md": ["IBM Plex Sans"],
+                    "title-lg": ["Manrope"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "label-lg": ["IBM Plex Sans"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
+                    "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
+                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .data-strip:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopAppBar -->
+<div class="flex">
+<!-- NavigationDrawer (Desktop) -->
+<aside class="hidden lg:flex flex-col h-screen fixed left-0 top-0 overflow-y-auto bg-surface-container-lowest dark:bg-surface-container h-full w-[280px] rounded-r-xl border-r border-outline-variant dark:border-outline shadow-md dark:shadow-none z-40">
+<div class="p-lg flex items-center gap-md border-b border-outline-variant dark:border-outline">
+<div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="gavel" style="font-variation-settings: &quot;FILL&quot; 1;">gavel</span>
+</div>
+<div>
+<h2 class="font-title-lg text-title-lg text-primary">Asadusjaman</h2>
+<p class="font-label-lg text-label-lg text-on-surface-variant">Advocate</p>
+</div>
+</div>
+<nav class="py-md space-y-xs">
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span class="font-label-lg text-label-lg">Upcoming Cases</span>
+</a>
+<a class="flex items-center gap-md bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full mx-2 px-4 py-2" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="font-label-lg text-label-lg">All Cases</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-label-lg text-label-lg">Disposed Cases</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-lg text-label-lg">Case Reference</span>
+</a>
+<div class="px-lg py-md text-on-surface-variant opacity-50 font-label-md text-label-md uppercase tracking-wider">Management</div>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="sticky_note_2">sticky_note_2</span>
+<span class="font-label-lg text-label-lg">Notes</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-[280px] px-edge-margin py-lg pb-32">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Case No. 423 / 2023</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-xs mt-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+                        Joint District Judge, 2nd Court, Dhaka
+                    </p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-error text-on-error px-md py-sm rounded-lg font-label-lg text-label-lg flex items-center gap-sm hover:opacity-90 transition-all" id="delete-btn">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+                        Delete
+                    </button>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-lg text-label-lg flex items-center gap-sm hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+                        Edit Case
+                    </button>
+<button class="px-md py-sm rounded-lg font-label-lg text-label-lg flex items-center gap-sm hover:bg-surface-variant transition-all bg-primary text-on-primary hover:opacity-90">
+<span class="material-symbols-outlined text-[20px]" data-icon="close">close</span>
+                        Close
+                    </button></div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Left Column: Parties & Details -->
+<div class="md:col-span-8 space-y-lg">
+<!-- Parties Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Petitioner -->
+<div class="space-y-md"><div class="space-y-xs mb-md"><div class="flex items-center gap-sm text-secondary font-title-md text-title-md">On Behalf of: <span class="text-on-surface">Petitioner</span><div class=""><br><br></div></div></div>
+<div class="flex items-center gap-sm text-secondary font-title-md text-title-md">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                                    Petitioner</div>
+<div class="p-md bg-surface-container-low rounded-lg">
+<p class="font-body-lg text-body-lg font-bold text-on-surface">Md. Rahim Uddin</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lead Counsel: Adv. Abdul Kalam</p>
+<div class="mt-md pt-md border-t border-outline-variant space-y-sm">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="call">call</span><span class="material-symbols-outlined text-[18px]" data-icon="chat">chat</span>
+<span class="font-body-md text-body-md">+880 1711-000000</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+
+
+</div>
+</div>
+</div>
+</div>
+<!-- Respondent -->
+<div class="space-y-md">
+<div class="flex items-center gap-sm text-error font-title-md text-title-md">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                                    Respondent
+                                </div>
+<div class="p-md bg-surface-container-low rounded-lg">
+<p class="font-body-lg text-body-lg font-bold text-on-surface">Bangladesh Government</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Lead Counsel: Adv. Ahsan Habib</p>
+<div class="mt-md pt-md border-t border-outline-variant space-y-sm">
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Case Description / Remarks -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center gap-sm mb-md text-primary font-title-md text-title-md">
+<span class="material-symbols-outlined" data-icon="sticky_note_2">sticky_note_2</span>Case Title &amp; Remarks</div>
+<div class="font-body-md text-body-md text-on-surface-variant leading-relaxed"><p class="">Sections or Case Title</p><hr class="my-md border-outline-variant/50"><p class="">Remarks or Case Summary</p></div>
+</div>
+<!-- Case History / Timeline -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-sm text-primary font-title-md text-title-md">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                                Case History
+                            </div>
+<span class="font-label-md text-label-md text-on-surface-variant">12 Entries Total</span>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Timeline Entry 1 -->
+<div class="p-md flex items-start gap-md data-strip transition-all cursor-default">
+<div class="min-w-[100px] pt-xs">
+<p class="font-case-number text-case-number text-primary">15 Oct 2026</p>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase"></p><div><br></div>(Previous)<p class=""></p>
+</div>
+<div class="flex-1">
+<p class="font-title-md text-title-md text-on-surface">Steps for Hearing</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Adjourned due to absence of witness. Final notice issued to Petitioner side.</p>
+</div>
+</div>
+<!-- Timeline Entry 2 -->
+<div class="p-md flex items-start gap-md data-strip transition-all cursor-default">
+<div class="min-w-[100px] pt-xs">
+<p class="font-case-number text-case-number text-primary">12 Sep 2026</p>
+</div>
+<div class="flex-1">
+<p class="font-title-md text-title-md text-on-surface">Written Objection</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Respondent submitted written objection. Copy received by Advocate.</p>
+</div>
+</div>
+<!-- Timeline Entry 3 -->
+<div class="p-md flex items-start gap-md data-strip transition-all cursor-default">
+<div class="min-w-[100px] pt-xs">
+<p class="font-case-number text-case-number text-primary">05 Aug 2026</p>
+</div>
+<div class="flex-1">
+<p class="font-title-md text-title-md text-on-surface">Service Return</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Summons served on all respondents. SR report filed in court.</p>
+</div>
+</div>
+</div>
+<button class="w-full py-md bg-surface-container-low text-secondary font-label-lg text-label-lg hover:bg-surface-container transition-all">
+                            View All 12 History Entries
+                        </button>
+</div>
+</div>
+<!-- Right Column: Sidebar Stats -->
+<div class="md:col-span-4 space-y-lg">
+<!-- Next Date Card -->
+<div class="bg-secondary-container text-on-secondary-container rounded-xl p-lg shadow-sm border border-secondary">
+<div class="flex items-center gap-sm mb-md opacity-80">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wider">Next Date</span>
+</div>
+<div class="space-y-xs">
+<p class="font-headline-lg text-headline-lg font-extrabold">24 Nov 2026, Sunday</p>
+<p class="font-title-md text-title-md opacity-90">Fixed for Hearing</p>
+</div>
+<div class="mt-lg pt-lg border-t border-on-secondary-container/20 flex justify-between items-center">
+<span class="font-label-md text-label-md">14 Days Remaining</span>
+<button class="bg-on-secondary-container text-secondary-container px-md py-xs rounded-full font-label-md text-label-md font-bold">Set Reminder</button>
+</div>
+</div>
+<!-- Client Documents -->
+<!-- Action Quick List -->
+
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+
+<script>
+        // Simple micro-interaction for active state scaling
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('scale-95');
+            });
+            el.addEventListener('mouseup', () => {
+                el.classList.remove('scale-95');
+            });
+            el.addEventListener('mouseleave', () => {
+                el.classList.remove('scale-95');
+            });
+        });
+    </script>
+<!-- Delete Confirmation Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden" id="delete-modal">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-lg max-w-md w-full mx-edge-margin">
+<h3 class="font-headline-md text-headline-md text-primary mb-md">Delete?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-xl">Are you sure you want to delete this item? This action cannot be undone.</p>
+<div class="flex justify-end gap-md">
+<button class="px-lg py-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container transition-all" id="cancel-delete">
+                Cancel
+            </button>
+<button class="bg-error text-on-error px-lg py-sm rounded-lg font-label-lg text-label-lg hover:opacity-90 transition-all">
+                Delete
+            </button>
+</div>
+</div>
+</div><script>
+    (function() {
+        const deleteBtn = document.getElementById('delete-btn');
+        const modal = document.getElementById('delete-modal');
+        const cancelBtn = document.getElementById('cancel-delete');
+
+        if (deleteBtn && modal && cancelBtn) {
+            deleteBtn.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+    })();
+</script>
+
+
+
+
+
+</body></html>

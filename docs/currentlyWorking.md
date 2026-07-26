@@ -1,5 +1,7 @@
 # Current Work
 
+### 2026-07-26 17:05 — Current Task: Task 03 Phase 2 audit fixes complete — implemented firms and firm_members tables (pull-only caches), added missing boolean defaults to conflict_log.isDismissed, notes.isPinned, and references.isPinned; flutter analyze clean, 28 tests pass (2 skipped mobile-only)
+### 2026-07-26 16:05 — Current Task: Task 03 Phase 2 complete — added per-table Drift definitions for cases, case_history, courts, steps, case_types, on_behalfs, notes, references, sync_queue, court_categories, delete_requests, and conflict_log; fixed data-class name conflicts; flutter analyze clean, 28 tests pass (2 skipped mobile-only)
 ### 2026-07-26 15:25 — Current Task: Task 03 Phase 1 audit fixes complete — replaced EOL sqlcipher_flutter_libs with maintained SQLite3MultipleCiphers build hook; wired recovery dialog into DatabaseGuard; flutter analyze clean, 28 tests pass (2 skipped mobile-only)
 ### 2026-07-26 13:45 — Current Task: Task 02 Phase 4 complete — Bangladesh-aware date utilities with epoch↔display conversion, civil-date normalization, Today/Tomorrow rule, locale-aware formatters, and unit tests; flutter analyze clean, all tests pass
 ### 2026-07-26 — Hotfix: DateFormat timezone bug fixed; bangladeshDateTime() now returns a local DateTime to ensure formatters display Bangladesh wall-clock time regardless of device timezone

@@ -1,53 +1,41 @@
 # Current Work
 
-### 2026-07-20 11:15 — Current Task: Task 01 Phase 4 complete — AsyncNotifier scaffolding with .select() guidance added to all ViewModels; flutter analyze clean
+### 2026-07-26 13:45 — Current Task: Task 02 Phase 4 complete — Bangladesh-aware date utilities with epoch↔display conversion, civil-date normalization, Today/Tomorrow rule, locale-aware formatters, and unit tests; flutter analyze clean, all tests pass
+### 2026-07-26 — Hotfix: DateFormat timezone bug fixed; bangladeshDateTime() now returns a local DateTime to ensure formatters display Bangladesh wall-clock time regardless of device timezone
 
 ## Completed
-- Phase 1: Flutter project init, Android bilingual label, main/app entry points, docs files
-- Phase 2: All permitted dependencies added and resolved successfully
-- Phase 3: Complete folder skeleton with 27+ stub files (core, features, shared, database, sync)
-- Phase 4: MVVM + Repository architecture fully wired with:
-  - AppDatabase placeholder (abstract class)
-  - 8 domain-specific repository interfaces in feature data/ paths
-  - Feature data/presentation subdirectories for all 7 features
-  - 9 database/tables/ stubs per implementation plan
-  - Shared widget stubs (6 widget classes)
-  - ViewModel pattern stub with `.select()` guidance
-  - Riverpod database provider with typed AppDatabase
+- Phase 1: Flutter project init, Android bilingual label, main/app entry points, docs files (Task 01)
+- Phase 2: All permitted dependencies added and resolved successfully (Task 01)
+- Phase 3: Complete folder skeleton with core/features/shared/database/sync stubs (Task 01)
+- Phase 4: MVVM + Repository architecture fully wired with AppDatabase placeholder, repositories, ViewModels, shared widgets, and typed provider (Task 01)
+- Phase 1: Justice Ledger color, spacing, and typography constants; fonts registered (Task 02)
+- Phase 2: ThemeData wired in AppTheme and applied in app.dart (Task 02)
+- Phase 3: flutter_localizations + intl wired, ARB files and generated AppLocalizations, Bengali default locale persisted, TiroBangla font switch (Task 02)
+- Phase 4: Bangladesh-aware date utilities with epoch↔DD/MM/YYYY conversion, civil-date normalization, Today/Tomorrow display rule, locale-aware formatters, and unit tests (Task 02)
 
 ## Active contracts
-- All stubs have doc comments referencing their implementing tasks.
-- Database provider: `Provider<AppDatabase>` (will be wired in Task 03)
-- Repositories: domain-specific abstract interfaces ready for Task 05 (local) and Part B (remote)
-- MVVM pattern: ViewModel stub includes `.select()` rendering optimization per Plan §12.3
-- Bilingual Android labels: resource-based app_name per locale (English/Bengali)
+- Date utilities use Bangladesh timezone (UTC+6, no DST) for all civil-date logic.
+- `next_date`/`hearing_date` are normalized to Bangladesh start-of-day and compared by calendar date.
+- All date formatters are locale-aware (en/bn) via `intl`.
+- `initializeDateFormatting()` is called before `runApp` to support non-English date symbols.
+- All tests pass; `flutter analyze` is clean.
 
 ## Files currently involved
-- lib/main.dart (ProviderScope entry)
-- lib/app.dart (root MaterialApp)
-- lib/shared/providers/database_provider.dart (typed AppDatabase provider)
-- lib/database/app_database.dart (AppDatabase abstract class)
-- lib/shared/widgets/shared_widgets.dart (6 widget stubs)
-- lib/features/*/data/*_repository.dart (8 domain repositories)
-- lib/features/*/presentation/*_viewmodel.dart (ViewModel stubs)
-- lib/database/tables/*.dart (9 table stubs)
-- docs/version_history.md (v0.0.10)
+- lib/core/utils/date_utils.dart (Task 02 Phase 4)
+- lib/main.dart (intl date formatting initialization)
+- test/core/utils/date_utils_test.dart (Task 02 Phase 4 tests)
+- docs/version_history.md (v0.0.18)
 - docs/currentlyWorking.md (this file)
-- docs/systemRequirements.md (requirements stub)
-- pubspec.yaml (all Phase 2 dependencies)
-- analysis_options.yaml (flutter_lints)
+- pubspec.yaml (version bump to 0.0.18)
 
 ## Next actions
-- Task 02: Design system, theming, localization (fonts, colors, typography)
+- Task 03: Local database with Drift and SQLCipher encryption
 
 ## Last checks
 - flutter analyze: CLEAN ✓
-- flutter pub get: SUCCESS ✓
-- Widget smoke test: PASS ✓
-- Folder structure: matches implementation_plan.md exactly ✓
-- Repository placement: domain-specific data/ paths ✓
-- Database typing: AppDatabase class + typed provider ✓
-- MVVM scaffolding: ViewModel stub + `.select()` pattern ✓
+- flutter test: ALL PASS (21 tests) ✓
+- Bangladesh civil-date boundary (UTC 18:00): verified ✓
+- Locale-aware date formatting (en/bn): verified ✓
 
 ## Blockers
 None

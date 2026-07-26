@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.12
+version: 0.0.18
 
 environment:
   sdk: ^3.12.2
@@ -69,4 +69,20 @@ flutter:
   # Material Icons support.
   uses-material-design: true
 
-  # Assets and custom fonts will be added in later tasks.
+  # Required for flutter_localizations code generation.
+  generate: true
+
+  # Custom fonts for the Justice Ledger design system (Task 02).
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-VariableFont_wght.ttf
+    - family: Inter
+      fonts:
+        - asset: "assets/fonts/Inter-VariableFont_slnt,wght.ttf"
+    - family: IBMPlexSans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans-Regular.ttf
+    - family: TiroBangla
+      fonts:
+        - asset: assets/fonts/TiroBangla-Regular.ttf

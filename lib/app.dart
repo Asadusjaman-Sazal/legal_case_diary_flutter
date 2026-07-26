@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/l10n/generated/app_localizations.dart';
+import 'core/theme/app_theme.dart';
+import 'features/scratch/locale_scratch_screen.dart';
+import 'shared/providers/locale_provider.dart';
 
 /// The root widget of the Legal Case Diary application.
-/// Task 01: Placeholder MaterialApp for architecture scaffolding.
-class App extends StatelessWidget {
+///
+/// Watches the active locale from [localeProvider] and rebuilds the
+/// [MaterialApp] whenever the user switches languages. Localizations delegates
+/// and supported locales are supplied by the generated [AppLocalizations].
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'Legal Case Diary',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Legal Case Diary — Offline First'),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme(locale),
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: const LocaleScratchScreen(),
     );
   }
 }

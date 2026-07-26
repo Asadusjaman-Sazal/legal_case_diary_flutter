@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.18 - Bug fix: DateFormat formatting no longer depends on device timezone; bangladeshDateTime() returns a local DateTime so formatters display Bangladesh wall-clock time correctly; flutter analyze clean, all tests pass.
+Version: 0.0.20 - Task 03 Phase 1 audit fixes: replaced EOL sqlcipher_flutter_libs with maintained SQLite3MultipleCiphers build hook; wired recovery dialog into DatabaseGuard; flutter analyze clean, all tests pass.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -23,7 +23,7 @@ Version: 0.0.6 - Task 01 Phase 2 complete: dependencies added (riverpod, go_rout
 Version: 0.0.7 - Task 01 Phase 3 complete: folder skeleton created (core, features, shared, database, sync) with 27 stub files; flutter analyze clean.
 Version: 0.0.8 - Task 01 Phase 4 complete: database provider and repository interfaces wired; MVVM + Repository architecture scaffolding ready; flutter analyze clean.
 Version: 0.0.9 - Task 01 final: complete MVVM+Repository scaffolding with domain-specific repositories, feature data/presentation stubs, database/tables stubs, ViewModel pattern stub, AppDatabase placeholder, and shared widgets; flutter analyze clean.
-Version: 0.0.10 - Task 01 Phase 3 complete: exact folder/file skeleton per implementation plan with 41+ stubs; data/presentation structure for all features; shared widgets and tables stubs; flutter analyze clean.
+Version: 0.0.10 - Task 01 Phase 3 complete: exact folder/file skeleton per implementation plan with 41+ stubs; data/presentation structure for all features; shared widgets; tables stubs; flutter analyze clean.
 Version: 0.0.11 - Task 01 Phase 3 complete — exact skeleton: 6 widget stubs per plan; 27+ stub files; all features data/presentation; shared widgets; tables stubs; flutter analyze clean.
 Version: 0.0.12 - Task 01 Phase 4 complete — AsyncNotifier scaffolding with .select() guidance; MVVM pattern fully wired; flutter analyze clean.
 Version: 0.0.13 - Task 02 Phase 1 complete — Justice Ledger color, spacing, and typography constants added; fonts moved to assets/fonts and registered in pubspec.yaml; flutter analyze clean.
@@ -32,3 +32,5 @@ Version: 0.0.15 - Task 02 Phase 2 complete — Justice Ledger ThemeData wired in
 Version: 0.0.16 - Task 02 Phase 3 complete — flutter_localizations + intl wired, ARB files and generated AppLocalizations created, Bengali default locale persisted in SharedPreferences, TiroBangla font switch in AppTheme, localization scratch screen and tests pass.
 Version: 0.0.17 - Task 02 Phase 4 complete — Bangladesh-aware date utilities with epoch↔display conversion, civil-date normalization, Today/Tomorrow rule, locale-aware formatters, and unit tests; flutter analyze clean, all tests pass.
 Version: 0.0.18 - Bug fix: DateFormat formatting no longer depends on device timezone; bangladeshDateTime() returns a local DateTime so formatters display Bangladesh wall-clock time correctly; flutter analyze clean, all tests pass.
+Version: 0.0.19 - Task 03 Phase 1: SQLCipher encrypted Drift backend, key manager with secure storage, DatabaseFactory, and integration tests; flutter analyze clean, all tests pass.
+Version: 0.0.20 - Task 03 Phase 1 audit fixes: replaced EOL sqlcipher_flutter_libs with maintained SQLite3MultipleCiphers build hook; wired recovery dialog into DatabaseGuard; flutter analyze clean, all tests pass.

@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.18
+version: 0.0.20
 
 environment:
   sdk: ^3.12.2
@@ -30,8 +30,8 @@ dependencies:
   # Date formatting and localization utilities.
   intl: ^0.20.2
 
-  # Local DB. Drift core added now; SQLCipher-compatible backend is added in
-  # Task 03 after the backend choice is validated.
+  # Local DB. Drift core with SQLite3MultipleCiphers-backed encryption
+  # (Task 03). Native libraries are bundled via the sqlite3 build hook.
   drift: ^2.19.0
 
   # Local preferences and secure key storage.
@@ -51,6 +51,13 @@ dependencies:
   # Launcher (Task 14 tasks such as phone/SMS/email).
   url_launcher: ^6.3.2
 
+  # Encryption support for the sqlite3/Drift native database (Task 03).
+  # SQLite3MultipleCiphers is selected via the hooks section below.
+  sqlite3: ^3.5.0
+
+  path: ^1.9.1
+  path_provider: ^2.1.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,6 +71,14 @@ dev_dependencies:
 
   # Dart build runner (Task 03); downgraded to align with drift_dev/analyzer.
   build_runner: ^2.4.14
+
+# Build hooks for the sqlite3 package. This selects SQLite3MultipleCiphers as
+# the bundled SQLite implementation, enabling transparent full-database
+# encryption via PRAGMA key. See: https://drift.simonbinder.eu/platforms/encryption/
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
 
 flutter:
   # Material Icons support.

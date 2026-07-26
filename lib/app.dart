@@ -5,6 +5,7 @@ import 'core/l10n/generated/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'features/scratch/locale_scratch_screen.dart';
 import 'shared/providers/locale_provider.dart';
+import 'shared/widgets/database_guard.dart';
 
 /// The root widget of the Legal Case Diary application.
 ///
@@ -25,7 +26,7 @@ class App extends ConsumerWidget {
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      home: const LocaleScratchScreen(),
+      home: const DatabaseGuard(child: LocaleScratchScreen()),
     );
   }
 }

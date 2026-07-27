@@ -11108,6 +11108,493 @@ class FirmMembersCompanion extends UpdateCompanion<FirmMember> {
   }
 }
 
+class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fullNameMeta = const VerificationMeta(
+    'fullName',
+  );
+  @override
+  late final GeneratedColumn<String> fullName = GeneratedColumn<String>(
+    'full_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _firmIdMeta = const VerificationMeta('firmId');
+  @override
+  late final GeneratedColumn<String> firmId = GeneratedColumn<String>(
+    'firm_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subscriptionStatusMeta =
+      const VerificationMeta('subscriptionStatus');
+  @override
+  late final GeneratedColumn<String> subscriptionStatus =
+      GeneratedColumn<String>(
+        'subscription_status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _subscriptionExpiryMeta =
+      const VerificationMeta('subscriptionExpiry');
+  @override
+  late final GeneratedColumn<int> subscriptionExpiry = GeneratedColumn<int>(
+    'subscription_expiry',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    fullName,
+    firmId,
+    role,
+    subscriptionStatus,
+    subscriptionExpiry,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Profile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('full_name')) {
+      context.handle(
+        _fullNameMeta,
+        fullName.isAcceptableOrUnknown(data['full_name']!, _fullNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fullNameMeta);
+    }
+    if (data.containsKey('firm_id')) {
+      context.handle(
+        _firmIdMeta,
+        firmId.isAcceptableOrUnknown(data['firm_id']!, _firmIdMeta),
+      );
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('subscription_status')) {
+      context.handle(
+        _subscriptionStatusMeta,
+        subscriptionStatus.isAcceptableOrUnknown(
+          data['subscription_status']!,
+          _subscriptionStatusMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subscriptionStatusMeta);
+    }
+    if (data.containsKey('subscription_expiry')) {
+      context.handle(
+        _subscriptionExpiryMeta,
+        subscriptionExpiry.isAcceptableOrUnknown(
+          data['subscription_expiry']!,
+          _subscriptionExpiryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Profile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Profile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      fullName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}full_name'],
+      )!,
+      firmId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}firm_id'],
+      ),
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      subscriptionStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subscription_status'],
+      )!,
+      subscriptionExpiry: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}subscription_expiry'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ProfilesTable createAlias(String alias) {
+    return $ProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class Profile extends DataClass implements Insertable<Profile> {
+  /// UUID primary key (mirrors auth.users / profiles.id).
+  final String id;
+
+  /// Display name.
+  final String fullName;
+
+  /// Firm membership; null for individual lawyers.
+  final String? firmId;
+
+  /// Role: `owner`, `associate`, `viewer`, or `individual`.
+  final String role;
+
+  /// Subscription status (`free`/`premium`) — display/analytics only.
+  final String subscriptionStatus;
+
+  /// Premium subscription expiry converted from TIMESTAMPTZ to epoch ms.
+  final int? subscriptionExpiry;
+
+  /// Profile creation timestamp (epoch ms, converted from TIMESTAMPTZ).
+  final int createdAt;
+  const Profile({
+    required this.id,
+    required this.fullName,
+    this.firmId,
+    required this.role,
+    required this.subscriptionStatus,
+    this.subscriptionExpiry,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['full_name'] = Variable<String>(fullName);
+    if (!nullToAbsent || firmId != null) {
+      map['firm_id'] = Variable<String>(firmId);
+    }
+    map['role'] = Variable<String>(role);
+    map['subscription_status'] = Variable<String>(subscriptionStatus);
+    if (!nullToAbsent || subscriptionExpiry != null) {
+      map['subscription_expiry'] = Variable<int>(subscriptionExpiry);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  ProfilesCompanion toCompanion(bool nullToAbsent) {
+    return ProfilesCompanion(
+      id: Value(id),
+      fullName: Value(fullName),
+      firmId: firmId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firmId),
+      role: Value(role),
+      subscriptionStatus: Value(subscriptionStatus),
+      subscriptionExpiry: subscriptionExpiry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subscriptionExpiry),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Profile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Profile(
+      id: serializer.fromJson<String>(json['id']),
+      fullName: serializer.fromJson<String>(json['fullName']),
+      firmId: serializer.fromJson<String?>(json['firmId']),
+      role: serializer.fromJson<String>(json['role']),
+      subscriptionStatus: serializer.fromJson<String>(
+        json['subscriptionStatus'],
+      ),
+      subscriptionExpiry: serializer.fromJson<int?>(json['subscriptionExpiry']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'fullName': serializer.toJson<String>(fullName),
+      'firmId': serializer.toJson<String?>(firmId),
+      'role': serializer.toJson<String>(role),
+      'subscriptionStatus': serializer.toJson<String>(subscriptionStatus),
+      'subscriptionExpiry': serializer.toJson<int?>(subscriptionExpiry),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  Profile copyWith({
+    String? id,
+    String? fullName,
+    Value<String?> firmId = const Value.absent(),
+    String? role,
+    String? subscriptionStatus,
+    Value<int?> subscriptionExpiry = const Value.absent(),
+    int? createdAt,
+  }) => Profile(
+    id: id ?? this.id,
+    fullName: fullName ?? this.fullName,
+    firmId: firmId.present ? firmId.value : this.firmId,
+    role: role ?? this.role,
+    subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
+    subscriptionExpiry: subscriptionExpiry.present
+        ? subscriptionExpiry.value
+        : this.subscriptionExpiry,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Profile copyWithCompanion(ProfilesCompanion data) {
+    return Profile(
+      id: data.id.present ? data.id.value : this.id,
+      fullName: data.fullName.present ? data.fullName.value : this.fullName,
+      firmId: data.firmId.present ? data.firmId.value : this.firmId,
+      role: data.role.present ? data.role.value : this.role,
+      subscriptionStatus: data.subscriptionStatus.present
+          ? data.subscriptionStatus.value
+          : this.subscriptionStatus,
+      subscriptionExpiry: data.subscriptionExpiry.present
+          ? data.subscriptionExpiry.value
+          : this.subscriptionExpiry,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Profile(')
+          ..write('id: $id, ')
+          ..write('fullName: $fullName, ')
+          ..write('firmId: $firmId, ')
+          ..write('role: $role, ')
+          ..write('subscriptionStatus: $subscriptionStatus, ')
+          ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    fullName,
+    firmId,
+    role,
+    subscriptionStatus,
+    subscriptionExpiry,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Profile &&
+          other.id == this.id &&
+          other.fullName == this.fullName &&
+          other.firmId == this.firmId &&
+          other.role == this.role &&
+          other.subscriptionStatus == this.subscriptionStatus &&
+          other.subscriptionExpiry == this.subscriptionExpiry &&
+          other.createdAt == this.createdAt);
+}
+
+class ProfilesCompanion extends UpdateCompanion<Profile> {
+  final Value<String> id;
+  final Value<String> fullName;
+  final Value<String?> firmId;
+  final Value<String> role;
+  final Value<String> subscriptionStatus;
+  final Value<int?> subscriptionExpiry;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const ProfilesCompanion({
+    this.id = const Value.absent(),
+    this.fullName = const Value.absent(),
+    this.firmId = const Value.absent(),
+    this.role = const Value.absent(),
+    this.subscriptionStatus = const Value.absent(),
+    this.subscriptionExpiry = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProfilesCompanion.insert({
+    required String id,
+    required String fullName,
+    this.firmId = const Value.absent(),
+    required String role,
+    required String subscriptionStatus,
+    this.subscriptionExpiry = const Value.absent(),
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       fullName = Value(fullName),
+       role = Value(role),
+       subscriptionStatus = Value(subscriptionStatus),
+       createdAt = Value(createdAt);
+  static Insertable<Profile> custom({
+    Expression<String>? id,
+    Expression<String>? fullName,
+    Expression<String>? firmId,
+    Expression<String>? role,
+    Expression<String>? subscriptionStatus,
+    Expression<int>? subscriptionExpiry,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fullName != null) 'full_name': fullName,
+      if (firmId != null) 'firm_id': firmId,
+      if (role != null) 'role': role,
+      if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
+      if (subscriptionExpiry != null) 'subscription_expiry': subscriptionExpiry,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProfilesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? fullName,
+    Value<String?>? firmId,
+    Value<String>? role,
+    Value<String>? subscriptionStatus,
+    Value<int?>? subscriptionExpiry,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return ProfilesCompanion(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      firmId: firmId ?? this.firmId,
+      role: role ?? this.role,
+      subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
+      subscriptionExpiry: subscriptionExpiry ?? this.subscriptionExpiry,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fullName.present) {
+      map['full_name'] = Variable<String>(fullName.value);
+    }
+    if (firmId.present) {
+      map['firm_id'] = Variable<String>(firmId.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (subscriptionStatus.present) {
+      map['subscription_status'] = Variable<String>(subscriptionStatus.value);
+    }
+    if (subscriptionExpiry.present) {
+      map['subscription_expiry'] = Variable<int>(subscriptionExpiry.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('fullName: $fullName, ')
+          ..write('firmId: $firmId, ')
+          ..write('role: $role, ')
+          ..write('subscriptionStatus: $subscriptionStatus, ')
+          ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueRow> {
   @override
@@ -12012,6 +12499,1516 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueRow> {
   }
 }
 
+class $SyncMetadataTable extends SyncMetadata
+    with TableInfo<$SyncMetadataTable, SyncMetadataRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncMetadataTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_metadata';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncMetadataRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  SyncMetadataRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncMetadataRow(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncMetadataTable createAlias(String alias) {
+    return $SyncMetadataTable(attachedDatabase, alias);
+  }
+}
+
+class SyncMetadataRow extends DataClass implements Insertable<SyncMetadataRow> {
+  /// Stable key for this metadata entry (e.g. `cursor.cases`,
+  /// `last_successful_sync_at`, `clock_offset_ms`, `recovery_required`,
+  /// `archive.path`, `archive.checksum`, `archive.state`,
+  /// `atomic_recovery_checkpoint`).
+  final String key;
+
+  /// Value as a plain string or JSON-encoded payload.
+  final String value;
+
+  /// Timestamp when this entry was last written (epoch ms).
+  final int updatedAt;
+  const SyncMetadataRow({
+    required this.key,
+    required this.value,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  SyncMetadataCompanion toCompanion(bool nullToAbsent) {
+    return SyncMetadataCompanion(
+      key: Value(key),
+      value: Value(value),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SyncMetadataRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncMetadataRow(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  SyncMetadataRow copyWith({String? key, String? value, int? updatedAt}) =>
+      SyncMetadataRow(
+        key: key ?? this.key,
+        value: value ?? this.value,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  SyncMetadataRow copyWithCompanion(SyncMetadataCompanion data) {
+    return SyncMetadataRow(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncMetadataRow(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, value, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncMetadataRow &&
+          other.key == this.key &&
+          other.value == this.value &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SyncMetadataCompanion extends UpdateCompanion<SyncMetadataRow> {
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const SyncMetadataCompanion({
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncMetadataCompanion.insert({
+    required String key,
+    required String value,
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value),
+       updatedAt = Value(updatedAt);
+  static Insertable<SyncMetadataRow> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncMetadataCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return SyncMetadataCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncMetadataCompanion(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SeedMigrationsTable extends SeedMigrations
+    with TableInfo<$SeedMigrationsTable, SeedMigration> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SeedMigrationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _migrationIdMeta = const VerificationMeta(
+    'migrationId',
+  );
+  @override
+  late final GeneratedColumn<String> migrationId = GeneratedColumn<String>(
+    'migration_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _checksumMeta = const VerificationMeta(
+    'checksum',
+  );
+  @override
+  late final GeneratedColumn<String> checksum = GeneratedColumn<String>(
+    'checksum',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _appliedAtMeta = const VerificationMeta(
+    'appliedAt',
+  );
+  @override
+  late final GeneratedColumn<int> appliedAt = GeneratedColumn<int>(
+    'applied_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [migrationId, checksum, appliedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'seed_migrations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SeedMigration> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('migration_id')) {
+      context.handle(
+        _migrationIdMeta,
+        migrationId.isAcceptableOrUnknown(
+          data['migration_id']!,
+          _migrationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_migrationIdMeta);
+    }
+    if (data.containsKey('checksum')) {
+      context.handle(
+        _checksumMeta,
+        checksum.isAcceptableOrUnknown(data['checksum']!, _checksumMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_checksumMeta);
+    }
+    if (data.containsKey('applied_at')) {
+      context.handle(
+        _appliedAtMeta,
+        appliedAt.isAcceptableOrUnknown(data['applied_at']!, _appliedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_appliedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {migrationId};
+  @override
+  SeedMigration map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SeedMigration(
+      migrationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}migration_id'],
+      )!,
+      checksum: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}checksum'],
+      )!,
+      appliedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}applied_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SeedMigrationsTable createAlias(String alias) {
+    return $SeedMigrationsTable(attachedDatabase, alias);
+  }
+}
+
+class SeedMigration extends DataClass implements Insertable<SeedMigration> {
+  /// Migration identifier (e.g. `seed_v1`).
+  final String migrationId;
+
+  /// Checksum / hash used to detect tampered or changed migration payloads.
+  final String checksum;
+
+  /// Timestamp when the migration was applied (epoch ms).
+  final int appliedAt;
+  const SeedMigration({
+    required this.migrationId,
+    required this.checksum,
+    required this.appliedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['migration_id'] = Variable<String>(migrationId);
+    map['checksum'] = Variable<String>(checksum);
+    map['applied_at'] = Variable<int>(appliedAt);
+    return map;
+  }
+
+  SeedMigrationsCompanion toCompanion(bool nullToAbsent) {
+    return SeedMigrationsCompanion(
+      migrationId: Value(migrationId),
+      checksum: Value(checksum),
+      appliedAt: Value(appliedAt),
+    );
+  }
+
+  factory SeedMigration.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SeedMigration(
+      migrationId: serializer.fromJson<String>(json['migrationId']),
+      checksum: serializer.fromJson<String>(json['checksum']),
+      appliedAt: serializer.fromJson<int>(json['appliedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'migrationId': serializer.toJson<String>(migrationId),
+      'checksum': serializer.toJson<String>(checksum),
+      'appliedAt': serializer.toJson<int>(appliedAt),
+    };
+  }
+
+  SeedMigration copyWith({
+    String? migrationId,
+    String? checksum,
+    int? appliedAt,
+  }) => SeedMigration(
+    migrationId: migrationId ?? this.migrationId,
+    checksum: checksum ?? this.checksum,
+    appliedAt: appliedAt ?? this.appliedAt,
+  );
+  SeedMigration copyWithCompanion(SeedMigrationsCompanion data) {
+    return SeedMigration(
+      migrationId: data.migrationId.present
+          ? data.migrationId.value
+          : this.migrationId,
+      checksum: data.checksum.present ? data.checksum.value : this.checksum,
+      appliedAt: data.appliedAt.present ? data.appliedAt.value : this.appliedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeedMigration(')
+          ..write('migrationId: $migrationId, ')
+          ..write('checksum: $checksum, ')
+          ..write('appliedAt: $appliedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(migrationId, checksum, appliedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SeedMigration &&
+          other.migrationId == this.migrationId &&
+          other.checksum == this.checksum &&
+          other.appliedAt == this.appliedAt);
+}
+
+class SeedMigrationsCompanion extends UpdateCompanion<SeedMigration> {
+  final Value<String> migrationId;
+  final Value<String> checksum;
+  final Value<int> appliedAt;
+  final Value<int> rowid;
+  const SeedMigrationsCompanion({
+    this.migrationId = const Value.absent(),
+    this.checksum = const Value.absent(),
+    this.appliedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SeedMigrationsCompanion.insert({
+    required String migrationId,
+    required String checksum,
+    required int appliedAt,
+    this.rowid = const Value.absent(),
+  }) : migrationId = Value(migrationId),
+       checksum = Value(checksum),
+       appliedAt = Value(appliedAt);
+  static Insertable<SeedMigration> custom({
+    Expression<String>? migrationId,
+    Expression<String>? checksum,
+    Expression<int>? appliedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (migrationId != null) 'migration_id': migrationId,
+      if (checksum != null) 'checksum': checksum,
+      if (appliedAt != null) 'applied_at': appliedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SeedMigrationsCompanion copyWith({
+    Value<String>? migrationId,
+    Value<String>? checksum,
+    Value<int>? appliedAt,
+    Value<int>? rowid,
+  }) {
+    return SeedMigrationsCompanion(
+      migrationId: migrationId ?? this.migrationId,
+      checksum: checksum ?? this.checksum,
+      appliedAt: appliedAt ?? this.appliedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (migrationId.present) {
+      map['migration_id'] = Variable<String>(migrationId.value);
+    }
+    if (checksum.present) {
+      map['checksum'] = Variable<String>(checksum.value);
+    }
+    if (appliedAt.present) {
+      map['applied_at'] = Variable<int>(appliedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeedMigrationsCompanion(')
+          ..write('migrationId: $migrationId, ')
+          ..write('checksum: $checksum, ')
+          ..write('appliedAt: $appliedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserPreferencesTable extends UserPreferences
+    with TableInfo<$UserPreferencesTable, UserPreference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserPreferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _languageMeta = const VerificationMeta(
+    'language',
+  );
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _themeMeta = const VerificationMeta('theme');
+  @override
+  late final GeneratedColumn<String> theme = GeneratedColumn<String>(
+    'theme',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _viewSettingsJsonMeta = const VerificationMeta(
+    'viewSettingsJson',
+  );
+  @override
+  late final GeneratedColumn<String> viewSettingsJson = GeneratedColumn<String>(
+    'view_settings_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notificationEnabledMeta =
+      const VerificationMeta('notificationEnabled');
+  @override
+  late final GeneratedColumn<bool> notificationEnabled = GeneratedColumn<bool>(
+    'notification_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("notification_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notificationTimeMeta = const VerificationMeta(
+    'notificationTime',
+  );
+  @override
+  late final GeneratedColumn<int> notificationTime = GeneratedColumn<int>(
+    'notification_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notificationDefaultOffsetsMeta =
+      const VerificationMeta('notificationDefaultOffsets');
+  @override
+  late final GeneratedColumn<String> notificationDefaultOffsets =
+      GeneratedColumn<String>(
+        'notification_default_offsets',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    userId,
+    language,
+    theme,
+    viewSettingsJson,
+    notificationEnabled,
+    notificationTime,
+    notificationDefaultOffsets,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_preferences';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserPreference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('language')) {
+      context.handle(
+        _languageMeta,
+        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    }
+    if (data.containsKey('theme')) {
+      context.handle(
+        _themeMeta,
+        theme.isAcceptableOrUnknown(data['theme']!, _themeMeta),
+      );
+    }
+    if (data.containsKey('view_settings_json')) {
+      context.handle(
+        _viewSettingsJsonMeta,
+        viewSettingsJson.isAcceptableOrUnknown(
+          data['view_settings_json']!,
+          _viewSettingsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notification_enabled')) {
+      context.handle(
+        _notificationEnabledMeta,
+        notificationEnabled.isAcceptableOrUnknown(
+          data['notification_enabled']!,
+          _notificationEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notification_time')) {
+      context.handle(
+        _notificationTimeMeta,
+        notificationTime.isAcceptableOrUnknown(
+          data['notification_time']!,
+          _notificationTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notification_default_offsets')) {
+      context.handle(
+        _notificationDefaultOffsetsMeta,
+        notificationDefaultOffsets.isAcceptableOrUnknown(
+          data['notification_default_offsets']!,
+          _notificationDefaultOffsetsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  UserPreference map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserPreference(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      ),
+      theme: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}theme'],
+      ),
+      viewSettingsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}view_settings_json'],
+      ),
+      notificationEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notification_enabled'],
+      )!,
+      notificationTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notification_time'],
+      ),
+      notificationDefaultOffsets: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notification_default_offsets'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserPreferencesTable createAlias(String alias) {
+    return $UserPreferencesTable(attachedDatabase, alias);
+  }
+}
+
+class UserPreference extends DataClass implements Insertable<UserPreference> {
+  /// User UUID these preferences belong to.
+  final String userId;
+
+  /// Selected UI language code (e.g. `en`, `bn`).
+  final String? language;
+
+  /// Selected theme mode (e.g. `light`, `dark`, `system`).
+  final String? theme;
+
+  /// JSON blob for view settings, navigation tab order, backup-nudge
+  /// metadata, and any other per-user view/navigation configuration.
+  final String? viewSettingsJson;
+
+  /// Master toggle for notifications.
+  final bool notificationEnabled;
+
+  /// Preferred notification time of day (epoch ms or minutes-since-midnight;
+  /// interpretation left to the notification task).
+  final int? notificationTime;
+
+  /// JSON array of default notification day offsets before a hearing.
+  final String? notificationDefaultOffsets;
+
+  /// Timestamp when these preferences were last updated (epoch ms).
+  final int updatedAt;
+  const UserPreference({
+    required this.userId,
+    this.language,
+    this.theme,
+    this.viewSettingsJson,
+    required this.notificationEnabled,
+    this.notificationTime,
+    this.notificationDefaultOffsets,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || theme != null) {
+      map['theme'] = Variable<String>(theme);
+    }
+    if (!nullToAbsent || viewSettingsJson != null) {
+      map['view_settings_json'] = Variable<String>(viewSettingsJson);
+    }
+    map['notification_enabled'] = Variable<bool>(notificationEnabled);
+    if (!nullToAbsent || notificationTime != null) {
+      map['notification_time'] = Variable<int>(notificationTime);
+    }
+    if (!nullToAbsent || notificationDefaultOffsets != null) {
+      map['notification_default_offsets'] = Variable<String>(
+        notificationDefaultOffsets,
+      );
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  UserPreferencesCompanion toCompanion(bool nullToAbsent) {
+    return UserPreferencesCompanion(
+      userId: Value(userId),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      theme: theme == null && nullToAbsent
+          ? const Value.absent()
+          : Value(theme),
+      viewSettingsJson: viewSettingsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(viewSettingsJson),
+      notificationEnabled: Value(notificationEnabled),
+      notificationTime: notificationTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notificationTime),
+      notificationDefaultOffsets:
+          notificationDefaultOffsets == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notificationDefaultOffsets),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserPreference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserPreference(
+      userId: serializer.fromJson<String>(json['userId']),
+      language: serializer.fromJson<String?>(json['language']),
+      theme: serializer.fromJson<String?>(json['theme']),
+      viewSettingsJson: serializer.fromJson<String?>(json['viewSettingsJson']),
+      notificationEnabled: serializer.fromJson<bool>(
+        json['notificationEnabled'],
+      ),
+      notificationTime: serializer.fromJson<int?>(json['notificationTime']),
+      notificationDefaultOffsets: serializer.fromJson<String?>(
+        json['notificationDefaultOffsets'],
+      ),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'language': serializer.toJson<String?>(language),
+      'theme': serializer.toJson<String?>(theme),
+      'viewSettingsJson': serializer.toJson<String?>(viewSettingsJson),
+      'notificationEnabled': serializer.toJson<bool>(notificationEnabled),
+      'notificationTime': serializer.toJson<int?>(notificationTime),
+      'notificationDefaultOffsets': serializer.toJson<String?>(
+        notificationDefaultOffsets,
+      ),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  UserPreference copyWith({
+    String? userId,
+    Value<String?> language = const Value.absent(),
+    Value<String?> theme = const Value.absent(),
+    Value<String?> viewSettingsJson = const Value.absent(),
+    bool? notificationEnabled,
+    Value<int?> notificationTime = const Value.absent(),
+    Value<String?> notificationDefaultOffsets = const Value.absent(),
+    int? updatedAt,
+  }) => UserPreference(
+    userId: userId ?? this.userId,
+    language: language.present ? language.value : this.language,
+    theme: theme.present ? theme.value : this.theme,
+    viewSettingsJson: viewSettingsJson.present
+        ? viewSettingsJson.value
+        : this.viewSettingsJson,
+    notificationEnabled: notificationEnabled ?? this.notificationEnabled,
+    notificationTime: notificationTime.present
+        ? notificationTime.value
+        : this.notificationTime,
+    notificationDefaultOffsets: notificationDefaultOffsets.present
+        ? notificationDefaultOffsets.value
+        : this.notificationDefaultOffsets,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserPreference copyWithCompanion(UserPreferencesCompanion data) {
+    return UserPreference(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      language: data.language.present ? data.language.value : this.language,
+      theme: data.theme.present ? data.theme.value : this.theme,
+      viewSettingsJson: data.viewSettingsJson.present
+          ? data.viewSettingsJson.value
+          : this.viewSettingsJson,
+      notificationEnabled: data.notificationEnabled.present
+          ? data.notificationEnabled.value
+          : this.notificationEnabled,
+      notificationTime: data.notificationTime.present
+          ? data.notificationTime.value
+          : this.notificationTime,
+      notificationDefaultOffsets: data.notificationDefaultOffsets.present
+          ? data.notificationDefaultOffsets.value
+          : this.notificationDefaultOffsets,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserPreference(')
+          ..write('userId: $userId, ')
+          ..write('language: $language, ')
+          ..write('theme: $theme, ')
+          ..write('viewSettingsJson: $viewSettingsJson, ')
+          ..write('notificationEnabled: $notificationEnabled, ')
+          ..write('notificationTime: $notificationTime, ')
+          ..write('notificationDefaultOffsets: $notificationDefaultOffsets, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    userId,
+    language,
+    theme,
+    viewSettingsJson,
+    notificationEnabled,
+    notificationTime,
+    notificationDefaultOffsets,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserPreference &&
+          other.userId == this.userId &&
+          other.language == this.language &&
+          other.theme == this.theme &&
+          other.viewSettingsJson == this.viewSettingsJson &&
+          other.notificationEnabled == this.notificationEnabled &&
+          other.notificationTime == this.notificationTime &&
+          other.notificationDefaultOffsets == this.notificationDefaultOffsets &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
+  final Value<String> userId;
+  final Value<String?> language;
+  final Value<String?> theme;
+  final Value<String?> viewSettingsJson;
+  final Value<bool> notificationEnabled;
+  final Value<int?> notificationTime;
+  final Value<String?> notificationDefaultOffsets;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const UserPreferencesCompanion({
+    this.userId = const Value.absent(),
+    this.language = const Value.absent(),
+    this.theme = const Value.absent(),
+    this.viewSettingsJson = const Value.absent(),
+    this.notificationEnabled = const Value.absent(),
+    this.notificationTime = const Value.absent(),
+    this.notificationDefaultOffsets = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserPreferencesCompanion.insert({
+    required String userId,
+    this.language = const Value.absent(),
+    this.theme = const Value.absent(),
+    this.viewSettingsJson = const Value.absent(),
+    this.notificationEnabled = const Value.absent(),
+    this.notificationTime = const Value.absent(),
+    this.notificationDefaultOffsets = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserPreference> custom({
+    Expression<String>? userId,
+    Expression<String>? language,
+    Expression<String>? theme,
+    Expression<String>? viewSettingsJson,
+    Expression<bool>? notificationEnabled,
+    Expression<int>? notificationTime,
+    Expression<String>? notificationDefaultOffsets,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (language != null) 'language': language,
+      if (theme != null) 'theme': theme,
+      if (viewSettingsJson != null) 'view_settings_json': viewSettingsJson,
+      if (notificationEnabled != null)
+        'notification_enabled': notificationEnabled,
+      if (notificationTime != null) 'notification_time': notificationTime,
+      if (notificationDefaultOffsets != null)
+        'notification_default_offsets': notificationDefaultOffsets,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserPreferencesCompanion copyWith({
+    Value<String>? userId,
+    Value<String?>? language,
+    Value<String?>? theme,
+    Value<String?>? viewSettingsJson,
+    Value<bool>? notificationEnabled,
+    Value<int?>? notificationTime,
+    Value<String?>? notificationDefaultOffsets,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserPreferencesCompanion(
+      userId: userId ?? this.userId,
+      language: language ?? this.language,
+      theme: theme ?? this.theme,
+      viewSettingsJson: viewSettingsJson ?? this.viewSettingsJson,
+      notificationEnabled: notificationEnabled ?? this.notificationEnabled,
+      notificationTime: notificationTime ?? this.notificationTime,
+      notificationDefaultOffsets:
+          notificationDefaultOffsets ?? this.notificationDefaultOffsets,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (theme.present) {
+      map['theme'] = Variable<String>(theme.value);
+    }
+    if (viewSettingsJson.present) {
+      map['view_settings_json'] = Variable<String>(viewSettingsJson.value);
+    }
+    if (notificationEnabled.present) {
+      map['notification_enabled'] = Variable<bool>(notificationEnabled.value);
+    }
+    if (notificationTime.present) {
+      map['notification_time'] = Variable<int>(notificationTime.value);
+    }
+    if (notificationDefaultOffsets.present) {
+      map['notification_default_offsets'] = Variable<String>(
+        notificationDefaultOffsets.value,
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserPreferencesCompanion(')
+          ..write('userId: $userId, ')
+          ..write('language: $language, ')
+          ..write('theme: $theme, ')
+          ..write('viewSettingsJson: $viewSettingsJson, ')
+          ..write('notificationEnabled: $notificationEnabled, ')
+          ..write('notificationTime: $notificationTime, ')
+          ..write('notificationDefaultOffsets: $notificationDefaultOffsets, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CaseNotificationPreferencesTable extends CaseNotificationPreferences
+    with
+        TableInfo<
+          $CaseNotificationPreferencesTable,
+          CaseNotificationPreference
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CaseNotificationPreferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _caseIdMeta = const VerificationMeta('caseId');
+  @override
+  late final GeneratedColumn<String> caseId = GeneratedColumn<String>(
+    'case_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _offsetsMeta = const VerificationMeta(
+    'offsets',
+  );
+  @override
+  late final GeneratedColumn<String> offsets = GeneratedColumn<String>(
+    'offsets',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    userId,
+    caseId,
+    enabled,
+    offsets,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'case_notification_preferences';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CaseNotificationPreference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('case_id')) {
+      context.handle(
+        _caseIdMeta,
+        caseId.isAcceptableOrUnknown(data['case_id']!, _caseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_caseIdMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('offsets')) {
+      context.handle(
+        _offsetsMeta,
+        offsets.isAcceptableOrUnknown(data['offsets']!, _offsetsMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, caseId};
+  @override
+  CaseNotificationPreference map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CaseNotificationPreference(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      caseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_id'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+      offsets: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}offsets'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CaseNotificationPreferencesTable createAlias(String alias) {
+    return $CaseNotificationPreferencesTable(attachedDatabase, alias);
+  }
+}
+
+class CaseNotificationPreference extends DataClass
+    implements Insertable<CaseNotificationPreference> {
+  /// User UUID these preferences belong to.
+  final String userId;
+
+  /// Case UUID.
+  final String caseId;
+
+  /// Whether notifications are enabled for this case.
+  final bool enabled;
+
+  /// JSON array of day offsets for this case; if null, falls back to the
+  /// user's default offsets.
+  final String? offsets;
+
+  /// Timestamp when these preferences were last updated (epoch ms).
+  final int updatedAt;
+  const CaseNotificationPreference({
+    required this.userId,
+    required this.caseId,
+    required this.enabled,
+    this.offsets,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['case_id'] = Variable<String>(caseId);
+    map['enabled'] = Variable<bool>(enabled);
+    if (!nullToAbsent || offsets != null) {
+      map['offsets'] = Variable<String>(offsets);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  CaseNotificationPreferencesCompanion toCompanion(bool nullToAbsent) {
+    return CaseNotificationPreferencesCompanion(
+      userId: Value(userId),
+      caseId: Value(caseId),
+      enabled: Value(enabled),
+      offsets: offsets == null && nullToAbsent
+          ? const Value.absent()
+          : Value(offsets),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CaseNotificationPreference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CaseNotificationPreference(
+      userId: serializer.fromJson<String>(json['userId']),
+      caseId: serializer.fromJson<String>(json['caseId']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+      offsets: serializer.fromJson<String?>(json['offsets']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'caseId': serializer.toJson<String>(caseId),
+      'enabled': serializer.toJson<bool>(enabled),
+      'offsets': serializer.toJson<String?>(offsets),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  CaseNotificationPreference copyWith({
+    String? userId,
+    String? caseId,
+    bool? enabled,
+    Value<String?> offsets = const Value.absent(),
+    int? updatedAt,
+  }) => CaseNotificationPreference(
+    userId: userId ?? this.userId,
+    caseId: caseId ?? this.caseId,
+    enabled: enabled ?? this.enabled,
+    offsets: offsets.present ? offsets.value : this.offsets,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CaseNotificationPreference copyWithCompanion(
+    CaseNotificationPreferencesCompanion data,
+  ) {
+    return CaseNotificationPreference(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      caseId: data.caseId.present ? data.caseId.value : this.caseId,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      offsets: data.offsets.present ? data.offsets.value : this.offsets,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CaseNotificationPreference(')
+          ..write('userId: $userId, ')
+          ..write('caseId: $caseId, ')
+          ..write('enabled: $enabled, ')
+          ..write('offsets: $offsets, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, caseId, enabled, offsets, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CaseNotificationPreference &&
+          other.userId == this.userId &&
+          other.caseId == this.caseId &&
+          other.enabled == this.enabled &&
+          other.offsets == this.offsets &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CaseNotificationPreferencesCompanion
+    extends UpdateCompanion<CaseNotificationPreference> {
+  final Value<String> userId;
+  final Value<String> caseId;
+  final Value<bool> enabled;
+  final Value<String?> offsets;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const CaseNotificationPreferencesCompanion({
+    this.userId = const Value.absent(),
+    this.caseId = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.offsets = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CaseNotificationPreferencesCompanion.insert({
+    required String userId,
+    required String caseId,
+    this.enabled = const Value.absent(),
+    this.offsets = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       caseId = Value(caseId),
+       updatedAt = Value(updatedAt);
+  static Insertable<CaseNotificationPreference> custom({
+    Expression<String>? userId,
+    Expression<String>? caseId,
+    Expression<bool>? enabled,
+    Expression<String>? offsets,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (caseId != null) 'case_id': caseId,
+      if (enabled != null) 'enabled': enabled,
+      if (offsets != null) 'offsets': offsets,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CaseNotificationPreferencesCompanion copyWith({
+    Value<String>? userId,
+    Value<String>? caseId,
+    Value<bool>? enabled,
+    Value<String?>? offsets,
+    Value<int>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CaseNotificationPreferencesCompanion(
+      userId: userId ?? this.userId,
+      caseId: caseId ?? this.caseId,
+      enabled: enabled ?? this.enabled,
+      offsets: offsets ?? this.offsets,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (caseId.present) {
+      map['case_id'] = Variable<String>(caseId.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (offsets.present) {
+      map['offsets'] = Variable<String>(offsets.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CaseNotificationPreferencesCompanion(')
+          ..write('userId: $userId, ')
+          ..write('caseId: $caseId, ')
+          ..write('enabled: $enabled, ')
+          ..write('offsets: $offsets, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12030,7 +14027,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ConflictLogTable conflictLog = $ConflictLogTable(this);
   late final $FirmsTable firms = $FirmsTable(this);
   late final $FirmMembersTable firmMembers = $FirmMembersTable(this);
+  late final $ProfilesTable profiles = $ProfilesTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
+  late final $SyncMetadataTable syncMetadata = $SyncMetadataTable(this);
+  late final $SeedMigrationsTable seedMigrations = $SeedMigrationsTable(this);
+  late final $UserPreferencesTable userPreferences = $UserPreferencesTable(
+    this,
+  );
+  late final $CaseNotificationPreferencesTable caseNotificationPreferences =
+      $CaseNotificationPreferencesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12049,7 +14054,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     conflictLog,
     firms,
     firmMembers,
+    profiles,
     syncQueue,
+    syncMetadata,
+    seedMigrations,
+    userPreferences,
+    caseNotificationPreferences,
   ];
 }
 
@@ -18462,6 +20472,242 @@ typedef $$FirmMembersTableProcessedTableManager =
       FirmMember,
       PrefetchHooks Function()
     >;
+typedef $$ProfilesTableCreateCompanionBuilder =
+    ProfilesCompanion Function({
+      required String id,
+      required String fullName,
+      Value<String?> firmId,
+      required String role,
+      required String subscriptionStatus,
+      Value<int?> subscriptionExpiry,
+      required int createdAt,
+      Value<int> rowid,
+    });
+typedef $$ProfilesTableUpdateCompanionBuilder =
+    ProfilesCompanion Function({
+      Value<String> id,
+      Value<String> fullName,
+      Value<String?> firmId,
+      Value<String> role,
+      Value<String> subscriptionStatus,
+      Value<int?> subscriptionExpiry,
+      Value<int> createdAt,
+      Value<int> rowid,
+    });
+
+class $$ProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $ProfilesTable> {
+  $$ProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fullName => $composableBuilder(
+    column: $table.fullName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subscriptionStatus => $composableBuilder(
+    column: $table.subscriptionStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get subscriptionExpiry => $composableBuilder(
+    column: $table.subscriptionExpiry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProfilesTable> {
+  $$ProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fullName => $composableBuilder(
+    column: $table.fullName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subscriptionStatus => $composableBuilder(
+    column: $table.subscriptionStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get subscriptionExpiry => $composableBuilder(
+    column: $table.subscriptionExpiry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProfilesTable> {
+  $$ProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fullName =>
+      $composableBuilder(column: $table.fullName, builder: (column) => column);
+
+  GeneratedColumn<String> get firmId =>
+      $composableBuilder(column: $table.firmId, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get subscriptionStatus => $composableBuilder(
+    column: $table.subscriptionStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get subscriptionExpiry => $composableBuilder(
+    column: $table.subscriptionExpiry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$ProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ProfilesTable,
+          Profile,
+          $$ProfilesTableFilterComposer,
+          $$ProfilesTableOrderingComposer,
+          $$ProfilesTableAnnotationComposer,
+          $$ProfilesTableCreateCompanionBuilder,
+          $$ProfilesTableUpdateCompanionBuilder,
+          (Profile, BaseReferences<_$AppDatabase, $ProfilesTable, Profile>),
+          Profile,
+          PrefetchHooks Function()
+        > {
+  $$ProfilesTableTableManager(_$AppDatabase db, $ProfilesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> fullName = const Value.absent(),
+                Value<String?> firmId = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> subscriptionStatus = const Value.absent(),
+                Value<int?> subscriptionExpiry = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ProfilesCompanion(
+                id: id,
+                fullName: fullName,
+                firmId: firmId,
+                role: role,
+                subscriptionStatus: subscriptionStatus,
+                subscriptionExpiry: subscriptionExpiry,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String fullName,
+                Value<String?> firmId = const Value.absent(),
+                required String role,
+                required String subscriptionStatus,
+                Value<int?> subscriptionExpiry = const Value.absent(),
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ProfilesCompanion.insert(
+                id: id,
+                fullName: fullName,
+                firmId: firmId,
+                role: role,
+                subscriptionStatus: subscriptionStatus,
+                subscriptionExpiry: subscriptionExpiry,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ProfilesTable,
+      Profile,
+      $$ProfilesTableFilterComposer,
+      $$ProfilesTableOrderingComposer,
+      $$ProfilesTableAnnotationComposer,
+      $$ProfilesTableCreateCompanionBuilder,
+      $$ProfilesTableUpdateCompanionBuilder,
+      (Profile, BaseReferences<_$AppDatabase, $ProfilesTable, Profile>),
+      Profile,
+      PrefetchHooks Function()
+    >;
 typedef $$SyncQueueTableCreateCompanionBuilder =
     SyncQueueCompanion Function({
       Value<int> id,
@@ -18862,6 +21108,826 @@ typedef $$SyncQueueTableProcessedTableManager =
       SyncQueueRow,
       PrefetchHooks Function()
     >;
+typedef $$SyncMetadataTableCreateCompanionBuilder =
+    SyncMetadataCompanion Function({
+      required String key,
+      required String value,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$SyncMetadataTableUpdateCompanionBuilder =
+    SyncMetadataCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$SyncMetadataTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncMetadataTable> {
+  $$SyncMetadataTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncMetadataTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncMetadataTable> {
+  $$SyncMetadataTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncMetadataTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncMetadataTable> {
+  $$SyncMetadataTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SyncMetadataTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncMetadataTable,
+          SyncMetadataRow,
+          $$SyncMetadataTableFilterComposer,
+          $$SyncMetadataTableOrderingComposer,
+          $$SyncMetadataTableAnnotationComposer,
+          $$SyncMetadataTableCreateCompanionBuilder,
+          $$SyncMetadataTableUpdateCompanionBuilder,
+          (
+            SyncMetadataRow,
+            BaseReferences<_$AppDatabase, $SyncMetadataTable, SyncMetadataRow>,
+          ),
+          SyncMetadataRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncMetadataTableTableManager(_$AppDatabase db, $SyncMetadataTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncMetadataTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncMetadataTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncMetadataTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncMetadataCompanion(
+                key: key,
+                value: value,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String key,
+                required String value,
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SyncMetadataCompanion.insert(
+                key: key,
+                value: value,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncMetadataTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncMetadataTable,
+      SyncMetadataRow,
+      $$SyncMetadataTableFilterComposer,
+      $$SyncMetadataTableOrderingComposer,
+      $$SyncMetadataTableAnnotationComposer,
+      $$SyncMetadataTableCreateCompanionBuilder,
+      $$SyncMetadataTableUpdateCompanionBuilder,
+      (
+        SyncMetadataRow,
+        BaseReferences<_$AppDatabase, $SyncMetadataTable, SyncMetadataRow>,
+      ),
+      SyncMetadataRow,
+      PrefetchHooks Function()
+    >;
+typedef $$SeedMigrationsTableCreateCompanionBuilder =
+    SeedMigrationsCompanion Function({
+      required String migrationId,
+      required String checksum,
+      required int appliedAt,
+      Value<int> rowid,
+    });
+typedef $$SeedMigrationsTableUpdateCompanionBuilder =
+    SeedMigrationsCompanion Function({
+      Value<String> migrationId,
+      Value<String> checksum,
+      Value<int> appliedAt,
+      Value<int> rowid,
+    });
+
+class $$SeedMigrationsTableFilterComposer
+    extends Composer<_$AppDatabase, $SeedMigrationsTable> {
+  $$SeedMigrationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get migrationId => $composableBuilder(
+    column: $table.migrationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get checksum => $composableBuilder(
+    column: $table.checksum,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get appliedAt => $composableBuilder(
+    column: $table.appliedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SeedMigrationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SeedMigrationsTable> {
+  $$SeedMigrationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get migrationId => $composableBuilder(
+    column: $table.migrationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get checksum => $composableBuilder(
+    column: $table.checksum,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get appliedAt => $composableBuilder(
+    column: $table.appliedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SeedMigrationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SeedMigrationsTable> {
+  $$SeedMigrationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get migrationId => $composableBuilder(
+    column: $table.migrationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get checksum =>
+      $composableBuilder(column: $table.checksum, builder: (column) => column);
+
+  GeneratedColumn<int> get appliedAt =>
+      $composableBuilder(column: $table.appliedAt, builder: (column) => column);
+}
+
+class $$SeedMigrationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SeedMigrationsTable,
+          SeedMigration,
+          $$SeedMigrationsTableFilterComposer,
+          $$SeedMigrationsTableOrderingComposer,
+          $$SeedMigrationsTableAnnotationComposer,
+          $$SeedMigrationsTableCreateCompanionBuilder,
+          $$SeedMigrationsTableUpdateCompanionBuilder,
+          (
+            SeedMigration,
+            BaseReferences<_$AppDatabase, $SeedMigrationsTable, SeedMigration>,
+          ),
+          SeedMigration,
+          PrefetchHooks Function()
+        > {
+  $$SeedMigrationsTableTableManager(
+    _$AppDatabase db,
+    $SeedMigrationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SeedMigrationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SeedMigrationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SeedMigrationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> migrationId = const Value.absent(),
+                Value<String> checksum = const Value.absent(),
+                Value<int> appliedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SeedMigrationsCompanion(
+                migrationId: migrationId,
+                checksum: checksum,
+                appliedAt: appliedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String migrationId,
+                required String checksum,
+                required int appliedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SeedMigrationsCompanion.insert(
+                migrationId: migrationId,
+                checksum: checksum,
+                appliedAt: appliedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SeedMigrationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SeedMigrationsTable,
+      SeedMigration,
+      $$SeedMigrationsTableFilterComposer,
+      $$SeedMigrationsTableOrderingComposer,
+      $$SeedMigrationsTableAnnotationComposer,
+      $$SeedMigrationsTableCreateCompanionBuilder,
+      $$SeedMigrationsTableUpdateCompanionBuilder,
+      (
+        SeedMigration,
+        BaseReferences<_$AppDatabase, $SeedMigrationsTable, SeedMigration>,
+      ),
+      SeedMigration,
+      PrefetchHooks Function()
+    >;
+typedef $$UserPreferencesTableCreateCompanionBuilder =
+    UserPreferencesCompanion Function({
+      required String userId,
+      Value<String?> language,
+      Value<String?> theme,
+      Value<String?> viewSettingsJson,
+      Value<bool> notificationEnabled,
+      Value<int?> notificationTime,
+      Value<String?> notificationDefaultOffsets,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$UserPreferencesTableUpdateCompanionBuilder =
+    UserPreferencesCompanion Function({
+      Value<String> userId,
+      Value<String?> language,
+      Value<String?> theme,
+      Value<String?> viewSettingsJson,
+      Value<bool> notificationEnabled,
+      Value<int?> notificationTime,
+      Value<String?> notificationDefaultOffsets,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$UserPreferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $UserPreferencesTable> {
+  $$UserPreferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get theme => $composableBuilder(
+    column: $table.theme,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get viewSettingsJson => $composableBuilder(
+    column: $table.viewSettingsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notificationEnabled => $composableBuilder(
+    column: $table.notificationEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notificationTime => $composableBuilder(
+    column: $table.notificationTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notificationDefaultOffsets => $composableBuilder(
+    column: $table.notificationDefaultOffsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UserPreferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserPreferencesTable> {
+  $$UserPreferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get theme => $composableBuilder(
+    column: $table.theme,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get viewSettingsJson => $composableBuilder(
+    column: $table.viewSettingsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notificationEnabled => $composableBuilder(
+    column: $table.notificationEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notificationTime => $composableBuilder(
+    column: $table.notificationTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notificationDefaultOffsets => $composableBuilder(
+    column: $table.notificationDefaultOffsets,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UserPreferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserPreferencesTable> {
+  $$UserPreferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get theme =>
+      $composableBuilder(column: $table.theme, builder: (column) => column);
+
+  GeneratedColumn<String> get viewSettingsJson => $composableBuilder(
+    column: $table.viewSettingsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get notificationEnabled => $composableBuilder(
+    column: $table.notificationEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notificationTime => $composableBuilder(
+    column: $table.notificationTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notificationDefaultOffsets => $composableBuilder(
+    column: $table.notificationDefaultOffsets,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$UserPreferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserPreferencesTable,
+          UserPreference,
+          $$UserPreferencesTableFilterComposer,
+          $$UserPreferencesTableOrderingComposer,
+          $$UserPreferencesTableAnnotationComposer,
+          $$UserPreferencesTableCreateCompanionBuilder,
+          $$UserPreferencesTableUpdateCompanionBuilder,
+          (
+            UserPreference,
+            BaseReferences<
+              _$AppDatabase,
+              $UserPreferencesTable,
+              UserPreference
+            >,
+          ),
+          UserPreference,
+          PrefetchHooks Function()
+        > {
+  $$UserPreferencesTableTableManager(
+    _$AppDatabase db,
+    $UserPreferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserPreferencesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserPreferencesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserPreferencesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String?> language = const Value.absent(),
+                Value<String?> theme = const Value.absent(),
+                Value<String?> viewSettingsJson = const Value.absent(),
+                Value<bool> notificationEnabled = const Value.absent(),
+                Value<int?> notificationTime = const Value.absent(),
+                Value<String?> notificationDefaultOffsets =
+                    const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserPreferencesCompanion(
+                userId: userId,
+                language: language,
+                theme: theme,
+                viewSettingsJson: viewSettingsJson,
+                notificationEnabled: notificationEnabled,
+                notificationTime: notificationTime,
+                notificationDefaultOffsets: notificationDefaultOffsets,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                Value<String?> language = const Value.absent(),
+                Value<String?> theme = const Value.absent(),
+                Value<String?> viewSettingsJson = const Value.absent(),
+                Value<bool> notificationEnabled = const Value.absent(),
+                Value<int?> notificationTime = const Value.absent(),
+                Value<String?> notificationDefaultOffsets =
+                    const Value.absent(),
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserPreferencesCompanion.insert(
+                userId: userId,
+                language: language,
+                theme: theme,
+                viewSettingsJson: viewSettingsJson,
+                notificationEnabled: notificationEnabled,
+                notificationTime: notificationTime,
+                notificationDefaultOffsets: notificationDefaultOffsets,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UserPreferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserPreferencesTable,
+      UserPreference,
+      $$UserPreferencesTableFilterComposer,
+      $$UserPreferencesTableOrderingComposer,
+      $$UserPreferencesTableAnnotationComposer,
+      $$UserPreferencesTableCreateCompanionBuilder,
+      $$UserPreferencesTableUpdateCompanionBuilder,
+      (
+        UserPreference,
+        BaseReferences<_$AppDatabase, $UserPreferencesTable, UserPreference>,
+      ),
+      UserPreference,
+      PrefetchHooks Function()
+    >;
+typedef $$CaseNotificationPreferencesTableCreateCompanionBuilder =
+    CaseNotificationPreferencesCompanion Function({
+      required String userId,
+      required String caseId,
+      Value<bool> enabled,
+      Value<String?> offsets,
+      required int updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CaseNotificationPreferencesTableUpdateCompanionBuilder =
+    CaseNotificationPreferencesCompanion Function({
+      Value<String> userId,
+      Value<String> caseId,
+      Value<bool> enabled,
+      Value<String?> offsets,
+      Value<int> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CaseNotificationPreferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $CaseNotificationPreferencesTable> {
+  $$CaseNotificationPreferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get offsets => $composableBuilder(
+    column: $table.offsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CaseNotificationPreferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CaseNotificationPreferencesTable> {
+  $$CaseNotificationPreferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get offsets => $composableBuilder(
+    column: $table.offsets,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CaseNotificationPreferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CaseNotificationPreferencesTable> {
+  $$CaseNotificationPreferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get caseId =>
+      $composableBuilder(column: $table.caseId, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<String> get offsets =>
+      $composableBuilder(column: $table.offsets, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CaseNotificationPreferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CaseNotificationPreferencesTable,
+          CaseNotificationPreference,
+          $$CaseNotificationPreferencesTableFilterComposer,
+          $$CaseNotificationPreferencesTableOrderingComposer,
+          $$CaseNotificationPreferencesTableAnnotationComposer,
+          $$CaseNotificationPreferencesTableCreateCompanionBuilder,
+          $$CaseNotificationPreferencesTableUpdateCompanionBuilder,
+          (
+            CaseNotificationPreference,
+            BaseReferences<
+              _$AppDatabase,
+              $CaseNotificationPreferencesTable,
+              CaseNotificationPreference
+            >,
+          ),
+          CaseNotificationPreference,
+          PrefetchHooks Function()
+        > {
+  $$CaseNotificationPreferencesTableTableManager(
+    _$AppDatabase db,
+    $CaseNotificationPreferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CaseNotificationPreferencesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CaseNotificationPreferencesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CaseNotificationPreferencesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String> caseId = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<String?> offsets = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CaseNotificationPreferencesCompanion(
+                userId: userId,
+                caseId: caseId,
+                enabled: enabled,
+                offsets: offsets,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                required String caseId,
+                Value<bool> enabled = const Value.absent(),
+                Value<String?> offsets = const Value.absent(),
+                required int updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CaseNotificationPreferencesCompanion.insert(
+                userId: userId,
+                caseId: caseId,
+                enabled: enabled,
+                offsets: offsets,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CaseNotificationPreferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CaseNotificationPreferencesTable,
+      CaseNotificationPreference,
+      $$CaseNotificationPreferencesTableFilterComposer,
+      $$CaseNotificationPreferencesTableOrderingComposer,
+      $$CaseNotificationPreferencesTableAnnotationComposer,
+      $$CaseNotificationPreferencesTableCreateCompanionBuilder,
+      $$CaseNotificationPreferencesTableUpdateCompanionBuilder,
+      (
+        CaseNotificationPreference,
+        BaseReferences<
+          _$AppDatabase,
+          $CaseNotificationPreferencesTable,
+          CaseNotificationPreference
+        >,
+      ),
+      CaseNotificationPreference,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18892,6 +21958,20 @@ class $AppDatabaseManager {
       $$FirmsTableTableManager(_db, _db.firms);
   $$FirmMembersTableTableManager get firmMembers =>
       $$FirmMembersTableTableManager(_db, _db.firmMembers);
+  $$ProfilesTableTableManager get profiles =>
+      $$ProfilesTableTableManager(_db, _db.profiles);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
+  $$SyncMetadataTableTableManager get syncMetadata =>
+      $$SyncMetadataTableTableManager(_db, _db.syncMetadata);
+  $$SeedMigrationsTableTableManager get seedMigrations =>
+      $$SeedMigrationsTableTableManager(_db, _db.seedMigrations);
+  $$UserPreferencesTableTableManager get userPreferences =>
+      $$UserPreferencesTableTableManager(_db, _db.userPreferences);
+  $$CaseNotificationPreferencesTableTableManager
+  get caseNotificationPreferences =>
+      $$CaseNotificationPreferencesTableTableManager(
+        _db,
+        _db.caseNotificationPreferences,
+      );
 }

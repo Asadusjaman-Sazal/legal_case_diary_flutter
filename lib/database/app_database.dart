@@ -11,9 +11,14 @@ import 'tables/conflict_log_table.dart';
 import 'tables/court_categories_table.dart';
 import 'tables/courts_table.dart';
 import 'tables/delete_requests_table.dart';
+import 'tables/case_notification_preferences_table.dart';
 import 'tables/firm_members_table.dart';
 import 'tables/firms_table.dart';
 import 'tables/notes_table.dart';
+import 'tables/profiles_table.dart';
+import 'tables/seed_migrations_table.dart';
+import 'tables/sync_metadata_table.dart';
+import 'tables/user_preferences_table.dart';
 import 'tables/on_behalfs_table.dart';
 import 'tables/references_table.dart';
 import 'tables/steps_table.dart';
@@ -37,7 +42,12 @@ part 'app_database.g.dart';
     ConflictLog,
     Firms,
     FirmMembers,
+    Profiles,
     SyncQueue,
+    SyncMetadata,
+    SeedMigrations,
+    UserPreferences,
+    CaseNotificationPreferences,
   ],
 )
 class AppDatabase extends _$AppDatabase {

@@ -1,5 +1,5 @@
 /// Local encrypted Drift database definition.
-/// Assembles all tables for Task 03.
+/// Assembles all tables for Task 03 and provides sync-aware query helpers.
 library;
 
 import 'package:drift/drift.dart';
@@ -57,4 +57,117 @@ class AppDatabase extends _$AppDatabase {
   /// Current schema version.
   @override
   int get schemaVersion => 1;
+
+  /// Migration strategy for the local Drift database.
+  ///
+  /// [onCreate] creates all tables at schema version 1. [onUpgrade] is a
+  /// skeleton for future schema changes. [beforeOpen] enables foreign-key
+  /// enforcement and runs any post-migration integrity steps.
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+        },
+        onUpgrade: (m, from, to) async {
+          // Phase 4: schema version 1; no upgrades yet.
+          // Future schema changes will be handled here with explicit
+          // step-by-step migrations (e.g., from 1 to 2, 2 to 3, etc.).
+        },
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON;');
+        },
+      );
+
+  // --------------------------------------------------------------------------
+  // Standing query helpers — all UI queries should filter `is_deleted = 0`.
+  // --------------------------------------------------------------------------
+
+  /// Active (non-deleted) cases.
+  Selectable<Case> get activeCases =>
+      select(cases)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) case history entries.
+  Selectable<CaseHistoryRow> get activeCaseHistory =>
+      select(caseHistory)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) courts.
+  Selectable<Court> get activeCourts =>
+      select(courts)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) steps.
+  Selectable<Step> get activeSteps =>
+      select(steps)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) case types.
+  Selectable<CaseType> get activeCaseTypes =>
+      select(caseTypes)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) on-behalf options.
+  Selectable<OnBehalf> get activeOnBehalfs =>
+      select(onBehalfs)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) notes.
+  Selectable<Note> get activeNotes =>
+      select(notes)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) case references.
+  Selectable<CaseReference> get activeCaseReferences =>
+      select(caseReferences)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) delete requests.
+  Selectable<DeleteRequest> get activeDeleteRequests =>
+      select(deleteRequests)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) court categories.
+  Selectable<CourtCategory> get activeCourtCategories =>
+      select(courtCategories)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) conflict log entries.
+  Selectable<ConflictLogRow> get activeConflictLog =>
+      select(conflictLog)..where((row) => row.isDeleted.equals(false));
+
+  // --------------------------------------------------------------------------
+  // Purge policy stub (full implementation in Part B).
+  // --------------------------------------------------------------------------
+
+  /// Purges soft-deleted rows older than 90 days **only when** they have been
+  /// successfully synced (`synced_at` is not null and `synced_at >= updated_at`).
+  ///
+  /// In Part A nothing ever syncs, so the guard below ensures unsynced
+  /// tombstones are never purged. Hard deletes are intentionally avoided.
+  Future<void> purgeSoftDeletedRecords() async {
+    const retentionDays = 90;
+    final cutoff = DateTime.now().toUtc().subtract(
+      const Duration(days: retentionDays),
+    );
+    final cutoffMs = cutoff.millisecondsSinceEpoch;
+
+    // Guard: only purge rows that were soft-deleted after a successful sync.
+    // In Part A, synced_at is always null, so the WHERE below makes this a
+    // no-op while keeping the correct future behavior encoded in code.
+    await transaction(() async {
+      await _purgeSyncableTable('cases', cutoffMs);
+      await _purgeSyncableTable('case_history', cutoffMs);
+      await _purgeSyncableTable('court_categories', cutoffMs);
+      await _purgeSyncableTable('courts', cutoffMs);
+      await _purgeSyncableTable('steps', cutoffMs);
+      await _purgeSyncableTable('case_types', cutoffMs);
+      await _purgeSyncableTable('on_behalfs', cutoffMs);
+      await _purgeSyncableTable('notes', cutoffMs);
+      await _purgeSyncableTable('case_references', cutoffMs);
+      await _purgeSyncableTable('delete_requests', cutoffMs);
+      await _purgeSyncableTable('conflict_log', cutoffMs);
+    });
+  }
+
+  /// Deletes soft-deleted rows from [tableName] that are older than the cutoff
+  /// and have been successfully synced. Uses raw SQL so the column-to-column
+  /// comparison (`synced_at >= updated_at`) is expressed directly.
+  Future<void> _purgeSyncableTable(String tableName, int cutoffMs) async {
+    await customStatement(
+      'DELETE FROM "$tableName" WHERE is_deleted = 1 '
+      'AND updated_at < ? AND synced_at IS NOT NULL AND synced_at >= updated_at',
+      [cutoffMs],
+    );
+  }
 }

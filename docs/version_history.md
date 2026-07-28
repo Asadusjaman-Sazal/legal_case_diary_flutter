@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.26 - Task 03 Phase 3 complete: added profiles (pull-only cache), sync_metadata, seed_migrations, user_preferences, and case_notification_preferences tables; registered in AppDatabase; Drift code regenerated; flutter analyze clean, 28 tests pass.
+Version: 0.0.28 - Task 03 Phase 4 audit fixes: added missing activeCourtCategories and activeConflictLog standing query helpers; flutter analyze clean, tests pass (2 skipped mobile-only).
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -41,3 +41,8 @@ Version: 0.0.25 - Task 03 Phase 2 audit fixes: implemented firms_table.dart and 
 Version: 0.0.24 - Task 03 Phase 2: added per-table Drift definitions for cases, case_history, courts, steps, case_types, on_behalfs, notes, references, sync_queue, court_categories, delete_requests, and conflict_log; fixed data-class name conflicts; added `is_deleted`/`is_custom`/`is_user_modified` defaults; made required FK and hearing_date non-nullable; added `retry_count` default 0; flutter analyze clean, all tests pass.
 Version: 0.0.25 - Task 03 Phase 2 audit fixes: implemented firms_table.dart and firm_members_table.dart (pull-only caches), added missing boolean defaults to conflict_log.isDismissed, notes.isPinned, and references.isPinned; flutter analyze clean, 28 tests pass.
 Version: 0.0.26 - Task 03 Phase 3 complete: added profiles (pull-only cache), sync_metadata, seed_migrations, user_preferences, and case_notification_preferences tables; registered in AppDatabase; Drift code regenerated; flutter analyze clean, 28 tests pass.
+Version: 0.0.27 - Task 03 Phase 4 complete: wired AppDatabase into databaseProvider, added MigrationStrategy skeleton with foreign-key enforcement, standing query helpers filtering is_deleted = 0, purge policy stub, and schema verification tests; flutter analyze clean, 35 tests pass (2 skipped mobile-only).
+Version: 0.0.28 - Task 03 Phase 4 audit fixes: added missing activeCourtCategories and activeConflictLog standing query helpers; flutter analyze clean, tests pass (2 skipped mobile-only).
+
+
+

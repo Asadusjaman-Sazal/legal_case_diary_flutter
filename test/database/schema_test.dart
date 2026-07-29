@@ -191,6 +191,7 @@ Future<void> _seedReferencedRows(AppDatabase db) async {
       id: const Value('ob-1'),
       courtCategoryId: const Value('cat-1'),
       name: const Value('Plaintiff'),
+      orderIndex: const Value(0),
       updatedAt: Value(now),
     ),
   );

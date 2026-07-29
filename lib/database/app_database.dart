@@ -56,22 +56,23 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   /// Migration strategy for the local Drift database.
   ///
-  /// [onCreate] creates all tables at schema version 1. [onUpgrade] is a
-  /// skeleton for future schema changes. [beforeOpen] enables foreign-key
-  /// enforcement and runs any post-migration integrity steps.
+  /// [onCreate] creates all tables at schema version 2. [onUpgrade] migrates
+  /// from v1→v2 by adding `order_index` columns to case_types and on_behalfs.
+  /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
         },
         onUpgrade: (m, from, to) async {
-          // Phase 4: schema version 1; no upgrades yet.
-          // Future schema changes will be handled here with explicit
-          // step-by-step migrations (e.g., from 1 to 2, 2 to 3, etc.).
+          if (from < 2) {
+            await m.addColumn(caseTypes, caseTypes.orderIndex);
+            await m.addColumn(onBehalfs, onBehalfs.orderIndex);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON;');

@@ -1,13 +1,11 @@
-### 2026-07-29 — Current Task: Task 04 (Pre-Seeded Data & Versioned Seed Migrations) — COMPLETE
+### 2026-07-29 — Current Task: Task 05 Phase 2 (Repositories, DAOs & State Management — Sync-Ready Local Write Pipeline) — COMPLETE
 
-All phases complete:
-- Phase 1: `pre_seeded_data.dart` with typed structures, stable IDs, all domain data (8 categories, 8 divisions, 64+ districts, supreme courts, lower courts for Dhaka & Narayanganj, steps, case types, on-behalfs, disposed steps)
-- Phase 2: `seed_migration_runner.dart` with versioned, idempotent seed migrations using SQLite UPSERT to preserve user-modified rows, checksum ledger
-- Phase 3: `seed_data_test.dart` — 24 tests covering all data structures, uniqueness, labels, mandatory on-behalf mapping
-- Phase 4: `seed_migration_runner_test.dart` — in-memory Drift integration tests verifying seeding, idempotency, and user-modified row preservation
-- L10n: ARB files updated with 8 new on-behalf roles, `app_translations.dart` seed label resolver
-- `database_provider.dart` triggers seed migrations on startup
+Implemented in Phase 2:
+- `lib/core/services/local_identity_service.dart` — stable placeholder UUID persisted in SharedPreferences for Part A, bridge to Supabase `auth.uid()` in Part B.
+- `lib/sync/sync_write_helper.dart` — shared helper used by repositories: `recordInsert`/`recordUpdate`/`recordDelete`, offline compaction matrix, `conflict_pending` guard, `SyncColumns` sync-column values, and `syncWriteHelperProvider`.
+- `lib/sync/sync_queue_dao.dart` — fixed `updateState` to use targeted `UPDATE ... WHERE` instead of `replace`.
+- `test/sync/sync_write_helper_test.dart` — unit tests for all compaction matrix outcomes plus conflict guard, first update, mutation-id retention, and sync columns.
 
-`flutter analyze` clean, all 63 tests pass.
+`flutter analyze` clean, 72 tests pass (2 skipped mobile-only).
 
-**Next:** Task 05 — Repositories, DAOs, and State Management.
+**Next:** Task 05 Phase 3 — Repositories.

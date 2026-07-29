@@ -18,6 +18,9 @@ class CaseTypes extends Table {
   /// Display name of the case type.
   TextColumn get name => text()();
 
+  /// Display order within the category.
+  IntColumn get orderIndex => integer()();
+
   /// True if added by the user; false if pre-seeded.
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 

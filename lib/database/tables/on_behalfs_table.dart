@@ -18,6 +18,9 @@ class OnBehalfs extends Table {
   /// Display name of the role.
   TextColumn get name => text()();
 
+  /// Display order within the category.
+  IntColumn get orderIndex => integer()();
+
   /// True if added by the user; false if pre-seeded.
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 

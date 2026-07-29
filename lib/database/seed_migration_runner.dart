@@ -159,16 +159,17 @@ class SeedMigrationRunner {
       for (final ct in cat.caseTypes) {
         await db.customStatement(
           '''INSERT INTO case_types
-             (id, court_category_id, name, is_custom, is_user_modified,
+             (id, court_category_id, name, order_index, is_custom, is_user_modified,
               user_id, firm_id,
               updated_at, version, synced_at, is_deleted, last_modified_by)
-             VALUES (?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+             VALUES (?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
              ON CONFLICT(id) DO UPDATE SET
                court_category_id = excluded.court_category_id,
                name = excluded.name,
+               order_index = excluded.order_index,
                updated_at = excluded.updated_at
              WHERE case_types.is_user_modified = 0''',
-          [ct.id, cat.id, ct.labelEn, _nowMs],
+          [ct.id, cat.id, ct.labelEn, ct.orderIndex, _nowMs],
         );
       }
     }
@@ -181,16 +182,17 @@ class SeedMigrationRunner {
       for (final ob in cat.onBehalfs) {
         await db.customStatement(
           '''INSERT INTO on_behalfs
-             (id, court_category_id, name, is_custom, is_user_modified,
+             (id, court_category_id, name, order_index, is_custom, is_user_modified,
               user_id, firm_id,
               updated_at, version, synced_at, is_deleted, last_modified_by)
-             VALUES (?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+             VALUES (?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
              ON CONFLICT(id) DO UPDATE SET
                court_category_id = excluded.court_category_id,
                name = excluded.name,
+               order_index = excluded.order_index,
                updated_at = excluded.updated_at
              WHERE on_behalfs.is_user_modified = 0''',
-          [ob.id, cat.id, ob.labelEn, _nowMs],
+          [ob.id, cat.id, ob.labelEn, ob.orderIndex, _nowMs],
         );
       }
     }

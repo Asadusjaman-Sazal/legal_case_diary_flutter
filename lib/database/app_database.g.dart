@@ -1726,6 +1726,17 @@ class $OnBehalfsTable extends OnBehalfs
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _isCustomMeta = const VerificationMeta(
     'isCustom',
   );
@@ -1838,6 +1849,7 @@ class $OnBehalfsTable extends OnBehalfs
     id,
     courtCategoryId,
     name,
+    orderIndex,
     isCustom,
     isUserModified,
     userId,
@@ -1883,6 +1895,14 @@ class $OnBehalfsTable extends OnBehalfs
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
     }
     if (data.containsKey('is_custom')) {
       context.handle(
@@ -1967,6 +1987,10 @@ class $OnBehalfsTable extends OnBehalfs
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
       isCustom: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_custom'],
@@ -2022,6 +2046,9 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
   /// Display name of the role.
   final String name;
 
+  /// Display order within the category.
+  final int orderIndex;
+
   /// True if added by the user; false if pre-seeded.
   final bool isCustom;
 
@@ -2042,6 +2069,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
     required this.id,
     required this.courtCategoryId,
     required this.name,
+    required this.orderIndex,
     required this.isCustom,
     required this.isUserModified,
     this.userId,
@@ -2058,6 +2086,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
     map['id'] = Variable<String>(id);
     map['court_category_id'] = Variable<String>(courtCategoryId);
     map['name'] = Variable<String>(name);
+    map['order_index'] = Variable<int>(orderIndex);
     map['is_custom'] = Variable<bool>(isCustom);
     map['is_user_modified'] = Variable<bool>(isUserModified);
     if (!nullToAbsent || userId != null) {
@@ -2085,6 +2114,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
       id: Value(id),
       courtCategoryId: Value(courtCategoryId),
       name: Value(name),
+      orderIndex: Value(orderIndex),
       isCustom: Value(isCustom),
       isUserModified: Value(isUserModified),
       userId: userId == null && nullToAbsent
@@ -2116,6 +2146,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
       id: serializer.fromJson<String>(json['id']),
       courtCategoryId: serializer.fromJson<String>(json['courtCategoryId']),
       name: serializer.fromJson<String>(json['name']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
       isUserModified: serializer.fromJson<bool>(json['isUserModified']),
       userId: serializer.fromJson<String?>(json['userId']),
@@ -2134,6 +2165,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
       'id': serializer.toJson<String>(id),
       'courtCategoryId': serializer.toJson<String>(courtCategoryId),
       'name': serializer.toJson<String>(name),
+      'orderIndex': serializer.toJson<int>(orderIndex),
       'isCustom': serializer.toJson<bool>(isCustom),
       'isUserModified': serializer.toJson<bool>(isUserModified),
       'userId': serializer.toJson<String?>(userId),
@@ -2150,6 +2182,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
     String? id,
     String? courtCategoryId,
     String? name,
+    int? orderIndex,
     bool? isCustom,
     bool? isUserModified,
     Value<String?> userId = const Value.absent(),
@@ -2163,6 +2196,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
     id: id ?? this.id,
     courtCategoryId: courtCategoryId ?? this.courtCategoryId,
     name: name ?? this.name,
+    orderIndex: orderIndex ?? this.orderIndex,
     isCustom: isCustom ?? this.isCustom,
     isUserModified: isUserModified ?? this.isUserModified,
     userId: userId.present ? userId.value : this.userId,
@@ -2182,6 +2216,9 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
           ? data.courtCategoryId.value
           : this.courtCategoryId,
       name: data.name.present ? data.name.value : this.name,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
       isUserModified: data.isUserModified.present
           ? data.isUserModified.value
@@ -2204,6 +2241,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
           ..write('id: $id, ')
           ..write('courtCategoryId: $courtCategoryId, ')
           ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -2222,6 +2260,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
     id,
     courtCategoryId,
     name,
+    orderIndex,
     isCustom,
     isUserModified,
     userId,
@@ -2239,6 +2278,7 @@ class OnBehalf extends DataClass implements Insertable<OnBehalf> {
           other.id == this.id &&
           other.courtCategoryId == this.courtCategoryId &&
           other.name == this.name &&
+          other.orderIndex == this.orderIndex &&
           other.isCustom == this.isCustom &&
           other.isUserModified == this.isUserModified &&
           other.userId == this.userId &&
@@ -2254,6 +2294,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
   final Value<String> id;
   final Value<String> courtCategoryId;
   final Value<String> name;
+  final Value<int> orderIndex;
   final Value<bool> isCustom;
   final Value<bool> isUserModified;
   final Value<String?> userId;
@@ -2268,6 +2309,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
     this.id = const Value.absent(),
     this.courtCategoryId = const Value.absent(),
     this.name = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -2283,6 +2325,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
     required String id,
     required String courtCategoryId,
     required String name,
+    required int orderIndex,
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -2296,11 +2339,13 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
   }) : id = Value(id),
        courtCategoryId = Value(courtCategoryId),
        name = Value(name),
+       orderIndex = Value(orderIndex),
        updatedAt = Value(updatedAt);
   static Insertable<OnBehalf> custom({
     Expression<String>? id,
     Expression<String>? courtCategoryId,
     Expression<String>? name,
+    Expression<int>? orderIndex,
     Expression<bool>? isCustom,
     Expression<bool>? isUserModified,
     Expression<String>? userId,
@@ -2316,6 +2361,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
       if (id != null) 'id': id,
       if (courtCategoryId != null) 'court_category_id': courtCategoryId,
       if (name != null) 'name': name,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (isCustom != null) 'is_custom': isCustom,
       if (isUserModified != null) 'is_user_modified': isUserModified,
       if (userId != null) 'user_id': userId,
@@ -2333,6 +2379,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
     Value<String>? id,
     Value<String>? courtCategoryId,
     Value<String>? name,
+    Value<int>? orderIndex,
     Value<bool>? isCustom,
     Value<bool>? isUserModified,
     Value<String?>? userId,
@@ -2348,6 +2395,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
       id: id ?? this.id,
       courtCategoryId: courtCategoryId ?? this.courtCategoryId,
       name: name ?? this.name,
+      orderIndex: orderIndex ?? this.orderIndex,
       isCustom: isCustom ?? this.isCustom,
       isUserModified: isUserModified ?? this.isUserModified,
       userId: userId ?? this.userId,
@@ -2372,6 +2420,9 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
     }
     if (isCustom.present) {
       map['is_custom'] = Variable<bool>(isCustom.value);
@@ -2412,6 +2463,7 @@ class OnBehalfsCompanion extends UpdateCompanion<OnBehalf> {
           ..write('id: $id, ')
           ..write('courtCategoryId: $courtCategoryId, ')
           ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -5675,6 +5727,17 @@ class $CaseTypesTable extends CaseTypes
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _isCustomMeta = const VerificationMeta(
     'isCustom',
   );
@@ -5787,6 +5850,7 @@ class $CaseTypesTable extends CaseTypes
     id,
     courtCategoryId,
     name,
+    orderIndex,
     isCustom,
     isUserModified,
     userId,
@@ -5832,6 +5896,14 @@ class $CaseTypesTable extends CaseTypes
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
     }
     if (data.containsKey('is_custom')) {
       context.handle(
@@ -5916,6 +5988,10 @@ class $CaseTypesTable extends CaseTypes
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
       isCustom: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_custom'],
@@ -5971,6 +6047,9 @@ class CaseType extends DataClass implements Insertable<CaseType> {
   /// Display name of the case type.
   final String name;
 
+  /// Display order within the category.
+  final int orderIndex;
+
   /// True if added by the user; false if pre-seeded.
   final bool isCustom;
 
@@ -5991,6 +6070,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
     required this.id,
     required this.courtCategoryId,
     required this.name,
+    required this.orderIndex,
     required this.isCustom,
     required this.isUserModified,
     this.userId,
@@ -6007,6 +6087,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
     map['id'] = Variable<String>(id);
     map['court_category_id'] = Variable<String>(courtCategoryId);
     map['name'] = Variable<String>(name);
+    map['order_index'] = Variable<int>(orderIndex);
     map['is_custom'] = Variable<bool>(isCustom);
     map['is_user_modified'] = Variable<bool>(isUserModified);
     if (!nullToAbsent || userId != null) {
@@ -6034,6 +6115,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
       id: Value(id),
       courtCategoryId: Value(courtCategoryId),
       name: Value(name),
+      orderIndex: Value(orderIndex),
       isCustom: Value(isCustom),
       isUserModified: Value(isUserModified),
       userId: userId == null && nullToAbsent
@@ -6065,6 +6147,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
       id: serializer.fromJson<String>(json['id']),
       courtCategoryId: serializer.fromJson<String>(json['courtCategoryId']),
       name: serializer.fromJson<String>(json['name']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
       isUserModified: serializer.fromJson<bool>(json['isUserModified']),
       userId: serializer.fromJson<String?>(json['userId']),
@@ -6083,6 +6166,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
       'id': serializer.toJson<String>(id),
       'courtCategoryId': serializer.toJson<String>(courtCategoryId),
       'name': serializer.toJson<String>(name),
+      'orderIndex': serializer.toJson<int>(orderIndex),
       'isCustom': serializer.toJson<bool>(isCustom),
       'isUserModified': serializer.toJson<bool>(isUserModified),
       'userId': serializer.toJson<String?>(userId),
@@ -6099,6 +6183,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
     String? id,
     String? courtCategoryId,
     String? name,
+    int? orderIndex,
     bool? isCustom,
     bool? isUserModified,
     Value<String?> userId = const Value.absent(),
@@ -6112,6 +6197,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
     id: id ?? this.id,
     courtCategoryId: courtCategoryId ?? this.courtCategoryId,
     name: name ?? this.name,
+    orderIndex: orderIndex ?? this.orderIndex,
     isCustom: isCustom ?? this.isCustom,
     isUserModified: isUserModified ?? this.isUserModified,
     userId: userId.present ? userId.value : this.userId,
@@ -6131,6 +6217,9 @@ class CaseType extends DataClass implements Insertable<CaseType> {
           ? data.courtCategoryId.value
           : this.courtCategoryId,
       name: data.name.present ? data.name.value : this.name,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
       isUserModified: data.isUserModified.present
           ? data.isUserModified.value
@@ -6153,6 +6242,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
           ..write('id: $id, ')
           ..write('courtCategoryId: $courtCategoryId, ')
           ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -6171,6 +6261,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
     id,
     courtCategoryId,
     name,
+    orderIndex,
     isCustom,
     isUserModified,
     userId,
@@ -6188,6 +6279,7 @@ class CaseType extends DataClass implements Insertable<CaseType> {
           other.id == this.id &&
           other.courtCategoryId == this.courtCategoryId &&
           other.name == this.name &&
+          other.orderIndex == this.orderIndex &&
           other.isCustom == this.isCustom &&
           other.isUserModified == this.isUserModified &&
           other.userId == this.userId &&
@@ -6203,6 +6295,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
   final Value<String> id;
   final Value<String> courtCategoryId;
   final Value<String> name;
+  final Value<int> orderIndex;
   final Value<bool> isCustom;
   final Value<bool> isUserModified;
   final Value<String?> userId;
@@ -6217,6 +6310,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
     this.id = const Value.absent(),
     this.courtCategoryId = const Value.absent(),
     this.name = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -6232,6 +6326,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
     required String id,
     required String courtCategoryId,
     required String name,
+    required int orderIndex,
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -6245,11 +6340,13 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
   }) : id = Value(id),
        courtCategoryId = Value(courtCategoryId),
        name = Value(name),
+       orderIndex = Value(orderIndex),
        updatedAt = Value(updatedAt);
   static Insertable<CaseType> custom({
     Expression<String>? id,
     Expression<String>? courtCategoryId,
     Expression<String>? name,
+    Expression<int>? orderIndex,
     Expression<bool>? isCustom,
     Expression<bool>? isUserModified,
     Expression<String>? userId,
@@ -6265,6 +6362,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
       if (id != null) 'id': id,
       if (courtCategoryId != null) 'court_category_id': courtCategoryId,
       if (name != null) 'name': name,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (isCustom != null) 'is_custom': isCustom,
       if (isUserModified != null) 'is_user_modified': isUserModified,
       if (userId != null) 'user_id': userId,
@@ -6282,6 +6380,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
     Value<String>? id,
     Value<String>? courtCategoryId,
     Value<String>? name,
+    Value<int>? orderIndex,
     Value<bool>? isCustom,
     Value<bool>? isUserModified,
     Value<String?>? userId,
@@ -6297,6 +6396,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
       id: id ?? this.id,
       courtCategoryId: courtCategoryId ?? this.courtCategoryId,
       name: name ?? this.name,
+      orderIndex: orderIndex ?? this.orderIndex,
       isCustom: isCustom ?? this.isCustom,
       isUserModified: isUserModified ?? this.isUserModified,
       userId: userId ?? this.userId,
@@ -6321,6 +6421,9 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
     }
     if (isCustom.present) {
       map['is_custom'] = Variable<bool>(isCustom.value);
@@ -6361,6 +6464,7 @@ class CaseTypesCompanion extends UpdateCompanion<CaseType> {
           ..write('id: $id, ')
           ..write('courtCategoryId: $courtCategoryId, ')
           ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -15420,6 +15524,7 @@ typedef $$OnBehalfsTableCreateCompanionBuilder =
       required String id,
       required String courtCategoryId,
       required String name,
+      required int orderIndex,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -15436,6 +15541,7 @@ typedef $$OnBehalfsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> courtCategoryId,
       Value<String> name,
+      Value<int> orderIndex,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -15506,6 +15612,11 @@ class $$OnBehalfsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15622,6 +15733,11 @@ class $$OnBehalfsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
     builder: (column) => ColumnOrderings(column),
@@ -15705,6 +15821,11 @@ class $$OnBehalfsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
@@ -15817,6 +15938,7 @@ class $$OnBehalfsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> courtCategoryId = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -15831,6 +15953,7 @@ class $$OnBehalfsTableTableManager
                 id: id,
                 courtCategoryId: courtCategoryId,
                 name: name,
+                orderIndex: orderIndex,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,
@@ -15847,6 +15970,7 @@ class $$OnBehalfsTableTableManager
                 required String id,
                 required String courtCategoryId,
                 required String name,
+                required int orderIndex,
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -15861,6 +15985,7 @@ class $$OnBehalfsTableTableManager
                 id: id,
                 courtCategoryId: courtCategoryId,
                 name: name,
+                orderIndex: orderIndex,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,
@@ -17881,6 +18006,7 @@ typedef $$CaseTypesTableCreateCompanionBuilder =
       required String id,
       required String courtCategoryId,
       required String name,
+      required int orderIndex,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -17897,6 +18023,7 @@ typedef $$CaseTypesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> courtCategoryId,
       Value<String> name,
+      Value<int> orderIndex,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -17948,6 +18075,11 @@ class $$CaseTypesTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18039,6 +18171,11 @@ class $$CaseTypesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
     builder: (column) => ColumnOrderings(column),
@@ -18122,6 +18259,11 @@ class $$CaseTypesTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
@@ -18209,6 +18351,7 @@ class $$CaseTypesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> courtCategoryId = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -18223,6 +18366,7 @@ class $$CaseTypesTableTableManager
                 id: id,
                 courtCategoryId: courtCategoryId,
                 name: name,
+                orderIndex: orderIndex,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,
@@ -18239,6 +18383,7 @@ class $$CaseTypesTableTableManager
                 required String id,
                 required String courtCategoryId,
                 required String name,
+                required int orderIndex,
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -18253,6 +18398,7 @@ class $$CaseTypesTableTableManager
                 id: id,
                 courtCategoryId: courtCategoryId,
                 name: name,
+                orderIndex: orderIndex,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,

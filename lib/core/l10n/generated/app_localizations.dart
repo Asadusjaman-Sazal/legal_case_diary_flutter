@@ -842,6 +842,54 @@ abstract class AppLocalizations {
   /// **'Respondent'**
   String get onBehalf_respondent;
 
+  /// No description provided for @onBehalf_writPetitioner.
+  ///
+  /// In en, this message translates to:
+  /// **'Writ Petitioner'**
+  String get onBehalf_writPetitioner;
+
+  /// No description provided for @onBehalf_state.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get onBehalf_state;
+
+  /// No description provided for @onBehalf_victim.
+  ///
+  /// In en, this message translates to:
+  /// **'Victim'**
+  String get onBehalf_victim;
+
+  /// No description provided for @onBehalf_complainant.
+  ///
+  /// In en, this message translates to:
+  /// **'Complainant'**
+  String get onBehalf_complainant;
+
+  /// No description provided for @onBehalf_informant.
+  ///
+  /// In en, this message translates to:
+  /// **'Informant'**
+  String get onBehalf_informant;
+
+  /// No description provided for @onBehalf_applicant.
+  ///
+  /// In en, this message translates to:
+  /// **'Applicant'**
+  String get onBehalf_applicant;
+
+  /// No description provided for @onBehalf_claimant.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimant'**
+  String get onBehalf_claimant;
+
+  /// No description provided for @onBehalf_objector.
+  ///
+  /// In en, this message translates to:
+  /// **'Objector'**
+  String get onBehalf_objector;
+
   /// No description provided for @caseType_civil.
   ///
   /// In en, this message translates to:

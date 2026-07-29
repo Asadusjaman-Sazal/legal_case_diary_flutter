@@ -391,6 +391,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onBehalf_respondent => 'Respondent';
 
   @override
+  String get onBehalf_writPetitioner => 'Writ Petitioner';
+
+  @override
+  String get onBehalf_state => 'State';
+
+  @override
+  String get onBehalf_victim => 'Victim';
+
+  @override
+  String get onBehalf_complainant => 'Complainant';
+
+  @override
+  String get onBehalf_informant => 'Informant';
+
+  @override
+  String get onBehalf_applicant => 'Applicant';
+
+  @override
+  String get onBehalf_claimant => 'Claimant';
+
+  @override
+  String get onBehalf_objector => 'Objector';
+
+  @override
   String get caseType_civil => 'Civil';
 
   @override

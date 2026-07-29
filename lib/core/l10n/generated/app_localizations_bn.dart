@@ -389,6 +389,30 @@ class AppLocalizationsBn extends AppLocalizations {
   String get onBehalf_respondent => 'বিবাদী';
 
   @override
+  String get onBehalf_writPetitioner => 'রিট আবেদনকারী';
+
+  @override
+  String get onBehalf_state => 'রাষ্ট্র';
+
+  @override
+  String get onBehalf_victim => 'ভিকটিম';
+
+  @override
+  String get onBehalf_complainant => 'বাদী';
+
+  @override
+  String get onBehalf_informant => 'তথ্যদাতা';
+
+  @override
+  String get onBehalf_applicant => 'আবেদনকারী';
+
+  @override
+  String get onBehalf_claimant => 'দাবিদার';
+
+  @override
+  String get onBehalf_objector => 'আপত্তিকারী';
+
+  @override
   String get caseType_civil => 'দেওয়ানি';
 
   @override

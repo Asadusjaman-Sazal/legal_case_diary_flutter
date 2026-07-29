@@ -157,6 +157,17 @@ abstract class AppStrings {
   static const String onBehalfPetitioner = "onBehalf_petitioner";
   static const String onBehalfPlaintiff = "onBehalf_plaintiff";
   static const String onBehalfRespondent = "onBehalf_respondent";
+  static const String onBehalfWritPetitioner = "onBehalf_writPetitioner";
+  static const String onBehalfState = "onBehalf_state";
+  static const String onBehalfVictim = "onBehalf_victim";
+  static const String onBehalfComplainant = "onBehalf_complainant";
+  static const String onBehalfInformant = "onBehalf_informant";
+  static const String onBehalfApplicant = "onBehalf_applicant";
+  static const String onBehalfClaimant = "onBehalf_claimant";
+  static const String onBehalfObjector = "onBehalf_objector";
+
+  // seedData
+  static const String seedDataGroup = "seedData";
 
   // overdueDatesScreen
   static const String overdueDatesScreenGroup = "overdueDatesScreen";

@@ -1,9 +1,15 @@
 import 'package:flutter/widgets.dart';
 
+import '../../core/constants/pre_seeded_data.dart' as seed;
 import 'app_strings.dart';
 import 'generated/app_localizations.dart';
 
 /// Central, hierarchical, screen-grouped access to the generated [AppLocalizations].
+///
+/// WARNING: This file is manually maintained. The generate_l10n.py script
+/// regenerates app_strings.dart and a simpler version of this file from ARB.
+/// Do not run that script without preserving the seedLabel() method and the
+/// manual grouped-map structure below.
 ///
 /// Pre-seeded items (court categories, steps, case types, on-behalfs, divisions)
 /// and shared actions live alongside screen-specific translations. The [grouped]
@@ -16,6 +22,36 @@ class AppTranslations {
 
   /// Direct typed access to the generated localizations instance.
   AppLocalizations get raw => _loc;
+
+  /// Resolves a seed data stable ID to its localized label.
+  ///
+  /// Looks up the label from the pre-seeded data maps based on the current
+  /// locale. Returns [fallbackEn] if the ID is not found in any map.
+  String seedLabel(String stableId, {String fallbackEn = ''}) {
+    final isBengali = _loc.localeName.startsWith('bn');
+    // Check each label map in priority order.
+    final maps = isBengali
+        ? <Map<String, String>>[
+            seed.stepLabelBn,
+            seed.caseTypeLabelBn,
+            seed.onBehalfLabelBn,
+            seed.courtLabelBn,
+            seed.districtLabelBn,
+            seed.divisionLabelBn,
+          ]
+        : <Map<String, String>>[
+            seed.stepLabelEn,
+            seed.caseTypeLabelEn,
+            seed.onBehalfLabelEn,
+            seed.courtLabelEn,
+            seed.districtLabelEn,
+            seed.divisionLabelEn,
+          ];
+    for (final map in maps) {
+      if (map.containsKey(stableId)) return map[stableId]!;
+    }
+    return fallbackEn;
+  }
 
   /// Hierarchical nested map of translations grouped by screen / domain.
   ///
@@ -157,6 +193,14 @@ class AppTranslations {
       AppStrings.onBehalfPetitioner: _loc.onBehalf_petitioner,
       AppStrings.onBehalfPlaintiff: _loc.onBehalf_plaintiff,
       AppStrings.onBehalfRespondent: _loc.onBehalf_respondent,
+      AppStrings.onBehalfWritPetitioner: _loc.onBehalf_writPetitioner,
+      AppStrings.onBehalfState: _loc.onBehalf_state,
+      AppStrings.onBehalfVictim: _loc.onBehalf_victim,
+      AppStrings.onBehalfComplainant: _loc.onBehalf_complainant,
+      AppStrings.onBehalfInformant: _loc.onBehalf_informant,
+      AppStrings.onBehalfApplicant: _loc.onBehalf_applicant,
+      AppStrings.onBehalfClaimant: _loc.onBehalf_claimant,
+      AppStrings.onBehalfObjector: _loc.onBehalf_objector,
     },
     AppStrings.overdueDatesScreenGroup: <String, String>{
       AppStrings.overdueDatesScreenLastupdated: _loc.overdueDatesScreen_lastUpdated,

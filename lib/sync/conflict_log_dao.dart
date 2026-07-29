@@ -60,7 +60,8 @@ class ConflictLogDao {
   Future<int> insert(ConflictLogCompanion conflict) => db.into(db.conflictLog).insert(conflict);
 
   /// Updates a conflict log entry. Returns true if a row was affected.
-  Future<bool> update(ConflictLogCompanion conflict) => db.update(db.conflictLog).replace(conflict);
+  Future<bool> update(ConflictLogCompanion conflict) async =>
+      await (db.update(db.conflictLog)..where((row) => row.id.equals(conflict.id.value))).write(conflict) > 0;
 
   /// Marks a conflict log entry as dismissed.
   Future<int> dismiss(String id, int updatedAt) => db.update(db.conflictLog).write(

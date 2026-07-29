@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.32 - Task 05 Phase 2: implemented local identity placeholder service with localIdentityServiceProvider, SyncWriteHelper with sync column values, offline compaction matrix (insert+update, insert+delete, update+delete, multiple updates), conflict_pending guard, and syncWriteHelperProvider; fixed SyncQueueDao.updateState to use targeted UPDATE ... WHERE; added comprehensive unit tests; flutter analyze clean, 72 tests pass (2 skipped).
+Version: 0.0.34 - Task 05 Phase 4: implemented AsyncNotifier-based Riverpod ViewModels for cases, daily cause list, notes, case references, settings, court categories/courts/steps/case types/on-behalfs, and delete requests; added repository providers; created BaseListViewModel; updated auth/payment stubs for Part B; added ViewModel unit tests; flutter analyze clean, 93 tests pass (2 skipped).
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -47,5 +47,7 @@ Version: 0.0.29 - Task 04 complete: pre-seeded data with stable deterministic ID
 Version: 0.0.30 - Task 04 audit fixes: seed migrations preserve user-modified rows via SQLite UPSERT; in-memory Drift integration tests for runner, idempotency, and preservation; all tests pass.
 Version: 0.0.31 - Task 05 Phase 1: implemented 17 DAOs for cases, case history, notes, references, courts, court categories, steps, case types, on-behalfs, profiles, firms, firm members, user preferences, case notification preferences, sync queue, delete requests, and conflict log; soft-delete filtering, search, pagination, watch streams, active/disposed case count heuristic; fixed schema test OnBehalfsCompanion orderIndex fixture; flutter analyze clean, all 63 tests pass.
 Version: 0.0.32 - Task 05 Phase 2: implemented local identity placeholder service with localIdentityServiceProvider, SyncWriteHelper with sync column values, offline compaction matrix (insert+update, insert+delete, update+delete, multiple updates), conflict_pending guard, and syncWriteHelperProvider; fixed SyncQueueDao.updateState to use targeted UPDATE ... WHERE; added comprehensive unit tests; flutter analyze clean, 72 tests pass (2 skipped).
+Version: 0.0.33 - Task 05 Phase 3: implemented local repositories (Case, Notes, Reference, config courts/categories/steps/case-types/on-behalfs, Settings, DeleteRequests) with sync queue integration, snake_case sync payloads/changed_fields, ownership flags, soft-delete, provisional case_history on nextDate change; fixed DAO update methods to support partial companions; added repository unit tests; flutter analyze clean, 83 tests pass (2 skipped).
+Version: 0.0.34 - Task 05 Phase 4: implemented AsyncNotifier-based Riverpod ViewModels for cases, daily cause list, notes, case references, settings, court categories/courts/steps/case types/on-behalfs, and delete requests; added repository providers; created BaseListViewModel; updated auth/payment stubs for Part B; added ViewModel unit tests; flutter analyze clean, 93 tests pass (2 skipped).
 
 

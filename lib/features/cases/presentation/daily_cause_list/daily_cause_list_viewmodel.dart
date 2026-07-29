@@ -1,24 +1,75 @@
-/// ViewModel for daily cause list: demonstrates MVVM + Riverpod async pattern.
-/// Per Plan §12.3, always use `.select()` to listen only to required properties.
+/// ViewModel for the daily cause list screen.
+///
+/// Loads cases scheduled for the selected Bangladesh civil date (default
+/// today) and exposes a reactive stream for the list.
 library;
 
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// AsyncNotifier for daily cause list state management.
-/// ViewModels should use `.select()` to optimize rendering.
-abstract class DailyCauseListViewmodel extends AsyncNotifier<DailyCauseListState> {
-  /// Stub: AsyncNotifier implementation in Task 09.
-  /// Usage pattern: ref.watch(dailyCauseListViewmodelProvider.select((state) => state.cases))
-  @override
-  FutureOr<DailyCauseListState> build() async {
-    // Task 09 will implement.
-    throw UnimplementedError('DailyCauseListViewmodel in Task 09');
+import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/utils/date_utils.dart';
+import '../../../../database/app_database.dart';
+import '../../data/case_repository.dart';
+
+/// State for [DailyCauseListViewModel].
+class DailyCauseListState {
+  /// Cases scheduled for the selected date.
+  final List<Case> cases;
+
+  /// The currently selected Bangladesh civil date (epoch ms at start of day).
+  final int selectedDate;
+
+  /// Creates the state.
+  const DailyCauseListState({
+    this.cases = const [],
+    required this.selectedDate,
+  });
+
+  /// Returns a copy with the given fields replaced.
+  DailyCauseListState copyWith({
+    List<Case>? cases,
+    int? selectedDate,
+  }) {
+    return DailyCauseListState(
+      cases: cases ?? this.cases,
+      selectedDate: selectedDate ?? this.selectedDate,
+    );
   }
 }
 
-/// Daily cause list state model.
-class DailyCauseListState {
-  /// Stub: Will be defined in Task 09.
+/// AsyncNotifier for the daily cause list feature.
+class DailyCauseListViewModel extends AsyncNotifier<DailyCauseListState> {
+  /// Riverpod provider for [DailyCauseListViewModel].
+  static final provider = AsyncNotifierProvider<DailyCauseListViewModel, DailyCauseListState>(() => DailyCauseListViewModel());
+
+  @override
+  FutureOr<DailyCauseListState> build() async {
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    final repo = await ref.watch(caseRepositoryProvider.future);
+    final cases = await _loadForDate(repo, today);
+    return DailyCauseListState(cases: cases, selectedDate: today);
+  }
+
+  Future<List<Case>> _loadForDate(CaseRepository repo, int start) async {
+    final end = start + const Duration(days: 1).inMilliseconds - 1;
+    return repo.listByNextDateRange(start, end);
+  }
+
+  /// Selects a new date and reloads the list.
+  Future<void> selectDate(int startOfDay) async {
+    state = const AsyncValue<DailyCauseListState>.loading();
+    try {
+      final repo = await ref.read(caseRepositoryProvider.future);
+      final cases = await _loadForDate(repo, startOfDay);
+      state = AsyncValue.data(DailyCauseListState(cases: cases, selectedDate: startOfDay));
+    } catch (error, stackTrace) {
+      state = AsyncValue<DailyCauseListState>.error(error, stackTrace);
+    }
+  }
+
 }
+
+/// Global provider alias for the daily cause list ViewModel.
+final dailyCauseListViewModelProvider = DailyCauseListViewModel.provider;

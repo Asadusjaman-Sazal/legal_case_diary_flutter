@@ -67,12 +67,14 @@ class OnBehalfsDao {
   Future<int> insert(OnBehalfsCompanion onBehalf) => db.into(db.onBehalfs).insert(onBehalf);
 
   /// Updates an on-behalf option. Returns true if a row was affected.
-  Future<bool> update(OnBehalfsCompanion onBehalf) => db.update(db.onBehalfs).replace(onBehalf);
+  Future<bool> update(OnBehalfsCompanion onBehalf) async =>
+      await (db.update(db.onBehalfs)..where((row) => row.id.equals(onBehalf.id.value))).write(onBehalf) > 0;
 
   /// Soft-deletes an on-behalf option by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.onBehalfs).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.onBehalfs)
+        ..where((row) => row.id.equals(id)))
+      .write(
         OnBehalfsCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

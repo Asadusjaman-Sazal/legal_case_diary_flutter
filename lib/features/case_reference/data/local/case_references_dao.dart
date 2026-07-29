@@ -73,7 +73,8 @@ class CaseReferencesDao {
   Future<int> insert(CaseReferencesCompanion reference) => db.into(db.caseReferences).insert(reference);
 
   /// Updates a reference. Returns true if a row was affected.
-  Future<bool> update(CaseReferencesCompanion reference) => db.update(db.caseReferences).replace(reference);
+  Future<bool> update(CaseReferencesCompanion reference) async =>
+      await (db.update(db.caseReferences)..where((row) => row.id.equals(reference.id.value))).write(reference) > 0;
 
   /// Toggles the pinned state of a reference.
   Future<int> setPinned(String id, bool isPinned, int updatedAt) => db.update(db.caseReferences).write(
@@ -85,9 +86,10 @@ class CaseReferencesDao {
       );
 
   /// Soft-deletes a reference by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.caseReferences).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.caseReferences)
+        ..where((row) => row.id.equals(id)))
+      .write(
         CaseReferencesCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

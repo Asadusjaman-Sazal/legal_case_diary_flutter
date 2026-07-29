@@ -45,12 +45,14 @@ class CourtCategoriesDao {
   Future<int> insert(CourtCategoriesCompanion category) => db.into(db.courtCategories).insert(category);
 
   /// Updates a court category. Returns true if a row was affected.
-  Future<bool> update(CourtCategoriesCompanion category) => db.update(db.courtCategories).replace(category);
+  Future<bool> update(CourtCategoriesCompanion category) async =>
+      await (db.update(db.courtCategories)..where((row) => row.id.equals(category.id.value))).write(category) > 0;
 
   /// Soft-deletes a court category by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.courtCategories).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.courtCategories)
+        ..where((row) => row.id.equals(id)))
+      .write(
         CourtCategoriesCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

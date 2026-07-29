@@ -56,12 +56,14 @@ class DeleteRequestsDao {
   Future<int> insert(DeleteRequestsCompanion request) => db.into(db.deleteRequests).insert(request);
 
   /// Updates a delete request. Returns true if a row was affected.
-  Future<bool> update(DeleteRequestsCompanion request) => db.update(db.deleteRequests).replace(request);
+  Future<bool> update(DeleteRequestsCompanion request) async =>
+      await (db.update(db.deleteRequests)..where((row) => row.id.equals(request.id.value))).write(request) > 0;
 
   /// Soft-deletes a delete request by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.deleteRequests).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.deleteRequests)
+        ..where((row) => row.id.equals(id)))
+      .write(
         DeleteRequestsCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

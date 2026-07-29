@@ -90,12 +90,14 @@ class CourtsDao {
   Future<int> insert(CourtsCompanion court) => db.into(db.courts).insert(court);
 
   /// Updates a court. Returns true if a row was affected.
-  Future<bool> update(CourtsCompanion court) => db.update(db.courts).replace(court);
+  Future<bool> update(CourtsCompanion court) async =>
+      await (db.update(db.courts)..where((row) => row.id.equals(court.id.value))).write(court) > 0;
 
   /// Soft-deletes a court by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.courts).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.courts)
+        ..where((row) => row.id.equals(id)))
+      .write(
         CourtsCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

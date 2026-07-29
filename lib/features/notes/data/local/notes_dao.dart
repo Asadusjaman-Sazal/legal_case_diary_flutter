@@ -69,7 +69,8 @@ class NotesDao {
   Future<int> insert(NotesCompanion note) => db.into(db.notes).insert(note);
 
   /// Updates a note. Returns true if a row was affected.
-  Future<bool> update(NotesCompanion note) => db.update(db.notes).replace(note);
+  Future<bool> update(NotesCompanion note) async =>
+      await (db.update(db.notes)..where((row) => row.id.equals(note.id.value))).write(note) > 0;
 
   /// Toggles the pinned state of a note.
   Future<int> setPinned(String id, bool isPinned, int updatedAt) => db.update(db.notes).write(
@@ -81,9 +82,10 @@ class NotesDao {
       );
 
   /// Soft-deletes a note by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.notes).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.notes)
+        ..where((row) => row.id.equals(id)))
+      .write(
         NotesCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

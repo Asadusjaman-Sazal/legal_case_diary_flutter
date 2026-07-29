@@ -67,12 +67,14 @@ class StepsDao {
   Future<int> insert(StepsCompanion step) => db.into(db.steps).insert(step);
 
   /// Updates a step. Returns true if a row was affected.
-  Future<bool> update(StepsCompanion step) => db.update(db.steps).replace(step);
+  Future<bool> update(StepsCompanion step) async =>
+      await (db.update(db.steps)..where((row) => row.id.equals(step.id.value))).write(step) > 0;
 
   /// Soft-deletes a step by id.
-  Future<int> delete(String id, int updatedAt) => db.update(db.steps).write(
+  Future<int> delete(String id, int updatedAt) => (db.update(db.steps)
+        ..where((row) => row.id.equals(id)))
+      .write(
         StepsCompanion(
-          id: Value(id),
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
         ),

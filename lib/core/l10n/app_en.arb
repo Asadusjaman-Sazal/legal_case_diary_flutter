@@ -183,5 +183,26 @@
     "placeholders": {
       "language": { "type": "String" }
     }
-  }
+  },
+  "nav_upcomingCases": "Upcoming Cases",
+  "nav_dailyCauseList": "Daily Cause List",
+  "nav_allCases": "All Cases",
+  "nav_disposedCases": "Disposed Cases",
+  "nav_caseReference": "Case Reference",
+  "nav_notes": "Notes",
+  "nav_settings": "Settings",
+  "nav_print": "Print",
+  "nav_share": "Share",
+  "nav_activeCases": "Active Cases",
+  "nav_overdueDates": "Overdue Dates",
+  "sync_idle": "Sync",
+  "sync_syncing": "Syncing…",
+  "sync_success": "Synced",
+  "sync_paused": "Sync paused",
+  "sync_error": "Sync error",
+  "sync_unavailable": "Sync requires a premium subscription",
+  "casesModal_addCase": "Add Case",
+  "casesModal_search": "Search",
+  "casesModal_viewCompact": "Compact view",
+  "casesModal_viewExpanded": "Expanded view"
 }

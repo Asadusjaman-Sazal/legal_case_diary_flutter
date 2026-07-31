@@ -497,4 +497,68 @@ class AppLocalizationsBn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'বর্তমান ভাষা: $language';
   }
+
+  @override
+  String get nav_upcomingCases => 'সন্নিকট মামলা';
+
+  @override
+  String get nav_dailyCauseList => 'দৈনিক কজ লিস্ট';
+
+  @override
+  String get nav_allCases => 'সব মামলা';
+
+  @override
+  String get nav_disposedCases => 'নিষ্পত্তিকৃত মামলা';
+
+  @override
+  String get nav_caseReference => 'মামলার রেফারেন্স';
+
+  @override
+  String get nav_notes => 'নোট';
+
+  @override
+  String get nav_settings => 'সেটিংস';
+
+  @override
+  String get nav_print => 'প্রিন্ট';
+
+  @override
+  String get nav_share => 'শেয়ার';
+
+  @override
+  String get nav_activeCases => 'সক্রিয় মামলা';
+
+  @override
+  String get nav_overdueDates => 'বিলম্বিত তারিখ';
+
+  @override
+  String get sync_idle => 'সিঙ্ক';
+
+  @override
+  String get sync_syncing => 'সিঙ্ক হচ্ছে…';
+
+  @override
+  String get sync_success => 'সিঙ্ক হয়েছে';
+
+  @override
+  String get sync_paused => 'সিঙ্ক বিরতি';
+
+  @override
+  String get sync_error => 'সিঙ্ক ত্রুটি';
+
+  @override
+  String get sync_unavailable =>
+      'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
+
+  @override
+  String get casesModal_addCase => 'মামলা যোগ করুন';
+
+  @override
+  String get casesModal_search => 'অনুসন্ধান';
+
+  @override
+  String get casesModal_viewCompact => 'কমপ্যাক্ট ভিউ';
+
+  @override
+  String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
 }

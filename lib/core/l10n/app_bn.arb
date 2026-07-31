@@ -183,5 +183,26 @@
     "placeholders": {
       "language": { "type": "String" }
     }
-  }
+  },
+  "nav_upcomingCases": "সন্নিকট মামলা",
+  "nav_dailyCauseList": "দৈনিক কজ লিস্ট",
+  "nav_allCases": "সব মামলা",
+  "nav_disposedCases": "নিষ্পত্তিকৃত মামলা",
+  "nav_caseReference": "মামলার রেফারেন্স",
+  "nav_notes": "নোট",
+  "nav_settings": "সেটিংস",
+  "nav_print": "প্রিন্ট",
+  "nav_share": "শেয়ার",
+  "nav_activeCases": "সক্রিয় মামলা",
+  "nav_overdueDates": "বিলম্বিত তারিখ",
+  "sync_idle": "সিঙ্ক",
+  "sync_syncing": "সিঙ্ক হচ্ছে…",
+  "sync_success": "সিঙ্ক হয়েছে",
+  "sync_paused": "সিঙ্ক বিরতি",
+  "sync_error": "সিঙ্ক ত্রুটি",
+  "sync_unavailable": "সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন",
+  "casesModal_addCase": "মামলা যোগ করুন",
+  "casesModal_search": "অনুসন্ধান",
+  "casesModal_viewCompact": "কমপ্যাক্ট ভিউ",
+  "casesModal_viewExpanded": "বিস্তারিত ভিউ"
 }

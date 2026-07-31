@@ -1041,6 +1041,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current language: {language}'**
   String localeScratch_currentLanguage(String language);
+
+  /// No description provided for @nav_upcomingCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Cases'**
+  String get nav_upcomingCases;
+
+  /// No description provided for @nav_dailyCauseList.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Cause List'**
+  String get nav_dailyCauseList;
+
+  /// No description provided for @nav_allCases.
+  ///
+  /// In en, this message translates to:
+  /// **'All Cases'**
+  String get nav_allCases;
+
+  /// No description provided for @nav_disposedCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Disposed Cases'**
+  String get nav_disposedCases;
+
+  /// No description provided for @nav_caseReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Reference'**
+  String get nav_caseReference;
+
+  /// No description provided for @nav_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get nav_notes;
+
+  /// No description provided for @nav_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get nav_settings;
+
+  /// No description provided for @nav_print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get nav_print;
+
+  /// No description provided for @nav_share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get nav_share;
+
+  /// No description provided for @nav_activeCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Cases'**
+  String get nav_activeCases;
+
+  /// No description provided for @nav_overdueDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Dates'**
+  String get nav_overdueDates;
+
+  /// No description provided for @sync_idle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get sync_idle;
+
+  /// No description provided for @sync_syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get sync_syncing;
+
+  /// No description provided for @sync_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get sync_success;
+
+  /// No description provided for @sync_paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync paused'**
+  String get sync_paused;
+
+  /// No description provided for @sync_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync error'**
+  String get sync_error;
+
+  /// No description provided for @sync_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync requires a premium subscription'**
+  String get sync_unavailable;
+
+  /// No description provided for @casesModal_addCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Case'**
+  String get casesModal_addCase;
+
+  /// No description provided for @casesModal_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get casesModal_search;
+
+  /// No description provided for @casesModal_viewCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact view'**
+  String get casesModal_viewCompact;
+
+  /// No description provided for @casesModal_viewExpanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Expanded view'**
+  String get casesModal_viewExpanded;
 }
 
 class _AppLocalizationsDelegate

@@ -499,4 +499,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'Current language: $language';
   }
+
+  @override
+  String get nav_upcomingCases => 'Upcoming Cases';
+
+  @override
+  String get nav_dailyCauseList => 'Daily Cause List';
+
+  @override
+  String get nav_allCases => 'All Cases';
+
+  @override
+  String get nav_disposedCases => 'Disposed Cases';
+
+  @override
+  String get nav_caseReference => 'Case Reference';
+
+  @override
+  String get nav_notes => 'Notes';
+
+  @override
+  String get nav_settings => 'Settings';
+
+  @override
+  String get nav_print => 'Print';
+
+  @override
+  String get nav_share => 'Share';
+
+  @override
+  String get nav_activeCases => 'Active Cases';
+
+  @override
+  String get nav_overdueDates => 'Overdue Dates';
+
+  @override
+  String get sync_idle => 'Sync';
+
+  @override
+  String get sync_syncing => 'Syncing…';
+
+  @override
+  String get sync_success => 'Synced';
+
+  @override
+  String get sync_paused => 'Sync paused';
+
+  @override
+  String get sync_error => 'Sync error';
+
+  @override
+  String get sync_unavailable => 'Sync requires a premium subscription';
+
+  @override
+  String get casesModal_addCase => 'Add Case';
+
+  @override
+  String get casesModal_search => 'Search';
+
+  @override
+  String get casesModal_viewCompact => 'Compact view';
+
+  @override
+  String get casesModal_viewExpanded => 'Expanded view';
 }

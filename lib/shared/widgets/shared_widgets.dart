@@ -1,39 +1,13 @@
-/// Shared widget stubs: reusable UI components across screens.
-/// Implemented progressively from Task 06 onward.
+/// Public barrel export for shared widgets.
+///
+/// Concrete widgets live in focused files so later feature tasks can import
+/// either this barrel or the specific widget they compose.
 library;
 
-/// Left navigation drawer for cases/settings/profile access.
-/// Implemented in Task 06.
-class AppNavigationDrawer {
-  /// Stub for Task 06.
-}
-
-/// Bottom navigation bar with configurable tabs.
-/// Implemented in Task 06.
-class BottomNavBar {
-  /// Stub for Task 06.
-}
-
-/// Case card widget with overdue indicator (red left border).
-/// Implemented in Task 08.
-class CaseCard {
-  /// Stub for Task 08.
-}
-
-/// Modal for adding/editing cases with Lead Counsel inputs.
-/// Implemented in Task 07.
-class AddEditCaseSheet {
-  /// Stub for Task 07.
-}
-
-/// Badge count calendar picker for Daily Cause List.
-/// Implemented in Task 09.
-class CalendarPickerDialog {
-  /// Stub for Task 09.
-}
-
-/// Searchable single/multi-select dropdown.
-/// Implemented in Task 06+.
-class CustomDropdown {
-  /// Stub for Task 06+.
-}
+export 'add_edit_case_sheet.dart';
+export 'app_navigation_drawer.dart';
+export 'bottom_nav_bar.dart';
+export 'calendar_picker_dialog.dart';
+export 'case_card.dart';
+export 'custom_dropdown.dart';
+export 'date_picker_helper.dart';

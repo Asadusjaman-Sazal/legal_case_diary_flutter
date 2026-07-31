@@ -1,3 +1,16 @@
+### 2026-07-31 — Current Task: Task 06 Phase 3 — COMPLETE
+
+Implemented and validated:
+- `CaseCard` variants for list, Daily Cause List, overdue, and disposed layouts; overdue-only red left strip; Phone, Message, and Update callbacks.
+- Searchable single-select and multi-select `CustomDropdown` with localized search, empty-state, and confirmation labels; optional field key for forms/tests.
+- Plain Material date-picker helper defaulting to today's date, with date-only normalization and invalid-range protection.
+- `shared_widgets.dart` converted to a public barrel export; ARB/generated/AppTranslations localization surfaces updated.
+- Focused Phase 3 widget tests added.
+
+`flutter analyze` clean, full suite: 100 tests passed (2 skipped mobile-only).
+
+**Next:** Task 06 Phase 4 — `settings_sub_page_modal.dart` and `calendar_picker_dialog.dart` stub.
+
 ### 2026-07-29 — Current Task: Task 06 Phase 2 audit fixes — COMPLETE
 
 Fixed 6 issues found in audit:

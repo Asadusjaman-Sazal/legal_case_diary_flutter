@@ -64,22 +64,28 @@ class AppTranslations {
     AppStrings.addEditCaseSheetGroup: <String, String>{
       AppStrings.addEditCaseSheetCasenumber: _loc.addEditCaseSheet_caseNumber,
       AppStrings.addEditCaseSheetCaseremarks: _loc.addEditCaseSheet_caseRemarks,
-      AppStrings.addEditCaseSheetCasetitleandsection: _loc.addEditCaseSheet_caseTitleAndSection,
-      AppStrings.addEditCaseSheetCourtcategory: _loc.addEditCaseSheet_courtCategory,
+      AppStrings.addEditCaseSheetCasetitleandsection:
+          _loc.addEditCaseSheet_caseTitleAndSection,
+      AppStrings.addEditCaseSheetCourtcategory:
+          _loc.addEditCaseSheet_courtCategory,
       AppStrings.addEditCaseSheetDayoffset: _loc.addEditCaseSheet_dayOffset,
       AppStrings.addEditCaseSheetDistrict: _loc.addEditCaseSheet_district,
       AppStrings.addEditCaseSheetDivision: _loc.addEditCaseSheet_division,
       AppStrings.addEditCaseSheetEdittitle: _loc.addEditCaseSheet_editTitle,
-      AppStrings.addEditCaseSheetHigherorlowercourt: _loc.addEditCaseSheet_higherOrLowerCourt,
+      AppStrings.addEditCaseSheetHigherorlowercourt:
+          _loc.addEditCaseSheet_higherOrLowerCourt,
       AppStrings.addEditCaseSheetNameofcourt: _loc.addEditCaseSheet_nameOfCourt,
       AppStrings.addEditCaseSheetNextdate: _loc.addEditCaseSheet_nextDate,
       AppStrings.addEditCaseSheetNote: _loc.addEditCaseSheet_note,
-      AppStrings.addEditCaseSheetNotification: _loc.addEditCaseSheet_notification,
+      AppStrings.addEditCaseSheetNotification:
+          _loc.addEditCaseSheet_notification,
       AppStrings.addEditCaseSheetOnbehalf: _loc.addEditCaseSheet_onBehalf,
       AppStrings.addEditCaseSheetPetitioner: _loc.addEditCaseSheet_petitioner,
-      AppStrings.addEditCaseSheetPetitionerphone: _loc.addEditCaseSheet_petitionerPhone,
+      AppStrings.addEditCaseSheetPetitionerphone:
+          _loc.addEditCaseSheet_petitionerPhone,
       AppStrings.addEditCaseSheetRespondent: _loc.addEditCaseSheet_respondent,
-      AppStrings.addEditCaseSheetRespondentphone: _loc.addEditCaseSheet_respondentPhone,
+      AppStrings.addEditCaseSheetRespondentphone:
+          _loc.addEditCaseSheet_respondentPhone,
       AppStrings.addEditCaseSheetSave: _loc.addEditCaseSheet_save,
       AppStrings.addEditCaseSheetStep: _loc.addEditCaseSheet_step,
       AppStrings.addEditCaseSheetTitle: _loc.addEditCaseSheet_title,
@@ -96,35 +102,45 @@ class AppTranslations {
       AppStrings.allCasesScreenNextdate: _loc.allCasesScreen_nextDate,
       AppStrings.allCasesScreenOldestfirst: _loc.allCasesScreen_oldestFirst,
       AppStrings.allCasesScreenOnbehalf: _loc.allCasesScreen_onBehalf,
-      AppStrings.allCasesScreenPetitionervsrespondent: _loc.allCasesScreen_petitionerVsRespondent,
+      AppStrings.allCasesScreenPetitionervsrespondent:
+          _loc.allCasesScreen_petitionerVsRespondent,
       AppStrings.allCasesScreenPhone: _loc.allCasesScreen_phone,
       AppStrings.allCasesScreenTitle: _loc.allCasesScreen_title,
       AppStrings.allCasesScreenUpdate: _loc.allCasesScreen_update,
     },
     AppStrings.caseDetailsScreenGroup: <String, String>{
-      AppStrings.caseDetailsScreenCasehistory: _loc.caseDetailsScreen_caseHistory,
-      AppStrings.caseDetailsScreenCasetitleandremark: _loc.caseDetailsScreen_caseTitleAndRemark,
+      AppStrings.caseDetailsScreenCasehistory:
+          _loc.caseDetailsScreen_caseHistory,
+      AppStrings.caseDetailsScreenCasetitleandremark:
+          _loc.caseDetailsScreen_caseTitleAndRemark,
       AppStrings.caseDetailsScreenClose: _loc.caseDetailsScreen_close,
       AppStrings.caseDetailsScreenDelete: _loc.caseDetailsScreen_delete,
       AppStrings.caseDetailsScreenEditcase: _loc.caseDetailsScreen_editCase,
       // caseDetailsScreenEntriestotal: parameterized; use _loc.caseDetailsScreen_entriesTotal(...).
-      AppStrings.caseDetailsScreenLeadcounsel: _loc.caseDetailsScreen_leadCounsel,
+      AppStrings.caseDetailsScreenLeadcounsel:
+          _loc.caseDetailsScreen_leadCounsel,
       AppStrings.caseDetailsScreenMessage: _loc.caseDetailsScreen_message,
       AppStrings.caseDetailsScreenOnbehalfof: _loc.caseDetailsScreen_onBehalfOf,
       AppStrings.caseDetailsScreenPetitioner: _loc.caseDetailsScreen_petitioner,
       AppStrings.caseDetailsScreenPhone: _loc.caseDetailsScreen_phone,
-      AppStrings.caseDetailsScreenRemarksorcasesummary: _loc.caseDetailsScreen_remarksOrCaseSummary,
+      AppStrings.caseDetailsScreenRemarksorcasesummary:
+          _loc.caseDetailsScreen_remarksOrCaseSummary,
       AppStrings.caseDetailsScreenRespondent: _loc.caseDetailsScreen_respondent,
-      AppStrings.caseDetailsScreenSectionsorcasetitle: _loc.caseDetailsScreen_sectionsOrCaseTitle,
+      AppStrings.caseDetailsScreenSectionsorcasetitle:
+          _loc.caseDetailsScreen_sectionsOrCaseTitle,
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,
     },
     AppStrings.caseReferenceScreenGroup: <String, String>{
-      AppStrings.caseReferenceScreenCommentsnotes: _loc.caseReferenceScreen_commentsNotes,
-      AppStrings.caseReferenceScreenReferenceandpageno: _loc.caseReferenceScreen_referenceAndPageNo,
-      AppStrings.caseReferenceScreenSectionorarticle: _loc.caseReferenceScreen_sectionOrArticle,
+      AppStrings.caseReferenceScreenCommentsnotes:
+          _loc.caseReferenceScreen_commentsNotes,
+      AppStrings.caseReferenceScreenReferenceandpageno:
+          _loc.caseReferenceScreen_referenceAndPageNo,
+      AppStrings.caseReferenceScreenSectionorarticle:
+          _loc.caseReferenceScreen_sectionOrArticle,
       AppStrings.caseReferenceScreenStatute: _loc.caseReferenceScreen_statute,
       AppStrings.caseReferenceScreenTitle: _loc.caseReferenceScreen_title,
-      AppStrings.caseReferenceScreenTitleanddescription: _loc.caseReferenceScreen_titleAndDescription,
+      AppStrings.caseReferenceScreenTitleanddescription:
+          _loc.caseReferenceScreen_titleAndDescription,
     },
     AppStrings.caseTypeGroup: <String, String>{
       AppStrings.caseTypeAppeal: _loc.caseType_appeal,
@@ -134,15 +150,26 @@ class AppTranslations {
       AppStrings.caseTypeWrit: _loc.caseType_writ,
     },
     AppStrings.courtCategoryGroup: <String, String>{
-      AppStrings.courtCategoryAppellatedivision: _loc.courtCategory_appellateDivision,
-      AppStrings.courtCategoryHighcourtdivision: _loc.courtCategory_highCourtDivision,
-      AppStrings.courtCategoryLowerdivisionalcourts: _loc.courtCategory_lowerDivisionalCourts,
+      AppStrings.courtCategoryAppellatedivision:
+          _loc.courtCategory_appellateDivision,
+      AppStrings.courtCategoryHighcourtdivision:
+          _loc.courtCategory_highCourtDivision,
+      AppStrings.courtCategoryLowerdivisionalcourts:
+          _loc.courtCategory_lowerDivisionalCourts,
+    },
+    AppStrings.customDropdownGroup: <String, String>{
+      AppStrings.customDropdownSelectOption: _loc.customDropdown_selectOption,
+      AppStrings.customDropdownSearch: _loc.customDropdown_search,
+      AppStrings.customDropdownNoResults: _loc.customDropdown_noResults,
+      AppStrings.customDropdownDone: _loc.customDropdown_done,
     },
     AppStrings.dailyCauseListScreenGroup: <String, String>{
-      AppStrings.dailyCauseListScreenCalendarlabel: _loc.dailyCauseListScreen_calendarLabel,
+      AppStrings.dailyCauseListScreenCalendarlabel:
+          _loc.dailyCauseListScreen_calendarLabel,
       AppStrings.dailyCauseListScreenTitle: _loc.dailyCauseListScreen_title,
       AppStrings.dailyCauseListScreenToday: _loc.dailyCauseListScreen_today,
-      AppStrings.dailyCauseListScreenTomorrow: _loc.dailyCauseListScreen_tomorrow,
+      AppStrings.dailyCauseListScreenTomorrow:
+          _loc.dailyCauseListScreen_tomorrow,
     },
     AppStrings.disposedCasesScreenGroup: <String, String>{
       AppStrings.disposedCasesScreenDisposed: _loc.disposedCasesScreen_disposed,
@@ -170,11 +197,16 @@ class AppTranslations {
       AppStrings.localeScratchTitle: _loc.localeScratch_title,
     },
     AppStrings.lowerCourtCategoryGroup: <String, String>{
-      AppStrings.lowerCourtCategoryChiefjudicialmagistrate: _loc.lowerCourtCategory_chiefJudicialMagistrate,
-      AppStrings.lowerCourtCategoryChiefmetropolitanmagistrate: _loc.lowerCourtCategory_chiefMetropolitanMagistrate,
-      AppStrings.lowerCourtCategoryDistrictcourtscivil: _loc.lowerCourtCategory_districtCourtsCivil,
-      AppStrings.lowerCourtCategoryDistrictsessionscriminal: _loc.lowerCourtCategory_districtSessionsCriminal,
-      AppStrings.lowerCourtCategoryExecutivemagistrate: _loc.lowerCourtCategory_executiveMagistrate,
+      AppStrings.lowerCourtCategoryChiefjudicialmagistrate:
+          _loc.lowerCourtCategory_chiefJudicialMagistrate,
+      AppStrings.lowerCourtCategoryChiefmetropolitanmagistrate:
+          _loc.lowerCourtCategory_chiefMetropolitanMagistrate,
+      AppStrings.lowerCourtCategoryDistrictcourtscivil:
+          _loc.lowerCourtCategory_districtCourtsCivil,
+      AppStrings.lowerCourtCategoryDistrictsessionscriminal:
+          _loc.lowerCourtCategory_districtSessionsCriminal,
+      AppStrings.lowerCourtCategoryExecutivemagistrate:
+          _loc.lowerCourtCategory_executiveMagistrate,
       AppStrings.lowerCourtCategoryTribunals: _loc.lowerCourtCategory_tribunals,
     },
     // messageTemplate: Intentionally omitted from the grouped map because
@@ -203,7 +235,8 @@ class AppTranslations {
       AppStrings.onBehalfObjector: _loc.onBehalf_objector,
     },
     AppStrings.overdueDatesScreenGroup: <String, String>{
-      AppStrings.overdueDatesScreenLastupdated: _loc.overdueDatesScreen_lastUpdated,
+      AppStrings.overdueDatesScreenLastupdated:
+          _loc.overdueDatesScreen_lastUpdated,
       AppStrings.overdueDatesScreenTitle: _loc.overdueDatesScreen_title,
     },
     AppStrings.settingsAboutGroup: <String, String>{
@@ -229,13 +262,18 @@ class AppTranslations {
     },
     AppStrings.settingsScreenGroup: <String, String>{
       AppStrings.settingsScreenAbout: _loc.settingsScreen_about,
-      AppStrings.settingsScreenAccountandprofile: _loc.settingsScreen_accountAndProfile,
-      AppStrings.settingsScreenBackupandrestore: _loc.settingsScreen_backupAndRestore,
-      AppStrings.settingsScreenEditcourtsteps: _loc.settingsScreen_editCourtSteps,
+      AppStrings.settingsScreenAccountandprofile:
+          _loc.settingsScreen_accountAndProfile,
+      AppStrings.settingsScreenBackupandrestore:
+          _loc.settingsScreen_backupAndRestore,
+      AppStrings.settingsScreenEditcourtsteps:
+          _loc.settingsScreen_editCourtSteps,
       AppStrings.settingsScreenGuidelines: _loc.settingsScreen_guidelines,
       AppStrings.settingsScreenLanguage: _loc.settingsScreen_language,
-      AppStrings.settingsScreenLanguagebengali: _loc.settingsScreen_languageBengali,
-      AppStrings.settingsScreenLanguageenglish: _loc.settingsScreen_languageEnglish,
+      AppStrings.settingsScreenLanguagebengali:
+          _loc.settingsScreen_languageBengali,
+      AppStrings.settingsScreenLanguageenglish:
+          _loc.settingsScreen_languageEnglish,
       AppStrings.settingsScreenManageaccount: _loc.settingsScreen_manageAccount,
       AppStrings.settingsScreenNotifications: _loc.settingsScreen_notifications,
       AppStrings.settingsScreenOnlinesync: _loc.settingsScreen_onlineSync,
@@ -260,8 +298,10 @@ class AppTranslations {
     },
     AppStrings.sharedDialogsGroup: <String, String>{
       AppStrings.sharedDialogsCancel: _loc.sharedDialogs_cancel,
-      AppStrings.sharedDialogsConfirmdeletemessage: _loc.sharedDialogs_confirmDeleteMessage,
-      AppStrings.sharedDialogsConfirmdeletetitle: _loc.sharedDialogs_confirmDeleteTitle,
+      AppStrings.sharedDialogsConfirmdeletemessage:
+          _loc.sharedDialogs_confirmDeleteMessage,
+      AppStrings.sharedDialogsConfirmdeletetitle:
+          _loc.sharedDialogs_confirmDeleteTitle,
       AppStrings.sharedDialogsOk: _loc.sharedDialogs_ok,
     },
     AppStrings.stepGroup: <String, String>{

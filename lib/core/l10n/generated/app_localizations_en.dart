@@ -562,4 +562,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get casesModal_viewExpanded => 'Expanded view';
+
+  @override
+  String get customDropdown_selectOption => 'Select an option';
+
+  @override
+  String get customDropdown_search => 'Search';
+
+  @override
+  String get customDropdown_noResults => 'No results found';
+
+  @override
+  String get customDropdown_done => 'Done';
 }

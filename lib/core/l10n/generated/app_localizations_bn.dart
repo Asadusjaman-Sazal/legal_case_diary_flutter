@@ -561,4 +561,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
+
+  @override
+  String get customDropdown_selectOption => 'একটি বিকল্প নির্বাচন করুন';
+
+  @override
+  String get customDropdown_search => 'অনুসন্ধান';
+
+  @override
+  String get customDropdown_noResults => 'কোনো ফলাফল পাওয়া যায়নি';
+
+  @override
+  String get customDropdown_done => 'সম্পন্ন';
 }

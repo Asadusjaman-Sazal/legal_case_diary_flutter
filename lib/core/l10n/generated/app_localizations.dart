@@ -1167,6 +1167,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expanded view'**
   String get casesModal_viewExpanded;
+
+  /// No description provided for @customDropdown_selectOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an option'**
+  String get customDropdown_selectOption;
+
+  /// No description provided for @customDropdown_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get customDropdown_search;
+
+  /// No description provided for @customDropdown_noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get customDropdown_noResults;
+
+  /// No description provided for @customDropdown_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get customDropdown_done;
 }
 
 class _AppLocalizationsDelegate

@@ -204,5 +204,9 @@
   "casesModal_addCase": "মামলা যোগ করুন",
   "casesModal_search": "অনুসন্ধান",
   "casesModal_viewCompact": "কমপ্যাক্ট ভিউ",
-  "casesModal_viewExpanded": "বিস্তারিত ভিউ"
+  "casesModal_viewExpanded": "বিস্তারিত ভিউ",
+  "customDropdown_selectOption": "একটি বিকল্প নির্বাচন করুন",
+  "customDropdown_search": "অনুসন্ধান",
+  "customDropdown_noResults": "কোনো ফলাফল পাওয়া যায়নি",
+  "customDropdown_done": "সম্পন্ন"
 }

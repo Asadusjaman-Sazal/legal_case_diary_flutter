@@ -204,5 +204,9 @@
   "casesModal_addCase": "Add Case",
   "casesModal_search": "Search",
   "casesModal_viewCompact": "Compact view",
-  "casesModal_viewExpanded": "Expanded view"
+  "casesModal_viewExpanded": "Expanded view",
+  "customDropdown_selectOption": "Select an option",
+  "customDropdown_search": "Search",
+  "customDropdown_noResults": "No results found",
+  "customDropdown_done": "Done"
 }

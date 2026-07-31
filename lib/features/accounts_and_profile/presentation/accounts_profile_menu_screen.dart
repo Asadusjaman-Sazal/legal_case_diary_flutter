@@ -2,6 +2,12 @@
 /// Implemented in Task 17 (Part B).
 library;
 
-class AccountsProfileMenuScreen {
-  /// Stub for Task 17.
+import 'package:flutter/material.dart';
+
+class AccountsProfileMenuScreen extends StatelessWidget {
+  const AccountsProfileMenuScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Account & Profile — Task 17')));
 }

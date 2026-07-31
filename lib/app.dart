@@ -10,23 +10,42 @@ import 'shared/providers/locale_provider.dart';
 ///
 /// Uses [MaterialApp.router] with [GoRouter] from [appRouterProvider].
 /// Watches the active locale from [localeProvider] and rebuilds whenever
-/// the user switches languages.
+/// the user switches languages. Shows a minimal loading screen while the
+/// router resolves the initial landing page from [SettingsRepository].
 class App extends ConsumerWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
-    final router = ref.watch(appRouterProvider);
+    final routerAsync = ref.watch(appRouterProvider);
 
-    return MaterialApp.router(
-      title: 'Legal Case Diary',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme(locale),
-      locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      routerConfig: router,
+    return routerAsync.when(
+      data: (router) => MaterialApp.router(
+        title: 'Legal Case Diary',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme(locale),
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        routerConfig: router,
+      ),
+      // Show a blank themed screen while the router initialises.
+      loading: () => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme(locale),
+        home: const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+      // On error fall back to the same loading screen; router will retry.
+      error: (err, stack) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme(locale),
+        home: const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
     );
   }
 }

@@ -1,15 +1,16 @@
 /// GoRouter configuration for the Legal Case Diary app.
 ///
-/// Shell route wraps all main screens (those with bottom nav).
+/// Shell route wraps all main screens (those with bottom nav / drawer).
 /// Non-shell routes (login, signup, paywall, case-detail) are top-level.
-/// Landing page is resolved from [SettingsRepository.defaultLandingPage].
-/// Back/exit confirmation is handled via [PopScope] on the shell root.
+/// Landing page is resolved asynchronously from [SettingsRepository.defaultLandingPage].
+/// Back/exit confirmation is handled via [AppShellRoot] → [PopScope] on the shell root.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
@@ -33,6 +34,7 @@ import '../../features/settings/presentation/edit_court_steps/court_names_steps_
 import '../../features/settings/presentation/edit_court_steps/district_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart';
+import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
 import '../../features/settings/presentation/settings_main_screen.dart';
@@ -58,6 +60,7 @@ class AppRoutes {
   static const String notes = '/notes';
   static const String caseReference = '/case-reference';
   static const String settings = '/settings';
+  static const String settingsAccountProfile = '/settings/account-profile';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
   static const String settingsManageAssociates = '/settings/manage-associates';
@@ -101,26 +104,30 @@ class AppRoutes {
 
 /// Provides the configured [GoRouter] instance.
 ///
-/// Reads [settingsRepositoryProvider] once to resolve the initial landing page.
+/// Awaits [settingsRepositoryProvider] to resolve the correct initial landing
+/// page before constructing the router, so the preference is always honoured.
 /// Falls back to Daily Cause List if settings are unavailable.
-final appRouterProvider = Provider<GoRouter>((ref) {
-  // Resolve landing page synchronously from cached settings if available;
-  // otherwise default to daily cause list.
+final appRouterProvider = FutureProvider<GoRouter>((ref) async {
   String initialLocation = AppRoutes.dailyCauseList;
-  ref.read(settingsRepositoryProvider).whenData((repo) async {
+  try {
+    final repo = await ref.watch(settingsRepositoryProvider.future);
     final s = await repo.getSettings();
     initialLocation = AppRoutes.landingPageRoute(s.defaultLandingPage);
-  });
+  } catch (_) {
+    // Settings unavailable — keep default.
+  }
 
   return GoRouter(
     initialLocation: initialLocation,
     debugLogDiagnostics: false,
     routes: [
       // ------------------------------------------------------------------
-      // Shell route — wraps all main screens with DatabaseGuard
+      // Shell route — wraps all main screens with AppShellRoot + DatabaseGuard.
+      // AppShellRoot owns the PopScope exit-confirmation (Dev Workflow §6).
       // ------------------------------------------------------------------
       ShellRoute(
-        builder: (context, state, child) => DatabaseGuard(child: child),
+        builder: (context, state, child) =>
+            AppShellRoot(child: DatabaseGuard(child: child)),
         routes: _shellRoutes,
       ),
 
@@ -193,6 +200,10 @@ final List<RouteBase> _shellRoutes = [
     builder: (context, state) => const SettingsMainScreen(),
   ),
   GoRoute(
+    path: AppRoutes.settingsAccountProfile,
+    builder: (context, state) => const AccountsProfileMenuScreen(),
+  ),
+  GoRoute(
     path: AppRoutes.settingsProfile,
     builder: (context, state) => const ProfileScreen(),
   ),
@@ -206,8 +217,7 @@ final List<RouteBase> _shellRoutes = [
   ),
   GoRoute(
     path: AppRoutes.settingsOnlineSync,
-    builder: (context, state) =>
-        const Scaffold(body: Center(child: Text('Online Sync — Task 17'))),
+    builder: (context, state) => const OnlineSyncScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsBackupRestore,

@@ -2,6 +2,12 @@
 /// Implemented in Task 17 (Part B).
 library;
 
-class LoginScreen {
-  /// Stub for Task 17.
+import 'package:flutter/material.dart';
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Login — Task 17')));
 }

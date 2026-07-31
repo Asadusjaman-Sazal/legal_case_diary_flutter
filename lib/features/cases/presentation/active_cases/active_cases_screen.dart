@@ -2,6 +2,12 @@
 /// Implemented in Task 08.
 library;
 
-class ActiveCasesScreen {
-  /// Stub for Task 08.
+import 'package:flutter/material.dart';
+
+class ActiveCasesScreen extends StatelessWidget {
+  const ActiveCasesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Active Cases — Task 08')));
 }

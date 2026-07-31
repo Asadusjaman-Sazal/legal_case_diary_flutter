@@ -2,6 +2,12 @@
 /// Implemented in Task 12.
 library;
 
-class MoreAboutAppScreen {
-  /// Stub for Task 12.
+import 'package:flutter/material.dart';
+
+class MoreAboutAppScreen extends StatelessWidget {
+  const MoreAboutAppScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('About — Task 12')));
 }

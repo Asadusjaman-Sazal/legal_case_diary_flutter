@@ -2,6 +2,12 @@
 /// Implemented in Task 12.
 library;
 
-class CourtNamesStepsScreen {
-  /// Stub for Task 12.
+import 'package:flutter/material.dart';
+
+class CourtNamesStepsScreen extends StatelessWidget {
+  const CourtNamesStepsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Court Names & Steps — Task 12')));
 }

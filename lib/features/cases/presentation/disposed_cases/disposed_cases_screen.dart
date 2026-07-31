@@ -2,6 +2,12 @@
 /// Implemented in Task 08.
 library;
 
-class DisposedCasesScreen {
-  /// Stub for Task 08.
+import 'package:flutter/material.dart';
+
+class DisposedCasesScreen extends StatelessWidget {
+  const DisposedCasesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Disposed Cases — Task 08')));
 }

@@ -2,6 +2,12 @@
 /// Implemented in Task 12.
 library;
 
-class ViewSettingsScreen {
-  /// Stub for Task 12.
+import 'package:flutter/material.dart';
+
+class ViewSettingsScreen extends StatelessWidget {
+  const ViewSettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('View Settings — Task 12')));
 }

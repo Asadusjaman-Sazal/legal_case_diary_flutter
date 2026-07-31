@@ -1,7 +1,13 @@
-/// Paywall screen: premium benefits display & plan selection (design-deferred).
-/// Implemented in Task 15 (stub).
+/// Paywall screen: premium benefits display & plan selection.
+/// Implemented in Task 15.
 library;
 
-class PaywallScreen {
-  /// Stub for Task 15.
+import 'package:flutter/material.dart';
+
+class PaywallScreen extends StatelessWidget {
+  const PaywallScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Paywall — Task 15')));
 }

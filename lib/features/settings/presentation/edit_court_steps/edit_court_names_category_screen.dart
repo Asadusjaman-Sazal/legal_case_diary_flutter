@@ -2,6 +2,12 @@
 /// Implemented in Task 12.
 library;
 
-class EditCourtNamesCategoryScreen {
-  /// Stub for Task 12.
+import 'package:flutter/material.dart';
+
+class EditCourtNamesCategoryScreen extends StatelessWidget {
+  const EditCourtNamesCategoryScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Edit Court Names & Category — Task 12')));
 }

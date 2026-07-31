@@ -2,6 +2,12 @@
 /// Implemented in Task 11.
 library;
 
-class CaseReferenceScreen {
-  /// Stub for Task 11.
+import 'package:flutter/material.dart';
+
+class CaseReferenceScreen extends StatelessWidget {
+  const CaseReferenceScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Case Reference — Task 11')));
 }

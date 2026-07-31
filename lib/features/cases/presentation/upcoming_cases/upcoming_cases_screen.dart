@@ -2,6 +2,12 @@
 /// Implemented in Task 08.
 library;
 
-class UpcomingCasesScreen {
-  /// Stub for Task 08.
+import 'package:flutter/material.dart';
+
+class UpcomingCasesScreen extends StatelessWidget {
+  const UpcomingCasesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Upcoming Cases — Task 08')));
 }

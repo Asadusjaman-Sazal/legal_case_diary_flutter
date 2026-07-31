@@ -2,6 +2,12 @@
 /// Implemented in Task 12.
 library;
 
-class SettingsMainScreen {
-  /// Stub for Task 12.
+import 'package:flutter/material.dart';
+
+class SettingsMainScreen extends StatelessWidget {
+  const SettingsMainScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('Settings — Task 12')));
 }

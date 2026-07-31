@@ -8,7 +8,8 @@ import 'package:legal_case_diary/shared/providers/shared_preferences_provider.da
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('App root smoke test', (WidgetTester tester) async {
+  testWidgets('App root smoke test — router lands on Daily Cause List',
+      (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final prefs = await SharedPreferences.getInstance();
     late AppDatabase db;
@@ -28,11 +29,10 @@ void main() {
 
     addTearDown(() async => await db.close());
 
-    // Wait for the DatabaseGuard to finish opening the database.
+    // Wait for the DatabaseGuard and router to settle.
     await tester.pumpAndSettle();
 
-    // The default locale is Bengali, so the scratch screen title should render
-    // in Bengali once the first frame completes.
-    expect(find.text('স্থানীয়করণ স্ক্র্যা'), findsOneWidget);
+    // Default landing page is Daily Cause List (stub text from Task 09).
+    expect(find.text('Daily Cause List — Task 09'), findsOneWidget);
   });
 }

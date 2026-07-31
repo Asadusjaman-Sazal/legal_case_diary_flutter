@@ -1,3 +1,14 @@
+### 2026-07-31 — Current Task: Task 06 Phase 4 — COMPLETE
+
+Implemented and validated:
+- `SettingsSubPageModal` reusable mobile-first Settings shell with themed app header, accessible back button, optional trailing actions, and injectable body content.
+- `CalendarPickerDialog` Task 09-deferred dialog boundary; badge counts, month navigation, and Daily Cause List date selection remain deferred to Task 09.
+- Focused Phase 4 widget tests covering rendering, custom/default back behavior, and calendar-shell composition.
+
+`flutter analyze` clean, focused Phase 4 tests: 3 passed, full suite: 103 tests passed (2 skipped mobile-only).
+
+**Next:** Task 07 Phase 1 — Add/Edit Case form.
+
 ### 2026-07-31 — Current Task: Task 06 Phase 3 — COMPLETE
 
 Implemented and validated:

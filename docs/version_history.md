@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.39 - Task 06 Phase 3 complete: implemented configurable CaseCard variants with overdue strip and action callbacks, searchable single/multi-select CustomDropdown, plain today-defaulting date picker helper, shared widget barrel exports, localized dropdown strings, and focused widget tests. flutter analyze clean, 100 tests pass (2 skipped).
+Version: 0.0.40 - Task 06 Phase 4 complete: implemented the reusable Settings sub-page header/back shell and the Task 09-deferred CalendarPickerDialog boundary with focused widget tests; flutter analyze clean, 103 tests pass (2 skipped).
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -54,6 +54,7 @@ Version: 0.0.36 - Task 06 Phase 1 audit fixes: AppShellRoot wired into ShellRout
 Version: 0.0.37 - Task 06 Phase 2: implemented AppNavigationDrawer (profile header, grouped nav items with active pill, sideNavOptions visibility, Print/Share callbacks), BottomNavBar (4 configurable tabs from UserSettings.bottomNavTabs, active state highlighting), CasesScreenModal (reusable shell with drawer, header, search/view-toggle/sync buttons, bottom nav, FAB hidden on Disposed Cases); SyncState enum (idle/syncing/success/paused/error); sync button disabled with entitlement tooltip in Part A; new ARB strings for nav labels, sync states, and modal actions in both EN and BN; flutter analyze clean, 94 tests pass (2 skipped).
 Version: 0.0.38 - Task 06 Phase 2 audit fixes: (1) sideNavOptions now read from _userSettingsProvider stream and passed to AppNavigationDrawer — drawer visibility is now settings-driven; (2) searchQuery parameter added to CasesScreenModal for Addendum 2.4 scoped-query requirement; (3) _isActive in AppNavigationDrawer now uses item.route instead of item.visibilityKey; (4) replaced per-rebuild FutureBuilder(repo.getSettings()) with _userSettingsProvider StreamProvider — no more tab flash on rebuild; (5) dead _CasesScreenModalInner class removed; (6) drawer profile header now has name/role/subtitle stub slots matching mockup layout. flutter analyze clean, 94 tests pass (2 skipped).
 Version: 0.0.39 - Task 06 Phase 3 complete: implemented configurable CaseCard variants with overdue strip and action callbacks, searchable single/multi-select CustomDropdown, plain today-defaulting date picker helper, shared widget barrel exports, localized dropdown strings, and focused widget tests; flutter analyze clean, 100 tests pass (2 skipped).
+Version: 0.0.40 - Task 06 Phase 4 complete: implemented the reusable Settings sub-page header/back shell and the Task 09-deferred CalendarPickerDialog boundary with focused widget tests; flutter analyze clean, 103 tests pass (2 skipped).
 
 
 

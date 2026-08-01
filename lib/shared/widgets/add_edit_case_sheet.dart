@@ -219,6 +219,9 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   bool _permissionResolved = false;
   bool _canAdd = true;
   bool _canEdit = true;
+  bool _sheetEntranceComplete = false;
+  bool _lookupLoadStarted = false;
+  Animation<double>? _sheetAnimation;
   DateTime? _nextDate;
   String? _higherLowerCourt;
   String? _division;
@@ -241,17 +244,56 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     if (widget.lookupData != null) {
       _lookupData = widget.lookupData;
       _isLoading = false;
+      _sheetEntranceComplete = true;
       _notificationPreferenceLoading = widget.initialCase != null;
       _initializeSelection();
       _loadPermissions();
       _loadNotificationPreference();
-    } else {
-      _loadLookupData();
     }
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _observeSheetEntrance(),
+    );
+  }
+
+  void _observeSheetEntrance() {
+    if (!mounted) return;
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.status == AnimationStatus.completed) {
+      _startLookupDataLoad();
+      _revealLoadedForm();
+      return;
+    }
+    _sheetAnimation = animation;
+    animation.addStatusListener(_onSheetAnimationStatusChanged);
+  }
+
+  void _onSheetAnimationStatusChanged(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _sheetAnimation?.removeStatusListener(_onSheetAnimationStatusChanged);
+    _sheetAnimation = null;
+    _startLookupDataLoad();
+    _revealLoadedForm();
+  }
+
+  void _startLookupDataLoad() {
+    if (_lookupLoadStarted || widget.lookupData != null) return;
+    _lookupLoadStarted = true;
+    _loadLookupData();
+  }
+
+  void _revealLoadedForm() {
+    if (!mounted || _sheetEntranceComplete) return;
+    setState(() {
+      _sheetEntranceComplete = true;
+      if ((_lookupData != null || _loadError != null) && _isLoading) {
+        _isLoading = false;
+      }
+    });
   }
 
   @override
   void dispose() {
+    _sheetAnimation?.removeStatusListener(_onSheetAnimationStatusChanged);
     _caseNumberController.dispose();
     _petitionerController.dispose();
     _petitionerCounselController.dispose();
@@ -355,7 +397,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       if (!mounted) return;
       setState(() {
         _lookupData = data;
-        _isLoading = false;
+        _isLoading = !_sheetEntranceComplete;
         _permissionResolved = true;
         _canAdd = permissions.canAdd;
         _canEdit = permissions.canEdit;
@@ -369,7 +411,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       if (!mounted) return;
       setState(() {
         _loadError = error;
-        _isLoading = false;
+        _isLoading = !_sheetEntranceComplete;
       });
     }
   }
@@ -553,27 +595,34 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     final l = AppLocalizations.of(context);
     return Material(
       color: AppColors.surfaceContainerLowest,
-      child: SizedBox(
-        height: MediaQuery.sizeOf(context).height,
-        child: Column(
-          children: [
-            _SheetHeader(
-              title: widget.initialCase == null
-                  ? l.addEditCaseSheet_title
-                  : l.addEditCaseSheet_editTitle,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final height = constraints.hasBoundedHeight
+              ? constraints.maxHeight
+              : MediaQuery.sizeOf(context).height;
+          return SizedBox(
+            height: height,
+            child: Column(
+              children: [
+                _SheetHeader(
+                  title: widget.initialCase == null
+                      ? l.addEditCaseSheet_title
+                      : l.addEditCaseSheet_editTitle,
+                ),
+                Expanded(child: _buildBody(context)),
+                _SheetFooter(
+                  label: l.addEditCaseSheet_save,
+                  enabled:
+                      _hasWritePermission &&
+                      !_isLoading &&
+                      !_isSaving &&
+                      !_notificationPreferenceLoading,
+                  onPressed: _save,
+                ),
+              ],
             ),
-            Expanded(child: _buildBody(context)),
-            _SheetFooter(
-              label: l.addEditCaseSheet_save,
-              enabled:
-                  _hasWritePermission &&
-                  !_isLoading &&
-                  !_isSaving &&
-                  !_notificationPreferenceLoading,
-              onPressed: _save,
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

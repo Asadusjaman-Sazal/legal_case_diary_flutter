@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/app.dart';
@@ -39,6 +40,8 @@ void main() {
     // header title is localized (default locale is Bengali), so assert the
     // screen type instead of a text string.
     expect(find.byType(AllCasesScreen), findsOneWidget);
+    expect(find.byType(SafeArea), findsOneWidget);
+    expect(find.byType(AnnotatedRegion<SystemUiOverlayStyle>), findsOneWidget);
     expect(find.text('Daily Cause List — Task 09'), findsNothing);
 
     // Unmount the scope inside the test body so the drift stream-cleanup

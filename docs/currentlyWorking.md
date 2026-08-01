@@ -1,3 +1,14 @@
+### 2026-08-01 — Current Task: Task 07 phone UX fixes — COMPLETE
+
+Implemented and validated:
+- Applied app-wide top safe-area insets so routed content no longer draws beneath the Android status bar; configured light system-bar colors and readable dark icons.
+- Deferred the database-driven Add Case form's heavy layout reveal until the modal entrance animation completes, while keeping injected test lookup data immediate and cleaning up animation listeners safely.
+- Added smoke coverage for the app-level `SafeArea` and `AnnotatedRegion` system-bar layer.
+
+`flutter analyze` clean; targeted smoke, form, and Task 07 acceptance tests: 14 passed.
+
+**Next:** Retest on the physical phone with a fresh `flutter run`; if the sheet still drops frames, capture a profile-mode timeline before changing the animation duration.
+
 ### 2026-07-31 — Current Task: Task 07 — COMPLETE
 
 Implemented and validated:

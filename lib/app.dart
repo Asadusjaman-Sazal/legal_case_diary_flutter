@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/constants/app_colors.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -26,6 +28,7 @@ class App extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(locale),
         locale: locale,
+        builder: (context, child) => _buildSystemUiLayer(child),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         routerConfig: router,
@@ -34,18 +37,36 @@ class App extends ConsumerWidget {
       loading: () => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(locale),
-        home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        builder: (context, child) => _buildSystemUiLayer(child),
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       // On error fall back to the same loading screen; router will retry.
       error: (err, stack) => MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(locale),
-        home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        builder: (context, child) => _buildSystemUiLayer(child),
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
     );
   }
+
+  // Keep system icons readable on the light app surfaces. Content insets are
+  // applied by the shell or individual top-level screens so modal overlays
+  // retain their full available height.
+  static Widget _buildSystemUiLayer(Widget? child) =>
+      AnnotatedRegion<SystemUiOverlayStyle>(
+        value: _systemUiOverlayStyle,
+        child: child ?? const SizedBox.shrink(),
+      );
+
+  static const SystemUiOverlayStyle _systemUiOverlayStyle =
+      SystemUiOverlayStyle(
+        statusBarColor: AppColors.surface,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: AppColors.surface,
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarDividerColor: AppColors.outlineVariant,
+        systemStatusBarContrastEnforced: false,
+        systemNavigationBarContrastEnforced: false,
+      );
 }

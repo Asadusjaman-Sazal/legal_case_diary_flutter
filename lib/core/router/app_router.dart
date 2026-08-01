@@ -89,13 +89,13 @@ class AppRoutes {
 
   /// Maps a [defaultLandingPage] preference key to its route path.
   static String landingPageRoute(String key) => switch (key) {
-        'all_cases' => allCases,
-        'active' => activeCases,
-        'upcoming' => upcomingCases,
-        'overdue' => overdueDates,
-        'disposed' => disposedCases,
-        _ => dailyCauseList,
-      };
+    'all_cases' => allCases,
+    'active' => activeCases,
+    'upcoming' => upcomingCases,
+    'overdue' => overdueDates,
+    'disposed' => disposedCases,
+    _ => dailyCauseList,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -136,9 +136,8 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       // ------------------------------------------------------------------
       GoRoute(
         path: AppRoutes.caseDetail,
-        builder: (context, state) => CaseDetailScreen(
-          caseId: state.pathParameters['caseId'] ?? '',
-        ),
+        builder: (context, state) =>
+            CaseDetailScreen(caseId: state.pathParameters['caseId'] ?? ''),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -316,7 +315,9 @@ class AppShellRoot extends StatelessWidget {
           Navigator.of(context, rootNavigator: true).pop();
         }
       },
-      child: child,
+      // Shell screens own the app's status-bar inset. Keep this outside the
+      // modal navigator so full-height sheets can use their own safe area.
+      child: SafeArea(top: true, bottom: false, child: child),
     );
   }
 }

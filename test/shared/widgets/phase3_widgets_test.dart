@@ -177,33 +177,143 @@ void main() {
       expect(selected, 'High Court');
     });
 
-    testWidgets('confirms a multi-select value list', (
-      WidgetTester tester,
-    ) async {
-      List<String>? selected;
-
-      await tester.pumpWidget(
-        _localizedApp(
-          CustomDropdown<String>(
-            hint: 'Select steps',
-            fieldKey: const ValueKey('multi-dropdown-field'),
-            items: const ['Filed', 'Hearing', 'Disposed'],
-            multiSelect: true,
-            itemLabel: (item) => item,
-            onMultiChanged: (values) => selected = values,
+    testWidgets(
+      'single-select picker keeps search unfocused and closes from X',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _localizedApp(
+            CustomDropdown<String>(
+              label: 'Court Name',
+              fieldKey: const ValueKey('single-dialog-field'),
+              items: const ['District Court', 'High Court'],
+              itemLabel: (item) => item,
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.byKey(const ValueKey('multi-dropdown-field')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Filed'));
-      await tester.tap(find.text('Hearing'));
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('single-dialog-field')));
+        await tester.pumpAndSettle();
 
-      expect(selected, ['Filed', 'Hearing']);
-    });
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-dialog')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-title')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-search')),
+          findsOneWidget,
+        );
+        expect(
+          tester
+              .widget<TextField>(
+                find.byKey(const ValueKey('custom-dropdown-search')),
+              )
+              .autofocus,
+          isFalse,
+        );
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-close')),
+          findsOneWidget,
+        );
+        expect(find.byIcon(Icons.clear), findsNothing);
+
+        final dialog = tester.widget<Dialog>(find.byType(Dialog));
+        final dialogShape = dialog.shape! as RoundedRectangleBorder;
+        expect(dialogShape.borderRadius, BorderRadius.circular(4));
+        final dialogSize = tester.getSize(
+          find.byKey(const ValueKey('custom-dropdown-dialog')),
+        );
+        final hostWidth = tester.getSize(find.byType(Scaffold)).width;
+        expect(dialogSize.width, closeTo(hostWidth * .9, 0.1));
+        final closeRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-close')),
+        );
+        final titleBarRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-title-bar')),
+        );
+        expect(closeRect.top, closeTo(titleBarRect.top, 8));
+
+        await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-dialog')),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'multi-select stays open, clears, and confirms selected values',
+      (WidgetTester tester) async {
+        List<String>? selected;
+
+        await tester.pumpWidget(
+          _localizedApp(
+            CustomDropdown<String>(
+              hint: 'Select steps',
+              fieldKey: const ValueKey('multi-dropdown-field'),
+              items: const ['Filed', 'Hearing', 'Disposed'],
+              multiSelect: true,
+              itemLabel: (item) => item,
+              onMultiChanged: (values) => selected = values,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byKey(const ValueKey('multi-dropdown-field')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Filed').first);
+        await tester.pump();
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-dialog')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('custom-dropdown-selected-values')),
+            matching: find.text('Filed'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          tester.getSize(
+            find.byKey(const ValueKey('custom-dropdown-selected-values')),
+          ).height,
+          56,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('custom-dropdown-selected-values')),
+            matching: find.byType(SingleChildScrollView),
+          ),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.byKey(const ValueKey('custom-dropdown-clear')));
+        await tester.pump();
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('custom-dropdown-selected-values')),
+            matching: find.text('—'),
+          ),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.text('Filed').first);
+        await tester.tap(find.text('Hearing').first);
+        await tester.tap(find.byKey(const ValueKey('custom-dropdown-done')));
+        await tester.pumpAndSettle();
+
+        expect(selected, ['Filed', 'Hearing']);
+        expect(
+          find.byKey(const ValueKey('custom-dropdown-dialog')),
+          findsNothing,
+        );
+      },
+    );
   });
 
   group('plainDatePickerInitialDate', () {

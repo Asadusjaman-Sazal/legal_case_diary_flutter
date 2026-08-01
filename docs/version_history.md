@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.46 - Phone UX fixes: applied app-wide status-bar insets and readable system-bar styling, and deferred the database-driven Add Case form reveal until its modal entrance animation completes; targeted tests pass.
+Version: 0.0.48 - Add Case visual refinements: gray form with white sections, 90% rounded dropdowns, black actions, improved phone/date spacing, and fixed multi-select scrolling.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -60,6 +60,8 @@ Version: 0.0.42 - Task 07 audit complete: hardened per-user settings JSON fallba
 Version: 0.0.43 - Task 07 remediation complete: atomic Quick Update and form preference saves, localized offsets, explicit On Behalf resolution, All Cases CaseCard wiring, rollback tests, and 113 tests (2 skipped).
 Version: 0.0.44 - Task 07 audit fixes: acceptance test 7 now hosts the form via the production modal path (root-route pop crash fixed), acceptance test 9 unmounts the drift watch stream before teardown (pending-timer fixed); premium wording aligned in task file; full suite passes 122 tests (2 skipped).
 Version: 0.0.46 - Phone UX fixes: applied app-wide status-bar insets and readable system-bar styling, and deferred the database-driven Add Case form reveal until its modal entrance animation completes; targeted tests pass.
+Version: 0.0.47 - Add Case UX refinements: reorganized the form into four sections, improved field ordering and alignment, and added centered searchable single/multi-select pickers.
+Version: 0.0.48 - Add Case visual refinements: gray form with white sections, 90% rounded dropdowns, black actions, improved phone/date spacing, and fixed multi-select scrolling.
 
 
 

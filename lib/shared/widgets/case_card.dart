@@ -387,8 +387,8 @@ class _CaseActions extends StatelessWidget {
             tooltip: l.allCasesScreen_phone,
             onPressed: onPhone,
             style: IconButton.styleFrom(
-              backgroundColor: AppColors.surfaceContainerLow,
-              foregroundColor: AppColors.secondary,
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),
@@ -401,8 +401,8 @@ class _CaseActions extends StatelessWidget {
             tooltip: l.allCasesScreen_message,
             onPressed: onMessage,
             style: IconButton.styleFrom(
-              backgroundColor: AppColors.surfaceContainerLow,
-              foregroundColor: AppColors.success,
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),

@@ -199,6 +199,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_respondent => 'Respondent';
 
   @override
+  String get addEditCaseSheet_petitionerLeadCounsel =>
+      'Petitioner Lead Counsel';
+
+  @override
+  String get addEditCaseSheet_respondentLeadCounsel =>
+      'Respondent Lead Counsel';
+
+  @override
   String get addEditCaseSheet_onBehalf => 'On Behalf';
 
   @override
@@ -241,6 +249,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_save => 'Save';
+
+  @override
+  String get addEditCaseSheet_sectionCourt => 'Court & Case';
+
+  @override
+  String get addEditCaseSheet_sectionParties => 'Parties';
+
+  @override
+  String get addEditCaseSheet_sectionDetails => 'Case Title & Remarks';
+
+  @override
+  String get addEditCaseSheet_sectionSchedule => 'Next Date & Steps';
+
+  @override
+  String get customDropdown_clear => 'Clear';
+
+  @override
+  String get customDropdown_selected => 'Selected';
 
   @override
   String get settingsScreen_title => 'Settings';

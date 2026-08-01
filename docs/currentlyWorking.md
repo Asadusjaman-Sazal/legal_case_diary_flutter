@@ -1,13 +1,14 @@
-### 2026-08-01 — Current Task: Task 07 phone UX fixes — COMPLETE
+### 2026-08-01 — Current Task: Task 07 Add Case UX refinements — COMPLETE
 
 Implemented and validated:
-- Applied app-wide top safe-area insets so routed content no longer draws beneath the Android status bar; configured light system-bar colors and readable dark icons.
-- Deferred the database-driven Add Case form's heavy layout reveal until the modal entrance animation completes, while keeping injected test lookup data immediate and cleaning up animation listeners safely.
-- Added smoke coverage for the app-level `SafeArea` and `AnnotatedRegion` system-bar layer.
+- Reorganized the Add Case form into four rounded sections with the requested field order, counsel labels, phone spacing, aligned Case Type/Case Number controls, and Next Date/Notification plus separate Day Offset layout.
+- Switched the form to the gray surface with white sections while preserving the existing input fill color; increased the party separation, placed Next Date as an inline field hint, and made action buttons black.
+- Replaced dropdown bottom sheets with centered 90%-screen pickers matching the Update dialog radius, top-right close controls, no search clear icons, compact Search text, and distinct single/multi-select actions; Day Offset remains no-search.
+- Fixed the multi-select selected-items area to one horizontally draggable line and enlarged Clear/Done buttons; added regression coverage for the revised interactions.
 
-`flutter analyze` clean; targeted smoke, form, and Task 07 acceptance tests: 14 passed.
+`flutter analyze` clean; full suite: 123 tests passed (2 skipped mobile-only).
 
-**Next:** Retest on the physical phone with a fresh `flutter run`; if the sheet still drops frames, capture a profile-mode timeline before changing the animation duration.
+**Next:** Retest the revised form and pickers on the physical phone with a fresh `flutter run`, paying particular attention to scroll fluidity, narrow-screen selected-item scrolling, and keyboard-open picker sizing.
 
 ### 2026-07-31 — Current Task: Task 07 — COMPLETE
 

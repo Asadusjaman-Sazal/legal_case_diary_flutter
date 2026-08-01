@@ -594,7 +594,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Material(
-      color: AppColors.surfaceContainerLowest,
+      // Keep the form gray so each white section reads as a distinct card.
+      color: AppColors.surfaceVariant,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final height = constraints.hasBoundedHeight
@@ -637,182 +638,260 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     final editable = _hasWritePermission;
     return Form(
       key: _formKey,
-      child: SingleChildScrollView(
+      child: ListView(
         key: const ValueKey('add-edit-form-scroll'),
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.xxl,
+        ),
+        physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CustomDropdown<String>(
-              fieldKey: const ValueKey('add-edit-higher-lower-court'),
-              label: l.addEditCaseSheet_higherOrLowerCourt,
-              items: const [
-                appellateDivisionId,
-                highCourtDivisionId,
-                lowerCourtsOption,
+        children: [
+          _sectionCard(
+            key: const ValueKey('add-edit-section-court'),
+            title: l.addEditCaseSheet_sectionCourt,
+            children: [
+              CustomDropdown<String>(
+                fieldKey: const ValueKey('add-edit-higher-lower-court'),
+                label: l.addEditCaseSheet_higherOrLowerCourt,
+                items: const [
+                  appellateDivisionId,
+                  highCourtDivisionId,
+                  lowerCourtsOption,
+                ],
+                value: _higherLowerCourt,
+                itemLabel: (item) => _higherLowerLabel(context, item),
+                enabled: editable,
+                onChanged: _onHigherLowerChanged,
+              ),
+              if (_isLowerCourt) ...[
+                const SizedBox(height: AppSpacing.md),
+                CustomDropdown<String>(
+                  fieldKey: const ValueKey('add-edit-division'),
+                  label: l.addEditCaseSheet_division,
+                  items: allDivisionIds,
+                  value: _division,
+                  itemLabel: (item) => _divisionLabel(context, item),
+                  enabled: editable,
+                  onChanged: _onDivisionChanged,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                CustomDropdown<String>(
+                  fieldKey: const ValueKey('add-edit-district'),
+                  label: l.addEditCaseSheet_district,
+                  items: _districtOptions,
+                  value: _district,
+                  itemLabel: (item) => districtLabelEn[item] ?? item,
+                  enabled: editable,
+                  onChanged: _onDistrictChanged,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                CustomDropdown<CourtCategory>(
+                  fieldKey: const ValueKey('add-edit-court-category'),
+                  label: l.addEditCaseSheet_courtCategory,
+                  items: _lowerCategories,
+                  value: _categoryById(_courtCategoryId),
+                  itemLabel: (item) => _categoryLabel(context, item),
+                  enabled: editable,
+                  onChanged: (value) => _onCategoryChanged(value?.id),
+                ),
               ],
-              value: _higherLowerCourt,
-              itemLabel: (item) => _higherLowerLabel(context, item),
-              enabled: editable,
-              onChanged: _onHigherLowerChanged,
-            ),
-            if (_isLowerCourt) ...[
               const SizedBox(height: AppSpacing.md),
-              CustomDropdown<String>(
-                fieldKey: const ValueKey('add-edit-division'),
-                label: l.addEditCaseSheet_division,
-                items: allDivisionIds,
-                value: _division,
-                itemLabel: (item) => _divisionLabel(context, item),
-                enabled: editable,
-                onChanged: _onDivisionChanged,
+              CustomDropdown<Court>(
+                fieldKey: const ValueKey('add-edit-name-of-court'),
+                label: l.addEditCaseSheet_nameOfCourt,
+                items: _courtOptions,
+                value: _selectedCourt,
+                searchable: true,
+                itemLabel: (item) => item.courtName,
+                enabled: editable && _courtCategoryId != null,
+                onChanged: _onCourtChanged,
               ),
               const SizedBox(height: AppSpacing.md),
-              CustomDropdown<String>(
-                fieldKey: const ValueKey('add-edit-district'),
-                label: l.addEditCaseSheet_district,
-                items: _districtOptions,
-                value: _district,
-                itemLabel: (item) => districtLabelEn[item] ?? item,
-                enabled: editable,
-                onChanged: _onDistrictChanged,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              CustomDropdown<CourtCategory>(
-                fieldKey: const ValueKey('add-edit-court-category'),
-                label: l.addEditCaseSheet_courtCategory,
-                items: _lowerCategories,
-                value: _categoryById(_courtCategoryId),
-                itemLabel: (item) => _categoryLabel(context, item),
-                enabled: editable,
-                onChanged: (value) => _onCategoryChanged(value?.id),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _labeledTextField(
+                      fieldKey: const ValueKey('add-edit-case-type'),
+                      label: l.allCasesScreen_caseType,
+                      child: CustomDropdown<CaseType>(
+                        label: null,
+                        modalTitle: l.allCasesScreen_caseType,
+                        items: _caseTypeOptions,
+                        value: _selectedCaseType,
+                        itemLabel: (item) => item.name,
+                        enabled: editable && _courtCategoryId != null,
+                        onChanged: (value) =>
+                            setState(() => _selectedCaseType = value),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _labeledTextField(
+                      fieldKey: const ValueKey(
+                        'add-edit-case-number-container',
+                      ),
+                      label: l.addEditCaseSheet_caseNumber,
+                      child: _textField(
+                        key: const ValueKey('add-edit-case-number'),
+                        label: l.addEditCaseSheet_caseNumber,
+                        controller: _caseNumberController,
+                        enabled: editable,
+                        showInputLabel: false,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
-            const SizedBox(height: AppSpacing.md),
-            CustomDropdown<Court>(
-              fieldKey: const ValueKey('add-edit-name-of-court'),
-              label: l.addEditCaseSheet_nameOfCourt,
-              items: _courtOptions,
-              value: _selectedCourt,
-              searchable: true,
-              itemLabel: (item) => item.courtName,
-              enabled: editable && _courtCategoryId != null,
-              onChanged: _onCourtChanged,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CustomDropdown<CaseType>(
-                    fieldKey: const ValueKey('add-edit-case-type'),
-                    label: l.allCasesScreen_caseType,
-                    items: _caseTypeOptions,
-                    value: _selectedCaseType,
-                    itemLabel: (item) => item.name,
-                    enabled: editable && _courtCategoryId != null,
-                    onChanged: (value) =>
-                        setState(() => _selectedCaseType = value),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _textField(
-                    key: const ValueKey('add-edit-case-number'),
-                    label: l.addEditCaseSheet_caseNumber,
-                    controller: _caseNumberController,
-                    enabled: editable,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _partyFields(
-              l.addEditCaseSheet_petitioner,
-              _petitionerController,
-              _petitionerCounselController,
-              const ValueKey('add-edit-petitioner'),
-              const ValueKey('add-edit-petitioner-lead-counsel'),
-              editable,
-              l.caseDetailsScreen_leadCounsel,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _partyFields(
-              l.addEditCaseSheet_respondent,
-              _respondentController,
-              _respondentCounselController,
-              const ValueKey('add-edit-respondent'),
-              const ValueKey('add-edit-respondent-lead-counsel'),
-              editable,
-              l.caseDetailsScreen_leadCounsel,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            CustomDropdown<OnBehalf>(
-              fieldKey: const ValueKey('add-edit-on-behalf'),
-              label: l.addEditCaseSheet_onBehalf,
-              items: _onBehalfOptions,
-              value: _selectedOnBehalf,
-              itemLabel: (item) => item.name,
-              enabled: editable && _courtCategoryId != null,
-              onChanged: (value) => setState(() => _selectedOnBehalf = value),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _textField(
-              key: const ValueKey('add-edit-petitioner-phone'),
-              label: l.addEditCaseSheet_petitionerPhone,
-              controller: _petitionerPhoneController,
-              keyboardType: TextInputType.number,
-              enabled: editable,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _textField(
-              key: const ValueKey('add-edit-respondent-phone'),
-              label: l.addEditCaseSheet_respondentPhone,
-              controller: _respondentPhoneController,
-              keyboardType: TextInputType.number,
-              enabled: editable,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _textField(
-              key: const ValueKey('add-edit-case-title'),
-              label: l.addEditCaseSheet_caseTitleAndSection,
-              controller: _caseTitleController,
-              enabled: editable,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _textField(
-              key: const ValueKey('add-edit-case-remarks'),
-              label: l.addEditCaseSheet_caseRemarks,
-              controller: _caseRemarksController,
-              maxLines: 3,
-              enabled: editable,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _nextDateRow(context, editable),
-            const SizedBox(height: AppSpacing.md),
-            CustomDropdown<Step>(
-              fieldKey: const ValueKey('add-edit-step'),
-              label: l.addEditCaseSheet_step,
-              items: _stepOptions,
-              selectedValues: _selectedSteps,
-              multiSelect: true,
-              itemLabel: (item) => item.stepName,
-              enabled: editable && _courtCategoryId != null,
-              onMultiChanged: (values) =>
-                  setState(() => _selectedSteps = values),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _textField(
-              key: const ValueKey('add-edit-note'),
-              label: l.addEditCaseSheet_note,
-              controller: _noteController,
-              maxLines: 4,
-              enabled: editable,
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-        ),
+          ),
+          _sectionCard(
+            key: const ValueKey('add-edit-section-parties'),
+            title: l.addEditCaseSheet_sectionParties,
+            children: [
+              _partyFields(
+                l.addEditCaseSheet_petitioner,
+                _petitionerController,
+                _petitionerCounselController,
+                _petitionerPhoneController,
+                const ValueKey('add-edit-petitioner'),
+                const ValueKey('add-edit-petitioner-lead-counsel'),
+                const ValueKey('add-edit-petitioner-phone'),
+                editable,
+                l.addEditCaseSheet_petitionerLeadCounsel,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _partyFields(
+                l.addEditCaseSheet_respondent,
+                _respondentController,
+                _respondentCounselController,
+                _respondentPhoneController,
+                const ValueKey('add-edit-respondent'),
+                const ValueKey('add-edit-respondent-lead-counsel'),
+                const ValueKey('add-edit-respondent-phone'),
+                editable,
+                l.addEditCaseSheet_respondentLeadCounsel,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              CustomDropdown<OnBehalf>(
+                fieldKey: const ValueKey('add-edit-on-behalf'),
+                label: l.addEditCaseSheet_onBehalf,
+                items: _onBehalfOptions,
+                value: _selectedOnBehalf,
+                itemLabel: (item) => item.name,
+                enabled: editable && _courtCategoryId != null,
+                onChanged: (value) => setState(() => _selectedOnBehalf = value),
+              ),
+            ],
+          ),
+          _sectionCard(
+            key: const ValueKey('add-edit-section-details'),
+            title: l.addEditCaseSheet_sectionDetails,
+            children: [
+              _textField(
+                key: const ValueKey('add-edit-case-title'),
+                label: l.addEditCaseSheet_caseTitleAndSection,
+                controller: _caseTitleController,
+                enabled: editable,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _textField(
+                key: const ValueKey('add-edit-case-remarks'),
+                label: l.addEditCaseSheet_caseRemarks,
+                controller: _caseRemarksController,
+                maxLines: 3,
+                enabled: editable,
+              ),
+            ],
+          ),
+          _sectionCard(
+            key: const ValueKey('add-edit-section-schedule'),
+            title: l.addEditCaseSheet_sectionSchedule,
+            children: [
+              _nextDateAndNotificationRow(context, editable),
+              const SizedBox(height: AppSpacing.md),
+              CustomDropdown<int>(
+                fieldKey: const ValueKey('add-edit-day-offset'),
+                label: l.addEditCaseSheet_dayOffset,
+                items: _lookupData?.notificationOffsets ?? const [],
+                selectedValues: _selectedNotificationOffsets,
+                multiSelect: true,
+                searchable: false,
+                itemLabel: (item) => _offsetLabel(context, item),
+                enabled: editable,
+                onMultiChanged: (values) =>
+                    setState(() => _selectedNotificationOffsets = values),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              CustomDropdown<Step>(
+                fieldKey: const ValueKey('add-edit-step'),
+                label: l.addEditCaseSheet_step,
+                items: _stepOptions,
+                selectedValues: _selectedSteps,
+                multiSelect: true,
+                itemLabel: (item) => item.stepName,
+                enabled: editable && _courtCategoryId != null,
+                onMultiChanged: (values) =>
+                    setState(() => _selectedSteps = values),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _textField(
+                key: const ValueKey('add-edit-note'),
+                label: l.addEditCaseSheet_note,
+                controller: _noteController,
+                maxLines: 4,
+                enabled: editable,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionCard({
+    required Key key,
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      key: key,
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: AppTypography.titleMd),
+          const SizedBox(height: AppSpacing.md),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _labeledTextField({
+    required Key fieldKey,
+    required String label,
+    required Widget child,
+  }) {
+    return KeyedSubtree(
+      key: fieldKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(label, style: AppTypography.labelLg),
+          const SizedBox(height: AppSpacing.xs),
+          child,
+        ],
       ),
     );
   }
@@ -821,11 +900,16 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     String label,
     TextEditingController party,
     TextEditingController counsel,
+    TextEditingController phone,
     Key partyKey,
     Key counselKey,
+    Key phoneKey,
     bool enabled,
     String counselLabel,
   ) {
+    final phoneLabel = phone == _petitionerPhoneController
+        ? AppLocalizations.of(context).addEditCaseSheet_petitionerPhone
+        : AppLocalizations.of(context).addEditCaseSheet_respondentPhone;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -842,6 +926,14 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           controller: counsel,
           enabled: enabled,
         ),
+        const SizedBox(height: AppSpacing.lg),
+        _textField(
+          key: phoneKey,
+          label: phoneLabel,
+          controller: phone,
+          keyboardType: TextInputType.phone,
+          enabled: enabled,
+        ),
       ],
     );
   }
@@ -853,6 +945,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     required bool enabled,
     TextInputType? keyboardType,
     int maxLines = 1,
+    bool showInputLabel = true,
   }) {
     return TextFormField(
       key: key,
@@ -860,14 +953,14 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       enabled: enabled,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: showInputLabel ? label : null),
     );
   }
 
-  Widget _nextDateRow(BuildContext context, bool editable) {
+  Widget _nextDateAndNotificationRow(BuildContext context, bool editable) {
     final l = AppLocalizations.of(context);
     final dateText = _nextDate == null
-        ? l.customDropdown_selectOption
+        ? ''
         : MaterialLocalizations.of(context).formatMediumDate(_nextDate!);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -878,16 +971,25 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
             key: const ValueKey('add-edit-next-date'),
             onTap: editable ? _pickNextDate : null,
             child: InputDecorator(
+              isEmpty: dateText.isEmpty,
               decoration: InputDecoration(
-                labelText: l.addEditCaseSheet_nextDate,
+                hintText: l.addEditCaseSheet_nextDate,
+                hintStyle: AppTypography.bodyMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
                 enabled: editable,
                 suffixIcon: const Icon(Icons.calendar_month_outlined),
               ),
-              child: Text(dateText),
+              child: Text(
+                dateText,
+                style: AppTypography.bodyMd.copyWith(
+                  color: AppColors.onSurface,
+                ),
+              ),
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           flex: 2,
           child: Column(
@@ -904,9 +1006,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         () => _isNotificationEnabled = !_isNotificationEnabled,
                       )
                     : null,
-                color: _isNotificationEnabled
-                    ? Colors.black
-                    : AppColors.onSurfaceVariant,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                ),
                 icon: Icon(
                   _isNotificationEnabled
                       ? Icons.notifications
@@ -914,22 +1017,6 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          flex: 5,
-          child: CustomDropdown<int>(
-            fieldKey: const ValueKey('add-edit-day-offset'),
-            label: l.addEditCaseSheet_dayOffset,
-            items: _lookupData?.notificationOffsets ?? const [],
-            selectedValues: _selectedNotificationOffsets,
-            multiSelect: true,
-            itemLabel: (item) => _offsetLabel(context, item),
-
-            enabled: editable,
-            onMultiChanged: (values) =>
-                setState(() => _selectedNotificationOffsets = values),
           ),
         ),
       ],

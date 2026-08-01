@@ -599,7 +599,20 @@ Future<void> _pumpUntil(
 
 Future<void> _select(WidgetTester tester, Key key) async {
   final field = find.byKey(key);
-  await tester.ensureVisible(field);
+  if (field.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      field,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  expect(field, findsOneWidget);
+  await Scrollable.ensureVisible(
+    tester.element(field),
+    alignment: 0.5,
+    duration: Duration.zero,
+  );
+  await tester.pump();
   await tester.tap(field);
   await tester.pumpAndSettle();
 }
@@ -607,14 +620,10 @@ Future<void> _select(WidgetTester tester, Key key) async {
 Future<void> _selectOffsets(WidgetTester tester, List<int> offsets) async {
   await _select(tester, const ValueKey('add-edit-day-offset'));
   for (final offset in offsets) {
-    final label = offset == 0
-        ? 'Same day'
-        : offset == 1
-        ? 'The day before'
-        : '$offset days before';
-    final item = find.text(label).last;
+    final item = find.byKey(ValueKey<int>(offset));
+    expect(item, findsOneWidget);
     await tester.tap(item);
   }
-  await tester.tap(find.text('Done'));
+  await tester.tap(find.byKey(const ValueKey('custom-dropdown-done')));
   await tester.pumpAndSettle();
 }

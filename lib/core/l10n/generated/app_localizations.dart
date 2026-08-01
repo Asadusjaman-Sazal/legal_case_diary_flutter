@@ -470,6 +470,18 @@ abstract class AppLocalizations {
   /// **'Respondent'**
   String get addEditCaseSheet_respondent;
 
+  /// No description provided for @addEditCaseSheet_petitionerLeadCounsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Petitioner Lead Counsel'**
+  String get addEditCaseSheet_petitionerLeadCounsel;
+
+  /// No description provided for @addEditCaseSheet_respondentLeadCounsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Respondent Lead Counsel'**
+  String get addEditCaseSheet_respondentLeadCounsel;
+
   /// No description provided for @addEditCaseSheet_onBehalf.
   ///
   /// In en, this message translates to:
@@ -553,6 +565,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get addEditCaseSheet_save;
+
+  /// No description provided for @addEditCaseSheet_sectionCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Court & Case'**
+  String get addEditCaseSheet_sectionCourt;
+
+  /// No description provided for @addEditCaseSheet_sectionParties.
+  ///
+  /// In en, this message translates to:
+  /// **'Parties'**
+  String get addEditCaseSheet_sectionParties;
+
+  /// No description provided for @addEditCaseSheet_sectionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Title & Remarks'**
+  String get addEditCaseSheet_sectionDetails;
+
+  /// No description provided for @addEditCaseSheet_sectionSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Date & Steps'**
+  String get addEditCaseSheet_sectionSchedule;
+
+  /// No description provided for @customDropdown_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get customDropdown_clear;
+
+  /// No description provided for @customDropdown_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get customDropdown_selected;
 
   /// No description provided for @settingsScreen_title.
   ///

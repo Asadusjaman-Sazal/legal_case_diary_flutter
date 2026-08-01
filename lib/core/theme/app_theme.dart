@@ -160,8 +160,8 @@ class AppTheme {
   static FilledButtonThemeData get _filledButtonTheme =>
       FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.surfaceContainer,
           disabledForegroundColor: AppColors.onSurfaceVariant,
           elevation: 0,
@@ -179,8 +179,8 @@ class AppTheme {
   static ElevatedButtonThemeData get _elevatedButtonTheme =>
       ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondary,
-          foregroundColor: AppColors.onSecondary,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.surfaceContainer,
           disabledForegroundColor: AppColors.onSurfaceVariant,
           elevation: 0,
@@ -198,8 +198,9 @@ class AppTheme {
   static OutlinedButtonThemeData get _outlinedButtonTheme =>
       OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.secondary,
-          side: const BorderSide(color: AppColors.secondary),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Colors.black),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           ),
@@ -213,7 +214,8 @@ class AppTheme {
 
   static TextButtonThemeData get _textButtonTheme => TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.tertiary,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           ),

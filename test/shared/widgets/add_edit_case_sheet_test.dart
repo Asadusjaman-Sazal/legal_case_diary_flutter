@@ -89,27 +89,35 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.byKey(const ValueKey('add-edit-case-title')),
+          find.byKey(const ValueKey('add-edit-section-court')),
           findsOneWidget,
         );
         expect(
-          find.byKey(const ValueKey('add-edit-case-remarks')),
+          find.byKey(const ValueKey('add-edit-section-parties')),
           findsOneWidget,
         );
-        expect(
-          find.byKey(const ValueKey('add-edit-next-date')),
-          findsOneWidget,
-        );
-        expect(
-          find.byKey(const ValueKey('add-edit-notification')),
-          findsOneWidget,
-        );
-        expect(
-          find.byKey(const ValueKey('add-edit-day-offset')),
-          findsOneWidget,
-        );
-        expect(find.byKey(const ValueKey('add-edit-step')), findsOneWidget);
-        expect(find.byKey(const ValueKey('add-edit-note')), findsOneWidget);
+        expect(find.text('Petitioner Lead Counsel'), findsOneWidget);
+        expect(find.text('Respondent Lead Counsel'), findsOneWidget);
+
+        final scrollable = find.byType(Scrollable).first;
+        for (final key in [
+          'add-edit-section-details',
+          'add-edit-section-schedule',
+          'add-edit-case-title',
+          'add-edit-case-remarks',
+          'add-edit-next-date',
+          'add-edit-notification',
+          'add-edit-day-offset',
+          'add-edit-step',
+          'add-edit-note',
+        ]) {
+          await tester.scrollUntilVisible(
+            find.byKey(ValueKey(key)),
+            240,
+            scrollable: scrollable,
+          );
+          expect(find.byKey(ValueKey(key)), findsOneWidget);
+        }
         expect(find.byKey(const ValueKey('add-edit-save')), findsOneWidget);
       },
     );
@@ -157,6 +165,11 @@ void main() {
         find.byKey(const ValueKey('add-edit-save')),
       );
       expect(saveButton.onPressed, isNull);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-next-date')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(
         tester
             .widget<InkWell>(find.byKey(const ValueKey('add-edit-next-date')))

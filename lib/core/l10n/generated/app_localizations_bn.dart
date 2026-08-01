@@ -198,6 +198,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_respondent => 'বিবাদী';
 
   @override
+  String get addEditCaseSheet_petitionerLeadCounsel => 'বাদীর প্রধান আইনজীবী';
+
+  @override
+  String get addEditCaseSheet_respondentLeadCounsel => 'বিবাদীর প্রধান আইনজীবী';
+
+  @override
   String get addEditCaseSheet_onBehalf => 'পক্ষে';
 
   @override
@@ -240,6 +246,24 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_save => 'সংরক্ষণ';
+
+  @override
+  String get addEditCaseSheet_sectionCourt => 'আদালত ও মোকদ্দমা';
+
+  @override
+  String get addEditCaseSheet_sectionParties => 'পক্ষ সমূহ';
+
+  @override
+  String get addEditCaseSheet_sectionDetails => 'মামলার শিরোনাম ও মন্তব্য';
+
+  @override
+  String get addEditCaseSheet_sectionSchedule => 'পরবর্তী তারিখ ও পদক্ষেপ';
+
+  @override
+  String get customDropdown_clear => 'পরিষ্কার';
+
+  @override
+  String get customDropdown_selected => 'নির্বাচিত';
 
   @override
   String get settingsScreen_title => 'সেটিংস';

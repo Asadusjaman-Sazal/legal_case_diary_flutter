@@ -160,8 +160,8 @@ class CasesScreenModal extends ConsumerWidget {
       floatingActionButton: showFab
           ? FloatingActionButton(
               onPressed: onAddCase,
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               tooltip: l.casesModal_addCase,
               child: const Icon(Icons.add, size: 28),
             )

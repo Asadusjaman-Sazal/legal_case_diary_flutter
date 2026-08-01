@@ -138,8 +138,8 @@ class _LanguageButton extends StatelessWidget {
     return FilledButton(
       onPressed: onTap,
       style: FilledButton.styleFrom(
-        backgroundColor: selected ? AppColors.primary : AppColors.surfaceContainer,
-        foregroundColor: selected ? AppColors.onPrimary : AppColors.onSurface,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
       ),
       child: Text(label),
     );

@@ -42,7 +42,8 @@ class DatabaseRecoveryDialog extends StatelessWidget {
         TextButton(
           onPressed: onReset,
           style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
           ),
           child: const Text('Reset Local Database'),
         ),

@@ -25,8 +25,23 @@ Binding project-wide rules for all agents. Task-specific requirements live in `d
 ## Phase completion protocol (end of EVERY phase)
 
 1. Run `flutter analyze`; fix ALL errors and warnings you introduced. Phase is not complete until clean.
-2. Append to `docs/version_history.md`: `Version: X.Y.Z - [brief summary]` (sequential bump), update its `## Current Version` section and `pubspec.yaml`: version:[Only Version Number from Current Version].
-3. Update `docs/currentlyWorking.md`: `### [Date Time] — Current Task: [brief description]`.
+2. **Read Files:** Read `docs/version_history.md`, `pubspec.yaml`, and `docs/currentlyWorking.md`.
+3. **Increment Version:** Read the current version under `## Current Version` in `docs/version_history.md`. Sequentially increment the **patch** component (`X.Y.Z` → `X.Y.Z+1`). Do not guess or recall from memory.
+4. **Format Entry:** Format entry as: `Version: X.Y.Z - [brief summary]`
+5. **Update `docs/version_history.md`:**
+   - Replace the line directly under `## Current Version` with the new entry.
+   - Append the **exact same line** to the bottom of `## Version History` (never insert at top, duplicate headings, or alter past entries).
+6. **Update `pubspec.yaml`:** Set `version: X.Y.Z` (exact numeric string only, no prefix or summary).
+7. **Update `docs/currentlyWorking.md`:** Document completed phase and next resume point.
+8. **File Layout Reference (`docs/version_history.md`)**
+```markdown
+- ## Current Version
+Version: 0.0.41 - Task 07 Phase 1 complete: ...
+
+- ## Version History
+...
+Version: 0.0.40 - Task 06 Phase 4 complete: ...
+Version: 0.0.41 - Task 07 Phase 1 complete: ...
 
 ## Session protocol
 

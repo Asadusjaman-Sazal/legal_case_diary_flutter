@@ -38,15 +38,15 @@ Layout rules (verbatim from plan): 6–7 side-by-side; 13–14–15 in one row i
 
 1. **Add mode:** generate a new UUID → `CaseRepository.insertCase()` (which runs the sync-ready write pipeline from Task 05).
 2. **Edit mode:** pre-fill every field from the `Case` data class → `CaseRepository.updateCase()`.
-3. **50-case free limit:** in add mode, before insert, call `CasesDao.getNonDeletedCaseCount()`; if count ≥ 50 AND `isPremium == false`, block the save and navigate to `PaywallScreen` (stub screen until Task 15/21).
-4. **Case history:** ordinary Add/Edit saves create no automatic history. The quick Update flow delegates to the repository transaction, which creates one previous-value entry only when `nextDate` changes; UI code never calls the history DAO directly.
-5. Validation: required fields — the plan does not enumerate which fields are mandatory beyond structure; **ask the user which fields are required before implementing validation.**
+3. **50-case free limit:** in add mode, before insert, call `CasesDao.getNonDeletedCaseCount()`; if count ≥ 50 AND the user has no premium entitlement, block the save and navigate to `PaywallScreen` (stub screen until Task 15/21). Premium entitlement is derived from the cached subscription expiry via `resolvePremiumAccess` (profile expiry for individuals, firm expiry for firm members, 48-hour grace); the display-only `settings.isPremium` flag is never the authority.
+4. **Case history:** ordinary Add/Edit saves create no automatic history. The quick Update flow delegates to one atomic repository transaction, which creates one previous-value entry only when `nextDate` changes; UI code never calls the history DAO directly. The case row, history row, and their sync-queue records must roll back together if any write fails.
+5. Validation: required fields — the confirmed mandatory fields are Higher or Lower Court; Division, District, and Court Category for lower courts; Name of Court; Case Type; Case Number; and Next Date. On Behalf remains optional at the validation layer, but because the local FK is non-nullable, saving requires an explicit role when multiple roles exist or uses the sole role when exactly one exists; it never silently chooses the first of multiple roles.
 
 **Phase 2 completion:** `flutter analyze` clean; manual test add + edit + limit block. Update `docs/version_history.md`.
 
 ## Phase 3 — Quick Update Pop-up
 
-Implement the **Update button pop-up** (quick date & step update window styled after `dailyCauseList\code.html`): edits `next_date`, `last_step` (category-filtered steps), and `notes_results`; runs the same case-history-preservation logic on save. Wire it to the `case_card.dart` Update callback (Task 06).
+Implement the **Update button pop-up** (quick date & step update window styled after `dailyCauseList\code.html`): edits `next_date`, `last_step` (category-filtered steps), and `notes_results`; runs the same case-history-preservation logic on save. Wire it to the production `case_card.dart` Update callback in the All Cases host (Task 06). The remaining Task 08 list screens may remain stubs until their own implementation phases.
 
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
@@ -55,4 +55,6 @@ Implement the **Update button pop-up** (quick date & step update window styled a
 - Replace field 11 with two nullable fields, Petitioner Phone No. and Respondent Phone No.; preserve the remaining field order/cascade rules and update the documented field-count verification accordingly.
 - Persist the Notification toggle and selected offsets in per-user `case_notification_preferences`, not transient form state or firm-shared settings.
 - The free-tier check calls `getNonDeletedCaseCount()`.
-- Ordinary Add/Edit Case saves do not create case history. The quick Update popup delegates one repository transaction that creates a provisional previous-value history row only when `next_date` changed. Remove every direct UI call to `CaseHistoryDao.insertHistoryEntry()`.
+- Ordinary Add/Edit Case saves do not create case history. The quick Update popup delegates one atomic repository transaction that updates the case, records the provisional previous-value history row only when `next_date` changed, and enqueues both writes; any failure rolls the unit of work back. Remove every direct UI call to `CaseHistoryDao.insertHistoryEntry()`.
+- Notification offset labels are localized through AppLocalizations for both English and Bengali.
+- The All Cases production host renders repository-backed CaseCards and connects `onUpdate` to `QuickUpdateCaseDialog`; the other Task 08 list hosts remain explicitly deferred stubs.

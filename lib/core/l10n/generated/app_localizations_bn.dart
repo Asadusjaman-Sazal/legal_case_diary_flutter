@@ -222,6 +222,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_dayOffset => 'দিনের অফসেট';
 
   @override
+  String get addEditCaseSheet_offsetSameDay => 'একই দিন';
+
+  @override
+  String get addEditCaseSheet_offsetDayBefore => 'আগের দিন';
+
+  @override
+  String addEditCaseSheet_offsetDaysBefore(Object count) {
+    return '$count দিন আগে';
+  }
+
+  @override
   String get addEditCaseSheet_step => 'ধাপ';
 
   @override

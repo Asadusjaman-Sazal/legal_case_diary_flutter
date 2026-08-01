@@ -1,3 +1,20 @@
+### 2026-07-31 — Current Task: Task 07 — COMPLETE
+
+Implemented and validated:
+- Full-screen `AddEditCaseSheet` with all 18 fields, exact stacking/row rules, cascading court hierarchy, searchable court selection, edit prefill, and required-field validation for Higher/Lower Court, lower-court hierarchy, Name of Court, Case Type, Case Number, and Next Date.
+- Offline repository-backed add/edit saves, 50-case free-tier paywall gate, per-user case notification preference JSON persistence, and firm-member permission checks with fail-closed cache behavior.
+- Mockup-aligned Quick Update dialog delegating date/step/note changes through an atomic `CaseRepository` transaction; ordinary edits do not create history.
+- Notification offset labels are localized in English and Bengali.
+- On Behalf persistence now accepts an explicit valid selection or infers only a sole available role; multiple roles never default silently.
+- The production All Cases host renders repository-backed `CaseCard`s and wires `onUpdate` to `QuickUpdateCaseDialog`; remaining Task 08 list hosts stay deferred stubs.
+- Regression tests cover form layout/cascades/permissions, settings JSON fallback, On Behalf resolution, ordinary update history exclusion, quick-update history creation, and atomic rollback on history failure.
+
+`flutter analyze` clean, full suite: 122 tests passed (2 skipped mobile-only).
+
+Dev-testing note: the default landing page is All Cases (not the Task 09 Daily Cause List stub) so the Task 07 Add/Edit form is reachable on-device; revert `defaultLandingPage` to `'daily_cause_list'` when Task 09 lands.
+
+**Next:** Task 08 case-list implementation can extend the shared host pattern to the remaining list screens.
+
 ### 2026-07-31 — Current Task: Task 06 Phase 4 — COMPLETE
 
 Implemented and validated:

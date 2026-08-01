@@ -76,6 +76,9 @@
   "addEditCaseSheet_nextDate": "পরবর্তী তারিখ",
   "addEditCaseSheet_notification": "নোটিফিকেশন",
   "addEditCaseSheet_dayOffset": "দিনের অফসেট",
+  "addEditCaseSheet_offsetSameDay": "একই দিন",
+  "addEditCaseSheet_offsetDayBefore": "আগের দিন",
+  "addEditCaseSheet_offsetDaysBefore": "{count} দিন আগে",
   "addEditCaseSheet_step": "ধাপ",
   "addEditCaseSheet_note": "নোট",
   "addEditCaseSheet_save": "সংরক্ষণ",
@@ -209,4 +212,4 @@
   "customDropdown_search": "অনুসন্ধান",
   "customDropdown_noResults": "কোনো ফলাফল পাওয়া যায়নি",
   "customDropdown_done": "সম্পন্ন"
-}
+}

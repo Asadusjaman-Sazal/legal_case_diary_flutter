@@ -518,6 +518,24 @@ abstract class AppLocalizations {
   /// **'Day Offset'**
   String get addEditCaseSheet_dayOffset;
 
+  /// No description provided for @addEditCaseSheet_offsetSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Same day'**
+  String get addEditCaseSheet_offsetSameDay;
+
+  /// No description provided for @addEditCaseSheet_offsetDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'The day before'**
+  String get addEditCaseSheet_offsetDayBefore;
+
+  /// No description provided for @addEditCaseSheet_offsetDaysBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days before'**
+  String addEditCaseSheet_offsetDaysBefore(Object count);
+
   /// No description provided for @addEditCaseSheet_step.
   ///
   /// In en, this message translates to:

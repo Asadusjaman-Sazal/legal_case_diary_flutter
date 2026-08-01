@@ -37,6 +37,9 @@ class UserSettings {
   /// Default notification day offset before a hearing.
   final int notificationDayOffset;
 
+  /// Available notification offsets selected in per-user settings.
+  final List<int> notificationDefaultOffsets;
+
   /// Selected UI language code.
   final String language;
 
@@ -48,54 +51,108 @@ class UserSettings {
     this.isPremium = false,
     this.upcomingCasesPeriod = 7,
     this.caseListDisplayMode = 'compact',
-    this.bottomNavTabs = const ['overdue', 'daily_cause_list', 'active', 'upcoming'],
+    this.bottomNavTabs = const [
+      'overdue',
+      'daily_cause_list',
+      'active',
+      'upcoming',
+    ],
     this.sideNavOptions = const {},
-    this.defaultLandingPage = 'daily_cause_list',
+    this.defaultLandingPage = 'all_cases',
     this.notificationTime,
     this.notificationDayOffset = 1,
+    this.notificationDefaultOffsets = const [1],
     this.language = 'en',
     this.backupNudge = const {},
   });
 
   /// Converts settings to a JSON-serializable map.
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'upcoming_cases_period': upcomingCasesPeriod,
-        'case_list_display_mode': caseListDisplayMode,
-        'bottom_nav_tabs': bottomNavTabs,
-        'side_nav_options': sideNavOptions,
-        'default_landing_page': defaultLandingPage,
-        'notification_day_offset': notificationDayOffset,
-        'backup_nudge': backupNudge,
-      };
+    'upcoming_cases_period': upcomingCasesPeriod,
+    'case_list_display_mode': caseListDisplayMode,
+    'bottom_nav_tabs': bottomNavTabs,
+    'side_nav_options': sideNavOptions,
+    'default_landing_page': defaultLandingPage,
+    'notification_day_offset': notificationDayOffset,
+    'notification_default_offsets': notificationDefaultOffsets,
+    'backup_nudge': backupNudge,
+  };
 
   /// Creates settings from a preference row and an optional language.
   factory UserSettings.fromRow(UserPreference? row, {String language = 'en'}) {
     final effectiveLanguage = row?.language ?? language;
-    if (row == null || row.viewSettingsJson == null) {
+    if (row == null) {
       return UserSettings(language: effectiveLanguage);
     }
 
-    final json = jsonDecode(row.viewSettingsJson!) as Map<String, dynamic>;
+    final viewSettingsJson = row.viewSettingsJson;
+    if (viewSettingsJson == null) {
+      return UserSettings(
+        notificationTime: row.notificationTime,
+        notificationDefaultOffsets: _readOffsets(
+          row.notificationDefaultOffsets,
+          fallback: 1,
+        ),
+        language: effectiveLanguage,
+      );
+    }
+
+    final json = _readSettingsJson(viewSettingsJson);
     final rawTabs = json['bottom_nav_tabs'];
     final tabs = rawTabs is List<dynamic>
         ? rawTabs.cast<String>()
         : const ['overdue', 'daily_cause_list', 'active', 'upcoming'];
 
     return UserSettings(
-      upcomingCasesPeriod: (json['upcoming_cases_period'] as num?)?.toInt() ?? 7,
-      caseListDisplayMode: json['case_list_display_mode'] as String? ?? 'compact',
+      upcomingCasesPeriod:
+          (json['upcoming_cases_period'] as num?)?.toInt() ?? 7,
+      caseListDisplayMode:
+          json['case_list_display_mode'] as String? ?? 'compact',
       bottomNavTabs: tabs,
       sideNavOptions: json['side_nav_options'] is Map<String, dynamic>
           ? json['side_nav_options'] as Map<String, dynamic>
           : const {},
-      defaultLandingPage: json['default_landing_page'] as String? ?? 'daily_cause_list',
+      defaultLandingPage:
+          json['default_landing_page'] as String? ?? 'all_cases',
       notificationTime: row.notificationTime,
-      notificationDayOffset: (json['notification_day_offset'] as num?)?.toInt() ?? 1,
+      notificationDayOffset:
+          (json['notification_day_offset'] as num?)?.toInt() ?? 1,
+      notificationDefaultOffsets: _readOffsets(
+        row.notificationDefaultOffsets ?? json['notification_default_offsets'],
+        fallback: (json['notification_day_offset'] as num?)?.toInt() ?? 1,
+      ),
       language: effectiveLanguage,
       backupNudge: json['backup_nudge'] is Map<String, dynamic>
           ? json['backup_nudge'] as Map<String, dynamic>
           : const {},
     );
+  }
+
+  static List<int> _readOffsets(Object? raw, {required int fallback}) {
+    final decoded = raw is String ? _tryDecode(raw) : raw;
+    if (decoded is List) {
+      final values = decoded
+          .whereType<num>()
+          .map((value) => value.toInt())
+          .toList();
+      if (values.isNotEmpty) return values;
+    }
+    return [fallback];
+  }
+
+  static Map<String, dynamic> _readSettingsJson(String raw) {
+    final decoded = _tryDecode(raw);
+    return decoded is Map<String, dynamic>
+        ? decoded
+        : const <String, dynamic>{};
+  }
+
+  static Object? _tryDecode(String raw) {
+    try {
+      return jsonDecode(raw);
+    } on FormatException {
+      return null;
+    }
   }
 }
 
@@ -128,7 +185,8 @@ class LocalSettingsRepository implements SettingsRepository {
   }
 
   @override
-  Stream<UserSettings> watchSettings() => _dao.watchByUserId(_userId).map(UserSettings.fromRow);
+  Stream<UserSettings> watchSettings() =>
+      _dao.watchByUserId(_userId).map(UserSettings.fromRow);
 
   @override
   Future<void> upsertSettings(UserSettings settings) async {
@@ -137,6 +195,9 @@ class LocalSettingsRepository implements SettingsRepository {
       userId: Value(_userId),
       viewSettingsJson: Value(jsonEncode(settings.toJson())),
       notificationTime: Value(settings.notificationTime),
+      notificationDefaultOffsets: Value(
+        jsonEncode(settings.notificationDefaultOffsets),
+      ),
       language: Value(settings.language),
       updatedAt: Value(now),
     );

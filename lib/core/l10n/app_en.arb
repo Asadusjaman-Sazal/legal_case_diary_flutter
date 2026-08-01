@@ -76,6 +76,9 @@
   "addEditCaseSheet_nextDate": "Next Date",
   "addEditCaseSheet_notification": "Notification",
   "addEditCaseSheet_dayOffset": "Day Offset",
+  "addEditCaseSheet_offsetSameDay": "Same day",
+  "addEditCaseSheet_offsetDayBefore": "The day before",
+  "addEditCaseSheet_offsetDaysBefore": "{count} days before",
   "addEditCaseSheet_step": "Step",
   "addEditCaseSheet_note": "Note",
   "addEditCaseSheet_save": "Save",
@@ -209,4 +212,4 @@
   "customDropdown_search": "Search",
   "customDropdown_noResults": "No results found",
   "customDropdown_done": "Done"
-}
+}

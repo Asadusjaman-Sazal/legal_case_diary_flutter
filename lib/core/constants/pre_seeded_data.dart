@@ -30,8 +30,8 @@ const districtSessionsCriminalId = 'district_sessions_criminal';
 const districtCourtsCivilId = 'district_courts_civil';
 const chiefJudicialMagistrateId = 'chief_judicial_magistrate';
 const chiefMetropolitanMagistrateId = 'chief_metropolitan_magistrate';
-const executiveMagistrateId = 'executive_magistrate';
 const tribunalsId = 'tribunals';
+const executiveMagistrateId = 'executive_magistrate';
 
 /// Ordered list of all 8 court-category stable IDs.
 const allCategoryIds = <String>[
@@ -41,8 +41,8 @@ const allCategoryIds = <String>[
   districtCourtsCivilId,
   chiefJudicialMagistrateId,
   chiefMetropolitanMagistrateId,
-  executiveMagistrateId,
   tribunalsId,
+  executiveMagistrateId,
 ];
 
 /// Ordered list of 6 lower-court category stable IDs.
@@ -130,8 +130,10 @@ class SeedCourt {
 // ---------------------------------------------------------------------------
 
 String _stepId(String catId, String nameSlug) => 'step-$catId-$nameSlug';
-String _caseTypeId(String catId, String nameSlug) => 'casetype-$catId-$nameSlug';
-String _onBehalfId(String catId, String nameSlug) => 'onbehalf-$catId-$nameSlug';
+String _caseTypeId(String catId, String nameSlug) =>
+    'casetype-$catId-$nameSlug';
+String _onBehalfId(String catId, String nameSlug) =>
+    'onbehalf-$catId-$nameSlug';
 String _supremeCourtId(String catId, String nameSlug) =>
     'court-higher_courts-$catId-$nameSlug';
 String _lowerCourtId(String catId, String district, String nameSlug) =>
@@ -200,34 +202,76 @@ const Map<String, String> divisionLabelBn = <String, String>{
 /// lowercase slugified name.
 const Map<String, List<String>> districtIdsByDivision = <String, List<String>>{
   divisionDhakaId: <String>[
-    'dhaka', 'tangail', 'gazipur', 'manikganj', 'munshiganj',
-    'narayanganj', 'narsingdi', 'shariatpur', 'kishoreganj',
-    'jamalpur_dhaka', 'sherpur_dhaka',
+    'dhaka',
+    'tangail',
+    'gazipur',
+    'manikganj',
+    'munshiganj',
+    'narayanganj',
+    'narsingdi',
+    'shariatpur',
+    'kishoreganj',
+    'jamalpur_dhaka',
+    'sherpur_dhaka',
   ],
   divisionChattogramId: <String>[
-    'chattogram', 'coxs_bazar', 'bandarban', 'rangamati', 'khagrachhari',
-    'feni', 'lakshmipur', 'noakhali', 'brahmanbaria', 'chandpur',
+    'chattogram',
+    'coxs_bazar',
+    'bandarban',
+    'rangamati',
+    'khagrachhari',
+    'feni',
+    'lakshmipur',
+    'noakhali',
+    'brahmanbaria',
+    'chandpur',
   ],
   divisionKhulnaId: <String>[
-    'khulna', 'bagerhat', 'satkhira', 'jashore', 'jhenaidah',
-    'kushtia', 'magura', 'narail', 'meherpur',
+    'khulna',
+    'bagerhat',
+    'satkhira',
+    'jashore',
+    'jhenaidah',
+    'kushtia',
+    'magura',
+    'narail',
+    'meherpur',
   ],
   divisionRajshahiId: <String>[
-    'rajshahi', 'bogura', 'pabna', 'sirajganj', 'naogaon',
-    'natore', 'chapainawabganj', 'joypurhat',
+    'rajshahi',
+    'bogura',
+    'pabna',
+    'sirajganj',
+    'naogaon',
+    'natore',
+    'chapainawabganj',
+    'joypurhat',
   ],
   divisionBarishalId: <String>[
-    'barishal', 'patuakhali', 'bhola', 'jhalokathi', 'pirojpur', 'barguna',
+    'barishal',
+    'patuakhali',
+    'bhola',
+    'jhalokathi',
+    'pirojpur',
+    'barguna',
   ],
-  divisionSylhetId: <String>[
-    'sylhet', 'moulvibazar', 'habiganj', 'sunamganj',
-  ],
+  divisionSylhetId: <String>['sylhet', 'moulvibazar', 'habiganj', 'sunamganj'],
   divisionRangpurId: <String>[
-    'rangpur', 'thakurgaon', 'panchagarh', 'dinajpur', 'nilphamari',
-    'lalmonirhat', 'kurigram', 'gaibandha',
+    'rangpur',
+    'thakurgaon',
+    'panchagarh',
+    'dinajpur',
+    'nilphamari',
+    'lalmonirhat',
+    'kurigram',
+    'gaibandha',
   ],
   divisionMymensinghId: <String>[
-    'mymensingh', 'jamalpur', 'netrokona', 'sherpur', 'kishoreganj_mym',
+    'mymensingh',
+    'jamalpur',
+    'netrokona',
+    'sherpur',
+    'kishoreganj_mym',
     'tangail_mym',
   ],
 };
@@ -1312,12 +1356,7 @@ final List<SeedCourt> supremeCourtNames = <SeedCourt>[
 // ---------------------------------------------------------------------------
 
 /// Builds a seed court entry for a lower court.
-SeedCourt _lc(
-  String catId,
-  String districtId,
-  String nameEn,
-  String nameBn,
-) {
+SeedCourt _lc(String catId, String districtId, String nameEn, String nameBn) {
   final slug = _slug(nameEn);
   return SeedCourt(
     id: _lowerCourtId(catId, districtId, slug),
@@ -1339,8 +1378,8 @@ typedef _CourtNamesByCategory = Map<String, List<(String, String)>>;
 /// Lower court names keyed by district then by category.
 /// Format: {districtId: {categoryId: [(nameEn, nameBn), ...]}}
 // ignore: non_constant_identifier_names
-final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
-    <String, _CourtNamesByCategory>{
+final Map<String, _CourtNamesByCategory>
+_lowerCourtNamesData = <String, _CourtNamesByCategory>{
   'dhaka': <String, List<(String, String)>>{
     districtSessionsCriminalId: <(String, String)>[
       ('District Judge Court', 'জেলা জজ আদালত'),
@@ -1349,26 +1388,46 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Additional District Judge Court-3', 'অতিরিক্ত জেলা জজ আদালত-৩'),
       ('Additional District Judge Court-4', 'অতিরিক্ত জেলা জজ আদালত-৪'),
       ('Additional District Judge Court-5', 'অতিরিক্ত জেলা জজ আদালত-৫'),
-      ('Joint District & Sessions Judge Court-1',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-১'),
-      ('Joint District & Sessions Judge Court-2',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-২'),
-      ('Joint District & Sessions Judge Court-3',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৩'),
-      ('Joint District & Sessions Judge Court-4',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৪'),
-      ('Joint District & Sessions Judge Court-5',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৫'),
-      ('Joint District & Sessions Judge Court-6',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৬'),
-      ('Joint District & Sessions Judge Court-7',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৭'),
-      ('Joint District & Sessions Judge Court-8',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৮'),
-      ('Joint District & Sessions Judge Court-9',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৯'),
-      ('Joint District & Sessions Judge Court-10',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-১০'),
+      (
+        'Joint District & Sessions Judge Court-1',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-১',
+      ),
+      (
+        'Joint District & Sessions Judge Court-2',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-২',
+      ),
+      (
+        'Joint District & Sessions Judge Court-3',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৩',
+      ),
+      (
+        'Joint District & Sessions Judge Court-4',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৪',
+      ),
+      (
+        'Joint District & Sessions Judge Court-5',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৫',
+      ),
+      (
+        'Joint District & Sessions Judge Court-6',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৬',
+      ),
+      (
+        'Joint District & Sessions Judge Court-7',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৭',
+      ),
+      (
+        'Joint District & Sessions Judge Court-8',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৮',
+      ),
+      (
+        'Joint District & Sessions Judge Court-9',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৯',
+      ),
+      (
+        'Joint District & Sessions Judge Court-10',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-১০',
+      ),
     ],
     districtCourtsCivilId: <(String, String)>[
       ('Senior Assistant Judge Court-1', 'সিনিয়র সহকারী জজ আদালত-১'),
@@ -1386,14 +1445,19 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Assistant Judge Court-10', 'সহকারী জজ আদালত-১০'),
     ],
     chiefJudicialMagistrateId: <(String, String)>[
-      ('Chief Judicial Magistrate Court',
-          'চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত'),
-      ('Additional Chief Judicial Magistrate Court-1',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১'),
-      ('Additional Chief Judicial Magistrate Court-2',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২'),
-      ('Additional Chief Judicial Magistrate Court-3',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩'),
+      ('Chief Judicial Magistrate Court', 'চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত'),
+      (
+        'Additional Chief Judicial Magistrate Court-1',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১',
+      ),
+      (
+        'Additional Chief Judicial Magistrate Court-2',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২',
+      ),
+      (
+        'Additional Chief Judicial Magistrate Court-3',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩',
+      ),
       ('Judicial Magistrate Court-1', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১'),
       ('Judicial Magistrate Court-2', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২'),
       ('Judicial Magistrate Court-3', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩'),
@@ -1401,36 +1465,41 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Judicial Magistrate Court-5', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৫'),
     ],
     chiefMetropolitanMagistrateId: <(String, String)>[
-      ('Chief Metropolitan Magistrate Court',
-          'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত'),
-      ('Additional Chief Metropolitan Magistrate Court-1',
-          'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
-      ('Additional Chief Metropolitan Magistrate Court-2',
-          'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
-      ('Metropolitan Magistrate Court-1',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
-      ('Metropolitan Magistrate Court-2',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
-      ('Metropolitan Magistrate Court-3',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৩'),
-      ('Metropolitan Magistrate Court-4',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৪'),
-      ('Metropolitan Magistrate Court-5',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৫'),
+      (
+        'Chief Metropolitan Magistrate Court',
+        'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত',
+      ),
+      (
+        'Additional Chief Metropolitan Magistrate Court-1',
+        'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১',
+      ),
+      (
+        'Additional Chief Metropolitan Magistrate Court-2',
+        'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২',
+      ),
+      ('Metropolitan Magistrate Court-1', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
+      ('Metropolitan Magistrate Court-2', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
+      ('Metropolitan Magistrate Court-3', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৩'),
+      ('Metropolitan Magistrate Court-4', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৪'),
+      ('Metropolitan Magistrate Court-5', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৫'),
     ],
     executiveMagistrateId: <(String, String)>[
       ('Executive Magistrate Court', 'নির্বাহী ম্যাজিস্ট্রেট আদালত'),
     ],
     tribunalsId: <(String, String)>[
       ('Money Loan Court (Artha Rin Adalat)', 'অর্থঋণ আদালত'),
-      ('Women & Children Repression Prevention Tribunal',
-          'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল'),
+      (
+        'Women & Children Repression Prevention Tribunal',
+        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
+      ),
       ('Speedy Trial Tribunal', 'দ্রুত বিচার ট্রাইব্যুনাল'),
       ('Land Survey Tribunal', 'ভূমি জরিপ ট্রাইব্যুনাল'),
       ('Cyber Tribunal', 'সাইবার ট্রাইব্যুনাল'),
       ('Labour Court', 'শ্রম আদালত'),
-      ('Nari O Shishu Nirjatan Daman Tribunal',
-          'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল'),
+      (
+        'Nari O Shishu Nirjatan Daman Tribunal',
+        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
+      ),
     ],
   },
   'narayanganj': <String, List<(String, String)>>{
@@ -1441,26 +1510,46 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Additional District Judge Court-3', 'অতিরিক্ত জেলা জজ আদালত-৩'),
       ('Additional District Judge Court-4', 'অতিরিক্ত জেলা জজ আদালত-৪'),
       ('Additional District Judge Court-5', 'অতিরিক্ত জেলা জজ আদালত-৫'),
-      ('Joint District & Sessions Judge Court-1',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-১'),
-      ('Joint District & Sessions Judge Court-2',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-২'),
-      ('Joint District & Sessions Judge Court-3',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৩'),
-      ('Joint District & Sessions Judge Court-4',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৪'),
-      ('Joint District & Sessions Judge Court-5',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৫'),
-      ('Joint District & Sessions Judge Court-6',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৬'),
-      ('Joint District & Sessions Judge Court-7',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৭'),
-      ('Joint District & Sessions Judge Court-8',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৮'),
-      ('Joint District & Sessions Judge Court-9',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-৯'),
-      ('Joint District & Sessions Judge Court-10',
-          'যুগ্ম জেলা ও দায়রা জজ আদালত-১০'),
+      (
+        'Joint District & Sessions Judge Court-1',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-১',
+      ),
+      (
+        'Joint District & Sessions Judge Court-2',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-২',
+      ),
+      (
+        'Joint District & Sessions Judge Court-3',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৩',
+      ),
+      (
+        'Joint District & Sessions Judge Court-4',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৪',
+      ),
+      (
+        'Joint District & Sessions Judge Court-5',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৫',
+      ),
+      (
+        'Joint District & Sessions Judge Court-6',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৬',
+      ),
+      (
+        'Joint District & Sessions Judge Court-7',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৭',
+      ),
+      (
+        'Joint District & Sessions Judge Court-8',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৮',
+      ),
+      (
+        'Joint District & Sessions Judge Court-9',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-৯',
+      ),
+      (
+        'Joint District & Sessions Judge Court-10',
+        'যুগ্ম জেলা ও দায়রা জজ আদালত-১০',
+      ),
     ],
     districtCourtsCivilId: <(String, String)>[
       ('Senior Assistant Judge Court-1', 'সিনিয়র সহকারী জজ আদালত-১'),
@@ -1478,14 +1567,19 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Assistant Judge Court-10', 'সহকারী জজ আদালত-১০'),
     ],
     chiefJudicialMagistrateId: <(String, String)>[
-      ('Chief Judicial Magistrate Court',
-          'চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত'),
-      ('Additional Chief Judicial Magistrate Court-1',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১'),
-      ('Additional Chief Judicial Magistrate Court-2',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২'),
-      ('Additional Chief Judicial Magistrate Court-3',
-          'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩'),
+      ('Chief Judicial Magistrate Court', 'চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত'),
+      (
+        'Additional Chief Judicial Magistrate Court-1',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১',
+      ),
+      (
+        'Additional Chief Judicial Magistrate Court-2',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২',
+      ),
+      (
+        'Additional Chief Judicial Magistrate Court-3',
+        'অতিরিক্ত চীফ জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩',
+      ),
       ('Judicial Magistrate Court-1', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-১'),
       ('Judicial Magistrate Court-2', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-২'),
       ('Judicial Magistrate Court-3', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৩'),
@@ -1493,52 +1587,55 @@ final Map<String, _CourtNamesByCategory> _lowerCourtNamesData =
       ('Judicial Magistrate Court-5', 'জুডিশিয়াল ম্যাজিস্ট্রেট আদালত-৫'),
     ],
     chiefMetropolitanMagistrateId: <(String, String)>[
-      ('Chief Metropolitan Magistrate Court',
-          'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত'),
-      ('Additional Chief Metropolitan Magistrate Court-1',
-          'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
-      ('Additional Chief Metropolitan Magistrate Court-2',
-          'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
-      ('Metropolitan Magistrate Court-1',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
-      ('Metropolitan Magistrate Court-2',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
-      ('Metropolitan Magistrate Court-3',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৩'),
-      ('Metropolitan Magistrate Court-4',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৪'),
-      ('Metropolitan Magistrate Court-5',
-          'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৫'),
+      (
+        'Chief Metropolitan Magistrate Court',
+        'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত',
+      ),
+      (
+        'Additional Chief Metropolitan Magistrate Court-1',
+        'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১',
+      ),
+      (
+        'Additional Chief Metropolitan Magistrate Court-2',
+        'অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২',
+      ),
+      ('Metropolitan Magistrate Court-1', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-১'),
+      ('Metropolitan Magistrate Court-2', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-২'),
+      ('Metropolitan Magistrate Court-3', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৩'),
+      ('Metropolitan Magistrate Court-4', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৪'),
+      ('Metropolitan Magistrate Court-5', 'মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত-৫'),
     ],
     executiveMagistrateId: <(String, String)>[
       ('Executive Magistrate Court', 'নির্বাহী ম্যাজিস্ট্রেট আদালত'),
     ],
     tribunalsId: <(String, String)>[
       ('Money Loan Court (Artha Rin Adalat)', 'অর্থঋণ আদালত'),
-      ('Women & Children Repression Prevention Tribunal',
-          'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল'),
+      (
+        'Women & Children Repression Prevention Tribunal',
+        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
+      ),
       ('Speedy Trial Tribunal', 'দ্রুত বিচার ট্রাইব্যুনাল'),
       ('Land Survey Tribunal', 'ভূমি জরিপ ট্রাইব্যুনাল'),
       ('Cyber Tribunal', 'সাইবার ট্রাইব্যুনাল'),
       ('Labour Court', 'শ্রম আদালত'),
-      ('Nari O Shishu Nirjatan Daman Tribunal',
-          'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল'),
+      (
+        'Nari O Shishu Nirjatan Daman Tribunal',
+        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
+      ),
     ],
   },
 };
 
 /// Flattened list of all pre-seeded lower court entries.
 final List<SeedCourt> lowerCourtNames = _lowerCourtNamesData.entries
-    .expand((districtEntry) => districtEntry.value.entries.expand(
-          (catEntry) => catEntry.value.map(
-            (namePair) => _lc(
-              catEntry.key,
-              districtEntry.key,
-              namePair.$1,
-              namePair.$2,
-            ),
-          ),
-        ))
+    .expand(
+      (districtEntry) => districtEntry.value.entries.expand(
+        (catEntry) => catEntry.value.map(
+          (namePair) =>
+              _lc(catEntry.key, districtEntry.key, namePair.$1, namePair.$2),
+        ),
+      ),
+    )
     .toList();
 
 /// All pre-seeded courts (supreme + lower).
@@ -1612,47 +1709,47 @@ final Map<String, String> stepLabelBn = Map.unmodifiable(
 /// All case type stable IDs → English label.
 final Map<String, String> caseTypeLabelEn = Map.unmodifiable(
   Map.fromEntries(
-    seedCategories
-        .expand((c) => c.caseTypes.map((ct) => MapEntry(ct.id, ct.labelEn))),
+    seedCategories.expand(
+      (c) => c.caseTypes.map((ct) => MapEntry(ct.id, ct.labelEn)),
+    ),
   ),
 );
 
 /// All case type stable IDs → Bengali label.
 final Map<String, String> caseTypeLabelBn = Map.unmodifiable(
   Map.fromEntries(
-    seedCategories
-        .expand((c) => c.caseTypes.map((ct) => MapEntry(ct.id, ct.labelBn))),
+    seedCategories.expand(
+      (c) => c.caseTypes.map((ct) => MapEntry(ct.id, ct.labelBn)),
+    ),
   ),
 );
 
 /// All on-behalf stable IDs → English label.
 final Map<String, String> onBehalfLabelEn = Map.unmodifiable(
   Map.fromEntries(
-    seedCategories
-        .expand((c) => c.onBehalfs.map((o) => MapEntry(o.id, o.labelEn))),
+    seedCategories.expand(
+      (c) => c.onBehalfs.map((o) => MapEntry(o.id, o.labelEn)),
+    ),
   ),
 );
 
 /// All on-behalf stable IDs → Bengali label.
 final Map<String, String> onBehalfLabelBn = Map.unmodifiable(
   Map.fromEntries(
-    seedCategories
-        .expand((c) => c.onBehalfs.map((o) => MapEntry(o.id, o.labelBn))),
+    seedCategories.expand(
+      (c) => c.onBehalfs.map((o) => MapEntry(o.id, o.labelBn)),
+    ),
   ),
 );
 
 /// All court stable IDs → English label.
 final Map<String, String> courtLabelEn = Map.unmodifiable(
-  Map.fromEntries(
-    allSeedCourts.map((c) => MapEntry(c.id, c.courtNameEn)),
-  ),
+  Map.fromEntries(allSeedCourts.map((c) => MapEntry(c.id, c.courtNameEn))),
 );
 
 /// All court stable IDs → Bengali label.
 final Map<String, String> courtLabelBn = Map.unmodifiable(
-  Map.fromEntries(
-    allSeedCourts.map((c) => MapEntry(c.id, c.courtNameBn)),
-  ),
+  Map.fromEntries(allSeedCourts.map((c) => MapEntry(c.id, c.courtNameBn))),
 );
 
 // ---------------------------------------------------------------------------

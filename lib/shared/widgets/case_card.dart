@@ -109,60 +109,62 @@ class CaseCard extends StatelessWidget {
         border: Border.all(color: AppColors.cardBorder),
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (_isOverdue)
-            Container(
-              key: const ValueKey('case-card-overdue-strip'),
-              width: 4,
-              color: AppColors.error,
-            ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.cardPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _CaseHeading(
-                    caseNumber: caseNumber,
-                    title: title,
-                    subtitle: subtitle,
-                    statusLabel: statusLabel,
-                    isOverdue: _isOverdue,
-                  ),
-                  if (courtName != null) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(courtName!, style: AppTypography.bodySm),
-                  ],
-                  const SizedBox(height: AppSpacing.sm),
-                  if (variant == CaseCardVariant.dailyCauseList)
-                    _DailyCauseDetails(l: l, step: step, note: note)
-                  else
-                    _ListDetails(
-                      l: l,
-                      variant: variant,
-                      nextDate: nextDate,
-                      disposedDate: disposedDate,
-                      step: step,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_isOverdue)
+              Container(
+                key: const ValueKey('case-card-overdue-strip'),
+                width: 4,
+                color: AppColors.error,
+              ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.cardPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _CaseHeading(
+                      caseNumber: caseNumber,
+                      title: title,
+                      subtitle: subtitle,
+                      statusLabel: statusLabel,
+                      isOverdue: _isOverdue,
                     ),
-                  if (_hasActions) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    _CaseActions(
-                      l: l,
-                      onPhone: onPhone,
-                      onMessage: onMessage,
-                      onUpdate: onUpdate,
-                      showPhoneButton: showPhoneButton,
-                      showMessageButton: showMessageButton,
-                      showUpdateButton: showUpdateButton,
-                    ),
+                    if (courtName != null) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(courtName!, style: AppTypography.bodySm),
+                    ],
+                    const SizedBox(height: AppSpacing.sm),
+                    if (variant == CaseCardVariant.dailyCauseList)
+                      _DailyCauseDetails(l: l, step: step, note: note)
+                    else
+                      _ListDetails(
+                        l: l,
+                        variant: variant,
+                        nextDate: nextDate,
+                        disposedDate: disposedDate,
+                        step: step,
+                      ),
+                    if (_hasActions) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      _CaseActions(
+                        l: l,
+                        onPhone: onPhone,
+                        onMessage: onMessage,
+                        onUpdate: onUpdate,
+                        showPhoneButton: showPhoneButton,
+                        showMessageButton: showMessageButton,
+                        showUpdateButton: showUpdateButton,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

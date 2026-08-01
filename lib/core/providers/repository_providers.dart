@@ -30,12 +30,27 @@ import '../../sync/sync_write_helper.dart';
 import '../../shared/providers/database_provider.dart';
 import '../services/local_identity_service.dart';
 
-/// Provider for [CaseRepository].
+/// Provider for the public case repository interface.
 final caseRepositoryProvider = FutureProvider<CaseRepository>((ref) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalCaseRepository(CasesDao(db), CaseHistoryDao(db), sync);
 });
+
+/// Provider for the transaction-capable form-write boundary.
+///
+/// Normal case consumers depend only on [CaseRepository]; form persistence
+/// opts into the local transaction contract explicitly through this provider.
+final transactionalCaseRepositoryProvider =
+    FutureProvider<TransactionalCaseRepository>((ref) async {
+      final repository = await ref.watch(caseRepositoryProvider.future);
+      if (repository case final TransactionalCaseRepository transactional) {
+        return transactional;
+      }
+      throw StateError(
+        'The configured case repository does not support local transactions',
+      );
+    });
 
 /// Provider for [NotesRepository].
 final notesRepositoryProvider = FutureProvider<NotesRepository>((ref) async {
@@ -45,32 +60,38 @@ final notesRepositoryProvider = FutureProvider<NotesRepository>((ref) async {
 });
 
 /// Provider for [ReferenceRepository].
-final referenceRepositoryProvider = FutureProvider<ReferenceRepository>((ref) async {
+final referenceRepositoryProvider = FutureProvider<ReferenceRepository>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalReferenceRepository(CaseReferencesDao(db), sync);
 });
 
 /// Provider for [SettingsRepository].
-final settingsRepositoryProvider = FutureProvider<SettingsRepository>((ref) async {
+final settingsRepositoryProvider = FutureProvider<SettingsRepository>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   final identity = ref.watch(localIdentityServiceProvider);
   return LocalSettingsRepository(UserPreferencesDao(db), identity);
 });
 
 /// Provider for [DeleteRequestsRepository].
-final deleteRequestsRepositoryProvider = FutureProvider<DeleteRequestsRepository>((ref) async {
-  final db = await ref.watch(databaseProvider.future);
-  final sync = await ref.watch(syncWriteHelperProvider.future);
-  return LocalDeleteRequestsRepository(DeleteRequestsDao(db), sync);
-});
+final deleteRequestsRepositoryProvider =
+    FutureProvider<DeleteRequestsRepository>((ref) async {
+      final db = await ref.watch(databaseProvider.future);
+      final sync = await ref.watch(syncWriteHelperProvider.future);
+      return LocalDeleteRequestsRepository(DeleteRequestsDao(db), sync);
+    });
 
 /// Provider for [CourtCategoriesRepository].
-final courtCategoriesRepositoryProvider = FutureProvider<CourtCategoriesRepository>((ref) async {
-  final db = await ref.watch(databaseProvider.future);
-  final sync = await ref.watch(syncWriteHelperProvider.future);
-  return LocalCourtCategoriesRepository(CourtCategoriesDao(db), sync);
-});
+final courtCategoriesRepositoryProvider =
+    FutureProvider<CourtCategoriesRepository>((ref) async {
+      final db = await ref.watch(databaseProvider.future);
+      final sync = await ref.watch(syncWriteHelperProvider.future);
+      return LocalCourtCategoriesRepository(CourtCategoriesDao(db), sync);
+    });
 
 /// Provider for [CourtsRepository].
 final courtsRepositoryProvider = FutureProvider<CourtsRepository>((ref) async {
@@ -87,14 +108,18 @@ final stepsRepositoryProvider = FutureProvider<StepsRepository>((ref) async {
 });
 
 /// Provider for [CaseTypesRepository].
-final caseTypesRepositoryProvider = FutureProvider<CaseTypesRepository>((ref) async {
+final caseTypesRepositoryProvider = FutureProvider<CaseTypesRepository>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalCaseTypesRepository(CaseTypesDao(db), sync);
 });
 
 /// Provider for [OnBehalfsRepository].
-final onBehalfsRepositoryProvider = FutureProvider<OnBehalfsRepository>((ref) async {
+final onBehalfsRepositoryProvider = FutureProvider<OnBehalfsRepository>((
+  ref,
+) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalOnBehalfsRepository(OnBehalfsDao(db), sync);

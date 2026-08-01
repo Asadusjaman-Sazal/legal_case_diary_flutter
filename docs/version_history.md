@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.40 - Task 06 Phase 4 complete: implemented the reusable Settings sub-page header/back shell and the Task 09-deferred CalendarPickerDialog boundary with focused widget tests; flutter analyze clean, 103 tests pass (2 skipped).
+Version: 0.0.45 - Dev-testing enabler: default landing page changed from the Task 09 Daily Cause List stub to All Cases (Task 07 production host) so the Add/Edit form is reachable on-device; smoke test updated to assert the All Cases host locale-independently with drift-stream teardown cleanup; full suite passes 122 tests (2 skipped).
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -55,6 +55,11 @@ Version: 0.0.37 - Task 06 Phase 2: implemented AppNavigationDrawer (profile head
 Version: 0.0.38 - Task 06 Phase 2 audit fixes: (1) sideNavOptions now read from _userSettingsProvider stream and passed to AppNavigationDrawer — drawer visibility is now settings-driven; (2) searchQuery parameter added to CasesScreenModal for Addendum 2.4 scoped-query requirement; (3) _isActive in AppNavigationDrawer now uses item.route instead of item.visibilityKey; (4) replaced per-rebuild FutureBuilder(repo.getSettings()) with _userSettingsProvider StreamProvider — no more tab flash on rebuild; (5) dead _CasesScreenModalInner class removed; (6) drawer profile header now has name/role/subtitle stub slots matching mockup layout. flutter analyze clean, 94 tests pass (2 skipped).
 Version: 0.0.39 - Task 06 Phase 3 complete: implemented configurable CaseCard variants with overdue strip and action callbacks, searchable single/multi-select CustomDropdown, plain today-defaulting date picker helper, shared widget barrel exports, localized dropdown strings, and focused widget tests; flutter analyze clean, 100 tests pass (2 skipped).
 Version: 0.0.40 - Task 06 Phase 4 complete: implemented the reusable Settings sub-page header/back shell and the Task 09-deferred CalendarPickerDialog boundary with focused widget tests; flutter analyze clean, 103 tests pass (2 skipped).
+Version: 0.0.41 - Task 07 complete: implemented the full Add/Edit Case form, cascading court lookups, required-field validation, offline repository save gates, per-user notification preferences, Quick Update history delegation, and regression tests; flutter analyze clean, 107 tests pass (2 skipped).
+Version: 0.0.42 - Task 07 audit complete: hardened per-user settings JSON fallback and Quick Update permissions, added regression coverage, and validated 109 tests (2 skipped); CaseCard host wiring deferred to Task 08 stubs.
+Version: 0.0.43 - Task 07 remediation complete: atomic Quick Update and form preference saves, localized offsets, explicit On Behalf resolution, All Cases CaseCard wiring, rollback tests, and 113 tests (2 skipped).
+Version: 0.0.44 - Task 07 audit fixes: acceptance test 7 now hosts the form via the production modal path (root-route pop crash fixed), acceptance test 9 unmounts the drift watch stream before teardown (pending-timer fixed); premium wording aligned in task file; full suite passes 122 tests (2 skipped).
+Version: 0.0.45 - Dev-testing enabler: default landing page changed from the Task 09 Daily Cause List stub to All Cases (Task 07 production host) so the Add/Edit form is reachable on-device; smoke test updated to assert the All Cases host locale-independently with drift-stream teardown cleanup; full suite passes 122 tests (2 skipped).
 
 
 

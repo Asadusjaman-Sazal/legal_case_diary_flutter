@@ -40,7 +40,12 @@ abstract class CaseRepository {
   Future<List<Case>> search(String query, {int? limit, int? offset});
 
   /// Lists non-deleted cases with a next date in the range [start, end].
-  Future<List<Case>> listByNextDateRange(int start, int end, {int? limit, int? offset});
+  Future<List<Case>> listByNextDateRange(
+    int start,
+    int end, {
+    int? limit,
+    int? offset,
+  });
 
   /// Returns the count of all non-deleted cases.
   Future<int> nonDeletedCount();
@@ -49,8 +54,23 @@ abstract class CaseRepository {
   Future<int> activeCount();
 }
 
+/// Transaction-capable local case write boundary used by form saves.
+abstract class TransactionalCaseRepository implements CaseRepository {
+  /// Inserts a case inside the caller-owned transaction.
+  Future<String> insertCaseInTransaction(CasesCompanion companion);
+
+  /// Updates a case inside the caller-owned transaction.
+  Future<void> updateCaseInTransaction(
+    CasesCompanion companion, {
+    Case? baseCase,
+    bool isQuickUpdate = false,
+  });
+}
+
 /// Local Drift-backed implementation of [CaseRepository].
-class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
+class LocalCaseRepository
+    with BaseLocalRepository
+    implements TransactionalCaseRepository {
   final CasesDao _casesDao;
   final CaseHistoryDao _historyDao;
 
@@ -61,8 +81,14 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
   LocalCaseRepository(this._casesDao, this._historyDao, this.syncHelper);
 
   @override
-  Future<String> insertCase(CasesCompanion companion) async {
-    final now = BaseLocalRepository.nowMillis;
+  Future<String> insertCase(CasesCompanion companion) =>
+      _casesDao.db.transaction(() => insertCaseInTransaction(companion));
+
+  @override
+  Future<String> insertCaseInTransaction(CasesCompanion companion) async {
+    final now = companion.updatedAt.present
+        ? companion.updatedAt.value
+        : BaseLocalRepository.nowMillis;
     final id = const Uuid().v4();
     final userId = currentUserId;
 
@@ -70,7 +96,7 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
       id: Value(id),
       userId: Value(userId),
       firmId: const Value<String?>(null),
-      createdAt: Value(now),
+      createdAt: companion.createdAt.present ? companion.createdAt : Value(now),
       updatedAt: Value(now),
       lastModifiedBy: Value(userId),
       isDeleted: const Value(false),
@@ -95,6 +121,19 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
     CasesCompanion companion, {
     Case? baseCase,
     bool isQuickUpdate = false,
+  }) => _casesDao.db.transaction(
+    () => updateCaseInTransaction(
+      companion,
+      baseCase: baseCase,
+      isQuickUpdate: isQuickUpdate,
+    ),
+  );
+
+  @override
+  Future<void> updateCaseInTransaction(
+    CasesCompanion companion, {
+    Case? baseCase,
+    bool isQuickUpdate = false,
   }) async {
     final id = companion.id.value;
     final existing = baseCase ?? await _casesDao.getById(id);
@@ -102,9 +141,12 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
       throw StateError('Cannot update case $id: not found');
     }
 
-    final now = BaseLocalRepository.nowMillis;
+    // A quick update is one logical mutation: the case snapshot, history row,
+    // and both sync-queue records must commit or roll back together.
+    final now = companion.updatedAt.present
+        ? companion.updatedAt.value
+        : BaseLocalRepository.nowMillis;
     final userId = currentUserId;
-
     final finalCompanion = companion.copyWith(
       updatedAt: Value(now),
       lastModifiedBy: Value(userId),
@@ -112,8 +154,8 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
 
     await _casesDao.update(finalCompanion);
 
-    // Record the case update before creating provisional history so that the
-    // sync queue preserves dependency ordering (case before case_history).
+    // Record the case update before provisional history so the queue keeps
+    // the parent case ahead of its dependent case_history row.
     final updated = await _casesDao.getById(id);
     final payload = BaseLocalRepository.toSyncPayload(updated!.toJson());
     final changed = _changedFields(finalCompanion);
@@ -159,7 +201,9 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
       changedFields: ['is_deleted', 'updated_at', 'last_modified_by'],
       basePayload: BaseLocalRepository.toSyncPayload(currentCase.toJson()),
       baseVersion: currentCase.version,
-      preMutationPayload: BaseLocalRepository.toSyncPayload(currentCase.toJson()),
+      preMutationPayload: BaseLocalRepository.toSyncPayload(
+        currentCase.toJson(),
+      ),
     );
   }
 
@@ -167,16 +211,24 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
   Future<Case?> getById(String id) => _casesDao.getById(id);
 
   @override
-  Future<List<Case>> listAll({int? limit, int? offset}) => _casesDao.getAll(limit: limit, offset: offset);
+  Future<List<Case>> listAll({int? limit, int? offset}) =>
+      _casesDao.getAll(limit: limit, offset: offset);
 
   @override
-  Stream<List<Case>> watchAll({int? limit, int? offset}) => _casesDao.watchAll(limit: limit, offset: offset);
+  Stream<List<Case>> watchAll({int? limit, int? offset}) =>
+      _casesDao.watchAll(limit: limit, offset: offset);
 
   @override
-  Future<List<Case>> search(String query, {int? limit, int? offset}) => _casesDao.search(query, limit: limit, offset: offset);
+  Future<List<Case>> search(String query, {int? limit, int? offset}) =>
+      _casesDao.search(query, limit: limit, offset: offset);
 
   @override
-  Future<List<Case>> listByNextDateRange(int start, int end, {int? limit, int? offset}) => _casesDao.getByNextDateRange(start, end, limit: limit, offset: offset);
+  Future<List<Case>> listByNextDateRange(
+    int start,
+    int end, {
+    int? limit,
+    int? offset,
+  }) => _casesDao.getByNextDateRange(start, end, limit: limit, offset: offset);
 
   @override
   Future<int> nonDeletedCount() => _casesDao.getNonDeletedCaseCount();
@@ -229,12 +281,22 @@ class LocalCaseRepository with BaseLocalRepository implements CaseRepository {
     if (companion.caseNumber.present) fromCompanion.add('case_number');
     if (companion.petitioner.present) fromCompanion.add('petitioner');
     if (companion.respondent.present) fromCompanion.add('respondent');
-    if (companion.petitionerLeadCounsel.present) fromCompanion.add('petitioner_lead_counsel');
-    if (companion.respondentLeadCounsel.present) fromCompanion.add('respondent_lead_counsel');
+    if (companion.petitionerLeadCounsel.present) {
+      fromCompanion.add('petitioner_lead_counsel');
+    }
+    if (companion.respondentLeadCounsel.present) {
+      fromCompanion.add('respondent_lead_counsel');
+    }
     if (companion.onBehalfId.present) fromCompanion.add('on_behalf_id');
-    if (companion.petitionerPhone.present) fromCompanion.add('petitioner_phone');
-    if (companion.respondentPhone.present) fromCompanion.add('respondent_phone');
-    if (companion.caseTitleAndSection.present) fromCompanion.add('case_title_and_section');
+    if (companion.petitionerPhone.present) {
+      fromCompanion.add('petitioner_phone');
+    }
+    if (companion.respondentPhone.present) {
+      fromCompanion.add('respondent_phone');
+    }
+    if (companion.caseTitleAndSection.present) {
+      fromCompanion.add('case_title_and_section');
+    }
     if (companion.caseRemarks.present) fromCompanion.add('case_remarks');
     if (companion.nextDate.present) fromCompanion.add('next_date');
     if (companion.lastStep.present) fromCompanion.add('last_step');

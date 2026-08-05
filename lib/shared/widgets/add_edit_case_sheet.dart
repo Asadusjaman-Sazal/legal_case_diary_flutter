@@ -664,6 +664,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 value: _higherLowerCourt,
                 itemLabel: (item) => _higherLowerLabel(context, item),
                 enabled: editable,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
                 onChanged: _onHigherLowerChanged,
               ),
               if (_isLowerCourt) ...[
@@ -675,6 +677,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   value: _division,
                   itemLabel: (item) => _divisionLabel(context, item),
                   enabled: editable,
+                  emptyFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant,
                   onChanged: _onDivisionChanged,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -684,7 +688,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   items: _districtOptions,
                   value: _district,
                   itemLabel: (item) => districtLabelEn[item] ?? item,
-                  enabled: editable,
+                  enabled: editable && _division != null,
+                  emptyFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant,
+                  onDisabledTap: editable && _division == null
+                      ? () =>
+                            _showDependencyMessage(l.addEditCaseSheet_division)
+                      : null,
                   onChanged: _onDistrictChanged,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -694,7 +704,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   items: _lowerCategories,
                   value: _categoryById(_courtCategoryId),
                   itemLabel: (item) => _categoryLabel(context, item),
-                  enabled: editable,
+                  enabled: editable && _district != null,
+                  emptyFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant,
+                  onDisabledTap: editable && _district == null
+                      ? () =>
+                            _showDependencyMessage(l.addEditCaseSheet_district)
+                      : null,
                   onChanged: (value) => _onCategoryChanged(value?.id),
                 ),
               ],
@@ -707,6 +723,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 searchable: true,
                 itemLabel: (item) => item.courtName,
                 enabled: editable && _courtCategoryId != null,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
+                onDisabledTap: editable && _courtCategoryId == null
+                    ? () => _showDependencyMessage(
+                        l.addEditCaseSheet_courtCategory,
+                      )
+                    : null,
                 onChanged: _onCourtChanged,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -724,6 +747,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         value: _selectedCaseType,
                         itemLabel: (item) => item.name,
                         enabled: editable && _courtCategoryId != null,
+                        emptyFillColor: AppColors.surface,
+                        selectedFillColor: AppColors.surfaceVariant,
+                        onDisabledTap: editable && _courtCategoryId == null
+                            ? () => _showDependencyMessage(
+                                l.addEditCaseSheet_courtCategory,
+                              )
+                            : null,
                         onChanged: (value) =>
                             setState(() => _selectedCaseType = value),
                       ),
@@ -764,7 +794,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 editable,
                 l.addEditCaseSheet_petitionerLeadCounsel,
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: 56),
               _partyFields(
                 l.addEditCaseSheet_respondent,
                 _respondentController,
@@ -776,7 +806,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 editable,
                 l.addEditCaseSheet_respondentLeadCounsel,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: 56),
               CustomDropdown<OnBehalf>(
                 fieldKey: const ValueKey('add-edit-on-behalf'),
                 label: l.addEditCaseSheet_onBehalf,
@@ -784,6 +814,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 value: _selectedOnBehalf,
                 itemLabel: (item) => item.name,
                 enabled: editable && _courtCategoryId != null,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
+                onDisabledTap: editable && _courtCategoryId == null
+                    ? () => _showDependencyMessage(
+                        l.addEditCaseSheet_courtCategory,
+                      )
+                    : null,
                 onChanged: (value) => setState(() => _selectedOnBehalf = value),
               ),
             ],
@@ -823,6 +860,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 searchable: false,
                 itemLabel: (item) => _offsetLabel(context, item),
                 enabled: editable,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
                 onMultiChanged: (values) =>
                     setState(() => _selectedNotificationOffsets = values),
               ),
@@ -835,6 +874,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 multiSelect: true,
                 itemLabel: (item) => item.stepName,
                 enabled: editable && _courtCategoryId != null,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
+                onDisabledTap: editable && _courtCategoryId == null
+                    ? () => _showDependencyMessage(
+                        l.addEditCaseSheet_courtCategory,
+                      )
+                    : null,
                 onMultiChanged: (values) =>
                     setState(() => _selectedSteps = values),
               ),
@@ -938,6 +984,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
+  /// Builds a text input whose surface reflects whether it contains content.
   Widget _textField({
     required Key key,
     required String label,
@@ -947,14 +994,46 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     int maxLines = 1,
     bool showInputLabel = true,
   }) {
+    final isEmpty = controller.text.trim().isEmpty;
+    final outline = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final focusedOutline = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: BorderSide(
+        color: isEmpty ? AppColors.outlineVariant : AppColors.secondary,
+        width: isEmpty ? 1 : 2,
+      ),
+    );
     return TextFormField(
       key: key,
       controller: controller,
       enabled: enabled,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      decoration: InputDecoration(labelText: showInputLabel ? label : null),
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(
+        labelText: showInputLabel ? label : null,
+        fillColor: isEmpty ? AppColors.surface : AppColors.surfaceVariant,
+        enabledBorder: outline,
+        focusedBorder: focusedOutline,
+      ),
     );
+  }
+
+  void _showDependencyMessage(String dependencyLabel) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).addEditCaseSheet_dependencyRequired(dependencyLabel),
+          ),
+        ),
+      );
   }
 
   Widget _nextDateAndNotificationRow(BuildContext context, bool editable) {
@@ -962,6 +1041,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     final dateText = _nextDate == null
         ? ''
         : MaterialLocalizations.of(context).formatMediumDate(_nextDate!);
+    final dateBorder = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -978,6 +1061,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   color: AppColors.onSurfaceVariant,
                 ),
                 enabled: editable,
+                fillColor: dateText.isEmpty
+                    ? AppColors.surface
+                    : AppColors.surfaceVariant,
+                enabledBorder: dateBorder,
+                focusedBorder: dateBorder,
                 suffixIcon: const Icon(Icons.calendar_month_outlined),
               ),
               child: Text(
@@ -1007,8 +1095,16 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                       )
                     : null,
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
+                  backgroundColor: _isNotificationEnabled
+                      ? Colors.black
+                      : Colors.transparent,
+                  foregroundColor: _isNotificationEnabled
+                      ? Colors.white
+                      : Colors.black,
+                  side: _isNotificationEnabled
+                      ? null
+                      : const BorderSide(color: Colors.black, width: 2),
+                  shape: const CircleBorder(),
                 ),
                 icon: Icon(
                   _isNotificationEnabled
@@ -1537,10 +1633,11 @@ class _SheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
+    key: const ValueKey('add-edit-header'),
     color: AppColors.primaryContainer,
     padding: const EdgeInsets.symmetric(
       horizontal: AppSpacing.lg,
-      vertical: AppSpacing.md,
+      vertical: AppSpacing.md * .7,
     ),
     child: Row(
       children: [
@@ -1575,6 +1672,7 @@ class _SheetFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
+    key: const ValueKey('add-edit-footer'),
     padding: const EdgeInsets.all(AppSpacing.md),
     decoration: const BoxDecoration(
       color: AppColors.surfaceContainerLowest,
@@ -1584,6 +1682,7 @@ class _SheetFooter extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         key: const ValueKey('add-edit-save'),
+        style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
         onPressed: enabled ? onPressed : null,
         child: Text(label),
       ),

@@ -590,6 +590,12 @@ abstract class AppLocalizations {
   /// **'Next Date & Steps'**
   String get addEditCaseSheet_sectionSchedule;
 
+  /// No description provided for @addEditCaseSheet_dependencyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an option from {field} first.'**
+  String addEditCaseSheet_dependencyRequired(String field);
+
   /// No description provided for @customDropdown_clear.
   ///
   /// In en, this message translates to:

@@ -202,9 +202,19 @@ void main() {
           find.byKey(const ValueKey('custom-dropdown-title')),
           findsOneWidget,
         );
+        final titleBar = tester.widget<Container>(
+          find.byKey(const ValueKey('custom-dropdown-title-bar')),
+        );
+        expect(titleBar.color, Colors.black);
         expect(
           find.byKey(const ValueKey('custom-dropdown-search')),
           findsOneWidget,
+        );
+        expect(
+          tester
+              .getSize(find.byKey(const ValueKey('custom-dropdown-search')))
+              .height,
+          48,
         );
         expect(
           tester
@@ -219,6 +229,14 @@ void main() {
           findsOneWidget,
         );
         expect(find.byIcon(Icons.clear), findsNothing);
+        expect(
+          tester
+              .getSize(
+                find.byKey(const ValueKey('custom-dropdown-close-action')),
+              )
+              .height,
+          60,
+        );
 
         final dialog = tester.widget<Dialog>(find.byType(Dialog));
         final dialogShape = dialog.shape! as RoundedRectangleBorder;
@@ -227,12 +245,16 @@ void main() {
           find.byKey(const ValueKey('custom-dropdown-dialog')),
         );
         final hostWidth = tester.getSize(find.byType(Scaffold)).width;
-        expect(dialogSize.width, closeTo(hostWidth * .9, 0.1));
-        final closeRect = tester.getRect(
-          find.byKey(const ValueKey('custom-dropdown-close')),
-        );
+        expect(dialogSize.width, closeTo(hostWidth * .92, 0.1));
         final titleBarRect = tester.getRect(
           find.byKey(const ValueKey('custom-dropdown-title-bar')),
+        );
+        final searchRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-search')),
+        );
+        expect(searchRect.top, greaterThan(titleBarRect.bottom));
+        final closeRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-close')),
         );
         expect(closeRect.top, closeTo(titleBarRect.top, 8));
 
@@ -279,11 +301,33 @@ void main() {
           findsOneWidget,
         );
         expect(
-          tester.getSize(
-            find.byKey(const ValueKey('custom-dropdown-selected-values')),
-          ).height,
+          tester
+              .getSize(
+                find.byKey(const ValueKey('custom-dropdown-selected-values')),
+              )
+              .height,
           56,
         );
+        expect(
+          tester
+              .getSize(find.byKey(const ValueKey('custom-dropdown-clear')))
+              .height,
+          60,
+        );
+        expect(
+          tester
+              .getSize(find.byKey(const ValueKey('custom-dropdown-done')))
+              .height,
+          60,
+        );
+        final clearRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-clear')),
+        );
+        final doneRect = tester.getRect(
+          find.byKey(const ValueKey('custom-dropdown-done')),
+        );
+        expect(clearRect.width, closeTo(doneRect.width, 0.1));
+        expect(doneRect.left - clearRect.right, 16);
         expect(
           find.descendant(
             of: find.byKey(const ValueKey('custom-dropdown-selected-values')),

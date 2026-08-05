@@ -55,6 +55,15 @@ class CustomDropdown<T> extends StatelessWidget {
   /// Optional key for identifying this field in widget tests or forms.
   final Key? fieldKey;
 
+  /// Optional fill color for an empty host-form field.
+  final Color? emptyFillColor;
+
+  /// Optional fill color for a selected host-form field.
+  final Color? selectedFillColor;
+
+  /// Optional callback when a disabled field is tapped.
+  final VoidCallback? onDisabledTap;
+
   /// Whether the field is enabled.
   final bool enabled;
 
@@ -73,6 +82,9 @@ class CustomDropdown<T> extends StatelessWidget {
     this.modalTitle,
     this.searchHint,
     this.fieldKey,
+    this.emptyFillColor,
+    this.selectedFillColor,
+    this.onDisabledTap,
     this.enabled = true,
     super.key,
   });
@@ -105,7 +117,7 @@ class CustomDropdown<T> extends StatelessWidget {
         ),
         child: SizedBox(
           key: const ValueKey('custom-dropdown-dialog'),
-          width: size.width * .9,
+          width: size.width * .92,
           height: math.max(
             1,
             math.min(
@@ -138,12 +150,13 @@ class CustomDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final field = InkWell(
       key: fieldKey,
-      onTap: enabled ? () => _openPicker(context) : null,
+      onTap: enabled ? () => _openPicker(context) : onDisabledTap,
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       child: InputDecorator(
         isEmpty: !_hasSelection,
         decoration: InputDecoration(
           enabled: enabled,
+          fillColor: _hasSelection ? selectedFillColor : emptyFillColor,
           suffixIcon: const Icon(Icons.expand_more),
           hintText: hint,
         ),
@@ -257,10 +270,11 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
   }
 
   Widget _titleBar(BuildContext context) {
-    return SizedBox(
+    return Container(
       key: const ValueKey('custom-dropdown-title-bar'),
       width: double.infinity,
       height: 60,
+      color: Colors.black,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -272,7 +286,7 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.titleLg,
+              style: AppTypography.titleLg.copyWith(color: Colors.white),
             ),
           ),
           Positioned(
@@ -282,6 +296,7 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
               key: const ValueKey('custom-dropdown-close'),
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () => Navigator.of(context).pop(),
+              color: Colors.white,
               icon: const Icon(Icons.close),
             ),
           ),
@@ -290,17 +305,21 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
     );
   }
 
-  Widget _searchField() => TextField(
-    key: const ValueKey('custom-dropdown-search'),
-    controller: _searchController,
-    autofocus: false,
-    textInputAction: TextInputAction.search,
-    decoration: InputDecoration(
-      hintText: widget.searchHint,
-      hintStyle: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-      prefixIcon: const Icon(Icons.search),
+  Widget _searchField() => SizedBox(
+    height: 48,
+    child: TextField(
+      key: const ValueKey('custom-dropdown-search'),
+      controller: _searchController,
+      autofocus: false,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: widget.searchHint,
+        hintStyle: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+        prefixIcon: const Icon(Icons.search),
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      ),
+      onChanged: (_) => setState(() {}),
     ),
-    onChanged: (_) => setState(() {}),
   );
 
   Widget _searchArea() {
@@ -309,9 +328,9 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
       return Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.md,
-          0,
           AppSpacing.md,
-          AppSpacing.sm,
+          AppSpacing.md,
+          AppSpacing.md,
         ),
         child: _searchField(),
       );
@@ -320,9 +339,9 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
-        0,
         AppSpacing.md,
-        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.md,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,11 +429,12 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
         child: SizedBox(
           width: double.infinity,
           child: OutlinedButton(
+            key: const ValueKey('custom-dropdown-close-action'),
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
               side: const BorderSide(color: Colors.black),
-              minimumSize: const Size.fromHeight(48),
+              minimumSize: const Size.fromHeight(60),
             ),
             onPressed: () => Navigator.of(context).pop(),
             child: Text(MaterialLocalizations.of(context).closeButtonLabel),
@@ -426,30 +446,35 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
+        key: const ValueKey('custom-dropdown-multi-actions'),
         children: [
-          OutlinedButton(
-            key: const ValueKey('custom-dropdown-clear'),
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.black),
-              minimumSize: const Size(104, 52),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          Expanded(
+            child: OutlinedButton(
+              key: const ValueKey('custom-dropdown-clear'),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.black),
+                minimumSize: const Size.fromHeight(60),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              ),
+              onPressed: _clearMulti,
+              child: Text(widget.clearLabel),
             ),
-            onPressed: _clearMulti,
-            child: Text(widget.clearLabel),
           ),
-          const Spacer(),
-          FilledButton(
-            key: const ValueKey('custom-dropdown-done'),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(104, 52),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: FilledButton(
+              key: const ValueKey('custom-dropdown-done'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(60),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              ),
+              onPressed: _confirmMulti,
+              child: Text(widget.doneLabel),
             ),
-            onPressed: _confirmMulti,
-            child: Text(widget.doneLabel),
           ),
         ],
       ),

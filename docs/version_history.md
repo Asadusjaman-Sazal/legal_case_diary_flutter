@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.48 - Add Case visual refinements: gray form with white sections, 90% rounded dropdowns, black actions, improved phone/date spacing, and fixed multi-select scrolling.
+Version: 0.0.49 - Add Case form refinements: compact title header, larger Save action, state-based input surfaces, grouped party spacing, dependency guidance, and notification icon states.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -62,6 +62,7 @@ Version: 0.0.44 - Task 07 audit fixes: acceptance test 7 now hosts the form via 
 Version: 0.0.46 - Phone UX fixes: applied app-wide status-bar insets and readable system-bar styling, and deferred the database-driven Add Case form reveal until its modal entrance animation completes; targeted tests pass.
 Version: 0.0.47 - Add Case UX refinements: reorganized the form into four sections, improved field ordering and alignment, and added centered searchable single/multi-select pickers.
 Version: 0.0.48 - Add Case visual refinements: gray form with white sections, 90% rounded dropdowns, black actions, improved phone/date spacing, and fixed multi-select scrolling.
+Version: 0.0.49 - Add Case form refinements: compact title header, larger Save action, state-based input surfaces, grouped party spacing, dependency guidance, and notification icon states.
 
 
 

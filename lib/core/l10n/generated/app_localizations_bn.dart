@@ -260,6 +260,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_sectionSchedule => 'পরবর্তী তারিখ ও পদক্ষেপ';
 
   @override
+  String addEditCaseSheet_dependencyRequired(String field) {
+    return 'অনুগ্রহ করে প্রথমে $field থেকে একটি বিকল্প নির্বাচন করুন।';
+  }
+
+  @override
   String get customDropdown_clear => 'পরিষ্কার';
 
   @override

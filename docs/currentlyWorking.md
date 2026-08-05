@@ -1,3 +1,15 @@
+### 2026-08-05 — Current Task: Task 07 Add Case form refinements — COMPLETE
+
+Implemented and validated:
+- Reduced the Add Case title header's vertical padding and increased the Add Case Save action height.
+- Add Case text and dropdown fields now use white empty surfaces and gray filled surfaces while preserving the existing input outline treatment.
+- Grouped party fields with an input-sized gap between Petitioner and Respondent groups and before On Behalf.
+- Added localized dependency guidance when a disabled cascading field is tapped; notification-off now uses an outlined bell treatment.
+
+`flutter analyze` clean; full suite: 123 tests passed (2 skipped mobile-only).
+
+**Next:** Retest Add Case on a narrow physical device, especially dependency guidance, keyboard scrolling, input-state colors, and notification icon contrast.
+
 ### 2026-08-01 — Current Task: Task 07 Add Case UX refinements — COMPLETE
 
 Implemented and validated:

@@ -88,6 +88,12 @@
   "addEditCaseSheet_sectionParties": "পক্ষ সমূহ",
   "addEditCaseSheet_sectionDetails": "মামলার শিরোনাম ও মন্তব্য",
   "addEditCaseSheet_sectionSchedule": "পরবর্তী তারিখ ও পদক্ষেপ",
+  "addEditCaseSheet_dependencyRequired": "অনুগ্রহ করে প্রথমে {field} থেকে একটি বিকল্প নির্বাচন করুন।",
+  "@addEditCaseSheet_dependencyRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
   "customDropdown_clear": "পরিষ্কার",
   "customDropdown_selected": "নির্বাচিত",
   "settingsScreen_title": "সেটিংস",

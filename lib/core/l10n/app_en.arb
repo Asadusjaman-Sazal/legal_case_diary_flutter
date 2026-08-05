@@ -88,6 +88,12 @@
   "addEditCaseSheet_sectionParties": "Parties",
   "addEditCaseSheet_sectionDetails": "Case Title & Remarks",
   "addEditCaseSheet_sectionSchedule": "Next Date & Steps",
+  "addEditCaseSheet_dependencyRequired": "Please select an option from {field} first.",
+  "@addEditCaseSheet_dependencyRequired": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
   "customDropdown_clear": "Clear",
   "customDropdown_selected": "Selected",
   "settingsScreen_title": "Settings",

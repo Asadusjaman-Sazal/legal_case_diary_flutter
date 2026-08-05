@@ -61,6 +61,17 @@ Version: 0.0.41 - Task 07 Phase 1 complete: ...
 - Analyze: `flutter analyze` (must be clean per phase)
 - Environment: Windows; use Windows-style paths where the docs do.
 
+## Default Coding Policy — Ponytail
+
+Ponytail is the project’s default coding policy for every coding task. Apply its full mode unless the user explicitly requests `lite`, `ultra`, or normal mode.
+
+- Understand the task and trace the affected flow before simplifying.
+- Stop at the first solution rung that works: YAGNI, existing project code, standard library, native Flutter/Dart capability, installed dependency, one line, then the minimum new code.
+- Prefer deletion, reuse, boring solutions, and the fewest changed files. Do not add speculative abstractions, boilerplate, configuration, or dependencies.
+- Never simplify away correctness, validation, error handling, security, accessibility, data-loss protection, required tests, or explicit user requirements.
+- For non-trivial simplifications, leave one runnable check behind. Mark deliberate shortcuts with a `ponytail:` comment that names the ceiling and upgrade path.
+- The project’s existing rules, task scope, cited plan sections, mockups, and acceptance criteria take precedence over Ponytail’s general guidance.
+
 ## Agent Skills
 
 - Official skills under `.agents/skills/` are optional procedural guidance.
@@ -69,3 +80,6 @@ Version: 0.0.41 - Task 07 Phase 1 complete: ...
 - Do not use an online/networking skill during Part A.
 - Do not use a skill to change architecture, dependencies, serialization, routing,
   or testing strategy unless the task permits it or the user approves it.
+- The project-local Ponytail skills are installed under `.agents/skills/` for focused use:
+  `ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`,
+  `ponytail-gain`, and `ponytail-help`.

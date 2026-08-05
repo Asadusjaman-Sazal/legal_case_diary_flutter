@@ -263,6 +263,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_sectionSchedule => 'Next Date & Steps';
 
   @override
+  String addEditCaseSheet_dependencyRequired(String field) {
+    return 'Please select an option from $field first.';
+  }
+
+  @override
   String get customDropdown_clear => 'Clear';
 
   @override

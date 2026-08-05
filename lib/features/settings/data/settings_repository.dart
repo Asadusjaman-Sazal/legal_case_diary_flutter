@@ -46,6 +46,11 @@ class UserSettings {
   /// Backup-nudge and other per-user metadata.
   final Map<String, dynamic> backupNudge;
 
+  /// Last Add Case court hierarchy selections used as the next form defaults.
+  final String? lastAddCaseHigherLowerCourt;
+  final String? lastAddCaseDivision;
+  final String? lastAddCaseDistrict;
+
   /// Creates a settings value with the given fields.
   const UserSettings({
     this.isPremium = false,
@@ -64,7 +69,32 @@ class UserSettings {
     this.notificationDefaultOffsets = const [1],
     this.language = 'en',
     this.backupNudge = const {},
+    this.lastAddCaseHigherLowerCourt,
+    this.lastAddCaseDivision,
+    this.lastAddCaseDistrict,
   });
+
+  /// Creates a copy with the latest Add Case court hierarchy selection.
+  UserSettings copyWithLastAddCaseSelection({
+    required String? higherLowerCourt,
+    required String? division,
+    required String? district,
+  }) => UserSettings(
+    isPremium: isPremium,
+    upcomingCasesPeriod: upcomingCasesPeriod,
+    caseListDisplayMode: caseListDisplayMode,
+    bottomNavTabs: bottomNavTabs,
+    sideNavOptions: sideNavOptions,
+    defaultLandingPage: defaultLandingPage,
+    notificationTime: notificationTime,
+    notificationDayOffset: notificationDayOffset,
+    notificationDefaultOffsets: notificationDefaultOffsets,
+    language: language,
+    backupNudge: backupNudge,
+    lastAddCaseHigherLowerCourt: higherLowerCourt,
+    lastAddCaseDivision: division,
+    lastAddCaseDistrict: district,
+  );
 
   /// Converts settings to a JSON-serializable map.
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -76,6 +106,9 @@ class UserSettings {
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
     'backup_nudge': backupNudge,
+    'last_add_case_higher_lower_court': lastAddCaseHigherLowerCourt,
+    'last_add_case_division': lastAddCaseDivision,
+    'last_add_case_district': lastAddCaseDistrict,
   };
 
   /// Creates settings from a preference row and an optional language.
@@ -125,6 +158,16 @@ class UserSettings {
       backupNudge: json['backup_nudge'] is Map<String, dynamic>
           ? json['backup_nudge'] as Map<String, dynamic>
           : const {},
+      lastAddCaseHigherLowerCourt:
+          json['last_add_case_higher_lower_court'] is String
+          ? json['last_add_case_higher_lower_court'] as String
+          : null,
+      lastAddCaseDivision: json['last_add_case_division'] is String
+          ? json['last_add_case_division'] as String
+          : null,
+      lastAddCaseDistrict: json['last_add_case_district'] is String
+          ? json['last_add_case_district'] as String
+          : null,
     );
   }
 
@@ -161,6 +204,14 @@ abstract class SettingsRepository {
   /// Returns the current user's settings.
   Future<UserSettings> getSettings();
 
+  /// Updates only the Add Case hierarchy defaults without replacing other
+  /// settings fields.
+  Future<void> saveLastAddCaseSelection({
+    required String? higherLowerCourt,
+    required String? division,
+    required String? district,
+  });
+
   /// Reactive stream of the current user's settings.
   Stream<UserSettings> watchSettings();
 
@@ -187,6 +238,25 @@ class LocalSettingsRepository implements SettingsRepository {
   @override
   Stream<UserSettings> watchSettings() =>
       _dao.watchByUserId(_userId).map(UserSettings.fromRow);
+
+  @override
+  Future<void> saveLastAddCaseSelection({
+    required String? higherLowerCourt,
+    required String? division,
+    required String? district,
+  }) async {
+    await _dao.db.transaction(() async {
+      final row = await _dao.getByUserId(_userId);
+      final current = UserSettings.fromRow(row);
+      await upsertSettings(
+        current.copyWithLastAddCaseSelection(
+          higherLowerCourt: higherLowerCourt,
+          division: division,
+          district: district,
+        ),
+      );
+    });
+  }
 
   @override
   Future<void> upsertSettings(UserSettings settings) async {

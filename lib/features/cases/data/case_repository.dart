@@ -288,11 +288,8 @@ class LocalCaseRepository
       fromCompanion.add('respondent_lead_counsel');
     }
     if (companion.onBehalfId.present) fromCompanion.add('on_behalf_id');
-    if (companion.petitionerPhone.present) {
-      fromCompanion.add('petitioner_phone');
-    }
-    if (companion.respondentPhone.present) {
-      fromCompanion.add('respondent_phone');
+    if (companion.partyPhone.present) {
+      fromCompanion.add('party_phone');
     }
     if (companion.caseTitleAndSection.present) {
       fromCompanion.add('case_title_and_section');

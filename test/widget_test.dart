@@ -41,7 +41,12 @@ void main() {
     // screen type instead of a text string.
     expect(find.byType(AllCasesScreen), findsOneWidget);
     expect(find.byType(SafeArea), findsOneWidget);
-    expect(find.byType(AnnotatedRegion<SystemUiOverlayStyle>), findsOneWidget);
+    final systemUi = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+      find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+    );
+    expect(systemUi.value.statusBarColor, Colors.black);
+    expect(systemUi.value.statusBarIconBrightness, Brightness.light);
+    expect(systemUi.value.statusBarBrightness, Brightness.dark);
     expect(find.text('Daily Cause List — Task 09'), findsNothing);
 
     // Unmount the scope inside the test body so the drift stream-cleanup

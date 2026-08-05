@@ -61,8 +61,9 @@ class App extends ConsumerWidget {
 
   static const SystemUiOverlayStyle _systemUiOverlayStyle =
       SystemUiOverlayStyle(
-        statusBarColor: AppColors.surface,
-        statusBarIconBrightness: Brightness.dark,
+        statusBarColor: Colors.black,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: AppColors.surface,
         systemNavigationBarIconBrightness: Brightness.dark,
         systemNavigationBarDividerColor: AppColors.outlineVariant,

@@ -67,6 +67,10 @@ class CustomDropdown<T> extends StatelessWidget {
   /// Whether the field is enabled.
   final bool enabled;
 
+  /// Uses a complete outline around host-form fields instead of the theme's
+  /// default underline. This is opt-in so existing consumers keep their style.
+  final bool outlined;
+
   /// Creates a searchable single-select or multi-select dropdown.
   const CustomDropdown({
     required this.items,
@@ -86,6 +90,7 @@ class CustomDropdown<T> extends StatelessWidget {
     this.selectedFillColor,
     this.onDisabledTap,
     this.enabled = true,
+    this.outlined = false,
     super.key,
   });
 
@@ -148,6 +153,14 @@ class CustomDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final outline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final focusedOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.secondary, width: 2),
+    );
     final field = InkWell(
       key: fieldKey,
       onTap: enabled ? () => _openPicker(context) : onDisabledTap,
@@ -157,6 +170,9 @@ class CustomDropdown<T> extends StatelessWidget {
         decoration: InputDecoration(
           enabled: enabled,
           fillColor: _hasSelection ? selectedFillColor : emptyFillColor,
+          enabledBorder: outlined && !_hasSelection ? outline : null,
+          focusedBorder: outlined && !_hasSelection ? focusedOutline : null,
+          disabledBorder: outlined && !_hasSelection ? outline : null,
           suffixIcon: const Icon(Icons.expand_more),
           hintText: hint,
         ),
@@ -311,12 +327,14 @@ class _DropdownPickerState<T> extends State<_DropdownPicker<T>> {
       key: const ValueKey('custom-dropdown-search'),
       controller: _searchController,
       autofocus: false,
+      textAlignVertical: TextAlignVertical.center,
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
         hintText: widget.searchHint,
         hintStyle: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
         prefixIcon: const Icon(Icons.search),
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        alignLabelWithHint: true,
       ),
       onChanged: (_) => setState(() {}),
     ),

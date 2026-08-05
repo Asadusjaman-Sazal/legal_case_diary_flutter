@@ -24,6 +24,7 @@ Future<DateTime?> showPlainDatePicker(
   DateTime? initialDate,
   DateTime? firstDate,
   DateTime? lastDate,
+  bool styleActions = false,
 }) async {
   final today = plainDatePickerInitialDate();
   final effectiveFirstDate = DateUtils.dateOnly(
@@ -46,10 +47,34 @@ Future<DateTime?> showPlainDatePicker(
       ? effectiveLastDate
       : requestedDate;
 
+  if (!styleActions) {
+    return showDatePicker(
+      context: context,
+      initialDate: effectiveInitialDate,
+      firstDate: effectiveFirstDate,
+      lastDate: effectiveLastDate,
+    );
+  }
+
+  // Match the form's black multi-select actions while keeping the calendar
+  // actions slightly shorter and still comfortable on narrow phones.
+  final pickerTheme = Theme.of(context).copyWith(
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(88, 52),
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+    ),
+  );
+
   return showDatePicker(
     context: context,
     initialDate: effectiveInitialDate,
     firstDate: effectiveFirstDate,
     lastDate: effectiveLastDate,
+    builder: (context, child) => Theme(data: pickerTheme, child: child!),
   );
 }

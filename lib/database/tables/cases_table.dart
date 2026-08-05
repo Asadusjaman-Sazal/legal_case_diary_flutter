@@ -43,11 +43,8 @@ class Cases extends Table {
   /// Client representation role (e.g. Plaintiff, Defendant).
   TextColumn get onBehalfId => text().references(OnBehalfs, #id)();
 
-  /// Petitioner mobile number.
-  TextColumn get petitionerPhone => text().nullable()();
-
-  /// Respondent mobile number.
-  TextColumn get respondentPhone => text().nullable()();
+  /// Complete party phone number, stored in international format.
+  TextColumn get partyPhone => text().nullable()();
 
   /// Case description or specific legal sections.
   TextColumn get caseTitleAndSection => text().nullable()();

@@ -23,8 +23,10 @@ class CasesDao {
     final query = db.select(db.cases)
       ..where((row) => row.isDeleted.equals(false))
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
-        (row) => OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -37,8 +39,10 @@ class CasesDao {
     final query = db.select(db.cases)
       ..where((row) => row.isDeleted.equals(false))
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
-        (row) => OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -46,26 +50,28 @@ class CasesDao {
     return query.watch();
   }
 
-  /// Searches non-deleted cases across case number, parties, counsels, phones,
+  /// Searches non-deleted cases across case number, parties, counsels, phone,
   /// remarks, and title (case-insensitive).
   Future<List<Case>> search(String query, {int? limit, int? offset}) async {
     final pattern = '%${query.toLowerCase()}%';
     final select = db.select(db.cases)
       ..where(
-        (row) => row.isDeleted.equals(false) &
+        (row) =>
+            row.isDeleted.equals(false) &
             (row.caseNumber.lower().like(pattern) |
                 row.petitioner.lower().like(pattern) |
                 row.respondent.lower().like(pattern) |
                 row.petitionerLeadCounsel.lower().like(pattern) |
                 row.respondentLeadCounsel.lower().like(pattern) |
-                row.petitionerPhone.lower().like(pattern) |
-                row.respondentPhone.lower().like(pattern) |
+                row.partyPhone.lower().like(pattern) |
                 row.caseTitleAndSection.lower().like(pattern) |
                 row.caseRemarks.lower().like(pattern)),
       )
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
-        (row) => OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       select.limit(limit, offset: offset ?? 0);
@@ -74,12 +80,17 @@ class CasesDao {
   }
 
   /// Returns non-deleted cases for a court category.
-  Future<List<Case>> getByCourtCategory(String courtCategoryId, {int? limit, int? offset}) async {
+  Future<List<Case>> getByCourtCategory(
+    String courtCategoryId, {
+    int? limit,
+    int? offset,
+  }) async {
     final courtIds = await _courtIdsForCategory(courtCategoryId);
     final query = db.select(db.cases)
       ..where((row) => row.isDeleted.equals(false) & row.courtId.isIn(courtIds))
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -88,11 +99,18 @@ class CasesDao {
   }
 
   /// Returns non-deleted cases for a specific court.
-  Future<List<Case>> getByCourt(String courtId, {int? limit, int? offset}) async {
+  Future<List<Case>> getByCourt(
+    String courtId, {
+    int? limit,
+    int? offset,
+  }) async {
     final query = db.select(db.cases)
-      ..where((row) => row.isDeleted.equals(false) & row.courtId.equals(courtId))
+      ..where(
+        (row) => row.isDeleted.equals(false) & row.courtId.equals(courtId),
+      )
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -101,14 +119,21 @@ class CasesDao {
   }
 
   /// Returns non-deleted cases whose next hearing date falls in [start, end].
-  Future<List<Case>> getByNextDateRange(int start, int end, {int? limit, int? offset}) async {
+  Future<List<Case>> getByNextDateRange(
+    int start,
+    int end, {
+    int? limit,
+    int? offset,
+  }) async {
     final query = db.select(db.cases)
       ..where(
-        (row) => row.isDeleted.equals(false) &
+        (row) =>
+            row.isDeleted.equals(false) &
             row.nextDate.isBetweenValues(start, end),
       )
       ..orderBy([
-        (row) => OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -117,21 +142,25 @@ class CasesDao {
   }
 
   /// Returns a case by id, or null if not found or deleted.
-  Future<Case?> getById(String id) async => (db.select(db.cases)
-      ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
-      .getSingleOrNull();
+  Future<Case?> getById(String id) async =>
+      (db.select(db.cases)
+            ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
+          .getSingleOrNull();
 
   /// Inserts a case. Returns the row id.
-  Future<int> insert(CasesCompanion caseRecord) => db.into(db.cases).insert(caseRecord);
+  Future<int> insert(CasesCompanion caseRecord) =>
+      db.into(db.cases).insert(caseRecord);
 
   /// Updates a case. Returns true if a row was affected.
   Future<bool> update(CasesCompanion caseRecord) async =>
-      await (db.update(db.cases)..where((row) => row.id.equals(caseRecord.id.value))).write(caseRecord) > 0;
+      await (db.update(
+        db.cases,
+      )..where((row) => row.id.equals(caseRecord.id.value))).write(caseRecord) >
+      0;
 
   /// Soft-deletes a case by id.
-  Future<int> delete(String id, int updatedAt) => (db.update(db.cases)
-        ..where((row) => row.id.equals(id)))
-      .write(
+  Future<int> delete(String id, int updatedAt) =>
+      (db.update(db.cases)..where((row) => row.id.equals(id))).write(
         CasesCompanion(
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),
@@ -188,11 +217,11 @@ class CasesDao {
 
   Future<List<String>> _courtIdsForCategory(String courtCategoryId) async =>
       (db.selectOnly(db.courts)
-          ..addColumns([db.courts.id])
-          ..where(
-            db.courts.isDeleted.equals(false) &
-                db.courts.courtCategoryId.equals(courtCategoryId),
-          ))
+            ..addColumns([db.courts.id])
+            ..where(
+              db.courts.isDeleted.equals(false) &
+                  db.courts.courtCategoryId.equals(courtCategoryId),
+            ))
           .map((row) => row.read(db.courts.id)!)
           .get();
 }

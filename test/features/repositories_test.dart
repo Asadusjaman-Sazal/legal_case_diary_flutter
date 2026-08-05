@@ -8,6 +8,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
@@ -128,12 +129,14 @@ void main() {
           courtId: Value(sampleCourtId),
           caseType: const Value('Civil'),
           onBehalfId: Value(sampleOnBehalfId),
+          partyPhone: const Value('+8801835000000'),
         ),
       );
 
       final fetched = await caseRepo.getById(id);
       expect(fetched, isNotNull);
       expect(fetched!.caseNumber, '111/2025');
+      expect(fetched.partyPhone, '+8801835000000');
       expect(fetched.isDeleted, false);
 
       final queue = await SyncQueueDao(db).getByEntity('case', id);
@@ -251,6 +254,9 @@ void main() {
           language: 'bn',
           upcomingCasesPeriod: 14,
           notificationDefaultOffsets: [0, 1, 3],
+          lastAddCaseHigherLowerCourt: lowerCourtsOption,
+          lastAddCaseDivision: divisionDhakaId,
+          lastAddCaseDistrict: 'dhaka',
         ),
       );
 
@@ -258,8 +264,33 @@ void main() {
       expect(settings.language, 'bn');
       expect(settings.upcomingCasesPeriod, 14);
       expect(settings.notificationDefaultOffsets, [0, 1, 3]);
+      expect(settings.lastAddCaseHigherLowerCourt, lowerCourtsOption);
+      expect(settings.lastAddCaseDivision, divisionDhakaId);
+      expect(settings.lastAddCaseDistrict, 'dhaka');
       expect(settings.isPremium, false);
     });
+
+    test(
+      'SettingsRepository patches Add Case defaults without losing other settings',
+      () async {
+        await settingsRepo.upsertSettings(
+          const UserSettings(language: 'bn', upcomingCasesPeriod: 14),
+        );
+
+        await settingsRepo.saveLastAddCaseSelection(
+          higherLowerCourt: lowerCourtsOption,
+          division: divisionDhakaId,
+          district: 'dhaka',
+        );
+
+        final settings = await settingsRepo.getSettings();
+        expect(settings.language, 'bn');
+        expect(settings.upcomingCasesPeriod, 14);
+        expect(settings.lastAddCaseHigherLowerCourt, lowerCourtsOption);
+        expect(settings.lastAddCaseDivision, divisionDhakaId);
+        expect(settings.lastAddCaseDistrict, 'dhaka');
+      },
+    );
 
     test('UserSettings falls back safely for malformed view JSON', () {
       final settings = UserSettings.fromRow(

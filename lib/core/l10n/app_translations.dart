@@ -81,11 +81,10 @@ class AppTranslations {
           _loc.addEditCaseSheet_notification,
       AppStrings.addEditCaseSheetOnbehalf: _loc.addEditCaseSheet_onBehalf,
       AppStrings.addEditCaseSheetPetitioner: _loc.addEditCaseSheet_petitioner,
-      AppStrings.addEditCaseSheetPetitionerphone:
-          _loc.addEditCaseSheet_petitionerPhone,
+      AppStrings.addEditCaseSheetPartyphone: _loc.addEditCaseSheet_partyPhone,
+      AppStrings.addEditCaseSheetYear: _loc.addEditCaseSheet_year,
       AppStrings.addEditCaseSheetRespondent: _loc.addEditCaseSheet_respondent,
-      AppStrings.addEditCaseSheetRespondentphone:
-          _loc.addEditCaseSheet_respondentPhone,
+      AppStrings.addEditCaseSheetPickdate: _loc.addEditCaseSheet_pickDate,
       AppStrings.addEditCaseSheetSave: _loc.addEditCaseSheet_save,
       AppStrings.addEditCaseSheetStep: _loc.addEditCaseSheet_step,
       AppStrings.addEditCaseSheetTitle: _loc.addEditCaseSheet_title,

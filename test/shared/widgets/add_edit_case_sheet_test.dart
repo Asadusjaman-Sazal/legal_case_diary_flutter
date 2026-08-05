@@ -45,6 +45,7 @@ void main() {
           header.padding,
           const EdgeInsets.symmetric(horizontal: 24, vertical: 11.2),
         );
+        expect(header.color, Colors.black);
         expect(
           find.byKey(const ValueKey('add-edit-higher-lower-court')),
           findsOneWidget,
@@ -67,6 +68,30 @@ void main() {
           find.byKey(const ValueKey('add-edit-case-number')),
           findsOneWidget,
         );
+        expect(find.byKey(const ValueKey('add-edit-case-year')), findsNothing);
+        await tester.enterText(
+          find.byKey(const ValueKey('add-edit-case-number')),
+          '207/23',
+        );
+        expect(
+          tester
+              .widget<TextFormField>(
+                find.byKey(const ValueKey('add-edit-case-number')),
+              )
+              .controller
+              ?.text,
+          '207/23',
+        );
+        expect(
+          tester
+              .getSize(
+                find.byKey(const ValueKey('add-edit-party-phone-prefix')),
+              )
+              .height,
+          tester
+              .getSize(find.byKey(const ValueKey('add-edit-party-phone')))
+              .height,
+        );
         expect(
           tester
               .widgetList<InputDecorator>(find.byType(InputDecorator))
@@ -77,7 +102,7 @@ void main() {
         );
         await tester.enterText(
           find.byKey(const ValueKey('add-edit-case-number')),
-          'A-1/2026',
+          'A-1',
         );
         await tester.pump();
         expect(
@@ -110,13 +135,10 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.byKey(const ValueKey('add-edit-petitioner-phone')),
+          find.byKey(const ValueKey('add-edit-party-phone')),
           findsOneWidget,
         );
-        expect(
-          find.byKey(const ValueKey('add-edit-respondent-phone')),
-          findsOneWidget,
-        );
+        expect(find.text('+88'), findsOneWidget);
         expect(
           find.byKey(const ValueKey('add-edit-section-court')),
           findsOneWidget,
@@ -127,6 +149,19 @@ void main() {
         );
         expect(find.text('Petitioner Lead Counsel'), findsOneWidget);
         expect(find.text('Respondent Lead Counsel'), findsOneWidget);
+        expect(
+          tester.widget<Text>(find.text('Parties')).textAlign,
+          TextAlign.center,
+        );
+        expect(
+          tester
+              .widgetList<InputDecorator>(find.byType(InputDecorator))
+              .any(
+                (decorator) =>
+                    decorator.decoration.enabledBorder is OutlineInputBorder,
+              ),
+          isTrue,
+        );
 
         final scrollable = find.byType(Scrollable).first;
         for (final key in [
@@ -154,6 +189,71 @@ void main() {
         );
       },
     );
+
+    testWidgets('formats the next date as day/month/year and weekday', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          AddEditCaseSheet(
+            lookupData: const AddEditCaseLookupData(),
+            initialNextDate: DateTime(2026, 8, 5),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-next-date')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('05/08/26, Wed'), findsOneWidget);
+      expect(find.text('Next Date'), findsOneWidget);
+      expect(find.text('Pick a date'), findsNothing);
+    });
+
+    testWidgets('restores remembered court hierarchy selections in add mode', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(
+              lastAddCaseHigherLowerCourt: lowerCourtsOption,
+              lastAddCaseDivision: divisionChattogramId,
+              lastAddCaseDistrict: 'feni',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lower Divisional Courts'), findsOneWidget);
+      expect(find.text('Chattagram'), findsOneWidget);
+      expect(find.text('Feni'), findsOneWidget);
+    });
+
+    testWidgets('ignores an invalid remembered district for its division', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(
+              lastAddCaseHigherLowerCourt: lowerCourtsOption,
+              lastAddCaseDivision: divisionDhakaId,
+              lastAddCaseDistrict: 'feni',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lower Divisional Courts'), findsOneWidget);
+      expect(find.text('Dhaka'), findsOneWidget);
+      expect(find.text('Select an option'), findsAtLeastNWidgets(1));
+    });
 
     testWidgets('selecting Lower Divisional Courts reveals the lower cascade', (
       WidgetTester tester,

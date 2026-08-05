@@ -8,8 +8,10 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart' hide Step;
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
@@ -102,6 +104,9 @@ class AddEditCaseLookupData {
     this.onBehalfs = const [],
     this.steps = const [],
     this.notificationOffsets = const [1],
+    this.lastAddCaseHigherLowerCourt,
+    this.lastAddCaseDivision,
+    this.lastAddCaseDistrict,
   });
 
   /// All non-deleted court categories.
@@ -121,6 +126,11 @@ class AddEditCaseLookupData {
 
   /// Available notification offsets from per-user notification settings.
   final List<int> notificationOffsets;
+
+  /// Last Add Case court hierarchy choices saved for this user.
+  final String? lastAddCaseHigherLowerCourt;
+  final String? lastAddCaseDivision;
+  final String? lastAddCaseDistrict;
 }
 
 /// Resolves the schema-required On Behalf foreign key without choosing between
@@ -199,13 +209,13 @@ class AddEditCaseSheet extends ConsumerStatefulWidget {
 
 class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   final _formKey = GlobalKey<FormState>();
+  final _formMessengerKey = GlobalKey<ScaffoldMessengerState>();
   final _caseNumberController = TextEditingController();
   final _petitionerController = TextEditingController();
   final _petitionerCounselController = TextEditingController();
   final _respondentController = TextEditingController();
   final _respondentCounselController = TextEditingController();
-  final _petitionerPhoneController = TextEditingController();
-  final _respondentPhoneController = TextEditingController();
+  final _partyPhoneController = TextEditingController();
   final _caseTitleController = TextEditingController();
   final _caseRemarksController = TextEditingController();
   final _noteController = TextEditingController();
@@ -233,6 +243,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   List<Step> _selectedSteps = const [];
   List<int> _selectedNotificationOffsets = const [];
   bool _initializedFromCase = false;
+  Future<void> _lastSelectionWrite = Future<void>.value();
 
   @override
   void initState() {
@@ -299,8 +310,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     _petitionerCounselController.dispose();
     _respondentController.dispose();
     _respondentCounselController.dispose();
-    _petitionerPhoneController.dispose();
-    _respondentPhoneController.dispose();
+    _partyPhoneController.dispose();
     _caseTitleController.dispose();
     _caseRemarksController.dispose();
     _noteController.dispose();
@@ -309,13 +319,17 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
 
   void _setTextControllers(Case? currentCase) {
     if (currentCase == null) return;
+    // Case number is one editable value; the slash remains part of the
+    // stored/displayed value rather than splitting the field into two boxes.
     _caseNumberController.text = currentCase.caseNumber;
     _petitionerController.text = currentCase.petitioner;
     _petitionerCounselController.text = currentCase.petitionerLeadCounsel ?? '';
     _respondentController.text = currentCase.respondent;
     _respondentCounselController.text = currentCase.respondentLeadCounsel ?? '';
-    _petitionerPhoneController.text = currentCase.petitionerPhone ?? '';
-    _respondentPhoneController.text = currentCase.respondentPhone ?? '';
+    final storedPhone = currentCase.partyPhone ?? '';
+    _partyPhoneController.text = storedPhone.startsWith('+88')
+        ? storedPhone.substring(3)
+        : storedPhone.replaceFirst(RegExp(r'^\+?88'), '');
     _caseTitleController.text = currentCase.caseTitleAndSection ?? '';
     _caseRemarksController.text = currentCase.caseRemarks ?? '';
     _noteController.text = currentCase.notesResults ?? '';
@@ -387,6 +401,9 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         onBehalfs: await OnBehalfsDao(db).getAll(),
         steps: await StepsDao(db).getAll(),
         notificationOffsets: offsets,
+        lastAddCaseHigherLowerCourt: settings.lastAddCaseHigherLowerCourt,
+        lastAddCaseDivision: settings.lastAddCaseDivision,
+        lastAddCaseDistrict: settings.lastAddCaseDistrict,
       );
       CaseNotificationPreference? casePreference;
       if (widget.initialCase != null) {
@@ -485,6 +502,27 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 storedSteps.contains(step.id),
           )
           .toList(growable: false);
+    } else {
+      final rememberedHigherLower = data.lastAddCaseHigherLowerCourt;
+      if (rememberedHigherLower == lowerCourtsOption) {
+        _higherLowerCourt = rememberedHigherLower;
+        final rememberedDivision = data.lastAddCaseDivision;
+        if (rememberedDivision != null &&
+            allDivisionIds.contains(rememberedDivision)) {
+          _division = rememberedDivision;
+          final rememberedDistrict = data.lastAddCaseDistrict;
+          if (rememberedDistrict != null &&
+              (districtIdsByDivision[rememberedDivision] ?? const []).contains(
+                rememberedDistrict,
+              )) {
+            _district = rememberedDistrict;
+          }
+        }
+      } else if (rememberedHigherLower == appellateDivisionId ||
+          rememberedHigherLower == highCourtDivisionId) {
+        _higherLowerCourt = rememberedHigherLower;
+        _courtCategoryId = rememberedHigherLower;
+      }
     }
     if (_selectedNotificationOffsets.isEmpty) {
       _selectedNotificationOffsets = data.notificationOffsets.isEmpty
@@ -596,34 +634,40 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     return Material(
       // Keep the form gray so each white section reads as a distinct card.
       color: AppColors.surfaceVariant,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final height = constraints.hasBoundedHeight
-              ? constraints.maxHeight
-              : MediaQuery.sizeOf(context).height;
-          return SizedBox(
-            height: height,
-            child: Column(
-              children: [
-                _SheetHeader(
-                  title: widget.initialCase == null
-                      ? l.addEditCaseSheet_title
-                      : l.addEditCaseSheet_editTitle,
+      child: ScaffoldMessenger(
+        key: _formMessengerKey,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final height = constraints.hasBoundedHeight
+                  ? constraints.maxHeight
+                  : MediaQuery.sizeOf(context).height;
+              return SizedBox(
+                height: height,
+                child: Column(
+                  children: [
+                    _SheetHeader(
+                      title: widget.initialCase == null
+                          ? l.addEditCaseSheet_title
+                          : l.addEditCaseSheet_editTitle,
+                    ),
+                    Expanded(child: _buildBody(context)),
+                    _SheetFooter(
+                      label: l.addEditCaseSheet_save,
+                      enabled:
+                          _hasWritePermission &&
+                          !_isLoading &&
+                          !_isSaving &&
+                          !_notificationPreferenceLoading,
+                      onPressed: _save,
+                    ),
+                  ],
                 ),
-                Expanded(child: _buildBody(context)),
-                _SheetFooter(
-                  label: l.addEditCaseSheet_save,
-                  enabled:
-                      _hasWritePermission &&
-                      !_isLoading &&
-                      !_isSaving &&
-                      !_notificationPreferenceLoading,
-                  onPressed: _save,
-                ),
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -666,6 +710,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 enabled: editable,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
+                outlined: true,
                 onChanged: _onHigherLowerChanged,
               ),
               if (_isLowerCourt) ...[
@@ -679,6 +724,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   enabled: editable,
                   emptyFillColor: AppColors.surface,
                   selectedFillColor: AppColors.surfaceVariant,
+                  outlined: true,
                   onChanged: _onDivisionChanged,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -691,6 +737,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   enabled: editable && _division != null,
                   emptyFillColor: AppColors.surface,
                   selectedFillColor: AppColors.surfaceVariant,
+                  outlined: true,
                   onDisabledTap: editable && _division == null
                       ? () =>
                             _showDependencyMessage(l.addEditCaseSheet_division)
@@ -707,6 +754,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   enabled: editable && _district != null,
                   emptyFillColor: AppColors.surface,
                   selectedFillColor: AppColors.surfaceVariant,
+                  outlined: true,
                   onDisabledTap: editable && _district == null
                       ? () =>
                             _showDependencyMessage(l.addEditCaseSheet_district)
@@ -725,6 +773,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 enabled: editable && _courtCategoryId != null,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
+                outlined: true,
                 onDisabledTap: editable && _courtCategoryId == null
                     ? () => _showDependencyMessage(
                         l.addEditCaseSheet_courtCategory,
@@ -749,6 +798,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         enabled: editable && _courtCategoryId != null,
                         emptyFillColor: AppColors.surface,
                         selectedFillColor: AppColors.surfaceVariant,
+                        outlined: true,
                         onDisabledTap: editable && _courtCategoryId == null
                             ? () => _showDependencyMessage(
                                 l.addEditCaseSheet_courtCategory,
@@ -766,13 +816,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         'add-edit-case-number-container',
                       ),
                       label: l.addEditCaseSheet_caseNumber,
-                      child: _textField(
-                        key: const ValueKey('add-edit-case-number'),
-                        label: l.addEditCaseSheet_caseNumber,
-                        controller: _caseNumberController,
-                        enabled: editable,
-                        showInputLabel: false,
-                      ),
+                      child: _caseNumberFields(context, editable),
                     ),
                   ),
                 ],
@@ -787,10 +831,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 l.addEditCaseSheet_petitioner,
                 _petitionerController,
                 _petitionerCounselController,
-                _petitionerPhoneController,
                 const ValueKey('add-edit-petitioner'),
                 const ValueKey('add-edit-petitioner-lead-counsel'),
-                const ValueKey('add-edit-petitioner-phone'),
                 editable,
                 l.addEditCaseSheet_petitionerLeadCounsel,
               ),
@@ -799,10 +841,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 l.addEditCaseSheet_respondent,
                 _respondentController,
                 _respondentCounselController,
-                _respondentPhoneController,
                 const ValueKey('add-edit-respondent'),
                 const ValueKey('add-edit-respondent-lead-counsel'),
-                const ValueKey('add-edit-respondent-phone'),
                 editable,
                 l.addEditCaseSheet_respondentLeadCounsel,
               ),
@@ -816,6 +856,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 enabled: editable && _courtCategoryId != null,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
+                outlined: true,
                 onDisabledTap: editable && _courtCategoryId == null
                     ? () => _showDependencyMessage(
                         l.addEditCaseSheet_courtCategory,
@@ -823,6 +864,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                     : null,
                 onChanged: (value) => setState(() => _selectedOnBehalf = value),
               ),
+              const SizedBox(height: AppSpacing.md),
+              _partyPhoneField(context, editable),
             ],
           ),
           _sectionCard(
@@ -862,6 +905,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 enabled: editable,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
+                outlined: true,
                 onMultiChanged: (values) =>
                     setState(() => _selectedNotificationOffsets = values),
               ),
@@ -876,6 +920,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 enabled: editable && _courtCategoryId != null,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
+                outlined: true,
                 onDisabledTap: editable && _courtCategoryId == null
                     ? () => _showDependencyMessage(
                         l.addEditCaseSheet_courtCategory,
@@ -916,7 +961,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: AppTypography.titleMd),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleMd,
+          ),
           const SizedBox(height: AppSpacing.md),
           ...children,
         ],
@@ -946,16 +995,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     String label,
     TextEditingController party,
     TextEditingController counsel,
-    TextEditingController phone,
     Key partyKey,
     Key counselKey,
-    Key phoneKey,
     bool enabled,
     String counselLabel,
   ) {
-    final phoneLabel = phone == _petitionerPhoneController
-        ? AppLocalizations.of(context).addEditCaseSheet_petitionerPhone
-        : AppLocalizations.of(context).addEditCaseSheet_respondentPhone;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -972,61 +1016,133 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           controller: counsel,
           enabled: enabled,
         ),
-        const SizedBox(height: AppSpacing.lg),
-        _textField(
-          key: phoneKey,
-          label: phoneLabel,
-          controller: phone,
-          keyboardType: TextInputType.phone,
-          enabled: enabled,
+      ],
+    );
+  }
+
+  /// Builds the single case-number input. The slash is entered in the same
+  /// field so values such as `207/23` remain one unified case number.
+  Widget _caseNumberFields(BuildContext context, bool enabled) {
+    return _textField(
+      key: const ValueKey('add-edit-case-number'),
+      label: AppLocalizations.of(context).addEditCaseSheet_caseNumber,
+      controller: _caseNumberController,
+      enabled: enabled,
+      showInputLabel: false,
+    );
+  }
+
+  Widget _partyPhoneField(BuildContext context, bool enabled) {
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.addEditCaseSheet_partyPhone, style: AppTypography.labelLg),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              key: const ValueKey('add-edit-party-phone-prefix'),
+              height: 56,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  border: Border.all(color: AppColors.outlineVariant),
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                ),
+                child: Text('+88', style: AppTypography.bodyMd),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: SizedBox(
+                height: 56,
+                child: _textField(
+                  key: const ValueKey('add-edit-party-phone'),
+                  label: l.addEditCaseSheet_partyPhone,
+                  controller: _partyPhoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  enabled: enabled,
+                  showInputLabel: false,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  /// Builds a text input whose surface reflects whether it contains content.
   Widget _textField({
     required Key key,
     required String label,
     required TextEditingController controller,
     required bool enabled,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
     bool showInputLabel = true,
   }) {
     final isEmpty = controller.text.trim().isEmpty;
-    final outline = UnderlineInputBorder(
+    final emptyOutline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       borderSide: const BorderSide(color: AppColors.outlineVariant),
     );
-    final focusedOutline = UnderlineInputBorder(
+    final filledOutline = UnderlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-      borderSide: BorderSide(
-        color: isEmpty ? AppColors.outlineVariant : AppColors.secondary,
-        width: isEmpty ? 1 : 2,
-      ),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
     );
-    return TextFormField(
+    final emptyFocusedOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final filledFocusedOutline = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.secondary, width: 2),
+    );
+    final field = TextFormField(
       key: key,
       controller: controller,
       enabled: enabled,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       maxLines: maxLines,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
-        labelText: showInputLabel ? label : null,
         fillColor: isEmpty ? AppColors.surface : AppColors.surfaceVariant,
-        enabledBorder: outline,
-        focusedBorder: focusedOutline,
+        enabledBorder: isEmpty ? emptyOutline : filledOutline,
+        focusedBorder: isEmpty ? emptyFocusedOutline : filledFocusedOutline,
       ),
+    );
+    if (!showInputLabel) return field;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: AppTypography.labelLg),
+        const SizedBox(height: AppSpacing.xs),
+        field,
+      ],
     );
   }
 
   void _showDependencyMessage(String dependencyLabel) {
-    ScaffoldMessenger.of(context)
+    final messenger = _formMessengerKey.currentState;
+    if (messenger == null) return;
+    messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.xxxl,
+          ),
           content: Text(
             AppLocalizations.of(
               context,
@@ -1040,8 +1156,15 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     final l = AppLocalizations.of(context);
     final dateText = _nextDate == null
         ? ''
-        : MaterialLocalizations.of(context).formatMediumDate(_nextDate!);
-    final dateBorder = UnderlineInputBorder(
+        : DateFormat(
+            'dd/MM/yy, EEE',
+            Localizations.localeOf(context).toLanguageTag(),
+          ).format(_nextDate!);
+    final emptyDateBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final filledDateBorder = UnderlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       borderSide: const BorderSide(color: AppColors.outlineVariant),
     );
@@ -1050,31 +1173,40 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       children: [
         Expanded(
           flex: 5,
-          child: InkWell(
-            key: const ValueKey('add-edit-next-date'),
-            onTap: editable ? _pickNextDate : null,
-            child: InputDecorator(
-              isEmpty: dateText.isEmpty,
-              decoration: InputDecoration(
-                hintText: l.addEditCaseSheet_nextDate,
-                hintStyle: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.addEditCaseSheet_nextDate, style: AppTypography.labelLg),
+              const SizedBox(height: AppSpacing.xs),
+              InkWell(
+                key: const ValueKey('add-edit-next-date'),
+                onTap: editable ? _pickNextDate : null,
+                child: InputDecorator(
+                  isEmpty: dateText.isEmpty,
+                  decoration: InputDecoration(
+                    enabled: editable,
+                    fillColor: dateText.isEmpty
+                        ? AppColors.surface
+                        : AppColors.surfaceVariant,
+                    enabledBorder: dateText.isEmpty
+                        ? emptyDateBorder
+                        : filledDateBorder,
+                    focusedBorder: dateText.isEmpty
+                        ? emptyDateBorder
+                        : filledDateBorder,
+                    suffixIcon: const Icon(Icons.calendar_month_outlined),
+                  ),
+                  child: Text(
+                    dateText.isEmpty ? l.addEditCaseSheet_pickDate : dateText,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: dateText.isEmpty
+                          ? AppColors.onSurfaceVariant
+                          : AppColors.onSurface,
+                    ),
+                  ),
                 ),
-                enabled: editable,
-                fillColor: dateText.isEmpty
-                    ? AppColors.surface
-                    : AppColors.surfaceVariant,
-                enabledBorder: dateBorder,
-                focusedBorder: dateBorder,
-                suffixIcon: const Icon(Icons.calendar_month_outlined),
               ),
-              child: Text(
-                dateText,
-                style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ),
+            ],
           ),
         ),
         const SizedBox(width: AppSpacing.md),
@@ -1129,7 +1261,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   }
 
   Future<void> _pickNextDate() async {
-    final date = await showPlainDatePicker(context, initialDate: _nextDate);
+    final date = await showPlainDatePicker(
+      context,
+      initialDate: _nextDate,
+      styleActions: true,
+    );
     if (date != null && mounted) setState(() => _nextDate = date);
   }
 
@@ -1149,24 +1285,52 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _selectedSteps = const [];
       _courtCategoryId = value == lowerCourtsOption ? null : value;
     });
+    _queueLastAddCaseSelectionWrite();
   }
 
-  void _onDivisionChanged(String? value) => setState(() {
-    _division = value;
-    _district = null;
-    _selectedCourt = null;
-    _selectedCaseType = null;
-    _selectedOnBehalf = null;
-    _selectedSteps = const [];
-  });
+  void _onDivisionChanged(String? value) {
+    setState(() {
+      _division = value;
+      _district = null;
+      _selectedCourt = null;
+      _selectedCaseType = null;
+      _selectedOnBehalf = null;
+      _selectedSteps = const [];
+    });
+    _queueLastAddCaseSelectionWrite();
+  }
 
-  void _onDistrictChanged(String? value) => setState(() {
-    _district = value;
-    _selectedCourt = null;
-    _selectedCaseType = null;
-    _selectedOnBehalf = null;
-    _selectedSteps = const [];
-  });
+  void _onDistrictChanged(String? value) {
+    setState(() {
+      _district = value;
+      _selectedCourt = null;
+      _selectedCaseType = null;
+      _selectedOnBehalf = null;
+      _selectedSteps = const [];
+    });
+    _queueLastAddCaseSelectionWrite();
+  }
+
+  /// Serializes preference writes so quick cascading taps cannot overwrite a
+  /// newer selection with an older read-modify-write result.
+  void _queueLastAddCaseSelectionWrite() {
+    if (widget.initialCase != null) return;
+    final higherLowerCourt = _higherLowerCourt;
+    final division = _division;
+    final district = _district;
+    _lastSelectionWrite = _lastSelectionWrite.then((_) async {
+      try {
+        final repository = await ref.read(settingsRepositoryProvider.future);
+        await repository.saveLastAddCaseSelection(
+          higherLowerCourt: higherLowerCourt,
+          division: division,
+          district: district,
+        );
+      } catch (_) {
+        // Preference persistence is best-effort and must not block case entry.
+      }
+    });
+  }
 
   void _onCategoryChanged(String? value) => setState(() {
     _courtCategoryId = value;
@@ -1281,7 +1445,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
             : Value(widget.initialCase!.id),
         courtId: Value(_selectedCourt!.id),
         caseType: Value(_selectedCaseType!.name),
-        caseNumber: Value(_caseNumberController.text.trim()),
+        caseNumber: Value(_composeCaseNumber()),
         petitioner: Value(_petitionerController.text.trim()),
         petitionerLeadCounsel: Value(
           _emptyToNull(_petitionerCounselController.text),
@@ -1291,8 +1455,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           _emptyToNull(_respondentCounselController.text),
         ),
         onBehalfId: Value(onBehalf.id),
-        petitionerPhone: Value(_emptyToNull(_petitionerPhoneController.text)),
-        respondentPhone: Value(_emptyToNull(_respondentPhoneController.text)),
+        partyPhone: Value(_completePartyPhone()),
         caseTitleAndSection: Value(_emptyToNull(_caseTitleController.text)),
         caseRemarks: Value(_emptyToNull(_caseRemarksController.text)),
         nextDate: Value(_nextDate!.millisecondsSinceEpoch),
@@ -1322,6 +1485,18 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         context,
       ).showSnackBar(SnackBar(content: Text('$error')));
     }
+  }
+
+  String _composeCaseNumber() => _caseNumberController.text.trim();
+
+  String? _completePartyPhone() {
+    var digits = _partyPhoneController.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) return null;
+    // The visible field is the portion after the immutable +88 prefix. Also
+    // normalize pasted 88-prefixed input so it cannot become +8888....
+    if (digits.startsWith('88')) digits = digits.substring(2);
+    if (digits.isEmpty) return null;
+    return '+88$digits';
   }
 
   String? _emptyToNull(String value) =>
@@ -1634,7 +1809,7 @@ class _SheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     key: const ValueKey('add-edit-header'),
-    color: AppColors.primaryContainer,
+    color: Colors.black,
     padding: const EdgeInsets.symmetric(
       horizontal: AppSpacing.lg,
       vertical: AppSpacing.md * .7,

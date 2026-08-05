@@ -57,6 +57,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get allCasesScreen_message => 'বার্তা';
 
   @override
+  String get allCasesScreen_unableToCall => 'কল করা যায়নি।';
+
+  @override
+  String get allCasesScreen_unableToMessage => 'বার্তা খোলা যায়নি।';
+
+  @override
   String get allCasesScreen_update => 'আপডেট';
 
   @override
@@ -207,10 +213,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_onBehalf => 'পক্ষে';
 
   @override
-  String get addEditCaseSheet_petitionerPhone => 'বাদীর ফোন নং';
+  String get addEditCaseSheet_partyPhone => 'পক্ষের ফোন নং';
 
   @override
-  String get addEditCaseSheet_respondentPhone => 'বিবাদীর ফোন নং';
+  String get addEditCaseSheet_year => 'বছর';
 
   @override
   String get addEditCaseSheet_caseTitleAndSection => 'মামলার শিরোনাম ও ধারা';
@@ -220,6 +226,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_nextDate => 'পরবর্তী তারিখ';
+
+  @override
+  String get addEditCaseSheet_pickDate => 'তারিখ নির্বাচন করুন';
 
   @override
   String get addEditCaseSheet_notification => 'নোটিফিকেশন';

@@ -1,14 +1,33 @@
-### 2026-08-05 — Current Task: Task 07 Add Case form refinements — COMPLETE
+### 2026-08-05 — Current Task: Task 07 Add Case contact and number refinements — COMPLETE
+
+Follow-up refinements completed:
+- Restored Case Number to one unified input while preserving slash-separated values such as `207/23`.
+- Matched the immutable `+88` prefix height to the Party Phone input.
+- Styled Add/Edit calendar Cancel/OK actions as slightly smaller black versions of the multi-select actions.
+
+`flutter analyze` clean; focused form and shared-widget tests pass.
+
+**Next:** Retest the unified Case Number field and calendar actions on a narrow physical device.
 
 Implemented and validated:
-- Reduced the Add Case title header's vertical padding and increased the Add Case Save action height.
-- Add Case text and dropdown fields now use white empty surfaces and gray filled surfaces while preserving the existing input outline treatment.
-- Grouped party fields with an input-sized gap between Petitioner and Respondent groups and before On Behalf.
-- Added localized dependency guidance when a disabled cascading field is tapped; notification-off now uses an outlined bell treatment.
+- Replaced petitioner/respondent phone columns with one nullable `party_phone` column, including v2→v3 migration and legacy value carryover.
+- Added immutable `+88` Party Phone prefix with complete international-number storage and real `tel:`/SMS actions from All Cases.
+- Split Case Number into editable number/year parts, preserved existing cases using the final two year digits, added the localized Pick a date hint, and vertically centered dropdown Search text.
 
-`flutter analyze` clean; full suite: 123 tests passed (2 skipped mobile-only).
+`flutter analyze` clean; focused schema, form, and repository tests: 32 passed.
 
-**Next:** Retest Add Case on a narrow physical device, especially dependency guidance, keyboard scrolling, input-state colors, and notification icon contrast.
+**Next:** Retest Add/Edit and All Cases phone/SMS actions on a physical device, then verify the v3 migration against a pre-existing database.
+
+### 2026-08-05 — Current Task: Task 07 Add Case court hierarchy defaults — COMPLETE
+
+Implemented and validated:
+- Add-mode forms now remember the latest per-user Higher/Lower Court, Division, and District selections in the existing local settings JSON.
+- Restored lower-court Division/District values are checked against the current cascade; edit-mode forms continue to use the case's own court hierarchy.
+- Added settings round-trip and Add Case restoration regression coverage.
+
+`flutter analyze` clean; focused Add/Edit and repository tests pass.
+
+**Next:** Retest Add Case on a physical device and verify the remembered hierarchy remains correct after restarting the app.
 
 ### 2026-08-01 — Current Task: Task 07 Add Case UX refinements — COMPLETE
 

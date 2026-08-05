@@ -34,12 +34,12 @@ abstract class AppStrings {
   static const String addEditCaseSheetOnbehalf = "addEditCaseSheet_onBehalf";
   static const String addEditCaseSheetPetitioner =
       "addEditCaseSheet_petitioner";
-  static const String addEditCaseSheetPetitionerphone =
-      "addEditCaseSheet_petitionerPhone";
+  static const String addEditCaseSheetPartyphone =
+      "addEditCaseSheet_partyPhone";
+  static const String addEditCaseSheetYear = "addEditCaseSheet_year";
   static const String addEditCaseSheetRespondent =
       "addEditCaseSheet_respondent";
-  static const String addEditCaseSheetRespondentphone =
-      "addEditCaseSheet_respondentPhone";
+  static const String addEditCaseSheetPickdate = "addEditCaseSheet_pickDate";
   static const String addEditCaseSheetSave = "addEditCaseSheet_save";
   static const String addEditCaseSheetStep = "addEditCaseSheet_step";
   static const String addEditCaseSheetTitle = "addEditCaseSheet_title";

@@ -56,28 +56,38 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   /// Migration strategy for the local Drift database.
   ///
-  /// [onCreate] creates all tables at schema version 2. [onUpgrade] migrates
-  /// from v1→v2 by adding `order_index` columns to case_types and on_behalfs.
+  /// [onCreate] creates all tables at schema version 3. [onUpgrade] migrates
+  /// from v1→v2 by adding `order_index` columns, then v2→v3 by replacing
+  /// the two legacy party phone columns with the single `party_phone` column.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-        },
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.addColumn(caseTypes, caseTypes.orderIndex);
-            await m.addColumn(onBehalfs, onBehalfs.orderIndex);
-          }
-        },
-        beforeOpen: (details) async {
-          await customStatement('PRAGMA foreign_keys = ON;');
-        },
-      );
+    onCreate: (m) async {
+      await m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(caseTypes, caseTypes.orderIndex);
+        await m.addColumn(onBehalfs, onBehalfs.orderIndex);
+      }
+      if (from < 3) {
+        await customStatement('ALTER TABLE cases ADD COLUMN party_phone TEXT');
+        await customStatement(
+          'UPDATE cases SET party_phone = COALESCE('
+          'petitioner_phone, respondent_phone)',
+        );
+        await customStatement('ALTER TABLE cases DROP COLUMN petitioner_phone');
+        await customStatement('ALTER TABLE cases DROP COLUMN respondent_phone');
+      }
+    },
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON;');
+    },
+  );
 
   // --------------------------------------------------------------------------
   // Standing query helpers — all UI queries should filter `is_deleted = 0`.

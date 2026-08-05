@@ -2605,23 +2605,12 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
       'REFERENCES on_behalfs (id)',
     ),
   );
-  static const VerificationMeta _petitionerPhoneMeta = const VerificationMeta(
-    'petitionerPhone',
+  static const VerificationMeta _partyPhoneMeta = const VerificationMeta(
+    'partyPhone',
   );
   @override
-  late final GeneratedColumn<String> petitionerPhone = GeneratedColumn<String>(
-    'petitioner_phone',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _respondentPhoneMeta = const VerificationMeta(
-    'respondentPhone',
-  );
-  @override
-  late final GeneratedColumn<String> respondentPhone = GeneratedColumn<String>(
-    'respondent_phone',
+  late final GeneratedColumn<String> partyPhone = GeneratedColumn<String>(
+    'party_phone',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -2765,8 +2754,7 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     respondent,
     respondentLeadCounsel,
     onBehalfId,
-    petitionerPhone,
-    respondentPhone,
+    partyPhone,
     caseTitleAndSection,
     caseRemarks,
     nextDate,
@@ -2879,22 +2867,10 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     } else if (isInserting) {
       context.missing(_onBehalfIdMeta);
     }
-    if (data.containsKey('petitioner_phone')) {
+    if (data.containsKey('party_phone')) {
       context.handle(
-        _petitionerPhoneMeta,
-        petitionerPhone.isAcceptableOrUnknown(
-          data['petitioner_phone']!,
-          _petitionerPhoneMeta,
-        ),
-      );
-    }
-    if (data.containsKey('respondent_phone')) {
-      context.handle(
-        _respondentPhoneMeta,
-        respondentPhone.isAcceptableOrUnknown(
-          data['respondent_phone']!,
-          _respondentPhoneMeta,
-        ),
+        _partyPhoneMeta,
+        partyPhone.isAcceptableOrUnknown(data['party_phone']!, _partyPhoneMeta),
       );
     }
     if (data.containsKey('case_title_and_section')) {
@@ -3032,13 +3008,9 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
         DriftSqlType.string,
         data['${effectivePrefix}on_behalf_id'],
       )!,
-      petitionerPhone: attachedDatabase.typeMapping.read(
+      partyPhone: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}petitioner_phone'],
-      ),
-      respondentPhone: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}respondent_phone'],
+        data['${effectivePrefix}party_phone'],
       ),
       caseTitleAndSection: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -3127,11 +3099,8 @@ class Case extends DataClass implements Insertable<Case> {
   /// Client representation role (e.g. Plaintiff, Defendant).
   final String onBehalfId;
 
-  /// Petitioner mobile number.
-  final String? petitionerPhone;
-
-  /// Respondent mobile number.
-  final String? respondentPhone;
+  /// Complete party phone number, stored in international format.
+  final String? partyPhone;
 
   /// Case description or specific legal sections.
   final String? caseTitleAndSection;
@@ -3167,8 +3136,7 @@ class Case extends DataClass implements Insertable<Case> {
     required this.respondent,
     this.respondentLeadCounsel,
     required this.onBehalfId,
-    this.petitionerPhone,
-    this.respondentPhone,
+    this.partyPhone,
     this.caseTitleAndSection,
     this.caseRemarks,
     this.nextDate,
@@ -3201,11 +3169,8 @@ class Case extends DataClass implements Insertable<Case> {
       map['respondent_lead_counsel'] = Variable<String>(respondentLeadCounsel);
     }
     map['on_behalf_id'] = Variable<String>(onBehalfId);
-    if (!nullToAbsent || petitionerPhone != null) {
-      map['petitioner_phone'] = Variable<String>(petitionerPhone);
-    }
-    if (!nullToAbsent || respondentPhone != null) {
-      map['respondent_phone'] = Variable<String>(respondentPhone);
+    if (!nullToAbsent || partyPhone != null) {
+      map['party_phone'] = Variable<String>(partyPhone);
     }
     if (!nullToAbsent || caseTitleAndSection != null) {
       map['case_title_and_section'] = Variable<String>(caseTitleAndSection);
@@ -3256,12 +3221,9 @@ class Case extends DataClass implements Insertable<Case> {
           ? const Value.absent()
           : Value(respondentLeadCounsel),
       onBehalfId: Value(onBehalfId),
-      petitionerPhone: petitionerPhone == null && nullToAbsent
+      partyPhone: partyPhone == null && nullToAbsent
           ? const Value.absent()
-          : Value(petitionerPhone),
-      respondentPhone: respondentPhone == null && nullToAbsent
-          ? const Value.absent()
-          : Value(respondentPhone),
+          : Value(partyPhone),
       caseTitleAndSection: caseTitleAndSection == null && nullToAbsent
           ? const Value.absent()
           : Value(caseTitleAndSection),
@@ -3313,8 +3275,7 @@ class Case extends DataClass implements Insertable<Case> {
         json['respondentLeadCounsel'],
       ),
       onBehalfId: serializer.fromJson<String>(json['onBehalfId']),
-      petitionerPhone: serializer.fromJson<String?>(json['petitionerPhone']),
-      respondentPhone: serializer.fromJson<String?>(json['respondentPhone']),
+      partyPhone: serializer.fromJson<String?>(json['partyPhone']),
       caseTitleAndSection: serializer.fromJson<String?>(
         json['caseTitleAndSection'],
       ),
@@ -3349,8 +3310,7 @@ class Case extends DataClass implements Insertable<Case> {
         respondentLeadCounsel,
       ),
       'onBehalfId': serializer.toJson<String>(onBehalfId),
-      'petitionerPhone': serializer.toJson<String?>(petitionerPhone),
-      'respondentPhone': serializer.toJson<String?>(respondentPhone),
+      'partyPhone': serializer.toJson<String?>(partyPhone),
       'caseTitleAndSection': serializer.toJson<String?>(caseTitleAndSection),
       'caseRemarks': serializer.toJson<String?>(caseRemarks),
       'nextDate': serializer.toJson<int?>(nextDate),
@@ -3377,8 +3337,7 @@ class Case extends DataClass implements Insertable<Case> {
     String? respondent,
     Value<String?> respondentLeadCounsel = const Value.absent(),
     String? onBehalfId,
-    Value<String?> petitionerPhone = const Value.absent(),
-    Value<String?> respondentPhone = const Value.absent(),
+    Value<String?> partyPhone = const Value.absent(),
     Value<String?> caseTitleAndSection = const Value.absent(),
     Value<String?> caseRemarks = const Value.absent(),
     Value<int?> nextDate = const Value.absent(),
@@ -3406,12 +3365,7 @@ class Case extends DataClass implements Insertable<Case> {
         ? respondentLeadCounsel.value
         : this.respondentLeadCounsel,
     onBehalfId: onBehalfId ?? this.onBehalfId,
-    petitionerPhone: petitionerPhone.present
-        ? petitionerPhone.value
-        : this.petitionerPhone,
-    respondentPhone: respondentPhone.present
-        ? respondentPhone.value
-        : this.respondentPhone,
+    partyPhone: partyPhone.present ? partyPhone.value : this.partyPhone,
     caseTitleAndSection: caseTitleAndSection.present
         ? caseTitleAndSection.value
         : this.caseTitleAndSection,
@@ -3453,12 +3407,9 @@ class Case extends DataClass implements Insertable<Case> {
       onBehalfId: data.onBehalfId.present
           ? data.onBehalfId.value
           : this.onBehalfId,
-      petitionerPhone: data.petitionerPhone.present
-          ? data.petitionerPhone.value
-          : this.petitionerPhone,
-      respondentPhone: data.respondentPhone.present
-          ? data.respondentPhone.value
-          : this.respondentPhone,
+      partyPhone: data.partyPhone.present
+          ? data.partyPhone.value
+          : this.partyPhone,
       caseTitleAndSection: data.caseTitleAndSection.present
           ? data.caseTitleAndSection.value
           : this.caseTitleAndSection,
@@ -3495,8 +3446,7 @@ class Case extends DataClass implements Insertable<Case> {
           ..write('respondent: $respondent, ')
           ..write('respondentLeadCounsel: $respondentLeadCounsel, ')
           ..write('onBehalfId: $onBehalfId, ')
-          ..write('petitionerPhone: $petitionerPhone, ')
-          ..write('respondentPhone: $respondentPhone, ')
+          ..write('partyPhone: $partyPhone, ')
           ..write('caseTitleAndSection: $caseTitleAndSection, ')
           ..write('caseRemarks: $caseRemarks, ')
           ..write('nextDate: $nextDate, ')
@@ -3525,8 +3475,7 @@ class Case extends DataClass implements Insertable<Case> {
     respondent,
     respondentLeadCounsel,
     onBehalfId,
-    petitionerPhone,
-    respondentPhone,
+    partyPhone,
     caseTitleAndSection,
     caseRemarks,
     nextDate,
@@ -3554,8 +3503,7 @@ class Case extends DataClass implements Insertable<Case> {
           other.respondent == this.respondent &&
           other.respondentLeadCounsel == this.respondentLeadCounsel &&
           other.onBehalfId == this.onBehalfId &&
-          other.petitionerPhone == this.petitionerPhone &&
-          other.respondentPhone == this.respondentPhone &&
+          other.partyPhone == this.partyPhone &&
           other.caseTitleAndSection == this.caseTitleAndSection &&
           other.caseRemarks == this.caseRemarks &&
           other.nextDate == this.nextDate &&
@@ -3581,8 +3529,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
   final Value<String> respondent;
   final Value<String?> respondentLeadCounsel;
   final Value<String> onBehalfId;
-  final Value<String?> petitionerPhone;
-  final Value<String?> respondentPhone;
+  final Value<String?> partyPhone;
   final Value<String?> caseTitleAndSection;
   final Value<String?> caseRemarks;
   final Value<int?> nextDate;
@@ -3607,8 +3554,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     this.respondent = const Value.absent(),
     this.respondentLeadCounsel = const Value.absent(),
     this.onBehalfId = const Value.absent(),
-    this.petitionerPhone = const Value.absent(),
-    this.respondentPhone = const Value.absent(),
+    this.partyPhone = const Value.absent(),
     this.caseTitleAndSection = const Value.absent(),
     this.caseRemarks = const Value.absent(),
     this.nextDate = const Value.absent(),
@@ -3634,8 +3580,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     required String respondent,
     this.respondentLeadCounsel = const Value.absent(),
     required String onBehalfId,
-    this.petitionerPhone = const Value.absent(),
-    this.respondentPhone = const Value.absent(),
+    this.partyPhone = const Value.absent(),
     this.caseTitleAndSection = const Value.absent(),
     this.caseRemarks = const Value.absent(),
     this.nextDate = const Value.absent(),
@@ -3670,8 +3615,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Expression<String>? respondent,
     Expression<String>? respondentLeadCounsel,
     Expression<String>? onBehalfId,
-    Expression<String>? petitionerPhone,
-    Expression<String>? respondentPhone,
+    Expression<String>? partyPhone,
     Expression<String>? caseTitleAndSection,
     Expression<String>? caseRemarks,
     Expression<int>? nextDate,
@@ -3699,8 +3643,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
       if (respondentLeadCounsel != null)
         'respondent_lead_counsel': respondentLeadCounsel,
       if (onBehalfId != null) 'on_behalf_id': onBehalfId,
-      if (petitionerPhone != null) 'petitioner_phone': petitionerPhone,
-      if (respondentPhone != null) 'respondent_phone': respondentPhone,
+      if (partyPhone != null) 'party_phone': partyPhone,
       if (caseTitleAndSection != null)
         'case_title_and_section': caseTitleAndSection,
       if (caseRemarks != null) 'case_remarks': caseRemarks,
@@ -3729,8 +3672,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Value<String>? respondent,
     Value<String?>? respondentLeadCounsel,
     Value<String>? onBehalfId,
-    Value<String?>? petitionerPhone,
-    Value<String?>? respondentPhone,
+    Value<String?>? partyPhone,
     Value<String?>? caseTitleAndSection,
     Value<String?>? caseRemarks,
     Value<int?>? nextDate,
@@ -3758,8 +3700,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
       respondentLeadCounsel:
           respondentLeadCounsel ?? this.respondentLeadCounsel,
       onBehalfId: onBehalfId ?? this.onBehalfId,
-      petitionerPhone: petitionerPhone ?? this.petitionerPhone,
-      respondentPhone: respondentPhone ?? this.respondentPhone,
+      partyPhone: partyPhone ?? this.partyPhone,
       caseTitleAndSection: caseTitleAndSection ?? this.caseTitleAndSection,
       caseRemarks: caseRemarks ?? this.caseRemarks,
       nextDate: nextDate ?? this.nextDate,
@@ -3815,11 +3756,8 @@ class CasesCompanion extends UpdateCompanion<Case> {
     if (onBehalfId.present) {
       map['on_behalf_id'] = Variable<String>(onBehalfId.value);
     }
-    if (petitionerPhone.present) {
-      map['petitioner_phone'] = Variable<String>(petitionerPhone.value);
-    }
-    if (respondentPhone.present) {
-      map['respondent_phone'] = Variable<String>(respondentPhone.value);
+    if (partyPhone.present) {
+      map['party_phone'] = Variable<String>(partyPhone.value);
     }
     if (caseTitleAndSection.present) {
       map['case_title_and_section'] = Variable<String>(
@@ -3876,8 +3814,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
           ..write('respondent: $respondent, ')
           ..write('respondentLeadCounsel: $respondentLeadCounsel, ')
           ..write('onBehalfId: $onBehalfId, ')
-          ..write('petitionerPhone: $petitionerPhone, ')
-          ..write('respondentPhone: $respondentPhone, ')
+          ..write('partyPhone: $partyPhone, ')
           ..write('caseTitleAndSection: $caseTitleAndSection, ')
           ..write('caseRemarks: $caseRemarks, ')
           ..write('nextDate: $nextDate, ')
@@ -16100,8 +16037,7 @@ typedef $$CasesTableCreateCompanionBuilder =
       required String respondent,
       Value<String?> respondentLeadCounsel,
       required String onBehalfId,
-      Value<String?> petitionerPhone,
-      Value<String?> respondentPhone,
+      Value<String?> partyPhone,
       Value<String?> caseTitleAndSection,
       Value<String?> caseRemarks,
       Value<int?> nextDate,
@@ -16128,8 +16064,7 @@ typedef $$CasesTableUpdateCompanionBuilder =
       Value<String> respondent,
       Value<String?> respondentLeadCounsel,
       Value<String> onBehalfId,
-      Value<String?> petitionerPhone,
-      Value<String?> respondentPhone,
+      Value<String?> partyPhone,
       Value<String?> caseTitleAndSection,
       Value<String?> caseRemarks,
       Value<int?> nextDate,
@@ -16254,13 +16189,8 @@ class $$CasesTableFilterComposer extends Composer<_$AppDatabase, $CasesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get petitionerPhone => $composableBuilder(
-    column: $table.petitionerPhone,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get respondentPhone => $composableBuilder(
-    column: $table.respondentPhone,
+  ColumnFilters<String> get partyPhone => $composableBuilder(
+    column: $table.partyPhone,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16445,13 +16375,8 @@ class $$CasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get petitionerPhone => $composableBuilder(
-    column: $table.petitionerPhone,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get respondentPhone => $composableBuilder(
-    column: $table.respondentPhone,
+  ColumnOrderings<String> get partyPhone => $composableBuilder(
+    column: $table.partyPhone,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -16603,13 +16528,8 @@ class $$CasesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get petitionerPhone => $composableBuilder(
-    column: $table.petitionerPhone,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get respondentPhone => $composableBuilder(
-    column: $table.respondentPhone,
+  GeneratedColumn<String> get partyPhone => $composableBuilder(
+    column: $table.partyPhone,
     builder: (column) => column,
   );
 
@@ -16769,8 +16689,7 @@ class $$CasesTableTableManager
                 Value<String> respondent = const Value.absent(),
                 Value<String?> respondentLeadCounsel = const Value.absent(),
                 Value<String> onBehalfId = const Value.absent(),
-                Value<String?> petitionerPhone = const Value.absent(),
-                Value<String?> respondentPhone = const Value.absent(),
+                Value<String?> partyPhone = const Value.absent(),
                 Value<String?> caseTitleAndSection = const Value.absent(),
                 Value<String?> caseRemarks = const Value.absent(),
                 Value<int?> nextDate = const Value.absent(),
@@ -16795,8 +16714,7 @@ class $$CasesTableTableManager
                 respondent: respondent,
                 respondentLeadCounsel: respondentLeadCounsel,
                 onBehalfId: onBehalfId,
-                petitionerPhone: petitionerPhone,
-                respondentPhone: respondentPhone,
+                partyPhone: partyPhone,
                 caseTitleAndSection: caseTitleAndSection,
                 caseRemarks: caseRemarks,
                 nextDate: nextDate,
@@ -16823,8 +16741,7 @@ class $$CasesTableTableManager
                 required String respondent,
                 Value<String?> respondentLeadCounsel = const Value.absent(),
                 required String onBehalfId,
-                Value<String?> petitionerPhone = const Value.absent(),
-                Value<String?> respondentPhone = const Value.absent(),
+                Value<String?> partyPhone = const Value.absent(),
                 Value<String?> caseTitleAndSection = const Value.absent(),
                 Value<String?> caseRemarks = const Value.absent(),
                 Value<int?> nextDate = const Value.absent(),
@@ -16849,8 +16766,7 @@ class $$CasesTableTableManager
                 respondent: respondent,
                 respondentLeadCounsel: respondentLeadCounsel,
                 onBehalfId: onBehalfId,
-                petitionerPhone: petitionerPhone,
-                respondentPhone: respondentPhone,
+                partyPhone: partyPhone,
                 caseTitleAndSection: caseTitleAndSection,
                 caseRemarks: caseRemarks,
                 nextDate: nextDate,

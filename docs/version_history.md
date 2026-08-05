@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.49 - Add Case form refinements: compact title header, larger Save action, state-based input surfaces, grouped party spacing, dependency guidance, and notification icon states.
+Version: 0.0.54 - Add/Edit Case refinements: unified case-number input, aligned +88 phone prefix, and compact black calendar actions.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -63,6 +63,8 @@ Version: 0.0.46 - Phone UX fixes: applied app-wide status-bar insets and readabl
 Version: 0.0.47 - Add Case UX refinements: reorganized the form into four sections, improved field ordering and alignment, and added centered searchable single/multi-select pickers.
 Version: 0.0.48 - Add Case visual refinements: gray form with white sections, 90% rounded dropdowns, black actions, improved phone/date spacing, and fixed multi-select scrolling.
 Version: 0.0.49 - Add Case form refinements: compact title header, larger Save action, state-based input surfaces, grouped party spacing, dependency guidance, and notification icon states.
-
-
-
+Version: 0.0.50 - Add/Edit Case form refinements: visible dependency guidance, external field labels, centered section titles, outlined empty fields, and compact weekday dates.
+Version: 0.0.51 - Add/Edit Case chrome refinements: black title header and black status bar with white system icons.
+Version: 0.0.52 - Add Case court hierarchy defaults: remember each user's latest Higher/Lower Court, Division, and District selections.
+Version: 0.0.53 - Add/Edit Case contact and number refinements: single international party phone, split case number/year, date hint, centered dropdown search, and phone/SMS actions.
+Version: 0.0.54 - Add/Edit Case refinements: unified case-number input, aligned +88 phone prefix, and compact black calendar actions.

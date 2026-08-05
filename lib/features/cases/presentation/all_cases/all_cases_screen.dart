@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
@@ -71,6 +72,41 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     if (mounted) await _loadCases();
   }
 
+  Future<void> _launchPartyAction(
+    Case currentCase, {
+    required bool message,
+  }) async {
+    final phone = currentCase.partyPhone?.trim();
+    if (phone == null || phone.isEmpty) return;
+    final uri = message
+        ? Uri(scheme: 'sms', path: phone)
+        : Uri(scheme: 'tel', path: phone);
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              message ? 'Unable to open messages.' : 'Unable to place a call.',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message ? 'Unable to open messages.' : 'Unable to place a call.',
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _openQuickUpdate(Case currentCase) async {
     await QuickUpdateCaseDialog.show(context, currentCase);
     if (mounted) await _loadCases();
@@ -127,12 +163,12 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                     currentCase.nextDate!,
                     locale: locale,
                   ),
-            step: currentCase
-                .lastStep, // Phone/message actions are reserved for Task 14 platform
-            // Phone/message integrations belong to Task 14; do not render
-            // inert controls before their platform callbacks exist.
-            showPhoneButton: false,
-            showMessageButton: false,
+            step: currentCase.lastStep,
+            showPhoneButton: currentCase.partyPhone?.trim().isNotEmpty ?? false,
+            showMessageButton:
+                currentCase.partyPhone?.trim().isNotEmpty ?? false,
+            onPhone: () => _launchPartyAction(currentCase, message: false),
+            onMessage: () => _launchPartyAction(currentCase, message: true),
             onUpdate: () => _openQuickUpdate(currentCase),
           );
         },

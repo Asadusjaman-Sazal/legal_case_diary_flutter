@@ -58,6 +58,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCasesScreen_message => 'Message';
 
   @override
+  String get allCasesScreen_unableToCall => 'Unable to place a call.';
+
+  @override
+  String get allCasesScreen_unableToMessage => 'Unable to open messages.';
+
+  @override
   String get allCasesScreen_update => 'Update';
 
   @override
@@ -210,10 +216,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_onBehalf => 'On Behalf';
 
   @override
-  String get addEditCaseSheet_petitionerPhone => 'Petitioner Phone No.';
+  String get addEditCaseSheet_partyPhone => 'Party Phone No.';
 
   @override
-  String get addEditCaseSheet_respondentPhone => 'Respondent Phone No.';
+  String get addEditCaseSheet_year => 'Year';
 
   @override
   String get addEditCaseSheet_caseTitleAndSection => 'Case Title & Section';
@@ -223,6 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_nextDate => 'Next Date';
+
+  @override
+  String get addEditCaseSheet_pickDate => 'Pick a date';
 
   @override
   String get addEditCaseSheet_notification => 'Notification';

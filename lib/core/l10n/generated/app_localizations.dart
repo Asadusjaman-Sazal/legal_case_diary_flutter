@@ -194,6 +194,18 @@ abstract class AppLocalizations {
   /// **'Message'**
   String get allCasesScreen_message;
 
+  /// No description provided for @allCasesScreen_unableToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to place a call.'**
+  String get allCasesScreen_unableToCall;
+
+  /// No description provided for @allCasesScreen_unableToMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open messages.'**
+  String get allCasesScreen_unableToMessage;
+
   /// No description provided for @allCasesScreen_update.
   ///
   /// In en, this message translates to:
@@ -488,17 +500,17 @@ abstract class AppLocalizations {
   /// **'On Behalf'**
   String get addEditCaseSheet_onBehalf;
 
-  /// No description provided for @addEditCaseSheet_petitionerPhone.
+  /// No description provided for @addEditCaseSheet_partyPhone.
   ///
   /// In en, this message translates to:
-  /// **'Petitioner Phone No.'**
-  String get addEditCaseSheet_petitionerPhone;
+  /// **'Party Phone No.'**
+  String get addEditCaseSheet_partyPhone;
 
-  /// No description provided for @addEditCaseSheet_respondentPhone.
+  /// No description provided for @addEditCaseSheet_year.
   ///
   /// In en, this message translates to:
-  /// **'Respondent Phone No.'**
-  String get addEditCaseSheet_respondentPhone;
+  /// **'Year'**
+  String get addEditCaseSheet_year;
 
   /// No description provided for @addEditCaseSheet_caseTitleAndSection.
   ///
@@ -517,6 +529,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next Date'**
   String get addEditCaseSheet_nextDate;
+
+  /// No description provided for @addEditCaseSheet_pickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get addEditCaseSheet_pickDate;
 
   /// No description provided for @addEditCaseSheet_notification.
   ///

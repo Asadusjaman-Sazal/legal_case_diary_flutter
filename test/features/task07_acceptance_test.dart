@@ -334,6 +334,79 @@ void main() {
     expect(await CaseHistoryDao(db).getByCaseId(id), isEmpty);
   });
 
+  testWidgets(
+    'Quick Update keeps the current date separate and matches the Add Step picker',
+    (WidgetTester tester) async {
+      final currentDate = DateTime(2026, 8, 5);
+      final id = await caseRepository.insertCase(
+        CasesCompanion(
+          caseNumber: const Value('205/23'),
+          petitioner: const Value('Alice'),
+          respondent: const Value('Bob'),
+          courtId: Value(courtId),
+          caseType: const Value('Civil Suit'),
+          onBehalfId: Value(onBehalfId),
+          nextDate: Value(currentDate.millisecondsSinceEpoch),
+        ),
+      );
+      final current = (await caseRepository.getById(id))!;
+
+      await tester.pumpWidget(
+        appScope(QuickUpdateCaseDialog(currentCase: current)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Civil Suit- 205/23'), findsOneWidget);
+      expect(find.text('Current Next Date: 05/08/26, Wed'), findsOneWidget);
+      expect(find.text('Next Date'), findsOneWidget);
+      expect(find.text('Pick a date'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('quick-update-notification')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('quick-update-day-offset')),
+        findsOneWidget,
+      );
+      expect(
+        tester.getSize(find.widgetWithText(FilledButton, 'Save')).height,
+        closeTo(52, 0.1),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('quick-update-step')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('custom-dropdown-search')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('custom-dropdown-selected-values')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('custom-dropdown-clear')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('custom-dropdown-done')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('quick-update-notification')));
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect((await caseRepository.getById(id))!.nextDate, current.nextDate);
+      final preference = await CaseNotificationPreferencesDao(
+        db,
+      ).get(identity.getId(), id);
+      expect(preference?.enabled, isFalse);
+      expect(preference?.offsets, '[1]');
+    },
+  );
+
   testWidgets('Add case routes to paywall at the free-tier limit', (
     WidgetTester tester,
   ) async {
@@ -568,11 +641,10 @@ void main() {
     await tester.tap(saveFinder);
     await tester.pump(const Duration(milliseconds: 500));
     final updated = (await CasesDao(db).getById(listCaseId))!;
-    expect(updated.nextDate, isNotNull);
-    final history = await CaseHistoryDao(db).getByCaseId(updated.id);
-    expect(history, hasLength(1));
-    expect(history.single.hearingDate, isNotNull);
-    expect(history.single.nextDate, updated.nextDate);
+    expect(updated.nextDate, isNull);
+    // A blank Next Date leaves the case untouched and does not create a date
+    // history entry; Quick Update can still be used for notification changes.
+    expect(await CaseHistoryDao(db).getByCaseId(updated.id), isEmpty);
 
     // Unmount the scope inside the test body so the drift stream-cleanup
     // zero-timer from AllCasesScreen's watch fires before the framework

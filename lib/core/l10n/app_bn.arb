@@ -78,6 +78,7 @@
   "addEditCaseSheet_caseTitleAndSection": "মামলার শিরোনাম বা ধারা",
   "addEditCaseSheet_caseRemarks": "মামলার মন্তব্য",
   "addEditCaseSheet_nextDate": "পরবর্তী তারিখ",
+  "quickUpdateCase_currentNextDate": "বর্তমান পরবর্তী তারিখ",
   "addEditCaseSheet_pickDate": "তারিখ নির্বাচন করুন",
   "addEditCaseSheet_notification": "নোটিফিকেশন",
   "addEditCaseSheet_dayOffset": "দিনের অফসেট",

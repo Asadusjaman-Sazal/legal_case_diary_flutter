@@ -1534,9 +1534,13 @@ class QuickUpdateCaseDialog extends ConsumerStatefulWidget {
 
 class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   final _noteController = TextEditingController();
+  DateTime? _currentNextDate;
   DateTime? _date;
   List<Step> _steps = const [];
-  Step? _selectedStep;
+  List<Step> _selectedSteps = const [];
+  List<int> _notificationOffsets = const [];
+  List<int> _selectedNotificationOffsets = const [];
+  bool _isNotificationEnabled = true;
   bool _loading = true;
   bool _saving = false;
   bool _permissionResolved = false;
@@ -1545,9 +1549,12 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   @override
   void initState() {
     super.initState();
-    _date = widget.currentCase.nextDate == null
-        ? plainDatePickerInitialDate()
+    _currentNextDate = widget.currentCase.nextDate == null
+        ? null
         : DateTime.fromMillisecondsSinceEpoch(widget.currentCase.nextDate!);
+    // Keep the editable field blank; the current value is shown only in the
+    // read-only summary above it.
+    _date = null;
     _noteController.text = widget.currentCase.notesResults ?? '';
     _loadSteps();
   }
@@ -1562,6 +1569,17 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     try {
       final db = await ref.read(databaseProvider.future);
       final permissions = await ref.read(caseWritePermissionsProvider.future);
+      final settingsRepository = await ref.read(
+        settingsRepositoryProvider.future,
+      );
+      final settings = await settingsRepository.getSettings();
+      final notificationOffsets = settings.notificationDefaultOffsets.isEmpty
+          ? [settings.notificationDayOffset]
+          : settings.notificationDefaultOffsets;
+      final identity = ref.read(localIdentityServiceProvider);
+      final preference = await CaseNotificationPreferencesDao(
+        db,
+      ).get(identity.getId(), widget.currentCase.id);
       final court = await CourtsDao(db).getById(widget.currentCase.courtId);
       final steps = court == null
           ? <Step>[]
@@ -1569,13 +1587,24 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       if (!mounted) return;
       setState(() {
         _steps = steps;
-        _selectedStep = steps
+        final storedSteps = (widget.currentCase.lastStep ?? '')
+            .split(',')
+            .map((step) => step.trim())
+            .where((step) => step.isNotEmpty)
+            .toSet();
+        _selectedSteps = steps
             .where(
               (item) =>
-                  item.id == widget.currentCase.lastStep ||
-                  item.stepName == widget.currentCase.lastStep,
+                  storedSteps.contains(item.id) ||
+                  storedSteps.contains(item.stepName),
             )
-            .firstOrNull;
+            .toList(growable: false);
+        _notificationOffsets = notificationOffsets;
+        _selectedNotificationOffsets = _decodeNotificationOffsets(
+          preference?.offsets,
+          fallback: notificationOffsets.firstOrNull,
+        );
+        _isNotificationEnabled = preference?.enabled ?? true;
         _permissionResolved = true;
         _canEdit = permissions.canEdit;
         _loading = false;
@@ -1591,9 +1620,181 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     }
   }
 
+  List<int> _decodeNotificationOffsets(String? raw, {int? fallback}) {
+    if (raw != null && raw.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) {
+          return decoded
+              .whereType<num>()
+              .map((value) => value.toInt())
+              .toList();
+        }
+      } on FormatException {
+        // Ignore malformed local preference data and use the default below.
+      }
+    }
+    return fallback == null ? const [] : [fallback];
+  }
+
   Future<void> _pickDate() async {
-    final date = await showPlainDatePicker(context, initialDate: _date);
+    final date = await showPlainDatePicker(
+      context,
+      initialDate: _date,
+      styleActions: true,
+    );
     if (date != null && mounted) setState(() => _date = date);
+  }
+
+  String _formatDate(BuildContext context, DateTime date) => DateFormat(
+    'dd/MM/yy, EEE',
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format(date);
+
+  Widget _quickUpdateNextDateAndNotificationRow(
+    BuildContext context,
+    bool editable,
+  ) {
+    final l = AppLocalizations.of(context);
+    final dateText = _date == null ? '' : _formatDate(context, _date!);
+    final emptyDateBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final filledDateBorder = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l.addEditCaseSheet_nextDate, style: AppTypography.labelLg),
+              const SizedBox(height: AppSpacing.xs),
+              InkWell(
+                key: const ValueKey('quick-update-next-date'),
+                onTap: editable ? _pickDate : null,
+                child: InputDecorator(
+                  isEmpty: dateText.isEmpty,
+                  decoration: InputDecoration(
+                    enabled: editable,
+                    fillColor: dateText.isEmpty
+                        ? AppColors.surface
+                        : AppColors.surfaceVariant,
+                    enabledBorder: dateText.isEmpty
+                        ? emptyDateBorder
+                        : filledDateBorder,
+                    focusedBorder: dateText.isEmpty
+                        ? emptyDateBorder
+                        : filledDateBorder,
+                    suffixIcon: const Icon(Icons.calendar_month_outlined),
+                  ),
+                  child: Text(
+                    dateText.isEmpty ? l.addEditCaseSheet_pickDate : dateText,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: dateText.isEmpty
+                          ? AppColors.onSurfaceVariant
+                          : AppColors.onSurface,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              Text(
+                l.addEditCaseSheet_notification,
+                style: AppTypography.labelMd,
+              ),
+              IconButton(
+                key: const ValueKey('quick-update-notification'),
+                tooltip: l.addEditCaseSheet_notification,
+                onPressed: editable
+                    ? () => setState(
+                        () => _isNotificationEnabled = !_isNotificationEnabled,
+                      )
+                    : null,
+                style: IconButton.styleFrom(
+                  backgroundColor: _isNotificationEnabled
+                      ? Colors.black
+                      : Colors.transparent,
+                  foregroundColor: _isNotificationEnabled
+                      ? Colors.white
+                      : Colors.black,
+                  side: _isNotificationEnabled
+                      ? null
+                      : const BorderSide(color: Colors.black, width: 2),
+                  shape: const CircleBorder(),
+                ),
+                icon: Icon(
+                  _isNotificationEnabled
+                      ? Icons.notifications
+                      : Icons.notifications_none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _quickUpdateNoteField(BuildContext context, bool enabled) {
+    final l = AppLocalizations.of(context);
+    final isEmpty = _noteController.text.trim().isEmpty;
+    final emptyOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final filledOutline = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final emptyFocusedOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    final filledFocusedOutline = UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.secondary, width: 2),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.addEditCaseSheet_note, style: AppTypography.labelLg),
+        const SizedBox(height: AppSpacing.xs),
+        TextField(
+          key: const ValueKey('quick-update-note'),
+          controller: _noteController,
+          enabled: enabled,
+          maxLines: 4,
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            fillColor: isEmpty ? AppColors.surface : AppColors.surfaceVariant,
+            enabledBorder: isEmpty ? emptyOutline : filledOutline,
+            focusedBorder: isEmpty ? emptyFocusedOutline : filledFocusedOutline,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _offsetLabel(BuildContext context, int offset) {
+    final l = AppLocalizations.of(context);
+    return offset == 0
+        ? l.addEditCaseSheet_offsetSameDay
+        : offset == 1
+        ? l.addEditCaseSheet_offsetDayBefore
+        : l.addEditCaseSheet_offsetDaysBefore(offset);
   }
 
   Future<void> _commit() async {
@@ -1602,21 +1803,44 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     }
     setState(() => _saving = true);
     try {
-      final repository = await ref.read(caseRepositoryProvider.future);
-      await repository.updateCase(
-        CasesCompanion(
-          id: Value(widget.currentCase.id),
-          nextDate: Value(_date?.millisecondsSinceEpoch),
-          lastStep: Value(_selectedStep?.stepName),
-          notesResults: Value(
-            _noteController.text.trim().isEmpty
-                ? null
-                : _noteController.text.trim(),
-          ),
-        ),
-        baseCase: widget.currentCase,
-        isQuickUpdate: true,
+      final db = await ref.read(databaseProvider.future);
+      final repository = await ref.read(
+        transactionalCaseRepositoryProvider.future,
       );
+      final identity = ref.read(localIdentityServiceProvider);
+      final updatedAt = DateTime.now().toUtc().millisecondsSinceEpoch;
+      await db.transaction(() async {
+        await repository.updateCaseInTransaction(
+          CasesCompanion(
+            id: Value(widget.currentCase.id),
+            // An untouched blank field preserves the current stored date.
+            nextDate: Value(
+              _date?.millisecondsSinceEpoch ?? widget.currentCase.nextDate,
+            ),
+            lastStep: Value(
+              _selectedSteps.isEmpty
+                  ? null
+                  : _selectedSteps.map((item) => item.stepName).join(','),
+            ),
+            notesResults: Value(
+              _noteController.text.trim().isEmpty
+                  ? null
+                  : _noteController.text.trim(),
+            ),
+          ),
+          baseCase: widget.currentCase,
+          isQuickUpdate: true,
+        );
+        await CaseNotificationPreferencesDao(db).upsert(
+          CaseNotificationPreferencesCompanion(
+            userId: Value(identity.getId()),
+            caseId: Value(widget.currentCase.id),
+            enabled: Value(_isNotificationEnabled),
+            offsets: Value(jsonEncode(_selectedNotificationOffsets)),
+            updatedAt: Value(updatedAt),
+          ),
+        );
+      });
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
@@ -1695,7 +1919,8 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           child: Column(
                             children: [
                               Text(
-                                widget.currentCase.caseNumber,
+                                '${widget.currentCase.caseType}- ${widget.currentCase.caseNumber}',
+                                key: const ValueKey('quick-update-case-number'),
                                 style: AppTypography.titleLg.copyWith(
                                   color: AppColors.primary,
                                 ),
@@ -1703,43 +1928,57 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
-                                '${l.addEditCaseSheet_nextDate}: ${_date == null ? l.customDropdown_selectOption : MaterialLocalizations.of(context).formatMediumDate(_date!)}',
+                                '${l.quickUpdateCase_currentNextDate}: ${_currentNextDate == null ? l.customDropdown_selectOption : _formatDate(context, _currentNextDate!)}',
+                                key: const ValueKey(
+                                  'quick-update-current-next-date',
+                                ),
                                 style: AppTypography.bodySm,
                                 textAlign: TextAlign.center,
                               ),
                             ],
                           ),
                         ),
+                        // Keep the current-case summary visually separate from
+                        // the editable schedule fields below it.
+                        const SizedBox(height: AppSpacing.lg),
+                        _quickUpdateNextDateAndNotificationRow(
+                          context,
+                          editable,
+                        ),
                         const SizedBox(height: AppSpacing.md),
-                        _QuickUpdateDateField(
-                          label: l.addEditCaseSheet_nextDate,
-                          value: _date == null
-                              ? l.customDropdown_selectOption
-                              : MaterialLocalizations.of(
-                                  context,
-                                ).formatMediumDate(_date!),
+                        CustomDropdown<int>(
+                          fieldKey: const ValueKey('quick-update-day-offset'),
+                          label: l.addEditCaseSheet_dayOffset,
+                          items: _notificationOffsets,
+                          selectedValues: _selectedNotificationOffsets,
+                          multiSelect: true,
+                          searchable: false,
+                          itemLabel: (item) => _offsetLabel(context, item),
                           enabled: editable,
-                          onTap: _pickDate,
+                          emptyFillColor: AppColors.surface,
+                          selectedFillColor: AppColors.surfaceVariant,
+                          outlined: true,
+                          onMultiChanged: (values) => setState(
+                            () => _selectedNotificationOffsets = values,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         CustomDropdown<Step>(
+                          fieldKey: const ValueKey('quick-update-step'),
                           label: l.addEditCaseSheet_step,
                           items: _steps,
-                          value: _selectedStep,
+                          selectedValues: _selectedSteps,
+                          multiSelect: true,
                           itemLabel: (item) => item.stepName,
                           enabled: editable,
-                          onChanged: (value) =>
-                              setState(() => _selectedStep = value),
+                          emptyFillColor: AppColors.surface,
+                          selectedFillColor: AppColors.surfaceVariant,
+                          outlined: true,
+                          onMultiChanged: (values) =>
+                              setState(() => _selectedSteps = values),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        TextField(
-                          controller: _noteController,
-                          maxLines: 3,
-                          enabled: editable,
-                          decoration: InputDecoration(
-                            labelText: l.addEditCaseSheet_note,
-                          ),
-                        ),
+                        _quickUpdateNoteField(context, editable),
                       ],
                     ),
                   ),
@@ -1757,6 +1996,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(52),
                     ),
                     onPressed: _loading || !editable ? null : _commit,
                     child: Text(l.sharedActions_save),
@@ -1769,33 +2009,6 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       ),
     );
   }
-}
-
-class _QuickUpdateDateField extends StatelessWidget {
-  const _QuickUpdateDateField({
-    required this.label,
-    required this.value,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: enabled ? onTap : null,
-    child: InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        enabled: enabled,
-        suffixIcon: const Icon(Icons.calendar_month_outlined),
-      ),
-      child: Text(value),
-    ),
-  );
 }
 
 class _SheetHeader extends StatelessWidget {

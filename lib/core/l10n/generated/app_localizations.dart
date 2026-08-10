@@ -530,6 +530,12 @@ abstract class AppLocalizations {
   /// **'Next Date'**
   String get addEditCaseSheet_nextDate;
 
+  /// No description provided for @quickUpdateCase_currentNextDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Next Date'**
+  String get quickUpdateCase_currentNextDate;
+
   /// No description provided for @addEditCaseSheet_pickDate.
   ///
   /// In en, this message translates to:

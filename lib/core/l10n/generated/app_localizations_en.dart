@@ -231,6 +231,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_nextDate => 'Next Date';
 
   @override
+  String get quickUpdateCase_currentNextDate => 'Current Next Date';
+
+  @override
   String get addEditCaseSheet_pickDate => 'Pick a date';
 
   @override

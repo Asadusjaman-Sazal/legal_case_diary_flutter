@@ -228,6 +228,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_nextDate => 'পরবর্তী তারিখ';
 
   @override
+  String get quickUpdateCase_currentNextDate => 'বর্তমান পরবর্তী তারিখ';
+
+  @override
   String get addEditCaseSheet_pickDate => 'তারিখ নির্বাচন করুন';
 
   @override

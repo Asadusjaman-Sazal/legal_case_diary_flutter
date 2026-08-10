@@ -78,6 +78,7 @@
   "addEditCaseSheet_caseTitleAndSection": "Case Title or Section",
   "addEditCaseSheet_caseRemarks": "Case Remarks",
   "addEditCaseSheet_nextDate": "Next Date",
+  "quickUpdateCase_currentNextDate": "Current Next Date",
   "addEditCaseSheet_pickDate": "Pick a date",
   "addEditCaseSheet_notification": "Notification",
   "addEditCaseSheet_dayOffset": "Day Offset",

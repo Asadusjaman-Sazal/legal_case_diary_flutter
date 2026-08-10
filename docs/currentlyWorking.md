@@ -1,3 +1,14 @@
+### 2026-08-10 — Current Task: Task 07 Update Window refinements — COMPLETE
+
+Implemented and validated:
+- Quick Update Next Date now starts blank with the Add Case `Pick a date` hint; saving without a new date preserves the existing Current Next Date.
+- Added the Add Case-style Notification toggle, multi-select Day Offset controls, matching date formatting/picker actions, and Save button sizing.
+- Added focused acceptance coverage for date independence, schedule controls, picker behavior, notification persistence, and Save sizing.
+
+`flutter analyze` clean; focused Task 07 and Add/Edit widget tests: 17 passed.
+
+**Next:** Retest the Update Window on a narrow physical device, especially date selection versus the immutable Current Next Date summary.
+
 ### 2026-08-05 — Current Task: Task 07 Add Case contact and number refinements — COMPLETE
 
 Follow-up refinements completed:

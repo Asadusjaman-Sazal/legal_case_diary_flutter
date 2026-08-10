@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.54 - Add/Edit Case refinements: unified case-number input, aligned +88 phone prefix, and compact black calendar actions.
+Version: 0.0.55 - Update Window refinements: blank Next Date, immutable Current Next Date, Add Case schedule controls, and matching Save sizing.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -68,3 +68,4 @@ Version: 0.0.51 - Add/Edit Case chrome refinements: black title header and black
 Version: 0.0.52 - Add Case court hierarchy defaults: remember each user's latest Higher/Lower Court, Division, and District selections.
 Version: 0.0.53 - Add/Edit Case contact and number refinements: single international party phone, split case number/year, date hint, centered dropdown search, and phone/SMS actions.
 Version: 0.0.54 - Add/Edit Case refinements: unified case-number input, aligned +88 phone prefix, and compact black calendar actions.
+Version: 0.0.55 - Update Window refinements: blank Next Date, immutable Current Next Date, Add Case schedule controls, and matching Save sizing.

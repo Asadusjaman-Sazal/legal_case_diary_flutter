@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/shared/widgets/case_card.dart';
 import 'package:legal_case_diary/shared/widgets/custom_dropdown.dart';
@@ -32,6 +33,7 @@ void main() {
             title: 'Abdur Rahim vs State',
             subtitle: 'Section 323 of Penal Code',
             statusLabel: 'Accused',
+            alignStatusLabelRight: true,
             step: 'Warrant issued',
             note: 'Submit Process',
             onPhone: () => phonePressed = true,
@@ -47,6 +49,14 @@ void main() {
       expect(find.byTooltip('Phone'), findsOneWidget);
       expect(find.byTooltip('Message'), findsOneWidget);
       expect(find.text('Update'), findsOneWidget);
+      final cardRect = tester.getRect(find.byType(CaseCard));
+      final statusRect = tester.getRect(
+        find.byKey(const ValueKey('case-card-status-label')),
+      );
+      expect(
+        statusRect.right,
+        closeTo(cardRect.right - AppSpacing.cardPadding - 1, 0.1),
+      );
 
       await tester.tap(find.byTooltip('Phone'));
       await tester.tap(find.byTooltip('Message'));
@@ -55,6 +65,19 @@ void main() {
       expect(phonePressed, isTrue);
       expect(messagePressed, isTrue);
       expect(updatePressed, isTrue);
+    });
+
+    testWidgets('keeps contact actions visible without a phone number', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const CaseCard(caseNumber: 'CR-11/2024', title: 'No contact matter'),
+        ),
+      );
+
+      expect(find.byTooltip('Phone'), findsOneWidget);
+      expect(find.byTooltip('Message'), findsOneWidget);
     });
 
     testWidgets('renders compact and disposed variant details', (

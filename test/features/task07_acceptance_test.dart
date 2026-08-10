@@ -584,6 +584,7 @@ void main() {
   testWidgets('All Cases Update action opens the Quick Update dialog', (
     WidgetTester tester,
   ) async {
+    final listCaseNextDate = DateTime(2026, 8, 5).millisecondsSinceEpoch;
     final listCaseId = await caseRepository.insertCase(
       CasesCompanion(
         caseNumber: const Value('LIST-1'),
@@ -592,6 +593,8 @@ void main() {
         courtId: Value(courtId),
         caseType: const Value('Civil'),
         onBehalfId: Value(onBehalfId),
+        partyPhone: const Value('+8801712345678'),
+        nextDate: Value(listCaseNextDate),
       ),
     );
 
@@ -625,6 +628,17 @@ void main() {
       ),
     );
     await _pumpUntil(tester, find.byKey(ValueKey('case-card-$listCaseId')));
+    expect(find.text('05/08/26, Wed'), findsOneWidget);
+    expect(find.byTooltip('Phone'), findsOneWidget);
+    expect(find.byTooltip('Message'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Phone'));
+    await tester.pumpAndSettle();
+    expect(find.text('Open with'), findsOneWidget);
+    expect(find.text('WhatsApp'), findsOneWidget);
+    expect(find.text('Phone'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('case-card-call-cancel')));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Update'));
     await tester.pump();
@@ -641,9 +655,9 @@ void main() {
     await tester.tap(saveFinder);
     await tester.pump(const Duration(milliseconds: 500));
     final updated = (await CasesDao(db).getById(listCaseId))!;
-    expect(updated.nextDate, isNull);
-    // A blank Next Date leaves the case untouched and does not create a date
-    // history entry; Quick Update can still be used for notification changes.
+    expect(updated.nextDate, listCaseNextDate);
+    // A blank Next Date leaves the existing date untouched and does not create
+    // a date history entry; Quick Update can still change other fields.
     expect(await CaseHistoryDao(db).getByCaseId(updated.id), isEmpty);
 
     // Unmount the scope inside the test body so the drift stream-cleanup

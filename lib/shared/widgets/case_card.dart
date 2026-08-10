@@ -76,6 +76,9 @@ class CaseCard extends StatelessWidget {
   /// Whether the Update action is rendered.
   final bool showUpdateButton;
 
+  /// Whether the status label is pinned to the far right of the heading line.
+  final bool alignStatusLabelRight;
+
   /// Creates a case card.
   const CaseCard({
     required this.caseNumber,
@@ -94,6 +97,7 @@ class CaseCard extends StatelessWidget {
     this.showPhoneButton = true,
     this.showMessageButton = true,
     this.showUpdateButton = true,
+    this.alignStatusLabelRight = false,
     super.key,
   });
 
@@ -130,6 +134,7 @@ class CaseCard extends StatelessWidget {
                       title: title,
                       subtitle: subtitle,
                       statusLabel: statusLabel,
+                      alignStatusLabelRight: alignStatusLabelRight,
                       isOverdue: _isOverdue,
                     ),
                     if (courtName != null) ...[
@@ -178,6 +183,7 @@ class _CaseHeading extends StatelessWidget {
   final String title;
   final String? subtitle;
   final String? statusLabel;
+  final bool alignStatusLabelRight;
   final bool isOverdue;
 
   const _CaseHeading({
@@ -185,6 +191,7 @@ class _CaseHeading extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.statusLabel,
+    required this.alignStatusLabelRight,
     required this.isOverdue,
   });
 
@@ -215,19 +222,26 @@ class _CaseHeading extends StatelessWidget {
         if (statusLabel != null) ...[
           const SizedBox(width: AppSpacing.sm),
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainer,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-              ),
-              child: Text(
-                statusLabel!,
-                style: AppTypography.labelMd,
-                overflow: TextOverflow.ellipsis,
+            child: Align(
+              alignment: alignStatusLabelRight
+                  ? Alignment.topRight
+                  : Alignment.topLeft,
+              child: Container(
+                key: const ValueKey('case-card-status-label'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+                child: Text(
+                  statusLabel!,
+                  textAlign: TextAlign.right,
+                  style: AppTypography.labelMd,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
           ),

@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_spacing.dart';
@@ -20,6 +21,8 @@ import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
 import '../cases_screen_modal.dart';
+
+enum _CallTarget { whatsApp, phone }
 
 /// Minimal repository-backed All Cases host for Task 07 action integration.
 class AllCasesScreen extends ConsumerStatefulWidget {
@@ -78,32 +81,84 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   }) async {
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
-    final uri = message
-        ? Uri(scheme: 'sms', path: phone)
-        : Uri(scheme: 'tel', path: phone);
+
+    if (!message) {
+      final target = await _showCallTargetChooser();
+      if (!mounted || target == null) return;
+      if (target == _CallTarget.whatsApp) {
+        // WhatsApp has no documented direct-call URI; open the contact/chat as
+        // the safe fallback, where the user can start a WhatsApp call.
+        final normalized = phone.replaceAll(RegExp(r'\D'), '');
+        if (normalized.isEmpty) return;
+        await _launchExternal(
+          Uri.https('wa.me', normalized),
+          failureMessage: 'Unable to open WhatsApp.',
+        );
+      } else {
+        await _launchExternal(
+          Uri(scheme: 'tel', path: phone),
+          failureMessage: 'Unable to place a call.',
+        );
+      }
+      return;
+    }
+
+    await _launchExternal(
+      Uri(scheme: 'sms', path: phone),
+      failureMessage: 'Unable to open messages.',
+    );
+  }
+
+  Future<_CallTarget?> _showCallTargetChooser() => showDialog<_CallTarget>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Open with'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            key: const ValueKey('case-card-call-whatsapp'),
+            leading: const Icon(Icons.chat_outlined),
+            title: const Text('WhatsApp'),
+            onTap: () => Navigator.of(context).pop(_CallTarget.whatsApp),
+          ),
+          ListTile(
+            key: const ValueKey('case-card-call-phone'),
+            leading: const Icon(Icons.call_outlined),
+            title: const Text('Phone'),
+            onTap: () => Navigator.of(context).pop(_CallTarget.phone),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          key: const ValueKey('case-card-call-cancel'),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+      ],
+    ),
+  );
+
+  Future<void> _launchExternal(
+    Uri uri, {
+    required String failureMessage,
+  }) async {
     try {
       final launched = await launchUrl(
         uri,
         mode: LaunchMode.externalApplication,
       );
       if (!launched && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              message ? 'Unable to open messages.' : 'Unable to place a call.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failureMessage)));
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message ? 'Unable to open messages.' : 'Unable to place a call.',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failureMessage)));
     }
   }
 
@@ -141,7 +196,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       );
     }
 
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toLanguageTag();
     return RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
@@ -157,16 +212,17 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             subtitle: currentCase.caseTitleAndSection,
             courtName: _courtsById[currentCase.courtId]?.courtName,
             statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
+            alignStatusLabelRight: true,
             nextDate: currentCase.nextDate == null
                 ? null
-                : AppDateUtils.formatDateDDMMYYYY(
-                    currentCase.nextDate!,
-                    locale: locale,
+                : DateFormat('dd/MM/yy, EEE', locale).format(
+                    AppDateUtils.bangladeshDateTime(currentCase.nextDate!),
                   ),
             step: currentCase.lastStep,
-            showPhoneButton: currentCase.partyPhone?.trim().isNotEmpty ?? false,
-            showMessageButton:
-                currentCase.partyPhone?.trim().isNotEmpty ?? false,
+            // Keep the card layout stable even when contact data is absent;
+            // the callbacks remain no-ops for an empty phone value.
+            showPhoneButton: true,
+            showMessageButton: true,
             onPhone: () => _launchPartyAction(currentCase, message: false),
             onMessage: () => _launchPartyAction(currentCase, message: true),
             onUpdate: () => _openQuickUpdate(currentCase),

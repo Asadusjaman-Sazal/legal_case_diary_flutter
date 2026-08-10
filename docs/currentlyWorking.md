@@ -1,3 +1,15 @@
+### 2026-08-10 — Current Task: All Cases Case Card refinements — COMPLETE
+
+Implemented and validated:
+- On Behalf labels are aligned to the far right of the Case Card heading line.
+- All Cases Next Date uses the Add Case/Update format `dd/MM/yy, EEE`.
+- Phone and Message actions remain visible when the party phone is empty.
+- Phone actions show an Open with chooser for WhatsApp contact/chat fallback or the standard Phone dialer; Message continues using the system app chooser.
+
+`flutter analyze` clean; focused Case Card and Task 07 acceptance tests: 18 passed.
+
+**Next:** Retest the All Cases Case Card contact chooser and date rendering on a physical Android device.
+
 ### 2026-08-10 — Current Task: Task 07 Update Window refinements — COMPLETE
 
 Implemented and validated:

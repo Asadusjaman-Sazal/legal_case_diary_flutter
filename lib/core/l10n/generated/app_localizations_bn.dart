@@ -219,7 +219,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_year => 'বছর';
 
   @override
-  String get addEditCaseSheet_caseTitleAndSection => 'মামলার শিরোনাম ও ধারা';
+  String get addEditCaseSheet_caseTitleAndSection => 'মামলার শিরোনাম বা ধারা';
 
   @override
   String get addEditCaseSheet_caseRemarks => 'মামলার মন্তব্য';

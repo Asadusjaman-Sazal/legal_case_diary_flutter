@@ -222,7 +222,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_year => 'Year';
 
   @override
-  String get addEditCaseSheet_caseTitleAndSection => 'Case Title & Section';
+  String get addEditCaseSheet_caseTitleAndSection => 'Case Title or Section';
 
   @override
   String get addEditCaseSheet_caseRemarks => 'Case Remarks';

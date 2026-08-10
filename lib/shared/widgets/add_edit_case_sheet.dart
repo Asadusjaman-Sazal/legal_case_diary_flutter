@@ -1039,13 +1039,12 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       children: [
         Text(l.addEditCaseSheet_partyPhone, style: AppTypography.labelLg),
         const SizedBox(height: AppSpacing.xs),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              key: const ValueKey('add-edit-party-phone-prefix'),
-              height: 56,
-              child: Container(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                key: const ValueKey('add-edit-party-phone-prefix'),
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
@@ -1055,11 +1054,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 ),
                 child: Text('+88', style: AppTypography.bodyMd),
               ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: SizedBox(
-                height: 56,
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
                 child: _textField(
                   key: const ValueKey('add-edit-party-phone'),
                   label: l.addEditCaseSheet_partyPhone,
@@ -1070,8 +1066,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   showInputLabel: false,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

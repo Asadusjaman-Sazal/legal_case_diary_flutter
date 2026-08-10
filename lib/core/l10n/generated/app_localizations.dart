@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @addEditCaseSheet_caseTitleAndSection.
   ///
   /// In en, this message translates to:
-  /// **'Case Title & Section'**
+  /// **'Case Title or Section'**
   String get addEditCaseSheet_caseTitleAndSection;
 
   /// No description provided for @addEditCaseSheet_caseRemarks.

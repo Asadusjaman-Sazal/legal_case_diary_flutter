@@ -44,11 +44,24 @@ void main() {
       );
 
       expect(find.text('CR-1254/2023'), findsOneWidget);
+      expect(find.text('Abdur Rahim vs State'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.text('Abdur Rahim vs State')).style?.fontSize,
+        15,
+      );
       expect(find.text('Warrant issued'), findsOneWidget);
       expect(find.text('Submit Process'), findsOneWidget);
       expect(find.byTooltip('Phone'), findsOneWidget);
       expect(find.byTooltip('Message'), findsOneWidget);
       expect(find.text('Update'), findsOneWidget);
+      expect(
+        tester.getSize(find.byTooltip('Phone')).height,
+        tester.getSize(find.byTooltip('Message')).height,
+      );
+      expect(
+        tester.getSize(find.byType(FilledButton)).height,
+        tester.getSize(find.byTooltip('Phone')).height,
+      );
       final cardRect = tester.getRect(find.byType(CaseCard));
       final statusRect = tester.getRect(
         find.byKey(const ValueKey('case-card-status-label')),
@@ -65,6 +78,40 @@ void main() {
       expect(phonePressed, isTrue);
       expect(messagePressed, isTrue);
       expect(updatePressed, isTrue);
+    });
+
+    testWidgets('gives party names the full card content width', (
+      WidgetTester tester,
+    ) async {
+      const partyTitle = 'Karim Ali & Ors Vs Abdul Hamid';
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const SizedBox(
+            width: 360,
+            child: CaseCard(
+              caseNumber: 'WP/10425/2023',
+              title: partyTitle,
+              statusLabel: 'Petitioner',
+              alignStatusLabelRight: true,
+              showPhoneButton: false,
+              showMessageButton: false,
+              showUpdateButton: false,
+            ),
+          ),
+        ),
+      );
+
+      final cardRect = tester.getRect(find.byType(CaseCard));
+      final titleRect = tester.getRect(find.text(partyTitle));
+      final statusRect = tester.getRect(
+        find.byKey(const ValueKey('case-card-status-label')),
+      );
+      expect(
+        titleRect.width,
+        closeTo(cardRect.width - 2 - (AppSpacing.cardPadding * 2), 0.1),
+      );
+      expect(titleRect.top, greaterThan(statusRect.bottom));
     });
 
     testWidgets('keeps contact actions visible without a phone number', (

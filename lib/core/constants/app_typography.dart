@@ -24,6 +24,11 @@ class AppTypography {
   static const String _ibmPlexSans = 'IBMPlexSans';
   static const String _tiroBangla = 'TiroBangla';
 
+  // Explicit widget styles do not inherit the locale-specific theme font. Keep
+  // Tiro Bangla in the fallback chain so Bengali glyphs use it even when a
+  // localized string is rendered with an English typography role.
+  static const List<String> _bengaliFallback = <String>[_tiroBangla];
+
   // ----------------------------------------------------------------------
   // English text styles
   // ----------------------------------------------------------------------
@@ -33,6 +38,7 @@ class AppTypography {
   /// (`-0.02 * 30.0`).
   static const TextStyle headlineLg = TextStyle(
     fontFamily: _manrope,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 30.0,
     fontWeight: FontWeight.w700,
     height: 38.0 / 30.0,
@@ -43,6 +49,7 @@ class AppTypography {
   /// Medium headline — Manrope, 24 / 32, semi-bold.
   static const TextStyle headlineMd = TextStyle(
     fontFamily: _manrope,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 24.0,
     fontWeight: FontWeight.w600,
     height: 32.0 / 24.0,
@@ -52,6 +59,7 @@ class AppTypography {
   /// Large title — Manrope, 20 / 28, semi-bold.
   static const TextStyle titleLg = TextStyle(
     fontFamily: _manrope,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 20.0,
     fontWeight: FontWeight.w600,
     height: 28.0 / 20.0,
@@ -61,6 +69,7 @@ class AppTypography {
   /// Medium title — Inter, 16 / 24, semi-bold.
   static const TextStyle titleMd = TextStyle(
     fontFamily: _inter,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 16.0,
     fontWeight: FontWeight.w600,
     height: 24.0 / 16.0,
@@ -70,6 +79,7 @@ class AppTypography {
   /// Large body — Inter, 16 / 24, regular.
   static const TextStyle bodyLg = TextStyle(
     fontFamily: _inter,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 16.0,
     fontWeight: FontWeight.w400,
     height: 24.0 / 16.0,
@@ -79,6 +89,7 @@ class AppTypography {
   /// Medium body — Inter, 14 / 20, regular.
   static const TextStyle bodyMd = TextStyle(
     fontFamily: _inter,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 14.0,
     fontWeight: FontWeight.w400,
     height: 20.0 / 14.0,
@@ -88,6 +99,7 @@ class AppTypography {
   /// Small body — Inter, 12 / 16, regular.
   static const TextStyle bodySm = TextStyle(
     fontFamily: _inter,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 12.0,
     fontWeight: FontWeight.w400,
     height: 16.0 / 12.0,
@@ -97,6 +109,7 @@ class AppTypography {
   /// Large label — IBM Plex Sans, 14 / 20, medium.
   static const TextStyle labelLg = TextStyle(
     fontFamily: _ibmPlexSans,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 14.0,
     fontWeight: FontWeight.w500,
     height: 20.0 / 14.0,
@@ -107,6 +120,7 @@ class AppTypography {
   /// Medium label — IBM Plex Sans, 12 / 16, medium.
   static const TextStyle labelMd = TextStyle(
     fontFamily: _ibmPlexSans,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 12.0,
     fontWeight: FontWeight.w500,
     height: 16.0 / 12.0,
@@ -117,6 +131,7 @@ class AppTypography {
   /// Case number — IBM Plex Sans, 14 / 20, bold.
   static const TextStyle caseNumber = TextStyle(
     fontFamily: _ibmPlexSans,
+    fontFamilyFallback: _bengaliFallback,
     fontSize: 14.0,
     fontWeight: FontWeight.w700,
     height: 20.0 / 14.0,

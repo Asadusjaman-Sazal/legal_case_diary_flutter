@@ -1,14 +1,19 @@
-### 2026-08-10 — Current Task: All Cases Case Card refinements — COMPLETE
+### 2026-08-10 — Current Task: Task-file traceability audit — COMPLETE
+
+Add Case and Update Window input-box traceability were also reviewed and recorded in Task 07.
 
 Implemented and validated:
 - On Behalf labels are aligned to the far right of the Case Card heading line.
 - All Cases Next Date uses the Add Case/Update format `dd/MM/yy, EEE`.
 - Phone and Message actions remain visible when the party phone is empty.
-- Phone actions show an Open with chooser for WhatsApp contact/chat fallback or the standard Phone dialer; Message continues using the system app chooser.
+- Phone and Message actions show matching Open with choosers for WhatsApp or the native Phone/Message app.
+- The Update button matches the contact-action height, and party names use a slightly smaller type size.
+- Party names use the full available Case Card content width, preserving the existing left padding while avoiding premature wrapping beside the On Behalf label.
+- Task 02, Task 06, Task 07, and Task 08 now document the implemented font, Add Case/Update Window input-box, and All Cases party-name requirements.
 
-`flutter analyze` clean; focused Case Card and Task 07 acceptance tests: 18 passed.
+`flutter analyze` clean; focused Case Card and Task 07 acceptance tests pass.
 
-**Next:** Retest the All Cases Case Card contact chooser and date rendering on a physical Android device.
+**Next:** Retest the All Cases Case Card contact choosers and action sizing on a physical Android device.
 
 ### 2026-08-10 — Current Task: Task 07 Update Window refinements — COMPLETE
 

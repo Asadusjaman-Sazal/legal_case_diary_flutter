@@ -16,7 +16,7 @@
 5. **Filters:** by Court Name (cases of a selected court category/specific court) and Chronology (newest/oldest first).
 6. **Case card lines (exact):**
    - L1: left `case_type` & `case_number` | right On Behalf label
-   - L2: `petitioner` Vs `respondent`
+   - L2: `petitioner` Vs `respondent`, using the full available Case Card content width while preserving the existing left inset; the L1 On Behalf label must not consume L2's horizontal space
    - L3: Name of the Court
    - L4: left Next Date (`DD/MM/YYYY`, with Today/Tomorrow rule) | right `last_step`
    - L5: Phone, Message, Update buttons (Update opens the Task 07 Phase 3 pop-up)

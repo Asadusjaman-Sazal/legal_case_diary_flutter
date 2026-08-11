@@ -640,10 +640,29 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('case-card-call-cancel')));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byTooltip('Message'));
+    await tester.pumpAndSettle();
+    expect(find.text('Open with'), findsOneWidget);
+    expect(find.text('WhatsApp'), findsOneWidget);
+    expect(find.text('Message'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('case-card-message-cancel')));
+    await tester.pumpAndSettle();
+
+    final caseCardPhoneHeight = tester.getSize(find.byTooltip('Phone')).height;
+    final caseCardMessageHeight = tester
+        .getSize(find.byTooltip('Message'))
+        .height;
+    expect(caseCardPhoneHeight, caseCardMessageHeight);
+    expect(
+      tester.getSize(find.byType(FilledButton)).height,
+      caseCardPhoneHeight,
+    );
+
     await tester.tap(find.text('Update'));
     await tester.pump();
     await _pumpUntil(tester, find.byType(QuickUpdateCaseDialog));
     expect(find.byType(QuickUpdateCaseDialog), findsOneWidget);
+
     final saveFinder = find.widgetWithText(FilledButton, 'Save');
     await _pumpUntil(
       tester,

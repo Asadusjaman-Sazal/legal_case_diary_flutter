@@ -35,7 +35,7 @@
    - Include the client SMS/WhatsApp message template (Plan §9 "Translation Template").
 3. Language selection persisted in `SharedPreferences`; a provider exposes the active locale so Settings > Language (Task 12) can toggle it live.
 4. `core/constants/app_strings.dart` holds l10n key references (not raw strings).
-5. Font switching: Bengali locale text uses Tiro Bangla automatically (via theme/locale-aware text styles).
+5. Font switching: Bengali locale text uses Tiro Bangla automatically (via theme/locale-aware text styles). Any explicit typography role that may render localized Bengali strings must also retain `TiroBangla` in its `fontFamilyFallback`, preventing Android's default font from taking over Bengali glyphs.
 
 **Phase 3 completion:** `flutter analyze` clean; a scratch screen shows a string switching between bn/en. Update `docs/version_history.md`.
 

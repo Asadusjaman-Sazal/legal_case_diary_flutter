@@ -32,6 +32,8 @@ Build all 18 fields **in the exact order and with the exact widget types** from 
 
 Layout rules (verbatim from plan): 6–7 side-by-side; 13–14–15 in one row in that exact order; 5–10 cascade (changing Higher/Lower resets & shows/hides Division/District/Category which filter Name of Court); everything else stacked vertically in order.
 
+**Input presentation refinements:** text-field labels sit above the controls; empty text/date inputs use outlined borders with the surface fill, while populated inputs use the selected-surface fill and underline treatment, with a secondary 2px underline when focused. Empty Next Date shows the localized `Pick a date` hint and a selected date uses `dd/MM/yy, EEE`. Dropdown inputs use the matching outlined empty/selected presentation. The case number is one unified editable input (including its slash, with no separate year box). The current UI presents one numeric party-phone input beside a fixed `+88` prefix, with both controls sharing height; this differs from the Revision 2.4 two-phone requirement recorded in field 11 and remains a traceability discrepancy to resolve.
+
 **Phase 1 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
 ## Phase 2 — Save Logic
@@ -48,11 +50,13 @@ Layout rules (verbatim from plan): 6–7 side-by-side; 13–14–15 in one row i
 
 Implement the **Update button pop-up** (quick date & step update window styled after `dailyCauseList\code.html`): edits `next_date`, `last_step` (category-filtered steps), and `notes_results`; runs the same case-history-preservation logic on save. Wire it to the production `case_card.dart` Update callback in the All Cases host (Task 06). The remaining Task 08 list screens may remain stubs until their own implementation phases.
 
+**Update Window refinements:** show the case type/number and immutable Current Next Date summary separately from the editable controls. The editable Next Date starts blank with the localized `Pick a date` hint; leaving it blank preserves the stored date and creates no date-history entry. Use the Add Case-style date presentation (`dd/MM/yy, EEE`), Notification toggle, multi-select Day Offset and Step controls, state-based outlined/underline input surfaces, and a black Save action with the matching 52px minimum height. Persist notification enablement and offsets with the same per-user preference rules as Add Case.
+
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
-- Replace field 11 with two nullable fields, Petitioner Phone No. and Respondent Phone No.; preserve the remaining field order/cascade rules and update the documented field-count verification accordingly.
+- Replace field 11 with two nullable fields, Petitioner Phone No. and Respondent Phone No.; preserve the remaining field order/cascade rules and update the documented field-count verification accordingly. The current implementation instead exposes one `partyPhone` field with a fixed `+88` prefix, so this mismatch must be explicitly resolved before Task 07 is considered fully aligned.
 - Persist the Notification toggle and selected offsets in per-user `case_notification_preferences`, not transient form state or firm-shared settings.
 - The free-tier check calls `getNonDeletedCaseCount()`.
 - Ordinary Add/Edit Case saves do not create case history. The quick Update popup delegates one atomic repository transaction that updates the case, records the provisional previous-value history row only when `next_date` changed, and enqueues both writes; any failure rolls the unit of work back. Remove every direct UI call to `CaseHistoryDao.insertHistoryEntry()`.

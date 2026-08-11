@@ -197,54 +197,60 @@ class _CaseHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
                 caseNumber,
                 style: AppTypography.caseNumber.copyWith(
                   color: isOverdue ? AppColors.error : AppColors.secondary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(title, style: AppTypography.titleMd),
-              if (subtitle != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(subtitle!, style: AppTypography.bodySm),
-              ],
-            ],
-          ),
-        ),
-        if (statusLabel != null) ...[
-          const SizedBox(width: AppSpacing.sm),
-          Flexible(
-            child: Align(
-              alignment: alignStatusLabelRight
-                  ? Alignment.topRight
-                  : Alignment.topLeft,
-              child: Container(
-                key: const ValueKey('case-card-status-label'),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                ),
-                child: Text(
-                  statusLabel!,
-                  textAlign: TextAlign.right,
-                  style: AppTypography.labelMd,
-                  overflow: TextOverflow.ellipsis,
+            ),
+            if (statusLabel != null) ...[
+              const SizedBox(width: AppSpacing.sm),
+              Flexible(
+                child: Align(
+                  alignment: alignStatusLabelRight
+                      ? Alignment.topRight
+                      : Alignment.topLeft,
+                  child: Container(
+                    key: const ValueKey('case-card-status-label'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainer,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
+                    child: Text(
+                      statusLabel!,
+                      textAlign: TextAlign.right,
+                      style: AppTypography.labelMd,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          title,
+          style: AppTypography.titleMd.copyWith(
+            fontSize: 15,
+            height: 24 / 15,
           ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(subtitle!, style: AppTypography.bodySm),
         ],
       ],
     );
@@ -426,10 +432,13 @@ class _CaseActions extends StatelessWidget {
         ],
         const Spacer(),
         if (showUpdateButton)
-          FilledButton.icon(
-            onPressed: onUpdate,
-            icon: const Icon(Icons.edit_outlined, size: 18),
-            label: Text(l.allCasesScreen_update),
+          SizedBox(
+            height: 40,
+            child: FilledButton.icon(
+              onPressed: onUpdate,
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: Text(l.allCasesScreen_update),
+            ),
           ),
       ],
     );

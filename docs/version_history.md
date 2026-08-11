@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.56 - All Cases Case Card refinements: right-aligned On Behalf labels, Add Case date formatting, stable contact actions, and call target chooser.
+Version: 0.0.61 - Task 07 updated to document Update Window behavior and input-control refinements.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -70,3 +70,8 @@ Version: 0.0.53 - Add/Edit Case contact and number refinements: single internati
 Version: 0.0.54 - Add/Edit Case refinements: unified case-number input, aligned +88 phone prefix, and compact black calendar actions.
 Version: 0.0.55 - Update Window refinements: blank Next Date, immutable Current Next Date, Add Case schedule controls, and matching Save sizing.
 Version: 0.0.56 - All Cases Case Card refinements: right-aligned On Behalf labels, Add Case date formatting, stable contact actions, and call target chooser.
+Version: 0.0.57 - All Cases Case Card refinements: shared Open with choosers for calls and messages, equal action heights, and slightly smaller party names.
+Version: 0.0.58 - All Cases Case Card party names now use the full available card content width so moderately long party names stay on one line when space allows.
+Version: 0.0.59 - Task files updated to document the Tiro Bangla fallback requirement and the full-width All Cases party-name layout.
+Version: 0.0.60 - Task 07 updated to document Add Case input-box presentation refinements and the current party-phone traceability discrepancy.
+Version: 0.0.61 - Task 07 updated to document Update Window behavior and input-control refinements.

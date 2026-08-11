@@ -22,7 +22,7 @@ import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
 import '../cases_screen_modal.dart';
 
-enum _CallTarget { whatsApp, phone }
+enum _ContactActionTarget { whatsApp, phone, message }
 
 /// Minimal repository-backed All Cases host for Task 07 action integration.
 class AllCasesScreen extends ConsumerStatefulWidget {
@@ -82,34 +82,34 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
 
-    if (!message) {
-      final target = await _showCallTargetChooser();
-      if (!mounted || target == null) return;
-      if (target == _CallTarget.whatsApp) {
-        // WhatsApp has no documented direct-call URI; open the contact/chat as
-        // the safe fallback, where the user can start a WhatsApp call.
-        final normalized = phone.replaceAll(RegExp(r'\D'), '');
-        if (normalized.isEmpty) return;
-        await _launchExternal(
-          Uri.https('wa.me', normalized),
-          failureMessage: 'Unable to open WhatsApp.',
-        );
-      } else {
-        await _launchExternal(
-          Uri(scheme: 'tel', path: phone),
-          failureMessage: 'Unable to place a call.',
-        );
-      }
-      return;
-    }
+    final target = await _showContactTargetChooser(message: message);
+    if (!mounted || target == null) return;
 
-    await _launchExternal(
-      Uri(scheme: 'sms', path: phone),
-      failureMessage: 'Unable to open messages.',
-    );
+    if (target == _ContactActionTarget.whatsApp) {
+      // WhatsApp has no documented direct-call URI; open the contact/chat as
+      // the safe fallback, where the user can start a call or send a message.
+      final normalized = phone.replaceAll(RegExp(r'\D'), '');
+      if (normalized.isEmpty) return;
+      await _launchExternal(
+        Uri.https('wa.me', normalized),
+        failureMessage: 'Unable to open WhatsApp.',
+      );
+    } else {
+      await _launchExternal(
+        Uri(
+          scheme: target == _ContactActionTarget.phone ? 'tel' : 'sms',
+          path: phone,
+        ),
+        failureMessage: target == _ContactActionTarget.phone
+            ? 'Unable to place a call.'
+            : 'Unable to open messages.',
+      );
+    }
   }
 
-  Future<_CallTarget?> _showCallTargetChooser() => showDialog<_CallTarget>(
+  Future<_ContactActionTarget?> _showContactTargetChooser({
+    required bool message,
+  }) => showDialog<_ContactActionTarget>(
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Open with'),
@@ -117,22 +117,27 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            key: const ValueKey('case-card-call-whatsapp'),
+            key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
             leading: const Icon(Icons.chat_outlined),
             title: const Text('WhatsApp'),
-            onTap: () => Navigator.of(context).pop(_CallTarget.whatsApp),
+            onTap: () =>
+                Navigator.of(context).pop(_ContactActionTarget.whatsApp),
           ),
           ListTile(
-            key: const ValueKey('case-card-call-phone'),
-            leading: const Icon(Icons.call_outlined),
-            title: const Text('Phone'),
-            onTap: () => Navigator.of(context).pop(_CallTarget.phone),
+            key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
+            leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
+            title: Text(message ? 'Message' : 'Phone'),
+            onTap: () => Navigator.of(context).pop(
+              message
+                  ? _ContactActionTarget.message
+                  : _ContactActionTarget.phone,
+            ),
           ),
         ],
       ),
       actions: [
         TextButton(
-          key: const ValueKey('case-card-call-cancel'),
+          key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),

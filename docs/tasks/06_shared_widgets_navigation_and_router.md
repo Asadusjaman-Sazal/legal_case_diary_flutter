@@ -28,7 +28,7 @@ Per the folder-structure note, this reusable layout provides for every case scre
 
 ## Phase 3 — Case Card & Inputs
 
-1. `case_card.dart` — one widget with per-screen line layouts (variants for All/Active/Upcoming, Daily Cause List, Overdue, Disposed — exact line-by-line content specified in each screen's task file and mockup). Overdue variant gets the **red left border strip** (only on overdue cards). Includes Phone / Message icon-buttons and the **Update** button (quick date+step update pop-up per `dailyCauseList\code.html` — implemented in Task 08/09; expose the callback here).
+1. `case_card.dart` — one widget with per-screen line layouts (variants for All/Active/Upcoming, Daily Cause List, Overdue, Disposed — exact line-by-line content specified in each screen's task file and mockup). Overdue variant gets the **red left border strip** (only on overdue cards). Includes Phone / Message icon-buttons and the **Update** button (quick date+step update pop-up per `dailyCauseList\code.html` — implemented in Task 08/09; expose the callback here). For list variants, keep the On Behalf/status label on the case-number row so the party-name row can use the full available card width without changing its existing left inset.
 2. `custom_dropdown.dart` — single & multi-select, optional search, per the Add/Edit form's needs.
 3. Simple date picker helper: all pickers other than the Daily Cause List badge calendar are plain pickers defaulting to today.
 

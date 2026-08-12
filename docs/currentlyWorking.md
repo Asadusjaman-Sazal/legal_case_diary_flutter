@@ -1,3 +1,10 @@
+### 2026-08-13 — Current Task: Task 07 Add Case Case Number caret refinement — COMPLETE
+
+Implemented and validated:
+- Add Case Case Number now keeps the caret before the automatic `/` after insertion; the user moves it after the separator manually when ready.
+
+Version `0.0.65`; focused Add/Edit form and Task 07 acceptance tests pass.
+
 ### 2026-08-10 — Current Task: Task-file traceability audit — COMPLETE
 
 Add Case and Update Window input-box traceability were also reviewed and recorded in Task 07.

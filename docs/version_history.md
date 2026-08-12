@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.61 - Task 07 updated to document Update Window behavior and input-control refinements.
+Version: 0.0.65 - Task 07 Case Number caret now remains before the automatic slash until manually moved after it.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -75,3 +75,11 @@ Version: 0.0.58 - All Cases Case Card party names now use the full available car
 Version: 0.0.59 - Task files updated to document the Tiro Bangla fallback requirement and the full-width All Cases party-name layout.
 Version: 0.0.60 - Task 07 updated to document Add Case input-box presentation refinements and the current party-phone traceability discrepancy.
 Version: 0.0.61 - Task 07 updated to document Update Window behavior and input-control refinements.
+t.
+Version: 0.0.62 - Task 07 Case Number input now inserts a fixed slash after six digits and limits the suffix to four digits.
+Version: 0.0.63 - Task 07 Case Number input now inserts the fixed slash after the first digit and limits the suffix to four digits.
+Version: 0.0.64 - Task 07 Case Number input now accepts hyphens and has no suffix-length limit after the fixed slash.
+Version: 0.0.65 - Task 07 Case Number caret now remains before the automatic slash until manually moved after i
+
+
+

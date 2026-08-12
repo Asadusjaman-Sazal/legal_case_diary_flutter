@@ -477,7 +477,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('add-edit-case-number')),
-      'LIMIT-51',
+      '123456/2051',
     );
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
@@ -529,7 +529,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('add-edit-case-number')),
-      'PREMIUM-51',
+      '123456/2051',
     );
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
@@ -553,7 +553,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('add-edit-case-number')),
-      'A-1/2026',
+      '123456789/2026',
     );
     // Offset 0 is selected by the form's default; add the second offset.
     await _selectOffsets(tester, const [3]);
@@ -561,7 +561,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final added = (await CasesDao(db).getAll()).single;
-    expect(added.caseNumber, 'A-1/2026');
+    expect(added.caseNumber, '123456789/2026');
     final preference = await CaseNotificationPreferencesDao(
       db,
     ).get(identity.getId(), added.id);
@@ -571,13 +571,13 @@ void main() {
     await openForm(tester, initialCase: added);
     await tester.enterText(
       find.byKey(const ValueKey('add-edit-case-number')),
-      'A-1/2026-EDITED',
+      '987654321/2027',
     );
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
 
     final edited = await CasesDao(db).getById(added.id);
-    expect(edited?.caseNumber, 'A-1/2026-EDITED');
+    expect(edited?.caseNumber, '987654321/2027');
     expect(await CaseHistoryDao(db).getByCaseId(added.id), isEmpty);
   });
 

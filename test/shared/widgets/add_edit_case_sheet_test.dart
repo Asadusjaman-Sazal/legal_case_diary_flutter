@@ -71,7 +71,7 @@ void main() {
         expect(find.byKey(const ValueKey('add-edit-case-year')), findsNothing);
         await tester.enterText(
           find.byKey(const ValueKey('add-edit-case-number')),
-          '207/23',
+          'Case #A/42-β — any text',
         );
         expect(
           tester
@@ -80,68 +80,7 @@ void main() {
               )
               .controller
               ?.text,
-          '207/23',
-        );
-        await tester.enterText(
-          find.byKey(const ValueKey('add-edit-case-number')),
-          '123456789/12345',
-        );
-        expect(
-          tester
-              .widget<TextFormField>(
-                find.byKey(const ValueKey('add-edit-case-number')),
-              )
-              .controller
-              ?.text,
-          '123456789/12345',
-        );
-        await tester.enterText(
-          find.byKey(const ValueKey('add-edit-case-number')),
-          '1',
-        );
-        expect(
-          tester
-              .widget<TextFormField>(
-                find.byKey(const ValueKey('add-edit-case-number')),
-              )
-              .controller
-              ?.text,
-          '1/',
-        );
-        expect(
-          tester
-              .widget<TextFormField>(
-                find.byKey(const ValueKey('add-edit-case-number')),
-              )
-              .controller
-              ?.selection,
-          const TextSelection.collapsed(offset: 1),
-        );
-        await tester.enterText(
-          find.byKey(const ValueKey('add-edit-case-number')),
-          '1234567890',
-        );
-        expect(
-          tester
-              .widget<TextFormField>(
-                find.byKey(const ValueKey('add-edit-case-number')),
-              )
-              .controller
-              ?.text,
-          '1/234567890',
-        );
-        await tester.enterText(
-          find.byKey(const ValueKey('add-edit-case-number')),
-          '123-456/2026-7',
-        );
-        expect(
-          tester
-              .widget<TextFormField>(
-                find.byKey(const ValueKey('add-edit-case-number')),
-              )
-              .controller
-              ?.text,
-          '123-456/2026-7',
+          'Case #A/42-β — any text',
         );
         expect(
           tester

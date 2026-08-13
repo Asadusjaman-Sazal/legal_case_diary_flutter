@@ -37,100 +37,6 @@ import '../../shared/providers/database_provider.dart';
 import 'custom_dropdown.dart';
 import 'date_picker_helper.dart';
 
-/// Inserts the case-number separator after the first digit while allowing
-/// digits and hyphens on either side of it.
-class _CaseNumberInputFormatter extends TextInputFormatter {
-  const _CaseNumberInputFormatter();
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final slashIndex = newValue.text.indexOf('/');
-    final hasSlash = slashIndex >= 0;
-    final allowed = _allowed(newValue.text);
-    late final String before;
-    late final String after;
-
-    if (hasSlash) {
-      before = _allowed(newValue.text.substring(0, slashIndex));
-      after = _allowed(newValue.text.substring(slashIndex + 1));
-    } else if (allowed.isEmpty) {
-      return newValue.copyWith(
-        text: '',
-        selection: const TextSelection.collapsed(offset: 0),
-        composing: TextRange.empty,
-      );
-    } else {
-      final firstDigit = allowed.indexOf(RegExp(r'\d'));
-      if (firstDigit < 0) {
-        return newValue.copyWith(
-          text: allowed,
-          selection: TextSelection.collapsed(offset: allowed.length),
-          composing: TextRange.empty,
-        );
-      }
-      before = allowed.substring(0, firstDigit + 1);
-      after = allowed.substring(firstDigit + 1);
-    }
-
-    final formatted = before.isEmpty && after.isEmpty ? '' : '$before/$after';
-
-    // Backspacing over the separator moves across it but cannot remove it.
-    if (oldValue.text.contains('/') &&
-        !newValue.text.contains('/') &&
-        newValue.text.isNotEmpty &&
-        _allowed(oldValue.text) == _allowed(newValue.text) &&
-        oldValue.selection.isCollapsed &&
-        oldValue.selection.baseOffset == oldValue.text.indexOf('/') + 1) {
-      return oldValue.copyWith(
-        selection: TextSelection.collapsed(offset: oldValue.text.indexOf('/')),
-        composing: TextRange.empty,
-      );
-    }
-
-    final cursorCharacters = _allowedCount(
-      newValue.text,
-      newValue.selection.baseOffset,
-    );
-    final cursorAfterSlash =
-        hasSlash &&
-        newValue.text
-            .substring(
-              0,
-              newValue.selection.baseOffset
-                  .clamp(0, newValue.text.length)
-                  .toInt(),
-            )
-            .contains('/');
-    final cursorOffset =
-        (cursorAfterSlash
-                ? before.length +
-                      1 +
-                      (cursorCharacters > before.length
-                          ? cursorCharacters - before.length
-                          : 0)
-                : cursorCharacters.clamp(0, before.length))
-            .toInt();
-
-    return newValue.copyWith(
-      text: formatted,
-      selection: TextSelection.collapsed(
-        offset: cursorOffset.clamp(0, formatted.length).toInt(),
-      ),
-      composing: TextRange.empty,
-    );
-  }
-
-  static String _allowed(String value) =>
-      value.replaceAll(RegExp(r'[^0-9-]'), '');
-
-  static int _allowedCount(String value, int offset) => _allowed(
-    value.substring(0, offset.clamp(0, value.length).toInt()),
-  ).length;
-}
-
 /// Effective local write permissions for the current identity.
 class CaseWritePermissions {
   /// Creates a permission value.
@@ -1114,18 +1020,12 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
-  /// Builds the single case-number input. The slash is entered in the same
-  /// field so values such as `207/23` remain one unified case number.
+  /// Builds the unrestricted plain-text Case Number input.
   Widget _caseNumberFields(BuildContext context, bool enabled) {
     return _textField(
       key: const ValueKey('add-edit-case-number'),
       label: AppLocalizations.of(context).addEditCaseSheet_caseNumber,
       controller: _caseNumberController,
-      keyboardType: const TextInputType.numberWithOptions(
-        decimal: false,
-        signed: true,
-      ),
-      inputFormatters: const [_CaseNumberInputFormatter()],
       enabled: enabled,
       showInputLabel: false,
     );

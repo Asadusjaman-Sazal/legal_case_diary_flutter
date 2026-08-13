@@ -1,9 +1,12 @@
-### 2026-08-13 — Current Task: Task 07 Add Case Case Number caret refinement — COMPLETE
+### 2026-08-13 — Current Task: Task 07 Add Case Case Number unrestricted text input — COMPLETE
 
 Implemented and validated:
-- Add Case Case Number now keeps the caret before the automatic `/` after insertion; the user moves it after the separator manually when ready.
+- Add Case Case Number is now a plain text input with no formatter, numeric keyboard restriction, or character filtering; other Add Case controls remain unchanged.
+- Focused Add/Edit form and Task 07 acceptance tests pass; `flutter analyze` is clean.
 
-Version `0.0.65`; focused Add/Edit form and Task 07 acceptance tests pass.
+Version `0.0.66`.
+
+**Next:** Retest unrestricted Case Number entry on a physical Android device.
 
 ### 2026-08-10 — Current Task: Task-file traceability audit — COMPLETE
 

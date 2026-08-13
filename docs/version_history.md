@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.65 - Task 07 Case Number caret now remains before the automatic slash until manually moved after it.
+Version: 0.0.66 - Task 07 Add Case Case Number is now an unrestricted text input.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -80,6 +80,7 @@ Version: 0.0.62 - Task 07 Case Number input now inserts a fixed slash after six 
 Version: 0.0.63 - Task 07 Case Number input now inserts the fixed slash after the first digit and limits the suffix to four digits.
 Version: 0.0.64 - Task 07 Case Number input now accepts hyphens and has no suffix-length limit after the fixed slash.
 Version: 0.0.65 - Task 07 Case Number caret now remains before the automatic slash until manually moved after i
+Version: 0.0.66 - Task 07 Add Case Case Number is now an unrestricted text input.
 
 
 

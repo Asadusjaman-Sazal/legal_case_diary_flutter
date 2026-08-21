@@ -405,23 +405,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_districtSessionsCriminal =>
-      'Sessions Courts (Criminal)';
+      'Sessions Judge Court (Criminal)';
 
   @override
   String get lowerCourtCategory_districtCourtsCivil =>
-      'District Courts (Civil)';
+      'District Judge Court (Civil)';
+
+  @override
+  String get lowerCourtCategory_metropolitanSessionsJudgeCriminal =>
+      'Metropolitan Sessions Judge Court (Criminal)';
 
   @override
   String get lowerCourtCategory_chiefJudicialMagistrate =>
-      'Chief Judicial Magistrate Courts';
+      'Chief Judicial Magistrate Court';
 
   @override
   String get lowerCourtCategory_chiefMetropolitanMagistrate =>
-      'Chief Metropolitan Magistrate Courts';
+      'Chief Metropolitan Magistrate Court';
 
   @override
   String get lowerCourtCategory_executiveMagistrate =>
-      'Executive Magistrate Courts';
+      'Executive Magistrate & Others Courts';
 
   @override
   String get lowerCourtCategory_tribunals => 'Tribunals';
@@ -499,7 +503,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get division_dhaka => 'Dhaka';
 
   @override
-  String get division_chattagram => 'Chattagram';
+  String get division_chattagram => 'Chittagong';
 
   @override
   String get division_rajshahi => 'Rajshahi';

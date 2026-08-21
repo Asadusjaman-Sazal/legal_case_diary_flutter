@@ -28,26 +28,38 @@ void main() {
 
     test('each category has the expected seed collections', () {
       for (final cat in seedCategories) {
-        final requiresSteps =
-            cat.id != appellateDivisionId && cat.id != highCourtDivisionId;
+        final hasSteps =
+            cat.id != appellateDivisionId &&
+            cat.id != highCourtDivisionId &&
+            cat.id != metropolitanSessionsJudgeCriminalId;
+        final hasCaseTypesAndOnBehalfs =
+            cat.id != metropolitanSessionsJudgeCriminalId;
         expect(
           cat.steps.isNotEmpty,
-          requiresSteps,
+          hasSteps,
           reason: '${cat.id} has an unexpected step collection',
         );
         expect(
           cat.allCaseTypes.isNotEmpty,
-          true,
+          hasCaseTypesAndOnBehalfs,
           reason: '${cat.id} has no case types',
         );
         expect(
           cat.onBehalfs.isNotEmpty,
-          true,
+          hasCaseTypesAndOnBehalfs,
           reason: '${cat.id} has no on-behalfs',
         );
-        if (!requiresSteps) {
+        if (!hasSteps) {
           expect(cat.steps, isEmpty);
+        }
+        if (!hasCaseTypesAndOnBehalfs) {
+          expect(cat.allCaseTypes, isEmpty);
+          expect(cat.onBehalfs, isEmpty);
+        }
+        if (cat.id == appellateDivisionId || cat.id == highCourtDivisionId) {
           expect(cat.caseCategories, isNotEmpty);
+        } else {
+          expect(cat.caseCategories, isEmpty);
         }
       }
     });
@@ -275,7 +287,7 @@ void main() {
 
     test('seed category by ID lookup works', () {
       expect(seedCategoryById[appellateDivisionId], isNotNull);
-      expect(seedCategoryById[tribunalsId], isNotNull);
+      expect(seedCategoryById[metropolitanSessionsJudgeCriminalId], isNotNull);
     });
 
     test('stepIdsByCategory returns correct lists', () {
@@ -324,12 +336,8 @@ void main() {
       expect(dccObIds.any((id) => id.contains('defendant')), true);
       expect(dccObIds.any((id) => id.contains('applicant')), true);
 
-      // Tribunals → Applicant, Respondent, Claimant, Objector
-      final tribObIds = byId[tribunalsId]!.onBehalfs.map((o) => o.id).toSet();
-      expect(tribObIds.any((id) => id.contains('applicant')), true);
-      expect(tribObIds.any((id) => id.contains('respondent')), true);
-      expect(tribObIds.any((id) => id.contains('claimant')), true);
-      expect(tribObIds.any((id) => id.contains('objector')), true);
+      // Metropolitan Sessions Judge Court options will be added later.
+      expect(byId[metropolitanSessionsJudgeCriminalId]!.steps, isEmpty);
     });
   });
 

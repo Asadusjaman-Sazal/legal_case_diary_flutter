@@ -183,6 +183,8 @@ abstract class AppStrings {
       "lowerCourtCategory_districtCourtsCivil";
   static const String lowerCourtCategoryDistrictsessionscriminal =
       "lowerCourtCategory_districtSessionsCriminal";
+  static const String lowerCourtCategoryMetropolitansessionsjudgecriminal =
+      "lowerCourtCategory_metropolitanSessionsJudgeCriminal";
   static const String lowerCourtCategoryExecutivemagistrate =
       "lowerCourtCategory_executiveMagistrate";
   static const String lowerCourtCategoryTribunals =

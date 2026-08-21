@@ -592,6 +592,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         l.lowerCourtCategory_districtSessionsCriminal,
       'lowerCourtCategory_districtCourtsCivil' =>
         l.lowerCourtCategory_districtCourtsCivil,
+      'lowerCourtCategory_metropolitanSessionsJudgeCriminal' =>
+        l.lowerCourtCategory_metropolitanSessionsJudgeCriminal,
       'lowerCourtCategory_chiefJudicialMagistrate' =>
         l.lowerCourtCategory_chiefJudicialMagistrate,
       'lowerCourtCategory_chiefMetropolitanMagistrate' =>

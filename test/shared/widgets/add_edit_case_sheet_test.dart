@@ -230,7 +230,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Lower Divisional Courts'), findsOneWidget);
-      expect(find.text('Chattagram'), findsOneWidget);
+      expect(find.text('Chittagong'), findsOneWidget);
       expect(find.text('Feni'), findsOneWidget);
     });
 

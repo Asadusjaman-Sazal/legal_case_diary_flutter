@@ -869,31 +869,37 @@ abstract class AppLocalizations {
   /// No description provided for @lowerCourtCategory_districtSessionsCriminal.
   ///
   /// In en, this message translates to:
-  /// **'Sessions Courts (Criminal)'**
+  /// **'Sessions Judge Court (Criminal)'**
   String get lowerCourtCategory_districtSessionsCriminal;
 
   /// No description provided for @lowerCourtCategory_districtCourtsCivil.
   ///
   /// In en, this message translates to:
-  /// **'District Courts (Civil)'**
+  /// **'District Judge Court (Civil)'**
   String get lowerCourtCategory_districtCourtsCivil;
+
+  /// No description provided for @lowerCourtCategory_metropolitanSessionsJudgeCriminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Metropolitan Sessions Judge Court (Criminal)'**
+  String get lowerCourtCategory_metropolitanSessionsJudgeCriminal;
 
   /// No description provided for @lowerCourtCategory_chiefJudicialMagistrate.
   ///
   /// In en, this message translates to:
-  /// **'Chief Judicial Magistrate Courts'**
+  /// **'Chief Judicial Magistrate Court'**
   String get lowerCourtCategory_chiefJudicialMagistrate;
 
   /// No description provided for @lowerCourtCategory_chiefMetropolitanMagistrate.
   ///
   /// In en, this message translates to:
-  /// **'Chief Metropolitan Magistrate Courts'**
+  /// **'Chief Metropolitan Magistrate Court'**
   String get lowerCourtCategory_chiefMetropolitanMagistrate;
 
   /// No description provided for @lowerCourtCategory_executiveMagistrate.
   ///
   /// In en, this message translates to:
-  /// **'Executive Magistrate Courts'**
+  /// **'Executive Magistrate & Others Courts'**
   String get lowerCourtCategory_executiveMagistrate;
 
   /// No description provided for @lowerCourtCategory_tribunals.
@@ -1049,7 +1055,7 @@ abstract class AppLocalizations {
   /// No description provided for @division_chattagram.
   ///
   /// In en, this message translates to:
-  /// **'Chattagram'**
+  /// **'Chittagong'**
   String get division_chattagram;
 
   /// No description provided for @division_rajshahi.

@@ -28,31 +28,32 @@ const lowerCourtsOption = 'lower_courts';
 /// Lower court category stable IDs.
 const districtSessionsCriminalId = 'district_sessions_criminal';
 const districtCourtsCivilId = 'district_courts_civil';
+const metropolitanSessionsJudgeCriminalId =
+    'metropolitan_sessions_judge_criminal';
 const chiefJudicialMagistrateId = 'chief_judicial_magistrate';
 const chiefMetropolitanMagistrateId = 'chief_metropolitan_magistrate';
-const tribunalsId = 'tribunals';
 const executiveMagistrateId = 'executive_magistrate';
 
 /// Ordered list of all 8 court-category stable IDs.
 const allCategoryIds = <String>[
   appellateDivisionId,
   highCourtDivisionId,
-  districtSessionsCriminalId,
   districtCourtsCivilId,
+  districtSessionsCriminalId,
+  metropolitanSessionsJudgeCriminalId,
   chiefJudicialMagistrateId,
   chiefMetropolitanMagistrateId,
-  tribunalsId,
   executiveMagistrateId,
 ];
 
 /// Ordered list of 6 lower-court category stable IDs.
 const lowerCourtCategoryIds = <String>[
-  districtSessionsCriminalId,
   districtCourtsCivilId,
+  districtSessionsCriminalId,
+  metropolitanSessionsJudgeCriminalId,
   chiefJudicialMagistrateId,
   chiefMetropolitanMagistrateId,
   executiveMagistrateId,
-  tribunalsId,
 ];
 
 // ---------------------------------------------------------------------------
@@ -2066,12 +2067,12 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- District Sessions Courts (Criminal) ---------------------------------
+  // -- Sessions Judge Court (Criminal) -------------------------------------
   SeedCategory(
     id: districtSessionsCriminalId,
     nameKey: 'lowerCourtCategory_districtSessionsCriminal',
     courtLevel: 'lower',
-    orderIndex: 2,
+    orderIndex: 3,
     steps: <SeedOption>[
       SeedOption(
         id: _stepId(districtSessionsCriminalId, 'charge_sheet_received'),
@@ -2181,12 +2182,12 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- District Courts (Civil) ---------------------------------------------
+  // -- District Judge Court (Civil) ----------------------------------------
   SeedCategory(
     id: districtCourtsCivilId,
     nameKey: 'lowerCourtCategory_districtCourtsCivil',
     courtLevel: 'lower',
-    orderIndex: 3,
+    orderIndex: 2,
     steps: <SeedOption>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, 'plaint_filed'),
@@ -2302,12 +2303,22 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- Chief Judicial Magistrate Courts ------------------------------------
+  // -- Metropolitan Sessions Judge Court (Criminal) ------------------------
+  SeedCategory(
+    id: metropolitanSessionsJudgeCriminalId,
+    nameKey: 'lowerCourtCategory_metropolitanSessionsJudgeCriminal',
+    courtLevel: 'lower',
+    orderIndex: 4,
+    steps: const <SeedOption>[],
+    caseTypes: const <SeedOption>[],
+    onBehalfs: const <SeedOption>[],
+  ),
+  // -- Chief Judicial Magistrate Court -------------------------------------
   SeedCategory(
     id: chiefJudicialMagistrateId,
     nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
     courtLevel: 'lower',
-    orderIndex: 4,
+    orderIndex: 5,
     steps: <SeedOption>[
       SeedOption(
         id: _stepId(chiefJudicialMagistrateId, 'complaint_filed'),
@@ -2429,12 +2440,12 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- Chief Metropolitan Magistrate Courts --------------------------------
+  // -- Chief Metropolitan Magistrate Court -------------------------------
   SeedCategory(
     id: chiefMetropolitanMagistrateId,
     nameKey: 'lowerCourtCategory_chiefMetropolitanMagistrate',
     courtLevel: 'lower',
-    orderIndex: 5,
+    orderIndex: 6,
     steps: <SeedOption>[
       SeedOption(
         id: _stepId(chiefMetropolitanMagistrateId, 'complaint_filed'),
@@ -2544,12 +2555,12 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- Executive Magistrate Courts -----------------------------------------
+  // -- Executive Magistrate & Others Courts -------------------------------
   SeedCategory(
     id: executiveMagistrateId,
     nameKey: 'lowerCourtCategory_executiveMagistrate',
     courtLevel: 'lower',
-    orderIndex: 6,
+    orderIndex: 7,
     steps: <SeedOption>[
       SeedOption(
         id: _stepId(executiveMagistrateId, 'filed'),
@@ -2608,127 +2619,6 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         labelEn: 'Applicant',
         labelBn: 'আবেদনকারী',
         orderIndex: 2,
-      ),
-    ],
-  ),
-  // -- Tribunals -----------------------------------------------------------
-  SeedCategory(
-    id: tribunalsId,
-    nameKey: 'lowerCourtCategory_tribunals',
-    courtLevel: 'lower',
-    orderIndex: 7,
-    steps: <SeedOption>[
-      SeedOption(
-        id: _stepId(tribunalsId, 'filed'),
-        labelEn: 'Filed',
-        labelBn: 'দাখিলকৃত',
-        orderIndex: 0,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'notice'),
-        labelEn: 'Notice',
-        labelBn: 'নোটিশ',
-        orderIndex: 1,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'reply'),
-        labelEn: 'Reply',
-        labelBn: 'জবাব',
-        orderIndex: 2,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'hearing'),
-        labelEn: 'Hearing',
-        labelBn: 'শুনানি',
-        orderIndex: 3,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'order'),
-        labelEn: 'Order',
-        labelBn: 'আদেশ',
-        orderIndex: 4,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'award'),
-        labelEn: 'Award',
-        labelBn: 'Award',
-        orderIndex: 5,
-      ),
-      SeedOption(
-        id: _stepId(tribunalsId, 'disposed'),
-        labelEn: 'Disposed',
-        labelBn: 'নিষ্পত্তি',
-        orderIndex: 6,
-      ),
-    ],
-    caseTypes: <SeedOption>[
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'money_loan_case'),
-        labelEn: 'Money Loan Case',
-        labelBn: 'অর্থঋণ মামলা',
-        orderIndex: 0,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'artha_rin_case'),
-        labelEn: 'Artha Rin Case',
-        labelBn: 'অর্থঋণ মামলা',
-        orderIndex: 1,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'tribunal_case'),
-        labelEn: 'Tribunal Case',
-        labelBn: 'ট্রাইব্যুনাল কেস',
-        orderIndex: 2,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'nari_o_shishu_case'),
-        labelEn: 'Nari O Shishu Case',
-        labelBn: 'নারী ও শিশু মামলা',
-        orderIndex: 3,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'land_survey_case'),
-        labelEn: 'Land Survey Case',
-        labelBn: 'ভূমি জরিপ মামলা',
-        orderIndex: 4,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'labour_case'),
-        labelEn: 'Labour Case',
-        labelBn: 'শ্রম মামলা',
-        orderIndex: 5,
-      ),
-      SeedOption(
-        id: _caseTypeId(tribunalsId, 'cyber_case'),
-        labelEn: 'Cyber Case',
-        labelBn: 'সাইবার মামলা',
-        orderIndex: 6,
-      ),
-    ],
-    onBehalfs: <SeedOption>[
-      SeedOption(
-        id: _onBehalfId(tribunalsId, 'applicant'),
-        labelEn: 'Applicant',
-        labelBn: 'আবেদনকারী',
-        orderIndex: 0,
-      ),
-      SeedOption(
-        id: _onBehalfId(tribunalsId, 'respondent'),
-        labelEn: 'Respondent',
-        labelBn: 'বিবাদী',
-        orderIndex: 1,
-      ),
-      SeedOption(
-        id: _onBehalfId(tribunalsId, 'claimant'),
-        labelEn: 'Claimant',
-        labelBn: 'দাবিদার',
-        orderIndex: 2,
-      ),
-      SeedOption(
-        id: _onBehalfId(tribunalsId, 'objector'),
-        labelEn: 'Objector',
-        labelBn: 'আপত্তিকার',
-        orderIndex: 3,
       ),
     ],
   ),
@@ -3644,21 +3534,6 @@ _lowerCourtNamesData = <String, _CourtNamesByCategory>{
     executiveMagistrateId: <(String, String)>[
       ('Executive Magistrate Court', 'নির্বাহী ম্যাজিস্ট্রেট আদালত'),
     ],
-    tribunalsId: <(String, String)>[
-      ('Money Loan Court (Artha Rin Adalat)', 'অর্থঋণ আদালত'),
-      (
-        'Women & Children Repression Prevention Tribunal',
-        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
-      ),
-      ('Speedy Trial Tribunal', 'দ্রুত বিচার ট্রাইব্যুনাল'),
-      ('Land Survey Tribunal', 'ভূমি জরিপ ট্রাইব্যুনাল'),
-      ('Cyber Tribunal', 'সাইবার ট্রাইব্যুনাল'),
-      ('Labour Court', 'শ্রম আদালত'),
-      (
-        'Nari O Shishu Nirjatan Daman Tribunal',
-        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
-      ),
-    ],
   },
   'narayanganj': <String, List<(String, String)>>{
     districtSessionsCriminalId: <(String, String)>[
@@ -3766,21 +3641,6 @@ _lowerCourtNamesData = <String, _CourtNamesByCategory>{
     executiveMagistrateId: <(String, String)>[
       ('Executive Magistrate Court', 'নির্বাহী ম্যাজিস্ট্রেট আদালত'),
     ],
-    tribunalsId: <(String, String)>[
-      ('Money Loan Court (Artha Rin Adalat)', 'অর্থঋণ আদালত'),
-      (
-        'Women & Children Repression Prevention Tribunal',
-        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
-      ),
-      ('Speedy Trial Tribunal', 'দ্রুত বিচার ট্রাইব্যুনাল'),
-      ('Land Survey Tribunal', 'ভূমি জরিপ ট্রাইব্যুনাল'),
-      ('Cyber Tribunal', 'সাইবার ট্রাইব্যুনাল'),
-      ('Labour Court', 'শ্রম আদালত'),
-      (
-        'Nari O Shishu Nirjatan Daman Tribunal',
-        'নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল',
-      ),
-    ],
   },
 };
 
@@ -3837,10 +3697,6 @@ const Set<String> disposedStepIds = <String>{
   // Executive Magistrate
   'step-executive_magistrate-disposed',
   'step-executive_magistrate-order',
-  // Tribunals
-  'step-tribunals-disposed',
-  'step-tribunals-order',
-  'step-tribunals-award',
 };
 
 // ---------------------------------------------------------------------------

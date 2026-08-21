@@ -402,10 +402,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_districtSessionsCriminal =>
-      'দায়রা জজ আদালত (ফৌজদারি)';
+      'দায়রা জজ আদালত (ফৌজদারি)';
 
   @override
-  String get lowerCourtCategory_districtCourtsCivil => 'জেলা আদালত (দেওয়ানি)';
+  String get lowerCourtCategory_districtCourtsCivil =>
+      'জেলা জজ আদালত (দেওয়ানি)';
+
+  @override
+  String get lowerCourtCategory_metropolitanSessionsJudgeCriminal =>
+      'মেট্রোপলিটন সেশন জজ আদালত (ফৌজদারি)';
 
   @override
   String get lowerCourtCategory_chiefJudicialMagistrate =>
@@ -417,7 +422,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_executiveMagistrate =>
-      'নির্বাহী ম্যাজিস্ট্রেট আদালত';
+      'নির্বাহী ম্যাজিস্ট্রেট ও অন্যান্য আদালত';
 
   @override
   String get lowerCourtCategory_tribunals => 'ট্রাইব্যুনাল সমূহ';

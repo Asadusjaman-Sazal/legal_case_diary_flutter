@@ -1,3 +1,15 @@
+### 2026-08-22 — Current Task: Lower-court category seed correction — COMPLETE
+
+Implemented and validated:
+- Replaced the lower-court category labels with the requested six categories.
+- Removed Tribunal seed data and added Metropolitan Sessions Judge Court with empty options for later completion.
+- Updated English/Bengali category labels and changed the visible division label from Chattagram to Chittagong.
+- Full Flutter test suite passed; `flutter analyze` is clean.
+
+Version `0.0.70`.
+
+**Next:** Add Metropolitan Sessions Judge Court seed options when the authoritative lists are available.
+
 ### 2026-08-21 — Current Task: AD/HCD-only Case Category scoping clarification — COMPLETE
 
 Clarified the data contract: Appellate Division and High Court Division Case Types use `case_category_id` in addition to `court_category_id`; lower-court Case Types remain scoped only by `court_category_id`.

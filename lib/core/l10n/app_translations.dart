@@ -206,6 +206,8 @@ class AppTranslations {
           _loc.lowerCourtCategory_districtCourtsCivil,
       AppStrings.lowerCourtCategoryDistrictsessionscriminal:
           _loc.lowerCourtCategory_districtSessionsCriminal,
+      AppStrings.lowerCourtCategoryMetropolitansessionsjudgecriminal:
+          _loc.lowerCourtCategory_metropolitanSessionsJudgeCriminal,
       AppStrings.lowerCourtCategoryExecutivemagistrate:
           _loc.lowerCourtCategory_executiveMagistrate,
       AppStrings.lowerCourtCategoryTribunals: _loc.lowerCourtCategory_tribunals,

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.69 - Clarified AD/HCD-only Case Category scoping; lower Case Types remain court-category scoped.
+Version: 0.0.70 - Updated lower-court category seed data and renamed Chattogram display label to Chittagong.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -84,6 +84,7 @@ Version: 0.0.66 - Task 07 Add Case Case Number is now an unrestricted text input
 Version: 0.0.67 - Rev. Task 04/07 Updated Districts & some translations.
 Version: 0.0.68 - Task 04 AD/HCD seed replacement with Case Category database support; AD/HCD Steps removed.
 Version: 0.0.69 - Clarified AD/HCD-only Case Category scoping; lower Case Types remain court-category scoped.
+Version: 0.0.70 - Updated lower-court category seed data and renamed Chattogram display label to Chittagong.
 
 
 

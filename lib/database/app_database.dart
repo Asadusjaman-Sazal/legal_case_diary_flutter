@@ -5,6 +5,7 @@ library;
 import 'package:drift/drift.dart';
 
 import 'tables/case_history_table.dart';
+import 'tables/case_categories_table.dart';
 import 'tables/cases_table.dart';
 import 'tables/case_types_table.dart';
 import 'tables/conflict_log_table.dart';
@@ -31,6 +32,7 @@ part 'app_database.g.dart';
   tables: [
     Cases,
     CaseHistory,
+    CaseCategories,
     CourtCategories,
     Courts,
     Steps,
@@ -56,13 +58,14 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// Migration strategy for the local Drift database.
   ///
-  /// [onCreate] creates all tables at schema version 3. [onUpgrade] migrates
+  /// [onCreate] creates all tables at schema version 4. [onUpgrade] migrates
   /// from v1→v2 by adding `order_index` columns, then v2→v3 by replacing
-  /// the two legacy party phone columns with the single `party_phone` column.
+  /// the two legacy party phone columns with the single `party_phone` column,
+  /// then v3→v4 by adding case categories, case-type links, and court order.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -82,6 +85,11 @@ class AppDatabase extends _$AppDatabase {
         );
         await customStatement('ALTER TABLE cases DROP COLUMN petitioner_phone');
         await customStatement('ALTER TABLE cases DROP COLUMN respondent_phone');
+      }
+      if (from < 4) {
+        await m.createTable(caseCategories);
+        await m.addColumn(caseTypes, caseTypes.caseCategoryId);
+        await m.addColumn(courts, courts.orderIndex);
       }
     },
     beforeOpen: (details) async {
@@ -104,6 +112,10 @@ class AppDatabase extends _$AppDatabase {
   /// Active (non-deleted) courts.
   Selectable<Court> get activeCourts =>
       select(courts)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) case categories.
+  Selectable<CaseCategory> get activeCaseCategories =>
+      select(caseCategories)..where((row) => row.isDeleted.equals(false));
 
   /// Active (non-deleted) steps.
   Selectable<Step> get activeSteps =>
@@ -160,6 +172,7 @@ class AppDatabase extends _$AppDatabase {
       await _purgeSyncableTable('cases', cutoffMs);
       await _purgeSyncableTable('case_history', cutoffMs);
       await _purgeSyncableTable('court_categories', cutoffMs);
+      await _purgeSyncableTable('case_categories', cutoffMs);
       await _purgeSyncableTable('courts', cutoffMs);
       await _purgeSyncableTable('steps', cutoffMs);
       await _purgeSyncableTable('case_types', cutoffMs);

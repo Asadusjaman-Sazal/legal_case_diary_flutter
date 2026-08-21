@@ -11,6 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart'
     show
+        appellateDivisionId,
+        districtSessionsCriminalId,
+        highCourtDivisionId,
         seedCategories,
         allSeedCourts;
 import 'package:legal_case_diary/database/app_database.dart';
@@ -32,9 +35,10 @@ void main() {
 
     test('applies seed_v1 and inserts all reference data', () async {
       final applied = await runner.runMigrations();
-      expect(applied, 1);
+      expect(applied, 2);
 
       final categories = await db.select(db.courtCategories).get();
+      final caseCategories = await db.select(db.caseCategories).get();
       final steps = await db.select(db.steps).get();
       final caseTypes = await db.select(db.caseTypes).get();
       final onBehalfs = await db.select(db.onBehalfs).get();
@@ -42,13 +46,24 @@ void main() {
 
       expect(categories, hasLength(seedCategories.length));
       expect(
+        caseCategories,
+        hasLength(
+          seedCategories.fold<int>(
+            0,
+            (sum, category) => sum + category.caseCategories.length,
+          ),
+        ),
+      );
+      expect(
         steps,
-        hasLength(seedCategories.fold<int>(0, (sum, c) => sum + c.steps.length)),
+        hasLength(
+          seedCategories.fold<int>(0, (sum, c) => sum + c.steps.length),
+        ),
       );
       expect(
         caseTypes,
         hasLength(
-          seedCategories.fold<int>(0, (sum, c) => sum + c.caseTypes.length),
+          seedCategories.fold<int>(0, (sum, c) => sum + c.allCaseTypes.length),
         ),
       );
       expect(
@@ -68,9 +83,19 @@ void main() {
         expect(step.isCustom, false);
         expect(step.isUserModified, false);
       }
+      for (final caseCategory in caseCategories) {
+        expect(caseCategory.isCustom, false);
+        expect(caseCategory.isUserModified, false);
+      }
       for (final ct in caseTypes) {
         expect(ct.isCustom, false);
         expect(ct.isUserModified, false);
+        if (ct.courtCategoryId == appellateDivisionId ||
+            ct.courtCategoryId == highCourtDivisionId) {
+          expect(ct.caseCategoryId, isNotNull);
+        } else {
+          expect(ct.caseCategoryId, isNull);
+        }
       }
       for (final ob in onBehalfs) {
         expect(ob.isCustom, false);
@@ -83,63 +108,87 @@ void main() {
 
       // Migration ledger must record seed_v1.
       final migrations = await db.select(db.seedMigrations).get();
-      expect(migrations, hasLength(1));
-      expect(migrations.first.migrationId, 'seed_v1');
-      expect(migrations.first.checksum, isNotEmpty);
-      expect(migrations.first.appliedAt, isPositive);
+      expect(migrations, hasLength(2));
+      expect(
+        migrations.map((m) => m.migrationId),
+        containsAll(['seed_v1', 'seed_v2']),
+      );
+      expect(migrations.every((m) => m.checksum.isNotEmpty), true);
+      expect(migrations.every((m) => m.appliedAt > 0), true);
     });
 
-    test('does not re-apply a migration already recorded in the ledger', () async {
-      final first = await runner.runMigrations();
-      expect(first, 1);
+    test(
+      'does not re-apply a migration already recorded in the ledger',
+      () async {
+        final first = await runner.runMigrations();
+        expect(first, 2);
 
-      final second = await runner.runMigrations();
-      expect(second, 0);
-    });
+        final second = await runner.runMigrations();
+        expect(second, 0);
+      },
+    );
 
     test('preserves user-modified rows on re-seed', () async {
       await runner.runMigrations();
 
       // Pick one row from each reference table to simulate user edits.
-      final originalStep = await (db.select(db.steps)
-            ..where((s) => s.id.equals('step-appellate_division-hearing')))
-          .getSingle();
-      final originalCaseType = await (db.select(db.caseTypes)
-            ..where(
-              (c) => c.id.equals('casetype-appellate_division-civil_appeal'),
-            ))
-          .getSingle();
-      final originalOnBehalf = await (db.select(db.onBehalfs)
-            ..where(
-              (o) => o.id.equals('onbehalf-appellate_division-appellant'),
-            ))
-          .getSingle();
-      final originalCourt = await (db.select(db.courts)
-            ..where(
-              (c) => c.id.equals('court-higher_courts-appellate_division-annex_building_2_court_5'),
-            ))
-          .getSingle();
+      final originalStep =
+          await (db.select(db.steps)
+                ..where(
+                  (s) => s.courtCategoryId.equals(districtSessionsCriminalId),
+                )
+                ..limit(1))
+              .getSingle();
+      final originalCaseType =
+          await (db.select(db.caseTypes)
+                ..where(
+                  (c) => c.courtCategoryId.equals(districtSessionsCriminalId),
+                )
+                ..limit(1))
+              .getSingle();
+      final originalOnBehalf =
+          await (db.select(db.onBehalfs)
+                ..where(
+                  (o) => o.courtCategoryId.equals(districtSessionsCriminalId),
+                )
+                ..limit(1))
+              .getSingle();
+      final originalCourt =
+          await (db.select(db.courts)
+                ..where(
+                  (c) => c.courtCategoryId.equals(districtSessionsCriminalId),
+                )
+                ..limit(1))
+              .getSingle();
 
       // Simulate user edits.
-      await db.update(db.steps).replace(
+      await db
+          .update(db.steps)
+          .replace(
             originalStep.copyWith(
-              stepName: 'User Hearing Label',
+              stepName: 'User Step Label',
               isUserModified: true,
             ),
           );
-      await db.update(db.caseTypes).replace(
+      await db
+          .update(db.caseTypes)
+          .replace(
             originalCaseType.copyWith(
-              name: 'User Civil Appeal Label',
+              name: 'User Case Type Label',
               isUserModified: true,
             ),
           );
-      await db.update(db.onBehalfs).replace(
+      await db
+          .update(db.onBehalfs)
+          .replace(
             originalOnBehalf.copyWith(
-              name: 'User Appellant Label',
+              name: 'User On Behalf Label',
               isUserModified: true,
             ),
           );
-      await db.update(db.courts).replace(
+      await db
+          .update(db.courts)
+          .replace(
             originalCourt.copyWith(
               courtName: 'User Court Label',
               isUserModified: true,
@@ -151,55 +200,67 @@ void main() {
       await runner.runMigrations();
 
       // User-modified rows must retain the user's values and stay modified.
-      final reStep = await (db.select(db.steps)
-            ..where((s) => s.id.equals(originalStep.id)))
-          .getSingle();
-      final reCaseType = await (db.select(db.caseTypes)
-            ..where((c) => c.id.equals(originalCaseType.id)))
-          .getSingle();
-      final reOnBehalf = await (db.select(db.onBehalfs)
-            ..where((o) => o.id.equals(originalOnBehalf.id)))
-          .getSingle();
-      final reCourt = await (db.select(db.courts)
-            ..where((c) => c.id.equals(originalCourt.id)))
-          .getSingle();
+      final reStep = await (db.select(
+        db.steps,
+      )..where((s) => s.id.equals(originalStep.id))).getSingle();
+      final reCaseType = await (db.select(
+        db.caseTypes,
+      )..where((c) => c.id.equals(originalCaseType.id))).getSingle();
+      final reOnBehalf = await (db.select(
+        db.onBehalfs,
+      )..where((o) => o.id.equals(originalOnBehalf.id))).getSingle();
+      final reCourt = await (db.select(
+        db.courts,
+      )..where((c) => c.id.equals(originalCourt.id))).getSingle();
 
-      expect(reStep.stepName, 'User Hearing Label');
+      expect(reStep.stepName, 'User Step Label');
       expect(reStep.isUserModified, true);
-      expect(reCaseType.name, 'User Civil Appeal Label');
+      expect(reCaseType.name, 'User Case Type Label');
       expect(reCaseType.isUserModified, true);
-      expect(reOnBehalf.name, 'User Appellant Label');
+      expect(reOnBehalf.name, 'User On Behalf Label');
       expect(reOnBehalf.isUserModified, true);
       expect(reCourt.courtName, 'User Court Label');
       expect(reCourt.isUserModified, true);
 
       // Unmodified rows must have been re-seeded with the canonical values.
-      final untouchedStep = await (db.select(db.steps)
-            ..where((s) => s.id.equals('step-appellate_division-filed')))
-          .getSingle();
+      final untouchedStep =
+          await (db.select(db.steps)..where(
+                (s) => s.id.equals(
+                  'step-district_sessions_criminal-framing_of_charge',
+                ),
+              ))
+              .getSingle();
       expect(untouchedStep.isUserModified, false);
-      expect(untouchedStep.stepName, 'Filed');
+      expect(untouchedStep.stepName, 'Framing of Charge');
     });
 
     test('updates unmodified rows when seed migration runs again', () async {
       await runner.runMigrations();
 
       // Update an unmodified row in place to simulate a stale value.
-      final original = await (db.select(db.steps)
-            ..where((s) => s.id.equals('step-appellate_division-filed')))
-          .getSingle();
-      await db.update(db.steps).replace(
-            original.copyWith(stepName: 'Stale Filed'),
-          );
+      final original =
+          await (db.select(db.steps)..where(
+                (s) => s.id.equals(
+                  'step-district_sessions_criminal-framing_of_charge',
+                ),
+              ))
+              .getSingle();
+      await db
+          .update(db.steps)
+          .replace(original.copyWith(stepName: 'Stale Step'));
 
       // Re-run the seed migration.
       await db.customStatement('DELETE FROM seed_migrations');
       await runner.runMigrations();
 
-      final refreshed = await (db.select(db.steps)
-            ..where((s) => s.id.equals('step-appellate_division-filed')))
-          .getSingle();
-      expect(refreshed.stepName, 'Filed');
+      final refreshed =
+          await (db.select(db.steps)..where(
+                (s) => s.id.equals(
+                  'step-district_sessions_criminal-framing_of_charge',
+                ),
+              ))
+              .getSingle();
+      expect(refreshed.stepName, 'Framing of Charge');
       expect(refreshed.isUserModified, false);
     });
   });

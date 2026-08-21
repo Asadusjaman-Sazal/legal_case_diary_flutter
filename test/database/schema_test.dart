@@ -34,6 +34,7 @@ void main() {
         containsAll(<String>[
           'cases',
           'case_history',
+          'case_categories',
           'court_categories',
           'courts',
           'steps',
@@ -54,6 +55,35 @@ void main() {
         ]),
       );
     });
+
+    test(
+      'case category and case type tables carry the new relationship',
+      () async {
+        final caseCategoryColumns = await _tableColumns(db, 'case_categories');
+        expect(
+          caseCategoryColumns,
+          containsAll(<String>[
+            'id',
+            'court_category_id',
+            'name',
+            'order_index',
+            'is_custom',
+            'is_user_modified',
+            'updated_at',
+            'version',
+            'synced_at',
+            'is_deleted',
+            'last_modified_by',
+          ]),
+        );
+
+        final caseTypeColumns = await _tableColumns(db, 'case_types');
+        expect(caseTypeColumns, contains('case_category_id'));
+
+        final courtColumns = await _tableColumns(db, 'courts');
+        expect(courtColumns, contains('order_index'));
+      },
+    );
 
     test('cases table has the required columns', () async {
       final columns = await _tableColumns(db, 'cases');

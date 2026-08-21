@@ -9,28 +9,33 @@
 
 ## Phase 1 — Form Fields & Layout
 
-Build all 18 fields **in the exact order and with the exact widget types** from the plan's field table:
+Build all 19 fields **in the exact order and with the exact widget types** from the plan's field table:
 
 1. Higher or Lower Court — `CustomDropdown` single-select (3 options).
 2. Division — `CustomDropdown`; **hidden** for Appellate/High Court.
 3. District — `CustomDropdown` from `districtsByDivision[selectedDivision]`; hidden for Appellate/High Court.
 4. Court Category — `CustomDropdown` (lower-court categories); hidden for Appellate/High Court.
 5. Name of Court — searchable `CustomDropdown`; Supreme: `supremeCourtNames[category]`; Lower: `lowerCourtNamesByDistrict[district][category]`.
-6. Case Type — `CustomDropdown` from `CaseTypesDao` filtered by resolved `court_category_id` (implicit from field 1 for Appellate/High Court; from field 4 for lower courts). Placed LEFT of Case Number.
-7. Case Number — `TextFormField`, RIGHT of Case Type (side-by-side row).
-8. Petitioner — `TextFormField` + Lead Counsel sub-field (`petitionerLeadCounsel`) with a line's worth of extra space.
-9. Respondent — `TextFormField` + Lead Counsel sub-field (`respondentLeadCounsel`).
-10. On Behalf — `CustomDropdown` from `OnBehalfsDao`, same category resolution as fields 6/16.
-11. Petitioner Phone No. and Respondent Phone No. — two nullable `TextFormField`s with numeric keyboards.
-12. Case Title & Remarks — two stacked `TextFormField`s: top `caseTitleAndSection`, bottom multi-line `caseRemarks`.
-13. Next Date — simple date picker (epoch ms), in a **single row** with 14 & 15.
-14. Notification — toggle `IconButton` (filled black when on), same row.
-15. Day Offset — multi-select `CustomDropdown` (no search), options from Settings > Notification > Notification Day Offset, same row.
-16. Step — multi-select `CustomDropdown` from `StepsDao` filtered by the selected court's category (`lastStep`).
-17. Note — multi-line `TextFormField` (`notesResults`).
-18. Save — `ElevatedButton`.
+6. Case Category — AD/HCD only; `CustomDropdown` from the selected court category's `case_categories` rows, placed after Name of Court. It is not shown for lower courts because their Case Types remain scoped directly by `court_category_id`.
+7. Case Type — `CustomDropdown` from `CaseTypesDao` filtered by the resolved `court_category_id` and, for AD/HCD, the selected `case_category_id`. Placed before Case Number.
+8. Case Number — `TextFormField`, RIGHT of Case Type (side-by-side row).
+9. Petitioner — `TextFormField` + Lead Counsel sub-field (`petitionerLeadCounsel`) with a line's worth of extra space.
+10. Respondent — `TextFormField` + Lead Counsel sub-field (`respondentLeadCounsel`).
+11. On Behalf — `CustomDropdown` from `OnBehalfsDao`, same category resolution as Case Type and Step.
+12. Petitioner Phone No. and Respondent Phone No. — two nullable `TextFormField`s with numeric keyboards.
+13. Case Title & Remarks — two stacked `TextFormField`s: top `caseTitleAndSection`, bottom multi-line `caseRemarks`.
+14. Next Date — simple date picker (epoch ms), in a **single row** with 15 & 16.
+15. Notification — toggle `IconButton` (filled black when on), same row.
+16. Day Offset — multi-select `CustomDropdown` (no search), options from Settings > Notification > Notification Day Offset, same row.
+17. Step — multi-select `CustomDropdown` from `StepsDao` filtered by the selected court's category (`lastStep`); hidden/disabled for AD/HCD because their seeded Step lists are intentionally empty.
+18. Note — multi-line `TextFormField` (`notesResults`).
+19. Save — `ElevatedButton`.
 
-Layout rules (verbatim from plan): 6–7 side-by-side; 13–14–15 in one row in that exact order; 5–10 cascade (changing Higher/Lower resets & shows/hides Division/District/Category which filter Name of Court); everything else stacked vertically in order.
+### AD/HCD reference-data contract
+
+For Appellate Division and High Court Division, the Task 07 implementation must resolve the selected court category from field 1, show the seeded Case Category after Name of Court, and filter Case Type by that selected Case Category. Case Categories and Case Types are separate persisted tables/relations; labels are never used as database keys. AD/HCD do not have seeded Steps, so the Step control must not offer placeholder values for those selections.
+
+Layout rules (verbatim from plan): 7–8 side-by-side; 14–15–16 in one row in that exact order; 5–11 cascade (changing Higher/Lower resets & shows/hides Division/District/Court Category/Case Category, which filter Name of Court and Case Type); everything else stacked vertically in order.
 
 **Input presentation refinements:** text-field labels sit above the controls; empty text/date inputs use outlined borders with the surface fill, while populated inputs use the selected-surface fill and underline treatment, with a secondary 2px underline when focused. Empty Next Date shows the localized `Pick a date` hint and a selected date uses `dd/MM/yy, EEE`. Dropdown inputs use the matching outlined empty/selected presentation. The case number is one unified numeric/hyphen input (with no separate year box): the formatter inserts a non-editable `/` after the first digit, keeps the caret before the separator after automatic insertion, permits digits and hyphens on either side without length limits, and lets the user move the caret after `/` manually. The current UI presents one numeric party-phone input beside a fixed `+88` prefix, with both controls sharing height; this differs from the Revision 2.4 two-phone requirement recorded in field 11 and remains a traceability discrepancy to resolve.
 

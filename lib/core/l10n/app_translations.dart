@@ -32,6 +32,7 @@ class AppTranslations {
     // Check each label map in priority order.
     final maps = isBengali
         ? <Map<String, String>>[
+            seed.caseCategoryLabelBn,
             seed.stepLabelBn,
             seed.caseTypeLabelBn,
             seed.onBehalfLabelBn,
@@ -40,6 +41,7 @@ class AppTranslations {
             seed.divisionLabelBn,
           ]
         : <Map<String, String>>[
+            seed.caseCategoryLabelEn,
             seed.stepLabelEn,
             seed.caseTypeLabelEn,
             seed.onBehalfLabelEn,

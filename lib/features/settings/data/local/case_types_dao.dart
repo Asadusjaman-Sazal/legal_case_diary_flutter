@@ -37,9 +37,17 @@ class CaseTypesDao {
   }
 
   /// Returns non-deleted case types for a specific court category.
-  Future<List<CaseType>> getByCategory(String courtCategoryId, {int? limit, int? offset}) async {
+  Future<List<CaseType>> getByCategory(
+    String courtCategoryId, {
+    int? limit,
+    int? offset,
+  }) async {
     final query = db.select(db.caseTypes)
-      ..where((row) => row.isDeleted.equals(false) & row.courtCategoryId.equals(courtCategoryId))
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.courtCategoryId.equals(courtCategoryId),
+      )
       ..orderBy([(row) => OrderingTerm(expression: row.orderIndex)]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -47,10 +55,56 @@ class CaseTypesDao {
     return query.get();
   }
 
-  /// Reactive stream of non-deleted case types for a specific court category.
-  Stream<List<CaseType>> watchByCategory(String courtCategoryId, {int? limit, int? offset}) {
+  /// Returns non-deleted case types for a specific case category.
+  Future<List<CaseType>> getByCaseCategory(
+    String caseCategoryId, {
+    int? limit,
+    int? offset,
+  }) async {
     final query = db.select(db.caseTypes)
-      ..where((row) => row.isDeleted.equals(false) & row.courtCategoryId.equals(courtCategoryId))
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.caseCategoryId.equals(caseCategoryId),
+      )
+      ..orderBy([(row) => OrderingTerm(expression: row.orderIndex)]);
+    if (limit != null) {
+      query.limit(limit, offset: offset ?? 0);
+    }
+    return query.get();
+  }
+
+  /// Reactive stream of non-deleted case types for a specific case category.
+  Stream<List<CaseType>> watchByCaseCategory(
+    String caseCategoryId, {
+    int? limit,
+    int? offset,
+  }) {
+    final query = db.select(db.caseTypes)
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.caseCategoryId.equals(caseCategoryId),
+      )
+      ..orderBy([(row) => OrderingTerm(expression: row.orderIndex)]);
+    if (limit != null) {
+      query.limit(limit, offset: offset ?? 0);
+    }
+    return query.watch();
+  }
+
+  /// Reactive stream of non-deleted case types for a specific court category.
+  Stream<List<CaseType>> watchByCategory(
+    String courtCategoryId, {
+    int? limit,
+    int? offset,
+  }) {
+    final query = db.select(db.caseTypes)
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.courtCategoryId.equals(courtCategoryId),
+      )
       ..orderBy([(row) => OrderingTerm(expression: row.orderIndex)]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -59,21 +113,25 @@ class CaseTypesDao {
   }
 
   /// Returns a case type by id, or null if not found or deleted.
-  Future<CaseType?> getById(String id) async => (db.select(db.caseTypes)
-      ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
-      .getSingleOrNull();
+  Future<CaseType?> getById(String id) async =>
+      (db.select(db.caseTypes)
+            ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
+          .getSingleOrNull();
 
   /// Inserts a case type. Returns the row id.
-  Future<int> insert(CaseTypesCompanion caseType) => db.into(db.caseTypes).insert(caseType);
+  Future<int> insert(CaseTypesCompanion caseType) =>
+      db.into(db.caseTypes).insert(caseType);
 
   /// Updates a case type. Returns true if a row was affected.
   Future<bool> update(CaseTypesCompanion caseType) async =>
-      await (db.update(db.caseTypes)..where((row) => row.id.equals(caseType.id.value))).write(caseType) > 0;
+      await (db.update(
+        db.caseTypes,
+      )..where((row) => row.id.equals(caseType.id.value))).write(caseType) >
+      0;
 
   /// Soft-deletes a case type by id.
-  Future<int> delete(String id, int updatedAt) => (db.update(db.caseTypes)
-        ..where((row) => row.id.equals(id)))
-      .write(
+  Future<int> delete(String id, int updatedAt) =>
+      (db.update(db.caseTypes)..where((row) => row.id.equals(id))).write(
         CaseTypesCompanion(
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),

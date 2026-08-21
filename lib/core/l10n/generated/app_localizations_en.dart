@@ -405,7 +405,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_districtSessionsCriminal =>
-      'District Sessions Courts (Criminal)';
+      'Sessions Courts (Criminal)';
 
   @override
   String get lowerCourtCategory_districtCourtsCivil =>

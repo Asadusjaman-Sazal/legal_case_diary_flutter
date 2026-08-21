@@ -869,7 +869,7 @@ abstract class AppLocalizations {
   /// No description provided for @lowerCourtCategory_districtSessionsCriminal.
   ///
   /// In en, this message translates to:
-  /// **'District Sessions Courts (Criminal)'**
+  /// **'Sessions Courts (Criminal)'**
   String get lowerCourtCategory_districtSessionsCriminal;
 
   /// No description provided for @lowerCourtCategory_districtCourtsCivil.
@@ -1088,7 +1088,7 @@ abstract class AppLocalizations {
   /// **'Mymensingh'**
   String get division_mymensingh;
 
-  /// SMS template sent to clients about an upcoming hearing.
+  /// SMS sent to clients about an upcoming hearing.
   ///
   /// In en, this message translates to:
   /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.'**

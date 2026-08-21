@@ -14,22 +14,28 @@ class CourtsDao {
   /// The Drift database instance.
   final AppDatabase db;
 
-  /// Returns all non-deleted courts ordered by [courtName].
+  /// Returns all non-deleted courts ordered by seed order, then name.
   Future<List<Court>> getAll({int? limit, int? offset}) async {
     final query = db.select(db.courts)
       ..where((row) => row.isDeleted.equals(false))
-      ..orderBy([(row) => OrderingTerm(expression: row.courtName)]);
+      ..orderBy([
+        (row) => OrderingTerm(expression: row.orderIndex),
+        (row) => OrderingTerm(expression: row.courtName),
+      ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
     }
     return query.get();
   }
 
-  /// Reactive stream of all non-deleted courts ordered by [courtName].
+  /// Reactive stream of all non-deleted courts ordered by seed order, then name.
   Stream<List<Court>> watchAll({int? limit, int? offset}) {
     final query = db.select(db.courts)
       ..where((row) => row.isDeleted.equals(false))
-      ..orderBy([(row) => OrderingTerm(expression: row.courtName)]);
+      ..orderBy([
+        (row) => OrderingTerm(expression: row.orderIndex),
+        (row) => OrderingTerm(expression: row.courtName),
+      ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
     }
@@ -39,24 +45,45 @@ class CourtsDao {
   /// Returns non-deleted courts for a specific court category.
   Future<List<Court>> getByCategory(String courtCategoryId) async {
     final query = db.select(db.courts)
-      ..where((row) => row.isDeleted.equals(false) & row.courtCategoryId.equals(courtCategoryId))
-      ..orderBy([(row) => OrderingTerm(expression: row.courtName)]);
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.courtCategoryId.equals(courtCategoryId),
+      )
+      ..orderBy([
+        (row) => OrderingTerm(expression: row.orderIndex),
+        (row) => OrderingTerm(expression: row.courtName),
+      ]);
     return query.get();
   }
 
   /// Reactive stream of non-deleted courts for a specific court category.
   Stream<List<Court>> watchByCategory(String courtCategoryId) {
     final query = db.select(db.courts)
-      ..where((row) => row.isDeleted.equals(false) & row.courtCategoryId.equals(courtCategoryId))
-      ..orderBy([(row) => OrderingTerm(expression: row.courtName)]);
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.courtCategoryId.equals(courtCategoryId),
+      )
+      ..orderBy([
+        (row) => OrderingTerm(expression: row.orderIndex),
+        (row) => OrderingTerm(expression: row.courtName),
+      ]);
     return query.watch();
   }
 
   /// Returns non-deleted courts filtered by higher/lower court type.
   Future<List<Court>> getByHigherLower(String higherLowerCourts) async {
     final query = db.select(db.courts)
-      ..where((row) => row.isDeleted.equals(false) & row.higherLowerCourts.equals(higherLowerCourts))
-      ..orderBy([(row) => OrderingTerm(expression: row.courtName)]);
+      ..where(
+        (row) =>
+            row.isDeleted.equals(false) &
+            row.higherLowerCourts.equals(higherLowerCourts),
+      )
+      ..orderBy([
+        (row) => OrderingTerm(expression: row.orderIndex),
+        (row) => OrderingTerm(expression: row.courtName),
+      ]);
     return query.get();
   }
 
@@ -82,21 +109,24 @@ class CourtsDao {
   }
 
   /// Returns a court by id, or null if not found or deleted.
-  Future<Court?> getById(String id) async => (db.select(db.courts)
-      ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
-      .getSingleOrNull();
+  Future<Court?> getById(String id) async =>
+      (db.select(db.courts)
+            ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))
+          .getSingleOrNull();
 
   /// Inserts a court. Returns the row id.
   Future<int> insert(CourtsCompanion court) => db.into(db.courts).insert(court);
 
   /// Updates a court. Returns true if a row was affected.
   Future<bool> update(CourtsCompanion court) async =>
-      await (db.update(db.courts)..where((row) => row.id.equals(court.id.value))).write(court) > 0;
+      await (db.update(
+        db.courts,
+      )..where((row) => row.id.equals(court.id.value))).write(court) >
+      0;
 
   /// Soft-deletes a court by id.
-  Future<int> delete(String id, int updatedAt) => (db.update(db.courts)
-        ..where((row) => row.id.equals(id)))
-      .write(
+  Future<int> delete(String id, int updatedAt) =>
+      (db.update(db.courts)..where((row) => row.id.equals(id))).write(
         CourtsCompanion(
           isDeleted: const Value(true),
           updatedAt: Value(updatedAt),

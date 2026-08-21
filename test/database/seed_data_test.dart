@@ -26,14 +26,29 @@ void main() {
       }
     });
 
-    test('each category has non-empty steps, case types, and on-behalfs', () {
+    test('each category has the expected seed collections', () {
       for (final cat in seedCategories) {
-        expect(cat.steps.isNotEmpty, true,
-            reason: '${cat.id} has no steps');
-        expect(cat.caseTypes.isNotEmpty, true,
-            reason: '${cat.id} has no case types');
-        expect(cat.onBehalfs.isNotEmpty, true,
-            reason: '${cat.id} has no on-behalfs');
+        final requiresSteps =
+            cat.id != appellateDivisionId && cat.id != highCourtDivisionId;
+        expect(
+          cat.steps.isNotEmpty,
+          requiresSteps,
+          reason: '${cat.id} has an unexpected step collection',
+        );
+        expect(
+          cat.allCaseTypes.isNotEmpty,
+          true,
+          reason: '${cat.id} has no case types',
+        );
+        expect(
+          cat.onBehalfs.isNotEmpty,
+          true,
+          reason: '${cat.id} has no on-behalfs',
+        );
+        if (!requiresSteps) {
+          expect(cat.steps, isEmpty);
+          expect(cat.caseCategories, isNotEmpty);
+        }
       }
     });
 
@@ -43,33 +58,64 @@ void main() {
     });
 
     test('all case type IDs are unique across categories', () {
-      final allIds =
-          seedCategories.expand((c) => c.caseTypes.map((ct) => ct.id));
+      final allIds = seedCategories.expand(
+        (c) => c.allCaseTypes.map((ct) => ct.id),
+      );
       expect(allIds.length, allIds.toSet().length);
     });
 
+    test('AD/HCD case types link to their nested case categories', () {
+      for (final courtCategory in seedCategories.where(
+        (category) =>
+            category.id == appellateDivisionId ||
+            category.id == highCourtDivisionId,
+      )) {
+        for (final caseCategory in courtCategory.caseCategories) {
+          expect(seedCaseCategoryById[caseCategory.id], isNotNull);
+          for (final caseType in caseCategory.caseTypes) {
+            expect(caseType.caseCategoryId, caseCategory.id);
+          }
+        }
+      }
+    });
+
+    test('lower-court case types remain scoped only by court category', () {
+      for (final courtCategory in seedCategories.where(
+        (category) => lowerCourtCategoryIds.contains(category.id),
+      )) {
+        expect(courtCategory.caseCategories, isEmpty);
+        expect(
+          courtCategory.allCaseTypes.every(
+            (caseType) => caseType.caseCategoryId == null,
+          ),
+          isTrue,
+        );
+      }
+    });
+
     test('all on-behalf IDs are unique across categories', () {
-      final allIds =
-          seedCategories.expand((c) => c.onBehalfs.map((o) => o.id));
+      final allIds = seedCategories.expand((c) => c.onBehalfs.map((o) => o.id));
       expect(allIds.length, allIds.toSet().length);
     });
 
     test('disposed step IDs set is non-empty and all IDs are resolvable', () {
       expect(disposedStepIds.isNotEmpty, true);
-      final allStepIds =
-          seedCategories.expand((c) => c.steps.map((s) => s.id)).toSet();
+      final allStepIds = seedCategories
+          .expand((c) => c.steps.map((s) => s.id))
+          .toSet();
       for (final id in disposedStepIds) {
-        expect(allStepIds.contains(id), true,
-            reason: '$id is not a known step ID');
+        expect(
+          allStepIds.contains(id),
+          true,
+          reason: '$id is not a known step ID',
+        );
       }
     });
 
     test('disposed-step set includes common disposed terms', () {
       // Check that key disposed markers are present
-      final hasDisposed = disposedStepIds
-          .any((id) => id.endsWith('-disposed'));
-      final hasJudgment = disposedStepIds
-          .any((id) => id.endsWith('-judgment'));
+      final hasDisposed = disposedStepIds.any((id) => id.endsWith('-disposed'));
+      final hasJudgment = disposedStepIds.any((id) => id.endsWith('-judgment'));
       expect(hasDisposed, true);
       expect(hasJudgment, true);
     });
@@ -90,39 +136,88 @@ void main() {
     test('every district has English and Bengali labels', () {
       for (final districts in districtIdsByDivision.values) {
         for (final district in districts) {
-          expect(divisionLabelEn.containsKey(district) || districtLabelEn.containsKey(district),
-              true, reason: '$district missing English label');
-          expect(divisionLabelBn.containsKey(district) || districtLabelBn.containsKey(district),
-              true, reason: '$district missing Bengali label');
+          expect(
+            divisionLabelEn.containsKey(district) ||
+                districtLabelEn.containsKey(district),
+            true,
+            reason: '$district missing English label',
+          );
+          expect(
+            divisionLabelBn.containsKey(district) ||
+                districtLabelBn.containsKey(district),
+            true,
+            reason: '$district missing Bengali label',
+          );
         }
       }
     });
 
     test('supreme court names exist for both appellate and high court', () {
-      final appCourts = supremeCourtNames
-          .where((c) => c.courtCategoryId == appellateDivisionId);
-      final hcCourts = supremeCourtNames
-          .where((c) => c.courtCategoryId == highCourtDivisionId);
-      expect(appCourts.isNotEmpty, true);
-      expect(hcCourts.isNotEmpty, true);
+      final appCourts = supremeCourtNames.where(
+        (c) => c.courtCategoryId == appellateDivisionId,
+      );
+      final hcCourts = supremeCourtNames.where(
+        (c) => c.courtCategoryId == highCourtDivisionId,
+      );
+      expect(appCourts, hasLength(3));
+      expect(hcCourts, hasLength(63));
+      expect(
+        appCourts.map((court) => court.orderIndex),
+        orderedEquals([0, 1, 2]),
+      );
+      expect(
+        hcCourts.map((court) => court.orderIndex),
+        orderedEquals(List<int>.generate(63, (index) => index)),
+      );
+    });
+
+    test('AD/HCD source counts and order are preserved', () {
+      final app = seedCategoryById[appellateDivisionId]!;
+      final high = seedCategoryById[highCourtDivisionId]!;
+
+      expect(app.caseCategories, hasLength(4));
+      expect(app.allCaseTypes, hasLength(11));
+      expect(app.onBehalfs, hasLength(2));
+      expect(high.caseCategories, hasLength(5));
+      expect(high.allCaseTypes, hasLength(98));
+      expect(high.onBehalfs, hasLength(2));
+      expect(
+        app.caseCategories.map((item) => item.orderIndex),
+        orderedEquals([0, 1, 2, 3]),
+      );
+      expect(
+        high.caseCategories.map((item) => item.orderIndex),
+        orderedEquals([0, 1, 2, 3, 4]),
+      );
     });
 
     test('lower court names exist for seed districts', () {
       // At minimum, Dhaka and Narayanganj have court data
-      final dhakaCourts =
-          lowerCourtNames.where((c) => c.district == 'dhaka').toList();
-      final narayanganjCourts =
-          lowerCourtNames.where((c) => c.district == 'narayanganj').toList();
-      expect(dhakaCourts.isNotEmpty, true,
-          reason: 'Dhaka should have lower court names');
-      expect(narayanganjCourts.isNotEmpty, true,
-          reason: 'Narayanganj should have lower court names');
+      final dhakaCourts = lowerCourtNames
+          .where((c) => c.district == 'dhaka')
+          .toList();
+      final narayanganjCourts = lowerCourtNames
+          .where((c) => c.district == 'narayanganj')
+          .toList();
+      expect(
+        dhakaCourts.isNotEmpty,
+        true,
+        reason: 'Dhaka should have lower court names',
+      );
+      expect(
+        narayanganjCourts.isNotEmpty,
+        true,
+        reason: 'Narayanganj should have lower court names',
+      );
     });
 
     test('every lower court has a division resolved', () {
       for (final court in lowerCourtNames) {
-        expect(court.division, isNotNull,
-            reason: 'Court ${court.id} missing division');
+        expect(
+          court.division,
+          isNotNull,
+          reason: 'Court ${court.id} missing division',
+        );
       }
     });
 
@@ -146,9 +241,18 @@ void main() {
 
     test('label maps resolve all case type IDs', () {
       for (final cat in seedCategories) {
-        for (final ct in cat.caseTypes) {
+        for (final ct in cat.allCaseTypes) {
           expect(caseTypeLabelEn.containsKey(ct.id), true);
           expect(caseTypeLabelBn.containsKey(ct.id), true);
+        }
+      }
+    });
+
+    test('label maps resolve all case category IDs', () {
+      for (final cat in seedCategories) {
+        for (final caseCategory in cat.caseCategories) {
+          expect(caseCategoryLabelEn.containsKey(caseCategory.id), true);
+          expect(caseCategoryLabelBn.containsKey(caseCategory.id), true);
         }
       }
     });
@@ -187,27 +291,35 @@ void main() {
     test('mandatory on-behalf mapping per plan §12.2 is satisfied', () {
       final byId = {for (final c in seedCategories) c.id: c};
 
-      // Appellate → Appellant, Respondent, Petitioner
-      final appObIds = byId[appellateDivisionId]!.onBehalfs.map((o) => o.id).toSet();
-      expect(appObIds.any((id) => id.contains('appellant')), true);
+      // Appellate → Petitioner, Respondent
+      final appObIds = byId[appellateDivisionId]!.onBehalfs
+          .map((o) => o.id)
+          .toSet();
+      expect(appObIds.length, 2);
       expect(appObIds.any((id) => id.contains('respondent')), true);
       expect(appObIds.any((id) => id.contains('petitioner')), true);
 
-      // High Court → Petitioner, Respondent, Writ Petitioner, Appellant
-      final hcObIds = byId[highCourtDivisionId]!.onBehalfs.map((o) => o.id).toSet();
+      // High Court → Petitioner, Respondent
+      final hcObIds = byId[highCourtDivisionId]!.onBehalfs
+          .map((o) => o.id)
+          .toSet();
+      expect(hcObIds.length, 2);
       expect(hcObIds.any((id) => id.contains('petitioner')), true);
       expect(hcObIds.any((id) => id.contains('respondent')), true);
-      expect(hcObIds.any((id) => id.contains('writ_petitioner')), true);
 
       // District Sessions Criminal → Accused, Complainant, State, Victim
-      final dscObIds = byId[districtSessionsCriminalId]!.onBehalfs.map((o) => o.id).toSet();
+      final dscObIds = byId[districtSessionsCriminalId]!.onBehalfs
+          .map((o) => o.id)
+          .toSet();
       expect(dscObIds.any((id) => id.contains('accused')), true);
       expect(dscObIds.any((id) => id.contains('complainant')), true);
       expect(dscObIds.any((id) => id.contains('state')), true);
       expect(dscObIds.any((id) => id.contains('victim')), true);
 
       // District Courts Civil → Plaintiff, Defendant, Petitioner, Respondent, Applicant
-      final dccObIds = byId[districtCourtsCivilId]!.onBehalfs.map((o) => o.id).toSet();
+      final dccObIds = byId[districtCourtsCivilId]!.onBehalfs
+          .map((o) => o.id)
+          .toSet();
       expect(dccObIds.any((id) => id.contains('plaintiff')), true);
       expect(dccObIds.any((id) => id.contains('defendant')), true);
       expect(dccObIds.any((id) => id.contains('applicant')), true);
@@ -242,9 +354,11 @@ class SeedMigrationRunnerStub {
   static String get checksumV1 {
     // Replicating the same logic from SeedMigrationRunner._checksumV1
     const payload =
-        'seed_v1_court_categories_steps_casetypes_onbehalfs_courts';
-    final bytes =
-        payload.codeUnits.fold<int>(0, (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF);
+        'seed_v1_court_categories_case_categories_steps_casetypes_onbehalfs_courts';
+    final bytes = payload.codeUnits.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
     final b64 = _base64Encode('seed_v1:$bytes'.codeUnits);
     return b64;
   }
@@ -260,7 +374,9 @@ class SeedMigrationRunnerStub {
       final b2 = i + 2 < bytes.length ? bytes[i + 2] : 0;
       buf.write(chars[(b0 >> 2) & 0x3F]);
       buf.write(chars[((b0 << 4) | (b1 >> 4)) & 0x3F]);
-      buf.write(i + 1 < bytes.length ? chars[((b1 << 2) | (b2 >> 6)) & 0x3F] : '=');
+      buf.write(
+        i + 1 < bytes.length ? chars[((b1 << 2) | (b2 >> 6)) & 0x3F] : '=',
+      );
       buf.write(i + 2 < bytes.length ? chars[b2 & 0x3F] : '=');
     }
     return buf.toString();

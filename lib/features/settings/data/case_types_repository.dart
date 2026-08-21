@@ -20,10 +20,14 @@ abstract class CaseTypesRepository {
   Stream<List<CaseType>> watchAll({int? limit, int? offset});
   Future<List<CaseType>> listByCategory(String categoryId);
   Stream<List<CaseType>> watchByCategory(String categoryId);
+  Future<List<CaseType>> listByCaseCategory(String caseCategoryId);
+  Stream<List<CaseType>> watchByCaseCategory(String caseCategoryId);
 }
 
 /// Local Drift-backed implementation of [CaseTypesRepository].
-class LocalCaseTypesRepository with BaseLocalRepository implements CaseTypesRepository {
+class LocalCaseTypesRepository
+    with BaseLocalRepository
+    implements CaseTypesRepository {
   final CaseTypesDao _dao;
 
   @override
@@ -125,20 +129,33 @@ class LocalCaseTypesRepository with BaseLocalRepository implements CaseTypesRepo
   Future<CaseType?> getById(String id) => _dao.getById(id);
 
   @override
-  Future<List<CaseType>> listAll({int? limit, int? offset}) => _dao.getAll(limit: limit, offset: offset);
+  Future<List<CaseType>> listAll({int? limit, int? offset}) =>
+      _dao.getAll(limit: limit, offset: offset);
 
   @override
-  Stream<List<CaseType>> watchAll({int? limit, int? offset}) => _dao.watchAll(limit: limit, offset: offset);
+  Stream<List<CaseType>> watchAll({int? limit, int? offset}) =>
+      _dao.watchAll(limit: limit, offset: offset);
 
   @override
-  Future<List<CaseType>> listByCategory(String categoryId) => _dao.getByCategory(categoryId);
+  Future<List<CaseType>> listByCategory(String categoryId) =>
+      _dao.getByCategory(categoryId);
 
   @override
-  Stream<List<CaseType>> watchByCategory(String categoryId) => _dao.watchByCategory(categoryId);
+  Stream<List<CaseType>> watchByCategory(String categoryId) =>
+      _dao.watchByCategory(categoryId);
+
+  @override
+  Future<List<CaseType>> listByCaseCategory(String caseCategoryId) =>
+      _dao.getByCaseCategory(caseCategoryId);
+
+  @override
+  Stream<List<CaseType>> watchByCaseCategory(String caseCategoryId) =>
+      _dao.watchByCaseCategory(caseCategoryId);
 
   List<String> _changedFields(CaseTypesCompanion companion) {
     final fields = <String>[];
     if (companion.courtCategoryId.present) fields.add('court_category_id');
+    if (companion.caseCategoryId.present) fields.add('case_category_id');
     if (companion.name.present) fields.add('name');
     if (companion.orderIndex.present) fields.add('order_index');
     return fields;

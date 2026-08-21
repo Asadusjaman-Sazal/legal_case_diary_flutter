@@ -56,7 +56,7 @@ This plan is organized into six parts so it can be divided into small, bite-size
 - **Clock-skew-proof conflicts (superseded implementation):** per-row monotonic `version` remains the revision identifier, but the server alone assigns it. Updates require an exact `base_version` match; `updated_at` and editor UUID are audit/display metadata only.
 - **Atomic push pipeline:** all sync writes go through a single `push_changes` Postgres RPC (optimistic-concurrency enforcement, structured conflict responses, FK-safe ordering, premium gate, idempotent mutations, serialized FIFO worker, retry policy, compaction matrix).
 - **Per-device offline reset:** extended-offline check is device-local, threshold raised to 150 days (buffer under 180-day tombstone retention), with an automatic authenticated encrypted safety archive containing the versioned JSON backup before any wipe.
-- **Firm-shared config:** `courts`, `steps`, `case_types`, `on_behalfs` gain `firm_id` + firm-wide SELECT; `case_history` gains denormalized `user_id`/`firm_id`; `case_types`/`on_behalfs` gain the `court_category` column their scoping always required.
+- **Firm-shared config:** `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, `on_behalfs` gain `firm_id` + firm-wide SELECT; `case_history` gains denormalized `user_id`/`firm_id`; `case_types` additionally link to `case_categories` when a court category defines them.
 - **Realtime:** "Broadcast from Database" (tiny `{table, id}` pings on private firm/user topics) replaces `postgres_changes` subscriptions.
 - **Logout flow branches** for premium-online / premium-offline / free users (no sync deadlock); free-user auto-export in the Backup to Local Storage format.
 - **Invite system hardened:** `firms.secret_key` and locally stored password hashes removed; new `firm_invites` table with hashed single-use revocable codes redeemed via a rate-limited `join_firm` RPC.
@@ -127,7 +127,7 @@ The application adheres to the custom **Justice Ledger** corporate design system
    - **Court Category** lists the pre-seeded lower-court categories within the selected district (e.g., `district_sessions_criminal`, `district_courts_civil`, `chief_judicial_magistrate`, `chief_metropolitan_magistrate`, `executive_magistrate`, `tribunals`).
    - **List of Courts** lists specific courts for the selected district + category. Users can add, edit, reorder, and soft-delete this list.
 
-> **Canonical category rule:** Every court resolves to exactly one stable `court_category_id`. For Appellate and High Court selections, the category is assigned implicitly from field 1 even though the separate Court Category dropdown is hidden. For lower courts, it comes from field 4. All steps, case types, and on-behalf options are queried by this same ID. Human-readable English/Bengali labels are presentation/localization only and must not be database keys. This hierarchy and its stable IDs must be maintained by versioned pre-seed migrations.
+> **Canonical category rule:** Every court resolves to exactly one stable `court_category_id`. For Appellate and High Court selections, the category is assigned implicitly from field 1 even though the lower-court Court Category dropdown is hidden. For lower courts, it comes from field 4. Steps, lower-court Case Types, and on-behalf options are queried by this court-category ID. AD/HCD additionally use a separate `case_category_id` to scope their Case Types. Human-readable English/Bengali labels are presentation/localization only and must not be database keys. This hierarchy and its stable IDs must be maintained by versioned pre-seed migrations.
 ---
 
 ## Detailed Cases and Settings Related Screens Specifications
@@ -161,24 +161,25 @@ A full-screen modal sheet for adding a new case or editing an existing one.
 | 3 | **District** | `CustomDropdown` (single-select) | `PreSeededData.districtsByDivision[selectedDivision]` | Hidden when "Appellate Division" or "High Court Division" selected |
 | 4 | **Court Category** | `CustomDropdown` (single-select) | `PreSeededData.lowerCourtCategories` | Hidden when "Appellate Division" or "High Court Division" selected |
 | 5 | **Name of Court** | `CustomDropdown` (single-select, searchable) | Supreme: `PreSeededData.supremeCourtNames[category]` / Lower: `PreSeededData.lowerCourtNamesByDistrict[district][category]` | For lower divisional courts, filtered by selected district + category |
-| 6 | **Case Type** | `CustomDropdown` (single-select) | `CaseTypesDao` filtered by resolved `court_category_id` | For Appellate/High Court, category is implicit from field 1; for lower courts, from field 4. Placed left of Case Number. |
-| 7 | **Case Number** | `TextFormField` | — | Placed together with Case Type: Case Number on the right |
-| 8 | **Petitioner** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`petitionerLeadCounsel`) |
-| 9 | **Respondent** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`respondentLeadCounsel`) |
-| 10 | **On Behalf** | `CustomDropdown` (single-select) | `OnBehalfsDao` filtered by resolved `court_category_id` | Data type: `onBehalfId`; uses the same implicit/explicit category resolution as Case Type and Step. |
-| 11 | **Petitioner Phone No. / Respondent Phone No.** | Two `TextFormField`s (numeric keyboard) | — | Data types: `petitionerPhone`, `respondentPhone` |
-| 12 | **Case Title & Remarks** | `TextFormField` (top half) + `TextFormField` (bottom half, multi-line) | — | Top: `caseTitleAndSection`. Bottom: `caseRemarks` |
-| 13 | **Next Date** | Date picker | — | Data type: `nextDate` (epoch ms). Placed with 14 & 15 in a single row |
-| 14 | **Notification** | `IconButton` (toggle) | — | When on, icon fills with black. Placed with 13 & 15 in a single row |
-| 15 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Options from `Settings > Notification > Notification Day Offset` | Placed with 13 & 14 in a single row |
-| 16 | **Step** | `CustomDropdown` (multi-select) | `StepsDao` — filtered by selected court's category | Data type: `lastStep` |
-| 17 | **Note** | `TextFormField` (multi-line) | — | Data type: `notesResults` |
-| 18 | **Save** | `ElevatedButton` | — | Saves the form data via `CaseRepository.insertCase()` (add mode) or `CaseRepository.updateCase()` (edit mode) |
+| 6 | **Case Category** | `CustomDropdown` (single-select) | `CaseCategoriesDao` filtered by the resolved AD/HCD `court_category_id` | Shown only for Appellate/High Court; Case Type is filtered by the selected `case_category_id`. Lower courts do not show this field. |
+| 7 | **Case Type** | `CustomDropdown` (single-select) | `CaseTypesDao` filtered by `court_category_id`; additionally by `case_category_id` for AD/HCD | Placed left of Case Number. |
+| 8 | **Case Number** | `TextFormField` | — | Placed together with Case Type: Case Number on the right |
+| 9 | **Petitioner** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`petitionerLeadCounsel`) |
+| 10 | **Respondent** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`respondentLeadCounsel`) |
+| 11 | **On Behalf** | `CustomDropdown` (single-select) | `OnBehalfsDao` filtered by resolved `court_category_id` | Uses the same implicit/explicit court-category resolution as Step. |
+| 12 | **Petitioner Phone No. / Respondent Phone No.** | Two `TextFormField`s (numeric keyboard) | — | Data types: `petitionerPhone`, `respondentPhone` |
+| 13 | **Case Title & Remarks** | `TextFormField` (top half) + `TextFormField` (bottom half, multi-line) | — | Top: `caseTitleAndSection`. Bottom: `caseRemarks` |
+| 14 | **Next Date** | Date picker | — | Data type: `nextDate` (epoch ms). Placed with 15 & 16 in a single row |
+| 15 | **Notification** | `IconButton` (toggle) | — | When on, icon fills with black. Placed with 14 & 16 in a single row |
+| 16 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Options from `Settings > Notification > Notification Day Offset` | Placed with 14 & 15 in a single row |
+| 17 | **Step** | `CustomDropdown` (multi-select) | `StepsDao` — filtered by selected court's category | Data type: `lastStep`; hidden/disabled for AD/HCD because their seeded Step lists are empty. |
+| 18 | **Note** | `TextFormField` (multi-line) | — | Data type: `notesResults` |
+| 19 | **Save** | `ElevatedButton` | — | Saves the form data via `CaseRepository.insertCase()` (add mode) or `CaseRepository.updateCase()` (edit mode) |
 
 **Layout rules:**
-- Fields 6–7 (Case Type + Case Number) are placed side-by-side: Case Type on the left, Case Number on the right.
-- Fields 13–14–15 (Next Date → Notification → Day Offset) are placed in a **single row** in that exact order.
-- Fields 5–10 (Court Name through On Behalf) are cascading: changing Higher/Lower Court resets and shows/hides Division/District/Category, which in turn filters Name of Court.
+- Fields 7–8 (Case Type + Case Number) are placed side-by-side: Case Type on the left, Case Number on the right.
+- Fields 14–15–16 (Next Date → Notification → Day Offset) are placed in a **single row** in that exact order.
+- Fields 5–11 (Court Name through On Behalf) are cascading: changing Higher/Lower Court resets and shows/hides Division/District/Court Category/Case Category, which in turn filters Name of Court and Case Type.
 - All other fields are stacked vertically in the order listed above.
 
 **Logic:**
@@ -496,6 +497,8 @@ lib/
 │   └── tables/
 │       ├── cases_table.dart
 │       ├── case_history_table.dart
+│       ├── court_categories_table.dart
+│       ├── case_categories_table.dart
 │       ├── courts_table.dart
 │       ├── steps_table.dart
 │       ├── case_types_table.dart        # Custom/preseeded case types
@@ -538,7 +541,7 @@ lib/
 
 > **Timestamp Convention (explicit storage boundary):** Drift stores timestamps as `INTEGER` Unix epoch milliseconds because SQLite has no native timestamp type. Supabase/PostgreSQL stores server-authoritative instants (`server_updated_at`, submission/approval times, subscription expiry, audit times, invite attempts) as `TIMESTAMPTZ`; client-origin display metadata such as local `updated_at` may remain `BIGINT` epoch milliseconds because it is untrusted and never used for authorization, ordering cursors, or conflict acceptance. Repository serializers convert `TIMESTAMPTZ` ISO-8601 UTC values to/from local epoch milliseconds at the boundary. Calendar-only legal dates such as `next_date` and `hearing_date` are normalized to a local civil date (start-of-day in the configured Bangladesh timezone) and compared by calendar date, never as an arbitrary UTC instant. The display layer (`date_utils.dart`) renders the configured locale and timezone consistently.
 
-> **Sync Columns:** Every synced data table (`cases`, `case_history`, `notes`, `case_references`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`) includes:
+> **Sync Columns:** Every synced data table (`cases`, `case_history`, `notes`, `case_references`, `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`) includes:
 > - `updated_at` (INTEGER) — Epoch ms of the last local modification, retained for display/audit only. It never decides write acceptance because device clocks are untrusted.
 > - `version` (INTEGER) — Monotonic per-row revision assigned **only by the server**. Inserts receive version 1; accepted updates receive `current_server_version + 1`. Clients never choose or increment the authoritative value.
 > - `server_updated_at` (TIMESTAMPTZ, **Supabase only**) — Maintained by a Postgres `BEFORE INSERT OR UPDATE` trigger (`server_updated_at = now()`). This is the only column delta pulls filter on. It does not exist in the local Drift schema.
@@ -689,6 +692,25 @@ lib/
 
 > Appellate Division and High Court Division are complete categories in this table, not merely hierarchy headings. UI labels such as "Appellate Division" are mapped to these stable IDs; changing language or wording cannot break foreign-key-style scoping.
 
+### `case_categories` (Case categories nested under a court category)
+| Column | Type | Notes |
+|---|---|---|
+| `id` | TEXT PK | Stable deterministic machine key; never a localized label. |
+| `court_category_id` | TEXT FK → `court_categories.id` | Owning canonical court category. |
+| `name` | TEXT | English seed/custom name; Bengali is resolved through `app_translations.dart`. |
+| `order_index` | INTEGER | Canonical display order within the court category. |
+| `is_custom` | BOOLEAN | Built-in vs user-created category. |
+| `is_user_modified` | BOOLEAN | Preserves customized built-ins during seed migrations. |
+| `user_id` | TEXT | Creator for custom individual categories; null for built-ins. |
+| `firm_id` | TEXT | Firm scope for custom firm categories; null for built-ins/individuals. |
+| `is_deleted` | BOOLEAN | Soft delete flag. |
+| `updated_at` | INTEGER | Epoch ms. |
+| `version` | INTEGER | Global sync column. |
+| `synced_at` | INTEGER | Epoch ms; null until synced. |
+| `last_modified_by` | TEXT | UUID. |
+
+> Only AD/HCD Case Types are nested beneath these rows and reference them through `case_category_id`. The current authoritative source is `docs/AD_and_HCD.txt`; lower-court Case Types remain directly scoped by `court_category_id`.
+
 ### `courts`
 | Column | Type | Notes |
 |---|---|---|
@@ -698,6 +720,7 @@ lib/
 | `division` | TEXT | Bangladesh division (e.g., "Dhaka"). Populated only when higher_lower_courts is 'lower_courts'. |
 | `district` | TEXT | Bangladesh district. Populated only when higher_lower_courts is 'lower_courts'. |
 | `court_category_id` | TEXT FK → `court_categories.id` | Required for every court. Implicitly `appellate_division`/`high_court_division` for those top-level selections; selected explicitly for lower courts. |
+| `order_index` | INTEGER | Canonical seed display order within the district/category list. |
 | `is_custom` | BOOLEAN | `true` if added by the user; `false` if pre-seeded |
 | `user_id` | TEXT | UUID — creator of custom court. null for pre-seeded. |
 | `firm_id` | TEXT | UUID — null for individuals & pre-seeded rows. **Required for firm sharing:** when an associate creates a custom court and a firm case references it, every firm member must be able to resolve that court. Firm-wide SELECT is granted via RLS on this column, and this table is included in firm sync & change notifications. |
@@ -725,13 +748,15 @@ lib/
 
 ---
 
-### `case_types` (Court case types like Writ, Appeal, Suit)
-// Note: Case types are scoped across ALL canonical categories—including Appellate Division and High Court Division—by `court_category_id`. This is mandatory in pre-seeded data and custom configuration.
+### `case_types` (Case types scoped by court category; AD/HCD additionally by Case Category)
+// Note: Every case type is scoped by `court_category_id`; only AD/HCD case types additionally require `case_category_id`.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | UUID PK | |
 | `court_category_id` | TEXT FK → `court_categories.id` | Stable category scope shared with courts and steps; drives Add/Edit Case filtering. |
+| `case_category_id` | TEXT NULL FK → `case_categories.id` | Case Category scope for AD/HCD only; null for lower-court case types. |
 | `name` | TEXT | Name of the case type (e.g., "Writ Petition", "Civil Suit") |
+| `order_index` | INTEGER | Canonical display order within its court/category scope. |
 | `is_custom` | BOOLEAN | User-added or pre-seeded |
 | `user_id` | TEXT | UUID — creator. null for pre-seeded. |
 | `firm_id` | TEXT | UUID    null for individuals & pre-seeded rows. Firm-wide SELECT via RLS; included in firm sync (see `courts` note). |
@@ -1163,24 +1188,26 @@ Alerts and display parameters are configured via `Settings > View Settings` and 
 - **Settings Search:** The main Settings screen (`settings_main_screen.dart`) features a search input that dynamically filters settings submenu items (e.g., typing "profile" hides unrelated submenus and only displays "Profile Settings" and "Manage Account").
 
 ### 12.2. Unified Courts, Case Types, Steps & On Behalf of Configuration
-- **Seeded Configuration File:** All initial options are stored in `lib/core/constants/pre_seeded_data.dart`. This includes comprehensive standard values for Bangladesh:
+  - **Seeded Configuration File:** All initial options are stored in `lib/core/constants/pre_seeded_data.dart`. This includes comprehensive standard values for Bangladesh:
   - Court Categories: Categorized by `Supreme Court Division`, `High Court Division`, `District Sessions Courts`, `District Civil Courts`, `Magistrate Courts`, `Executive Courts`, `Tribunals`, or other custom categories.
   - Court Names (categorized by these higher/lower court categories, and for lower courts, division and district options are only shown/entered when category is selected as Lower Courts).
-  - Case Types (e.g., Criminal Appeal, Civil Suit, Writ Petition, Revision)
-  - Court Steps (standard steps for civil/criminal procedures, strictly linked to court categories. When the user, from the Update or Add/Edit case window, selects the steps option, the UI displays only the collection of steps pre-defined for that specific court category).
+  - AD/HCD Case Categories, with their Case Types nested under the selected Case Category. The current source is `docs/AD_and_HCD.txt`; it defines 4 Appellate categories/11 types and 5 High Court categories/98 types.
+  - Case Types (e.g., Criminal Appeal, Civil Suit, Writ Petition, Revision), persisted with `court_category_id`; AD/HCD types additionally persist `case_category_id`.
+  - Court Steps (standard steps for lower-court procedures, strictly linked to court categories. AD/HCD intentionally have no seeded Steps until authoritative lists are supplied).
   - On Behalf options (e.g., Petitioner, Respondent, Plaintiff, Defendant)
-- **Mandatory category-scoped representation seed:** Implement the user's proposed mapping using stable category IDs (labels below are illustrative UI labels):
-  - `appellate_division` → Appellant, Respondent, Petitioner
-  - `high_court_division` → Petitioner, Respondent, Writ Petitioner, Appellant
+- **Category-scoped representation seed:** Use stable category IDs. The current AD/HCD source defines:
+  - `appellate_division` → Petitioner, Respondent
+  - `high_court_division` → Petitioner, Respondent
+  Lower-court defaults remain:
   - `district_sessions_criminal` → Accused, Complainant, State, Victim
   - `district_courts_civil` → Plaintiff, Defendant, Petitioner, Respondent, Applicant
   - `chief_judicial_magistrate` → Accused, Complainant, State, Informant
   - `chief_metropolitan_magistrate` → Accused, Complainant, State, Informant
   - `executive_magistrate` → Defendant, Complainant, Applicant
   - `tribunals` → Applicant, Respondent, Claimant, Objector
-  Apply the same stable-ID scoping pattern to `case_types` and `steps`. Dart may expose a typed `Map<CourtCategoryId, List<SeedOption>>`, but persisted relationships must use IDs rather than English labels.
-- **Versioned, idempotent seed migrations:** Pre-seeded data includes `court_categories`, `courts`, `steps`, `case_types`, and `on_behalfs`. Every built-in row has a stable deterministic ID shared across Drift, Supabase, backups, and releases. Ship ordered migrations (`seed_v1`, `seed_v2`, …) and record each successful application in a database-backed Drift `seed_migrations` ledger with `migration_id` PK, `checksum`, and `applied_at`; a lone `SharedPreferences` integer is not migration state. On every app/database upgrade, apply only missing migrations in order and transactionally. Each migration must be rerunnable: insert absent IDs with conflict-safe semantics, perform only explicitly listed corrections, and record the ledger row in the same transaction. Track `is_user_modified` (and soft-delete state) for editable built-ins; generic corrections must skip customized/deleted rows, while any exceptional forced correction must name its IDs, reason, and preservation behavior. Never resurrect user-deleted rows implicitly. A database reset is a development tool, never the production update mechanism.
-- **Customization Screen:** The `Settings > Edit Court/Steps > Court Names & Steps` screen provides a tabbed UI allowing users to view, add, edit, and soft-delete entries for all 4 lists (Court Names, Case Types, Steps, and On Behalfs).
+  Apply the same stable-ID scoping pattern to `case_categories`, `case_types`, and `steps`. Dart may expose typed maps for court categories, case categories, and nested case types, but persisted relationships must use IDs rather than English labels.
+- **Versioned, idempotent seed migrations:** Pre-seeded data includes `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, and `on_behalfs`. Every built-in row has a stable deterministic ID shared across Drift, Supabase, backups, and releases. Ship ordered migrations (`seed_v1`, `seed_v2`, …) and record each successful application in a database-backed Drift `seed_migrations` ledger with `migration_id` PK, `checksum`, and `applied_at`; a lone `SharedPreferences` integer is not migration state. On every app/database upgrade, apply only missing migrations in order and transactionally. Each migration must be rerunnable: insert absent IDs with conflict-safe semantics, perform only explicitly listed corrections, and record the ledger row in the same transaction. Track `is_user_modified` (and soft-delete state) for editable built-ins; generic corrections must skip customized/deleted rows, while any exceptional forced correction must name its IDs, reason, and preservation behavior. Never resurrect user-deleted rows implicitly. A database reset is a development tool, never the production update mechanism.
+- **Customization Screen:** The `Settings > Edit Court/Steps > Court Names & Steps` screen provides a tabbed UI allowing users to view, add, edit, and soft-delete entries for all 5 lists (Court Names, Case Categories, Case Types, Steps, and On Behalfs).
 
 ### 12.3 Power & Sync Efficiency (Battery Conservation)
 - **Foreground WebSocket Sync (Broadcast Ping Channel):** The Supabase Realtime WebSocket connection is active only when the app is in the foreground, carrying **only tiny "Broadcast from Database" `{table, id}` pings** on the private firm/user topic (see Sync Plan §1) — smaller frames over the socket and zero per-subscriber RLS churn, which itself is a battery win. When the app is backgrounded or the screen is locked, the channel is immediately disconnected. On returning to the foreground, the connection is re-established.
@@ -1298,8 +1325,8 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 
 ### 1. Table classification and scope
 
-- **Push/pull domain tables:** `cases`, `case_history`, `notes`, `case_references`, `court_categories`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`, and `conflict_log`. These receive the complete global sync contract, `(server_updated_at, id)` server indexes, Broadcast triggers, conflict handling, and tombstone behavior.
-- **Firm-shared editable reference data:** `court_categories`, `courts`, `steps`, `case_types`, and `on_behalfs`. Built-ins use deterministic IDs. Every editable built-in has `is_user_modified BOOLEAN NOT NULL DEFAULT false`; custom rows have `is_custom = true`. Firm members share firm-scoped customizations; individuals use user-scoped customizations.
+- **Push/pull domain tables:** `cases`, `case_history`, `notes`, `case_references`, `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`, and `conflict_log`. These receive the complete global sync contract, `(server_updated_at, id)` server indexes, Broadcast triggers, conflict handling, and tombstone behavior.
+- **Firm-shared editable reference data:** `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, and `on_behalfs`. Built-ins use deterministic IDs. Every editable built-in has `is_user_modified BOOLEAN NOT NULL DEFAULT false`; custom rows have `is_custom = true`. Firm members share firm-scoped customizations; individuals use user-scoped customizations.
 - **Pull-only local caches:** authenticated `profiles`, `firms`, and `firm_members`. They are refreshed from the server and are never uploaded by the generic domain queue.
 - **Per-user preferences:** language, theme/view configuration, navigation configuration, notification enabled/time/default offsets, backup-nudge metadata, and related settings. They are never firm-shared. They persist in a local `user_preferences` table keyed by user identity; premium accounts may sync them through a dedicated user-scoped server preference row protected by self-only RLS.
 - **Local operational state:** `sync_queue`, per-table pull cursors, `seed_migrations`, and `sync_metadata`. `sync_metadata` stores device `last_successful_sync_at`, clock offset, recovery-required flag, archive path/checksum/completion state, and atomic recovery checkpoints. These are not generic domain-synced tables.
@@ -1308,7 +1335,7 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 ### 2. Schema corrections
 
 - Replace the single `client_phone` field everywhere with nullable `petitioner_phone` and `respondent_phone`. The represented client's phone is selected at runtime from `on_behalf_id`; detail views may display both explicitly stored party phones.
-- Add `is_user_modified` to `court_categories`, `courts`, `steps`, `case_types`, and `on_behalfs` in Drift and Supabase, migrations, seed-preservation logic, sync payloads, backups, and tests.
+- Add `is_user_modified` to `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, and `on_behalfs` in Drift and Supabase, migrations, seed-preservation logic, sync payloads, backups, and tests.
 - Add `last_attempt_at INTEGER NULL` to local `sync_queue`; write it immediately before each attempt and expose it in diagnostics.
 - The local profile cache stores `full_name`, `role`, `firm_id`, and `subscription_expiry`; server `TIMESTAMPTZ` values convert to local epoch milliseconds and invalidate on logout/account switch.
 - Notification and view settings are durable per-user preferences, not transient form-only state. A case's notification toggle and selected offsets are stored in a dedicated local per-user `case_notification_preferences` relation keyed by `(user_id, case_id)`; premium cross-device synchronization remains user-scoped.
@@ -1341,4 +1368,4 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 
 ### 6. Complete verification traceability
 
-Final verification must trace every implementation-plan section to a task and test. In addition to sync/security/payment scenarios, verify all five case lists, all 18 form fields and cascade resets, date-only history creation, both party-phone actions, Daily Cause List badge calendar, Notes/References CRUD/pinning/contextual search, every Settings submenu and court hierarchy reorder, Bengali rendering/language switching, mobile responsive layouts, full-state backup collisions/restore, back/exit navigation, notification persistence, identity adoption, membership revocation, and every local/server scope boundary above.
+Final verification must trace every implementation-plan section to a task and test. In addition to sync/security/payment scenarios, verify all five case lists, all 19 form fields and cascade resets, date-only history creation, both party-phone actions, Daily Cause List badge calendar, Notes/References CRUD/pinning/contextual search, every Settings submenu and court hierarchy reorder, Bengali rendering/language switching, mobile responsive layouts, full-state backup collisions/restore, back/exit navigation, notification persistence, identity adoption, membership revocation, and every local/server scope boundary above.

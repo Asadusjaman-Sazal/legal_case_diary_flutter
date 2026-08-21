@@ -1,4 +1,4 @@
-**Appellate Divsion**
+**Appellate Division**
 
 Name of Court
 ----------
@@ -13,11 +13,11 @@ Case Category:
 --------------
 Civil Cases, দেওয়ানি মোকদ্দমা
 Contempt Cases, কন্টেম্পট মোকদ্দমা
-Criminal Cases(AD), ফৌজদারি মামলা
+Criminal Cases(AD), ফৌজদারি মামলা (আপিল বিভাগ)
 Jail Cases, জেল মামলা
 
 
-Case Type: Civl Cases
+Case Type: Civil Cases
 ---------------------
 Civil Appeal, দেওয়ানি আপিল
 Civil Petition, দেওয়ানি পিটিশন
@@ -179,18 +179,18 @@ Blank List 1, ব্লাঙ্ক লিস্ট ১
 
 Blank List 2, ব্লাঙ্ক লিস্ট ২
 
-Lawazima Court, লাওয়াজিমা কোর্ট
+Lawazima Court, লয়াজিমা কোর্ট
 ===============================================
 
 Case Category:
 --------------
-Civl Appeal, দেওয়ানি আপিল
-Civil Rivision, দেওয়ানি রিভিশন
-Ciminal Cases(HD), ফৌজদারি মামলা (হাইকোর্ট বিভাগ)
+Civil Appeal, দেওয়ানি আপিল
+Civil Revision, দেওয়ানি রিভিশন
+Criminal Cases(HD), ফৌজদারি মামলা (হাইকোর্ট বিভাগ)
 Original Cases, আদি মামলা
 Writ Cases, রিট মামলা
 
-Case Type: Civl Appeal
+Case Type: Civil Appeal
 ----------------------
 Election Petition, ইলেকশন পিটিশন
 First Appeal, ১ম আপিল
@@ -209,10 +209,10 @@ Title Appeal, টাইটেল আপিল
 Bankruptcy Appeal, ব্যাংক্রাপ্সি আপিল
 
 
-Case Type: Civil Rivision
+Case Type: Civil Revision
 -------------------------
 Civil Rule, দেওয়ানি রুল
-Civil Rivision, দেওয়ানি রিভিশন
+Civil Revision, দেওয়ানি রিভিশন
 Civil Misc, দেওয়ানি মিছ
 Civil Order, দেওয়ানি আদেশ
 Contempt, কন্টেম্পট
@@ -230,11 +230,11 @@ Civil Rule (Contempt), দেওয়ানি রুল (কন্টেম্প
 Transfer Miscellaneous Case, বদলি মিছ মোকদ্দমা
 
 
-Case Type: Ciminal Cases(HD)
+Case Type: Criminal Cases(HD)
 ----------------------------
 Criminal Rule(Con A), ফৌজদারি রুল(Con A)
 Criminal Misc (Suo-Muto) Rule, ফৌজদারি মিছ (সু-মোটো) রুল,
-Death Referenc, ডেথ রেফারেন্স
+Death Reference, ডেথ রেফারেন্স
 Criminal Appeal(H), ফৌজদারি আপিল(H)
 Criminal Revision, ফৌজদারি রিভিশন
 Criminal Misc, ফৌজদারি মিছ
@@ -254,7 +254,7 @@ VC Criminal Misc Case, ভিসি ফৌজদারি মিছ মামল
 VC Criminal Appeal, ভিসি ফৌজদারি আপিল
 In re: VC, ইন রেঃ ভিসি
 VC Criminal Revision, ভিসি ফৌজদারি রিভিশন
-Departmental Case, ডিপার্টমেন্টাল মামলা
+Departmental Case, বিভাগীয় মামলা
 
 
 Case Type: Original Cases
@@ -271,7 +271,7 @@ Divorce Suit, ডিভোর্স মামলা
 Income Tax Reference, ইনকাম ট্যাক্স রেফারেন্স
 Merchant Shipping, মার্চেন্ট শিপিং
 Trademark Appeal, ট্রেডমার্ক আপিল
-Trademeark Application, ট্রেডমার্ক এপ্লিকেশন
+Trademark Application, ট্রেডমার্ক এপ্লিকেশন
 VAT Appeal, ভ্যাট আপিল
 Admiralty Suit, এডমিরালটি মামলা
 Admiralty Appeal, এডমিরালটি আপিল

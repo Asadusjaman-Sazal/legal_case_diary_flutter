@@ -27,11 +27,15 @@ class Courts extends Table {
   /// Required court category.
   TextColumn get courtCategoryId => text().references(CourtCategories, #id)();
 
+  /// Display order from the canonical seed list.
+  IntColumn get orderIndex => integer().withDefault(const Constant(0))();
+
   /// True if added by the user; false if pre-seeded.
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 
   /// Whether the user/firm has modified a pre-seeded row.
-  BoolColumn get isUserModified => boolean().withDefault(const Constant(false))();
+  BoolColumn get isUserModified =>
+      boolean().withDefault(const Constant(false))();
 
   /// Creator of custom court; null for pre-seeded.
   TextColumn get userId => text().nullable()();

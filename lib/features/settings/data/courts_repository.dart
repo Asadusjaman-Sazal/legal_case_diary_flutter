@@ -23,7 +23,9 @@ abstract class CourtsRepository {
 }
 
 /// Local Drift-backed implementation of [CourtsRepository].
-class LocalCourtsRepository with BaseLocalRepository implements CourtsRepository {
+class LocalCourtsRepository
+    with BaseLocalRepository
+    implements CourtsRepository {
   final CourtsDao _dao;
 
   @override
@@ -125,16 +127,20 @@ class LocalCourtsRepository with BaseLocalRepository implements CourtsRepository
   Future<Court?> getById(String id) => _dao.getById(id);
 
   @override
-  Future<List<Court>> listAll({int? limit, int? offset}) => _dao.getAll(limit: limit, offset: offset);
+  Future<List<Court>> listAll({int? limit, int? offset}) =>
+      _dao.getAll(limit: limit, offset: offset);
 
   @override
-  Stream<List<Court>> watchAll({int? limit, int? offset}) => _dao.watchAll(limit: limit, offset: offset);
+  Stream<List<Court>> watchAll({int? limit, int? offset}) =>
+      _dao.watchAll(limit: limit, offset: offset);
 
   @override
-  Future<List<Court>> listByCategory(String categoryId) => _dao.getByCategory(categoryId);
+  Future<List<Court>> listByCategory(String categoryId) =>
+      _dao.getByCategory(categoryId);
 
   @override
-  Stream<List<Court>> watchByCategory(String categoryId) => _dao.watchByCategory(categoryId);
+  Stream<List<Court>> watchByCategory(String categoryId) =>
+      _dao.watchByCategory(categoryId);
 
   List<String> _changedFields(CourtsCompanion companion) {
     final fields = <String>[];
@@ -143,6 +149,7 @@ class LocalCourtsRepository with BaseLocalRepository implements CourtsRepository
     if (companion.division.present) fields.add('division');
     if (companion.district.present) fields.add('district');
     if (companion.courtCategoryId.present) fields.add('court_category_id');
+    if (companion.orderIndex.present) fields.add('order_index');
     return fields;
   }
 }

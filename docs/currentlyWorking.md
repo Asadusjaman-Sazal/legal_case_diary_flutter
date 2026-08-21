@@ -1,3 +1,23 @@
+### 2026-08-21 — Current Task: AD/HCD-only Case Category scoping clarification — COMPLETE
+
+Clarified the data contract: Appellate Division and High Court Division Case Types use `case_category_id` in addition to `court_category_id`; lower-court Case Types remain scoped only by `court_category_id`.
+
+Version `0.0.69`.
+
+**Next:** Implement and validate the Task 07 Add/Edit Case AD/HCD fields and Case Category → Case Type UI flow.
+
+### 2026-08-21 — Current Task: Task 04 AD/HCD reference seed and Case Category database support — COMPLETE
+
+Implemented and validated:
+- Replaced Appellate Division and High Court Division seed courts, Case Categories, Case Types, and On Behalf options from `docs/AD_and_HCD.txt`.
+- Added the `case_categories` Drift table and `case_types.case_category_id`; AD/HCD Steps are intentionally empty.
+- Corrected source spelling errors, preserved deterministic ordering/IDs, and applied the idempotent `seed_v2` replacement migration.
+- Focused database tests passed; `flutter analyze` is clean.
+
+Version `0.0.68`.
+
+**Next:** Implement and validate the Task 07 Add/Edit Case AD/HCD fields and Case Category → Case Type UI flow.
+
 ### 2026-08-13 — Current Task: Task 07 Add Case Case Number unrestricted text input — COMPLETE
 
 Implemented and validated:

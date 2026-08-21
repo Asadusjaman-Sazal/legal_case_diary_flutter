@@ -398,29 +398,29 @@ class AppLocalizationsBn extends AppLocalizations {
   String get courtCategory_highCourtDivision => 'হাই কোর্ট বিভাগ';
 
   @override
-  String get courtCategory_lowerDivisionalCourts => 'নিম্ন আদালত';
+  String get courtCategory_lowerDivisionalCourts => 'বিভাগীয় নিম্ন আদালত সমূহ';
 
   @override
   String get lowerCourtCategory_districtSessionsCriminal =>
-      'জেলা ও দায়রা জজ আদালত (ফৌজদারি)';
+      'দায়রা জজ আদালত (ফৌজদারি)';
 
   @override
   String get lowerCourtCategory_districtCourtsCivil => 'জেলা আদালত (দেওয়ানি)';
 
   @override
   String get lowerCourtCategory_chiefJudicialMagistrate =>
-      'প্রধান বিচারিক হাকিম আদালত';
+      'চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত';
 
   @override
   String get lowerCourtCategory_chiefMetropolitanMagistrate =>
-      'প্রধান মেট্রোপলিটন হাকিম আদালত';
+      'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত';
 
   @override
   String get lowerCourtCategory_executiveMagistrate =>
       'নির্বাহী ম্যাজিস্ট্রেট আদালত';
 
   @override
-  String get lowerCourtCategory_tribunals => 'ট্রাইব্যুনাল';
+  String get lowerCourtCategory_tribunals => 'ট্রাইব্যুনাল সমূহ';
 
   @override
   String get onBehalf_plaintiff => 'বাদী';
@@ -521,7 +521,7 @@ class AppLocalizationsBn extends AppLocalizations {
     String caseNumber,
     String nextDate,
   ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর শ্রবণ $nextDate তারিখে নির্ধারিত। প্রশ্ন থাকলে যোগাযোগ করুন।';
+    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এ্রর পরবর্তী তারিখ $nextDate । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।';
   }
 
   @override
@@ -530,11 +530,11 @@ class AppLocalizationsBn extends AppLocalizations {
     String caseNumber,
     String nextDate,
   ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর শ্রবণ $nextDate তারিখে নির্ধারিত। প্রশ্ন থাকলে যোগাযোগ করুন।';
+    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এ্রর পরবর্তী তারিখ $nextDate । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।';
   }
 
   @override
-  String get localeScratch_title => 'স্থানীয়করণ স্ক্র্যা';
+  String get localeScratch_title => 'স্থানীয়করণ স্ক্র্যাচ';
 
   @override
   String get localeScratch_greeting => 'হ্যালো';
@@ -551,19 +551,19 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get nav_upcomingCases => 'সন্নিকট মামলা';
+  String get nav_upcomingCases => 'আসন্ন মামলা';
 
   @override
-  String get nav_dailyCauseList => 'দৈনিক কজ লিস্ট';
+  String get nav_dailyCauseList => 'দৈনিক মামলার তালিকা';
 
   @override
-  String get nav_allCases => 'সব মামলা';
+  String get nav_allCases => 'সকল মামলা';
 
   @override
   String get nav_disposedCases => 'নিষ্পত্তিকৃত মামলা';
 
   @override
-  String get nav_caseReference => 'মামলার রেফারেন্স';
+  String get nav_caseReference => 'কেস রেফারেন্স';
 
   @override
   String get nav_notes => 'নোট';
@@ -578,7 +578,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get nav_share => 'শেয়ার';
 
   @override
-  String get nav_activeCases => 'সক্রিয় মামলা';
+  String get nav_activeCases => 'চলতি মামলা';
 
   @override
   String get nav_overdueDates => 'বিলম্বিত তারিখ';
@@ -609,13 +609,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get casesModal_search => 'অনুসন্ধান';
 
   @override
-  String get casesModal_viewCompact => 'কমপ্যাক্ট ভিউ';
+  String get casesModal_viewCompact => 'সংক্ষিপ্ত ভিউ';
 
   @override
   String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
 
   @override
-  String get customDropdown_selectOption => 'একটি বিকল্প নির্বাচন করুন';
+  String get customDropdown_selectOption => 'অপশন নির্বাচন করুন';
 
   @override
   String get customDropdown_search => 'অনুসন্ধান';

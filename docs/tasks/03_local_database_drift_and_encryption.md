@@ -19,7 +19,7 @@
 
 ## Phase 2 — Core Data Tables
 
-Create Drift table files under `database/tables/` exactly per the Database Schema section. **Every push/pull domain table** (`cases`, `case_history`, `notes`, `case_references`, `court_categories`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`, `conflict_log`) gets the global sync columns (Plan "Sync Columns" note):
+Create Drift table files under `database/tables/` exactly per the Database Schema section. **Every push/pull domain table** (`cases`, `case_history`, `notes`, `case_references`, `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, `on_behalfs`, `delete_requests`, `conflict_log`) gets the global sync columns (Plan "Sync Columns" note):
 `updated_at` (INTEGER epoch ms), `version` (INTEGER — server-assigned; locally track the last known server version, null/1 semantics per plan), `synced_at` (INTEGER, null = unsynced), `is_deleted` (BOOLEAN, soft delete only — never hard delete), `last_modified_by` (TEXT UUID).
 `server_updated_at` exists **only** on Supabase — do NOT add it to Drift tables.
 
@@ -27,13 +27,15 @@ Tables to define (columns exactly as in the plan's schema section):
 1. `cases_table.dart` — all columns from the `cases` schema (case_number as single text, petitioner/respondent + lead counsels, on_behalf_id FK, petitioner_phone/respondent_phone, case_title_and_section, case_remarks, next_date epoch ms, last_step, notes_results, created_at, …).
 2. `case_history_table.dart` — including denormalized `user_id`/`firm_id`, `hearing_date`, `last_step`, `next_date`, `note_result`, `created_by`, `source_mutation_id`, `base_case_version`, `result_case_version`.
 3. `court_categories` table — TEXT PK stable machine keys (`appellate_division`, `high_court_division`, `district_sessions_criminal`, `district_courts_civil`, `chief_judicial_magistrate`, `chief_metropolitan_magistrate`, `executive_magistrate`, `tribunals`), `name_key`, `court_level`, `order_index`, `is_custom`, `user_id`, `firm_id`, `is_deleted`.
-4. `courts_table.dart` — court_name, higher_lower_courts, division, district, `court_category_id` FK, is_custom, user_id, firm_id.
-5. `steps_table.dart`, `case_types_table.dart`, `on_behalfs_table.dart` — each scoped by `court_category_id`, with is_custom/user_id/firm_id.
-6. `notes_table.dart` — title, body, is_pinned, created_at.
-7. `references_table.dart` — reference_and_page_no, statute, section_or_article, title_and_description, comments_notes, is_pinned, created_at.
-8. `firms_table.dart`, `firm_members_table.dart` — local cache incl. permission flags (`can_add`/`can_edit`/`can_delete`) and `permissions_synced_at`. **No passwords/secrets ever stored locally.**
-9. `delete_requests_table.dart` — entity_type/entity_id/entity_snapshot (TEXT), target_base_version, requested_by, status (`pending`/`approved`/`rejected`/`stale_review_required`), reviewed_by, review_note.
-10. `conflict_log_table.dart` — local record per the plan's local `conflict_log` schema (mutation_id, base_version, base_payload, submitted_payload, changed_fields, server_version, server_payload, resolution_state, conflict_at, resolved_at, is_dismissed).
+4. `case_categories_table.dart` — case categories scoped by `court_category_id`, with `name`, `order_index`, custom/user scope, and global sync columns.
+5. `courts_table.dart` — court_name, higher_lower_courts, division, district, `court_category_id` FK, seed `order_index`, is_custom, user_id, firm_id.
+6. `steps_table.dart`, `on_behalfs_table.dart` — each scoped by `court_category_id`, with is_custom/user_id/firm_id.
+7. `case_types_table.dart` — always scoped by `court_category_id`; nullable `case_category_id` is used only for Appellate/High Court case types.
+8. `notes_table.dart` — title, body, is_pinned, created_at.
+9. `references_table.dart` — reference_and_page_no, statute, section_or_article, title_and_description, comments_notes, is_pinned, created_at.
+10. `firms_table.dart`, `firm_members_table.dart` — local cache incl. permission flags (`can_add`/`can_edit`/`can_delete`) and `permissions_synced_at`. **No passwords/secrets ever stored locally.**
+11. `delete_requests_table.dart` — entity_type/entity_id/entity_snapshot (TEXT), target_base_version, requested_by, status (`pending`/`approved`/`rejected`/`stale_review_required`), reviewed_by, review_note.
+12. `conflict_log_table.dart` — local record per the plan's local `conflict_log` schema (mutation_id, base_version, base_payload, submitted_payload, changed_fields, server_version, server_payload, resolution_state, conflict_at, resolved_at, is_dismissed).
 
 Use Drift's snake_case column ↔ camelCase Dart auto-mapping (Naming Convention Mapping). All timestamps are INTEGER epoch ms (Timestamp Convention).
 
@@ -61,11 +63,11 @@ Use Drift's snake_case column ↔ camelCase Dart auto-mapping (Naming Convention
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 1. Classify local tables explicitly:
-   - Push/pull domain: cases, case_history, notes, case_references, court_categories, courts, steps, case_types, on_behalfs, delete_requests, conflict_log.
+   - Push/pull domain: cases, case_history, notes, case_references, court_categories, case_categories, courts, steps, case_types, on_behalfs, delete_requests, conflict_log.
    - Pull-only caches: profiles, firms, firm_members.
    - Per-user settings: user_preferences and case_notification_preferences.
    - Local operational: sync_queue, pull_cursors, seed_migrations, sync_metadata.
-2. Apply all global sync columns to `court_categories`. Add `is_user_modified` to court_categories/courts/steps/case_types/on_behalfs.
+2. Apply all global sync columns to `court_categories` and `case_categories`. Add `is_user_modified` to court_categories/case_categories/courts/steps/case_types/on_behalfs.
 3. Replace `petitioner_phone/respondent_phone` with nullable `petitioner_phone` and `respondent_phone`.
 4. Add a profile cache with full_name, role, firm_id, subscription_expiry (epoch ms locally), plus account-switch invalidation.
 5. Add `last_attempt_at` to sync_queue.

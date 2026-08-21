@@ -10,7 +10,6 @@ library;
 
 import 'dart:convert';
 
-
 import '../core/constants/pre_seeded_data.dart';
 import 'app_database.dart';
 
@@ -39,8 +38,9 @@ class SeedMigrationRunner {
   /// Checksums are derived from the migration ID and the data it seeds,
   /// giving a deterministic fingerprint that guards against tampered payloads.
   static List<_NamedMigration> _migrations() => <_NamedMigration>[
-        _NamedMigration('seed_v1', _checksumV1, _applySeedV1),
-      ];
+    _NamedMigration('seed_v1', _checksumV1, _applySeedV1),
+    _NamedMigration('seed_v2', _checksumV2, _applySeedV2),
+  ];
 
   /// Checksum for seed_v1 – base64-encoded SHA-256 of the version string.
   /// In production this would hash the actual seed payload; for now a
@@ -51,11 +51,27 @@ class SeedMigrationRunner {
   /// so that payload changes are automatically detected.
   static String get _checksumV1 {
     // Stable checksum derived from the migration ID.
-    const payload = 'seed_v1_court_categories_steps_casetypes_onbehalfs_courts';
+    const payload =
+        'seed_v1_court_categories_case_categories_steps_casetypes_onbehalfs_courts';
     final bytes = utf8.encode(payload);
     // Simple deterministic checksum using base64 of bytes length + content hash
-    final hash = bytes.fold<int>(0, (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
     return base64Encode(utf8.encode('seed_v1:$hash'));
+  }
+
+  /// Checksum for seed_v2, which replaces the AD/HCD reference data and
+  /// removes their obsolete steps.
+  static String get _checksumV2 {
+    const payload = 'seed_v2_ad_hcd_case_categories_and_reference_data';
+    final bytes = utf8.encode(payload);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
+    return base64Encode(utf8.encode('seed_v2:$hash'));
   }
 
   // ---------------------------------------------------------------------------
@@ -91,10 +107,20 @@ class SeedMigrationRunner {
   /// on-behalfs, and court names for supreme courts and example districts.
   static Future<void> _applySeedV1(AppDatabase db) async {
     await _seedCourtCategories(db);
+    await _seedCaseCategories(db);
     await _seedSteps(db);
     await _seedCaseTypes(db);
     await _seedOnBehalfs(db);
     await _seedCourts(db);
+  }
+
+  /// Applies the AD/HCD correction as a separate rerunnable seed migration.
+  static Future<void> _applySeedV2(AppDatabase db) async {
+    await _seedCaseCategories(db);
+    await _seedCaseTypes(db);
+    await _seedOnBehalfs(db);
+    await _seedCourts(db);
+    await _removeObsoleteAppellateAndHighCourtRows(db);
   }
 
   // ---------------------------------------------------------------------------
@@ -121,6 +147,34 @@ class SeedMigrationRunner {
            WHERE court_categories.is_user_modified = 0''',
         [cat.id, cat.nameKey, cat.courtLevel, cat.orderIndex, _nowMs],
       );
+    }
+  }
+
+  /// Upserts nested case categories, preserving customized rows.
+  static Future<void> _seedCaseCategories(AppDatabase db) async {
+    for (final cat in seedCategories) {
+      for (final caseCategory in cat.caseCategories) {
+        await db.customStatement(
+          '''INSERT INTO case_categories
+             (id, court_category_id, name, order_index, is_custom,
+              is_user_modified, user_id, firm_id,
+              updated_at, version, synced_at, is_deleted, last_modified_by)
+             VALUES (?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+             ON CONFLICT(id) DO UPDATE SET
+               court_category_id = excluded.court_category_id,
+               name = excluded.name,
+               order_index = excluded.order_index,
+               updated_at = excluded.updated_at
+             WHERE case_categories.is_user_modified = 0''',
+          [
+            caseCategory.id,
+            cat.id,
+            caseCategory.labelEn,
+            caseCategory.orderIndex,
+            _nowMs,
+          ],
+        );
+      }
     }
   }
 
@@ -156,20 +210,22 @@ class SeedMigrationRunner {
   /// user-modified rows.
   static Future<void> _seedCaseTypes(AppDatabase db) async {
     for (final cat in seedCategories) {
-      for (final ct in cat.caseTypes) {
+      for (final ct in cat.allCaseTypes) {
         await db.customStatement(
           '''INSERT INTO case_types
-             (id, court_category_id, name, order_index, is_custom, is_user_modified,
+             (id, court_category_id, case_category_id, name, order_index,
+              is_custom, is_user_modified,
               user_id, firm_id,
               updated_at, version, synced_at, is_deleted, last_modified_by)
-             VALUES (?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+             VALUES (?, ?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
              ON CONFLICT(id) DO UPDATE SET
                court_category_id = excluded.court_category_id,
+               case_category_id = excluded.case_category_id,
                name = excluded.name,
                order_index = excluded.order_index,
                updated_at = excluded.updated_at
              WHERE case_types.is_user_modified = 0''',
-          [ct.id, cat.id, ct.labelEn, ct.orderIndex, _nowMs],
+          [ct.id, cat.id, ct.caseCategoryId, ct.labelEn, ct.orderIndex, _nowMs],
         );
       }
     }
@@ -205,16 +261,17 @@ class SeedMigrationRunner {
       await db.customStatement(
         '''INSERT INTO courts
            (id, court_name, higher_lower_courts, division, district,
-            court_category_id, is_custom, is_user_modified,
+            court_category_id, order_index, is_custom, is_user_modified,
             user_id, firm_id,
             updated_at, version, synced_at, is_deleted, last_modified_by)
-           VALUES (?, ?, ?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
            ON CONFLICT(id) DO UPDATE SET
              court_name = excluded.court_name,
              higher_lower_courts = excluded.higher_lower_courts,
              division = excluded.division,
              district = excluded.district,
              court_category_id = excluded.court_category_id,
+             order_index = excluded.order_index,
              updated_at = excluded.updated_at
            WHERE courts.is_user_modified = 0''',
         [
@@ -224,10 +281,79 @@ class SeedMigrationRunner {
           court.division,
           court.district,
           court.courtCategoryId,
+          court.orderIndex,
           _nowMs,
         ],
       );
     }
+  }
+
+  /// Soft-deletes removed built-in AD/HCD rows without touching user edits.
+  static Future<void> _removeObsoleteAppellateAndHighCourtRows(
+    AppDatabase db,
+  ) async {
+    await _softDeleteObsolete(db, 'steps', const <String>[
+      'step-appellate_division-',
+      'step-high_court_division-',
+    ], <String>{});
+
+    final currentCaseTypeIds = seedCategories
+        .where(
+          (cat) =>
+              cat.id == appellateDivisionId || cat.id == highCourtDivisionId,
+        )
+        .expand((cat) => cat.allCaseTypes)
+        .map((type) => type.id)
+        .toSet();
+    await _softDeleteObsolete(db, 'case_types', const <String>[
+      'casetype-appellate_division-',
+      'casetype-high_court_division-',
+    ], currentCaseTypeIds);
+
+    final currentOnBehalfIds = seedCategories
+        .where(
+          (cat) =>
+              cat.id == appellateDivisionId || cat.id == highCourtDivisionId,
+        )
+        .expand((cat) => cat.onBehalfs)
+        .map((option) => option.id)
+        .toSet();
+    await _softDeleteObsolete(db, 'on_behalfs', const <String>[
+      'onbehalf-appellate_division-',
+      'onbehalf-high_court_division-',
+    ], currentOnBehalfIds);
+
+    final currentCourtIds = allSeedCourts
+        .where(
+          (court) =>
+              court.courtCategoryId == appellateDivisionId ||
+              court.courtCategoryId == highCourtDivisionId,
+        )
+        .map((court) => court.id)
+        .toSet();
+    await _softDeleteObsolete(db, 'courts', const <String>[
+      'court-higher_courts-appellate_division-',
+      'court-higher_courts-high_court_division-',
+    ], currentCourtIds);
+  }
+
+  /// Soft-deletes obsolete built-ins while preserving customized/deleted rows.
+  static Future<void> _softDeleteObsolete(
+    AppDatabase db,
+    String tableName,
+    List<String> prefixes,
+    Set<String> currentIds,
+  ) async {
+    final prefixSql = prefixes.map((_) => 'id LIKE ?').join(' OR ');
+    final keepSql = currentIds.isEmpty
+        ? ''
+        : ' AND id NOT IN (${List.filled(currentIds.length, '?').join(', ')})';
+    await db.customStatement(
+      'UPDATE $tableName SET is_deleted = 1, updated_at = ? '
+      'WHERE is_custom = 0 AND is_user_modified = 0 '
+      'AND ($prefixSql)$keepSql',
+      <Object?>[_nowMs, ...prefixes.map((prefix) => '$prefix%'), ...currentIds],
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -236,9 +362,9 @@ class SeedMigrationRunner {
 
   /// Returns the set of already-applied migration IDs.
   Future<Set<String>> _appliedMigrationIds() async {
-    final rows = await db.customSelect(
-      'SELECT migration_id FROM seed_migrations',
-    ).get();
+    final rows = await db
+        .customSelect('SELECT migration_id FROM seed_migrations')
+        .get();
     return rows.map((r) => r.read<String>('migration_id')).toSet();
   }
 

@@ -1,9 +1,10 @@
-/// Case types table: case types (e.g. Civil, Criminal) scoped by court category.
+/// Case types table: case types scoped by court and case category.
 /// Implemented in Task 03 Phase 2.
 library;
 
 import 'package:drift/drift.dart';
 
+import 'case_categories_table.dart';
 import 'court_categories_table.dart';
 
 /// A case type such as "Writ Petition" or "Criminal Case".
@@ -15,6 +16,11 @@ class CaseTypes extends Table {
   /// Court category this case type belongs to.
   TextColumn get courtCategoryId => text().references(CourtCategories, #id)();
 
+  /// Non-null only for AD/HCD types; lower-court types remain scoped by
+  /// [courtCategoryId] alone.
+  TextColumn get caseCategoryId =>
+      text().nullable().references(CaseCategories, #id)();
+
   /// Display name of the case type.
   TextColumn get name => text()();
 
@@ -25,7 +31,8 @@ class CaseTypes extends Table {
   BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 
   /// Whether the user/firm has modified a pre-seeded row.
-  BoolColumn get isUserModified => boolean().withDefault(const Constant(false))();
+  BoolColumn get isUserModified =>
+      boolean().withDefault(const Constant(false))();
 
   /// Creator of custom case type; null for pre-seeded.
   TextColumn get userId => text().nullable()();

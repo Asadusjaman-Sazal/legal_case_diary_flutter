@@ -139,7 +139,7 @@
   "courtCategory_appellateDivision": "Appellate Division",
   "courtCategory_highCourtDivision": "High Court Division",
   "courtCategory_lowerDivisionalCourts": "Lower Divisional Courts",
-  "lowerCourtCategory_districtSessionsCriminal": "District Sessions Courts (Criminal)",
+  "lowerCourtCategory_districtSessionsCriminal": "Sessions Courts (Criminal)",
   "lowerCourtCategory_districtCourtsCivil": "District Courts (Civil)",
   "lowerCourtCategory_chiefJudicialMagistrate": "Chief Judicial Magistrate Courts",
   "lowerCourtCategory_chiefMetropolitanMagistrate": "Chief Metropolitan Magistrate Courts",
@@ -178,7 +178,7 @@
   "division_mymensingh": "Mymensingh",
   "messageTemplate_clientSms": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.",
   "@messageTemplate_clientSms": {
-    "description": "SMS template sent to clients about an upcoming hearing.",
+    "description": "SMS sent to clients about an upcoming hearing.",
     "placeholders": {
       "clientName": { "type": "String" },
       "caseNumber": { "type": "String" },

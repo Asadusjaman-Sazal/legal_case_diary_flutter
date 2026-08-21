@@ -1,0 +1,337 @@
+**Appellate Divsion**
+
+Name of Court
+----------
+COURT NO. 1, কোর্ট নং- ১
+
+JUDGE-IN-CHAMBER, চেম্বার জজ
+
+JUDGE-IN-CHAMBER 2, চেম্বার জজ ২
+
+
+Case Category:
+--------------
+Civil Cases, দেওয়ানি মোকদ্দমা
+Contempt Cases, কন্টেম্পট মোকদ্দমা
+Criminal Cases(AD), ফৌজদারি মামলা
+Jail Cases, জেল মামলা
+
+
+Case Type: Civl Cases
+---------------------
+Civil Appeal, দেওয়ানি আপিল
+Civil Petition, দেওয়ানি পিটিশন
+Civil Misc Petition, দেওয়ানি মিছ পিটিশন
+Civil Review Petition, দেওয়ানি রিভিউ পিটিশন
+
+
+Case Type: Contempt Cases
+---------------------
+Contempt Petition(A), কন্টেম্পট পিটিশন(A)
+
+
+Case Type: Criminal Cases(AD)
+---------------------
+Criminal Appeal(A), ফৌজদারি আপিল(A)
+Criminal Petition, ফৌজদারি পিটিশন
+Criminal Misc Petition, ফৌজদারি মিছ পিটিশন
+Criminal Review Petition, ফৌজদারি রিভিউ পিটিশন
+
+
+Case Type: Jail Cases
+---------------------
+Jail Petition, জেল পিটশন
+Jail Appeal(A), জেল আপিল(A)
+
+
+On Behalf:
+----------
+Petitioner, দরখাস্তকারী
+Respondent, প্রতিপক্ষ
+
+============================================  
+
+**High Court Division**
+
+Name of Court	
+------------
+Annex Building Court No. 1, এনেক্স বিল্ডিং কোর্ট নং- ১
+
+Annex Building Court No. 2, এনেক্স বিল্ডিং কোর্ট নং- ২
+
+Annex Building Court No. 3, এনেক্স বিল্ডিং কোর্ট নং- ৩
+
+Annex Building Court No. 4, এনেক্স বিল্ডিং কোর্ট নং- ৪
+
+Annex Building Court No. 5, এনেক্স বিল্ডিং কোর্ট নং- ৫
+
+Annex Building Court No. 6, এনেক্স বিল্ডিং কোর্ট নং- ৬
+
+Annex Building Court No. 7, এনেক্স বিল্ডিং কোর্ট নং- ৭
+
+Annex Building Court No. 8, এনেক্স বিল্ডিং কোর্ট নং- ৮
+
+Annex Building Court No. 9, এনেক্স বিল্ডিং কোর্ট নং- ৯
+
+Annex Building Court No. 10, এনেক্স বিল্ডিং কোর্ট নং- ১০
+
+Annex Building Court No. 11, এনেক্স বিল্ডিং কোর্ট নং- ১১
+
+Annex Building Court No. 12, এনেক্স বিল্ডিং কোর্ট নং- ১২
+
+Annex Building Court No. 13, এনেক্স বিল্ডিং কোর্ট নং- ১৩
+
+Annex Building Court No. 14, এনেক্স বিল্ডিং কোর্ট নং- ১৪
+
+Annex Building Court No. 15, এনেক্স বিল্ডিং কোর্ট নং- ১৫
+
+Annex Building Court No. 16, এনেক্স বিল্ডিং কোর্ট নং- ১৬
+
+Annex Building Court No. 17, এনেক্স বিল্ডিং কোর্ট নং- ১৭
+
+Annex Building Court No. 18, এনেক্স বিল্ডিং কোর্ট নং- ১৮
+
+Annex Building Court No. 19, এনেক্স বিল্ডিং কোর্ট নং- ১৯
+
+Annex Building Court No. 20, এনেক্স বিল্ডিং কোর্ট নং- ২০
+
+Annex Building Court No. 21, এনেক্স বিল্ডিং কোর্ট নং- ২১
+
+Annex Building Court No. 22, এনেক্স বিল্ডিং কোর্ট নং- ২২
+
+Annex Building Court No. 23, এনেক্স বিল্ডিং কোর্ট নং- ২৩
+
+Annex Building Court No. 24, এনেক্স বিল্ডিং কোর্ট নং- ২৪
+
+Annex Building Court No. 25, এনেক্স বিল্ডিং কোর্ট নং- ২৫
+
+Annex Building Court No. 26, এনেক্স বিল্ডিং কোর্ট নং- ২৬
+
+Annex Building Court No. 27, এনেক্স বিল্ডিং কোর্ট নং- ২৭
+
+Annex Building Court No. 28, এনেক্স বিল্ডিং কোর্ট নং- ২৮
+
+Annex Building Court No. 29, এনেক্স বিল্ডিং কোর্ট নং- ২৯
+
+Annex Building Court No. 30, এনেক্স বিল্ডিং কোর্ট নং- ৩০
+
+Annex Building Court No. 31, এনেক্স বিল্ডিং কোর্ট নং- ৩১
+
+Annex Building Court No. 32, এনেক্স বিল্ডিং কোর্ট নং- ৩২
+
+Annex Building Court No. 33, এনেক্স বিল্ডিং কোর্ট নং- ৩৩
+
+Annex Building Court No. 34, এনেক্স বিল্ডিং কোর্ট নং- ৩৪
+
+Bijoy 71 Building Court No. 1 (3rd Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১ (৪র্থ তলা)
+
+Bijoy 71 Building Court No. 3 (3rd Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ৩ (৪র্থ তলা)
+
+Bijoy 71 Building Court No. 4 (3rd Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ৪ (৪র্থ তলা)
+
+Bijoy 71 Building Court No. 5 (4th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ৫ (৫ম তলা)
+
+Bijoy 71 Building Court No. 6 (4th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ৬ (৫ম তলা)
+
+Bijoy 71 Building Court No. 7 (4th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ৭ (৫ম তলা)
+
+Bijoy 71 Building Court No. 10 (5th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১০ (৬ষ্ঠ তলা)
+
+Bijoy 71 Building Court No. 11 (5th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১১ (৬ষ্ঠ তলা)
+
+Bijoy 71 Building Court No. 12 (5th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১২ (৬ষ্ঠ তলা)
+
+Bijoy 71 Building Court No. 13 (6th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১৩ (৭ম তলা)
+
+Bijoy 71 Building Court No. 14 (6th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১৪ (৭ম তলা)
+
+Bijoy 71 Building Court No. 19 (7th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ১৯ (৮ম তলা)
+
+Bijoy 71 Building Court No. 20 (7th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ২০ (৮ম তলা)
+
+Bijoy 71 Building Court No. 21 (8th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ২১ (৯ম তলা)
+
+Bijoy 71 Building Court No. 22 (8th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ২২ (৯ম তলা)
+
+Bijoy 71 Building Court No. 23 (8th Floor), বিজয় ৭১ বিল্ডিং কোর্ট নং- ২১ (৯ম তলা)
+
+Main Building Court No. 7, মেইন বিল্ডিং কোর্ট নং-৭
+
+Main Building Court No. 8, মেইন বিল্ডিং কোর্ট নং-৮
+
+Main Building Court No. 10, মেইন বিল্ডিং কোর্ট নং-১০
+
+Main Building Court No. 11, মেইন বিল্ডিং কোর্ট নং-১১
+
+Main Building Court No. 12, মেইন বিল্ডিং কোর্ট নং-১২
+
+Main Building Court No. 13, মেইন বিল্ডিং কোর্ট নং-১৩
+
+Main Building Court No. 14, মেইন বিল্ডিং কোর্ট নং-১৪
+
+Main Building Court No. 20, মেইন বিল্ডিং কোর্ট নং-২০
+
+Main Building Court No. 23, মেইন বিল্ডিং কোর্ট নং-২৩
+
+Main Building Court No. 25, মেইন বিল্ডিং কোর্ট নং-২৫
+
+Blank List 1, ব্লাঙ্ক লিস্ট ১
+
+Blank List 2, ব্লাঙ্ক লিস্ট ২
+
+Lawazima Court, লাওয়াজিমা কোর্ট
+===============================================
+
+Case Category:
+--------------
+Civl Appeal, দেওয়ানি আপিল
+Civil Rivision, দেওয়ানি রিভিশন
+Ciminal Cases(HD), ফৌজদারি মামলা (হাইকোর্ট বিভাগ)
+Original Cases, আদি মামলা
+Writ Cases, রিট মামলা
+
+Case Type: Civl Appeal
+----------------------
+Election Petition, ইলেকশন পিটিশন
+First Appeal, ১ম আপিল
+Second Appeal, ২য় আপিল
+First Misc Appeal, ১ম মিছ আপিল
+Second Misc Appeal, ২য় মিছ আপিল
+Cross Objection, ক্রস অবজেকশন
+Transfer Appeal, বদলী আপিল
+First Appeal Tender, ১ম আপিল টেন্ডার
+First Misc Appeal Tender, ১ম মিছ আপিল টেন্ডার
+VC Civil Rule, ভিসি সিভিল রুল
+In re: VC F M A, ইন রেঃ ভিসি এফ এম এ
+In re: VC F A, ইন রেঃ ভিসি এফ এ
+VC First Appeal, ভিসি ১ম আপিল
+Title Appeal, টাইটেল আপিল
+Bankruptcy Appeal, ব্যাংক্রাপ্সি আপিল
+
+
+Case Type: Civil Rivision
+-------------------------
+Civil Rule, দেওয়ানি রুল
+Civil Rivision, দেওয়ানি রিভিশন
+Civil Misc, দেওয়ানি মিছ
+Civil Order, দেওয়ানি আদেশ
+Contempt, কন্টেম্পট
+Civil Review, দেওয়ানি রিভিউ
+Violation Misc, ভায়োলেশন মিছ
+In-re VC Violation Misc, ইন রেঃ ভিসি ভায়োলেশন মিছ
+Violation Case, ভায়োলেশন মোকদ্দমা
+Violation Misc Rule, ভায়োলেশন মিছ রুল
+VC Contempt Petition (H), ভিসি কন্টেম্পট পিটিশন (H)
+In re: VC Civil Revision, ইন রেঃ ভিসি দেওয়ানি রিভিশন
+VC Civil Revision, ভিসি দেওয়ানি রিভিশন
+Civil Reference Case, দেওয়ানি রেফারেন্স মোকদ্দমা
+Civil Case, দেওয়ানি মোকদ্দমা
+Civil Rule (Contempt), দেওয়ানি রুল (কন্টেম্পট)
+Transfer Miscellaneous Case, বদলি মিছ মোকদ্দমা
+
+
+Case Type: Ciminal Cases(HD)
+----------------------------
+Criminal Rule(Con A), ফৌজদারি রুল(Con A)
+Criminal Misc (Suo-Muto) Rule, ফৌজদারি মিছ (সু-মোটো) রুল,
+Death Referenc, ডেথ রেফারেন্স
+Criminal Appeal(H), ফৌজদারি আপিল(H)
+Criminal Revision, ফৌজদারি রিভিশন
+Criminal Misc, ফৌজদারি মিছ
+Jail Appeal(H), জেল আপিল(H)
+Criminal Rule, ফৌজদারি রুল
+Jail Appeal Admission, জেল আপিল এডমিশন
+Suo Muto, সু-মোটো
+Govt. Appeal, সরকারি আপিল
+In re, ইন রে
+Criminal Rule(Con), ফৌজদারি রুল(Con)
+Transfer Misc Case, বদলি মিছ মামলা
+Suo-Muto Contempt Rule, সু-মোটো কন্টেম্পট
+Criminal Revision (Suo-Muto), ফৌজদারি রিভিশন (সু-মোটো)
+Govt. Criminal Appeal, ফৌজদারি সরকারি আপিল
+Criminal Review Rule, ফৌজদারি রিভিউ রুল
+VC Criminal Misc Case, ভিসি ফৌজদারি মিছ মামলা
+VC Criminal Appeal, ভিসি ফৌজদারি আপিল
+In re: VC, ইন রেঃ ভিসি
+VC Criminal Revision, ভিসি ফৌজদারি রিভিশন
+Departmental Case, ডিপার্টমেন্টাল মামলা
+
+
+Case Type: Original Cases
+-------------------------
+Letter of Administration Suit, লেটার অফ এডমিনিস্ট্রেশন স্যুট
+Violation Misc, ভায়োলেশন মিছ
+Review Petition, রিভিউ পিটিশন
+Suo-Muto (Original), সু-মোটো (আদি)
+Execution Case, জারি মামলা
+Company Matter, কোম্পানি ম্যাটার
+Contempt Matter, কন্টেম্পট ম্যাটার
+Customs Appeal, কাস্টমস আপিল
+Divorce Suit, ডিভোর্স মামলা
+Income Tax Reference, ইনকাম ট্যাক্স রেফারেন্স
+Merchant Shipping, মার্চেন্ট শিপিং
+Trademark Appeal, ট্রেডমার্ক আপিল
+Trademeark Application, ট্রেডমার্ক এপ্লিকেশন
+VAT Appeal, ভ্যাট আপিল
+Admiralty Suit, এডমিরালটি মামলা
+Admiralty Appeal, এডমিরালটি আপিল
+Arbitration Application, আরবিট্রেশন এপ্লিকেশন
+Cancellation of Design Petition, ডিজাইন পিটিশন বাতিলের দরখাস্ত
+Contempt Petition, কন্টেম্পট পিটিশন
+Contempt Rule, কন্টেম্পট রুল
+Summary Suit, সামারি স্যুট
+Arbitration Rule, আরবিট্রেশন রুল
+Bank Company Application, ব্যাংক কোম্পানি এপ্লিকেশন
+Family Matter, ফ্যামিলি ম্যাটার
+VAT Revision, ভ্যাট রিভিশন
+Bank Company Matter, ব্যাংক কোম্পানি ম্যাটার
+Industrial Design Appeal, ইন্ডাস্ট্রিয়াল ডিজাইন আপিল
+Cancellation of Trademark Petition, ট্রেডমার্ক বাতিলের দরখাস্ত
+Financial Institution, ফাইনান্সিয়াল ইন্সটিটিউশন
+Insurance Appeal, ইনসিউরেন্স আপিল
+
+
+Case Type: Writ Cases
+----------------------
+In re: Writ Petition, ইন রেঃ রিট পিটিশন
+Writ Petition, রিট পিটিশন
+Contempt Petition(H), কন্টেম্পট পিটিশন(H)
+Review Petition, রিভিউ পিটিশন
+Suo-Muto Rule, সু-মোটো রুল
+Transfer Petition, বদলি পিটিশন
+Reference Application, রেফারেন্স এপ্লিকেশন
+I.T.R, আই টি আর
+Rule, রুল
+In re: VC Writ Petition, ইন রেঃ ভিসি রিট পিটিশন
+Copy Right Appeal, কপি রাইট আপিল
+VC Writ Petition, ভিসি রিট পিটিশন
+Suo-Muto Rule Contempt, সু-মোটো রুল কন্টেম্পট
+
+On Behalf:
+----------
+Petitioner, দরখাস্তকারী
+Respondent, প্রতিপক্ষ
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

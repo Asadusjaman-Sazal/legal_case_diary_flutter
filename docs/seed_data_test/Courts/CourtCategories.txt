@@ -1,0 +1,137 @@
+Sessions Judge Court (Criminal)
+
+
+District Judge Court (Civil)
+
+
+Metropolitan Sessions Judge Court (Criminal)
+
+
+Chief Judicial Magistrate Court
+
+
+Chief Metropolitan Magistrate Court
+
+
+Executive Magistrate & Others Courts
+
+
+
+========================================
+
+
+
+
+  // Dhaka
+  'dhaka': 'ঢাকা',
+  'faridpur': 'ফরিদপুর',
+  'gazipur': 'গাজীপুর',
+  'gopalganj': 'গোপালগঞ্জ',
+  'kishoregonj': 'কিশোরগঞ্জ',
+  'madaripur': 'মাদারীপুর',
+  'manikganj': 'মানিকগঞ্জ',
+  'munshiganj': 'মুন্সীগঞ্জ',
+  'narayanganj': 'নারায়ণগঞ্জ',
+  'narsingdi': 'নরসিংদী',
+  'rajbari': 'রাজবাড়ী',
+  'shariatpur': 'শরীয়তপুর',
+  'tangail': 'টাঙ্গাইল',
+
+
+  // Chattogram
+  'bandarban': 'বান্দরবান',
+  'brahmanbaria': 'ব্রাহ্মণবাড়িয়া',
+  'chandpur': 'চাঁদপুর',
+  'chittagong': 'চট্টগ্রাম',
+  'cumilla': 'কুমিল্লা',
+  'coxs_bazar': 'কক্সবাজার',
+  'feni': 'ফেনী',
+  'khagrachhari': 'খাগড়াছড়ি',
+  'lakshmipur': 'লক্ষ্মীপুর',
+  'noakhali': 'নোয়াখালী',
+  'rangamati': 'রাঙ্গামাটি',
+
+
+  // Khulna
+  'bagerhat': 'বাগেরহাট',
+  'chuadanga': 'চুয়াডাঙ্গা',
+  'jessore': 'যশোর',
+  'jhenaidah': 'ঝিনাইদহ',
+  'khulna': 'খুলনা',
+  'kushtia': 'কুষ্টিয়া',
+  'magura': 'মাগুরা',
+  'meherpur': 'মেহেরপুর',
+  'narail': 'নড়াইল',
+  'satkhira': 'সাতক্ষীরা',
+
+
+  // Rajshahi
+  'bogra': 'বগুড়া',
+  'joypurhat': 'জয়পুরহাট',
+  'naogaon': 'নওগাঁ',
+  'natore': 'নাটোর',
+  'chapai_nababganj': 'চাঁপাই নবাবগঞ্জ',
+  'pabna': 'পাবনা',
+  'rajshahi': 'রাজশাহী',
+  'sirajganj': 'সিরাজগঞ্জ',
+
+
+  // Barishal
+  'barguna': 'বরগুনা',
+  'barishal': 'বরিশাল',
+  'bhola': 'ভোলা',
+  'jhalokathi': 'ঝালকাঠি',
+  'patuakhali': 'পটুয়াখালী',
+  'pirojpur': 'পিরোজপুর',
+
+
+  // Sylhet
+  'habiganj': 'হবিগঞ্জ',
+  'maulvibazar': 'মৌলভীবাজার',
+  'sunamganj': 'সুনামগঞ্জ',
+  'sylhet': 'সিলেট',
+
+
+  // Rangpur
+  'dinajpur': 'দিনাজপুর',
+  'gaibandha': 'গাইবান্ধা',
+  'kurigram': 'কুড়িগ্রাম',
+  'lalmonirhat': 'লালমনিরহাট',
+  'nilphamari': 'নীলফামারী',
+  'panchagarh': 'পঞ্চগড়',
+  'rangpur': 'রংপুর',
+  'thakurgaon': 'ঠাকুরগাঁও',
+
+
+  // Mymensingh
+  'jamalpur': 'জামালপুর',
+  'mymensingh': 'ময়মনসিংহ',
+  'netrakona': 'নেত্রকোণা',
+  'sherpur': 'শেরপুর',
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

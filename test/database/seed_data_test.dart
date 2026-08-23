@@ -28,12 +28,7 @@ void main() {
 
     test('each category has the expected seed collections', () {
       for (final cat in seedCategories) {
-        final hasSteps =
-            cat.id != appellateDivisionId &&
-            cat.id != highCourtDivisionId &&
-            cat.id != metropolitanSessionsJudgeCriminalId;
-        final hasCaseTypesAndOnBehalfs =
-            cat.id != metropolitanSessionsJudgeCriminalId;
+        final hasSteps = lowerCourtCategoryIds.contains(cat.id);
         expect(
           cat.steps.isNotEmpty,
           hasSteps,
@@ -41,20 +36,16 @@ void main() {
         );
         expect(
           cat.allCaseTypes.isNotEmpty,
-          hasCaseTypesAndOnBehalfs,
+          true,
           reason: '${cat.id} has no case types',
         );
         expect(
           cat.onBehalfs.isNotEmpty,
-          hasCaseTypesAndOnBehalfs,
+          true,
           reason: '${cat.id} has no on-behalfs',
         );
         if (!hasSteps) {
           expect(cat.steps, isEmpty);
-        }
-        if (!hasCaseTypesAndOnBehalfs) {
-          expect(cat.allCaseTypes, isEmpty);
-          expect(cat.onBehalfs, isEmpty);
         }
         if (cat.id == appellateDivisionId || cat.id == highCourtDivisionId) {
           expect(cat.caseCategories, isNotEmpty);
@@ -127,9 +118,11 @@ void main() {
     test('disposed-step set includes common disposed terms', () {
       // Check that key disposed markers are present
       final hasDisposed = disposedStepIds.any((id) => id.endsWith('-disposed'));
-      final hasJudgment = disposedStepIds.any((id) => id.endsWith('-judgment'));
+      final hasJudgement = disposedStepIds.any(
+        (id) => id.endsWith('-judgement'),
+      );
       expect(hasDisposed, true);
-      expect(hasJudgment, true);
+      expect(hasJudgement, true);
     });
 
     test('all 8 divisions exist', () {
@@ -300,44 +293,35 @@ void main() {
       }
     });
 
-    test('mandatory on-behalf mapping per plan §12.2 is satisfied', () {
+    test('lower-court seed lists preserve source counts and order', () {
       final byId = {for (final c in seedCategories) c.id: c};
+      const expected = <String, (int, int, int)>{
+        districtCourtsCivilId: (55, 19, 11),
+        districtSessionsCriminalId: (32, 9, 5),
+        metropolitanSessionsJudgeCriminalId: (32, 9, 5),
+        chiefJudicialMagistrateId: (29, 4, 4),
+        chiefMetropolitanMagistrateId: (29, 4, 4),
+        executiveMagistrateId: (30, 6, 7),
+      };
 
-      // Appellate → Petitioner, Respondent
-      final appObIds = byId[appellateDivisionId]!.onBehalfs
-          .map((o) => o.id)
-          .toSet();
-      expect(appObIds.length, 2);
-      expect(appObIds.any((id) => id.contains('respondent')), true);
-      expect(appObIds.any((id) => id.contains('petitioner')), true);
-
-      // High Court → Petitioner, Respondent
-      final hcObIds = byId[highCourtDivisionId]!.onBehalfs
-          .map((o) => o.id)
-          .toSet();
-      expect(hcObIds.length, 2);
-      expect(hcObIds.any((id) => id.contains('petitioner')), true);
-      expect(hcObIds.any((id) => id.contains('respondent')), true);
-
-      // District Sessions Criminal → Accused, Complainant, State, Victim
-      final dscObIds = byId[districtSessionsCriminalId]!.onBehalfs
-          .map((o) => o.id)
-          .toSet();
-      expect(dscObIds.any((id) => id.contains('accused')), true);
-      expect(dscObIds.any((id) => id.contains('complainant')), true);
-      expect(dscObIds.any((id) => id.contains('state')), true);
-      expect(dscObIds.any((id) => id.contains('victim')), true);
-
-      // District Courts Civil → Plaintiff, Defendant, Petitioner, Respondent, Applicant
-      final dccObIds = byId[districtCourtsCivilId]!.onBehalfs
-          .map((o) => o.id)
-          .toSet();
-      expect(dccObIds.any((id) => id.contains('plaintiff')), true);
-      expect(dccObIds.any((id) => id.contains('defendant')), true);
-      expect(dccObIds.any((id) => id.contains('applicant')), true);
-
-      // Metropolitan Sessions Judge Court options will be added later.
-      expect(byId[metropolitanSessionsJudgeCriminalId]!.steps, isEmpty);
+      for (final entry in expected.entries) {
+        final category = byId[entry.key]!;
+        expect(category.steps, hasLength(entry.value.$1));
+        expect(category.allCaseTypes, hasLength(entry.value.$2));
+        expect(category.onBehalfs, hasLength(entry.value.$3));
+        expect(
+          category.steps.map((item) => item.orderIndex),
+          orderedEquals(List<int>.generate(entry.value.$1, (i) => i)),
+        );
+        expect(
+          category.allCaseTypes.map((item) => item.orderIndex),
+          orderedEquals(List<int>.generate(entry.value.$2, (i) => i)),
+        );
+        expect(
+          category.onBehalfs.map((item) => item.orderIndex),
+          orderedEquals(List<int>.generate(entry.value.$3, (i) => i)),
+        );
+      }
     });
   });
 

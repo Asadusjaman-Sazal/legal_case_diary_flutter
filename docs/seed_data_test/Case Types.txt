@@ -1,0 +1,83 @@
+Case Types: District Judge Court (Civil)
+----------------------------------------
+Civil- । দেওয়ানি-
+Title Execution- । দেওয়ানি ডিং-
+Family- । পারিবারিক-
+Pre-emption- । প্রিয়েমশন-
+Succession- । সাকসেশন-
+Vested Prop.- । অর্পিত ট্রাইঃ-
+Vested Prop. Revision- । অর্পিত রিভিশন নং-
+Arbitration- । আরবিট্রশন-
+Money- । মানি-
+Artharin- । অর্থঋণ-
+Artharin Execution- । অর্থঋণ ডিং-
+Violation Misc- । ভায়োলেশন মিছঃ-
+Misc- । ছানী মিছঃ-
+Misc Appeal- । মিসঃ আপীল-
+Civil Appeal- । দেঃ আপীল-
+Civil Review- । দেঃ রিভিউ-
+Civil Revision- । দেঃ রিভিশন -
+Mortgage Misc- । বন্ধকী মিছঃ-
+Transfer Misc- । বদলী মিছঃ-
+
+=====================================
+
+Case Types: Sessions Judge Court (Criminal)
+----------------------------------------
+Session- । সেশন-
+Nari O Shishu- । নারী ও শিশু-
+Special Tribunal- । বিশেষ ট্রাইঃ-
+Terrorism- । সন্ত্রাস-
+Anti Corruption Tri- । দূর্নীতি দমন ট্রাইঃ-
+Acid- । এসিড-
+Criminal Appeal- । ফৌঃ আপীল-
+Criminal Revision- । ফৌঃ রিভিশন-
+Criminal Misc- । ফৌজদারি মিসঃ-
+
+==========================================
+
+Case Types: Metropolitan Sessions Judge Court (Criminal)
+----------------------------------------
+Session- । সেশন-
+Nari O Shishu- । নারী ও শিশু-
+Special Tribunal- । বিশেষ ট্রাইঃ-
+Terrorism- । সন্ত্রাস-
+Anti Corruption Tri- । দূর্নীতি দমন ট্রাইঃ-
+Acid- । এসিড-
+Criminal Appeal- । ফৌঃ আপীল-
+Criminal Revision- । ফৌঃ রিভিশন-
+Criminal Misc- । ফৌজদারি মিসঃ-
+
+==============================================
+
+Case Types: Chief Judicial Magistrate Court
+----------------------------------------
+CR- । সি.আর-
+GR- । জি.আর-
+Petition- । পিটিশন-
+NFIR- | নন এফ.আই.আর-
+
+==============================================
+
+Case Types: Chief Metropolitan Magistrate Court
+----------------------------------------
+CR- । সি.আর-
+GR- । জি.আর-
+Petition- । পিটিশন-
+NFIR- | নন এফ.আই.আর-
+
+On Behalf: Chief Metropolitan Magistrate Court
+---------------------------------------
+
+==============================================
+
+Case Types: Executive Magistrate & Others Courts
+----------------------------------------
+Misc Case- | বিবিধ মোকদ্দমা-
+Misc Appeal- | মিসঃ আপীল-
+Petition- | পিটিশন-
+Bumi Oporadh O Protikar- | ভূমি অপরাধ ও প্রতিকার-
+Mutation Appeal- | নামজারী আপীল-
+LA Case- | এল. এ. কেইস-
+
+==============================================

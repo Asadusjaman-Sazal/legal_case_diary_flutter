@@ -1,3 +1,17 @@
+### 2026-08-23 — Current Task: Lower-court option seed replacement — IMPLEMENTED; TEST PENDING
+
+Implemented:
+- Replaced all lower-court Steps, Case Types, On Behalfs, and Disposed references from `docs/seed_data_test/LowerCourt_Steps_CaseTypes_OnBehalf.txt`.
+- Generated stable option IDs from English labels and assigned source-list order indexes.
+- Added complete Metropolitan Sessions Judge Court options and updated seed tests.
+- Removed plain `Withdrawal` from four criminal disposed lists because those categories define only `Withdrawal under Section 248` as a step.
+- Replaced tuple-based lower option lists with explicit `SeedOption` entries containing stable IDs, labels, and order indexes.
+- Focused Dart analysis is clean; Flutter test execution produced no output and remains pending.
+
+Version `0.0.73`.
+
+**Next:** Resolve the local Flutter test-runner hang, then reset the development database before testing the new seed data.
+
 ### 2026-08-22 — Current Task: Lower-court category seed correction — COMPLETE
 
 Implemented and validated:

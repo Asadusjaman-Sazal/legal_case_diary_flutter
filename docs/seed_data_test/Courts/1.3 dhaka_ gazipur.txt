@@ -1,0 +1,390 @@
+==============================================
+==============================================
+Division: Dhaka
+District: Gazipur
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত
+courtNameEn: District and Sessions Judge Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত
+courtNameEn: Additional District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত
+courtNameEn: Additional District and Sessions Judge 3rd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত
+courtNameEn: Additional District and Sessions Judge 4th Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত
+courtNameEn: Additional District and sessions judge 12th court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত
+courtNameEn: Joint District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত
+courtNameEn: Joint District and Sessions Judge Additional Court, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১
+courtNameEn: Senior Civil Judge Court-1, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-২
+courtNameEn: Senior Civil Judge Court- 2, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত,  কালিয়াকৈর
+courtNameEn: Senior Civil Judge Court, Kaliakair, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত,  কালীগঞ্জ
+courtNameEn: Senior Civil Judge Court, Kaliganj, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত,  কাপাসিয়া
+courtNameEn: Senior Civil Judge Court, Kapasia, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত,  সদর
+courtNameEn: Senior Civil Judge Court, Sadar, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত,  শ্রীপুর
+courtNameEn: Senior Civil Judge Court, Sreepur, Gazipur
+
+courtNameBn: সিভিল জজ অতিরিক্ত আদালত,  টংগী
+courtNameEn: Civil Judge Additional Court, Tongi, Gazipur
+
+courtNameBn: সিভিল জজ আদালত-১
+courtNameEn: Civil Judge Court-1, Gazipur
+
+courtNameBn: সিভিল জজ আদালত- ২
+courtNameEn: Civil Judge Court- 2, Gazipur
+
+courtNameBn: সিভিল জজ আদালত,  কালিয়াকৈর
+courtNameEn: Civil Judge Court, Kaliakair, Gazipur
+
+courtNameBn: সিভিল জজ আদালত,  কালীগঞ্জ
+courtNameEn: Civil Judge Court, Kaliganj, Gazipur
+
+courtNameBn: সিভিল জজ আদালত,  কাপাসিয়া
+courtNameEn: Civil Judge Court, Kapasia, Gazipur
+
+courtNameBn: সিভিল জজ আদালত,  সদর
+courtNameEn: Civil Judge Court, Sadar, Gazipur
+
+courtNameBn: সিভিল জজ আদালত,  শ্রীপুর
+courtNameEn: Civil Judge Court, Sreepur, Gazipur
+
+courtNameBn: পারিবারিক আদালত–১
+courtNameEn: Family Court-1, Gazipur
+
+courtNameBn: পারিবারিক আদালত–২
+courtNameEn: Family Court-2, Gazipur
+
+courtNameBn: পারিবারিক আদালত–৩
+courtNameEn: Family Court-3, Gazipur
+
+courtNameBn: পারিবারিক আপিল আদালত
+courtNameEn: Family Appeal Court, Gazipur
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল
+courtNameEn: Land Survey Tribunal, Gazipur
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল
+courtNameEn: Land Survey Appellate Tribunal, Gazipur
+
+courtNameBn: শ্রম আদালত
+courtNameEn: Labor Court, Gazipur
+
+courtNameBn: বাণিজ্যিক আদালত
+courtNameEn: Commercial Court, Gazipur
+
+courtNameBn: বাণিজ্যিক আদালত, গাজীপুর মহানগর
+courtNameEn: Commercial Court, Gazipur Metropolitan
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত
+courtNameEn: District and Sessions Judge Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত
+courtNameEn: Additional District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত
+courtNameEn: Additional District and Sessions Judge 3rd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত
+courtNameEn: Additional District and Sessions Judge 4th Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত
+courtNameEn: Additional District and sessions judge 12th court, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১
+courtNameEn: Additional Sessions Court-1, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২
+courtNameEn: Additional Sessions Court-2, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩
+courtNameEn: Additional Sessions Court-3, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৪
+courtNameEn: Additional Sessions Court-4, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৫
+courtNameEn: Additional Sessions Court-5, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৬
+courtNameEn: Additional Sessions Court-6, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত
+courtNameEn: Joint District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত
+courtNameEn: Joint District and Sessions Judge Additional Court, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১
+courtNameEn: Joint Sessions Court-1, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–২
+courtNameEn: Joint Sessions Court-2, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩
+courtNameEn: Joint Sessions Court-3, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪
+courtNameEn: Joint Sessions Court-4, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫
+courtNameEn: Joint Sessions Court-5, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬
+courtNameEn: Joint Sessions Court-6, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭
+courtNameEn: Joint Sessions Court-7, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৮
+courtNameEn: Joint Sessions Court-8, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৯
+courtNameEn: Joint Sessions Court-9, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১০
+courtNameEn: Joint Sessions Court-10, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১১
+courtNameEn: Sessions Court-11, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১২
+courtNameEn: Joint Sessions Court-12, Gazipur
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল
+courtNameEn: Women and Child Abuse Suppression Tribunal, Gazipur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল
+courtNameEn: Child Violence Prevention Tribunal, Gazipur
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+courtNameBn: মহানগর দায়রা জজ আদালত
+courtNameEn: Metropolitan Sessions Judge's Court, Gazipur
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ আদালত
+courtNameEn: Additional Metropolitan Sessions Judge's Court, Gazipur
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ১ম আদালত
+courtNameEn: Joint Metropolitan Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ২য় আদালত
+courtNameEn: Joint Metropolitan Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, গাজীপুর মহানগর
+courtNameEn: Child Violence Prevention Tribunal, Gazipur Metropolitan
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত
+courtNameEn: Chief Judicial Magistrate Court, Gazipur
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত
+courtNameEn: Additional Chief Judicial Magistrate Court, gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত
+courtNameEn: Senior Judicial Magistrate 1st Court, gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত
+courtNameEn: Senior Judicial Magistrate 2nd Court, gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত
+courtNameEn: Senior Judicial Magistrate 3rd Court, gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত
+courtNameEn: Senior Judicial Magistrate 4th Court, Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত
+courtNameEn: Judicial Magistrate 1st Court, gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত (বন আদালত)
+courtNameEn: Judicial Magistrate 2nd Court (Forest Court), Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত
+courtNameEn: Judicial Magistrate 3rd Court, gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত
+courtNameEn: Judicial Magistrate 4th Court, gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত
+courtNameEn: Judicial Magistrate 5th Court, Gazipur
+
+courtNameBn: দ্রুত বিচার আদালত
+courtNameEn: Fast Track Court, Gazipur
+
+courtNameBn: আমলী আদালত,  জয়দেবপুর
+courtNameEn: Cognizance Court, Joydebpur, Gajipur
+
+courtNameBn: আমলী আদালত,  কালিয়াকৈর
+courtNameEn: Cognizance Court, Kaliakoir , Gazipur
+
+courtNameBn: আমলী আদালত,  কাপাসিয়া
+courtNameEn: Cognizance Court, Kapashia, Gazipur
+
+courtNameBn: আমলী আদালত,  কালীগঞ্জ
+courtNameEn: Cognizance court, Kaligonj, Gazipur
+
+courtNameBn: আমলী আদালত,  শ্রীপুর
+courtNameEn: Cognizance court, Sripur, Gazipur
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+courtNameBn: চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত
+courtNameEn: Chief Metropolitan Magistrate Court, Gazipur
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত
+courtNameEn: Additional Chief Metropolitan Magistrate Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩য় আদালত
+courtNameEn: Metropolitan Magistrate 3rd Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৪র্থ আদালত
+courtNameEn: Metropolitan Magistrate 4th Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৫ম আদালত
+courtNameEn: Metropolitan Magistrate 5th Court, Gazipur
+
+courtNameBn: দ্রুত বিচার আদালত (গাজীপুর মেট্রো)
+courtNameEn: Speedy Trial Court, Gazipur Metro, Gazipur
+
+courtNameBn: আমলী আদালত,  পূবাইল
+courtNameEn: Administrative Court, Pubail, Gazipur
+
+courtNameBn: আমলী আদালত,  বাসন
+courtNameEn: Cognizance Court, Bason, Gazipur
+
+courtNameBn: আমলী আদালত,  গাজীপুর সদর
+courtNameEn: Cognizance Court, Gazipur sadar , Gazipur
+
+courtNameBn: আমলী আদালত,  কাশিমপুর
+courtNameEn: Cognizance Court, Kashimpur , Gazipur
+
+courtNameBn: আমলী আদালত,  কোনাবাড়ী
+courtNameEn: Cognizance Court, Konabari , Gazipur
+
+courtNameBn: আমলী আদালত,   টংগী পূর্ব
+courtNameEn: Cognizance Court, Tongi East , Gazipur
+
+courtNameBn: আমলী আদালত,   টংগী পশ্চিম
+courtNameEn: Cognizance Court, Tongi west , Gazipur
+
+courtNameBn: আমলী আদালত,  গাছা
+courtNameEn: Cognizance court, Gasa, Gazipur
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট
+courtNameEn: Additional District Magistrate
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব)
+courtNameEn: Additional District Commissioner
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট
+courtNameEn: Executive Magistrate
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়
+courtNameEn: Office of the Land Acquisition Officer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

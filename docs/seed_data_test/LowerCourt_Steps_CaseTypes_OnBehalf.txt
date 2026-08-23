@@ -1,0 +1,512 @@
+Steps: District Judge Court (Civil)
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Transfer | বদলী
+Court Fee | কোর্ট ফি দাখিল
+Admission Hearing | গ্রহণযোগ্যতা শুনানী
+Statusque | স্থিতিবস্থার আদেশ
+Show Cause | কারন দর্শানো
+Injunction Hearing | অস্থায়ী নিষেধাজ্ঞার শুনানী
+Service Return | সমন ফেরত
+Step for SR | সমন বিষয়ক তদ্ধির
+Written Statement | জবাব দাখিল (WS)
+WS Admission Hearing | জবাব গ্রহণ বিষয়ক শুনানী
+Ex Parte in failure | ব্যার্থতায় একতরফা
+Written Objection | আপত্তি দাখিল (WO)
+WO Admission Hearing | আপত্তি গ্রহণ বিষয়ক শুনানী
+Document Submission | কাগজ-পত্র দাখিল
+Ex Parte | একতরফা শুনানী
+Hearing | শুনানী
+Petition Hearing | দরখাস্ত শুনানী
+ADR | ৮৯(ক)
+Rafa Nam Submission | রফা-নামা দাখিল
+Compromise | আপোষ মিমাংসা
+Framing of Issue | ইস্যু গঠন
+Step for Section 30 | ৩০ ধারায় তদ্বির
+Settling Date | SD
+Reply | প্রশ্নোত্তর দাখিল (Reply)
+Peremptory Hearing | চূড়ান্ত শুনানী (PH)
+Further Peremptory Hearing | অধিকতর চূড়ান্ত শুনানী (FPH)
+Dismissal in Failure | ব্যার্থতায় খারিজ
+Cross Examination | জেরা
+CP Cost | জরিমানা (CP Cost)
+Argument in Failure | ব্যার্থতায় যুক্তিতর্ক
+Argument | যুক্তিতর্ক
+Legal Aid | লিগ্যাল এইড
+Preliminary Decree | প্রাথমিক ডিক্রী
+Part Decree | আংশিক ডিক্রী
+Petitioner Appearance | বাদীর উপস্থিতি
+Respondent Appearance | বিবাদীর উপস্থিতি
+Necessary Order in Failure | ব্যার্থতায় প্রয়োজনীয় আদেশ
+Comission Fee | কমিশন ফি দাখিল
+Comission Report | কমিশন প্রতিবেদন
+Put Up | নথি উপস্থাপন (Put Up)
+Judgement | রায় প্রচার
+Appeal Hearing | আপিল শুনানী (AH)
+Revision Hearing | রিভিশন শুনানী (RH)
+LCR Call | নথি/LCR তলব
+Order | আদেশ
+Allowed | মঞ্জুর
+Rejected | নামঞ্জুর
+Rejected Right Away | সরাসরি নামঞ্জুর
+Withdrawal | প্রত্যাহার
+Dismissal | খারিজ
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+
+Case Types: District Judge Court (Civil)
+----------------------------------------
+Civil- । দেওয়ানি-
+Civil Appeal- । দেওয়ানি আপিল-
+Civil Review- । দেওয়ানি রিভিউ-
+Civil Revision- । দেওয়ানি রিভিশন -
+Misc Case- । ছানী মিছ-
+Misc Appeal- । মিছ আপিল-
+Title Execution- । দেওয়ানি ডিং-
+Family- । পারিবারিক-
+Pre-emption- । প্রিয়েমশন-
+Succession- । সাকসেশন-
+Vested Prop.- । অর্পিত ট্রাইঃ-
+Vested Prop. Revision- । অর্পিত রিভিশন নং-
+Arbitration- । আরবিট্রশন-
+Money- । মানি-
+Artharin- । অর্থঋণ-
+Artharin Execution- । অর্থঋণ ডিং-
+Violation Misc- । ভায়োলেশন মিছ-
+Transfer Misc- । বদলী মিছ-
+Mortgage Misc- । বন্ধকী মিছ-
+
+On Behalf: District Judge Court (Civil)
+---------------------------------------
+Plaintiff | বাদী
+Defendant | বিবাদী
+Petitioner | দরখাস্তকারী
+Respondent | প্রতিপক্ষ
+Appellant | আপিলকারী
+Reviewer | রিভিউকারী
+Revisioner | রিভিশনকারী
+Mojhor | মজহর
+Torofsani | তরফছানী
+Decree Holder | ডিক্রিদার
+Judgement Debtor | দায়িক
+
+=====================================
+
+Steps: Sessions Judge Court (Criminal)
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Transfer | বদলী
+Admission Hearing | গ্রহণযোগ্যতা শুনানী
+Appeal Hearing | আপিল শুনানী (AH)
+Revision Hearing | রিভিশন শুনানী (RH)
+LCR Call | নথি/LCR তলব
+Petition Hearing | দরখাস্ত শুনানী
+Warrant of Arrest | গ্রেফতারি পরোয়ানা (W/A)
+Warrant of Proclamation | হুলিয়া (W/P & A)
+Newspaper Circular | পত্রিকা বিজ্ঞপ্তি
+Deposition of Money | টাকা জমা
+Bail Petition Hearing | জামিন শুনানী
+High Court Order Submission | উচ্চ আদালতের আদেশ দাখিল
+Witness | সাক্ষী
+Define Witness (Section 340) | সাফাই সাক্ষী (৩৪০ ধারা)
+Cross Examination | জেরা
+Examination of Accused | আসামী পরীক্ষা (৩৪২ ধারা)
+Argument | যুক্তিতর্ক
+Judgement | রায় প্রচার
+Trial | বিচার
+Conviction | সাজা
+Discharge | অব্যহতি
+Acquittal | খালাস
+Order | আদেশ
+Allowed | মঞ্জুর
+Rejected | নামঞ্জুর
+Rejected Right Away | সরাসরি নামঞ্জুর
+Withdrawal under Section 248 | ২৪৮ ধারায় প্রত্যাহার
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+Case Types: Sessions Judge Court (Criminal)
+----------------------------------------
+Criminal Misc- । ফৌজদারি মিসঃ-
+Criminal Appeal- । ফৌঃ আপিল-
+Criminal Revision- । ফৌঃ রিভিশন-
+Session- । সেশন-
+Nari O Shishu- । নারী ও শিশু-
+Special Tribunal- । বিশেষ ট্রাইঃ-
+Terrorism- । সন্ত্রাস-
+Anti Corruption Tri- । দূর্নীতি দমন ট্রাইঃ-
+Acid- । এসিড-
+
+On Behalf: Sessions Judge Court (Criminal)
+---------------------------------------
+Plaintiff | বাদী
+Accused | আসামি
+Appellant | আপিলকারী
+Revisioner | রিভিশনকারী
+Respondent | প্রতিপক্ষ
+
+==========================================
+
+Steps: Metropolitan Sessions Judge Court (Criminal)
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Transfer | বদলী
+Admission Hearing | গ্রহণযোগ্যতা শুনানী
+Appeal Hearing | আপিল শুনানী (AH)
+Revision Hearing | রিভিশন শুনানী (RH)
+LCR Call | নথি/LCR তলব
+Petition Hearing | দরখাস্ত শুনানী
+Warrant of Arrest | গ্রেফতারি পরোয়ানা (W/A)
+Warrant of Proclamation | হুলিয়া (W/P & A)
+Newspaper Circular | পত্রিকা বিজ্ঞপ্তি
+Deposition of Money | টাকা জমা
+Bail Petition Hearing | জামিন শুনানী
+High Court Order Submission | উচ্চ আদালতের আদেশ দাখিল
+Witness | সাক্ষী
+Define Witness (Section 340) | সাফাই সাক্ষী (৩৪০ ধারা)
+Cross Examination | জেরা
+Examination of Accused | আসামী পরীক্ষা (৩৪২ ধারা)
+Argument | যুক্তিতর্ক
+Judgement | রায় প্রচার
+Trial | বিচার
+Conviction | সাজা
+Discharge | অব্যহতি
+Acquittal | খালাস
+Order | আদেশ
+Allowed | মঞ্জুর
+Rejected | নামঞ্জুর
+Rejected Right Away | সরাসরি নামঞ্জুর
+Withdrawal under Section 248 | ২৪৮ ধারায় প্রত্যাহার
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+Case Types: Metropolitan Sessions Judge Court (Criminal)
+----------------------------------------
+Criminal Misc- । ফৌজদারি মিসঃ-
+Criminal Appeal- । ফৌঃ আপিল-
+Criminal Revision- । ফৌঃ রিভিশন-
+Session- । সেশন-
+Nari O Shishu- । নারী ও শিশু-
+Special Tribunal- । বিশেষ ট্রাইঃ-
+Terrorism- । সন্ত্রাস-
+Anti Corruption Tri- । দূর্নীতি দমন ট্রাইঃ-
+Acid- । এসিড-
+
+
+On Behalf: Metropolitan Sessions Judge Court (Criminal)
+---------------------------------------
+Plaintiff | বাদী
+Accused | আসামি
+Appellant | আপিলকারী
+Revisioner | রিভিশনকারী
+Respondent | প্রতিপক্ষ
+
+==============================================
+
+Steps: Chief Judicial Magistrate Court
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Summons | সমন
+Warrant of Arrest | গ্রেফতারি পরোয়ানা (W/A)
+Warrant of Proclamation | হুলিয়া (W/P & A)
+Newspaper Circular | পত্রিকা বিজ্ঞপ্তি
+Remand Hearing | রিমান্ড শুনানী
+Bail Petition Hearing | জামিন শুনানী
+Police Report | পুলিশ প্রতিবেদন (PR)
+Report | প্রতিবেদন
+Transfer | বদলী
+Framing of Charge | চার্জ শুনানী
+Deposition of Money | টাকা জমা
+High Court Order Submission | উচ্চ আদালতের আদেশ দাখিল
+Witness | সাক্ষী
+Define Witness (Section 340) | সাফাই সাক্ষী (৩৪০ ধারা)
+Cross Examination | জেরা
+Examination of Accused | আসামী পরীক্ষা (৩৪২ ধারা)
+Argument | যুক্তিতর্ক
+Judgement | রায় প্রচার
+Trial | বিচার
+Conviction | সাজা
+Discharge | অব্যহতি
+Acquittal | খালাস
+Order | আদেশ
+Withdrawal under Section 248 | ২৪৮ ধারায় প্রত্যাহার
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+Case Types: Chief Judicial Magistrate Court
+----------------------------------------
+CR- । সি.আর-
+GR- । জি.আর-
+Petition- । পিটিশন-
+NFIR- | নন এফ.আই.আর-
+
+On Behalf: Chief Judicial Magistrate Court
+---------------------------------------
+Plaintiff | বাদী
+Accused | আসামি
+Petitioner | দরখাস্তকারী
+Respondent | প্রতিপক্ষ
+
+==============================================
+
+Steps: Chief Metropolitan Magistrate Court
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Summons | সমন
+Warrant of Arrest | গ্রেফতারি পরোয়ানা (W/A)
+Warrant of Proclamation | হুলিয়া (W/P & A)
+Newspaper Circular | পত্রিকা বিজ্ঞপ্তি
+Remand Hearing | রিমান্ড শুনানী
+Bail Petition Hearing | জামিন শুনানী
+Police Report | পুলিশ প্রতিবেদন (PR)
+Report | প্রতিবেদন
+Transfer | বদলী
+Framing of Charge | চার্জ শুনানী
+Deposition of Money | টাকা জমা
+High Court Order Submission | উচ্চ আদালতের আদেশ দাখিল
+Witness | সাক্ষী
+Define Witness (Section 340) | সাফাই সাক্ষী (৩৪০ ধারা)
+Cross Examination | জেরা
+Examination of Accused | আসামী পরীক্ষা (৩৪২ ধারা)
+Argument | যুক্তিতর্ক
+Judgement | রায় প্রচার
+Trial | বিচার
+Conviction | সাজা
+Discharge | অব্যহতি
+Acquittal | খালাস
+Order | আদেশ
+Withdrawal under Section 248 | ২৪৮ ধারায় প্রত্যাহার
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+Case Types: Chief Metropolitan Magistrate Court
+----------------------------------------
+CR- । সি.আর-
+GR- । জি.আর-
+Petition- । পিটিশন-
+NFIR- | নন এফ.আই.আর-
+
+On Behalf: Chief Metropolitan Magistrate Court
+---------------------------------------
+Plaintiff | বাদী
+Accused | আসামি
+Petitioner | দরখাস্তকারী
+Respondent | প্রতিপক্ষ
+==============================================
+
+Steps: Executive Magistrate & Others Courts
+-----------------------------------
+Arrival | আগমন
+Appearance | এপিয়ার
+Filing | নতুন মামলা
+Admission Hearing | গ্রহণযোগ্যতা শুনানী
+Remand | রিমান্ডে প্রেরণ (R)
+LCR Call | নথি/LCR তলব
+Notice | নোটিশ
+Warrant of Arrest | গ্রেফতারি পরোয়ানা (W/A)
+Show Cause | কারন দর্শানো
+Order to Maintain Peace and Order | শান্তিশৃঙ্খলা বজায় রাখার আদেশ
+Investigation Report | তদন্ত প্রতিবেদন
+Surveyor Report | সার্ভেয়ার প্রতিবেদন
+ULAO Report | ULAO প্রতিবেদন
+ACL Report | ACL প্রতিবেদন
+Written Statement | জবাব দাখিল (WS)
+Written Objection | আপত্তি দাখিল (WO)
+WS Admission Hearing | জবাব গ্রহণ বিষয়ক শুনানী
+Document Submission | কাগজ-পত্র দাখিল
+Hearing | শুনানী
+Petition Hearing | দরখাস্ত শুনানী
+Necessary Order in Failure | ব্যার্থতায় প্রয়োজনীয় আদেশ
+Kanungo Review | কানুনগো পর্যালোচনা
+Witness | সাক্ষী
+Cross Examination | জেরা
+Dismissal | নথিজাত
+Withdrawal | প্রত্যাহার
+Order | আদেশ
+Rejected | নামঞ্জুর
+Maintainance Not Necessary | পরিচালনার আবশ্যকতা নেই
+Disposed | নিষ্পত্তি
+
+Case Types: Executive Magistrate & Others Courts
+----------------------------------------
+Misc Case- | বিবিধ মোকদ্দমা-
+Misc Appeal- | মিসঃ আপিল-
+Petition- | পিটিশন-
+Bumi Oporadh O Protikar- | ভূমি অপরাধ ও প্রতিকার-
+Mutation Appeal- | নামজারী আপিল-
+LA Case- | এল. এ. কেইস-
+
+On Behalf: Executive Magistrate & Others Courts
+---------------------------------------
+Plaintiff | বাদী
+Defendant | বিবাদী
+Appellant | আপিলকারী
+Petitioner | দরখাস্তকারী
+Respondent | প্রতিপক্ষ
+First Party | ১ম পক্ষ
+Second Party | ২য় পক্ষ
+==============================================
+
+Disposed Steps: District Judge Court (Civil)
+--------------------------------------------
+Withdrawal
+Dismissal
+Allowed
+Rejected
+Rejected Right Away
+Maintainance Not Necessary
+Disposed
+
+Disposed Steps: Sessions Judge Court (Criminal)
+--------------------------------------------
+Withdrawal
+Withdrawal under Section 248
+Dismissal
+Allowed
+Rejected
+Rejected Right Away
+Conviction
+Acquittal
+Maintainance Not Necessary
+Disposed
+
+Disposed Steps: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+Withdrawal
+Withdrawal under Section 248
+Dismissal
+Allowed
+Rejected
+Rejected Right Away
+Conviction
+Acquittal
+Maintainance Not Necessary
+Disposed
+
+Disposed Steps: Chief Judicial Magistrate Court
+-----------------------------------------------
+Withdrawal
+Withdrawal under Section 248
+Dismissal
+Allowed
+Rejected
+Rejected Right Away
+Conviction
+Acquittal
+Maintainance Not Necessary
+Disposed
+
+Disposed Steps: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+Withdrawal
+Withdrawal under Section 248
+Dismissal
+Allowed
+Rejected
+Rejected Right Away
+Conviction
+Acquittal
+Maintainance Not Necessary
+Disposed
+
+Disposed Steps: Executive Magistrate & Others Courts
+----------------------------------------------------
+Remand
+Dismissal
+Withdrawal
+Rejected
+Maintainance Not Necessary
+Disposed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

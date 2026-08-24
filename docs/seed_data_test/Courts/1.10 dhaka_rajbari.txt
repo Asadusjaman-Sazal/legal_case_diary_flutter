@@ -1,0 +1,151 @@
+===========================================
+Division: Dhaka
+District: 
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট
+courtNameEn: Additional District Magistrate
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব)
+courtNameEn: Additional District Commissioner
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট
+courtNameEn: Executive Magistrate
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়
+courtNameEn: Office of the Land Acquisition Officer
+
+courtNameBn: সহঃ কমিঃ (ভূমি) -- সার্কেল, --
+courtNameEn: AC (Land) -- Circle, --
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

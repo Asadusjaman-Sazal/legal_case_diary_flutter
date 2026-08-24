@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.73 - Made all lower-court Steps, Case Types, and On Behalfs explicit SeedOption entries.
+Version: 0.0.76 - Corrected disposed-step tests so Judgement is not treated as disposed.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -88,6 +88,6 @@ Version: 0.0.70 - Updated lower-court category seed data and renamed Chattogram 
 Version: 0.0.71 - Replaced lower-court steps, case types, on-behalfs, and disposed-step seed data from the supplied source.
 Version: 0.0.72 - Removed unresolved plain Withdrawal references from four criminal disposed-step lists.
 Version: 0.0.73 - Made all lower-court Steps, Case Types, and On Behalfs explicit SeedOption entries.
-
-
-
+Version: 0.0.74 - Imported 950 verified lower-court names for eight Dhaka-division districts.
+Version: 0.0.75 - Removed invalid Dismissal from district-criminal disposed-step references.
+Version: 0.0.76 - Corrected disposed-step tests so Judgement is not treated as disposed.

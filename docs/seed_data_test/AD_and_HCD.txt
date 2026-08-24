@@ -312,7 +312,13 @@ On Behalf:
 Petitioner, দরখাস্তকারী
 Respondent, প্রতিপক্ষ
 
+==============================================================
 
+Disposed Steps:
+---------------
+Dismissed
+Disposed
+Discharged
 
 
 

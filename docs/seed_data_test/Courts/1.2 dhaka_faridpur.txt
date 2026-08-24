@@ -5,97 +5,97 @@ District: Faridpur
 
 Court Category: District Judge Court (Civil)
 --------------------------------------------
-courtNameBn: জেলা ও দায়রা জজ আদালত
+courtNameBn: জেলা ও দায়রা জজ আদালত, ফরিদপুর
 courtNameEn: District and Sessions Judge Court, Faridpur
 
-courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
 courtNameEn: Additional District and Sessions Judge 1st Court, Faridpur
 
-courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
 courtNameEn: Additional District and Sessions Judge 2nd Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 1st Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 2nd Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 3rd Court, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  আলফাডাঙ্গা
+courtNameBn: সিনিয়র সিভিল জজ আদালত, আলফাডাঙ্গা, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Alfadanga, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  ভাঙ্গা চৌকি
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ভাঙ্গা চৌকি, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Bhanga Chowki, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  চর ভদ্রাসন
+courtNameBn: সিনিয়র সিভিল জজ আদালত, চর ভদ্রাসন, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Char Bhodrasan, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  মধুখালী
+courtNameBn: সিনিয়র সিভিল জজ আদালত, মধুখালী, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Madhukhali, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  সদর
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Sadar, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  সদরপুর
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদরপুর, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Sadarpur, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  সালথা
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সালথা, ফরিদপুর
 courtNameEn: Senior Civil Judge Court, Saltha, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  বোয়ালমারী
+courtNameBn: সিনিয়র সিভিল জজ আদালত, বোয়ালমারী, ফরিদপুর
 courtNameEn: Senior Judicial Magistrate Court, Boalmari, Faridpur
 
-courtNameBn: সিনিয়র সিভিল জজ আদালত,  নগরকান্দা,  ভাঙ্গা চৌকি
+courtNameBn: সিনিয়র সিভিল জজ আদালত, নগরকান্দা, ভাঙ্গা চৌকি, ফরিদপুর
 courtNameEn: Senior Judicial Magistrate Court, Nagarkanda, Faridpur
 
-courtNameBn: সিভিল জজ ১ম অতিরিক্ত আদালত
+courtNameBn: সিভিল জজ ১ম অতিরিক্ত আদালত, ফরিদপুর
 courtNameEn: Civil Judge 1st Additional Court, Faridpur
 
-courtNameBn: সিভিল জজ ২য় অতিরিক্ত আদালত
+courtNameBn: সিভিল জজ ২য় অতিরিক্ত আদালত, ফরিদপুর
 courtNameEn: Civil Judge 2nd Additional Court, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  আলফাডাঙ্গা
+courtNameBn: সিভিল জজ আদালত, আলফাডাঙ্গা, ফরিদপুর
 courtNameEn: Civil Judge Court, Alfadanga, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  ভাঙ্গা
+courtNameBn: সিভিল জজ আদালত, ভাঙ্গা, ফরিদপুর
 courtNameEn: Civil Judge Court, Bhanga, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  চরভদ্রাসন
+courtNameBn: সিভিল জজ আদালত, চরভদ্রাসন, ফরিদপুর
 courtNameEn: Civil Judge Court, Charbhadrasan, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  মধুখালী
+courtNameBn: সিভিল জজ আদালত, মধুখালী, ফরিদপুর
 courtNameEn: Civil Judge Court, Madhukhali, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  সদর
+courtNameBn: সিভিল জজ আদালত, সদর, ফরিদপুর
 courtNameEn: Civil Judge Court, Sadar, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  সদরপুর,  ভাঙ্গা চৌকি
+courtNameBn: সিভিল জজ আদালত, সদরপুর, ভাঙ্গা চৌকি, ফরিদপুর
 courtNameEn: Civil Judge Court, Sadarpur, Bhanga Chowki, Faridpur
 
-courtNameBn: সিভিল জজ আদালত,  সালথা
+courtNameBn: সিভিল জজ আদালত, সালথা, ফরিদপুর
 courtNameEn: Civil Judge Court, Saltha, Faridpur
 
-courtNameBn: পারিবারিক আদালত–১
+courtNameBn: পারিবারিক আদালত–১, ফরিদপুর
 courtNameEn: Family Court-1, Faridpur
 
-courtNameBn: পারিবারিক আদালত–২
+courtNameBn: পারিবারিক আদালত–২, ফরিদপুর
 courtNameEn: Family Court-2, Faridpur
 
-courtNameBn: পারিবারিক আদালত–৩
+courtNameBn: পারিবারিক আদালত–৩, ফরিদপুর
 courtNameEn: Family Court-3, Faridpur
 
-courtNameBn: পারিবারিক আপিল আদালত
+courtNameBn: পারিবারিক আপিল আদালত, ফরিদপুর
 courtNameEn: Family Appellate Court, Faridpur
 
-courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, ফরিদপুর
 courtNameEn: Land Survey Tribunal, Faridpur
 
-courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, ফরিদপুর
 courtNameEn: Land Survey Appellate Tribunal, Faridpur
 
-courtNameBn: বাণিজ্যিক আদালত
+courtNameBn: বাণিজ্যিক আদালত, ফরিদপুর
 courtNameEn: Commercial Court, Faridpur
 
 
@@ -104,55 +104,55 @@ courtNameEn: Commercial Court, Faridpur
 
 Court Category: Sessions Judge Court (Criminal)
 -----------------------------------------------
-courtNameBn: জেলা ও দায়রা জজ আদালত
+courtNameBn: জেলা ও দায়রা জজ আদালত, ফরিদপুর
 courtNameEn: District and Sessions Judge Court, Faridpur
 
-courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
 courtNameEn: Additional District and Sessions Judge 1st Court, Faridpur
 
-courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
 courtNameEn: Additional District and Sessions Judge 2nd Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 1st Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 2nd Court, Faridpur
 
-courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
 courtNameEn: Joint District and Sessions Judge 3rd Court, Faridpur
 
-courtNameBn: অতিরিক্ত দায়রা আদালত–১
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, ফরিদপুর
 courtNameEn: Additional Sessions Court-1, Faridpur
 
-courtNameBn: অতিরিক্ত দায়রা আদালত–২
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, ফরিদপুর
 courtNameEn: Additional Sessions Court-2, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–১
+courtNameBn: যুগ্ম দায়রা আদালত–১, ফরিদপুর
 courtNameEn: Joint Sessions Court-1, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–২
+courtNameBn: যুগ্ম দায়রা আদালত–২, ফরিদপুর
 courtNameEn: Joint Sessions Court-2, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–৩
+courtNameBn: যুগ্ম দায়রা আদালত–৩, ফরিদপুর
 courtNameEn: Joint Sessions Court-3, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–৪
+courtNameBn: যুগ্ম দায়রা আদালত–৪, ফরিদপুর
 courtNameEn: Joint Sessions Court-4, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–৫
+courtNameBn: যুগ্ম দায়রা আদালত–৫, ফরিদপুর
 courtNameEn: Joint Sessions Court-5, Faridpur
 
-courtNameBn: যুগ্ম দায়রা আদালত–৬
+courtNameBn: যুগ্ম দায়রা আদালত–৬, ফরিদপুর
 courtNameEn: Joint Sessions Court-6, Faridpur
 
-courtNameBn: বিশেষ জজ আদালত
+courtNameBn: বিশেষ জজ আদালত, ফরিদপুর
 courtNameEn: Special Judge Court, Faridpur
 
-courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, ফরিদপুর
 courtNameEn: Women and Child Abuse Suppression Tribunal, Faridpur
 
-courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, ফরিদপুর
 courtNameEn: Child Violence Prevention Tribunal, Faridpur
 
 
@@ -169,64 +169,64 @@ None
 
 Court Category: Chief Judicial Magistrate Court
 -----------------------------------------------
-courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ফরিদপুর
 courtNameEn: Chief Judicial Magistrate Court, Faridpur
 
-courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত
-courtNameEn: Additional Chief Judicial Magistrate Court, faridpur
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ফরিদপুর
+courtNameEn: Additional Chief Judicial Magistrate Court, faridpur, Faridpur
 
-courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত
-courtNameEn: Senior Judicial Magistrate 1st Court, faridpur
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 1st Court, faridpur, Faridpur
 
-courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত
-courtNameEn: Senior Judicial Magistrate 2nd Court, faridpur
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 2nd Court, faridpur, Faridpur
 
-courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত
-courtNameEn: Senior Judicial Magistrate 3rd Court, faridpur
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 3rd Court, faridpur, Faridpur
 
-courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, ফরিদপুর
 courtNameEn: Senior Judicial Magistrate 4th Court, Faridpur
 
-courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত
-courtNameEn: Judicial Magistrate 1st Court, faridpur
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 1st Court, faridpur, Faridpur
 
-courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত
-courtNameEn: Judicial Magistrate 2nd Court, faridpur
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 2nd Court, faridpur, Faridpur
 
-courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত
-courtNameEn: Judicial Magistrate 3rd Court, faridpur
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 3rd Court, faridpur, Faridpur
 
-courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত
-courtNameEn: Judicial Magistrate 4th Court, faridpur
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 4th Court, faridpur, Faridpur
 
-courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত, ফরিদপুর
 courtNameEn: Judicial Magistrate 5th Court, Faridpur
 
-courtNameBn: আমলী আদালত,  আল্‌ফাডাঙ্গা
-courtNameEn: Cognizance Court, Alfadanga, Faridput
+courtNameBn: আমলী আদালত, আল্‌ফাডাঙ্গা, ফরিদপুর
+courtNameEn: Cognizance Court, Alfadanga, Faridput, Faridpur
 
-courtNameBn: আমলী আদালত,  ভাংগা
+courtNameBn: আমলী আদালত, ভাংগা, ফরিদপুর
 courtNameEn: Cognizance Court, Bhanga, Faridpur
 
-courtNameBn: আমলী আদালত,  বোয়ালমারী
+courtNameBn: আমলী আদালত, বোয়ালমারী, ফরিদপুর
 courtNameEn: Cognizance Court, Boalmari, Faridpur
 
-courtNameBn: আমলী আদালত,  চর ভদ্রাশন
+courtNameBn: আমলী আদালত, চর ভদ্রাশন, ফরিদপুর
 courtNameEn: Cognizance Court, Char Bhadrasan, Faridpur
 
-courtNameBn: আমলী আদালত,  কোতয়ালী
+courtNameBn: আমলী আদালত, কোতয়ালী, ফরিদপুর
 courtNameEn: Cognizance Court, Kotowali, Faridpur
 
-courtNameBn: আমলী আদালত,  মধুখালী
+courtNameBn: আমলী আদালত, মধুখালী, ফরিদপুর
 courtNameEn: Cognizance Court, Madhukhali, Faridpur
 
-courtNameBn: আমলী আদালত,  নগরকান্দা
+courtNameBn: আমলী আদালত, নগরকান্দা, ফরিদপুর
 courtNameEn: Cognizance Court, Nagarkanda, Faridpur
 
-courtNameBn: আমলী আদালত,  সদরপুর
+courtNameBn: আমলী আদালত, সদরপুর, ফরিদপুর
 courtNameEn: Cognizance Court, Sadarpur, Faridpur
 
-courtNameBn: আমলী আদালত,  সালথা
+courtNameBn: আমলী আদালত, সালথা, ফরিদপুর
 courtNameEn: Cognizance Court, Saltha, Faridpur
 
 
@@ -257,34 +257,34 @@ courtNameEn: Additional District Commissioner, Faridpur
 courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, ফরিদপুর
 courtNameEn: Executive Magistrate, Faridpur
 
-courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, ফরিদপুর
 courtNameEn: Office of the Land Acquisition Officer, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  আল্‌ফাডাঙ্গা সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) আল্‌ফাডাঙ্গা সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Alfadanga Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  ভাংগা সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) ভাংগা সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Bhanga Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  বোয়ালমারী সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) বোয়ালমারী সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Boalmari Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  চর ভদ্রাশন সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) চর ভদ্রাশন সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Char Bhadrasan Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  কোতয়ালী সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) কোতয়ালী সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Kotowali Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  মধুখালী সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) মধুখালী সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Madhukhali Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  নগরকান্দা সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) নগরকান্দা সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Nagarkanda Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  সদরপুর সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) সদরপুর সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Sadarpur Circle, Faridpur
 
-courtNameBn: সহঃ কমিঃ (ভূমি)  সালথা সার্কেল, ফরিদপুর
+courtNameBn: সহঃ কমিঃ (ভূমি) সালথা সার্কেল, ফরিদপুর
 courtNameEn: AC (Land) Saltha Circle, Faridpur
 
 

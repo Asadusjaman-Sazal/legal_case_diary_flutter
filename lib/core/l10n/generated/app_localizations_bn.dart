@@ -192,7 +192,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_courtCategory => 'আদালতের ক্যাটেগরি';
 
   @override
-  String get addEditCaseSheet_nameOfCourt => 'দালতের নাম';
+  String get addEditCaseSheet_nameOfCourt => 'আদালতের নাম';
 
   @override
   String get addEditCaseSheet_caseNumber => 'মামলা নং';

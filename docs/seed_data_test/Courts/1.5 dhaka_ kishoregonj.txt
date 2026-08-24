@@ -1,0 +1,406 @@
+============================================
+============================================
+
+Division: Dhaka
+District: Kishoregonj
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+courtNameEn: District and Sessions Judge Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, বাজিতপুর, বাজিতপুর চৌকি, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Bajitpur Chowki, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Austagram, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ভৈরব, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Bhairab, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Hossainpur, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Karimganj, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কটিয়াদি, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Katiadi, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কুলিয়ারচর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Kuliarchar, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Mithamain, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, নিকলী, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Nikli, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Pakundia, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sadar, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, অষ্টগ্রাম, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Ashtagram, (Bajitpur Chowki), Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, বাজিতপুর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Bajitpur, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, ভৈরব, বাজিতপুর চৌকি, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Bhairab, Bajitpur Chowki, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Hossainpur, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Karimganj, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, কটিয়াদী, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Katiadi, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, কুলিয়ারচর, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Kuliyarchar, (Bajitpur Chowki), Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Mithamin, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, নিকলী, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Nikli, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Pakundia, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, সদর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Sadar, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, তাড়াইল, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Tarail, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত,  ইটনা, কিশোরগঞ্জ
+courtNameEn: Civil Judge's Court, Etna, Kishoregonj
+
+courtNameBn: পারিবারিক আদালত–১, কিশোরগঞ্জ
+courtNameEn: Family Court-1, Kishoregonj
+
+courtNameBn: পারিবারিক আদালত–২, কিশোরগঞ্জ
+courtNameEn: Family Court-2, Kishoregonj
+
+courtNameBn: পারিবারিক আপিল আদালত, কিশোরগঞ্জ
+courtNameEn: Family Appeal Court, Kishoregonj
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Land Survey Tribunal, Kishoregonj
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Land Survey Appellate Tribunal, Kishoregonj
+
+courtNameBn: বাণিজ্যিক আদালত, কিশোরগঞ্জ
+courtNameEn: Commercial Court, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+courtNameEn: District and Sessions Judge Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-1, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-2, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-3, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৪, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-4, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৫, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-5, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-1, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-2, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-3, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-4, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-5, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-6, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-7, Kishoregonj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-১, কিশোরগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal-1, Kishoregonj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-২, কিশোরগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal-2, Kishoregonj
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Child Violence Prevention Tribunal, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, কিশোরগঞ্জ
+courtNameEn: Chief Judicial Magistrate Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, কিশোরগঞ্জ
+courtNameEn: Additional Chief Judicial Magistrate Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 1st Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 2nd Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 3rd Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 4th Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 5th Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৬ষ্ঠ  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 6th Court, Kishoregonj
+
+courtNameBn: স্পেশাল ম্যাজিষ্ট্রেট, পরিবেশ ও বন আদালত, কিশোরগঞ্জ
+courtNameEn: Special Magistrate, Environmental and Forest Court, Kishorganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 1st Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 2nd Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 3rd Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 4th Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 5th Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৬ষ্ঠ  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 6th Court, Kishoregonj
+
+courtNameBn: আমলী আদালত, অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Austagram, Kishoregonj
+
+courtNameBn: আমলী আদালত, বাজিতপুর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Bajitpur, Kishoregonj
+
+courtNameBn: আমলী আদালত, ভৈরব, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Bhairab, Kishoregonj
+
+courtNameBn: আমলী আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Hossainpur, Kishoregonj
+
+courtNameBn: আমলী আদালত, ইটনা, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Itna, Kishoregonj
+
+courtNameBn: আমলী আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Karimganj, Kishoregonj
+
+courtNameBn: আমলী আদালত, কটিয়াদী, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Katiadi, Kishoregonj
+
+courtNameBn: আমলী আদালত, কিশোরগঞ্জ সদর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Kishoregonj Sadar, Kishoregonj
+
+courtNameBn: আমলী আদালত, কুলিয়ার চর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Kuliar Char, Kishoregonj
+
+courtNameBn: আমলী আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Mithamain, Kishoregonj
+
+courtNameBn: আমলী আদালত, নিক্‌লী, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Nikli, Kishoregonj
+
+courtNameBn: আমলী আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Pakundia, Kishoregonj
+
+courtNameBn: আমলী আদালত, তাড়াইল, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Tarail, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, কিশোরগঞ্জ
+courtNameEn: Additional District Magistrate, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), কিশোরগঞ্জ
+courtNameEn: Additional District Commissioner, Kishoregonj
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, কিশোরগঞ্জ
+courtNameEn: Executive Magistrate, Kishoregonj
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, কিশোরগঞ্জ
+courtNameEn: Office of the Land Acquisition Officer, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: AC (Land) Austagram Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বাজিতপুর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Bajitpur Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ভৈরব সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Bhairab Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) হোসেনপুর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Hossainpur Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ইটনা সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Itna Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) করিমগঞ্জ সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Karimganj Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কটিয়াদী সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Katiadi Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কিশোরগঞ্জ সদর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Kishoregonj Sadar Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কুলিয়ার চর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Kuliar Char Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মিঠামইন সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Mithamain Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) নিক্‌লী সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Nikli Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) পাকুন্দিয়া সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Pakundia Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) তাড়াইল সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Tarail Circle, Kishoregonj
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

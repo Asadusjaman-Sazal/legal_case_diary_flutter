@@ -1,4 +1,4 @@
-### 2026-08-23 — Current Task: Lower-court option seed replacement — IMPLEMENTED; TEST PENDING
+### 2026-08-24 — Current Task: Lower-court seed data import — IMPLEMENTED; FOCUSED TEST PARTIAL
 
 Implemented:
 - Replaced all lower-court Steps, Case Types, On Behalfs, and Disposed references from `docs/seed_data_test/LowerCourt_Steps_CaseTypes_OnBehalf.txt`.
@@ -6,11 +6,16 @@ Implemented:
 - Added complete Metropolitan Sessions Judge Court options and updated seed tests.
 - Removed plain `Withdrawal` from four criminal disposed lists because those categories define only `Withdrawal under Section 248` as a step.
 - Replaced tuple-based lower option lists with explicit `SeedOption` entries containing stable IDs, labels, and order indexes.
-- Focused Dart analysis is clean; Flutter test execution produced no output and remains pending.
+- Replaced lower-court name placeholders with 950 source records for eight Dhaka-division districts.
+- Derived each court division from its district ID, used scoped stable court IDs, and preserved per-category source order indexes.
+- Added a focused test for the imported court count, scope, IDs, and order indexes.
+- Removed `Dismissal` from the district-criminal disposed references because it is not a seeded district-criminal step.
+- Corrected the focused test so `Judgement` is treated as a normal step, not a disposed marker.
+- Flutter analysis is clean. The focused seed test no longer treats `Judgement` as disposed; it now identifies the separate Chief Judicial Magistrate `Dismissal` reference.
 
-Version `0.0.73`.
+Version `0.0.76`.
 
-**Next:** Resolve the local Flutter test-runner hang, then reset the development database before testing the new seed data.
+**Next:** Resolve remaining invalid category-specific disposed references, then reset the development database before testing the new seed data.
 
 ### 2026-08-22 — Current Task: Lower-court category seed correction — COMPLETE
 

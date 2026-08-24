@@ -116,13 +116,9 @@ void main() {
     });
 
     test('disposed-step set includes common disposed terms', () {
-      // Check that key disposed markers are present
+      // Check that the explicit Disposed marker is present.
       final hasDisposed = disposedStepIds.any((id) => id.endsWith('-disposed'));
-      final hasJudgement = disposedStepIds.any(
-        (id) => id.endsWith('-judgement'),
-      );
       expect(hasDisposed, true);
-      expect(hasJudgement, true);
     });
 
     test('all 8 divisions exist', () {
@@ -226,6 +222,47 @@ void main() {
       }
     });
 
+    test(
+      'Dhaka division lower-court records preserve scope and source order',
+      () {
+        const expectedDistricts = <String>{
+          'dhaka',
+          'faridpur',
+          'gazipur',
+          'gopalganj',
+          'kishoregonj',
+          'madaripur',
+          'manikganj',
+          'narayanganj',
+        };
+        expect(lowerCourtNames, hasLength(950));
+        expect(
+          lowerCourtNames.map((court) => court.district).toSet(),
+          expectedDistricts,
+        );
+
+        final grouped = <String, List<SeedCourt>>{};
+        for (final court in lowerCourtNames) {
+          final division = court.division!;
+          final district = court.district!;
+          final key = '$division|$district|${court.courtCategoryId}';
+          (grouped[key] ??= <SeedCourt>[]).add(court);
+          expect(
+            court.id,
+            startsWith(
+              'court-lower_courts-$division-$district-${court.courtCategoryId}-',
+            ),
+          );
+        }
+
+        for (final courts in grouped.values) {
+          expect(
+            courts.map((court) => court.orderIndex),
+            orderedEquals(List<int>.generate(courts.length, (index) => index)),
+          );
+        }
+      },
+    );
     test('all seed courts have unique IDs', () {
       final allIds = allSeedCourts.map((c) => c.id);
       expect(allIds.length, allIds.toSet().length);

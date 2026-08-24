@@ -19,8 +19,18 @@ Executive Magistrate & Others Courts
 
 ========================================
 
+Do the same for docs/seed_data_test/Courts/1.8 dhaka_narayanganj.txt and add ", Narayanganj" or ", নারায়ণগঞ্জ" court suffix where they are missing. 
+
+Note:  
+- Skip this for court names where   "মহানগর" or "Metropolitan" is present at the end of court names.
+- Skip this for entire Court Category: Executive Magistrate & Others Courts category.
+- Everything should remain as it is.
+- Don't update version or anything.  
 
 
+
+id,courtNameEn,courtNameBn,higherLowerCourts,courtCategoryId,orderIndex ,division,district,
+=======================================
 
   // Dhaka
   'dhaka': 'ঢাকা',

@@ -1,0 +1,3192 @@
+Division: Dhaka
+District: Dhaka
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+
+courtNameBn: জেলা ও দায়রা জজ আদালত, ঢাকা
+courtNameEn: District and Sessions Judge's Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 01st Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 02nd Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 03rd Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 04th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 05th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 06th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৭ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 07th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৮ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 08th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৯ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 09th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১০ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 10th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২১তম আদালত, ঢাকা
+courtNameEn: Additional District and sessions judge 21th court,Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ দেউলিয়া আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge Bankruptcy Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ১ম আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 1st Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ২য় আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 2nd Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৩য় আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 3rd Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৪র্থ আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 4th, Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৫ম আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 5th Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১৫তম আদালত, ঢাকা
+courtNameEn: Joint District and Sessions Judge 15th Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, ঢাকা
+courtNameEn: Joint District and Sessions Judge Additional Court, Dhaka
+
+courtNameBn: অর্থঋণ ১ম আদালত, ঢাকা
+courtNameEn: Finance 1st Court, Dhaka
+
+courtNameBn: অর্থঋণ ২য় আদালত, ঢাকা
+courtNameEn: Finance 2nd Court, Dhaka
+
+courtNameBn: অর্থঋণ ৩য় আদালত, ঢাকা
+courtNameEn: Finance 3rd Court, Dhaka
+
+courtNameBn: অর্থঋণ ৪র্থ আদালত, ঢাকা
+courtNameEn: Finance 4th Court, Dhaka
+
+courtNameBn: অর্থঋণ ৫ম আদালত, ঢাকা
+courtNameEn: Finance 5th Court, Dhaka
+
+courtNameBn: অর্থঋণ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Finance 6th Court, Dhaka
+
+courtNameBn: অর্থঋণ ৭ম আদালত, ঢাকা
+courtNameEn: Finance 7th Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ১ম অতিরিক্ত আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 1st Additional Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ১ম আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 1st Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১, ঢাকা
+courtNameEn: Senior Civil Judge Court-1, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ২য় আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 2nd Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৩য় অতিরিক্ত ও পারিবারিক আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 3rd Additional and Family Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৩য় আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 3rd Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৪র্থ অতিরিক্ত আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 4th Additional Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৪র্থ আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 4th Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৫ম অতিরিক্ত ও পারিবারিক আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 5th Additional and Family Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-৫, ঢাকা
+courtNameEn: Senior Civil Judge Court-5, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Senior Civil Judge 6th Court, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-৭, ঢাকা
+courtNameEn: Senior Civil Judge Court-7, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-৮, ঢাকা
+courtNameEn: Senior Civil Judge Court-8, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-৯, ঢাকা
+courtNameEn: Senior Civil Judge Court-9, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১০, ঢাকা
+courtNameEn: Senior Civil Judge Court-10, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১১, ঢাকা
+courtNameEn: Senior Civil Judge Court-11, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১২, ঢাকা
+courtNameEn: Senior Civil Judge Court-12, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১৩, ঢাকা
+courtNameEn: Senior Civil Judge Court-13, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১৪, ঢাকা
+courtNameEn: Senior Civil Judge Court-14, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১৫, ঢাকা
+courtNameEn: Senior Civil Judge Court-15, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ধামরাই, ঢাকা
+courtNameEn: Senior Civil Judge Court, Dhamrai, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, দোহার, ঢাকা
+courtNameEn: Senior Civil Judge Court, Dohar, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কেরানীগঞ্জ, ঢাকা
+courtNameEn: Senior Civil Judge Court, Keraniganj, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, নবাবগঞ্জ, ঢাকা
+courtNameEn: Senior Civil Judge Court, Nawabganj, Dhaka
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সাভার, ঢাকা
+courtNameEn: Senior Civil Judge Court, Savar, Dhaka
+
+courtNameBn: সিভিল জজ ২য় অতিরিক্ত ও পারিবারিক আদালত, ঢাকা
+courtNameEn: Civil Judge 2nd Additional and Family Court, Dhaka
+
+courtNameBn: সিভিল জজ আদালত, ধামরাই, ঢাকা
+courtNameEn: Civil Judge Court, Dhamrai, Dhaka
+
+courtNameBn: সিভিল জজ আদালত, দোহার, ঢাকা
+courtNameEn: Civil Judge Court, Dohar, Dhaka
+
+courtNameBn: সিভিল জজ আদালত, কেরানীগঞ্জ, ঢাকা
+courtNameEn: Civil Judge Court, Keraniganj, Dhaka
+
+courtNameBn: সিভিল জজ আদালত, নবাবগঞ্জ, ঢাকা
+courtNameEn: Civil Judge Court, Nobabganj, Dhaka
+
+courtNameBn: সিভিল জজ আদালত, সাভার, ঢাকা
+courtNameEn: Civil Judge Court, Savar, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১, ঢাকা
+courtNameEn: Civil Judge Court-1, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-২, ঢাকা
+courtNameEn: Civil Judge Court-2, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৩, ঢাকা
+courtNameEn: Civil Judge Court-3, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৪, ঢাকা
+courtNameEn: Civil Judge Court-4, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৫, ঢাকা
+courtNameEn: Civil Judge Court-5, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৬, ঢাকা
+courtNameEn: Civil Judge Court-6, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৭, ঢাকা
+courtNameEn: Civil Judge Court-7, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৮, ঢাকা
+courtNameEn: Civil Judge Court-8, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-৯, ঢাকা
+courtNameEn: Civil Judge Court-9, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১০, ঢাকা
+courtNameEn: Civil Judge Court-10, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১১, ঢাকা
+courtNameEn: Civil Judge Court-11, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১২, ঢাকা
+courtNameEn: Civil Judge Court-12, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১৩, ঢাকা
+courtNameEn: Civil Judge Court-13, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১৪, ঢাকা
+courtNameEn: Civil Judge Court-14, Dhaka
+
+courtNameBn: সিভিল জজ আদালত-১৫, ঢাকা
+courtNameEn: Civil Judge Court-15, Dhaka
+
+courtNameBn: পারিবারিক আদালত-১, ঢাকা
+courtNameEn: Family Court-1,Dhaka
+
+courtNameBn: পারিবারিক আদালত-২, ঢাকা
+courtNameEn: Family Court-2,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৩, ঢাকা
+courtNameEn: Family Court-3,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৪, ঢাকা
+courtNameEn: Family Court-4,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৫, ঢাকা
+courtNameEn: Family Court-5,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৬, ঢাকা
+courtNameEn: Family Court-6,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৭, ঢাকা
+courtNameEn: Family Court-7,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৮, ঢাকা
+courtNameEn: Family Court-8,Dhaka
+
+courtNameBn: পারিবারিক আদালত-৯, ঢাকা
+courtNameEn: Family Court-9,Dhaka
+
+courtNameBn: পারিবারিক আদালত-১০, ঢাকা
+courtNameEn: Family Court-10,Dhaka
+
+courtNameBn: পারিবারিক আদালত–১১, ঢাকা
+courtNameEn: Family Court-11, Dhaka
+
+courtNameBn: পারিবারিক আদালত–১২, ঢাকা
+courtNameEn: Family Court-12, Dhaka
+
+courtNameBn: পারিবারিক আদালত–১৩, ঢাকা
+courtNameEn: Family Court-13, Dhaka
+
+courtNameBn: পারিবারিক আদালত–১৪, ঢাকা
+courtNameEn: Family Court-14, Dhaka
+
+courtNameBn: পারিবারিক আপিল আদালত-১, ঢাকা
+courtNameEn: Family Appeal Court-1, Dhaka
+
+courtNameBn: পারিবারিক আপিল আদালত-২, ঢাকা
+courtNameEn: Family Appeal Court-2, Dhaka
+
+courtNameBn: পারিবারিক আপিল আদালত-৩, ঢাকা
+courtNameEn: Family Appeal Court-3, Dhaka
+
+courtNameBn: পারিবারিক আপিল আদালত-৪, ঢাকা
+courtNameEn: Family Appeal Court-4, Dhaka
+
+courtNameBn: পারিবারিক আপিল আদালত-৫, ঢাকা
+courtNameEn: Family Appeal Court-5, Dhaka
+
+courtNameBn: আরবিট্রেশন আদালত, ঢাকা
+courtNameEn: Arbitration Court, Dhaka
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Land Survey Tribunal, Dhaka
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Land Survey Appellate Tribunal, Dhaka
+
+courtNameBn: কোর্ট অফ সেটেলমেন্ট-১, ঢাকা
+courtNameEn: Court of Settlement-1, Dhaka
+
+courtNameBn: কোর্ট অফ সেটেলমেন্ট-২, ঢাকা
+courtNameEn: Court of Settlement-2, Dhaka
+
+courtNameBn: শ্রম আদালত-১, ঢাকা
+courtNameEn: Labor court-1,Dhaka
+
+courtNameBn: শ্রম আদালত-২, ঢাকা
+courtNameEn: Labor court-2,Dhaka
+
+courtNameBn: শ্রম আদালত-৩, ঢাকা
+courtNameEn: Labor court-3,Dhaka
+
+courtNameBn: প্রশাসনিক আপীল ট্রাইবুন্যাল, ঢাকা
+courtNameEn: Administrative Appellate Tribunal, Dhaka
+
+courtNameBn: প্রশাসনিক ট্রাইব্যুনাল-১, ঢাকা
+courtNameEn: Administrative Tribunal-1, Dhaka
+
+courtNameBn: প্রশাসনিক ট্রাইব্যুনাল-২, ঢাকা
+courtNameEn: Administrative Tribunal-2, Dhaka
+
+courtNameBn: প্রশাসনিক ট্রাইব্যুনাল-৩, ঢাকা
+courtNameEn: Administrative Tribunal-3, Dhaka
+
+courtNameBn: বাণিজ্যিক আদালত, ঢাকা
+courtNameEn: Commercial Court, Dhaka
+
+courtNameBn: বাণিজ্যিক আদালত-১, ঢাকা মহানগর
+courtNameEn: Commercial Court-1, Dhaka Metropolitan
+
+courtNameBn: বাণিজ্যিক আদালত-২, ঢাকা মহানগর
+courtNameEn: Commercial Court-2, Dhaka Metropolitan
+
+courtNameBn: বাণিজ্যিক আদালত-৩, ঢাকা মহানগর
+courtNameEn: Commercial Court-3, Dhaka Metropolitan
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, ঢাকা
+courtNameEn: District and Sessions Judge's Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 01st Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 02nd Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 03rd Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 04th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 05th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 06th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৭ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 07th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৮ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 08th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৯ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 09th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১০ম আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge 10th Court, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২১তম আদালত, ঢাকা
+courtNameEn: Additional District and sessions judge 21th court,Dhaka
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ দেউলিয়া আদালত, ঢাকা
+courtNameEn: Additional District and Sessions Judge Bankruptcy Court, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত-১, ঢাকা
+courtNameEn: Additional Sessions Court-1,Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত-২, ঢাকা
+courtNameEn: Additional Sessions Court-2, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩, ঢাকা
+courtNameEn: Additional Sessions Court-3, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৪, ঢাকা
+courtNameEn: Additional Sessions Court-4, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৫, ঢাকা
+courtNameEn: Additional Sessions Court-5, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৬, ঢাকা
+courtNameEn: Additional Sessions Court-6, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৭, ঢাকা
+courtNameEn: Additional Sessions Court-7, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৮, ঢাকা
+courtNameEn: Additional Sessions Court-8, Dhaka
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৯, ঢাকা
+courtNameEn: Additional Sessions Court-9, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ১ম আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 1st Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ২য় আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 2nd Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৩য় আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 3rd Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৪র্থ আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 4th, Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ, ৫ম আদালত, ঢাকা
+courtNameEn: Join District and Sessions Judge, 5th Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১৫তম আদালত, ঢাকা
+courtNameEn: Joint District and Sessions Judge 15th Court, Dhaka
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, ঢাকা
+courtNameEn: Joint District and Sessions Judge Additional Court, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত-১, ঢাকা
+courtNameEn: Joint Sessions Court-1, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, ঢাকা
+courtNameEn: Joint Sessions Court-2, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, ঢাকা
+courtNameEn: Joint Sessions Court-3, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, ঢাকা
+courtNameEn: Joint Sessions Court-4, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, ঢাকা
+courtNameEn: Joint Sessions Court-5, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, ঢাকা
+courtNameEn: Joint Sessions Court-6, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭, ঢাকা
+courtNameEn: Joint Sessions Court-7, Dhaka
+
+courtNameBn: যুগ্ম দায়রা আদালত–৮, ঢাকা
+courtNameEn: Joint Sessions Court-8, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-১, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-1, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-২, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-2, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৩, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-3, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৪, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-4, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৫, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-5, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৬, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-6, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৭, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-7, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৮, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-8, Dhaka
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-৯, ঢাকা
+courtNameEn: Nari o Shishu Tribunal-9, Dhaka
+
+courtNameBn: শ্রম আপীল টাইব্যুনাল, ঢাকা
+courtNameEn: Labor Appellate Tribunal, Dhaka
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Child Violence Prevention Tribunal, Dhaka
+
+courtNameBn: বিভাগীয় বিশেষ জজ আদালত, ঢাকা
+courtNameEn: Divisional Special Judge Court, Dhaka
+
+courtNameBn: পরিবেশ আপীল আদালত, ঢাকা
+courtNameEn: Environmental Court of Appeal,Dhaka
+
+courtNameBn: দ্রুত বিচার ট্রাইব্যুনাল-১, ঢাকা
+courtNameEn: Speedy Trial Tribunal-1, Dhaka
+
+courtNameBn: দ্রুত বিচার ট্রাইব্যুনাল-২, ঢাকা
+courtNameEn: Speedy Trial Tribunal-2, Dhaka
+
+courtNameBn: দ্রুত বিচার ট্রাইব্যুনাল-৩, ঢাকা
+courtNameEn: Speedy Trial Tribunal-3, Dhaka
+
+courtNameBn: দ্রুত বিচার ট্রাইব্যুনাল-৪, ঢাকা
+courtNameEn: Speedy Trial Tribunal-4, Dhaka
+
+courtNameBn: জননিরাপত্তা বিঘ্নকারী অপরাধ দমন ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Crimes Tribunal for Disruption of Public Security,Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-১, ঢাকা
+courtNameEn: Special Judge Court-01,Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-২, ঢাকা
+courtNameEn: Special Judge Court-02,Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৩, ঢাকা
+courtNameEn: Special Judge Court-03, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৪, ঢাকা
+courtNameEn: Special Judge Court-04, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৫, ঢাকা
+courtNameEn: Special Judge Court-05, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৬, ঢাকা
+courtNameEn: Special Judge Court-06, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৭, ঢাকা
+courtNameEn: Special Judge Court-07,Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৮, ঢাকা
+courtNameEn: Special Judge Court-08, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-৯, ঢাকা
+courtNameEn: Special Judge Court-09, Dhaka
+
+courtNameBn: বিশেষ জজ আদালত-১০, ঢাকা
+courtNameEn: Special Judge Court-10, Dhaka
+
+courtNameBn: সাইবার ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Cyber tribunal, Dhaka
+
+courtNameBn: সন্ত্রাস বিরোধী বিশেষ ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Special Anti-Terrorism Tribunal, Dhaka
+
+courtNameBn: মানব পাচার অপরাধ দমন ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Human Trafficking Crime Suppression Tribunal, Dhaka
+
+courtNameBn: গুম প্রতিরোধ ও প্রতিকার ট্রাইব্যুনাল, ঢাকা
+courtNameEn: Enforced Disappearance Prevention and Redressal Tribunal, Dhaka
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+courtNameBn: মহানগর দায়রা জজ আদালত, ঢাকা
+courtNameEn: Metropolitan Sessions Judge Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 01st Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ২য় আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 02nd Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৩য় আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 03rd Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৪র্থ আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 04th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৫ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 05th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 06th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৭ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 07th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৮ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 08th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ৯ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 09th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১০ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 10th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১১ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 11th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১২ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 12th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১৩ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 13th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১৪ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 14th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১৫ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 15th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ ১৬ম আদালত, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Judge 16th Court, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা আদালত–১৭, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Court-17, Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা আদালত–১৮, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Court-18,Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা আদালত–১৯, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Court-19,Dhaka
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা আদালত–২০, ঢাকা
+courtNameEn: Additional Metropolitan Sessions Court-20,Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ১ম আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 1st Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ২য় আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 2nd Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ৩য় আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 3rd Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ৪র্থ আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 4th Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ৫ম আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 5th Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 6th Court, Dhaka
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ৭ম আদালত, ঢাকা
+courtNameEn: Joint Metropolitan Sessions Judge 7th Court, Dhaka
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, ঢাকা মহানগর
+courtNameEn: Child Violence Prevention Tribunal, Dhaka Metropolitan
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ঢাকা
+courtNameEn: Chief Judicial Magistrate Court, Dhaka
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ঢাকা
+courtNameEn: Additional Chief Judicial Magistrate Court, Dhaka
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ঢাকা
+courtNameEn: Senior Judicial Magistrate 1st Court, Dhaka
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ঢাকা
+courtNameEn: Senior Judicial Magistrate 2nd Court, Dhaka
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ঢাকা
+courtNameEn: Senior Judicial Magistrate 3rd Court, Dhaka
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট, ৪র্থ আদালত, ঢাকা
+courtNameEn: Senior Judicial Magistrate, 4th Court, Dhaka
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ঢাকা
+courtNameEn: Judicial Magistrate 1st Court, Dhaka
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ঢাকা
+courtNameEn: Judicial Magistrate 2nd Court, Dhaka
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ঢাকা
+courtNameEn: Judicial Magistrate 3rd Court, Dhaka
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, ঢাকা
+courtNameEn: Judicial Magistrate 4th Court, Dhaka
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত, ঢাকা
+courtNameEn: Judicial Magistrate 5th Court, Dhaka
+
+courtNameBn: আমলী আদালত, আশুলিয়া, ঢাকা
+courtNameEn: Cognizance Court, Ashulia, Dhaka
+
+courtNameBn: আমলী আদালত, ধামরাই, ঢাকা
+courtNameEn: Cognizance Court, Dhamrai, Dhaka
+
+courtNameBn: আমলী আদালত, দোহার, ঢাকা
+courtNameEn: Cognizance Court, Dohar, Dhaka
+
+courtNameBn: আমলী আদালত, জিআরপি, ঢাকা
+courtNameEn: Cognizance Court, GRP, Dhaka
+
+courtNameBn: আমলী আদালত, কেরানীগঞ্জ, ঢাকা
+courtNameEn: Cognizance Court, Keraniganj, Dhaka
+
+courtNameBn: আমলী আদালত, নবাবগঞ্জ, ঢাকা
+courtNameEn: Cognizance Court, Nawabganj, Dhaka
+
+courtNameBn: আমলী আদালত, সাভার, ঢাকা
+courtNameEn: Cognizance Court, Savar, Dhaka
+
+courtNameBn: আমলী আদালত, দক্ষিণ কেরানীগঞ্জ, ঢাকা
+courtNameEn: Cognizance Court, South Keraniganj, Dhaka
+
+courtNameBn: পরিবেশ আদালত, ঢাকা
+courtNameEn: Environmental Court, Dhaka
+
+
+===========================================================
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+courtNameBn: চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত, ঢাকা
+courtNameEn: Chief Metropolitan Magistrate Court, Dhaka
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট ১ম আদালত, ঢাকা
+courtNameEn: Additional Chief Metropolitan Magistrate 1st Court, Dhaka
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট ২য় আদালত, ঢাকা
+courtNameEn: Additional Chief Metropolitan Magistrate 2nd Court, Dhaka
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট ৩য় আদালত, ঢাকা
+courtNameEn: Additional Chief Metropolitan Magistrate 3rd Court, Dhaka
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট ৪র্থ আদালত, ঢাকা
+courtNameEn: Additional Chief Metropolitan Magistrate 4th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৬ষ্ঠ আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 06th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৭ম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 07th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৮ম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 08th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৯ম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 09th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১০ম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 10th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১১তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 11th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১২তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 12th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৩তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 13th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৪তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 14th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৫তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 15th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৬তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 16th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৭তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 17th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৮তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 18th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ১৯তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 19th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২০তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 20th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২১তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 21th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২২তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 22th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৩তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 23th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৪তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 24th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৫তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 25th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৬তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 26th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৭তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 27th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৮তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 28th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ২৯তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 29th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩০তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 30th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩১তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 31th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩২তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 32th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩৩তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 33th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩৪তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 34th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩৫তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 35th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩৬তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 36th Court, Dhaka
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩৭তম আদালত, ঢাকা
+courtNameEn: Metropolitan Magistrate 37th Court, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ১ম আদালত, ঢাকা দক্ষিন সিটি কর্পোরেশন, ঢাকা
+courtNameEn: Special Metropolitan Magistrate 1st Court, Dhaka South City Corporation, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ২য় আদালত, ঢাকা দক্ষিন সিটি কর্পোরেশন, ঢাকা
+courtNameEn: Special Metropolitan Magistrate 2nd Court, Dhaka South City Corporation, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত, ঢাকা উত্তর সিটি কর্পোরেশন, ঢাকা
+courtNameEn: Special Metropolitan Magistrate Court, Dhaka North City Corporation, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ১ম আদালত, ডিপিডিসি, ঢাকা
+courtNameEn: Special Metropolitan Magistrate D1st Court, DPDC, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ২য় আদালত, ডিপিডিসি, ঢাকা
+courtNameEn: Special Metropolitan Magistrate D2nd Court, DPDC, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ৩য় আদালত, ডিপিডিসি, ঢাকা
+courtNameEn: Special Metropolitan Magistrate D3rd Court, DPDC, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ৪র্থ আদালত, ডিপিডিসি, ঢাকা
+courtNameEn: Special Metropolitan Magistrate D4th Court, DPDC, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ডেসকো আদালত, ঢাকা
+courtNameEn: Special Metropolitan Magistrate DESCO Court, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ১ম আদালত, পল্লী বিদ্যুৎ, ঢাকা
+courtNameEn: Special Metropolitan Magistrate P1st Court, Palli Bidyut, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট ২য় আদালত, পল্লী বিদ্যুৎ, ঢাকা
+courtNameEn: Special Metropolitan Magistrate P2nd Court, Palli Bidyut, Dhaka
+
+courtNameBn: আমলী আদালত, আদাবর, ঢাকা
+courtNameEn: Cognizance Court, Adabor, Dhaka
+
+courtNameBn: আমলী আদালত, বাড্ডা, ঢাকা
+courtNameEn: Cognizance Court, Badda, Dhaka
+
+courtNameBn: আমলী আদালত, বংশাল, ঢাকা
+courtNameEn: Cognizance Court, Bangshal, Dhaka
+
+courtNameBn: আমলী আদালত, বিমান বন্দর, ঢাকা
+courtNameEn: Cognizance Court, Biman Bandar, Dhaka
+
+courtNameBn: আমলী আদালত, ক্যান্টনমেন্ট, ঢাকা
+courtNameEn: Cognizance Court, Cantonment, Dhaka
+
+courtNameBn: আমলী আদালত, চক বাজার, ঢাকা
+courtNameEn: Cognizance Court, Chak Bazar, Dhaka
+
+courtNameBn: আমলী আদালত, দক্ষিণখান, ঢাকা
+courtNameEn: Cognizance Court, Dakshinkhan, Dhaka
+
+courtNameBn: আমলী আদালত, দারুস সালাম, ঢাকা
+courtNameEn: Cognizance Court, Darus Salam, Dhaka
+
+courtNameBn: আমলী আদালত, ধানমন্ডি, ঢাকা
+courtNameEn: Cognizance Court, Dhanmondi, Dhaka
+
+courtNameBn: আমলী আদালত, গেন্ডারিয়া, ঢাকা
+courtNameEn: Cognizance Court, Gendaria, Dhaka
+
+courtNameBn: আমলী আদালত, গুলশান, ঢাকা
+courtNameEn: Cognizance Court, Gulshan, Dhaka
+
+courtNameBn: আমলী আদালত, হাতিরঝিল, ঢাকা
+courtNameEn: Cognizance Court, Hatrijheel, Dhaka
+
+courtNameBn: আমলী আদালত, হাজারীবাগ, ঢাকা
+courtNameEn: Cognizance Court, Hazaribagh, Dhaka
+
+courtNameBn: আমলী আদালত, কদমতলী, ঢাকা
+courtNameEn: Cognizance Court, Kadamtali, Dhaka
+
+courtNameBn: আমলী আদালত, কাফরুল, ঢাকা
+courtNameEn: Cognizance Court, Kafrul, Dhaka
+
+courtNameBn: আমলী আদালত, কলাবাগান, ঢাকা
+courtNameEn: Cognizance Court, Kalabagan, Dhaka
+
+courtNameBn: আমলী আদালত, কামরাঙ্গীর চর, ঢাকা
+courtNameEn: Cognizance Court, Kamrangir Char, Dhaka
+
+courtNameBn: আমলী আদালত, খিলগাও, ঢাকা
+courtNameEn: Cognizance Court, Khilgaon, Dhaka
+
+courtNameBn: আমলী আদালত, খিলক্ষেত, ঢাকা
+courtNameEn: Cognizance Court, Khilkhet, Dhaka
+
+courtNameBn: আমলী আদালত, কোতয়ালী, ঢাকা
+courtNameEn: Cognizance Court, Kotwali, Dhaka
+
+courtNameBn: আমলী আদালত, লালবাগ, ঢাকা
+courtNameEn: Cognizance Court, Lalbagh, Dhaka
+
+courtNameBn: আমলী আদালত, মিরপুর, ঢাকা
+courtNameEn: Cognizance Court, Mirpur, Dhaka
+
+courtNameBn: আমলী আদালত, মোহাম্মদপুর, ঢাকা
+courtNameEn: Cognizance Court, Mohammadpur, Dhaka
+
+courtNameBn: আমলী আদালত, মতিঝিল, ঢাকা
+courtNameEn: Cognizance Court, Motijheel, Dhaka
+
+courtNameBn: আমলী আদালত, মুগদা, ঢাকা
+courtNameEn: Cognizance Court, Mugda, Dhaka
+
+courtNameBn: আমলী আদালত, নিউ মার্কেট, ঢাকা
+courtNameEn: Cognizance Court, New Market, Dhaka
+
+courtNameBn: আমলী আদালত, পল্লবী, ঢাকা
+courtNameEn: Cognizance Court, Pallabi, Dhaka
+
+courtNameBn: আমলী আদালত, রমনা, ঢাকা
+courtNameEn: Cognizance Court, Ramna, Dhaka
+
+courtNameBn: আমলী আদালত, রূপনগর, ঢাকা
+courtNameEn: Cognizance Court, Rupnagar, Dhaka
+
+courtNameBn: আমলী আদালত, সবুজবাগ, ঢাকা
+courtNameEn: Cognizance Court, Sabujbagh, Dhaka
+
+courtNameBn: আমলী আদালত, শাহ্‌ আলী, ঢাকা
+courtNameEn: Cognizance Court, Shah Ali, Dhaka
+
+courtNameBn: আমলী আদালত, শাহবাগ, ঢাকা
+courtNameEn: Cognizance Court, Shahbagh, Dhaka
+
+courtNameBn: আমলী আদালত, শাহজাহানপুর, ঢাকা
+courtNameEn: Cognizance Court, Shahjahanpur, Dhaka
+
+courtNameBn: আমলী আদালত, শের-ই-বাংলা নগর, ঢাকা
+courtNameEn: Cognizance Court, Sher-E-Bangla Nagar, Dhaka
+
+courtNameBn: আমলী আদালত, শ্যামপুর, ঢাকা
+courtNameEn: Cognizance Court, Shyampur, Dhaka
+
+courtNameBn: আমলী আদালত, সুত্রাপুর, ঢাকা
+courtNameEn: Cognizance Court, Sutrapur, Dhaka
+
+courtNameBn: আমলী আদালত, তেজগাঁও শিল্প এলাকা, ঢাকা
+courtNameEn: Cognizance Court, Tejgaon Ind. Area, Dhaka
+
+courtNameBn: আমলী আদালত, তেজগাঁও, ঢাকা
+courtNameEn: Cognizance Court, Tejgaon, Dhaka
+
+courtNameBn: আমলী আদালত, তুরাগ, ঢাকা
+courtNameEn: Cognizance Court, Turag, Dhaka
+
+courtNameBn: আমলী আদালত, উত্তর খান, ঢাকা
+courtNameEn: Cognizance Court, Uttar Khan, Dhaka
+
+courtNameBn: আমলী আদালত, উত্তরা পূর্ব, ঢাকা
+courtNameEn: Cognizance Court, Uttara East, Dhaka
+
+courtNameBn: আমলী আদালত, উত্তরা পশ্চিম, ঢাকা
+courtNameEn: Cognizance Court, Uttara West, Dhaka
+
+courtNameBn: আমলী আদালত, ওয়ারী, ঢাকা
+courtNameEn: Cognizance Court, Wari, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট মেরিন আদালত, ঢাকা
+courtNameEn: Special Metropolitan Magistrate Marine Court, Dhaka
+
+courtNameBn: স্পেশাল মেট্রোপলিটন ম্যাজিস্ট্রেট মেরিন আদালত, ঢাকা
+courtNameEn: Special Metropoliton Magistrate Marine Court, Dhaka
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, ঢাকা
+courtNameEn: Additional District Magistrate, Dhaka
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), ঢাকা
+courtNameEn: Additional District Commissioner, Dhaka
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, ঢাকা
+courtNameEn: Executive Magistrate, Dhaka
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, ঢাকা
+courtNameEn: Office of the Land Acquisition Officer, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) আদাবর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Adabor Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বাড্ডা সার্কেল, ঢাকা
+courtNameEn: AC (Land) Badda Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বংশাল সার্কেল, ঢাকা
+courtNameEn: AC (Land) Bangshal Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বিমান বন্দর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Biman Bandar Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ক্যান্টনমেন্ট সার্কেল, ঢাকা
+courtNameEn: AC (Land) Cantonment Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) চক বাজার সার্কেল, ঢাকা
+courtNameEn: AC (Land) Chak Bazar Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) দক্ষিণখান সার্কেল, ঢাকা
+courtNameEn: AC (Land) Dakshinkhan Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) দারুস সালাম সার্কেল, ঢাকা
+courtNameEn: AC (Land) Darus Salam Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ধানমন্ডি সার্কেল, ঢাকা
+courtNameEn: AC (Land) Dhanmondi Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) গেন্ডারিয়া সার্কেল, ঢাকা
+courtNameEn: AC (Land) Gendaria Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) গুলশান সার্কেল, ঢাকা
+courtNameEn: AC (Land) Gulshan Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) হাতিরঝিল সার্কেল, ঢাকা
+courtNameEn: AC (Land) Hatrijheel Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) হাজারীবাগ সার্কেল, ঢাকা
+courtNameEn: AC (Land) Hazaribagh Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কদমতলী সার্কেল, ঢাকা
+courtNameEn: AC (Land) Kadamtali Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কাফরুল সার্কেল, ঢাকা
+courtNameEn: AC (Land) Kafrul Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কলাবাগান সার্কেল, ঢাকা
+courtNameEn: AC (Land) Kalabagan Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কামরাঙ্গীর চর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Kamrangir Char Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) খিলগাও সার্কেল, ঢাকা
+courtNameEn: AC (Land) Khilgaon Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) খিলক্ষেত সার্কেল, ঢাকা
+courtNameEn: AC (Land) Khilkhet Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কোতয়ালী সার্কেল, ঢাকা
+courtNameEn: AC (Land) Kotwali Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) লালবাগ সার্কেল, ঢাকা
+courtNameEn: AC (Land) Lalbagh Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মিরপুর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Mirpur Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মোহাম্মদপুর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Mohammadpur Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মতিঝিল সার্কেল, ঢাকা
+courtNameEn: AC (Land) Motijheel Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মুগদা সার্কেল, ঢাকা
+courtNameEn: AC (Land) Mugda Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) নিউ মার্কেট সার্কেল, ঢাকা
+courtNameEn: AC (Land) New Market Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) পল্লবী সার্কেল, ঢাকা
+courtNameEn: AC (Land) Pallabi Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) রমনা সার্কেল, ঢাকা
+courtNameEn: AC (Land) Ramna Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) রূপনগর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Rupnagar Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সবুজবাগ সার্কেল, ঢাকা
+courtNameEn: AC (Land) Sabujbagh Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শাহ্‌ আলী সার্কেল, ঢাকা
+courtNameEn: AC (Land) Shah Ali Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শাহবাগ সার্কেল, ঢাকা
+courtNameEn: AC (Land) Shahbagh Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শাহজাহানপুর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Shahjahanpur Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শের-ই-বাংলা নগর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Sher-E-Bangla Nagar Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শ্যামপুর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Shyampur Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সুত্রাপুর সার্কেল, ঢাকা
+courtNameEn: AC (Land) Sutrapur Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) তেজগাঁও শিল্প এলাকা সার্কেল, ঢাকা
+courtNameEn: AC (Land) Tejgaon Ind. Area Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) তেজগাঁও সার্কেল, ঢাকা
+courtNameEn: AC (Land) Tejgaon Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) তুরাগ সার্কেল, ঢাকা
+courtNameEn: AC (Land) Turag Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) উত্তর খান সার্কেল, ঢাকা
+courtNameEn: AC (Land) Uttar Khan Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) উত্তরা পূর্ব সার্কেল, ঢাকা
+courtNameEn: AC (Land) Uttara East Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) উত্তরা পশ্চিম সার্কেল, ঢাকা
+courtNameEn: AC (Land) Uttara West Circle, Dhaka
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ওয়ারী সার্কেল, ঢাকা
+courtNameEn: AC (Land) Wari Circle, Dhaka
+
+
+==============================================
+==============================================
+
+
+Division: Dhaka
+District: Faridpur
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, ফরিদপুর
+courtNameEn: District and Sessions Judge Court, Faridpur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Faridpur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 3rd Court, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, আলফাডাঙ্গা, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Alfadanga, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ভাঙ্গা চৌকি, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Bhanga Chowki, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, চর ভদ্রাসন, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Char Bhodrasan, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, মধুখালী, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Madhukhali, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Sadar, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদরপুর, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Sadarpur, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সালথা, ফরিদপুর
+courtNameEn: Senior Civil Judge Court, Saltha, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, বোয়ালমারী, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate Court, Boalmari, Faridpur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, নগরকান্দা, ভাঙ্গা চৌকি, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate Court, Nagarkanda, Faridpur
+
+courtNameBn: সিভিল জজ ১ম অতিরিক্ত আদালত, ফরিদপুর
+courtNameEn: Civil Judge 1st Additional Court, Faridpur
+
+courtNameBn: সিভিল জজ ২য় অতিরিক্ত আদালত, ফরিদপুর
+courtNameEn: Civil Judge 2nd Additional Court, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, আলফাডাঙ্গা, ফরিদপুর
+courtNameEn: Civil Judge Court, Alfadanga, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, ভাঙ্গা, ফরিদপুর
+courtNameEn: Civil Judge Court, Bhanga, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, চরভদ্রাসন, ফরিদপুর
+courtNameEn: Civil Judge Court, Charbhadrasan, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, মধুখালী, ফরিদপুর
+courtNameEn: Civil Judge Court, Madhukhali, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, সদর, ফরিদপুর
+courtNameEn: Civil Judge Court, Sadar, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, সদরপুর, ভাঙ্গা চৌকি, ফরিদপুর
+courtNameEn: Civil Judge Court, Sadarpur, Bhanga Chowki, Faridpur
+
+courtNameBn: সিভিল জজ আদালত, সালথা, ফরিদপুর
+courtNameEn: Civil Judge Court, Saltha, Faridpur
+
+courtNameBn: পারিবারিক আদালত–১, ফরিদপুর
+courtNameEn: Family Court-1, Faridpur
+
+courtNameBn: পারিবারিক আদালত–২, ফরিদপুর
+courtNameEn: Family Court-2, Faridpur
+
+courtNameBn: পারিবারিক আদালত–৩, ফরিদপুর
+courtNameEn: Family Court-3, Faridpur
+
+courtNameBn: পারিবারিক আপিল আদালত, ফরিদপুর
+courtNameEn: Family Appellate Court, Faridpur
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, ফরিদপুর
+courtNameEn: Land Survey Tribunal, Faridpur
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, ফরিদপুর
+courtNameEn: Land Survey Appellate Tribunal, Faridpur
+
+courtNameBn: বাণিজ্যিক আদালত, ফরিদপুর
+courtNameEn: Commercial Court, Faridpur
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, ফরিদপুর
+courtNameEn: District and Sessions Judge Court, Faridpur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Faridpur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Faridpur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
+courtNameEn: Joint District and Sessions Judge 3rd Court, Faridpur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, ফরিদপুর
+courtNameEn: Additional Sessions Court-1, Faridpur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, ফরিদপুর
+courtNameEn: Additional Sessions Court-2, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, ফরিদপুর
+courtNameEn: Joint Sessions Court-1, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, ফরিদপুর
+courtNameEn: Joint Sessions Court-2, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, ফরিদপুর
+courtNameEn: Joint Sessions Court-3, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, ফরিদপুর
+courtNameEn: Joint Sessions Court-4, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, ফরিদপুর
+courtNameEn: Joint Sessions Court-5, Faridpur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, ফরিদপুর
+courtNameEn: Joint Sessions Court-6, Faridpur
+
+courtNameBn: বিশেষ জজ আদালত, ফরিদপুর
+courtNameEn: Special Judge Court, Faridpur
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, ফরিদপুর
+courtNameEn: Women and Child Abuse Suppression Tribunal, Faridpur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, ফরিদপুর
+courtNameEn: Child Violence Prevention Tribunal, Faridpur
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ফরিদপুর
+courtNameEn: Chief Judicial Magistrate Court, Faridpur
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, ফরিদপুর
+courtNameEn: Additional Chief Judicial Magistrate Court, faridpur, Faridpur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 1st Court, faridpur, Faridpur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 2nd Court, faridpur, Faridpur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 3rd Court, faridpur, Faridpur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, ফরিদপুর
+courtNameEn: Senior Judicial Magistrate 4th Court, Faridpur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 1st Court, faridpur, Faridpur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 2nd Court, faridpur, Faridpur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 3rd Court, faridpur, Faridpur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 4th Court, faridpur, Faridpur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত, ফরিদপুর
+courtNameEn: Judicial Magistrate 5th Court, Faridpur
+
+courtNameBn: আমলী আদালত, আল্‌ফাডাঙ্গা, ফরিদপুর
+courtNameEn: Cognizance Court, Alfadanga, Faridput, Faridpur
+
+courtNameBn: আমলী আদালত, ভাংগা, ফরিদপুর
+courtNameEn: Cognizance Court, Bhanga, Faridpur
+
+courtNameBn: আমলী আদালত, বোয়ালমারী, ফরিদপুর
+courtNameEn: Cognizance Court, Boalmari, Faridpur
+
+courtNameBn: আমলী আদালত, চর ভদ্রাশন, ফরিদপুর
+courtNameEn: Cognizance Court, Char Bhadrasan, Faridpur
+
+courtNameBn: আমলী আদালত, কোতয়ালী, ফরিদপুর
+courtNameEn: Cognizance Court, Kotowali, Faridpur
+
+courtNameBn: আমলী আদালত, মধুখালী, ফরিদপুর
+courtNameEn: Cognizance Court, Madhukhali, Faridpur
+
+courtNameBn: আমলী আদালত, নগরকান্দা, ফরিদপুর
+courtNameEn: Cognizance Court, Nagarkanda, Faridpur
+
+courtNameBn: আমলী আদালত, সদরপুর, ফরিদপুর
+courtNameEn: Cognizance Court, Sadarpur, Faridpur
+
+courtNameBn: আমলী আদালত, সালথা, ফরিদপুর
+courtNameEn: Cognizance Court, Saltha, Faridpur
+
+
+===========================================================
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, ফরিদপুর
+courtNameEn: Additional District Magistrate, Faridpur
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), ফরিদপুর
+courtNameEn: Additional District Commissioner, Faridpur
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, ফরিদপুর
+courtNameEn: Executive Magistrate, Faridpur
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, ফরিদপুর
+courtNameEn: Office of the Land Acquisition Officer, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) আল্‌ফাডাঙ্গা সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Alfadanga Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ভাংগা সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Bhanga Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বোয়ালমারী সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Boalmari Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) চর ভদ্রাশন সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Char Bhadrasan Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কোতয়ালী সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Kotowali Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মধুখালী সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Madhukhali Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) নগরকান্দা সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Nagarkanda Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সদরপুর সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Sadarpur Circle, Faridpur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সালথা সার্কেল, ফরিদপুর
+courtNameEn: AC (Land) Saltha Circle, Faridpur
+
+
+==============================================
+==============================================
+
+
+Division: Dhaka
+District: Gazipur
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, গাজীপুর
+courtNameEn: District and Sessions Judge Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 3rd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 4th Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত, গাজীপুর
+courtNameEn: Additional District and sessions judge 12th court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge Additional Court, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-১, গাজীপুর
+courtNameEn: Senior Civil Judge Court-1, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত-২, গাজীপুর
+courtNameEn: Senior Civil Judge Court- 2, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কালিয়াকৈর, গাজীপুর
+courtNameEn: Senior Civil Judge Court, Kaliakair, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কালীগঞ্জ, গাজীপুর
+courtNameEn: Senior Civil Judge Court, Kaliganj, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কাপাসিয়া, গাজীপুর
+courtNameEn: Senior Civil Judge Court, Kapasia, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, গাজীপুর
+courtNameEn: Senior Civil Judge Court, Sadar, Gazipur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, শ্রীপুর, গাজীপুর
+courtNameEn: Senior Civil Judge Court, Sreepur, Gazipur
+
+courtNameBn: সিভিল জজ অতিরিক্ত আদালত, টংগী, গাজীপুর
+courtNameEn: Civil Judge Additional Court, Tongi, Gazipur
+
+courtNameBn: সিভিল জজ আদালত-১, গাজীপুর
+courtNameEn: Civil Judge Court-1, Gazipur
+
+courtNameBn: সিভিল জজ আদালত- ২, গাজীপুর
+courtNameEn: Civil Judge Court- 2, Gazipur
+
+courtNameBn: সিভিল জজ আদালত, কালিয়াকৈর, গাজীপুর
+courtNameEn: Civil Judge Court, Kaliakair, Gazipur
+
+courtNameBn: সিভিল জজ আদালত, কালীগঞ্জ, গাজীপুর
+courtNameEn: Civil Judge Court, Kaliganj, Gazipur
+
+courtNameBn: সিভিল জজ আদালত, কাপাসিয়া, গাজীপুর
+courtNameEn: Civil Judge Court, Kapasia, Gazipur
+
+courtNameBn: সিভিল জজ আদালত, সদর, গাজীপুর
+courtNameEn: Civil Judge Court, Sadar, Gazipur
+
+courtNameBn: সিভিল জজ আদালত, শ্রীপুর, গাজীপুর
+courtNameEn: Civil Judge Court, Sreepur, Gazipur
+
+courtNameBn: পারিবারিক আদালত–১, গাজীপুর
+courtNameEn: Family Court-1, Gazipur
+
+courtNameBn: পারিবারিক আদালত–২, গাজীপুর
+courtNameEn: Family Court-2, Gazipur
+
+courtNameBn: পারিবারিক আদালত–৩, গাজীপুর
+courtNameEn: Family Court-3, Gazipur
+
+courtNameBn: পারিবারিক আপিল আদালত, গাজীপুর
+courtNameEn: Family Appeal Court, Gazipur
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, গাজীপুর
+courtNameEn: Land Survey Tribunal, Gazipur
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, গাজীপুর
+courtNameEn: Land Survey Appellate Tribunal, Gazipur
+
+courtNameBn: শ্রম আদালত, গাজীপুর
+courtNameEn: Labor Court, Gazipur
+
+courtNameBn: বাণিজ্যিক আদালত, গাজীপুর
+courtNameEn: Commercial Court, Gazipur
+
+courtNameBn: বাণিজ্যিক আদালত, গাজীপুর মহানগর
+courtNameEn: Commercial Court, Gazipur Metropolitan
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, গাজীপুর
+courtNameEn: District and Sessions Judge Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 3rd Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, গাজীপুর
+courtNameEn: Additional District and Sessions Judge 4th Court, Gazipur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত, গাজীপুর
+courtNameEn: Additional District and sessions judge 12th court, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, গাজীপুর
+courtNameEn: Additional Sessions Court-1, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, গাজীপুর
+courtNameEn: Additional Sessions Court-2, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩, গাজীপুর
+courtNameEn: Additional Sessions Court-3, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৪, গাজীপুর
+courtNameEn: Additional Sessions Court-4, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৫, গাজীপুর
+courtNameEn: Additional Sessions Court-5, Gazipur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৬, গাজীপুর
+courtNameEn: Additional Sessions Court-6, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, গাজীপুর
+courtNameEn: Joint District and Sessions Judge Additional Court, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, গাজীপুর
+courtNameEn: Joint Sessions Court-1, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, গাজীপুর
+courtNameEn: Joint Sessions Court-2, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, গাজীপুর
+courtNameEn: Joint Sessions Court-3, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, গাজীপুর
+courtNameEn: Joint Sessions Court-4, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, গাজীপুর
+courtNameEn: Joint Sessions Court-5, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, গাজীপুর
+courtNameEn: Joint Sessions Court-6, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭, গাজীপুর
+courtNameEn: Joint Sessions Court-7, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৮, গাজীপুর
+courtNameEn: Joint Sessions Court-8, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৯, গাজীপুর
+courtNameEn: Joint Sessions Court-9, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১০, গাজীপুর
+courtNameEn: Joint Sessions Court-10, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১১, গাজীপুর
+courtNameEn: Sessions Court-11, Gazipur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১২, গাজীপুর
+courtNameEn: Joint Sessions Court-12, Gazipur
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, গাজীপুর
+courtNameEn: Women and Child Abuse Suppression Tribunal, Gazipur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, গাজীপুর
+courtNameEn: Child Violence Prevention Tribunal, Gazipur
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+courtNameBn: মহানগর দায়রা জজ আদালত, গাজীপুর
+courtNameEn: Metropolitan Sessions Judge's Court, Gazipur
+
+courtNameBn: অতিরিক্ত মহানগর দায়রা জজ আদালত, গাজীপুর
+courtNameEn: Additional Metropolitan Sessions Judge's Court, Gazipur
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ১ম আদালত, গাজীপুর
+courtNameEn: Joint Metropolitan Sessions Judge 1st Court, Gazipur
+
+courtNameBn: যুগ্ম মহানগর দায়রা জজ ২য় আদালত, গাজীপুর
+courtNameEn: Joint Metropolitan Sessions Judge 2nd Court, Gazipur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, গাজীপুর মহানগর
+courtNameEn: Child Violence Prevention Tribunal, Gazipur Metropolitan
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, গাজীপুর
+courtNameEn: Chief Judicial Magistrate Court, Gazipur
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, গাজীপুর
+courtNameEn: Additional Chief Judicial Magistrate Court, Gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, গাজীপুর
+courtNameEn: Senior Judicial Magistrate 1st Court, Gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, গাজীপুর
+courtNameEn: Senior Judicial Magistrate 2nd Court, Gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, গাজীপুর
+courtNameEn: Senior Judicial Magistrate 3rd Court, Gazipur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, গাজীপুর
+courtNameEn: Senior Judicial Magistrate 4th Court, Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, গাজীপুর
+courtNameEn: Judicial Magistrate 1st Court, Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত (বন আদালত), গাজীপুর
+courtNameEn: Judicial Magistrate 2nd Court (Forest Court), Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য় আদালত, গাজীপুর
+courtNameEn: Judicial Magistrate 3rd Court, Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, গাজীপুর
+courtNameEn: Judicial Magistrate 4th Court, Gazipur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত, গাজীপুর
+courtNameEn: Judicial Magistrate 5th Court, Gazipur
+
+courtNameBn: দ্রুত বিচার আদালত, গাজীপুর
+courtNameEn: Fast Track Court, Gazipur
+
+courtNameBn: আমলী আদালত, জয়দেবপুর, গাজীপুর
+courtNameEn: Cognizance Court, Joydebpur, Gajipur
+
+courtNameBn: আমলী আদালত, কালিয়াকৈর, গাজীপুর
+courtNameEn: Cognizance Court, Kaliakoir , Gazipur
+
+courtNameBn: আমলী আদালত, কাপাসিয়া, গাজীপুর
+courtNameEn: Cognizance Court, Kapashia, Gazipur
+
+courtNameBn: আমলী আদালত, কালীগঞ্জ, গাজীপুর
+courtNameEn: Cognizance court, Kaligonj, Gazipur
+
+courtNameBn: আমলী আদালত, শ্রীপুর, গাজীপুর
+courtNameEn: Cognizance court, Sripur, Gazipur
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+courtNameBn: চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত, গাজীপুর
+courtNameEn: Chief Metropolitan Magistrate Court, Gazipur
+
+courtNameBn: অতিরিক্ত চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত, গাজীপুর
+courtNameEn: Additional Chief Metropolitan Magistrate Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৩য় আদালত, গাজীপুর
+courtNameEn: Metropolitan Magistrate 3rd Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৪র্থ আদালত, গাজীপুর
+courtNameEn: Metropolitan Magistrate 4th Court, Gazipur
+
+courtNameBn: মেট্রোপলিটন ম্যাজিস্ট্রেট ৫ম আদালত, গাজীপুর
+courtNameEn: Metropolitan Magistrate 5th Court, Gazipur
+
+courtNameBn: দ্রুত বিচার আদালত (গাজীপুর মেট্রো), গাজীপুর
+courtNameEn: Speedy Trial Court, Gazipur Metro, Gazipur
+
+courtNameBn: আমলী আদালত, পূবাইল, গাজীপুর
+courtNameEn: Cognizance Court, Pubail, Gazipur
+
+courtNameBn: আমলী আদালত, বাসন, গাজীপুর
+courtNameEn: Cognizance Court, Bason, Gazipur
+
+courtNameBn: আমলী আদালত, গাজীপুর সদর, গাজীপুর
+courtNameEn: Cognizance Court, Gazipur sadar , Gazipur
+
+courtNameBn: আমলী আদালত, কাশিমপুর, গাজীপুর
+courtNameEn: Cognizance Court, Kashimpur , Gazipur
+
+courtNameBn: আমলী আদালত, কোনাবাড়ী, গাজীপুর
+courtNameEn: Cognizance Court, Konabari , Gazipur
+
+courtNameBn: আমলী আদালত, টংগী পূর্ব, গাজীপুর
+courtNameEn: Cognizance Court, Tongi East , Gazipur
+
+courtNameBn: আমলী আদালত, টংগী পশ্চিম, গাজীপুর
+courtNameEn: Cognizance Court, Tongi west , Gazipur
+
+courtNameBn: আমলী আদালত, গাছা, গাজীপুর
+courtNameEn: Cognizance court, Gasa, Gazipur
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট
+courtNameEn: Additional District Magistrate
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব)
+courtNameEn: Additional District Commissioner
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট
+courtNameEn: Executive Magistrate
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়
+courtNameEn: Office of the Land Acquisition Officer
+
+courtNameBn: সহঃ কমিঃ (ভূমি) পূবাইল সার্কেল, গাজীপুর
+courtNameEn: Administrative Court, Pubail Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বাসন সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Bason Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) গাজীপুর সদর সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Gazipur sadar  Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কাশিমপুর সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Kashimpur  Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কোনাবাড়ী সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Konabari  Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) টংগী পূর্ব সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Tongi East  Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) টংগী পশ্চিম সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Tongi west  Circle , Gazipur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) গাছা সার্কেল, গাজীপুর
+courtNameEn: AC (Land) Gasa Circle , Gazipur
+
+
+============================================
+============================================
+
+Division: Dhaka
+District: Gopalganj
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, গোপালগঞ্জ
+courtNameEn: District and Sessions Judge Court, Gopalganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Gopalganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gopalganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Gopalganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gopalganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কাশিয়ানী, গোপালগঞ্জ
+courtNameEn: Senior Civil Judge Court, Kashiani, Gopalganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কোটালীপাড়া, গোপালগঞ্জ
+courtNameEn: Senior Civil Judge Court, Kotalipara, Gopalganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, মুকসুদপুর, গোপালগঞ্জ
+courtNameEn: Senior Civil Judge Court, Muksudpur, Gopalganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, গোপালগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sadar, Gopalganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, টুঙ্গিপাড়া, গোপালগঞ্জ
+courtNameEn: Senior Civil Judge Court, Tungipara, Gopalganj
+
+courtNameBn: সিভিল জজ আদালত, কাশিয়ানী, গোপালগঞ্জ
+courtNameEn: Civil Judge Court, Kashiani, Gopalganj
+
+courtNameBn: সিভিল জজ আদালত, কোটালীপাড়া, গোপালগঞ্জ
+courtNameEn: Civil Judge Court, Kotalipara, Gopalganj
+
+courtNameBn: সিভিল জজ আদালত, মুকসুদপুর, গোপালগঞ্জ
+courtNameEn: Civil Judge Court, Muksudpur, Gopalganj
+
+courtNameBn: সিভিল জজ আদালত, সদর, গোপালগঞ্জ
+courtNameEn: Civil Judge Court, Sadar, Gopalganj
+
+courtNameBn: সিভিল জজ আদালত, টুংগীপাড়া, গোপালগঞ্জ
+courtNameEn: Civil Judge Court, Tungipara, Gopalganj
+
+courtNameBn: পারিবারিক আদালত, গোপালগঞ্জ
+courtNameEn: Family Court, Gopalganj
+
+courtNameBn: পারিবারিক আপিল আদালত, গোপালগঞ্জ
+courtNameEn: Family Appeal Court, Gopalganj
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, গোপালগঞ্জ
+courtNameEn: Land Survey Tribunal, Gopalganj
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, গোপালগঞ্জ
+courtNameEn: Land Survey Appellate Tribunal, Gopalganj
+
+courtNameBn: বাণিজ্যিক আদালত, গোপালগঞ্জ
+courtNameEn: Commercial Court, Gopalganj
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, গোপালগঞ্জ
+courtNameEn: District and Sessions Judge Court, Gopalganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Gopalganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Gopalganj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, গোপালগঞ্জ
+courtNameEn: Additional Sessions Court-1, Gopalganj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, গোপালগঞ্জ
+courtNameEn: Additional Sessions Court-2, Gopalganj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩, গোপালগঞ্জ
+courtNameEn: Additional Sessions Court-3, Gopalganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Gopalganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Gopalganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, গোপালগঞ্জ
+courtNameEn: Joint Sessions Court-1, Gopalganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, গোপালগঞ্জ
+courtNameEn: Joint Sessions Court-2, Gopalganj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, গোপালগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal, Gopalganj
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, গোপালগঞ্জ
+courtNameEn: Child Violence Prevention Tribunal, Gopalganj
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, গোপালগঞ্জ
+courtNameEn: Chief Judicial Magistrate Court, Gopalganj
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, গোপালগঞ্জ
+courtNameEn: Additional Chief Judicial Magistrate Court, gopalganj
+
+courtNameBn: দ্রুত বিচার আদালত, গোপালগঞ্জ
+courtNameEn: Druto Bichar Adalat, Gopalganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Senior Judicial Magistrate 1st Court, gopalganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, গোপালগঞ্জ
+courtNameEn: Senior Judicial Magistrate 2nd Court, gopalganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, গোপালগঞ্জ
+courtNameEn: Senior Judicial Magistrate 3rd Court, gopalganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, গোপালগঞ্জ
+courtNameEn: Senior Judicial Magistrate 4th Court, gopalganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, গোপালগঞ্জ
+courtNameEn: Judicial Magistrate 1st Court, gopalganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, গোপালগঞ্জ
+courtNameEn: Judicial Magistrate 2nd Court, gopalganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, গোপালগঞ্জ
+courtNameEn: Judicial Magistrate 3rd Court, gopalganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, গোপালগঞ্জ
+courtNameEn: Judicial Magistrate 4th Court, Gopalganj
+
+courtNameBn: আমলী আদালত, গোপালগঞ্জ সদর, গোপালগঞ্জ
+courtNameEn: Cognizance Court, Gopalganj Sadar, Gopalganj
+
+courtNameBn: আমলী আদালত, কাশিয়ানী, গোপালগঞ্জ
+courtNameEn: Cognizance Court, Kashiani, Gopalganj
+
+courtNameBn: আমলী আদালত, কোটালিপাড়া, গোপালগঞ্জ
+courtNameEn: Cognizance Court, Kotalipara, Gopalganj
+
+courtNameBn: আমলী আদালত, মুকসুদপুর, গোপালগঞ্জ
+courtNameEn: Cognizance Court, Muksudpur, Gopalganj
+
+courtNameBn: আমলী আদালত, টুংগীপাড়া, গোপালগঞ্জ
+courtNameEn: Cognizance Court, Tungipara, Gopalganj
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, গোপালগঞ্জ
+courtNameEn: Additional District Magistrate, Gopalganj
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), গোপালগঞ্জ
+courtNameEn: Additional District Commissioner, Gopalganj
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, গোপালগঞ্জ
+courtNameEn: Executive Magistrate, Gopalganj
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, গোপালগঞ্জ
+courtNameEn: Office of the Land Acquisition Officer, Gopalganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) গোপালগঞ্জ সদর সার্কেল, গোপালগঞ্জ
+courtNameEn: AC (Land) Gopalganj Sadar Circle, Gopalganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কাশিয়ানী সার্কেল, গোপালগঞ্জ
+courtNameEn: AC (Land) Kashiani Circle, Gopalganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কোটালিপাড়া সার্কেল, গোপালগঞ্জ
+courtNameEn: AC (Land) Kotalipara Circle, Gopalganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মুকসুদপুর সার্কেল, গোপালগঞ্জ
+courtNameEn: AC (Land) Muksudpur Circle, Gopalganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) টুংগীপাড়া সার্কেল, গোপালগঞ্জ
+courtNameEn: AC (Land) Tungipara Circle, Gopalganj
+
+
+============================================
+============================================
+
+Division: Dhaka
+District: Kishoregonj
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+courtNameEn: District and Sessions Judge Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, বাজিতপুর, বাজিতপুর চৌকি, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Bajitpur Chowki, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Austagram, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ভৈরব, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Bhairab, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Hossainpur, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Karimganj, Kishoregonj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কটিয়াদি, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Katiadi, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কুলিয়ারচর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Kuliarchar, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Mithamain, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, নিকলী, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Nikli, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Pakundia, Kishorganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, কিশোরগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sadar, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, অষ্টগ্রাম, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Ashtagram, (Bajitpur Chowki), Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, বাজিতপুর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Bajitpur, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, ভৈরব, বাজিতপুর চৌকি, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Bhairab, Bajitpur Chowki, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Hossainpur, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Karimganj, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, কটিয়াদী, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Katiadi, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, কুলিয়ারচর, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Kuliyarchar, (Bajitpur Chowki), Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Mithamin, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, নিকলী, (বাজিতপুর চৌকি), কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Nikli, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Pakundia, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত, সদর, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Sadar, Kishorganj
+
+courtNameBn: সিভিল জজ আদালত, তাড়াইল, কিশোরগঞ্জ
+courtNameEn: Civil Judge Court, Tarail, Kishoregonj
+
+courtNameBn: সিভিল জজ আদালত,  ইটনা, কিশোরগঞ্জ
+courtNameEn: Civil Judge's Court, Etna, Kishoregonj
+
+courtNameBn: পারিবারিক আদালত–১, কিশোরগঞ্জ
+courtNameEn: Family Court-1, Kishoregonj
+
+courtNameBn: পারিবারিক আদালত–২, কিশোরগঞ্জ
+courtNameEn: Family Court-2, Kishoregonj
+
+courtNameBn: পারিবারিক আপিল আদালত, কিশোরগঞ্জ
+courtNameEn: Family Appeal Court, Kishoregonj
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Land Survey Tribunal, Kishoregonj
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Land Survey Appellate Tribunal, Kishoregonj
+
+courtNameBn: বাণিজ্যিক আদালত, কিশোরগঞ্জ
+courtNameEn: Commercial Court, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+courtNameEn: District and Sessions Judge Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, কিশোরগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-1, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-2, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৩, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-3, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৪, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-4, Kishoregonj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–৫, কিশোরগঞ্জ
+courtNameEn: Additional Sessions Court-5, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Kishoregonj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-1, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-2, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-3, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-4, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-5, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-6, Kishoregonj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭, কিশোরগঞ্জ
+courtNameEn: Joint Sessions Court-7, Kishoregonj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-১, কিশোরগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal-1, Kishoregonj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল-২, কিশোরগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal-2, Kishoregonj
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, কিশোরগঞ্জ
+courtNameEn: Child Violence Prevention Tribunal, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, কিশোরগঞ্জ
+courtNameEn: Chief Judicial Magistrate Court, Kishoregonj
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, কিশোরগঞ্জ
+courtNameEn: Additional Chief Judicial Magistrate Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 1st Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 2nd Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 3rd Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 4th Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 5th Court, Kishoregonj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৬ষ্ঠ  আদালত, কিশোরগঞ্জ
+courtNameEn: Senior Judicial Magistrate 6th Court, Kishoregonj
+
+courtNameBn: স্পেশাল ম্যাজিষ্ট্রেট, পরিবেশ ও বন আদালত, কিশোরগঞ্জ
+courtNameEn: Special Magistrate, Environmental and Forest Court, Kishorganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 1st Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 2nd Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 3rd Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 4th Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 5th Court, Kishoregonj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৬ষ্ঠ  আদালত, কিশোরগঞ্জ
+courtNameEn: Judicial Magistrate 6th Court, Kishoregonj
+
+courtNameBn: আমলী আদালত, অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Austagram, Kishoregonj
+
+courtNameBn: আমলী আদালত, বাজিতপুর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Bajitpur, Kishoregonj
+
+courtNameBn: আমলী আদালত, ভৈরব, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Bhairab, Kishoregonj
+
+courtNameBn: আমলী আদালত, হোসেনপুর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Hossainpur, Kishoregonj
+
+courtNameBn: আমলী আদালত, ইটনা, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Itna, Kishoregonj
+
+courtNameBn: আমলী আদালত, করিমগঞ্জ, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Karimganj, Kishoregonj
+
+courtNameBn: আমলী আদালত, কটিয়াদী, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Katiadi, Kishoregonj
+
+courtNameBn: আমলী আদালত, কিশোরগঞ্জ সদর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Kishoregonj Sadar, Kishoregonj
+
+courtNameBn: আমলী আদালত, কুলিয়ার চর, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Kuliar Char, Kishoregonj
+
+courtNameBn: আমলী আদালত, মিঠামইন, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Mithamain, Kishoregonj
+
+courtNameBn: আমলী আদালত, নিক্‌লী, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Nikli, Kishoregonj
+
+courtNameBn: আমলী আদালত, পাকুন্দিয়া, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Pakundia, Kishoregonj
+
+courtNameBn: আমলী আদালত, তাড়াইল, কিশোরগঞ্জ
+courtNameEn: Cognizance Court, Tarail, Kishoregonj
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, কিশোরগঞ্জ
+courtNameEn: Additional District Magistrate, Kishoregonj
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), কিশোরগঞ্জ
+courtNameEn: Additional District Commissioner, Kishoregonj
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, কিশোরগঞ্জ
+courtNameEn: Executive Magistrate, Kishoregonj
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, কিশোরগঞ্জ
+courtNameEn: Office of the Land Acquisition Officer, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) অষ্টগ্রাম, কিশোরগঞ্জ
+courtNameEn: AC (Land) Austagram Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বাজিতপুর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Bajitpur Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ভৈরব সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Bhairab Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) হোসেনপুর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Hossainpur Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ইটনা সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Itna Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) করিমগঞ্জ সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Karimganj Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কটিয়াদী সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Katiadi Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কিশোরগঞ্জ সদর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Kishoregonj Sadar Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কুলিয়ার চর সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Kuliar Char Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মিঠামইন সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Mithamain Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) নিক্‌লী সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Nikli Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) পাকুন্দিয়া সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Pakundia Circle, Kishoregonj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) তাড়াইল সার্কেল, কিশোরগঞ্জ
+courtNameEn: AC (Land) Tarail Circle, Kishoregonj
+
+
+============================================
+============================================
+
+Division: Dhaka
+District: Madaripur
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, মাদারীপুর
+courtNameEn: District and Sessions Judge Court, Madaripur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Madaripur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Madaripur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Madaripur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Madaripur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ডাসা, মাদারীপুর
+courtNameEn: Senior Civil Judge Court, Dasa, Madaripur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, কালকিনী, মাদারীপুর
+courtNameEn: Senior Civil Judge Court, Kalkini, Madaripur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, রাজৈর, মাদারীপুর
+courtNameEn: Senior Civil Judge Court, Rajoir, Madaripur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, মাদারীপুর
+courtNameEn: Senior Civil Judge Court, Sadar, Madaripur
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, শিবচর, মাদারীপুর
+courtNameEn: Senior Civil Judge Court, Shibchar, Madaripur
+
+courtNameBn: সিভিল জজ আদালত, ডাসা, মাদারীপুর
+courtNameEn: Civil Judge Court, Dasa, Madaripur
+
+courtNameBn: সিভিল জজ আদালত, কালকিনি, মাদারীপুর
+courtNameEn: Civil Judge Court, Kalkini, Madaripur
+
+courtNameBn: সিভিল জজ আদালত, রাজৈর, মাদারীপুর
+courtNameEn: Civil Judge Court, Rajoir, Madaripur
+
+courtNameBn: সিভিল জজ আদালত, সদর, মাদারীপুর
+courtNameEn: Civil Judge Court, Sadar, Madaripur
+
+courtNameBn: সিভিল জজ আদালত, শিবচর, মাদারীপুর
+courtNameEn: Civil Judge Court, Shibchar, Madaripur
+
+courtNameBn: পারিবারিক আদালত, মাদারীপুর
+courtNameEn: Family Court, Madaripur
+
+courtNameBn: পারিবারিক আপিল আদালত, মাদারীপুর
+courtNameEn: Family Appeal Court, Madaripur
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, মাদারীপুর
+courtNameEn: Land Survey Tribunal, Madaripur
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, মাদারীপুর
+courtNameEn: Land Survey Appellate Tribunal, Madaripur
+
+courtNameBn: বাণিজ্যিক আদালত, মাদারীপুর
+courtNameEn: Commercial Court, Madaripur
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, মাদারীপুর
+courtNameEn: District and Sessions Judge Court, Madaripur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+courtNameEn: Additional District and Sessions Judge 1st Court, Madaripur
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+courtNameEn: Additional District and Sessions Judge 2nd Court, Madaripur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, মাদারীপুর
+courtNameEn: Additional Sessions Court-1, Madaripur
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, মাদারীপুর
+courtNameEn: Additional Sessions Court-2, Madaripur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+courtNameEn: Joint District and Sessions Judge 1st Court, Madaripur
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+courtNameEn: Joint District and Sessions Judge 2nd Court, Madaripur
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, মাদারীপুর
+courtNameEn: Joint Sessions Court-1, Madaripur
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, মাদারীপুর
+courtNameEn: Joint Sessions Court-2, Madaripur
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, মাদারীপুর
+courtNameEn: Joint Sessions Court-3, Madaripur
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, মাদারীপুর
+courtNameEn: Women and Child Abuse Suppression Tribunal, Madaripur
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, মাদারীপুর
+courtNameEn: Child Violence Prevention Tribunal, Madaripur
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, মাদারীপুর
+courtNameEn: Chief Judicial Magistrate Court, Madaripur
+
+courtNameBn: দ্রুত বিচার আদালত, মাদারীপুর
+courtNameEn: Fast track court, Madaripur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, মাদারীপুর
+courtNameEn: Senior Judicial Magistrate 1st Court, Madaripur
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, মাদারীপুর
+courtNameEn: Senior Judicial Magistrate 2nd Court, Madaripur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, মাদারীপুর
+courtNameEn: Judicial Magistrate 1st Court, Madaripur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য় আদালত, মাদারীপুর
+courtNameEn: Judicial Magistrate 2nd Court, Madaripur
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, মাদারীপুর
+courtNameEn: Judicial Magistrate 3rd Court, Madaripur
+
+courtNameBn: আমলী আদালত, কালকিনী, মাদারীপুর
+courtNameEn: Cognizance Court, Kalkini, Madaripur
+
+courtNameBn: আমলী আদালত, মাদারীপুর সদর, মাদারীপুর
+courtNameEn: Cognizance Court, Madaripur Sadar, Madaripur
+
+courtNameBn: আমলী আদালত, রাজৈর, মাদারীপুর
+courtNameEn: Cognizance Court, Rajoir, Madaripur
+
+courtNameBn: আমলী আদালত, শিব্‌ চর, মাদারীপুর
+courtNameEn: Cognizance Court, Shibchar, Madaripur
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, মাদারীপুর
+courtNameEn: Additional District Magistrate, Madaripur
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), মাদারীপুর
+courtNameEn: Additional District Commissioner, Madaripur
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, মাদারীপুর
+courtNameEn: Executive Magistrate, Madaripur
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, মাদারীপুর
+courtNameEn: Office of the Land Acquisition Officer, Madaripur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) কালকিনী সার্কেল, মাদারীপুর
+courtNameEn: AC (Land) Kalkini Circle, Madaripur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মাদারীপুর সদর সার্কেল, মাদারীপুর
+courtNameEn: AC (Land) Madaripur Sadar Circle, Madaripur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) রাজৈর সার্কেল, মাদারীপুর
+courtNameEn: AC (Land) Rajoir Circle, Madaripur
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শিব্‌ চর সার্কেল, মাদারীপুর
+courtNameEn: AC (Land) Shibchar Circle, Madaripur
+
+
+============================================
+============================================
+
+Division: Dhaka
+District: Manikganj
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, মানিকগঞ্জ
+courtNameEn: District and Sessions Judge Court, Manikganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Manikganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Manikganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Manikganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, দৌলতপুর, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Daulatpur, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, ঘিওর, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Ghior, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, হরিরামপুর, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Harirampur, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sadar, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সাটুরিয়া্, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Saturia, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, শিবালয়, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Shibaloy, Manikganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সিংগাইর, মানিকগঞ্জ
+courtNameEn: Senior Civil Judge Court, Singair, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, দৌলতপুর, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Daulatpur, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, ঘিওর, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Ghior, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, হরিরামপুর, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Harirampur, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, সদর, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Sadar, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, সাটুরিয়া, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Saturia, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, শিবালয়, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Shibalaya, Manikganj
+
+courtNameBn: সিভিল জজ আদালত, সিংগাইর, মানিকগঞ্জ
+courtNameEn: Civil Judge Court, Singair, Manikganj
+
+courtNameBn: পারিবারিক আদালত–১, মানিকগঞ্জ
+courtNameEn: Family Court-1, Manikganj
+
+courtNameBn: পারিবারিক আদালত–২, মানিকগঞ্জ
+courtNameEn: Family Court-2, Manikganj
+
+courtNameBn: পারিবারিক আদালত–৩, মানিকগঞ্জ
+courtNameEn: Family Court-3, Manikganj
+
+courtNameBn: পারিবারিক আপিল আদালত, মানিকগঞ্জ
+courtNameEn: Family Appeal Court, Manikganj
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, মানিকগঞ্জ
+courtNameEn: Land Survey Tribunal, Manikganj
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, মানিকগঞ্জ
+courtNameEn: Land Survey Appellate Tribunal, Manikganj
+
+courtNameBn: বাণিজ্যিক আদালত, মানিকগঞ্জ
+courtNameEn: Commercial Court, Manikganj
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, মানিকগঞ্জ
+courtNameEn: District and Sessions Judge Court, Manikganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Manikganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Manikganj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–১, মানিকগঞ্জ
+courtNameEn: Additional Sessions Court-1, Manikganj
+
+courtNameBn: অতিরিক্ত দায়রা আদালত–২, মানিকগঞ্জ
+courtNameEn: Additional Sessions Court-2, Manikganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Manikganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+courtNameEn: Joint District and Sessions Judge 2nd Court, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-1, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–২, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-2, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৩, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-3, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৪, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-4, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-5, Manikganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, মানিকগঞ্জ
+courtNameEn: Joint Sessions Court-6, Manikganj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, মানিকগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal, Manikganj
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, মানিকগঞ্জ
+courtNameEn: Child Violence Prevention Tribunal, Manikganj
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, মানিকগঞ্জ
+courtNameEn: Chief Judicial Magistrate Court, Manikganj
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, মানিকগঞ্জ
+courtNameEn: Additional Chief Judicial Magistrate Court, manikganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Senior Judicial Magistrate 1st Court, manikganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, মানিকগঞ্জ
+courtNameEn: Senior Judicial Magistrate 2nd Court, manikganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, মানিকগঞ্জ
+courtNameEn: Senior Judicial Magistrate 3rd Court, manikganj
+
+courtNameBn: দ্রুত বিচার আদালত, মানিকগঞ্জ
+courtNameEn: Speedy Court, Manikganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, মানিকগঞ্জ
+courtNameEn: Judicial Magistrate 1st Court, manikganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, মানিকগঞ্জ
+courtNameEn: Judicial Magistrate 2nd Court, manikganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, মানিকগঞ্জ
+courtNameEn: Judicial Magistrate 3rd Court, manikganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, মানিকগঞ্জ
+courtNameEn: Judicial Magistrate 4th Court, manikganj
+
+courtNameBn: আমলী আদালত, দৌলতপুর, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Daulatpur, Manikganj
+
+courtNameBn: আমলী আদালত, ঘিওর, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Ghior, Manikganj
+
+courtNameBn: আমলী আদালত, হরিরামপুর, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Harirampur, Manikganj
+
+courtNameBn: আমলী আদালত, মানিকগঞ্জ সদর, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Manikganj Sadar, Manikganj
+
+courtNameBn: আমলী আদালত, সাটুরিয়া, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Saturia, Manikganj
+
+courtNameBn: আমলী আদালত, শিবালয়, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Shibalaya, Manikganj
+
+courtNameBn: আমলী আদালত, সিংগাইর, মানিকগঞ্জ
+courtNameEn: Cognizance Court, Singair, Manikganj
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, মানিকগঞ্জ
+courtNameEn: Additional District Magistrate, Manikganj
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), মানিকগঞ্জ
+courtNameEn: Additional District Commissioner, Manikganj
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, মানিকগঞ্জ
+courtNameEn: Executive Magistrate, Manikganj
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, মানিকগঞ্জ
+courtNameEn: Office of the Land Acquisition Officer, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) দৌলতপুর সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Daulatpur Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ঘিওর সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Ghior Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) হরিরামপুর সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Harirampur Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) মানিকগঞ্জ সদর সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Manikganj Sadar Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সাটুরিয়া সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Saturia Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) শিবালয় সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Shibalaya Circle, Manikganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সিংগাইর সার্কেল, মানিকগঞ্জ
+courtNameEn: AC (Land) Singair Circle, Manikganj
+
+
+============================================
+============================================
+
+Division: Dhaka
+District: Narayanganj
+
+Court Category: District Judge Court (Civil)
+--------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, নারায়ণগঞ্জ
+courtNameEn: District and Sessions Judge Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 6th Court, Narayanganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Narayanganj
+
+courtNameBn: যুগ্ম জেলা জজ ২য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint District Judge 2nd Court, Narayanganj
+
+courtNameBn: যুগ্ম জেলা জজ (অর্থঋণ) আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint District Judge (Finance) Court, Narayanganj
+
+courtNameBn: যুগ্ম জেলা জজ অতিরিক্ত আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint District Judge Additional Court, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ ২য় আদালত, সিদ্ধিরগঞ্জ ও ফতুল্লা, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge 2nd Court, Siddhirganj and Fatulla, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, আড়াইহাজার, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge Court, Araihazar, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, বন্দর, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge Court, Bandar, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, রূপগঞ্জ, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge Court, Rupganj, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সদর, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sadar, Narayanganj
+
+courtNameBn: সিনিয়র সিভিল জজ আদালত, সোনারগাঁও, নারায়ণগঞ্জ
+courtNameEn: Senior Civil Judge Court, Sonargaon, Narayanganj
+
+courtNameBn: সিভিল জজ আদালত, আড়াইহাজার, নারায়ণগঞ্জ
+courtNameEn: Civil Judge Court, Araihazar, Narayanganj
+
+courtNameBn: সিভিল জজ আদালত, বন্দর, নারায়ণগঞ্জ
+courtNameEn: Civil Judge Court, Port, Narayanganj
+
+courtNameBn: সিভিল জজ আদালত, রূপগঞ্জ, নারায়ণগঞ্জ
+courtNameEn: Civil Judge Court, Rupganj, Narayanganj
+
+courtNameBn: সিভিল জজ আদালত, সদর, নারায়ণগঞ্জ
+courtNameEn: Civil Judge Court, Sadar, Narayanganj
+
+courtNameBn: সিভিল জজ আদালত, সোনারগাঁও, নারায়ণগঞ্জ
+courtNameEn: Civil Judge Court, Sonargaon, Narayanganj
+
+courtNameBn: পারিবারিক আদালত, নারায়ণগঞ্জ
+courtNameEn: Family Court, Narayanganj
+
+courtNameBn: পারিবারিক আপিল আদালত, নারায়ণগঞ্জ
+courtNameEn: Family Appeal Court, Narayanganj
+
+courtNameBn: ল্যান্ড সার্ভে ট্রাইব্যুনাল, নারায়ণগঞ্জ
+courtNameEn: Land Survey Tribunal, Narayanganj
+
+courtNameBn: ল্যান্ড সার্ভে আপিল ট্রাইব্যুনাল, নারায়ণগঞ্জ
+courtNameEn: Land Survey Appellate Tribunal, Narayanganj
+
+courtNameBn: শ্রম আদালত, নারায়ণগঞ্জ
+courtNameEn: Labour Court, Narayanganj
+
+courtNameBn: বাণিজ্যিক আদালত, নারায়ণগঞ্জ
+courtNameEn: Commercial Court, Narayanganj
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Sessions Judge Court (Criminal)
+-----------------------------------------------
+courtNameBn: জেলা ও দায়রা জজ আদালত, নারায়ণগঞ্জ
+courtNameEn: District and Sessions Judge Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 1st Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 2nd Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 3rd Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 4th Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 5th Court, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional District and Sessions Judge 6th Court, Narayanganj
+
+courtNameBn: যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint District and Sessions Judge 1st Court, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা জজ ২য় আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Judge 2nd Court, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা জজ ৩য় (অর্থঋণ) আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Judge 3rd (Finance) Court, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা জজ ৪র্থ আদালত, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Judge 4th Court, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৫, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-5, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৬, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-6, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৭, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-7, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৮, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-8, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–৯, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-9, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১০, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-10, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১১, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-11, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১২, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-12, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১৩, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-13, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১৪, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-14, Narayanganj
+
+courtNameBn: যুগ্ম দায়রা আদালত–১৫, নারায়ণগঞ্জ
+courtNameEn: Joint Sessions Court-15, Narayanganj
+
+courtNameBn: নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল, নারায়ণগঞ্জ
+courtNameEn: Women and Child Abuse Suppression Tribunal, Narayanganj
+
+courtNameBn: শিশু সহিংসতা দমন ট্রাইব্যুনাল, নারায়ণগঞ্জ
+courtNameEn: Child Violence Prevention Tribunal, Narayanganj
+
+courtNameBn: ১নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 1, Narayanganj
+
+courtNameBn: ২নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 2, Narayanganj
+
+courtNameBn: ৩নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 3, Narayanganj
+
+courtNameBn: 8নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 4, Narayanganj
+
+courtNameBn: ৫নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 5, Narayanganj
+
+courtNameBn: ৬নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 6, Narayanganj
+
+courtNameBn: ৭নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 7, Narayanganj
+
+courtNameBn: ৮নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 8, Narayanganj
+
+courtNameBn: ৯নং বিশেষ ট্রাইব্যুনাল
+courtNameEn: Special Tribunal- 9, Narayanganj
+
+
+===========================================================
+
+
+Court Category: Metropolitan Sessions Judge Court (Criminal)
+------------------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Chief Judicial Magistrate Court
+-----------------------------------------------
+courtNameBn: চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, নারায়ণগঞ্জ
+courtNameEn: Chief Judicial Magistrate Court, Narayanganj
+
+courtNameBn: অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত, নারায়ণগঞ্জ
+courtNameEn: Additional Chief Judicial Magistrate Court, narayanganj
+
+courtNameBn: স্পেশাল ম্যাজিস্ট্রেট আদালত, নারায়ণগঞ্জ
+courtNameEn: Special Magistrate Court, Narayanganj
+
+courtNameBn: দ্রুত বিচার আদালত, নারায়ণগঞ্জ
+courtNameEn: Druto Bichar Adalat, Narayanganj
+
+courtNameBn: বন আদালত, নারায়ণগঞ্জ
+courtNameEn: Forest Court, Narayanganj
+
+courtNameBn: পরিবেশ আদালত, নারায়ণগঞ্জ
+courtNameEn: Environment Court, Narayanganj
+
+courtNameBn: বিশুদ্ধ খাদ্য আদালত, নারায়ণগঞ্জ
+courtNameEn: Pure Food Court, Narayanganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Senior Judicial Magistrate 1st Court, narayanganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, নারায়ণগঞ্জ
+courtNameEn: Senior Judicial Magistrate 2nd Court, narayanganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, নারায়ণগঞ্জ
+courtNameEn: Senior Judicial Magistrate 3rd Court, narayanganj
+
+courtNameBn: সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ আদালত, নারায়ণগঞ্জ
+courtNameEn: Senior Judicial Magistrate 4th Court, Narayanganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ১ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Judicial Magistrate 1st Court, narayanganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ২য়  আদালত, নারায়ণগঞ্জ
+courtNameEn: Judicial Magistrate 2nd Court, narayanganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৩য়  আদালত, নারায়ণগঞ্জ
+courtNameEn: Judicial Magistrate 3rd Court, narayanganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৪র্থ  আদালত, নারায়ণগঞ্জ
+courtNameEn: Judicial Magistrate 4th Court, narayanganj
+
+courtNameBn: জুডিসিয়াল ম্যাজিস্ট্রেট ৫ম আদালত, নারায়ণগঞ্জ
+courtNameEn: Judicial Magistrate 5th Court, Narayanganj
+
+courtNameBn: আমলী আদালত, ফতুল্লা, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Fatullah, Narayanganj
+
+courtNameBn: আমলী আদালত, সিদ্ধিরগঞ্জ, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Siddhirganj, Narayanganj
+
+courtNameBn: আমলী আদালত, আড়াইহাজার, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Araihazar, Narayanganj
+
+courtNameBn: আমলী আদালত, বন্দর, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Bandar, Narayanganj
+
+courtNameBn: আমলী আদালত, নারায়ণগঞ্জ সদর, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Narayanganj Sadar, Narayanganj
+
+courtNameBn: আমলী আদালত, রূপগঞ্জ, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Rupganj, Narayanganj
+
+courtNameBn: আমলী আদালত, সোনারগাঁও, নারায়ণগঞ্জ
+courtNameEn: Cognizance Court, Sonargaon, Narayanganj
+
+
+
+
+
+
+
+===========================================================
+
+
+Court Category: Chief Metropolitan Magistrate Court
+---------------------------------------------------
+None
+
+
+===========================================================
+
+
+Court Category: Executive Magistrate & Others Courts
+----------------------------------------------------
+courtNameBn: ভূমি আপীল বোর্ড
+courtNameEn: Land Appeal Board
+
+courtNameBn: অতিঃ বিভাগীয় কমিশনার এর কার্যালয়
+courtNameEn: Office of the Divisional Commissioner
+
+courtNameBn: অতিরিক্ত জেলা ম্যাজিস্ট্রেট, নারায়ণগঞ্জ
+courtNameEn: Additional District Magistrate, Narayanganj
+
+courtNameBn: অতিরিক্ত জেলা প্রশাসক (রাজস্ব), নারায়ণগঞ্জ
+courtNameEn: Additional District Commissioner, Narayanganj
+
+courtNameBn: নির্বাহী ম্যাজিস্ট্রেট, নারায়ণগঞ্জ
+courtNameEn: Executive Magistrate, Narayanganj
+
+courtNameBn: ভূমি অধিগ্রহণ কর্মকর্তার কার্যালয়, নারায়ণগঞ্জ
+courtNameEn: Office of the Land Acquisition Officer, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) ফতুল্লা সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Fatullah Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সিদ্ধিরগঞ্জ সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Siddhirganj Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) আড়াইহাজার সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Araihazar Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) বন্দর সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Bandar Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) নারায়ণগঞ্জ সদর সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Narayanganj Sadar Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) রূপগঞ্জ সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Rupganj Circle, Narayanganj
+
+courtNameBn: সহঃ কমিঃ (ভূমি) সোনারগাঁও সার্কেল, নারায়ণগঞ্জ
+courtNameEn: AC (Land) Sonargaon Circle, Narayanganj
+
+=========================================================

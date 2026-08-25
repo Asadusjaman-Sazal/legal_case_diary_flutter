@@ -224,6 +224,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                     AppDateUtils.bangladeshDateTime(currentCase.nextDate!),
                   ),
             step: currentCase.lastStep,
+            note: currentCase.notesResults,
             // Keep the card layout stable even when contact data is absent;
             // the callbacks remain no-ops for an empty phone value.
             showPhoneButton: true,

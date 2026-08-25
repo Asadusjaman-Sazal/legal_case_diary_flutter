@@ -1,3 +1,14 @@
+### 2026-08-25 — Current Task: All Cases card note display — COMPLETE
+
+Implemented and validated:
+- Passed `notes_results` into the All Cases card and displayed a full-width `Note: ...` row after Next Date/Last Step and before actions.
+- Empty and whitespace-only notes remain hidden, preserving the current card layout.
+- `flutter analyze` and the full test suite are clean.
+
+Version `0.0.87`.
+
+**Next:** Continue Task 07 development with the authoritative lower-court data import and resolve the existing CJM disposed-reference mismatch.
+
 ### 2026-08-25 — Current Task: Task 07 date-picker width alignment — COMPLETE
 
 Implemented and validated:

@@ -151,6 +151,7 @@ class CaseCard extends StatelessWidget {
                         nextDate: nextDate,
                         disposedDate: disposedDate,
                         step: step,
+                        note: note,
                       ),
                     if (_hasActions) ...[
                       const SizedBox(height: AppSpacing.md),
@@ -285,6 +286,7 @@ class _ListDetails extends StatelessWidget {
   final String? nextDate;
   final String? disposedDate;
   final String? step;
+  final String? note;
 
   const _ListDetails({
     required this.l,
@@ -292,6 +294,7 @@ class _ListDetails extends StatelessWidget {
     required this.nextDate,
     required this.disposedDate,
     required this.step,
+    required this.note,
   });
 
   @override
@@ -313,8 +316,26 @@ class _ListDetails extends StatelessWidget {
       details.add(_DetailValue(label: l.allCasesScreen_lastStep, value: step));
     }
 
-    if (details.isEmpty) return const SizedBox.shrink();
-    return _DetailsRow(children: details);
+    final trimmedNote = note?.trim();
+    if (details.isEmpty && (trimmedNote == null || trimmedNote.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (details.isNotEmpty) _DetailsRow(children: details),
+        if (trimmedNote != null && trimmedNote.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.sm),
+            child: Text(
+              '${l.addEditCaseSheet_note}: $trimmedNote',
+              key: const ValueKey('case-card-note'),
+              style: AppTypography.bodySm,
+              softWrap: true,
+            ),
+          ),
+      ],
+    );
   }
 }
 

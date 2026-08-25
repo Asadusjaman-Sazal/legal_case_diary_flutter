@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.86 - Task 07 date-picker width aligned with the Update window.
+Version: 0.0.87 - Added conditional notes to All Cases card layouts.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -100,3 +100,4 @@ Version: 0.0.83 - Task 07 disposal query and AD/HCD regression coverage complete
 Version: 0.0.84 - Task 07 Day Offset and date-picker refinements completed.
 Version: 0.0.85 - Task 07 abbreviated calendar header and centered picker actions completed.
 Version: 0.0.86 - Task 07 date-picker width aligned with the Update window.
+Version: 0.0.87 - Added conditional notes to All Cases card layouts.

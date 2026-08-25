@@ -138,6 +138,7 @@ void main() {
             title: 'Regular matter',
             nextDate: '15/08/2024',
             step: 'Hearing',
+            note: 'actual note.',
           ),
         ),
       );
@@ -146,6 +147,21 @@ void main() {
       expect(find.text('15/08/2024'), findsOneWidget);
       expect(find.text('Last Step'), findsOneWidget);
       expect(find.text('Hearing'), findsOneWidget);
+      expect(find.text('Note: actual note.'), findsOneWidget);
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const CaseCard(
+            variant: CaseCardVariant.list,
+            caseNumber: 'CR-10/2024',
+            title: 'Regular matter',
+            nextDate: '15/08/2024',
+            step: 'Hearing',
+            note: '   ',
+          ),
+        ),
+      );
+      expect(find.byKey(const ValueKey('case-card-note')), findsNothing);
 
       await tester.pumpWidget(
         _localizedApp(

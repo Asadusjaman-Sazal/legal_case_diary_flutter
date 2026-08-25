@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.83 - Task 07 disposal query and AD/HCD regression coverage completed.
+Version: 0.0.86 - Task 07 date-picker width aligned with the Update window.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -97,3 +97,6 @@ Version: 0.0.80 - Updated Android, iOS, and web launcher icons from assets/icons
 Version: 0.0.81 - Task 07 AD/HCD Add/Edit fields, Case Category cascade, Result disposal matching, schema migration, and focused tests.
 Version: 0.0.82 - Task 07 localized seed dropdown labels and English development default locale.
 Version: 0.0.83 - Task 07 disposal query and AD/HCD regression coverage completed.
+Version: 0.0.84 - Task 07 Day Offset and date-picker refinements completed.
+Version: 0.0.85 - Task 07 abbreviated calendar header and centered picker actions completed.
+Version: 0.0.86 - Task 07 date-picker width aligned with the Update window.

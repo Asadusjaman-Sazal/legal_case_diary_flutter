@@ -258,14 +258,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_dayOffset => 'Day Offset';
 
   @override
-  String get addEditCaseSheet_offsetSameDay => 'Same day';
+  String get addEditCaseSheet_offsetSameDay => 'The same day';
 
   @override
   String get addEditCaseSheet_offsetDayBefore => 'The day before';
 
   @override
   String addEditCaseSheet_offsetDaysBefore(Object count) {
-    return '$count days before';
+    return 'Before $count days';
   }
 
   @override

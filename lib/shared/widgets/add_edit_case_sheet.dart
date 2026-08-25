@@ -41,6 +41,9 @@ import 'date_picker_helper.dart';
 String _seedLabel(BuildContext context, String id, String fallbackEn) =>
     context.l10n.seedLabel(id, fallbackEn: fallbackEn);
 
+/// Fixed Task 07 notification choices shared by Add/Edit and Quick Update.
+const task07DayOffsetOptions = <int>[0, 1, 3, 7, 15, 30];
+
 /// Effective local write permissions for the current identity.
 class CaseWritePermissions {
   /// Creates a permission value.
@@ -108,7 +111,7 @@ class AddEditCaseLookupData {
     this.caseTypes = const [],
     this.onBehalfs = const [],
     this.steps = const [],
-    this.notificationOffsets = const [1],
+    this.notificationOffsets = task07DayOffsetOptions,
     this.lastAddCaseHigherLowerCourt,
     this.lastAddCaseDivision,
     this.lastAddCaseDistrict,
@@ -415,9 +418,6 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       final settings = await settingsRepository.getSettings();
       final permissions = await ref.read(caseWritePermissionsProvider.future);
       final identity = ref.read(localIdentityServiceProvider);
-      final offsets = settings.notificationDefaultOffsets.isEmpty
-          ? [settings.notificationDayOffset]
-          : settings.notificationDefaultOffsets;
       final data = AddEditCaseLookupData(
         courtCategories: await CourtCategoriesDao(db).getAll(),
         caseCategories:
@@ -431,7 +431,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         caseTypes: await CaseTypesDao(db).getAll(),
         onBehalfs: await OnBehalfsDao(db).getAll(),
         steps: await StepsDao(db).getAll(),
-        notificationOffsets: offsets,
+        notificationOffsets: task07DayOffsetOptions,
         lastAddCaseHigherLowerCourt: settings.lastAddCaseHigherLowerCourt,
         lastAddCaseDivision: settings.lastAddCaseDivision,
         lastAddCaseDistrict: settings.lastAddCaseDistrict,
@@ -1731,13 +1731,6 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     try {
       final db = await ref.read(databaseProvider.future);
       final permissions = await ref.read(caseWritePermissionsProvider.future);
-      final settingsRepository = await ref.read(
-        settingsRepositoryProvider.future,
-      );
-      final settings = await settingsRepository.getSettings();
-      final notificationOffsets = settings.notificationDefaultOffsets.isEmpty
-          ? [settings.notificationDayOffset]
-          : settings.notificationDefaultOffsets;
       final identity = ref.read(localIdentityServiceProvider);
       final preference = await CaseNotificationPreferencesDao(
         db,
@@ -1761,10 +1754,10 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                   storedSteps.contains(item.stepName),
             )
             .toList(growable: false);
-        _notificationOffsets = notificationOffsets;
+        _notificationOffsets = task07DayOffsetOptions;
         _selectedNotificationOffsets = _decodeNotificationOffsets(
           preference?.offsets,
-          fallback: notificationOffsets.firstOrNull,
+          fallback: task07DayOffsetOptions.first,
         );
         _isNotificationEnabled = preference?.enabled ?? true;
         _permissionResolved = true;

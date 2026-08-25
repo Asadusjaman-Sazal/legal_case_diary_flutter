@@ -447,6 +447,17 @@ void main() {
         closeTo(52, 0.1),
       );
 
+      await tester.tap(find.byKey(const ValueKey('quick-update-day-offset')));
+      await tester.pumpAndSettle();
+      expect(find.text('The same day'), findsAtLeastNWidgets(1));
+      expect(find.text('The day before'), findsOneWidget);
+      expect(find.text('Before 3 days'), findsOneWidget);
+      expect(find.text('Before 7 days'), findsOneWidget);
+      expect(find.text('Before 15 days'), findsOneWidget);
+      expect(find.text('Before 30 days'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byKey(const ValueKey('quick-update-step')));
       await tester.pumpAndSettle();
       expect(
@@ -477,7 +488,7 @@ void main() {
         db,
       ).get(identity.getId(), id);
       expect(preference?.enabled, isFalse);
-      expect(preference?.offsets, '[1]');
+      expect(preference?.offsets, '[0]');
     },
   );
 

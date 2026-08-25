@@ -30,7 +30,7 @@ Build all fields **in the exact order and with the exact widget types** from the
 17. Case Title & Remarks — two stacked `TextFormField`s: top `caseTitleAndSection`, bottom multi-line `caseRemarks`.
 18. Next Date — simple date picker (epoch ms), in a **single row** with 19 & 20.
 19. Notification — toggle `IconButton` (filled black when on), same row.
-20. Day Offset — multi-select `CustomDropdown` (no search), options from Settings > Notification > Notification Day Offset, same row.
+20. Day Offset — multi-select `CustomDropdown` (no search), fixed options `0, 1, 3, 7, 15, 30` days before the selected date, same row.
 21. Result — AD/HCD-only multi-line text input after Day Offset (`result`).
 22. Step — lower-court-only multi-select `CustomDropdown` from `StepsDao` filtered by the selected court's category (`lastStep`). It is hidden for AD/HCD.
 23. Note — multi-line `TextFormField` (`notesResults`).

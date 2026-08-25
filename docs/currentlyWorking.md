@@ -1,3 +1,24 @@
+### 2026-08-25 — Current Task: Task 07 date-picker width alignment — COMPLETE
+
+Implemented and validated:
+- Matched the date-picker surface to the Update window's 16px horizontal inset and 480px maximum width.
+- Add/Edit, Quick Update, localization, and date-picker tests pass; `flutter analyze` is clean.
+
+Version `0.0.86`.
+
+**Next:** Continue Task 07 development with the authoritative lower-court data import and resolve the existing CJM disposed-reference mismatch.
+
+### 2026-08-25 — Current Task: Task 07 calendar header and picker action refinements — COMPLETE
+
+Implemented and validated:
+- Standardized Add/Edit and Quick Update Day Offset choices to 0, 1, 3, 7, 15, and 30 days.
+- Updated English/Bengali calendar-picker headers to the requested abbreviated month and weekday labels; centered Cancel/OK actions and added bottom padding.
+- Focused tests pass; `flutter analyze` is clean.
+
+Version `0.0.85`.
+
+**Next:** Continue Task 07 development with the authoritative lower-court data import and resolve the existing CJM disposed-reference mismatch.
+
 ### 2026-08-25 — Current Task: Task 07 remaining-gap fixes — COMPLETE
 
 Implemented and validated:

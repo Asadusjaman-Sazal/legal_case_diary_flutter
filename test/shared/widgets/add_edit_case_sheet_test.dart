@@ -214,6 +214,39 @@ void main() {
       expect(find.text('Pick a date'), findsNothing);
     });
 
+    testWidgets('shows the standard six Day Offset choices', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(lookupData: AddEditCaseLookupData()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-day-offset')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await Scrollable.ensureVisible(
+        tester.element(find.byKey(const ValueKey('add-edit-day-offset'))),
+        alignment: 0.5,
+        duration: Duration.zero,
+      );
+      tester
+          .widget<InkWell>(find.byKey(const ValueKey('add-edit-day-offset')))
+          .onTap!();
+      await tester.pumpAndSettle();
+
+      expect(find.text('The same day'), findsAtLeastNWidgets(1));
+      expect(find.text('The day before'), findsOneWidget);
+      expect(find.text('Before 3 days'), findsOneWidget);
+      expect(find.text('Before 7 days'), findsOneWidget);
+      expect(find.text('Before 15 days'), findsOneWidget);
+      expect(find.text('Before 30 days'), findsOneWidget);
+    });
+
     testWidgets('restores remembered court hierarchy selections in add mode', (
       WidgetTester tester,
     ) async {

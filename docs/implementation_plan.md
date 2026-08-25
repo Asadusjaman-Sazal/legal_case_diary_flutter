@@ -179,7 +179,7 @@ A full-screen modal sheet for adding a new case or editing an existing one.
 | 17 | **Case Title & Remarks** | `TextFormField` (top half) + `TextFormField` (bottom half, multi-line) | — | Top: `caseTitleAndSection`. Bottom: `caseRemarks` |
 | 18 | **Next Date** | Date picker | — | Data type: `nextDate` (epoch ms). Placed with 19 & 20 in a single row |
 | 19 | **Notification** | `IconButton` (toggle) | — | When on, icon fills with black. Placed with 18 & 20 in a single row |
-| 20 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Options from `Settings > Notification > Notification Day Offset` | Placed with 18 & 19 in a single row |
+| 20 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Fixed options: same day, 1, 3, 7, 15, and 30 days before the selected date; labels localized | Placed with 18 & 19 in a single row |
 | 21 | **Result** | `TextFormField` (multi-line) | — | AD/HCD only; persisted separately as `result` and used for disposal matching |
 | 22 | **Step** | `CustomDropdown` (multi-select) | `StepsDao` — filtered by selected court's category | Data type: `lastStep`; lower courts only; hidden for AD/HCD. |
 | 23 | **Note** | `TextFormField` (multi-line) | — | Data type: `notesResults` |

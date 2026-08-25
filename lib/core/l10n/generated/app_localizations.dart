@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// No description provided for @addEditCaseSheet_offsetSameDay.
   ///
   /// In en, this message translates to:
-  /// **'Same day'**
+  /// **'The same day'**
   String get addEditCaseSheet_offsetSameDay;
 
   /// No description provided for @addEditCaseSheet_offsetDayBefore.
@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @addEditCaseSheet_offsetDaysBefore.
   ///
   /// In en, this message translates to:
-  /// **'{count} days before'**
+  /// **'Before {count} days'**
   String addEditCaseSheet_offsetDaysBefore(Object count);
 
   /// No description provided for @addEditCaseSheet_step.

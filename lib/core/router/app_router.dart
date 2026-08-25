@@ -269,6 +269,12 @@ final List<RouteBase> _shellRoutes = [
 // Shell root with back/exit confirmation (Dev Workflow §6)
 // ---------------------------------------------------------------------------
 
+/// Larger, legible button style used by the exit-confirmation actions.
+final ButtonStyle _exitButtonStyle = TextButton.styleFrom(
+  minimumSize: const Size(112, 48),
+  textStyle: const TextStyle(fontSize: 16),
+);
+
 /// Wraps the shell child with exit-confirmation on system back at the root.
 ///
 /// Shows an [AlertDialog] asking the user to confirm exit. Prevents black
@@ -283,12 +289,15 @@ class AppShellRoot extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Exit App?'),
         content: const Text('Do you want to exit Legal Case Diary?'),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
+            style: _exitButtonStyle,
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Cancel'),
           ),
           TextButton(
+            style: _exitButtonStyle,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Exit'),
           ),

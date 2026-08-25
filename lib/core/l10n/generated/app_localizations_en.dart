@@ -196,7 +196,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_nameOfCourt => 'Name of Court';
 
   @override
+  String get addEditCaseSheet_honorableJudges => 'Name of Honorable Judges\'';
+
+  @override
+  String get addEditCaseSheet_caseCategory => 'Case Category';
+
+  @override
   String get addEditCaseSheet_caseNumber => 'Case Number';
+
+  @override
+  String get addEditCaseSheet_tenderNumber => 'Tender Number';
+
+  @override
+  String get addEditCaseSheet_previousCourtCase => 'Previous Court Case';
+
+  @override
+  String get addEditCaseSheet_districtOfOrigin => 'District of Origin';
 
   @override
   String get addEditCaseSheet_petitioner => 'Petitioner';
@@ -255,6 +270,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_step => 'Step';
+
+  @override
+  String get addEditCaseSheet_result => 'Result';
 
   @override
   String get addEditCaseSheet_note => 'Note';

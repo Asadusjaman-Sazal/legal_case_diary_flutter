@@ -195,7 +195,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_nameOfCourt => 'আদালতের নাম';
 
   @override
+  String get addEditCaseSheet_honorableJudges => 'মাননীয় বিচারকদের নাম';
+
+  @override
+  String get addEditCaseSheet_caseCategory => 'মামলার ক্যাটেগরি';
+
+  @override
   String get addEditCaseSheet_caseNumber => 'মামলা নং';
+
+  @override
+  String get addEditCaseSheet_tenderNumber => 'টেন্ডার নম্বর';
+
+  @override
+  String get addEditCaseSheet_previousCourtCase => 'পূর্ববর্তী আদালতের মামলা';
+
+  @override
+  String get addEditCaseSheet_districtOfOrigin => 'উৎপত্তির জেলা';
 
   @override
   String get addEditCaseSheet_petitioner => 'বাদী';
@@ -252,6 +267,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_step => 'ধাপ';
+
+  @override
+  String get addEditCaseSheet_result => 'ফলাফল';
 
   @override
   String get addEditCaseSheet_note => 'নোট';

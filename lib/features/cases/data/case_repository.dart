@@ -36,6 +36,9 @@ abstract class CaseRepository {
   /// Reactive stream of all non-deleted cases.
   Stream<List<Case>> watchAll({int? limit, int? offset});
 
+  /// Lists non-deleted cases disposed by a seeded Step or AD/HCD Result.
+  Future<List<Case>> listDisposed({int? limit, int? offset});
+
   /// Searches non-deleted cases.
   Future<List<Case>> search(String query, {int? limit, int? offset});
 
@@ -219,6 +222,10 @@ class LocalCaseRepository
       _casesDao.watchAll(limit: limit, offset: offset);
 
   @override
+  Future<List<Case>> listDisposed({int? limit, int? offset}) =>
+      _casesDao.getDisposed(limit: limit, offset: offset);
+
+  @override
   Future<List<Case>> search(String query, {int? limit, int? offset}) =>
       _casesDao.search(query, limit: limit, offset: offset);
 
@@ -279,6 +286,19 @@ class LocalCaseRepository
   List<String> _changedFields(CasesCompanion companion) {
     final fromCompanion = <String>[];
     if (companion.caseNumber.present) fromCompanion.add('case_number');
+    if (companion.caseCategoryId.present) {
+      fromCompanion.add('case_category_id');
+    }
+    if (companion.honorableJudges.present) {
+      fromCompanion.add('honorable_judges');
+    }
+    if (companion.tenderNumber.present) fromCompanion.add('tender_number');
+    if (companion.previousCourtCase.present) {
+      fromCompanion.add('previous_court_case');
+    }
+    if (companion.districtOfOrigin.present) {
+      fromCompanion.add('district_of_origin');
+    }
     if (companion.petitioner.present) fromCompanion.add('petitioner');
     if (companion.respondent.present) fromCompanion.add('respondent');
     if (companion.petitionerLeadCounsel.present) {
@@ -298,6 +318,7 @@ class LocalCaseRepository
     if (companion.nextDate.present) fromCompanion.add('next_date');
     if (companion.lastStep.present) fromCompanion.add('last_step');
     if (companion.notesResults.present) fromCompanion.add('notes_results');
+    if (companion.result.present) fromCompanion.add('result');
     if (companion.courtId.present) fromCompanion.add('court_id');
     if (companion.caseType.present) fromCompanion.add('case_type');
     return fromCompanion;

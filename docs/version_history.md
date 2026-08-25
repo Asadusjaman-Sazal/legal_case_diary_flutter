@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.80 - Updated Android, iOS, and web launcher icons from assets/icons/app_logo.png.
+Version: 0.0.83 - Task 07 disposal query and AD/HCD regression coverage completed.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -94,3 +94,6 @@ Version: 0.0.76 - Corrected disposed-step tests so Judgement is not treated as d
 Version: 0.0.77 - Fixed Exit App confirmation to close the system app instead of popping the root route.
 Version: 0.0.79 - Restored Framing of Charge in Sessions and Metropolitan Sessions step seeds.
 Version: 0.0.80 - Updated Android, iOS, and web launcher icons from assets/icons/app_logo.png.
+Version: 0.0.81 - Task 07 AD/HCD Add/Edit fields, Case Category cascade, Result disposal matching, schema migration, and focused tests.
+Version: 0.0.82 - Task 07 localized seed dropdown labels and English development default locale.
+Version: 0.0.83 - Task 07 disposal query and AD/HCD regression coverage completed.

@@ -1738,6 +1738,797 @@ class CourtsCompanion extends UpdateCompanion<Court> {
   }
 }
 
+class $CaseCategoriesTable extends CaseCategories
+    with TableInfo<$CaseCategoriesTable, CaseCategory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CaseCategoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _courtCategoryIdMeta = const VerificationMeta(
+    'courtCategoryId',
+  );
+  @override
+  late final GeneratedColumn<String> courtCategoryId = GeneratedColumn<String>(
+    'court_category_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES court_categories (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isCustomMeta = const VerificationMeta(
+    'isCustom',
+  );
+  @override
+  late final GeneratedColumn<bool> isCustom = GeneratedColumn<bool>(
+    'is_custom',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_custom" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isUserModifiedMeta = const VerificationMeta(
+    'isUserModified',
+  );
+  @override
+  late final GeneratedColumn<bool> isUserModified = GeneratedColumn<bool>(
+    'is_user_modified',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_user_modified" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _firmIdMeta = const VerificationMeta('firmId');
+  @override
+  late final GeneratedColumn<String> firmId = GeneratedColumn<String>(
+    'firm_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncedAt = GeneratedColumn<int>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _lastModifiedByMeta = const VerificationMeta(
+    'lastModifiedBy',
+  );
+  @override
+  late final GeneratedColumn<String> lastModifiedBy = GeneratedColumn<String>(
+    'last_modified_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    courtCategoryId,
+    name,
+    orderIndex,
+    isCustom,
+    isUserModified,
+    userId,
+    firmId,
+    updatedAt,
+    version,
+    syncedAt,
+    isDeleted,
+    lastModifiedBy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'case_categories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CaseCategory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('court_category_id')) {
+      context.handle(
+        _courtCategoryIdMeta,
+        courtCategoryId.isAcceptableOrUnknown(
+          data['court_category_id']!,
+          _courtCategoryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_courtCategoryIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
+    }
+    if (data.containsKey('is_custom')) {
+      context.handle(
+        _isCustomMeta,
+        isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
+      );
+    }
+    if (data.containsKey('is_user_modified')) {
+      context.handle(
+        _isUserModifiedMeta,
+        isUserModified.isAcceptableOrUnknown(
+          data['is_user_modified']!,
+          _isUserModifiedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    if (data.containsKey('firm_id')) {
+      context.handle(
+        _firmIdMeta,
+        firmId.isAcceptableOrUnknown(data['firm_id']!, _firmIdMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('last_modified_by')) {
+      context.handle(
+        _lastModifiedByMeta,
+        lastModifiedBy.isAcceptableOrUnknown(
+          data['last_modified_by']!,
+          _lastModifiedByMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CaseCategory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CaseCategory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      courtCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}court_category_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+      isCustom: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_custom'],
+      )!,
+      isUserModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_user_modified'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
+      firmId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}firm_id'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_at'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModifiedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_modified_by'],
+      ),
+    );
+  }
+
+  @override
+  $CaseCategoriesTable createAlias(String alias) {
+    return $CaseCategoriesTable(attachedDatabase, alias);
+  }
+}
+
+class CaseCategory extends DataClass implements Insertable<CaseCategory> {
+  /// Stable deterministic seed ID or UUID for a custom row.
+  final String id;
+
+  /// Canonical court category that owns this case category.
+  final String courtCategoryId;
+
+  /// English seed/custom display name.
+  final String name;
+
+  /// Display order within the court category.
+  final int orderIndex;
+
+  /// Built-in versus user-created case category.
+  final bool isCustom;
+
+  /// Whether the user/firm has modified a built-in row.
+  final bool isUserModified;
+
+  /// Creator for custom individual categories; null for built-ins.
+  final String? userId;
+
+  /// Firm scope for custom firm categories; null for built-ins/individuals.
+  final String? firmId;
+  final int updatedAt;
+  final int? version;
+  final int? syncedAt;
+  final bool isDeleted;
+  final String? lastModifiedBy;
+  const CaseCategory({
+    required this.id,
+    required this.courtCategoryId,
+    required this.name,
+    required this.orderIndex,
+    required this.isCustom,
+    required this.isUserModified,
+    this.userId,
+    this.firmId,
+    required this.updatedAt,
+    this.version,
+    this.syncedAt,
+    required this.isDeleted,
+    this.lastModifiedBy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['court_category_id'] = Variable<String>(courtCategoryId);
+    map['name'] = Variable<String>(name);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['is_custom'] = Variable<bool>(isCustom);
+    map['is_user_modified'] = Variable<bool>(isUserModified);
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
+    if (!nullToAbsent || firmId != null) {
+      map['firm_id'] = Variable<String>(firmId);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || version != null) {
+      map['version'] = Variable<int>(version);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<int>(syncedAt);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || lastModifiedBy != null) {
+      map['last_modified_by'] = Variable<String>(lastModifiedBy);
+    }
+    return map;
+  }
+
+  CaseCategoriesCompanion toCompanion(bool nullToAbsent) {
+    return CaseCategoriesCompanion(
+      id: Value(id),
+      courtCategoryId: Value(courtCategoryId),
+      name: Value(name),
+      orderIndex: Value(orderIndex),
+      isCustom: Value(isCustom),
+      isUserModified: Value(isUserModified),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+      firmId: firmId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firmId),
+      updatedAt: Value(updatedAt),
+      version: version == null && nullToAbsent
+          ? const Value.absent()
+          : Value(version),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      isDeleted: Value(isDeleted),
+      lastModifiedBy: lastModifiedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastModifiedBy),
+    );
+  }
+
+  factory CaseCategory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CaseCategory(
+      id: serializer.fromJson<String>(json['id']),
+      courtCategoryId: serializer.fromJson<String>(json['courtCategoryId']),
+      name: serializer.fromJson<String>(json['name']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      isCustom: serializer.fromJson<bool>(json['isCustom']),
+      isUserModified: serializer.fromJson<bool>(json['isUserModified']),
+      userId: serializer.fromJson<String?>(json['userId']),
+      firmId: serializer.fromJson<String?>(json['firmId']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      version: serializer.fromJson<int?>(json['version']),
+      syncedAt: serializer.fromJson<int?>(json['syncedAt']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModifiedBy: serializer.fromJson<String?>(json['lastModifiedBy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'courtCategoryId': serializer.toJson<String>(courtCategoryId),
+      'name': serializer.toJson<String>(name),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'isCustom': serializer.toJson<bool>(isCustom),
+      'isUserModified': serializer.toJson<bool>(isUserModified),
+      'userId': serializer.toJson<String?>(userId),
+      'firmId': serializer.toJson<String?>(firmId),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'version': serializer.toJson<int?>(version),
+      'syncedAt': serializer.toJson<int?>(syncedAt),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModifiedBy': serializer.toJson<String?>(lastModifiedBy),
+    };
+  }
+
+  CaseCategory copyWith({
+    String? id,
+    String? courtCategoryId,
+    String? name,
+    int? orderIndex,
+    bool? isCustom,
+    bool? isUserModified,
+    Value<String?> userId = const Value.absent(),
+    Value<String?> firmId = const Value.absent(),
+    int? updatedAt,
+    Value<int?> version = const Value.absent(),
+    Value<int?> syncedAt = const Value.absent(),
+    bool? isDeleted,
+    Value<String?> lastModifiedBy = const Value.absent(),
+  }) => CaseCategory(
+    id: id ?? this.id,
+    courtCategoryId: courtCategoryId ?? this.courtCategoryId,
+    name: name ?? this.name,
+    orderIndex: orderIndex ?? this.orderIndex,
+    isCustom: isCustom ?? this.isCustom,
+    isUserModified: isUserModified ?? this.isUserModified,
+    userId: userId.present ? userId.value : this.userId,
+    firmId: firmId.present ? firmId.value : this.firmId,
+    updatedAt: updatedAt ?? this.updatedAt,
+    version: version.present ? version.value : this.version,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModifiedBy: lastModifiedBy.present
+        ? lastModifiedBy.value
+        : this.lastModifiedBy,
+  );
+  CaseCategory copyWithCompanion(CaseCategoriesCompanion data) {
+    return CaseCategory(
+      id: data.id.present ? data.id.value : this.id,
+      courtCategoryId: data.courtCategoryId.present
+          ? data.courtCategoryId.value
+          : this.courtCategoryId,
+      name: data.name.present ? data.name.value : this.name,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+      isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
+      isUserModified: data.isUserModified.present
+          ? data.isUserModified.value
+          : this.isUserModified,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      firmId: data.firmId.present ? data.firmId.value : this.firmId,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      version: data.version.present ? data.version.value : this.version,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModifiedBy: data.lastModifiedBy.present
+          ? data.lastModifiedBy.value
+          : this.lastModifiedBy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CaseCategory(')
+          ..write('id: $id, ')
+          ..write('courtCategoryId: $courtCategoryId, ')
+          ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('isUserModified: $isUserModified, ')
+          ..write('userId: $userId, ')
+          ..write('firmId: $firmId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('version: $version, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModifiedBy: $lastModifiedBy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    courtCategoryId,
+    name,
+    orderIndex,
+    isCustom,
+    isUserModified,
+    userId,
+    firmId,
+    updatedAt,
+    version,
+    syncedAt,
+    isDeleted,
+    lastModifiedBy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CaseCategory &&
+          other.id == this.id &&
+          other.courtCategoryId == this.courtCategoryId &&
+          other.name == this.name &&
+          other.orderIndex == this.orderIndex &&
+          other.isCustom == this.isCustom &&
+          other.isUserModified == this.isUserModified &&
+          other.userId == this.userId &&
+          other.firmId == this.firmId &&
+          other.updatedAt == this.updatedAt &&
+          other.version == this.version &&
+          other.syncedAt == this.syncedAt &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModifiedBy == this.lastModifiedBy);
+}
+
+class CaseCategoriesCompanion extends UpdateCompanion<CaseCategory> {
+  final Value<String> id;
+  final Value<String> courtCategoryId;
+  final Value<String> name;
+  final Value<int> orderIndex;
+  final Value<bool> isCustom;
+  final Value<bool> isUserModified;
+  final Value<String?> userId;
+  final Value<String?> firmId;
+  final Value<int> updatedAt;
+  final Value<int?> version;
+  final Value<int?> syncedAt;
+  final Value<bool> isDeleted;
+  final Value<String?> lastModifiedBy;
+  final Value<int> rowid;
+  const CaseCategoriesCompanion({
+    this.id = const Value.absent(),
+    this.courtCategoryId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.isCustom = const Value.absent(),
+    this.isUserModified = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.firmId = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.version = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModifiedBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CaseCategoriesCompanion.insert({
+    required String id,
+    required String courtCategoryId,
+    required String name,
+    required int orderIndex,
+    this.isCustom = const Value.absent(),
+    this.isUserModified = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.firmId = const Value.absent(),
+    required int updatedAt,
+    this.version = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModifiedBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       courtCategoryId = Value(courtCategoryId),
+       name = Value(name),
+       orderIndex = Value(orderIndex),
+       updatedAt = Value(updatedAt);
+  static Insertable<CaseCategory> custom({
+    Expression<String>? id,
+    Expression<String>? courtCategoryId,
+    Expression<String>? name,
+    Expression<int>? orderIndex,
+    Expression<bool>? isCustom,
+    Expression<bool>? isUserModified,
+    Expression<String>? userId,
+    Expression<String>? firmId,
+    Expression<int>? updatedAt,
+    Expression<int>? version,
+    Expression<int>? syncedAt,
+    Expression<bool>? isDeleted,
+    Expression<String>? lastModifiedBy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (courtCategoryId != null) 'court_category_id': courtCategoryId,
+      if (name != null) 'name': name,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (isCustom != null) 'is_custom': isCustom,
+      if (isUserModified != null) 'is_user_modified': isUserModified,
+      if (userId != null) 'user_id': userId,
+      if (firmId != null) 'firm_id': firmId,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (version != null) 'version': version,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModifiedBy != null) 'last_modified_by': lastModifiedBy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CaseCategoriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? courtCategoryId,
+    Value<String>? name,
+    Value<int>? orderIndex,
+    Value<bool>? isCustom,
+    Value<bool>? isUserModified,
+    Value<String?>? userId,
+    Value<String?>? firmId,
+    Value<int>? updatedAt,
+    Value<int?>? version,
+    Value<int?>? syncedAt,
+    Value<bool>? isDeleted,
+    Value<String?>? lastModifiedBy,
+    Value<int>? rowid,
+  }) {
+    return CaseCategoriesCompanion(
+      id: id ?? this.id,
+      courtCategoryId: courtCategoryId ?? this.courtCategoryId,
+      name: name ?? this.name,
+      orderIndex: orderIndex ?? this.orderIndex,
+      isCustom: isCustom ?? this.isCustom,
+      isUserModified: isUserModified ?? this.isUserModified,
+      userId: userId ?? this.userId,
+      firmId: firmId ?? this.firmId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      syncedAt: syncedAt ?? this.syncedAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (courtCategoryId.present) {
+      map['court_category_id'] = Variable<String>(courtCategoryId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (isCustom.present) {
+      map['is_custom'] = Variable<bool>(isCustom.value);
+    }
+    if (isUserModified.present) {
+      map['is_user_modified'] = Variable<bool>(isUserModified.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (firmId.present) {
+      map['firm_id'] = Variable<String>(firmId.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<int>(syncedAt.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModifiedBy.present) {
+      map['last_modified_by'] = Variable<String>(lastModifiedBy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CaseCategoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('courtCategoryId: $courtCategoryId, ')
+          ..write('name: $name, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('isUserModified: $isUserModified, ')
+          ..write('userId: $userId, ')
+          ..write('firmId: $firmId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('version: $version, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModifiedBy: $lastModifiedBy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OnBehalfsTable extends OnBehalfs
     with TableInfo<$OnBehalfsTable, OnBehalf> {
   @override
@@ -2586,6 +3377,20 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _caseCategoryIdMeta = const VerificationMeta(
+    'caseCategoryId',
+  );
+  @override
+  late final GeneratedColumn<String> caseCategoryId = GeneratedColumn<String>(
+    'case_category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES case_categories (id)',
+    ),
+  );
   static const VerificationMeta _caseNumberMeta = const VerificationMeta(
     'caseNumber',
   );
@@ -2596,6 +3401,51 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _honorableJudgesMeta = const VerificationMeta(
+    'honorableJudges',
+  );
+  @override
+  late final GeneratedColumn<String> honorableJudges = GeneratedColumn<String>(
+    'honorable_judges',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tenderNumberMeta = const VerificationMeta(
+    'tenderNumber',
+  );
+  @override
+  late final GeneratedColumn<String> tenderNumber = GeneratedColumn<String>(
+    'tender_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _previousCourtCaseMeta = const VerificationMeta(
+    'previousCourtCase',
+  );
+  @override
+  late final GeneratedColumn<String> previousCourtCase =
+      GeneratedColumn<String>(
+        'previous_court_case',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _districtOfOriginMeta = const VerificationMeta(
+    'districtOfOrigin',
+  );
+  @override
+  late final GeneratedColumn<String> districtOfOrigin = GeneratedColumn<String>(
+    'district_of_origin',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _petitionerMeta = const VerificationMeta(
     'petitioner',
@@ -2721,6 +3571,15 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _resultMeta = const VerificationMeta('result');
+  @override
+  late final GeneratedColumn<String> result = GeneratedColumn<String>(
+    'result',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2798,7 +3657,12 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     firmId,
     courtId,
     caseType,
+    caseCategoryId,
     caseNumber,
+    honorableJudges,
+    tenderNumber,
+    previousCourtCase,
+    districtOfOrigin,
     petitioner,
     petitionerLeadCounsel,
     respondent,
@@ -2810,6 +3674,7 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     nextDate,
     lastStep,
     notesResults,
+    result,
     createdAt,
     updatedAt,
     version,
@@ -2864,6 +3729,15 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
     } else if (isInserting) {
       context.missing(_caseTypeMeta);
     }
+    if (data.containsKey('case_category_id')) {
+      context.handle(
+        _caseCategoryIdMeta,
+        caseCategoryId.isAcceptableOrUnknown(
+          data['case_category_id']!,
+          _caseCategoryIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('case_number')) {
       context.handle(
         _caseNumberMeta,
@@ -2871,6 +3745,42 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
       );
     } else if (isInserting) {
       context.missing(_caseNumberMeta);
+    }
+    if (data.containsKey('honorable_judges')) {
+      context.handle(
+        _honorableJudgesMeta,
+        honorableJudges.isAcceptableOrUnknown(
+          data['honorable_judges']!,
+          _honorableJudgesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tender_number')) {
+      context.handle(
+        _tenderNumberMeta,
+        tenderNumber.isAcceptableOrUnknown(
+          data['tender_number']!,
+          _tenderNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('previous_court_case')) {
+      context.handle(
+        _previousCourtCaseMeta,
+        previousCourtCase.isAcceptableOrUnknown(
+          data['previous_court_case']!,
+          _previousCourtCaseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('district_of_origin')) {
+      context.handle(
+        _districtOfOriginMeta,
+        districtOfOrigin.isAcceptableOrUnknown(
+          data['district_of_origin']!,
+          _districtOfOriginMeta,
+        ),
+      );
     }
     if (data.containsKey('petitioner')) {
       context.handle(
@@ -2962,6 +3872,12 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
         ),
       );
     }
+    if (data.containsKey('result')) {
+      context.handle(
+        _resultMeta,
+        result.isAcceptableOrUnknown(data['result']!, _resultMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -3034,10 +3950,30 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
         DriftSqlType.string,
         data['${effectivePrefix}case_type'],
       )!,
+      caseCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_category_id'],
+      ),
       caseNumber: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}case_number'],
       )!,
+      honorableJudges: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}honorable_judges'],
+      ),
+      tenderNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tender_number'],
+      ),
+      previousCourtCase: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}previous_court_case'],
+      ),
+      districtOfOrigin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}district_of_origin'],
+      ),
       petitioner: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}petitioner'],
@@ -3081,6 +4017,10 @@ class $CasesTable extends Cases with TableInfo<$CasesTable, Case> {
       notesResults: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes_results'],
+      ),
+      result: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result'],
       ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -3131,8 +4071,23 @@ class Case extends DataClass implements Insertable<Case> {
   /// Case type (e.g. "Criminal", "Civil").
   final String caseType;
 
+  /// AD/HCD case-category scope for the selected case type.
+  final String? caseCategoryId;
+
   /// Single text entity such as "110/2021".
   final String caseNumber;
+
+  /// AD/HCD judicial bench or judge names.
+  final String? honorableJudges;
+
+  /// Optional tender number; stored as text to preserve leading zeroes.
+  final String? tenderNumber;
+
+  /// Case number from the previous court.
+  final String? previousCourtCase;
+
+  /// District where the case originated.
+  final String? districtOfOrigin;
 
   /// Petitioner party label.
   final String petitioner;
@@ -3167,6 +4122,9 @@ class Case extends DataClass implements Insertable<Case> {
   /// Notes or results from the last date.
   final String? notesResults;
 
+  /// Separate result text used for AD/HCD disposal detection.
+  final String? result;
+
   /// Creation timestamp (epoch ms).
   final int createdAt;
   final int updatedAt;
@@ -3180,7 +4138,12 @@ class Case extends DataClass implements Insertable<Case> {
     this.firmId,
     required this.courtId,
     required this.caseType,
+    this.caseCategoryId,
     required this.caseNumber,
+    this.honorableJudges,
+    this.tenderNumber,
+    this.previousCourtCase,
+    this.districtOfOrigin,
     required this.petitioner,
     this.petitionerLeadCounsel,
     required this.respondent,
@@ -3192,6 +4155,7 @@ class Case extends DataClass implements Insertable<Case> {
     this.nextDate,
     this.lastStep,
     this.notesResults,
+    this.result,
     required this.createdAt,
     required this.updatedAt,
     this.version,
@@ -3209,7 +4173,22 @@ class Case extends DataClass implements Insertable<Case> {
     }
     map['court_id'] = Variable<String>(courtId);
     map['case_type'] = Variable<String>(caseType);
+    if (!nullToAbsent || caseCategoryId != null) {
+      map['case_category_id'] = Variable<String>(caseCategoryId);
+    }
     map['case_number'] = Variable<String>(caseNumber);
+    if (!nullToAbsent || honorableJudges != null) {
+      map['honorable_judges'] = Variable<String>(honorableJudges);
+    }
+    if (!nullToAbsent || tenderNumber != null) {
+      map['tender_number'] = Variable<String>(tenderNumber);
+    }
+    if (!nullToAbsent || previousCourtCase != null) {
+      map['previous_court_case'] = Variable<String>(previousCourtCase);
+    }
+    if (!nullToAbsent || districtOfOrigin != null) {
+      map['district_of_origin'] = Variable<String>(districtOfOrigin);
+    }
     map['petitioner'] = Variable<String>(petitioner);
     if (!nullToAbsent || petitionerLeadCounsel != null) {
       map['petitioner_lead_counsel'] = Variable<String>(petitionerLeadCounsel);
@@ -3237,6 +4216,9 @@ class Case extends DataClass implements Insertable<Case> {
     if (!nullToAbsent || notesResults != null) {
       map['notes_results'] = Variable<String>(notesResults);
     }
+    if (!nullToAbsent || result != null) {
+      map['result'] = Variable<String>(result);
+    }
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || version != null) {
@@ -3261,7 +4243,22 @@ class Case extends DataClass implements Insertable<Case> {
           : Value(firmId),
       courtId: Value(courtId),
       caseType: Value(caseType),
+      caseCategoryId: caseCategoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caseCategoryId),
       caseNumber: Value(caseNumber),
+      honorableJudges: honorableJudges == null && nullToAbsent
+          ? const Value.absent()
+          : Value(honorableJudges),
+      tenderNumber: tenderNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tenderNumber),
+      previousCourtCase: previousCourtCase == null && nullToAbsent
+          ? const Value.absent()
+          : Value(previousCourtCase),
+      districtOfOrigin: districtOfOrigin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(districtOfOrigin),
       petitioner: Value(petitioner),
       petitionerLeadCounsel: petitionerLeadCounsel == null && nullToAbsent
           ? const Value.absent()
@@ -3289,6 +4286,9 @@ class Case extends DataClass implements Insertable<Case> {
       notesResults: notesResults == null && nullToAbsent
           ? const Value.absent()
           : Value(notesResults),
+      result: result == null && nullToAbsent
+          ? const Value.absent()
+          : Value(result),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       version: version == null && nullToAbsent
@@ -3315,7 +4315,14 @@ class Case extends DataClass implements Insertable<Case> {
       firmId: serializer.fromJson<String?>(json['firmId']),
       courtId: serializer.fromJson<String>(json['courtId']),
       caseType: serializer.fromJson<String>(json['caseType']),
+      caseCategoryId: serializer.fromJson<String?>(json['caseCategoryId']),
       caseNumber: serializer.fromJson<String>(json['caseNumber']),
+      honorableJudges: serializer.fromJson<String?>(json['honorableJudges']),
+      tenderNumber: serializer.fromJson<String?>(json['tenderNumber']),
+      previousCourtCase: serializer.fromJson<String?>(
+        json['previousCourtCase'],
+      ),
+      districtOfOrigin: serializer.fromJson<String?>(json['districtOfOrigin']),
       petitioner: serializer.fromJson<String>(json['petitioner']),
       petitionerLeadCounsel: serializer.fromJson<String?>(
         json['petitionerLeadCounsel'],
@@ -3333,6 +4340,7 @@ class Case extends DataClass implements Insertable<Case> {
       nextDate: serializer.fromJson<int?>(json['nextDate']),
       lastStep: serializer.fromJson<String?>(json['lastStep']),
       notesResults: serializer.fromJson<String?>(json['notesResults']),
+      result: serializer.fromJson<String?>(json['result']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       version: serializer.fromJson<int?>(json['version']),
@@ -3350,7 +4358,12 @@ class Case extends DataClass implements Insertable<Case> {
       'firmId': serializer.toJson<String?>(firmId),
       'courtId': serializer.toJson<String>(courtId),
       'caseType': serializer.toJson<String>(caseType),
+      'caseCategoryId': serializer.toJson<String?>(caseCategoryId),
       'caseNumber': serializer.toJson<String>(caseNumber),
+      'honorableJudges': serializer.toJson<String?>(honorableJudges),
+      'tenderNumber': serializer.toJson<String?>(tenderNumber),
+      'previousCourtCase': serializer.toJson<String?>(previousCourtCase),
+      'districtOfOrigin': serializer.toJson<String?>(districtOfOrigin),
       'petitioner': serializer.toJson<String>(petitioner),
       'petitionerLeadCounsel': serializer.toJson<String?>(
         petitionerLeadCounsel,
@@ -3366,6 +4379,7 @@ class Case extends DataClass implements Insertable<Case> {
       'nextDate': serializer.toJson<int?>(nextDate),
       'lastStep': serializer.toJson<String?>(lastStep),
       'notesResults': serializer.toJson<String?>(notesResults),
+      'result': serializer.toJson<String?>(result),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'version': serializer.toJson<int?>(version),
@@ -3381,7 +4395,12 @@ class Case extends DataClass implements Insertable<Case> {
     Value<String?> firmId = const Value.absent(),
     String? courtId,
     String? caseType,
+    Value<String?> caseCategoryId = const Value.absent(),
     String? caseNumber,
+    Value<String?> honorableJudges = const Value.absent(),
+    Value<String?> tenderNumber = const Value.absent(),
+    Value<String?> previousCourtCase = const Value.absent(),
+    Value<String?> districtOfOrigin = const Value.absent(),
     String? petitioner,
     Value<String?> petitionerLeadCounsel = const Value.absent(),
     String? respondent,
@@ -3393,6 +4412,7 @@ class Case extends DataClass implements Insertable<Case> {
     Value<int?> nextDate = const Value.absent(),
     Value<String?> lastStep = const Value.absent(),
     Value<String?> notesResults = const Value.absent(),
+    Value<String?> result = const Value.absent(),
     int? createdAt,
     int? updatedAt,
     Value<int?> version = const Value.absent(),
@@ -3405,7 +4425,20 @@ class Case extends DataClass implements Insertable<Case> {
     firmId: firmId.present ? firmId.value : this.firmId,
     courtId: courtId ?? this.courtId,
     caseType: caseType ?? this.caseType,
+    caseCategoryId: caseCategoryId.present
+        ? caseCategoryId.value
+        : this.caseCategoryId,
     caseNumber: caseNumber ?? this.caseNumber,
+    honorableJudges: honorableJudges.present
+        ? honorableJudges.value
+        : this.honorableJudges,
+    tenderNumber: tenderNumber.present ? tenderNumber.value : this.tenderNumber,
+    previousCourtCase: previousCourtCase.present
+        ? previousCourtCase.value
+        : this.previousCourtCase,
+    districtOfOrigin: districtOfOrigin.present
+        ? districtOfOrigin.value
+        : this.districtOfOrigin,
     petitioner: petitioner ?? this.petitioner,
     petitionerLeadCounsel: petitionerLeadCounsel.present
         ? petitionerLeadCounsel.value
@@ -3423,6 +4456,7 @@ class Case extends DataClass implements Insertable<Case> {
     nextDate: nextDate.present ? nextDate.value : this.nextDate,
     lastStep: lastStep.present ? lastStep.value : this.lastStep,
     notesResults: notesResults.present ? notesResults.value : this.notesResults,
+    result: result.present ? result.value : this.result,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     version: version.present ? version.value : this.version,
@@ -3439,9 +4473,24 @@ class Case extends DataClass implements Insertable<Case> {
       firmId: data.firmId.present ? data.firmId.value : this.firmId,
       courtId: data.courtId.present ? data.courtId.value : this.courtId,
       caseType: data.caseType.present ? data.caseType.value : this.caseType,
+      caseCategoryId: data.caseCategoryId.present
+          ? data.caseCategoryId.value
+          : this.caseCategoryId,
       caseNumber: data.caseNumber.present
           ? data.caseNumber.value
           : this.caseNumber,
+      honorableJudges: data.honorableJudges.present
+          ? data.honorableJudges.value
+          : this.honorableJudges,
+      tenderNumber: data.tenderNumber.present
+          ? data.tenderNumber.value
+          : this.tenderNumber,
+      previousCourtCase: data.previousCourtCase.present
+          ? data.previousCourtCase.value
+          : this.previousCourtCase,
+      districtOfOrigin: data.districtOfOrigin.present
+          ? data.districtOfOrigin.value
+          : this.districtOfOrigin,
       petitioner: data.petitioner.present
           ? data.petitioner.value
           : this.petitioner,
@@ -3471,6 +4520,7 @@ class Case extends DataClass implements Insertable<Case> {
       notesResults: data.notesResults.present
           ? data.notesResults.value
           : this.notesResults,
+      result: data.result.present ? data.result.value : this.result,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       version: data.version.present ? data.version.value : this.version,
@@ -3490,7 +4540,12 @@ class Case extends DataClass implements Insertable<Case> {
           ..write('firmId: $firmId, ')
           ..write('courtId: $courtId, ')
           ..write('caseType: $caseType, ')
+          ..write('caseCategoryId: $caseCategoryId, ')
           ..write('caseNumber: $caseNumber, ')
+          ..write('honorableJudges: $honorableJudges, ')
+          ..write('tenderNumber: $tenderNumber, ')
+          ..write('previousCourtCase: $previousCourtCase, ')
+          ..write('districtOfOrigin: $districtOfOrigin, ')
           ..write('petitioner: $petitioner, ')
           ..write('petitionerLeadCounsel: $petitionerLeadCounsel, ')
           ..write('respondent: $respondent, ')
@@ -3502,6 +4557,7 @@ class Case extends DataClass implements Insertable<Case> {
           ..write('nextDate: $nextDate, ')
           ..write('lastStep: $lastStep, ')
           ..write('notesResults: $notesResults, ')
+          ..write('result: $result, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('version: $version, ')
@@ -3519,7 +4575,12 @@ class Case extends DataClass implements Insertable<Case> {
     firmId,
     courtId,
     caseType,
+    caseCategoryId,
     caseNumber,
+    honorableJudges,
+    tenderNumber,
+    previousCourtCase,
+    districtOfOrigin,
     petitioner,
     petitionerLeadCounsel,
     respondent,
@@ -3531,6 +4592,7 @@ class Case extends DataClass implements Insertable<Case> {
     nextDate,
     lastStep,
     notesResults,
+    result,
     createdAt,
     updatedAt,
     version,
@@ -3547,7 +4609,12 @@ class Case extends DataClass implements Insertable<Case> {
           other.firmId == this.firmId &&
           other.courtId == this.courtId &&
           other.caseType == this.caseType &&
+          other.caseCategoryId == this.caseCategoryId &&
           other.caseNumber == this.caseNumber &&
+          other.honorableJudges == this.honorableJudges &&
+          other.tenderNumber == this.tenderNumber &&
+          other.previousCourtCase == this.previousCourtCase &&
+          other.districtOfOrigin == this.districtOfOrigin &&
           other.petitioner == this.petitioner &&
           other.petitionerLeadCounsel == this.petitionerLeadCounsel &&
           other.respondent == this.respondent &&
@@ -3559,6 +4626,7 @@ class Case extends DataClass implements Insertable<Case> {
           other.nextDate == this.nextDate &&
           other.lastStep == this.lastStep &&
           other.notesResults == this.notesResults &&
+          other.result == this.result &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.version == this.version &&
@@ -3573,7 +4641,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
   final Value<String?> firmId;
   final Value<String> courtId;
   final Value<String> caseType;
+  final Value<String?> caseCategoryId;
   final Value<String> caseNumber;
+  final Value<String?> honorableJudges;
+  final Value<String?> tenderNumber;
+  final Value<String?> previousCourtCase;
+  final Value<String?> districtOfOrigin;
   final Value<String> petitioner;
   final Value<String?> petitionerLeadCounsel;
   final Value<String> respondent;
@@ -3585,6 +4658,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
   final Value<int?> nextDate;
   final Value<String?> lastStep;
   final Value<String?> notesResults;
+  final Value<String?> result;
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<int?> version;
@@ -3598,7 +4672,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
     this.firmId = const Value.absent(),
     this.courtId = const Value.absent(),
     this.caseType = const Value.absent(),
+    this.caseCategoryId = const Value.absent(),
     this.caseNumber = const Value.absent(),
+    this.honorableJudges = const Value.absent(),
+    this.tenderNumber = const Value.absent(),
+    this.previousCourtCase = const Value.absent(),
+    this.districtOfOrigin = const Value.absent(),
     this.petitioner = const Value.absent(),
     this.petitionerLeadCounsel = const Value.absent(),
     this.respondent = const Value.absent(),
@@ -3610,6 +4689,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     this.nextDate = const Value.absent(),
     this.lastStep = const Value.absent(),
     this.notesResults = const Value.absent(),
+    this.result = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.version = const Value.absent(),
@@ -3624,7 +4704,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
     this.firmId = const Value.absent(),
     required String courtId,
     required String caseType,
+    this.caseCategoryId = const Value.absent(),
     required String caseNumber,
+    this.honorableJudges = const Value.absent(),
+    this.tenderNumber = const Value.absent(),
+    this.previousCourtCase = const Value.absent(),
+    this.districtOfOrigin = const Value.absent(),
     required String petitioner,
     this.petitionerLeadCounsel = const Value.absent(),
     required String respondent,
@@ -3636,6 +4721,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     this.nextDate = const Value.absent(),
     this.lastStep = const Value.absent(),
     this.notesResults = const Value.absent(),
+    this.result = const Value.absent(),
     required int createdAt,
     required int updatedAt,
     this.version = const Value.absent(),
@@ -3659,7 +4745,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Expression<String>? firmId,
     Expression<String>? courtId,
     Expression<String>? caseType,
+    Expression<String>? caseCategoryId,
     Expression<String>? caseNumber,
+    Expression<String>? honorableJudges,
+    Expression<String>? tenderNumber,
+    Expression<String>? previousCourtCase,
+    Expression<String>? districtOfOrigin,
     Expression<String>? petitioner,
     Expression<String>? petitionerLeadCounsel,
     Expression<String>? respondent,
@@ -3671,6 +4762,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Expression<int>? nextDate,
     Expression<String>? lastStep,
     Expression<String>? notesResults,
+    Expression<String>? result,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? version,
@@ -3685,7 +4777,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
       if (firmId != null) 'firm_id': firmId,
       if (courtId != null) 'court_id': courtId,
       if (caseType != null) 'case_type': caseType,
+      if (caseCategoryId != null) 'case_category_id': caseCategoryId,
       if (caseNumber != null) 'case_number': caseNumber,
+      if (honorableJudges != null) 'honorable_judges': honorableJudges,
+      if (tenderNumber != null) 'tender_number': tenderNumber,
+      if (previousCourtCase != null) 'previous_court_case': previousCourtCase,
+      if (districtOfOrigin != null) 'district_of_origin': districtOfOrigin,
       if (petitioner != null) 'petitioner': petitioner,
       if (petitionerLeadCounsel != null)
         'petitioner_lead_counsel': petitionerLeadCounsel,
@@ -3700,6 +4797,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
       if (nextDate != null) 'next_date': nextDate,
       if (lastStep != null) 'last_step': lastStep,
       if (notesResults != null) 'notes_results': notesResults,
+      if (result != null) 'result': result,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (version != null) 'version': version,
@@ -3716,7 +4814,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Value<String?>? firmId,
     Value<String>? courtId,
     Value<String>? caseType,
+    Value<String?>? caseCategoryId,
     Value<String>? caseNumber,
+    Value<String?>? honorableJudges,
+    Value<String?>? tenderNumber,
+    Value<String?>? previousCourtCase,
+    Value<String?>? districtOfOrigin,
     Value<String>? petitioner,
     Value<String?>? petitionerLeadCounsel,
     Value<String>? respondent,
@@ -3728,6 +4831,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
     Value<int?>? nextDate,
     Value<String?>? lastStep,
     Value<String?>? notesResults,
+    Value<String?>? result,
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<int?>? version,
@@ -3742,7 +4846,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
       firmId: firmId ?? this.firmId,
       courtId: courtId ?? this.courtId,
       caseType: caseType ?? this.caseType,
+      caseCategoryId: caseCategoryId ?? this.caseCategoryId,
       caseNumber: caseNumber ?? this.caseNumber,
+      honorableJudges: honorableJudges ?? this.honorableJudges,
+      tenderNumber: tenderNumber ?? this.tenderNumber,
+      previousCourtCase: previousCourtCase ?? this.previousCourtCase,
+      districtOfOrigin: districtOfOrigin ?? this.districtOfOrigin,
       petitioner: petitioner ?? this.petitioner,
       petitionerLeadCounsel:
           petitionerLeadCounsel ?? this.petitionerLeadCounsel,
@@ -3756,6 +4865,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
       nextDate: nextDate ?? this.nextDate,
       lastStep: lastStep ?? this.lastStep,
       notesResults: notesResults ?? this.notesResults,
+      result: result ?? this.result,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       version: version ?? this.version,
@@ -3784,8 +4894,23 @@ class CasesCompanion extends UpdateCompanion<Case> {
     if (caseType.present) {
       map['case_type'] = Variable<String>(caseType.value);
     }
+    if (caseCategoryId.present) {
+      map['case_category_id'] = Variable<String>(caseCategoryId.value);
+    }
     if (caseNumber.present) {
       map['case_number'] = Variable<String>(caseNumber.value);
+    }
+    if (honorableJudges.present) {
+      map['honorable_judges'] = Variable<String>(honorableJudges.value);
+    }
+    if (tenderNumber.present) {
+      map['tender_number'] = Variable<String>(tenderNumber.value);
+    }
+    if (previousCourtCase.present) {
+      map['previous_court_case'] = Variable<String>(previousCourtCase.value);
+    }
+    if (districtOfOrigin.present) {
+      map['district_of_origin'] = Variable<String>(districtOfOrigin.value);
     }
     if (petitioner.present) {
       map['petitioner'] = Variable<String>(petitioner.value);
@@ -3826,6 +4951,9 @@ class CasesCompanion extends UpdateCompanion<Case> {
     if (notesResults.present) {
       map['notes_results'] = Variable<String>(notesResults.value);
     }
+    if (result.present) {
+      map['result'] = Variable<String>(result.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -3858,7 +4986,12 @@ class CasesCompanion extends UpdateCompanion<Case> {
           ..write('firmId: $firmId, ')
           ..write('courtId: $courtId, ')
           ..write('caseType: $caseType, ')
+          ..write('caseCategoryId: $caseCategoryId, ')
           ..write('caseNumber: $caseNumber, ')
+          ..write('honorableJudges: $honorableJudges, ')
+          ..write('tenderNumber: $tenderNumber, ')
+          ..write('previousCourtCase: $previousCourtCase, ')
+          ..write('districtOfOrigin: $districtOfOrigin, ')
           ..write('petitioner: $petitioner, ')
           ..write('petitionerLeadCounsel: $petitionerLeadCounsel, ')
           ..write('respondent: $respondent, ')
@@ -3870,6 +5003,7 @@ class CasesCompanion extends UpdateCompanion<Case> {
           ..write('nextDate: $nextDate, ')
           ..write('lastStep: $lastStep, ')
           ..write('notesResults: $notesResults, ')
+          ..write('result: $result, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('version: $version, ')
@@ -4873,797 +6007,6 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
           ..write('sourceMutationId: $sourceMutationId, ')
           ..write('baseCaseVersion: $baseCaseVersion, ')
           ..write('resultCaseVersion: $resultCaseVersion, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('version: $version, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModifiedBy: $lastModifiedBy, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $CaseCategoriesTable extends CaseCategories
-    with TableInfo<$CaseCategoriesTable, CaseCategory> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $CaseCategoriesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _courtCategoryIdMeta = const VerificationMeta(
-    'courtCategoryId',
-  );
-  @override
-  late final GeneratedColumn<String> courtCategoryId = GeneratedColumn<String>(
-    'court_category_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES court_categories (id)',
-    ),
-  );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
-    'orderIndex',
-  );
-  @override
-  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
-    'order_index',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isCustomMeta = const VerificationMeta(
-    'isCustom',
-  );
-  @override
-  late final GeneratedColumn<bool> isCustom = GeneratedColumn<bool>(
-    'is_custom',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_custom" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _isUserModifiedMeta = const VerificationMeta(
-    'isUserModified',
-  );
-  @override
-  late final GeneratedColumn<bool> isUserModified = GeneratedColumn<bool>(
-    'is_user_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_user_modified" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _firmIdMeta = const VerificationMeta('firmId');
-  @override
-  late final GeneratedColumn<String> firmId = GeneratedColumn<String>(
-    'firm_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _versionMeta = const VerificationMeta(
-    'version',
-  );
-  @override
-  late final GeneratedColumn<int> version = GeneratedColumn<int>(
-    'version',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
-    'syncedAt',
-  );
-  @override
-  late final GeneratedColumn<int> syncedAt = GeneratedColumn<int>(
-    'synced_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_deleted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _lastModifiedByMeta = const VerificationMeta(
-    'lastModifiedBy',
-  );
-  @override
-  late final GeneratedColumn<String> lastModifiedBy = GeneratedColumn<String>(
-    'last_modified_by',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    courtCategoryId,
-    name,
-    orderIndex,
-    isCustom,
-    isUserModified,
-    userId,
-    firmId,
-    updatedAt,
-    version,
-    syncedAt,
-    isDeleted,
-    lastModifiedBy,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'case_categories';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<CaseCategory> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('court_category_id')) {
-      context.handle(
-        _courtCategoryIdMeta,
-        courtCategoryId.isAcceptableOrUnknown(
-          data['court_category_id']!,
-          _courtCategoryIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_courtCategoryIdMeta);
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('order_index')) {
-      context.handle(
-        _orderIndexMeta,
-        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_orderIndexMeta);
-    }
-    if (data.containsKey('is_custom')) {
-      context.handle(
-        _isCustomMeta,
-        isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
-      );
-    }
-    if (data.containsKey('is_user_modified')) {
-      context.handle(
-        _isUserModifiedMeta,
-        isUserModified.isAcceptableOrUnknown(
-          data['is_user_modified']!,
-          _isUserModifiedMeta,
-        ),
-      );
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    }
-    if (data.containsKey('firm_id')) {
-      context.handle(
-        _firmIdMeta,
-        firmId.isAcceptableOrUnknown(data['firm_id']!, _firmIdMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('version')) {
-      context.handle(
-        _versionMeta,
-        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
-      );
-    }
-    if (data.containsKey('synced_at')) {
-      context.handle(
-        _syncedAtMeta,
-        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
-      );
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('last_modified_by')) {
-      context.handle(
-        _lastModifiedByMeta,
-        lastModifiedBy.isAcceptableOrUnknown(
-          data['last_modified_by']!,
-          _lastModifiedByMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  CaseCategory map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return CaseCategory(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      courtCategoryId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}court_category_id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      orderIndex: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}order_index'],
-      )!,
-      isCustom: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_custom'],
-      )!,
-      isUserModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_user_modified'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
-      ),
-      firmId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}firm_id'],
-      ),
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}updated_at'],
-      )!,
-      version: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}version'],
-      ),
-      syncedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}synced_at'],
-      ),
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      lastModifiedBy: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}last_modified_by'],
-      ),
-    );
-  }
-
-  @override
-  $CaseCategoriesTable createAlias(String alias) {
-    return $CaseCategoriesTable(attachedDatabase, alias);
-  }
-}
-
-class CaseCategory extends DataClass implements Insertable<CaseCategory> {
-  /// Stable deterministic seed ID or UUID for a custom row.
-  final String id;
-
-  /// Canonical court category that owns this case category.
-  final String courtCategoryId;
-
-  /// English seed/custom display name.
-  final String name;
-
-  /// Display order within the court category.
-  final int orderIndex;
-
-  /// Built-in versus user-created case category.
-  final bool isCustom;
-
-  /// Whether the user/firm has modified a built-in row.
-  final bool isUserModified;
-
-  /// Creator for custom individual categories; null for built-ins.
-  final String? userId;
-
-  /// Firm scope for custom firm categories; null for built-ins/individuals.
-  final String? firmId;
-  final int updatedAt;
-  final int? version;
-  final int? syncedAt;
-  final bool isDeleted;
-  final String? lastModifiedBy;
-  const CaseCategory({
-    required this.id,
-    required this.courtCategoryId,
-    required this.name,
-    required this.orderIndex,
-    required this.isCustom,
-    required this.isUserModified,
-    this.userId,
-    this.firmId,
-    required this.updatedAt,
-    this.version,
-    this.syncedAt,
-    required this.isDeleted,
-    this.lastModifiedBy,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['court_category_id'] = Variable<String>(courtCategoryId);
-    map['name'] = Variable<String>(name);
-    map['order_index'] = Variable<int>(orderIndex);
-    map['is_custom'] = Variable<bool>(isCustom);
-    map['is_user_modified'] = Variable<bool>(isUserModified);
-    if (!nullToAbsent || userId != null) {
-      map['user_id'] = Variable<String>(userId);
-    }
-    if (!nullToAbsent || firmId != null) {
-      map['firm_id'] = Variable<String>(firmId);
-    }
-    map['updated_at'] = Variable<int>(updatedAt);
-    if (!nullToAbsent || version != null) {
-      map['version'] = Variable<int>(version);
-    }
-    if (!nullToAbsent || syncedAt != null) {
-      map['synced_at'] = Variable<int>(syncedAt);
-    }
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    if (!nullToAbsent || lastModifiedBy != null) {
-      map['last_modified_by'] = Variable<String>(lastModifiedBy);
-    }
-    return map;
-  }
-
-  CaseCategoriesCompanion toCompanion(bool nullToAbsent) {
-    return CaseCategoriesCompanion(
-      id: Value(id),
-      courtCategoryId: Value(courtCategoryId),
-      name: Value(name),
-      orderIndex: Value(orderIndex),
-      isCustom: Value(isCustom),
-      isUserModified: Value(isUserModified),
-      userId: userId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(userId),
-      firmId: firmId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(firmId),
-      updatedAt: Value(updatedAt),
-      version: version == null && nullToAbsent
-          ? const Value.absent()
-          : Value(version),
-      syncedAt: syncedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syncedAt),
-      isDeleted: Value(isDeleted),
-      lastModifiedBy: lastModifiedBy == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastModifiedBy),
-    );
-  }
-
-  factory CaseCategory.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return CaseCategory(
-      id: serializer.fromJson<String>(json['id']),
-      courtCategoryId: serializer.fromJson<String>(json['courtCategoryId']),
-      name: serializer.fromJson<String>(json['name']),
-      orderIndex: serializer.fromJson<int>(json['orderIndex']),
-      isCustom: serializer.fromJson<bool>(json['isCustom']),
-      isUserModified: serializer.fromJson<bool>(json['isUserModified']),
-      userId: serializer.fromJson<String?>(json['userId']),
-      firmId: serializer.fromJson<String?>(json['firmId']),
-      updatedAt: serializer.fromJson<int>(json['updatedAt']),
-      version: serializer.fromJson<int?>(json['version']),
-      syncedAt: serializer.fromJson<int?>(json['syncedAt']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      lastModifiedBy: serializer.fromJson<String?>(json['lastModifiedBy']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'courtCategoryId': serializer.toJson<String>(courtCategoryId),
-      'name': serializer.toJson<String>(name),
-      'orderIndex': serializer.toJson<int>(orderIndex),
-      'isCustom': serializer.toJson<bool>(isCustom),
-      'isUserModified': serializer.toJson<bool>(isUserModified),
-      'userId': serializer.toJson<String?>(userId),
-      'firmId': serializer.toJson<String?>(firmId),
-      'updatedAt': serializer.toJson<int>(updatedAt),
-      'version': serializer.toJson<int?>(version),
-      'syncedAt': serializer.toJson<int?>(syncedAt),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'lastModifiedBy': serializer.toJson<String?>(lastModifiedBy),
-    };
-  }
-
-  CaseCategory copyWith({
-    String? id,
-    String? courtCategoryId,
-    String? name,
-    int? orderIndex,
-    bool? isCustom,
-    bool? isUserModified,
-    Value<String?> userId = const Value.absent(),
-    Value<String?> firmId = const Value.absent(),
-    int? updatedAt,
-    Value<int?> version = const Value.absent(),
-    Value<int?> syncedAt = const Value.absent(),
-    bool? isDeleted,
-    Value<String?> lastModifiedBy = const Value.absent(),
-  }) => CaseCategory(
-    id: id ?? this.id,
-    courtCategoryId: courtCategoryId ?? this.courtCategoryId,
-    name: name ?? this.name,
-    orderIndex: orderIndex ?? this.orderIndex,
-    isCustom: isCustom ?? this.isCustom,
-    isUserModified: isUserModified ?? this.isUserModified,
-    userId: userId.present ? userId.value : this.userId,
-    firmId: firmId.present ? firmId.value : this.firmId,
-    updatedAt: updatedAt ?? this.updatedAt,
-    version: version.present ? version.value : this.version,
-    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
-    isDeleted: isDeleted ?? this.isDeleted,
-    lastModifiedBy: lastModifiedBy.present
-        ? lastModifiedBy.value
-        : this.lastModifiedBy,
-  );
-  CaseCategory copyWithCompanion(CaseCategoriesCompanion data) {
-    return CaseCategory(
-      id: data.id.present ? data.id.value : this.id,
-      courtCategoryId: data.courtCategoryId.present
-          ? data.courtCategoryId.value
-          : this.courtCategoryId,
-      name: data.name.present ? data.name.value : this.name,
-      orderIndex: data.orderIndex.present
-          ? data.orderIndex.value
-          : this.orderIndex,
-      isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
-      isUserModified: data.isUserModified.present
-          ? data.isUserModified.value
-          : this.isUserModified,
-      userId: data.userId.present ? data.userId.value : this.userId,
-      firmId: data.firmId.present ? data.firmId.value : this.firmId,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      version: data.version.present ? data.version.value : this.version,
-      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      lastModifiedBy: data.lastModifiedBy.present
-          ? data.lastModifiedBy.value
-          : this.lastModifiedBy,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('CaseCategory(')
-          ..write('id: $id, ')
-          ..write('courtCategoryId: $courtCategoryId, ')
-          ..write('name: $name, ')
-          ..write('orderIndex: $orderIndex, ')
-          ..write('isCustom: $isCustom, ')
-          ..write('isUserModified: $isUserModified, ')
-          ..write('userId: $userId, ')
-          ..write('firmId: $firmId, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('version: $version, ')
-          ..write('syncedAt: $syncedAt, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModifiedBy: $lastModifiedBy')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    courtCategoryId,
-    name,
-    orderIndex,
-    isCustom,
-    isUserModified,
-    userId,
-    firmId,
-    updatedAt,
-    version,
-    syncedAt,
-    isDeleted,
-    lastModifiedBy,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is CaseCategory &&
-          other.id == this.id &&
-          other.courtCategoryId == this.courtCategoryId &&
-          other.name == this.name &&
-          other.orderIndex == this.orderIndex &&
-          other.isCustom == this.isCustom &&
-          other.isUserModified == this.isUserModified &&
-          other.userId == this.userId &&
-          other.firmId == this.firmId &&
-          other.updatedAt == this.updatedAt &&
-          other.version == this.version &&
-          other.syncedAt == this.syncedAt &&
-          other.isDeleted == this.isDeleted &&
-          other.lastModifiedBy == this.lastModifiedBy);
-}
-
-class CaseCategoriesCompanion extends UpdateCompanion<CaseCategory> {
-  final Value<String> id;
-  final Value<String> courtCategoryId;
-  final Value<String> name;
-  final Value<int> orderIndex;
-  final Value<bool> isCustom;
-  final Value<bool> isUserModified;
-  final Value<String?> userId;
-  final Value<String?> firmId;
-  final Value<int> updatedAt;
-  final Value<int?> version;
-  final Value<int?> syncedAt;
-  final Value<bool> isDeleted;
-  final Value<String?> lastModifiedBy;
-  final Value<int> rowid;
-  const CaseCategoriesCompanion({
-    this.id = const Value.absent(),
-    this.courtCategoryId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.orderIndex = const Value.absent(),
-    this.isCustom = const Value.absent(),
-    this.isUserModified = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.firmId = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.version = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModifiedBy = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  CaseCategoriesCompanion.insert({
-    required String id,
-    required String courtCategoryId,
-    required String name,
-    required int orderIndex,
-    this.isCustom = const Value.absent(),
-    this.isUserModified = const Value.absent(),
-    this.userId = const Value.absent(),
-    this.firmId = const Value.absent(),
-    required int updatedAt,
-    this.version = const Value.absent(),
-    this.syncedAt = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModifiedBy = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       courtCategoryId = Value(courtCategoryId),
-       name = Value(name),
-       orderIndex = Value(orderIndex),
-       updatedAt = Value(updatedAt);
-  static Insertable<CaseCategory> custom({
-    Expression<String>? id,
-    Expression<String>? courtCategoryId,
-    Expression<String>? name,
-    Expression<int>? orderIndex,
-    Expression<bool>? isCustom,
-    Expression<bool>? isUserModified,
-    Expression<String>? userId,
-    Expression<String>? firmId,
-    Expression<int>? updatedAt,
-    Expression<int>? version,
-    Expression<int>? syncedAt,
-    Expression<bool>? isDeleted,
-    Expression<String>? lastModifiedBy,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (courtCategoryId != null) 'court_category_id': courtCategoryId,
-      if (name != null) 'name': name,
-      if (orderIndex != null) 'order_index': orderIndex,
-      if (isCustom != null) 'is_custom': isCustom,
-      if (isUserModified != null) 'is_user_modified': isUserModified,
-      if (userId != null) 'user_id': userId,
-      if (firmId != null) 'firm_id': firmId,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (version != null) 'version': version,
-      if (syncedAt != null) 'synced_at': syncedAt,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (lastModifiedBy != null) 'last_modified_by': lastModifiedBy,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  CaseCategoriesCompanion copyWith({
-    Value<String>? id,
-    Value<String>? courtCategoryId,
-    Value<String>? name,
-    Value<int>? orderIndex,
-    Value<bool>? isCustom,
-    Value<bool>? isUserModified,
-    Value<String?>? userId,
-    Value<String?>? firmId,
-    Value<int>? updatedAt,
-    Value<int?>? version,
-    Value<int?>? syncedAt,
-    Value<bool>? isDeleted,
-    Value<String?>? lastModifiedBy,
-    Value<int>? rowid,
-  }) {
-    return CaseCategoriesCompanion(
-      id: id ?? this.id,
-      courtCategoryId: courtCategoryId ?? this.courtCategoryId,
-      name: name ?? this.name,
-      orderIndex: orderIndex ?? this.orderIndex,
-      isCustom: isCustom ?? this.isCustom,
-      isUserModified: isUserModified ?? this.isUserModified,
-      userId: userId ?? this.userId,
-      firmId: firmId ?? this.firmId,
-      updatedAt: updatedAt ?? this.updatedAt,
-      version: version ?? this.version,
-      syncedAt: syncedAt ?? this.syncedAt,
-      isDeleted: isDeleted ?? this.isDeleted,
-      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (courtCategoryId.present) {
-      map['court_category_id'] = Variable<String>(courtCategoryId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (orderIndex.present) {
-      map['order_index'] = Variable<int>(orderIndex.value);
-    }
-    if (isCustom.present) {
-      map['is_custom'] = Variable<bool>(isCustom.value);
-    }
-    if (isUserModified.present) {
-      map['is_user_modified'] = Variable<bool>(isUserModified.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
-    }
-    if (firmId.present) {
-      map['firm_id'] = Variable<String>(firmId.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<int>(updatedAt.value);
-    }
-    if (version.present) {
-      map['version'] = Variable<int>(version.value);
-    }
-    if (syncedAt.present) {
-      map['synced_at'] = Variable<int>(syncedAt.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (lastModifiedBy.present) {
-      map['last_modified_by'] = Variable<String>(lastModifiedBy.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('CaseCategoriesCompanion(')
-          ..write('id: $id, ')
-          ..write('courtCategoryId: $courtCategoryId, ')
-          ..write('name: $name, ')
-          ..write('orderIndex: $orderIndex, ')
-          ..write('isCustom: $isCustom, ')
-          ..write('isUserModified: $isUserModified, ')
-          ..write('userId: $userId, ')
-          ..write('firmId: $firmId, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('version: $version, ')
           ..write('syncedAt: $syncedAt, ')
@@ -6850,7 +7193,8 @@ class CaseType extends DataClass implements Insertable<CaseType> {
   /// Court category this case type belongs to.
   final String courtCategoryId;
 
-  /// Optional until lower-court case-category seed data is completed.
+  /// Non-null only for AD/HCD types; lower-court types remain scoped by
+  /// [courtCategoryId] alone.
   final String? caseCategoryId;
 
   /// Display name of the case type.
@@ -14959,10 +15303,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $CourtsTable courts = $CourtsTable(this);
+  late final $CaseCategoriesTable caseCategories = $CaseCategoriesTable(this);
   late final $OnBehalfsTable onBehalfs = $OnBehalfsTable(this);
   late final $CasesTable cases = $CasesTable(this);
   late final $CaseHistoryTable caseHistory = $CaseHistoryTable(this);
-  late final $CaseCategoriesTable caseCategories = $CaseCategoriesTable(this);
   late final $StepsTable steps = $StepsTable(this);
   late final $CaseTypesTable caseTypes = $CaseTypesTable(this);
   late final $NotesTable notes = $NotesTable(this);
@@ -14987,10 +15331,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     courtCategories,
     courts,
+    caseCategories,
     onBehalfs,
     cases,
     caseHistory,
-    caseCategories,
     steps,
     caseTypes,
     notes,
@@ -15070,23 +15414,6 @@ final class $$CourtCategoriesTableReferences
     );
   }
 
-  static MultiTypedResultKey<$OnBehalfsTable, List<OnBehalf>>
-  _onBehalfsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.onBehalfs,
-    aliasName: 'court_categories__id__on_behalfs__court_category_id',
-  );
-
-  $$OnBehalfsTableProcessedTableManager get onBehalfsRefs {
-    final manager = $$OnBehalfsTableTableManager($_db, $_db.onBehalfs).filter(
-      (f) => f.courtCategoryId.id.sqlEquals($_itemColumn<String>('id')!),
-    );
-
-    final cache = $_typedResult.readTableOrNull(_onBehalfsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$CaseCategoriesTable, List<CaseCategory>>
   _caseCategoriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.caseCategories,
@@ -15100,6 +15427,23 @@ final class $$CourtCategoriesTableReferences
         );
 
     final cache = $_typedResult.readTableOrNull(_caseCategoriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$OnBehalfsTable, List<OnBehalf>>
+  _onBehalfsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.onBehalfs,
+    aliasName: 'court_categories__id__on_behalfs__court_category_id',
+  );
+
+  $$OnBehalfsTableProcessedTableManager get onBehalfsRefs {
+    final manager = $$OnBehalfsTableTableManager($_db, $_db.onBehalfs).filter(
+      (f) => f.courtCategoryId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_onBehalfsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -15240,31 +15584,6 @@ class $$CourtCategoriesTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> onBehalfsRefs(
-    Expression<bool> Function($$OnBehalfsTableFilterComposer f) f,
-  ) {
-    final $$OnBehalfsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.onBehalfs,
-      getReferencedColumn: (t) => t.courtCategoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$OnBehalfsTableFilterComposer(
-            $db: $db,
-            $table: $db.onBehalfs,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<bool> caseCategoriesRefs(
     Expression<bool> Function($$CaseCategoriesTableFilterComposer f) f,
   ) {
@@ -15281,6 +15600,31 @@ class $$CourtCategoriesTableFilterComposer
           }) => $$CaseCategoriesTableFilterComposer(
             $db: $db,
             $table: $db.caseCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> onBehalfsRefs(
+    Expression<bool> Function($$OnBehalfsTableFilterComposer f) f,
+  ) {
+    final $$OnBehalfsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.onBehalfs,
+      getReferencedColumn: (t) => t.courtCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OnBehalfsTableFilterComposer(
+            $db: $db,
+            $table: $db.onBehalfs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15497,31 +15841,6 @@ class $$CourtCategoriesTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> onBehalfsRefs<T extends Object>(
-    Expression<T> Function($$OnBehalfsTableAnnotationComposer a) f,
-  ) {
-    final $$OnBehalfsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.onBehalfs,
-      getReferencedColumn: (t) => t.courtCategoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$OnBehalfsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.onBehalfs,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> caseCategoriesRefs<T extends Object>(
     Expression<T> Function($$CaseCategoriesTableAnnotationComposer a) f,
   ) {
@@ -15538,6 +15857,31 @@ class $$CourtCategoriesTableAnnotationComposer
           }) => $$CaseCategoriesTableAnnotationComposer(
             $db: $db,
             $table: $db.caseCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> onBehalfsRefs<T extends Object>(
+    Expression<T> Function($$OnBehalfsTableAnnotationComposer a) f,
+  ) {
+    final $$OnBehalfsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.onBehalfs,
+      getReferencedColumn: (t) => t.courtCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OnBehalfsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.onBehalfs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15613,8 +15957,8 @@ class $$CourtCategoriesTableTableManager
           CourtCategory,
           PrefetchHooks Function({
             bool courtsRefs,
-            bool onBehalfsRefs,
             bool caseCategoriesRefs,
+            bool onBehalfsRefs,
             bool stepsRefs,
             bool caseTypesRefs,
           })
@@ -15707,8 +16051,8 @@ class $$CourtCategoriesTableTableManager
           prefetchHooksCallback:
               ({
                 courtsRefs = false,
-                onBehalfsRefs = false,
                 caseCategoriesRefs = false,
+                onBehalfsRefs = false,
                 stepsRefs = false,
                 caseTypesRefs = false,
               }) {
@@ -15716,8 +16060,8 @@ class $$CourtCategoriesTableTableManager
                   db: db,
                   explicitlyWatchedTables: [
                     if (courtsRefs) db.courts,
-                    if (onBehalfsRefs) db.onBehalfs,
                     if (caseCategoriesRefs) db.caseCategories,
+                    if (onBehalfsRefs) db.onBehalfs,
                     if (stepsRefs) db.steps,
                     if (caseTypesRefs) db.caseTypes,
                   ],
@@ -15745,27 +16089,6 @@ class $$CourtCategoriesTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (onBehalfsRefs)
-                        await $_getPrefetchedData<
-                          CourtCategory,
-                          $CourtCategoriesTable,
-                          OnBehalf
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CourtCategoriesTableReferences
-                              ._onBehalfsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CourtCategoriesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).onBehalfsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courtCategoryId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
                       if (caseCategoriesRefs)
                         await $_getPrefetchedData<
                           CourtCategory,
@@ -15781,6 +16104,27 @@ class $$CourtCategoriesTableTableManager
                                 table,
                                 p0,
                               ).caseCategoriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.courtCategoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (onBehalfsRefs)
+                        await $_getPrefetchedData<
+                          CourtCategory,
+                          $CourtCategoriesTable,
+                          OnBehalf
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CourtCategoriesTableReferences
+                              ._onBehalfsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CourtCategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).onBehalfsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.courtCategoryId == item.id,
@@ -15851,8 +16195,8 @@ typedef $$CourtCategoriesTableProcessedTableManager =
       CourtCategory,
       PrefetchHooks Function({
         bool courtsRefs,
-        bool onBehalfsRefs,
         bool caseCategoriesRefs,
+        bool onBehalfsRefs,
         bool stepsRefs,
         bool caseTypesRefs,
       })
@@ -16474,6 +16818,686 @@ typedef $$CourtsTableProcessedTableManager =
       Court,
       PrefetchHooks Function({bool courtCategoryId, bool casesRefs})
     >;
+typedef $$CaseCategoriesTableCreateCompanionBuilder =
+    CaseCategoriesCompanion Function({
+      required String id,
+      required String courtCategoryId,
+      required String name,
+      required int orderIndex,
+      Value<bool> isCustom,
+      Value<bool> isUserModified,
+      Value<String?> userId,
+      Value<String?> firmId,
+      required int updatedAt,
+      Value<int?> version,
+      Value<int?> syncedAt,
+      Value<bool> isDeleted,
+      Value<String?> lastModifiedBy,
+      Value<int> rowid,
+    });
+typedef $$CaseCategoriesTableUpdateCompanionBuilder =
+    CaseCategoriesCompanion Function({
+      Value<String> id,
+      Value<String> courtCategoryId,
+      Value<String> name,
+      Value<int> orderIndex,
+      Value<bool> isCustom,
+      Value<bool> isUserModified,
+      Value<String?> userId,
+      Value<String?> firmId,
+      Value<int> updatedAt,
+      Value<int?> version,
+      Value<int?> syncedAt,
+      Value<bool> isDeleted,
+      Value<String?> lastModifiedBy,
+      Value<int> rowid,
+    });
+
+final class $$CaseCategoriesTableReferences
+    extends BaseReferences<_$AppDatabase, $CaseCategoriesTable, CaseCategory> {
+  $$CaseCategoriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CourtCategoriesTable _courtCategoryIdTable(_$AppDatabase db) => db
+      .courtCategories
+      .createAlias('case_categories__court_category_id__court_categories__id');
+
+  $$CourtCategoriesTableProcessedTableManager get courtCategoryId {
+    final $_column = $_itemColumn<String>('court_category_id')!;
+
+    final manager = $$CourtCategoriesTableTableManager(
+      $_db,
+      $_db.courtCategories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_courtCategoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$CasesTable, List<Case>> _casesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.cases,
+    aliasName: 'case_categories__id__cases__case_category_id',
+  );
+
+  $$CasesTableProcessedTableManager get casesRefs {
+    final manager = $$CasesTableTableManager(
+      $_db,
+      $_db.cases,
+    ).filter((f) => f.caseCategoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_casesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CaseTypesTable, List<CaseType>>
+  _caseTypesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.caseTypes,
+    aliasName: 'case_categories__id__case_types__case_category_id',
+  );
+
+  $$CaseTypesTableProcessedTableManager get caseTypesRefs {
+    final manager = $$CaseTypesTableTableManager(
+      $_db,
+      $_db.caseTypes,
+    ).filter((f) => f.caseCategoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_caseTypesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CaseCategoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
+  $$CaseCategoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CourtCategoriesTableFilterComposer get courtCategoryId {
+    final $$CourtCategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courtCategoryId,
+      referencedTable: $db.courtCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourtCategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.courtCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> casesRefs(
+    Expression<bool> Function($$CasesTableFilterComposer f) f,
+  ) {
+    final $$CasesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.cases,
+      getReferencedColumn: (t) => t.caseCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CasesTableFilterComposer(
+            $db: $db,
+            $table: $db.cases,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> caseTypesRefs(
+    Expression<bool> Function($$CaseTypesTableFilterComposer f) f,
+  ) {
+    final $$CaseTypesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.caseTypes,
+      getReferencedColumn: (t) => t.caseCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CaseTypesTableFilterComposer(
+            $db: $db,
+            $table: $db.caseTypes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CaseCategoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
+  $$CaseCategoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CourtCategoriesTableOrderingComposer get courtCategoryId {
+    final $$CourtCategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courtCategoryId,
+      referencedTable: $db.courtCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourtCategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.courtCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CaseCategoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
+  $$CaseCategoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCustom =>
+      $composableBuilder(column: $table.isCustom, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get firmId =>
+      $composableBuilder(column: $table.firmId, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => column,
+  );
+
+  $$CourtCategoriesTableAnnotationComposer get courtCategoryId {
+    final $$CourtCategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courtCategoryId,
+      referencedTable: $db.courtCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourtCategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.courtCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> casesRefs<T extends Object>(
+    Expression<T> Function($$CasesTableAnnotationComposer a) f,
+  ) {
+    final $$CasesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.cases,
+      getReferencedColumn: (t) => t.caseCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CasesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.cases,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> caseTypesRefs<T extends Object>(
+    Expression<T> Function($$CaseTypesTableAnnotationComposer a) f,
+  ) {
+    final $$CaseTypesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.caseTypes,
+      getReferencedColumn: (t) => t.caseCategoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CaseTypesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.caseTypes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CaseCategoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CaseCategoriesTable,
+          CaseCategory,
+          $$CaseCategoriesTableFilterComposer,
+          $$CaseCategoriesTableOrderingComposer,
+          $$CaseCategoriesTableAnnotationComposer,
+          $$CaseCategoriesTableCreateCompanionBuilder,
+          $$CaseCategoriesTableUpdateCompanionBuilder,
+          (CaseCategory, $$CaseCategoriesTableReferences),
+          CaseCategory,
+          PrefetchHooks Function({
+            bool courtCategoryId,
+            bool casesRefs,
+            bool caseTypesRefs,
+          })
+        > {
+  $$CaseCategoriesTableTableManager(
+    _$AppDatabase db,
+    $CaseCategoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CaseCategoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CaseCategoriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CaseCategoriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> courtCategoryId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
+                Value<bool> isUserModified = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> firmId = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> version = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> lastModifiedBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CaseCategoriesCompanion(
+                id: id,
+                courtCategoryId: courtCategoryId,
+                name: name,
+                orderIndex: orderIndex,
+                isCustom: isCustom,
+                isUserModified: isUserModified,
+                userId: userId,
+                firmId: firmId,
+                updatedAt: updatedAt,
+                version: version,
+                syncedAt: syncedAt,
+                isDeleted: isDeleted,
+                lastModifiedBy: lastModifiedBy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String courtCategoryId,
+                required String name,
+                required int orderIndex,
+                Value<bool> isCustom = const Value.absent(),
+                Value<bool> isUserModified = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> firmId = const Value.absent(),
+                required int updatedAt,
+                Value<int?> version = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> lastModifiedBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CaseCategoriesCompanion.insert(
+                id: id,
+                courtCategoryId: courtCategoryId,
+                name: name,
+                orderIndex: orderIndex,
+                isCustom: isCustom,
+                isUserModified: isUserModified,
+                userId: userId,
+                firmId: firmId,
+                updatedAt: updatedAt,
+                version: version,
+                syncedAt: syncedAt,
+                isDeleted: isDeleted,
+                lastModifiedBy: lastModifiedBy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CaseCategoriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                courtCategoryId = false,
+                casesRefs = false,
+                caseTypesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (casesRefs) db.cases,
+                    if (caseTypesRefs) db.caseTypes,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (courtCategoryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.courtCategoryId,
+                                    referencedTable:
+                                        $$CaseCategoriesTableReferences
+                                            ._courtCategoryIdTable(db),
+                                    referencedColumn:
+                                        $$CaseCategoriesTableReferences
+                                            ._courtCategoryIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (casesRefs)
+                        await $_getPrefetchedData<
+                          CaseCategory,
+                          $CaseCategoriesTable,
+                          Case
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CaseCategoriesTableReferences
+                              ._casesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CaseCategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).casesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.caseCategoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (caseTypesRefs)
+                        await $_getPrefetchedData<
+                          CaseCategory,
+                          $CaseCategoriesTable,
+                          CaseType
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CaseCategoriesTableReferences
+                              ._caseTypesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CaseCategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).caseTypesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.caseCategoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$CaseCategoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CaseCategoriesTable,
+      CaseCategory,
+      $$CaseCategoriesTableFilterComposer,
+      $$CaseCategoriesTableOrderingComposer,
+      $$CaseCategoriesTableAnnotationComposer,
+      $$CaseCategoriesTableCreateCompanionBuilder,
+      $$CaseCategoriesTableUpdateCompanionBuilder,
+      (CaseCategory, $$CaseCategoriesTableReferences),
+      CaseCategory,
+      PrefetchHooks Function({
+        bool courtCategoryId,
+        bool casesRefs,
+        bool caseTypesRefs,
+      })
+    >;
 typedef $$OnBehalfsTableCreateCompanionBuilder =
     OnBehalfsCompanion Function({
       required String id,
@@ -17049,7 +18073,12 @@ typedef $$CasesTableCreateCompanionBuilder =
       Value<String?> firmId,
       required String courtId,
       required String caseType,
+      Value<String?> caseCategoryId,
       required String caseNumber,
+      Value<String?> honorableJudges,
+      Value<String?> tenderNumber,
+      Value<String?> previousCourtCase,
+      Value<String?> districtOfOrigin,
       required String petitioner,
       Value<String?> petitionerLeadCounsel,
       required String respondent,
@@ -17061,6 +18090,7 @@ typedef $$CasesTableCreateCompanionBuilder =
       Value<int?> nextDate,
       Value<String?> lastStep,
       Value<String?> notesResults,
+      Value<String?> result,
       required int createdAt,
       required int updatedAt,
       Value<int?> version,
@@ -17076,7 +18106,12 @@ typedef $$CasesTableUpdateCompanionBuilder =
       Value<String?> firmId,
       Value<String> courtId,
       Value<String> caseType,
+      Value<String?> caseCategoryId,
       Value<String> caseNumber,
+      Value<String?> honorableJudges,
+      Value<String?> tenderNumber,
+      Value<String?> previousCourtCase,
+      Value<String?> districtOfOrigin,
       Value<String> petitioner,
       Value<String?> petitionerLeadCounsel,
       Value<String> respondent,
@@ -17088,6 +18123,7 @@ typedef $$CasesTableUpdateCompanionBuilder =
       Value<int?> nextDate,
       Value<String?> lastStep,
       Value<String?> notesResults,
+      Value<String?> result,
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<int?> version,
@@ -17112,6 +18148,24 @@ final class $$CasesTableReferences
       $_db.courts,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_courtIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CaseCategoriesTable _caseCategoryIdTable(_$AppDatabase db) => db
+      .caseCategories
+      .createAlias('cases__case_category_id__case_categories__id');
+
+  $$CaseCategoriesTableProcessedTableManager? get caseCategoryId {
+    final $_column = $_itemColumn<String>('case_category_id');
+    if ($_column == null) return null;
+    final manager = $$CaseCategoriesTableTableManager(
+      $_db,
+      $_db.caseCategories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_caseCategoryIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -17187,6 +18241,26 @@ class $$CasesTableFilterComposer extends Composer<_$AppDatabase, $CasesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get honorableJudges => $composableBuilder(
+    column: $table.honorableJudges,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tenderNumber => $composableBuilder(
+    column: $table.tenderNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousCourtCase => $composableBuilder(
+    column: $table.previousCourtCase,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get districtOfOrigin => $composableBuilder(
+    column: $table.districtOfOrigin,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get petitioner => $composableBuilder(
     column: $table.petitioner,
     builder: (column) => ColumnFilters(column),
@@ -17237,6 +18311,11 @@ class $$CasesTableFilterComposer extends Composer<_$AppDatabase, $CasesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -17281,6 +18360,29 @@ class $$CasesTableFilterComposer extends Composer<_$AppDatabase, $CasesTable> {
           }) => $$CourtsTableFilterComposer(
             $db: $db,
             $table: $db.courts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CaseCategoriesTableFilterComposer get caseCategoryId {
+    final $$CaseCategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.caseCategoryId,
+      referencedTable: $db.caseCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CaseCategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.caseCategories,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -17373,6 +18475,26 @@ class $$CasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get honorableJudges => $composableBuilder(
+    column: $table.honorableJudges,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tenderNumber => $composableBuilder(
+    column: $table.tenderNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousCourtCase => $composableBuilder(
+    column: $table.previousCourtCase,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get districtOfOrigin => $composableBuilder(
+    column: $table.districtOfOrigin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get petitioner => $composableBuilder(
     column: $table.petitioner,
     builder: (column) => ColumnOrderings(column),
@@ -17423,6 +18545,11 @@ class $$CasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -17467,6 +18594,29 @@ class $$CasesTableOrderingComposer
           }) => $$CourtsTableOrderingComposer(
             $db: $db,
             $table: $db.courts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CaseCategoriesTableOrderingComposer get caseCategoryId {
+    final $$CaseCategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.caseCategoryId,
+      referencedTable: $db.caseCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CaseCategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.caseCategories,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -17526,6 +18676,26 @@ class $$CasesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get honorableJudges => $composableBuilder(
+    column: $table.honorableJudges,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get tenderNumber => $composableBuilder(
+    column: $table.tenderNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get previousCourtCase => $composableBuilder(
+    column: $table.previousCourtCase,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get districtOfOrigin => $composableBuilder(
+    column: $table.districtOfOrigin,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get petitioner => $composableBuilder(
     column: $table.petitioner,
     builder: (column) => column,
@@ -17572,6 +18742,9 @@ class $$CasesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => column);
+
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -17606,6 +18779,29 @@ class $$CasesTableAnnotationComposer
           }) => $$CourtsTableAnnotationComposer(
             $db: $db,
             $table: $db.courts,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CaseCategoriesTableAnnotationComposer get caseCategoryId {
+    final $$CaseCategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.caseCategoryId,
+      referencedTable: $db.caseCategories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CaseCategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.caseCategories,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -17679,6 +18875,7 @@ class $$CasesTableTableManager
           Case,
           PrefetchHooks Function({
             bool courtId,
+            bool caseCategoryId,
             bool onBehalfId,
             bool caseHistoryRefs,
           })
@@ -17701,7 +18898,12 @@ class $$CasesTableTableManager
                 Value<String?> firmId = const Value.absent(),
                 Value<String> courtId = const Value.absent(),
                 Value<String> caseType = const Value.absent(),
+                Value<String?> caseCategoryId = const Value.absent(),
                 Value<String> caseNumber = const Value.absent(),
+                Value<String?> honorableJudges = const Value.absent(),
+                Value<String?> tenderNumber = const Value.absent(),
+                Value<String?> previousCourtCase = const Value.absent(),
+                Value<String?> districtOfOrigin = const Value.absent(),
                 Value<String> petitioner = const Value.absent(),
                 Value<String?> petitionerLeadCounsel = const Value.absent(),
                 Value<String> respondent = const Value.absent(),
@@ -17713,6 +18915,7 @@ class $$CasesTableTableManager
                 Value<int?> nextDate = const Value.absent(),
                 Value<String?> lastStep = const Value.absent(),
                 Value<String?> notesResults = const Value.absent(),
+                Value<String?> result = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> version = const Value.absent(),
@@ -17726,7 +18929,12 @@ class $$CasesTableTableManager
                 firmId: firmId,
                 courtId: courtId,
                 caseType: caseType,
+                caseCategoryId: caseCategoryId,
                 caseNumber: caseNumber,
+                honorableJudges: honorableJudges,
+                tenderNumber: tenderNumber,
+                previousCourtCase: previousCourtCase,
+                districtOfOrigin: districtOfOrigin,
                 petitioner: petitioner,
                 petitionerLeadCounsel: petitionerLeadCounsel,
                 respondent: respondent,
@@ -17738,6 +18946,7 @@ class $$CasesTableTableManager
                 nextDate: nextDate,
                 lastStep: lastStep,
                 notesResults: notesResults,
+                result: result,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 version: version,
@@ -17753,7 +18962,12 @@ class $$CasesTableTableManager
                 Value<String?> firmId = const Value.absent(),
                 required String courtId,
                 required String caseType,
+                Value<String?> caseCategoryId = const Value.absent(),
                 required String caseNumber,
+                Value<String?> honorableJudges = const Value.absent(),
+                Value<String?> tenderNumber = const Value.absent(),
+                Value<String?> previousCourtCase = const Value.absent(),
+                Value<String?> districtOfOrigin = const Value.absent(),
                 required String petitioner,
                 Value<String?> petitionerLeadCounsel = const Value.absent(),
                 required String respondent,
@@ -17765,6 +18979,7 @@ class $$CasesTableTableManager
                 Value<int?> nextDate = const Value.absent(),
                 Value<String?> lastStep = const Value.absent(),
                 Value<String?> notesResults = const Value.absent(),
+                Value<String?> result = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
                 Value<int?> version = const Value.absent(),
@@ -17778,7 +18993,12 @@ class $$CasesTableTableManager
                 firmId: firmId,
                 courtId: courtId,
                 caseType: caseType,
+                caseCategoryId: caseCategoryId,
                 caseNumber: caseNumber,
+                honorableJudges: honorableJudges,
+                tenderNumber: tenderNumber,
+                previousCourtCase: previousCourtCase,
+                districtOfOrigin: districtOfOrigin,
                 petitioner: petitioner,
                 petitionerLeadCounsel: petitionerLeadCounsel,
                 respondent: respondent,
@@ -17790,6 +19010,7 @@ class $$CasesTableTableManager
                 nextDate: nextDate,
                 lastStep: lastStep,
                 notesResults: notesResults,
+                result: result,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 version: version,
@@ -17805,7 +19026,12 @@ class $$CasesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({courtId = false, onBehalfId = false, caseHistoryRefs = false}) {
+              ({
+                courtId = false,
+                caseCategoryId = false,
+                onBehalfId = false,
+                caseHistoryRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
@@ -17836,6 +19062,19 @@ class $$CasesTableTableManager
                                         ._courtIdTable(db),
                                     referencedColumn: $$CasesTableReferences
                                         ._courtIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (caseCategoryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.caseCategoryId,
+                                    referencedTable: $$CasesTableReferences
+                                        ._caseCategoryIdTable(db),
+                                    referencedColumn: $$CasesTableReferences
+                                        ._caseCategoryIdTable(db)
                                         .id,
                                   )
                                   as T;
@@ -17901,6 +19140,7 @@ typedef $$CasesTableProcessedTableManager =
       Case,
       PrefetchHooks Function({
         bool courtId,
+        bool caseCategoryId,
         bool onBehalfId,
         bool caseHistoryRefs,
       })
@@ -18461,581 +19701,6 @@ typedef $$CaseHistoryTableProcessedTableManager =
       (CaseHistoryRow, $$CaseHistoryTableReferences),
       CaseHistoryRow,
       PrefetchHooks Function({bool caseId})
-    >;
-typedef $$CaseCategoriesTableCreateCompanionBuilder =
-    CaseCategoriesCompanion Function({
-      required String id,
-      required String courtCategoryId,
-      required String name,
-      required int orderIndex,
-      Value<bool> isCustom,
-      Value<bool> isUserModified,
-      Value<String?> userId,
-      Value<String?> firmId,
-      required int updatedAt,
-      Value<int?> version,
-      Value<int?> syncedAt,
-      Value<bool> isDeleted,
-      Value<String?> lastModifiedBy,
-      Value<int> rowid,
-    });
-typedef $$CaseCategoriesTableUpdateCompanionBuilder =
-    CaseCategoriesCompanion Function({
-      Value<String> id,
-      Value<String> courtCategoryId,
-      Value<String> name,
-      Value<int> orderIndex,
-      Value<bool> isCustom,
-      Value<bool> isUserModified,
-      Value<String?> userId,
-      Value<String?> firmId,
-      Value<int> updatedAt,
-      Value<int?> version,
-      Value<int?> syncedAt,
-      Value<bool> isDeleted,
-      Value<String?> lastModifiedBy,
-      Value<int> rowid,
-    });
-
-final class $$CaseCategoriesTableReferences
-    extends BaseReferences<_$AppDatabase, $CaseCategoriesTable, CaseCategory> {
-  $$CaseCategoriesTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $CourtCategoriesTable _courtCategoryIdTable(_$AppDatabase db) => db
-      .courtCategories
-      .createAlias('case_categories__court_category_id__court_categories__id');
-
-  $$CourtCategoriesTableProcessedTableManager get courtCategoryId {
-    final $_column = $_itemColumn<String>('court_category_id')!;
-
-    final manager = $$CourtCategoriesTableTableManager(
-      $_db,
-      $_db.courtCategories,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_courtCategoryIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$CaseTypesTable, List<CaseType>>
-  _caseTypesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.caseTypes,
-    aliasName: 'case_categories__id__case_types__case_category_id',
-  );
-
-  $$CaseTypesTableProcessedTableManager get caseTypesRefs {
-    final manager = $$CaseTypesTableTableManager(
-      $_db,
-      $_db.caseTypes,
-    ).filter((f) => f.caseCategoryId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_caseTypesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$CaseCategoriesTableFilterComposer
-    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
-  $$CaseCategoriesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isCustom => $composableBuilder(
-    column: $table.isCustom,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isUserModified => $composableBuilder(
-    column: $table.isUserModified,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get firmId => $composableBuilder(
-    column: $table.firmId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get version => $composableBuilder(
-    column: $table.version,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get lastModifiedBy => $composableBuilder(
-    column: $table.lastModifiedBy,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$CourtCategoriesTableFilterComposer get courtCategoryId {
-    final $$CourtCategoriesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.courtCategoryId,
-      referencedTable: $db.courtCategories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourtCategoriesTableFilterComposer(
-            $db: $db,
-            $table: $db.courtCategories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> caseTypesRefs(
-    Expression<bool> Function($$CaseTypesTableFilterComposer f) f,
-  ) {
-    final $$CaseTypesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.caseTypes,
-      getReferencedColumn: (t) => t.caseCategoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CaseTypesTableFilterComposer(
-            $db: $db,
-            $table: $db.caseTypes,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$CaseCategoriesTableOrderingComposer
-    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
-  $$CaseCategoriesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isCustom => $composableBuilder(
-    column: $table.isCustom,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isUserModified => $composableBuilder(
-    column: $table.isUserModified,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get userId => $composableBuilder(
-    column: $table.userId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get firmId => $composableBuilder(
-    column: $table.firmId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get version => $composableBuilder(
-    column: $table.version,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get syncedAt => $composableBuilder(
-    column: $table.syncedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get lastModifiedBy => $composableBuilder(
-    column: $table.lastModifiedBy,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$CourtCategoriesTableOrderingComposer get courtCategoryId {
-    final $$CourtCategoriesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.courtCategoryId,
-      referencedTable: $db.courtCategories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourtCategoriesTableOrderingComposer(
-            $db: $db,
-            $table: $db.courtCategories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$CaseCategoriesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CaseCategoriesTable> {
-  $$CaseCategoriesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get isCustom =>
-      $composableBuilder(column: $table.isCustom, builder: (column) => column);
-
-  GeneratedColumn<bool> get isUserModified => $composableBuilder(
-    column: $table.isUserModified,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get userId =>
-      $composableBuilder(column: $table.userId, builder: (column) => column);
-
-  GeneratedColumn<String> get firmId =>
-      $composableBuilder(column: $table.firmId, builder: (column) => column);
-
-  GeneratedColumn<int> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<int> get version =>
-      $composableBuilder(column: $table.version, builder: (column) => column);
-
-  GeneratedColumn<int> get syncedAt =>
-      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumn<String> get lastModifiedBy => $composableBuilder(
-    column: $table.lastModifiedBy,
-    builder: (column) => column,
-  );
-
-  $$CourtCategoriesTableAnnotationComposer get courtCategoryId {
-    final $$CourtCategoriesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.courtCategoryId,
-      referencedTable: $db.courtCategories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourtCategoriesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.courtCategories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> caseTypesRefs<T extends Object>(
-    Expression<T> Function($$CaseTypesTableAnnotationComposer a) f,
-  ) {
-    final $$CaseTypesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.caseTypes,
-      getReferencedColumn: (t) => t.caseCategoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CaseTypesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.caseTypes,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$CaseCategoriesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $CaseCategoriesTable,
-          CaseCategory,
-          $$CaseCategoriesTableFilterComposer,
-          $$CaseCategoriesTableOrderingComposer,
-          $$CaseCategoriesTableAnnotationComposer,
-          $$CaseCategoriesTableCreateCompanionBuilder,
-          $$CaseCategoriesTableUpdateCompanionBuilder,
-          (CaseCategory, $$CaseCategoriesTableReferences),
-          CaseCategory,
-          PrefetchHooks Function({bool courtCategoryId, bool caseTypesRefs})
-        > {
-  $$CaseCategoriesTableTableManager(
-    _$AppDatabase db,
-    $CaseCategoriesTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$CaseCategoriesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CaseCategoriesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CaseCategoriesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<String> courtCategoryId = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<int> orderIndex = const Value.absent(),
-                Value<bool> isCustom = const Value.absent(),
-                Value<bool> isUserModified = const Value.absent(),
-                Value<String?> userId = const Value.absent(),
-                Value<String?> firmId = const Value.absent(),
-                Value<int> updatedAt = const Value.absent(),
-                Value<int?> version = const Value.absent(),
-                Value<int?> syncedAt = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<String?> lastModifiedBy = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => CaseCategoriesCompanion(
-                id: id,
-                courtCategoryId: courtCategoryId,
-                name: name,
-                orderIndex: orderIndex,
-                isCustom: isCustom,
-                isUserModified: isUserModified,
-                userId: userId,
-                firmId: firmId,
-                updatedAt: updatedAt,
-                version: version,
-                syncedAt: syncedAt,
-                isDeleted: isDeleted,
-                lastModifiedBy: lastModifiedBy,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                required String courtCategoryId,
-                required String name,
-                required int orderIndex,
-                Value<bool> isCustom = const Value.absent(),
-                Value<bool> isUserModified = const Value.absent(),
-                Value<String?> userId = const Value.absent(),
-                Value<String?> firmId = const Value.absent(),
-                required int updatedAt,
-                Value<int?> version = const Value.absent(),
-                Value<int?> syncedAt = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<String?> lastModifiedBy = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => CaseCategoriesCompanion.insert(
-                id: id,
-                courtCategoryId: courtCategoryId,
-                name: name,
-                orderIndex: orderIndex,
-                isCustom: isCustom,
-                isUserModified: isUserModified,
-                userId: userId,
-                firmId: firmId,
-                updatedAt: updatedAt,
-                version: version,
-                syncedAt: syncedAt,
-                isDeleted: isDeleted,
-                lastModifiedBy: lastModifiedBy,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$CaseCategoriesTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({courtCategoryId = false, caseTypesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [if (caseTypesRefs) db.caseTypes],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (courtCategoryId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.courtCategoryId,
-                                    referencedTable:
-                                        $$CaseCategoriesTableReferences
-                                            ._courtCategoryIdTable(db),
-                                    referencedColumn:
-                                        $$CaseCategoriesTableReferences
-                                            ._courtCategoryIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (caseTypesRefs)
-                        await $_getPrefetchedData<
-                          CaseCategory,
-                          $CaseCategoriesTable,
-                          CaseType
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CaseCategoriesTableReferences
-                              ._caseTypesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CaseCategoriesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).caseTypesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.caseCategoryId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$CaseCategoriesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $CaseCategoriesTable,
-      CaseCategory,
-      $$CaseCategoriesTableFilterComposer,
-      $$CaseCategoriesTableOrderingComposer,
-      $$CaseCategoriesTableAnnotationComposer,
-      $$CaseCategoriesTableCreateCompanionBuilder,
-      $$CaseCategoriesTableUpdateCompanionBuilder,
-      (CaseCategory, $$CaseCategoriesTableReferences),
-      CaseCategory,
-      PrefetchHooks Function({bool courtCategoryId, bool caseTypesRefs})
     >;
 typedef $$StepsTableCreateCompanionBuilder =
     StepsCompanion Function({
@@ -23698,14 +24363,14 @@ class $AppDatabaseManager {
       $$CourtCategoriesTableTableManager(_db, _db.courtCategories);
   $$CourtsTableTableManager get courts =>
       $$CourtsTableTableManager(_db, _db.courts);
+  $$CaseCategoriesTableTableManager get caseCategories =>
+      $$CaseCategoriesTableTableManager(_db, _db.caseCategories);
   $$OnBehalfsTableTableManager get onBehalfs =>
       $$OnBehalfsTableTableManager(_db, _db.onBehalfs);
   $$CasesTableTableManager get cases =>
       $$CasesTableTableManager(_db, _db.cases);
   $$CaseHistoryTableTableManager get caseHistory =>
       $$CaseHistoryTableTableManager(_db, _db.caseHistory);
-  $$CaseCategoriesTableTableManager get caseCategories =>
-      $$CaseCategoriesTableTableManager(_db, _db.caseCategories);
   $$StepsTableTableManager get steps =>
       $$StepsTableTableManager(_db, _db.steps);
   $$CaseTypesTableTableManager get caseTypes =>

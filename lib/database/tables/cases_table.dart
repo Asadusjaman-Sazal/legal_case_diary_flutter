@@ -4,6 +4,7 @@ library;
 
 import 'package:drift/drift.dart';
 
+import 'case_categories_table.dart';
 import 'courts_table.dart';
 import 'on_behalfs_table.dart';
 
@@ -25,8 +26,24 @@ class Cases extends Table {
   /// Case type (e.g. "Criminal", "Civil").
   TextColumn get caseType => text()();
 
+  /// AD/HCD case-category scope for the selected case type.
+  TextColumn get caseCategoryId =>
+      text().nullable().references(CaseCategories, #id)();
+
   /// Single text entity such as "110/2021".
   TextColumn get caseNumber => text()();
+
+  /// AD/HCD judicial bench or judge names.
+  TextColumn get honorableJudges => text().nullable()();
+
+  /// Optional tender number; stored as text to preserve leading zeroes.
+  TextColumn get tenderNumber => text().nullable()();
+
+  /// Case number from the previous court.
+  TextColumn get previousCourtCase => text().nullable()();
+
+  /// District where the case originated.
+  TextColumn get districtOfOrigin => text().nullable()();
 
   /// Petitioner party label.
   TextColumn get petitioner => text()();
@@ -60,6 +77,9 @@ class Cases extends Table {
 
   /// Notes or results from the last date.
   TextColumn get notesResults => text().nullable()();
+
+  /// Separate result text used for AD/HCD disposal detection.
+  TextColumn get result => text().nullable()();
 
   /// Creation timestamp (epoch ms).
   IntColumn get createdAt => integer()();

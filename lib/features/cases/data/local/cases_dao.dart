@@ -18,6 +18,16 @@ class CasesDao {
   /// Used by [getActiveCaseCount] / [watchActiveCaseCount].
   static const _disposedLabels = <String>['disposed', 'নিষ্পত্তি'];
 
+  /// Result words that dispose a case even when no seeded Step is available.
+  static const _disposedResultTerms = <String>[
+    'dismissed',
+    'খারিজ',
+    'disposed',
+    'নিষ্পত্তি',
+    'discharged',
+    'অব্যহতি',
+  ];
+
   /// Returns all non-deleted cases ordered by [nextDate] descending, then [updatedAt] descending.
   Future<List<Case>> getAll({int? limit, int? offset}) async {
     final query = db.select(db.cases)
@@ -48,6 +58,22 @@ class CasesDao {
       query.limit(limit, offset: offset ?? 0);
     }
     return query.watch();
+  }
+
+  /// Returns non-deleted cases disposed by a seeded Step or AD/HCD Result.
+  Future<List<Case>> getDisposed({int? limit, int? offset}) async {
+    final query = db.select(db.cases)
+      ..where((row) => row.isDeleted.equals(false) & _isDisposed)
+      ..orderBy([
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+      ]);
+    if (limit != null) {
+      query.limit(limit, offset: offset ?? 0);
+    }
+    return query.get();
   }
 
   /// Searches non-deleted cases across case number, parties, counsels, phone,
@@ -185,11 +211,7 @@ class CasesDao {
     return query.map((row) => row.read(countExp)!).watchSingle();
   }
 
-  /// Counts non-deleted cases whose step is not disposed (Active Cases/KPIs).
-  ///
-  /// This is a Phase 1 heuristic: a case is considered active if [lastStep]
-  /// is null or is not one of the canonical disposed labels. The repository
-  /// layer may refine this once the step storage format is finalized.
+  /// Counts non-deleted cases not disposed by a seeded Step or AD/HCD Result.
   Future<int> getActiveCaseCount() async {
     final countExp = db.cases.id.count();
     final query = db.selectOnly(db.cases)
@@ -197,7 +219,8 @@ class CasesDao {
       ..where(
         db.cases.isDeleted.equals(false) &
             (db.cases.lastStep.isNull() |
-                db.cases.lastStep.lower().isNotIn(_disposedLabels)),
+                db.cases.lastStep.lower().isNotIn(_disposedLabels)) &
+            _resultIsNotDisposed,
       );
     return query.map((row) => row.read(countExp)!).getSingle();
   }
@@ -210,10 +233,25 @@ class CasesDao {
       ..where(
         db.cases.isDeleted.equals(false) &
             (db.cases.lastStep.isNull() |
-                db.cases.lastStep.lower().isNotIn(_disposedLabels)),
+                db.cases.lastStep.lower().isNotIn(_disposedLabels)) &
+            _resultIsNotDisposed,
       );
     return query.map((row) => row.read(countExp)!).watchSingle();
   }
+
+  /// SQL expression used by both active-case count paths.
+  Expression<bool> get _resultIsNotDisposed =>
+      db.cases.result.isNull() |
+      _disposedResultTerms
+          .map((term) => db.cases.result.lower().like('%$term%').not())
+          .reduce((left, right) => left & right);
+
+  Expression<bool> get _isDisposed =>
+      db.cases.lastStep.lower().isIn(_disposedLabels) |
+      (db.cases.result.isNotNull() &
+          _disposedResultTerms
+              .map((term) => db.cases.result.lower().like('%$term%'))
+              .reduce((left, right) => left | right));
 
   Future<List<String>> _courtIdsForCategory(String courtCategoryId) async =>
       (db.selectOnly(db.courts)

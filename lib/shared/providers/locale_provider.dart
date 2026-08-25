@@ -9,8 +9,8 @@ import 'shared_preferences_provider.dart';
 /// Preference key used to persist the active locale code.
 const String _localeKey = 'app_locale';
 
-/// Default locale for the app. Bengali is the default per Task 02 Phase 3.
-const Locale defaultLocale = Locale('bn');
+/// Default locale for the app during current development.
+const Locale defaultLocale = Locale('en');
 
 /// Supported application locales.
 ///
@@ -21,7 +21,7 @@ List<Locale> get supportedLocales => AppLocalizations.supportedLocales;
 /// Riverpod state for the active application locale.
 ///
 /// The notifier reads the persisted code from [SharedPreferences] on first
-/// build and falls back to [defaultLocale] (Bengali) when no preference has
+/// build and falls back to [defaultLocale] (English) when no preference has
 /// been stored. Changing the locale updates both the in-memory state and the
 /// persisted value.
 class LocaleNotifier extends Notifier<Locale> {

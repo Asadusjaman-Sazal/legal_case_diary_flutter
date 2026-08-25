@@ -6,7 +6,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +17,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/constants/pre_seeded_data.dart';
+import '../../core/l10n/app_translations.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/providers/repository_providers.dart';
 import '../../core/router/app_router.dart';
@@ -36,6 +37,9 @@ import '../../features/settings/data/local/steps_dao.dart';
 import '../../shared/providers/database_provider.dart';
 import 'custom_dropdown.dart';
 import 'date_picker_helper.dart';
+
+String _seedLabel(BuildContext context, String id, String fallbackEn) =>
+    context.l10n.seedLabel(id, fallbackEn: fallbackEn);
 
 /// Effective local write permissions for the current identity.
 class CaseWritePermissions {
@@ -99,6 +103,7 @@ class AddEditCaseLookupData {
   /// Creates lookup data for an add/edit form.
   const AddEditCaseLookupData({
     this.courtCategories = const [],
+    this.caseCategories = const [],
     this.courts = const [],
     this.caseTypes = const [],
     this.onBehalfs = const [],
@@ -111,6 +116,9 @@ class AddEditCaseLookupData {
 
   /// All non-deleted court categories.
   final List<CourtCategory> courtCategories;
+
+  /// All non-deleted AD/HCD case categories.
+  final List<CaseCategory> caseCategories;
 
   /// All non-deleted courts.
   final List<Court> courts;
@@ -211,6 +219,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   final _formKey = GlobalKey<FormState>();
   final _formMessengerKey = GlobalKey<ScaffoldMessengerState>();
   final _caseNumberController = TextEditingController();
+  final _honorableJudgesController = TextEditingController();
+  final _tenderNumberController = TextEditingController();
+  final _previousCourtCaseController = TextEditingController();
+  final _districtOfOriginController = TextEditingController();
   final _petitionerController = TextEditingController();
   final _petitionerCounselController = TextEditingController();
   final _respondentController = TextEditingController();
@@ -218,6 +230,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   final _partyPhoneController = TextEditingController();
   final _caseTitleController = TextEditingController();
   final _caseRemarksController = TextEditingController();
+  final _resultController = TextEditingController();
   final _noteController = TextEditingController();
 
   AddEditCaseLookupData? _lookupData;
@@ -238,6 +251,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   String? _district;
   String? _courtCategoryId;
   Court? _selectedCourt;
+  CaseCategory? _selectedCaseCategory;
   CaseType? _selectedCaseType;
   OnBehalf? _selectedOnBehalf;
   List<Step> _selectedSteps = const [];
@@ -306,6 +320,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   void dispose() {
     _sheetAnimation?.removeStatusListener(_onSheetAnimationStatusChanged);
     _caseNumberController.dispose();
+    _honorableJudgesController.dispose();
+    _tenderNumberController.dispose();
+    _previousCourtCaseController.dispose();
+    _districtOfOriginController.dispose();
     _petitionerController.dispose();
     _petitionerCounselController.dispose();
     _respondentController.dispose();
@@ -313,6 +331,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     _partyPhoneController.dispose();
     _caseTitleController.dispose();
     _caseRemarksController.dispose();
+    _resultController.dispose();
     _noteController.dispose();
     super.dispose();
   }
@@ -322,6 +341,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     // Case number is one editable value; the slash remains part of the
     // stored/displayed value rather than splitting the field into two boxes.
     _caseNumberController.text = currentCase.caseNumber;
+    _honorableJudgesController.text = currentCase.honorableJudges ?? '';
+    _tenderNumberController.text = currentCase.tenderNumber ?? '';
+    _previousCourtCaseController.text = currentCase.previousCourtCase ?? '';
+    _districtOfOriginController.text = currentCase.districtOfOrigin ?? '';
     _petitionerController.text = currentCase.petitioner;
     _petitionerCounselController.text = currentCase.petitionerLeadCounsel ?? '';
     _respondentController.text = currentCase.respondent;
@@ -332,6 +355,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         : storedPhone.replaceFirst(RegExp(r'^\+?88'), '');
     _caseTitleController.text = currentCase.caseTitleAndSection ?? '';
     _caseRemarksController.text = currentCase.caseRemarks ?? '';
+    _resultController.text = currentCase.result ?? '';
     _noteController.text = currentCase.notesResults ?? '';
     _nextDate = currentCase.nextDate == null
         ? null
@@ -396,6 +420,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           : settings.notificationDefaultOffsets;
       final data = AddEditCaseLookupData(
         courtCategories: await CourtCategoriesDao(db).getAll(),
+        caseCategories:
+            await (db.select(db.caseCategories)
+                  ..where((row) => row.isDeleted.equals(false))
+                  ..orderBy([
+                    (row) => OrderingTerm(expression: row.orderIndex),
+                  ]))
+                .get(),
         courts: await CourtsDao(db).getAll(),
         caseTypes: await CaseTypesDao(db).getAll(),
         onBehalfs: await OnBehalfsDao(db).getAll(),
@@ -485,6 +516,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
             currentCase.caseType,
             (item) => item.name,
           );
+      _selectedCaseCategory = _findById(
+        data.caseCategories,
+        currentCase.caseCategoryId ?? _selectedCaseType?.caseCategoryId ?? '',
+        (item) => item.id,
+      );
       _selectedOnBehalf = _findById(
         data.onBehalfs,
         currentCase.onBehalfId,
@@ -548,6 +584,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
 
   bool get _isLowerCourt => _higherLowerCourt == lowerCourtsOption;
 
+  bool get _isHigherCourt =>
+      _higherLowerCourt == appellateDivisionId ||
+      _higherLowerCourt == highCourtDivisionId;
+
   List<CourtCategory> get _lowerCategories => _lookupData!.courtCategories
       .where((item) => item.courtLevel == 'lower')
       .toList();
@@ -572,6 +612,15 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   }
 
   List<CaseType> get _caseTypeOptions => _lookupData!.caseTypes
+      .where(
+        (item) =>
+            item.courtCategoryId == _courtCategoryId &&
+            (!_isHigherCourt ||
+                item.caseCategoryId == _selectedCaseCategory?.id),
+      )
+      .toList(growable: false);
+
+  List<CaseCategory> get _caseCategoryOptions => _lookupData!.caseCategories
       .where((item) => item.courtCategoryId == _courtCategoryId)
       .toList(growable: false);
 
@@ -582,6 +631,14 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   List<Step> get _stepOptions => _lookupData!.steps
       .where((item) => item.courtCategoryId == _courtCategoryId)
       .toList(growable: false);
+
+  String _caseCategoryLabel(BuildContext context, CaseCategory category) {
+    final isBengali = Localizations.localeOf(context).languageCode == 'bn';
+    return (isBengali
+            ? caseCategoryLabelBn
+            : caseCategoryLabelEn)[category.id] ??
+        category.name;
+  }
 
   String _categoryLabel(BuildContext context, CourtCategory category) {
     final l = AppLocalizations.of(context);
@@ -735,7 +792,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   label: l.addEditCaseSheet_district,
                   items: _districtOptions,
                   value: _district,
-                  itemLabel: (item) => districtLabelEn[item] ?? item,
+                  itemLabel: (item) =>
+                      _seedLabel(context, item, districtLabelEn[item] ?? item),
                   enabled: editable && _division != null,
                   emptyFillColor: AppColors.surface,
                   selectedFillColor: AppColors.surfaceVariant,
@@ -771,7 +829,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 items: _courtOptions,
                 value: _selectedCourt,
                 searchable: true,
-                itemLabel: (item) => item.courtName,
+                itemLabel: (item) =>
+                    _seedLabel(context, item.id, item.courtName),
                 enabled: editable && _courtCategoryId != null,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
@@ -784,6 +843,33 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 onChanged: _onCourtChanged,
               ),
               const SizedBox(height: AppSpacing.md),
+              if (_isHigherCourt) ...[
+                _textField(
+                  key: const ValueKey('add-edit-honorable-judges'),
+                  label: l.addEditCaseSheet_honorableJudges,
+                  controller: _honorableJudgesController,
+                  enabled: editable,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                CustomDropdown<CaseCategory>(
+                  fieldKey: const ValueKey('add-edit-case-category'),
+                  label: l.addEditCaseSheet_caseCategory,
+                  items: _caseCategoryOptions,
+                  value: _selectedCaseCategory,
+                  itemLabel: (item) => _caseCategoryLabel(context, item),
+                  enabled: editable && _courtCategoryId != null,
+                  emptyFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant,
+                  outlined: true,
+                  onDisabledTap: editable && _courtCategoryId == null
+                      ? () => _showDependencyMessage(
+                          l.addEditCaseSheet_nameOfCourt,
+                        )
+                      : null,
+                  onChanged: (value) => _onCaseCategoryChanged(value?.id),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -796,7 +882,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         modalTitle: l.allCasesScreen_caseType,
                         items: _caseTypeOptions,
                         value: _selectedCaseType,
-                        itemLabel: (item) => item.name,
+                        itemLabel: (item) =>
+                            _seedLabel(context, item.id, item.name),
                         enabled: editable && _courtCategoryId != null,
                         emptyFillColor: AppColors.surface,
                         selectedFillColor: AppColors.surfaceVariant,
@@ -823,6 +910,31 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   ),
                 ],
               ),
+              if (_isHigherCourt) ...[
+                const SizedBox(height: AppSpacing.md),
+                _textField(
+                  key: const ValueKey('add-edit-tender-number'),
+                  label: l.addEditCaseSheet_tenderNumber,
+                  controller: _tenderNumberController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  enabled: editable,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _textField(
+                  key: const ValueKey('add-edit-previous-court-case'),
+                  label: l.addEditCaseSheet_previousCourtCase,
+                  controller: _previousCourtCaseController,
+                  enabled: editable,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _textField(
+                  key: const ValueKey('add-edit-district-of-origin'),
+                  label: l.addEditCaseSheet_districtOfOrigin,
+                  controller: _districtOfOriginController,
+                  enabled: editable,
+                ),
+              ],
             ],
           ),
           _sectionCard(
@@ -912,25 +1024,36 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                     setState(() => _selectedNotificationOffsets = values),
               ),
               const SizedBox(height: AppSpacing.md),
-              CustomDropdown<Step>(
-                fieldKey: const ValueKey('add-edit-step'),
-                label: l.addEditCaseSheet_step,
-                items: _stepOptions,
-                selectedValues: _selectedSteps,
-                multiSelect: true,
-                itemLabel: (item) => item.stepName,
-                enabled: editable && _courtCategoryId != null,
-                emptyFillColor: AppColors.surface,
-                selectedFillColor: AppColors.surfaceVariant,
-                outlined: true,
-                onDisabledTap: editable && _courtCategoryId == null
-                    ? () => _showDependencyMessage(
-                        l.addEditCaseSheet_courtCategory,
-                      )
-                    : null,
-                onMultiChanged: (values) =>
-                    setState(() => _selectedSteps = values),
-              ),
+              if (_isHigherCourt)
+                _textField(
+                  key: const ValueKey('add-edit-result'),
+                  label: l.addEditCaseSheet_result,
+                  controller: _resultController,
+                  maxLines: 3,
+                  enabled: editable,
+                ),
+              if (_isHigherCourt) const SizedBox(height: AppSpacing.md),
+              if (!_isHigherCourt)
+                CustomDropdown<Step>(
+                  fieldKey: const ValueKey('add-edit-step'),
+                  label: l.addEditCaseSheet_step,
+                  items: _stepOptions,
+                  selectedValues: _selectedSteps,
+                  multiSelect: true,
+                  itemLabel: (item) =>
+                      _seedLabel(context, item.id, item.stepName),
+                  enabled: editable && _courtCategoryId != null,
+                  emptyFillColor: AppColors.surface,
+                  selectedFillColor: AppColors.surfaceVariant,
+                  outlined: true,
+                  onDisabledTap: editable && _courtCategoryId == null
+                      ? () => _showDependencyMessage(
+                          l.addEditCaseSheet_courtCategory,
+                        )
+                      : null,
+                  onMultiChanged: (values) =>
+                      setState(() => _selectedSteps = values),
+                ),
               const SizedBox(height: AppSpacing.md),
               _textField(
                 key: const ValueKey('add-edit-note'),
@@ -1277,6 +1400,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _division = null;
       _district = null;
       _selectedCourt = null;
+      _selectedCaseCategory = null;
       _selectedCaseType = null;
       _selectedOnBehalf = null;
       _selectedSteps = const [];
@@ -1290,6 +1414,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _division = value;
       _district = null;
       _selectedCourt = null;
+      _selectedCaseCategory = null;
       _selectedCaseType = null;
       _selectedOnBehalf = null;
       _selectedSteps = const [];
@@ -1301,6 +1426,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     setState(() {
       _district = value;
       _selectedCourt = null;
+      _selectedCaseCategory = null;
       _selectedCaseType = null;
       _selectedOnBehalf = null;
       _selectedSteps = const [];
@@ -1331,6 +1457,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
 
   void _onCategoryChanged(String? value) => setState(() {
     _courtCategoryId = value;
+    _selectedCaseCategory = null;
     _selectedCourt = null;
     _selectedCaseType = null;
     _selectedOnBehalf = null;
@@ -1341,7 +1468,16 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     _selectedCourt = value;
     if (value != null) {
       _courtCategoryId = value.courtCategoryId;
+      _selectedCaseCategory = null;
+      _selectedCaseType = null;
     }
+  });
+
+  void _onCaseCategoryChanged(String? value) => setState(() {
+    _selectedCaseCategory = value == null
+        ? null
+        : _caseCategoryOptions.where((item) => item.id == value).firstOrNull;
+    _selectedCaseType = null;
   });
 
   String? _requiredError(String label, String? value) =>
@@ -1365,6 +1501,9 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     }
     if (_selectedCourt == null) {
       return _requiredError(l.addEditCaseSheet_nameOfCourt, null);
+    }
+    if (_isHigherCourt && _selectedCaseCategory == null) {
+      return _requiredError(l.addEditCaseSheet_caseCategory, null);
     }
     if (_selectedCaseType == null) {
       return _requiredError(l.allCasesScreen_caseType, null);
@@ -1441,8 +1580,27 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
             ? const Value.absent()
             : Value(widget.initialCase!.id),
         courtId: Value(_selectedCourt!.id),
+        caseCategoryId: Value(
+          _isHigherCourt ? _selectedCaseCategory?.id : null,
+        ),
         caseType: Value(_selectedCaseType!.name),
         caseNumber: Value(_composeCaseNumber()),
+        honorableJudges: Value(
+          _isHigherCourt ? _emptyToNull(_honorableJudgesController.text) : null,
+        ),
+        tenderNumber: Value(
+          _isHigherCourt ? _emptyToNull(_tenderNumberController.text) : null,
+        ),
+        previousCourtCase: Value(
+          _isHigherCourt
+              ? _emptyToNull(_previousCourtCaseController.text)
+              : null,
+        ),
+        districtOfOrigin: Value(
+          _isHigherCourt
+              ? _emptyToNull(_districtOfOriginController.text)
+              : null,
+        ),
         petitioner: Value(_petitionerController.text.trim()),
         petitionerLeadCounsel: Value(
           _emptyToNull(_petitionerCounselController.text),
@@ -1462,6 +1620,9 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
               : _selectedSteps.map((item) => item.stepName).join(','),
         ),
         notesResults: Value(_emptyToNull(_noteController.text)),
+        result: Value(
+          _isHigherCourt ? _emptyToNull(_resultController.text) : null,
+        ),
         updatedAt: Value(now),
       );
       final id = await formRepository.save(
@@ -1970,7 +2131,8 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           items: _steps,
                           selectedValues: _selectedSteps,
                           multiSelect: true,
-                          itemLabel: (item) => item.stepName,
+                          itemLabel: (item) =>
+                              _seedLabel(context, item.id, item.stepName),
                           enabled: editable,
                           emptyFillColor: AppColors.surface,
                           selectedFillColor: AppColors.surfaceVariant,

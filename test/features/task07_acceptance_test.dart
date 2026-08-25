@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -48,6 +49,7 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     syncHelper = SyncWriteHelper(SyncQueueDao(db), identity);
     const categoryId = 'appellate_division';
+    const caseCategoryId = 'acceptance-case-category';
     await db
         .into(db.courtCategories)
         .insert(
@@ -72,11 +74,23 @@ void main() {
           ),
         );
     await db
+        .into(db.caseCategories)
+        .insert(
+          const CaseCategoriesCompanion(
+            id: Value(caseCategoryId),
+            courtCategoryId: Value(categoryId),
+            name: Value('Acceptance Civil Cases'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
         .into(db.caseTypes)
         .insert(
           const CaseTypesCompanion(
             id: Value('acceptance-case-type'),
             courtCategoryId: Value(categoryId),
+            caseCategoryId: Value(caseCategoryId),
             name: Value('Civil'),
             orderIndex: Value(1),
             updatedAt: Value(1),
@@ -95,8 +109,68 @@ void main() {
           ),
         );
 
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(highCourtDivisionId),
+            nameKey: Value('courtCategory_highCourtDivision'),
+            courtLevel: Value('appellate'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value('acceptance-hcd-court'),
+            courtName: Value('Acceptance High Court Division'),
+            higherLowerCourts: Value('higher_courts'),
+            courtCategoryId: Value(highCourtDivisionId),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.caseCategories)
+        .insert(
+          const CaseCategoriesCompanion(
+            id: Value('acceptance-hcd-case-category'),
+            courtCategoryId: Value(highCourtDivisionId),
+            name: Value('Acceptance High Court Cases'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.caseTypes)
+        .insert(
+          const CaseTypesCompanion(
+            id: Value('acceptance-hcd-case-type'),
+            courtCategoryId: Value(highCourtDivisionId),
+            caseCategoryId: Value('acceptance-hcd-case-category'),
+            name: Value('High Court Civil'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          const OnBehalfsCompanion(
+            id: Value('acceptance-hcd-on-be-half'),
+            courtCategoryId: Value(highCourtDivisionId),
+            name: Value('Petitioner'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+
     lookupData = AddEditCaseLookupData(
       courtCategories: await CourtCategoriesDao(db).getAll(),
+      caseCategories: await (db.select(
+        db.caseCategories,
+      )..where((row) => row.isDeleted.equals(false))).get(),
       courts: await CourtsDao(db).getAll(),
       caseTypes: await CaseTypesDao(db).getAll(),
       onBehalfs: await OnBehalfsDao(db).getAll(),
@@ -472,6 +546,7 @@ void main() {
     await _select(tester, const ValueKey('add-edit-name-of-court'));
     await tester.tap(find.text('Acceptance High Court'));
     await tester.pumpAndSettle();
+    await _selectAcceptanceCaseCategory(tester);
     await _select(tester, const ValueKey('add-edit-case-type'));
     await tester.tap(find.text('Civil'));
     await tester.pumpAndSettle();
@@ -524,6 +599,7 @@ void main() {
     await _select(tester, const ValueKey('add-edit-name-of-court'));
     await tester.tap(find.text('Acceptance High Court'));
     await tester.pumpAndSettle();
+    await _selectAcceptanceCaseCategory(tester);
     await _select(tester, const ValueKey('add-edit-case-type'));
     await tester.tap(find.text('Civil'));
     await tester.pumpAndSettle();
@@ -548,6 +624,7 @@ void main() {
     await _select(tester, const ValueKey('add-edit-name-of-court'));
     await tester.tap(find.text('Acceptance High Court'));
     await tester.pumpAndSettle();
+    await _selectAcceptanceCaseCategory(tester);
     await _select(tester, const ValueKey('add-edit-case-type'));
     await tester.tap(find.text('Civil'));
     await tester.pumpAndSettle();
@@ -579,6 +656,94 @@ void main() {
     final edited = await CasesDao(db).getById(added.id);
     expect(edited?.caseNumber, '987654321/2027');
     expect(await CaseHistoryDao(db).getByCaseId(added.id), isEmpty);
+  });
+
+  testWidgets('High Court fields persist and restore in edit mode', (
+    WidgetTester tester,
+  ) async {
+    await openForm(tester, initialNextDate: DateTime(2026, 8, 1));
+    await _select(tester, const ValueKey('add-edit-higher-lower-court'));
+    await tester.tap(find.byKey(const ValueKey(highCourtDivisionId)));
+    await tester.pumpAndSettle();
+    await _select(tester, const ValueKey('add-edit-name-of-court'));
+    await tester.tap(find.text('Acceptance High Court Division'));
+    await tester.pumpAndSettle();
+    await _select(tester, const ValueKey('add-edit-case-category'));
+    await tester.tap(find.text('Acceptance High Court Cases'));
+    await tester.pumpAndSettle();
+    await _select(tester, const ValueKey('add-edit-case-type'));
+    await tester.tap(find.text('High Court Civil'));
+    await tester.pumpAndSettle();
+
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-honorable-judges'),
+      'Justice Example',
+    );
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-tender-number'),
+      '00123',
+    );
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-previous-court-case'),
+      'Previous-9',
+    );
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-district-of-origin'),
+      'Dhaka',
+    );
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-case-number'),
+      'HCD-1',
+    );
+    await _enterFormText(
+      tester,
+      const ValueKey('add-edit-result'),
+      'Disposed by order',
+    );
+    await tester.tap(find.byKey(const ValueKey('add-edit-save')));
+    await tester.pumpAndSettle();
+
+    final added = (await CasesDao(db).getAll()).single;
+    expect(added.caseCategoryId, 'acceptance-hcd-case-category');
+    expect(added.honorableJudges, 'Justice Example');
+    expect(added.tenderNumber, '00123');
+    expect(added.previousCourtCase, 'Previous-9');
+    expect(added.districtOfOrigin, 'Dhaka');
+    expect(added.result, 'Disposed by order');
+    expect((await caseRepository.listDisposed()).single.id, added.id);
+
+    await openForm(tester, initialCase: added);
+    expect(
+      await _formFieldText(tester, const ValueKey('add-edit-honorable-judges')),
+      'Justice Example',
+    );
+    expect(
+      await _formFieldText(tester, const ValueKey('add-edit-tender-number')),
+      '00123',
+    );
+    expect(
+      await _formFieldText(
+        tester,
+        const ValueKey('add-edit-previous-court-case'),
+      ),
+      'Previous-9',
+    );
+    expect(
+      await _formFieldText(
+        tester,
+        const ValueKey('add-edit-district-of-origin'),
+      ),
+      'Dhaka',
+    );
+    expect(
+      await _formFieldText(tester, const ValueKey('add-edit-result')),
+      'Disposed by order',
+    );
   });
 
   testWidgets('All Cases Update action opens the Quick Update dialog', (
@@ -722,6 +887,35 @@ Future<void> _select(WidgetTester tester, Key key) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _enterFormText(WidgetTester tester, Key key, String value) async {
+  final field = find.byKey(key);
+  if (field.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      field,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  await Scrollable.ensureVisible(
+    tester.element(field),
+    alignment: 0.5,
+    duration: Duration.zero,
+  );
+  await tester.enterText(field, value);
+}
+
+Future<String?> _formFieldText(WidgetTester tester, Key key) async {
+  final field = find.byKey(key);
+  if (field.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      field,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  return tester.widget<TextFormField>(field).controller?.text;
+}
+
 Future<void> _selectOffsets(WidgetTester tester, List<int> offsets) async {
   await _select(tester, const ValueKey('add-edit-day-offset'));
   for (final offset in offsets) {
@@ -730,5 +924,11 @@ Future<void> _selectOffsets(WidgetTester tester, List<int> offsets) async {
     await tester.tap(item);
   }
   await tester.tap(find.byKey(const ValueKey('custom-dropdown-done')));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _selectAcceptanceCaseCategory(WidgetTester tester) async {
+  await _select(tester, const ValueKey('add-edit-case-category'));
+  await tester.tap(find.text('Acceptance Civil Cases'));
   await tester.pumpAndSettle();
 }

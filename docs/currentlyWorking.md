@@ -1,3 +1,28 @@
+### 2026-08-25 — Current Task: Task 07 remaining-gap fixes — COMPLETE
+
+Implemented and validated:
+- Added a reusable disposed-case DAO/repository query using seeded disposed Steps and all six AD/HCD Result terms.
+- Added regression coverage for every English/Bengali disposal term.
+- Added High Court add/edit persistence coverage for all new AD/HCD fields, including leading-zero Tender Number restoration.
+- Full Flutter test suite passed: 141 tests, 2 skipped mobile-only; `flutter analyze` is clean.
+
+Version `0.0.83`.
+
+**Next:** Continue Task 07 development with the authoritative lower-court data import and resolve the existing CJM disposed-reference mismatch.
+
+### 2026-08-25 — Current Task: Task 07 AD/HCD Add/Edit localization — COMPLETE
+
+Implemented and validated:
+- Added AD/HCD-only Honorable Judges, Case Category, Tender Number, Previous Court Case, District of Origin, and Result controls.
+- Scoped AD/HCD Case Types by Case Category, hid Step for AD/HCD, and persisted the new case fields through schema v5 and sync changed-fields tracking.
+- Treated Dismissed/Disposed/Discharged English and Bengali result terms as disposed without Step validation.
+- Localized seeded District, Court, Case Type, and Step dropdown labels for EN/BN, with English fallback for custom rows; set EN as the development default locale.
+- Updated Task 07 and implementation-plan contracts; focused form, schema, result-disposal, and Task 07 acceptance tests pass.
+
+Version `0.0.82`.
+
+**Next:** Continue Task 07 development with the authoritative lower-court data import and resolve the existing CJM disposed-reference mismatch.
+
 ### 2026-08-25 — Current Task: App launcher icon update — COMPLETE
 
 Implemented and validated:

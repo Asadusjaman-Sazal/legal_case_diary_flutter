@@ -464,11 +464,41 @@ abstract class AppLocalizations {
   /// **'Name of Court'**
   String get addEditCaseSheet_nameOfCourt;
 
+  /// No description provided for @addEditCaseSheet_honorableJudges.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of Honorable Judges\''**
+  String get addEditCaseSheet_honorableJudges;
+
+  /// No description provided for @addEditCaseSheet_caseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Category'**
+  String get addEditCaseSheet_caseCategory;
+
   /// No description provided for @addEditCaseSheet_caseNumber.
   ///
   /// In en, this message translates to:
   /// **'Case Number'**
   String get addEditCaseSheet_caseNumber;
+
+  /// No description provided for @addEditCaseSheet_tenderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Tender Number'**
+  String get addEditCaseSheet_tenderNumber;
+
+  /// No description provided for @addEditCaseSheet_previousCourtCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Court Case'**
+  String get addEditCaseSheet_previousCourtCase;
+
+  /// No description provided for @addEditCaseSheet_districtOfOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'District of Origin'**
+  String get addEditCaseSheet_districtOfOrigin;
 
   /// No description provided for @addEditCaseSheet_petitioner.
   ///
@@ -577,6 +607,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step'**
   String get addEditCaseSheet_step;
+
+  /// No description provided for @addEditCaseSheet_result.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get addEditCaseSheet_result;
 
   /// No description provided for @addEditCaseSheet_note.
   ///

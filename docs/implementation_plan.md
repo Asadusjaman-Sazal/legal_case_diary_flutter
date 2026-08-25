@@ -150,6 +150,10 @@ The application adheres to the custom **Justice Ledger** corporate design system
   - Create `lib/shared/widgets/add_edit_case_sheet.dart`
 A full-screen modal sheet for adding a new case or editing an existing one.
 
+**Task 07 AD/HCD extension:** When Appellate Division or High Court Division is selected, show and persist Name of Honorable Judges', Case Category, Tender Number, Previous Court Case, and District of Origin after Name of Court/Case Type and Case Number as specified below. Show Result after Day Offset, hide Step, and treat Result containing `Dismissed`, `খারিজ`, `Disposed`, `নিষ্পত্তি`, `Discharged`, or `অব্যহতি` as disposed without validating AD/HCD against seeded Steps.
+
+**Reference-data labels:** Seeded District, Court, Case Type, and Step dropdown items resolve through the active locale (EN or BN); custom rows fall back to their stored English name. The current development default locale is EN.
+
 **Design reference:** The Add New Case form mockup is embedded in `legal_case_diary_flutter\mockup_html_screens\dailyCauseList\code.html`.
 
 **Form fields (in order):**
@@ -161,25 +165,30 @@ A full-screen modal sheet for adding a new case or editing an existing one.
 | 3 | **District** | `CustomDropdown` (single-select) | `PreSeededData.districtsByDivision[selectedDivision]` | Hidden when "Appellate Division" or "High Court Division" selected |
 | 4 | **Court Category** | `CustomDropdown` (single-select) | `PreSeededData.lowerCourtCategories` | Hidden when "Appellate Division" or "High Court Division" selected |
 | 5 | **Name of Court** | `CustomDropdown` (single-select, searchable) | Supreme: `PreSeededData.supremeCourtNames[category]` / Lower: `PreSeededData.lowerCourtNamesByDistrict[district][category]` | For lower divisional courts, filtered by selected district + category |
-| 6 | **Case Category** | `CustomDropdown` (single-select) | `CaseCategoriesDao` filtered by the resolved AD/HCD `court_category_id` | Shown only for Appellate/High Court; Case Type is filtered by the selected `case_category_id`. Lower courts do not show this field. |
-| 7 | **Case Type** | `CustomDropdown` (single-select) | `CaseTypesDao` filtered by `court_category_id`; additionally by `case_category_id` for AD/HCD | Placed left of Case Number. |
-| 8 | **Case Number** | `TextFormField` | — | Placed together with Case Type: Case Number on the right |
-| 9 | **Petitioner** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`petitionerLeadCounsel`) |
-| 10 | **Respondent** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`respondentLeadCounsel`) |
-| 11 | **On Behalf** | `CustomDropdown` (single-select) | `OnBehalfsDao` filtered by resolved `court_category_id` | Uses the same implicit/explicit court-category resolution as Step. |
-| 12 | **Petitioner Phone No. / Respondent Phone No.** | Two `TextFormField`s (numeric keyboard) | — | Data types: `petitionerPhone`, `respondentPhone` |
-| 13 | **Case Title & Remarks** | `TextFormField` (top half) + `TextFormField` (bottom half, multi-line) | — | Top: `caseTitleAndSection`. Bottom: `caseRemarks` |
-| 14 | **Next Date** | Date picker | — | Data type: `nextDate` (epoch ms). Placed with 15 & 16 in a single row |
-| 15 | **Notification** | `IconButton` (toggle) | — | When on, icon fills with black. Placed with 14 & 16 in a single row |
-| 16 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Options from `Settings > Notification > Notification Day Offset` | Placed with 14 & 15 in a single row |
-| 17 | **Step** | `CustomDropdown` (multi-select) | `StepsDao` — filtered by selected court's category | Data type: `lastStep`; hidden/disabled for AD/HCD because their seeded Step lists are empty. |
-| 18 | **Note** | `TextFormField` (multi-line) | — | Data type: `notesResults` |
-| 19 | **Save** | `ElevatedButton` | — | Saves the form data via `CaseRepository.insertCase()` (add mode) or `CaseRepository.updateCase()` (edit mode) |
+| 6 | **Name of Honorable Judges'** | `TextFormField` | — | AD/HCD only; after Name of Court |
+| 7 | **Case Category** | `CustomDropdown` (single-select) | `CaseCategoriesDao` filtered by the resolved AD/HCD `court_category_id` | Shown only for Appellate/High Court; Case Type is filtered by the selected `case_category_id`. Lower courts do not show this field. |
+| 8 | **Case Type** | `CustomDropdown` (single-select) | `CaseTypesDao` filtered by `court_category_id`; additionally by `case_category_id` for AD/HCD | Placed left of Case Number. |
+| 9 | **Case Number** | `TextFormField` | — | Placed together with Case Type: Case Number on the right |
+| 10 | **Tender Number** | Numeric `TextFormField` | — | AD/HCD only; after the Case Type/Case Number row |
+| 11 | **Previous Court Case** | `TextFormField` | — | AD/HCD only |
+| 12 | **District of Origin** | `TextFormField` | — | AD/HCD only |
+| 13 | **Petitioner** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`petitionerLeadCounsel`) |
+| 14 | **Respondent** | `TextFormField` | — | Includes a sub-field for Lead Counsel (`respondentLeadCounsel`) |
+| 15 | **On Behalf** | `CustomDropdown` (single-select) | `OnBehalfsDao` filtered by resolved `court_category_id` | Uses the same implicit/explicit court-category resolution as Step. |
+| 16 | **Petitioner Phone No. / Respondent Phone No.** | Two `TextFormField`s (numeric keyboard) | — | Data types: `petitionerPhone`, `respondentPhone` |
+| 17 | **Case Title & Remarks** | `TextFormField` (top half) + `TextFormField` (bottom half, multi-line) | — | Top: `caseTitleAndSection`. Bottom: `caseRemarks` |
+| 18 | **Next Date** | Date picker | — | Data type: `nextDate` (epoch ms). Placed with 19 & 20 in a single row |
+| 19 | **Notification** | `IconButton` (toggle) | — | When on, icon fills with black. Placed with 18 & 20 in a single row |
+| 20 | **Day Offset** | `CustomDropdown` (multi-select, no search) | Options from `Settings > Notification > Notification Day Offset` | Placed with 18 & 19 in a single row |
+| 21 | **Result** | `TextFormField` (multi-line) | — | AD/HCD only; persisted separately as `result` and used for disposal matching |
+| 22 | **Step** | `CustomDropdown` (multi-select) | `StepsDao` — filtered by selected court's category | Data type: `lastStep`; lower courts only; hidden for AD/HCD. |
+| 23 | **Note** | `TextFormField` (multi-line) | — | Data type: `notesResults` |
+| 24 | **Save** | `ElevatedButton` | — | Saves the form data via `CaseRepository.insertCase()` (add mode) or `CaseRepository.updateCase()` (edit mode) |
 
 **Layout rules:**
-- Fields 7–8 (Case Type + Case Number) are placed side-by-side: Case Type on the left, Case Number on the right.
-- Fields 14–15–16 (Next Date → Notification → Day Offset) are placed in a **single row** in that exact order.
-- Fields 5–11 (Court Name through On Behalf) are cascading: changing Higher/Lower Court resets and shows/hides Division/District/Court Category/Case Category, which in turn filters Name of Court and Case Type.
+- Fields 8–9 (Case Type + Case Number) are placed side-by-side: Case Type on the left, Case Number on the right.
+- Fields 18–20 (Next Date → Notification → Day Offset) are placed in a **single row** in that exact order.
+- Fields 5–15 (Court Name through On Behalf) are cascading: changing Higher/Lower Court resets and shows/hides Division/District/Court Category/Case Category, which in turn filters Name of Court and Case Type.
 - All other fields are stacked vertically in the order listed above.
 
 **Logic:**
@@ -260,7 +269,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
 ### 6. Disposed Cases Screen
 - **UI Design Reference:** Must use `legal_case_diary_flutter\mockup_html_screens\disposedCases\code.html` file to design the UI of the screen's body. For the App header and bottom nav bar, use the reusable `cases_screen_modal.dart` modal.
 - **Source of Truth:** Sorted out subset of cases from the "All Cases" dataset.
-- **Step Filter:** Shows only cases with steps defined as "disposed" in `pre_seeded_data.dart`.
+- **Disposed Filter:** Shows only cases with steps defined as "disposed" in `pre_seeded_data.dart` or AD/HCD Results containing a configured disposal term.
 - **Sorting:** Case cards are sorted by `next_date` **descending** — the latest disposed case sits at the top.
 - **Case Card UI Layout:** Must match exactly like the mockup html file's case card (`legal_case_diary_flutter\mockup_html_screens\disposedCases\code.html`).
   - **Line 1:** `last_step` | Top-Right: "Disposed:"
@@ -665,6 +674,12 @@ lib/
 | `last_step` | TEXT | Court procedure step at this hearing |
 | `next_date` | INTEGER | Epoch ms — the next date set at this hearing |
 | `note_result` | TEXT | What happened at the hearing (UI: "Note/Result") |
+| `case_category_id` | TEXT NULL FK → `case_categories` | AD/HCD Case Category scope |
+| `honorable_judges` | TEXT NULL | AD/HCD judge or bench names |
+| `tender_number` | TEXT NULL | AD/HCD tender number; text storage preserves leading zeroes |
+| `previous_court_case` | TEXT NULL | AD/HCD previous court case |
+| `district_of_origin` | TEXT NULL | AD/HCD originating district |
+| `result` | TEXT NULL | AD/HCD result; matching configured disposal terms marks the case disposed |
 | `created_by` | TEXT | UUID of the user who logged this entry |
 | `source_mutation_id` | UUID | Unique ID of the accepted case mutation that created this immutable history event; UNIQUE on the server for idempotency. |
 | `base_case_version` | INTEGER | Case version the accepted mutation was based on. |

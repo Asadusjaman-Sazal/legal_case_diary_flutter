@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/shared/widgets/add_edit_case_sheet.dart';
 
 Widget _localizedApp(
@@ -285,6 +286,104 @@ void main() {
         find.text('Please select an option from Division first.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('shows AD/HCD fields and scopes case types by case category', (
+      WidgetTester tester,
+    ) async {
+      const caseCategory = CaseCategory(
+        id: 'ad-civil',
+        courtCategoryId: appellateDivisionId,
+        name: 'Civil Cases',
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const court = Court(
+        id: 'ad-court',
+        courtName: 'Appellate Division',
+        higherLowerCourts: higherCourtsOption,
+        courtCategoryId: appellateDivisionId,
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const caseType = CaseType(
+        id: 'ad-civil-appeal',
+        courtCategoryId: appellateDivisionId,
+        caseCategoryId: 'ad-civil',
+        name: 'Civil Appeal',
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          AddEditCaseSheet(
+            lookupData: const AddEditCaseLookupData(
+              caseCategories: [caseCategory],
+              courts: [court],
+              caseTypes: [caseType],
+              lastAddCaseHigherLowerCourt: appellateDivisionId,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('add-edit-honorable-judges')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('add-edit-case-category')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('add-edit-tender-number')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('add-edit-previous-court-case')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('add-edit-district-of-origin')),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-category')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Civil Cases').last);
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-case-type')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, 40),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
+      await tester.pumpAndSettle();
+      expect(find.text('Civil Appeal'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-result')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byKey(const ValueKey('add-edit-result')), findsOneWidget);
+      expect(find.byKey(const ValueKey('add-edit-step')), findsNothing);
     });
 
     testWidgets('canEdit false disables editable controls and save', (

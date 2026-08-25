@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/cases/data/local/cases_dao.dart';
 
 void main() {
   group('AppDatabase schema', () {
@@ -92,7 +93,12 @@ void main() {
         containsAll(<String>[
           'id',
           'case_type',
+          'case_category_id',
           'case_number',
+          'honorable_judges',
+          'tender_number',
+          'previous_court_case',
+          'district_of_origin',
           'petitioner',
           'respondent',
           'petitioner_lead_counsel',
@@ -105,6 +111,7 @@ void main() {
           'next_date',
           'last_step',
           'notes_results',
+          'result',
           'created_at',
           'updated_at',
           'version',
@@ -149,6 +156,57 @@ void main() {
       expect(active, hasLength(1));
       expect(active.first.id, 'active');
     });
+
+    test(
+      'active and disposed queries handle every AD/HCD result term',
+      () async {
+        final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+        const disposedTerms = <String>[
+          'Dismissed',
+          'খারিজ',
+          'Disposed',
+          'নিষ্পত্তি',
+          'Discharged',
+          'অব্যহতি',
+        ];
+        for (var index = 0; index < disposedTerms.length; index++) {
+          await _insertCase(
+            db,
+            id: 'disposed-$index',
+            isDeleted: false,
+            updatedAt: now,
+            result: index == 0
+                ? 'Appeal ${disposedTerms[index].toUpperCase()} by the court'
+                : disposedTerms[index],
+          );
+        }
+        await _insertCase(
+          db,
+          id: 'disposed-step',
+          isDeleted: false,
+          updatedAt: now,
+          lastStep: 'Disposed',
+        );
+        await _insertCase(
+          db,
+          id: 'active-result',
+          isDeleted: false,
+          updatedAt: now,
+          result: 'Pending hearing',
+        );
+
+        expect(await CasesDao(db).getActiveCaseCount(), 1);
+        final disposed = await CasesDao(db).getDisposed();
+        expect(disposed, hasLength(disposedTerms.length + 1));
+        expect(
+          disposed.map((item) => item.id),
+          containsAll(<String>[
+            ...List.generate(6, (index) => 'disposed-$index'),
+            'disposed-step',
+          ]),
+        );
+      },
+    );
 
     test(
       'purgeSoftDeletedRecords does not remove unsynced tombstones',
@@ -257,6 +315,8 @@ Future<void> _insertCase(
   required bool isDeleted,
   required int updatedAt,
   int? syncedAt,
+  String? result,
+  String? lastStep,
 }) async {
   final now = DateTime.now().toUtc().millisecondsSinceEpoch;
   await db
@@ -271,6 +331,8 @@ Future<void> _insertCase(
           respondent: const Value('Respondent'),
           courtId: const Value('court-1'),
           onBehalfId: const Value('ob-1'),
+          result: Value(result),
+          lastStep: Value(lastStep),
           createdAt: Value(now),
           updatedAt: Value(updatedAt),
           isDeleted: Value(isDeleted),

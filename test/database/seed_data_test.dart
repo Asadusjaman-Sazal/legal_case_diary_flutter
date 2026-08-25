@@ -334,8 +334,8 @@ void main() {
       final byId = {for (final c in seedCategories) c.id: c};
       const expected = <String, (int, int, int)>{
         districtCourtsCivilId: (55, 19, 11),
-        districtSessionsCriminalId: (32, 9, 5),
-        metropolitanSessionsJudgeCriminalId: (32, 9, 5),
+        districtSessionsCriminalId: (33, 9, 5),
+        metropolitanSessionsJudgeCriminalId: (33, 9, 5),
         chiefJudicialMagistrateId: (29, 4, 4),
         chiefMetropolitanMagistrateId: (29, 4, 4),
         executiveMagistrateId: (30, 6, 7),

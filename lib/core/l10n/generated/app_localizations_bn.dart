@@ -410,7 +410,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_metropolitanSessionsJudgeCriminal =>
-      'মেট্রোপলিটন সেশন জজ আদালত (ফৌজদারি)';
+      'মহানগর দায়রা জজ আদালত (ফৌজদারি)';
 
   @override
   String get lowerCourtCategory_chiefJudicialMagistrate =>

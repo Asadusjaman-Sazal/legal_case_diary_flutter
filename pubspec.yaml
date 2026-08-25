@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.76
+version: 0.0.80
 
 environment:
   sdk: ^3.12.2
@@ -62,6 +62,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Generates launcher icons from the canonical app logo PNG.
+  flutter_launcher_icons: ^0.14.4
+
   # Recommended lint set for Flutter apps.
   flutter_lints: ^6.0.0
 
@@ -79,6 +82,16 @@ hooks:
   user_defines:
     sqlite3:
       source: sqlite3mc
+
+# Launcher icons generated from assets/icons/app_logo.png.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: assets/icons/app_logo.png
+  web:
+    generate: true
+    image_path: assets/icons/app_logo.png
 
 flutter:
   # Material Icons support.

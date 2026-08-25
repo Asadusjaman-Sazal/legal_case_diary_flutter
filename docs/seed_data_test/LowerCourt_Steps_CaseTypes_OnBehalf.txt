@@ -101,6 +101,7 @@ Arrival | আগমন
 Appearance | এপিয়ার
 Filing | নতুন মামলা
 Transfer | বদলী
+Framing of Charge | চার্জ শুনানী
 Admission Hearing | গ্রহণযোগ্যতা শুনানী
 Appeal Hearing | আপিল শুনানী (AH)
 Revision Hearing | রিভিশন শুনানী (RH)
@@ -158,6 +159,7 @@ Arrival | আগমন
 Appearance | এপিয়ার
 Filing | নতুন মামলা
 Transfer | বদলী
+Framing of Charge | চার্জ শুনানী
 Admission Hearing | গ্রহণযোগ্যতা শুনানী
 Appeal Hearing | আপিল শুনানী (AH)
 Revision Hearing | রিভিশন শুনানী (RH)
@@ -398,10 +400,6 @@ Disposed Steps: Chief Judicial Magistrate Court
 -----------------------------------------------
 Withdrawal
 Withdrawal under Section 248
-Dismissal
-Allowed
-Rejected
-Rejected Right Away
 Conviction
 Acquittal
 Maintainance Not Necessary
@@ -411,10 +409,6 @@ Disposed Steps: Chief Metropolitan Magistrate Court
 ---------------------------------------------------
 Withdrawal
 Withdrawal under Section 248
-Dismissal
-Allowed
-Rejected
-Rejected Right Away
 Conviction
 Acquittal
 Maintainance Not Necessary
@@ -428,85 +422,6 @@ Withdrawal
 Rejected
 Maintainance Not Necessary
 Disposed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

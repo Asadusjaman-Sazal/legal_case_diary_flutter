@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.76 - Corrected disposed-step tests so Judgement is not treated as disposed.
+Version: 0.0.80 - Updated Android, iOS, and web launcher icons from assets/icons/app_logo.png.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -91,3 +91,6 @@ Version: 0.0.73 - Made all lower-court Steps, Case Types, and On Behalfs explici
 Version: 0.0.74 - Imported 950 verified lower-court names for eight Dhaka-division districts.
 Version: 0.0.75 - Removed invalid Dismissal from district-criminal disposed-step references.
 Version: 0.0.76 - Corrected disposed-step tests so Judgement is not treated as disposed.
+Version: 0.0.77 - Fixed Exit App confirmation to close the system app instead of popping the root route.
+Version: 0.0.79 - Restored Framing of Charge in Sessions and Metropolitan Sessions step seeds.
+Version: 0.0.80 - Updated Android, iOS, and web launcher icons from assets/icons/app_logo.png.

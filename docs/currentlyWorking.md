@@ -1,4 +1,15 @@
-### 2026-08-24 — Current Task: Lower-court seed data import — IMPLEMENTED; FOCUSED TEST PARTIAL
+### 2026-08-25 — Current Task: App launcher icon update — COMPLETE
+
+Implemented and validated:
+- Added `flutter_launcher_icons` configuration using `assets/icons/app_logo.png`.
+- Generated Android, iOS, and web launcher icon assets.
+- `flutter analyze` is clean.
+
+Version `0.0.80`.
+
+**Next:** Resolve the existing CJM `Allowed` disposed-reference mismatch, reset local app data, and continue Task 07 development.
+
+### 2026-08-25 — Current Task: Restore Sessions step seed — IMPLEMENTED; TEST PARTIAL
 
 Implemented:
 - Replaced all lower-court Steps, Case Types, On Behalfs, and Disposed references from `docs/seed_data_test/LowerCourt_Steps_CaseTypes_OnBehalf.txt`.
@@ -11,11 +22,15 @@ Implemented:
 - Added a focused test for the imported court count, scope, IDs, and order indexes.
 - Removed `Dismissal` from the district-criminal disposed references because it is not a seeded district-criminal step.
 - Corrected the focused test so `Judgement` is treated as a normal step, not a disposed marker.
+- Restored `Framing of Charge` in Sessions and Metropolitan Sessions step seeds with updated source order indexes.
+- Replaced the confirmed-exit root navigator pop with `SystemNavigator.pop()` so the operating system closes the app instead of showing a black screen.
+- Added generated `ios`, `windows`, and `web` platform folders using the existing application identity without regenerating `android`.
 - Flutter analysis is clean. The focused seed test no longer treats `Judgement` as disposed; it now identifies the separate Chief Judicial Magistrate `Dismissal` reference.
+- Focused migration tests and restored step-order checks pass; the seed-data suite still reports the existing CJM `Allowed` disposed-reference mismatch.
 
-Version `0.0.76`.
+Version `0.0.79`.
 
-**Next:** Resolve remaining invalid category-specific disposed references, then reset the development database before testing the new seed data.
+**Next:** Resolve the existing CJM `Allowed` disposed-reference mismatch, reset local app data, and continue Task 07 development.
 
 ### 2026-08-22 — Current Task: Lower-court category seed correction — COMPLETE
 

@@ -2109,40 +2109,46 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         orderIndex: 3,
       ),
       SeedOption(
+        id: _stepId(districtSessionsCriminalId, _slug('Framing of Charge')),
+        labelEn: 'Framing of Charge',
+        labelBn: 'চার্জ শুনানী',
+        orderIndex: 4,
+      ),
+      SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Admission Hearing')),
         labelEn: 'Admission Hearing',
         labelBn: 'গ্রহণযোগ্যতা শুনানী',
-        orderIndex: 4,
+        orderIndex: 5,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Appeal Hearing')),
         labelEn: 'Appeal Hearing',
         labelBn: 'আপিল শুনানী (AH)',
-        orderIndex: 5,
+        orderIndex: 6,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Revision Hearing')),
         labelEn: 'Revision Hearing',
         labelBn: 'রিভিশন শুনানী (RH)',
-        orderIndex: 6,
+        orderIndex: 7,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('LCR Call')),
         labelEn: 'LCR Call',
         labelBn: 'নথি/LCR তলব',
-        orderIndex: 7,
+        orderIndex: 8,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Petition Hearing')),
         labelEn: 'Petition Hearing',
         labelBn: 'দরখাস্ত শুনানী',
-        orderIndex: 8,
+        orderIndex: 9,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Warrant of Arrest')),
         labelEn: 'Warrant of Arrest',
         labelBn: 'গ্রেফতারি পরোয়ানা (W/A)',
-        orderIndex: 9,
+        orderIndex: 10,
       ),
       SeedOption(
         id: _stepId(
@@ -2151,25 +2157,25 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Warrant of Proclamation',
         labelBn: 'হুলিয়া (W/P & A)',
-        orderIndex: 10,
+        orderIndex: 11,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Newspaper Circular')),
         labelEn: 'Newspaper Circular',
         labelBn: 'পত্রিকা বিজ্ঞপ্তি',
-        orderIndex: 11,
+        orderIndex: 12,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Deposition of Money')),
         labelEn: 'Deposition of Money',
         labelBn: 'টাকা জমা',
-        orderIndex: 12,
+        orderIndex: 13,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Bail Petition Hearing')),
         labelEn: 'Bail Petition Hearing',
         labelBn: 'জামিন শুনানী',
-        orderIndex: 13,
+        orderIndex: 14,
       ),
       SeedOption(
         id: _stepId(
@@ -2178,13 +2184,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'High Court Order Submission',
         labelBn: 'উচ্চ আদালতের আদেশ দাখিল',
-        orderIndex: 14,
+        orderIndex: 15,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Witness')),
         labelEn: 'Witness',
         labelBn: 'সাক্ষী',
-        orderIndex: 15,
+        orderIndex: 16,
       ),
       SeedOption(
         id: _stepId(
@@ -2193,13 +2199,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Self Witness (Section 340)',
         labelBn: 'সাফাই সাক্ষী (৩৪০ ধারা)',
-        orderIndex: 16,
+        orderIndex: 17,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Cross Examination')),
         labelEn: 'Cross Examination',
         labelBn: 'জেরা',
-        orderIndex: 17,
+        orderIndex: 18,
       ),
       SeedOption(
         id: _stepId(
@@ -2208,67 +2214,67 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Examination of Accused',
         labelBn: 'আসামী পরীক্ষা (৩৪২ ধারা)',
-        orderIndex: 18,
+        orderIndex: 19,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Argument')),
         labelEn: 'Argument',
         labelBn: 'যুক্তিতর্ক',
-        orderIndex: 19,
+        orderIndex: 20,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Judgement')),
         labelEn: 'Judgement',
         labelBn: 'রায় প্রচার',
-        orderIndex: 20,
+        orderIndex: 21,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Trial')),
         labelEn: 'Trial',
         labelBn: 'বিচার',
-        orderIndex: 21,
+        orderIndex: 22,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Conviction')),
         labelEn: 'Conviction',
         labelBn: 'সাজা',
-        orderIndex: 22,
+        orderIndex: 23,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Discharge')),
         labelEn: 'Discharge',
         labelBn: 'অব্যহতি',
-        orderIndex: 23,
+        orderIndex: 24,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Acquittal')),
         labelEn: 'Acquittal',
         labelBn: 'খালাস',
-        orderIndex: 24,
+        orderIndex: 25,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Order')),
         labelEn: 'Order',
         labelBn: 'আদেশ',
-        orderIndex: 25,
+        orderIndex: 26,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Allowed')),
         labelEn: 'Allowed',
         labelBn: 'মঞ্জুর',
-        orderIndex: 26,
+        orderIndex: 27,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Rejected')),
         labelEn: 'Rejected',
         labelBn: 'নামঞ্জুর',
-        orderIndex: 27,
+        orderIndex: 28,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Rejected Right Away')),
         labelEn: 'Rejected Right Away',
         labelBn: 'সরাসরি নামঞ্জুর',
-        orderIndex: 28,
+        orderIndex: 29,
       ),
       SeedOption(
         id: _stepId(
@@ -2277,7 +2283,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Withdrawal under Section 248',
         labelBn: '২৪৮ ধারায় প্রত্যাহার',
-        orderIndex: 29,
+        orderIndex: 30,
       ),
       SeedOption(
         id: _stepId(
@@ -2286,13 +2292,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Maintainance Not Necessary',
         labelBn: 'পরিচালনার আবশ্যকতা নেই',
-        orderIndex: 30,
+        orderIndex: 31,
       ),
       SeedOption(
         id: _stepId(districtSessionsCriminalId, _slug('Disposed')),
         labelEn: 'Disposed',
         labelBn: 'নিষ্পত্তি',
-        orderIndex: 31,
+        orderIndex: 32,
       ),
     ],
     caseTypes: <SeedOption>[
@@ -2947,11 +2953,20 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(
           metropolitanSessionsJudgeCriminalId,
+          _slug('Framing of Charge'),
+        ),
+        labelEn: 'Framing of Charge',
+        labelBn: 'চার্জ শুনানী',
+        orderIndex: 4,
+      ),
+      SeedOption(
+        id: _stepId(
+          metropolitanSessionsJudgeCriminalId,
           _slug('Admission Hearing'),
         ),
         labelEn: 'Admission Hearing',
         labelBn: 'গ্রহণযোগ্যতা শুনানী',
-        orderIndex: 4,
+        orderIndex: 5,
       ),
       SeedOption(
         id: _stepId(
@@ -2960,7 +2975,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Appeal Hearing',
         labelBn: 'আপিল শুনানী (AH)',
-        orderIndex: 5,
+        orderIndex: 6,
       ),
       SeedOption(
         id: _stepId(
@@ -2969,13 +2984,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Revision Hearing',
         labelBn: 'রিভিশন শুনানী (RH)',
-        orderIndex: 6,
+        orderIndex: 7,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('LCR Call')),
         labelEn: 'LCR Call',
         labelBn: 'নথি/LCR তলব',
-        orderIndex: 7,
+        orderIndex: 8,
       ),
       SeedOption(
         id: _stepId(
@@ -2984,7 +2999,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Petition Hearing',
         labelBn: 'দরখাস্ত শুনানী',
-        orderIndex: 8,
+        orderIndex: 9,
       ),
       SeedOption(
         id: _stepId(
@@ -2993,7 +3008,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Warrant of Arrest',
         labelBn: 'গ্রেফতারি পরোয়ানা (W/A)',
-        orderIndex: 9,
+        orderIndex: 10,
       ),
       SeedOption(
         id: _stepId(
@@ -3002,7 +3017,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Warrant of Proclamation',
         labelBn: 'হুলিয়া (W/P & A)',
-        orderIndex: 10,
+        orderIndex: 11,
       ),
       SeedOption(
         id: _stepId(
@@ -3011,7 +3026,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Newspaper Circular',
         labelBn: 'পত্রিকা বিজ্ঞপ্তি',
-        orderIndex: 11,
+        orderIndex: 12,
       ),
       SeedOption(
         id: _stepId(
@@ -3020,7 +3035,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Deposition of Money',
         labelBn: 'টাকা জমা',
-        orderIndex: 12,
+        orderIndex: 13,
       ),
       SeedOption(
         id: _stepId(
@@ -3029,7 +3044,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Bail Petition Hearing',
         labelBn: 'জামিন শুনানী',
-        orderIndex: 13,
+        orderIndex: 14,
       ),
       SeedOption(
         id: _stepId(
@@ -3038,13 +3053,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'High Court Order Submission',
         labelBn: 'উচ্চ আদালতের আদেশ দাখিল',
-        orderIndex: 14,
+        orderIndex: 15,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Witness')),
         labelEn: 'Witness',
         labelBn: 'সাক্ষী',
-        orderIndex: 15,
+        orderIndex: 16,
       ),
       SeedOption(
         id: _stepId(
@@ -3053,7 +3068,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Self Witness (Section 340)',
         labelBn: 'সাফাই সাক্ষী (৩৪০ ধারা)',
-        orderIndex: 16,
+        orderIndex: 17,
       ),
       SeedOption(
         id: _stepId(
@@ -3062,7 +3077,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Cross Examination',
         labelBn: 'জেরা',
-        orderIndex: 17,
+        orderIndex: 18,
       ),
       SeedOption(
         id: _stepId(
@@ -3071,61 +3086,61 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Examination of Accused',
         labelBn: 'আসামী পরীক্ষা (৩৪২ ধারা)',
-        orderIndex: 18,
+        orderIndex: 19,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Argument')),
         labelEn: 'Argument',
         labelBn: 'যুক্তিতর্ক',
-        orderIndex: 19,
+        orderIndex: 20,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Judgement')),
         labelEn: 'Judgement',
         labelBn: 'রায় প্রচার',
-        orderIndex: 20,
+        orderIndex: 21,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Trial')),
         labelEn: 'Trial',
         labelBn: 'বিচার',
-        orderIndex: 21,
+        orderIndex: 22,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Conviction')),
         labelEn: 'Conviction',
         labelBn: 'সাজা',
-        orderIndex: 22,
+        orderIndex: 23,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Discharge')),
         labelEn: 'Discharge',
         labelBn: 'অব্যহতি',
-        orderIndex: 23,
+        orderIndex: 24,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Acquittal')),
         labelEn: 'Acquittal',
         labelBn: 'খালাস',
-        orderIndex: 24,
+        orderIndex: 25,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Order')),
         labelEn: 'Order',
         labelBn: 'আদেশ',
-        orderIndex: 25,
+        orderIndex: 26,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Allowed')),
         labelEn: 'Allowed',
         labelBn: 'মঞ্জুর',
-        orderIndex: 26,
+        orderIndex: 27,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Rejected')),
         labelEn: 'Rejected',
         labelBn: 'নামঞ্জুর',
-        orderIndex: 27,
+        orderIndex: 28,
       ),
       SeedOption(
         id: _stepId(
@@ -3134,7 +3149,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Rejected Right Away',
         labelBn: 'সরাসরি নামঞ্জুর',
-        orderIndex: 28,
+        orderIndex: 29,
       ),
       SeedOption(
         id: _stepId(
@@ -3143,7 +3158,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Withdrawal under Section 248',
         labelBn: '২৪৮ ধারায় প্রত্যাহার',
-        orderIndex: 29,
+        orderIndex: 30,
       ),
       SeedOption(
         id: _stepId(
@@ -3152,13 +3167,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         ),
         labelEn: 'Maintainance Not Necessary',
         labelBn: 'পরিচালনার আবশ্যকতা নেই',
-        orderIndex: 30,
+        orderIndex: 31,
       ),
       SeedOption(
         id: _stepId(metropolitanSessionsJudgeCriminalId, _slug('Disposed')),
         labelEn: 'Disposed',
         labelBn: 'নিষ্পত্তি',
-        orderIndex: 31,
+        orderIndex: 32,
       ),
     ],
     caseTypes: <SeedOption>[
@@ -4700,7 +4715,7 @@ final List<SeedCourt> supremeCourtNames = <SeedCourt>[
       _slug('Bijoy 71 Building Court No. 23 (8th Floor)'),
     ),
     courtNameEn: 'Bijoy 71 Building Court No. 23 (8th Floor)',
-    courtNameBn: 'বিজয় ৭১ বিল্ডিং কোর্ট নং- ২১ (৯ম তলা)',
+    courtNameBn: 'বিজয় ৭১ বিল্ডিং কোর্ট নং- ২৩ (৯ম তলা)',
     higherLowerCourts: higherCourtsOption,
     courtCategoryId: highCourtDivisionId,
     orderIndex: 49,
@@ -19188,10 +19203,6 @@ final Set<String> disposedStepIds = <String>{
   ]),
   ..._lowerDisposedStepIds(chiefJudicialMagistrateId, <String>[
     'Withdrawal under Section 248',
-    'Dismissal',
-    'Allowed',
-    'Rejected',
-    'Rejected Right Away',
     'Conviction',
     'Acquittal',
     'Maintainance Not Necessary',
@@ -19199,10 +19210,6 @@ final Set<String> disposedStepIds = <String>{
   ]),
   ..._lowerDisposedStepIds(chiefMetropolitanMagistrateId, <String>[
     'Withdrawal under Section 248',
-    'Dismissal',
-    'Allowed',
-    'Rejected',
-    'Rejected Right Away',
     'Conviction',
     'Acquittal',
     'Maintainance Not Necessary',

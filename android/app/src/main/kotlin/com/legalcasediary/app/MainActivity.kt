@@ -1,4 +1,4 @@
-package com.legalcasediary.legal_case_diary
+package com.legalcasediary.app
 
 import io.flutter.embedding.android.FlutterActivity
 

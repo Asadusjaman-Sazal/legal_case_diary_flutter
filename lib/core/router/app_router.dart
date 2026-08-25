@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -312,7 +313,7 @@ class AppShellRoot extends StatelessWidget {
         // At root — show exit confirmation.
         final shouldExit = await _confirmExit(context);
         if (shouldExit && context.mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
+          SystemNavigator.pop();
         }
       },
       // Shell screens own the app's status-bar inset. Keep this outside the

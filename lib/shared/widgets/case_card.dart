@@ -55,6 +55,9 @@ class CaseCard extends StatelessWidget {
   /// Step shown in the Daily Cause List and list metadata.
   final String? step;
 
+  /// AD/HCD result shown next to Next Date when step is absent.
+  final String? result;
+
   /// Note shown beside the step in the Daily Cause List layout.
   final String? note;
 
@@ -90,6 +93,7 @@ class CaseCard extends StatelessWidget {
     this.nextDate,
     this.disposedDate,
     this.step,
+    this.result,
     this.note,
     this.onPhone,
     this.onMessage,
@@ -151,6 +155,7 @@ class CaseCard extends StatelessWidget {
                         nextDate: nextDate,
                         disposedDate: disposedDate,
                         step: step,
+                        result: result,
                         note: note,
                       ),
                     if (_hasActions) ...[
@@ -286,6 +291,7 @@ class _ListDetails extends StatelessWidget {
   final String? nextDate;
   final String? disposedDate;
   final String? step;
+  final String? result;
   final String? note;
 
   const _ListDetails({
@@ -294,6 +300,7 @@ class _ListDetails extends StatelessWidget {
     required this.nextDate,
     required this.disposedDate,
     required this.step,
+    required this.result,
     required this.note,
   });
 
@@ -314,6 +321,8 @@ class _ListDetails extends StatelessWidget {
     }
     if (step != null) {
       details.add(_DetailValue(label: l.allCasesScreen_lastStep, value: step));
+    } else if (result != null) {
+      details.add(_DetailValue(label: l.addEditCaseSheet_result, value: result));
     }
 
     final trimmedNote = note?.trim();

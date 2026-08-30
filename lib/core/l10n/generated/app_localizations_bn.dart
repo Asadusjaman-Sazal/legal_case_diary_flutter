@@ -108,7 +108,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseDetailsScreen_respondent => 'বিবাদী';
 
   @override
-  String get caseDetailsScreen_leadCounsel => 'নেতৃস্থানীয় আইনজীবী';
+  String get caseDetailsScreen_leadCounsel => 'প্রধান আইনজীবী';
 
   @override
   String get caseDetailsScreen_caseTitleAndRemark => 'মামলার শিরোনাম ও মন্তব্য';

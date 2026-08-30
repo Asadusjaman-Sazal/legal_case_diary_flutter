@@ -45,10 +45,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get allCasesScreen_petitionerVsRespondent => 'বাদী বনাম বিবাদী';
 
   @override
-  String get allCasesScreen_nextDate => 'পরবর্তী তারিখ';
+  String get caseCard_nextDate => 'পরবর্তী তারিখ';
 
   @override
-  String get allCasesScreen_lastStep => 'পদক্ষেপ';
+  String get caseCard_lastStep => 'পদক্ষেপ';
 
   @override
   String get allCasesScreen_phone => 'ফোন';
@@ -138,7 +138,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
 
   @override
-  String get disposedCasesScreen_disposed => 'নিষ্পত্তিকৃত:';
+  String get caseCard_disposed => 'নিষ্পত্তিকৃত:';
 
   @override
   String get activeCasesScreen_title => 'সক্রিয় মামলা';

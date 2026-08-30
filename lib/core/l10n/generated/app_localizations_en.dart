@@ -46,10 +46,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Petitioner Vs Respondent';
 
   @override
-  String get allCasesScreen_nextDate => 'Next Date';
+  String get caseCard_nextDate => 'Next Date';
 
   @override
-  String get allCasesScreen_lastStep => 'Step';
+  String get caseCard_lastStep => 'Step';
 
   @override
   String get allCasesScreen_phone => 'Phone';
@@ -139,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disposedCasesScreen_title => 'Disposed Cases';
 
   @override
-  String get disposedCasesScreen_disposed => 'Disposed:';
+  String get caseCard_disposed => 'Disposed:';
 
   @override
   String get activeCasesScreen_title => 'Active Cases';

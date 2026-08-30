@@ -97,10 +97,10 @@ class AppTranslations {
       AppStrings.allCasesScreenCasetype: _loc.allCasesScreen_caseType,
       AppStrings.allCasesScreenDisposedcases: _loc.allCasesScreen_disposedCases,
       AppStrings.allCasesScreenFilterbycourt: _loc.allCasesScreen_filterByCourt,
-      AppStrings.allCasesScreenLaststep: _loc.allCasesScreen_lastStep,
+      AppStrings.caseCardLaststep: _loc.caseCard_lastStep,
       AppStrings.allCasesScreenMessage: _loc.allCasesScreen_message,
       AppStrings.allCasesScreenNewestfirst: _loc.allCasesScreen_newestFirst,
-      AppStrings.allCasesScreenNextdate: _loc.allCasesScreen_nextDate,
+      AppStrings.caseCardNextdate: _loc.caseCard_nextDate,
       AppStrings.allCasesScreenOldestfirst: _loc.allCasesScreen_oldestFirst,
       AppStrings.allCasesScreenOnbehalf: _loc.allCasesScreen_onBehalf,
       AppStrings.allCasesScreenPetitionervsrespondent:
@@ -173,7 +173,7 @@ class AppTranslations {
           _loc.dailyCauseListScreen_tomorrow,
     },
     AppStrings.disposedCasesScreenGroup: <String, String>{
-      AppStrings.disposedCasesScreenDisposed: _loc.disposedCasesScreen_disposed,
+      AppStrings.disposedCasesScreenDisposed: _loc.caseCard_disposed,
       AppStrings.disposedCasesScreenTitle: _loc.disposedCasesScreen_title,
     },
     AppStrings.divisionGroup: <String, String>{

@@ -53,10 +53,10 @@ abstract class AppStrings {
       "allCasesScreen_disposedCases";
   static const String allCasesScreenFilterbycourt =
       "allCasesScreen_filterByCourt";
-  static const String allCasesScreenLaststep = "allCasesScreen_lastStep";
+  static const String caseCardLaststep = "caseCard_lastStep";
   static const String allCasesScreenMessage = "allCasesScreen_message";
   static const String allCasesScreenNewestfirst = "allCasesScreen_newestFirst";
-  static const String allCasesScreenNextdate = "allCasesScreen_nextDate";
+  static const String caseCardNextdate = "caseCard_nextDate";
   static const String allCasesScreenOldestfirst = "allCasesScreen_oldestFirst";
   static const String allCasesScreenOnbehalf = "allCasesScreen_onBehalf";
   static const String allCasesScreenPetitionervsrespondent =
@@ -142,8 +142,7 @@ abstract class AppStrings {
 
   // disposedCasesScreen
   static const String disposedCasesScreenGroup = "disposedCasesScreen";
-  static const String disposedCasesScreenDisposed =
-      "disposedCasesScreen_disposed";
+  static const String disposedCasesScreenDisposed = "caseCard_disposed";
   static const String disposedCasesScreenTitle = "disposedCasesScreen_title";
 
   // division

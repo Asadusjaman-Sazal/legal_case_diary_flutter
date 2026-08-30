@@ -310,17 +310,17 @@ class _ListDetails extends StatelessWidget {
     if (variant == CaseCardVariant.disposed && disposedDate != null) {
       details.add(
         _DetailValue(
-          label: l.disposedCasesScreen_disposed,
+          label: l.caseCard_disposed,
           value: disposedDate,
         ),
       );
     } else if (nextDate != null) {
       details.add(
-        _DetailValue(label: l.allCasesScreen_nextDate, value: nextDate),
+        _DetailValue(label: l.caseCard_nextDate, value: nextDate),
       );
     }
     if (step != null) {
-      details.add(_DetailValue(label: l.allCasesScreen_lastStep, value: step));
+      details.add(_DetailValue(label: l.caseCard_lastStep, value: step));
     } else if (result != null) {
       details.add(_DetailValue(label: l.addEditCaseSheet_result, value: result));
     }

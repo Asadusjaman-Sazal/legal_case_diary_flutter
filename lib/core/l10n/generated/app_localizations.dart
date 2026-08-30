@@ -170,17 +170,17 @@ abstract class AppLocalizations {
   /// **'Petitioner Vs Respondent'**
   String get allCasesScreen_petitionerVsRespondent;
 
-  /// No description provided for @allCasesScreen_nextDate.
+  /// No description provided for @caseCard_nextDate.
   ///
   /// In en, this message translates to:
   /// **'Next Date'**
-  String get allCasesScreen_nextDate;
+  String get caseCard_nextDate;
 
-  /// No description provided for @allCasesScreen_lastStep.
+  /// No description provided for @caseCard_lastStep.
   ///
   /// In en, this message translates to:
   /// **'Step'**
-  String get allCasesScreen_lastStep;
+  String get caseCard_lastStep;
 
   /// No description provided for @allCasesScreen_phone.
   ///
@@ -350,11 +350,11 @@ abstract class AppLocalizations {
   /// **'Disposed Cases'**
   String get disposedCasesScreen_title;
 
-  /// No description provided for @disposedCasesScreen_disposed.
+  /// No description provided for @caseCard_disposed.
   ///
   /// In en, this message translates to:
   /// **'Disposed:'**
-  String get disposedCasesScreen_disposed;
+  String get caseCard_disposed;
 
   /// No description provided for @activeCasesScreen_title.
   ///

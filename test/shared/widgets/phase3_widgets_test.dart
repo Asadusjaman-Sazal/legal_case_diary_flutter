@@ -145,7 +145,7 @@ void main() {
 
       expect(find.text('Next Date'), findsOneWidget);
       expect(find.text('15/08/2024'), findsOneWidget);
-      expect(find.text('Last Step'), findsOneWidget);
+      expect(find.text('Step'), findsOneWidget);
       expect(find.text('Hearing'), findsOneWidget);
       expect(find.text('Note: actual note.'), findsOneWidget);
 

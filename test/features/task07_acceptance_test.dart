@@ -409,7 +409,7 @@ void main() {
   });
 
   testWidgets(
-    'Quick Update keeps the current date separate and matches the Add Step picker',
+    'Quick Update keeps the current date separate and shows Result for AD/HCD',
     (WidgetTester tester) async {
       final currentDate = DateTime(2026, 8, 5);
       final id = await caseRepository.insertCase(
@@ -458,27 +458,16 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('quick-update-step')));
-      await tester.pumpAndSettle();
+      // AD/HCD cases hide the Step picker and show the Result field instead.
       expect(
-        find.byKey(const ValueKey('custom-dropdown-search')),
+        find.byKey(const ValueKey('quick-update-result')),
         findsOneWidget,
       );
       expect(
-        find.byKey(const ValueKey('custom-dropdown-selected-values')),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const ValueKey('custom-dropdown-clear')),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const ValueKey('custom-dropdown-done')),
-        findsOneWidget,
+        find.byKey(const ValueKey('quick-update-step')),
+        findsNothing,
       );
 
-      await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
-      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('quick-update-notification')));
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await tester.pumpAndSettle();

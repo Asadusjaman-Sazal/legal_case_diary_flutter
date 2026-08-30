@@ -1696,6 +1696,7 @@ class QuickUpdateCaseDialog extends ConsumerStatefulWidget {
 
 class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   final _noteController = TextEditingController();
+  final _resultController = TextEditingController();
   DateTime? _currentNextDate;
   DateTime? _date;
   List<Step> _steps = const [];
@@ -1703,6 +1704,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   List<int> _notificationOffsets = const [];
   List<int> _selectedNotificationOffsets = const [];
   bool _isNotificationEnabled = true;
+  bool _isHigherCourt = false;
   bool _loading = true;
   bool _saving = false;
   bool _permissionResolved = false;
@@ -1718,12 +1720,14 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     // read-only summary above it.
     _date = null;
     _noteController.text = widget.currentCase.notesResults ?? '';
+    _resultController.text = widget.currentCase.result ?? '';
     _loadSteps();
   }
 
   @override
   void dispose() {
     _noteController.dispose();
+    _resultController.dispose();
     super.dispose();
   }
 
@@ -1736,6 +1740,11 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
         db,
       ).get(identity.getId(), widget.currentCase.id);
       final court = await CourtsDao(db).getById(widget.currentCase.courtId);
+      // AD/HCD courts have no steps; the update window shows Result instead.
+      _isHigherCourt =
+          court != null &&
+          (court.courtCategoryId == appellateDivisionId ||
+              court.courtCategoryId == highCourtDivisionId);
       final steps = court == null
           ? <Step>[]
           : await StepsDao(db).getByCategory(court.courtCategoryId);
@@ -1903,9 +1912,15 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     );
   }
 
-  Widget _quickUpdateNoteField(BuildContext context, bool enabled) {
-    final l = AppLocalizations.of(context);
-    final isEmpty = _noteController.text.trim().isEmpty;
+  Widget _quickUpdateTextField(
+    BuildContext context, {
+    required String label,
+    required TextEditingController controller,
+    required Key fieldKey,
+    required int maxLines,
+    required bool enabled,
+  }) {
+    final isEmpty = controller.text.trim().isEmpty;
     final emptyOutline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       borderSide: const BorderSide(color: AppColors.outlineVariant),
@@ -1925,13 +1940,13 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.addEditCaseSheet_note, style: AppTypography.labelLg),
+        Text(label, style: AppTypography.labelLg),
         const SizedBox(height: AppSpacing.xs),
         TextField(
-          key: const ValueKey('quick-update-note'),
-          controller: _noteController,
+          key: fieldKey,
+          controller: controller,
           enabled: enabled,
-          maxLines: 4,
+          maxLines: maxLines,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             fillColor: isEmpty ? AppColors.surface : AppColors.surfaceVariant,
@@ -1981,6 +1996,13 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
               _noteController.text.trim().isEmpty
                   ? null
                   : _noteController.text.trim(),
+            ),
+            result: Value(
+              _isHigherCourt
+                  ? (_resultController.text.trim().isEmpty
+                        ? null
+                        : _resultController.text.trim())
+                  : null,
             ),
           ),
           baseCase: widget.currentCase,
@@ -2118,23 +2140,40 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        CustomDropdown<Step>(
-                          fieldKey: const ValueKey('quick-update-step'),
-                          label: l.addEditCaseSheet_step,
-                          items: _steps,
-                          selectedValues: _selectedSteps,
-                          multiSelect: true,
-                          itemLabel: (item) =>
-                              _seedLabel(context, item.id, item.stepName),
-                          enabled: editable,
-                          emptyFillColor: AppColors.surface,
-                          selectedFillColor: AppColors.surfaceVariant,
-                          outlined: true,
-                          onMultiChanged: (values) =>
-                              setState(() => _selectedSteps = values),
-                        ),
+                        if (_isHigherCourt)
+                          _quickUpdateTextField(
+                            context,
+                            label: l.addEditCaseSheet_result,
+                            controller: _resultController,
+                            fieldKey: const ValueKey('quick-update-result'),
+                            maxLines: 3,
+                            enabled: editable,
+                          )
+                        else
+                          CustomDropdown<Step>(
+                            fieldKey: const ValueKey('quick-update-step'),
+                            label: l.addEditCaseSheet_step,
+                            items: _steps,
+                            selectedValues: _selectedSteps,
+                            multiSelect: true,
+                            itemLabel: (item) =>
+                                _seedLabel(context, item.id, item.stepName),
+                            enabled: editable,
+                            emptyFillColor: AppColors.surface,
+                            selectedFillColor: AppColors.surfaceVariant,
+                            outlined: true,
+                            onMultiChanged: (values) =>
+                                setState(() => _selectedSteps = values),
+                          ),
                         const SizedBox(height: AppSpacing.md),
-                        _quickUpdateNoteField(context, editable),
+                        _quickUpdateTextField(
+                          context,
+                          label: l.addEditCaseSheet_note,
+                          controller: _noteController,
+                          fieldKey: const ValueKey('quick-update-note'),
+                          maxLines: 4,
+                          enabled: editable,
+                        ),
                       ],
                     ),
                   ),

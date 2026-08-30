@@ -5,8 +5,41 @@
 = Absolutely. The offline version of the app is completely free to use.
 
 * Why cloud backup/online mode is not free?
+=
 
-* 
+* In which court categories are Tribunals and Special Tribunals are located?
+= To show filtered case types, steps, on behalf etc for tribunals, we have moved tribunals of civil nature to District Judge Court (Civil), tribunals of criminal nature to Sessions Judge Court (Criminal), tribunals of criminal nature from metropolitan area to Metropolitan Sessions Judge Court (Criminal).
+
+* Cannot find the court name you are looking for?
+= The courts are listed in the app under the following court categories:
+√ District Judge Court (Civil):
+-----------------------------
+1. District and Additional District Judge Courts
+2. Joint District Judge Courts
+3. Civil & Senior Civil Judge Courts
+4. Family Courts & Family Appeal Court
+5. Land Survey Tribunal & Land Survey Appeal Tribunal
+6. Commercial Court
+7. Labour Court
+
+√ Sessions Judge Court (Criminal) & Metropolitan Sessions Judge Court (Criminal):
+---------------------------------------------
+1. Sessions and Additional Sessions Judge Courts
+2. Joint Sessions Judge Courts
+3. Women and Child Abuse Suppression Tribunal
+4. Child Violance Prevention Tribunal
+5. Special Tribunals
+
+√ Chief Judicial Magistrate & Chief Metropolitan Magistrate:
+---------------------------------------------
+1. Chief and Additional Chief Judicial Magistrate
+2. Special Magistrate Courts
+3. Speedy Trial Court
+4. Environment Court
+5. Forest Court
+6. Senior Judicial Magistrate Courts
+7. Judicial Magistrate Courts
+8. Cognizance Courts
 
 
 

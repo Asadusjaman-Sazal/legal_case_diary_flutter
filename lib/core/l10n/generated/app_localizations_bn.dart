@@ -48,7 +48,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get allCasesScreen_nextDate => 'পরবর্তী তারিখ';
 
   @override
-  String get allCasesScreen_lastStep => 'শেষ ধাপ';
+  String get allCasesScreen_lastStep => 'পদক্ষেপ';
 
   @override
   String get allCasesScreen_phone => 'ফোন';

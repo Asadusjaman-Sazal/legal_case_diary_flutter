@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.90 - Quick Update window shows Result instead of Step for AD/HCD cases.
+Version: 0.0.91 - Add/Edit hides Court Categories with no courts for the selected district.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -104,3 +104,4 @@ Version: 0.0.87 - Added conditional notes to All Cases card layouts.
 Version: 0.0.88 - Enlarged Exit App? Cancel/Exit buttons without bold font.
 Version: 0.0.89 - Slightly enlarged Exit App? Cancel/Exit buttons without bold font.
 Version: 0.0.90 - Quick Update window shows Result instead of Step for AD/HCD cases.
+Version: 0.0.91 - Add/Edit hides Court Categories with no courts for the selected district.

@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// No description provided for @allCasesScreen_lastStep.
   ///
   /// In en, this message translates to:
-  /// **'Last Step'**
+  /// **'Step'**
   String get allCasesScreen_lastStep;
 
   /// No description provided for @allCasesScreen_phone.

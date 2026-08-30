@@ -588,9 +588,25 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _higherLowerCourt == appellateDivisionId ||
       _higherLowerCourt == highCourtDivisionId;
 
-  List<CourtCategory> get _lowerCategories => _lookupData!.courtCategories
-      .where((item) => item.courtLevel == 'lower')
-      .toList();
+  // Court categories that actually exist for the selected district. Most
+  // districts have no metropolitan courts, so their metropolitan categories
+  // are omitted rather than offered as empty dropdowns.
+  List<CourtCategory> get _lowerCategories {
+    final all = _lookupData!.courtCategories
+        .where((item) => item.courtLevel == 'lower')
+        .toList();
+    if (_district == null) return all;
+    final available = _lookupData!.courts
+        .where(
+          (court) =>
+              court.higherLowerCourts == lowerCourtsOption &&
+              court.division == _division &&
+              court.district == _district,
+        )
+        .map((court) => court.courtCategoryId)
+        .toSet();
+    return all.where((item) => available.contains(item.id)).toList();
+  }
 
   List<String> get _districtOptions =>
       districtIdsByDivision[_division] ?? const [];

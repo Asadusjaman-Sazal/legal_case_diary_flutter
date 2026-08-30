@@ -49,7 +49,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCasesScreen_nextDate => 'Next Date';
 
   @override
-  String get allCasesScreen_lastStep => 'Last Step';
+  String get allCasesScreen_lastStep => 'Step';
 
   @override
   String get allCasesScreen_phone => 'Phone';

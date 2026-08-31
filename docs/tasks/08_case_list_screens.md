@@ -18,7 +18,7 @@
    - L1: left `case_type` & `case_number` | right On Behalf label
    - L2: `petitioner` Vs `respondent`, using the full available Case Card content width while preserving the existing left inset; the L1 On Behalf label must not consume L2's horizontal space
    - L3: Name of the Court
-   - L4: left Next Date (`DD/MM/YYYY`, with Today/Tomorrow rule) | right `last_step`
+   - L4: left Next Date (`DD/MM/YYYY`, with Today/Tomorrow rule) | right `last_step` (for lower-court cases) or `result` (for AD/HCD cases, which have no `last_step`)
    - L5: Phone, Message, Update buttons (Update opens the Task 07 Phase 3 pop-up)
 7. Card tap → Case Detail screen (Task 10).
 
@@ -46,7 +46,7 @@ Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/C
 3. **Last Updated** status follows the plan's status indicator contract: in Part A show an explicit local/offline state rather than inventing an associate-sync timestamp; in Part B show the latest successful server update for the firm dataset, with distinct pending, syncing, paused, and error states when applicable.
 4. Grouped by Court Name maintaining the pre-seeded court hierarchy (same logic as Daily Cause List).
 5. **Red left border strip** on every card (urgency indicator — only on overdue cards app-wide).
-6. **Card lines (exact):** L1 `case_type` & `case_number` | On Behalf; L2 petitioner Vs respondent; L3 Note (`notes_results`); L4 Next Date with `last_step` directly under it; L5 Phone/Message/Update.
+6. **Card lines (exact):** L1 `case_type` & `case_number` | On Behalf; L2 petitioner Vs respondent; L3 Note (`notes_results`); L4 Next Date with `last_step` (lower-court) or `result` (AD/HCD) directly under it; L5 Phone/Message/Update.
 
 **Phase 4 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 

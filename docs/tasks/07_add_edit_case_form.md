@@ -14,7 +14,7 @@ Build all fields **in the exact order and with the exact widget types** from the
 1. Higher or Lower Court — `CustomDropdown` single-select (3 options).
 2. Division — `CustomDropdown`; **hidden** for Appellate/High Court.
 3. District — `CustomDropdown` from `districtsByDivision[selectedDivision]`; hidden for Appellate/High Court.
-4. Court Category — `CustomDropdown` (lower-court categories); hidden for Appellate/High Court.
+4. Court Category — `CustomDropdown` (lower-court categories that have at least one court for the selected District; categories with no courts in that District — e.g. most districts have no metropolitan courts — are hidden); hidden for Appellate/High Court.
 5. Name of Court — searchable `CustomDropdown`; Supreme: `supremeCourtNames[category]`; Lower: `lowerCourtNamesByDistrict[district][category]`.
 6. Name of Honorable Judges' — AD/HCD only; text input after Name of Court.
 7. Case Category — AD/HCD only; `CustomDropdown` from the selected court category's `case_categories` rows, placed after Name of Honorable Judges'. It is not shown for lower courts because their Case Types remain scoped directly by `court_category_id`.
@@ -65,6 +65,8 @@ Layout rules (verbatim from plan): 8–9 side-by-side; 18–20 in one row in tha
 Implement the **Update button pop-up** (quick date & step update window styled after `dailyCauseList\code.html`): edits `next_date`, `last_step` (category-filtered steps), and `notes_results`; runs the same case-history-preservation logic on save. Wire it to the production `case_card.dart` Update callback in the All Cases host (Task 06). The remaining Task 08 list screens may remain stubs until their own implementation phases.
 
 **Update Window refinements:** show the case type/number and immutable Current Next Date summary separately from the editable controls. The editable Next Date starts blank with the localized `Pick a date` hint; leaving it blank preserves the stored date and creates no date-history entry. Use the Add Case-style date presentation (`dd/MM/yy, EEE`), Notification toggle, multi-select Day Offset and Step controls, state-based outlined/underline input surfaces, and a black Save action with the matching 52px minimum height. Persist notification enablement and offsets with the same per-user preference rules as Add Case.
+
+**AD/HCD update-window swap:** Appellate/High Court Division cases have no seeded Steps, so the Update window hides the Step multi-select and instead shows a `Result` (`result`) text field, persisted on save. Lower-court cases keep the Step control and omit Result.
 
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 

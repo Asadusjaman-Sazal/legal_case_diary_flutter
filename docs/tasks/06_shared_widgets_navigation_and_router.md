@@ -32,6 +32,8 @@ Per the folder-structure note, this reusable layout provides for every case scre
 2. `custom_dropdown.dart` — single & multi-select, optional search, per the Add/Edit form's needs.
 3. Simple date picker helper: all pickers other than the Daily Cause List badge calendar are plain pickers defaulting to today.
 
+**Card label naming:** labels used only by `case_card.dart` (Next Date, Last Step/Result, Disposed) live under the `caseCard_` l10n key namespace (`caseCard_nextDate`, `caseCard_lastStep`, `caseCard_disposed`) so they read as widget-scoped rather than screen-scoped when other case-list screens reuse the card.
+
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
 ## Phase 4 — Settings Sub-Page Shell & Calendar Dialog Stub

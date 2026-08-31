@@ -2112,7 +2112,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           child: Column(
                             children: [
                               Text(
-                                '${widget.currentCase.caseType}- ${widget.currentCase.caseNumber}',
+                                '${widget.currentCase.caseType} ${widget.currentCase.caseNumber}',
                                 key: const ValueKey('quick-update-case-number'),
                                 style: AppTypography.titleLg.copyWith(
                                   color: AppColors.primary,

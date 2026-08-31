@@ -17,7 +17,7 @@
 6. **Case card lines (exact):**
    - L1: left `case_type` & `case_number` | right On Behalf label
    - L2: `petitioner` Vs `respondent`, using the full available Case Card content width while preserving the existing left inset; the L1 On Behalf label must not consume L2's horizontal space
-   - L3: Name of the Court
+   - L3: Name of the Court, followed by the `honorable_judges` value (Name of Honorable Judges') when the case is filed in an Appellate or High Court Division court
    - L4: left Next Date (`DD/MM/YYYY`, with Today/Tomorrow rule) | right `last_step` (for lower-court cases) or `result` (for AD/HCD cases, which have no `last_step`)
    - L5: Phone, Message, Update buttons (Update opens the Task 07 Phase 3 pop-up)
 7. Card tap → Case Detail screen (Task 10).

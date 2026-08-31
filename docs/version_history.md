@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.93 - Renamed card-only labels to caseCard_ namespace (nextDate, lastStep, disposed).
+Version: 0.0.94 - Case card shows "Name of Honorable Judges'" after Name of Court for AD/HCD cases; fixed double-dash (-) in the Quick Update window header.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -107,3 +107,4 @@ Version: 0.0.90 - Quick Update window shows Result instead of Step for AD/HCD ca
 Version: 0.0.91 - Add/Edit hides Court Categories with no courts for the selected district.
 Version: 0.0.92 - Case Card shows Result next to Next Date for AD/HCD cases.
 Version: 0.0.93 - Renamed card-only labels to caseCard_ namespace (nextDate, lastStep, disposed).
+Version: 0.0.94 - Case card shows "Name of Honorable Judges'" after Name of Court for AD/HCD cases; fixed double-dash (-) in the Quick Update window header.

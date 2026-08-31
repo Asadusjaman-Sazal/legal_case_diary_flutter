@@ -349,7 +349,7 @@ void main() {
         id: 'ad-civil-appeal',
         courtCategoryId: appellateDivisionId,
         caseCategoryId: 'ad-civil',
-        name: 'Civil Appeal',
+        name: 'Civil Appeal-',
         orderIndex: 0,
         isCustom: false,
         isUserModified: false,
@@ -407,7 +407,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
       await tester.pumpAndSettle();
-      expect(find.text('Civil Appeal'), findsOneWidget);
+      expect(find.text('Civil Appeal-'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(

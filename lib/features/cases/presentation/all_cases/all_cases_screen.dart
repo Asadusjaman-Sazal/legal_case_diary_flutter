@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -216,6 +217,12 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
             subtitle: currentCase.caseTitleAndSection,
             courtName: _courtsById[currentCase.courtId]?.courtName,
+            judgesName:
+                (_courtsById[currentCase.courtId]?.courtCategoryId == appellateDivisionId ||
+                        _courtsById[currentCase.courtId]?.courtCategoryId ==
+                            highCourtDivisionId)
+                    ? currentCase.honorableJudges
+                    : null,
             statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
             alignStatusLabelRight: true,
             nextDate: currentCase.nextDate == null

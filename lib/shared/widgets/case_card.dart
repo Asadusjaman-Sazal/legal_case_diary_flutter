@@ -61,6 +61,9 @@ class CaseCard extends StatelessWidget {
   /// Note shown beside the step in the Daily Cause List layout.
   final String? note;
 
+  /// Honorable judges' name, shown after the court name for AD/HCD cases.
+  final String? judgesName;
+
   /// Called by the phone action, when supplied.
   final VoidCallback? onPhone;
 
@@ -95,6 +98,7 @@ class CaseCard extends StatelessWidget {
     this.step,
     this.result,
     this.note,
+    this.judgesName,
     this.onPhone,
     this.onMessage,
     this.onUpdate,
@@ -144,6 +148,10 @@ class CaseCard extends StatelessWidget {
                     if (courtName != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Text(courtName!, style: AppTypography.bodySm),
+                    ],
+                    if (judgesName != null) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(judgesName!, style: AppTypography.bodySm),
                     ],
                     const SizedBox(height: AppSpacing.sm),
                     if (variant == CaseCardVariant.dailyCauseList)

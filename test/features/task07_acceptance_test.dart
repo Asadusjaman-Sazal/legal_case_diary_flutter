@@ -430,7 +430,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Civil Suit- 205/23'), findsOneWidget);
+      expect(find.text('Civil Suit 205/23'), findsOneWidget);
       expect(find.text('Current Next Date: 05/08/26, Wed'), findsOneWidget);
       expect(find.text('Next Date'), findsOneWidget);
       expect(find.text('Pick a date'), findsOneWidget);

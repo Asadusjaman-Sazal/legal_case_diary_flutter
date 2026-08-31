@@ -224,6 +224,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                   judgesName: isHigherCourt ? currentCase.honorableJudges : null,
                   statusLabel: currentCase.lastStep,
                   alignStatusLabelRight: true,
+                  isOverdue: true, // Disposed date is in the past.
                   disposedDate: currentCase.nextDate == null
                       ? null
                       : AppDateUtils.formatDisplayDate(

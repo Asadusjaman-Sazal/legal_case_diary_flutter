@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.96 - Overdue Dates card refinements: hide the per-card "Name of Court" column (court is shown in the group header) and relabel the date as "Previous Date" (date value unchanged); added caseCard_previousDate localization (en/bn).
+Version: 0.0.97 - Overdue date styling: All/Active cards show a red left stripe and "Previous Date" (red text) when the date is past; the Overdue screen's Case Type/Case Number is black and disposed cards relabel their date "Previous Date"; flutter analyze clean.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -110,3 +110,4 @@ Version: 0.0.93 - Renamed card-only labels to caseCard_ namespace (nextDate, las
 Version: 0.0.94 - Case card shows "Name of Honorable Judges'" after Name of Court for AD/HCD cases; fixed double-dash (-) in the Quick Update window header.
 Version: 0.0.95 - Task 08 complete: built Active, Upcoming, Overdue Dates, and Disposed case-list screens alongside the extended All Cases host (KPI summary, Court Name + Chronology filters, first-come-first-served ordering, scoped search); flutter analyze clean.
 Version: 0.0.96 - Overdue Dates card refinements: hide the per-card "Name of Court" column (court is shown in the group header) and relabel the date as "Previous Date" (date value unchanged); added caseCard_previousDate localization (en/bn).
+Version: 0.0.97 - Overdue date styling: All/Active cards show a red left stripe and "Previous Date" (red text) when the date is past; the Overdue screen's Case Type/Case Number is black and disposed cards relabel their date "Previous Date"; flutter analyze clean.

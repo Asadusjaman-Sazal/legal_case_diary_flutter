@@ -324,7 +324,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
       statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
       alignStatusLabelRight: true,
-      dateLabelOverride: l.caseCard_previousDate, // Overdue date is a past date.
+      isOverdue: true, // Always overdue; black case number, red stripe + date.
       nextDate: currentCase.nextDate == null
           ? null
           : AppDateUtils.formatDisplayDate(

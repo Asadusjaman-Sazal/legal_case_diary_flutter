@@ -104,6 +104,11 @@ class CaseCard extends StatelessWidget {
   /// When null, the variant default ("Next Date" / "Disposed:") is used.
   final String? dateLabelOverride;
 
+  /// Whether this specific case's date is in the past (overdue).
+  /// Drives the red stripe (non-disposed variants), the "Previous Date" label,
+  /// and the red date text. The Overdue screen always sets this to true.
+  final bool isOverdue;
+
   /// Creates a case card.
   const CaseCard({
     required this.caseNumber,
@@ -120,6 +125,7 @@ class CaseCard extends StatelessWidget {
     this.historyEntries = const [],
     this.judgesName,
     this.dateLabelOverride,
+    this.isOverdue = false,
     this.onPhone,
     this.onMessage,
     this.onUpdate,
@@ -146,7 +152,7 @@ class CaseCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_isOverdue)
+            if (isOverdue && variant != CaseCardVariant.disposed)
               Container(
                 key: const ValueKey('case-card-overdue-strip'),
                 width: 4,
@@ -187,6 +193,7 @@ class CaseCard extends StatelessWidget {
                         result: result,
                         note: note,
                         dateLabelOverride: dateLabelOverride,
+                        isOverdue: isOverdue,
                       ),
                     if (variant == CaseCardVariant.disposed &&
                         historyEntries.isNotEmpty) ...[
@@ -269,7 +276,7 @@ class _CaseHeading extends StatelessWidget {
               child: Text(
                 caseNumber,
                 style: AppTypography.caseNumber.copyWith(
-                  color: isOverdue ? AppColors.error : AppColors.secondary,
+                  color: isOverdue ? AppColors.onSurface : AppColors.secondary,
                 ),
               ),
             ),
@@ -350,6 +357,7 @@ class _ListDetails extends StatelessWidget {
   final String? result;
   final String? note;
   final String? dateLabelOverride;
+  final bool isOverdue;
 
   const _ListDetails({
     required this.l,
@@ -360,6 +368,7 @@ class _ListDetails extends StatelessWidget {
     required this.result,
     required this.note,
     this.dateLabelOverride,
+    this.isOverdue = false,
   });
 
   @override
@@ -368,15 +377,18 @@ class _ListDetails extends StatelessWidget {
     if (variant == CaseCardVariant.disposed && disposedDate != null) {
       details.add(
         _DetailValue(
-          label: l.caseCard_disposed,
+          label: isOverdue ? l.caseCard_previousDate : l.caseCard_disposed,
           value: disposedDate,
+          isOverdue: isOverdue,
         ),
       );
     } else if (nextDate != null) {
       details.add(
         _DetailValue(
-          label: dateLabelOverride ?? l.caseCard_nextDate,
+          label: dateLabelOverride ??
+              (isOverdue ? l.caseCard_previousDate : l.caseCard_nextDate),
           value: nextDate,
+          isOverdue: isOverdue,
         ),
       );
     }
@@ -446,20 +458,26 @@ class _DetailsRow extends StatelessWidget {
 class _DetailValue extends StatelessWidget {
   final String label;
   final String? value;
+  final bool isOverdue;
 
-  const _DetailValue({required this.label, required this.value});
+  const _DetailValue({
+    required this.label,
+    required this.value,
+    this.isOverdue = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final color = isOverdue ? AppColors.error : AppColors.onSurface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTypography.labelMd),
+        Text(label, style: AppTypography.labelMd.copyWith(color: color)),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value ?? '—',
           style: AppTypography.labelLg.copyWith(
-            color: AppColors.onSurface,
+            color: color,
             fontWeight: FontWeight.w700,
           ),
           maxLines: 2,

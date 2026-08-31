@@ -214,6 +214,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
                 final court = _courtsById[currentCase.courtId];
                 final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
                     court?.courtCategoryId == highCourtDivisionId;
+                final isOverdue = currentCase.nextDate != null &&
+                    currentCase.nextDate! <
+                        AppDateUtils.bangladeshTodayStartOfDay();
                 return CaseCard(
                   key: ValueKey('case-card-${currentCase.id}'),
                   variant: CaseCardVariant.list,
@@ -226,6 +229,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
                   judgesName: isHigherCourt ? currentCase.honorableJudges : null,
                   statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
                   alignStatusLabelRight: true,
+                  isOverdue: isOverdue,
                   nextDate: currentCase.nextDate == null
                       ? null
                       : DateFormat('dd/MM/yy, EEE', l.localeName).format(

@@ -1,3 +1,12 @@
+### 2026-08-25 — Overdue date styling across case cards — COMPLETE
+
+- Added a per-case `CaseCard.isOverdue` flag. All/Active hosts compute it from `nextDate < bangladeshTodayStartOfDay()`; Disposed passes `true` (past by definition).
+- When `isOverdue`: All/Active cards show the red left stripe and the date label switches to "Previous Date" with both label and value rendered in red (`AppColors.error`). Disposed cards relabel their date "Previous Date" (also red).
+- Overdue screen's Case Type/Case Number is now black (`AppColors.onSurface`) instead of red; stripe, "Previous Date" label, and red date text remain.
+- `flutter analyze` clean repo-wide.
+
+Version `0.0.97`.
+
 ### 2026-08-25 — Overdue Dates card refinements — COMPLETE
 
 - Per the mockup, the court name sits in the group header above the cards, so the per-card "Name of Court" column is now hidden on the Overdue Dates screen (`courtName: null`).

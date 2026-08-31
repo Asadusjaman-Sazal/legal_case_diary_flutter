@@ -49,6 +49,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseCard_nextDate => 'Next Date';
 
   @override
+  String get caseCard_previousDate => 'Previous Date';
+
+  @override
   String get caseCard_lastStep => 'Step';
 
   @override

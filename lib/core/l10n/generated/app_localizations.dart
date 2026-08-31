@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Next Date'**
   String get caseCard_nextDate;
 
+  /// No description provided for @caseCard_previousDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Date'**
+  String get caseCard_previousDate;
+
   /// No description provided for @caseCard_lastStep.
   ///
   /// In en, this message translates to:

@@ -76,6 +76,22 @@ class CasesDao {
     return query.get();
   }
 
+  /// Returns non-deleted cases NOT disposed by a seeded Step or AD/HCD Result.
+  Future<List<Case>> getActive({int? limit, int? offset}) async {
+    final query = db.select(db.cases)
+      ..where((row) => row.isDeleted.equals(false) & _isDisposed.not())
+      ..orderBy([
+        (row) =>
+            OrderingTerm(expression: row.nextDate, mode: OrderingMode.desc),
+        (row) =>
+            OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+      ]);
+    if (limit != null) {
+      query.limit(limit, offset: offset ?? 0);
+    }
+    return query.get();
+  }
+
   /// Searches non-deleted cases across case number, parties, counsels, phone,
   /// remarks, and title (case-insensitive).
   Future<List<Case>> search(String query, {int? limit, int? offset}) async {

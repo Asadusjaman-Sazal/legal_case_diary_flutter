@@ -13,6 +13,7 @@
   "allCasesScreen_onBehalf": "On Behalf",
   "allCasesScreen_petitionerVsRespondent": "Petitioner Vs Respondent",
   "caseCard_nextDate": "Next Date",
+  "caseCard_previousDate": "Previous Date",
   "caseCard_lastStep": "Step",
   "allCasesScreen_phone": "Phone",
   "allCasesScreen_message": "Message",

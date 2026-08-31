@@ -48,6 +48,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseCard_nextDate => 'পরবর্তী তারিখ';
 
   @override
+  String get caseCard_previousDate => 'পূর্ববর্তী তারিখ';
+
+  @override
   String get caseCard_lastStep => 'পদক্ষেপ';
 
   @override

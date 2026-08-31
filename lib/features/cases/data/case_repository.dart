@@ -55,6 +55,9 @@ abstract class CaseRepository {
 
   /// Returns the count of active (non-disposed) cases.
   Future<int> activeCount();
+
+  /// Lists non-deleted cases that are not disposed by a seeded Step or AD/HCD Result.
+  Future<List<Case>> listActive({int? limit, int? offset});
 }
 
 /// Transaction-capable local case write boundary used by form saves.
@@ -242,6 +245,10 @@ class LocalCaseRepository
 
   @override
   Future<int> activeCount() => _casesDao.getActiveCaseCount();
+
+  @override
+  Future<List<Case>> listActive({int? limit, int? offset}) =>
+      _casesDao.getActive(limit: limit, offset: offset);
 
   Future<void> _insertProvisionalHistory(
     Case oldCase,

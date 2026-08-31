@@ -54,6 +54,7 @@ abstract class AppStrings {
   static const String allCasesScreenFilterbycourt =
       "allCasesScreen_filterByCourt";
   static const String caseCardLaststep = "caseCard_lastStep";
+  static const String caseCardPreviousdate = "caseCard_previousDate";
   static const String allCasesScreenMessage = "allCasesScreen_message";
   static const String allCasesScreenNewestfirst = "allCasesScreen_newestFirst";
   static const String caseCardNextdate = "caseCard_nextDate";

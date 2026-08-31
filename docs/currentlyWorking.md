@@ -1,3 +1,25 @@
+### 2026-08-25 — Overdue Dates card refinements — COMPLETE
+
+- Per the mockup, the court name sits in the group header above the cards, so the per-card "Name of Court" column is now hidden on the Overdue Dates screen (`courtName: null`).
+- For overdue cases the date is a past date, so the card now labels it "Previous Date" (en) / "পূর্ববর্তী তারিখ" (bn) via a new `CaseCard.dateLabelOverride` + `caseCard_previousDate` localization key. The date value is unchanged.
+
+Version `0.0.96`.
+
+### 2026-08-25 — Current Task: Task 08 — Case List Screens — COMPLETE
+
+Implemented and validated:
+- Extended the All Cases host with a KPI summary (Active / Disposed counts), Court Name filter (pre-seeded court categories), Chronology (newest/oldest) filter, scoped search, and first-come-first-served ordering by `createdAt` ascending (per user: no serial number rendered in cards; serial numbering is deferred to the later table view).
+- Built the Active Cases screen (non-disposed only, via new `CaseRepository.listActive()` / `CasesDao.getActive()` reusing the disposals predicate).
+- Built the Upcoming Cases screen: cases whose `next_date` falls within tomorrow through tomorrow + `upcoming_cases_period` days (UserSettings, default 7), grouped under localized date headers, newest group first.
+- Built the Overdue Dates screen: `next_date` strictly before today, red left border strip (CaseCardVariant.overdue), Part A local-only "Last Updated" status line, grouped by court hierarchy (category orderIndex then court orderIndex).
+- Built the Disposed Cases screen with no FAB; disposed variant card shows disposal date, parties, final note, and the last two `case_history` entries (L5), via a new `CaseCardHistoryEntry` param on `CaseCard`.
+- All five list screens reuse the existing `CaseCard` (list/dailyCauseList/overdue/disposed variants) and the shared `CasesScreenModal`.
+- `flutter analyze` clean across the repo.
+
+Version `0.0.95`.
+
+**Next:** Task 09 (Daily Cause List) and any table-view work (serial numbers) per the deferred scope above.
+
 ### 2026-08-25 — Current Task: All Cases card note display — COMPLETE
 
 Implemented and validated:

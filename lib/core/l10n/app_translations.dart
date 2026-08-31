@@ -98,6 +98,7 @@ class AppTranslations {
       AppStrings.allCasesScreenDisposedcases: _loc.allCasesScreen_disposedCases,
       AppStrings.allCasesScreenFilterbycourt: _loc.allCasesScreen_filterByCourt,
       AppStrings.caseCardLaststep: _loc.caseCard_lastStep,
+      AppStrings.caseCardPreviousdate: _loc.caseCard_previousDate,
       AppStrings.allCasesScreenMessage: _loc.allCasesScreen_message,
       AppStrings.allCasesScreenNewestfirst: _loc.allCasesScreen_newestFirst,
       AppStrings.caseCardNextdate: _loc.caseCard_nextDate,

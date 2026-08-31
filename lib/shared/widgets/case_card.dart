@@ -26,6 +26,18 @@ enum CaseCardVariant {
   disposed,
 }
 
+/// A single read-only history entry rendered in the disposed card layout (L5).
+class CaseCardHistoryEntry {
+  /// Formatted hearing date (already localized by the host).
+  final String date;
+
+  /// What happened at the hearing (step, result, or note).
+  final String text;
+
+  /// Creates a history entry value.
+  const CaseCardHistoryEntry({required this.date, required this.text});
+}
+
 /// A configurable case card shared by all case-list screens.
 class CaseCard extends StatelessWidget {
   /// The case-list layout to render.
@@ -61,6 +73,9 @@ class CaseCard extends StatelessWidget {
   /// Note shown beside the step in the Daily Cause List layout.
   final String? note;
 
+  /// Last two case-history entries, rendered only in the disposed layout (L5).
+  final List<CaseCardHistoryEntry> historyEntries;
+
   /// Honorable judges' name, shown after the court name for AD/HCD cases.
   final String? judgesName;
 
@@ -85,6 +100,10 @@ class CaseCard extends StatelessWidget {
   /// Whether the status label is pinned to the far right of the heading line.
   final bool alignStatusLabelRight;
 
+  /// Overrides the date label (e.g. "Previous Date" for overdue cases).
+  /// When null, the variant default ("Next Date" / "Disposed:") is used.
+  final String? dateLabelOverride;
+
   /// Creates a case card.
   const CaseCard({
     required this.caseNumber,
@@ -98,7 +117,9 @@ class CaseCard extends StatelessWidget {
     this.step,
     this.result,
     this.note,
+    this.historyEntries = const [],
     this.judgesName,
+    this.dateLabelOverride,
     this.onPhone,
     this.onMessage,
     this.onUpdate,
@@ -165,7 +186,34 @@ class CaseCard extends StatelessWidget {
                         step: step,
                         result: result,
                         note: note,
+                        dateLabelOverride: dateLabelOverride,
                       ),
+                    if (variant == CaseCardVariant.disposed &&
+                        historyEntries.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      for (final entry in historyEntries)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${entry.date}: ',
+                                style: AppTypography.labelMd.copyWith(
+                                  color: AppColors.onSurfaceVariant,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  entry.text,
+                                  style: AppTypography.bodySm,
+                                  softWrap: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                     if (_hasActions) ...[
                       const SizedBox(height: AppSpacing.md),
                       _CaseActions(
@@ -301,6 +349,7 @@ class _ListDetails extends StatelessWidget {
   final String? step;
   final String? result;
   final String? note;
+  final String? dateLabelOverride;
 
   const _ListDetails({
     required this.l,
@@ -310,6 +359,7 @@ class _ListDetails extends StatelessWidget {
     required this.step,
     required this.result,
     required this.note,
+    this.dateLabelOverride,
   });
 
   @override
@@ -324,7 +374,10 @@ class _ListDetails extends StatelessWidget {
       );
     } else if (nextDate != null) {
       details.add(
-        _DetailValue(label: l.caseCard_nextDate, value: nextDate),
+        _DetailValue(
+          label: dateLabelOverride ?? l.caseCard_nextDate,
+          value: nextDate,
+        ),
       );
     }
     if (step != null) {

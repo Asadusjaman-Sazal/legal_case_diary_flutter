@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.108 - Disposed Cases card: the "Disposed:" label and its date now sit pinned to the far right of line 1 (added a Spacer between the Step/Result chip and the label column).
+Version: 0.0.109 - Disposed Cases: added a Help FAB that opens a "How to set a case as disposed?" dialog listing disposed steps grouped by lower-court category plus the Appellate & High Court Division disposal keywords; dialog content made scrollable.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -122,3 +122,4 @@ Version: 0.0.105 - Disposed Cases card: moved the last Next Date under the "Disp
 Version: 0.0.106 - Fixed Disposed Cases card: the date under the "Disposed:" label now renders as a real DD/MM/YYYY date. The previous code passed "Disposed:" as the today/tomorrow label to formatDisplayDate, so any case disposed today/tomorrow showed the literal "Disposed:" instead of the date.
 Version: 0.0.107 - Disposed Cases card: Step/Result chip now hugs its text (removed the Expanded wrapper so the gray background is sized to the text + padding, not the full row), and the date under "Disposed:" uses the same labelMd size as the "Disposed:" label.
 Version: 0.0.108 - Disposed Cases card: the "Disposed:" label and its date now sit pinned to the far right of line 1 (added a Spacer between the Step/Result chip and the label column).
+Version: 0.0.109 - Disposed Cases: added a Help FAB that opens a "How to set a case as disposed?" dialog listing disposed steps grouped by lower-court category plus the Appellate & High Court Division disposal keywords; dialog content made scrollable.

@@ -145,6 +145,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseCard_disposed => 'Disposed:';
 
   @override
+  String get disposedCasesScreen_helpTitle => 'How to set a case as disposed?';
+
+  @override
+  String get disposedCasesScreen_helpBody =>
+      'During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.';
+
+  @override
+  String get disposedCasesScreen_disposedSteps =>
+      'Disposed steps by court category';
+
+  @override
+  String get disposedCasesScreen_appellateHighCourtDivision =>
+      'Appellate Division & High Court Division';
+
+  @override
+  String get disposedCasesScreen_gotIt => 'Got it';
+
+  @override
   String get activeCasesScreen_title => 'Active Cases';
 
   @override
@@ -641,6 +659,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get casesModal_viewExpanded => 'Expanded view';
+
+  @override
+  String get casesModal_help => 'Help';
 
   @override
   String get customDropdown_selectOption => 'Select an option';

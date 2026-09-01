@@ -19225,6 +19225,67 @@ final Set<String> disposedStepIds = <String>{
   ]),
 };
 
+/// Localized labels for a single disposed step.
+class DisposedStepLabels {
+  /// Creates the labels for one disposed step.
+  const DisposedStepLabels({required this.en, required this.bn});
+
+  /// English label (e.g. "Withdrawal").
+  final String en;
+
+  /// Bengali label (e.g. "প্রত্যাহার").
+  final String bn;
+}
+
+/// The disposed steps belonging to one court category.
+class DisposedCategorySteps {
+  /// Creates a court-category + its disposed steps pairing.
+  const DisposedCategorySteps(this.categoryId, this.steps);
+
+  /// Court-category stable ID (matches [SeedCategory.id]).
+  final String categoryId;
+
+  /// Disposed steps for this category, in the category's step order.
+  final List<DisposedStepLabels> steps;
+}
+
+/// Lower-court category IDs, in the canonical display order from [seedCategories].
+const List<String> _disposedCategoryOrder = <String>[
+  districtCourtsCivilId,
+  districtSessionsCriminalId,
+  metropolitanSessionsJudgeCriminalId,
+  chiefJudicialMagistrateId,
+  chiefMetropolitanMagistrateId,
+  executiveMagistrateId,
+];
+
+/// Disposed steps grouped by court category, in canonical display order.
+///
+/// Fully derived from [seedCategories] filtered by [disposedStepIds], so any
+/// later change to the seeded disposed steps is reflected here automatically.
+final List<DisposedCategorySteps> disposedStepsByCategory = List.unmodifiable(
+  _disposedCategoryOrder.map((categoryId) {
+    final category = seedCategories.firstWhere((c) => c.id == categoryId);
+    final steps = category.steps
+        .where((s) => disposedStepIds.contains(s.id))
+        .map((s) => DisposedStepLabels(en: s.labelEn, bn: s.labelBn))
+        .toList();
+    return DisposedCategorySteps(categoryId, List.unmodifiable(steps));
+  }).toList(),
+);
+
+/// Disposal keywords for Appellate & High Court Division cases.
+///
+/// Unlike lower courts, AD/HCD cases carry no seeded steps; disposal is detected
+/// from the free-text `result` field. These terms are matched case-insensitively
+/// against that field (see [CasesDao]), so the English forms are stored
+/// lower-cased to match the SQL `LIKE` comparison.
+const List<DisposedStepLabels> disposedResultTermLabels = <DisposedStepLabels>[
+  DisposedStepLabels(en: 'Dismissed', bn: 'খারিজ'),
+  DisposedStepLabels(en: 'Disposed', bn: 'নিষ্পত্তি'),
+  DisposedStepLabels(en: 'Discharged', bn: 'অব্যহতি'),
+];
+
 // ---------------------------------------------------------------------------
 // Comprehensive label maps (stable ID → label, both languages)
 // These support runtime label resolution in AppTranslations.

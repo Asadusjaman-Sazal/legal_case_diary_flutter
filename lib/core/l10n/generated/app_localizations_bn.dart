@@ -144,6 +144,25 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseCard_disposed => 'নিষ্পত্তিকৃত:';
 
   @override
+  String get disposedCasesScreen_helpTitle =>
+      'কোনো মামলাকে নিষ্পত্তিকৃত হিসেবে চিহ্নিত করবেন কীভাবে?';
+
+  @override
+  String get disposedCasesScreen_helpBody =>
+      'তারিখ আপডেট করার সময় নিচের যেকোনো উপযুক্ত ধাপ বেছে নিন, যাতে নিষ্পত্তিকৃত বা নিষ্ক্রিয় নিম্ন আদালতের মামলাটি সক্রিয় মামলার তালিকা থেকে এই তালিকায় চলে আসে। আপিল ও হাইকোর্ট ডিভিশনের মামলার ক্ষেত্রে রেজাল্ট ফিল্ডে নিষ্পত্তির কীওয়ার্ড লিখুন। নোট: মামলাটি সব মামলার তালিকায় এখনও থাকবে।';
+
+  @override
+  String get disposedCasesScreen_disposedSteps =>
+      'আদালত বিভাগ অনুযায়ী নিষ্পত্তির ধাপ';
+
+  @override
+  String get disposedCasesScreen_appellateHighCourtDivision =>
+      'আপিল ডিভিশন ও হাইকোর্ট ডিভিশন';
+
+  @override
+  String get disposedCasesScreen_gotIt => 'বুঝেছি';
+
+  @override
   String get activeCasesScreen_title => 'সক্রিয় মামলা';
 
   @override
@@ -639,6 +658,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
+
+  @override
+  String get casesModal_help => 'সাহায্য';
 
   @override
   String get customDropdown_selectOption => 'অপশন নির্বাচন করুন';

@@ -76,6 +76,8 @@ final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
 /// [isCompactView] — current view mode; drives the toggle icon state.
 /// [showFab] — whether to show the Add New Case FAB (false for Disposed Cases).
 /// [onAddCase] — called when the FAB is tapped.
+/// [showHelpFab] — whether to show the Help FAB (Disposed Cases only).
+/// [onHelp] — called when the Help FAB is tapped.
 /// [onPrint] — forwarded to [AppNavigationDrawer].
 /// [onShare] — forwarded to [AppNavigationDrawer].
 class CasesScreenModal extends ConsumerWidget {
@@ -90,6 +92,8 @@ class CasesScreenModal extends ConsumerWidget {
   final bool isCompactView;
   final bool showFab;
   final VoidCallback? onAddCase;
+  final bool showHelpFab;
+  final VoidCallback? onHelp;
   final VoidCallback? onPrint;
   final VoidCallback? onShare;
 
@@ -105,6 +109,8 @@ class CasesScreenModal extends ConsumerWidget {
     this.isCompactView = true,
     this.showFab = true,
     this.onAddCase,
+    this.showHelpFab = false,
+    this.onHelp,
     this.onPrint,
     this.onShare,
     super.key,
@@ -157,15 +163,47 @@ class CasesScreenModal extends ConsumerWidget {
         tabKeys: tabKeys,
         onTabSelected: (route) => context.go(route),
       ),
-      floatingActionButton: showFab
-          ? FloatingActionButton(
-              onPressed: onAddCase,
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              tooltip: l.casesModal_addCase,
-              child: const Icon(Icons.add, size: 28),
-            )
-          : null,
+      floatingActionButton: _buildFabStack(l),
+    );
+  }
+
+  /// Stacks the Add Case FAB and (optionally) the Help FAB at the same
+  /// bottom-right location used by the other case-list screens.
+  Widget _buildFabStack(AppLocalizations l) {
+    final buttons = <Widget>[];
+
+    if (showFab) {
+      buttons.add(
+        FloatingActionButton(
+          onPressed: onAddCase,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          tooltip: l.casesModal_addCase,
+          child: const Icon(Icons.add, size: 28),
+        ),
+      );
+    }
+
+    if (showHelpFab) {
+      buttons.add(
+        FloatingActionButton(
+          heroTag: 'help',
+          onPressed: onHelp,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          tooltip: l.casesModal_help,
+          child: const Icon(Icons.help_outline, size: 28),
+        ),
+      );
+    }
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+
+    // Reverse so the Add Case FAB stays on top (first in the column is lowest).
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: buttons.reversed.toList(),
     );
   }
 }

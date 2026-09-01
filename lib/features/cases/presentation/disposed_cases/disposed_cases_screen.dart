@@ -1,6 +1,7 @@
 /// Disposed cases screen: cases closed by a seeded Step or AD/HCD Result.
 ///
-/// Task 08 Phase 5. No FAB (cases cannot be re-opened here). Cards use the
+/// Task 08 Phase 5. No Add-Case FAB (cases cannot be re-opened here), but a
+/// Help FAB opens the "How to set a case as disposed?" window. Cards use the
 /// disposed variant, showing the disposal date, parties, final note, and the
 /// last two case-history entries.
 library;
@@ -21,6 +22,7 @@ import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../cases_screen_modal.dart';
+import 'disposed_help_dialog.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
 
@@ -170,6 +172,8 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     return CasesScreenModal(
       title: l.disposedCasesScreen_title,
       showFab: false,
+      showHelpFab: true,
+      onHelp: () => showDisposedHelpDialog(context),
       onSearch: () {},
       body: _buildBody(context, l),
     );

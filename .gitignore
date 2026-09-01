@@ -46,3 +46,5 @@ app.*.map.json
 
 #Freebuff files
 .freebuff/
+/.freebuff
+/.workbuddy-ai

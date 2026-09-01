@@ -16,14 +16,11 @@ class CasesDao {
   final AppDatabase db;
 
   /// Result words that dispose a case even when no seeded Step is available.
-  static const _disposedResultTerms = <String>[
-    'dismissed',
-    'খারিজ',
-    'disposed',
-    'নিষ্পত্তি',
-    'discharged',
-    'অব্যহতি',
-  ];
+  /// Lower-cased forms of [disposedResultTermLabels], sourced from the seed data
+  /// so the help dialog and disposal detection stay in sync.
+  static final _disposedResultTerms = disposedResultTermLabels
+      .expand((term) => [term.en.toLowerCase(), term.bn])
+      .toList();
 
   /// Returns all non-deleted cases ordered by [nextDate] descending, then [updatedAt] descending.
   Future<List<Case>> getAll({int? limit, int? offset}) async {

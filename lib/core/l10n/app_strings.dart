@@ -145,6 +145,11 @@ abstract class AppStrings {
   static const String disposedCasesScreenGroup = "disposedCasesScreen";
   static const String disposedCasesScreenDisposed = "caseCard_disposed";
   static const String disposedCasesScreenTitle = "disposedCasesScreen_title";
+  static const String disposedCasesScreenHelpTitle = "disposedCasesScreen_helpTitle";
+  static const String disposedCasesScreenHelpBody = "disposedCasesScreen_helpBody";
+  static const String disposedCasesScreenDisposedSteps = "disposedCasesScreen_disposedSteps";
+  static const String disposedCasesScreenAppellateHighCourtDivision = "disposedCasesScreen_appellateHighCourtDivision";
+  static const String disposedCasesScreenGotIt = "disposedCasesScreen_gotIt";
 
   // division
   static const String divisionGroup = "division";

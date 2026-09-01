@@ -362,6 +362,36 @@ abstract class AppLocalizations {
   /// **'Disposed:'**
   String get caseCard_disposed;
 
+  /// No description provided for @disposedCasesScreen_helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to set a case as disposed?'**
+  String get disposedCasesScreen_helpTitle;
+
+  /// No description provided for @disposedCasesScreen_helpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.'**
+  String get disposedCasesScreen_helpBody;
+
+  /// No description provided for @disposedCasesScreen_disposedSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Disposed steps by court category'**
+  String get disposedCasesScreen_disposedSteps;
+
+  /// No description provided for @disposedCasesScreen_appellateHighCourtDivision.
+  ///
+  /// In en, this message translates to:
+  /// **'Appellate Division & High Court Division'**
+  String get disposedCasesScreen_appellateHighCourtDivision;
+
+  /// No description provided for @disposedCasesScreen_gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get disposedCasesScreen_gotIt;
+
   /// No description provided for @activeCasesScreen_title.
   ///
   /// In en, this message translates to:
@@ -1311,6 +1341,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expanded view'**
   String get casesModal_viewExpanded;
+
+  /// No description provided for @casesModal_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get casesModal_help;
 
   /// No description provided for @customDropdown_selectOption.
   ///

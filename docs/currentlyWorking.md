@@ -1,3 +1,10 @@
+### 2026-08-25 — Disposed Cases: auto-reload after Quick Update — COMPLETE
+
+- Root cause: `_openQuickUpdate` opened `QuickUpdateCaseDialog` but did not reload afterward. Reviving a case (removing disposal steps via Quick Update) left it in the Disposed list until a manual pull-to-refresh.
+- Fix: added `if (mounted) await _loadCases();` after the dialog closes — matching the existing pattern in `all_cases_screen.dart`. The list now reflects the change immediately.
+
+Version `0.0.102`.
+
 ### 2026-08-25 — Disposal detection used wrong label set — COMPLETE
 
 - Root cause: `CasesDao` matched the Steps field against a hardcoded two-word list `['disposed', 'নিষ্পত্তি']` (`_disposedLabels`). But `last_step` stores the actual comma-joined **step names** (e.g. `"Withdrawal,Dismissal"`), so selecting disposal steps like Withdrawal/Dismissal/Allowed/Rejected never matched and the case stayed in Active/Upcoming/Overdue.

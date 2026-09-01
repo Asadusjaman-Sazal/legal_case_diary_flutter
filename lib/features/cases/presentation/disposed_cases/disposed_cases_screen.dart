@@ -170,6 +170,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
 
   Future<void> _openQuickUpdate(Case currentCase) async {
     await QuickUpdateCaseDialog.show(context, currentCase);
+    if (mounted) await _loadCases();
   }
 
   @override

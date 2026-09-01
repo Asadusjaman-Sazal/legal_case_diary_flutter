@@ -1,3 +1,15 @@
+### 2026-08-25 — Fixed Disposed card date rendering — COMPLETE
+
+- The date under "Disposed:" was showing the literal "Disposed:" text instead of the date for cases disposed today/tomorrow. Cause: `formatDisplayDate` was called with `todayLabel`/`tomorrowLabel` set to `l.caseCard_disposed` ("Disposed:"), so when the next date matched today/tomorrow it returned that label verbatim. Switched to `formatDateDDMMYYYY` so the line always renders the actual date (DD/MM/YYYY).
+
+Version `0.0.106`.
+
+### 2026-08-25 — Disposed card: moved Next Date under "Disposed:" label — COMPLETE
+
+- Per revision: removed the last Next Date from line 2's right side, and instead show it directly beneath the "Disposed:" label in line 1. Line 2 now holds only Case Type & Number.
+
+Version `0.0.105`.
+
 ### 2026-08-25 — Removed dead shared CaseCard.disposed variant — COMPLETE
 
 - The dead code flagged earlier (the `disposed` variant of the shared `CaseCard`, plus `CaseCardHistoryEntry` and the `disposedDate`/`historyEntries` params) was still present in `lib/shared/widgets/case_card.dart`. Removed it.

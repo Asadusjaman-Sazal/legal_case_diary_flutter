@@ -214,10 +214,8 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                         : null);
                 final disposedDate = currentCase.nextDate == null
                     ? null
-                    : AppDateUtils.formatDisplayDate(
+                    : AppDateUtils.formatDateDDMMYYYY(
                         currentCase.nextDate!,
-                        todayLabel: l.caseCard_disposed,
-                        tomorrowLabel: l.caseCard_disposed,
                         locale: l.localeName,
                       );
                 return _DisposedCaseCard(
@@ -320,12 +318,19 @@ class _DisposedCaseCard extends StatelessWidget {
                       l.caseCard_disposed,
                       style: AppTypography.labelMd,
                     ),
+                    if (disposedDate != null)
+                      Text(
+                        disposedDate!,
+                        style: AppTypography.titleMd.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            // L2: Case Type & Number left, last Next Date right.
+            // L2: Case Type & Number.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -335,14 +340,6 @@ class _DisposedCaseCard extends StatelessWidget {
                     style: AppTypography.caseNumber,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                if (disposedDate != null)
-                  Text(
-                    disposedDate!,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),

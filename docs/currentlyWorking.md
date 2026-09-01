@@ -1,3 +1,16 @@
+### 2026-08-25 — Disposed card: "Disposed:" pinned to right of line 1 — COMPLETE
+
+- Added a `Spacer()` between the Step/Result chip and the "Disposed:"/date column so they sit at the far right of line 1 instead of directly after the chip.
+
+Version `0.0.108`.
+
+### 2026-08-25 — Disposed card: tightened Step/Result chip & date size — COMPLETE
+
+- Removed the `Expanded` wrapper around the Step/Result chip so the gray background hugs the text (with a little horizontal/vertical padding) instead of stretching across the whole row.
+- Changed the date under "Disposed:" from `titleMd` to `labelMd`, matching the "Disposed:" label's text size.
+
+Version `0.0.107`.
+
 ### 2026-08-25 — Fixed Disposed card date rendering — COMPLETE
 
 - The date under "Disposed:" was showing the literal "Disposed:" text instead of the date for cases disposed today/tomorrow. Cause: `formatDisplayDate` was called with `todayLabel`/`tomorrowLabel` set to `l.caseCard_disposed` ("Disposed:"), so when the next date matched today/tomorrow it returned that label verbatim. Switched to `formatDateDDMMYYYY` so the line always renders the actual date (DD/MM/YYYY).

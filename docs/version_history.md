@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.106 - Fixed Disposed Cases card: the date under the "Disposed:" label now renders as a real DD/MM/YYYY date. The previous code passed "Disposed:" as the today/tomorrow label to formatDisplayDate, so any case disposed today/tomorrow showed the literal "Disposed:" instead of the date.
+Version: 0.0.108 - Disposed Cases card: the "Disposed:" label and its date now sit pinned to the far right of line 1 (added a Spacer between the Step/Result chip and the label column).
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -120,3 +120,5 @@ Version: 0.0.103 - Disposed Cases screen card rebuilt to a 7-line layout: L1 Ste
 Version: 0.0.104 - Removed the dead shared `CaseCard.disposed` variant, `CaseCardHistoryEntry`, and `disposedDate`/`historyEntries` params (the Disposed screen uses its own `_DisposedCaseCard`). Updated the widgets test accordingly. flutter analyze clean; phase3 widget tests pass.
 Version: 0.0.105 - Disposed Cases card: moved the last Next Date under the "Disposed:" label in line 1 (right side); line 2 now shows only the Case Type & Number (date removed from its right).
 Version: 0.0.106 - Fixed Disposed Cases card: the date under the "Disposed:" label now renders as a real DD/MM/YYYY date. The previous code passed "Disposed:" as the today/tomorrow label to formatDisplayDate, so any case disposed today/tomorrow showed the literal "Disposed:" instead of the date.
+Version: 0.0.107 - Disposed Cases card: Step/Result chip now hugs its text (removed the Expanded wrapper so the gray background is sized to the text + padding, not the full row), and the date under "Disposed:" uses the same labelMd size as the "Disposed:" label.
+Version: 0.0.108 - Disposed Cases card: the "Disposed:" label and its date now sit pinned to the far right of line 1 (added a Spacer between the Step/Result chip and the label column).

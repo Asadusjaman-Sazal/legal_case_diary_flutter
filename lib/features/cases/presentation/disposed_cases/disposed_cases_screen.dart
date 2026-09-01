@@ -294,23 +294,21 @@ class _DisposedCaseCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    ),
-                    child: Text(
-                      stepOrResult?.isNotEmpty == true ? stepOrResult! : '—',
-                      style: AppTypography.labelMd,
-                    ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  ),
+                  child: Text(
+                    stepOrResult?.isNotEmpty == true ? stepOrResult! : '—',
+                    style: AppTypography.labelMd,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const Spacer(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -321,7 +319,7 @@ class _DisposedCaseCard extends StatelessWidget {
                     if (disposedDate != null)
                       Text(
                         disposedDate!,
-                        style: AppTypography.titleMd.copyWith(
+                        style: AppTypography.labelMd.copyWith(
                           color: AppColors.onSurfaceVariant,
                         ),
                       ),

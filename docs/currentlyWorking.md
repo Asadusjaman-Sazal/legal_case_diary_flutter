@@ -1,3 +1,17 @@
+### 2026-08-25 — Removed dead shared CaseCard.disposed variant — COMPLETE
+
+- The dead code flagged earlier (the `disposed` variant of the shared `CaseCard`, plus `CaseCardHistoryEntry` and the `disposedDate`/`historyEntries` params) was still present in `lib/shared/widgets/case_card.dart`. Removed it.
+- Updated `test/shared/widgets/phase3_widgets_test.dart`: dropped the disposed-card assertion and fixed the red-border test (it now sets `isOverdue: true`, which was a pre-existing failure unrelated to this change).
+
+Version `0.0.104`.
+
+### 2026-08-25 — Disposed Cases: rebuilt card to 7-line layout — COMPLETE
+
+- Replaced the shared `CaseCard` (disposed variant, which showed a history timeline) with a dedicated `_DisposedCaseCard` matching the required 7-line spec: Step/Result chip + "Disposed:" label (L1), Case Type & Number + last Next Date (L2), Petitioner Vs Respondent (L3), Case Title/Section (L4), Court + judges (L5), Note in a quoted box with secondary left border (L6, per the mockup), and call/message/update actions (L7).
+- Removed the now-dead history fetching (`_historyById`, `CaseHistoryDao`) from this screen. The shared `CaseCard.disposed` variant is left in place (unused here) to avoid unrelated churn.
+
+Version `0.0.103`.
+
 ### 2026-08-25 — Disposed Cases: auto-reload after Quick Update — COMPLETE
 
 - Root cause: `_openQuickUpdate` opened `QuickUpdateCaseDialog` but did not reload afterward. Reviving a case (removing disposal steps via Quick Update) left it in the Disposed list until a manual pull-to-refresh.

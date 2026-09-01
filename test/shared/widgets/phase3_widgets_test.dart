@@ -127,7 +127,7 @@ void main() {
       expect(find.byTooltip('Message'), findsOneWidget);
     });
 
-    testWidgets('renders compact and disposed variant details', (
+    testWidgets('renders compact list variant details', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -162,26 +162,6 @@ void main() {
         ),
       );
       expect(find.byKey(const ValueKey('case-card-note')), findsNothing);
-
-      await tester.pumpWidget(
-        _localizedApp(
-          const CaseCard(
-            variant: CaseCardVariant.disposed,
-            caseNumber: 'CIV-3/2020',
-            title: 'Disposed matter',
-            disposedDate: '01/01/2026',
-            showPhoneButton: false,
-            showMessageButton: false,
-            showUpdateButton: false,
-          ),
-        ),
-      );
-
-      expect(find.text('Disposed:'), findsOneWidget);
-      expect(find.text('01/01/2026'), findsOneWidget);
-      expect(find.byTooltip('Phone'), findsNothing);
-      expect(find.byTooltip('Message'), findsNothing);
-      expect(find.text('Update'), findsNothing);
     });
 
     testWidgets('applies the red left border only to overdue cards', (
@@ -195,6 +175,7 @@ void main() {
             caseNumber: 'CR-9/2024',
             title: 'Overdue matter',
             nextDate: '15/08/2024',
+            isOverdue: true,
           ),
         ),
       );

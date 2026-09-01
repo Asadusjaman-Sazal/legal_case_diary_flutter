@@ -9,17 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
-import '../../../../features/cases/data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
-import '../../../../shared/widgets/case_card.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -37,7 +37,6 @@ class DisposedCasesScreen extends ConsumerStatefulWidget {
 class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   List<Case> _cases = const [];
   Map<String, Court> _courtsById = const {};
-  Map<String, List<CaseHistoryRow>> _historyById = const {};
   Object? _error;
   bool _loading = true;
 
@@ -54,18 +53,10 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       final cases = await repository.listDisposed();
       final courts = await CourtsDao(db).getAll();
 
-      final historyDao = CaseHistoryDao(db);
-      final historyById = <String, List<CaseHistoryRow>>{};
-      for (final c in cases) {
-        final entries = await historyDao.getByCaseId(c.id, limit: 2);
-        historyById[c.id] = entries;
-      }
-
       if (!mounted) return;
       setState(() {
         _cases = cases;
         _courtsById = {for (final court in courts) court.id: court};
-        _historyById = historyById;
         _error = null;
         _loading = false;
       });
@@ -216,54 +207,227 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                 final court = _courtsById[currentCase.courtId];
                 final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
                     court?.courtCategoryId == highCourtDivisionId;
-                final history = _historyById[currentCase.id] ?? const [];
-                final lastTwo = history.take(2).toList();
-                return CaseCard(
+                final stepOrResult = currentCase.lastStep?.trim().isNotEmpty == true
+                    ? currentCase.lastStep!
+                    : (currentCase.result?.trim().isNotEmpty == true
+                        ? currentCase.result!
+                        : null);
+                final disposedDate = currentCase.nextDate == null
+                    ? null
+                    : AppDateUtils.formatDisplayDate(
+                        currentCase.nextDate!,
+                        todayLabel: l.caseCard_disposed,
+                        tomorrowLabel: l.caseCard_disposed,
+                        locale: l.localeName,
+                      );
+                return _DisposedCaseCard(
                   key: ValueKey('case-card-${currentCase.id}'),
-                  variant: CaseCardVariant.disposed,
+                  stepOrResult: stepOrResult,
                   caseNumber:
                       '${currentCase.caseType} ${currentCase.caseNumber}',
-                  title:
+                  parties:
                       '${currentCase.petitioner} Vs ${currentCase.respondent}',
-                  subtitle: currentCase.caseTitleAndSection,
+                  title: currentCase.caseTitleAndSection,
                   courtName: court?.courtName,
                   judgesName: isHigherCourt ? currentCase.honorableJudges : null,
-                  statusLabel: currentCase.lastStep,
-                  alignStatusLabelRight: true,
-                  isOverdue: true, // Disposed date is in the past.
-                  disposedDate: currentCase.nextDate == null
-                      ? null
-                      : AppDateUtils.formatDisplayDate(
-                          currentCase.nextDate!,
-                          todayLabel: l.caseCard_disposed,
-                          tomorrowLabel: l.caseCard_disposed,
-                          locale: l.localeName,
-                        ),
-                  step: currentCase.lastStep,
-                  result: currentCase.result,
+                  disposedDate: disposedDate,
                   note: currentCase.notesResults,
-                  showPhoneButton: true,
-                  showMessageButton: true,
                   onPhone: () => _launchPartyAction(currentCase, message: false),
                   onMessage: () => _launchPartyAction(currentCase, message: true),
                   onUpdate: () => _openQuickUpdate(currentCase),
-                  historyEntries: lastTwo.map((entry) {
-                    final date = AppDateUtils.formatDisplayDate(
-                      entry.hearingDate,
-                      todayLabel: l.caseCard_disposed,
-                      tomorrowLabel: l.caseCard_disposed,
-                      locale: l.localeName,
-                    );
-                    final text = entry.noteResult?.trim().isNotEmpty == true
-                        ? entry.noteResult!
-                        : (entry.lastStep?.trim().isNotEmpty == true
-                            ? entry.lastStep!
-                            : l.caseCard_lastStep);
-                    return CaseCardHistoryEntry(date: date, text: text);
-                  }).toList(),
                 );
               },
             ),
           );
+  }
+}
+
+/// Disposed-case card: a 7-line layout tuned for closed cases.
+///
+/// L1 Step/Result (light-gray chip) left, "Disposed:" right.
+/// L2 Case Type & Number left, last Next Date right (under "Disposed:").
+/// L3 Petitioner Vs Respondent. L4 Case Title/Section. L5 Court (judges for
+/// higher courts). L6 Note in a quotation box. L7 call/message/update actions.
+class _DisposedCaseCard extends StatelessWidget {
+  const _DisposedCaseCard({
+    super.key,
+    required this.stepOrResult,
+    required this.caseNumber,
+    required this.parties,
+    required this.title,
+    required this.courtName,
+    required this.judgesName,
+    required this.disposedDate,
+    required this.note,
+    required this.onPhone,
+    required this.onMessage,
+    required this.onUpdate,
+  });
+
+  final String? stepOrResult;
+  final String caseNumber;
+  final String parties;
+  final String? title;
+  final String? courtName;
+  final String? judgesName;
+  final String? disposedDate;
+  final String? note;
+  final VoidCallback onPhone;
+  final VoidCallback onMessage;
+  final VoidCallback onUpdate;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final trimmedNote = note?.trim();
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // L1: Step/Result (light-gray) left, "Disposed:" right.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
+                    child: Text(
+                      stepOrResult?.isNotEmpty == true ? stepOrResult! : '—',
+                      style: AppTypography.labelMd,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      l.caseCard_disposed,
+                      style: AppTypography.labelMd,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            // L2: Case Type & Number left, last Next Date right.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    caseNumber,
+                    style: AppTypography.caseNumber,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                if (disposedDate != null)
+                  Text(
+                    disposedDate!,
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            // L3: Petitioner Vs Respondent.
+            Text(parties, style: AppTypography.titleMd),
+            const SizedBox(height: AppSpacing.xs),
+            // L4: Case Title or Section.
+            if (title?.trim().isNotEmpty == true)
+              Text(title!, style: AppTypography.bodyMd),
+            // L5: Name of Court.
+            if (courtName != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(courtName!, style: AppTypography.bodySm),
+              if (judgesName != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(judgesName!, style: AppTypography.bodySm),
+              ],
+            ],
+            // L6: Note in a quotation box.
+            if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  border: Border(
+                    left: BorderSide(
+                      color: AppColors.secondary,
+                      width: 4,
+                    ),
+                  ),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+                child: Text(
+                  '"$trimmedNote"',
+                  style: AppTypography.bodyMd.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            // L7: call, message, update.
+            Row(
+              children: [
+                IconButton(
+                  tooltip: l.allCasesScreen_phone,
+                  onPressed: onPhone,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
+                  ),
+                  icon: const Icon(Icons.call_outlined),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                IconButton(
+                  tooltip: l.allCasesScreen_message,
+                  onPressed: onMessage,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    ),
+                  ),
+                  icon: const Icon(Icons.chat_outlined),
+                ),
+                const Spacer(),
+                SizedBox(
+                  height: 40,
+                  child: FilledButton.icon(
+                    onPressed: onUpdate,
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    label: Text(l.allCasesScreen_update),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

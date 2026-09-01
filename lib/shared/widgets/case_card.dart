@@ -21,21 +21,6 @@ enum CaseCardVariant {
 
   /// Overdue layout with the required red left border strip.
   overdue,
-
-  /// Disposed layout with a disposed date line.
-  disposed,
-}
-
-/// A single read-only history entry rendered in the disposed card layout (L5).
-class CaseCardHistoryEntry {
-  /// Formatted hearing date (already localized by the host).
-  final String date;
-
-  /// What happened at the hearing (step, result, or note).
-  final String text;
-
-  /// Creates a history entry value.
-  const CaseCardHistoryEntry({required this.date, required this.text});
 }
 
 /// A configurable case card shared by all case-list screens.
@@ -61,9 +46,6 @@ class CaseCard extends StatelessWidget {
   /// Optional next-hearing date shown by list and overdue variants.
   final String? nextDate;
 
-  /// Optional disposed date shown by the disposed variant.
-  final String? disposedDate;
-
   /// Step shown in the Daily Cause List and list metadata.
   final String? step;
 
@@ -72,9 +54,6 @@ class CaseCard extends StatelessWidget {
 
   /// Note shown beside the step in the Daily Cause List layout.
   final String? note;
-
-  /// Last two case-history entries, rendered only in the disposed layout (L5).
-  final List<CaseCardHistoryEntry> historyEntries;
 
   /// Honorable judges' name, shown after the court name for AD/HCD cases.
   final String? judgesName;
@@ -118,11 +97,9 @@ class CaseCard extends StatelessWidget {
     this.courtName,
     this.statusLabel,
     this.nextDate,
-    this.disposedDate,
     this.step,
     this.result,
     this.note,
-    this.historyEntries = const [],
     this.judgesName,
     this.dateLabelOverride,
     this.isOverdue = false,
@@ -152,7 +129,7 @@ class CaseCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (isOverdue && variant != CaseCardVariant.disposed)
+            if (isOverdue)
               Container(
                 key: const ValueKey('case-card-overdue-strip'),
                 width: 4,
@@ -188,39 +165,12 @@ class CaseCard extends StatelessWidget {
                         l: l,
                         variant: variant,
                         nextDate: nextDate,
-                        disposedDate: disposedDate,
                         step: step,
                         result: result,
                         note: note,
                         dateLabelOverride: dateLabelOverride,
                         isOverdue: isOverdue,
                       ),
-                    if (variant == CaseCardVariant.disposed &&
-                        historyEntries.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      for (final entry in historyEntries)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${entry.date}: ',
-                                style: AppTypography.labelMd.copyWith(
-                                  color: AppColors.onSurfaceVariant,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  entry.text,
-                                  style: AppTypography.bodySm,
-                                  softWrap: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
                     if (_hasActions) ...[
                       const SizedBox(height: AppSpacing.md),
                       _CaseActions(
@@ -352,7 +302,6 @@ class _ListDetails extends StatelessWidget {
   final AppLocalizations l;
   final CaseCardVariant variant;
   final String? nextDate;
-  final String? disposedDate;
   final String? step;
   final String? result;
   final String? note;
@@ -363,7 +312,6 @@ class _ListDetails extends StatelessWidget {
     required this.l,
     required this.variant,
     required this.nextDate,
-    required this.disposedDate,
     required this.step,
     required this.result,
     required this.note,
@@ -374,15 +322,7 @@ class _ListDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final details = <Widget>[];
-    if (variant == CaseCardVariant.disposed && disposedDate != null) {
-      details.add(
-        _DetailValue(
-          label: isOverdue ? l.caseCard_previousDate : l.caseCard_disposed,
-          value: disposedDate,
-          isOverdue: isOverdue,
-        ),
-      );
-    } else if (nextDate != null) {
+    if (nextDate != null) {
       details.add(
         _DetailValue(
           label: dateLabelOverride ??

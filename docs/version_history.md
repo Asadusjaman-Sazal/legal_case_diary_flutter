@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.102 - Disposed Cases screen now reloads automatically after a Quick Update closes, so reviving a case (removing disposal steps) immediately removes it from the list instead of requiring a manual pull-to-refresh.
+Version: 0.0.104 - Removed the dead shared `CaseCard.disposed` variant, `CaseCardHistoryEntry`, and `disposedDate`/`historyEntries` params (the Disposed screen uses its own `_DisposedCaseCard`). Updated the widgets test accordingly. flutter analyze clean; phase3 widget tests pass.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -116,3 +116,5 @@ Version: 0.0.99 - Disposed cases now excluded from Upcoming, Overdue, and Daily 
 Version: 0.0.100 - Disposal detection now matches "Disposed"/"নিষ্পত্তি" as a substring in Steps/Result: a case is disposed even when the step or result text mixes disposal with other steps/words (previously only an exact single-value match counted).
 Version: 0.0.101 - Disposal detection now uses the full disposed-step set (Withdrawal, Dismissal, Allowed, Rejected, Acquittal, Conviction, Remand, নিষ্পত্তি, etc.) from pre_seeded_data disposedStepNames instead of only matching the words "disposed"/"নিষ্পত্তি". A case whose Steps contain any disposal step name is now correctly excluded from Active/Upcoming/Overdue and shown in Disposed.
 Version: 0.0.102 - Disposed Cases screen now reloads automatically after a Quick Update closes, so reviving a case (removing disposal steps) immediately removes it from the list instead of requiring a manual pull-to-refresh.
+Version: 0.0.103 - Disposed Cases screen card rebuilt to a 7-line layout: L1 Step/Result chip + "Disposed:" label, L2 Case Type & Number + last Next Date, L3 Petitioner Vs Respondent, L4 Case Title/Section, L5 Court (judges for higher courts), L6 Note in a quoted box, L7 call/message/update actions. Removed the old history-timeline card variant from this screen.
+Version: 0.0.104 - Removed the dead shared `CaseCard.disposed` variant, `CaseCardHistoryEntry`, and `disposedDate`/`historyEntries` params (the Disposed screen uses its own `_DisposedCaseCard`). Updated the widgets test accordingly. flutter analyze clean; phase3 widget tests pass.

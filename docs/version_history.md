@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.97 - Overdue date styling: All/Active cards show a red left stripe and "Previous Date" (red text) when the date is past; the Overdue screen's Case Type/Case Number is black and disposed cards relabel their date "Previous Date"; flutter analyze clean.
+Version: 0.0.101 - Disposal detection now uses the full disposed-step set (Withdrawal, Dismissal, Allowed, Rejected, Acquittal, Conviction, Remand, নিষ্পত্তি, etc.) from pre_seeded_data disposedStepNames instead of only matching the words "disposed"/"নিষ্পত্তি". A case whose Steps contain any disposal step name is now correctly excluded from Active/Upcoming/Overdue and shown in Disposed.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -111,3 +111,7 @@ Version: 0.0.94 - Case card shows "Name of Honorable Judges'" after Name of Cour
 Version: 0.0.95 - Task 08 complete: built Active, Upcoming, Overdue Dates, and Disposed case-list screens alongside the extended All Cases host (KPI summary, Court Name + Chronology filters, first-come-first-served ordering, scoped search); flutter analyze clean.
 Version: 0.0.96 - Overdue Dates card refinements: hide the per-card "Name of Court" column (court is shown in the group header) and relabel the date as "Previous Date" (date value unchanged); added caseCard_previousDate localization (en/bn).
 Version: 0.0.97 - Overdue date styling: All/Active cards show a red left stripe and "Previous Date" (red text) when the date is past; the Overdue screen's Case Type/Case Number is black and disposed cards relabel their date "Previous Date"; flutter analyze clean.
+Version: 0.0.98 - Disposed Cases card: enabled the Update button (was disabled) so a disposed case can be revived via the Quick Update dialog; flutter analyze clean.
+Version: 0.0.99 - Disposed cases now excluded from Upcoming, Overdue, and Daily Cause List: date-range query (getByNextDateRange) filters out disposed cases (only Active and Disposed screens keep them); flutter analyze clean.
+Version: 0.0.100 - Disposal detection now matches "Disposed"/"নিষ্পত্তি" as a substring in Steps/Result: a case is disposed even when the step or result text mixes disposal with other steps/words (previously only an exact single-value match counted).
+Version: 0.0.101 - Disposal detection now uses the full disposed-step set (Withdrawal, Dismissal, Allowed, Rejected, Acquittal, Conviction, Remand, নিষ্পত্তি, etc.) from pre_seeded_data disposedStepNames instead of only matching the words "disposed"/"নিষ্পত্তি". A case whose Steps contain any disposal step name is now correctly excluded from Active/Upcoming/Overdue and shown in Disposed.

@@ -18,6 +18,7 @@ import '../../../../database/app_database.dart';
 import '../../../../features/cases/data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
+import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
 import '../cases_screen_modal.dart';
 
@@ -167,6 +168,10 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     }
   }
 
+  Future<void> _openQuickUpdate(Case currentCase) async {
+    await QuickUpdateCaseDialog.show(context, currentCase);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -240,6 +245,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                   showMessageButton: true,
                   onPhone: () => _launchPartyAction(currentCase, message: false),
                   onMessage: () => _launchPartyAction(currentCase, message: true),
+                  onUpdate: () => _openQuickUpdate(currentCase),
                   historyEntries: lastTwo.map((entry) {
                     final date = AppDateUtils.formatDisplayDate(
                       entry.hearingDate,

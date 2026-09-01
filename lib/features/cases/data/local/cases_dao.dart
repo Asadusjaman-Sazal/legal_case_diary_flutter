@@ -4,6 +4,7 @@ library;
 
 import 'package:drift/drift.dart';
 
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../database/app_database.dart';
 
 /// Data Access Object for [Cases] table operations.
@@ -13,10 +14,6 @@ class CasesDao {
 
   /// The Drift database instance.
   final AppDatabase db;
-
-  /// Canonical lowercased labels that mark a case as disposed.
-  /// Used by [getActiveCaseCount] / [watchActiveCaseCount].
-  static const _disposedLabels = <String>['disposed', 'নিষ্পত্তি'];
 
   /// Result words that dispose a case even when no seeded Step is available.
   static const _disposedResultTerms = <String>[
@@ -171,7 +168,8 @@ class CasesDao {
       ..where(
         (row) =>
             row.isDeleted.equals(false) &
-            row.nextDate.isBetweenValues(start, end),
+            row.nextDate.isBetweenValues(start, end) &
+            _isDisposed.not(),
       )
       ..orderBy([
         (row) =>
@@ -234,8 +232,7 @@ class CasesDao {
       ..addColumns([countExp])
       ..where(
         db.cases.isDeleted.equals(false) &
-            (db.cases.lastStep.isNull() |
-                db.cases.lastStep.lower().isNotIn(_disposedLabels)) &
+            _stepIsNotDisposed &
             _resultIsNotDisposed,
       );
     return query.map((row) => row.read(countExp)!).getSingle();
@@ -248,8 +245,7 @@ class CasesDao {
       ..addColumns([countExp])
       ..where(
         db.cases.isDeleted.equals(false) &
-            (db.cases.lastStep.isNull() |
-                db.cases.lastStep.lower().isNotIn(_disposedLabels)) &
+            _stepIsNotDisposed &
             _resultIsNotDisposed,
       );
     return query.map((row) => row.read(countExp)!).watchSingle();
@@ -262,8 +258,23 @@ class CasesDao {
           .map((term) => db.cases.result.lower().like('%$term%').not())
           .reduce((left, right) => left & right);
 
+  /// SQL expression marking a case as disposed when its Steps field contains a
+  /// disposal step name (from [disposedStepNames]) among other comma-joined
+  /// steps, e.g. "Withdrawal,Dismissal" or "নিষ্পত্তি,Argument".
+  Expression<bool> get _stepIsDisposed =>
+      disposedStepNames
+          .map((label) => db.cases.lastStep.lower().like('%$label%'))
+          .reduce((left, right) => left | right);
+
+  /// SQL expression marking a case as NOT disposed by its Steps field.
+  Expression<bool> get _stepIsNotDisposed =>
+      db.cases.lastStep.isNull() |
+      disposedStepNames
+          .map((label) => db.cases.lastStep.lower().like('%$label%').not())
+          .reduce((left, right) => left & right);
+
   Expression<bool> get _isDisposed =>
-      db.cases.lastStep.lower().isIn(_disposedLabels) |
+      _stepIsDisposed |
       (db.cases.result.isNotNull() &
           _disposedResultTerms
               .map((term) => db.cases.result.lower().like('%$term%'))

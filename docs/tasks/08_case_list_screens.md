@@ -26,16 +26,19 @@
 
 ## Phase 2 — Active Cases Screen
 
-Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/Chronology filters, and only cases whose `last_step` is NOT in the disposed-step set from `pre_seeded_data.dart` (disposal is derived — there is no `cases.status` column).
+Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/Chronology filters, and only cases whose `last_step` is NOT in the disposed-step set from `pre_seeded_data.dart` (disposal is derived — there is no `cases.status` column). For AD/HCD cases, which have no `last_step`, exclude those whose `result` contains a configured disposal term (same derived rule as Phase 5).
+
+**Source of truth:** a sorted-out subset of the All Cases dataset.
 
 **Phase 2 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
 ## Phase 3 — Upcoming Cases Screen
 
 1. Body from `upcomingCases\code.html`.
-2. Filter: cases with `next_date` in **tomorrow + `upcoming_cases_period`** (SharedPreferences, default 7 days).
-3. Grouped by date, newest first; group headers formatted like "Tuesday, October 24, 2023" (localized).
-4. Card design identical to the All Cases card.
+2. **Source of truth:** a sorted-out subset of the All Cases dataset.
+3. Filter: cases with `next_date` in **tomorrow + `upcoming_cases_period`** (SharedPreferences key `upcoming_cases_period`, set in Settings > View Settings > Upcoming Cases Period, default 7 days).
+4. Grouped by date, newest first; group headers formatted like "Tuesday, October 24, 2023" (localized).
+5. Card design identical to the All Cases card (exact same fields).
 
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
@@ -52,9 +55,18 @@ Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/C
 
 ## Phase 5 — Disposed Cases Screen
 
-1. Body from `disposedCases\code.html`. **No FAB on this screen.**
-2. Filter: `last_step` in the disposed-step set. Sorted by `next_date` descending (latest disposed on top).
-3. **Card lines (exact):** L1 `last_step` | "Disposed:" top-right; L2 `case_type` & `case_number` | `next_date` under "Disposed:"; L3 petitioner vs respondent; L4 Note in the styled box from the mockup; L5 last two `case_history` entries.
+1. Body from `disposedCases\code.html`. **No Add Case FAB on this screen** (a disposed case is not created here). The mockup's bottom-right FAB is a **Help FAB** (`help_outline` icon) — see item 5.
+2. **Source of truth:** a sorted-out subset of the All Cases dataset.
+3. Filter: `last_step` in the disposed-step set from `pre_seeded_data.dart` **or** an AD/HCD `result` containing a configured disposal term (Plan §6 — AD/HCD cases have no `last_step`, so Result is the only disposal signal for them). Sorted by `next_date` descending (latest disposed on top). Do **not** build the mockup's `All Disposed | Settled | Dismissed | Disposed` filter-chip row (explicitly out of scope).
+4. **Card layout — match `disposedCases\code.html` exactly (this card is structurally different from the other list cards; do not reuse the standard list card):**
+   - **Outcome chip:** a small rounded, tinted status chip above the case number showing the disposal outcome (mockup examples: `SETTLED` green-tinted, `DISMISSED` red/error-tinted). Derived from `last_step` (or AD/HCD `result`); tint by outcome family.
+   - **Top-right block:** a `Disposed:` label with the `next_date` (the date the case was disposed) directly beneath it.
+   - **Case number:** `case_type` & `case_number` in the case-number style, beneath the chip.
+   - **Parties:** `petitioner` vs `respondent` in title style.
+   - **Final result / Note box:** `notes_results` shown inside the mockup's styled quote box — italic text with a left accent border (`border-l-4`), rounded, on a subtle container fill.
+   - **Case History timeline:** an uppercase `Case History` header, then the **last two** `case_history` entries rendered as a vertical timeline (left rail with ring dots; the latest/top entry emphasized in the secondary color and bold; each entry shows its date and description).
+   - **No Phone/Message/Update action row** on this card (unlike All/Active/Upcoming/Overdue).
+5. **Help FAB + Guidelines modal (per mockup):** a bottom-right `help_outline` FAB opens a "How to set a case as disposed?" modal explaining that choosing a disposal step while updating a case's date moves it here, that the case remains in the All Cases list, and listing the **Disposed Keywords** as chips (আপোষ মিমাংসা, প্রত্যাহার, খারিজ, নিষ্পত্তি, ২৪৮ ধারায় প্রত্যাহার, সাজা, রিমান্ডে প্রেরণ (R), নথিজাত, অব্যহতি, পদক্ষেপ নেওয়ার প্রয়োজন নেই, খালাস), with a "Got it" dismiss button. No `BackdropFilter` — use a plain scrim per the plan's performance rule.
 
 **Phase 5 completion:** `flutter analyze` clean; manual pass on all five screens against mockups. Update `docs/version_history.md`.
 

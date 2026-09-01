@@ -19244,6 +19244,14 @@ final Map<String, String> stepLabelBn = Map.unmodifiable(
   ),
 );
 
+/// Display names (both languages) of every disposed step.
+/// A case's `last_step` stores comma-joined step names, so disposal is detected
+/// by matching any of these names. Derived from [disposedStepIds].
+final Set<String> disposedStepNames = disposedStepIds
+    .expand((id) => [stepLabelEn[id], stepLabelBn[id]])
+    .whereType<String>()
+    .toSet();
+
 /// All case type stable IDs → English label.
 final Map<String, String> caseTypeLabelEn = Map.unmodifiable(
   Map.fromEntries(

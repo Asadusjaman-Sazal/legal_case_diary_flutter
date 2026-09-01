@@ -1,3 +1,30 @@
+### 2026-08-25 — Disposal detection used wrong label set — COMPLETE
+
+- Root cause: `CasesDao` matched the Steps field against a hardcoded two-word list `['disposed', 'নিষ্পত্তি']` (`_disposedLabels`). But `last_step` stores the actual comma-joined **step names** (e.g. `"Withdrawal,Dismissal"`), so selecting disposal steps like Withdrawal/Dismissal/Allowed/Rejected never matched and the case stayed in Active/Upcoming/Overdue.
+- Fix: derived `disposedStepNames` (both languages) from `pre_seeded_data.disposedStepIds` via `stepLabelEn`/`stepLabelBn`, and switched `_stepIsDisposed`/`_stepIsNotDisposed` to match against that full set with substring `LIKE`. Now any case whose Steps contain a disposal step name is correctly treated as disposed.
+
+Version `0.0.101`.
+
+### 2026-08-25 — Disposal detection: match label inside mixed Step/Result — COMPLETE
+
+- Root cause: `CasesDao._isDisposed` matched `lastStep` with `isIn(_disposedLabels)` (exact equality). District-court steps are stored comma-joined (e.g. `"Disposed, Argument"`), so a disposed step mixed with others failed the exact match and the case was treated as active.
+- Fix: disposal now uses `LIKE '%disposed%'` / `'%নিষ্পত্তি%'` substring matching for both the Steps field and the AD/HCD Result field. A case is disposed whenever either field *contains* a disposal label, even alongside other steps/words. The active-case count queries were updated to use the new `_stepIsNotDisposed` expression.
+
+Version `0.0.100`.
+
+### 2026-08-25 — Keep disposed cases out of non-disposed screens — COMPLETE
+
+- Root cause: `CasesDao.getByNextDateRange` did not exclude disposed cases, so disposed cases leaked into Upcoming, Overdue, and Daily Cause List screens.
+- Fix: added `_isDisposed.not()` to the date-range query. Disposed cases now appear only in Active (excluded) and Disposed (only-source) screens, plus the unfiltered All Cases screen — matching the intended scope.
+
+Version `0.0.99`.
+
+### 2026-08-25 — Disposed Cases card: enable Update button — COMPLETE
+
+- The Disposed Cases card's Update button was disabled (no `onUpdate` handler). Wired `_openQuickUpdate` → `QuickUpdateCaseDialog.show`, so a disposed case can now be revived/edited if needed. Added the `add_edit_case_sheet.dart` import.
+
+Version `0.0.98`.
+
 ### 2026-08-25 — Overdue date styling across case cards — COMPLETE
 
 - Added a per-case `CaseCard.isOverdue` flag. All/Active hosts compute it from `nextDate < bangladeshTodayStartOfDay()`; Disposed passes `true` (past by definition).

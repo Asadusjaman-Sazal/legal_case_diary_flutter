@@ -7,6 +7,15 @@
 
 Version unchanged at `0.0.113` (Phase 4 added no code changes).
 
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 7): header affordance + toggle + year focus — COMPLETE
+
+- Added a `Icons.arrow_drop_down` caret next to the Month and Year text in the header so users see they are tappable.
+- Tapping an open Month/Year header now toggles back to the day grid (instead of only selecting a value to close). The chevron `<` `>` still step the focused month.
+- `_YearSelector` opens scrolled to the current/focused year via a `ScrollController` with `initialScrollOffset` computed from an approximate row height and the year's row index (1926–2126, 4 columns).
+- Note: the Month grid is short (12 items) and shows all of them, so no scroll-to-current-month was needed; the focused month is already highlighted.
+
+Version `0.0.120`. Known issues: none.
+
 ### 2026-09-02 — Task 09 fixes (post-Phase 4, 6): year + month pickers — COMPLETE
 
 - Added tap targets in the header: the **Month** name (`_PickerMode.month`) and the **Year** (`_PickerMode.year`) each open a dedicated selection view; the chevron `<` `>` buttons still step the focused month.

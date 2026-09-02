@@ -165,33 +165,66 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap: () =>
-                              setState(() => _mode = _PickerMode.month),
+                          onTap: () => setState(() => _mode =
+                              _mode == _PickerMode.month
+                                  ? _PickerMode.day
+                                  : _PickerMode.month),
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 2,
                             ),
-                            child: Text(
-                              DateFormat('MMMM', locale).format(_focusedMonth),
-                              style: Theme.of(context).textTheme.titleMedium,
+                            child: Row(
+                              children: [
+                                Text(
+                                  DateFormat('MMMM', locale)
+                                      .format(_focusedMonth),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.color,
+                                ),
+                              ],
                             ),
                           ),
                         ),
                         const SizedBox(width: 6),
                         InkWell(
-                          onTap: () =>
-                              setState(() => _mode = _PickerMode.year),
+                          onTap: () => setState(() => _mode =
+                              _mode == _PickerMode.year
+                                  ? _PickerMode.day
+                                  : _PickerMode.year),
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 4,
                               vertical: 2,
                             ),
-                            child: Text(
-                              '${_focusedMonth.year}',
-                              style: Theme.of(context).textTheme.titleMedium,
+                            child: Row(
+                              children: [
+                                Text(
+                                  '${_focusedMonth.year}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.color,
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -511,6 +544,7 @@ class _MonthSelector extends StatelessWidget {
 class _YearSelector extends StatelessWidget {
   static const int _minYear = 1926;
   static const int _maxYear = 2126;
+  static const double _childAspectRatio = 2.2;
 
   final int selectedYear;
   final ValueChanged<int> onSelect;
@@ -525,13 +559,27 @@ class _YearSelector extends StatelessWidget {
     final years = [
       for (var y = _minYear; y <= _maxYear; y++) y,
     ];
+    // Approximate row height so we can scroll the focused (current) year into
+    // view on open — 4 columns, fixed aspect ratio against the available width.
+    final rowHeight = (MediaQuery.of(context).size.width - AppSpacing.md * 2) /
+            4 /
+            _childAspectRatio +
+        AppSpacing.sm;
+    final initialRow = (selectedYear - _minYear) ~/ 4;
+    final controller = ScrollController(
+      initialScrollOffset: (initialRow * rowHeight).clamp(
+        0.0,
+        (years.length / 4) * rowHeight,
+      ),
+    );
     return GridView.builder(
+      controller: controller,
       padding: const EdgeInsets.all(AppSpacing.md),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         mainAxisSpacing: AppSpacing.sm,
         crossAxisSpacing: AppSpacing.sm,
-        childAspectRatio: 2.2,
+        childAspectRatio: _childAspectRatio,
       ),
       itemCount: years.length,
       itemBuilder: (context, index) {

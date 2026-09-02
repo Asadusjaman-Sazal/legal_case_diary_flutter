@@ -129,7 +129,12 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
       children: [
         // Header: month navigation + title + total hearings.
         Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -143,6 +148,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                     monthTitle,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  const SizedBox(height: AppSpacing.md),
                   Text(
                     '${l.dailyCauseListScreen_totalHearings} $totalHearings',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -184,9 +190,10 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final rows = ((leadingBlanks + daysInMonth) / 7).ceil();
+              const dateRows = 6; // Always show 6 date rows like other pickers.
               final cellHeight =
-                  (constraints.maxHeight - AppSpacing.sm * (rows - 1)) / rows;
+                  (constraints.maxHeight - AppSpacing.sm * (dateRows - 1)) /
+                      dateRows;
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: GridView.custom(
@@ -221,6 +228,12 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                           );
                         },
                       ),
+                    // Pad the 7th (and any unused) row with empty cells so the
+                    // grid always shows 6 date rows consistently.
+                    for (var i = 0;
+                        i < (dateRows * 7 - leadingBlanks - daysInMonth);
+                        i++)
+                      const SizedBox.shrink(),
                   ]),
                 ),
               );

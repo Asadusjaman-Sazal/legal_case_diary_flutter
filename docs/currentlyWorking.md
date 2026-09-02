@@ -7,6 +7,13 @@
 
 Version unchanged at `0.0.113` (Phase 4 added no code changes).
 
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 5): calendar header spacing — COMPLETE
+
+- Pushed the month/year title row (with the `<` `>` buttons) down from the top edge: changed the header `Padding` from `all(md)` to `fromLTRB(md, lg, md, md)` so the top inset is larger.
+- Added more separation between the Month & Year title and the Total Hearings count: inserted `SizedBox(height: md)` between the two `Text` widgets in the centered `Column`.
+
+Version `0.0.118`. Known issues: none.
+
 ### 2026-09-02 — Task 09 fixes (post-Phase 4, 4): calendar dialog height -15% — COMPLETE
 
 - Reduced the calendar dialog height by 15% only (`minHeight` 0.665→0.565, `maxHeight` 0.874→0.743 of screen height). Width untouched (360–460). The Expanded grid still fills the dialog, so cells shrink proportionally rather than leaving empty space.

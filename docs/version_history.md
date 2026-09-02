@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.117 - Task 09 fixes: badge calendar dialog height reduced by 15% (minHeight 0.665→0.565, maxHeight 0.874→0.743 of screen height). Width unchanged (360–460). Daily Cause List screen only.
+Version: 0.0.118 - Task 09 fixes: badge calendar header pushed down from the top (top padding md→lg) and more space added between the Month & Year title and the Total Hearings count (added SizedBox of md between them). Daily Cause List screen only.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -131,3 +131,4 @@ Version: 0.0.114 - Task 09 fixes: badge calendar now shows hearing-count badges 
 Version: 0.0.115 - Task 09 fixes: calendar date-selection off-by-one fixed — AppDateUtils.bangladeshCivilDateEpoch now builds the civil-day start-of-day from a UTC midnight (was local midnight), so a tapped cell epoch matches the labeled civil date on any device timezone (e.g. selecting 03/09/2026 no longer selects 02/09/2026). Calendar dialog height reduced ~5% (width unchanged).
 Version: 0.0.116 - Task 09 fixes: badge calendar now fills the full dialog height (grid uses an Expanded grid with computed cell height, removing the ~30% empty bottom space) and the Close button is larger (52px tall). Daily Cause List screen only.
 Version: 0.0.117 - Task 09 fixes: badge calendar dialog height reduced by 15% (minHeight 0.665->0.565, maxHeight 0.874->0.743 of screen height). Width unchanged (360-460). Daily Cause List screen only.
+Version: 0.0.118 - Task 09 fixes: badge calendar header pushed down from the top (top padding md->lg) and more space added between the Month & Year title and the Total Hearings count (added SizedBox of md between them). Daily Cause List screen only.

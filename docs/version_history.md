@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.110 - Upcoming Cases: cases now sort ascending by hearing date (earliest first) and the Tomorrow group header shows "Tomorrow" instead of the full date; all headers keep the thin right-side divider line.
+Version: 0.0.117 - Task 09 fixes: badge calendar dialog height reduced by 15% (minHeight 0.665→0.565, maxHeight 0.874→0.743 of screen height). Width unchanged (360–460). Daily Cause List screen only.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -124,3 +124,10 @@ Version: 0.0.107 - Disposed Cases card: Step/Result chip now hugs its text (remo
 Version: 0.0.108 - Disposed Cases card: the "Disposed:" label and its date now sit pinned to the far right of line 1 (added a Spacer between the Step/Result chip and the label column).
 Version: 0.0.109 - Disposed Cases: added a Help FAB that opens a "How to set a case as disposed?" dialog listing disposed steps grouped by lower-court category plus the Appellate & High Court Division disposal keywords; dialog content made scrollable.
 Version: 0.0.110 - Upcoming Cases: cases now sort ascending by hearing date (earliest first) and the Tomorrow group header shows "Tomorrow" instead of the full date; all headers keep the thin right-side divider line.
+Version: 0.0.111 - Task 09 Phase 1: Daily Cause List screen body — cases filtered to the selected civil date (default today), grouped by court in pre-seeded hierarchy with per-court hearing-count KPI, rendered via the daily-cause-list card (On Behalf, petitioner Vs respondent, title/section, step | note, Phone/Message/Update; no Next Date).
+Version: 0.0.112 - Task 09 Phase 2: Daily Cause List date controls — sticky date switcher with Today/Tomorrow quick filters and a DD/MM/YY | DDD calendar control that opens the badge calendar picker (month grid, navigation, date selection). Badges and "Total Hearings" added in Phase 3.
+Version: 0.0.113 - Task 09 Phase 3: Badge calendar picker — per-date hearing-count badges (gray badge when a date has hearings, none otherwise), black "Today" highlight with a white count badge, and a "Total Hearings:" count under the month title. Close button is black with white text. Added CasesDao.countByNextDateRange.
+Version: 0.0.114 - Task 09 fixes: badge calendar now shows hearing-count badges reliably (DAO counts keyed to Bangladesh-normalized start-of-day, so they match grid cells on any device timezone); date tap no longer double-pops the route (was causing a black screen); calendar dialog is larger (taller min/max height, wider, taller day cells) with the selected non-today date using a visible black ring.
+Version: 0.0.115 - Task 09 fixes: calendar date-selection off-by-one fixed — AppDateUtils.bangladeshCivilDateEpoch now builds the civil-day start-of-day from a UTC midnight (was local midnight), so a tapped cell epoch matches the labeled civil date on any device timezone (e.g. selecting 03/09/2026 no longer selects 02/09/2026). Calendar dialog height reduced ~5% (width unchanged).
+Version: 0.0.116 - Task 09 fixes: badge calendar now fills the full dialog height (grid uses an Expanded grid with computed cell height, removing the ~30% empty bottom space) and the Close button is larger (52px tall). Daily Cause List screen only.
+Version: 0.0.117 - Task 09 fixes: badge calendar dialog height reduced by 15% (minHeight 0.665->0.565, maxHeight 0.874->0.743 of screen height). Width unchanged (360-460). Daily Cause List screen only.

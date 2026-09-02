@@ -82,6 +82,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyCauseListScreen_calendarLabel => 'Calendar';
 
   @override
+  String get dailyCauseListScreen_noHearings =>
+      'No hearings scheduled for this date.';
+
+  @override
+  String get dailyCauseListScreen_totalHearings => 'Total Hearings:';
+
+  @override
+  String get dailyCauseListScreen_noPhone => 'No phone number for this case.';
+
+  @override
+  String get dailyCauseListScreen_whatsappError => 'Unable to open WhatsApp.';
+
+  @override
+  String get dailyCauseListScreen_callError => 'Unable to place a call.';
+
+  @override
+  String get dailyCauseListScreen_messageError => 'Unable to open messages.';
+
+  @override
   String get upcomingCasesScreen_title => 'Upcoming Cases';
 
   @override

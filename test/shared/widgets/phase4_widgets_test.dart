@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_sub_page_modal.dart';
 import 'package:legal_case_diary/shared/widgets/calendar_picker_dialog.dart';
 
@@ -65,19 +67,26 @@ void main() {
   });
 
   group('CalendarPickerDialog', () {
-    testWidgets('provides a dialog boundary for injected future content', (
+    testWidgets('renders a dialog with a close button', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: CalendarPickerDialog(child: Text('Task 09 calendar')),
+            body: CalendarPickerDialog(
+              initialDate: AppDateUtils.bangladeshTodayStartOfDay(),
+              hearingCounts: const {},
+              onDateSelected: (_) {},
+            ),
           ),
         ),
       );
 
       expect(find.byType(Dialog), findsOneWidget);
-      expect(find.text('Task 09 calendar'), findsOneWidget);
+      final l = AppLocalizations.of(tester.element(find.byType(Dialog).first));
+      expect(find.text(l.sharedActions_close), findsOneWidget);
     });
   });
 }

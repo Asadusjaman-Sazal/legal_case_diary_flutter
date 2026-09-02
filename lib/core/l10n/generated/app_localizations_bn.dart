@@ -81,6 +81,25 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dailyCauseListScreen_calendarLabel => 'ক্যালেন্ডার';
 
   @override
+  String get dailyCauseListScreen_noHearings =>
+      'এই তারিখের জন্য কোনো শুনানি নির্ধারিত নেই।';
+
+  @override
+  String get dailyCauseListScreen_totalHearings => 'মোট শুনানি:';
+
+  @override
+  String get dailyCauseListScreen_noPhone => 'এই মামলার কোনো ফোন নম্বর নেই।';
+
+  @override
+  String get dailyCauseListScreen_whatsappError => 'WhatsApp খোলা যাচ্ছে না।';
+
+  @override
+  String get dailyCauseListScreen_callError => 'কল করা যাচ্ছে না।';
+
+  @override
+  String get dailyCauseListScreen_messageError => 'মেসেজ খোলা যাচ্ছে না।';
+
+  @override
   String get upcomingCasesScreen_title => 'সন্ন মামলা';
 
   @override

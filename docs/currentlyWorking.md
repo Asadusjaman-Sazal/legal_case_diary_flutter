@@ -1,3 +1,64 @@
+### 2026-09-02 — Task 09 Phase 4: Acceptance tests & completion — COMPLETE
+
+- Verified the `/daily-cause-list` route is wired in `lib/core/router/app_router.dart:167` (initial location) and `DailyCauseListScreen` builds via `CasesScreenModal`.
+- `flutter analyze` — no issues. Full `flutter test` — 144 passed, 2 skipped.
+- Release `flutter build apk` is blocked by an environmental Gradle error (`java.io.IOException: Unable to establish loopback connection`) unrelated to the changes; the failure occurs before Dart compilation.
+- Acceptance against the agreed plan + clarifications: date-filtered court-grouped list via `CaseCardVariant.dailyCauseList`, Today/Tomorrow + `DD/MM/YY | DDD` calendar control, badge calendar (gray hearing badges, black "Today" highlight + white count badge, "Total Hearings:" count, black Close), no Next Date on cards, single instance only on Daily Cause List screen.
+
+Version unchanged at `0.0.113` (Phase 4 added no code changes).
+
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 4): calendar dialog height -15% — COMPLETE
+
+- Reduced the calendar dialog height by 15% only (`minHeight` 0.665→0.565, `maxHeight` 0.874→0.743 of screen height). Width untouched (360–460). The Expanded grid still fills the dialog, so cells shrink proportionally rather than leaving empty space.
+
+Version `0.0.117`. Known issues: none.
+
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 3): fill calendar height + bigger Close button — COMPLETE
+
+- Replaced the `GridView.count(shrinkWrap)` with an `Expanded` + `LayoutBuilder` whose child `GridView.custom` uses `SliverGridDelegateWithFixedCrossAxisCount` with a computed `mainAxisExtent` (available height / row count). The grid now occupies the full dialog height, removing the ~30% empty bottom space. Cell width is set by `crossAxisCount: 7`; badges/counts unchanged.
+- Enlarged the Close button to 52px tall (`SizedBox(height: 52)`) with a rounded shape.
+
+Version `0.0.116`. Known issues: none.
+
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 2): calendar selection off-by-one + dialog height — COMPLETE
+
+- Bug: selecting a date in the calendar picked the previous day (e.g. tapping 03/09/2026 selected 02/09/2026). Root cause: `AppDateUtils.bangladeshCivilDateEpoch` built the civil-day start-of-day from a **local**-midnight `DateTime(year, month, day)`, which on a UTC+6 (Bangladesh) device shifts the epoch back ~6h into the prior UTC day. Fixed to use `DateTime.utc(year, month, day)` so the cell epoch matches the labeled civil date on any device timezone. This also keeps grid cell keys consistent with `normalizeToBangladeshStartOfDay` (used by the badge counts), so badges stay correct.
+- Enhancement: reduced the calendar dialog height by ~5% only (`minHeight` 0.70→0.665, `maxHeight` 0.92→0.874 of screen height). Width unchanged (360–460).
+
+Version `0.0.115`. Known issues: none.
+
+### 2026-09-02 — Task 09 fixes (post-Phase 4): badge calendar badges, black screen, dialog size — COMPLETE
+
+- Bug: date tap opened a black screen. Root cause: `_DayCell.onTap` both invoked `widget.onDateSelected(epoch)` (which already pops the dialog with the value) AND called `Navigator.of(context).pop()` again, double-popping the route and sending the app back to a black state. Fixed by removing the redundant `Navigator.pop()` — the dialog closes once via the single pop in the screen's `onDateSelected` callback.
+- Bug: badges never showed even on dates with cases. Root cause: `CasesDao.countByNextDateRange` grouped by the raw stored `nextDate` epoch, which only equals `bangladeshCivilDateEpoch(day)` when the device is in Bangladesh timezone. Fixed by normalizing each count key with `AppDateUtils.normalizeToBangladeshStartOfDay`, and normalizing the screen's month range bounds, so grid lookups match on any device timezone.
+- Enhancement: enlarged the calendar dialog (`minHeight` 0.7 → `maxHeight` 0.92 of screen height, width 360–460) and made day cells taller (`childAspectRatio` 1 → 1.25) so the month grid is larger. The selected non-today date now uses a visible black ring (was an invisible secondary ring).
+
+Version `0.0.114`. No remaining known issues in the Daily Cause List / badge calendar.
+
+### 2026-09-02 — Task 09 Phase 3: Badge calendar picker — COMPLETE
+
+- Enhanced `CalendarPickerDialog` with per-date hearing-count badges (gray badge when the date has hearings; none otherwise) and a black "Today" highlight cell with a white count badge (white badge only when today has hearings; otherwise just the highlighted cell). Added a "Total Hearings:" count under the month title and made the Close button black with white text (matching app theme).
+- Added `CasesDao.countByNextDateRange(start, end)` returning a map of civil-day epoch → hearing count, excluding disposed cases; the screen loads it for the focused month when opening the picker.
+- Applied user clarifications: black "Today" highlight (not blue), "Total Hearings:" label in black, and black Close button.
+
+Version `0.0.113`. Next resume point: **Task 09 Phase 4** — Acceptance tests & final completion (run task-file acceptance checklist, wire nav route if needed, run `flutter analyze`/`flutter test`).
+
+### 2026-09-02 — Task 09 Phase 2: Daily Cause List date controls — COMPLETE
+
+- Added a sticky `_DateSwitcher` above the list: Today / Tomorrow quick filters (highlighted when active) and a `DD/MM/YY | DDD` calendar control (uses `AppDateUtils.formatDailyCauseCalendarDate`). Today/Tomorrow set the selected civil date and reload; the calendar control opens `CalendarPickerDialog`.
+- Built `calendar_picker_dialog.dart`: a `Dialog` hosting a `_BadgeCalendarGrid` Stateful month grid with prev/next navigation, Sunday-first localized weekday headers, selectable day cells (selected cell highlighted with `AppColors.secondary`), and a Close button. Tapping a day invokes `onDateSelected` and closes.
+- Added `AppDateUtils.bangladeshCivilDateEpoch(year, month, day)` to build civil-date epoch keys for grid cells.
+
+Version `0.0.112`. Next resume point: **Task 09 Phase 3** — Badge Calendar Picker: per-date hearing-count badges (gray = has hearings), black "Today" highlight with white badge count, and a "Total Hearings:" count under the month title (per user clarifications).
+
+### 2026-09-02 — Task 09 Phase 1: Daily Cause List screen body — COMPLETE
+
+- Built `daily_cause_list_screen.dart`: CasesScreenModal shell; loads cases for the selected Bangladesh civil date (default today) via `listByNextDateRange`; groups by court in the pre-seeded court hierarchy order (category `orderIndex`, then court `orderIndex`); per-court hearing-count KPI in the header; cards use the existing `CaseCardVariant.dailyCauseList` layout (L1 case_type+number | On Behalf, L2 petitioner Vs respondent, L3 title/section, L4 step | note, no Next Date, L5 Phone/Message/Update).
+- Removed the unused `daily_cause_list_viewmodel.dart` and its barrel export (host loads directly, matching `overdue_dates_screen.dart`).
+- Added l10n keys for empty state and contact-action errors (en + bn).
+
+Version `0.0.111`. Next resume point: **Task 09 Phase 2** — Date Controls (Today / Tomorrow quick buttons + `DD/MM/YY | DDD` calendar control opening the badge picker in Phase 3).
+
 ### 2026-08-25 — Disposed card: "Disposed:" pinned to right of line 1 — COMPLETE
 
 - Added a `Spacer()` between the Step/Result chip and the "Disposed:"/date column so they sit at the far right of line 1 instead of directly after the chip.

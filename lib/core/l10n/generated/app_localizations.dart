@@ -242,6 +242,42 @@ abstract class AppLocalizations {
   /// **'Calendar'**
   String get dailyCauseListScreen_calendarLabel;
 
+  /// No description provided for @dailyCauseListScreen_noHearings.
+  ///
+  /// In en, this message translates to:
+  /// **'No hearings scheduled for this date.'**
+  String get dailyCauseListScreen_noHearings;
+
+  /// No description provided for @dailyCauseListScreen_totalHearings.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Hearings:'**
+  String get dailyCauseListScreen_totalHearings;
+
+  /// No description provided for @dailyCauseListScreen_noPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'No phone number for this case.'**
+  String get dailyCauseListScreen_noPhone;
+
+  /// No description provided for @dailyCauseListScreen_whatsappError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open WhatsApp.'**
+  String get dailyCauseListScreen_whatsappError;
+
+  /// No description provided for @dailyCauseListScreen_callError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to place a call.'**
+  String get dailyCauseListScreen_callError;
+
+  /// No description provided for @dailyCauseListScreen_messageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open messages.'**
+  String get dailyCauseListScreen_messageError;
+
   /// No description provided for @upcomingCasesScreen_title.
   ///
   /// In en, this message translates to:

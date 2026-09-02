@@ -5,6 +5,7 @@ library;
 import 'package:drift/drift.dart';
 
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
 
 /// Data Access Object for [Cases] table operations.
@@ -286,4 +287,30 @@ class CasesDao {
             ))
           .map((row) => row.read(db.courts.id)!)
           .get();
+
+  /// Returns the count of non-deleted, non-disposed cases whose [Cases.nextDate]
+  /// falls within `[startMs, endMs]` inclusive, grouped by their next-date's
+  /// Bangladesh civil-day start-of-day epoch. Used by the Daily Cause List badge
+  /// calendar to render per-date hearing counts.
+  Future<Map<int, int>> countByNextDateRange(int startMs, int endMs) async {
+    final rows = await (db.selectOnly(db.cases)
+          ..addColumns([db.cases.nextDate, db.cases.id.count()])
+          ..where(
+            db.cases.isDeleted.equals(false) &
+                db.cases.nextDate.isNotNull() &
+                db.cases.nextDate.isBetweenValues(startMs, endMs) &
+                _isDisposed.not(),
+          )
+          ..groupBy([db.cases.nextDate]))
+        .get();
+    final counts = <int, int>{};
+    for (final row in rows) {
+      final epoch = row.read(db.cases.nextDate);
+      final count = row.read(db.cases.id.count());
+      if (epoch != null && count != null) {
+        counts[AppDateUtils.normalizeToBangladeshStartOfDay(epoch)] = count;
+      }
+    }
+    return counts;
+  }
 }

@@ -80,6 +80,15 @@ abstract final class AppDateUtils {
     );
   }
 
+  /// Returns the epoch-ms (UTC instant) of 00:00:00 Bangladesh time for the
+  /// given civil [year]/[month]/[day]. Inverse of
+  /// [normalizeToBangladeshStartOfDay]: the returned value round-trips back to
+  /// the same Bangladesh civil date. Used to build calendar grid cell keys.
+  static int bangladeshCivilDateEpoch(int year, int month, int day) {
+    final bangladeshStart = DateTime.utc(year, month, day);
+    return bangladeshStart.subtract(_bangladeshOffset).millisecondsSinceEpoch;
+  }
+
   // ---------------------------------------------------------------------------
   // Formatting
   // ---------------------------------------------------------------------------

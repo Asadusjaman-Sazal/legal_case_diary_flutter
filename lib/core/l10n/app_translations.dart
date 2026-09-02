@@ -190,6 +190,7 @@ class AppTranslations {
     AppStrings.generalGroup: <String, String>{
       AppStrings.generalAppName: _loc.appName,
       AppStrings.generalAppTitle: _loc.appTitle,
+      AppStrings.generalTomorrow: _loc.general_tomorrow,
     },
     AppStrings.localeScratchGroup: <String, String>{
       AppStrings.localeScratchBengalisample: _loc.localeScratch_bengaliSample,

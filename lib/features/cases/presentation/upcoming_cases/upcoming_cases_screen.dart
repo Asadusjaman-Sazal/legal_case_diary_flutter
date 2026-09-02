@@ -189,11 +189,16 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       final dayStart = AppDateUtils.normalizeToBangladeshStartOfDay(c.nextDate!);
       byDate.putIfAbsent(dayStart, () => []).add(c);
     }
-    final sortedKeys = byDate.keys.toList()..sort((a, b) => b.compareTo(a));
+    // Ascending: earliest hearing date first (01/09/2026 above 02/09/2026).
+    final sortedKeys = byDate.keys.toList()..sort((a, b) => a.compareTo(b));
+    final tomorrowStart =
+        AppDateUtils.bangladeshTodayStartOfDay() + _millisecondsPerDay;
     return [
       for (final key in sortedKeys)
         _DateGroup(
-          dateLabel: AppDateUtils.formatFullDate(key, locale: l.localeName),
+          dateLabel: key == tomorrowStart
+              ? l.general_tomorrow
+              : AppDateUtils.formatFullDate(key, locale: l.localeName),
           cases: byDate[key]!,
         ),
     ];

@@ -25,6 +25,7 @@
   "dailyCauseListScreen_tomorrow": "Tomorrow",
   "dailyCauseListScreen_calendarLabel": "Calendar",
   "upcomingCasesScreen_title": "Upcoming Cases",
+  "general_tomorrow": "Tomorrow",
   "overdueDatesScreen_title": "Overdue Dates",
   "overdueDatesScreen_lastUpdated": "Last Updated",
   "caseDetailsScreen_title": "Case Details",

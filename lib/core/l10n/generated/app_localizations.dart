@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Upcoming Cases'**
   String get upcomingCasesScreen_title;
 
+  /// No description provided for @general_tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get general_tomorrow;
+
   /// No description provided for @overdueDatesScreen_title.
   ///
   /// In en, this message translates to:

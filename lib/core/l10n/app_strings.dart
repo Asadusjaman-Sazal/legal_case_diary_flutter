@@ -166,6 +166,7 @@ abstract class AppStrings {
   static const String generalGroup = "general";
   static const String generalAppName = "appName";
   static const String generalAppTitle = "appTitle";
+  static const String generalTomorrow = "general_tomorrow";
 
   // localeScratch
   static const String localeScratchGroup = "localeScratch";

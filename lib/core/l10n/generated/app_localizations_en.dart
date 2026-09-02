@@ -85,6 +85,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upcomingCasesScreen_title => 'Upcoming Cases';
 
   @override
+  String get general_tomorrow => 'Tomorrow';
+
+  @override
   String get overdueDatesScreen_title => 'Overdue Dates';
 
   @override

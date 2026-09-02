@@ -84,6 +84,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get upcomingCasesScreen_title => 'সন্ন মামলা';
 
   @override
+  String get general_tomorrow => 'আগামীকাল';
+
+  @override
   String get overdueDatesScreen_title => 'বিলম্বিত তারিখ';
 
   @override

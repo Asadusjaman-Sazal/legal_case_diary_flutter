@@ -34,6 +34,7 @@ void main() {
             subtitle: 'Section 323 of Penal Code',
             statusLabel: 'Accused',
             alignStatusLabelRight: true,
+            nextDate: '15/08/2024',
             step: 'Warrant issued',
             note: 'Submit Process',
             onPhone: () => phonePressed = true,
@@ -49,8 +50,11 @@ void main() {
         tester.widget<Text>(find.text('Abdur Rahim vs State')).style?.fontSize,
         15,
       );
+      expect(find.text('Next Date'), findsOneWidget);
+      expect(find.text('15/08/2024'), findsOneWidget);
+      expect(find.text('Step'), findsOneWidget);
       expect(find.text('Warrant issued'), findsOneWidget);
-      expect(find.text('Submit Process'), findsOneWidget);
+      expect(find.text('Note: Submit Process'), findsOneWidget);
       expect(find.byTooltip('Phone'), findsOneWidget);
       expect(find.byTooltip('Message'), findsOneWidget);
       expect(find.text('Update'), findsOneWidget);

@@ -158,19 +158,16 @@ class CaseCard extends StatelessWidget {
                       Text(judgesName!, style: AppTypography.bodySm),
                     ],
                     const SizedBox(height: AppSpacing.sm),
-                    if (variant == CaseCardVariant.dailyCauseList)
-                      _DailyCauseDetails(l: l, step: step, note: note)
-                    else
-                      _ListDetails(
-                        l: l,
-                        variant: variant,
-                        nextDate: nextDate,
-                        step: step,
-                        result: result,
-                        note: note,
-                        dateLabelOverride: dateLabelOverride,
-                        isOverdue: isOverdue,
-                      ),
+                    _ListDetails(
+                      l: l,
+                      variant: variant,
+                      nextDate: nextDate,
+                      step: step,
+                      result: result,
+                      note: note,
+                      dateLabelOverride: dateLabelOverride,
+                      isOverdue: isOverdue,
+                    ),
                     if (_hasActions) ...[
                       const SizedBox(height: AppSpacing.md),
                       _CaseActions(
@@ -271,28 +268,6 @@ class _CaseHeading extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(subtitle!, style: AppTypography.bodySm),
         ],
-      ],
-    );
-  }
-}
-
-class _DailyCauseDetails extends StatelessWidget {
-  final AppLocalizations l;
-  final String? step;
-  final String? note;
-
-  const _DailyCauseDetails({
-    required this.l,
-    required this.step,
-    required this.note,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _DetailsRow(
-      children: [
-        _DetailValue(label: l.addEditCaseSheet_step, value: step),
-        _DetailValue(label: l.addEditCaseSheet_note, value: note),
       ],
     );
   }

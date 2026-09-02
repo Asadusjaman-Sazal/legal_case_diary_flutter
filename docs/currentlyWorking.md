@@ -7,6 +7,13 @@
 
 Version unchanged at `0.0.113` (Phase 4 added no code changes).
 
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 8): Daily Cause List card shows Next Date — COMPLETE
+
+- The Daily Cause List case card previously rendered Step + Note only via a bespoke `_DailyCauseDetails`. Replaced that branch with the shared `_ListDetails` (used by Active Cases), which shows Next Date, Step, and Note in the same layout. Removed the now-unused `_DailyCauseDetails` class from `case_card.dart`.
+- `daily_cause_list_screen._buildCard` now passes `nextDate` (formatted `dd/MM/yy, EEE` via `AppDateUtils.bangladeshDateTime`, null when absent) and `result`, matching `active_cases_screen`. Added the `intl` import to the screen.
+
+Version `0.0.121`. Known issues: none.
+
 ### 2026-09-02 — Task 09 fixes (post-Phase 4, 7): header affordance + toggle + year focus — COMPLETE
 
 - Added a `Icons.arrow_drop_down` caret next to the Month and Year text in the header so users see they are tappable.

@@ -7,6 +7,16 @@
 
 Version unchanged at `0.0.113` (Phase 4 added no code changes).
 
+### 2026-09-02 — Task 09 fixes (post-Phase 4, 6): year + month pickers — COMPLETE
+
+- Added tap targets in the header: the **Month** name (`_PickerMode.month`) and the **Year** (`_PickerMode.year`) each open a dedicated selection view; the chevron `<` `>` buttons still step the focused month.
+- `_MonthSelector`: a 3-column grid of the 12 localized month names; the focused month is highlighted (black fill). Tapping selects the month and returns to the day grid.
+- `_YearSelector`: a scrollable 4-column grid of years **1926–2126** (201 years); the focused year is highlighted. Tapping selects the year and returns to the day grid.
+- Extracted the day grid into `_DayGridView` so the three views share the dialog body via an `Expanded` switch on `_mode`. The day grid still always renders exactly 6 rows (7th empty when unused).
+- Added l10n keys `dailyCauseListScreen_selectYear` / `dailyCauseListScreen_selectMonth` (en + bn) — reserved for future labels; the current selectors use localized month/year text.
+
+Version `0.0.119`. Known issues: none.
+
 ### 2026-09-02 — Task 09 fixes (post-Phase 4, 5): calendar header spacing — COMPLETE
 
 - Pushed the month/year title row (with the `<` `>` buttons) down from the top edge: changed the header `Padding` from `all(md)` to `fromLTRB(md, lg, md, md)` so the top inset is larger.

@@ -254,6 +254,18 @@ abstract class AppLocalizations {
   /// **'Total Hearings:'**
   String get dailyCauseListScreen_totalHearings;
 
+  /// No description provided for @dailyCauseListScreen_selectYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Year'**
+  String get dailyCauseListScreen_selectYear;
+
+  /// No description provided for @dailyCauseListScreen_selectMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Month'**
+  String get dailyCauseListScreen_selectMonth;
+
   /// No description provided for @dailyCauseListScreen_noPhone.
   ///
   /// In en, this message translates to:

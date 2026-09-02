@@ -26,6 +26,8 @@
   "dailyCauseListScreen_calendarLabel": "ক্যালেন্ডার",
   "dailyCauseListScreen_noHearings": "এই তারিখের জন্য কোনো শুনানি নির্ধারিত নেই।",
   "dailyCauseListScreen_totalHearings": "মোট শুনানি:",
+  "dailyCauseListScreen_selectYear": "বছর নির্বাচন",
+  "dailyCauseListScreen_selectMonth": "মাস নির্বাচন",
   "dailyCauseListScreen_noPhone": "এই মামলার কোনো ফোন নম্বর নেই।",
   "dailyCauseListScreen_whatsappError": "WhatsApp খোলা যাচ্ছে না।",
   "dailyCauseListScreen_callError": "কল করা যাচ্ছে না।",

@@ -89,6 +89,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyCauseListScreen_totalHearings => 'Total Hearings:';
 
   @override
+  String get dailyCauseListScreen_selectYear => 'Select Year';
+
+  @override
+  String get dailyCauseListScreen_selectMonth => 'Select Month';
+
+  @override
   String get dailyCauseListScreen_noPhone => 'No phone number for this case.';
 
   @override

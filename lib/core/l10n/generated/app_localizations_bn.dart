@@ -88,6 +88,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dailyCauseListScreen_totalHearings => 'মোট শুনানি:';
 
   @override
+  String get dailyCauseListScreen_selectYear => 'বছর নির্বাচন';
+
+  @override
+  String get dailyCauseListScreen_selectMonth => 'মাস নির্বাচন';
+
+  @override
   String get dailyCauseListScreen_noPhone => 'এই মামলার কোনো ফোন নম্বর নেই।';
 
   @override

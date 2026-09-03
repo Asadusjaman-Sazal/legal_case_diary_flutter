@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker. calendar_picker_dialog.dart only.
+Version: 0.0.128 - Task 09 fix: Daily Cause List badge calendar — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February), not the sum of all dates. The all-dates map still drives the per-date hearing badges. calendar_picker_dialog.dart only.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -141,3 +141,4 @@ Version: 0.0.124 - Task 09 fix: Add/Edit case date picker now uses the same cust
 Version: 0.0.125 - Task 09 fix: Add/Edit case date picker — the "today" cell now uses the same black fill + white text as a selected non-today date (matching the Daily Cause List badge calendar), replacing the earlier Material ring style. date_picker_helper.dart only.
 Version: 0.0.126 - Task 09 fix: Add/Edit case date picker — Today no longer stays black-filled after selecting another date: it now shows a black ring on white with black text when not selected (a selected non-today date stays black-filled + white). Added left/right swipe on the day grid to change month (Google Calendar style). date_picker_helper.dart only.
 Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker. calendar_picker_dialog.dart only.
+Version: 0.0.128 - Task 09 fix: Daily Cause List badge calendar — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February), not the sum of all dates. The all-dates map still drives the per-date hearing badges. calendar_picker_dialog.dart only.

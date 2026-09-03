@@ -89,7 +89,7 @@ void main() {
       expect(find.text(l.sharedActions_close), findsOneWidget);
     });
 
-    testWidgets('Total Hearings sums ALL dates, not just the visible month', (
+    testWidgets('Total Hearings counts the visible month only, not all dates', (
       WidgetTester tester,
     ) async {
       // Two hearings this month, three hearings in a far-future month.
@@ -114,8 +114,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Total must reflect 2 + 3 = 5, spanning all dates, not only this month's 2.
-      expect(find.text('Total Hearings: 5'), findsOneWidget);
+      // Total must reflect only this month's 2, not 2 + 3 = 5 across all dates.
+      expect(find.text('Total Hearings: 2'), findsOneWidget);
     });
   });
 }

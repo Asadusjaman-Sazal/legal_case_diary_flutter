@@ -264,6 +264,8 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                           epoch == AppDateUtils.bangladeshTodayStartOfDay(),
                       isSelected: (epoch) => epoch == _selected,
                       onPick: widget.onDateSelected,
+                      onPrevMonth: () => _changeMonth(-1),
+                      onNextMonth: () => _changeMonth(1),
                     ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -384,6 +386,8 @@ class _DayGridView extends StatelessWidget {
   final bool Function(int epoch) isToday;
   final bool Function(int epoch) isSelected;
   final ValueChanged<int> onPick;
+  final VoidCallback onPrevMonth;
+  final VoidCallback onNextMonth;
 
   const _DayGridView({
     required this.year,
@@ -394,6 +398,8 @@ class _DayGridView extends StatelessWidget {
     required this.isToday,
     required this.isSelected,
     required this.onPick,
+    required this.onPrevMonth,
+    required this.onNextMonth,
   });
 
   @override
@@ -425,51 +431,64 @@ class _DayGridView extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         // Day cells — expanded to fill the space so no empty area remains, and
         // always rendering 6 date rows (the 7th row stays empty when unused).
+        // Swipe left/right to change month (Google Calendar style).
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              const dateRows = 6;
-              final cellHeight =
-                  (constraints.maxHeight - AppSpacing.sm * (dateRows - 1)) /
-                      dateRows;
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: GridView.custom(
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    mainAxisSpacing: AppSpacing.sm,
-                    crossAxisSpacing: 0,
-                    mainAxisExtent: cellHeight,
-                  ),
-                  childrenDelegate: SliverChildListDelegate([
-                    for (var i = 0; i < leadingBlanks; i++)
-                      const SizedBox.shrink(),
-                    for (var day = 1; day <= daysInMonth; day++)
-                      Builder(
-                        builder: (context) {
-                          final epoch = AppDateUtils.bangladeshCivilDateEpoch(
-                            year,
-                            month,
-                            day,
-                          );
-                          return _DayCell(
-                            day: day,
-                            count: hearingCounts[epoch] ?? 0,
-                            isToday: isToday(epoch),
-                            isSelected: isSelected(epoch),
-                            onTap: () => onPick(epoch),
-                          );
-                        },
-                      ),
-                    for (var i = 0;
-                        i < (dateRows * 7 - leadingBlanks - daysInMonth);
-                        i++)
-                      const SizedBox.shrink(),
-                  ]),
-                ),
-              );
+          child: GestureDetector(
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity == null) return;
+              if (details.primaryVelocity! < 0) {
+                onNextMonth();
+              } else if (details.primaryVelocity! > 0) {
+                onPrevMonth();
+              }
             },
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const dateRows = 6;
+                final cellHeight =
+                    (constraints.maxHeight - AppSpacing.sm * (dateRows - 1)) /
+                        dateRows;
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: GridView.custom(
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 7,
+                      mainAxisSpacing: AppSpacing.sm,
+                      crossAxisSpacing: 0,
+                      mainAxisExtent: cellHeight,
+                    ),
+                    childrenDelegate: SliverChildListDelegate([
+                      for (var i = 0; i < leadingBlanks; i++)
+                        const SizedBox.shrink(),
+                      for (var day = 1; day <= daysInMonth; day++)
+                        Builder(
+                          builder: (context) {
+                            final epoch =
+                                AppDateUtils.bangladeshCivilDateEpoch(
+                              year,
+                              month,
+                              day,
+                            );
+                            return _DayCell(
+                              day: day,
+                              count: hearingCounts[epoch] ?? 0,
+                              isToday: isToday(epoch),
+                              isSelected: isSelected(epoch),
+                              onTap: () => onPick(epoch),
+                            );
+                          },
+                        ),
+                      for (var i = 0;
+                          i < (dateRows * 7 - leadingBlanks - daysInMonth);
+                          i++)
+                        const SizedBox.shrink(),
+                    ]),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

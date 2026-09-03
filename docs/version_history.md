@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.126 - Task 09 fix: Add/Edit case date picker — Today no longer stays black-filled after selecting another date: it now shows a black ring on white with black text when not selected (a selected non-today date stays black-filled + white). Added left/right swipe on the day grid to change month (Google Calendar style). date_picker_helper.dart only.
+Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker. calendar_picker_dialog.dart only.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -140,3 +140,4 @@ Version: 0.0.123 - Task 09 fix: Daily Cause List badge calendar now shows hearin
 Version: 0.0.124 - Task 09 fix: Add/Edit case date picker now uses the same custom calendar layout as the Daily Cause List badge calendar — matching window size (360–460 wide, 56.5–74.3% height), month & year `<>` chevron selectors, and a 7-column Sunday-first weekday grid. Kept distinct: the 1st-line selected-date header, the Material today-ring cell style (not the DCL black fill), and the Cancel/OK buttons. No hearing counts. Replaced the old Material CalendarDatePicker. date_picker_helper.dart only.
 Version: 0.0.125 - Task 09 fix: Add/Edit case date picker — the "today" cell now uses the same black fill + white text as a selected non-today date (matching the Daily Cause List badge calendar), replacing the earlier Material ring style. date_picker_helper.dart only.
 Version: 0.0.126 - Task 09 fix: Add/Edit case date picker — Today no longer stays black-filled after selecting another date: it now shows a black ring on white with black text when not selected (a selected non-today date stays black-filled + white). Added left/right swipe on the day grid to change month (Google Calendar style). date_picker_helper.dart only.
+Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker. calendar_picker_dialog.dart only.

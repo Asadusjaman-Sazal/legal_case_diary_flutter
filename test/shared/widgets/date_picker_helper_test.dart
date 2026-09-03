@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -40,7 +42,7 @@ void main() {
       tester
           .getSize(find.byKey(const ValueKey('plain-date-picker-surface')))
           .width,
-      480,
+      460,
     );
     expect(
       tester.getSize(find.widgetWithText(TextButton, 'Cancel')).width,
@@ -68,5 +70,65 @@ void main() {
     );
     final button = tester.getRect(find.byType(TextButton).first);
     expect(dialog.bottom - button.bottom, greaterThanOrEqualTo(16));
+  });
+
+  testWidgets('matches DCL calendar layout: month/year selectors + 7-col weekday body',
+      (WidgetTester tester) async {
+    await openPicker(tester, const Locale('en'));
+
+    // Month/year header with chevron navigation (matches Daily Cause List).
+    expect(find.byIcon(Icons.chevron_left), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+    expect(find.text('August'), findsOneWidget);
+    expect(find.text('2026'), findsOneWidget);
+
+    // Cancel/OK buttons preserved.
+    expect(find.widgetWithText(TextButton, 'Cancel'), findsOneWidget);
+    expect(find.widgetWithText(TextButton, 'OK'), findsOneWidget);
+  });
+
+  testWidgets('tapping a day cell selects it and returns the date on OK',
+      (WidgetTester tester) async {
+    final picked = Completer<DateTime?>();
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: ElevatedButton(
+              onPressed: () async =>
+                  picked.complete(await showPlainDatePicker(
+                context,
+                initialDate: selectedDate,
+                styleActions: true,
+              )),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    // Tap day 10 (enabled in 2026-08), then confirm via OK.
+    await tester.tap(find.text('10'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'OK'));
+
+    final result = await picked.future;
+    expect(result, isNotNull);
+    expect(result!.year, 2026);
+    expect(result.month, 8);
+    expect(result.day, 10);
+  });
+
+  testWidgets('Cancel returns null', (WidgetTester tester) async {
+    await openPicker(tester, const Locale('en'));
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aug 5, Wed'), findsNothing);
   });
 }

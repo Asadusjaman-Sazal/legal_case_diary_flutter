@@ -4,8 +4,8 @@
 /// hearing-count badge: a gray badge when the date has hearings, no badge when
 /// it does not. "Today" is highlighted with a black cell and a white badge
 /// (white badge only when it has hearings). The month title is paired with a
-/// "Total Hearings:" count for the visible month. Used only on the Daily Cause
-/// List screen (per the design plan).
+/// "Total Hearings:" count spanning ALL scheduled dates (not just the visible
+/// month). Used only on the Daily Cause List screen (per the design plan).
 library;
 
 import 'package:flutter/material.dart';
@@ -128,16 +128,10 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     final leadingBlanks = firstWeekday % 7; // Sunday-first offset.
     final daysInMonth = DateTime(year, month + 1, 0).day;
 
-    var totalHearings = 0;
-    for (var day = 1; day <= daysInMonth; day++) {
-      totalHearings +=
-          widget.hearingCounts[AppDateUtils.bangladeshCivilDateEpoch(
-        year,
-        month,
-        day,
-      )] ??
-              0;
-    }
+    // Total Hearings reflects ALL scheduled cases across every date (the map is
+    // keyed by civil-day epoch for the full range), not just the visible month.
+    final totalHearings =
+        widget.hearingCounts.values.fold(0, (sum, c) => sum + c);
 
     return Column(
       mainAxisSize: MainAxisSize.max,

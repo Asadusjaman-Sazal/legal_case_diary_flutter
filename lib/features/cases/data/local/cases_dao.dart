@@ -320,4 +320,31 @@ class CasesDao {
     }
     return counts;
   }
+
+  /// Returns the count of non-deleted, non-disposed cases whose [Cases.nextDate]
+  /// is set, grouped by their next-date's Bangladesh civil-day start-of-day
+  /// epoch — across the FULL range of dates (no month window). Used by the Daily
+  /// Cause List badge calendar so every date that has hearings shows a badge and
+  /// the "Total Hearings" count reflects all upcoming/scheduled cases, not just
+  /// the visible month.
+  Future<Map<int, int>> countAllByNextDate() async {
+    final rows = await (db.selectOnly(db.cases)
+          ..addColumns([db.cases.nextDate, db.cases.id.count()])
+          ..where(
+            db.cases.isDeleted.equals(false) &
+                db.cases.nextDate.isNotNull() &
+                _isDisposed.not(),
+          )
+          ..groupBy([db.cases.nextDate]))
+        .get();
+    final counts = <int, int>{};
+    for (final row in rows) {
+      final epoch = row.read(db.cases.nextDate);
+      final count = row.read(db.cases.id.count());
+      if (epoch != null && count != null) {
+        counts[AppDateUtils.normalizeToBangladeshStartOfDay(epoch)] = count;
+      }
+    }
+    return counts;
+  }
 }

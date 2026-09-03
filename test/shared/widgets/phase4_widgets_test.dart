@@ -88,5 +88,34 @@ void main() {
       final l = AppLocalizations.of(tester.element(find.byType(Dialog).first));
       expect(find.text(l.sharedActions_close), findsOneWidget);
     });
+
+    testWidgets('Total Hearings sums ALL dates, not just the visible month', (
+      WidgetTester tester,
+    ) async {
+      // Two hearings this month, three hearings in a far-future month.
+      final thisMonth = AppDateUtils.bangladeshTodayStartOfDay();
+      final nextYear = AppDateUtils.normalizeToBangladeshStartOfDay(
+        DateTime(DateTime.now().year + 1, 6, 15).millisecondsSinceEpoch,
+      );
+      final counts = <int, int>{thisMonth: 2, nextYear: 3};
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CalendarPickerDialog(
+              initialDate: thisMonth,
+              hearingCounts: counts,
+              onDateSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Total must reflect 2 + 3 = 5, spanning all dates, not only this month's 2.
+      expect(find.text('Total Hearings: 5'), findsOneWidget);
+    });
   });
 }

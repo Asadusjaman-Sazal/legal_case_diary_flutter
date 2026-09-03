@@ -1,67 +1,18 @@
-/// Plain date-picker helpers for forms and non-calendar date fields.
+/// Plain date-picker helpers for forms (Add/Edit case window).
 ///
-/// The badge calendar is intentionally excluded; it belongs only to the Daily
-/// Cause List and is implemented separately in Task 09.
+/// Uses a custom grid that matches the Daily Cause List badge calendar's layout
+/// (month/year chevron selectors, weekday 7-column body, window dimensions) but
+/// keeps its own header (selected-date title), Material today ring, and the
+/// Cancel/OK action buttons. No hearing counts (unlike the badge calendar).
 library;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
-
-/// Material date-picker localization used by the shared calendar picker.
-class _FullDateMaterialLocalizationsDelegate
-    extends LocalizationsDelegate<MaterialLocalizations> {
-  const _FullDateMaterialLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) =>
-      locale.languageCode == 'en' || locale.languageCode == 'bn';
-
-  @override
-  Future<MaterialLocalizations> load(Locale locale) {
-    final localeName = locale.languageCode;
-    final fullYearFormat = intl.DateFormat.y(localeName);
-    final compactDateFormat = intl.DateFormat.yMd(localeName);
-    final shortDateFormat = intl.DateFormat.yMMMd(localeName);
-    final mediumDateFormat = intl.DateFormat('MMMM d, EEEE', localeName);
-    final longDateFormat = intl.DateFormat.yMMMMEEEEd(localeName);
-    final yearMonthFormat = intl.DateFormat.yMMMM(localeName);
-    final shortMonthDayFormat = intl.DateFormat.MMMd(localeName);
-    final decimalFormat = intl.NumberFormat.decimalPattern(localeName);
-    final twoDigitZeroPaddedFormat = intl.NumberFormat('00', localeName);
-
-    final localizations = localeName == 'bn'
-        ? MaterialLocalizationBn(
-            fullYearFormat: fullYearFormat,
-            compactDateFormat: compactDateFormat,
-            shortDateFormat: shortDateFormat,
-            mediumDateFormat: mediumDateFormat,
-            longDateFormat: longDateFormat,
-            yearMonthFormat: yearMonthFormat,
-            shortMonthDayFormat: shortMonthDayFormat,
-            decimalFormat: decimalFormat,
-            twoDigitZeroPaddedFormat: twoDigitZeroPaddedFormat,
-          )
-        : MaterialLocalizationEn(
-            fullYearFormat: fullYearFormat,
-            compactDateFormat: compactDateFormat,
-            shortDateFormat: shortDateFormat,
-            mediumDateFormat: mediumDateFormat,
-            longDateFormat: longDateFormat,
-            yearMonthFormat: yearMonthFormat,
-            shortMonthDayFormat: shortMonthDayFormat,
-            decimalFormat: decimalFormat,
-            twoDigitZeroPaddedFormat: twoDigitZeroPaddedFormat,
-          );
-    return SynchronousFuture<MaterialLocalizations>(localizations);
-  }
-
-  @override
-  bool shouldReload(_FullDateMaterialLocalizationsDelegate old) => false;
-}
+import '../../core/l10n/generated/app_localizations.dart';
+import '../../core/utils/date_utils.dart' show AppDateUtils;
 
 const _englishPickerMonths = <String>[
   'Jan',
@@ -113,18 +64,19 @@ const _bengaliPickerWeekdays = <String>[
   'শনি',
 ];
 
+/// Formats the 1st-line header: "Month day, Weekday" (e.g. "Aug 5, Wed").
 String _formatPickerHeaderDate(DateTime date, Locale locale) {
   final isBengali = locale.languageCode == 'bn';
   final monthLabels = isBengali ? _bengaliPickerMonths : _englishPickerMonths;
-  final weekdayLabels = isBengali
-      ? _bengaliPickerWeekdays
-      : _englishPickerWeekdays;
+  final weekdayLabels = isBengali ? _bengaliPickerWeekdays : _englishPickerWeekdays;
   final day = intl.NumberFormat.decimalPattern(
     isBengali ? 'bn' : 'en',
   ).format(date.day);
   return '${monthLabels[date.month - 1]} $day, '
       '${weekdayLabels[date.weekday % DateTime.daysPerWeek]}';
 }
+
+enum _PickerMode { day, month, year }
 
 class _PlainDatePickerDialog extends StatefulWidget {
   const _PlainDatePickerDialog({
@@ -146,7 +98,50 @@ class _PlainDatePickerDialog extends StatefulWidget {
 class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
   late DateTime _selectedDate = widget.initialDate;
 
-  void _closeWithDate() => Navigator.of(context).pop(_selectedDate);
+  /// Focused month (day pinned to 1) for the day-grid header navigation.
+  late DateTime _focusedMonth = DateTime(
+    widget.initialDate.year,
+    widget.initialDate.month,
+    1,
+  );
+
+  _PickerMode _mode = _PickerMode.day;
+
+  int get _selectedEpoch =>
+      AppDateUtils.normalizeToBangladeshStartOfDay(_selectedDate.millisecondsSinceEpoch);
+
+  void _changeMonth(int delta) {
+    final next = DateTime(_focusedMonth.year, _focusedMonth.month + delta, 1);
+    final minMonth = DateTime(widget.firstDate.year, widget.firstDate.month, 1);
+    final maxMonth = DateTime(widget.lastDate.year, widget.lastDate.month, 1);
+    if (next.isBefore(minMonth) || next.isAfter(maxMonth)) return;
+    setState(() => _focusedMonth = next);
+  }
+
+  void _pickYear(int year) => setState(() {
+        _focusedMonth = DateTime(year, _focusedMonth.month, 1);
+        _mode = _PickerMode.day;
+      });
+
+  void _pickMonth(int month) => setState(() {
+        _focusedMonth = DateTime(_focusedMonth.year, month, 1);
+        _mode = _PickerMode.day;
+      });
+
+  bool _isEnabledDay(int epoch) {
+    final date = AppDateUtils.bangladeshDateTime(epoch);
+    return !date.isBefore(
+          DateTime(widget.firstDate.year, widget.firstDate.month, widget.firstDate.day),
+        ) &&
+        !date.isAfter(
+          DateTime(widget.lastDate.year, widget.lastDate.month, widget.lastDate.day),
+        );
+  }
+
+  void _selectDay(int epoch) {
+    if (!_isEnabledDay(epoch)) return;
+    setState(() => _selectedDate = AppDateUtils.bangladeshDateTime(epoch));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,19 +174,28 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
           );
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      insetPadding: const EdgeInsets.all(AppSpacing.sm),
+      backgroundColor: AppColors.surfaceContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
+        constraints: BoxConstraints(
+          minWidth: 360,
+          maxWidth: 460,
+          minHeight: MediaQuery.of(context).size.height * 0.565,
+          maxHeight: MediaQuery.of(context).size.height * 0.743,
+        ),
         child: SizedBox(
           key: const ValueKey('plain-date-picker-surface'),
           width: double.infinity,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // 1st-line header (selected date title) — unchanged.
               Container(
                 width: double.infinity,
-                color:
-                    datePickerTheme.headerBackgroundColor ??
+                color: datePickerTheme.headerBackgroundColor ??
                     defaults.headerBackgroundColor,
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
                 child: Text(
@@ -202,12 +206,41 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
                   style: headerStyle,
                 ),
               ),
-              CalendarDatePicker(
-                initialDate: _selectedDate,
-                firstDate: widget.firstDate,
-                lastDate: widget.lastDate,
-                onDateChanged: (date) => setState(() => _selectedDate = date),
+              // Calendar body: day grid (with month/year selectors), or the
+              // month/year list selectors.
+              Expanded(
+                child: _mode == _PickerMode.month
+                    ? _MonthSelector(
+                        selectedMonth: _focusedMonth.month,
+                        onSelect: _pickMonth,
+                      )
+                    : _mode == _PickerMode.year
+                        ? _YearSelector(
+                            firstYear: widget.firstDate.year,
+                            lastYear: widget.lastDate.year,
+                            selectedYear: _focusedMonth.year,
+                            onSelect: _pickYear,
+                          )
+                        : _DayView(
+                            focusedMonth: _focusedMonth,
+                            selectedEpoch: _selectedEpoch,
+                            onPrevMonth: () => _changeMonth(-1),
+                            onNextMonth: () => _changeMonth(1),
+                            onSelectMonth: () => setState(() =>
+                                _mode = _mode == _PickerMode.month
+                                    ? _PickerMode.day
+                                    : _PickerMode.month),
+                            onSelectYear: () => setState(() =>
+                                _mode = _mode == _PickerMode.year
+                                    ? _PickerMode.day
+                                    : _PickerMode.year),
+                            isToday: (epoch) =>
+                                epoch == AppDateUtils.bangladeshTodayStartOfDay(),
+                            isEnabled: _isEnabledDay,
+                            onPick: _selectDay,
+                          ),
               ),
+              // Cancel / OK action buttons — unchanged.
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                 child: Row(
@@ -230,7 +263,7 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
                       height: 52,
                       child: TextButton(
                         style: actionButtonStyle,
-                        onPressed: _closeWithDate,
+                        onPressed: () => Navigator.of(context).pop(_selectedDate),
                         child: Text(
                           MaterialLocalizations.of(context).okButtonLabel,
                         ),
@@ -247,6 +280,448 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
   }
 }
 
+/// Day-view: month/year `<>` selector header + the 7-column weekday grid.
+class _DayView extends StatelessWidget {
+  final DateTime focusedMonth;
+  final int selectedEpoch;
+  final VoidCallback onPrevMonth;
+  final VoidCallback onNextMonth;
+  final VoidCallback onSelectMonth;
+  final VoidCallback onSelectYear;
+  final bool Function(int epoch) isToday;
+  final bool Function(int epoch) isEnabled;
+  final ValueChanged<int> onPick;
+
+  const _DayView({
+    required this.focusedMonth,
+    required this.selectedEpoch,
+    required this.onPrevMonth,
+    required this.onNextMonth,
+    required this.onSelectMonth,
+    required this.onSelectYear,
+    required this.isToday,
+    required this.isEnabled,
+    required this.onPick,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context).localeName;
+    final year = focusedMonth.year;
+    final month = focusedMonth.month;
+    final firstWeekday = DateTime(year, month, 1).weekday; // Mon=1 .. Sun=7
+    final leadingBlanks = firstWeekday % 7; // Sunday-first offset.
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: onPrevMonth,
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: onSelectMonth,
+                          borderRadius: BorderRadius.circular(AppSpacing.sm),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  intl.DateFormat('MMMM', locale)
+                                      .format(focusedMonth),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.color,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        InkWell(
+                          onTap: onSelectYear,
+                          borderRadius: BorderRadius.circular(AppSpacing.sm),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '$year',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.color,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: onNextMonth,
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: GestureDetector(
+            // Swipe left/right to change month, like Google Calendar.
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity == null) return;
+              if (details.primaryVelocity! < 0) {
+                onNextMonth();
+              } else if (details.primaryVelocity! > 0) {
+                onPrevMonth();
+              }
+            },
+            child: _DayGrid(
+              year: year,
+              month: month,
+              leadingBlanks: leadingBlanks,
+              daysInMonth: daysInMonth,
+              selectedEpoch: selectedEpoch,
+              isToday: isToday,
+              isEnabled: isEnabled,
+              onPick: onPick,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Weekday headers + a 6-row (always) 7-column grid of day cells.
+class _DayGrid extends StatelessWidget {
+  final int year;
+  final int month;
+  final int leadingBlanks;
+  final int daysInMonth;
+  final int selectedEpoch;
+  final bool Function(int epoch) isToday;
+  final bool Function(int epoch) isEnabled;
+  final ValueChanged<int> onPick;
+
+  const _DayGrid({
+    required this.year,
+    required this.month,
+    required this.leadingBlanks,
+    required this.daysInMonth,
+    required this.selectedEpoch,
+    required this.isToday,
+    required this.isEnabled,
+    required this.onPick,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context).localeName;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Row(
+            children: List<Widget>.generate(7, (i) {
+              final label = intl.DateFormat('E', locale)
+                  .format(DateTime(2023, 1, 1 + i)); // Jan 1 2023 is Sunday.
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    label,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: AppColors.onSurfaceVariant),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const dateRows = 6;
+              final cellHeight =
+                  (constraints.maxHeight - AppSpacing.sm * (dateRows - 1)) /
+                      dateRows;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: GridView.custom(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: AppSpacing.sm,
+                    crossAxisSpacing: 0,
+                    mainAxisExtent: cellHeight,
+                  ),
+                  childrenDelegate: SliverChildListDelegate([
+                    for (var i = 0; i < leadingBlanks; i++)
+                      const SizedBox.shrink(),
+                    for (var day = 1; day <= daysInMonth; day++)
+                      Builder(
+                        builder: (context) {
+                          final epoch = AppDateUtils.bangladeshCivilDateEpoch(
+                            year,
+                            month,
+                            day,
+                          );
+                          return _DayCell(
+                            day: day,
+                            isToday: isToday(epoch),
+                            isSelected: epoch == selectedEpoch,
+                            enabled: isEnabled(epoch),
+                            onTap: () => onPick(epoch),
+                          );
+                        },
+                      ),
+                    for (var i = 0;
+                        i < (dateRows * 7 - leadingBlanks - daysInMonth);
+                        i++)
+                      const SizedBox.shrink(),
+                  ]),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A single day cell: today gets a Material circle outline, the selected
+/// (non-today) date gets a filled circle, others are plain. No hearing badge.
+class _DayCell extends StatelessWidget {
+  final int day;
+  final bool isToday;
+  final bool isSelected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _DayCell({
+    required this.day,
+    required this.isToday,
+    required this.isSelected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textColor = enabled
+        ? colorScheme.onSurface
+        : colorScheme.onSurface.withValues(alpha: 0.38);
+    // Selected (non-today) date: black fill + white text. Today when NOT
+    // selected: black ring on white, black text — so it stays distinct from a
+    // selected date instead of looking like the active selection.
+    final selectedNonToday = isSelected && !isToday;
+    final todayOnly = isToday && !isSelected;
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        margin: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: selectedNonToday ? colorScheme.primary : null,
+          border: todayOnly
+              ? Border.all(color: colorScheme.primary, width: 2)
+              : null,
+        ),
+        child: Center(
+          child: Text(
+            '$day',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: selectedNonToday
+                      ? colorScheme.onPrimary
+                      : todayOnly
+                          ? colorScheme.primary
+                          : textColor,
+                  fontWeight:
+                      (isSelected || isToday) ? FontWeight.bold : FontWeight.normal,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A tappable grid of all 12 months for the focused year.
+class _MonthSelector extends StatelessWidget {
+  final int selectedMonth;
+  final ValueChanged<int> onSelect;
+
+  const _MonthSelector({
+    required this.selectedMonth,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final months = List<String>.generate(
+      12,
+      (i) => intl.DateFormat('MMMM', l.localeName)
+          .format(DateTime(2023, i + 1, 1)),
+    );
+    return GridView.count(
+      crossAxisCount: 3,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      mainAxisSpacing: AppSpacing.sm,
+      crossAxisSpacing: AppSpacing.sm,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: List<Widget>.generate(12, (i) {
+        final m = i + 1;
+        final isSelected = m == selectedMonth;
+        return InkWell(
+          onTap: () => onSelect(m),
+          borderRadius: BorderRadius.circular(AppSpacing.sm),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : null,
+              borderRadius: BorderRadius.circular(AppSpacing.sm),
+              border: isSelected
+                  ? null
+                  : Border.all(color: AppColors.surfaceDim),
+            ),
+            child: Center(
+              child: Text(
+                months[i],
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: isSelected
+                          ? AppColors.onPrimary
+                          : AppColors.onSurface,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+/// A scrollable list of selectable years spanning the picker's date bounds.
+class _YearSelector extends StatelessWidget {
+  static const double _childAspectRatio = 2.2;
+
+  final int firstYear;
+  final int lastYear;
+  final int selectedYear;
+  final ValueChanged<int> onSelect;
+
+  const _YearSelector({
+    required this.firstYear,
+    required this.lastYear,
+    required this.selectedYear,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final years = [for (var y = firstYear; y <= lastYear; y++) y];
+    final rowHeight =
+        (MediaQuery.of(context).size.width - AppSpacing.md * 2) /
+            4 /
+            _childAspectRatio +
+        AppSpacing.sm;
+    final initialRow = (selectedYear - firstYear) ~/ 4;
+    final controller = ScrollController(
+      initialScrollOffset:
+          (initialRow * rowHeight).clamp(0.0, (years.length / 4) * rowHeight),
+    );
+    return GridView.builder(
+      controller: controller,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        mainAxisSpacing: AppSpacing.sm,
+        crossAxisSpacing: AppSpacing.sm,
+        childAspectRatio: _childAspectRatio,
+      ),
+      itemCount: years.length,
+      itemBuilder: (context, index) {
+        final y = years[index];
+        final isSelected = y == selectedYear;
+        return InkWell(
+          onTap: () => onSelect(y),
+          borderRadius: BorderRadius.circular(AppSpacing.sm),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : null,
+              borderRadius: BorderRadius.circular(AppSpacing.sm),
+              border: isSelected
+                  ? null
+                  : Border.all(color: AppColors.surfaceDim),
+            ),
+            child: Center(
+              child: Text(
+                '$y',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: isSelected
+                          ? AppColors.onPrimary
+                          : AppColors.onSurface,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// Returns the date-only value used as the default picker selection.
 ///
 /// Keeping this calculation separate makes the today-default rule reusable and
@@ -255,11 +730,12 @@ DateTime plainDatePickerInitialDate([DateTime? now]) {
   return DateUtils.dateOnly(now ?? DateTime.now());
 }
 
-/// Opens a plain Material date picker defaulting to today.
+/// Opens a plain date picker defaulting to today.
 ///
-/// [initialDate] may be supplied by an edit form. When omitted, the picker
-/// opens on today's date. The returned value is date-only, or `null` when the
-/// user cancels.
+/// The calendar body matches the Daily Cause List badge calendar (month/year
+/// `<>` selectors, weekday 7-column grid, window dimensions) but keeps its own
+/// header and Cancel/OK buttons. [initialDate] may be supplied by an edit form;
+/// when omitted the picker opens on today. Returns date-only, or `null` on cancel.
 Future<DateTime?> showPlainDatePicker(
   BuildContext context, {
   DateTime? initialDate,
@@ -285,24 +761,16 @@ Future<DateTime?> showPlainDatePicker(
   final effectiveInitialDate = requestedDate.isBefore(effectiveFirstDate)
       ? effectiveFirstDate
       : requestedDate.isAfter(effectiveLastDate)
-      ? effectiveLastDate
-      : requestedDate;
+          ? effectiveLastDate
+          : requestedDate;
 
   return showDialog<DateTime>(
     context: context,
-    builder: (context) => Localizations.override(
-      context: context,
-      delegates: const <LocalizationsDelegate<dynamic>>[
-        _FullDateMaterialLocalizationsDelegate(),
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      child: _PlainDatePickerDialog(
-        initialDate: effectiveInitialDate,
-        firstDate: effectiveFirstDate,
-        lastDate: effectiveLastDate,
-        styleActions: styleActions,
-      ),
+    builder: (context) => _PlainDatePickerDialog(
+      initialDate: effectiveInitialDate,
+      firstDate: effectiveFirstDate,
+      lastDate: effectiveLastDate,
+      styleActions: styleActions,
     ),
   );
 }

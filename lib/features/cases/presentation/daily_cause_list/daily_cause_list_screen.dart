@@ -96,16 +96,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
 
   Future<void> _openCalendarPicker() async {
     final db = await ref.read(databaseProvider.future);
-    final focus = AppDateUtils.bangladeshDateTime(_selectedDate);
-    // Count window spans the focused month in Bangladesh civil dates.
-    final monthStart = AppDateUtils.normalizeToBangladeshStartOfDay(
-      AppDateUtils.bangladeshCivilDateEpoch(focus.year, focus.month, 1),
-    );
-    final monthEnd = AppDateUtils.normalizeToBangladeshStartOfDay(
-          AppDateUtils.bangladeshCivilDateEpoch(focus.year, focus.month + 1, 1),
-        ) -
-        1;
-    final counts = await CasesDao(db).countByNextDateRange(monthStart, monthEnd);
+    // Counts span ALL dates (every case with a next date), so the badge calendar
+    // shows hearing counts for past and future months, not just the focused one.
+    final counts = await CasesDao(db).countAllByNextDate();
     if (!mounted) return;
     final picked = await showDialog<int>(
       context: context,

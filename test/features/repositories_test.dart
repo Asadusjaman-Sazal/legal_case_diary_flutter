@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart'
+    show AppDateUtils;
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
 import 'package:legal_case_diary/features/cases/data/case_form_repository.dart';
@@ -587,5 +589,54 @@ void main() {
         );
       },
     );
+
+    test('countAllByNextDate spans all dates; countByNextDateRange is month-scoped',
+        () async {
+      final now = DateTime.now();
+      final thisMonthMs = AppDateUtils.normalizeToBangladeshStartOfDay(
+        DateTime(now.year, now.month, 15).millisecondsSinceEpoch,
+      );
+      final nextMonthMs = AppDateUtils.normalizeToBangladeshStartOfDay(
+        DateTime(now.year, now.month + 1, 15).millisecondsSinceEpoch,
+      );
+
+      await caseRepo.insertCase(
+        CasesCompanion(
+          caseNumber: const Value('A/2025'),
+          petitioner: const Value('P1'),
+          respondent: const Value('R1'),
+          courtId: Value(sampleCourtId),
+          caseType: const Value('Civil'),
+          onBehalfId: Value(sampleOnBehalfId),
+          nextDate: Value(thisMonthMs),
+        ),
+      );
+      await caseRepo.insertCase(
+        CasesCompanion(
+          caseNumber: const Value('B/2025'),
+          petitioner: const Value('P2'),
+          respondent: const Value('R2'),
+          courtId: Value(sampleCourtId),
+          caseType: const Value('Civil'),
+          onBehalfId: Value(sampleOnBehalfId),
+          nextDate: Value(nextMonthMs),
+        ),
+      );
+
+      final all = await casesDao.countAllByNextDate();
+      // Both months counted together.
+      expect(all.values.fold(0, (s, c) => s + c), 2);
+
+      final monthStart = AppDateUtils.normalizeToBangladeshStartOfDay(
+        DateTime(now.year, now.month, 1).millisecondsSinceEpoch,
+      );
+      final monthEnd = AppDateUtils.normalizeToBangladeshStartOfDay(
+            DateTime(now.year, now.month + 1, 1).millisecondsSinceEpoch,
+          ) -
+          1;
+      final scoped = await casesDao.countByNextDateRange(monthStart, monthEnd);
+      // Only the focused month counted.
+      expect(scoped.values.fold(0, (s, c) => s + c), 1);
+    });
   });
 }

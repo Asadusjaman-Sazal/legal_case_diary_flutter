@@ -259,7 +259,14 @@ class CasesDao {
   /// SQL expression marking a case as disposed when its Steps field contains a
   /// disposal step name (from [disposedStepNames]) among other comma-joined
   /// steps, e.g. "Withdrawal,Dismissal" or "নিষ্পত্তি,Argument".
+  ///
+  /// Guarded by [Cases.lastStep.isNotNull] so a NULL step field (always the case
+  /// for AD/HCD cases, which have no Steps) yields FALSE rather than NULL. An
+  /// unguarded `NULL LIKE ...` reduces to NULL, which `NULL | resultCheck`
+  /// propagates, causing the row to be excluded by both `_isDisposed` and its
+  /// negation — i.e. missing from every disposal-filtered screen.
   Expression<bool> get _stepIsDisposed =>
+      db.cases.lastStep.isNotNull() &
       disposedStepNames
           .map((label) => db.cases.lastStep.lower().like('%$label%'))
           .reduce((left, right) => left | right);

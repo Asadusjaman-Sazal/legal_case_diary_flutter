@@ -70,6 +70,16 @@ Implement the **Update button pop-up** (quick date & step update window styled a
 
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
+## Phase 4 — Next Date picker refinements (`date_picker_helper.dart`)
+
+The Next Date field (field 18) uses a custom badge-style calendar matching the Daily Cause List picker, not the default Material `CalendarDatePicker`:
+
+- **0.0.124** — Add/Edit date picker now uses the same custom calendar layout as the Daily Cause List badge calendar: matching window size (360–460 wide, 56.5–74.3% height), month & year `<>` chevron selectors, and a 7-column Sunday-first weekday grid. Kept distinct: the 1st-line selected-date header, the Material today-ring cell style (not the DCL black fill), and the Cancel/OK buttons. No hearing counts.
+- **0.0.125** — The "today" cell now uses the same black fill + white text as a selected non-today date (matching the Daily Cause List badge calendar), replacing the earlier Material ring style.
+- **0.0.126** — Today no longer stays black-filled after selecting another date: it shows a black ring on white with black text when not selected (a selected non-today date stays black-filled + white). Added left/right swipe on the day grid to change month (Google Calendar style).
+- **0.0.129** — The 1st-line date title (month/date/weekday header) is lowered (more top padding) and centered; the month/year selector and everything else stay the same.
+- **0.0.130** — Today's cell renders black-filled + white text when the calendar opens (defaulting to today) and when today is tapped, instead of appearing as a plain unselected cell. A today cell that is not the current selection shows the black ring on white with black text.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Replace field 11 with two nullable fields, Petitioner Phone No. and Respondent Phone No.; preserve the remaining field order/cascade rules and update the documented field-count verification accordingly. The current implementation instead exposes one `partyPhone` field with a fixed `+88` prefix, so this mismatch must be explicitly resolved before Task 07 is considered fully aligned.

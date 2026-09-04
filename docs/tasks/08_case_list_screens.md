@@ -24,6 +24,10 @@
 
 **Phase 1 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
+### Phase 1 — refinements
+
+- **0.0.132** — Removed the search box that sat between the Active/Disposed count row and the filter options. The Active/Disposed count box (KPI summary) is now ~40% smaller (padding, corner radius, and label/value fonts all scaled by 0.6). The Court filter and Newest/Oldest order dropdown are unchanged. (`all_cases_screen.dart` only.)
+
 ## Phase 2 — Active Cases Screen
 
 Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/Chronology filters, and only cases whose `last_step` is NOT in the disposed-step set from `pre_seeded_data.dart` (disposal is derived — there is no `cases.status` column). For AD/HCD cases, which have no `last_step`, exclude those whose `result` contains a configured disposal term (same derived rule as Phase 5).

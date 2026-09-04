@@ -34,3 +34,15 @@ Per §2.1 and the mockup's calendar model:
 5. This calendar is used **only** on the Daily Cause List; every other picker in the app remains a simple picker defaulting to today.
 
 **Phase 3 completion:** `flutter analyze` clean; manual test across month boundaries and Bengali locale. Update `docs/version_history.md`.
+
+### Phase 3 — Layout refinements
+
+- **0.0.118** — Picker header pushed down from the top (top padding md→lg); added md spacing between the Month & Year title and the "Total Hearings" count.
+- **0.0.119** — Tappable Year and Month selectors: tapping Year opens a scrollable 1926–2126 year grid, tapping Month opens a 12-month grid; selecting either updates the focused date and returns to the day grid (which keeps its fixed 6 rows).
+- **0.0.120** — Year/Month headers show a dropdown caret (tappable affordance); tapping an open header closes it back to the day grid. Year list opens scrolled to the current year.
+- **0.0.121** — Daily Cause List case card now matches the Active Cases card: added Next Date (alongside Step and Note) via the shared `_ListDetails` layout; removed the now-unused `_DailyCauseDetails`.
+- **0.0.122** — Bug fix: AD/HCD cases (Appellate & High Court Division) were missing from every disposal-filtered screen (Active, Upcoming, Overdue, Daily Cause List, Disposed) — they only appeared in All Cases. Root cause: `_stepIsDisposed` left the NULL `lastStep` check unguarded, so `NULL OR resultCheck` propagated NULL through `_isDisposed` and its negation, hiding every higher-court case. Guarded the step check with `lastStep IS NOT NULL`, so higher-court cases are now disposed only when their free-text `result` contains a disposal term (e.g. "Disposed"/"নিষ্পত্তি"). Added regression tests in `test/features/adhcd_disposal_test.dart`. (`cases_dao.dart` only.)
+- **0.0.123** — Badge calendar now shows hearing counts for ALL dates (every case with a next date), not just the focused month. Added `CasesDao.countAllByNextDate()` (full-range) and switched the picker to use it; "Total Hearings:" summed the full range across past and future months. (Reverted in 0.0.128 — see below.)
+- **0.0.127** — Added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker.
+- **0.0.128** — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February) instead of summing all dates; the all-dates map still drives the per-date hearing badges. This replaces the 0.0.123 all-dates total.
+- **0.0.131** — Day cells are now circles (like the Add/Edit & Quick Update pickers). Today when unselected shows a black ring on white with black text; the selected date (today or not) shows black fill + white text, so today no longer stays filled after picking another date. The selected date now persists across screen navigation via a new in-memory Riverpod provider (`dailyCauseListSelectedDateProvider`), defaulting to today on fresh app start.

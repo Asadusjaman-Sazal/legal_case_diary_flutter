@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -16,6 +17,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
@@ -166,6 +168,11 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     if (mounted) await _loadCases();
   }
 
+  Future<void> _openCaseDetail(Case currentCase) async {
+    await context.push(AppRoutes.caseDetailPath(currentCase.id));
+    if (mounted) await _loadCases();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -237,6 +244,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                   onPhone: () => _launchPartyAction(currentCase, message: false),
                   onMessage: () => _launchPartyAction(currentCase, message: true),
                   onUpdate: () => _openQuickUpdate(currentCase),
+                  onTap: () => _openCaseDetail(currentCase),
                 );
               },
             ),
@@ -264,6 +272,7 @@ class _DisposedCaseCard extends StatelessWidget {
     required this.onPhone,
     required this.onMessage,
     required this.onUpdate,
+    this.onTap,
   });
 
   final String? stepOrResult;
@@ -278,22 +287,18 @@ class _DisposedCaseCard extends StatelessWidget {
   final VoidCallback onMessage;
   final VoidCallback onUpdate;
 
+  /// Called when the whole card is tapped (opens the case detail screen).
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final trimmedNote = note?.trim();
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        border: Border.all(color: AppColors.cardBorder),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    final content = Padding(
+      padding: const EdgeInsets.all(AppSpacing.cardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
             // L1: Step/Result (light-gray) left, "Disposed:" right.
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,7 +431,27 @@ class _DisposedCaseCard extends StatelessWidget {
             ),
           ],
         ),
+      );
+
+    if (onTap == null) {
+      return Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          border: Border.all(color: AppColors.cardBorder),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        ),
+        child: content,
+      );
+    }
+    return Material(
+      color: AppColors.surfaceContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        side: const BorderSide(color: AppColors.cardBorder),
       ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(onTap: onTap, child: content),
     );
   }
 }

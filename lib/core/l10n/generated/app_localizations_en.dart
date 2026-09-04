@@ -167,6 +167,41 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get caseDetailsScreen_noHistoryEntries => 'No history entries yet.';
+
+  @override
+  String caseDetailsScreen_viewAllHistory(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'View All $count History Entries',
+      one: 'View All $count History Entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseDetailsScreen_daysRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Days Remaining',
+      one: '1 Day Remaining',
+      zero: '0 Days Remaining',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get caseDetailsScreen_setReminder => 'Set Reminder';
+
+  @override
+  String get caseDetailsScreen_editHistoryEntry => 'Edit History Entry';
+
+  @override
+  String get caseDetailsScreen_caseNotFound => 'Case not found.';
+
+  @override
   String get disposedCasesScreen_title => 'Disposed Cases';
 
   @override

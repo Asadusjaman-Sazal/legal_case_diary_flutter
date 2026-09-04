@@ -7,6 +7,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/case_reference/data/local/case_references_dao.dart';
 import '../../features/case_reference/data/reference_repository.dart';
+import '../../features/cases/data/case_history_repository.dart';
 import '../../features/cases/data/case_repository.dart';
 import '../../features/cases/data/local/case_history_dao.dart';
 import '../../features/cases/data/local/cases_dao.dart';
@@ -35,6 +36,18 @@ final caseRepositoryProvider = FutureProvider<CaseRepository>((ref) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalCaseRepository(CasesDao(db), CaseHistoryDao(db), sync);
+});
+
+/// Provider for [CaseHistoryRepository].
+///
+/// Consumed by the case detail screen's long-press history Edit/Delete flows;
+/// automatic history creation still goes through [caseRepositoryProvider].
+final caseHistoryRepositoryProvider = FutureProvider<CaseHistoryRepository>((
+  ref,
+) async {
+  final db = await ref.watch(databaseProvider.future);
+  final sync = await ref.watch(syncWriteHelperProvider.future);
+  return LocalCaseHistoryRepository(CaseHistoryDao(db), sync);
 });
 
 /// Provider for the transaction-capable form-write boundary.

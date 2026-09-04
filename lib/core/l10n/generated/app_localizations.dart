@@ -404,6 +404,42 @@ abstract class AppLocalizations {
   /// **'{count} Entries Total'**
   String caseDetailsScreen_entriesTotal(int count);
 
+  /// No description provided for @caseDetailsScreen_noHistoryEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No history entries yet.'**
+  String get caseDetailsScreen_noHistoryEntries;
+
+  /// Button revealing all case history entries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{View All {count} History Entry} other{View All {count} History Entries}}'**
+  String caseDetailsScreen_viewAllHistory(int count);
+
+  /// Countdown shown on the Next Date highlight card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 Days Remaining} =1{1 Day Remaining} other{{count} Days Remaining}}'**
+  String caseDetailsScreen_daysRemaining(int count);
+
+  /// No description provided for @caseDetailsScreen_setReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Reminder'**
+  String get caseDetailsScreen_setReminder;
+
+  /// No description provided for @caseDetailsScreen_editHistoryEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit History Entry'**
+  String get caseDetailsScreen_editHistoryEntry;
+
+  /// No description provided for @caseDetailsScreen_caseNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Case not found.'**
+  String get caseDetailsScreen_caseNotFound;
+
   /// No description provided for @disposedCasesScreen_title.
   ///
   /// In en, this message translates to:

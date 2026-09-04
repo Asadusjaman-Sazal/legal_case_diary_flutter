@@ -70,16 +70,24 @@ abstract class AppStrings {
   static const String caseDetailsScreenGroup = "caseDetailsScreen";
   static const String caseDetailsScreenCasehistory =
       "caseDetailsScreen_caseHistory";
+  static const String caseDetailsScreenCasenotfound =
+      "caseDetailsScreen_caseNotFound";
   static const String caseDetailsScreenCasetitleandremark =
       "caseDetailsScreen_caseTitleAndRemark";
   static const String caseDetailsScreenClose = "caseDetailsScreen_close";
+  static const String caseDetailsScreenDaysremaining =
+      "caseDetailsScreen_daysRemaining";
   static const String caseDetailsScreenDelete = "caseDetailsScreen_delete";
   static const String caseDetailsScreenEditcase = "caseDetailsScreen_editCase";
+  static const String caseDetailsScreenEdithistoryentry =
+      "caseDetailsScreen_editHistoryEntry";
   static const String caseDetailsScreenEntriestotal =
       "caseDetailsScreen_entriesTotal";
   static const String caseDetailsScreenLeadcounsel =
       "caseDetailsScreen_leadCounsel";
   static const String caseDetailsScreenMessage = "caseDetailsScreen_message";
+  static const String caseDetailsScreenNohistoryentries =
+      "caseDetailsScreen_noHistoryEntries";
   static const String caseDetailsScreenOnbehalfof =
       "caseDetailsScreen_onBehalfOf";
   static const String caseDetailsScreenPetitioner =
@@ -91,7 +99,11 @@ abstract class AppStrings {
       "caseDetailsScreen_respondent";
   static const String caseDetailsScreenSectionsorcasetitle =
       "caseDetailsScreen_sectionsOrCaseTitle";
+  static const String caseDetailsScreenSetreminder =
+      "caseDetailsScreen_setReminder";
   static const String caseDetailsScreenTitle = "caseDetailsScreen_title";
+  static const String caseDetailsScreenViewallhistory =
+      "caseDetailsScreen_viewAllHistory";
 
   // caseReferenceScreen
   static const String caseReferenceScreenGroup = "caseReferenceScreen";

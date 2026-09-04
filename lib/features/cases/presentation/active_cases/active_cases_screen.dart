@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,6 +15,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
@@ -171,6 +173,11 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     if (mounted) await _loadCases();
   }
 
+  Future<void> _openCaseDetail(Case currentCase) async {
+    await context.push(AppRoutes.caseDetailPath(currentCase.id));
+    if (mounted) await _loadCases();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -243,6 +250,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
                   onPhone: () => _launchPartyAction(currentCase, message: false),
                   onMessage: () => _launchPartyAction(currentCase, message: true),
                   onUpdate: () => _openQuickUpdate(currentCase),
+                  onTap: () => _openCaseDetail(currentCase),
                 );
               },
             ),

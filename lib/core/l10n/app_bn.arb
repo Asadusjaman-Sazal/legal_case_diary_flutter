@@ -57,6 +57,24 @@
       "count": { "type": "int" }
     }
   },
+  "caseDetailsScreen_noHistoryEntries": "এখনো কোনো ইতিহাস এন্ট্রি নেই।",
+  "caseDetailsScreen_viewAllHistory": "{count, plural, =1{সম্পূর্ণ {count} টি ইতিহাস এন্ট্রি দেখুন} other{সব {count} টি ইতিহাস এন্ট্রি দেখুন}}",
+  "@caseDetailsScreen_viewAllHistory": {
+    "description": "সব কেস হিস্ট্রি এন্ট্রি প্রকাশকারী বোতাম।",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "caseDetailsScreen_daysRemaining": "{count, plural, =0{আর ০ দিন বাকি} =1{আর ১ দিন বাকি} other{আর {count} দিন বাকি}}",
+  "@caseDetailsScreen_daysRemaining": {
+    "description": "পরবর্তী তারিখের হাইলাইট কার্ডে দেখানো কাউন্টডাউন।",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "caseDetailsScreen_setReminder": "রিমাইন্ডার সেট করুন",
+  "caseDetailsScreen_editHistoryEntry": "ইতিহাস এন্ট্রি সম্পাদনা",
+  "caseDetailsScreen_caseNotFound": "মামলা পাওয়া যায়নি।",
   "disposedCasesScreen_title": "নিষ্পত্তিকৃত মামলা",
   "caseCard_disposed": "নিষ্পত্তিকৃত:",
   "disposedCasesScreen_helpTitle": "কোনো মামলাকে নিষ্পত্তিকৃত হিসেবে চিহ্নিত করবেন কীভাবে?",

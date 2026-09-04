@@ -67,6 +67,9 @@ class CaseCard extends StatelessWidget {
   /// Called by the Update action, when supplied.
   final VoidCallback? onUpdate;
 
+  /// Called when the whole card is tapped (opens the case detail screen).
+  final VoidCallback? onTap;
+
   /// Whether the phone action is rendered.
   final bool showPhoneButton;
 
@@ -106,6 +109,7 @@ class CaseCard extends StatelessWidget {
     this.onPhone,
     this.onMessage,
     this.onUpdate,
+    this.onTap,
     this.showPhoneButton = true,
     this.showMessageButton = true,
     this.showUpdateButton = true,
@@ -118,15 +122,8 @@ class CaseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        border: Border.all(color: AppColors.cardBorder),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
+    final content = IntrinsicHeight(
+      child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (isOverdue)
@@ -186,7 +183,30 @@ class CaseCard extends StatelessWidget {
             ),
           ],
         ),
+      );
+
+    if (onTap == null) {
+      return Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          border: Border.all(color: AppColors.cardBorder),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        ),
+        child: content,
+      );
+    }
+
+    // Tappable cards use a Material + InkWell shell so the pressed ripple is
+    // painted above the opaque card surface, keeping the same border/radius.
+    return Material(
+      color: AppColors.surfaceContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        side: const BorderSide(color: AppColors.cardBorder),
       ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(onTap: onTap, child: content),
     );
   }
 

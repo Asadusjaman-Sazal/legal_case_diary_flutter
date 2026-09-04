@@ -166,6 +166,42 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get caseDetailsScreen_noHistoryEntries =>
+      'এখনো কোনো ইতিহাস এন্ট্রি নেই।';
+
+  @override
+  String caseDetailsScreen_viewAllHistory(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'সব $count টি ইতিহাস এন্ট্রি দেখুন',
+      one: 'সম্পূর্ণ $count টি ইতিহাস এন্ট্রি দেখুন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String caseDetailsScreen_daysRemaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'আর $count দিন বাকি',
+      one: 'আর ১ দিন বাকি',
+      zero: 'আর ০ দিন বাকি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get caseDetailsScreen_setReminder => 'রিমাইন্ডার সেট করুন';
+
+  @override
+  String get caseDetailsScreen_editHistoryEntry => 'ইতিহাস এন্ট্রি সম্পাদনা';
+
+  @override
+  String get caseDetailsScreen_caseNotFound => 'মামলা পাওয়া যায়নি।';
+
+  @override
   String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
 
   @override

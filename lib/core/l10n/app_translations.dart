@@ -113,15 +113,22 @@ class AppTranslations {
     AppStrings.caseDetailsScreenGroup: <String, String>{
       AppStrings.caseDetailsScreenCasehistory:
           _loc.caseDetailsScreen_caseHistory,
+      AppStrings.caseDetailsScreenCasenotfound:
+          _loc.caseDetailsScreen_caseNotFound,
       AppStrings.caseDetailsScreenCasetitleandremark:
           _loc.caseDetailsScreen_caseTitleAndRemark,
       AppStrings.caseDetailsScreenClose: _loc.caseDetailsScreen_close,
+      // caseDetailsScreenDaysremaining: parameterized; use _loc.caseDetailsScreen_daysRemaining(...).
       AppStrings.caseDetailsScreenDelete: _loc.caseDetailsScreen_delete,
       AppStrings.caseDetailsScreenEditcase: _loc.caseDetailsScreen_editCase,
+      AppStrings.caseDetailsScreenEdithistoryentry:
+          _loc.caseDetailsScreen_editHistoryEntry,
       // caseDetailsScreenEntriestotal: parameterized; use _loc.caseDetailsScreen_entriesTotal(...).
       AppStrings.caseDetailsScreenLeadcounsel:
           _loc.caseDetailsScreen_leadCounsel,
       AppStrings.caseDetailsScreenMessage: _loc.caseDetailsScreen_message,
+      AppStrings.caseDetailsScreenNohistoryentries:
+          _loc.caseDetailsScreen_noHistoryEntries,
       AppStrings.caseDetailsScreenOnbehalfof: _loc.caseDetailsScreen_onBehalfOf,
       AppStrings.caseDetailsScreenPetitioner: _loc.caseDetailsScreen_petitioner,
       AppStrings.caseDetailsScreenPhone: _loc.caseDetailsScreen_phone,
@@ -130,7 +137,10 @@ class AppTranslations {
       AppStrings.caseDetailsScreenRespondent: _loc.caseDetailsScreen_respondent,
       AppStrings.caseDetailsScreenSectionsorcasetitle:
           _loc.caseDetailsScreen_sectionsOrCaseTitle,
+      AppStrings.caseDetailsScreenSetreminder:
+          _loc.caseDetailsScreen_setReminder,
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,
+      // caseDetailsScreenViewallhistory: parameterized; use _loc.caseDetailsScreen_viewAllHistory(...).
     },
     AppStrings.caseReferenceScreenGroup: <String, String>{
       AppStrings.caseReferenceScreenCommentsnotes:

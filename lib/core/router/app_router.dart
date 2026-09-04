@@ -97,6 +97,9 @@ class AppRoutes {
     'disposed' => disposedCases,
     _ => dailyCauseList,
   };
+
+  /// Builds the concrete route path for the case detail screen.
+  static String caseDetailPath(String caseId) => '/case-detail/$caseId';
 }
 
 // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.128 - Task 09 fix: Daily Cause List badge calendar — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February), not the sum of all dates. The all-dates map still drives the per-date hearing badges. calendar_picker_dialog.dart only.
+Version: 0.0.130 - Task 09 fix: Add/Edit case date picker — today's cell now renders black-filled + white text when the calendar opens (defaulting to today) and when today is tapped, instead of appearing as a plain unselected cell. A today cell that is not the current selection shows the black ring on white with black text. date_picker_helper.dart only.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -142,3 +142,5 @@ Version: 0.0.125 - Task 09 fix: Add/Edit case date picker — the "today" cell n
 Version: 0.0.126 - Task 09 fix: Add/Edit case date picker — Today no longer stays black-filled after selecting another date: it now shows a black ring on white with black text when not selected (a selected non-today date stays black-filled + white). Added left/right swipe on the day grid to change month (Google Calendar style). date_picker_helper.dart only.
 Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/right swipe on the day grid to change month (Google Calendar style), matching the Add/Edit date picker. calendar_picker_dialog.dart only.
 Version: 0.0.128 - Task 09 fix: Daily Cause List badge calendar — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February), not the sum of all dates. The all-dates map still drives the per-date hearing badges. calendar_picker_dialog.dart only.
+Version: 0.0.129 - Task 09 fix: Add/Edit case date picker — the 1st-line date title (month/date/weekday header) is now lowered (more top padding) and centered, while the month/year selector and everything else stay the same. date_picker_helper.dart only.
+Version: 0.0.130 - Task 09 fix: Add/Edit case date picker — today's cell now renders black-filled + white text when the calendar opens (defaulting to today) and when today is tapped, instead of appearing as a plain unselected cell. A today cell that is not the current selection shows the black ring on white with black text. date_picker_helper.dart only.

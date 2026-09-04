@@ -87,6 +87,44 @@ void main() {
     expect(find.widgetWithText(TextButton, 'OK'), findsOneWidget);
   });
 
+  testWidgets('today renders as a selected (black-filled) cell on open',
+      (WidgetTester tester) async {
+    // Default selection is today, so today's cell must be filled (primary color)
+    // with white text — same as any selected date.
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: ElevatedButton(
+              onPressed: () => showPlainDatePicker(context),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    final today = DateTime.now();
+    final todayCell = tester
+        .widget<Container>(
+          find
+              .ancestor(
+                of: find.text('${today.day}'),
+                matching: find.byType(Container),
+              )
+              .last,
+        );
+    final decoration = todayCell.decoration! as BoxDecoration;
+    // Filled with the primary color (black) — not a ring, not transparent.
+    expect(decoration.color, isNotNull);
+    expect(decoration.border, isNull);
+  });
+
   testWidgets('tapping a day cell selects it and returns the date on OK',
       (WidgetTester tester) async {
     final picked = Completer<DateTime?>();

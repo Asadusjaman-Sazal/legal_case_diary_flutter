@@ -192,12 +192,13 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 1st-line header (selected date title) — unchanged.
+              // 1st-line header (selected date title) — lowered and centered.
               Container(
                 width: double.infinity,
+                alignment: Alignment.center,
                 color: datePickerTheme.headerBackgroundColor ??
                     defaults.headerBackgroundColor,
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                padding: const EdgeInsets.fromLTRB(24, 48, 24, 20),
                 child: Text(
                   _formatPickerHeaderDate(
                     _selectedDate,
@@ -556,11 +557,12 @@ class _DayCell extends StatelessWidget {
     final textColor = enabled
         ? colorScheme.onSurface
         : colorScheme.onSurface.withValues(alpha: 0.38);
-    // Selected (non-today) date: black fill + white text. Today when NOT
-    // selected: black ring on white, black text — so it stays distinct from a
-    // selected date instead of looking like the active selection.
-    final selectedNonToday = isSelected && !isToday;
-    final todayOnly = isToday && !isSelected;
+    // Selected (today or not): black fill + white text. A today cell that is NOT
+    // the current selection shows a black ring on white with black text, so the
+    // selected date stays distinct. When today is selected (the default on open),
+    // both flags are true and it correctly renders as the selected (filled) cell.
+    final selected = isSelected;
+    final todayUnselected = isToday && !isSelected;
     return InkWell(
       onTap: enabled ? onTap : null,
       borderRadius: BorderRadius.circular(999),
@@ -568,8 +570,8 @@ class _DayCell extends StatelessWidget {
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: selectedNonToday ? colorScheme.primary : null,
-          border: todayOnly
+          color: selected ? colorScheme.primary : null,
+          border: todayUnselected
               ? Border.all(color: colorScheme.primary, width: 2)
               : null,
         ),
@@ -577,9 +579,9 @@ class _DayCell extends StatelessWidget {
           child: Text(
             '$day',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: selectedNonToday
+                  color: selected
                       ? colorScheme.onPrimary
-                      : todayOnly
+                      : todayUnselected
                           ? colorScheme.primary
                           : textColor,
                   fontWeight:

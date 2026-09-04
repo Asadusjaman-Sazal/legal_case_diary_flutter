@@ -499,7 +499,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         Text(
           '${current.caseType} ${current.caseNumber}',
           key: const ValueKey('case-detail-case-number'),
-          style: AppTypography.headlineLg,
+          style: AppTypography.headlineMd,
         ),
         const SizedBox(height: AppSpacing.xs),
         // L2: location icon + court name.
@@ -511,7 +511,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               Expanded(
                 child: Text(
                   _courtLabel(context, court),
-                  style: AppTypography.bodyMd.copyWith(
+                  style: AppTypography.bodyLg.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
@@ -563,7 +563,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               children: [
                 Text(
                   '${l.caseDetailsScreen_onBehalfOf}: ',
-                  style: AppTypography.titleMd.copyWith(color: AppColors.secondary),
+                  style: AppTypography.titleMd.copyWith(color: AppColors.onSurface),
                 ),
                 Flexible(
                   child: Text(
@@ -587,7 +587,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             counsel: current.petitionerLeadCounsel,
             phone: clientSide == _PartySide.petitioner ? clientPhone : null,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.lg),
           _partyBox(
             context,
             l: l,

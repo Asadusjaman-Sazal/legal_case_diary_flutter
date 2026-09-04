@@ -1,3 +1,9 @@
+### 2026-09-04 — Task 10 Case Detail header font sizes — COMPLETE
+
+- Case type & case number title text one size smaller (headline-lg -> headline-md) in `case_detail_screen.dart` L1 header; Name of the Court text one size bigger (body-md -> body-lg) in L2. No other changes. `case_detail_screen.dart` only.
+
+Version `0.0.135`. Next resume point: **Task 11** (see `docs/tasks/00_INDEX.md` / implementation plan).
+
 ### 2026-09-04 — Task 10 Phase 2: Case History logic — COMPLETE (Task 10 done)
 
 - Long-press on a Case History row opens a bottom-sheet with Edit / Delete (gated by `caseWritePermissionsProvider.canEdit`; inert for read-only members). Edit opens `history_entry_edit_dialog.dart` — a Dialog form that changes the row's Next Date (`hearing_date`, the previous-next-date shown on the left per user decision), category-filtered Step (`last_step`, steps loaded from the case's court category, selector hidden when the category has none), and Note (`note_result`); Delete shows the shared confirm dialog then soft-deletes.

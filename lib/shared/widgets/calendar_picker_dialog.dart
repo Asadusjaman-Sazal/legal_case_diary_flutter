@@ -326,22 +326,28 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasHearings = count > 0;
-    // Today and the selected (non-today) date are highlighted with black; all
-    // other dates are plain. The selected non-today date uses a black ring so it
-    // matches the Today fill and stays visible against the light background.
-    final isHighlighted = isToday || isSelected;
-    final backgroundColor = isHighlighted ? AppColors.primary : null;
-    final foreground = isHighlighted ? AppColors.onPrimary : AppColors.onSurface;
+    // Selected (today or not): black fill + white text. A today cell that is NOT
+    // the current selection shows a black ring on white with black text, so the
+    // selected date stays distinct. When today is selected (the default on open),
+    // both flags are true and it correctly renders as the selected (filled) cell.
+    final selected = isSelected;
+    final todayUnselected = isToday && !isSelected;
+    final backgroundColor = selected ? AppColors.primary : null;
+    final foreground = selected
+        ? AppColors.onPrimary
+        : todayUnselected
+            ? AppColors.primary
+            : AppColors.onSurface;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.sm),
+      borderRadius: BorderRadius.circular(999),
       child: Container(
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
+          shape: BoxShape.circle,
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-          border: isSelected && !isToday
+          border: todayUnselected
               ? Border.all(color: AppColors.primary, width: 2)
               : null,
         ),
@@ -362,7 +368,7 @@ class _DayCell extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
-                    color: isHighlighted
+                    color: selected
                         ? AppColors.onPrimary
                         : AppColors.surfaceDim,
                     borderRadius: BorderRadius.circular(999),
@@ -370,7 +376,7 @@ class _DayCell extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isHighlighted
+                          color: selected
                               ? AppColors.primary
                               : AppColors.onSurface,
                           fontSize: 9,

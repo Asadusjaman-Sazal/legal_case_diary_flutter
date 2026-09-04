@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.130 - Task 09 fix: Add/Edit case date picker — today's cell now renders black-filled + white text when the calendar opens (defaulting to today) and when today is tapped, instead of appearing as a plain unselected cell. A today cell that is not the current selection shows the black ring on white with black text. date_picker_helper.dart only.
+Version: 0.0.131 - Task 09 fix: Daily Cause List badge calendar — day cells are now circles (like the Add/Edit & Quick Update pickers). Today when unselected shows a black ring on white with black text; the selected date (today or not) shows black fill + white text, so today no longer stays filled after picking another date. The selected date now persists across screen navigation via a new in-memory Riverpod provider (dailyCauseListSelectedDateProvider), defaulting to today on fresh app start. calendar_picker_dialog.dart + daily_cause_list_screen.dart + new shared/providers/daily_cause_list_provider.dart.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -144,3 +144,4 @@ Version: 0.0.127 - Task 09 fix: Daily Cause List badge calendar — added left/r
 Version: 0.0.128 - Task 09 fix: Daily Cause List badge calendar — "Total Hearings:" now counts the visible month only (e.g. 10 for January, 25 for February), not the sum of all dates. The all-dates map still drives the per-date hearing badges. calendar_picker_dialog.dart only.
 Version: 0.0.129 - Task 09 fix: Add/Edit case date picker — the 1st-line date title (month/date/weekday header) is now lowered (more top padding) and centered, while the month/year selector and everything else stay the same. date_picker_helper.dart only.
 Version: 0.0.130 - Task 09 fix: Add/Edit case date picker — today's cell now renders black-filled + white text when the calendar opens (defaulting to today) and when today is tapped, instead of appearing as a plain unselected cell. A today cell that is not the current selection shows the black ring on white with black text. date_picker_helper.dart only.
+Version: 0.0.131 - Task 09 fix: Daily Cause List badge calendar — day cells are now circles (like the Add/Edit & Quick Update pickers). Today when unselected shows a black ring on white with black text; the selected date (today or not) shows black fill + white text, so today no longer stays filled after picking another date. The selected date now persists across screen navigation via a new in-memory Riverpod provider (dailyCauseListSelectedDateProvider), defaulting to today on fresh app start. calendar_picker_dialog.dart + daily_cause_list_screen.dart + new shared/providers/daily_cause_list_provider.dart.

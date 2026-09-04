@@ -25,6 +25,7 @@ import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
+import '../../../../shared/providers/daily_cause_list_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/calendar_picker_dialog.dart';
 import '../../../../shared/widgets/case_card.dart';
@@ -51,12 +52,14 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   bool _loading = true;
 
   /// Currently selected Bangladesh civil date (epoch ms at start of day).
+  /// Mirrors [dailyCauseListSelectedDateProvider] so the choice survives screen
+  /// navigation until the app is closed or the user picks another date.
   late int _selectedDate;
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = AppDateUtils.bangladeshTodayStartOfDay();
+    _selectedDate = ref.read(dailyCauseListSelectedDateProvider);
     _loadCases();
   }
 
@@ -91,6 +94,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   void _selectDate(int date) {
     if (date == _selectedDate) return;
     setState(() => _selectedDate = date);
+    ref.read(dailyCauseListSelectedDateProvider.notifier).select(date);
     _loadCases();
   }
 

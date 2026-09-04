@@ -369,81 +369,62 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
       ),
-      child: Column(
+      child: Row(
         children: [
-          TextField(
-            controller: _searchController,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              hintText: l.casesModal_search,
-              prefixIcon: const Icon(Icons.search),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.sm,
+          Expanded(
+            child: DropdownButtonFormField<String?>(
+              initialValue: _courtCategoryId,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: l.allCasesScreen_filterByCourt,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.sm,
+                ),
+                border: const OutlineInputBorder(),
               ),
-              border: const OutlineInputBorder(),
+              items: [
+                DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text(l.allCasesScreen_filterByCourt),
+                ),
+                for (final category in categories)
+                  DropdownMenuItem<String?>(
+                    value: category.id,
+                    child: Text(_categoryLabel(context, category)),
+                  ),
+              ],
+              onChanged: (value) => setState(() => _courtCategoryId = value),
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _courtCategoryId,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l.allCasesScreen_filterByCourt,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
-                    border: const OutlineInputBorder(),
-                  ),
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(l.allCasesScreen_filterByCourt),
-                    ),
-                    for (final category in categories)
-                      DropdownMenuItem<String?>(
-                        value: category.id,
-                        child: Text(_categoryLabel(context, category)),
-                      ),
-                  ],
-                  onChanged: (value) => setState(() => _courtCategoryId = value),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: DropdownButtonFormField<bool>(
+              initialValue: _newestFirst,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: l.allCasesScreen_newestFirst,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.sm,
                 ),
+                border: const OutlineInputBorder(),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: DropdownButtonFormField<bool>(
-                  initialValue: _newestFirst,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: l.allCasesScreen_newestFirst,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
-                    border: const OutlineInputBorder(),
-                  ),
-                  items: [
-                    DropdownMenuItem<bool>(
-                      value: true,
-                      child: Text(l.allCasesScreen_newestFirst),
-                    ),
-                    DropdownMenuItem<bool>(
-                      value: false,
-                      child: Text(l.allCasesScreen_oldestFirst),
-                    ),
-                  ],
-                  onChanged: (value) =>
-                      setState(() => _newestFirst = value ?? true),
+              items: [
+                DropdownMenuItem<bool>(
+                  value: true,
+                  child: Text(l.allCasesScreen_newestFirst),
                 ),
-              ),
-            ],
+                DropdownMenuItem<bool>(
+                  value: false,
+                  child: Text(l.allCasesScreen_oldestFirst),
+                ),
+              ],
+              onChanged: (value) =>
+                  setState(() => _newestFirst = value ?? true),
+            ),
           ),
         ],
       ),
@@ -465,26 +446,29 @@ class _KpiTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sized ~40% smaller than the default tile (padding, radius, fonts, gap).
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md * 0.6),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         border: Border.all(color: AppColors.outlineVariant),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 0.6),
       ),
       child: Column(
         children: [
           Text(
             label.toUpperCase(),
             style: AppTypography.labelMd.copyWith(
+              fontSize: 14 * 0.6,
               color: AppColors.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.xs * 0.6),
           Text(
             value,
             style: AppTypography.titleLg.copyWith(
+              fontSize: 20 * 0.6,
               color: valueColor,
               fontWeight: FontWeight.w700,
             ),

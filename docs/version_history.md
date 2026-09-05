@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.138 - Task 10 Case History row polish: the weekday now sits centered under the date in each history row, and the Step/Result and Note texts span the full content width with justified (even) alignment for multi-line text instead of right-aligned.
+Version: 0.0.139 - Task 10 Case History Show/Hide: added a Show/Hide button next to "N Entries Total" that expands all history entries (replacing the View All row while expanded), the Case History title becomes sticky (PinnedHeaderSliver) at the top only while fully expanded and returns to a normal card when hidden, and the Step/Result content text now uses the Note's size (14/20) while staying bold.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -152,3 +152,4 @@ Version: 0.0.135 - Task 10 Case Detail header refinements: case type & number ti
 Version: 0.0.136 - Task 10 Case Detail AD/HCD-specific columns: judges names line under Name of Court in the title and a new "Other Information" card (Tender Number, Previous Court Case, District of Origin) after Case Title & Remark, both shown only for Appellate/High Court Division cases.
 Version: 0.0.137 - Task 10 Case History refinements: Case Detail history rows now render dates as DD/MM/YYYY with the day of the week underneath, and AD/HCD rows show each hearing's Result in the content slot where lower-court rows show Step — `case_history` gained a `result` snapshot column (schema v6) filled by the Quick Update transaction, and the long-press Edit dialog can edit the Result for AD/HCD rows.
 Version: 0.0.138 - Task 10 Case History row polish: the weekday now sits centered under the date in each history row, and the Step/Result and Note texts span the full content width with justified (even) alignment for multi-line text instead of right-aligned.
+Version: 0.0.139 - Task 10 Case History Show/Hide: added a Show/Hide button next to "N Entries Total" that expands all history entries (replacing the View All row while expanded), the Case History title becomes sticky (PinnedHeaderSliver) at the top only while fully expanded and returns to a normal card when hidden, and the Step/Result content text now uses the Note's size (14/20) while staying bold.

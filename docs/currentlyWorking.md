@@ -1,3 +1,11 @@
+### 2026-09-05 — Task 10 Case History Show/Hide + sticky title — COMPLETE
+
+- Case Detail **Case History section only**: a compact **Show** button now sits right of "N Entries Total" (only when more than 3 entries); tapping it expands every history entry and the button becomes **Hide** to fold back to the default newest-3 view (the old "View All N History Entries" row remains for the collapsed state and disappears while expanded).
+- While fully expanded, the **Case History title row (icon + label + count + Show/Hide) is sticky at the top of the screen** via `PinnedHeaderSliver` on a `CustomScrollView` (screen body converted from `ListView`; visual layout/padding/physics unchanged); collapsed (<all entries) renders the original plain card with a non-sticky title.
+- Step/Result content text is now the **same size as the Note content (14/20, `bodyMd`)** but stays **bold** (`w600`); justify alignment from 0.0.138 unchanged.
+- New l10n keys (en + bn): `caseDetailsScreen_showHistory` / `caseDetailsScreen_hideHistory`; regenerated `app_localizations*` and registered in `app_strings.dart`/`app_translations.dart`.
+- Tests (in `test/features/case_detail_test.dart`): extended the View All expansion test (pin + Hide + fold-back) and added a Show/Hide + sticky-title test and a Step-style test (Note's size, w600). `flutter analyze` clean; full suite 178 passed, 2 skipped. Version `0.0.139`. Known issues: none.
+
 ### 2026-09-05 — Task 10 Case History row polish — COMPLETE
 
 - Case Detail **Case History rows** (only section changed): the weekday label is now **centered under the date** in each row's date column, and the Step/Result main content plus the Note now **span the full content width with justified text** (even left/right edges on multi-line text; single-line text reads left-aligned) — replacing the previous right-aligned rendering that looked off with multiple steps.

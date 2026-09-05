@@ -58,6 +58,8 @@
     }
   },
   "caseDetailsScreen_noHistoryEntries": "এখনো কোনো ইতিহাস এন্ট্রি নেই।",
+  "caseDetailsScreen_showHistory": "দেখুন",
+  "caseDetailsScreen_hideHistory": "লুকান",
   "caseDetailsScreen_viewAllHistory": "{count, plural, =1{সম্পূর্ণ {count} টি ইতিহাস এন্ট্রি দেখুন} other{সব {count} টি ইতিহাস এন্ট্রি দেখুন}}",
   "@caseDetailsScreen_viewAllHistory": {
     "description": "সব কেস হিস্ট্রি এন্ট্রি প্রকাশকারী বোতাম।",

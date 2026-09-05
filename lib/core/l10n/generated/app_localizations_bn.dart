@@ -170,6 +170,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'এখনো কোনো ইতিহাস এন্ট্রি নেই।';
 
   @override
+  String get caseDetailsScreen_showHistory => 'দেখুন';
+
+  @override
+  String get caseDetailsScreen_hideHistory => 'লুকান';
+
+  @override
   String caseDetailsScreen_viewAllHistory(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -170,6 +170,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseDetailsScreen_noHistoryEntries => 'No history entries yet.';
 
   @override
+  String get caseDetailsScreen_showHistory => 'Show';
+
+  @override
+  String get caseDetailsScreen_hideHistory => 'Hide';
+
+  @override
   String caseDetailsScreen_viewAllHistory(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

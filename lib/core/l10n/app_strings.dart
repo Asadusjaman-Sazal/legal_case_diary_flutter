@@ -99,6 +99,10 @@ abstract class AppStrings {
       "caseDetailsScreen_respondent";
   static const String caseDetailsScreenSectionsorcasetitle =
       "caseDetailsScreen_sectionsOrCaseTitle";
+  static const String caseDetailsScreenShowhistory =
+      "caseDetailsScreen_showHistory";
+  static const String caseDetailsScreenHidehistory =
+      "caseDetailsScreen_hideHistory";
   static const String caseDetailsScreenSetreminder =
       "caseDetailsScreen_setReminder";
   static const String caseDetailsScreenTitle = "caseDetailsScreen_title";

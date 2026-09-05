@@ -410,6 +410,18 @@ abstract class AppLocalizations {
   /// **'No history entries yet.'**
   String get caseDetailsScreen_noHistoryEntries;
 
+  /// No description provided for @caseDetailsScreen_showHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get caseDetailsScreen_showHistory;
+
+  /// No description provided for @caseDetailsScreen_hideHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get caseDetailsScreen_hideHistory;
+
   /// Button revealing all case history entries.
   ///
   /// In en, this message translates to:

@@ -236,6 +236,11 @@ void main() {
       // L6 history (2 total, newest nextDate first): DD/MM/YYYY date with the
       // day of the week under it, step content on the right.
       expect(find.text('2 Entries Total'), findsOneWidget);
+      // Fewer than 3 entries: no Show/Hide toggle in the title row.
+      expect(
+        find.byKey(const ValueKey('case-detail-history-show-hide')),
+        findsNothing,
+      );
       expect(find.text('15/10/2026'), findsOneWidget);
       expect(find.text('12/09/2026'), findsOneWidget);
       expect(find.text('THU'), findsOneWidget); // 15 Oct 2026
@@ -309,6 +314,9 @@ void main() {
 
       expect(find.text('4 Entries Total'), findsOneWidget);
       expect(find.text('View All 4 History Entries'), findsOneWidget);
+      // Collapsed title row offers the Show toggle.
+      expect(find.text('Show'), findsOneWidget);
+      expect(find.text('Hide'), findsNothing);
       expect(find.text('Step 1'), findsNothing); // oldest sits beyond the cap.
       expect(find.text('Step 4'), findsOneWidget);
 
@@ -317,6 +325,110 @@ void main() {
       expect(find.text('View All 4 History Entries'), findsNothing);
       expect(find.text('Step 4'), findsOneWidget);
       expect(find.text('Step 1'), findsOneWidget);
+      // Expanded: the Case History title is pinned to the top and the toggle
+      // now reads Hide.
+      expect(find.byType(PinnedHeaderSliver), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(PinnedHeaderSliver),
+          matching: find.text('Case History'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Hide'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const ValueKey('case-detail-history-show-hide')),
+      );
+      await tester.pumpAndSettle();
+      // Folded back: no pin, Show toggle returns, entries capped at 3 again.
+      expect(find.byType(PinnedHeaderSliver), findsNothing);
+      expect(find.text('Show'), findsOneWidget);
+      expect(find.text('Hide'), findsNothing);
+      expect(find.text('Step 1'), findsNothing);
+      expect(find.text('View All 4 History Entries'), findsOneWidget);
+    });
+
+    testWidgets('Show expands every entry and Hide folds back to 3 with a pinned title only while expanded', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(nextDateMs: null);
+      for (var i = 1; i <= 5; i++) {
+        await seedHistoryEntry(
+          caseId,
+          hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 1, i),
+          nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 2, i),
+          step: 'Step $i',
+        );
+      }
+      await pumpDetail(tester, caseId);
+
+      // Collapsed default: Show button, newest 3 entries only, no pin.
+      expect(find.text('Show'), findsOneWidget);
+      expect(find.text('Hide'), findsNothing);
+      expect(find.byType(PinnedHeaderSliver), findsNothing);
+      expect(find.text('Step 5'), findsOneWidget);
+      expect(find.text('Step 3'), findsOneWidget);
+      expect(find.text('Step 2'), findsNothing);
+      expect(find.text('Step 1'), findsNothing);
+
+      await tester.tap(
+        find.byKey(const ValueKey('case-detail-history-show-hide')),
+      );
+      await tester.pumpAndSettle();
+
+      // Expanded: all entries render, the View All row is gone, and the
+      // Case History title (with entry count + Hide) is pinned at the top.
+      expect(find.text('Hide'), findsOneWidget);
+      expect(find.text('Show'), findsNothing);
+      expect(find.text('View All 5 History Entries'), findsNothing);
+      expect(find.text('Step 1'), findsOneWidget);
+      expect(find.text('5 Entries Total'), findsOneWidget);
+      expect(find.byType(PinnedHeaderSliver), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(PinnedHeaderSliver),
+          matching: find.text('5 Entries Total'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(const ValueKey('case-detail-history-show-hide')),
+      );
+      await tester.pumpAndSettle();
+
+      // Hidden again: title is no longer sticky and the cap returns.
+      expect(find.byType(PinnedHeaderSliver), findsNothing);
+      expect(find.text('Show'), findsOneWidget);
+      expect(find.text('Step 1'), findsNothing);
+    });
+
+    testWidgets('history Step/Result text uses the Note size but stays bold', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(nextDateMs: null);
+      final hearingMs = AppDateUtils.bangladeshCivilDateEpoch(2026, 1, 10);
+      final nextMs = AppDateUtils.bangladeshCivilDateEpoch(2026, 2, 15);
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: hearingMs,
+        nextEpochMs: nextMs,
+        step: 'Steps for Hearing',
+        note: 'Adjourned for witness.',
+      );
+      await pumpDetail(tester, caseId);
+
+      final stepStyle =
+          tester.widget<Text>(find.text('Steps for Hearing')).style!;
+      final noteStyle =
+          tester.widget<Text>(find.text('Adjourned for witness.')).style!;
+      // Same size/line-height as the Note content...
+      expect(stepStyle.fontSize, noteStyle.fontSize);
+      expect(stepStyle.height, noteStyle.height);
+      // ...but still bold.
+      expect(stepStyle.fontWeight, FontWeight.w600);
+      expect(noteStyle.fontWeight, FontWeight.w400);
     });
 
     testWidgets('Delete soft-deletes the case after confirmation and pops', (

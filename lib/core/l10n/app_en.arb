@@ -58,6 +58,8 @@
     }
   },
   "caseDetailsScreen_noHistoryEntries": "No history entries yet.",
+  "caseDetailsScreen_showHistory": "Show",
+  "caseDetailsScreen_hideHistory": "Hide",
   "caseDetailsScreen_viewAllHistory": "{count, plural, =1{View All {count} History Entry} other{View All {count} History Entries}}",
   "@caseDetailsScreen_viewAllHistory": {
     "description": "Button revealing all case history entries.",

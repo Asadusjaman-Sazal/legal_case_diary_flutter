@@ -137,6 +137,8 @@ class AppTranslations {
       AppStrings.caseDetailsScreenRespondent: _loc.caseDetailsScreen_respondent,
       AppStrings.caseDetailsScreenSectionsorcasetitle:
           _loc.caseDetailsScreen_sectionsOrCaseTitle,
+      AppStrings.caseDetailsScreenShowhistory: _loc.caseDetailsScreen_showHistory,
+      AppStrings.caseDetailsScreenHidehistory: _loc.caseDetailsScreen_hideHistory,
       AppStrings.caseDetailsScreenSetreminder:
           _loc.caseDetailsScreen_setReminder,
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,

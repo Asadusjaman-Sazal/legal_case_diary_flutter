@@ -479,33 +479,52 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         ),
       );
     }
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.lg,
-          AppSpacing.md,
-          AppSpacing.xxxl,
+    // Horizontal margins stay a static Padding (the ListView's horizontal
+    // padding was static too); the top/bottom insets are sliver spacers so
+    // they scroll away exactly like the previous ListView padding did.
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: RefreshIndicator(
+        onRefresh: _load,
+        // CustomScrollView (sliver twin of the previous ListView) so the
+        // expanded Case History title can pin to the top via
+        // [PinnedHeaderSliver].
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            SliverToBoxAdapter(child: _buildHeader(context, l, current)),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            SliverToBoxAdapter(child: _buildPartiesCard(context, l, current)),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            SliverToBoxAdapter(
+              child: _buildDescriptionCard(context, l, current),
+            ),
+            if (_isHigherCourt) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+              SliverToBoxAdapter(
+                child: _buildOtherInformationCard(context, l, current),
+              ),
+            ],
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            // The history title pins to the top only while every entry is
+            // expanded; collapsed stays a plain card (see [_buildHistoryBody]).
+            if (_showAllHistory && _history.length > 3)
+              PinnedHeaderSliver(
+                child: _historyCardTitle(context, l, _history.length),
+              ),
+            _buildHistoryBody(context, l, current),
+            if (current.nextDate != null) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+              SliverToBoxAdapter(
+                child: _buildNextDateCard(context, l, current),
+              ),
+            ],
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.xxxl),
+            ),
+          ],
         ),
-        children: [
-          _buildHeader(context, l, current),
-          const SizedBox(height: AppSpacing.lg),
-          _buildPartiesCard(context, l, current),
-          const SizedBox(height: AppSpacing.lg),
-          _buildDescriptionCard(context, l, current),
-          if (_isHigherCourt) ...[
-            const SizedBox(height: AppSpacing.lg),
-            _buildOtherInformationCard(context, l, current),
-          ],
-          const SizedBox(height: AppSpacing.lg),
-          _buildHistoryCard(context, l, current),
-          if (current.nextDate != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            _buildNextDateCard(context, l, current),
-          ],
-        ],
       ),
     );
   }
@@ -871,56 +890,129 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   }
 
   /// L6 — Case History KanBan card.
-  Widget _buildHistoryCard(
+  ///
+  /// Collapsed (default): one bordered card with the title row on top. When
+  /// every entry is expanded, the title row is instead pinned above this body
+  /// by `_buildBody` (PinnedHeaderSliver) and only the entries live here, so
+  /// the title stays visible while the user scrolls the long list.
+  Widget _buildHistoryBody(
     BuildContext context,
     AppLocalizations l,
     Case current,
   ) {
     final history = _history;
-    final visible = _showAllHistory || history.length <= 3
+    final expanded = _showAllHistory && history.length > 3;
+    final visible = expanded || history.length <= 3
         ? history
         : history.sublist(0, 3);
-    return _kanbanCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    final showToggle = history.length > 3;
+    final body = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (history.isEmpty)
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Row(
-              children: [
-                const Icon(Icons.history, size: 20),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l.caseDetailsScreen_caseHistory,
-                    style: AppTypography.titleMd,
-                  ),
-                ),
-                Text(
-                  l.caseDetailsScreen_entriesTotal(history.length),
-                  key: const ValueKey('case-detail-history-total'),
-                  style: AppTypography.labelMd,
-                ),
-              ],
+            child: Text(
+              l.caseDetailsScreen_noHistoryEntries,
+              style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+            ),
+          )
+        else ...[
+          for (final entry in visible)
+            _historyEntry(context, l, entry),
+          if (!expanded && showToggle) ...[
+            const Divider(height: 1, color: AppColors.cardBorder),
+            _viewAllButton(context, l, history.length),
+          ],
+        ],
+      ],
+    );
+    if (expanded) {
+      // Expanded: the pinned title supplies the top edge; only the bottom
+      // corners belong to this body.
+      return SliverToBoxAdapter(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            border: Border(
+              left: BorderSide(color: AppColors.cardBorder),
+              right: BorderSide(color: AppColors.cardBorder),
+              bottom: BorderSide(color: AppColors.cardBorder),
+            ),
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(AppSpacing.sheetRadius),
             ),
           ),
-          const Divider(height: 1, color: AppColors.cardBorder),
-          if (history.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Text(
-                l.caseDetailsScreen_noHistoryEntries,
-                style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+          child: body,
+        ),
+      );
+    }
+    // Collapsed: the original single KanBan card with the title row on top.
+    return SliverToBoxAdapter(
+      child: _kanbanCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _historyCardTitle(context, l, history.length),
+            const Divider(height: 1, color: AppColors.cardBorder),
+            body,
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Case History title row: icon + label, entry count, and the Show/Hide
+  /// toggle (only when there are more than the 3 collapsed entries).
+  Widget _historyCardTitle(BuildContext context, AppLocalizations l, int total) {
+    final canToggle = total > 3;
+    return Container(
+      color: AppColors.surfaceContainerLowest,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Row(
+        children: [
+          const Icon(Icons.history, size: 20),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              l.caseDetailsScreen_caseHistory,
+              style: AppTypography.titleMd,
+            ),
+          ),
+          Text(
+            l.caseDetailsScreen_entriesTotal(total),
+            key: const ValueKey('case-detail-history-total'),
+            style: AppTypography.labelMd,
+          ),
+          if (canToggle) ...[
+            const SizedBox(width: AppSpacing.sm),
+            InkWell(
+              key: const ValueKey('case-detail-history-show-hide'),
+              onTap: () => setState(() => _showAllHistory = !_showAllHistory),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                ),
+                child: Text(
+                  _showAllHistory
+                      ? l.caseDetailsScreen_hideHistory
+                      : l.caseDetailsScreen_showHistory,
+                  key: ValueKey(
+                    'case-detail-history-${_showAllHistory ? 'hide' : 'show'}-label',
+                  ),
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-            )
-          else ...[
-            for (final entry in visible)
-              _historyEntry(context, l, entry),
-            if (!_showAllHistory && history.length > 3) ...[
-              const Divider(height: 1, color: AppColors.cardBorder),
-              _viewAllButton(context, l, history.length),
-            ],
+            ),
           ],
         ],
       ),
@@ -981,9 +1073,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                 if (mainContent != null && mainContent.isNotEmpty)
                   // Step/Result span the full content width; multi-line text is
                   // justified so both edges stay even (single lines read left).
+                  // Same size as the Note (14/20) but kept bold.
                   Text(
                     mainContent,
-                    style: AppTypography.titleMd,
+                    style: AppTypography.bodyMd.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.justify,
                   ),
                 if ((mainContent == null || mainContent.isEmpty) &&

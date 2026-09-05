@@ -259,6 +259,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesScreen_modified => 'Modified';
 
   @override
+  String get notesScreen_empty => 'No notes yet. Tap + to add one.';
+
+  @override
+  String get notesScreen_noteTitle => 'Title';
+
+  @override
+  String get notesScreen_noteBody => 'Note';
+
+  @override
   String get caseReferenceScreen_title => 'Case Reference';
 
   @override
@@ -507,6 +516,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sharedDialogs_confirmDeleteMessage =>
       'Are you sure you want to delete this item?';
+
+  @override
+  String get sharedDialogs_noResults => 'No results found.';
+
+  @override
+  String get sharedDialogs_requiredField => 'This field is required.';
 
   @override
   String get sharedDialogs_ok => 'OK';

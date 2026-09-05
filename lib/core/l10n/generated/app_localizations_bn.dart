@@ -260,6 +260,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notesScreen_modified => 'পরিবর্তিত';
 
   @override
+  String get notesScreen_empty => 'এখনও কোনো নোট নেই। যোগ করতে + ট্যাপ করুন।';
+
+  @override
+  String get notesScreen_noteTitle => 'শিরোনাম';
+
+  @override
+  String get notesScreen_noteBody => 'নোট';
+
+  @override
   String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
 
   @override
@@ -506,6 +515,12 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get sharedDialogs_confirmDeleteMessage =>
       'আপনি কি এই আইটেমটি মুছে ফেলতে চান?';
+
+  @override
+  String get sharedDialogs_noResults => 'কোনো ফলাফল পাওয়া যায়নি।';
+
+  @override
+  String get sharedDialogs_requiredField => 'এই ক্ষেত্রটি আবশ্যক।';
 
   @override
   String get sharedDialogs_ok => 'ঠিক আছে';

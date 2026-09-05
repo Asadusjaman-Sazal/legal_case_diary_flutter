@@ -1,3 +1,12 @@
+### 2026-09-05 — Task 11 Phase 1 Notes screen — COMPLETE
+
+- Built `lib/features/notes/presentation/notes_screen.dart` (was a "Task 11" stub). Reuses `CasesScreenModal` for the nav panel, search button, and FAB; lists notes via `notesViewModelProvider` (pinned-first, then `created_at` desc).
+- Note card mirrors the mandatory mockup `mockup_html_screens/notes/code.html`: modified date + Delete/Pin action row, bold enlarged title, 3-line-clamped body. Hover border (`AppColors.secondary`) + elevation preserves the mockup's selection/hover effect.
+- Search toggles an inline field that filters the watched list in-memory over title+body. Add/Edit opens a bottom sheet (`NotesCompanion` via `addNote`/`updateNote`). Pin toggles `setPinned`. Delete shows `showDialog<bool>` confirmation using existing `sharedDialogs_*` keys.
+- Added the two editor field keys + empty/no-results/required keys to `app_en.arb`/`app_bn.arb` and regenerated l10n.
+- Aligned `notes_dao.dart` `getAll`/`watchAll` secondary sort to `createdAt` (was `updatedAt`) per plan §9.
+- `flutter analyze` clean. Version `0.0.141`. Next resume point: **Task 11 Phase 2 (Case Reference screen)**.
+
 ### 2026-09-05 — Task 10 Case History date ordering + Step alignment — COMPLETE
 
 - Case Detail **Case History section only**: rows now sort **newest-first by each row's own displayed date** (`hearing_date`) instead of the DAO's stored `next_date` key, so the visible timeline always reads chronologically even when entries were added or edited out of date order (secondary keys: `next_date`, then `updated_at`, keep same-day rows deterministic). The DAO keeps its `next_date` contract for other callers; the screen re-sorts in `_load`.

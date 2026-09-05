@@ -548,6 +548,24 @@ abstract class AppLocalizations {
   /// **'Modified'**
   String get notesScreen_modified;
 
+  /// No description provided for @notesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet. Tap + to add one.'**
+  String get notesScreen_empty;
+
+  /// No description provided for @notesScreen_noteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get notesScreen_noteTitle;
+
+  /// No description provided for @notesScreen_noteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get notesScreen_noteBody;
+
   /// No description provided for @caseReferenceScreen_title.
   ///
   /// In en, this message translates to:
@@ -1033,6 +1051,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this item?'**
   String get sharedDialogs_confirmDeleteMessage;
+
+  /// No description provided for @sharedDialogs_noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found.'**
+  String get sharedDialogs_noResults;
+
+  /// No description provided for @sharedDialogs_requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get sharedDialogs_requiredField;
 
   /// No description provided for @sharedDialogs_ok.
   ///

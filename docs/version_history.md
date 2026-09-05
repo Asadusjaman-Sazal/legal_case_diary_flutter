@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.140 - Task 10 Case History sorting & Step alignment: Case History rows now sort newest-first by each row's displayed date (`hearing_date`) rather than the stored `next_date` key, so the visible timeline always reads chronologically even when entries were added or edited out of date order; the Step/Result content text is now left aligned while the Note keeps its justified alignment.
+Version: 0.0.141 - Task 11 Phase 1 Notes screen: built `NotesScreen` (was a stub) reusing `CasesScreenModal` — nav panel, search, FAB. Note cards match the mandatory mockup (modified date + delete/pin actions row, bold title, 3-line body) with hover border/selection effect. Added add/edit bottom sheet, pin-float sorting (pinned first, then created_at desc), in-memory search over title+body, and delete confirmation. Aligned `notes_dao` secondary sort to `created_at` per plan.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -154,3 +154,4 @@ Version: 0.0.137 - Task 10 Case History refinements: Case Detail history rows no
 Version: 0.0.138 - Task 10 Case History row polish: the weekday now sits centered under the date in each history row, and the Step/Result and Note texts span the full content width with justified (even) alignment for multi-line text instead of right-aligned.
 Version: 0.0.139 - Task 10 Case History Show/Hide: added a Show/Hide button next to "N Entries Total" that expands all history entries (replacing the View All row while expanded), the Case History title becomes sticky (PinnedHeaderSliver) at the top only while fully expanded and returns to a normal card when hidden, and the Step/Result content text now uses the Note's size (14/20) while staying bold.
 Version: 0.0.140 - Task 10 Case History sorting & Step alignment: Case History rows now sort newest-first by each row's displayed date (`hearing_date`) rather than the stored `next_date` key, so the visible timeline always reads chronologically even when entries were added or edited out of date order; the Step/Result content text is now left aligned while the Note keeps its justified alignment.
+Version: 0.0.141 - Task 11 Phase 1 Notes screen: built `NotesScreen` (was a stub) reusing `CasesScreenModal` — nav panel, search, FAB. Note cards match the mandatory mockup (modified date + delete/pin actions row, bold title, 3-line body) with hover border/selection effect. Added add/edit bottom sheet, pin-float sorting (pinned first, then created_at desc), in-memory search over title+body, and delete confirmation. Aligned `notes_dao` secondary sort to `created_at` per plan.

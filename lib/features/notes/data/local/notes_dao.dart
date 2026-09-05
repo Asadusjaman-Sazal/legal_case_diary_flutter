@@ -20,7 +20,7 @@ class NotesDao {
       ..where((row) => row.isDeleted.equals(false))
       ..orderBy([
         (row) => OrderingTerm(expression: row.isPinned, mode: OrderingMode.desc),
-        (row) => OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+        (row) => OrderingTerm(expression: row.createdAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);
@@ -34,7 +34,7 @@ class NotesDao {
       ..where((row) => row.isDeleted.equals(false))
       ..orderBy([
         (row) => OrderingTerm(expression: row.isPinned, mode: OrderingMode.desc),
-        (row) => OrderingTerm(expression: row.updatedAt, mode: OrderingMode.desc),
+        (row) => OrderingTerm(expression: row.createdAt, mode: OrderingMode.desc),
       ]);
     if (limit != null) {
       query.limit(limit, offset: offset ?? 0);

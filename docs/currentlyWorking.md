@@ -1,3 +1,9 @@
+### 2026-09-05 — Task 10 Case History date ordering + Step alignment — COMPLETE
+
+- Case Detail **Case History section only**: rows now sort **newest-first by each row's own displayed date** (`hearing_date`) instead of the DAO's stored `next_date` key, so the visible timeline always reads chronologically even when entries were added or edited out of date order (secondary keys: `next_date`, then `updated_at`, keep same-day rows deterministic). The DAO keeps its `next_date` contract for other callers; the screen re-sorts in `_load`.
+- Step/Result content text is now **left aligned** (`TextAlign.left`, per request); the Note keeps its justified alignment, and Step keeps the Note's size (14/20) + bold (`w600`) from 0.0.139.
+- Tests (in `test/features/case_detail_test.dart`): Step alignment assertions changed `justify` → `left` (Note stays `justify`), and a new test seeds entries whose stored next-dates disagree with their displayed dates to prove the section orders by the row's displayed date. `flutter analyze` clean; full suite 179 passed, 2 skipped. Version `0.0.140`. Known issues: none. Next resume point: **Task 11** (see `docs/tasks/00_INDEX.md` / implementation plan).
+
 ### 2026-09-05 — Task 10 Case History Show/Hide + sticky title — COMPLETE
 
 - Case Detail **Case History section only**: a compact **Show** button now sits right of "N Entries Total" (only when more than 3 entries); tapping it expands every history entry and the button becomes **Hide** to fold back to the default newest-3 view (the old "View All N History Entries" row remains for the collapsed state and disappears while expanded).

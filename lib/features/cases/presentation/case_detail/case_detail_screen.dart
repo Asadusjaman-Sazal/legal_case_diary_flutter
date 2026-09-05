@@ -117,6 +117,18 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       final court = await CourtsDao(db).getById(caseData.courtId);
       final onBehalf = await OnBehalfsDao(db).getById(caseData.onBehalfId);
       final history = await CaseHistoryDao(db).getByCaseId(widget.caseId);
+      // Case History rows show each entry's own date (`hearing_date`) on the
+      // left, so the section sorts newest-first by that date instead of the
+      // DAO's `next_date` key, which can diverge from the visible timeline
+      // when entries were added or edited out of date order. Secondary keys
+      // keep the ordering deterministic for equal hearing dates.
+      history.sort((a, b) {
+        final byDate = b.hearingDate.compareTo(a.hearingDate);
+        if (byDate != 0) return byDate;
+        final byNext = (b.nextDate ?? 0).compareTo(a.nextDate ?? 0);
+        if (byNext != 0) return byNext;
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
       if (!mounted) return;
       setState(() {
         _current = caseData;
@@ -1071,15 +1083,14 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (mainContent != null && mainContent.isNotEmpty)
-                  // Step/Result span the full content width; multi-line text is
-                  // justified so both edges stay even (single lines read left).
-                  // Same size as the Note (14/20) but kept bold.
+                  // Step/Result span the full content width and read left
+                  // aligned. Same size as the Note (14/20) but kept bold.
                   Text(
                     mainContent,
                     style: AppTypography.bodyMd.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
-                    textAlign: TextAlign.justify,
+                    textAlign: TextAlign.left,
                   ),
                 if ((mainContent == null || mainContent.isEmpty) &&
                     (trimmedNote == null || trimmedNote.isEmpty))

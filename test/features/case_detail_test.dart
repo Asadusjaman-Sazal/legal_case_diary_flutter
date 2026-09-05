@@ -233,7 +233,7 @@ void main() {
       expect(find.text('Remarks or Case Summary'), findsOneWidget);
       expect(find.text('Dispute over ancestral property.'), findsOneWidget);
 
-      // L6 history (2 total, newest nextDate first): DD/MM/YYYY date with the
+      // L6 history (2 total, newest date first): DD/MM/YYYY date with the
       // day of the week under it, step content on the right.
       expect(find.text('2 Entries Total'), findsOneWidget);
       // Fewer than 3 entries: no Show/Hide toggle in the title row.
@@ -246,15 +246,15 @@ void main() {
       expect(find.text('THU'), findsOneWidget); // 15 Oct 2026
       expect(find.text('SAT'), findsOneWidget); // 12 Sep 2026
       expect(find.text('Written Objection'), findsOneWidget);
-      // Weekday sits centered under the date; Step and Note span the full
-      // content width and justify multi-line text.
+      // Weekday sits centered under the date; Step reads left aligned and
+      // Note spans the full content width with justified multi-line text.
       final weekdayAlign = tester.widget<Align>(
         find.ancestor(of: find.text('THU'), matching: find.byType(Align)),
       );
       expect(weekdayAlign.alignment, Alignment.center);
       expect(
         tester.widget<Text>(find.text('Written Objection')).textAlign,
-        TextAlign.justify,
+        TextAlign.left,
       );
       expect(
         tester
@@ -426,9 +426,49 @@ void main() {
       // Same size/line-height as the Note content...
       expect(stepStyle.fontSize, noteStyle.fontSize);
       expect(stepStyle.height, noteStyle.height);
-      // ...but still bold.
+      // ...but still bold, and left aligned (the Note keeps its justification).
       expect(stepStyle.fontWeight, FontWeight.w600);
       expect(noteStyle.fontWeight, FontWeight.w400);
+      expect(
+        tester.widget<Text>(find.text('Steps for Hearing')).textAlign,
+        TextAlign.left,
+      );
+      expect(
+        tester.widget<Text>(find.text('Adjourned for witness.')).textAlign,
+        TextAlign.justify,
+      );
+    });
+
+    testWidgets('orders history rows newest-first by the date shown on each row', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(nextDateMs: null);
+      // Hearing on 10/01/2026 set a next date far ahead (15/03/2026); a later
+      // quick update pulled the diary back to 05/02/2026. Sorting by the stored
+      // next-date would float the older 10/01 row above the 20/02 row, so the
+      // section must order by each row's own displayed date instead.
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 1, 10),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 3, 15),
+        step: 'Older Hearing',
+      );
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 2, 20),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 2, 5),
+        step: 'Newer Hearing',
+      );
+      await pumpDetail(tester, caseId);
+
+      expect(find.text('20/02/2026'), findsOneWidget);
+      expect(find.text('10/01/2026'), findsOneWidget);
+      // The 20/02/2026 hearing (newer) renders above the 10/01/2026 one even
+      // though its stored next-date (05/02/2026) is older than 15/03/2026.
+      expect(
+        tester.getTopLeft(find.text('Newer Hearing')).dy,
+        lessThan(tester.getTopLeft(find.text('Older Hearing')).dy),
+      );
     });
 
     testWidgets('Delete soft-deletes the case after confirmation and pops', (

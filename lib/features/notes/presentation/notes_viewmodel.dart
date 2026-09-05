@@ -49,6 +49,11 @@ class NotesViewModel extends BaseListViewModel<Note, NotesRepository> {
     await withRepo((repo) async => await repo.deleteNote(note));
   }
 
+  /// Restores a soft-deleted note (undo) and refreshes the list.
+  Future<void> restoreNote(Note note) async {
+    await withRepo((repo) async => await repo.restoreNote(note));
+  }
+
   /// Toggles the pinned state of a note and refreshes the list.
   Future<void> setPinned(String id, bool isPinned) async {
     await withRepo((repo) async => await repo.setPinned(id, isPinned));

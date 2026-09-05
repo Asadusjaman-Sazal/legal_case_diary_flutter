@@ -21,6 +21,9 @@ abstract class NotesRepository {
   /// Soft-deletes a note.
   Future<void> deleteNote(Note note);
 
+  /// Restores a soft-deleted note (undo delete).
+  Future<void> restoreNote(Note note);
+
   /// Toggles the pinned state of a note.
   Future<void> setPinned(String id, bool isPinned);
 
@@ -148,6 +151,25 @@ class LocalNotesRepository with BaseLocalRepository implements NotesRepository {
       entityId: id,
       payload: payload,
       changedFields: ['is_pinned'],
+      basePayload: BaseLocalRepository.toSyncPayload(note.toJson()),
+      baseVersion: note.version,
+      preMutationPayload: BaseLocalRepository.toSyncPayload(note.toJson()),
+    );
+  }
+
+  @override
+  Future<void> restoreNote(Note note) async {
+    final now = BaseLocalRepository.nowMillis;
+
+    await _dao.restore(note.id, now);
+
+    final restored = await _dao.getById(note.id);
+    final payload = BaseLocalRepository.toSyncPayload(restored!.toJson());
+    await syncHelper.recordUpdate(
+      entityType: 'note',
+      entityId: note.id,
+      payload: payload,
+      changedFields: ['is_deleted', 'updated_at', 'last_modified_by'],
       basePayload: BaseLocalRepository.toSyncPayload(note.toJson()),
       baseVersion: note.version,
       preMutationPayload: BaseLocalRepository.toSyncPayload(note.toJson()),

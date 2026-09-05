@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.145 - Task 11 Notes delete confirmation: extracted a single shared `confirmDeleteDialog` (`lib/shared/widgets/confirm_dialogs.dart`, exported from `shared_widgets.dart`) and reused it across Case Detail (case delete + history delete), the Notes card, and the Note detail view — replacing the per-screen inline dialogs so there is one delete-confirmation window app-wide. `flutter analyze` clean.
+Version: 0.0.146 - Task 11 Notes undo after delete: added a Google Keep–style undo window. Soft-delete now keeps the note restorable; added DAO `restore` / repository `restoreNote` / VM `restoreNote`. After deleting (from the card or the detail view) a floating SnackBar shows "Note deleted" with an "Undo" action for 3 seconds, which restores the note. New l10n `notesScreen_noteDeleted`, `notesScreen_undo` (en/bn). `flutter analyze` clean.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -159,3 +159,4 @@ Version: 0.0.142 - Task 11 Notes detail view: fixed note pin (DAO `setPinned` wa
 Version: 0.0.143 - Task 11 Notes detail view: removed the filled gray background behind the Title/Note fields (the global `inputDecorationTheme` fills text fields with `surfaceVariant` — overrode `filled: false` on both) and added a thin divider line after the Title to separate it from the Note body, per the mockup.
 Version: 0.0.144 - Task 11 Notes detail view: removed the blue focus underline that appeared on the Title and Note body fields when selected (overrode every `InputDecoration` border state to `InputBorder.none` so no blue border shows on focus); the Note body text already uses left alignment (Google Keep style, not justified).
 Version: 0.0.145 - Task 11 Notes delete confirmation: extracted a single shared `confirmDeleteDialog` (`lib/shared/widgets/confirm_dialogs.dart`, exported from `shared_widgets.dart`) and reused it across Case Detail (case delete + history delete), the Notes card, and the Note detail view — replacing the per-screen inline dialogs so there is one delete-confirmation window app-wide. `flutter analyze` clean.
+Version: 0.0.146 - Task 11 Notes undo after delete: added a Google Keep–style undo window. Soft-delete now keeps the note restorable; added DAO `restore` / repository `restoreNote` / VM `restoreNote`. After deleting (from the card or the detail view) a floating SnackBar shows "Note deleted" with an "Undo" action for 3 seconds, which restores the note. New l10n `notesScreen_noteDeleted`, `notesScreen_undo` (en/bn). `flutter analyze` clean.

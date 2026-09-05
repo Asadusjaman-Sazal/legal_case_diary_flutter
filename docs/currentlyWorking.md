@@ -1,3 +1,9 @@
+### 2026-09-05 — Task 11 Notes undo after delete — COMPLETE
+
+- Added a Google Keep–style undo-on-delete: after a note is deleted (from the card or the detail view) a floating `SnackBar` ("Note deleted" + "Undo" action) shows for 3 seconds; tapping Undo restores the note.
+- Soft-delete was already in place (`isDeleted`), so I added the restore path: DAO `restore(id, updatedAt)`, repository `restoreNote(note)` (mirrors `setPinned` sync handling), VM `restoreNote(note)`. Detail view pops with the deleted `Note` so `NotesScreen._openDetail` shows the single undo snackbar.
+- New l10n `notesScreen_noteDeleted`, `notesScreen_undo` (en/bn); regenerated. `flutter analyze` clean. Version `0.0.146`.
+
 ### 2026-09-05 — Task 11 Notes delete confirmation shared — COMPLETE
 
 - Removed the per-screen inline delete-confirmation dialogs (Notes card + Note detail view had their own; Case Detail had two more). Created `lib/shared/widgets/confirm_dialogs.dart` with a single `confirmDeleteDialog(context)` returning `bool`, matching the Case Detail style (Cancel `TextButton` + Delete `FilledButton` in `AppColors.error`). Exported from `shared_widgets.dart`.

@@ -98,6 +98,8 @@
   "notesScreen_noteBody": "Note",
   "notesScreen_noteBodyPlaceholder": "Enter your note here...",
   "notesScreen_drafting": "Drafting...",
+  "notesScreen_noteDeleted": "Note deleted",
+  "notesScreen_undo": "Undo",
   "caseReferenceScreen_title": "Case Reference",
   "caseReferenceScreen_referenceAndPageNo": "Reference & Page No",
   "caseReferenceScreen_statute": "Statute",

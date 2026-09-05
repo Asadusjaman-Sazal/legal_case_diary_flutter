@@ -274,6 +274,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesScreen_drafting => 'Drafting...';
 
   @override
+  String get notesScreen_noteDeleted => 'Note deleted';
+
+  @override
+  String get notesScreen_undo => 'Undo';
+
+  @override
   String get caseReferenceScreen_title => 'Case Reference';
 
   @override

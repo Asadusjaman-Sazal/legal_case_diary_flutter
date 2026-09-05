@@ -90,4 +90,14 @@ class NotesDao {
           updatedAt: Value(updatedAt),
         ),
       );
+
+  /// Restores a previously soft-deleted note (undo).
+  Future<int> restore(String id, int updatedAt) => (db.update(db.notes)
+        ..where((row) => row.id.equals(id)))
+      .write(
+        NotesCompanion(
+          isDeleted: const Value(false),
+          updatedAt: Value(updatedAt),
+        ),
+      );
 }

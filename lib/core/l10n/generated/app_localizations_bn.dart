@@ -275,6 +275,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notesScreen_drafting => 'খসড়া লেখা হচ্ছে...';
 
   @override
+  String get notesScreen_noteDeleted => 'নোট মোছা হয়েছে';
+
+  @override
+  String get notesScreen_undo => 'পূর্বাবস্থায় ফেরত';
+
+  @override
   String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
 
   @override

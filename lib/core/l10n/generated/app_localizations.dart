@@ -578,6 +578,18 @@ abstract class AppLocalizations {
   /// **'Drafting...'**
   String get notesScreen_drafting;
 
+  /// No description provided for @notesScreen_noteDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Note deleted'**
+  String get notesScreen_noteDeleted;
+
+  /// No description provided for @notesScreen_undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get notesScreen_undo;
+
   /// No description provided for @caseReferenceScreen_title.
   ///
   /// In en, this message translates to:

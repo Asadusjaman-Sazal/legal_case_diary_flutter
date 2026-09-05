@@ -101,7 +101,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     final confirmed = await confirmDeleteDialog(context);
     if (!confirmed || !mounted) return;
     await ref.read(notesViewModelProvider.notifier).deleteNote(widget.note!);
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop(widget.note);
   }
 
   @override

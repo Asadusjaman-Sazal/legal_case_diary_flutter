@@ -46,16 +46,42 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   /// Opens the full-screen detail editor. [note] is null when creating new.
+  /// If the detail screen pops with a deleted [Note], shows the undo snackbar.
   Future<void> _openDetail({Note? note}) async {
-    await Navigator.of(context).push(
+    final result = await Navigator.of(context).push<Note?>(
       MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
     );
+    if (result is Note && mounted) _showUndoSnackBar(result);
   }
 
   Future<void> _confirmDelete(Note note) async {
     final confirmed = await confirmDeleteDialog(context);
     if (!confirmed || !mounted) return;
     await ref.read(notesViewModelProvider.notifier).deleteNote(note);
+    _showUndoSnackBar(note);
+  }
+
+  /// Shows a Google Keep–style undo snackbar after a note is deleted.
+  void _showUndoSnackBar(Note note) {
+    final l = AppLocalizations.of(context);
+    final controller = ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l.notesScreen_noteDeleted),
+        behavior: SnackBarBehavior.floating,
+        width: 400,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: l.notesScreen_undo,
+          onPressed: () =>
+              ref.read(notesViewModelProvider.notifier).restoreNote(note),
+        ),
+      ),
+    );
+    // Enforce the 3s window even when the action button holds pointer focus
+    // (desktop hover pauses the SnackBar's built-in auto-dismiss timer).
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) controller.close();
+    });
   }
 
   void _togglePin(Note note) {

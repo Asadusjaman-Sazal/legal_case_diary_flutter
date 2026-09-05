@@ -1,3 +1,18 @@
+### 2026-09-06 — Task 12 Phase 2: Account & Profile + Online Sync + Backup & Restore shells — COMPLETE
+
+- `AccountsProfileMenuScreen`: two tappable cards (Profile, Manage Account) navigating to their existing routes; uses `SettingsSubPageModal`.
+- `OnlineSyncScreen` (Part A offline placeholder): offline "Last Sync Failed / Never (offline)" banner, disabled "Sync Now", upgrade CTA banner, and live Notes/References counts from the existing viewmodel providers (Cases shown as 0 — full count wiring in Part B).
+- `BackupRestoreScreen` (Part A offline shell): Backup to Local / Google Drive, Restore (with offline-only note), automatic-backup schedule `ChoiceChip`s (Off selected), and last successful backup status card.
+- `flutter analyze` clean. Version `0.0.153`. **Resume point:** Phase 3 (Edit Court/Steps full hierarchy: Supreme Court divisions, Lower Courts division→district→category→courts, drag/edit/delete).
+
+### 2026-09-06 — Task 12 Phase 1: Settings main screen — COMPLETE
+
+- Built `lib/features/settings/presentation/settings_main_screen.dart` exactly mirroring `settings_main/code.html` plus a **Guidelines** item before **About**: three sections (General: Account & Profile, Online Sync, Backup & Restore; Preferences: Edit Court/Steps, Notifications, Language, View settings; App Info: Guidelines, About).
+- Live settings search (Plan §12.1): a `TextField` filters submenu items by title; typing "profile" shows only Account & Profile. Empty results show a "No settings found" state.
+- Inline Language toggle (Bengali/English) wired to `localeProvider` via `ToggleButtons` — no separate sub-page, matching the mockup's inline treatment.
+- All items navigate via existing `AppRoutes` (router already wires every settings route to its stub).
+- `flutter analyze` clean. Version `0.0.152`. **Resume point:** Phase 2 (Account & Profile + Online Sync + Backup & Restore UI shells).
+
 ### 2026-09-05 — Case Detail → Case History display text fix — COMPLETE
 
 - In `_historyEntry`, the content `Column` was `crossAxisAlignment: start`, which let the Step/Result `Text` cap at the longest-word width and wrap after ~two words instead of using the full available width. Changed it to `CrossAxisAlignment.stretch` so both the Step/Result and Note texts now fill the full content column width.

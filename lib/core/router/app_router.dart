@@ -33,6 +33,7 @@ import '../../features/settings/presentation/edit_court_steps/court_category_scr
 import '../../features/settings/presentation/edit_court_steps/court_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_names_steps_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/district_list_screen.dart';
+import '../../features/settings/presentation/edit_court_steps/item_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
@@ -240,15 +241,32 @@ final List<RouteBase> _shellRoutes = [
   ),
   GoRoute(
     path: AppRoutes.settingsDistrictList,
-    builder: (context, state) => const DistrictListScreen(),
+    builder: (context, state) => DistrictListScreen(
+      division: state.uri.queryParameters['division'] ?? 'dhaka',
+    ),
   ),
   GoRoute(
     path: AppRoutes.settingsCourtList,
-    builder: (context, state) => const CourtListScreen(),
+    builder: (context, state) => CourtListScreen(
+      category: state.uri.queryParameters['category'],
+      higherLower: state.uri.queryParameters['higherLower'],
+      division: state.uri.queryParameters['division'],
+      district: state.uri.queryParameters['district'],
+    ),
   ),
   GoRoute(
     path: AppRoutes.settingsCourtNamesSteps,
-    builder: (context, state) => const CourtNamesStepsScreen(),
+    builder: (context, state) {
+      final kindParam = state.uri.queryParameters['kind'];
+      final category = state.uri.queryParameters['category'];
+      if (kindParam != null && category != null) {
+        return ItemListScreen(
+          kind: itemKindFromParam(kindParam),
+          categoryId: category,
+        );
+      }
+      return const CourtNamesStepsScreen();
+    },
   ),
   GoRoute(
     path: AppRoutes.settingsNotifications,

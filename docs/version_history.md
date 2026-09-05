@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.151 - Case Detail → Case History display: fixed Step/Result wrapping early (changed the content `Column` from `crossAxisAlignment: start` to `stretch` so the text now fills the full available width instead of capping at the longest word); changed the Note text from justified to left-aligned (Google Keep / Notes-body style) so it reads cleanly with no forced right edge. `flutter analyze` clean.
+Version: 0.0.153 - Task 12 Phase 2: Account & Profile menu (Profile + Manage Account buttons), Online Sync Part A placeholder (offline status banner, disabled Sync Now, upgrade CTA, live Notes/References counts), and Backup & Restore offline shell (local/drive backup, restore, automatic-backup schedule chips, last-backup status). All use SettingsSubPageModal. `flutter analyze` clean.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -165,3 +165,5 @@ Version: 0.0.148 - Task 11 Phase 2 Case Reference add/edit fix: replaced the bro
 Version: 0.0.149 - Task 11 Phase 2 Case Reference add/edit tweaks: removed the Delete button from the edit window; changed the bottom button to "Save" (reused `sharedActions_save`), wider/taller with white text, centered at 50% width; and made the form text boxes fill available space (collapsed input decoration like the Notes body so text uses the full width). `flutter analyze` clean.
 Version: 0.0.150 - Case History fields + Case Reference Save button: applied the collapsed-input-decoration fix (full-width text, no focus underline, keeping the empty/filled color feedback) to the Case History edit dialog's Result and Note fields; reverted the Case Reference Save button to full width (height unchanged). `flutter analyze` clean.
 Version: 0.0.151 - Case Detail → Case History display: fixed Step/Result wrapping early (changed the content `Column` from `crossAxisAlignment: start` to `stretch` so the text now fills the full available width instead of capping at the longest word); changed the Note text from justified to left-aligned (Google Keep / Notes-body style) so it reads cleanly with no forced right edge. `flutter analyze` clean.
+Version: 0.0.152 - Task 12 Phase 1: Settings main screen built — sectioned General/Preferences/App Info list mirroring settings_main mockup, live search filtering (Plan §12.1), inline Bengali/English language toggle via localeProvider, and a Guidelines item before About. `flutter analyze` clean.
+Version: 0.0.153 - Task 12 Phase 2: Account & Profile menu (Profile + Manage Account buttons), Online Sync Part A placeholder (offline status banner, disabled Sync Now, upgrade CTA, live Notes/References counts), and Backup & Restore offline shell (local/drive backup, restore, automatic-backup schedule chips, last-backup status). All use SettingsSubPageModal. `flutter analyze` clean.

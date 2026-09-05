@@ -9,5 +9,6 @@ export 'app_navigation_drawer.dart';
 export 'bottom_nav_bar.dart';
 export 'calendar_picker_dialog.dart';
 export 'case_card.dart';
+export 'confirm_dialogs.dart';
 export 'custom_dropdown.dart';
 export 'date_picker_helper.dart';

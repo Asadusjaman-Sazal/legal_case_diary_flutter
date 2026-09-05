@@ -1,3 +1,18 @@
+### 2026-09-05 — Task 11 Notes delete confirmation shared — COMPLETE
+
+- Removed the per-screen inline delete-confirmation dialogs (Notes card + Note detail view had their own; Case Detail had two more). Created `lib/shared/widgets/confirm_dialogs.dart` with a single `confirmDeleteDialog(context)` returning `bool`, matching the Case Detail style (Cancel `TextButton` + Delete `FilledButton` in `AppColors.error`). Exported from `shared_widgets.dart`.
+- Reused it in: Case Detail `_confirmDeleteCase` and `_confirmDeleteHistory`, Notes `_confirmDelete` (card), and Note detail `_delete`. Now there is one delete window app-wide. `flutter analyze` clean. Version `0.0.145`.
+
+### 2026-09-05 — Task 11 Notes detail view: remove focus border — COMPLETE
+
+- Removed the blue underline that appeared on the Title and Note body fields when selected/tapped. Root cause: the global `inputDecorationTheme` sets a blue `focusedBorder` (2px secondary) on all inputs; setting only `border: InputBorder.none` on the field doesn't override the per-state border. Now every `InputDecoration` border state (`border`, `enabledBorder`, `focusedBorder`, `disabledBorder`, `errorBorder`, `focusedErrorBorder`) is set to `InputBorder.none` on both fields.
+- Confirmed the Note body text already uses default left alignment (Google Keep style) — no justification is applied. `flutter analyze` clean. Version `0.0.144`.
+
+### 2026-09-05 — Task 11 Notes detail view: title/body styling — COMPLETE
+
+- Removed the filled gray background behind the Title and Note fields in `note_detail_screen.dart`. Root cause: the global `inputDecorationTheme` sets `filled: true` / `fillColor: surfaceVariant`, which painted a fill behind both `TextField`s. Overrode `filled: false` (+ `fillColor: transparent`) on both.
+- Added a thin `Divider` (`outlineVariant`, height 1) after the Title to separate it from the Note body (replacing the empty `SizedBox`). `flutter analyze` clean. Version `0.0.143`.
+
 ### 2026-09-05 — Task 11 Notes detail view (Google Keep full screen) — COMPLETE
 
 - **Pin bug fixed**: `notes_dao.dart` `setPinned` was calling `db.update(db.notes).write(...)` with **no `where` clause**, so pinning toggled `isPinned` on every row — the card's delete still worked because `delete` had its `where`. Added `..where((row) => row.id.equals(id))`.

@@ -16,6 +16,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/confirm_dialogs.dart';
 import 'notes_viewmodel.dart';
 
 /// Full-screen note editor. [note] is null when creating a new note.
@@ -97,25 +98,8 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   }
 
   Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sharedDialogs_confirmDeleteTitle),
-        content: Text(l.sharedDialogs_confirmDeleteMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
+    final confirmed = await confirmDeleteDialog(context);
+    if (!confirmed || !mounted) return;
     await ref.read(notesViewModelProvider.notifier).deleteNote(widget.note!);
     if (mounted) Navigator.of(context).pop();
   }
@@ -201,12 +185,19 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                         TextField(
                           controller: _titleController,
                           decoration: InputDecoration(
+                            filled: false,
+                            fillColor: Colors.transparent,
                             hintText: l.notesScreen_noteTitle,
                             hintStyle: AppTypography.headlineLg.copyWith(
                               color: AppColors.onSurfaceVariant
                                   .withValues(alpha: 0.4),
                             ),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                             isCollapsed: true,
                           ),
@@ -215,16 +206,32 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                           maxLines: null,
                           textInputAction: TextInputAction.next,
                         ),
-                        const SizedBox(height: AppSpacing.lg),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: AppColors.outlineVariant,
+                          ),
+                        ),
                         TextField(
                           controller: _bodyController,
                           decoration: InputDecoration(
+                            filled: false,
+                            fillColor: Colors.transparent,
                             hintText: l.notesScreen_noteBodyPlaceholder,
                             hintStyle: AppTypography.bodyLg.copyWith(
                               color: AppColors.onSurfaceVariant
                                   .withValues(alpha: 0.4),
                             ),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                             isCollapsed: true,
                           ),

@@ -16,6 +16,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
+import '../../../shared/widgets/confirm_dialogs.dart';
 import 'note_detail_screen.dart';
 import 'notes_viewmodel.dart';
 
@@ -52,27 +53,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   Future<void> _confirmDelete(Note note) async {
-    final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sharedDialogs_confirmDeleteTitle),
-        content: Text(l.sharedDialogs_confirmDeleteMessage),
-        actions: [
-          TextButton(
-            key: const ValueKey('notes-delete-cancel'),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            key: const ValueKey('notes-delete-confirm'),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
+    final confirmed = await confirmDeleteDialog(context);
+    if (!confirmed || !mounted) return;
     await ref.read(notesViewModelProvider.notifier).deleteNote(note);
   }
 

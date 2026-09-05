@@ -25,6 +25,7 @@ import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../../../../shared/widgets/confirm_dialogs.dart';
 import 'history_entry_edit_dialog.dart';
 
 /// Launch targets offered by the Phone/Message contact chooser.
@@ -165,28 +166,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Future<void> _confirmDeleteCase() async {
     final current = _current;
     if (current == null || !_canEdit) return;
-    final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sharedDialogs_confirmDeleteTitle),
-        content: Text(l.sharedDialogs_confirmDeleteMessage),
-        actions: [
-          TextButton(
-            key: const ValueKey('case-detail-delete-cancel'),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedDialogs_cancel),
-          ),
-          FilledButton(
-            key: const ValueKey('case-detail-delete-confirm'),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
+    final confirmed = await confirmDeleteDialog(context);
+    if (!confirmed || !mounted) return;
     try {
       final repository = await ref.read(caseRepositoryProvider.future);
       await repository.deleteCase(current);
@@ -262,28 +243,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   }
 
   Future<void> _confirmDeleteHistory(CaseHistoryRow entry) async {
-    final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sharedDialogs_confirmDeleteTitle),
-        content: Text(l.sharedDialogs_confirmDeleteMessage),
-        actions: [
-          TextButton(
-            key: const ValueKey('history-delete-cancel'),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedDialogs_cancel),
-          ),
-          FilledButton(
-            key: const ValueKey('history-delete-confirm'),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
+    final confirmed = await confirmDeleteDialog(context);
+    if (!confirmed || !mounted) return;
     try {
       final repository = await ref.read(caseHistoryRepositoryProvider.future);
       await repository.deleteHistory(entry);

@@ -299,6 +299,53 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_commentsNotes => 'মন্তব্য/নোট';
 
   @override
+  String get caseReferenceScreen_empty =>
+      'এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।';
+
+  @override
+  String get caseReferenceScreen_addTitle => 'মামলার রেফারেন্স যোগ করুন';
+
+  @override
+  String get caseReferenceScreen_editTitle => 'মামলার রেফারেন্স সম্পাদনা করুন';
+
+  @override
+  String get caseReferenceScreen_pin => 'পিন করুন';
+
+  @override
+  String get caseReferenceScreen_unpin => 'আনপিন করুন';
+
+  @override
+  String get caseReferenceScreen_saved => 'রেফারেন্স সংরক্ষিত হয়েছে';
+
+  @override
+  String get caseReferenceScreen_saveTitle => 'রেফারেন্স সংরক্ষণ করুন';
+
+  @override
+  String get caseReferenceScreen_deleted => 'রেফারেন্স মোছা হয়েছে';
+
+  @override
+  String get caseReferenceScreen_referenceDeleted => 'রেফারেন্স মোছা হয়েছে';
+
+  @override
+  String get caseReferenceScreen_undo => 'পূর্বাবস্থায় ফেরত';
+
+  @override
+  String get caseReferenceScreen_refPlaceholder => 'যেমন: ২৫ DLR (AD) ১৪২';
+
+  @override
+  String get caseReferenceScreen_statutePlaceholder => 'যেমন: CRPC';
+
+  @override
+  String get caseReferenceScreen_sectionPlaceholder => 'যেমন: ধারা ৫৪';
+
+  @override
+  String get caseReferenceScreen_titlePlaceholder => 'শিরোনাম ও বর্ণনা';
+
+  @override
+  String get caseReferenceScreen_commentsPlaceholder =>
+      'এখানে মন্তব্য বা ব্যক্তিগত নোট যোগ করুন...';
+
+  @override
   String get addEditCaseSheet_title => 'মামলা যোগ করুন';
 
   @override

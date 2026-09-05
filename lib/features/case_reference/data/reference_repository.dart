@@ -21,6 +21,9 @@ abstract class ReferenceRepository {
   /// Soft-deletes a reference.
   Future<void> deleteReference(CaseReference reference);
 
+  /// Restores a soft-deleted reference (undo delete).
+  Future<void> restoreReference(CaseReference reference);
+
   /// Toggles the pinned state of a reference.
   Future<void> setPinned(String id, bool isPinned);
 
@@ -126,6 +129,25 @@ class LocalReferenceRepository with BaseLocalRepository implements ReferenceRepo
         'updatedAt': now,
         'lastModifiedBy': userId,
       }),
+      changedFields: ['is_deleted', 'updated_at', 'last_modified_by'],
+      basePayload: BaseLocalRepository.toSyncPayload(reference.toJson()),
+      baseVersion: reference.version,
+      preMutationPayload: BaseLocalRepository.toSyncPayload(reference.toJson()),
+    );
+  }
+
+  @override
+  Future<void> restoreReference(CaseReference reference) async {
+    final now = BaseLocalRepository.nowMillis;
+
+    await _dao.restore(reference.id, now);
+
+    final restored = await _dao.getById(reference.id);
+    final payload = BaseLocalRepository.toSyncPayload(restored!.toJson());
+    await syncHelper.recordUpdate(
+      entityType: 'reference',
+      entityId: reference.id,
+      payload: payload,
       changedFields: ['is_deleted', 'updated_at', 'last_modified_by'],
       basePayload: BaseLocalRepository.toSyncPayload(reference.toJson()),
       baseVersion: reference.version,

@@ -1,3 +1,15 @@
+### 2026-09-05 — Task 11 Phase 2 Case Reference add/edit fix — COMPLETE
+
+- The previous add/edit used a `DraggableScrollableSheet` bottom sheet whose `Scaffold`/`AppBar` wasn't rendering reliably: the "Add Case Reference" title and Save control were missing, and a Pin button appeared inside the form. Rebuilt it as a full-screen `Scaffold` route (invoked via `Navigator.push`, like `NoteDetailScreen`) that matches the `caseReference` mockup: centered "Add Case Reference" title bar with a close button, the five form fields (no Pin control), an optional Delete button (only when editing), and a sticky full-width "Save Reference" button at the bottom.
+- New l10n `caseReferenceScreen_saveTitle` (en/bn); regenerated. `flutter analyze` clean. Version `0.0.148`.
+
+### 2026-09-05 — Task 11 Phase 2 Case Reference screen — COMPLETE
+
+- Built the full Case Reference library UI in `lib/features/case_reference/presentation/case_reference_screen.dart`, mirroring the `caseReference` mockup. Uses `CasesScreenModal` (nav panel + search + FAB). Cards show L1 `referenceAndPageNo` + `statute` chips with a 3-dot menu (Pin/Unpin + Delete-with-confirm), L2 `sectionOrArticle`, L3 `titleAndDescription`, L4 `commentsNotes` (indented secondary block). Tapping a card opens the slide-up add/edit sheet.
+- Add/edit uses a `DraggableScrollableSheet` bottom sheet with the five form fields; save delegates to the repository (`addReference`/`updateReference`) which generates the id, mirrors Notes. Delete from the sheet uses `confirmDeleteDialog` then pops with the deleted reference so the list shows the undo snackbar.
+- Added undo-after-delete parity with Notes: DAO `restore(id, updatedAt)`, repository `restoreReference(reference)` (sync handling like `setPinned`), VM `restoreReference(reference)`. After delete, a floating SnackBar ("Reference deleted" + "Undo") shows for 3s (enforced via a delayed `controller.close()` to survive desktop hover).
+- New l10n keys (en/bn): `caseReferenceScreen_empty`, `addTitle`, `editTitle`, `pin`, `unpin`, `saved`, `deleted`, `referenceDeleted`, `undo`, and five `…Placeholder` keys. Regenerated. `flutter analyze` clean. Version `0.0.147`.
+
 ### 2026-09-05 — Task 11 Notes undo after delete — COMPLETE
 
 - Added a Google Keep–style undo-on-delete: after a note is deleted (from the card or the detail view) a floating `SnackBar` ("Note deleted" + "Undo" action) shows for 3 seconds; tapping Undo restores the note.

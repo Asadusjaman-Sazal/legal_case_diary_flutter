@@ -94,4 +94,14 @@ class CaseReferencesDao {
           updatedAt: Value(updatedAt),
         ),
       );
+
+  /// Restores a previously soft-deleted reference (undo).
+  Future<int> restore(String id, int updatedAt) => (db.update(db.caseReferences)
+        ..where((row) => row.id.equals(id)))
+      .write(
+        CaseReferencesCompanion(
+          isDeleted: const Value(false),
+          updatedAt: Value(updatedAt),
+        ),
+      );
 }

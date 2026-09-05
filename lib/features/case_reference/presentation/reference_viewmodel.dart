@@ -53,6 +53,11 @@ class ReferenceViewModel extends BaseListViewModel<CaseReference, ReferenceRepos
     await withRepo((repo) async => await repo.deleteReference(reference));
   }
 
+  /// Restores a soft-deleted reference (undo) and refreshes the list.
+  Future<void> restoreReference(CaseReference reference) async {
+    await withRepo((repo) async => await repo.restoreReference(reference));
+  }
+
   /// Toggles the pinned state of a reference and refreshes the list.
   Future<void> setPinned(String id, bool isPinned) async {
     await withRepo((repo) async => await repo.setPinned(id, isPinned));

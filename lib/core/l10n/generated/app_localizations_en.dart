@@ -298,6 +298,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseReferenceScreen_commentsNotes => 'Comments/Notes';
 
   @override
+  String get caseReferenceScreen_empty =>
+      'No references yet. Tap + to add one.';
+
+  @override
+  String get caseReferenceScreen_addTitle => 'Add Case Reference';
+
+  @override
+  String get caseReferenceScreen_editTitle => 'Edit Case Reference';
+
+  @override
+  String get caseReferenceScreen_pin => 'Pin';
+
+  @override
+  String get caseReferenceScreen_unpin => 'Unpin';
+
+  @override
+  String get caseReferenceScreen_saved => 'Reference saved';
+
+  @override
+  String get caseReferenceScreen_saveTitle => 'Save Reference';
+
+  @override
+  String get caseReferenceScreen_deleted => 'Reference deleted';
+
+  @override
+  String get caseReferenceScreen_referenceDeleted => 'Reference deleted';
+
+  @override
+  String get caseReferenceScreen_undo => 'Undo';
+
+  @override
+  String get caseReferenceScreen_refPlaceholder => 'e.g. 25 DLR (AD) 142';
+
+  @override
+  String get caseReferenceScreen_statutePlaceholder => 'e.g. CRPC';
+
+  @override
+  String get caseReferenceScreen_sectionPlaceholder => 'e.g. Section 54';
+
+  @override
+  String get caseReferenceScreen_titlePlaceholder => 'Title & description';
+
+  @override
+  String get caseReferenceScreen_commentsPlaceholder =>
+      'Add comments or private notes here...';
+
+  @override
   String get addEditCaseSheet_title => 'Add Case';
 
   @override

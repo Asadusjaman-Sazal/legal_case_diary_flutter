@@ -626,6 +626,96 @@ abstract class AppLocalizations {
   /// **'Comments/Notes'**
   String get caseReferenceScreen_commentsNotes;
 
+  /// No description provided for @caseReferenceScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No references yet. Tap + to add one.'**
+  String get caseReferenceScreen_empty;
+
+  /// No description provided for @caseReferenceScreen_addTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Case Reference'**
+  String get caseReferenceScreen_addTitle;
+
+  /// No description provided for @caseReferenceScreen_editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Case Reference'**
+  String get caseReferenceScreen_editTitle;
+
+  /// No description provided for @caseReferenceScreen_pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get caseReferenceScreen_pin;
+
+  /// No description provided for @caseReferenceScreen_unpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get caseReferenceScreen_unpin;
+
+  /// No description provided for @caseReferenceScreen_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference saved'**
+  String get caseReferenceScreen_saved;
+
+  /// No description provided for @caseReferenceScreen_saveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Reference'**
+  String get caseReferenceScreen_saveTitle;
+
+  /// No description provided for @caseReferenceScreen_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference deleted'**
+  String get caseReferenceScreen_deleted;
+
+  /// No description provided for @caseReferenceScreen_referenceDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference deleted'**
+  String get caseReferenceScreen_referenceDeleted;
+
+  /// No description provided for @caseReferenceScreen_undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get caseReferenceScreen_undo;
+
+  /// No description provided for @caseReferenceScreen_refPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 25 DLR (AD) 142'**
+  String get caseReferenceScreen_refPlaceholder;
+
+  /// No description provided for @caseReferenceScreen_statutePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. CRPC'**
+  String get caseReferenceScreen_statutePlaceholder;
+
+  /// No description provided for @caseReferenceScreen_sectionPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Section 54'**
+  String get caseReferenceScreen_sectionPlaceholder;
+
+  /// No description provided for @caseReferenceScreen_titlePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Title & description'**
+  String get caseReferenceScreen_titlePlaceholder;
+
+  /// No description provided for @caseReferenceScreen_commentsPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add comments or private notes here...'**
+  String get caseReferenceScreen_commentsPlaceholder;
+
   /// No description provided for @addEditCaseSheet_title.
   ///
   /// In en, this message translates to:

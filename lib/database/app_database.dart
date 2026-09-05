@@ -58,15 +58,16 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   /// Migration strategy for the local Drift database.
   ///
-  /// [onCreate] creates all tables at schema version 5. [onUpgrade] migrates
+  /// [onCreate] creates all tables at schema version 6. [onUpgrade] migrates
   /// from v1→v2 by adding `order_index` columns, then v2→v3 by replacing
   /// the two legacy party phone columns with the single `party_phone` column,
   /// then v3→v4 by adding case categories, case-type links, and court order,
-  /// then v4→v5 by adding the AD/HCD case fields and result.
+  /// then v4→v5 by adding the AD/HCD case fields and result, then v5→v6 by
+  /// adding the AD/HCD result snapshot to `case_history`.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -99,6 +100,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cases, cases.previousCourtCase);
         await m.addColumn(cases, cases.districtOfOrigin);
         await m.addColumn(cases, cases.result);
+      }
+      if (from < 6) {
+        await m.addColumn(caseHistory, caseHistory.result);
       }
     },
     beforeOpen: (details) async {

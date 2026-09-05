@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
@@ -62,9 +63,11 @@ class HistoryEntryEditDialog extends ConsumerStatefulWidget {
 class _HistoryEntryEditDialogState
     extends ConsumerState<HistoryEntryEditDialog> {
   final _noteController = TextEditingController();
+  final _resultController = TextEditingController();
   DateTime? _date;
   List<Step> _steps = const [];
   List<Step> _selectedSteps = const [];
+  bool _isHigherCourt = false;
   bool _loading = true;
   bool _saving = false;
 
@@ -74,12 +77,14 @@ class _HistoryEntryEditDialogState
     // Next Date starts at the date shown on the row (the previous next date).
     _date = DateTime.fromMillisecondsSinceEpoch(widget.entry.hearingDate);
     _noteController.text = widget.entry.noteResult ?? '';
+    _resultController.text = widget.entry.result ?? '';
     _loadSteps();
   }
 
   @override
   void dispose() {
     _noteController.dispose();
+    _resultController.dispose();
     super.dispose();
   }
 
@@ -95,6 +100,12 @@ class _HistoryEntryEditDialogState
       if (!mounted) return;
       setState(() {
         _steps = steps;
+        // AD/HCD courts expose no Steps; their rows show the Result snapshot
+        // instead, so the dialog offers a Result box for exactly those cases.
+        _isHigherCourt =
+            court != null &&
+            (court.courtCategoryId == appellateDivisionId ||
+                court.courtCategoryId == highCourtDivisionId);
         final storedSteps = (widget.entry.lastStep ?? '')
             .split(',')
             .map((step) => step.trim())
@@ -136,10 +147,12 @@ class _HistoryEntryEditDialogState
     try {
       final repository = await ref.read(caseHistoryRepositoryProvider.future);
       final note = _noteController.text.trim();
+      final result = _resultController.text.trim();
       final hearingMs = _date!.millisecondsSinceEpoch;
       if (_steps.isEmpty) {
-        // AD/HCD-style categories expose no Steps list; leave the stored step
-        // untouched rather than infer one.
+        // AD/HCD-style categories expose no Steps list. For AD/HCD cases the
+        // row's main content is the Result snapshot, so expose it for editing;
+        // otherwise leave the stored step untouched rather than infer one.
         await repository.updateHistory(
           CaseHistoryCompanion(
             id: Value(widget.entry.id),
@@ -147,6 +160,9 @@ class _HistoryEntryEditDialogState
             noteResult: Value<String?>(
               note.isEmpty ? null : note,
             ),
+            result: _isHigherCourt
+                ? Value<String?>(result.isEmpty ? null : result)
+                : const Value<String?>.absent(),
           ),
           baseEntry: widget.entry,
         );
@@ -309,6 +325,43 @@ class _HistoryEntryEditDialogState
                             outlined: true,
                             onMultiChanged: (values) => setState(
                               () => _selectedSteps = values,
+                            ),
+                          ),
+                        ],
+                        if (_isHigherCourt) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            l.addEditCaseSheet_result,
+                            style: AppTypography.labelLg,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          TextField(
+                            key: const ValueKey('history-edit-result'),
+                            controller: _resultController,
+                            enabled: !_saving,
+                            maxLines: 3,
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              fillColor: _resultController.text.trim().isEmpty
+                                  ? AppColors.surface
+                                  : AppColors.surfaceVariant,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.cardRadius,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.outlineVariant,
+                                ),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.cardRadius,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.secondary,
+                                  width: 2,
+                                ),
+                              ),
                             ),
                           ),
                         ],

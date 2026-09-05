@@ -14,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
@@ -186,6 +187,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       );
     }
   }
+
+  /// True when the loaded court belongs to the Appellate or High Court
+  /// Division. Only such cases carry the AD/HCD-specific fields shown on this
+  /// screen (judges line and the Other Information card).
+  bool get _isHigherCourt =>
+      _court?.courtCategoryId == appellateDivisionId ||
+      _court?.courtCategoryId == highCourtDivisionId;
 
   /// Resolves the single stored party phone for a contact action. In the
   /// current schema the phone belongs to the represented client, whose side is
@@ -368,9 +376,17 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   String _roleLabel(BuildContext context, OnBehalf role) =>
       context.l10n.seedLabel(role.id, fallbackEn: role.name);
 
-  String _formatHistoryDate(AppLocalizations l, int epochMs) =>
-      DateFormat('d MMM y', l.localeName)
-          .format(AppDateUtils.bangladeshDateTime(epochMs));
+  /// Case History row date, rendered as `DD/MM/YYYY` (Bangladesh civil date).
+  String _formatHistoryDate(AppLocalizations l, int epochMs) => DateFormat(
+    'dd/MM/yyyy',
+    l.localeName,
+  ).format(AppDateUtils.bangladeshDateTime(epochMs));
+
+  /// Case History row weekday shown under the date (e.g. English "THU").
+  String _formatHistoryWeekday(AppLocalizations l, int epochMs) => DateFormat(
+    'EEE',
+    l.localeName,
+  ).format(AppDateUtils.bangladeshDateTime(epochMs)).toUpperCase();
 
   String _formatHighlightDate(AppLocalizations l, int epochMs) =>
       DateFormat('d MMM y, EEEE', l.localeName)
@@ -479,6 +495,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           _buildPartiesCard(context, l, current),
           const SizedBox(height: AppSpacing.lg),
           _buildDescriptionCard(context, l, current),
+          if (_isHigherCourt) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _buildOtherInformationCard(context, l, current),
+          ],
           const SizedBox(height: AppSpacing.lg),
           _buildHistoryCard(context, l, current),
           if (current.nextDate != null) ...[
@@ -492,6 +512,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l, Case current) {
     final court = _court;
+    final trimmedJudges = current.honorableJudges?.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -502,8 +523,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           style: AppTypography.headlineMd,
         ),
         const SizedBox(height: AppSpacing.xs),
-        // L2: location icon + court name.
-        if (court != null) ...[
+        // L2: location icon + court name; AD/HCD only: judges names line.
+        if (court != null) ...[        
           Row(
             children: [
               const Icon(Icons.location_on, size: 18),
@@ -518,6 +539,18 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               ),
             ],
           ),
+          if (_isHigherCourt &&
+              trimmedJudges != null &&
+              trimmedJudges.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              trimmedJudges,
+              key: const ValueKey('case-detail-judges'),
+              style: AppTypography.bodyLg.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
         ],
         // L3: Delete / Edit Case / Close actions.
@@ -724,6 +757,53 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     );
   }
 
+  /// AD/HCD-only card between Case Title & Remark and Case History: shows
+  /// Tender Number, Previous Court Case, and District of Origin.
+  Widget _buildOtherInformationCard(
+    BuildContext context,
+    AppLocalizations l,
+    Case current,
+  ) {
+    return _kanbanCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 20),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  l.caseDetailsScreen_otherInformation,
+                  key: const ValueKey('case-detail-other-information'),
+                  style: AppTypography.titleMd,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _descriptionBox(
+            key: const ValueKey('case-detail-tender-number-box'),
+            label: l.caseDetailsScreen_tenderNumber,
+            value: current.tenderNumber,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _descriptionBox(
+            key: const ValueKey('case-detail-previous-court-case-box'),
+            label: l.caseDetailsScreen_previousCourtCase,
+            value: current.previousCourtCase,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _descriptionBox(
+            key: const ValueKey('case-detail-district-of-origin-box'),
+            label: l.caseDetailsScreen_districtOfOrigin,
+            value: current.districtOfOrigin,
+          ),
+        ],
+      ),
+    );
+  }
+
   /// L5 — Case Title & Remark KanBan card.
   Widget _buildDescriptionCard(
     BuildContext context,
@@ -850,6 +930,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Widget _historyEntry(BuildContext context, AppLocalizations l, CaseHistoryRow entry) {
     final trimmedStep = entry.lastStep?.trim();
     final trimmedNote = entry.noteResult?.trim();
+    // AD/HCD cases have no Steps; their per-hearing outcome is the Result
+    // snapshot, shown in the same slot where lower-court rows show Step.
+    final trimmedResult = entry.result?.trim();
+    final mainContent = _isHigherCourt ? trimmedResult : trimmedStep;
     final content = Container(
       key: ValueKey('case-detail-history-entry-${entry.id}'),
       padding: const EdgeInsets.symmetric(
@@ -866,9 +950,26 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             width: 104,
             child: Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                _formatHistoryDate(l, entry.hearingDate),
-                style: AppTypography.caseNumber,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _formatHistoryDate(l, entry.hearingDate),
+                    style: AppTypography.caseNumber,
+                  ),
+                  const SizedBox(height: 2),
+                  // Weekday sits centered under the date within the date column.
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      _formatHistoryWeekday(l, entry.hearingDate),
+                      style: AppTypography.labelMd.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -877,13 +978,15 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (trimmedStep != null && trimmedStep.isNotEmpty)
+                if (mainContent != null && mainContent.isNotEmpty)
+                  // Step/Result span the full content width; multi-line text is
+                  // justified so both edges stay even (single lines read left).
                   Text(
-                    trimmedStep,
+                    mainContent,
                     style: AppTypography.titleMd,
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.justify,
                   ),
-                if ((trimmedStep == null || trimmedStep.isEmpty) &&
+                if ((mainContent == null || mainContent.isEmpty) &&
                     (trimmedNote == null || trimmedNote.isEmpty))
                   Text(
                     '—',
@@ -896,6 +999,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
+                    textAlign: TextAlign.justify,
                   ),
                 ],
               ],

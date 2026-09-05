@@ -202,6 +202,18 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseDetailsScreen_caseNotFound => 'মামলা পাওয়া যায়নি।';
 
   @override
+  String get caseDetailsScreen_otherInformation => 'অন্যান্য তথ্য';
+
+  @override
+  String get caseDetailsScreen_tenderNumber => 'টেন্ডার নম্বর';
+
+  @override
+  String get caseDetailsScreen_previousCourtCase => 'পূর্ববর্তী আদালতের মামলা';
+
+  @override
+  String get caseDetailsScreen_districtOfOrigin => 'উৎপত্তির জেলা';
+
+  @override
   String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
 
   @override

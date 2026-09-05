@@ -9,6 +9,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -106,6 +107,11 @@ void main() {
       String roleId = 'onbehalf-test-respondent',
       String? partyPhone = '+8801711000000',
       int? nextDateMs,
+      String courtId = 'court-test',
+      String? honorableJudges,
+      String? tenderNumber,
+      String? previousCourtCase,
+      String? districtOfOrigin,
     }) async {
       await db.into(db.onBehalfs).insert(
         OnBehalfsCompanion(
@@ -126,12 +132,16 @@ void main() {
           respondent: const Value('Bangladesh Government'),
           petitionerLeadCounsel: const Value('Adv. Abdul Kalam'),
           respondentLeadCounsel: const Value('Adv. Ahsan Habib'),
-          courtId: const Value('court-test'),
+          courtId: Value(courtId),
           onBehalfId: Value(roleId),
           partyPhone: Value(partyPhone),
           caseTitleAndSection: const Value('Partition Suit (Title)'),
           caseRemarks: const Value('Dispute over ancestral property.'),
           nextDate: Value(nextDateMs),
+          honorableJudges: Value(honorableJudges),
+          tenderNumber: Value(tenderNumber),
+          previousCourtCase: Value(previousCourtCase),
+          districtOfOrigin: Value(districtOfOrigin),
         ),
       );
     }
@@ -142,6 +152,7 @@ void main() {
       required int nextEpochMs,
       String? step,
       String? note,
+      String? result,
     }) async {
       await CaseHistoryDao(db).insertHistoryEntry(
         CaseHistoryCompanion(
@@ -152,6 +163,7 @@ void main() {
           lastStep: Value(step),
           nextDate: Value(nextEpochMs),
           noteResult: Value(note),
+          result: Value(result),
           createdBy: Value(identity.getId()),
           sourceMutationId: Value('mutation-$nextEpochMs-$hearingEpochMs'),
           baseCaseVersion: const Value(0),
@@ -221,11 +233,30 @@ void main() {
       expect(find.text('Remarks or Case Summary'), findsOneWidget);
       expect(find.text('Dispute over ancestral property.'), findsOneWidget);
 
-      // L6 history (2 total, newest nextDate first).
+      // L6 history (2 total, newest nextDate first): DD/MM/YYYY date with the
+      // day of the week under it, step content on the right.
       expect(find.text('2 Entries Total'), findsOneWidget);
-      expect(find.text('15 Oct 2026'), findsOneWidget);
-      expect(find.text('12 Sep 2026'), findsOneWidget);
+      expect(find.text('15/10/2026'), findsOneWidget);
+      expect(find.text('12/09/2026'), findsOneWidget);
+      expect(find.text('THU'), findsOneWidget); // 15 Oct 2026
+      expect(find.text('SAT'), findsOneWidget); // 12 Sep 2026
       expect(find.text('Written Objection'), findsOneWidget);
+      // Weekday sits centered under the date; Step and Note span the full
+      // content width and justify multi-line text.
+      final weekdayAlign = tester.widget<Align>(
+        find.ancestor(of: find.text('THU'), matching: find.byType(Align)),
+      );
+      expect(weekdayAlign.alignment, Alignment.center);
+      expect(
+        tester.widget<Text>(find.text('Written Objection')).textAlign,
+        TextAlign.justify,
+      );
+      expect(
+        tester
+            .widget<Text>(find.text('Respondent submitted written objection.'))
+            .textAlign,
+        TextAlign.justify,
+      );
 
       // Next Date highlight card + countdown.
       expect(find.byKey(const ValueKey('case-detail-next-date-card')), findsOneWidget);
@@ -472,6 +503,124 @@ void main() {
 
       expect(find.byKey(const ValueKey('history-action-edit')), findsNothing);
       expect(find.byKey(const ValueKey('history-action-delete')), findsNothing);
+    });
+
+    testWidgets('AD/HCD case shows the judges line and the Other Information card', (
+      WidgetTester tester,
+    ) async {
+      // Appellate Division court so the screen treats the case as AD/HCD.
+      await db.into(db.courtCategories).insert(
+        const CourtCategoriesCompanion(
+          id: Value(appellateDivisionId),
+          nameKey: Value('courtCategory_appellateDivision'),
+          courtLevel: Value('higher'),
+          orderIndex: Value(0),
+          updatedAt: Value(1),
+        ),
+      );
+      await db.into(db.courts).insert(
+        const CourtsCompanion(
+          id: Value('court-ad'),
+          courtName: Value('Appellate Division'),
+          higherLowerCourts: Value(higherCourtsOption),
+          courtCategoryId: Value(appellateDivisionId),
+          orderIndex: Value(0),
+          updatedAt: Value(1),
+        ),
+      );
+      final caseId = await seedCase(
+        courtId: 'court-ad',
+        honorableJudges: 'Justice Md. Abu Taher',
+        tenderNumber: 'T-2026/045',
+        previousCourtCase: 'Case No. 88/2020',
+        districtOfOrigin: 'Chattogram',
+      );
+      await pumpDetail(tester, caseId);
+
+      // Judges line sits under the court name in the title area.
+      expect(find.byKey(const ValueKey('case-detail-judges')), findsOneWidget);
+      expect(find.text('Justice Md. Abu Taher'), findsOneWidget);
+
+      // Other Information card between Case Title & Remark and Case History.
+      expect(
+        find.byKey(const ValueKey('case-detail-other-information')),
+        findsOneWidget,
+      );
+      expect(find.text('Tender Number'), findsOneWidget);
+      expect(find.text('T-2026/045'), findsOneWidget);
+      expect(find.text('Previous Court Case'), findsOneWidget);
+      expect(find.text('Case No. 88/2020'), findsOneWidget);
+      expect(find.text('District of Origin'), findsOneWidget);
+      expect(find.text('Chattogram'), findsOneWidget);
+    });
+
+    testWidgets('AD/HCD history rows show the hearing Result like lower-court Step rows', (
+      WidgetTester tester,
+    ) async {
+      await db.into(db.courtCategories).insert(
+        const CourtCategoriesCompanion(
+          id: Value(appellateDivisionId),
+          nameKey: Value('courtCategory_appellateDivision'),
+          courtLevel: Value('higher'),
+          orderIndex: Value(0),
+          updatedAt: Value(1),
+        ),
+      );
+      await db.into(db.courts).insert(
+        const CourtsCompanion(
+          id: Value('court-ad'),
+          courtName: Value('Appellate Division'),
+          higherLowerCourts: Value(higherCourtsOption),
+          courtCategoryId: Value(appellateDivisionId),
+          orderIndex: Value(0),
+          updatedAt: Value(1),
+        ),
+      );
+      final caseId = await seedCase(courtId: 'court-ad');
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 10, 15),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 11, 20),
+        result: 'Rule discharged',
+        note: 'Full bench heard the matter.',
+      );
+      // AD/HCD rows must render the Result snapshot, never a stored Step.
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 9, 12),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 10, 15),
+        step: 'Steps for Hearing',
+        result: 'Adjourned',
+      );
+
+      await pumpDetail(tester, caseId);
+
+      expect(find.text('Rule discharged'), findsOneWidget);
+      expect(find.text('Full bench heard the matter.'), findsOneWidget);
+      expect(find.text('Adjourned'), findsOneWidget);
+      expect(find.text('Steps for Hearing'), findsNothing);
+    });
+
+    testWidgets('lower-court case hides the judges line and the Other Information card', (
+      WidgetTester tester,
+    ) async {
+      // Even with AD/HCD fields populated, a lower-court case must not render
+      // the AD/HCD-only sections; the gate is the court category.
+      final caseId = await seedCase(
+        honorableJudges: 'Justice Md. Abu Taher',
+        tenderNumber: 'T-2026/045',
+        previousCourtCase: 'Case No. 88/2020',
+        districtOfOrigin: 'Chattogram',
+      );
+      await pumpDetail(tester, caseId);
+
+      expect(find.byKey(const ValueKey('case-detail-judges')), findsNothing);
+      expect(find.text('Justice Md. Abu Taher'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('case-detail-other-information')),
+        findsNothing,
+      );
+      expect(find.text('Tender Number'), findsNothing);
     });
   });
 }

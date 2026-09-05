@@ -440,6 +440,30 @@ abstract class AppLocalizations {
   /// **'Case not found.'**
   String get caseDetailsScreen_caseNotFound;
 
+  /// No description provided for @caseDetailsScreen_otherInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Information'**
+  String get caseDetailsScreen_otherInformation;
+
+  /// No description provided for @caseDetailsScreen_tenderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Tender Number'**
+  String get caseDetailsScreen_tenderNumber;
+
+  /// No description provided for @caseDetailsScreen_previousCourtCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Court Case'**
+  String get caseDetailsScreen_previousCourtCase;
+
+  /// No description provided for @caseDetailsScreen_districtOfOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'District of Origin'**
+  String get caseDetailsScreen_districtOfOrigin;
+
   /// No description provided for @disposedCasesScreen_title.
   ///
   /// In en, this message translates to:

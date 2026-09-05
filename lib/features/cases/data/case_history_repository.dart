@@ -110,6 +110,7 @@ class LocalCaseHistoryRepository
     if (companion.lastStep.present) fields.add('last_step');
     if (companion.nextDate.present) fields.add('next_date');
     if (companion.noteResult.present) fields.add('note_result');
+    if (companion.result.present) fields.add('result');
     return fields;
   }
 }

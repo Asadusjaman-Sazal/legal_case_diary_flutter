@@ -50,6 +50,7 @@ void main() {
       required int nextDateMs,
       String? lastStep = 'Hearing',
       String? notesResults = 'Witness present.',
+      String? result,
     }) =>
         caseRepo.insertCase(
           CasesCompanion(
@@ -62,6 +63,7 @@ void main() {
             nextDate: Value(nextDateMs),
             lastStep: Value(lastStep),
             notesResults: Value(notesResults),
+            result: Value(result),
           ),
         );
 
@@ -98,6 +100,33 @@ void main() {
         expect(entry.nextDate, 2000); // the new date set at that hearing
       },
     );
+
+    test('quick update snapshot keeps the AD/HCD result', () async {
+      final id = await insertCase(
+        nextDateMs: 1000,
+        lastStep: null, // AD/HCD cases have no Steps
+        notesResults: 'Witness present.',
+        result: 'Rule discharged',
+      );
+
+      await caseRepo.updateCase(
+        CasesCompanion(
+          id: Value(id),
+          nextDate: const Value(2000),
+          result: const Value('Adjourned'),
+        ),
+        isQuickUpdate: true,
+      );
+
+      final history = await historyDao.getByCaseId(id);
+      expect(history, hasLength(1));
+      final entry = history.single;
+      expect(entry.hearingDate, 1000); // previous next date
+      expect(entry.lastStep, isNull);
+      expect(entry.result, 'Rule discharged'); // previous result
+      expect(entry.noteResult, 'Witness present.');
+      expect(entry.nextDate, 2000);
+    });
 
     test('step/note-only quick update (date unchanged) creates no history',
         () async {
@@ -163,6 +192,7 @@ void main() {
           hearingDate: const Value(1500),
           lastStep: const Value('Revised Step'),
           noteResult: const Value('Edited note.'),
+          result: const Value('Heard in part'),
         ),
         baseEntry: entry,
       );
@@ -172,6 +202,7 @@ void main() {
       expect(updated!.hearingDate, 1500);
       expect(updated.lastStep, 'Revised Step');
       expect(updated.noteResult, 'Edited note.');
+      expect(updated.result, 'Heard in part');
       expect(updated.lastModifiedBy, identity.getId());
       expect(updated.updatedAt, greaterThan(entry.updatedAt));
 
@@ -185,8 +216,12 @@ void main() {
       expect(payload['hearing_date'], 1500);
       expect(payload['last_step'], 'Revised Step');
       expect(payload['note_result'], 'Edited note.');
+      expect(payload['result'], 'Heard in part');
       final changed = jsonDecode(rows.single.changedFields) as List<dynamic>;
-      expect(changed.cast<String>(), containsAll(['hearing_date', 'last_step', 'note_result']));
+      expect(
+        changed.cast<String>(),
+        containsAll(['hearing_date', 'last_step', 'note_result', 'result']),
+      );
     });
 
     test('history delete soft-deletes and cancels an unsynced insert',

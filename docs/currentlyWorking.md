@@ -1,3 +1,24 @@
+### 2026-09-05 — Task 10 Case History row polish — COMPLETE
+
+- Case Detail **Case History rows** (only section changed): the weekday label is now **centered under the date** in each row's date column, and the Step/Result main content plus the Note now **span the full content width with justified text** (even left/right edges on multi-line text; single-line text reads left-aligned) — replacing the previous right-aligned rendering that looked off with multiple steps.
+- Widget test assertions added in `case_detail_test.dart`: weekday `Align` is centered, Step and Note `Text` widgets use `TextAlign.justify`.
+- `flutter analyze` clean; full suite 176 passed, 2 skipped. Version `0.0.138`. Known issues: none. Next resume point: **Task 11** (see `docs/tasks/00_INDEX.md` / implementation plan).
+
+### 2026-09-04 — Task 10 Case History refinements — COMPLETE
+
+- Case Detail **Case History rows** (only section changed): hearing dates now render as **DD/MM/YYYY** with the **day of the week underneath** (abbreviated, e.g. "THU", locale-aware); for **AD/HCD cases only**, each row's main content line now shows the hearing's **Result** in the same slot where lower-court rows show Step content.
+- `case_history` gained a nullable `result` snapshot column (schema **v5→v6**, Drift regenerated). `LocalCaseRepository._insertProvisionalHistory` now freezes the previous `result` (like it already freezes `last_step`/`note_result`), so AD/HCD rows created by Quick Update carry the outcome; lower-court rows stay untouched (`result` null). Old pre-existing AD/HCD rows have no stored result to show.
+- Long-press **Edit History Entry** now shows a Result box for AD/HCD (no-step) categories, saving through `LocalCaseHistoryRepository` (which now tracks the `result` changed-field for sync payloads).
+- Tests: 1 new widget test (AD/HCD rows show Result, never a stored Step), 1 new repository test (Quick Update snapshot keeps the AD/HCD result), new `case_history` column assertions in `schema_test.dart`; existing history-row date assertions updated to DD/MM/YYYY + weekday.
+- `flutter analyze` clean; full suite 176 passed, 2 skipped. Version `0.0.137`. Known issues: none. Next resume point: **Task 11** (see `docs/tasks/00_INDEX.md` / implementation plan).
+
+### 2026-09-04 — Task 10 Case Detail AD/HCD-specific columns — COMPLETE
+
+- Case Detail now shows the AD/HCD-only fields, gated on court category (`appellateDivisionId` / `highCourtDivisionId`): a judges names line directly under Name of Court in the title (names only, per user decision), and a new "Other Information" card between Case Title & Remark and Case History with Tender Number, Previous Court Case, and District of Origin boxes (empty renders as '—', same style as the description boxes). Card + line appear only for AD/HCD cases (per user decision); lower-court cases unchanged.
+- New l10n keys (en + bn): `caseDetailsScreen_otherInformation`, `caseDetailsScreen_tenderNumber`, `caseDetailsScreen_previousCourtCase`, `caseDetailsScreen_districtOfOrigin`; regenerated `app_localizations*`.
+- Widget tests (2 new in `test/features/case_detail_test.dart`): AD/HCD case shows judges line + all three Other Information values; lower-court case hides both sections even with the fields populated.
+- `flutter analyze` clean; `case_detail_test.dart` 11/11 passed. Version `0.0.136`. Known issues: none. Next resume point: **Task 11** (see `docs/tasks/00_INDEX.md` / implementation plan).
+
 ### 2026-09-04 — Task 10 Case Detail header font sizes — COMPLETE
 
 - Case type & case number title text one size smaller (headline-lg -> headline-md) in `case_detail_screen.dart` L1 header; Name of the Court text one size bigger (body-md -> body-lg) in L2. No other changes. `case_detail_screen.dart` only.

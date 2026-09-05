@@ -202,6 +202,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseDetailsScreen_caseNotFound => 'Case not found.';
 
   @override
+  String get caseDetailsScreen_otherInformation => 'Other Information';
+
+  @override
+  String get caseDetailsScreen_tenderNumber => 'Tender Number';
+
+  @override
+  String get caseDetailsScreen_previousCourtCase => 'Previous Court Case';
+
+  @override
+  String get caseDetailsScreen_districtOfOrigin => 'District of Origin';
+
+  @override
   String get disposedCasesScreen_title => 'Disposed Cases';
 
   @override

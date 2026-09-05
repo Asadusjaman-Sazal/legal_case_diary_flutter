@@ -5105,6 +5105,15 @@ class $CaseHistoryTable extends CaseHistory
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _resultMeta = const VerificationMeta('result');
+  @override
+  late final GeneratedColumn<String> result = GeneratedColumn<String>(
+    'result',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdByMeta = const VerificationMeta(
     'createdBy',
   );
@@ -5219,6 +5228,7 @@ class $CaseHistoryTable extends CaseHistory
     lastStep,
     nextDate,
     noteResult,
+    result,
     createdBy,
     sourceMutationId,
     baseCaseVersion,
@@ -5295,6 +5305,12 @@ class $CaseHistoryTable extends CaseHistory
       context.handle(
         _noteResultMeta,
         noteResult.isAcceptableOrUnknown(data['note_result']!, _noteResultMeta),
+      );
+    }
+    if (data.containsKey('result')) {
+      context.handle(
+        _resultMeta,
+        result.isAcceptableOrUnknown(data['result']!, _resultMeta),
       );
     }
     if (data.containsKey('created_by')) {
@@ -5414,6 +5430,10 @@ class $CaseHistoryTable extends CaseHistory
         DriftSqlType.string,
         data['${effectivePrefix}note_result'],
       ),
+      result: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result'],
+      ),
       createdBy: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_by'],
@@ -5484,6 +5504,10 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
   /// What happened at the hearing.
   final String? noteResult;
 
+  /// AD/HCD result for this hearing (null for lower courts, which use steps).
+  /// Snapshot of the case's `result` at the time the entry was frozen.
+  final String? result;
+
   /// UUID of the user who logged this entry.
   final String createdBy;
 
@@ -5509,6 +5533,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
     this.lastStep,
     this.nextDate,
     this.noteResult,
+    this.result,
     required this.createdBy,
     required this.sourceMutationId,
     required this.baseCaseVersion,
@@ -5537,6 +5562,9 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
     }
     if (!nullToAbsent || noteResult != null) {
       map['note_result'] = Variable<String>(noteResult);
+    }
+    if (!nullToAbsent || result != null) {
+      map['result'] = Variable<String>(result);
     }
     map['created_by'] = Variable<String>(createdBy);
     map['source_mutation_id'] = Variable<String>(sourceMutationId);
@@ -5574,6 +5602,9 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
       noteResult: noteResult == null && nullToAbsent
           ? const Value.absent()
           : Value(noteResult),
+      result: result == null && nullToAbsent
+          ? const Value.absent()
+          : Value(result),
       createdBy: Value(createdBy),
       sourceMutationId: Value(sourceMutationId),
       baseCaseVersion: Value(baseCaseVersion),
@@ -5606,6 +5637,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
       lastStep: serializer.fromJson<String?>(json['lastStep']),
       nextDate: serializer.fromJson<int?>(json['nextDate']),
       noteResult: serializer.fromJson<String?>(json['noteResult']),
+      result: serializer.fromJson<String?>(json['result']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       sourceMutationId: serializer.fromJson<String>(json['sourceMutationId']),
       baseCaseVersion: serializer.fromJson<int>(json['baseCaseVersion']),
@@ -5629,6 +5661,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
       'lastStep': serializer.toJson<String?>(lastStep),
       'nextDate': serializer.toJson<int?>(nextDate),
       'noteResult': serializer.toJson<String?>(noteResult),
+      'result': serializer.toJson<String?>(result),
       'createdBy': serializer.toJson<String>(createdBy),
       'sourceMutationId': serializer.toJson<String>(sourceMutationId),
       'baseCaseVersion': serializer.toJson<int>(baseCaseVersion),
@@ -5650,6 +5683,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
     Value<String?> lastStep = const Value.absent(),
     Value<int?> nextDate = const Value.absent(),
     Value<String?> noteResult = const Value.absent(),
+    Value<String?> result = const Value.absent(),
     String? createdBy,
     String? sourceMutationId,
     int? baseCaseVersion,
@@ -5668,6 +5702,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
     lastStep: lastStep.present ? lastStep.value : this.lastStep,
     nextDate: nextDate.present ? nextDate.value : this.nextDate,
     noteResult: noteResult.present ? noteResult.value : this.noteResult,
+    result: result.present ? result.value : this.result,
     createdBy: createdBy ?? this.createdBy,
     sourceMutationId: sourceMutationId ?? this.sourceMutationId,
     baseCaseVersion: baseCaseVersion ?? this.baseCaseVersion,
@@ -5694,6 +5729,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
       noteResult: data.noteResult.present
           ? data.noteResult.value
           : this.noteResult,
+      result: data.result.present ? data.result.value : this.result,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
       sourceMutationId: data.sourceMutationId.present
           ? data.sourceMutationId.value
@@ -5725,6 +5761,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
           ..write('lastStep: $lastStep, ')
           ..write('nextDate: $nextDate, ')
           ..write('noteResult: $noteResult, ')
+          ..write('result: $result, ')
           ..write('createdBy: $createdBy, ')
           ..write('sourceMutationId: $sourceMutationId, ')
           ..write('baseCaseVersion: $baseCaseVersion, ')
@@ -5748,6 +5785,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
     lastStep,
     nextDate,
     noteResult,
+    result,
     createdBy,
     sourceMutationId,
     baseCaseVersion,
@@ -5770,6 +5808,7 @@ class CaseHistoryRow extends DataClass implements Insertable<CaseHistoryRow> {
           other.lastStep == this.lastStep &&
           other.nextDate == this.nextDate &&
           other.noteResult == this.noteResult &&
+          other.result == this.result &&
           other.createdBy == this.createdBy &&
           other.sourceMutationId == this.sourceMutationId &&
           other.baseCaseVersion == this.baseCaseVersion &&
@@ -5790,6 +5829,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
   final Value<String?> lastStep;
   final Value<int?> nextDate;
   final Value<String?> noteResult;
+  final Value<String?> result;
   final Value<String> createdBy;
   final Value<String> sourceMutationId;
   final Value<int> baseCaseVersion;
@@ -5809,6 +5849,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
     this.lastStep = const Value.absent(),
     this.nextDate = const Value.absent(),
     this.noteResult = const Value.absent(),
+    this.result = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.sourceMutationId = const Value.absent(),
     this.baseCaseVersion = const Value.absent(),
@@ -5829,6 +5870,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
     this.lastStep = const Value.absent(),
     this.nextDate = const Value.absent(),
     this.noteResult = const Value.absent(),
+    this.result = const Value.absent(),
     required String createdBy,
     required String sourceMutationId,
     required int baseCaseVersion,
@@ -5857,6 +5899,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
     Expression<String>? lastStep,
     Expression<int>? nextDate,
     Expression<String>? noteResult,
+    Expression<String>? result,
     Expression<String>? createdBy,
     Expression<String>? sourceMutationId,
     Expression<int>? baseCaseVersion,
@@ -5877,6 +5920,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
       if (lastStep != null) 'last_step': lastStep,
       if (nextDate != null) 'next_date': nextDate,
       if (noteResult != null) 'note_result': noteResult,
+      if (result != null) 'result': result,
       if (createdBy != null) 'created_by': createdBy,
       if (sourceMutationId != null) 'source_mutation_id': sourceMutationId,
       if (baseCaseVersion != null) 'base_case_version': baseCaseVersion,
@@ -5899,6 +5943,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
     Value<String?>? lastStep,
     Value<int?>? nextDate,
     Value<String?>? noteResult,
+    Value<String?>? result,
     Value<String>? createdBy,
     Value<String>? sourceMutationId,
     Value<int>? baseCaseVersion,
@@ -5919,6 +5964,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
       lastStep: lastStep ?? this.lastStep,
       nextDate: nextDate ?? this.nextDate,
       noteResult: noteResult ?? this.noteResult,
+      result: result ?? this.result,
       createdBy: createdBy ?? this.createdBy,
       sourceMutationId: sourceMutationId ?? this.sourceMutationId,
       baseCaseVersion: baseCaseVersion ?? this.baseCaseVersion,
@@ -5958,6 +6004,9 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
     }
     if (noteResult.present) {
       map['note_result'] = Variable<String>(noteResult.value);
+    }
+    if (result.present) {
+      map['result'] = Variable<String>(result.value);
     }
     if (createdBy.present) {
       map['created_by'] = Variable<String>(createdBy.value);
@@ -6003,6 +6052,7 @@ class CaseHistoryCompanion extends UpdateCompanion<CaseHistoryRow> {
           ..write('lastStep: $lastStep, ')
           ..write('nextDate: $nextDate, ')
           ..write('noteResult: $noteResult, ')
+          ..write('result: $result, ')
           ..write('createdBy: $createdBy, ')
           ..write('sourceMutationId: $sourceMutationId, ')
           ..write('baseCaseVersion: $baseCaseVersion, ')
@@ -19155,6 +19205,7 @@ typedef $$CaseHistoryTableCreateCompanionBuilder =
       Value<String?> lastStep,
       Value<int?> nextDate,
       Value<String?> noteResult,
+      Value<String?> result,
       required String createdBy,
       required String sourceMutationId,
       required int baseCaseVersion,
@@ -19176,6 +19227,7 @@ typedef $$CaseHistoryTableUpdateCompanionBuilder =
       Value<String?> lastStep,
       Value<int?> nextDate,
       Value<String?> noteResult,
+      Value<String?> result,
       Value<String> createdBy,
       Value<String> sourceMutationId,
       Value<int> baseCaseVersion,
@@ -19251,6 +19303,11 @@ class $$CaseHistoryTableFilterComposer
 
   ColumnFilters<String> get noteResult => $composableBuilder(
     column: $table.noteResult,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get result => $composableBuilder(
+    column: $table.result,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19367,6 +19424,11 @@ class $$CaseHistoryTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
     builder: (column) => ColumnOrderings(column),
@@ -19470,6 +19532,9 @@ class $$CaseHistoryTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => column);
+
   GeneratedColumn<String> get createdBy =>
       $composableBuilder(column: $table.createdBy, builder: (column) => column);
 
@@ -19565,6 +19630,7 @@ class $$CaseHistoryTableTableManager
                 Value<String?> lastStep = const Value.absent(),
                 Value<int?> nextDate = const Value.absent(),
                 Value<String?> noteResult = const Value.absent(),
+                Value<String?> result = const Value.absent(),
                 Value<String> createdBy = const Value.absent(),
                 Value<String> sourceMutationId = const Value.absent(),
                 Value<int> baseCaseVersion = const Value.absent(),
@@ -19584,6 +19650,7 @@ class $$CaseHistoryTableTableManager
                 lastStep: lastStep,
                 nextDate: nextDate,
                 noteResult: noteResult,
+                result: result,
                 createdBy: createdBy,
                 sourceMutationId: sourceMutationId,
                 baseCaseVersion: baseCaseVersion,
@@ -19605,6 +19672,7 @@ class $$CaseHistoryTableTableManager
                 Value<String?> lastStep = const Value.absent(),
                 Value<int?> nextDate = const Value.absent(),
                 Value<String?> noteResult = const Value.absent(),
+                Value<String?> result = const Value.absent(),
                 required String createdBy,
                 required String sourceMutationId,
                 required int baseCaseVersion,
@@ -19624,6 +19692,7 @@ class $$CaseHistoryTableTableManager
                 lastStep: lastStep,
                 nextDate: nextDate,
                 noteResult: noteResult,
+                result: result,
                 createdBy: createdBy,
                 sourceMutationId: sourceMutationId,
                 baseCaseVersion: baseCaseVersion,

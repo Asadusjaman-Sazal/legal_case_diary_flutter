@@ -122,6 +122,33 @@ void main() {
       );
     });
 
+    test('case_history table has the required columns', () async {
+      final columns = await _tableColumns(db, 'case_history');
+      expect(
+        columns,
+        containsAll(<String>[
+          'id',
+          'case_id',
+          'user_id',
+          'firm_id',
+          'hearing_date',
+          'last_step',
+          'next_date',
+          'note_result',
+          'result',
+          'created_by',
+          'source_mutation_id',
+          'base_case_version',
+          'result_case_version',
+          'updated_at',
+          'version',
+          'synced_at',
+          'is_deleted',
+          'last_modified_by',
+        ]),
+      );
+    });
+
     test('sync_queue table has the required columns', () async {
       final columns = await _tableColumns(db, 'sync_queue');
       expect(

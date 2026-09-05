@@ -33,6 +33,10 @@ class CaseHistory extends Table {
   /// What happened at the hearing.
   TextColumn get noteResult => text().nullable()();
 
+  /// AD/HCD result for this hearing (null for lower courts, which use steps).
+  /// Snapshot of the case's `result` at the time the entry was frozen.
+  TextColumn get result => text().nullable()();
+
   /// UUID of the user who logged this entry.
   TextColumn get createdBy => text()();
 

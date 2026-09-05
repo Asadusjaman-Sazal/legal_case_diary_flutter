@@ -269,6 +269,9 @@ class LocalCaseRepository
       lastStep: Value(oldCase.lastStep),
       nextDate: Value(newNextDate),
       noteResult: Value(oldCase.notesResults),
+      // AD/HCD cases carry their outcome in `result` instead of Steps; keep the
+      // snapshot so Case History can show it like Step content for lower courts.
+      result: Value(oldCase.result),
       createdBy: Value(userId),
       sourceMutationId: Value(mutationId),
       baseCaseVersion: Value(oldCase.version ?? 0),

@@ -581,19 +581,6 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                if (!_isNew)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      key: const ValueKey('reference-delete-sheet'),
-                      icon: Icon(Icons.delete_outline, color: AppColors.error),
-                      label: Text(
-                        l.sharedActions_delete,
-                        style: TextStyle(color: AppColors.error),
-                      ),
-                      onPressed: () => _save(deleting: true),
-                    ),
-                  ),
                 const SizedBox(height: AppSpacing.lg),
               ],
             ),
@@ -607,17 +594,25 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
               AppSpacing.md,
               AppSpacing.md,
             ),
-            child: FilledButton(
-              key: const ValueKey('reference-save'),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              ),
-              onPressed: () => _save(),
-              child: Text(
-                l.caseReferenceScreen_saveTitle,
-                style: AppTypography.titleMd,
+            child: Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FilledButton(
+                  key: const ValueKey('reference-save'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    minimumSize: const Size.fromHeight(56),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  ),
+                  onPressed: () => _save(),
+                  child: Text(
+                    l.sharedActions_save,
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onPrimary,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -675,6 +670,8 @@ class _Field extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 maxLines: maxLines,
+                textAlign: TextAlign.start,
+                textAlignVertical: TextAlignVertical.top,
                 decoration: InputDecoration(
                   hintText: placeholder,
                   hintStyle:
@@ -683,7 +680,13 @@ class _Field extends StatelessWidget {
                     horizontal: AppSpacing.md,
                     vertical: AppSpacing.sm,
                   ),
+                  isCollapsed: true,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
                 ),
               ),
             ),

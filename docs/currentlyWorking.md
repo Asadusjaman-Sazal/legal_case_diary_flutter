@@ -1,3 +1,10 @@
+### 2026-09-05 — Task 11 Phase 2 Case Reference add/edit tweaks — COMPLETE
+
+- Removed the Delete button from the add/edit window (previously shown only when editing).
+- Bottom button now reads "Save" (reused `sharedActions_save`), taller (`minimumSize` height 56) and half the screen width, centered, with white text on the primary background.
+- Form text boxes now use the full available width like the Notes body field: switched the `TextField` decoration to collapsed borders (no focus underline) so text fills the space instead of leaving margin on the right.
+- `flutter analyze` clean. Version `0.0.149`.
+
 ### 2026-09-05 — Task 11 Phase 2 Case Reference add/edit fix — COMPLETE
 
 - The previous add/edit used a `DraggableScrollableSheet` bottom sheet whose `Scaffold`/`AppBar` wasn't rendering reliably: the "Add Case Reference" title and Save control were missing, and a Pin button appeared inside the form. Rebuilt it as a full-screen `Scaffold` route (invoked via `Navigator.push`, like `NoteDetailScreen`) that matches the `caseReference` mockup: centered "Add Case Reference" title bar with a close button, the five form fields (no Pin control), an optional Delete button (only when editing), and a sticky full-width "Save Reference" button at the bottom.

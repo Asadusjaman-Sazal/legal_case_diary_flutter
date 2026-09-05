@@ -1041,11 +1041,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (mainContent != null && mainContent.isNotEmpty)
                   // Step/Result span the full content width and read left
-                  // aligned. Same size as the Note (14/20) but kept bold.
+                  // aligned (Google Keep style). Same size as the Note (14/20)
+                  // but kept bold.
                   Text(
                     mainContent,
                     style: AppTypography.bodyMd.copyWith(
@@ -1066,7 +1067,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
-                    textAlign: TextAlign.justify,
+                    textAlign: TextAlign.left,
                   ),
                 ],
               ],

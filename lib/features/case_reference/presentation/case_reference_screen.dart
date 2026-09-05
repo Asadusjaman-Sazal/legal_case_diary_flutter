@@ -594,27 +594,22 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
               AppSpacing.md,
               AppSpacing.md,
             ),
-            child: Center(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: FilledButton(
-                  key: const ValueKey('reference-save'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
-                    minimumSize: const Size.fromHeight(56),
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  ),
-                  onPressed: () => _save(),
-                  child: Text(
-                    l.sharedActions_save,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.onPrimary,
-                    ),
+            child: FilledButton(
+              key: const ValueKey('reference-save'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                minimumSize: const Size.fromHeight(56),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              ),
+                onPressed: () => _save(),
+                child: Text(
+                  l.sharedActions_save,
+                  style: AppTypography.titleMd.copyWith(
+                    color: AppColors.onPrimary,
                   ),
                 ),
               ),
-            ),
           ),
         ],
       ),

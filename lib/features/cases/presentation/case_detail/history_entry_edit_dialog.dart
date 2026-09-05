@@ -342,26 +342,21 @@ class _HistoryEntryEditDialogState
                             maxLines: 3,
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
+                              filled: true,
                               fillColor: _resultController.text.trim().isEmpty
                                   ? AppColors.surface
                                   : AppColors.surfaceVariant,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppSpacing.cardRadius,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: AppColors.outlineVariant,
-                                ),
+                              isCollapsed: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.sm,
                               ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppSpacing.cardRadius,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: AppColors.secondary,
-                                  width: 2,
-                                ),
-                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
                             ),
                           ),
                         ],
@@ -378,26 +373,21 @@ class _HistoryEntryEditDialogState
                           maxLines: 4,
                           onChanged: (_) => setState(() {}),
                           decoration: InputDecoration(
+                            filled: true,
                             fillColor: _noteController.text.trim().isEmpty
                                 ? AppColors.surface
                                 : AppColors.surfaceVariant,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppSpacing.cardRadius,
-                              ),
-                              borderSide: const BorderSide(
-                                color: AppColors.outlineVariant,
-                              ),
+                            isCollapsed: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
                             ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppSpacing.cardRadius,
-                              ),
-                              borderSide: const BorderSide(
-                                color: AppColors.secondary,
-                                width: 2,
-                              ),
-                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
                           ),
                         ),
                       ],

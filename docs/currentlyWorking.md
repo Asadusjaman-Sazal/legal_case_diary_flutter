@@ -1,3 +1,15 @@
+### 2026-09-05 — Case Detail → Case History display text fix — COMPLETE
+
+- In `_historyEntry`, the content `Column` was `crossAxisAlignment: start`, which let the Step/Result `Text` cap at the longest-word width and wrap after ~two words instead of using the full available width. Changed it to `CrossAxisAlignment.stretch` so both the Step/Result and Note texts now fill the full content column width.
+- Changed the Note text from `TextAlign.justify` to `TextAlign.left` so it reads like the Notes body / Google Keep (clean left alignment, ragged right edge, no forced justify spacing).
+- `flutter analyze` clean. Version `0.0.151`.
+
+### 2026-09-05 — Case History fields + Case Reference Save button — COMPLETE
+
+- Applied the same collapsed-input-decoration fix used for the Case Reference form fields (and the Notes body) to the Case History edit dialog's two free-text fields: Result (`history-edit-result`) and Note (`history-edit-note`). Set `filled: true`, `isCollapsed: true`, and all border states to `InputBorder.none` so text fills the available width with no focus underline, while preserving the existing empty=surface / filled=surfaceVariant color feedback. (The "Step" field is a steps dropdown, not a text field, so it was untouched.)
+- Reverted the Case Reference Save button back to full width (removed the 50% `SizedBox`/`Center` wrapper) while keeping its `minimumSize` height of 56 and white text.
+- `flutter analyze` clean. Version `0.0.150`.
+
 ### 2026-09-05 — Task 11 Phase 2 Case Reference add/edit tweaks — COMPLETE
 
 - Removed the Delete button from the add/edit window (previously shown only when editing).

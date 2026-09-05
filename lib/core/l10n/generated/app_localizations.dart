@@ -566,6 +566,18 @@ abstract class AppLocalizations {
   /// **'Note'**
   String get notesScreen_noteBody;
 
+  /// No description provided for @notesScreen_noteBodyPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your note here...'**
+  String get notesScreen_noteBodyPlaceholder;
+
+  /// No description provided for @notesScreen_drafting.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafting...'**
+  String get notesScreen_drafting;
+
   /// No description provided for @caseReferenceScreen_title.
   ///
   /// In en, this message translates to:

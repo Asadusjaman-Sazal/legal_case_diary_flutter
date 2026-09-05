@@ -269,6 +269,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notesScreen_noteBody => 'নোট';
 
   @override
+  String get notesScreen_noteBodyPlaceholder => 'আপনার নোট এখানে লিখুন...';
+
+  @override
+  String get notesScreen_drafting => 'খসড়া লেখা হচ্ছে...';
+
+  @override
   String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
 
   @override

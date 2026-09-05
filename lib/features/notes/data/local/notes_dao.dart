@@ -73,9 +73,9 @@ class NotesDao {
       await (db.update(db.notes)..where((row) => row.id.equals(note.id.value))).write(note) > 0;
 
   /// Toggles the pinned state of a note.
-  Future<int> setPinned(String id, bool isPinned, int updatedAt) => db.update(db.notes).write(
+  Future<int> setPinned(String id, bool isPinned, int updatedAt) =>
+      (db.update(db.notes)..where((row) => row.id.equals(id))).write(
         NotesCompanion(
-          id: Value(id),
           isPinned: Value(isPinned),
           updatedAt: Value(updatedAt),
         ),

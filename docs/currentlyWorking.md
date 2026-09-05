@@ -1,3 +1,12 @@
+### 2026-09-05 — Task 11 Notes detail view (Google Keep full screen) — COMPLETE
+
+- **Pin bug fixed**: `notes_dao.dart` `setPinned` was calling `db.update(db.notes).write(...)` with **no `where` clause**, so pinning toggled `isPinned` on every row — the card's delete still worked because `delete` had its `where`. Added `..where((row) => row.id.equals(id))`.
+- Replaced the add/edit bottom sheet with `lib/features/notes/presentation/note_detail_screen.dart`: a full-screen `Scaffold` opened via `Navigator.push(MaterialPageRoute)` (no nav panel / bottom nav), matching the mockup's "View/Edit Note Modal".
+- Top bar: Back (`arrow_back`), Pin (`push_pin`, tinted `secondary` when pinned), Delete (`delete_outline`), Check (`check` = save & close). New notes disable Pin/Delete until saved.
+- Content: centered (`maxWidth 768`) scrollable Title textarea (`headlineLg`, `primary`) + Note textarea (`bodyLg`, `onSurface`), borderless placeholders "Note title" / "Enter your note here...".
+- Bottom bar: "Modified: date time" (`AppDateUtils.formatNoteCardDate`).
+- Card tap and FAB now push `NoteDetailScreen`; the card still keeps its inline Delete (with confirm) and Pin buttons. Added l10n keys `notesScreen_noteBodyPlaceholder`, `notesScreen_drafting` (en/bn). `flutter analyze` clean. Version `0.0.142`.
+
 ### 2026-09-05 — Task 11 Phase 1 Notes screen — COMPLETE
 
 - Built `lib/features/notes/presentation/notes_screen.dart` (was a "Task 11" stub). Reuses `CasesScreenModal` for the nav panel, search button, and FAB; lists notes via `notesViewModelProvider` (pinned-first, then `created_at` desc).

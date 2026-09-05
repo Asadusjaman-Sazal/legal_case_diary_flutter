@@ -1,11 +1,11 @@
 /// Notes screen: notes library with search, add/edit, pinning, and delete.
 ///
-/// Task 11 Phase 1. Card layout mirrors the mandatory mockup
-/// `mockup_html_screens/notes/code.html`. Uses [CasesScreenModal] for the shared
-/// header (nav panel + search) and bottom nav.
+/// Task 11 Phase 1/2. Card layout mirrors the mandatory mockup
+/// `mockup_html_screens/notes/code.html`. Tapping a card (or the FAB) opens the
+/// full-screen [NoteDetailScreen] (Google Keep style). Uses [CasesScreenModal]
+/// for the shared header (nav panel + search) and bottom nav.
 library;
 
-import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +16,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
+import 'note_detail_screen.dart';
 import 'notes_viewmodel.dart';
 
 /// Notes library screen.
@@ -41,6 +42,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       _isSearching = !_isSearching;
       if (!_isSearching) _searchController.clear();
     });
+  }
+
+  /// Opens the full-screen detail editor. [note] is null when creating new.
+  Future<void> _openDetail({Note? note}) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
+    );
   }
 
   Future<void> _confirmDelete(Note note) async {
@@ -74,19 +82,6 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         .setPinned(note.id, !note.isPinned);
   }
 
-  Future<void> _openEditor({Note? note}) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => _NoteEditorSheet(note: note),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -104,7 +99,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     return CasesScreenModal(
       title: l.notesScreen_title,
       onSearch: _toggleSearch,
-      onAddCase: () => _openEditor(),
+      onAddCase: () => _openDetail(),
       body: _NotesList(
         isSearching: _isSearching,
         searchController: _searchController,
@@ -112,7 +107,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         notes: visible,
         totalCount: notes.length,
         locale: Localizations.localeOf(context).toLanguageTag(),
-        onEdit: (note) => _openEditor(note: note),
+        onEdit: (note) => _openDetail(note: note),
         onDelete: _confirmDelete,
         onTogglePin: _togglePin,
       ),
@@ -315,125 +310,6 @@ class _NoteCardState extends State<_NoteCard> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Add/Edit note bottom sheet.
-class _NoteEditorSheet extends ConsumerStatefulWidget {
-  const _NoteEditorSheet({this.note});
-
-  final Note? note;
-
-  @override
-  ConsumerState<_NoteEditorSheet> createState() => _NoteEditorSheetState();
-}
-
-class _NoteEditorSheetState extends ConsumerState<_NoteEditorSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _bodyController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _titleController.text = widget.note?.title ?? '';
-    _bodyController.text = widget.note?.body ?? '';
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _bodyController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    final viewModel = ref.read(notesViewModelProvider.notifier);
-    final companion = NotesCompanion(
-      title: Value(_titleController.text.trim()),
-      body: Value(_bodyController.text.trim()),
-    );
-    if (widget.note == null) {
-      await viewModel.addNote(companion);
-    } else {
-      await viewModel.updateNote(
-        companion.copyWith(id: Value(widget.note!.id)),
-        baseNote: widget.note,
-      );
-    }
-    if (mounted) Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.md,
-        right: AppSpacing.md,
-        top: AppSpacing.md,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.md,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              widget.note == null ? l.sharedActions_add : l.sharedActions_edit,
-              style: AppTypography.titleMd.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: l.notesScreen_noteTitle,
-                border: const OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  value == null || value.trim().isEmpty
-                      ? l.sharedDialogs_requiredField
-                      : null,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _bodyController,
-              decoration: InputDecoration(
-                labelText: l.notesScreen_noteBody,
-                border: const OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 6,
-              minLines: 3,
-              textInputAction: TextInputAction.newline,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l.sharedActions_cancel),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _save,
-                    child: Text(l.sharedActions_save),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );

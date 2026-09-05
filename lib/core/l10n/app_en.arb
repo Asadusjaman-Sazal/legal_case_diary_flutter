@@ -96,6 +96,8 @@
   "notesScreen_empty": "No notes yet. Tap + to add one.",
   "notesScreen_noteTitle": "Title",
   "notesScreen_noteBody": "Note",
+  "notesScreen_noteBodyPlaceholder": "Enter your note here...",
+  "notesScreen_drafting": "Drafting...",
   "caseReferenceScreen_title": "Case Reference",
   "caseReferenceScreen_referenceAndPageNo": "Reference & Page No",
   "caseReferenceScreen_statute": "Statute",

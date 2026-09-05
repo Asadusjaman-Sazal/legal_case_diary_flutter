@@ -268,6 +268,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesScreen_noteBody => 'Note';
 
   @override
+  String get notesScreen_noteBodyPlaceholder => 'Enter your note here...';
+
+  @override
+  String get notesScreen_drafting => 'Drafting...';
+
+  @override
   String get caseReferenceScreen_title => 'Case Reference';
 
   @override

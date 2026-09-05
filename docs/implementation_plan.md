@@ -247,7 +247,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
 - **Source of Truth:** Shows data from various data tables.
 - **Layout Description:**
   - **Line 1:** `case_type` and `case_number` displayed in big font.
-  - **Line 2:** A location icon and the name of the court (`court_name`).
+  - **Line 2:** A location icon and the name of the court (`court_name`). For AD/HCD cases only, a judges names line directly below.
   - **Line 3:** Action buttons — **Delete** (red, soft-deletes the case with confirmation dialog), **Edit Case** (opens `add_edit_case_sheet.dart` in edit mode), and **Close** (pops the screen).
   - **Line 4 — Parties KanBan Card:**
     - **On Behalf Of:** (from `on_behalf_id`)
@@ -256,13 +256,14 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Line 5 — Case Description KanBan Card:**
     - **Case Title & Remark** (title)
     - Two text boxes: `case_title_and_section` (Sections or Case Title) and `case_remarks` (Remarks or Case Summary)
+  - **Other Information card (AD/HCD cases only):** Tender Number, Previous Court Case, and District of Origin boxes; sits between Line 5 and Line 6.
   - **Line 6 — Case History KanBan Card:**
-    - Header: "Case History" with a time icon and a status showing total history count ("x Entries Total")
-    - List of previous `next_date`, `last_step`, and `note_result` entries. Next Dates shown on the left; Steps on the right; Note directly below the Step.
+    - Header: "Case History" with a time icon, a total history count ("x Entries Total"), and a Show/Hide button (only when more than 3 entries) that expands all entries or folds back to the newest 3; while expanded, the title row stays pinned at the top of the screen.
+    - List of previous `next_date`, `last_step`, and `note_result` entries. Dates (DD/MM/YYYY + weekday) shown on the left; Steps on the right; Note directly below the Step. AD/HCD rows show the hearing's `result` snapshot in place of Step.
 - **Case History Logic:**
-  - Every time the user enters a new `next_date` (with or without `last_step` and `note_result`), the **previous** `next_date`, `last_step`, and `note_result` values are saved as a new entry in the `case_history` table.
-  - Case history entries are ordered chronologically by `next_date` **descending** — the latest entry sits at the top.
-  - **Long-press** on a history item shows 2 options: **Edit** (shows a form to change Next Date, Step, Note) and **Delete** (shows a confirmation dialog before deleting).
+  - Every time the user enters a new `next_date` (with or without `last_step` and `note_result`), the **previous** `next_date`, `last_step`, and `note_result` values — plus the previous `result` for AD/HCD — are saved as a new entry in the `case_history` table.
+  - On the detail screen entries are ordered newest-first by each row's displayed date (`hearing_date`); the DAO query itself remains `next_date` **descending**.
+  - **Long-press** on a history item shows 2 options: **Edit** (shows a form to change Next Date, Step, Note; Result too for AD/HCD) and **Delete** (shows a confirmation dialog before deleting).
 
 ---
 

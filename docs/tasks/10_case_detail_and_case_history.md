@@ -21,8 +21,8 @@ Build exactly per §5:
 
 ## Phase 2 — Case History Logic
 
-1. Only a save from the case-card **Quick Update** popup may create automatic history. When that transaction changes `next_date` (with or without simultaneous step/note changes), `CaseRepository` stores the previous `next_date`, `last_step`, and `note_result` as exactly one `case_history` entry. Ordinary Add/Edit saves and step/note-only Quick Updates create none; verify this end-to-end without direct UI DAO writes.
-2. Entries ordered by `next_date` **descending** (latest on top).
+1. Only a save from the case-card **Quick Update** popup may create automatic history. When that transaction changes `next_date` (with or without simultaneous step/note changes), `CaseRepository` stores the previous `next_date`, `last_step`, `note_result`, and (for AD/HCD) `result` as exactly one `case_history` entry. Ordinary Add/Edit saves and step/note-only Quick Updates create none; verify this end-to-end without direct UI DAO writes.
+2. On the detail screen, entries are ordered newest-first by each row's displayed date (`hearing_date`); the DAO query itself stays `next_date` **descending**.
 3. **Long-press** on a history item → two options:
    - **Edit:** form to change Next Date, Step (category-filtered), Note.
    - **Delete:** confirmation dialog, then soft delete.
@@ -35,3 +35,11 @@ Build exactly per §5:
 - Parties display `petitioner_phone` and `respondent_phone` independently when present. The represented-client action derives the correct one from `on_behalf_id`; never infer a second phone.
 - Automatic provisional history is created only by the repository transaction for the quick Update popup when `next_date` changes. Ordinary Add/Edit saves and step/note-only edits do not create automatic history. The server reconciles the authoritative event after accepted sync.
 - Phone/WhatsApp actions follow Task 14 capability validation and safe fallback rules.
+
+## Post-Phase refinements (Versions 0.0.136 – 0.0.140)
+
+- **0.0.136 — AD/HCD-only columns:** a judges names line under Name of Court, and an "Other Information" card (Tender Number, Previous Court Case, District of Origin) between Case Title & Remark and Case History; both only for Appellate/High Court Division cases.
+- **0.0.137 — History rows & Result:** dates render as DD/MM/YYYY with the weekday underneath; `case_history` gained a nullable `result` snapshot column (schema v6) frozen by the Quick Update transaction; AD/HCD rows show the hearing's Result in the Step slot; the long-press Edit form can edit Result for AD/HCD.
+- **0.0.138 — Row polish:** weekday centered under the date; Step/Result and Note span the full content width with justified multi-line text.
+- **0.0.139 — Show/Hide + sticky title:** a Show/Hide button right of "N Entries Total" (only when >3 entries) expands all entries or folds back to the newest 3; while fully expanded, the Case History title row is sticky at the top (PinnedHeaderSliver); Step/Result uses the Note's size (14/20) but stays bold.
+- **0.0.140 — Ordering & alignment:** history rows sort newest-first by each row's displayed date (`hearing_date`, screen-level re-sort; DAO `next_date` contract unchanged); Step/Result reads left aligned (Note keeps justified).

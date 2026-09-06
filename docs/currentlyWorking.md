@@ -1,3 +1,18 @@
+### 2026-09-06 — Task 12 Settings main screen: search background fix — COMPLETE
+
+- `lib/features/settings/presentation/settings_main_screen.dart` — removed the boxed `surfaceContainer` container/rounded shape and the blue accent underline from the open search field; it now shares the header's `surface` background so the open field and the search button have exactly the same background.
+- `flutter analyze` clean. Version `0.0.157`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
+### 2026-09-06 — Task 12 Settings main screen: search bar polish — COMPLETE
+
+- `lib/features/settings/presentation/settings_main_screen.dart` — search field now extends from the "Settings" title to the right edge (removed the `Spacer` that shared the row 50/50), dropped the blue accent (neutral slate `onSurfaceVariant` icons + cursor, unified `surfaceContainer` background), and removed the field's left gutter so it reads as one continuous bar.
+- `flutter analyze` clean. Version `0.0.156`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
+### 2026-09-06 — Task 12 Settings main screen: back button + search fix — COMPLETE
+
+- `lib/features/settings/presentation/settings_main_screen.dart` — moved the back button off the header bar to its own row directly below the menu button; fixed the search button not opening (the `AnimatedSwitcher` was wrapping an `Expanded` field, which can't find a Flex inside its Stack — now the switcher itself is the `Expanded` child and the field is a plain `Container`).
+- `flutter analyze` clean. Version `0.0.155`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-06 — Task 12 Settings main screen: menu fix — COMPLETE
 
 - `lib/features/settings/presentation/settings_main_screen.dart` — placed the hamburger menu directly under (left of) the back button; fixed it not opening by opening the drawer from the header's own `Builder` context (`Scaffold.of`). The previous closure captured the parent `build` context, which sits above the `Scaffold` and so could never find the drawer.

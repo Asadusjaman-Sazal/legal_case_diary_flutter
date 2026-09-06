@@ -282,60 +282,81 @@ class _SettingsHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 56,
-        color: AppColors.surface,
-        padding: const EdgeInsets.only(right: AppSpacing.sm),
-        child: Row(
-          children: [
-            // Left cluster: menu then a stacked back button (this screen only).
-            // Both use a Builder so they open the drawer/pop against the header's
-            // own context — the parent build context sits above the Scaffold and
-            // cannot see it.
-            Builder(
-              builder: (ctx) => IconButton(
-                icon: const Icon(Icons.menu, color: AppColors.primary),
-                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
-              ),
-            ),
-            Builder(
-              builder: (ctx) => IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                onPressed: onBackPressed,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            const Text('Settings', style: AppTypography.titleLg),
-            const Spacer(),
-            // Right cluster: search button that expands into a search field.
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, animation) => SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-              child: searchOpen
-                  ? _SlideInSearchField(
-                      key: const ValueKey('search'),
-                      controller: searchController,
-                      focus: searchFocus,
-                      onChanged: onSearchChanged,
-                      onClose: onCloseSearch,
-                    )
-                  : IconButton(
-                      key: const ValueKey('search-btn'),
-                      icon: const Icon(Icons.search, color: AppColors.primary),
-                      tooltip: 'Search settings',
-                      onPressed: onSearchPressed,
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header bar: menu, title, and the search affordance on the right.
+          Container(
+            height: 56,
+            color: AppColors.surface,
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: Row(
+              children: [
+                // Menu uses a Builder so it opens the drawer against the header's
+                // own context — the parent build context sits above the Scaffold
+                // and cannot see it.
+                Builder(
+                  builder: (ctx) => IconButton(
+                    icon: const Icon(Icons.menu, color: AppColors.primary),
+                    tooltip:
+                        MaterialLocalizations.of(context).openAppDrawerTooltip,
+                    onPressed: () => Scaffold.of(ctx).openDrawer(),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                const Text('Settings', style: AppTypography.titleLg),
+                const SizedBox(width: AppSpacing.md),
+                // The field fills the row from here to the right edge when open.
+                // The AnimatedSwitcher must be the Flex child (Expanded), not the
+                // inner field — AnimatedSwitcher wraps its child in a Stack, and an
+                // Expanded inside a Stack cannot find a Flex ancestor, so the field
+                // never shows.
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) => SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
                     ),
+                    child: searchOpen
+                        ? _SlideInSearchField(
+                            key: const ValueKey('search'),
+                            controller: searchController,
+                            focus: searchFocus,
+                            onChanged: onSearchChanged,
+                            onClose: onCloseSearch,
+                          )
+                        : Align(
+                            key: const ValueKey('search-btn'),
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              icon: const Icon(Icons.search,
+                                  color: AppColors.primary),
+                              tooltip: 'Search settings',
+                              onPressed: onSearchPressed,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Back button on its own row, directly below the menu button.
+          Row(
+            children: [
+              Builder(
+                builder: (ctx) => IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  onPressed: onBackPressed,
+                ),
+              ),
+            ],
+          ),
+        ],
       );
 }
 
@@ -355,42 +376,42 @@ class _SlideInSearchField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          height: 40,
-          margin: const EdgeInsets.only(left: AppSpacing.sm),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(Icons.search, color: AppColors.tertiary),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focus,
-                  onChanged: (_) => onChanged(),
-                  decoration: const InputDecoration(
-                    hintText: 'Search settings',
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: AppSpacing.sm,
-                      horizontal: AppSpacing.sm,
-                    ),
-                  ),
+  Widget build(BuildContext context) => Row(
+        // No own background — it inherits the header's `surface` color, which is
+        // exactly the search button's background, so the open and closed states
+        // share one continuous background.
+        children: [
+          const SizedBox(width: AppSpacing.sm),
+          const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              focusNode: focus,
+              // Neutral cursor/handle — no blue accent.
+              cursorColor: AppColors.onSurfaceVariant,
+              style: const TextStyle(color: AppColors.onSurface),
+              onChanged: (_) => onChanged(),
+              decoration: const InputDecoration(
+                hintText: 'Search settings',
+                hintStyle: TextStyle(color: AppColors.onSurfaceVariant),
+                // No box and no focus underline — removes the blue accent line.
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: AppSpacing.sm,
+                  horizontal: AppSpacing.sm,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.close, color: AppColors.tertiary),
-                tooltip: 'Close search',
-                onPressed: onClose,
-              ),
-            ],
+            ),
           ),
-        ),
+          IconButton(
+            icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
+            tooltip: 'Close search',
+            onPressed: onClose,
+          ),
+        ],
       );
 }
 

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.154 - Task 12 Settings main screen fix: placed hamburger menu directly under (left of) the back button, and fixed the menu not opening by opening the drawer from the header's own context (parent build context sat above the Scaffold so `Scaffold.of` found no ancestor).
+Version: 0.0.157 - Task 12 Settings main screen search fix: open search field now shares the header's `surface` background (no boxed `surfaceContainer` container, no rounded shape, no blue accent underline) so it matches the search button's background exactly.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -168,3 +168,6 @@ Version: 0.0.151 - Case Detail → Case History display: fixed Step/Result wrapp
 Version: 0.0.152 - Task 12 Phase 1: Settings main screen built — sectioned General/Preferences/App Info list mirroring settings_main mockup, live search filtering (Plan §12.1), inline Bengali/English language toggle via localeProvider, and a Guidelines item before About. `flutter analyze` clean.
 Version: 0.0.153 - Task 12 Phase 2: Account & Profile menu (Profile + Manage Account buttons), Online Sync Part A placeholder (offline status banner, disabled Sync Now, upgrade CTA, live Notes/References counts), and Backup & Restore offline shell (local/drive backup, restore, automatic-backup schedule chips, last-backup status). All use SettingsSubPageModal. `flutter analyze` clean.
 Version: 0.0.154 - Task 12 Settings main screen fix: placed hamburger menu directly under (left of) the back button, and fixed the menu not opening by opening the drawer from the header's own context (parent build context sat above the Scaffold so `Scaffold.of` found no ancestor).
+Version: 0.0.155 - Task 12 Settings main screen fix: moved the back button to its own row directly below the menu button (header bar no longer holds it inline), and fixed the search button not opening by making the `AnimatedSwitcher` the `Expanded` Flex child so the field can lay out.
+Version: 0.0.156 - Task 12 Settings main screen search polish: search field now spans from the title to the right edge (removed the Spacer that split the row), dropped the blue accent (neutral slate icons/cursor, unified `surfaceContainer` background), and removed the field's left gutter so it reads as one bar.
+Version: 0.0.157 - Task 12 Settings main screen search fix: open search field now shares the header's `surface` background (no boxed `surfaceContainer` container, no rounded shape, no blue accent underline) so it matches the search button's background exactly.

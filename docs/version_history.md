@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.163 - Task 12 Phase 2 Profile screen: increased vertical spacing between read-view data rows (padding sm → lg) for more separation between each item.
+Version: 0.0.164 - Task 12 Settings main screen: search field fill color now matches the unified search pill background (`surfaceContainer`); previously the global filled-input theme drew a `surfaceVariant` box on top of the pill.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -177,3 +177,4 @@ Version: 0.0.160 - Task 12 Phase 2 Manage Account screen built per `settings_man
 Version: 0.0.161 - Task 12 Phase 2 Profile screen reworked: read view shows profile data by default with a FAB that opens an edit bottom sheet (form fields). Avatar edit button now opens an image picker; once a picture is selected, a red circular delete button appears beside the edit button to clear it. Added `image_picker` dependency.
 Version: 0.0.162 - Task 12 Phase 2 Profile screen: increased read-view data font size (bodyMd → bodyLg) and removed the "These details will be used to automatically populate..." info card.
 Version: 0.0.163 - Task 12 Phase 2 Profile screen: increased vertical spacing between read-view data rows (padding sm → lg) for more separation between each item.
+Version: 0.0.164 - Task 12 Settings main screen: search field fill color now matches the unified search pill background (`surfaceContainer`); previously the global filled-input theme drew a `surfaceVariant` box on top of the pill.

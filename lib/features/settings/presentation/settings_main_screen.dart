@@ -391,12 +391,15 @@ class _SlideInSearchField extends StatelessWidget {
                 cursorColor: AppColors.onSurfaceVariant,
                 style: const TextStyle(color: AppColors.onSurface),
                 onChanged: (_) => onChanged(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search',
-                  hintStyle: TextStyle(
+                  hintStyle: const TextStyle(
                     color: AppColors.onSurfaceVariant,
                     fontSize: 12.0,
                   ),
+                  // Match the pill background so the field reads as one surface.
+                  filled: true,
+                  fillColor: AppColors.surfaceContainer,
                   // No box and no focus underline — removes the blue accent line.
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,

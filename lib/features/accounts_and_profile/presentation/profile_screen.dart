@@ -293,7 +293,7 @@ class _DataRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg * 0.55),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

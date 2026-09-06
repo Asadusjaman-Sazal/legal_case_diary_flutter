@@ -27,14 +27,10 @@ class _SettingsItem {
   /// Route the item navigates to on tap.
   final String route;
 
-  /// Optional subtitle shown under the title.
-  final String? subtitle;
-
   const _SettingsItem({
     required this.title,
     required this.icon,
     required this.route,
-    this.subtitle,
   });
 }
 
@@ -105,7 +101,6 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
             title: 'Account & Profile',
             icon: Icons.person_outline,
             route: AppRoutes.settingsAccountProfile,
-            subtitle: 'Profile, manage account',
           ),
           const _SettingsItem(
             title: 'Online Sync',
@@ -458,9 +453,6 @@ class _SettingsListTile extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
         leading: Icon(item.icon, color: AppColors.primary),
         title: Text(item.title, style: AppTypography.bodyLg),
-        subtitle: item.subtitle == null
-            ? null
-            : Text(item.subtitle!, style: AppTypography.bodySm),
         trailing: const Icon(
           Icons.chevron_right,
           color: AppColors.tertiary,

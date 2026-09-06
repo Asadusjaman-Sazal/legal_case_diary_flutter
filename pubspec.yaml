@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.160
+version: 0.0.161
 
 environment:
   sdk: ^3.12.2
@@ -50,6 +50,9 @@ dependencies:
 
   # Launcher (Task 14 tasks such as phone/SMS/email).
   url_launcher: ^6.3.2
+
+  # Profile picture selection (Task 12 Phase 2 Profile screen).
+  image_picker: ^1.1.2
 
   # Encryption support for the sqlite3/Drift native database (Task 03).
   # SQLite3MultipleCiphers is selected via the hooks section below.

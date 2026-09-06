@@ -1,11 +1,15 @@
-/// Profile screen: shows the profile form per the `settings_profile` mockup.
+/// Profile screen: shows profile data (read view) and an editable form.
 ///
-/// Task 12 Phase 2 (Part A): the form is editable locally with offline
-/// defaults; the Save action is a local-only confirmation. Real profile data
-/// binds in Part B (Task 17), which wires [ProfileRepository].
+/// Task 12 Phase 2 (Part A): data is shown by default; a FAB opens an edit
+/// sheet. The avatar edit button picks a profile picture, and a red delete
+/// button appears beside it to clear the picture. Real persistence binds in
+/// Part B (Task 17) via [ProfileRepository].
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -28,6 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       TextEditingController(text: 'Chamber 402, High Court Annex, Dhaka-1000');
   final _mobile = TextEditingController(text: '1812332721');
 
+  // Selected profile picture (Part A: in-memory only; persisted in Task 17).
+  File? _avatarFile;
+
   @override
   void dispose() {
     _fullName.dispose();
@@ -38,10 +45,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  void _save() {
-    // Part A: local-only confirmation. Task 17 persists via ProfileRepository.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved (offline)')),
+  Future<void> _pickAvatar() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => _avatarFile = File(picked.path));
+    }
+  }
+
+  void _clearAvatar() => setState(() => _avatarFile = null);
+
+  void _openEditSheet() {
+    // Editable controllers operate directly on the same state, so the read
+    // view reflects edits when the sheet is saved.
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => _EditSheet(
+        fullName: _fullName,
+        barAssociation: _barAssociation,
+        membershipNo: _membershipNo,
+        officeAddress: _officeAddress,
+        mobile: _mobile,
+        onSave: () {
+          Navigator.of(sheetContext).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile saved (offline)')),
+          );
+        },
+      ),
     );
   }
 
@@ -50,6 +85,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final displayName = _fullName.text.trim();
     return SettingsSubPageModal(
       title: 'Profile',
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openEditSheet,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        tooltip: 'Edit profile',
+        child: const Icon(Icons.edit_outlined),
+      ),
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           AppSpacing.edgeMargin,
@@ -61,10 +103,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           constraints: const BoxConstraints(maxWidth: 720),
           child: Column(
             children: [
-              // Profile picture + name.
-              _ProfileHeader(fullName: displayName),
-              SizedBox(height: AppSpacing.xl),
-              // Form card.
+              _ProfileHeader(
+                fullName: displayName,
+                avatarFile: _avatarFile,
+                onEditAvatar: _pickAvatar,
+                onDeleteAvatar: _avatarFile != null ? _clearAvatar : null,
+              ),
+              SizedBox(height: AppSpacing.lg),
+              // Read-only data card.
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerLowest,
@@ -82,54 +128,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Field(
+                    _DataRow(
                       icon: Icons.person_outline,
                       label: 'Full Name',
-                      controller: _fullName,
-                      hint: 'Enter your full name',
-                      onChanged: () => setState(() {}),
+                      value: displayName.isNotEmpty ? displayName : '—',
                     ),
-                    SizedBox(height: AppSpacing.lg),
-                    _Field(
+                    _DataRow(
                       icon: Icons.account_balance_outlined,
                       label: 'Bar Association',
-                      controller: _barAssociation,
-                      hint: 'Enter bar association name',
+                      value: _barAssociation.text.isNotEmpty
+                          ? _barAssociation.text
+                          : '—',
                     ),
-                    SizedBox(height: AppSpacing.lg),
-                    _Field(
+                    _DataRow(
                       icon: Icons.badge_outlined,
                       label: 'Membership No.',
-                      controller: _membershipNo,
-                      hint: 'Enter registration number',
+                      value: _membershipNo.text.isNotEmpty
+                          ? _membershipNo.text
+                          : '—',
                     ),
-                    SizedBox(height: AppSpacing.lg),
-                    _Field(
+                    _DataRow(
                       icon: Icons.location_on_outlined,
                       label: 'Office Address',
-                      controller: _officeAddress,
-                      hint: 'Enter your office address',
-                      maxLines: 3,
+                      value: _officeAddress.text.isNotEmpty
+                          ? _officeAddress.text
+                          : '—',
                     ),
-                    SizedBox(height: AppSpacing.lg),
-                    _MobileField(controller: _mobile),
-                    SizedBox(height: AppSpacing.md),
-                    SizedBox(
-                      height: 56,
-                      child: FilledButton.icon(
-                        onPressed: _save,
-                        icon: const Icon(Icons.save_outlined),
-                        label: const Text('Save Profile'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.onPrimary,
-                          textStyle: AppTypography.titleMd,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(AppSpacing.md),
-                          ),
-                        ),
-                      ),
+                    _DataRow(
+                      icon: Icons.call_outlined,
+                      label: 'Mobile No.',
+                      value: _mobile.text.isNotEmpty ? '+880 ${_mobile.text}' : '—',
                     ),
                   ],
                 ),
@@ -173,14 +201,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
 /// Circular avatar with name heading, mirroring the mockup's picture section.
 class _ProfileHeader extends StatelessWidget {
   final String fullName;
+  final File? avatarFile;
+  final VoidCallback onEditAvatar;
+  final VoidCallback? onDeleteAvatar;
 
-  const _ProfileHeader({required this.fullName});
+  const _ProfileHeader({
+    required this.fullName,
+    required this.avatarFile,
+    required this.onEditAvatar,
+    required this.onDeleteAvatar,
+  });
 
   @override
   Widget build(BuildContext context) {
     final initials = fullName.isNotEmpty
-        ? fullName.trim().split(RegExp(r'\s+')).map((e) => e[0]).take(2).join()
+        ? fullName
+            .trim()
+            .split(RegExp(r'\s+'))
+            .map((e) => e[0])
+            .take(2)
+            .join()
         : '?';
+    final hasAvatar = avatarFile != null;
     return Column(
       children: [
         Stack(
@@ -200,33 +242,198 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ],
                 color: AppColors.surfaceContainerHighest,
+                image: hasAvatar
+                    ? DecorationImage(
+                        image: FileImage(avatarFile!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              child: Center(
-                child: Text(
-                  initials.toUpperCase(),
-                  style: AppTypography.headlineMd
-                      .copyWith(color: AppColors.onSurfaceVariant),
-                ),
-              ),
+              child: hasAvatar
+                  ? null
+                  : Center(
+                      child: Text(
+                        initials.toUpperCase(),
+                        style: AppTypography.headlineMd
+                            .copyWith(color: AppColors.onSurfaceVariant),
+                      ),
+                    ),
             ),
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.xs),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary,
-                border: Border.all(color: AppColors.surface, width: 2),
+            // Edit button (always present).
+            GestureDetector(
+              onTap: onEditAvatar,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary,
+                  border: Border.all(color: AppColors.surface, width: 2),
+                ),
+                child: const Icon(Icons.edit,
+                    color: AppColors.onPrimary, size: 18),
               ),
-              child: const Icon(Icons.edit,
-                  color: AppColors.onPrimary, size: 18),
             ),
           ],
         ),
+        SizedBox(height: AppSpacing.sm),
+        // Red delete button appears once a picture is selected, just left of
+        // the name area (mirrors the round edit button position).
+        if (hasAvatar && onDeleteAvatar != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: GestureDetector(
+              onTap: onDeleteAvatar,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.error,
+                  border: Border.all(color: AppColors.surface, width: 2),
+                ),
+                child: const Icon(Icons.delete,
+                    color: Colors.white, size: 18),
+              ),
+            ),
+          ),
         SizedBox(height: AppSpacing.md),
         Text(
           fullName.isNotEmpty ? 'Adv. $fullName' : 'Your Name',
           style: AppTypography.titleLg.copyWith(color: AppColors.onBackground),
         ),
       ],
+    );
+  }
+}
+
+/// A read-only labelled row in the data card.
+class _DataRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _DataRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColors.onSurfaceVariant, size: 18),
+          SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.labelMd
+                      .copyWith(color: AppColors.onSurfaceVariant),
+                ),
+                SizedBox(height: AppSpacing.xs),
+                Text(
+                  value,
+                  style: AppTypography.bodyMd.copyWith(
+                    color: AppColors.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The edit form shown in a bottom sheet (mirrors the mockup's form fields).
+class _EditSheet extends StatelessWidget {
+  final TextEditingController fullName;
+  final TextEditingController barAssociation;
+  final TextEditingController membershipNo;
+  final TextEditingController officeAddress;
+  final TextEditingController mobile;
+  final VoidCallback onSave;
+
+  const _EditSheet({
+    required this.fullName,
+    required this.barAssociation,
+    required this.membershipNo,
+    required this.officeAddress,
+    required this.mobile,
+    required this.onSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        bottom + AppSpacing.lg,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Edit Profile', style: AppTypography.titleLg),
+          SizedBox(height: AppSpacing.lg),
+          _Field(
+            icon: Icons.person_outline,
+            label: 'Full Name',
+            controller: fullName,
+            hint: 'Enter your full name',
+          ),
+          SizedBox(height: AppSpacing.lg),
+          _Field(
+            icon: Icons.account_balance_outlined,
+            label: 'Bar Association',
+            controller: barAssociation,
+            hint: 'Enter bar association name',
+          ),
+          SizedBox(height: AppSpacing.lg),
+          _Field(
+            icon: Icons.badge_outlined,
+            label: 'Membership No.',
+            controller: membershipNo,
+            hint: 'Enter registration number',
+          ),
+          SizedBox(height: AppSpacing.lg),
+          _Field(
+            icon: Icons.location_on_outlined,
+            label: 'Office Address',
+            controller: officeAddress,
+            hint: 'Enter your office address',
+            maxLines: 3,
+          ),
+          SizedBox(height: AppSpacing.lg),
+          _MobileField(controller: mobile),
+          SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: onSave,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Save Profile'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.titleMd,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -238,7 +445,6 @@ class _Field extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final int maxLines;
-  final VoidCallback? onChanged;
 
   const _Field({
     required this.icon,
@@ -246,7 +452,6 @@ class _Field extends StatelessWidget {
     required this.controller,
     required this.hint,
     this.maxLines = 1,
-    this.onChanged,
   });
 
   @override
@@ -270,7 +475,6 @@ class _Field extends StatelessWidget {
         TextFormField(
           controller: controller,
           maxLines: maxLines,
-          onChanged: (_) => onChanged?.call(),
           cursorColor: AppColors.primary,
           decoration: InputDecoration(
             hintText: hint,
@@ -283,12 +487,10 @@ class _Field extends StatelessWidget {
               vertical: maxLines > 1 ? AppSpacing.md : 14,
             ),
             border: const UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: AppColors.cardBorder, width: 2),
+              borderSide: BorderSide(color: AppColors.cardBorder, width: 2),
             ),
             enabledBorder: const UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: AppColors.cardBorder, width: 2),
+              borderSide: BorderSide(color: AppColors.cardBorder, width: 2),
             ),
             focusedBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.primary, width: 2),

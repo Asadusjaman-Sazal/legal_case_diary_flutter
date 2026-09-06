@@ -1,3 +1,8 @@
+### 2026-09-06 — Task 12 Phase 2: Profile screen reworked — COMPLETE
+
+- `lib/features/accounts_and_profile/presentation/profile_screen.dart` — read view shows profile data by default; FAB opens an edit bottom sheet with the form fields. Avatar edit button opens an image picker; red circular delete button appears beside it once a picture is set, to clear it. Added `image_picker` dependency.
+- `flutter analyze` clean. Version `0.0.161`. **Resume point:** Task 12 Phase 2 — Online Sync screen.
+
 ### 2026-09-06 — Task 12 Phase 2: Manage Account screen built — COMPLETE
 
 - `lib/features/accounts_and_profile/presentation/manage_account_screen.dart` — built per `settings_manageProfileAccount` mockup: profile summary card (avatar, name, email, Logout pill), "Account Settings" list (Change Password, Subscription Details, Purchase New Subscription), and a destructive Delete Account row (error-styled). Part A: actions show an offline notice; real auth wiring in Task 17.

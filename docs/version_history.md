@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.161 - Task 12 Phase 2 Profile screen reworked: read view shows profile data by default with a FAB that opens an edit bottom sheet (form fields). Avatar edit button now opens an image picker; once a picture is selected, a red circular delete button appears beside the edit button to clear it. Added `image_picker` dependency.
+Version: 0.0.162 - Task 12 Phase 2 Profile screen: increased read-view data font size (bodyMd → bodyLg) and removed the "These details will be used to automatically populate..." info card.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -175,3 +175,4 @@ Version: 0.0.158 - Task 12 Settings main screen search: open field is one unifie
 Version: 0.0.159 - Task 12 Phase 2 Profile screen built per `settings_profile` mockup: circular avatar with edit badge (initials fallback), name heading, white rounded form card (Full Name, Bar Association, Membership No., Office Address, Mobile No. with +880 prefix), Save Profile button, and the info box. Part A — locally editable with an offline save toast; real data binds in Task 17.
 Version: 0.0.160 - Task 12 Phase 2 Manage Account screen built per `settings_manageProfileAccount` mockup: profile summary card (avatar, name, email, Logout pill), "Account Settings" list (Change Password, Subscription Details, Purchase New Subscription), and a destructive Delete Account row (error-styled). Part A — actions show an offline notice; real auth wiring in Task 17.
 Version: 0.0.161 - Task 12 Phase 2 Profile screen reworked: read view shows profile data by default with a FAB that opens an edit bottom sheet (form fields). Avatar edit button now opens an image picker; once a picture is selected, a red circular delete button appears beside the edit button to clear it. Added `image_picker` dependency.
+Version: 0.0.162 - Task 12 Phase 2 Profile screen: increased read-view data font size (bodyMd → bodyLg) and removed the "These details will be used to automatically populate..." info card.

@@ -163,33 +163,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               SizedBox(height: AppSpacing.lg),
-              // Info box.
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryContainer.withValues(alpha: 0.1),
-                  border: Border.all(
-                    color: AppColors.secondary.withValues(alpha: 0.2),
-                  ),
-                  borderRadius: BorderRadius.circular(AppSpacing.md),
-                ),
-                padding: EdgeInsets.all(AppSpacing.md),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: AppColors.secondary, size: 18),
-                    SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Text(
-                        'These details will be used to automatically populate '
-                        'headers on generated Cause Lists and Client Reports.',
-                        style: AppTypography.bodySm
-                            .copyWith(color: AppColors.primary),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -338,7 +311,7 @@ class _DataRow extends StatelessWidget {
                 SizedBox(height: AppSpacing.xs),
                 Text(
                   value,
-                  style: AppTypography.bodyMd.copyWith(
+                  style: AppTypography.bodyLg.copyWith(
                     color: AppColors.onSurface,
                   ),
                 ),

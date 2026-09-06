@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.158 - Task 12 Settings main screen search: open field is one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text, and close icon; placeholder shortened to "Search".
+Version: 0.0.160 - Task 12 Phase 2 Manage Account screen built per `settings_manageProfileAccount` mockup: profile summary card (avatar, name, email, Logout pill), "Account Settings" list (Change Password, Subscription Details, Purchase New Subscription), and a destructive Delete Account row (error-styled). Part A — actions show an offline notice; real auth wiring in Task 17.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -172,3 +172,5 @@ Version: 0.0.155 - Task 12 Settings main screen fix: moved the back button to it
 Version: 0.0.156 - Task 12 Settings main screen search polish: search field now spans from the title to the right edge (removed the Spacer that split the row), dropped the blue accent (neutral slate icons/cursor, unified `surfaceContainer` background), and removed the field's left gutter so it reads as one bar.
 Version: 0.0.157 - Task 12 Settings main screen search fix: open search field now shares the header's `surface` background (no boxed `surfaceContainer` container, no rounded shape, no blue accent underline) so it matches the search button's background exactly.
 Version: 0.0.158 - Task 12 Settings main screen search: open field is one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text, and close icon; placeholder shortened to "Search".
+Version: 0.0.159 - Task 12 Phase 2 Profile screen built per `settings_profile` mockup: circular avatar with edit badge (initials fallback), name heading, white rounded form card (Full Name, Bar Association, Membership No., Office Address, Mobile No. with +880 prefix), Save Profile button, and the info box. Part A — locally editable with an offline save toast; real data binds in Task 17.
+Version: 0.0.160 - Task 12 Phase 2 Manage Account screen built per `settings_manageProfileAccount` mockup: profile summary card (avatar, name, email, Logout pill), "Account Settings" list (Change Password, Subscription Details, Purchase New Subscription), and a destructive Delete Account row (error-styled). Part A — actions show an offline notice; real auth wiring in Task 17.

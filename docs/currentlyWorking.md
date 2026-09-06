@@ -1,3 +1,13 @@
+### 2026-09-06 — Task 12 Phase 2: Manage Account screen built — COMPLETE
+
+- `lib/features/accounts_and_profile/presentation/manage_account_screen.dart` — built per `settings_manageProfileAccount` mockup: profile summary card (avatar, name, email, Logout pill), "Account Settings" list (Change Password, Subscription Details, Purchase New Subscription), and a destructive Delete Account row (error-styled). Part A: actions show an offline notice; real auth wiring in Task 17.
+- `flutter analyze` clean. Version `0.0.160`. **Resume point:** Task 12 Phase 2 — Online Sync screen.
+
+### 2026-09-06 — Task 12 Phase 2: Profile screen built — COMPLETE
+
+- `lib/features/accounts_and_profile/presentation/profile_screen.dart` — built per `settings_profile` mockup: avatar + edit badge (initials fallback), name heading, white rounded form card (Full Name, Bar Association, Membership No., Office Address, Mobile No. with +880 prefix), Save Profile button, info box. Part A: locally editable with offline save toast; real data binds in Task 17.
+- `flutter analyze` clean. Version `0.0.159`. **Resume point:** Task 12 Phase 2 — Manage Account screen.
+
 ### 2026-09-06 — Task 12 Settings main screen: search pill — COMPLETE
 
 - `lib/features/settings/presentation/settings_main_screen.dart` — open search field is now one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text input, and close icon; placeholder text shortened to "Search".

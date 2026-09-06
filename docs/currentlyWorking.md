@@ -1,3 +1,8 @@
+### 2026-09-06 — Task 12 Settings main screen: search pill — COMPLETE
+
+- `lib/features/settings/presentation/settings_main_screen.dart` — open search field is now one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text input, and close icon; placeholder text shortened to "Search".
+- `flutter analyze` clean. Version `0.0.158`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-06 — Task 12 Settings main screen: search background fix — COMPLETE
 
 - `lib/features/settings/presentation/settings_main_screen.dart` — removed the boxed `surfaceContainer` container/rounded shape and the blue accent underline from the open search field; it now shares the header's `surface` background so the open field and the search button have exactly the same background.

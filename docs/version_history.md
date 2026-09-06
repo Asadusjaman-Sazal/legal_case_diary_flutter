@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.157 - Task 12 Settings main screen search fix: open search field now shares the header's `surface` background (no boxed `surfaceContainer` container, no rounded shape, no blue accent underline) so it matches the search button's background exactly.
+Version: 0.0.158 - Task 12 Settings main screen search: open field is one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text, and close icon; placeholder shortened to "Search".
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -171,3 +171,4 @@ Version: 0.0.154 - Task 12 Settings main screen fix: placed hamburger menu direc
 Version: 0.0.155 - Task 12 Settings main screen fix: moved the back button to its own row directly below the menu button (header bar no longer holds it inline), and fixed the search button not opening by making the `AnimatedSwitcher` the `Expanded` Flex child so the field can lay out.
 Version: 0.0.156 - Task 12 Settings main screen search polish: search field now spans from the title to the right edge (removed the Spacer that split the row), dropped the blue accent (neutral slate icons/cursor, unified `surfaceContainer` background), and removed the field's left gutter so it reads as one bar.
 Version: 0.0.157 - Task 12 Settings main screen search fix: open search field now shares the header's `surface` background (no boxed `surfaceContainer` container, no rounded shape, no blue accent underline) so it matches the search button's background exactly.
+Version: 0.0.158 - Task 12 Settings main screen search: open field is one unified rounded gray (`surfaceContainer`) pill wrapping the search icon, text, and close icon; placeholder shortened to "Search".

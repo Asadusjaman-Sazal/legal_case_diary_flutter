@@ -376,42 +376,51 @@ class _SlideInSearchField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Row(
-        // No own background — it inherits the header's `surface` color, which is
-        // exactly the search button's background, so the open and closed states
-        // share one continuous background.
-        children: [
-          const SizedBox(width: AppSpacing.sm),
-          const Icon(Icons.search, color: AppColors.onSurfaceVariant),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focus,
-              // Neutral cursor/handle — no blue accent.
-              cursorColor: AppColors.onSurfaceVariant,
-              style: const TextStyle(color: AppColors.onSurface),
-              onChanged: (_) => onChanged(),
-              decoration: const InputDecoration(
-                hintText: 'Search settings',
-                hintStyle: TextStyle(color: AppColors.onSurfaceVariant),
-                // No box and no focus underline — removes the blue accent line.
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: AppSpacing.sm,
-                  horizontal: AppSpacing.sm,
+  Widget build(BuildContext context) => Container(
+        height: 40,
+        // One unified gray background behind the search icon, text, and close
+        // icon; rounded corners so it reads as a single search pill.
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainer,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: AppSpacing.sm),
+            const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: focus,
+                // Neutral cursor/handle — no blue accent.
+                cursorColor: AppColors.onSurfaceVariant,
+                style: const TextStyle(color: AppColors.onSurface),
+                onChanged: (_) => onChanged(),
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  hintStyle: TextStyle(
+                    color: AppColors.onSurfaceVariant,
+                    fontSize: 12.0,
+                  ),
+                  // No box and no focus underline — removes the blue accent line.
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: AppSpacing.sm,
+                    horizontal: AppSpacing.sm,
+                  ),
                 ),
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
-            tooltip: 'Close search',
-            onPressed: onClose,
-          ),
-        ],
+            IconButton(
+              icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
+              tooltip: 'Close search',
+              onPressed: onClose,
+            ),
+          ],
+        ),
       );
 }
 

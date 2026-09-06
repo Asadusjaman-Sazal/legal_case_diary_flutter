@@ -125,7 +125,7 @@ class AppNavigationDrawer extends StatelessWidget {
       active: active,
       onTap: () {
         Navigator.of(context).pop();
-        if (!active) context.go(item.route);
+        if (!active) context.push(item.route);
       },
     );
   }

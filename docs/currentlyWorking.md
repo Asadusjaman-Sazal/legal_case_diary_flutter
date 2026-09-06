@@ -1,3 +1,8 @@
+### 2026-09-06 — Task 12 Settings main screen: menu fix — COMPLETE
+
+- `lib/features/settings/presentation/settings_main_screen.dart` — placed the hamburger menu directly under (left of) the back button; fixed it not opening by opening the drawer from the header's own `Builder` context (`Scaffold.of`). The previous closure captured the parent `build` context, which sits above the `Scaffold` and so could never find the drawer.
+- `flutter analyze` clean. Version `0.0.154`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-06 — Task 12 Phase 2: Account & Profile + Online Sync + Backup & Restore shells — COMPLETE
 
 - `AccountsProfileMenuScreen`: two tappable cards (Profile, Manage Account) navigating to their existing routes; uses `SettingsSubPageModal`.

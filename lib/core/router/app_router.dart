@@ -36,6 +36,7 @@ import '../../features/settings/presentation/edit_court_steps/district_list_scre
 import '../../features/settings/presentation/edit_court_steps/item_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart';
+import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
@@ -62,6 +63,7 @@ class AppRoutes {
   static const String notes = '/notes';
   static const String caseReference = '/case-reference';
   static const String settings = '/settings';
+  static const String settingsLanguage = '/settings/language';
   static const String settingsAccountProfile = '/settings/account-profile';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
@@ -204,6 +206,10 @@ final List<RouteBase> _shellRoutes = [
     builder: (context, state) => const SettingsMainScreen(),
   ),
   GoRoute(
+    path: AppRoutes.settingsLanguage,
+    builder: (context, state) => const LanguageScreen(),
+  ),
+  GoRoute(
     path: AppRoutes.settingsAccountProfile,
     builder: (context, state) => const AccountsProfileMenuScreen(),
   ),
@@ -304,7 +310,17 @@ class AppShellRoot extends StatelessWidget {
   final Widget child;
   const AppShellRoot({required this.child, super.key});
 
-  Future<bool> _confirmExit(BuildContext context) async {
+  /// Shows the exit-confirmation dialog and, on confirm, closes the app.
+  /// Used by screens that have no in-router history to fall back to the same
+  /// behaviour as the shell's system-back gesture.
+  static Future<void> requestExit(BuildContext context) async {
+    final shouldExit = await _confirmExit(context);
+    if (shouldExit && context.mounted) {
+      SystemNavigator.pop();
+    }
+  }
+
+  static Future<bool> _confirmExit(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

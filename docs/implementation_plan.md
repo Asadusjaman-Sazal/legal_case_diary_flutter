@@ -465,6 +465,7 @@ lib/
 │   │   └── presentation/
 │   │       ├── settings_main_screen.dart          # Main settings screen (UI: settings_main/code.html)
 │   │       ├── settings_sub_page_modal.dart       # Reusable modal layout with back button for all sub-pages
+│   │       ├── settings_menu_card.dart            # Shared sub-menu card/button size contract (76 px card, 56 px CTA)
 │   │       ├── edit_court_steps/
 │   │       │   ├── edit_court_steps_menu.dart         # (UI: settings_editCourtSteps/code.html)
 │   │       │   ├── edit_court_names_category_screen.dart  # (UI: settings_editCourtSteps_editCourtNamesCategory)

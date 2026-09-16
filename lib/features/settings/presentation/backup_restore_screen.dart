@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 
 /// White bordered card shell shared by the mockup's three sections.
@@ -161,7 +162,8 @@ class _ActionCard extends StatelessWidget {
       );
 }
 
-/// One full-width 48 px (`h-12`) primary action button.
+/// One full-width primary action button, sized by [settingsPrimaryButtonHeight]
+/// so every Settings sub-menu CTA is the same height.
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -171,7 +173,7 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox(
         width: double.infinity,
-        height: 48,
+        height: settingsPrimaryButtonHeight,
         child: FilledButton.icon(
           onPressed: () => _backupNotice(context),
           icon: Icon(icon, size: 20),

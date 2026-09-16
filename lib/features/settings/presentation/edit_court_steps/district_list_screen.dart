@@ -8,10 +8,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../shared/providers/locale_provider.dart';
+import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
 /// District list for a chosen division.
@@ -42,20 +42,18 @@ class DistrictListScreen extends ConsumerWidget {
           final label = isBn
               ? districtLabelBn[id] ?? id
               : districtLabelEn[id] ?? id;
-          return Card(
-            elevation: 0,
-            color: AppColors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: AppColors.surfaceContainer),
+          // Shared sub-menu card; keeps the mockup's forward arrow as its
+          // trailing affordance.
+          return SettingsMenuCard(
+            icon: Icons.location_on_outlined,
+            title: label,
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.tertiary,
+              size: 18,
             ),
-            child: ListTile(
-              leading: const Icon(Icons.location_on_outlined, color: AppColors.primary),
-              title: Text(label, style: AppTypography.bodyLg),
-              trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.tertiary, size: 18),
-              onTap: () => context.push(
-                '${AppRoutes.settingsCourtList}?division=$division&district=$id',
-              ),
+            onTap: () => context.push(
+              '${AppRoutes.settingsCourtList}?division=$division&district=$id',
             ),
           );
         },

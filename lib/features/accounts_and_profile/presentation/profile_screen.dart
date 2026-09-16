@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
@@ -404,7 +405,8 @@ class _EditSheet extends StatelessWidget {
           _MobileField(controller: mobile),
           SizedBox(height: AppSpacing.md),
           SizedBox(
-            height: 56,
+            // Shared sub-menu CTA height; see [settingsPrimaryButtonHeight].
+            height: settingsPrimaryButtonHeight,
             child: FilledButton.icon(
               onPressed: onSave,
               icon: const Icon(Icons.save_outlined),

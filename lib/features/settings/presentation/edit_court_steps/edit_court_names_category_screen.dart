@@ -10,6 +10,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/router/app_router.dart';
+import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
 /// A card row for a top-level court grouping.
@@ -34,20 +35,12 @@ class _CategoryCard extends StatelessWidget {
       path: route,
       queryParameters: query ?? {},
     ).toString();
-    return Card(
-      elevation: 0,
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.surfaceContainer),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.primary),
-        title: Text(title, style: AppTypography.bodyLg),
-        subtitle: Text(subtitle, style: AppTypography.bodySm),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.tertiary),
-        onTap: () => context.push(uri),
-      ),
+    // Shared sub-menu card, so this screen matches the Account & Profile card.
+    return SettingsMenuCard(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      onTap: () => context.push(uri),
     );
   }
 }

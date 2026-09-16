@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/profile_picture_store.dart';
 
@@ -162,41 +163,47 @@ class ManageAccountScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.md),
                 child: Padding(
                   padding: EdgeInsets.all(AppSpacing.md),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.surfaceContainerLowest,
+                  // Same 44 px content row as the shared sub-menu cards.
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: settingsMenuCardRowHeight,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.surfaceContainerLowest,
+                          ),
+                          child: Center(
+                            child: Icon(Icons.delete_outline,
+                                color: AppColors.error),
+                          ),
                         ),
-                        child: Center(
-                          child: Icon(Icons.delete_outline,
-                              color: AppColors.error),
-                        ),
-                      ),
-                      SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Delete Account',
-                              style: AppTypography.titleMd.copyWith(
-                                  color: AppColors.onErrorContainer),
-                            ),
-                            SizedBox(height: AppSpacing.xs),
-                            Text(
-                              'This action cannot be undone',
-                              style: AppTypography.bodySm.copyWith(
-                                color: AppColors.error.withValues(alpha: 0.8),
+                        SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Delete Account',
+                                style: AppTypography.titleMd.copyWith(
+                                    color: AppColors.onErrorContainer),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: AppSpacing.xs),
+                              Text(
+                                'This action cannot be undone',
+                                style: AppTypography.bodySm.copyWith(
+                                  color: AppColors.error.withValues(alpha: 0.8),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -241,29 +248,36 @@ class _AccountItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacing.md),
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.surfaceContainer,
+          // Same 44 px content row as the shared sub-menu cards, so these rows
+          // are the same size as the Account & Profile menu cards.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: settingsMenuCardRowHeight,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surfaceContainer,
+                  ),
+                  child: Center(
+                    child: Icon(icon, color: AppColors.primary),
+                  ),
                 ),
-                child: Center(
-                  child: Icon(icon, color: AppColors.primary),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTypography.titleMd
+                        .copyWith(color: AppColors.onSurface),
+                  ),
                 ),
-              ),
-              SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.titleMd
-                      .copyWith(color: AppColors.onSurface),
-                ),
-              ),
-              Icon(Icons.chevron_right, color: AppColors.outlineVariant),
-            ],
+                Icon(Icons.chevron_right, color: AppColors.outlineVariant),
+              ],
+            ),
           ),
         ),
       ),

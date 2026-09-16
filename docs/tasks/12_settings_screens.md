@@ -7,6 +7,17 @@
 
 ---
 
+## Shared Sub-Menu Sizing Contract (added during implementation)
+
+- `lib/features/settings/presentation/settings_menu_card.dart` (new file; logged in `docs/version_history.md` 0.0.171) is the single source for sub-menu card/button sizing:
+  - `SettingsMenuCard` — the shared tappable card (Card, radius 12, 16 px padding, body-lg title / body-sm subtitle, 28 px icon, chevron). Used by the Account & Profile menu (the size reference), the Edit Court/Steps menu, Edit Court Names & Categories, Lower Courts divisions, and Districts.
+  - `settingsMenuCardRowHeight` (44 px) — the content-row floor. Rows that keep their own mockup layout (Manage Account items, the Delete Account card, Online Sync's Cases/Notes/References rows) use it so they render at the same height.
+  - `settingsPrimaryButtonHeight` (56 px) — every sub-menu primary button: Sync Now, the three Backup & Restore actions, and Profile's Save Profile.
+- **Size override, user-approved 2026-09-16:** every sub-menu card renders **76 px** and every sub-menu primary button **56 px** (both measured with a throwaway widget test). This deliberately supersedes the per-mockup sizes — e.g. `settings_backupRestore`'s `h-12` (48 px) buttons are now 56 px, and its `ListTile`-style rows are now the Account & Profile menu card — so those bodies match their mockups in everything except card/button size. Change a size only through the constants above, never with per-screen literals.
+- Outside the contract (unchanged): non-tappable content cards (Backup status, profile data card, Quick Tip note, Online Sync status), the Backup schedule's 56 px radio rows, the `settings_courtNamesSteps` KanBan card and its chips, the dense court/item edit rows, and Language's plain `ListTile`s.
+
+---
+
 ## Phase 1 — Main Settings Page
 
 1. `settings_main_screen.dart` designed exactly like `settings_main\code.html`, **plus a "Guidelines" item before "About"**.

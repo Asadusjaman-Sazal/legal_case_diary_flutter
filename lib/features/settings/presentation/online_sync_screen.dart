@@ -15,6 +15,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
 import '../../cases/presentation/case_viewmodel.dart';
 import '../../notes/presentation/notes_viewmodel.dart';
+import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 
 /// White bordered card shell shared by the status card and the sync rows.
@@ -229,8 +230,9 @@ class _SyncStatusCard extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
                 textStyle: AppTypography.titleMd,
-                // Slightly taller than the default 40 px CTA.
-                minimumSize: const Size.fromHeight(48),
+                // Same height as every other Settings sub-menu CTA.
+                minimumSize:
+                    const Size.fromHeight(settingsPrimaryButtonHeight),
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xl,
                   vertical: AppSpacing.sm,
@@ -266,11 +268,13 @@ class _SyncRow extends StatelessWidget {
     return Container(
       decoration: _cardDecoration(),
       padding: const EdgeInsets.all(AppSpacing.md),
-      // Content row matches the Account & Profile sub-menu cards (44 px between
-      // the two 16 px paddings → ~78 px drawn card with the 1 px border), so the
-      // three entity rows are the same size as those menu cards.
+      // Content row matches the Account & Profile sub-menu card (44 px between
+      // the two 16 px paddings), so the three entity rows are the same size as
+      // those menu cards.
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 44),
+        constraints: const BoxConstraints(
+          minHeight: settingsMenuCardRowHeight,
+        ),
         child: Row(
           children: [
             Container(

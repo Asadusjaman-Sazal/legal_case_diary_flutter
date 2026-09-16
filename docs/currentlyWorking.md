@@ -4,7 +4,13 @@
 - `profile_screen.dart` — the Full Name field is seeded from `profileNameProvider` in `initState`, the read view/heading read the watched value (so a saved edit updates immediately), and Save now persists through `setName()` instead of only holding the text in a controller.
 - `app_navigation_drawer.dart` — now a `ConsumerWidget`: the header avatar shows the saved profile picture (`profilePictureProvider`, person-icon fallback) and the name beside it comes from the saved Full Name (the `displayName` param still overrides). Both drawer hosts (case screens + Settings) needed no changes.
 - `test/features/profile_name_test.dart` (new, 4 tests): notifier default/persist/restart, Profile screen edit saves the name and updates the read view, drawer header shows picture + name, and person-icon + name fallback. Passes.
-- `flutter analyze` clean. Version `0.0.167`. Known: `test/features/case_detail_test.dart` has 4 pre-existing failures (assertions still expect `TextAlign.justify` for Case History Step/Result text, left-aligned since 0.0.151) — unrelated to this change. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+- `flutter analyze` clean. Version `0.0.167`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
+### 2026-09-16 — Case Detail tests caught up with current behavior — COMPLETE
+
+- `test/features/case_detail_test.dart` had 4 stale failures (unrelated to the drawer work, pre-dating it): two asserted `TextAlign.justify` for Case History **Note** text (left-aligned since 0.0.151 — Step was already left), and two tapped the removed per-screen delete-confirm keys (`case-detail-delete-confirm`, `history-delete-confirm`) that the shared `confirmDeleteDialog` (0.0.145) replaced.
+- Fixed: both Note assertions (and their comments) now expect `TextAlign.left`; the two delete-confirm taps use a new `_deleteConfirmButton()` finder that targets the shared dialog's Delete `FilledButton` inside its `AlertDialog`.
+- `flutter analyze` clean; `flutter test` fully green — **188 passed, 2 skipped** (was 184 passed, 4 failed, 2 skipped). No production code changed. Version `0.0.168`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
 
 ### 2026-09-16 — Task 12 Phase 2: Profile picture now persists locally — COMPLETE
 

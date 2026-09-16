@@ -246,8 +246,8 @@ void main() {
       expect(find.text('THU'), findsOneWidget); // 15 Oct 2026
       expect(find.text('SAT'), findsOneWidget); // 12 Sep 2026
       expect(find.text('Written Objection'), findsOneWidget);
-      // Weekday sits centered under the date; Step reads left aligned and
-      // Note spans the full content width with justified multi-line text.
+      // Weekday sits centered under the date; Step and Note both read left
+      // aligned (Google Keep style) across the full content width.
       final weekdayAlign = tester.widget<Align>(
         find.ancestor(of: find.text('THU'), matching: find.byType(Align)),
       );
@@ -260,7 +260,7 @@ void main() {
         tester
             .widget<Text>(find.text('Respondent submitted written objection.'))
             .textAlign,
-        TextAlign.justify,
+        TextAlign.left,
       );
 
       // Next Date highlight card + countdown.
@@ -426,7 +426,7 @@ void main() {
       // Same size/line-height as the Note content...
       expect(stepStyle.fontSize, noteStyle.fontSize);
       expect(stepStyle.height, noteStyle.height);
-      // ...but still bold, and left aligned (the Note keeps its justification).
+      // ...but still bold; both Step and Note read left aligned.
       expect(stepStyle.fontWeight, FontWeight.w600);
       expect(noteStyle.fontWeight, FontWeight.w400);
       expect(
@@ -435,7 +435,7 @@ void main() {
       );
       expect(
         tester.widget<Text>(find.text('Adjourned for witness.')).textAlign,
-        TextAlign.justify,
+        TextAlign.left,
       );
     });
 
@@ -500,7 +500,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Confirm Delete'), findsOneWidget);
 
-      await tester.tap(find.byKey(const ValueKey('case-detail-delete-confirm')));
+      await tester.tap(_deleteConfirmButton());
       await tester.pumpAndSettle();
 
       expect(find.byType(CaseDetailScreen), findsNothing);
@@ -559,7 +559,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Confirm Delete'), findsOneWidget);
 
-      await tester.tap(find.byKey(const ValueKey('history-delete-confirm')));
+      await tester.tap(_deleteConfirmButton());
       await tester.pumpAndSettle();
 
       expect(find.byKey(entryKey), findsNothing);
@@ -776,6 +776,16 @@ void main() {
     });
   });
 }
+
+// ---------------------------------------------------------------------------
+// Finders
+// ---------------------------------------------------------------------------
+
+/// Delete button of the app-wide confirmation dialog (`confirmDeleteDialog`).
+Finder _deleteConfirmButton() => find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.widgetWithText(FilledButton, 'Delete'),
+    );
 
 // ---------------------------------------------------------------------------
 // Seed helpers

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version
-Version: 0.0.167 - Task 12 Phase 2 profile name shared: the Profile screen's Full Name is now persisted locally (`ProfileNameStore`/`profileNameProvider`, default "Asadusjaman") and reused app-wide, and the navigation drawer header renders the saved profile picture in its avatar (person-icon fallback) with that full name beside it. Added `test/features/profile_name_test.dart`.
+Version: 0.0.168 - Case Detail tests caught up with current behavior: `test/features/case_detail_test.dart` now expects left-aligned Case History Note text (was `TextAlign.justify`, left-aligned since 0.0.151) and taps the shared `confirmDeleteDialog`'s Delete button instead of the removed per-screen confirm keys (0.0.145). Full suite green: 188 passed, 2 skipped.
 
 ## Version History
 Version: 0.0.1 - Finalized implementation plan.
@@ -181,3 +181,4 @@ Version: 0.0.164 - Task 12 Settings main screen: search field fill color now mat
 Version: 0.0.165 - Task 12 Phase 2 Online Sync screen rebuilt to match the `settings_onlineSync` mockup: dark account status card ("Not signed in"), "Action Required" status card with full-width Sync Now CTA, per-entity Cases/Notes/References rows with live local counts and offline-neutral "Not synced" markers, and the Data Security card. Part A keeps the offline placeholder behavior (CTA shows the sign-in notice).
 Version: 0.0.166 - Task 12 Phase 2 Profile screen: the picked profile picture now persists locally (copied into app documents storage and its path stored in SharedPreferences via the new `ProfilePictureStore`/`profilePictureProvider`), so it survives navigation and app restarts and is shown on the Manage Account screen's profile summary card too (initials fallback when unset). Added `test/features/profile_picture_test.dart`.
 Version: 0.0.167 - Task 12 Phase 2 profile name shared: the Profile screen's Full Name is now persisted locally (`ProfileNameStore`/`profileNameProvider`, default "Asadusjaman") and reused app-wide, and the navigation drawer header renders the saved profile picture in its avatar (person-icon fallback) with that full name beside it. Added `test/features/profile_name_test.dart`.
+Version: 0.0.168 - Case Detail tests caught up with current behavior: `test/features/case_detail_test.dart` now expects left-aligned Case History Note text (was `TextAlign.justify`, left-aligned since 0.0.151) and taps the shared `confirmDeleteDialog`'s Delete button instead of the removed per-screen confirm keys (0.0.145). Full suite green: 188 passed, 2 skipped.

@@ -229,6 +229,8 @@ class _SyncStatusCard extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
                 textStyle: AppTypography.titleMd,
+                // Slightly taller than the default 40 px CTA.
+                minimumSize: const Size.fromHeight(48),
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xl,
                   vertical: AppSpacing.sm,
@@ -264,48 +266,54 @@ class _SyncRow extends StatelessWidget {
     return Container(
       decoration: _cardDecoration(),
       padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      // Content row matches the Account & Profile sub-menu cards (44 px between
+      // the two 16 px paddings → ~78 px drawn card with the 1 px border), so the
+      // three entity rows are the same size as those menu cards.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+              ),
+              child: Icon(icon, color: AppColors.primary),
             ),
-            child: Icon(icon, color: AppColors.primary),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTypography.labelLg
-                      .copyWith(color: AppColors.primary),
-                ),
-                Text(
-                  count == null ? '— Items' : '$count Items',
-                  style: AppTypography.bodySm,
-                ),
-              ],
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: AppTypography.labelLg
+                        .copyWith(color: AppColors.primary),
+                  ),
+                  Text(
+                    count == null ? '— Items' : '$count Items',
+                    style: AppTypography.bodySm,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          // Part A never syncs: every row carries the neutral, muted marker
-          // instead of the mockup's success/failure icons.
-          const Icon(
-            Icons.cloud_off_outlined,
-            size: 18,
-            color: AppColors.tertiary,
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          Text(
-            'Not synced',
-            style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-          ),
-        ],
+            const SizedBox(width: AppSpacing.sm),
+            // Part A never syncs: every row carries the neutral, muted marker
+            // instead of the mockup's success/failure icons.
+            const Icon(
+              Icons.cloud_off_outlined,
+              size: 18,
+              color: AppColors.tertiary,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              'Not synced',
+              style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+            ),
+          ],
+        ),
       ),
     );
   }

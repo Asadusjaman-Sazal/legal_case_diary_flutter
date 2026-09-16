@@ -1,3 +1,21 @@
+### 2026-09-16 — Task 12 Phase 2: Online Sync screen sizing — COMPLETE
+
+- `lib/features/settings/presentation/online_sync_screen.dart` (only file changed):
+  - **Sync Now** is taller — `minimumSize: Size.fromHeight(48)` on the CTA style (was the default 40 px; measured 48 px).
+  - **Cases / Notes / References** cards now use the Account & Profile sub-menu card geometry: 16 px padding (unchanged) plus a 44 px content row via `ConstrainedBox(minHeight: 44)` — the same content height as `_MenuButton`'s title + subtitle block — so each card is ~78 px instead of 72 px. Using a min constraint (not a fixed height) keeps it growing with text scale.
+- Measured with a throwaway widget test (deleted afterwards): CTA = 48 px, entity rows = 78 px; the Account & Profile menu card renders **84 px** at ≥800 px window width but **116 px at 393 px** and **132 px at 360 px**, because its subtitle wraps to 2–3 lines. So exact parity with it is only well-defined at its single-line width; the rows now match its base geometry there. Flagged to the user, since a literal phone-width match would need ~108–124 px rows.
+- No tests changed. `flutter analyze` clean; `flutter test` 188 passed, 2 skipped. Version `0.0.170`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
+### 2026-09-16 — Task 12 Phase 2: Backup & Restore screen rebuilt to the mockup — COMPLETE
+
+- `lib/features/settings/presentation/backup_restore_screen.dart` (only file changed) — rebuilt the body to `mockup_html_screens/settings_backupRestore/code.html`:
+  - **Backup & Restore**: one white bordered card holding the three actions as stacked full-width 48 px (`h-12`) primary `FilledButton.icon`s — Backup to Local Storage (`cloud_upload`), Backup to Google Drive (`add_to_drive`), and Restore from backup (`settings_backup_restore`, one extra spacing step down per the mockup's `pt-sm` wrapper) — followed by the two-line encrypted-backup/offline-only note.
+  - **Automatic Backup**: the `ChoiceChip` row was replaced by the mockup's radio list in a single card — five icon+label rows separated by dividers, radio on the right, whole row tappable; options Off / Everyday / Every 3 days / Every 7 days / Every month with the mockup's **Everyday** selected (was Off). Uses the new `RadioGroup` API (`Radio.groupValue`/`onChanged` are deprecated since Flutter 3.32).
+  - **Backup Status**: mockup's tinted 48 px circle + filled `verified` icon in `secondary`, with "Last successful backup" (title-md, primary) over the mockup's placeholder date (body-md, on-surface-variant) — was a green icon with body-md/body-sm text.
+  - Section headings now use the mockup's `label-lg` + `tracking-wider` in `onSurfaceVariant`, and section gaps follow the mockup (24 px after the first section, 32 px between sections). Part A: the three actions show the offline notice ("Backup engine arrives in Task 15").
+- Lesson worth keeping: each `RadioListTile` needed a shaped `Material` parent, not a decorated `Container` — Flutter asserts ("ListTile background color or ink splashes may be invisible") when a background-painting `DecoratedBox` sits between a ListTile and its Material ancestor.
+- Verified with a throwaway widget smoke test at 360×800 (render, no overflow, default selection, row selection, notice, status card reachable) which was deleted afterwards; no tests were changed. `flutter analyze` clean; `flutter test` 188 passed, 2 skipped. Version `0.0.169`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-16 — Task 12 Phase 2: Profile picture + name in the navigation drawer — COMPLETE
 
 - `lib/features/accounts_and_profile/data/profile_name_store.dart` (new) — `profileNameProvider` keeps the Profile screen's **Full Name** in `SharedPreferences` (`profile_full_name`, default `Asadusjaman` = `defaultProfileFullName`); `setName()` persists and notifies. Exported from `accounts_and_profile_data.dart`.

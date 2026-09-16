@@ -1,39 +1,49 @@
 /// Profile screen: shows profile data (read view) and an editable form.
 ///
 /// Task 12 Phase 2 (Part A): data is shown by default; a FAB opens an edit
-/// sheet. The avatar edit button picks a profile picture, and a red delete
-/// button appears beside it to clear the picture. Real persistence binds in
-/// Part B (Task 17) via [ProfileRepository].
+/// sheet. The avatar edit button picks a profile picture, saved locally through
+/// [profilePictureProvider] so it persists across launches and is reused by the
+/// Manage Account screen; a red delete button clears it. The Full Name is kept
+/// in [profileNameProvider] so the navigation drawer header shows the same name.
+/// Other profile fields bind to real data in Part B (Task 17) via
+/// [ProfileRepository].
 library;
 
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../data/profile_name_store.dart';
+import '../data/profile_picture_store.dart';
 
 /// Profile screen matching `settings_profile\code.html`.
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final _fullName = TextEditingController(text: 'Asadusjaman');
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  final _fullName = TextEditingController();
   final _barAssociation = TextEditingController(text: 'Dhaka Bar Association');
   final _membershipNo = TextEditingController(text: '1557');
   final _officeAddress =
       TextEditingController(text: 'Chamber 402, High Court Annex, Dhaka-1000');
   final _mobile = TextEditingController(text: '1812332721');
 
-  // Selected profile picture (Part A: in-memory only; persisted in Task 17).
-  File? _avatarFile;
+  @override
+  void initState() {
+    super.initState();
+    // Seed the editor with the shared (persisted) full name.
+    _fullName.text = ref.read(profileNameProvider);
+  }
 
   @override
   void dispose() {
@@ -45,14 +55,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  /// Picks an image from the gallery and saves it locally for persistence.
   Future<void> _pickAvatar() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      setState(() => _avatarFile = File(picked.path));
+      await ref.read(profilePictureProvider.notifier).setFromPath(picked.path);
     }
   }
 
-  void _clearAvatar() => setState(() => _avatarFile = null);
+  Future<void> _clearAvatar() => ref.read(profilePictureProvider.notifier).clear();
 
   void _openEditSheet() {
     // Editable controllers operate directly on the same state, so the read
@@ -71,6 +82,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         officeAddress: _officeAddress,
         mobile: _mobile,
         onSave: () {
+          // Persist the shared name so the drawer header stays in sync.
+          ref.read(profileNameProvider.notifier).setName(_fullName.text);
           Navigator.of(sheetContext).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile saved (offline)')),
@@ -82,7 +95,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _fullName.text.trim();
+    final displayName = ref.watch(profileNameProvider).trim();
+    final avatarFile = ref.watch(profilePictureProvider);
     return SettingsSubPageModal(
       title: 'Profile',
       floatingActionButton: FloatingActionButton(
@@ -105,9 +119,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               _ProfileHeader(
                 fullName: displayName,
-                avatarFile: _avatarFile,
+                avatarFile: avatarFile,
                 onEditAvatar: _pickAvatar,
-                onDeleteAvatar: _avatarFile != null ? _clearAvatar : null,
+                onDeleteAvatar: avatarFile != null ? _clearAvatar : null,
               ),
               SizedBox(height: AppSpacing.lg),
               // Read-only data card.

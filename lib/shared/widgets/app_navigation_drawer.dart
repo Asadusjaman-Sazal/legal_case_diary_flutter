@@ -6,12 +6,15 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
+import '../../features/accounts_and_profile/data/profile_name_store.dart';
+import '../../features/accounts_and_profile/data/profile_picture_store.dart';
 
 /// A nav item descriptor used to build drawer rows.
 class _NavItem {
@@ -34,11 +37,15 @@ class _NavItem {
 /// [currentRoute] — the active GoRouter location (e.g. `/daily-cause-list`).
 /// [sideNavOptions] — map from [UserSettings.sideNavOptions]; keys that map
 ///   to `false` hide the corresponding item. Unknown keys default to visible.
-/// [displayName] — user's display name; shown as a stub placeholder when null.
+/// [displayName] — optional override for the header name; defaults to the
+///   saved Profile Full Name (see [profileNameProvider]).
 /// [roleLabel] — user's role (e.g. "Advocate"); shown as a stub when null.
 /// [onPrint] — callback for the Print action (Task 14 implements the service).
 /// [onShare] — callback for the Share action (Task 14 implements the service).
-class AppNavigationDrawer extends StatelessWidget {
+///
+/// The header avatar shows the saved profile picture ([profilePictureProvider])
+/// with the generic person icon as the fallback.
+class AppNavigationDrawer extends ConsumerWidget {
   final String currentRoute;
   final Map<String, dynamic> sideNavOptions;
   final String? displayName;
@@ -131,8 +138,13 @@ class AppNavigationDrawer extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // Shared profile state: the locally saved picture and the Full Name from
+    // Settings > Account & Profile > Profile.
+    final avatarFile = ref.watch(profilePictureProvider);
+    final savedName = ref.watch(profileNameProvider);
+    final headerName = (displayName ?? savedName).trim();
     return Drawer(
       backgroundColor: AppColors.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(),
@@ -151,11 +163,15 @@ class AppNavigationDrawer extends StatelessWidget {
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: AppColors.primaryContainer,
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppColors.onPrimaryContainer,
-                      size: 26,
-                    ),
+                    backgroundImage:
+                        avatarFile != null ? FileImage(avatarFile) : null,
+                    child: avatarFile != null
+                        ? null
+                        : const Icon(
+                            Icons.person_outline,
+                            color: AppColors.onPrimaryContainer,
+                            size: 26,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -163,7 +179,7 @@ class AppNavigationDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          displayName ?? '—',
+                          headerName.isNotEmpty ? headerName : '—',
                           style: AppTypography.titleLg.copyWith(
                             color: AppColors.primary,
                           ),

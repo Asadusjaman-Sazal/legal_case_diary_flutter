@@ -1,3 +1,18 @@
+### 2026-09-16 — Task 12 Phase 2: Profile picture + name in the navigation drawer — COMPLETE
+
+- `lib/features/accounts_and_profile/data/profile_name_store.dart` (new) — `profileNameProvider` keeps the Profile screen's **Full Name** in `SharedPreferences` (`profile_full_name`, default `Asadusjaman` = `defaultProfileFullName`); `setName()` persists and notifies. Exported from `accounts_and_profile_data.dart`.
+- `profile_screen.dart` — the Full Name field is seeded from `profileNameProvider` in `initState`, the read view/heading read the watched value (so a saved edit updates immediately), and Save now persists through `setName()` instead of only holding the text in a controller.
+- `app_navigation_drawer.dart` — now a `ConsumerWidget`: the header avatar shows the saved profile picture (`profilePictureProvider`, person-icon fallback) and the name beside it comes from the saved Full Name (the `displayName` param still overrides). Both drawer hosts (case screens + Settings) needed no changes.
+- `test/features/profile_name_test.dart` (new, 4 tests): notifier default/persist/restart, Profile screen edit saves the name and updates the read view, drawer header shows picture + name, and person-icon + name fallback. Passes.
+- `flutter analyze` clean. Version `0.0.167`. Known: `test/features/case_detail_test.dart` has 4 pre-existing failures (assertions still expect `TextAlign.justify` for Case History Step/Result text, left-aligned since 0.0.151) — unrelated to this change. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
+### 2026-09-16 — Task 12 Phase 2: Profile picture now persists locally — COMPLETE
+
+- `lib/features/accounts_and_profile/data/profile_picture_store.dart` (new) — `ProfilePictureStore` copies the picked image into `<app documents>/profile_picture/` (the image_picker path lives in a purgeable cache dir), deletes the previous file, and stores the new path in `SharedPreferences` under `profile_picture_path`. `ProfilePictureNotifier` + `profilePictureProvider` expose the saved `File?` synchronously to the whole app; `clear()` removes file and path.
+- `profile_screen.dart` is now a `ConsumerStatefulWidget`: the avatar reads `profilePictureProvider` (so the picture survives navigation and restarts) and pick/delete call the notifier. `manage_account_screen.dart` is now a `ConsumerWidget` and renders the same saved picture in its 96px profile summary avatar (initials fallback when unset).
+- New `test/features/profile_picture_test.dart` (5 tests): store read/stale-path handling, clear, Profile screen renders the saved picture, Manage Account shows the same file, and initials fallback. Passes.
+- `flutter analyze` clean. Version `0.0.166`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-16 — Task 12 Phase 2: Online Sync screen redesigned to the mockup — COMPLETE
 
 - `lib/features/settings/presentation/online_sync_screen.dart` — rebuilt as the mobile single-column stack of the `settings_onlineSync` mockup's bento grid: intro line, dark account status card with watermark (Part A: "Not signed in" + sign-in prompt, per user decision), "Action Required" pill + "Last Sync: Never" status card with the mockup's full-width dark Sync Now CTA, Cases/Notes/References rows with live local counts (Cases now uses `caseViewModelProvider.nonDeletedCount`) and muted "Not synced" markers, plus the Data Security card with the End-to-End lock chip. Removed the old upgrade banner; the CTA shows the Manage Account-style "Available after sign-in (Task 17)" notice (per user decision).

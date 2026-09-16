@@ -2,24 +2,30 @@
 /// `settings_manageProfileAccount` mockup.
 ///
 /// Task 12 Phase 2 (Part A): UI shell with offline placeholder data; actions
-/// show an offline notice. Real account/auth wiring lands in Part B (Task 17).
+/// show an offline notice. The avatar reuses the locally saved profile picture
+/// (see [profilePictureProvider]) so it matches the Profile screen. Real
+/// account/auth wiring lands in Part B (Task 17).
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../data/profile_picture_store.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
-class ManageAccountScreen extends StatelessWidget {
+class ManageAccountScreen extends ConsumerWidget {
   const ManageAccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const name = 'Asadusjaman';
     const email = 'advocate.asad@law.com';
+    // Same locally saved picture the Profile screen manages.
+    final avatarFile = ref.watch(profilePictureProvider);
 
     final accountItems = [
       _AccountItem(
@@ -68,14 +74,22 @@ class ManageAccountScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: AppColors.surfaceVariant,
                       border: Border.all(color: AppColors.primary, width: 2),
+                      image: avatarFile != null
+                          ? DecorationImage(
+                              image: FileImage(avatarFile),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
-                    child: Center(
-                      child: Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : '?',
-                        style: AppTypography.headlineMd
-                            .copyWith(color: AppColors.primary),
-                      ),
-                    ),
+                    child: avatarFile != null
+                        ? null
+                        : Center(
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              style: AppTypography.headlineMd
+                                  .copyWith(color: AppColors.primary),
+                            ),
+                          ),
                   ),
                   SizedBox(height: AppSpacing.md),
                   Text(

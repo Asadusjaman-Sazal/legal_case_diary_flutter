@@ -1,6 +1,9 @@
-/// Online sync screen: sync status, diagnostics, and recovery.
-/// Part A renders an offline/upgrade placeholder (Task 12 Phase 2); the live
-/// sync engine is wired in Part B / Task 17.
+/// Online Sync screen: sync status and per-entity sync rows.
+///
+/// Body mirrors `mockup_html_screens/settings_onlineSync/code.html`, rendered as
+/// the mockup's mobile single-column stack of the bento grid.
+/// Part A renders the offline / not-signed-in placeholder state; the live sync
+/// engine is wired in Part B (Tasks 17/18).
 library;
 
 import 'package:flutter/material.dart';
@@ -10,146 +13,300 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
+import '../../cases/presentation/case_viewmodel.dart';
 import '../../notes/presentation/notes_viewmodel.dart';
 import 'settings_sub_page_modal.dart';
 
-/// A single local-only item-count stat shown on the sync screen.
-class _StatTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final int count;
+/// White bordered card shell shared by the status card and the sync rows.
+/// Radius matches the mockup's `rounded-xl` (0.5 rem = 8 px).
+BoxDecoration _cardDecoration({
+  Color color = AppColors.surfaceContainerLowest,
+}) =>
+    BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      border: Border.all(color: AppColors.outlineVariant),
+    );
 
-  const _StatTile({
-    required this.icon,
-    required this.label,
-    required this.count,
-  });
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Card(
-          elevation: 0,
-          color: AppColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.surfaceContainer),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              children: [
-                Icon(icon, color: AppColors.primary),
-                const SizedBox(height: AppSpacing.xs),
-                Text('$count', style: AppTypography.titleMd),
-                const SizedBox(height: AppSpacing.xs),
-                Text(label, style: AppTypography.bodySm),
-              ],
-            ),
-          ),
-        ),
-      );
+/// Part A: sync is unavailable offline; tell the user it lands in Task 17.
+void _offlineNotice(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Available after sign-in (Task 17)')),
+  );
 }
 
-/// Online Sync screen (Part A offline placeholder).
+/// Online Sync screen (Part A offline placeholder) per `settings_onlineSync`.
 class OnlineSyncScreen extends ConsumerWidget {
   const OnlineSyncScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notes = ref.watch(notesViewModelProvider).value?.items.length ?? 0;
-    final refs = ref.watch(referenceViewModelProvider).value?.items.length ?? 0;
+    // Live local counts; null while the list is still loading.
+    final cases = ref.watch(
+      caseViewModelProvider.select((s) => s.value?.nonDeletedCount),
+    );
+    final notes = ref.watch(
+      notesViewModelProvider.select((s) => s.value?.items.length),
+    );
+    final references = ref.watch(
+      referenceViewModelProvider.select((s) => s.value?.items.length),
+    );
 
     return SettingsSubPageModal(
       title: 'Online Sync',
       child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.edgeMargin,
+          AppSpacing.md,
+          AppSpacing.edgeMargin,
+          AppSpacing.xl,
+        ),
         children: [
-          const _StatusBanner(),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              _StatTile(icon: Icons.work_outline, label: 'Cases', count: 0),
-              const SizedBox(width: AppSpacing.sm),
-              _StatTile(icon: Icons.sticky_note_2_outlined, label: 'Notes', count: notes),
-              const SizedBox(width: AppSpacing.sm),
-              _StatTile(icon: Icons.menu_book_outlined, label: 'References', count: refs),
-            ],
+          Text(
+            'Manage your real-time data sync across all your devices.',
+            style: AppTypography.bodyMd
+                .copyWith(color: AppColors.onSurfaceVariant),
           ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton.icon(
-            onPressed: null,
-            icon: const Icon(Icons.sync),
-            label: const Text('Sync Now'),
+          const _AccountStatusCard(),
+          const SizedBox(height: AppSpacing.gutter),
+          const _SyncStatusCard(),
+          const SizedBox(height: AppSpacing.gutter),
+          _SyncRow(
+            icon: Icons.work_outline,
+            label: 'Cases',
+            count: cases,
           ),
-          const SizedBox(height: AppSpacing.lg),
-          const _UpgradeBanner(),
+          const SizedBox(height: AppSpacing.gutter),
+          _SyncRow(
+            icon: Icons.sticky_note_2_outlined,
+            label: 'Notes',
+            count: notes,
+          ),
+          const SizedBox(height: AppSpacing.gutter),
+          _SyncRow(
+            icon: Icons.menu_book_outlined,
+            label: 'References',
+            count: references,
+          ),
         ],
       ),
     );
   }
 }
 
-/// Offline sync-failure status banner.
-class _StatusBanner extends StatelessWidget {
-  const _StatusBanner();
+/// Dark account/subscription card at the top of the mockup's bento grid.
+/// Part A has no account yet, so it carries the sign-in state instead of the
+/// mockup's "Subscription active until ..." line.
+class _AccountStatusCard extends StatelessWidget {
+  const _AccountStatusCard();
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Row(
+  Widget build(BuildContext context) {
+    final onPrimary = AppColors.onPrimary;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      child: Container(
+        width: double.infinity,
+        color: AppColors.primary,
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Stack(
           children: [
-            Icon(Icons.sync_problem_outlined, color: AppColors.tertiary),
-            SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Last Sync Failed', style: AppTypography.bodyLg),
-                  SizedBox(height: AppSpacing.xs),
-                  Text('Never (offline)', style: AppTypography.bodySm),
-                ],
+            // Faded brand watermark bleeding out of the bottom-right corner.
+            Positioned(
+              right: -AppSpacing.md,
+              bottom: -AppSpacing.md,
+              child: Icon(
+                Icons.verified_user,
+                size: 160,
+                color: onPrimary.withValues(alpha: 0.05),
               ),
             ),
-          ],
-        ),
-      );
-}
-
-/// Premium upgrade call-to-action (Part A: sync not yet available).
-class _UpgradeBanner extends StatelessWidget {
-  const _UpgradeBanner();
-
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.surfaceContainer),
-        ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.verified_user_outlined, color: AppColors.secondary),
-                SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text('Online Sync', style: AppTypography.bodyLg),
+                Text(
+                  'Not signed in',
+                  style: AppTypography.bodySm
+                      .copyWith(color: onPrimary.withValues(alpha: 0.8)),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Sign in to sync your data across all your devices',
+                  style: AppTypography.titleMd.copyWith(color: onPrimary),
                 ),
               ],
             ),
-            SizedBox(height: AppSpacing.sm),
-            Text(
-              'Online Sync is available in the premium version. '
-              'Upgrade to sync your data securely across all your devices.',
-              style: AppTypography.bodyMd,
-            ),
           ],
         ),
-      );
+      ),
+    );
+  }
+}
+
+/// Sync status card: "Action Required" pill, last-sync state, and the CTA.
+class _SyncStatusCard extends StatelessWidget {
+  const _SyncStatusCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Error pill from the mockup's status header.
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorContainer,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 16,
+                            color: AppColors.error,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            'Action Required',
+                            style: AppTypography.labelMd
+                                .copyWith(color: AppColors.error),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Last Sync: Never', style: AppTypography.titleLg),
+                    const SizedBox(height: AppSpacing.xs),
+                    const Text(
+                      'Your data stays on this device until you sign in.',
+                      style: AppTypography.bodySm,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.errorContainer,
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                ),
+                child: const Icon(
+                  Icons.sync_problem,
+                  size: 24,
+                  color: AppColors.error,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // Full-width primary CTA; Part A only surfaces the offline notice.
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _offlineNotice(context),
+              icon: const Icon(Icons.sync, size: 20),
+              label: const Text('Sync Now'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.titleMd,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.sm,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One entity row (Cases / Notes / References) with its local item count.
+class _SyncRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  /// Local item count; null while the source list is still loading.
+  final int? count;
+
+  const _SyncRow({
+    required this.icon,
+    required this.label,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+            ),
+            child: Icon(icon, color: AppColors.primary),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.labelLg
+                      .copyWith(color: AppColors.primary),
+                ),
+                Text(
+                  count == null ? '— Items' : '$count Items',
+                  style: AppTypography.bodySm,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          // Part A never syncs: every row carries the neutral, muted marker
+          // instead of the mockup's success/failure icons.
+          const Icon(
+            Icons.cloud_off_outlined,
+            size: 18,
+            color: AppColors.tertiary,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            'Not synced',
+            style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+          ),
+        ],
+      ),
+    );
+  }
 }

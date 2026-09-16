@@ -1,3 +1,8 @@
+### 2026-09-16 — Task 12 Phase 2: Online Sync screen redesigned to the mockup — COMPLETE
+
+- `lib/features/settings/presentation/online_sync_screen.dart` — rebuilt as the mobile single-column stack of the `settings_onlineSync` mockup's bento grid: intro line, dark account status card with watermark (Part A: "Not signed in" + sign-in prompt, per user decision), "Action Required" pill + "Last Sync: Never" status card with the mockup's full-width dark Sync Now CTA, Cases/Notes/References rows with live local counts (Cases now uses `caseViewModelProvider.nonDeletedCount`) and muted "Not synced" markers, plus the Data Security card with the End-to-End lock chip. Removed the old upgrade banner; the CTA shows the Manage Account-style "Available after sign-in (Task 17)" notice (per user decision).
+- `flutter analyze` clean. Version `0.0.165`. **Resume point:** Task 12 Phase 3 (Edit Court/Steps full hierarchy).
+
 ### 2026-09-06 — Task 12 Phase 2: Profile screen reworked — COMPLETE
 
 - `lib/features/accounts_and_profile/presentation/profile_screen.dart` — read view shows profile data by default; FAB opens an edit bottom sheet with the form fields. Avatar edit button opens an image picker; red circular delete button appears beside it once a picture is set, to clear it. Added `image_picker` dependency.

@@ -19,7 +19,11 @@ class DistrictListScreen extends ConsumerWidget {
   /// Division ID passed via route query parameter.
   final String division;
 
-  const DistrictListScreen({super.key, required this.division});
+  /// Active walkthrough. [AppRoutes.lowerCourtCategoryFlow] routes a district
+  /// into its Lower Court Categories list instead of its list of courts.
+  final String? flow;
+
+  const DistrictListScreen({super.key, required this.division, this.flow});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,7 +57,11 @@ class DistrictListScreen extends ConsumerWidget {
               size: 18,
             ),
             onTap: () => context.push(
-              '${AppRoutes.settingsCourtList}?division=$division&district=$id',
+              flow == AppRoutes.lowerCourtCategoryFlow
+                  ? '${AppRoutes.settingsLowerCourtCategoryList}'
+                        '?division=$division&district=$id'
+                  : '${AppRoutes.settingsCourtList}'
+                        '?division=$division&district=$id',
             ),
           );
         },

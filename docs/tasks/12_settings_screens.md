@@ -18,6 +18,18 @@
 
 ---
 
+## Lower Court Categories (added during implementation, 2026-09-16)
+
+The Edit Court/Steps menu carries a third card, **Lower Court Categories**, alongside "Edit Case Types, Step etc" and "Edit Court Names & Categories":
+
+- Flow: **Divisions → Districts → Court Categories** (the category list is the last screen). The Divisions and Districts pickers are the existing `court_category_screen.dart` / `district_list_screen.dart`, routed with `?flow=lower_court_categories` (`AppRoutes.lowerCourtCategoryFlow`); the category list is `edit_court_steps/lower_court_category_list_screen.dart` (`AppRoutes.settingsLowerCourtCategoryList`).
+- Membership comes from the **same derivation as the Add/Edit Case form** — `lib/features/settings/data/district_court_categories.dart` (`districtCourtCategories`) is called by both, so the list and the form's Court Category dropdown always agree. A pre-seeded category with no court in the district is hidden; categories the user adds are scoped to that district.
+- **User-decided rules (2026-09-16):** the user may reorder categories by drag & drop, rename any category through edit, and delete **only** categories they added (built-ins are refused by the repository, so no delete action is rendered for them). A category added in a district is stored for that district only (`court_categories.division`/`district`, schema v7) and appears in the Add/Edit Case form for that district only.
+- The add button is the Add Case button (black FAB, white `+`, size 28, default bottom-right), because the mockup's FAB is that same control.
+- **Mockup note:** there is no mockup for the category list itself; it reuses the court-row layout from `courtCategory_lowerCourts-Districts_listOfCourts\code.html` (drag handle, title, edit, delete) per the Critical Rules above, rather than introducing a new card design.
+
+---
+
 ## Phase 1 — Main Settings Page
 
 1. `settings_main_screen.dart` designed exactly like `settings_main\code.html`, **plus a "Guidelines" item before "About"**.

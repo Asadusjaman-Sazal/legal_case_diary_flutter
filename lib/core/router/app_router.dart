@@ -36,6 +36,7 @@ import '../../features/settings/presentation/edit_court_steps/district_list_scre
 import '../../features/settings/presentation/edit_court_steps/item_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart';
+import '../../features/settings/presentation/edit_court_steps/lower_court_category_list_screen.dart';
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
@@ -79,6 +80,17 @@ class AppRoutes {
       '/settings/edit-court-steps/district-list';
   static const String settingsCourtList =
       '/settings/edit-court-steps/court-list';
+  static const String settingsLowerCourtCategoryList =
+      '/settings/edit-court-steps/lower-court-category-list';
+
+  /// Marks the Lower Court Categories walkthrough (division → districts →
+  /// categories). It is passed as a query parameter so the division and
+  /// district pickers can route into that flow's screens.
+  static const String lowerCourtCategoryFlow = 'lower_court_categories';
+
+  /// Entry path for the Lower Court Categories flow (the division picker).
+  static const String settingsLowerCourtCategories =
+      '$settingsCourtCategory?flow=$lowerCourtCategoryFlow';
   static const String settingsCourtNamesSteps =
       '/settings/edit-court-steps/court-names-steps';
   static const String settingsNotifications = '/settings/notifications';
@@ -243,12 +255,21 @@ final List<RouteBase> _shellRoutes = [
   ),
   GoRoute(
     path: AppRoutes.settingsCourtCategory,
-    builder: (context, state) => const CourtCategoryScreen(),
+    builder: (context, state) =>
+        CourtCategoryScreen(flow: state.uri.queryParameters['flow']),
   ),
   GoRoute(
     path: AppRoutes.settingsDistrictList,
     builder: (context, state) => DistrictListScreen(
       division: state.uri.queryParameters['division'] ?? 'dhaka',
+      flow: state.uri.queryParameters['flow'],
+    ),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsLowerCourtCategoryList,
+    builder: (context, state) => LowerCourtCategoryListScreen(
+      division: state.uri.queryParameters['division'] ?? 'dhaka',
+      district: state.uri.queryParameters['district'] ?? 'dhaka',
     ),
   ),
   GoRoute(

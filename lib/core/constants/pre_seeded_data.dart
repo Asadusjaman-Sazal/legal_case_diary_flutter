@@ -3807,7 +3807,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       ),
     ],
   ),
-  // -- Executive Magistrate & Others Courts -------------------------------
+  // -- Executive Magistrate & Other Courts -------------------------------
   SeedCategory(
     id: executiveMagistrateId,
     nameKey: 'lowerCourtCategory_executiveMagistrate',

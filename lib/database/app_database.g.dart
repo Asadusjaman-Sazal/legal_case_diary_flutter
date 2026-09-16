@@ -51,6 +51,28 @@ class $CourtCategoriesTable extends CourtCategories
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _divisionMeta = const VerificationMeta(
+    'division',
+  );
+  @override
+  late final GeneratedColumn<String> division = GeneratedColumn<String>(
+    'division',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _districtMeta = const VerificationMeta(
+    'district',
+  );
+  @override
+  late final GeneratedColumn<String> district = GeneratedColumn<String>(
+    'district',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isCustomMeta = const VerificationMeta(
     'isCustom',
   );
@@ -164,6 +186,8 @@ class $CourtCategoriesTable extends CourtCategories
     nameKey,
     courtLevel,
     orderIndex,
+    division,
+    district,
     isCustom,
     isUserModified,
     userId,
@@ -214,6 +238,18 @@ class $CourtCategoriesTable extends CourtCategories
       );
     } else if (isInserting) {
       context.missing(_orderIndexMeta);
+    }
+    if (data.containsKey('division')) {
+      context.handle(
+        _divisionMeta,
+        division.isAcceptableOrUnknown(data['division']!, _divisionMeta),
+      );
+    }
+    if (data.containsKey('district')) {
+      context.handle(
+        _districtMeta,
+        district.isAcceptableOrUnknown(data['district']!, _districtMeta),
+      );
     }
     if (data.containsKey('is_custom')) {
       context.handle(
@@ -302,6 +338,14 @@ class $CourtCategoriesTable extends CourtCategories
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
       )!,
+      division: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}division'],
+      ),
+      district: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}district'],
+      ),
       isCustom: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_custom'],
@@ -360,6 +404,15 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
   /// Canonical display order.
   final int orderIndex;
 
+  /// Bangladesh division for user-created lower-court categories; null for
+  /// built-in categories, which are global. A category added inside a district
+  /// is scoped to that division + district only.
+  final String? division;
+
+  /// Bangladesh district for user-created lower-court categories; null for
+  /// built-in categories. See [division].
+  final String? district;
+
   /// Built-in vs user-created category.
   final bool isCustom;
 
@@ -381,6 +434,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
     required this.nameKey,
     required this.courtLevel,
     required this.orderIndex,
+    this.division,
+    this.district,
     required this.isCustom,
     required this.isUserModified,
     this.userId,
@@ -398,6 +453,12 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
     map['name_key'] = Variable<String>(nameKey);
     map['court_level'] = Variable<String>(courtLevel);
     map['order_index'] = Variable<int>(orderIndex);
+    if (!nullToAbsent || division != null) {
+      map['division'] = Variable<String>(division);
+    }
+    if (!nullToAbsent || district != null) {
+      map['district'] = Variable<String>(district);
+    }
     map['is_custom'] = Variable<bool>(isCustom);
     map['is_user_modified'] = Variable<bool>(isUserModified);
     if (!nullToAbsent || userId != null) {
@@ -426,6 +487,12 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
       nameKey: Value(nameKey),
       courtLevel: Value(courtLevel),
       orderIndex: Value(orderIndex),
+      division: division == null && nullToAbsent
+          ? const Value.absent()
+          : Value(division),
+      district: district == null && nullToAbsent
+          ? const Value.absent()
+          : Value(district),
       isCustom: Value(isCustom),
       isUserModified: Value(isUserModified),
       userId: userId == null && nullToAbsent
@@ -458,6 +525,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
       nameKey: serializer.fromJson<String>(json['nameKey']),
       courtLevel: serializer.fromJson<String>(json['courtLevel']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      division: serializer.fromJson<String?>(json['division']),
+      district: serializer.fromJson<String?>(json['district']),
       isCustom: serializer.fromJson<bool>(json['isCustom']),
       isUserModified: serializer.fromJson<bool>(json['isUserModified']),
       userId: serializer.fromJson<String?>(json['userId']),
@@ -477,6 +546,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
       'nameKey': serializer.toJson<String>(nameKey),
       'courtLevel': serializer.toJson<String>(courtLevel),
       'orderIndex': serializer.toJson<int>(orderIndex),
+      'division': serializer.toJson<String?>(division),
+      'district': serializer.toJson<String?>(district),
       'isCustom': serializer.toJson<bool>(isCustom),
       'isUserModified': serializer.toJson<bool>(isUserModified),
       'userId': serializer.toJson<String?>(userId),
@@ -494,6 +565,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
     String? nameKey,
     String? courtLevel,
     int? orderIndex,
+    Value<String?> division = const Value.absent(),
+    Value<String?> district = const Value.absent(),
     bool? isCustom,
     bool? isUserModified,
     Value<String?> userId = const Value.absent(),
@@ -508,6 +581,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
     nameKey: nameKey ?? this.nameKey,
     courtLevel: courtLevel ?? this.courtLevel,
     orderIndex: orderIndex ?? this.orderIndex,
+    division: division.present ? division.value : this.division,
+    district: district.present ? district.value : this.district,
     isCustom: isCustom ?? this.isCustom,
     isUserModified: isUserModified ?? this.isUserModified,
     userId: userId.present ? userId.value : this.userId,
@@ -530,6 +605,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
+      division: data.division.present ? data.division.value : this.division,
+      district: data.district.present ? data.district.value : this.district,
       isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
       isUserModified: data.isUserModified.present
           ? data.isUserModified.value
@@ -553,6 +630,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
           ..write('nameKey: $nameKey, ')
           ..write('courtLevel: $courtLevel, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('division: $division, ')
+          ..write('district: $district, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -572,6 +651,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
     nameKey,
     courtLevel,
     orderIndex,
+    division,
+    district,
     isCustom,
     isUserModified,
     userId,
@@ -590,6 +671,8 @@ class CourtCategory extends DataClass implements Insertable<CourtCategory> {
           other.nameKey == this.nameKey &&
           other.courtLevel == this.courtLevel &&
           other.orderIndex == this.orderIndex &&
+          other.division == this.division &&
+          other.district == this.district &&
           other.isCustom == this.isCustom &&
           other.isUserModified == this.isUserModified &&
           other.userId == this.userId &&
@@ -606,6 +689,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
   final Value<String> nameKey;
   final Value<String> courtLevel;
   final Value<int> orderIndex;
+  final Value<String?> division;
+  final Value<String?> district;
   final Value<bool> isCustom;
   final Value<bool> isUserModified;
   final Value<String?> userId;
@@ -621,6 +706,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
     this.nameKey = const Value.absent(),
     this.courtLevel = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.division = const Value.absent(),
+    this.district = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -637,6 +724,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
     required String nameKey,
     required String courtLevel,
     required int orderIndex,
+    this.division = const Value.absent(),
+    this.district = const Value.absent(),
     this.isCustom = const Value.absent(),
     this.isUserModified = const Value.absent(),
     this.userId = const Value.absent(),
@@ -657,6 +746,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
     Expression<String>? nameKey,
     Expression<String>? courtLevel,
     Expression<int>? orderIndex,
+    Expression<String>? division,
+    Expression<String>? district,
     Expression<bool>? isCustom,
     Expression<bool>? isUserModified,
     Expression<String>? userId,
@@ -673,6 +764,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
       if (nameKey != null) 'name_key': nameKey,
       if (courtLevel != null) 'court_level': courtLevel,
       if (orderIndex != null) 'order_index': orderIndex,
+      if (division != null) 'division': division,
+      if (district != null) 'district': district,
       if (isCustom != null) 'is_custom': isCustom,
       if (isUserModified != null) 'is_user_modified': isUserModified,
       if (userId != null) 'user_id': userId,
@@ -691,6 +784,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
     Value<String>? nameKey,
     Value<String>? courtLevel,
     Value<int>? orderIndex,
+    Value<String?>? division,
+    Value<String?>? district,
     Value<bool>? isCustom,
     Value<bool>? isUserModified,
     Value<String?>? userId,
@@ -707,6 +802,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
       nameKey: nameKey ?? this.nameKey,
       courtLevel: courtLevel ?? this.courtLevel,
       orderIndex: orderIndex ?? this.orderIndex,
+      division: division ?? this.division,
+      district: district ?? this.district,
       isCustom: isCustom ?? this.isCustom,
       isUserModified: isUserModified ?? this.isUserModified,
       userId: userId ?? this.userId,
@@ -734,6 +831,12 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
     }
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (division.present) {
+      map['division'] = Variable<String>(division.value);
+    }
+    if (district.present) {
+      map['district'] = Variable<String>(district.value);
     }
     if (isCustom.present) {
       map['is_custom'] = Variable<bool>(isCustom.value);
@@ -775,6 +878,8 @@ class CourtCategoriesCompanion extends UpdateCompanion<CourtCategory> {
           ..write('nameKey: $nameKey, ')
           ..write('courtLevel: $courtLevel, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('division: $division, ')
+          ..write('district: $district, ')
           ..write('isCustom: $isCustom, ')
           ..write('isUserModified: $isUserModified, ')
           ..write('userId: $userId, ')
@@ -15408,6 +15513,8 @@ typedef $$CourtCategoriesTableCreateCompanionBuilder =
       required String nameKey,
       required String courtLevel,
       required int orderIndex,
+      Value<String?> division,
+      Value<String?> district,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -15425,6 +15532,8 @@ typedef $$CourtCategoriesTableUpdateCompanionBuilder =
       Value<String> nameKey,
       Value<String> courtLevel,
       Value<int> orderIndex,
+      Value<String?> division,
+      Value<String?> district,
       Value<bool> isCustom,
       Value<bool> isUserModified,
       Value<String?> userId,
@@ -15561,6 +15670,16 @@ class $$CourtCategoriesTableFilterComposer
 
   ColumnFilters<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get division => $composableBuilder(
+    column: $table.division,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get district => $composableBuilder(
+    column: $table.district,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15764,6 +15883,16 @@ class $$CourtCategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get division => $composableBuilder(
+    column: $table.division,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get district => $composableBuilder(
+    column: $table.district,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isCustom => $composableBuilder(
     column: $table.isCustom,
     builder: (column) => ColumnOrderings(column),
@@ -15834,6 +15963,12 @@ class $$CourtCategoriesTableAnnotationComposer
     column: $table.orderIndex,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get division =>
+      $composableBuilder(column: $table.division, builder: (column) => column);
+
+  GeneratedColumn<String> get district =>
+      $composableBuilder(column: $table.district, builder: (column) => column);
 
   GeneratedColumn<bool> get isCustom =>
       $composableBuilder(column: $table.isCustom, builder: (column) => column);
@@ -16032,6 +16167,8 @@ class $$CourtCategoriesTableTableManager
                 Value<String> nameKey = const Value.absent(),
                 Value<String> courtLevel = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<String?> division = const Value.absent(),
+                Value<String?> district = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -16047,6 +16184,8 @@ class $$CourtCategoriesTableTableManager
                 nameKey: nameKey,
                 courtLevel: courtLevel,
                 orderIndex: orderIndex,
+                division: division,
+                district: district,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,
@@ -16064,6 +16203,8 @@ class $$CourtCategoriesTableTableManager
                 required String nameKey,
                 required String courtLevel,
                 required int orderIndex,
+                Value<String?> division = const Value.absent(),
+                Value<String?> district = const Value.absent(),
                 Value<bool> isCustom = const Value.absent(),
                 Value<bool> isUserModified = const Value.absent(),
                 Value<String?> userId = const Value.absent(),
@@ -16079,6 +16220,8 @@ class $$CourtCategoriesTableTableManager
                 nameKey: nameKey,
                 courtLevel: courtLevel,
                 orderIndex: orderIndex,
+                division: division,
+                district: district,
                 isCustom: isCustom,
                 isUserModified: isUserModified,
                 userId: userId,

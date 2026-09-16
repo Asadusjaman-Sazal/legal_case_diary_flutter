@@ -15,7 +15,12 @@ import '../settings_sub_page_modal.dart';
 
 /// Division picker screen for Lower Courts.
 class CourtCategoryScreen extends ConsumerWidget {
-  const CourtCategoryScreen({super.key});
+  /// Active walkthrough, e.g. [AppRoutes.lowerCourtCategoryFlow] when reached
+  /// from Settings → Edit Court/Steps → Lower Court Categories. Null keeps the
+  /// Edit Court Names & Categories walkthrough.
+  final String? flow;
+
+  const CourtCategoryScreen({super.key, this.flow});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +46,8 @@ class CourtCategoryScreen extends ConsumerWidget {
             icon: Icons.location_city_outlined,
             title: label,
             onTap: () => context.push(
-              '${AppRoutes.settingsDistrictList}?division=$id',
+              '${AppRoutes.settingsDistrictList}?division=$id'
+              '${flow == null ? '' : '&flow=$flow'}',
             ),
           );
         },

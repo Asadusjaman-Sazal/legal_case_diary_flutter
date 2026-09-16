@@ -619,7 +619,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lowerCourtCategory_executiveMagistrate =>
-      'Executive Magistrate & Others Courts';
+      'Executive Magistrate & Other Courts';
 
   @override
   String get lowerCourtCategory_tribunals => 'Tribunals';

@@ -1241,7 +1241,7 @@ abstract class AppLocalizations {
   /// No description provided for @lowerCourtCategory_executiveMagistrate.
   ///
   /// In en, this message translates to:
-  /// **'Executive Magistrate & Others Courts'**
+  /// **'Executive Magistrate & Other Courts'**
   String get lowerCourtCategory_executiveMagistrate;
 
   /// No description provided for @lowerCourtCategory_tribunals.

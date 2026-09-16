@@ -30,6 +30,7 @@ import '../../features/cases/data/case_form_repository.dart';
 import '../../features/cases/data/local/cases_dao.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
+import '../../features/settings/data/district_court_categories.dart';
 import '../../features/settings/data/local/court_categories_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
 import '../../features/settings/data/local/on_behalfs_dao.dart';
@@ -588,25 +589,17 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _higherLowerCourt == appellateDivisionId ||
       _higherLowerCourt == highCourtDivisionId;
 
-  // Court categories that actually exist for the selected district. Most
-  // districts have no metropolitan courts, so their metropolitan categories
-  // are omitted rather than offered as empty dropdowns.
-  List<CourtCategory> get _lowerCategories {
-    final all = _lookupData!.courtCategories
-        .where((item) => item.courtLevel == 'lower')
-        .toList();
-    if (_district == null) return all;
-    final available = _lookupData!.courts
-        .where(
-          (court) =>
-              court.higherLowerCourts == lowerCourtsOption &&
-              court.division == _division &&
-              court.district == _district,
-        )
-        .map((court) => court.courtCategoryId)
-        .toSet();
-    return all.where((item) => available.contains(item.id)).toList();
-  }
+  // Court categories that actually exist for the selected district: the
+  // pre-seeded ones with at least one court there (most districts have no
+  // metropolitan courts, so those are omitted rather than offered as empty
+  // dropdowns) plus the categories the user created for this district in
+  // Settings → Edit Court/Steps → Lower Court Categories.
+  List<CourtCategory> get _lowerCategories => districtCourtCategories(
+    categories: _lookupData!.courtCategories,
+    courts: _lookupData!.courts,
+    division: _division,
+    district: _district,
+  );
 
   List<String> get _districtOptions =>
       districtIdsByDivision[_division] ?? const [];

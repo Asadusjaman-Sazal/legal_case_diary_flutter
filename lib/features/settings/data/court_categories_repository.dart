@@ -134,6 +134,8 @@ class LocalCourtCategoriesRepository with BaseLocalRepository implements CourtCa
     if (companion.nameKey.present) fields.add('name_key');
     if (companion.courtLevel.present) fields.add('court_level');
     if (companion.orderIndex.present) fields.add('order_index');
+    if (companion.division.present) fields.add('division');
+    if (companion.district.present) fields.add('district');
     return fields;
   }
 }

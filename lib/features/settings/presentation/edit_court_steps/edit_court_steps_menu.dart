@@ -37,6 +37,13 @@ class EditCourtStepsMenu extends StatelessWidget {
               onTap: () =>
                   context.push(AppRoutes.settingsEditCourtNamesCategory),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            SettingsMenuCard(
+              icon: Icons.account_tree_outlined,
+              title: 'Lower Court Categories',
+              subtitle: 'Divisions, districts and their court categories',
+              onTap: () => context.push(AppRoutes.settingsLowerCourtCategories),
+            ),
           ],
         ),
       );

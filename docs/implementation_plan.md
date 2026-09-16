@@ -333,6 +333,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
 - All sub-menu page bodies must be designed **exactly** like their referenced HTML mockup files. The App header with back button uses `settings_sub_page_modal.dart`. Use of the mentioned mockup HTML files is **mandatory, not optional**.
 - All Divisions, Districts, Court Categories under all districts, list of court names under all categories, and court names for Appellate Division / High Court Division are to be **pre-seeded** in `pre_seeded_data.dart`. Users can add items later through the sub-menu pages.
 - List of Court Categories and Court Names must be presented with drag & drop, FAB add, edit, delete buttons — matching the `courtCategory_lowerCourts-Districts_listOfCourts\code.html` mockup.
+  - Implemented as the **Lower Court Categories** card in Edit Court/Steps (added during Task 12 Phase 3): Divisions → Districts → the categories present in that district (a pre-seeded category with no court in `pre_seeded_data.dart` is hidden; user-added ones are district-scoped). This list is the end of that walkthrough — court names stay in Edit Court Names & Categories. Categories owned by the user live in `court_categories` with `division`/`district` set (schema v7) and can be renamed, reordered and deleted; built-ins can be renamed and reordered but not deleted (`LocalCourtCategoriesRepository.delete` refuses them). The list is shared with the Add/Edit Case form through `lib/features/settings/data/district_court_categories.dart`, so both show the same categories in the same `order_index` serial.
 
 ---
 
@@ -472,6 +473,7 @@ lib/
 │   │       │   ├── court_names_steps_screen.dart      # Case Types, Steps, On Behalfs (UI: settings_courtNamesSteps)
 │   │       │   ├── court_category_screen.dart         # Division picker (UI: courtCategory_lowerCourts-Division)
 │   │       │   ├── district_list_screen.dart          # District list (UI: courtCategory_lowerCourts-Districts)
+│   │       │   ├── lower_court_category_list_screen.dart  # Lower Court Categories of one district (sub-menu "Lower Court Categories")
 │   │       │   └── court_list_screen.dart             # Court names list (UI: courtCategory_lowerCourts-Districts_listOfCourts)
 │   │       ├── settings_notifications/
 │   │       │   └── notification_settings_screen.dart  # (UI: settings_notifications/code.html)

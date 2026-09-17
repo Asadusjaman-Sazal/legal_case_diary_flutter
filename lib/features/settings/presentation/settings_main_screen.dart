@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
@@ -64,15 +65,6 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
   /// Whether the slide-in search field is currently open.
   bool _searchOpen = false;
 
-  /// All settings sections in display order.
-  late final List<_SettingsSection> _sections;
-
-  @override
-  void initState() {
-    super.initState();
-    _sections = _buildSections();
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -95,79 +87,84 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
   /// Focus node for the slide-in search field.
   final FocusNode _searchFocus = FocusNode();
 
-  List<_SettingsSection> _buildSections() => [
-        _SettingsSection('General', [
-          const _SettingsItem(
-            title: 'Account & Profile',
-            icon: Icons.person_outline,
-            route: AppRoutes.settingsAccountProfile,
-          ),
-          const _SettingsItem(
-            title: 'Online Sync',
-            icon: Icons.sync_outlined,
-            route: AppRoutes.settingsOnlineSync,
-          ),
-          const _SettingsItem(
-            title: 'Backup & Restore',
-            icon: Icons.cloud_upload_outlined,
-            route: AppRoutes.settingsBackupRestore,
-          ),
-        ]),
-        _SettingsSection('Preferences', [
-          const _SettingsItem(
-            title: 'Edit Court/Steps',
-            icon: Icons.gavel_outlined,
-            route: AppRoutes.settingsEditCourtSteps,
-          ),
-          const _SettingsItem(
-            title: 'Notifications',
-            icon: Icons.notifications_outlined,
-            route: AppRoutes.settingsNotifications,
-          ),
-          const _SettingsItem(
-            title: 'Language',
-            icon: Icons.language_outlined,
-            route: AppRoutes.settingsLanguage,
-          ),
-          const _SettingsItem(
-            title: 'View settings',
-            icon: Icons.visibility_outlined,
-            route: AppRoutes.settingsViewSettings,
-          ),
-        ]),
-        _SettingsSection('App Info', [
-          const _SettingsItem(
-            title: 'Guidelines',
-            icon: Icons.info_outline,
-            route: AppRoutes.settingsGuidelines,
-          ),
-          const _SettingsItem(
-            title: 'About',
-            icon: Icons.info_outline,
-            route: AppRoutes.settingsAbout,
-          ),
-        ]),
-      ];
+  /// All settings sections in display order, localized for the active locale.
+  List<_SettingsSection> _buildSections(AppLocalizations l) => [
+    _SettingsSection(l.settingsScreen_sectionGeneral, [
+      _SettingsItem(
+        title: l.settingsScreen_accountAndProfile,
+        icon: Icons.person_outline,
+        route: AppRoutes.settingsAccountProfile,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_onlineSync,
+        icon: Icons.sync_outlined,
+        route: AppRoutes.settingsOnlineSync,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_backupAndRestore,
+        icon: Icons.cloud_upload_outlined,
+        route: AppRoutes.settingsBackupRestore,
+      ),
+    ]),
+    _SettingsSection(l.settingsScreen_sectionPreferences, [
+      _SettingsItem(
+        title: l.settingsScreen_editCourtSteps,
+        icon: Icons.gavel_outlined,
+        route: AppRoutes.settingsEditCourtSteps,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_notifications,
+        icon: Icons.notifications_outlined,
+        route: AppRoutes.settingsNotifications,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_language,
+        icon: Icons.language_outlined,
+        route: AppRoutes.settingsLanguage,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_viewSettings,
+        icon: Icons.visibility_outlined,
+        route: AppRoutes.settingsViewSettings,
+      ),
+    ]),
+    _SettingsSection(l.settingsScreen_sectionAppInfo, [
+      _SettingsItem(
+        title: l.settingsScreen_guidelines,
+        icon: Icons.info_outline,
+        route: AppRoutes.settingsGuidelines,
+      ),
+      _SettingsItem(
+        title: l.settingsScreen_about,
+        icon: Icons.info_outline,
+        route: AppRoutes.settingsAbout,
+      ),
+    ]),
+  ];
 
   /// Filters sections to those with at least one title matching [query].
-  List<_SettingsSection> _filteredSections(String query) {
+  List<_SettingsSection> _filteredSections(AppLocalizations l, String query) {
+    final sections = _buildSections(l);
     final q = query.trim().toLowerCase();
-    if (q.isEmpty) return _sections;
-    return _sections
-        .map((section) => _SettingsSection(
-              section.header,
-              section.items
-                  .where((item) => item.title.toLowerCase().contains(q))
-                  .toList(),
-            ))
+    if (q.isEmpty) return sections;
+    return sections
+        .map(
+          (section) => _SettingsSection(
+            section.header,
+            section.items
+                .where((item) => item.title.toLowerCase().contains(q))
+                .toList(),
+          ),
+        )
         .where((section) => section.items.isNotEmpty)
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final query = _searchController.text;
-    final visible = _filteredSections(query);
+    final visible = _filteredSections(l, query);
 
     final settingsAsync = ref.watch(_userSettingsProvider);
     final sideNavOptions = settingsAsync.value?.sideNavOptions ?? const {};
@@ -201,9 +198,9 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
             ),
             Expanded(
               child: visible.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'No settings found',
+                        l.settingsScreen_noResults,
                         style: AppTypography.bodyMd,
                       ),
                     )
@@ -211,8 +208,7 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
                       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
                       children: [
                         for (var s = 0; s < visible.length; s++) ...[
-                          if (s > 0)
-                            const SizedBox(height: AppSpacing.lg),
+                          if (s > 0) const SizedBox(height: AppSpacing.lg),
                           _SectionHeader(title: visible[s].header),
                           // Card matching the header background, with a top and
                           // bottom hairline per the settings_main mockup.
@@ -220,16 +216,21 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.surface,
                               border: Border(
-                                top: BorderSide(color: AppColors.outlineVariant),
-                                bottom:
-                                    BorderSide(color: AppColors.outlineVariant),
+                                top: BorderSide(
+                                  color: AppColors.outlineVariant,
+                                ),
+                                bottom: BorderSide(
+                                  color: AppColors.outlineVariant,
+                                ),
                               ),
                             ),
                             child: Column(
                               children: [
-                                for (var i = 0;
-                                    i < visible[s].items.length;
-                                    i++) ...[
+                                for (
+                                  var i = 0;
+                                  i < visible[s].items.length;
+                                  i++
+                                ) ...[
                                   _SettingsListTile(item: visible[s].items[i]),
                                   if (i < visible[s].items.length - 1)
                                     const Divider(
@@ -278,81 +279,87 @@ class _SettingsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header bar: menu, title, and the search affordance on the right.
-          Container(
-            height: 56,
-            color: AppColors.surface,
-            padding: const EdgeInsets.only(right: AppSpacing.sm),
-            child: Row(
-              children: [
-                // Menu uses a Builder so it opens the drawer against the header's
-                // own context — the parent build context sits above the Scaffold
-                // and cannot see it.
-                Builder(
-                  builder: (ctx) => IconButton(
-                    icon: const Icon(Icons.menu, color: AppColors.primary),
-                    tooltip:
-                        MaterialLocalizations.of(context).openAppDrawerTooltip,
-                    onPressed: () => Scaffold.of(ctx).openDrawer(),
-                  ),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Header bar: menu, title, and the search affordance on the right.
+      Container(
+        height: 56,
+        color: AppColors.surface,
+        padding: const EdgeInsets.only(right: AppSpacing.sm),
+        child: Row(
+          children: [
+            // Menu uses a Builder so it opens the drawer against the header's
+            // own context — the parent build context sits above the Scaffold
+            // and cannot see it.
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: const Icon(Icons.menu, color: AppColors.primary),
+                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Text(
+              AppLocalizations.of(context).settingsScreen_title,
+              style: AppTypography.titleLg,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            // The field fills the row from here to the right edge when open.
+            // The AnimatedSwitcher must be the Flex child (Expanded), not the
+            // inner field — AnimatedSwitcher wraps its child in a Stack, and an
+            // Expanded inside a Stack cannot find a Flex ancestor, so the field
+            // never shows.
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, animation) => SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                const Text('Settings', style: AppTypography.titleLg),
-                const SizedBox(width: AppSpacing.md),
-                // The field fills the row from here to the right edge when open.
-                // The AnimatedSwitcher must be the Flex child (Expanded), not the
-                // inner field — AnimatedSwitcher wraps its child in a Stack, and an
-                // Expanded inside a Stack cannot find a Flex ancestor, so the field
-                // never shows.
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (child, animation) => SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(1, 0),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                    child: searchOpen
-                        ? _SlideInSearchField(
-                            key: const ValueKey('search'),
-                            controller: searchController,
-                            focus: searchFocus,
-                            onChanged: onSearchChanged,
-                            onClose: onCloseSearch,
-                          )
-                        : Align(
-                            key: const ValueKey('search-btn'),
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: const Icon(Icons.search,
-                                  color: AppColors.primary),
-                              tooltip: 'Search settings',
-                              onPressed: onSearchPressed,
-                            ),
+                child: searchOpen
+                    ? _SlideInSearchField(
+                        key: const ValueKey('search'),
+                        controller: searchController,
+                        focus: searchFocus,
+                        onChanged: onSearchChanged,
+                        onClose: onCloseSearch,
+                      )
+                    : Align(
+                        key: const ValueKey('search-btn'),
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            color: AppColors.primary,
                           ),
-                  ),
-                ),
-              ],
+                          tooltip: AppLocalizations.of(
+                            context,
+                          ).settingsScreen_searchTooltip,
+                          onPressed: onSearchPressed,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Back button on its own row, directly below the menu button.
+      Row(
+        children: [
+          Builder(
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              onPressed: onBackPressed,
             ),
           ),
-          // Back button on its own row, directly below the menu button.
-          Row(
-            children: [
-              Builder(
-                builder: (ctx) => IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  onPressed: onBackPressed,
-                ),
-              ),
-            ],
-          ),
         ],
-      );
+      ),
+    ],
+  );
 }
 
 /// The expandable search field shown when [ _SettingsHeader.searchOpen] is true.
@@ -372,54 +379,56 @@ class _SlideInSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: 40,
-        // One unified gray background behind the search icon, text, and close
-        // icon; rounded corners so it reads as a single search pill.
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainer,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: AppSpacing.sm),
-            const Icon(Icons.search, color: AppColors.onSurfaceVariant),
-            Expanded(
-              child: TextField(
-                controller: controller,
-                focusNode: focus,
-                // Neutral cursor/handle — no blue accent.
-                cursorColor: AppColors.onSurfaceVariant,
-                style: const TextStyle(color: AppColors.onSurface),
-                onChanged: (_) => onChanged(),
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: const TextStyle(
-                    color: AppColors.onSurfaceVariant,
-                    fontSize: 12.0,
-                  ),
-                  // Match the pill background so the field reads as one surface.
-                  filled: true,
-                  fillColor: AppColors.surfaceContainer,
-                  // No box and no focus underline — removes the blue accent line.
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  isCollapsed: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: AppSpacing.sm,
-                    horizontal: AppSpacing.sm,
-                  ),
-                ),
+    height: 40,
+    // One unified gray background behind the search icon, text, and close
+    // icon; rounded corners so it reads as a single search pill.
+    decoration: BoxDecoration(
+      color: AppColors.surfaceContainer,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: [
+        const SizedBox(width: AppSpacing.sm),
+        const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            focusNode: focus,
+            // Neutral cursor/handle — no blue accent.
+            cursorColor: AppColors.onSurfaceVariant,
+            style: const TextStyle(color: AppColors.onSurface),
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context).settingsScreen_searchHint,
+              hintStyle: const TextStyle(
+                color: AppColors.onSurfaceVariant,
+                fontSize: 12.0,
+              ),
+              // Match the pill background so the field reads as one surface.
+              filled: true,
+              fillColor: AppColors.surfaceContainer,
+              // No box and no focus underline — removes the blue accent line.
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              isCollapsed: true,
+              contentPadding: EdgeInsets.symmetric(
+                vertical: AppSpacing.sm,
+                horizontal: AppSpacing.sm,
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
-              tooltip: 'Close search',
-              onPressed: onClose,
-            ),
-          ],
+          ),
         ),
-      );
+        IconButton(
+          icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
+          tooltip: AppLocalizations.of(
+            context,
+          ).settingsScreen_closeSearchTooltip,
+          onPressed: onClose,
+        ),
+      ],
+    ),
+  );
 }
 
 /// Section header label above a group of settings items.
@@ -430,20 +439,20 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.xs,
-        ),
-        child: Text(
-          title.toUpperCase(),
-          style: AppTypography.labelMd.copyWith(
-            color: AppColors.tertiary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.md,
+      AppSpacing.md,
+      AppSpacing.md,
+      AppSpacing.xs,
+    ),
+    child: Text(
+      title.toUpperCase(),
+      style: AppTypography.labelMd.copyWith(
+        color: AppColors.tertiary,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
 }
 
 /// Standard tappable settings row that navigates to [item.route].
@@ -454,12 +463,9 @@ class _SettingsListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-        leading: Icon(item.icon, color: AppColors.primary),
-        title: Text(item.title, style: AppTypography.bodyLg),
-        trailing: const Icon(
-          Icons.chevron_right,
-          color: AppColors.tertiary,
-        ),
-        onTap: () => context.push(item.route),
-      );
+    leading: Icon(item.icon, color: AppColors.primary),
+    title: Text(item.title, style: AppTypography.bodyLg),
+    trailing: const Icon(Icons.chevron_right, color: AppColors.tertiary),
+    onTap: () => context.push(item.route),
+  );
 }

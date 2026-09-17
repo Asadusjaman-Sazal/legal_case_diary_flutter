@@ -176,7 +176,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to delete the case: $error')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).caseDetailsScreen_deleteCaseError('$error'),
+          ),
+        ),
       );
     }
   }
@@ -205,9 +211,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               key: const ValueKey('history-action-edit'),
               leading: const Icon(Icons.edit_outlined),
               title: Text(l.sharedActions_edit),
-              onTap: () => Navigator.of(sheetContext).pop(
-                _HistoryEntryAction.edit,
-              ),
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_HistoryEntryAction.edit),
             ),
             ListTile(
               key: const ValueKey('history-action-delete'),
@@ -216,9 +221,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                 l.sharedActions_delete,
                 style: AppTypography.titleMd.copyWith(color: AppColors.error),
               ),
-              onTap: () => Navigator.of(sheetContext).pop(
-                _HistoryEntryAction.delete,
-              ),
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_HistoryEntryAction.delete),
             ),
           ],
         ),
@@ -252,12 +256,21 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to delete the history entry: $error')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).caseDetailsScreen_deleteHistoryError('$error'),
+          ),
+        ),
       );
     }
   }
 
-  Future<void> _launchPartyContact(String? phone, {required bool message}) async {
+  Future<void> _launchPartyContact(
+    String? phone, {
+    required bool message,
+  }) async {
     final value = phone?.trim();
     if (value == null || value.isEmpty) return;
     final l = AppLocalizations.of(context);
@@ -265,21 +278,29 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     final target = await showDialog<_ContactActionTarget>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Open with'),
+        title: Text(l.casesContact_openWith),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              key: ValueKey('case-detail-${message ? 'message' : 'call'}-whatsapp'),
+              key: ValueKey(
+                'case-detail-${message ? 'message' : 'call'}-whatsapp',
+              ),
               leading: const Icon(Icons.chat_outlined),
-              title: const Text('WhatsApp'),
+              title: Text(l.casesContact_whatsapp),
               onTap: () =>
                   Navigator.of(context).pop(_ContactActionTarget.whatsApp),
             ),
             ListTile(
-              key: ValueKey('case-detail-${message ? 'message' : 'call'}-native'),
+              key: ValueKey(
+                'case-detail-${message ? 'message' : 'call'}-native',
+              ),
               leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-              title: Text(message ? l.caseDetailsScreen_message : l.caseDetailsScreen_phone),
+              title: Text(
+                message
+                    ? l.caseDetailsScreen_message
+                    : l.caseDetailsScreen_phone,
+              ),
               onTap: () => Navigator.of(context).pop(
                 message
                     ? _ContactActionTarget.message
@@ -299,25 +320,25 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     );
     if (!mounted || target == null) return;
 
-    String failureMessage = 'Unable to open the app.';
+    String failureMessage = l.casesContact_unableToOpenApp;
     try {
       if (target == _ContactActionTarget.whatsApp) {
         final normalized = value.replaceAll(RegExp(r'\D'), '');
         if (normalized.isEmpty) return;
-        failureMessage = 'Unable to open WhatsApp.';
+        failureMessage = l.casesContact_unableToOpenWhatsApp;
         final launched = await launchUrl(
           Uri.https('wa.me', normalized),
           mode: LaunchMode.externalApplication,
         );
         if (!launched && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failureMessage)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(failureMessage)));
         }
       } else {
         failureMessage = target == _ContactActionTarget.phone
-            ? 'Unable to place a call.'
-            : 'Unable to open messages.';
+            ? l.casesContact_unableToCall
+            : l.casesContact_unableToMessage;
         final launched = await launchUrl(
           Uri(
             scheme: target == _ContactActionTarget.phone ? 'tel' : 'sms',
@@ -326,16 +347,16 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           mode: LaunchMode.externalApplication,
         );
         if (!launched && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failureMessage)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(failureMessage)));
         }
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failureMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(failureMessage)));
     }
   }
 
@@ -361,14 +382,16 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     l.localeName,
   ).format(AppDateUtils.bangladeshDateTime(epochMs)).toUpperCase();
 
-  String _formatHighlightDate(AppLocalizations l, int epochMs) =>
-      DateFormat('d MMM y, EEEE', l.localeName)
-          .format(AppDateUtils.bangladeshDateTime(epochMs));
+  String _formatHighlightDate(AppLocalizations l, int epochMs) => DateFormat(
+    'd MMM y, EEEE',
+    l.localeName,
+  ).format(AppDateUtils.bangladeshDateTime(epochMs));
 
   /// Whole civil days between the Bangladesh start of today and [nextDateMs].
   int _daysUntil(int nextDateMs) {
     final target = AppDateUtils.normalizeToBangladeshStartOfDay(nextDateMs);
-    final days = (target - AppDateUtils.bangladeshTodayStartOfDay()) ~/
+    final days =
+        (target - AppDateUtils.bangladeshTodayStartOfDay()) ~/
         Duration.millisecondsPerDay;
     return days < 0 ? 0 : days;
   }
@@ -430,7 +453,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load the case: $_loadError'),
+          child: Text(
+            AppLocalizations.of(
+              context,
+            ).caseDetailsScreen_loadError('$_loadError'),
+          ),
         ),
       );
     }
@@ -493,9 +520,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                 child: _buildNextDateCard(context, l, current),
               ),
             ],
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.xxxl),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
           ],
         ),
       ),
@@ -516,7 +541,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         ),
         const SizedBox(height: AppSpacing.xs),
         // L2: location icon + court name; AD/HCD only: judges names line.
-        if (court != null) ...[        
+        if (court != null) ...[
           Row(
             children: [
               const Icon(Icons.location_on, size: 18),
@@ -576,8 +601,14 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   }
 
   /// L4 — Parties KanBan card.
-  Widget _buildPartiesCard(BuildContext context, AppLocalizations l, Case current) {
-    final clientSide = _onBehalf == null ? null : _representedSideOf(_onBehalf!);
+  Widget _buildPartiesCard(
+    BuildContext context,
+    AppLocalizations l,
+    Case current,
+  ) {
+    final clientSide = _onBehalf == null
+        ? null
+        : _representedSideOf(_onBehalf!);
     final clientPhone = current.partyPhone?.trim();
     return _kanbanCard(
       child: Column(
@@ -588,13 +619,17 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               children: [
                 Text(
                   '${l.caseDetailsScreen_onBehalfOf}: ',
-                  style: AppTypography.titleMd.copyWith(color: AppColors.onSurface),
+                  style: AppTypography.titleMd.copyWith(
+                    color: AppColors.onSurface,
+                  ),
                 ),
                 Flexible(
                   child: Text(
                     _roleLabel(context, _onBehalf!),
                     key: const ValueKey('case-detail-on-behalf-role'),
-                    style: AppTypography.titleMd.copyWith(color: AppColors.onSurface),
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
                   ),
                 ),
               ],
@@ -640,8 +675,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     required String? counsel,
     required String? phone,
   }) {
-    final titleColor =
-        side == _PartySide.petitioner ? AppColors.secondary : AppColors.error;
+    final titleColor = side == _PartySide.petitioner
+        ? AppColors.secondary
+        : AppColors.error;
     final trimmedCounsel = counsel?.trim();
     final trimmedPhone = isClient ? phone?.trim() : null;
     return Column(
@@ -670,7 +706,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             children: [
               Text(
                 name,
-                style: AppTypography.bodyLg.copyWith(fontWeight: FontWeight.w700),
+                style: AppTypography.bodyLg.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               if (trimmedCounsel != null && trimmedCounsel.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.xs),
@@ -855,7 +893,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           ),
           child: (trimmed == null || trimmed.isEmpty)
-              ? Text('—', style: AppTypography.bodyMd.copyWith(color: AppColors.outline))
+              ? Text(
+                  '—',
+                  style: AppTypography.bodyMd.copyWith(
+                    color: AppColors.outline,
+                  ),
+                )
               : Text(trimmed, style: AppTypography.bodyMd),
         ),
       ],
@@ -887,12 +930,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Text(
               l.caseDetailsScreen_noHistoryEntries,
-              style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
             ),
           )
         else ...[
-          for (final entry in visible)
-            _historyEntry(context, l, entry),
+          for (final entry in visible) _historyEntry(context, l, entry),
           if (!expanded && showToggle) ...[
             const Divider(height: 1, color: AppColors.cardBorder),
             _viewAllButton(context, l, history.length),
@@ -938,7 +982,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
 
   /// Case History title row: icon + label, entry count, and the Show/Hide
   /// toggle (only when there are more than the 3 collapsed entries).
-  Widget _historyCardTitle(BuildContext context, AppLocalizations l, int total) {
+  Widget _historyCardTitle(
+    BuildContext context,
+    AppLocalizations l,
+    int total,
+  ) {
     final canToggle = total > 3;
     return Container(
       color: AppColors.surfaceContainerLowest,
@@ -992,7 +1040,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     );
   }
 
-  Widget _historyEntry(BuildContext context, AppLocalizations l, CaseHistoryRow entry) {
+  Widget _historyEntry(
+    BuildContext context,
+    AppLocalizations l,
+    CaseHistoryRow entry,
+  ) {
     final trimmedStep = entry.lastStep?.trim();
     final trimmedNote = entry.noteResult?.trim();
     // AD/HCD cases have no Steps; their per-hearing outcome is the Result
@@ -1058,7 +1110,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                     (trimmedNote == null || trimmedNote.isEmpty))
                   Text(
                     '—',
-                    style: AppTypography.bodySm.copyWith(color: AppColors.outline),
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.outline,
+                    ),
                   ),
                 if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
@@ -1125,7 +1179,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 16, color: white.withValues(alpha: 0.8)),
+              Icon(
+                Icons.calendar_today,
+                size: 16,
+                color: white.withValues(alpha: 0.8),
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 l.caseCard_nextDate.toUpperCase(),

@@ -7,6 +7,17 @@
 
 ---
 
+## Label / Localization Convention (added during implementation, 2026-09-17)
+
+Every user-facing label on the Settings surface (and the rest of the app) lives in `lib/core/l10n/app_en.arb` and `lib/core/l10n/app_bn.arb` — those two files are the only place a label text is written. Code reads them through `AppLocalizations.of(context)`; `flutter gen-l10n` (wired by `l10n.yaml` + `flutter: generate: true`) regenerates `lib/core/l10n/generated/*`.
+
+- **Key naming:** one prefix per screen, in camelCase of the screen: `settingsScreen_*` (main list) `settingsAccountProfile_*` `settingsProfile_*` `settingsManageAccount_*` `settingsOnlineSync_*` `settingsBackupRestore_*` `settingsEditCourtSteps_*` `settingsEditCourtNames_*` `settingsCourtNamesSteps_*` / `settingsEditItems_*` `settingsItemList_*` `settingsCourtList_*` `settingsCourtFlow_*` / `settingsLowerCourtCategories_*`; shared chrome uses `sharedActions_*`, `sharedDialogs_*`, `sharedMessages_*`; the app shell uses `appShell_*` and `databaseRecovery_*`; case screens use `<screen>_*` / `casesContact_*`.
+- **Files are grouped by screen:** an `"@@_section_<id>": "<TITLE>  |  <source file>"` row precedes each screen's keys. `flutter gen-l10n` ignores `@`-prefixed keys (verified), and the repo's `generate_l10n.py` / `tool/generate_l10n_dart*.py` skip them as well, so the markers are documentation only. Keep new keys inside their screen's section and in the same relative order in both files — `test/l10n/arb_keys_test.dart` fails if the two files diverge.
+- **Both languages are mandatory:** add a Bengali value with the same key in `app_bn.arb`. The guard test also fails if a translation drops a `{placeholder}`.
+- Never hard-code a label in a Settings screen, and never pass a literal to `SettingsSubPageModal(title:)`, a dialog title/body, a button label, a tooltip, or an empty/error state. Section headings are stored in sentence case and upper-cased by the widget.
+
+---
+
 ## Shared Sub-Menu Sizing Contract (added during implementation)
 
 - `lib/features/settings/presentation/settings_menu_card.dart` (new file; logged in `docs/version_history.md` 0.0.171) is the single source for sub-menu card/button sizing:

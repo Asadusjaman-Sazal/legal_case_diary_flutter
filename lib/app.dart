@@ -24,7 +24,8 @@ class App extends ConsumerWidget {
 
     return routerAsync.when(
       data: (router) => MaterialApp.router(
-        title: 'Legal Case Diary',
+        // Localized so the OS task switcher follows the active language.
+        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(locale),
         locale: locale,

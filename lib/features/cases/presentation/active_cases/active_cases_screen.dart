@@ -82,6 +82,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     Case currentCase, {
     required bool message,
   }) async {
+    final l = AppLocalizations.of(context);
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
 
@@ -93,7 +94,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       if (normalized.isEmpty) return;
       await _launchExternal(
         Uri.https('wa.me', normalized),
-        failureMessage: 'Unable to open WhatsApp.',
+        failureMessage: l.casesContact_unableToOpenWhatsApp,
       );
     } else {
       await _launchExternal(
@@ -102,8 +103,8 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
           path: phone,
         ),
         failureMessage: target == _ContactActionTarget.phone
-            ? 'Unable to place a call.'
-            : 'Unable to open messages.',
+            ? l.casesContact_unableToCall
+            : l.casesContact_unableToMessage,
       );
     }
   }
@@ -113,21 +114,25 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   }) => showDialog<_ContactActionTarget>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Open with'),
+      title: Text(AppLocalizations.of(context).casesContact_openWith),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
             leading: const Icon(Icons.chat_outlined),
-            title: const Text('WhatsApp'),
+            title: Text(AppLocalizations.of(context).casesContact_whatsapp),
             onTap: () =>
                 Navigator.of(context).pop(_ContactActionTarget.whatsApp),
           ),
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
             leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-            title: Text(message ? 'Message' : 'Phone'),
+            title: Text(
+              message
+                  ? AppLocalizations.of(context).casesContact_message
+                  : AppLocalizations.of(context).casesContact_phone,
+            ),
             onTap: () => Navigator.of(context).pop(
               message
                   ? _ContactActionTarget.message
@@ -140,7 +145,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         TextButton(
           key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).sharedActions_cancel),
         ),
       ],
     ),
@@ -197,7 +202,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load cases: $_error'),
+          child: Text(
+            AppLocalizations.of(context).casesScreen_loadError('$_error'),
+          ),
         ),
       );
     }
@@ -214,14 +221,15 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: _cases.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(height: AppSpacing.md),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
                 final currentCase = _cases[index];
                 final court = _courtsById[currentCase.courtId];
-                final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
+                final isHigherCourt =
+                    court?.courtCategoryId == appellateDivisionId ||
                     court?.courtCategoryId == highCourtDivisionId;
-                final isOverdue = currentCase.nextDate != null &&
+                final isOverdue =
+                    currentCase.nextDate != null &&
                     currentCase.nextDate! <
                         AppDateUtils.bangladeshTodayStartOfDay();
                 return CaseCard(
@@ -233,22 +241,28 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
                       '${currentCase.petitioner} Vs ${currentCase.respondent}',
                   subtitle: currentCase.caseTitleAndSection,
                   courtName: court?.courtName,
-                  judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+                  judgesName: isHigherCourt
+                      ? currentCase.honorableJudges
+                      : null,
                   statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
                   alignStatusLabelRight: true,
                   isOverdue: isOverdue,
                   nextDate: currentCase.nextDate == null
                       ? null
                       : DateFormat('dd/MM/yy, EEE', l.localeName).format(
-                          AppDateUtils.bangladeshDateTime(currentCase.nextDate!),
+                          AppDateUtils.bangladeshDateTime(
+                            currentCase.nextDate!,
+                          ),
                         ),
                   step: currentCase.lastStep,
                   result: currentCase.result,
                   note: currentCase.notesResults,
                   showPhoneButton: true,
                   showMessageButton: true,
-                  onPhone: () => _launchPartyAction(currentCase, message: false),
-                  onMessage: () => _launchPartyAction(currentCase, message: true),
+                  onPhone: () =>
+                      _launchPartyAction(currentCase, message: false),
+                  onMessage: () =>
+                      _launchPartyAction(currentCase, message: true),
                   onUpdate: () => _openQuickUpdate(currentCase),
                   onTap: () => _openCaseDetail(currentCase),
                 );

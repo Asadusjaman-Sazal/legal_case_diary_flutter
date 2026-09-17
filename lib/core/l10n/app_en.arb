@@ -1,7 +1,21 @@
 {
   "@@locale": "en",
+  "@@_section_app": "APP WIDE  |  app.dart - app wide",
   "appName": "Legal Case Diary",
   "appTitle": "Legal Case Diary",
+  "@@_section_nav": "NAVIGATION (drawer + bottom bar)  |  lib/shared/widgets/app_navigation_drawer.dart, bottom_nav_bar.dart",
+  "nav_upcomingCases": "Upcoming Cases",
+  "nav_dailyCauseList": "Daily Cause List",
+  "nav_allCases": "All Cases",
+  "nav_disposedCases": "Disposed Cases",
+  "nav_caseReference": "Case Reference",
+  "nav_notes": "Notes",
+  "nav_settings": "Settings",
+  "nav_print": "Print",
+  "nav_share": "Share",
+  "nav_activeCases": "Active Cases",
+  "nav_overdueDates": "Overdue Dates",
+  "@@_section_allCasesScreen": "ALL CASES SCREEN  |  lib/features/cases/presentation/all_cases/all_cases_screen.dart",
   "allCasesScreen_title": "All Cases",
   "allCasesScreen_activeCases": "Active Cases",
   "allCasesScreen_disposedCases": "Disposed Cases",
@@ -20,6 +34,12 @@
   "allCasesScreen_unableToCall": "Unable to place a call.",
   "allCasesScreen_unableToMessage": "Unable to open messages.",
   "allCasesScreen_update": "Update",
+  "caseCard_disposed": "Disposed:",
+  "@@_section_activeCasesScreen": "ACTIVE CASES SCREEN  |  lib/features/cases/presentation/active_cases/active_cases_screen.dart",
+  "activeCasesScreen_title": "Active Cases",
+  "@@_section_upcomingCasesScreen": "UPCOMING CASES SCREEN  |  lib/features/cases/presentation/upcoming_cases/upcoming_cases_screen.dart",
+  "upcomingCasesScreen_title": "Upcoming Cases",
+  "@@_section_dailyCauseListScreen": "DAILY CAUSE LIST SCREEN  |  lib/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart",
   "dailyCauseListScreen_title": "Daily Cause List",
   "dailyCauseListScreen_today": "Today",
   "dailyCauseListScreen_tomorrow": "Tomorrow",
@@ -32,10 +52,17 @@
   "dailyCauseListScreen_whatsappError": "Unable to open WhatsApp.",
   "dailyCauseListScreen_callError": "Unable to place a call.",
   "dailyCauseListScreen_messageError": "Unable to open messages.",
-  "upcomingCasesScreen_title": "Upcoming Cases",
-  "general_tomorrow": "Tomorrow",
+  "@@_section_disposedCasesScreen": "DISPOSED CASES SCREEN  |  lib/features/cases/presentation/disposed_cases/disposed_cases_screen.dart",
+  "disposedCasesScreen_title": "Disposed Cases",
+  "disposedCasesScreen_helpTitle": "How to set a case as disposed?",
+  "disposedCasesScreen_helpBody": "During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.",
+  "disposedCasesScreen_disposedSteps": "Disposed steps by court category",
+  "disposedCasesScreen_appellateHighCourtDivision": "Appellate Division & High Court Division",
+  "disposedCasesScreen_gotIt": "Got it",
+  "@@_section_overdueDatesScreen": "OVERDUE DATES SCREEN  |  lib/features/cases/presentation/overdue_dates/overdue_dates_screen.dart",
   "overdueDatesScreen_title": "Overdue Dates",
   "overdueDatesScreen_lastUpdated": "Last Updated",
+  "@@_section_caseDetailsScreen": "CASE DETAILS SCREEN  |  lib/features/cases/presentation/case_detail/case_detail_screen.dart",
   "caseDetailsScreen_title": "Case Details",
   "caseDetailsScreen_delete": "Delete",
   "caseDetailsScreen_editCase": "Edit Case",
@@ -52,27 +79,33 @@
   "caseDetailsScreen_message": "Message",
   "caseDetailsScreen_entriesTotal": "{count} Entries Total",
   "@caseDetailsScreen_entriesTotal": {
-    "description": "Total number of case history entries.",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
+      "description": "Total number of case history entries.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
   },
   "caseDetailsScreen_noHistoryEntries": "No history entries yet.",
   "caseDetailsScreen_showHistory": "Show",
   "caseDetailsScreen_hideHistory": "Hide",
   "caseDetailsScreen_viewAllHistory": "{count, plural, =1{View All {count} History Entry} other{View All {count} History Entries}}",
   "@caseDetailsScreen_viewAllHistory": {
-    "description": "Button revealing all case history entries.",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
+      "description": "Button revealing all case history entries.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
   },
   "caseDetailsScreen_daysRemaining": "{count, plural, =0{0 Days Remaining} =1{1 Day Remaining} other{{count} Days Remaining}}",
   "@caseDetailsScreen_daysRemaining": {
-    "description": "Countdown shown on the Next Date highlight card.",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
+      "description": "Countdown shown on the Next Date highlight card.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
   },
   "caseDetailsScreen_setReminder": "Set Reminder",
   "caseDetailsScreen_editHistoryEntry": "Edit History Entry",
@@ -81,46 +114,34 @@
   "caseDetailsScreen_tenderNumber": "Tender Number",
   "caseDetailsScreen_previousCourtCase": "Previous Court Case",
   "caseDetailsScreen_districtOfOrigin": "District of Origin",
-  "disposedCasesScreen_title": "Disposed Cases",
-  "caseCard_disposed": "Disposed:",
-  "disposedCasesScreen_helpTitle": "How to set a case as disposed?",
-  "disposedCasesScreen_helpBody": "During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.",
-  "disposedCasesScreen_disposedSteps": "Disposed steps by court category",
-  "disposedCasesScreen_appellateHighCourtDivision": "Appellate Division & High Court Division",
-  "disposedCasesScreen_gotIt": "Got it",
-  "activeCasesScreen_title": "Active Cases",
-  "notesScreen_title": "Notes",
-  "notesScreen_delete": "Delete",
-  "notesScreen_pin": "Pin",
-  "notesScreen_modified": "Modified",
-  "notesScreen_empty": "No notes yet. Tap + to add one.",
-  "notesScreen_noteTitle": "Title",
-  "notesScreen_noteBody": "Note",
-  "notesScreen_noteBodyPlaceholder": "Enter your note here...",
-  "notesScreen_drafting": "Drafting...",
-  "notesScreen_noteDeleted": "Note deleted",
-  "notesScreen_undo": "Undo",
-  "caseReferenceScreen_title": "Case Reference",
-  "caseReferenceScreen_referenceAndPageNo": "Reference & Page No",
-  "caseReferenceScreen_statute": "Statute",
-  "caseReferenceScreen_sectionOrArticle": "Section/Article",
-  "caseReferenceScreen_titleAndDescription": "Title & Description",
-  "caseReferenceScreen_commentsNotes": "Comments/Notes",
-  "caseReferenceScreen_empty": "No references yet. Tap + to add one.",
-  "caseReferenceScreen_addTitle": "Add Case Reference",
-  "caseReferenceScreen_editTitle": "Edit Case Reference",
-  "caseReferenceScreen_pin": "Pin",
-  "caseReferenceScreen_unpin": "Unpin",
-  "caseReferenceScreen_saved": "Reference saved",
-  "caseReferenceScreen_saveTitle": "Save Reference",
-  "caseReferenceScreen_deleted": "Reference deleted",
-  "caseReferenceScreen_referenceDeleted": "Reference deleted",
-  "caseReferenceScreen_undo": "Undo",
-  "caseReferenceScreen_refPlaceholder": "e.g. 25 DLR (AD) 142",
-  "caseReferenceScreen_statutePlaceholder": "e.g. CRPC",
-  "caseReferenceScreen_sectionPlaceholder": "e.g. Section 54",
-  "caseReferenceScreen_titlePlaceholder": "Title & description",
-  "caseReferenceScreen_commentsPlaceholder": "Add comments or private notes here...",
+  "caseDetailsScreen_deleteCaseError": "Unable to delete the case: {message}",
+  "@caseDetailsScreen_deleteCaseError": {
+      "description": "CASE DETAILS SCREEN",
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "caseDetailsScreen_deleteHistoryError": "Unable to delete the history entry: {message}",
+  "@caseDetailsScreen_deleteHistoryError": {
+      "description": "CASE DETAILS SCREEN",
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "caseDetailsScreen_loadError": "Unable to load the case: {message}",
+  "@caseDetailsScreen_loadError": {
+      "description": "CASE DETAILS SCREEN",
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_addEditCaseSheet": "ADD / EDIT CASE SHEET  |  lib/shared/widgets/add_edit_case_sheet.dart",
   "addEditCaseSheet_title": "Add Case",
   "addEditCaseSheet_editTitle": "Edit Case",
   "addEditCaseSheet_higherOrLowerCourt": "Higher or Lower Court",
@@ -161,34 +182,85 @@
   "addEditCaseSheet_sectionSchedule": "Next Date & Steps",
   "addEditCaseSheet_dependencyRequired": "Please select an option from {field} first.",
   "@addEditCaseSheet_dependencyRequired": {
-    "placeholders": {
-      "field": { "type": "String" }
-    }
+      "placeholders": {
+          "field": {
+              "type": "String"
+          }
+      }
   },
+  "@@_section_casesModal": "CASES MODAL + CUSTOM DROPDOWN  |  lib/features/cases/presentation/cases_screen_modal.dart, lib/shared/widgets/custom_dropdown.dart",
   "customDropdown_clear": "Clear",
   "customDropdown_selected": "Selected",
-  "settingsScreen_title": "Settings",
-  "settingsScreen_accountAndProfile": "Account & Profile",
-  "settingsScreen_profile": "Profile",
-  "settingsScreen_manageAccount": "Manage Account",
-  "settingsScreen_onlineSync": "Online Sync",
-  "settingsScreen_backupAndRestore": "Backup & Restore",
-  "settingsScreen_editCourtSteps": "Edit Court/Steps",
-  "settingsScreen_notifications": "Notifications",
-  "settingsScreen_language": "Language",
-  "settingsScreen_languageEnglish": "English",
-  "settingsScreen_languageBengali": "Bengali",
-  "settingsScreen_viewSettings": "View Settings",
-  "settingsScreen_guidelines": "Guidelines",
-  "settingsScreen_about": "About",
-  "settingsProfile_title": "Profile",
-  "settingsManageAccount_title": "Manage Account",
-  "settingsOnlineSync_title": "Online Sync",
-  "settingsBackupRestore_title": "Backup & Restore",
-  "settingsNotifications_title": "Notifications",
-  "settingsViewSettings_title": "View Settings",
-  "settingsGuidelines_title": "Guidelines",
-  "settingsAbout_title": "About",
+  "casesModal_addCase": "Add Case",
+  "casesModal_search": "Search",
+  "casesModal_viewCompact": "Compact view",
+  "casesModal_viewExpanded": "Expanded view",
+  "casesModal_help": "Help",
+  "customDropdown_selectOption": "Select an option",
+  "customDropdown_search": "Search",
+  "customDropdown_noResults": "No results found",
+  "customDropdown_done": "Done",
+  "@@_section_casesContact": "CASE CONTACT SHEET + LIST ERRORS  |  contact action sheet + list load errors (lib/features/cases/presentation/**)",
+  "casesContact_openWith": "Open with",
+  "casesContact_whatsapp": "WhatsApp",
+  "casesContact_message": "Message",
+  "casesContact_phone": "Phone",
+  "casesContact_unableToOpenApp": "Unable to open the app.",
+  "casesContact_unableToOpenWhatsApp": "Unable to open WhatsApp.",
+  "casesContact_unableToCall": "Unable to place a call.",
+  "casesContact_unableToMessage": "Unable to open messages.",
+  "casesScreen_loadError": "Unable to load cases: {message}",
+  "@casesScreen_loadError": {
+      "description": "CASE CONTACT SHEET + LIST ERRORS",
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_notesScreen": "NOTES SCREEN  |  lib/features/notes/presentation/notes_screen.dart, note_detail_screen.dart",
+  "notesScreen_title": "Notes",
+  "notesScreen_delete": "Delete",
+  "notesScreen_pin": "Pin",
+  "notesScreen_modified": "Modified",
+  "notesScreen_empty": "No notes yet. Tap + to add one.",
+  "notesScreen_noteTitle": "Title",
+  "notesScreen_noteBody": "Note",
+  "notesScreen_noteBodyPlaceholder": "Enter your note here...",
+  "notesScreen_drafting": "Drafting...",
+  "notesScreen_noteDeleted": "Note deleted",
+  "notesScreen_undo": "Undo",
+  "@@_section_caseReferenceScreen": "CASE REFERENCE SCREEN  |  lib/features/case_reference/presentation/case_reference_screen.dart",
+  "caseReferenceScreen_title": "Case Reference",
+  "caseReferenceScreen_referenceAndPageNo": "Reference & Page No",
+  "caseReferenceScreen_statute": "Statute",
+  "caseReferenceScreen_sectionOrArticle": "Section/Article",
+  "caseReferenceScreen_titleAndDescription": "Title & Description",
+  "caseReferenceScreen_commentsNotes": "Comments/Notes",
+  "caseReferenceScreen_empty": "No references yet. Tap + to add one.",
+  "caseReferenceScreen_addTitle": "Add Case Reference",
+  "caseReferenceScreen_editTitle": "Edit Case Reference",
+  "caseReferenceScreen_pin": "Pin",
+  "caseReferenceScreen_unpin": "Unpin",
+  "caseReferenceScreen_saved": "Reference saved",
+  "caseReferenceScreen_saveTitle": "Save Reference",
+  "caseReferenceScreen_deleted": "Reference deleted",
+  "caseReferenceScreen_referenceDeleted": "Reference deleted",
+  "caseReferenceScreen_undo": "Undo",
+  "caseReferenceScreen_refPlaceholder": "e.g. 25 DLR (AD) 142",
+  "caseReferenceScreen_statutePlaceholder": "e.g. CRPC",
+  "caseReferenceScreen_sectionPlaceholder": "e.g. Section 54",
+  "caseReferenceScreen_titlePlaceholder": "Title & description",
+  "caseReferenceScreen_commentsPlaceholder": "Add comments or private notes here...",
+  "@@_section_sync": "SYNC STATUS  |  lib/shared/widgets - sync status chip",
+  "sync_idle": "Sync",
+  "sync_syncing": "Syncing…",
+  "sync_success": "Synced",
+  "sync_paused": "Sync paused",
+  "sync_error": "Sync error",
+  "sync_unavailable": "Sync requires a premium subscription",
+  "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
+  "general_tomorrow": "Tomorrow",
   "sharedActions_save": "Save",
   "sharedActions_cancel": "Cancel",
   "sharedActions_delete": "Delete",
@@ -205,6 +277,25 @@
   "sharedDialogs_requiredField": "This field is required.",
   "sharedDialogs_ok": "OK",
   "sharedDialogs_cancel": "Cancel",
+  "sharedMessages_error": "Error: {message}",
+  "@sharedMessages_error": {
+      "description": "SHARED BUTTONS / DIALOGS",
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "sharedMessages_signInRequired": "Available after sign-in (Task 17)",
+  "@@_section_appShell": "APP SHELL (exit confirmation)  |  lib/core/router/app_router.dart - exit confirmation",
+  "appShell_exitTitle": "Exit App?",
+  "appShell_exitMessage": "Do you want to exit Legal Case Diary?",
+  "appShell_exit": "Exit",
+  "@@_section_databaseRecovery": "DATABASE RECOVERY DIALOG  |  lib/shared/widgets/database_recovery_dialog.dart",
+  "databaseRecovery_title": "Database Locked",
+  "databaseRecovery_body": "The encryption key for your local case diary is missing. This can happen after an operating system update or if app data was cleared.\n\nTo continue using the app offline, you must reset the local database. All unsynced local data will be lost.",
+  "databaseRecovery_reset": "Reset Local Database",
+  "@@_section_seedCourtCategories": "SEED DATA - COURT CATEGORIES  |  seed data labels - lib/core/constants/pre_seeded_data.dart",
   "courtCategory_appellateDivision": "Appellate Division",
   "courtCategory_highCourtDivision": "High Court Division",
   "courtCategory_lowerDivisionalCourts": "Lower Divisional Courts",
@@ -215,6 +306,7 @@
   "lowerCourtCategory_chiefMetropolitanMagistrate": "Chief Metropolitan Magistrate Court",
   "lowerCourtCategory_executiveMagistrate": "Executive Magistrate & Other Courts",
   "lowerCourtCategory_tribunals": "Tribunals",
+  "@@_section_seedOnBehalf": "SEED DATA - ON BEHALF  |  seed data labels - on-behalf roles",
   "onBehalf_plaintiff": "Plaintiff",
   "onBehalf_defendant": "Defendant",
   "onBehalf_accused": "Accused",
@@ -229,6 +321,7 @@
   "onBehalf_applicant": "Applicant",
   "onBehalf_claimant": "Claimant",
   "onBehalf_objector": "Objector",
+  "@@_section_seedCaseTypes": "SEED DATA - CASE TYPES / STEPS / DIVISIONS  |  seed data labels - case types / steps / divisions",
   "caseType_civil": "Civil",
   "caseType_criminal": "Criminal",
   "caseType_writ": "Writ",
@@ -246,59 +339,248 @@
   "division_sylhet": "Sylhet",
   "division_rangpur": "Rangpur",
   "division_mymensingh": "Mymensingh",
+  "@@_section_messageTemplate": "MESSAGE TEMPLATES (SMS / WhatsApp)  |  lib/core/l10n - client SMS / WhatsApp templates",
   "messageTemplate_clientSms": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.",
   "@messageTemplate_clientSms": {
-    "description": "SMS sent to clients about an upcoming hearing.",
-    "placeholders": {
-      "clientName": { "type": "String" },
-      "caseNumber": { "type": "String" },
-      "nextDate": { "type": "String" }
-    }
+      "description": "SMS sent to clients about an upcoming hearing.",
+      "placeholders": {
+          "clientName": {
+              "type": "String"
+          },
+          "caseNumber": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          }
+      }
   },
   "messageTemplate_clientWhatsApp": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.",
   "@messageTemplate_clientWhatsApp": {
-    "description": "WhatsApp template sent to clients about an upcoming hearing.",
-    "placeholders": {
-      "clientName": { "type": "String" },
-      "caseNumber": { "type": "String" },
-      "nextDate": { "type": "String" }
-    }
+      "description": "WhatsApp template sent to clients about an upcoming hearing.",
+      "placeholders": {
+          "clientName": {
+              "type": "String"
+          },
+          "caseNumber": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          }
+      }
   },
+  "@@_section_settingsMain": "SETTINGS - MAIN LIST  |  lib/features/settings/presentation/settings_main_screen.dart",
+  "settingsScreen_title": "Settings",
+  "settingsScreen_accountAndProfile": "Account & Profile",
+  "settingsScreen_profile": "Profile",
+  "settingsScreen_manageAccount": "Manage Account",
+  "settingsScreen_onlineSync": "Online Sync",
+  "settingsScreen_backupAndRestore": "Backup & Restore",
+  "settingsScreen_editCourtSteps": "Edit Court/Steps",
+  "settingsScreen_notifications": "Notifications",
+  "settingsScreen_language": "Language",
+  "settingsScreen_languageEnglish": "English",
+  "settingsScreen_languageBengali": "Bengali",
+  "settingsScreen_viewSettings": "View Settings",
+  "settingsScreen_guidelines": "Guidelines",
+  "settingsScreen_about": "About",
+  "settingsScreen_sectionGeneral": "General",
+  "settingsScreen_sectionPreferences": "Preferences",
+  "settingsScreen_sectionAppInfo": "App Info",
+  "settingsScreen_searchTooltip": "Search settings",
+  "settingsScreen_searchHint": "Search",
+  "settingsScreen_closeSearchTooltip": "Close search",
+  "settingsScreen_noResults": "No settings found",
+  "@@_section_settingsAccountProfile": "SETTINGS - ACCOUNT & PROFILE MENU  |  lib/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart",
+  "settingsAccountProfile_profileSubtitle": "Your name, bar association, and membership details",
+  "settingsAccountProfile_manageAccountSubtitle": "Password, subscription, and account settings",
+  "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
+  "settingsProfile_title": "Profile",
+  "settingsProfile_editTooltip": "Edit profile",
+  "settingsProfile_fullName": "Full Name",
+  "settingsProfile_barAssociation": "Bar Association",
+  "settingsProfile_membershipNo": "Membership No.",
+  "settingsProfile_officeAddress": "Office Address",
+  "settingsProfile_mobileNo": "Mobile No.",
+  "settingsProfile_yourName": "Your Name",
+  "settingsProfile_displayName": "Adv. {name}",
+  "@settingsProfile_displayName": {
+      "description": "PROFILE",
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsProfile_editTitle": "Edit Profile",
+  "settingsProfile_fullNameHint": "Enter your full name",
+  "settingsProfile_barAssociationHint": "Enter bar association name",
+  "settingsProfile_membershipNoHint": "Enter registration number",
+  "settingsProfile_officeAddressHint": "Enter your office address",
+  "settingsProfile_save": "Save Profile",
+  "settingsProfile_saved": "Profile saved (offline)",
+  "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
+  "settingsManageAccount_title": "Manage Account",
+  "settingsManageAccount_changePassword": "Change Password",
+  "settingsManageAccount_subscriptionDetails": "Subscription Details",
+  "settingsManageAccount_purchaseNewSubscription": "Purchase New Subscription",
+  "settingsManageAccount_logout": "Logout",
+  "settingsManageAccount_accountSettings": "Account Settings",
+  "settingsManageAccount_deleteAccount": "Delete Account",
+  "settingsManageAccount_deleteCannotBeUndone": "This action cannot be undone",
+  "@@_section_settingsOnlineSync": "SETTINGS - ONLINE SYNC  |  lib/features/settings/presentation/online_sync_screen.dart",
+  "settingsOnlineSync_title": "Online Sync",
+  "settingsOnlineSync_subtitle": "Manage your real-time data sync across all your devices.",
+  "settingsOnlineSync_cases": "Cases",
+  "settingsOnlineSync_notes": "Notes",
+  "settingsOnlineSync_references": "References",
+  "settingsOnlineSync_notSignedIn": "Not signed in",
+  "settingsOnlineSync_signInPrompt": "Sign in to sync your data across all your devices",
+  "settingsOnlineSync_actionRequired": "Action Required",
+  "settingsOnlineSync_lastSyncNever": "Last Sync: Never",
+  "settingsOnlineSync_dataStaysOnDevice": "Your data stays on this device until you sign in.",
+  "settingsOnlineSync_syncNow": "Sync Now",
+  "settingsOnlineSync_notSynced": "Not synced",
+  "settingsOnlineSync_itemsUnknown": "— Items",
+  "settingsOnlineSync_itemsCount": "{count} Items",
+  "@settingsOnlineSync_itemsCount": {
+      "description": "ONLINE SYNC",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
+  "settingsBackupRestore_title": "Backup & Restore",
+  "settingsBackupRestore_sectionBackup": "Backup & Restore",
+  "settingsBackupRestore_sectionAutomaticBackup": "Automatic Backup",
+  "settingsBackupRestore_sectionStatus": "Backup Status",
+  "settingsBackupRestore_backupLocal": "Backup to Local Storage",
+  "settingsBackupRestore_backupDrive": "Backup to Google Drive",
+  "settingsBackupRestore_restore": "Restore from backup",
+  "settingsBackupRestore_encryptionNote": "Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.",
+  "settingsBackupRestore_offlineNote": "Note: Restoration is available for offline accounts only.",
+  "settingsBackupRestore_lastSuccessfulBackup": "Last successful backup",
+  "settingsBackupRestore_lastBackupPlaceholder": "Oct 20, 2023 at 10:45 AM",
+  "settingsBackupRestore_enginePending": "Backup engine arrives in Task 15",
+  "settingsBackupRestore_scheduleOff": "Off",
+  "settingsBackupRestore_scheduleEveryday": "Everyday",
+  "settingsBackupRestore_scheduleEvery3Days": "Every 3 days",
+  "settingsBackupRestore_scheduleEvery7Days": "Every 7 days",
+  "settingsBackupRestore_scheduleEveryMonth": "Every month",
+  "@@_section_settingsEditCourtSteps": "SETTINGS - EDIT COURT/STEPS MENU  |  lib/features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart",
+  "settingsEditCourtSteps_editItemTypes": "Edit Case Types, Step etc",
+  "settingsEditCourtSteps_editItemTypesSubtitle": "Manage case types, procedural steps, and on-behalf roles",
+  "settingsEditCourtSteps_courtNamesCategories": "Edit Court Names & Categories",
+  "settingsEditCourtSteps_courtNamesCategoriesSubtitle": "Supreme Court divisions and district lower courts",
+  "settingsEditCourtSteps_lowerCourtCategories": "Lower Court Categories",
+  "settingsEditCourtSteps_lowerCourtCategoriesSubtitle": "Divisions, districts and their court categories",
+  "@@_section_settingsEditCourtNames": "SETTINGS - EDIT COURT NAMES & CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart",
+  "settingsEditCourtNames_courtCategory": "Court Category",
+  "settingsEditCourtNames_supremeCourt": "Supreme Court of Bangladesh",
+  "settingsEditCourtNames_supremeCourtSubtitle": "Appellate & High Court Divisions",
+  "settingsEditCourtNames_lowerCourts": "Lower Courts",
+  "settingsEditCourtNames_lowerCourtsSubtitle": "District, Session & Specialized Courts",
+  "settingsEditCourtNames_quickTip": "Quick Tip",
+  "settingsEditCourtNames_quickTipBody": "Need specialized tribunals? Add them under the relevant division and district, then assign a court category.",
+  "@@_section_settingsCourtNamesSteps": "SETTINGS - COURT NAMES, STEPS ETC  |  lib/features/settings/presentation/edit_court_steps/court_names_steps_screen.dart",
+  "settingsEditItems_caseTypes": "Case Types",
+  "settingsEditItems_steps": "Steps",
+  "settingsEditItems_onBehalf": "On Behalf",
+  "settingsCourtNamesSteps_title": "Court Names, Steps etc",
+  "settingsCourtNamesSteps_catAppellateDivision": "Appellate Division",
+  "settingsCourtNamesSteps_catHighCourtDivision": "High Court Division",
+  "settingsCourtNamesSteps_catDistrictSessions": "District & Sessions (Criminal)",
+  "settingsCourtNamesSteps_catDistrictCivil": "District Courts (Civil)",
+  "settingsCourtNamesSteps_catCjm": "Chief Judicial Magistrate",
+  "settingsCourtNamesSteps_catCmm": "Chief Metropolitan Magistrate",
+  "settingsCourtNamesSteps_catExecutive": "Executive Magistrate",
+  "settingsCourtNamesSteps_catTribunals": "Tribunals",
+  "@@_section_settingsItemList": "SETTINGS - ADD/EDIT ITEM (case types, steps, on behalf)  |  lib/features/settings/presentation/edit_court_steps/item_list_screen.dart",
+  "settingsItemList_addTitle": "Add Item",
+  "settingsItemList_editTitle": "Edit Item",
+  "settingsItemList_nameLabel": "Name",
+  "settingsItemList_empty": "No items yet. Add one below.",
+  "settingsItemList_deleteTitle": "Delete Item",
+  "settingsItemList_deleteMessage": "Delete this item? This cannot be undone.",
+  "settingsItemList_catAppellate": "Appellate",
+  "settingsItemList_catHighCourt": "High Court",
+  "settingsItemList_catSessions": "Sessions (Crim)",
+  "settingsItemList_catDistrictCivil": "District (Civil)",
+  "settingsItemList_catCjm": "CJM",
+  "settingsItemList_catCmm": "CMM",
+  "settingsItemList_catExecutive": "Executive",
+  "settingsItemList_catTribunals": "Tribunals",
+  "@@_section_settingsCourtList": "SETTINGS - COURT LIST (add/edit/delete court)  |  lib/features/settings/presentation/edit_court_steps/court_list_screen.dart",
+  "settingsCourtList_addTitle": "Add Court",
+  "settingsCourtList_editTitle": "Edit Court",
+  "settingsCourtList_nameLabel": "Court name",
+  "settingsCourtList_titleHigher": "Court Names",
+  "settingsCourtList_empty": "No courts yet. Add one below.",
+  "settingsCourtList_deleteTitle": "Delete Court",
+  "settingsCourtList_deleteMessage": "Delete \"{name}\"? This cannot be undone.",
+  "@settingsCourtList_deleteMessage": {
+      "description": "COURT LIST (add/edit/delete court)",
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsCourtList_titleLower": "{district} Court Names",
+  "@settingsCourtList_titleLower": {
+      "description": "COURT LIST (add/edit/delete court)",
+      "placeholders": {
+          "district": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_settingsLowerCourtCategories": "SETTINGS - DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/court_category_screen.dart, district_list_screen.dart, lower_court_category_list_screen.dart",
+  "settingsCourtFlow_divisions": "Divisions",
+  "settingsCourtFlow_districts": "Districts",
+  "settingsLowerCourtCategories_addTooltip": "Add Court Category",
+  "settingsLowerCourtCategories_addTitle": "Add Court Category",
+  "settingsLowerCourtCategories_editTitle": "Edit Court Category",
+  "settingsLowerCourtCategories_nameLabel": "Category name",
+  "settingsLowerCourtCategories_empty": "No court categories in this district yet.",
+  "settingsCourtFlow_divisionTitle": "{division} Division",
+  "@settingsCourtFlow_divisionTitle": {
+      "description": "DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES",
+      "placeholders": {
+          "division": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsLowerCourtCategories_title": "{district} Court Categories",
+  "@settingsLowerCourtCategories_title": {
+      "description": "DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES",
+      "placeholders": {
+          "district": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_settingsOtherPages": "SETTINGS - NOTIFICATIONS / VIEW / GUIDELINES / ABOUT  |  notifications / view settings / guidelines / about sub-pages",
+  "settingsNotifications_title": "Notifications",
+  "settingsViewSettings_title": "View Settings",
+  "settingsGuidelines_title": "Guidelines",
+  "settingsAbout_title": "About",
+  "@@_section_localeScratch": "DEV ONLY - LOCALIZATION SCRATCH  |  dev-only scratch screen - not user facing",
   "localeScratch_title": "Localization Scratch",
   "localeScratch_greeting": "Hello",
   "localeScratch_englishSample": "This text is in English.",
   "localeScratch_bengaliSample": "এই টেক্সটি বাংলায়।",
   "localeScratch_currentLanguage": "Current language: {language}",
   "@localeScratch_currentLanguage": {
-    "description": "Shows the currently selected language code.",
-    "placeholders": {
-      "language": { "type": "String" }
-    }
-  },
-  "nav_upcomingCases": "Upcoming Cases",
-  "nav_dailyCauseList": "Daily Cause List",
-  "nav_allCases": "All Cases",
-  "nav_disposedCases": "Disposed Cases",
-  "nav_caseReference": "Case Reference",
-  "nav_notes": "Notes",
-  "nav_settings": "Settings",
-  "nav_print": "Print",
-  "nav_share": "Share",
-  "nav_activeCases": "Active Cases",
-  "nav_overdueDates": "Overdue Dates",
-  "sync_idle": "Sync",
-  "sync_syncing": "Syncing…",
-  "sync_success": "Synced",
-  "sync_paused": "Sync paused",
-  "sync_error": "Sync error",
-  "sync_unavailable": "Sync requires a premium subscription",
-  "casesModal_addCase": "Add Case",
-  "casesModal_search": "Search",
-  "casesModal_viewCompact": "Compact view",
-  "casesModal_viewExpanded": "Expanded view",
-  "casesModal_help": "Help",
-  "customDropdown_selectOption": "Select an option",
-  "customDropdown_search": "Search",
-  "customDropdown_noResults": "No results found",
-  "customDropdown_done": "Done"
+      "description": "Shows the currently selected language code.",
+      "placeholders": {
+          "language": {
+              "type": "String"
+          }
+      }
+  }
 }

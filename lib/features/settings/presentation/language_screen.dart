@@ -29,9 +29,15 @@ class LanguageScreen extends ConsumerWidget {
     final active = ref.watch(localeProvider);
     final activeCode = active.languageCode;
 
-    const options = [
-      _LanguageOption(locale: Locale('en'), label: 'English'),
-      _LanguageOption(locale: Locale('bn'), label: 'বাংলা'),
+    final options = [
+      _LanguageOption(
+        locale: const Locale('en'),
+        label: l.settingsScreen_languageEnglish,
+      ),
+      _LanguageOption(
+        locale: const Locale('bn'),
+        label: l.settingsScreen_languageBengali,
+      ),
     ];
 
     return SettingsSubPageModal(
@@ -44,7 +50,10 @@ class LanguageScreen extends ConsumerWidget {
           final option = options[index];
           final selected = option.locale.languageCode == activeCode;
           return ListTile(
-            title: Text(option.label, style: Theme.of(context).textTheme.bodyLarge),
+            title: Text(
+              option.label,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
             trailing: selected
                 ? const Icon(Icons.check, color: Colors.blue)
                 : null,

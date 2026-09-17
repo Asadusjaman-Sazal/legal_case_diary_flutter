@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/generated/app_localizations.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/profile_name_store.dart';
@@ -35,8 +36,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _fullName = TextEditingController();
   final _barAssociation = TextEditingController(text: 'Dhaka Bar Association');
   final _membershipNo = TextEditingController(text: '1557');
-  final _officeAddress =
-      TextEditingController(text: 'Chamber 402, High Court Annex, Dhaka-1000');
+  final _officeAddress = TextEditingController(
+    text: 'Chamber 402, High Court Annex, Dhaka-1000',
+  );
   final _mobile = TextEditingController(text: '1812332721');
 
   @override
@@ -64,7 +66,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  Future<void> _clearAvatar() => ref.read(profilePictureProvider.notifier).clear();
+  Future<void> _clearAvatar() =>
+      ref.read(profilePictureProvider.notifier).clear();
 
   void _openEditSheet() {
     // Editable controllers operate directly on the same state, so the read
@@ -87,7 +90,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ref.read(profileNameProvider.notifier).setName(_fullName.text);
           Navigator.of(sheetContext).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile saved (offline)')),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).settingsProfile_saved),
+            ),
           );
         },
       ),
@@ -96,15 +101,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final displayName = ref.watch(profileNameProvider).trim();
     final avatarFile = ref.watch(profilePictureProvider);
     return SettingsSubPageModal(
-      title: 'Profile',
+      title: l.settingsProfile_title,
       floatingActionButton: FloatingActionButton(
         onPressed: _openEditSheet,
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
-        tooltip: 'Edit profile',
+        tooltip: l.settingsProfile_editTooltip,
         child: const Icon(Icons.edit_outlined),
       ),
       child: SingleChildScrollView(
@@ -145,34 +151,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     _DataRow(
                       icon: Icons.person_outline,
-                      label: 'Full Name',
+                      label: l.settingsProfile_fullName,
                       value: displayName.isNotEmpty ? displayName : '—',
                     ),
                     _DataRow(
                       icon: Icons.account_balance_outlined,
-                      label: 'Bar Association',
+                      label: l.settingsProfile_barAssociation,
                       value: _barAssociation.text.isNotEmpty
                           ? _barAssociation.text
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.badge_outlined,
-                      label: 'Membership No.',
+                      label: l.settingsProfile_membershipNo,
                       value: _membershipNo.text.isNotEmpty
                           ? _membershipNo.text
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.location_on_outlined,
-                      label: 'Office Address',
+                      label: l.settingsProfile_officeAddress,
                       value: _officeAddress.text.isNotEmpty
                           ? _officeAddress.text
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.call_outlined,
-                      label: 'Mobile No.',
-                      value: _mobile.text.isNotEmpty ? '+880 ${_mobile.text}' : '—',
+                      label: l.settingsProfile_mobileNo,
+                      value: _mobile.text.isNotEmpty
+                          ? '+880 ${_mobile.text}'
+                          : '—',
                     ),
                   ],
                 ),
@@ -203,12 +211,7 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = fullName.isNotEmpty
-        ? fullName
-            .trim()
-            .split(RegExp(r'\s+'))
-            .map((e) => e[0])
-            .take(2)
-            .join()
+        ? fullName.trim().split(RegExp(r'\s+')).map((e) => e[0]).take(2).join()
         : '?';
     final hasAvatar = avatarFile != null;
     return Column(
@@ -242,8 +245,9 @@ class _ProfileHeader extends StatelessWidget {
                   : Center(
                       child: Text(
                         initials.toUpperCase(),
-                        style: AppTypography.headlineMd
-                            .copyWith(color: AppColors.onSurfaceVariant),
+                        style: AppTypography.headlineMd.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ),
             ),
@@ -257,8 +261,11 @@ class _ProfileHeader extends StatelessWidget {
                   color: AppColors.primary,
                   border: Border.all(color: AppColors.surface, width: 2),
                 ),
-                child: const Icon(Icons.edit,
-                    color: AppColors.onPrimary, size: 18),
+                child: const Icon(
+                  Icons.edit,
+                  color: AppColors.onPrimary,
+                  size: 18,
+                ),
               ),
             ),
           ],
@@ -278,14 +285,17 @@ class _ProfileHeader extends StatelessWidget {
                   color: AppColors.error,
                   border: Border.all(color: AppColors.surface, width: 2),
                 ),
-                child: const Icon(Icons.delete,
-                    color: Colors.white, size: 18),
+                child: const Icon(Icons.delete, color: Colors.white, size: 18),
               ),
             ),
           ),
         SizedBox(height: AppSpacing.md),
         Text(
-          fullName.isNotEmpty ? 'Adv. $fullName' : 'Your Name',
+          fullName.isNotEmpty
+              ? AppLocalizations.of(
+                  context,
+                ).settingsProfile_displayName(fullName)
+              : AppLocalizations.of(context).settingsProfile_yourName,
           style: AppTypography.titleLg.copyWith(color: AppColors.onBackground),
         ),
       ],
@@ -320,8 +330,9 @@ class _DataRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: AppTypography.labelMd
-                      .copyWith(color: AppColors.onSurfaceVariant),
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
                 SizedBox(height: AppSpacing.xs),
                 Text(
@@ -359,6 +370,7 @@ class _EditSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -371,34 +383,34 @@ class _EditSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Edit Profile', style: AppTypography.titleLg),
+          Text(l.settingsProfile_editTitle, style: AppTypography.titleLg),
           SizedBox(height: AppSpacing.lg),
           _Field(
             icon: Icons.person_outline,
-            label: 'Full Name',
+            label: l.settingsProfile_fullName,
             controller: fullName,
-            hint: 'Enter your full name',
+            hint: l.settingsProfile_fullNameHint,
           ),
           SizedBox(height: AppSpacing.lg),
           _Field(
             icon: Icons.account_balance_outlined,
-            label: 'Bar Association',
+            label: l.settingsProfile_barAssociation,
             controller: barAssociation,
-            hint: 'Enter bar association name',
+            hint: l.settingsProfile_barAssociationHint,
           ),
           SizedBox(height: AppSpacing.lg),
           _Field(
             icon: Icons.badge_outlined,
-            label: 'Membership No.',
+            label: l.settingsProfile_membershipNo,
             controller: membershipNo,
-            hint: 'Enter registration number',
+            hint: l.settingsProfile_membershipNoHint,
           ),
           SizedBox(height: AppSpacing.lg),
           _Field(
             icon: Icons.location_on_outlined,
-            label: 'Office Address',
+            label: l.settingsProfile_officeAddress,
             controller: officeAddress,
-            hint: 'Enter your office address',
+            hint: l.settingsProfile_officeAddressHint,
             maxLines: 3,
           ),
           SizedBox(height: AppSpacing.lg),
@@ -410,7 +422,7 @@ class _EditSheet extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onSave,
               icon: const Icon(Icons.save_outlined),
-              label: const Text('Save Profile'),
+              label: Text(l.settingsProfile_save),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
@@ -454,9 +466,12 @@ class _Field extends StatelessWidget {
             children: [
               Icon(icon, color: AppColors.onSurfaceVariant, size: 18),
               SizedBox(width: AppSpacing.xs),
-              Text(label,
-                  style: AppTypography.labelMd
-                      .copyWith(color: AppColors.onSurfaceVariant)),
+              Text(
+                label,
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),
@@ -467,8 +482,9 @@ class _Field extends StatelessWidget {
           cursorColor: AppColors.primary,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle:
-                AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+            hintStyle: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
             filled: true,
             fillColor: AppColors.surfaceVariant,
             contentPadding: EdgeInsets.symmetric(
@@ -506,12 +522,18 @@ class _MobileField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
           child: Row(
             children: [
-              Icon(Icons.call_outlined,
-                  color: AppColors.onSurfaceVariant, size: 18),
+              Icon(
+                Icons.call_outlined,
+                color: AppColors.onSurfaceVariant,
+                size: 18,
+              ),
               SizedBox(width: AppSpacing.xs),
-              Text('Mobile No.',
-                  style: AppTypography.labelMd
-                      .copyWith(color: AppColors.onSurfaceVariant)),
+              Text(
+                AppLocalizations.of(context).settingsProfile_mobileNo,
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),
@@ -530,9 +552,7 @@ class _MobileField extends StatelessWidget {
                   top: Radius.circular(8),
                 ),
               ),
-              child: Center(
-                child: Text('+880', style: AppTypography.bodyMd),
-              ),
+              child: Center(child: Text('+880', style: AppTypography.bodyMd)),
             ),
             SizedBox(width: AppSpacing.xs),
             Expanded(
@@ -542,23 +562,28 @@ class _MobileField extends StatelessWidget {
                 cursorColor: AppColors.primary,
                 decoration: InputDecoration(
                   hintText: '1XXXXXXXXX',
-                  hintStyle: AppTypography.bodyMd
-                      .copyWith(color: AppColors.onSurfaceVariant),
+                  hintStyle: AppTypography.bodyMd.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
                   filled: true,
                   fillColor: AppColors.surfaceVariant,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                  ),
                   border: const UnderlineInputBorder(
-                    borderSide:
-                        BorderSide(color: AppColors.cardBorder, width: 2),
+                    borderSide: BorderSide(
+                      color: AppColors.cardBorder,
+                      width: 2,
+                    ),
                   ),
                   enabledBorder: const UnderlineInputBorder(
-                    borderSide:
-                        BorderSide(color: AppColors.cardBorder, width: 2),
+                    borderSide: BorderSide(
+                      color: AppColors.cardBorder,
+                      width: 2,
+                    ),
                   ),
                   focusedBorder: const UnderlineInputBorder(
-                    borderSide:
-                        BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: BorderSide(color: AppColors.primary, width: 2),
                   ),
                 ),
               ),

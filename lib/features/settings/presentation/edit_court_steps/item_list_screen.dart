@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
 import '../../data/case_types_repository.dart';
@@ -23,17 +24,17 @@ enum ItemKind { caseTypes, steps, onBehalf }
 
 /// Parse a `?kind=` query value into [ItemKind].
 ItemKind itemKindFromParam(String? value) => switch (value) {
-      'case_types' => ItemKind.caseTypes,
-      'steps' => ItemKind.steps,
-      _ => ItemKind.onBehalf,
-    };
+  'case_types' => ItemKind.caseTypes,
+  'steps' => ItemKind.steps,
+  _ => ItemKind.onBehalf,
+};
 
-/// English title for a kind.
-String itemKindTitle(ItemKind kind) => switch (kind) {
-      ItemKind.caseTypes => 'Case Types',
-      ItemKind.steps => 'Steps',
-      ItemKind.onBehalf => 'On Behalf',
-    };
+/// Localized title for a kind.
+String itemKindTitle(AppLocalizations l, ItemKind kind) => switch (kind) {
+  ItemKind.caseTypes => l.settingsEditItems_caseTypes,
+  ItemKind.steps => l.settingsEditItems_steps,
+  ItemKind.onBehalf => l.settingsEditItems_onBehalf,
+};
 
 /// Add/edit dialog for a single named item.
 class _ItemEditDialog extends StatefulWidget {
@@ -62,32 +63,40 @@ class _ItemEditDialogState extends State<_ItemEditDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: Text(widget.initialName == null ? 'Add Item' : 'Edit Item'),
-        content: Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _controller,
-            autofocus: true,
-            decoration: const InputDecoration(labelText: 'Name'),
-            validator: (value) =>
-                value == null || value.trim().isEmpty ? 'Required' : null,
-          ),
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(
+        widget.initialName == null
+            ? l.settingsItemList_addTitle
+            : l.settingsItemList_editTitle,
+      ),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          decoration: InputDecoration(labelText: l.settingsItemList_nameLabel),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? l.sharedDialogs_requiredField
+              : null,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-              Navigator.of(context).pop(_controller.text.trim());
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (!_formKey.currentState!.validate()) return;
+            Navigator.of(context).pop(_controller.text.trim());
+          },
+          child: Text(l.sharedActions_save),
+        ),
+      ],
+    );
+  }
 }
 
 /// Generic item list screen (Case Types / Steps / On Behalf).
@@ -103,7 +112,9 @@ class ItemListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = '${itemKindTitle(kind)} — ${_categoryShortLabel(categoryId)}';
+    final l = AppLocalizations.of(context);
+    final title =
+        '${itemKindTitle(l, kind)} — ${_categoryShortLabel(l, categoryId)}';
 
     switch (kind) {
       case ItemKind.caseTypes:
@@ -118,8 +129,9 @@ class ItemListScreen extends ConsumerWidget {
           ),
           child: repoAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
-            data: (repo) => _CaseTypeListView(repo: repo, categoryId: categoryId),
+            error: (e, _) => Center(child: Text(l.sharedMessages_error('$e'))),
+            data: (repo) =>
+                _CaseTypeListView(repo: repo, categoryId: categoryId),
           ),
         );
       case ItemKind.steps:
@@ -134,7 +146,7 @@ class ItemListScreen extends ConsumerWidget {
           ),
           child: repoAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            error: (e, _) => Center(child: Text(l.sharedMessages_error('$e'))),
             data: (repo) => _StepListView(repo: repo, categoryId: categoryId),
           ),
         );
@@ -150,23 +162,26 @@ class ItemListScreen extends ConsumerWidget {
           ),
           child: repoAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
-            data: (repo) => _OnBehalfListView(repo: repo, categoryId: categoryId),
+            error: (e, _) => Center(child: Text(l.sharedMessages_error('$e'))),
+            data: (repo) =>
+                _OnBehalfListView(repo: repo, categoryId: categoryId),
           ),
         );
     }
   }
 
-  String _categoryShortLabel(String id) => const {
-        'appellate_division': 'Appellate',
-        'high_court_division': 'High Court',
-        'district_sessions_criminal': 'Sessions (Crim)',
-        'district_courts_civil': 'District (Civil)',
-        'chief_judicial_magistrate': 'CJM',
-        'chief_metropolitan_magistrate': 'CMM',
-        'executive_magistrate': 'Executive',
-        'tribunals': 'Tribunals',
-      }[id] ?? id;
+  String _categoryShortLabel(AppLocalizations l, String id) =>
+      {
+        'appellate_division': l.settingsItemList_catAppellate,
+        'high_court_division': l.settingsItemList_catHighCourt,
+        'district_sessions_criminal': l.settingsItemList_catSessions,
+        'district_courts_civil': l.settingsItemList_catDistrictCivil,
+        'chief_judicial_magistrate': l.settingsItemList_catCjm,
+        'chief_metropolitan_magistrate': l.settingsItemList_catCmm,
+        'executive_magistrate': l.settingsItemList_catExecutive,
+        'tribunals': l.settingsItemList_catTribunals,
+      }[id] ??
+      id;
 
   // Separate typed add/edit callbacks keep the repository generics concrete.
   Future<void> _add(BuildContext context, WidgetRef ref, dynamic repo) async {
@@ -209,22 +224,31 @@ class _CaseTypeListView extends ConsumerWidget {
   const _CaseTypeListView({required this.repo, required this.categoryId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => StreamBuilder<List<CaseType>>(
+  Widget build(BuildContext context, WidgetRef ref) =>
+      StreamBuilder<List<CaseType>>(
         stream: repo.watchByCategory(categoryId),
         builder: (context, snap) => _ListBody<CaseType>(
           items: snap.data ?? const <CaseType>[],
           getName: (c) => c.name,
           getId: (c) => c.id,
-          onEdit: (c) => _edit(context, c.name, (name) => repo.update(
-                CaseTypesCompanion(id: Value(c.id), name: Value(name)),
-                base: c,
-              )),
+          onEdit: (c) => _edit(
+            context,
+            c.name,
+            (name) => repo.update(
+              CaseTypesCompanion(id: Value(c.id), name: Value(name)),
+              base: c,
+            ),
+          ),
           onDelete: (c) => _delete(context, c, repo.delete),
-          onReorder: (items, oldIndex, newIndex) =>
-              _reorder(items, oldIndex, newIndex, (c, i) => repo.update(
-                CaseTypesCompanion(id: Value(c.id), orderIndex: Value(i)),
-                base: c,
-              )),
+          onReorder: (items, oldIndex, newIndex) => _reorder(
+            items,
+            oldIndex,
+            newIndex,
+            (c, i) => repo.update(
+              CaseTypesCompanion(id: Value(c.id), orderIndex: Value(i)),
+              base: c,
+            ),
+          ),
         ),
       );
 }
@@ -235,22 +259,31 @@ class _StepListView extends ConsumerWidget {
   const _StepListView({required this.repo, required this.categoryId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => StreamBuilder<List<Step>>(
+  Widget build(BuildContext context, WidgetRef ref) =>
+      StreamBuilder<List<Step>>(
         stream: repo.watchByCategory(categoryId),
         builder: (context, snap) => _ListBody<Step>(
           items: snap.data ?? const <Step>[],
           getName: (c) => c.stepName,
           getId: (c) => c.id,
-          onEdit: (c) => _edit(context, c.stepName, (name) => repo.update(
-                StepsCompanion(id: Value(c.id), stepName: Value(name)),
-                base: c,
-              )),
+          onEdit: (c) => _edit(
+            context,
+            c.stepName,
+            (name) => repo.update(
+              StepsCompanion(id: Value(c.id), stepName: Value(name)),
+              base: c,
+            ),
+          ),
           onDelete: (c) => _delete(context, c, repo.delete),
-          onReorder: (items, oldIndex, newIndex) =>
-              _reorder(items, oldIndex, newIndex, (c, i) => repo.update(
-                StepsCompanion(id: Value(c.id), orderIndex: Value(i)),
-                base: c,
-              )),
+          onReorder: (items, oldIndex, newIndex) => _reorder(
+            items,
+            oldIndex,
+            newIndex,
+            (c, i) => repo.update(
+              StepsCompanion(id: Value(c.id), orderIndex: Value(i)),
+              base: c,
+            ),
+          ),
         ),
       );
 }
@@ -261,22 +294,31 @@ class _OnBehalfListView extends ConsumerWidget {
   const _OnBehalfListView({required this.repo, required this.categoryId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => StreamBuilder<List<OnBehalf>>(
+  Widget build(BuildContext context, WidgetRef ref) =>
+      StreamBuilder<List<OnBehalf>>(
         stream: repo.watchByCategory(categoryId),
         builder: (context, snap) => _ListBody<OnBehalf>(
           items: snap.data ?? const <OnBehalf>[],
           getName: (c) => c.name,
           getId: (c) => c.id,
-          onEdit: (c) => _edit(context, c.name, (name) => repo.update(
-                OnBehalfsCompanion(id: Value(c.id), name: Value(name)),
-                base: c,
-              )),
+          onEdit: (c) => _edit(
+            context,
+            c.name,
+            (name) => repo.update(
+              OnBehalfsCompanion(id: Value(c.id), name: Value(name)),
+              base: c,
+            ),
+          ),
           onDelete: (c) => _delete(context, c, repo.delete),
-          onReorder: (items, oldIndex, newIndex) =>
-              _reorder(items, oldIndex, newIndex, (c, i) => repo.update(
-                OnBehalfsCompanion(id: Value(c.id), orderIndex: Value(i)),
-                base: c,
-              )),
+          onReorder: (items, oldIndex, newIndex) => _reorder(
+            items,
+            oldIndex,
+            newIndex,
+            (c, i) => repo.update(
+              OnBehalfsCompanion(id: Value(c.id), orderIndex: Value(i)),
+              base: c,
+            ),
+          ),
         ),
       );
 }
@@ -301,13 +343,15 @@ class _ListBody<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (items.isEmpty) {
-      return const Center(child: Text('No items yet. Add one below.'));
+      return Center(child: Text(l.settingsItemList_empty));
     }
     return ReorderableListView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
       itemCount: items.length,
-      onReorderItem: (oldIndex, newIndex) => onReorder(items, oldIndex, newIndex),
+      onReorderItem: (oldIndex, newIndex) =>
+          onReorder(items, oldIndex, newIndex),
       itemBuilder: (context, index) {
         final item = items[index];
         return Card(
@@ -319,7 +363,10 @@ class _ListBody<T> extends StatelessWidget {
             side: BorderSide(color: AppColors.surfaceContainer),
           ),
           child: ListTile(
-            leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
+            leading: const Icon(
+              Icons.drag_indicator,
+              color: AppColors.tertiary,
+            ),
             title: Text(getName(item), style: AppTypography.bodyLg),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -327,12 +374,15 @@ class _ListBody<T> extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () => onEdit(item),
-                  tooltip: 'Edit',
+                  tooltip: l.sharedActions_edit,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
                   onPressed: () => onDelete(item),
-                  tooltip: 'Delete',
+                  tooltip: l.sharedActions_delete,
                 ),
               ],
             ),
@@ -343,7 +393,11 @@ class _ListBody<T> extends StatelessWidget {
   }
 }
 
-Future<void> _edit(BuildContext context, String initial, Future<void> Function(String) save) async {
+Future<void> _edit(
+  BuildContext context,
+  String initial,
+  Future<void> Function(String) save,
+) async {
   final name = await showDialog<String>(
     context: context,
     builder: (_) => _ItemEditDialog(initialName: initial),
@@ -352,20 +406,25 @@ Future<void> _edit(BuildContext context, String initial, Future<void> Function(S
   await save(name);
 }
 
-Future<void> _delete<T>(BuildContext context, T item, Future<void> Function(T) delete) async {
+Future<void> _delete<T>(
+  BuildContext context,
+  T item,
+  Future<void> Function(T) delete,
+) async {
+  final l = AppLocalizations.of(context);
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Delete Item'),
-      content: const Text('Delete this item? This cannot be undone.'),
+      title: Text(l.settingsItemList_deleteTitle),
+      content: Text(l.settingsItemList_deleteMessage),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: const Text('Cancel'),
+          child: Text(l.sharedActions_cancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(ctx).pop(true),
-          child: const Text('Delete'),
+          child: Text(l.sharedActions_delete),
         ),
       ],
     ),

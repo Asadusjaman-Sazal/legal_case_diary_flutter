@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/generated/app_localizations.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/profile_picture_store.dart';
@@ -25,29 +26,30 @@ class ManageAccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const name = 'Asadusjaman';
     const email = 'advocate.asad@law.com';
+    final l = AppLocalizations.of(context);
     // Same locally saved picture the Profile screen manages.
     final avatarFile = ref.watch(profilePictureProvider);
 
     final accountItems = [
       _AccountItem(
         icon: Icons.lock_outline,
-        title: 'Change Password',
+        title: l.settingsManageAccount_changePassword,
         onTap: () => _offlineNotice(context),
       ),
       _AccountItem(
         icon: Icons.star_outline,
-        title: 'Subscription Details',
+        title: l.settingsManageAccount_subscriptionDetails,
         onTap: () => _offlineNotice(context),
       ),
       _AccountItem(
         icon: Icons.add_shopping_cart_outlined,
-        title: 'Purchase New Subscription',
+        title: l.settingsManageAccount_purchaseNewSubscription,
         onTap: () => _offlineNotice(context),
       ),
     ];
 
     return SettingsSubPageModal(
-      title: 'Manage Account',
+      title: l.settingsManageAccount_title,
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           AppSpacing.edgeMargin,
@@ -87,30 +89,33 @@ class ManageAccountScreen extends ConsumerWidget {
                         : Center(
                             child: Text(
                               name.isNotEmpty ? name[0].toUpperCase() : '?',
-                              style: AppTypography.headlineMd
-                                  .copyWith(color: AppColors.primary),
+                              style: AppTypography.headlineMd.copyWith(
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
                   ),
                   SizedBox(height: AppSpacing.md),
                   Text(
                     name,
-                    style: AppTypography.titleLg
-                        .copyWith(color: AppColors.primary),
+                    style: AppTypography.titleLg.copyWith(
+                      color: AppColors.primary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xs),
                   Text(
                     email,
-                    style: AppTypography.bodyMd
-                        .copyWith(color: AppColors.onSurfaceVariant),
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.sm),
                   TextButton.icon(
                     onPressed: () => _offlineNotice(context),
                     icon: const Icon(Icons.logout, size: 20),
-                    label: const Text('Logout'),
+                    label: Text(l.settingsManageAccount_logout),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.onSurfaceVariant,
                       backgroundColor: AppColors.surfaceContainer,
@@ -137,16 +142,19 @@ class ManageAccountScreen extends ConsumerWidget {
                   bottom: AppSpacing.xs,
                 ),
                 child: Text(
-                  'Account Settings',
-                  style: AppTypography.labelLg
-                      .copyWith(color: AppColors.onSurfaceVariant),
+                  l.settingsManageAccount_accountSettings,
+                  style: AppTypography.labelLg.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
-            ...accountItems.map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: item,
-                )),
+            ...accountItems.map(
+              (item) => Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                child: item,
+              ),
+            ),
             SizedBox(height: AppSpacing.xl),
             // Destructive action.
             Container(
@@ -178,8 +186,10 @@ class ManageAccountScreen extends ConsumerWidget {
                             color: AppColors.surfaceContainerLowest,
                           ),
                           child: Center(
-                            child: Icon(Icons.delete_outline,
-                                color: AppColors.error),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: AppColors.error,
+                            ),
                           ),
                         ),
                         SizedBox(width: AppSpacing.md),
@@ -188,13 +198,14 @@ class ManageAccountScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Delete Account',
+                                l.settingsManageAccount_deleteAccount,
                                 style: AppTypography.titleMd.copyWith(
-                                    color: AppColors.onErrorContainer),
+                                  color: AppColors.onErrorContainer,
+                                ),
                               ),
                               SizedBox(height: AppSpacing.xs),
                               Text(
-                                'This action cannot be undone',
+                                l.settingsManageAccount_deleteCannotBeUndone,
                                 style: AppTypography.bodySm.copyWith(
                                   color: AppColors.error.withValues(alpha: 0.8),
                                 ),
@@ -217,7 +228,11 @@ class ManageAccountScreen extends ConsumerWidget {
   void _offlineNotice(BuildContext context) {
     // Part A: offline placeholder. Task 17 wires real auth actions.
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Available after sign-in (Task 17)')),
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context).sharedMessages_signInRequired,
+        ),
+      ),
     );
   }
 }
@@ -263,16 +278,15 @@ class _AccountItem extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.surfaceContainer,
                   ),
-                  child: Center(
-                    child: Icon(icon, color: AppColors.primary),
-                  ),
+                  child: Center(child: Icon(icon, color: AppColors.primary)),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTypography.titleMd
-                        .copyWith(color: AppColors.onSurface),
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
                   ),
                 ),
                 Icon(Icons.chevron_right, color: AppColors.outlineVariant),

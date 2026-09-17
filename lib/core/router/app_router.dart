@@ -45,6 +45,7 @@ import '../../features/settings/presentation/settings_main_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 import '../../features/settings/presentation/settings_view/view_settings_screen.dart';
 import '../../shared/widgets/database_guard.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../providers/repository_providers.dart';
 
 // ---------------------------------------------------------------------------
@@ -342,22 +343,23 @@ class AppShellRoot extends StatelessWidget {
   }
 
   static Future<bool> _confirmExit(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Exit App?'),
-        content: const Text('Do you want to exit Legal Case Diary?'),
+        title: Text(l.appShell_exitTitle),
+        content: Text(l.appShell_exitMessage),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             style: _exitButtonStyle,
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.sharedActions_cancel),
           ),
           TextButton(
             style: _exitButtonStyle,
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Exit'),
+            child: Text(l.appShell_exit),
           ),
         ],
       ),

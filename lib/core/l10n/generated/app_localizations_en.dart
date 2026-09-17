@@ -15,6 +15,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Legal Case Diary';
 
   @override
+  String get nav_upcomingCases => 'Upcoming Cases';
+
+  @override
+  String get nav_dailyCauseList => 'Daily Cause List';
+
+  @override
+  String get nav_allCases => 'All Cases';
+
+  @override
+  String get nav_disposedCases => 'Disposed Cases';
+
+  @override
+  String get nav_caseReference => 'Case Reference';
+
+  @override
+  String get nav_notes => 'Notes';
+
+  @override
+  String get nav_settings => 'Settings';
+
+  @override
+  String get nav_print => 'Print';
+
+  @override
+  String get nav_share => 'Share';
+
+  @override
+  String get nav_activeCases => 'Active Cases';
+
+  @override
+  String get nav_overdueDates => 'Overdue Dates';
+
+  @override
   String get allCasesScreen_title => 'All Cases';
 
   @override
@@ -70,6 +103,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCasesScreen_update => 'Update';
 
   @override
+  String get caseCard_disposed => 'Disposed:';
+
+  @override
+  String get activeCasesScreen_title => 'Active Cases';
+
+  @override
+  String get upcomingCasesScreen_title => 'Upcoming Cases';
+
+  @override
   String get dailyCauseListScreen_title => 'Daily Cause List';
 
   @override
@@ -107,10 +149,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyCauseListScreen_messageError => 'Unable to open messages.';
 
   @override
-  String get upcomingCasesScreen_title => 'Upcoming Cases';
+  String get disposedCasesScreen_title => 'Disposed Cases';
 
   @override
-  String get general_tomorrow => 'Tomorrow';
+  String get disposedCasesScreen_helpTitle => 'How to set a case as disposed?';
+
+  @override
+  String get disposedCasesScreen_helpBody =>
+      'During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.';
+
+  @override
+  String get disposedCasesScreen_disposedSteps =>
+      'Disposed steps by court category';
+
+  @override
+  String get disposedCasesScreen_appellateHighCourtDivision =>
+      'Appellate Division & High Court Division';
+
+  @override
+  String get disposedCasesScreen_gotIt => 'Got it';
 
   @override
   String get overdueDatesScreen_title => 'Overdue Dates';
@@ -220,129 +277,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseDetailsScreen_districtOfOrigin => 'District of Origin';
 
   @override
-  String get disposedCasesScreen_title => 'Disposed Cases';
+  String caseDetailsScreen_deleteCaseError(String message) {
+    return 'Unable to delete the case: $message';
+  }
 
   @override
-  String get caseCard_disposed => 'Disposed:';
+  String caseDetailsScreen_deleteHistoryError(String message) {
+    return 'Unable to delete the history entry: $message';
+  }
 
   @override
-  String get disposedCasesScreen_helpTitle => 'How to set a case as disposed?';
-
-  @override
-  String get disposedCasesScreen_helpBody =>
-      'During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.';
-
-  @override
-  String get disposedCasesScreen_disposedSteps =>
-      'Disposed steps by court category';
-
-  @override
-  String get disposedCasesScreen_appellateHighCourtDivision =>
-      'Appellate Division & High Court Division';
-
-  @override
-  String get disposedCasesScreen_gotIt => 'Got it';
-
-  @override
-  String get activeCasesScreen_title => 'Active Cases';
-
-  @override
-  String get notesScreen_title => 'Notes';
-
-  @override
-  String get notesScreen_delete => 'Delete';
-
-  @override
-  String get notesScreen_pin => 'Pin';
-
-  @override
-  String get notesScreen_modified => 'Modified';
-
-  @override
-  String get notesScreen_empty => 'No notes yet. Tap + to add one.';
-
-  @override
-  String get notesScreen_noteTitle => 'Title';
-
-  @override
-  String get notesScreen_noteBody => 'Note';
-
-  @override
-  String get notesScreen_noteBodyPlaceholder => 'Enter your note here...';
-
-  @override
-  String get notesScreen_drafting => 'Drafting...';
-
-  @override
-  String get notesScreen_noteDeleted => 'Note deleted';
-
-  @override
-  String get notesScreen_undo => 'Undo';
-
-  @override
-  String get caseReferenceScreen_title => 'Case Reference';
-
-  @override
-  String get caseReferenceScreen_referenceAndPageNo => 'Reference & Page No';
-
-  @override
-  String get caseReferenceScreen_statute => 'Statute';
-
-  @override
-  String get caseReferenceScreen_sectionOrArticle => 'Section/Article';
-
-  @override
-  String get caseReferenceScreen_titleAndDescription => 'Title & Description';
-
-  @override
-  String get caseReferenceScreen_commentsNotes => 'Comments/Notes';
-
-  @override
-  String get caseReferenceScreen_empty =>
-      'No references yet. Tap + to add one.';
-
-  @override
-  String get caseReferenceScreen_addTitle => 'Add Case Reference';
-
-  @override
-  String get caseReferenceScreen_editTitle => 'Edit Case Reference';
-
-  @override
-  String get caseReferenceScreen_pin => 'Pin';
-
-  @override
-  String get caseReferenceScreen_unpin => 'Unpin';
-
-  @override
-  String get caseReferenceScreen_saved => 'Reference saved';
-
-  @override
-  String get caseReferenceScreen_saveTitle => 'Save Reference';
-
-  @override
-  String get caseReferenceScreen_deleted => 'Reference deleted';
-
-  @override
-  String get caseReferenceScreen_referenceDeleted => 'Reference deleted';
-
-  @override
-  String get caseReferenceScreen_undo => 'Undo';
-
-  @override
-  String get caseReferenceScreen_refPlaceholder => 'e.g. 25 DLR (AD) 142';
-
-  @override
-  String get caseReferenceScreen_statutePlaceholder => 'e.g. CRPC';
-
-  @override
-  String get caseReferenceScreen_sectionPlaceholder => 'e.g. Section 54';
-
-  @override
-  String get caseReferenceScreen_titlePlaceholder => 'Title & description';
-
-  @override
-  String get caseReferenceScreen_commentsPlaceholder =>
-      'Add comments or private notes here...';
+  String caseDetailsScreen_loadError(String message) {
+    return 'Unable to load the case: $message';
+  }
 
   @override
   String get addEditCaseSheet_title => 'Add Case';
@@ -474,70 +421,179 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customDropdown_selected => 'Selected';
 
   @override
-  String get settingsScreen_title => 'Settings';
+  String get casesModal_addCase => 'Add Case';
 
   @override
-  String get settingsScreen_accountAndProfile => 'Account & Profile';
+  String get casesModal_search => 'Search';
 
   @override
-  String get settingsScreen_profile => 'Profile';
+  String get casesModal_viewCompact => 'Compact view';
 
   @override
-  String get settingsScreen_manageAccount => 'Manage Account';
+  String get casesModal_viewExpanded => 'Expanded view';
 
   @override
-  String get settingsScreen_onlineSync => 'Online Sync';
+  String get casesModal_help => 'Help';
 
   @override
-  String get settingsScreen_backupAndRestore => 'Backup & Restore';
+  String get customDropdown_selectOption => 'Select an option';
 
   @override
-  String get settingsScreen_editCourtSteps => 'Edit Court/Steps';
+  String get customDropdown_search => 'Search';
 
   @override
-  String get settingsScreen_notifications => 'Notifications';
+  String get customDropdown_noResults => 'No results found';
 
   @override
-  String get settingsScreen_language => 'Language';
+  String get customDropdown_done => 'Done';
 
   @override
-  String get settingsScreen_languageEnglish => 'English';
+  String get casesContact_openWith => 'Open with';
 
   @override
-  String get settingsScreen_languageBengali => 'Bengali';
+  String get casesContact_whatsapp => 'WhatsApp';
 
   @override
-  String get settingsScreen_viewSettings => 'View Settings';
+  String get casesContact_message => 'Message';
 
   @override
-  String get settingsScreen_guidelines => 'Guidelines';
+  String get casesContact_phone => 'Phone';
 
   @override
-  String get settingsScreen_about => 'About';
+  String get casesContact_unableToOpenApp => 'Unable to open the app.';
 
   @override
-  String get settingsProfile_title => 'Profile';
+  String get casesContact_unableToOpenWhatsApp => 'Unable to open WhatsApp.';
 
   @override
-  String get settingsManageAccount_title => 'Manage Account';
+  String get casesContact_unableToCall => 'Unable to place a call.';
 
   @override
-  String get settingsOnlineSync_title => 'Online Sync';
+  String get casesContact_unableToMessage => 'Unable to open messages.';
 
   @override
-  String get settingsBackupRestore_title => 'Backup & Restore';
+  String casesScreen_loadError(String message) {
+    return 'Unable to load cases: $message';
+  }
 
   @override
-  String get settingsNotifications_title => 'Notifications';
+  String get notesScreen_title => 'Notes';
 
   @override
-  String get settingsViewSettings_title => 'View Settings';
+  String get notesScreen_delete => 'Delete';
 
   @override
-  String get settingsGuidelines_title => 'Guidelines';
+  String get notesScreen_pin => 'Pin';
 
   @override
-  String get settingsAbout_title => 'About';
+  String get notesScreen_modified => 'Modified';
+
+  @override
+  String get notesScreen_empty => 'No notes yet. Tap + to add one.';
+
+  @override
+  String get notesScreen_noteTitle => 'Title';
+
+  @override
+  String get notesScreen_noteBody => 'Note';
+
+  @override
+  String get notesScreen_noteBodyPlaceholder => 'Enter your note here...';
+
+  @override
+  String get notesScreen_drafting => 'Drafting...';
+
+  @override
+  String get notesScreen_noteDeleted => 'Note deleted';
+
+  @override
+  String get notesScreen_undo => 'Undo';
+
+  @override
+  String get caseReferenceScreen_title => 'Case Reference';
+
+  @override
+  String get caseReferenceScreen_referenceAndPageNo => 'Reference & Page No';
+
+  @override
+  String get caseReferenceScreen_statute => 'Statute';
+
+  @override
+  String get caseReferenceScreen_sectionOrArticle => 'Section/Article';
+
+  @override
+  String get caseReferenceScreen_titleAndDescription => 'Title & Description';
+
+  @override
+  String get caseReferenceScreen_commentsNotes => 'Comments/Notes';
+
+  @override
+  String get caseReferenceScreen_empty =>
+      'No references yet. Tap + to add one.';
+
+  @override
+  String get caseReferenceScreen_addTitle => 'Add Case Reference';
+
+  @override
+  String get caseReferenceScreen_editTitle => 'Edit Case Reference';
+
+  @override
+  String get caseReferenceScreen_pin => 'Pin';
+
+  @override
+  String get caseReferenceScreen_unpin => 'Unpin';
+
+  @override
+  String get caseReferenceScreen_saved => 'Reference saved';
+
+  @override
+  String get caseReferenceScreen_saveTitle => 'Save Reference';
+
+  @override
+  String get caseReferenceScreen_deleted => 'Reference deleted';
+
+  @override
+  String get caseReferenceScreen_referenceDeleted => 'Reference deleted';
+
+  @override
+  String get caseReferenceScreen_undo => 'Undo';
+
+  @override
+  String get caseReferenceScreen_refPlaceholder => 'e.g. 25 DLR (AD) 142';
+
+  @override
+  String get caseReferenceScreen_statutePlaceholder => 'e.g. CRPC';
+
+  @override
+  String get caseReferenceScreen_sectionPlaceholder => 'e.g. Section 54';
+
+  @override
+  String get caseReferenceScreen_titlePlaceholder => 'Title & description';
+
+  @override
+  String get caseReferenceScreen_commentsPlaceholder =>
+      'Add comments or private notes here...';
+
+  @override
+  String get sync_idle => 'Sync';
+
+  @override
+  String get sync_syncing => 'Syncing…';
+
+  @override
+  String get sync_success => 'Synced';
+
+  @override
+  String get sync_paused => 'Sync paused';
+
+  @override
+  String get sync_error => 'Sync error';
+
+  @override
+  String get sync_unavailable => 'Sync requires a premium subscription';
+
+  @override
+  String get general_tomorrow => 'Tomorrow';
 
   @override
   String get sharedActions_save => 'Save';
@@ -587,6 +643,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharedDialogs_cancel => 'Cancel';
+
+  @override
+  String sharedMessages_error(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get sharedMessages_signInRequired =>
+      'Available after sign-in (Task 17)';
+
+  @override
+  String get appShell_exitTitle => 'Exit App?';
+
+  @override
+  String get appShell_exitMessage => 'Do you want to exit Legal Case Diary?';
+
+  @override
+  String get appShell_exit => 'Exit';
+
+  @override
+  String get databaseRecovery_title => 'Database Locked';
+
+  @override
+  String get databaseRecovery_body =>
+      'The encryption key for your local case diary is missing. This can happen after an operating system update or if app data was cleared.\n\nTo continue using the app offline, you must reset the local database. All unsynced local data will be lost.';
+
+  @override
+  String get databaseRecovery_reset => 'Reset Local Database';
 
   @override
   String get courtCategory_appellateDivision => 'Appellate Division';
@@ -736,6 +820,461 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsScreen_title => 'Settings';
+
+  @override
+  String get settingsScreen_accountAndProfile => 'Account & Profile';
+
+  @override
+  String get settingsScreen_profile => 'Profile';
+
+  @override
+  String get settingsScreen_manageAccount => 'Manage Account';
+
+  @override
+  String get settingsScreen_onlineSync => 'Online Sync';
+
+  @override
+  String get settingsScreen_backupAndRestore => 'Backup & Restore';
+
+  @override
+  String get settingsScreen_editCourtSteps => 'Edit Court/Steps';
+
+  @override
+  String get settingsScreen_notifications => 'Notifications';
+
+  @override
+  String get settingsScreen_language => 'Language';
+
+  @override
+  String get settingsScreen_languageEnglish => 'English';
+
+  @override
+  String get settingsScreen_languageBengali => 'Bengali';
+
+  @override
+  String get settingsScreen_viewSettings => 'View Settings';
+
+  @override
+  String get settingsScreen_guidelines => 'Guidelines';
+
+  @override
+  String get settingsScreen_about => 'About';
+
+  @override
+  String get settingsScreen_sectionGeneral => 'General';
+
+  @override
+  String get settingsScreen_sectionPreferences => 'Preferences';
+
+  @override
+  String get settingsScreen_sectionAppInfo => 'App Info';
+
+  @override
+  String get settingsScreen_searchTooltip => 'Search settings';
+
+  @override
+  String get settingsScreen_searchHint => 'Search';
+
+  @override
+  String get settingsScreen_closeSearchTooltip => 'Close search';
+
+  @override
+  String get settingsScreen_noResults => 'No settings found';
+
+  @override
+  String get settingsAccountProfile_profileSubtitle =>
+      'Your name, bar association, and membership details';
+
+  @override
+  String get settingsAccountProfile_manageAccountSubtitle =>
+      'Password, subscription, and account settings';
+
+  @override
+  String get settingsProfile_title => 'Profile';
+
+  @override
+  String get settingsProfile_editTooltip => 'Edit profile';
+
+  @override
+  String get settingsProfile_fullName => 'Full Name';
+
+  @override
+  String get settingsProfile_barAssociation => 'Bar Association';
+
+  @override
+  String get settingsProfile_membershipNo => 'Membership No.';
+
+  @override
+  String get settingsProfile_officeAddress => 'Office Address';
+
+  @override
+  String get settingsProfile_mobileNo => 'Mobile No.';
+
+  @override
+  String get settingsProfile_yourName => 'Your Name';
+
+  @override
+  String settingsProfile_displayName(String name) {
+    return 'Adv. $name';
+  }
+
+  @override
+  String get settingsProfile_editTitle => 'Edit Profile';
+
+  @override
+  String get settingsProfile_fullNameHint => 'Enter your full name';
+
+  @override
+  String get settingsProfile_barAssociationHint => 'Enter bar association name';
+
+  @override
+  String get settingsProfile_membershipNoHint => 'Enter registration number';
+
+  @override
+  String get settingsProfile_officeAddressHint => 'Enter your office address';
+
+  @override
+  String get settingsProfile_save => 'Save Profile';
+
+  @override
+  String get settingsProfile_saved => 'Profile saved (offline)';
+
+  @override
+  String get settingsManageAccount_title => 'Manage Account';
+
+  @override
+  String get settingsManageAccount_changePassword => 'Change Password';
+
+  @override
+  String get settingsManageAccount_subscriptionDetails =>
+      'Subscription Details';
+
+  @override
+  String get settingsManageAccount_purchaseNewSubscription =>
+      'Purchase New Subscription';
+
+  @override
+  String get settingsManageAccount_logout => 'Logout';
+
+  @override
+  String get settingsManageAccount_accountSettings => 'Account Settings';
+
+  @override
+  String get settingsManageAccount_deleteAccount => 'Delete Account';
+
+  @override
+  String get settingsManageAccount_deleteCannotBeUndone =>
+      'This action cannot be undone';
+
+  @override
+  String get settingsOnlineSync_title => 'Online Sync';
+
+  @override
+  String get settingsOnlineSync_subtitle =>
+      'Manage your real-time data sync across all your devices.';
+
+  @override
+  String get settingsOnlineSync_cases => 'Cases';
+
+  @override
+  String get settingsOnlineSync_notes => 'Notes';
+
+  @override
+  String get settingsOnlineSync_references => 'References';
+
+  @override
+  String get settingsOnlineSync_notSignedIn => 'Not signed in';
+
+  @override
+  String get settingsOnlineSync_signInPrompt =>
+      'Sign in to sync your data across all your devices';
+
+  @override
+  String get settingsOnlineSync_actionRequired => 'Action Required';
+
+  @override
+  String get settingsOnlineSync_lastSyncNever => 'Last Sync: Never';
+
+  @override
+  String get settingsOnlineSync_dataStaysOnDevice =>
+      'Your data stays on this device until you sign in.';
+
+  @override
+  String get settingsOnlineSync_syncNow => 'Sync Now';
+
+  @override
+  String get settingsOnlineSync_notSynced => 'Not synced';
+
+  @override
+  String get settingsOnlineSync_itemsUnknown => '— Items';
+
+  @override
+  String settingsOnlineSync_itemsCount(int count) {
+    return '$count Items';
+  }
+
+  @override
+  String get settingsBackupRestore_title => 'Backup & Restore';
+
+  @override
+  String get settingsBackupRestore_sectionBackup => 'Backup & Restore';
+
+  @override
+  String get settingsBackupRestore_sectionAutomaticBackup => 'Automatic Backup';
+
+  @override
+  String get settingsBackupRestore_sectionStatus => 'Backup Status';
+
+  @override
+  String get settingsBackupRestore_backupLocal => 'Backup to Local Storage';
+
+  @override
+  String get settingsBackupRestore_backupDrive => 'Backup to Google Drive';
+
+  @override
+  String get settingsBackupRestore_restore => 'Restore from backup';
+
+  @override
+  String get settingsBackupRestore_encryptionNote =>
+      'Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.';
+
+  @override
+  String get settingsBackupRestore_offlineNote =>
+      'Note: Restoration is available for offline accounts only.';
+
+  @override
+  String get settingsBackupRestore_lastSuccessfulBackup =>
+      'Last successful backup';
+
+  @override
+  String get settingsBackupRestore_lastBackupPlaceholder =>
+      'Oct 20, 2023 at 10:45 AM';
+
+  @override
+  String get settingsBackupRestore_enginePending =>
+      'Backup engine arrives in Task 15';
+
+  @override
+  String get settingsBackupRestore_scheduleOff => 'Off';
+
+  @override
+  String get settingsBackupRestore_scheduleEveryday => 'Everyday';
+
+  @override
+  String get settingsBackupRestore_scheduleEvery3Days => 'Every 3 days';
+
+  @override
+  String get settingsBackupRestore_scheduleEvery7Days => 'Every 7 days';
+
+  @override
+  String get settingsBackupRestore_scheduleEveryMonth => 'Every month';
+
+  @override
+  String get settingsEditCourtSteps_editItemTypes =>
+      'Edit Case Types, Step etc';
+
+  @override
+  String get settingsEditCourtSteps_editItemTypesSubtitle =>
+      'Manage case types, procedural steps, and on-behalf roles';
+
+  @override
+  String get settingsEditCourtSteps_courtNamesCategories =>
+      'Edit Court Names & Categories';
+
+  @override
+  String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>
+      'Supreme Court divisions and district lower courts';
+
+  @override
+  String get settingsEditCourtSteps_lowerCourtCategories =>
+      'Lower Court Categories';
+
+  @override
+  String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>
+      'Divisions, districts and their court categories';
+
+  @override
+  String get settingsEditCourtNames_courtCategory => 'Court Category';
+
+  @override
+  String get settingsEditCourtNames_supremeCourt =>
+      'Supreme Court of Bangladesh';
+
+  @override
+  String get settingsEditCourtNames_supremeCourtSubtitle =>
+      'Appellate & High Court Divisions';
+
+  @override
+  String get settingsEditCourtNames_lowerCourts => 'Lower Courts';
+
+  @override
+  String get settingsEditCourtNames_lowerCourtsSubtitle =>
+      'District, Session & Specialized Courts';
+
+  @override
+  String get settingsEditCourtNames_quickTip => 'Quick Tip';
+
+  @override
+  String get settingsEditCourtNames_quickTipBody =>
+      'Need specialized tribunals? Add them under the relevant division and district, then assign a court category.';
+
+  @override
+  String get settingsEditItems_caseTypes => 'Case Types';
+
+  @override
+  String get settingsEditItems_steps => 'Steps';
+
+  @override
+  String get settingsEditItems_onBehalf => 'On Behalf';
+
+  @override
+  String get settingsCourtNamesSteps_title => 'Court Names, Steps etc';
+
+  @override
+  String get settingsCourtNamesSteps_catAppellateDivision =>
+      'Appellate Division';
+
+  @override
+  String get settingsCourtNamesSteps_catHighCourtDivision =>
+      'High Court Division';
+
+  @override
+  String get settingsCourtNamesSteps_catDistrictSessions =>
+      'District & Sessions (Criminal)';
+
+  @override
+  String get settingsCourtNamesSteps_catDistrictCivil =>
+      'District Courts (Civil)';
+
+  @override
+  String get settingsCourtNamesSteps_catCjm => 'Chief Judicial Magistrate';
+
+  @override
+  String get settingsCourtNamesSteps_catCmm => 'Chief Metropolitan Magistrate';
+
+  @override
+  String get settingsCourtNamesSteps_catExecutive => 'Executive Magistrate';
+
+  @override
+  String get settingsCourtNamesSteps_catTribunals => 'Tribunals';
+
+  @override
+  String get settingsItemList_addTitle => 'Add Item';
+
+  @override
+  String get settingsItemList_editTitle => 'Edit Item';
+
+  @override
+  String get settingsItemList_nameLabel => 'Name';
+
+  @override
+  String get settingsItemList_empty => 'No items yet. Add one below.';
+
+  @override
+  String get settingsItemList_deleteTitle => 'Delete Item';
+
+  @override
+  String get settingsItemList_deleteMessage =>
+      'Delete this item? This cannot be undone.';
+
+  @override
+  String get settingsItemList_catAppellate => 'Appellate';
+
+  @override
+  String get settingsItemList_catHighCourt => 'High Court';
+
+  @override
+  String get settingsItemList_catSessions => 'Sessions (Crim)';
+
+  @override
+  String get settingsItemList_catDistrictCivil => 'District (Civil)';
+
+  @override
+  String get settingsItemList_catCjm => 'CJM';
+
+  @override
+  String get settingsItemList_catCmm => 'CMM';
+
+  @override
+  String get settingsItemList_catExecutive => 'Executive';
+
+  @override
+  String get settingsItemList_catTribunals => 'Tribunals';
+
+  @override
+  String get settingsCourtList_addTitle => 'Add Court';
+
+  @override
+  String get settingsCourtList_editTitle => 'Edit Court';
+
+  @override
+  String get settingsCourtList_nameLabel => 'Court name';
+
+  @override
+  String get settingsCourtList_titleHigher => 'Court Names';
+
+  @override
+  String get settingsCourtList_empty => 'No courts yet. Add one below.';
+
+  @override
+  String get settingsCourtList_deleteTitle => 'Delete Court';
+
+  @override
+  String settingsCourtList_deleteMessage(String name) {
+    return 'Delete \"$name\"? This cannot be undone.';
+  }
+
+  @override
+  String settingsCourtList_titleLower(String district) {
+    return '$district Court Names';
+  }
+
+  @override
+  String get settingsCourtFlow_divisions => 'Divisions';
+
+  @override
+  String get settingsCourtFlow_districts => 'Districts';
+
+  @override
+  String get settingsLowerCourtCategories_addTooltip => 'Add Court Category';
+
+  @override
+  String get settingsLowerCourtCategories_addTitle => 'Add Court Category';
+
+  @override
+  String get settingsLowerCourtCategories_editTitle => 'Edit Court Category';
+
+  @override
+  String get settingsLowerCourtCategories_nameLabel => 'Category name';
+
+  @override
+  String get settingsLowerCourtCategories_empty =>
+      'No court categories in this district yet.';
+
+  @override
+  String settingsCourtFlow_divisionTitle(String division) {
+    return '$division Division';
+  }
+
+  @override
+  String settingsLowerCourtCategories_title(String district) {
+    return '$district Court Categories';
+  }
+
+  @override
+  String get settingsNotifications_title => 'Notifications';
+
+  @override
+  String get settingsViewSettings_title => 'View Settings';
+
+  @override
+  String get settingsGuidelines_title => 'Guidelines';
+
+  @override
+  String get settingsAbout_title => 'About';
+
+  @override
   String get localeScratch_title => 'Localization Scratch';
 
   @override
@@ -751,82 +1290,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'Current language: $language';
   }
-
-  @override
-  String get nav_upcomingCases => 'Upcoming Cases';
-
-  @override
-  String get nav_dailyCauseList => 'Daily Cause List';
-
-  @override
-  String get nav_allCases => 'All Cases';
-
-  @override
-  String get nav_disposedCases => 'Disposed Cases';
-
-  @override
-  String get nav_caseReference => 'Case Reference';
-
-  @override
-  String get nav_notes => 'Notes';
-
-  @override
-  String get nav_settings => 'Settings';
-
-  @override
-  String get nav_print => 'Print';
-
-  @override
-  String get nav_share => 'Share';
-
-  @override
-  String get nav_activeCases => 'Active Cases';
-
-  @override
-  String get nav_overdueDates => 'Overdue Dates';
-
-  @override
-  String get sync_idle => 'Sync';
-
-  @override
-  String get sync_syncing => 'Syncing…';
-
-  @override
-  String get sync_success => 'Synced';
-
-  @override
-  String get sync_paused => 'Sync paused';
-
-  @override
-  String get sync_error => 'Sync error';
-
-  @override
-  String get sync_unavailable => 'Sync requires a premium subscription';
-
-  @override
-  String get casesModal_addCase => 'Add Case';
-
-  @override
-  String get casesModal_search => 'Search';
-
-  @override
-  String get casesModal_viewCompact => 'Compact view';
-
-  @override
-  String get casesModal_viewExpanded => 'Expanded view';
-
-  @override
-  String get casesModal_help => 'Help';
-
-  @override
-  String get customDropdown_selectOption => 'Select an option';
-
-  @override
-  String get customDropdown_search => 'Search';
-
-  @override
-  String get customDropdown_noResults => 'No results found';
-
-  @override
-  String get customDropdown_done => 'Done';
 }

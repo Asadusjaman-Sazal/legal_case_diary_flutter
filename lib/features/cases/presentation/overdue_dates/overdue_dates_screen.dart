@@ -64,7 +64,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       setState(() {
         _cases = cases;
         _courtsById = {for (final court in courts) court.id: court};
-        _categoriesById = {for (final category in categories) category.id: category};
+        _categoriesById = {
+          for (final category in categories) category.id: category,
+        };
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
         _error = null;
         _loading = false;
@@ -87,6 +89,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     Case currentCase, {
     required bool message,
   }) async {
+    final l = AppLocalizations.of(context);
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
 
@@ -98,7 +101,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       if (normalized.isEmpty) return;
       await _launchExternal(
         Uri.https('wa.me', normalized),
-        failureMessage: 'Unable to open WhatsApp.',
+        failureMessage: l.casesContact_unableToOpenWhatsApp,
       );
     } else {
       await _launchExternal(
@@ -107,8 +110,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
           path: phone,
         ),
         failureMessage: target == _ContactActionTarget.phone
-            ? 'Unable to place a call.'
-            : 'Unable to open messages.',
+            ? l.casesContact_unableToCall
+            : l.casesContact_unableToMessage,
       );
     }
   }
@@ -118,21 +121,25 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
   }) => showDialog<_ContactActionTarget>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Open with'),
+      title: Text(AppLocalizations.of(context).casesContact_openWith),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
             leading: const Icon(Icons.chat_outlined),
-            title: const Text('WhatsApp'),
+            title: Text(AppLocalizations.of(context).casesContact_whatsapp),
             onTap: () =>
                 Navigator.of(context).pop(_ContactActionTarget.whatsApp),
           ),
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
             leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-            title: Text(message ? 'Message' : 'Phone'),
+            title: Text(
+              message
+                  ? AppLocalizations.of(context).casesContact_message
+                  : AppLocalizations.of(context).casesContact_phone,
+            ),
             onTap: () => Navigator.of(context).pop(
               message
                   ? _ContactActionTarget.message
@@ -145,7 +152,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         TextButton(
           key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).sharedActions_cancel),
         ),
       ],
     ),
@@ -227,7 +234,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load cases: $_error'),
+          child: Text(
+            AppLocalizations.of(context).casesScreen_loadError('$_error'),
+          ),
         ),
       );
     }
@@ -292,9 +301,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                                 ),
                                 Text(
                                   '${group.cases.length} Cases',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.labelMedium?.copyWith(
+                                  style: Theme.of(context).textTheme.labelMedium
+                                      ?.copyWith(
                                         color: Theme.of(
                                           context,
                                         ).colorScheme.outline,
@@ -319,7 +327,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
 
   Widget _buildCard(Case currentCase, AppLocalizations l) {
     final court = _courtsById[currentCase.courtId];
-    final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
         court?.courtCategoryId == highCourtDivisionId;
     return CaseCard(
       key: ValueKey('case-card-${currentCase.id}'),
@@ -327,7 +336,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       caseNumber: '${currentCase.caseType} ${currentCase.caseNumber}',
       title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
       subtitle: currentCase.caseTitleAndSection,
-      courtName: null, // Court name is shown in the group header above the card.
+      courtName:
+          null, // Court name is shown in the group header above the card.
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
       statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
       alignStatusLabelRight: true,

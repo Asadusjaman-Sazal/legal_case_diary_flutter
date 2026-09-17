@@ -77,6 +77,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     Case currentCase, {
     required bool message,
   }) async {
+    final l = AppLocalizations.of(context);
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
 
@@ -88,7 +89,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       if (normalized.isEmpty) return;
       await _launchExternal(
         Uri.https('wa.me', normalized),
-        failureMessage: 'Unable to open WhatsApp.',
+        failureMessage: l.casesContact_unableToOpenWhatsApp,
       );
     } else {
       await _launchExternal(
@@ -97,8 +98,8 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
           path: phone,
         ),
         failureMessage: target == _ContactActionTarget.phone
-            ? 'Unable to place a call.'
-            : 'Unable to open messages.',
+            ? l.casesContact_unableToCall
+            : l.casesContact_unableToMessage,
       );
     }
   }
@@ -108,21 +109,25 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   }) => showDialog<_ContactActionTarget>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Open with'),
+      title: Text(AppLocalizations.of(context).casesContact_openWith),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
             leading: const Icon(Icons.chat_outlined),
-            title: const Text('WhatsApp'),
+            title: Text(AppLocalizations.of(context).casesContact_whatsapp),
             onTap: () =>
                 Navigator.of(context).pop(_ContactActionTarget.whatsApp),
           ),
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
             leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-            title: Text(message ? 'Message' : 'Phone'),
+            title: Text(
+              message
+                  ? AppLocalizations.of(context).casesContact_message
+                  : AppLocalizations.of(context).casesContact_phone,
+            ),
             onTap: () => Navigator.of(context).pop(
               message
                   ? _ContactActionTarget.message
@@ -135,7 +140,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
         TextButton(
           key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).sharedActions_cancel),
         ),
       ],
     ),
@@ -194,7 +199,9 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load cases: $_error'),
+          child: Text(
+            AppLocalizations.of(context).casesScreen_loadError('$_error'),
+          ),
         ),
       );
     }
@@ -211,18 +218,19 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: _cases.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(height: AppSpacing.md),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
                 final currentCase = _cases[index];
                 final court = _courtsById[currentCase.courtId];
-                final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
+                final isHigherCourt =
+                    court?.courtCategoryId == appellateDivisionId ||
                     court?.courtCategoryId == highCourtDivisionId;
-                final stepOrResult = currentCase.lastStep?.trim().isNotEmpty == true
+                final stepOrResult =
+                    currentCase.lastStep?.trim().isNotEmpty == true
                     ? currentCase.lastStep!
                     : (currentCase.result?.trim().isNotEmpty == true
-                        ? currentCase.result!
-                        : null);
+                          ? currentCase.result!
+                          : null);
                 final disposedDate = currentCase.nextDate == null
                     ? null
                     : AppDateUtils.formatDateDDMMYYYY(
@@ -238,11 +246,15 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                       '${currentCase.petitioner} Vs ${currentCase.respondent}',
                   title: currentCase.caseTitleAndSection,
                   courtName: court?.courtName,
-                  judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+                  judgesName: isHigherCourt
+                      ? currentCase.honorableJudges
+                      : null,
                   disposedDate: disposedDate,
                   note: currentCase.notesResults,
-                  onPhone: () => _launchPartyAction(currentCase, message: false),
-                  onMessage: () => _launchPartyAction(currentCase, message: true),
+                  onPhone: () =>
+                      _launchPartyAction(currentCase, message: false),
+                  onMessage: () =>
+                      _launchPartyAction(currentCase, message: true),
                   onUpdate: () => _openQuickUpdate(currentCase),
                   onTap: () => _openCaseDetail(currentCase),
                 );
@@ -299,139 +311,130 @@ class _DisposedCaseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-            // L1: Step/Result (light-gray) left, "Disposed:" right.
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  ),
-                  child: Text(
-                    stepOrResult?.isNotEmpty == true ? stepOrResult! : '—',
-                    style: AppTypography.labelMd,
-                  ),
-                ),
-                const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      l.caseCard_disposed,
-                      style: AppTypography.labelMd,
-                    ),
-                    if (disposedDate != null)
-                      Text(
-                        disposedDate!,
-                        style: AppTypography.labelMd.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            // L2: Case Type & Number.
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    caseNumber,
-                    style: AppTypography.caseNumber,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            // L3: Petitioner Vs Respondent.
-            Text(parties, style: AppTypography.titleMd),
-            const SizedBox(height: AppSpacing.xs),
-            // L4: Case Title or Section.
-            if (title?.trim().isNotEmpty == true)
-              Text(title!, style: AppTypography.bodyMd),
-            // L5: Name of Court.
-            if (courtName != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(courtName!, style: AppTypography.bodySm),
-              if (judgesName != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(judgesName!, style: AppTypography.bodySm),
-              ],
-            ],
-            // L6: Note in a quotation box.
-            if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.sm),
+          // L1: Step/Result (light-gray) left, "Disposed:" right.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerLow,
-                  border: Border(
-                    left: BorderSide(
-                      color: AppColors.secondary,
-                      width: 4,
-                    ),
-                  ),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                 ),
                 child: Text(
-                  '"$trimmedNote"',
-                  style: AppTypography.bodyMd.copyWith(
-                    fontStyle: FontStyle.italic,
-                    color: AppColors.onSurfaceVariant,
+                  stepOrResult?.isNotEmpty == true ? stepOrResult! : '—',
+                  style: AppTypography.labelMd,
+                ),
+              ),
+              const Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(l.caseCard_disposed, style: AppTypography.labelMd),
+                  if (disposedDate != null)
+                    Text(
+                      disposedDate!,
+                      style: AppTypography.labelMd.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // L2: Case Type & Number.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(caseNumber, style: AppTypography.caseNumber),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // L3: Petitioner Vs Respondent.
+          Text(parties, style: AppTypography.titleMd),
+          const SizedBox(height: AppSpacing.xs),
+          // L4: Case Title or Section.
+          if (title?.trim().isNotEmpty == true)
+            Text(title!, style: AppTypography.bodyMd),
+          // L5: Name of Court.
+          if (courtName != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(courtName!, style: AppTypography.bodySm),
+            if (judgesName != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(judgesName!, style: AppTypography.bodySm),
+            ],
+          ],
+          // L6: Note in a quotation box.
+          if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                border: Border(
+                  left: BorderSide(color: AppColors.secondary, width: 4),
+                ),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              ),
+              child: Text(
+                '"$trimmedNote"',
+                style: AppTypography.bodyMd.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.md),
+          // L7: call, message, update.
+          Row(
+            children: [
+              IconButton(
+                tooltip: l.allCasesScreen_phone,
+                onPressed: onPhone,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                   ),
+                ),
+                icon: const Icon(Icons.call_outlined),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                tooltip: l.allCasesScreen_message,
+                onPressed: onMessage,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  ),
+                ),
+                icon: const Icon(Icons.chat_outlined),
+              ),
+              const Spacer(),
+              SizedBox(
+                height: 40,
+                child: FilledButton.icon(
+                  onPressed: onUpdate,
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: Text(l.allCasesScreen_update),
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.md),
-            // L7: call, message, update.
-            Row(
-              children: [
-                IconButton(
-                  tooltip: l.allCasesScreen_phone,
-                  onPressed: onPhone,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    ),
-                  ),
-                  icon: const Icon(Icons.call_outlined),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                IconButton(
-                  tooltip: l.allCasesScreen_message,
-                  onPressed: onMessage,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    ),
-                  ),
-                  icon: const Icon(Icons.chat_outlined),
-                ),
-                const Spacer(),
-                SizedBox(
-                  height: 40,
-                  child: FilledButton.icon(
-                    onPressed: onUpdate,
-                    icon: const Icon(Icons.edit_outlined, size: 18),
-                    label: Text(l.allCasesScreen_update),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
 
     if (onTap == null) {
       return Container(

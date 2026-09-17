@@ -4,6 +4,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/generated/app_localizations.dart';
+
 /// {@template database_recovery_dialog}
 /// A dialog displayed when the encrypted local database exists but its key is
 /// missing (for example after an OS update cleared the secure keychain).
@@ -18,26 +20,18 @@ class DatabaseRecoveryDialog extends StatelessWidget {
 
   /// Creates a [DatabaseRecoveryDialog] that calls [onReset] when the reset
   /// button is pressed.
-  const DatabaseRecoveryDialog({
-    required this.onReset,
-    super.key,
-  });
+  const DatabaseRecoveryDialog({required this.onReset, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Database Locked'),
-      content: const Text(
-        'The encryption key for your local case diary is missing. '
-        'This can happen after an operating system update or if app data '
-        'was cleared.\n\n'
-        'To continue using the app offline, you must reset the local '
-        'database. All unsynced local data will be lost.',
-      ),
+      title: Text(l.databaseRecovery_title),
+      content: Text(l.databaseRecovery_body),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).maybePop(),
-          child: const Text('Cancel'),
+          child: Text(l.sharedActions_cancel),
         ),
         TextButton(
           onPressed: onReset,
@@ -45,7 +39,7 @@ class DatabaseRecoveryDialog extends StatelessWidget {
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Reset Local Database'),
+          child: Text(l.databaseRecovery_reset),
         ),
       ],
     );

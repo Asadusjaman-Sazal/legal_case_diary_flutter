@@ -12,6 +12,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/courts_repository.dart';
 import '../../../../database/app_database.dart';
@@ -55,32 +56,40 @@ class _CourtEditDialogState extends State<_CourtEditDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: Text(widget.court == null ? 'Add Court' : 'Edit Court'),
-        content: Form(
-          key: _formKey,
-          child: TextFormField(
-            controller: _controller,
-            autofocus: true,
-            decoration: const InputDecoration(labelText: 'Court name'),
-            validator: (value) =>
-                value == null || value.trim().isEmpty ? 'Required' : null,
-          ),
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(
+        widget.court == null
+            ? l.settingsCourtList_addTitle
+            : l.settingsCourtList_editTitle,
+      ),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          decoration: InputDecoration(labelText: l.settingsCourtList_nameLabel),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? l.sharedDialogs_requiredField
+              : null,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-              Navigator.of(context).pop(_controller.text.trim());
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (!_formKey.currentState!.validate()) return;
+            Navigator.of(context).pop(_controller.text.trim());
+          },
+          child: Text(l.sharedActions_save),
+        ),
+      ],
+    );
+  }
 }
 
 /// Court list screen for a category or division+district.
@@ -114,15 +123,16 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final repoAsync = ref.watch(courtsRepositoryProvider);
 
     final title = _isLower
-        ? '${_districtLabel(widget.district!)} Court Names'
-        : 'Court Names';
+        ? l.settingsCourtList_titleLower(_districtLabel(widget.district!))
+        : l.settingsCourtList_titleHigher;
 
     return SettingsSubPageModal(
       title: title,
-      subtitle: _isLower ? 'Districts' : null,
+      subtitle: _isLower ? l.settingsCourtFlow_districts : null,
       floatingActionButton: repoAsync.whenOrNull(
         data: (repo) => FloatingActionButton(
           onPressed: () => _addCourt(context, repo),
@@ -131,7 +141,7 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
       ),
       child: repoAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l.sharedMessages_error('$e'))),
         data: (repo) => _CourtListView(repo: repo, widget: widget),
       ),
     );
@@ -153,8 +163,7 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
     await repo.insert(
       CourtsCompanion(
         courtName: Value(name),
-        higherLowerCourts:
-            Value(_isLower ? 'lower_courts' : 'higher_courts'),
+        higherLowerCourts: Value(_isLower ? 'lower_courts' : 'higher_courts'),
         division: widget.division == null
             ? const Value.absent()
             : Value(widget.division),
@@ -194,22 +203,30 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
     final isLower = state.division != null && state.district != null;
 
     return StreamBuilder<List<Court>>(
-      stream:
-          isLower ? widget.repo.watchAll() : widget.repo.watchByCategory(state.category!),
+      stream: isLower
+          ? widget.repo.watchAll()
+          : widget.repo.watchByCategory(state.category!),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+            child: Text(
+              AppLocalizations.of(
+                context,
+              ).sharedMessages_error('${snapshot.error}'),
+            ),
+          );
         }
         final courts = snapshot.data ?? const [];
         final items = courts.where((c) {
           if (isLower) {
-            return c.division == state.division &&
-                c.district == state.district;
+            return c.division == state.division && c.district == state.district;
           }
           return true;
         }).toList();
         if (items.isEmpty) {
-          return const Center(child: Text('No courts yet. Add one below.'));
+          return Center(
+            child: Text(AppLocalizations.of(context).settingsCourtList_empty),
+          );
         }
         return ReorderableListView.builder(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -263,19 +280,20 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
   }
 
   Future<void> _deleteCourt(BuildContext context, Court court) async {
+    final l = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Court'),
-        content: Text('Delete "${court.courtName}"? This cannot be undone.'),
+        title: Text(l.settingsCourtList_deleteTitle),
+        content: Text(l.settingsCourtList_deleteMessage(court.courtName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.sharedActions_cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l.sharedActions_delete),
           ),
         ],
       ),
@@ -299,31 +317,34 @@ class _CourtTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Card(
-        elevation: 0,
-        color: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: AppColors.surfaceContainer),
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Card(
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.surfaceContainer),
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
+        title: Text(court.courtName, style: AppTypography.bodyLg),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: onEdit,
+              tooltip: l.sharedActions_edit,
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              onPressed: onDelete,
+              tooltip: l.sharedActions_delete,
+            ),
+          ],
         ),
-        child: ListTile(
-          leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
-          title: Text(court.courtName, style: AppTypography.bodyLg),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: onEdit,
-                tooltip: 'Edit',
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                onPressed: onDelete,
-                tooltip: 'Delete',
-              ),
-            ],
-          ),
-        ),
-      );
+      ),
+    );
+  }
 }

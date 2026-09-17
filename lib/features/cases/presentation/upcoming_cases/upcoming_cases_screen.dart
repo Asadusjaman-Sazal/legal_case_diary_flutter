@@ -35,7 +35,8 @@ class UpcomingCasesScreen extends ConsumerStatefulWidget {
   const UpcomingCasesScreen({super.key});
 
   @override
-  ConsumerState<UpcomingCasesScreen> createState() => _UpcomingCasesScreenState();
+  ConsumerState<UpcomingCasesScreen> createState() =>
+      _UpcomingCasesScreenState();
 }
 
 class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
@@ -92,6 +93,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     Case currentCase, {
     required bool message,
   }) async {
+    final l = AppLocalizations.of(context);
     final phone = currentCase.partyPhone?.trim();
     if (phone == null || phone.isEmpty) return;
 
@@ -103,7 +105,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       if (normalized.isEmpty) return;
       await _launchExternal(
         Uri.https('wa.me', normalized),
-        failureMessage: 'Unable to open WhatsApp.',
+        failureMessage: l.casesContact_unableToOpenWhatsApp,
       );
     } else {
       await _launchExternal(
@@ -112,8 +114,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
           path: phone,
         ),
         failureMessage: target == _ContactActionTarget.phone
-            ? 'Unable to place a call.'
-            : 'Unable to open messages.',
+            ? l.casesContact_unableToCall
+            : l.casesContact_unableToMessage,
       );
     }
   }
@@ -123,21 +125,25 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   }) => showDialog<_ContactActionTarget>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Open with'),
+      title: Text(AppLocalizations.of(context).casesContact_openWith),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
             leading: const Icon(Icons.chat_outlined),
-            title: const Text('WhatsApp'),
+            title: Text(AppLocalizations.of(context).casesContact_whatsapp),
             onTap: () =>
                 Navigator.of(context).pop(_ContactActionTarget.whatsApp),
           ),
           ListTile(
             key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
             leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-            title: Text(message ? 'Message' : 'Phone'),
+            title: Text(
+              message
+                  ? AppLocalizations.of(context).casesContact_message
+                  : AppLocalizations.of(context).casesContact_phone,
+            ),
             onTap: () => Navigator.of(context).pop(
               message
                   ? _ContactActionTarget.message
@@ -150,7 +156,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         TextButton(
           key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context).sharedActions_cancel),
         ),
       ],
     ),
@@ -193,7 +199,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     final byDate = <int, List<Case>>{};
     for (final c in _cases) {
       if (c.nextDate == null) continue;
-      final dayStart = AppDateUtils.normalizeToBangladeshStartOfDay(c.nextDate!);
+      final dayStart = AppDateUtils.normalizeToBangladeshStartOfDay(
+        c.nextDate!,
+      );
       byDate.putIfAbsent(dayStart, () => []).add(c);
     }
     // Ascending: earliest hearing date first (01/09/2026 above 02/09/2026).
@@ -230,7 +238,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load cases: $_error'),
+          child: Text(
+            AppLocalizations.of(context).casesScreen_loadError('$_error'),
+          ),
         ),
       );
     }
@@ -268,10 +278,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
                       child: Text(
                         group.dateLabel.toUpperCase(),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.5,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -297,7 +307,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
 
   Widget _buildCard(Case currentCase, AppLocalizations l) {
     final court = _courtsById[currentCase.courtId];
-    final isHigherCourt = court?.courtCategoryId == appellateDivisionId ||
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
         court?.courtCategoryId == highCourtDivisionId;
     return CaseCard(
       key: ValueKey('case-card-${currentCase.id}'),
@@ -311,9 +322,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       alignStatusLabelRight: true,
       nextDate: currentCase.nextDate == null
           ? null
-          : DateFormat('dd/MM/yy, EEE', l.localeName).format(
-              AppDateUtils.bangladeshDateTime(currentCase.nextDate!),
-            ),
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
       step: currentCase.lastStep,
       result: currentCase.result,
       note: currentCase.notesResults,

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../settings_menu_card.dart';
@@ -29,9 +30,11 @@ class CourtCategoryScreen extends ConsumerWidget {
 
     final divisions = districtIdsByDivision.keys.toList();
 
+    final l = AppLocalizations.of(context);
+
     return SettingsSubPageModal(
-      title: 'Lower Courts',
-      subtitle: 'Divisions',
+      title: l.settingsEditCourtNames_lowerCourts,
+      subtitle: l.settingsCourtFlow_divisions,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: divisions.length,

@@ -22,6 +22,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_strings.dart';
 import '../../../../core/l10n/app_translations.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
 import '../../../../shared/providers/locale_provider.dart';
@@ -55,12 +56,13 @@ class LowerCourtCategoryListScreen extends ConsumerWidget {
 
     final courtsAsync = ref.watch(courtsRepositoryProvider);
     final categoriesAsync = ref.watch(courtCategoriesRepositoryProvider);
+    final l = AppLocalizations.of(context);
 
     return SettingsSubPageModal(
-      title: '$districtLabel Court Categories',
-      subtitle: 'Lower Courts',
+      title: l.settingsLowerCourtCategories_title(districtLabel),
+      subtitle: l.settingsEditCourtNames_lowerCourts,
       floatingActionButton: _buildAddButton(context, ref),
-      child: _buildBody(courtsAsync, categoriesAsync),
+      child: _buildBody(context, courtsAsync, categoriesAsync),
     );
   }
 
@@ -78,17 +80,26 @@ class LowerCourtCategoryListScreen extends ConsumerWidget {
       onPressed: () => _addCategory(context, ref),
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
-      tooltip: 'Add Court Category',
+      tooltip: AppLocalizations.of(
+        context,
+      ).settingsLowerCourtCategories_addTooltip,
       child: const Icon(Icons.add, size: 28),
     );
   }
 
   Widget _buildBody(
+    BuildContext context,
     AsyncValue<CourtsRepository> courtsAsync,
     AsyncValue<CourtCategoriesRepository> categoriesAsync,
   ) {
     final error = courtsAsync.error ?? categoriesAsync.error;
-    if (error != null) return Center(child: Text('Error: $error'));
+    if (error != null) {
+      return Center(
+        child: Text(
+          AppLocalizations.of(context).sharedMessages_error('$error'),
+        ),
+      );
+    }
 
     final courtsRepo = courtsAsync.whenOrNull(data: (repo) => repo);
     final categoriesRepo = categoriesAsync.whenOrNull(data: (repo) => repo);
@@ -144,13 +155,20 @@ class _DistrictCategoryList extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => StreamBuilder<
-    List<CourtCategory>
-  >(
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) => StreamBuilder<List<CourtCategory>>(
     stream: categoriesRepo.watchAll(),
     builder: (context, categorySnapshot) {
       if (categorySnapshot.hasError) {
-        return Center(child: Text('Error: ${categorySnapshot.error}'));
+        return Center(
+          child: Text(
+            AppLocalizations.of(
+              context,
+            ).sharedMessages_error('${categorySnapshot.error}'),
+          ),
+        );
       }
       if (!categorySnapshot.hasData) {
         return const Center(child: CircularProgressIndicator());
@@ -160,7 +178,13 @@ class _DistrictCategoryList extends ConsumerWidget {
         stream: courtsRepo.watchAll(),
         builder: (context, courtSnapshot) {
           if (courtSnapshot.hasError) {
-            return Center(child: Text('Error: ${courtSnapshot.error}'));
+            return Center(
+              child: Text(
+                AppLocalizations.of(
+                  context,
+                ).sharedMessages_error('${courtSnapshot.error}'),
+              ),
+            );
           }
           if (!courtSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -172,8 +196,10 @@ class _DistrictCategoryList extends ConsumerWidget {
             district: district,
           );
           if (items.isEmpty) {
-            return const Center(
-              child: Text('No court categories in this district yet.'),
+            return Center(
+              child: Text(
+                AppLocalizations.of(context).settingsLowerCourtCategories_empty,
+              ),
             );
           }
           final canonical = categories
@@ -248,10 +274,7 @@ class _DistrictCategoryList extends ConsumerWidget {
     );
     if (name == null || !context.mounted || name == current) return;
     await categoriesRepo.update(
-      CourtCategoriesCompanion(
-        id: Value(category.id),
-        nameKey: Value(name),
-      ),
+      CourtCategoriesCompanion(id: Value(category.id), nameKey: Value(name)),
       base: category,
     );
   }
@@ -295,34 +318,37 @@ class _CategoryTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Card(
-    elevation: 0,
-    color: AppColors.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-      side: BorderSide(color: AppColors.surfaceContainer),
-    ),
-    child: ListTile(
-      leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
-      title: Text(label, style: AppTypography.bodyLg),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: onEdit,
-            tooltip: 'Edit',
-          ),
-          if (onDelete != null)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error),
-              onPressed: onDelete,
-              tooltip: 'Delete',
-            ),
-        ],
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Card(
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.surfaceContainer),
       ),
-    ),
-  );
+      child: ListTile(
+        leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
+        title: Text(label, style: AppTypography.bodyLg),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: onEdit,
+              tooltip: l.sharedActions_edit,
+            ),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                onPressed: onDelete,
+                tooltip: l.sharedActions_delete,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Add/rename dialog for a court category.
@@ -353,30 +379,40 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.isNew ? 'Add Court Category' : 'Edit Court Category'),
-    content: Form(
-      key: _formKey,
-      child: TextFormField(
-        controller: _controller,
-        autofocus: true,
-        decoration: const InputDecoration(labelText: 'Category name'),
-        validator: (value) =>
-            value == null || value.trim().isEmpty ? 'Required' : null,
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(
+        widget.isNew
+            ? l.settingsLowerCourtCategories_addTitle
+            : l.settingsLowerCourtCategories_editTitle,
       ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: l.settingsLowerCourtCategories_nameLabel,
+          ),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? l.sharedDialogs_requiredField
+              : null,
+        ),
       ),
-      FilledButton(
-        onPressed: () {
-          if (!_formKey.currentState!.validate()) return;
-          Navigator.of(context).pop(_controller.text.trim());
-        },
-        child: const Text('Save'),
-      ),
-    ],
-  );
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (!_formKey.currentState!.validate()) return;
+            Navigator.of(context).pop(_controller.text.trim());
+          },
+          child: Text(l.sharedActions_save),
+        ),
+      ],
+    );
+  }
 }

@@ -15,6 +15,39 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appTitle => 'লিগ্যাল কেস ডায়েরি';
 
   @override
+  String get nav_upcomingCases => 'আসন্ন মামলা';
+
+  @override
+  String get nav_dailyCauseList => 'দৈনিক মামলার তালিকা';
+
+  @override
+  String get nav_allCases => 'সকল মামলা';
+
+  @override
+  String get nav_disposedCases => 'নিষ্পত্তিকৃত মামলা';
+
+  @override
+  String get nav_caseReference => 'কেস রেফারেন্স';
+
+  @override
+  String get nav_notes => 'নোট';
+
+  @override
+  String get nav_settings => 'সেটিংস';
+
+  @override
+  String get nav_print => 'প্রিন্ট';
+
+  @override
+  String get nav_share => 'শেয়ার';
+
+  @override
+  String get nav_activeCases => 'চলতি মামলা';
+
+  @override
+  String get nav_overdueDates => 'বিলম্বিত তারিখ';
+
+  @override
   String get allCasesScreen_title => 'সব মামলা';
 
   @override
@@ -69,6 +102,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get allCasesScreen_update => 'আপডেট';
 
   @override
+  String get caseCard_disposed => 'নিষ্পত্তিকৃত:';
+
+  @override
+  String get activeCasesScreen_title => 'সক্রিয় মামলা';
+
+  @override
+  String get upcomingCasesScreen_title => 'সন্ন মামলা';
+
+  @override
   String get dailyCauseListScreen_title => 'দৈনিক কজ লিস্ট';
 
   @override
@@ -106,10 +148,26 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dailyCauseListScreen_messageError => 'মেসেজ খোলা যাচ্ছে না।';
 
   @override
-  String get upcomingCasesScreen_title => 'সন্ন মামলা';
+  String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
 
   @override
-  String get general_tomorrow => 'আগামীকাল';
+  String get disposedCasesScreen_helpTitle =>
+      'কোনো মামলাকে নিষ্পত্তিকৃত হিসেবে চিহ্নিত করবেন কীভাবে?';
+
+  @override
+  String get disposedCasesScreen_helpBody =>
+      'তারিখ আপডেট করার সময় নিচের যেকোনো উপযুক্ত ধাপ বেছে নিন, যাতে নিষ্পত্তিকৃত বা নিষ্ক্রিয় নিম্ন আদালতের মামলাটি সক্রিয় মামলার তালিকা থেকে এই তালিকায় চলে আসে। আপিল ও হাইকোর্ট ডিভিশনের মামলার ক্ষেত্রে রেজাল্ট ফিল্ডে নিষ্পত্তির কীওয়ার্ড লিখুন। নোট: মামলাটি সব মামলার তালিকায় এখনও থাকবে।';
+
+  @override
+  String get disposedCasesScreen_disposedSteps =>
+      'আদালত বিভাগ অনুযায়ী নিষ্পত্তির ধাপ';
+
+  @override
+  String get disposedCasesScreen_appellateHighCourtDivision =>
+      'আপিল ডিভিশন ও হাইকোর্ট ডিভিশন';
+
+  @override
+  String get disposedCasesScreen_gotIt => 'বুঝেছি';
 
   @override
   String get overdueDatesScreen_title => 'বিলম্বিত তারিখ';
@@ -220,130 +278,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseDetailsScreen_districtOfOrigin => 'উৎপত্তির জেলা';
 
   @override
-  String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
+  String caseDetailsScreen_deleteCaseError(String message) {
+    return 'মামলা মুছে ফেলা যায়নি: $message';
+  }
 
   @override
-  String get caseCard_disposed => 'নিষ্পত্তিকৃত:';
+  String caseDetailsScreen_deleteHistoryError(String message) {
+    return 'ইতিহাস এন্ট্রি মুছে ফেলা যায়নি: $message';
+  }
 
   @override
-  String get disposedCasesScreen_helpTitle =>
-      'কোনো মামলাকে নিষ্পত্তিকৃত হিসেবে চিহ্নিত করবেন কীভাবে?';
-
-  @override
-  String get disposedCasesScreen_helpBody =>
-      'তারিখ আপডেট করার সময় নিচের যেকোনো উপযুক্ত ধাপ বেছে নিন, যাতে নিষ্পত্তিকৃত বা নিষ্ক্রিয় নিম্ন আদালতের মামলাটি সক্রিয় মামলার তালিকা থেকে এই তালিকায় চলে আসে। আপিল ও হাইকোর্ট ডিভিশনের মামলার ক্ষেত্রে রেজাল্ট ফিল্ডে নিষ্পত্তির কীওয়ার্ড লিখুন। নোট: মামলাটি সব মামলার তালিকায় এখনও থাকবে।';
-
-  @override
-  String get disposedCasesScreen_disposedSteps =>
-      'আদালত বিভাগ অনুযায়ী নিষ্পত্তির ধাপ';
-
-  @override
-  String get disposedCasesScreen_appellateHighCourtDivision =>
-      'আপিল ডিভিশন ও হাইকোর্ট ডিভিশন';
-
-  @override
-  String get disposedCasesScreen_gotIt => 'বুঝেছি';
-
-  @override
-  String get activeCasesScreen_title => 'সক্রিয় মামলা';
-
-  @override
-  String get notesScreen_title => 'নোট';
-
-  @override
-  String get notesScreen_delete => 'মুছুন';
-
-  @override
-  String get notesScreen_pin => 'পিন';
-
-  @override
-  String get notesScreen_modified => 'পরিবর্তিত';
-
-  @override
-  String get notesScreen_empty => 'এখনও কোনো নোট নেই। যোগ করতে + ট্যাপ করুন।';
-
-  @override
-  String get notesScreen_noteTitle => 'শিরোনাম';
-
-  @override
-  String get notesScreen_noteBody => 'নোট';
-
-  @override
-  String get notesScreen_noteBodyPlaceholder => 'আপনার নোট এখানে লিখুন...';
-
-  @override
-  String get notesScreen_drafting => 'খসড়া লেখা হচ্ছে...';
-
-  @override
-  String get notesScreen_noteDeleted => 'নোট মোছা হয়েছে';
-
-  @override
-  String get notesScreen_undo => 'পূর্বাবস্থায় ফেরত';
-
-  @override
-  String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
-
-  @override
-  String get caseReferenceScreen_referenceAndPageNo => 'রেফারেন্স ও পৃষ্ঠা নং';
-
-  @override
-  String get caseReferenceScreen_statute => 'আইন';
-
-  @override
-  String get caseReferenceScreen_sectionOrArticle => 'ধারা/অনুচ্ছেদ';
-
-  @override
-  String get caseReferenceScreen_titleAndDescription => 'শিরোনাম ও বর্ণনা';
-
-  @override
-  String get caseReferenceScreen_commentsNotes => 'মন্তব্য/নোট';
-
-  @override
-  String get caseReferenceScreen_empty =>
-      'এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।';
-
-  @override
-  String get caseReferenceScreen_addTitle => 'মামলার রেফারেন্স যোগ করুন';
-
-  @override
-  String get caseReferenceScreen_editTitle => 'মামলার রেফারেন্স সম্পাদনা করুন';
-
-  @override
-  String get caseReferenceScreen_pin => 'পিন করুন';
-
-  @override
-  String get caseReferenceScreen_unpin => 'আনপিন করুন';
-
-  @override
-  String get caseReferenceScreen_saved => 'রেফারেন্স সংরক্ষিত হয়েছে';
-
-  @override
-  String get caseReferenceScreen_saveTitle => 'রেফারেন্স সংরক্ষণ করুন';
-
-  @override
-  String get caseReferenceScreen_deleted => 'রেফারেন্স মোছা হয়েছে';
-
-  @override
-  String get caseReferenceScreen_referenceDeleted => 'রেফারেন্স মোছা হয়েছে';
-
-  @override
-  String get caseReferenceScreen_undo => 'পূর্বাবস্থায় ফেরত';
-
-  @override
-  String get caseReferenceScreen_refPlaceholder => 'যেমন: ২৫ DLR (AD) ১৪২';
-
-  @override
-  String get caseReferenceScreen_statutePlaceholder => 'যেমন: CRPC';
-
-  @override
-  String get caseReferenceScreen_sectionPlaceholder => 'যেমন: ধারা ৫৪';
-
-  @override
-  String get caseReferenceScreen_titlePlaceholder => 'শিরোনাম ও বর্ণনা';
-
-  @override
-  String get caseReferenceScreen_commentsPlaceholder =>
-      'এখানে মন্তব্য বা ব্যক্তিগত নোট যোগ করুন...';
+  String caseDetailsScreen_loadError(String message) {
+    return 'মামলা লোড করা যায়নি: $message';
+  }
 
   @override
   String get addEditCaseSheet_title => 'মামলা যোগ করুন';
@@ -473,70 +420,180 @@ class AppLocalizationsBn extends AppLocalizations {
   String get customDropdown_selected => 'নির্বাচিত';
 
   @override
-  String get settingsScreen_title => 'সেটিংস';
+  String get casesModal_addCase => 'মামলা যোগ করুন';
 
   @override
-  String get settingsScreen_accountAndProfile => 'অ্যাকাউন্ট ও প্রোফাইল';
+  String get casesModal_search => 'অনুসন্ধান';
 
   @override
-  String get settingsScreen_profile => 'প্রোফাইল';
+  String get casesModal_viewCompact => 'সংক্ষিপ্ত ভিউ';
 
   @override
-  String get settingsScreen_manageAccount => 'অ্যাকান্ট ব্যবস্থাপনা';
+  String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
 
   @override
-  String get settingsScreen_onlineSync => 'অনলাইন সিঙ্ক';
+  String get casesModal_help => 'সাহায্য';
 
   @override
-  String get settingsScreen_backupAndRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
+  String get customDropdown_selectOption => 'অপশন নির্বাচন করুন';
 
   @override
-  String get settingsScreen_editCourtSteps => 'আদালত/ধাপ সম্পাদনা';
+  String get customDropdown_search => 'অনুসন্ধান';
 
   @override
-  String get settingsScreen_notifications => 'নোটিফিকেশন';
+  String get customDropdown_noResults => 'কোনো ফলাফল পাওয়া যায়নি';
 
   @override
-  String get settingsScreen_language => 'ভাষা';
+  String get customDropdown_done => 'সম্পন্ন';
 
   @override
-  String get settingsScreen_languageEnglish => 'English';
+  String get casesContact_openWith => 'খুলুন';
 
   @override
-  String get settingsScreen_languageBengali => 'বাংলা';
+  String get casesContact_whatsapp => 'হোয়াটসঅ্যাপ';
 
   @override
-  String get settingsScreen_viewSettings => 'ভিউ সেটিংস';
+  String get casesContact_message => 'বার্তা';
 
   @override
-  String get settingsScreen_guidelines => 'নির্দেশনা';
+  String get casesContact_phone => 'ফোন';
 
   @override
-  String get settingsScreen_about => 'সম্পর্কিত';
+  String get casesContact_unableToOpenApp => 'অ্যাপটি খোলা যায়নি।';
 
   @override
-  String get settingsProfile_title => 'প্রোফাইল';
+  String get casesContact_unableToOpenWhatsApp => 'হোয়াটসঅ্যাপ খোলা যায়নি।';
 
   @override
-  String get settingsManageAccount_title => '্যাকাউন্ট ব্যবস্থাপনা';
+  String get casesContact_unableToCall => 'কল করা যায়নি।';
 
   @override
-  String get settingsOnlineSync_title => 'অনলাইন সিঙ্ক';
+  String get casesContact_unableToMessage => 'বার্তা খোলা যায়নি।';
 
   @override
-  String get settingsBackupRestore_title => 'ব্যাকআপ ও পুনরুদ্ধার';
+  String casesScreen_loadError(String message) {
+    return 'মামলা লোড করা যায়নি: $message';
+  }
 
   @override
-  String get settingsNotifications_title => 'নোটিফিকেশন';
+  String get notesScreen_title => 'নোট';
 
   @override
-  String get settingsViewSettings_title => 'ভিউ সেটিংস';
+  String get notesScreen_delete => 'মুছুন';
 
   @override
-  String get settingsGuidelines_title => 'নির্দেশনা';
+  String get notesScreen_pin => 'পিন';
 
   @override
-  String get settingsAbout_title => 'সম্পর্কিত';
+  String get notesScreen_modified => 'পরিবর্তিত';
+
+  @override
+  String get notesScreen_empty => 'এখনও কোনো নোট নেই। যোগ করতে + ট্যাপ করুন।';
+
+  @override
+  String get notesScreen_noteTitle => 'শিরোনাম';
+
+  @override
+  String get notesScreen_noteBody => 'নোট';
+
+  @override
+  String get notesScreen_noteBodyPlaceholder => 'আপনার নোট এখানে লিখুন...';
+
+  @override
+  String get notesScreen_drafting => 'খসড়া লেখা হচ্ছে...';
+
+  @override
+  String get notesScreen_noteDeleted => 'নোট মোছা হয়েছে';
+
+  @override
+  String get notesScreen_undo => 'পূর্বাবস্থায় ফেরত';
+
+  @override
+  String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
+
+  @override
+  String get caseReferenceScreen_referenceAndPageNo => 'রেফারেন্স ও পৃষ্ঠা নং';
+
+  @override
+  String get caseReferenceScreen_statute => 'আইন';
+
+  @override
+  String get caseReferenceScreen_sectionOrArticle => 'ধারা/অনুচ্ছেদ';
+
+  @override
+  String get caseReferenceScreen_titleAndDescription => 'শিরোনাম ও বর্ণনা';
+
+  @override
+  String get caseReferenceScreen_commentsNotes => 'মন্তব্য/নোট';
+
+  @override
+  String get caseReferenceScreen_empty =>
+      'এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।';
+
+  @override
+  String get caseReferenceScreen_addTitle => 'মামলার রেফারেন্স যোগ করুন';
+
+  @override
+  String get caseReferenceScreen_editTitle => 'মামলার রেফারেন্স সম্পাদনা করুন';
+
+  @override
+  String get caseReferenceScreen_pin => 'পিন করুন';
+
+  @override
+  String get caseReferenceScreen_unpin => 'আনপিন করুন';
+
+  @override
+  String get caseReferenceScreen_saved => 'রেফারেন্স সংরক্ষিত হয়েছে';
+
+  @override
+  String get caseReferenceScreen_saveTitle => 'রেফারেন্স সংরক্ষণ করুন';
+
+  @override
+  String get caseReferenceScreen_deleted => 'রেফারেন্স মোছা হয়েছে';
+
+  @override
+  String get caseReferenceScreen_referenceDeleted => 'রেফারেন্স মোছা হয়েছে';
+
+  @override
+  String get caseReferenceScreen_undo => 'পূর্বাবস্থায় ফেরত';
+
+  @override
+  String get caseReferenceScreen_refPlaceholder => 'যেমন: ২৫ DLR (AD) ১৪২';
+
+  @override
+  String get caseReferenceScreen_statutePlaceholder => 'যেমন: CRPC';
+
+  @override
+  String get caseReferenceScreen_sectionPlaceholder => 'যেমন: ধারা ৫৪';
+
+  @override
+  String get caseReferenceScreen_titlePlaceholder => 'শিরোনাম ও বর্ণনা';
+
+  @override
+  String get caseReferenceScreen_commentsPlaceholder =>
+      'এখানে মন্তব্য বা ব্যক্তিগত নোট যোগ করুন...';
+
+  @override
+  String get sync_idle => 'সিঙ্ক';
+
+  @override
+  String get sync_syncing => 'সিঙ্ক হচ্ছে…';
+
+  @override
+  String get sync_success => 'সিঙ্ক হয়েছে';
+
+  @override
+  String get sync_paused => 'সিঙ্ক বিরতি';
+
+  @override
+  String get sync_error => 'সিঙ্ক ত্রুটি';
+
+  @override
+  String get sync_unavailable =>
+      'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
+
+  @override
+  String get general_tomorrow => 'আগামীকাল';
 
   @override
   String get sharedActions_save => 'সংরক্ষণ';
@@ -586,6 +643,35 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sharedDialogs_cancel => 'বাতিল';
+
+  @override
+  String sharedMessages_error(String message) {
+    return 'ত্রুটি: $message';
+  }
+
+  @override
+  String get sharedMessages_signInRequired =>
+      'সাইন ইন করার পর উপলব্ধ (Task 17)';
+
+  @override
+  String get appShell_exitTitle => 'অ্যাপ থেকে প্রস্থান?';
+
+  @override
+  String get appShell_exitMessage =>
+      'আপনি কি লিগ্যাল কেস ডায়েরি থেকে প্রস্থান করতে চান?';
+
+  @override
+  String get appShell_exit => 'প্রস্থান';
+
+  @override
+  String get databaseRecovery_title => 'ডেটাবেস লক করা হয়েছে';
+
+  @override
+  String get databaseRecovery_body =>
+      'আপনার লোকাল কেস ডায়েরির এনক্রিপশন কী পাওয়া যাচ্ছে না। অপারেটিং সিস্টেম আপডেটের পর বা অ্যাপ ডেটা মুছে ফেললে এমন হতে পারে।\n\nঅফলাইনে অ্যাপটি ব্যবহার চালিয়ে যেতে হলে লোকাল ডেটাবেস রিসেট করতে হবে। সিঙ্ক না করা সব লোকাল ডেটা হারিয়ে যাবে।';
+
+  @override
+  String get databaseRecovery_reset => 'লোকাল ডেটাবেস রিসেট করুন';
 
   @override
   String get courtCategory_appellateDivision => 'আপিল বিভাগ';
@@ -735,6 +821,464 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get settingsScreen_title => 'সেটিংস';
+
+  @override
+  String get settingsScreen_accountAndProfile => 'অ্যাকাউন্ট ও প্রোফাইল';
+
+  @override
+  String get settingsScreen_profile => 'প্রোফাইল';
+
+  @override
+  String get settingsScreen_manageAccount => 'অ্যাকান্ট ব্যবস্থাপনা';
+
+  @override
+  String get settingsScreen_onlineSync => 'অনলাইন সিঙ্ক';
+
+  @override
+  String get settingsScreen_backupAndRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsScreen_editCourtSteps => 'আদালত/ধাপ সম্পাদনা';
+
+  @override
+  String get settingsScreen_notifications => 'নোটিফিকেশন';
+
+  @override
+  String get settingsScreen_language => 'ভাষা';
+
+  @override
+  String get settingsScreen_languageEnglish => 'English';
+
+  @override
+  String get settingsScreen_languageBengali => 'বাংলা';
+
+  @override
+  String get settingsScreen_viewSettings => 'ভিউ সেটিংস';
+
+  @override
+  String get settingsScreen_guidelines => 'নির্দেশনা';
+
+  @override
+  String get settingsScreen_about => 'সম্পর্কিত';
+
+  @override
+  String get settingsScreen_sectionGeneral => 'সাধারণ';
+
+  @override
+  String get settingsScreen_sectionPreferences => 'পছন্দসমূহ';
+
+  @override
+  String get settingsScreen_sectionAppInfo => 'অ্যাপ সম্পর্কিত তথ্য';
+
+  @override
+  String get settingsScreen_searchTooltip => 'সেটিংস অনুসন্ধান';
+
+  @override
+  String get settingsScreen_searchHint => 'অনুসন্ধান';
+
+  @override
+  String get settingsScreen_closeSearchTooltip => 'অনুসন্ধান বন্ধ করুন';
+
+  @override
+  String get settingsScreen_noResults => 'কোনো সেটিংস পাওয়া যায়নি';
+
+  @override
+  String get settingsAccountProfile_profileSubtitle =>
+      'আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য';
+
+  @override
+  String get settingsAccountProfile_manageAccountSubtitle =>
+      'পাসওয়ার্ড, সাবস্ক্রিপশন ও অ্যাকাউন্ট সেটিংস';
+
+  @override
+  String get settingsProfile_title => 'প্রোফাইল';
+
+  @override
+  String get settingsProfile_editTooltip => 'প্রোফাইল সম্পাদনা';
+
+  @override
+  String get settingsProfile_fullName => 'পূর্ণ নাম';
+
+  @override
+  String get settingsProfile_barAssociation => 'বার অ্যাসোসিয়েশন';
+
+  @override
+  String get settingsProfile_membershipNo => 'সদস্য নম্বর';
+
+  @override
+  String get settingsProfile_officeAddress => 'অফিসের ঠিকানা';
+
+  @override
+  String get settingsProfile_mobileNo => 'মোবাইল নম্বর';
+
+  @override
+  String get settingsProfile_yourName => 'আপনার নাম';
+
+  @override
+  String settingsProfile_displayName(String name) {
+    return 'অ্যাড. $name';
+  }
+
+  @override
+  String get settingsProfile_editTitle => 'প্রোফাইল সম্পাদনা';
+
+  @override
+  String get settingsProfile_fullNameHint => 'আপনার পূর্ণ নাম লিখুন';
+
+  @override
+  String get settingsProfile_barAssociationHint =>
+      'বার অ্যাসোসিয়েশনের নাম লিখুন';
+
+  @override
+  String get settingsProfile_membershipNoHint => 'নিবন্ধন নম্বর লিখুন';
+
+  @override
+  String get settingsProfile_officeAddressHint => 'আপনার অফিসের ঠিকানা লিখুন';
+
+  @override
+  String get settingsProfile_save => 'প্রোফাইল সংরক্ষণ করুন';
+
+  @override
+  String get settingsProfile_saved => 'প্রোফাইল সংরক্ষিত হয়েছে (অফলাইন)';
+
+  @override
+  String get settingsManageAccount_title => '্যাকাউন্ট ব্যবস্থাপনা';
+
+  @override
+  String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
+
+  @override
+  String get settingsManageAccount_subscriptionDetails => 'সাবস্ক্রিপশন বিবরণ';
+
+  @override
+  String get settingsManageAccount_purchaseNewSubscription =>
+      'নতুন সাবস্ক্রিপশন ক্রয়';
+
+  @override
+  String get settingsManageAccount_logout => 'লগআউট';
+
+  @override
+  String get settingsManageAccount_accountSettings => 'অ্যাকাউন্ট সেটিংস';
+
+  @override
+  String get settingsManageAccount_deleteAccount => 'অ্যাকাউন্ট মুছুন';
+
+  @override
+  String get settingsManageAccount_deleteCannotBeUndone =>
+      'এই কাজটি ফিরিয়ে আনা যাবে না';
+
+  @override
+  String get settingsOnlineSync_title => 'অনলাইন সিঙ্ক';
+
+  @override
+  String get settingsOnlineSync_subtitle =>
+      'আপনার সব ডিভাইসে রিয়েল-টাইম ডেটা সিঙ্ক পরিচালনা করুন।';
+
+  @override
+  String get settingsOnlineSync_cases => 'মামলা';
+
+  @override
+  String get settingsOnlineSync_notes => 'নোট';
+
+  @override
+  String get settingsOnlineSync_references => 'রেফারেন্স';
+
+  @override
+  String get settingsOnlineSync_notSignedIn => 'সাইন ইন করা হয়নি';
+
+  @override
+  String get settingsOnlineSync_signInPrompt =>
+      'সব ডিভাইসে ডেটা সিঙ্ক করতে সাইন ইন করুন';
+
+  @override
+  String get settingsOnlineSync_actionRequired => 'ব্যবস্থা প্রয়োজন';
+
+  @override
+  String get settingsOnlineSync_lastSyncNever => 'সর্বশেষ সিঙ্ক: কখনো নয়';
+
+  @override
+  String get settingsOnlineSync_dataStaysOnDevice =>
+      'সাইন ইন না করা পর্যন্ত আপনার ডেটা এই ডিভাইসেই থাকবে।';
+
+  @override
+  String get settingsOnlineSync_syncNow => 'এখনই সিঙ্ক করুন';
+
+  @override
+  String get settingsOnlineSync_notSynced => 'সিঙ্ক হয়নি';
+
+  @override
+  String get settingsOnlineSync_itemsUnknown => '— আইটেম';
+
+  @override
+  String settingsOnlineSync_itemsCount(int count) {
+    return '$count আইটেম';
+  }
+
+  @override
+  String get settingsBackupRestore_title => 'ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsBackupRestore_sectionBackup => 'ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsBackupRestore_sectionAutomaticBackup =>
+      'স্বয়ংক্রিয় ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_sectionStatus => 'ব্যাকআপ অবস্থা';
+
+  @override
+  String get settingsBackupRestore_backupLocal => 'লোকাল স্টোরেজে ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_backupDrive => 'গুগল ড্রাইভে ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_restore => 'ব্যাকআপ থেকে পুনরুদ্ধার';
+
+  @override
+  String get settingsBackupRestore_encryptionNote =>
+      'ব্যাকআপ এনক্রিপ্ট করা হয় এবং আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।';
+
+  @override
+  String get settingsBackupRestore_offlineNote =>
+      'নোট: শুধুমাত্র অফলাইন অ্যাকাউন্টের জন্য পুনরুদ্ধার উপলব্ধ।';
+
+  @override
+  String get settingsBackupRestore_lastSuccessfulBackup =>
+      'সর্বশেষ সফল ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_lastBackupPlaceholder =>
+      '২০ অক্টোবর, ২০২৩, সকাল ১০:৪৫';
+
+  @override
+  String get settingsBackupRestore_enginePending =>
+      'ব্যাকআপ ইঞ্জিন Task 15-এ আসবে';
+
+  @override
+  String get settingsBackupRestore_scheduleOff => 'বন্ধ';
+
+  @override
+  String get settingsBackupRestore_scheduleEveryday => 'প্রতিদিন';
+
+  @override
+  String get settingsBackupRestore_scheduleEvery3Days => 'প্রতি ৩ দিনে';
+
+  @override
+  String get settingsBackupRestore_scheduleEvery7Days => 'প্রতি ৭ দিনে';
+
+  @override
+  String get settingsBackupRestore_scheduleEveryMonth => 'প্রতি মাসে';
+
+  @override
+  String get settingsEditCourtSteps_editItemTypes =>
+      'মামলার ধরন, ধাপ ইত্যাদি সম্পাদনা';
+
+  @override
+  String get settingsEditCourtSteps_editItemTypesSubtitle =>
+      'মামলার ধরন, কার্যপদ্ধতির ধাপ ও পক্ষের ভূমিকা পরিচালনা করুন';
+
+  @override
+  String get settingsEditCourtSteps_courtNamesCategories =>
+      'আদালতের নাম ও ক্যাটেগরি সম্পাদনা';
+
+  @override
+  String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>
+      'সুপ্রিম কোর্টের বিভাগ ও জেলার নিম্ন আদালত';
+
+  @override
+  String get settingsEditCourtSteps_lowerCourtCategories =>
+      'নিম্ন আদালতের ক্যাটেগরি';
+
+  @override
+  String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>
+      'বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি';
+
+  @override
+  String get settingsEditCourtNames_courtCategory => 'আদালতের ক্যাটেগরি';
+
+  @override
+  String get settingsEditCourtNames_supremeCourt => 'বাংলাদেশ সুপ্রিম কোর্ট';
+
+  @override
+  String get settingsEditCourtNames_supremeCourtSubtitle =>
+      'আপিল ও হাইকোর্ট বিভাগ';
+
+  @override
+  String get settingsEditCourtNames_lowerCourts => 'নিম্ন আদালত';
+
+  @override
+  String get settingsEditCourtNames_lowerCourtsSubtitle =>
+      'জেলা, দায়রা ও বিশেষায়িত আদালত';
+
+  @override
+  String get settingsEditCourtNames_quickTip => 'দ্রুত পরামর্শ';
+
+  @override
+  String get settingsEditCourtNames_quickTipBody =>
+      'বিশেষায়িত ট্রাইব্যুনাল প্রয়োজন? সংশ্লিষ্ট বিভাগ ও জেলার অধীনে সেগুলো যোগ করুন, তারপর একটি আদালতের ক্যাটেগরি নির্ধারণ করুন।';
+
+  @override
+  String get settingsEditItems_caseTypes => 'মামলার ধরন';
+
+  @override
+  String get settingsEditItems_steps => 'ধাপ';
+
+  @override
+  String get settingsEditItems_onBehalf => 'পক্ষে';
+
+  @override
+  String get settingsCourtNamesSteps_title => 'আদালতের নাম, ধাপ ইত্যাদি';
+
+  @override
+  String get settingsCourtNamesSteps_catAppellateDivision => 'আপিল বিভাগ';
+
+  @override
+  String get settingsCourtNamesSteps_catHighCourtDivision => 'হাইকোর্ট বিভাগ';
+
+  @override
+  String get settingsCourtNamesSteps_catDistrictSessions =>
+      'জেলা ও দায়রা (ফৌজদারি)';
+
+  @override
+  String get settingsCourtNamesSteps_catDistrictCivil =>
+      'জেলা আদালত (দেওয়ানি)';
+
+  @override
+  String get settingsCourtNamesSteps_catCjm => 'চীফ জুডিসিয়াল ম্যাজিস্ট্রেট';
+
+  @override
+  String get settingsCourtNamesSteps_catCmm => 'চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট';
+
+  @override
+  String get settingsCourtNamesSteps_catExecutive => 'নির্বাহী ম্যাজিস্ট্রেট';
+
+  @override
+  String get settingsCourtNamesSteps_catTribunals => 'ট্রাইব্যুনাল সমূহ';
+
+  @override
+  String get settingsItemList_addTitle => 'আইটেম যোগ করুন';
+
+  @override
+  String get settingsItemList_editTitle => 'আইটেম সম্পাদনা';
+
+  @override
+  String get settingsItemList_nameLabel => 'নাম';
+
+  @override
+  String get settingsItemList_empty =>
+      'এখনো কোনো আইটেম নেই। নিচে একটি যোগ করুন।';
+
+  @override
+  String get settingsItemList_deleteTitle => 'আইটেম মুছুন';
+
+  @override
+  String get settingsItemList_deleteMessage =>
+      'এই আইটেমটি মুছে ফেলবেন? এই কাজটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get settingsItemList_catAppellate => 'আপিল';
+
+  @override
+  String get settingsItemList_catHighCourt => 'হাইকোর্ট';
+
+  @override
+  String get settingsItemList_catSessions => 'দায়রা (ফৌজ.)';
+
+  @override
+  String get settingsItemList_catDistrictCivil => 'জেলা (দেওয়ানি)';
+
+  @override
+  String get settingsItemList_catCjm => 'সিজেএম';
+
+  @override
+  String get settingsItemList_catCmm => 'সিএমএম';
+
+  @override
+  String get settingsItemList_catExecutive => 'নির্বাহী';
+
+  @override
+  String get settingsItemList_catTribunals => 'ট্রাইব্যুনাল';
+
+  @override
+  String get settingsCourtList_addTitle => 'আদালত যোগ করুন';
+
+  @override
+  String get settingsCourtList_editTitle => 'আদালত সম্পাদনা';
+
+  @override
+  String get settingsCourtList_nameLabel => 'আদালতের নাম';
+
+  @override
+  String get settingsCourtList_titleHigher => 'আদালতের নাম';
+
+  @override
+  String get settingsCourtList_empty =>
+      'এখনো কোনো আদালত নেই। নিচে একটি যোগ করুন।';
+
+  @override
+  String get settingsCourtList_deleteTitle => 'আদালত মুছুন';
+
+  @override
+  String settingsCourtList_deleteMessage(String name) {
+    return '\"$name\" মুছে ফেলবেন? এই কাজটি ফিরিয়ে আনা যাবে না।';
+  }
+
+  @override
+  String settingsCourtList_titleLower(String district) {
+    return '$district আদালতের নাম';
+  }
+
+  @override
+  String get settingsCourtFlow_divisions => 'বিভাগ';
+
+  @override
+  String get settingsCourtFlow_districts => 'জেলা';
+
+  @override
+  String get settingsLowerCourtCategories_addTooltip =>
+      'আদালতের ক্যাটেগরি যোগ করুন';
+
+  @override
+  String get settingsLowerCourtCategories_addTitle =>
+      'আদালতের ক্যাটেগরি যোগ করুন';
+
+  @override
+  String get settingsLowerCourtCategories_editTitle =>
+      'আদালতের ক্যাটেগরি সম্পাদনা';
+
+  @override
+  String get settingsLowerCourtCategories_nameLabel => 'ক্যাটেগরির নাম';
+
+  @override
+  String get settingsLowerCourtCategories_empty =>
+      'এই জেলায় এখনো কোনো আদালতের ক্যাটেগরি নেই।';
+
+  @override
+  String settingsCourtFlow_divisionTitle(String division) {
+    return '$division বিভাগ';
+  }
+
+  @override
+  String settingsLowerCourtCategories_title(String district) {
+    return '$district আদালতের ক্যাটেগরি';
+  }
+
+  @override
+  String get settingsNotifications_title => 'নোটিফিকেশন';
+
+  @override
+  String get settingsViewSettings_title => 'ভিউ সেটিংস';
+
+  @override
+  String get settingsGuidelines_title => 'নির্দেশনা';
+
+  @override
+  String get settingsAbout_title => 'সম্পর্কিত';
+
+  @override
   String get localeScratch_title => 'স্থানীয়করণ স্ক্র্যাচ';
 
   @override
@@ -750,83 +1294,4 @@ class AppLocalizationsBn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'বর্তমান ভাষা: $language';
   }
-
-  @override
-  String get nav_upcomingCases => 'আসন্ন মামলা';
-
-  @override
-  String get nav_dailyCauseList => 'দৈনিক মামলার তালিকা';
-
-  @override
-  String get nav_allCases => 'সকল মামলা';
-
-  @override
-  String get nav_disposedCases => 'নিষ্পত্তিকৃত মামলা';
-
-  @override
-  String get nav_caseReference => 'কেস রেফারেন্স';
-
-  @override
-  String get nav_notes => 'নোট';
-
-  @override
-  String get nav_settings => 'সেটিংস';
-
-  @override
-  String get nav_print => 'প্রিন্ট';
-
-  @override
-  String get nav_share => 'শেয়ার';
-
-  @override
-  String get nav_activeCases => 'চলতি মামলা';
-
-  @override
-  String get nav_overdueDates => 'বিলম্বিত তারিখ';
-
-  @override
-  String get sync_idle => 'সিঙ্ক';
-
-  @override
-  String get sync_syncing => 'সিঙ্ক হচ্ছে…';
-
-  @override
-  String get sync_success => 'সিঙ্ক হয়েছে';
-
-  @override
-  String get sync_paused => 'সিঙ্ক বিরতি';
-
-  @override
-  String get sync_error => 'সিঙ্ক ত্রুটি';
-
-  @override
-  String get sync_unavailable =>
-      'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
-
-  @override
-  String get casesModal_addCase => 'মামলা যোগ করুন';
-
-  @override
-  String get casesModal_search => 'অনুসন্ধান';
-
-  @override
-  String get casesModal_viewCompact => 'সংক্ষিপ্ত ভিউ';
-
-  @override
-  String get casesModal_viewExpanded => 'বিস্তারিত ভিউ';
-
-  @override
-  String get casesModal_help => 'সাহায্য';
-
-  @override
-  String get customDropdown_selectOption => 'অপশন নির্বাচন করুন';
-
-  @override
-  String get customDropdown_search => 'অনুসন্ধান';
-
-  @override
-  String get customDropdown_noResults => 'কোনো ফলাফল পাওয়া যায়নি';
-
-  @override
-  String get customDropdown_done => 'সম্পন্ন';
 }

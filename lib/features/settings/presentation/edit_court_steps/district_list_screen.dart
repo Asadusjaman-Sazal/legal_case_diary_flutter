@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../settings_menu_card.dart';
@@ -34,10 +35,11 @@ class DistrictListScreen extends ConsumerWidget {
         : divisionLabelEn[division] ?? division;
 
     final districts = districtIdsByDivision[division] ?? const <String>[];
+    final l = AppLocalizations.of(context);
 
     return SettingsSubPageModal(
-      title: '$divisionLabel Division',
-      subtitle: 'Districts',
+      title: l.settingsCourtFlow_divisionTitle(divisionLabel),
+      subtitle: l.settingsCourtFlow_districts,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: districts.length,

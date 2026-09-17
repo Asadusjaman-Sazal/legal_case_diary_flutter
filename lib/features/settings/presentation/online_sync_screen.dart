@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/generated/app_localizations.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
 import '../../cases/presentation/case_viewmodel.dart';
 import '../../notes/presentation/notes_viewmodel.dart';
@@ -22,18 +23,17 @@ import 'settings_sub_page_modal.dart';
 /// Radius matches the mockup's `rounded-xl` (0.5 rem = 8 px).
 BoxDecoration _cardDecoration({
   Color color = AppColors.surfaceContainerLowest,
-}) =>
-    BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      border: Border.all(color: AppColors.outlineVariant),
-    );
+}) => BoxDecoration(
+  color: color,
+  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+  border: Border.all(color: AppColors.outlineVariant),
+);
 
 /// Part A: sync is unavailable offline; tell the user it lands in Task 17.
-void _offlineNotice(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Available after sign-in (Task 17)')),
-  );
+void _offlineNotice(BuildContext context, AppLocalizations l) {
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(l.sharedMessages_signInRequired)));
 }
 
 /// Online Sync screen (Part A offline placeholder) per `settings_onlineSync`.
@@ -42,6 +42,7 @@ class OnlineSyncScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
     // Live local counts; null while the list is still loading.
     final cases = ref.watch(
       caseViewModelProvider.select((s) => s.value?.nonDeletedCount),
@@ -54,7 +55,7 @@ class OnlineSyncScreen extends ConsumerWidget {
     );
 
     return SettingsSubPageModal(
-      title: 'Online Sync',
+      title: l.settingsOnlineSync_title,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.edgeMargin,
@@ -64,9 +65,10 @@ class OnlineSyncScreen extends ConsumerWidget {
         ),
         children: [
           Text(
-            'Manage your real-time data sync across all your devices.',
-            style: AppTypography.bodyMd
-                .copyWith(color: AppColors.onSurfaceVariant),
+            l.settingsOnlineSync_subtitle,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           const _AccountStatusCard(),
@@ -75,19 +77,19 @@ class OnlineSyncScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.gutter),
           _SyncRow(
             icon: Icons.work_outline,
-            label: 'Cases',
+            label: l.settingsOnlineSync_cases,
             count: cases,
           ),
           const SizedBox(height: AppSpacing.gutter),
           _SyncRow(
             icon: Icons.sticky_note_2_outlined,
-            label: 'Notes',
+            label: l.settingsOnlineSync_notes,
             count: notes,
           ),
           const SizedBox(height: AppSpacing.gutter),
           _SyncRow(
             icon: Icons.menu_book_outlined,
-            label: 'References',
+            label: l.settingsOnlineSync_references,
             count: references,
           ),
         ],
@@ -104,6 +106,7 @@ class _AccountStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final onPrimary = AppColors.onPrimary;
 
     return ClipRRect(
@@ -128,13 +131,14 @@ class _AccountStatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Not signed in',
-                  style: AppTypography.bodySm
-                      .copyWith(color: onPrimary.withValues(alpha: 0.8)),
+                  l.settingsOnlineSync_notSignedIn,
+                  style: AppTypography.bodySm.copyWith(
+                    color: onPrimary.withValues(alpha: 0.8),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Sign in to sync your data across all your devices',
+                  l.settingsOnlineSync_signInPrompt,
                   style: AppTypography.titleMd.copyWith(color: onPrimary),
                 ),
               ],
@@ -152,6 +156,7 @@ class _SyncStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       decoration: _cardDecoration(),
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -185,18 +190,22 @@ class _SyncStatusCard extends StatelessWidget {
                           ),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
-                            'Action Required',
-                            style: AppTypography.labelMd
-                                .copyWith(color: AppColors.error),
+                            l.settingsOnlineSync_actionRequired,
+                            style: AppTypography.labelMd.copyWith(
+                              color: AppColors.error,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Text('Last Sync: Never', style: AppTypography.titleLg),
+                    Text(
+                      l.settingsOnlineSync_lastSyncNever,
+                      style: AppTypography.titleLg,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
-                    const Text(
-                      'Your data stays on this device until you sign in.',
+                    Text(
+                      l.settingsOnlineSync_dataStaysOnDevice,
                       style: AppTypography.bodySm,
                     ),
                   ],
@@ -223,16 +232,15 @@ class _SyncStatusCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => _offlineNotice(context),
+              onPressed: () => _offlineNotice(context, l),
               icon: const Icon(Icons.sync, size: 20),
-              label: const Text('Sync Now'),
+              label: Text(l.settingsOnlineSync_syncNow),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.onPrimary,
                 textStyle: AppTypography.titleMd,
                 // Same height as every other Settings sub-menu CTA.
-                minimumSize:
-                    const Size.fromHeight(settingsPrimaryButtonHeight),
+                minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xl,
                   vertical: AppSpacing.sm,
@@ -265,6 +273,9 @@ class _SyncRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    // Local alias so the null check promotes below.
+    final itemCount = count;
     return Container(
       decoration: _cardDecoration(),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -272,9 +283,7 @@ class _SyncRow extends StatelessWidget {
       // the two 16 px paddings), so the three entity rows are the same size as
       // those menu cards.
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: settingsMenuCardRowHeight,
-        ),
+        constraints: const BoxConstraints(minHeight: settingsMenuCardRowHeight),
         child: Row(
           children: [
             Container(
@@ -293,11 +302,14 @@ class _SyncRow extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: AppTypography.labelLg
-                        .copyWith(color: AppColors.primary),
+                    style: AppTypography.labelLg.copyWith(
+                      color: AppColors.primary,
+                    ),
                   ),
                   Text(
-                    count == null ? '— Items' : '$count Items',
+                    itemCount == null
+                        ? l.settingsOnlineSync_itemsUnknown
+                        : l.settingsOnlineSync_itemsCount(itemCount),
                     style: AppTypography.bodySm,
                   ),
                 ],
@@ -313,7 +325,7 @@ class _SyncRow extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              'Not synced',
+              l.settingsOnlineSync_notSynced,
               style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
             ),
           ],

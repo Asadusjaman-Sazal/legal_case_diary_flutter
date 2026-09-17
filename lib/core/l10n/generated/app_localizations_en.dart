@@ -1257,7 +1257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications_title => 'Notifications';
 
   @override
-  String get settingsNotifications_statusLabel => 'Default notification status';
+  String get settingsNotifications_statusLabel => 'Default Notification Status';
 
   @override
   String get settingsNotifications_on => 'On';
@@ -1266,40 +1266,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications_off => 'Off';
 
   @override
-  String get settingsNotifications_dayOffsetLabel => 'Notification day offset';
+  String get settingsNotifications_dayOffsetLabel => 'Notification Day Offset';
 
   @override
-  String get settingsNotifications_selectDayOffsetTitle => 'Select day offset';
+  String get settingsNotifications_selectDayOffsetTitle => 'Select Day Offset';
 
   @override
-  String get settingsNotifications_offsetSameDay => 'The same day';
+  String get settingsNotifications_offsetSameDay => 'The Same Day';
 
   @override
-  String get settingsNotifications_offsetDayBefore => 'The day before';
+  String get settingsNotifications_offsetDayBefore => 'The Day Before';
 
   @override
   String settingsNotifications_offsetBeforeDays(int days) {
-    return 'Before $days days';
+    return 'Before $days Days';
   }
 
   @override
-  String get settingsNotifications_timeLabel => 'Notification time';
+  String get settingsNotifications_timeLabel => 'Notification Time';
 
   @override
   String get settingsNotifications_reminderBanner =>
-      'Notifications may not work reliably on your device. Tap to complete setup.';
+      'Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.';
 
   @override
   String get settingsNotifications_setupGuide =>
-      'Battery & auto-start setup guide';
+      'Battery & Auto-Start Setup Guide';
 
   @override
   String get settingsNotifications_setupGuideSubtitle =>
-      'Required on Xiaomi, Oppo, Vivo and Realme phones';
+      'Required on Xiaomi, Oppo, Vivo and Realme Phones';
 
   @override
   String get settingsNotifications_setupGuidePending =>
-      'Setup guide arrives in Task 13';
+      'Setup Guide Arrives in Task 13';
 
   @override
   String get settingsViewSettings_title => 'View Settings';

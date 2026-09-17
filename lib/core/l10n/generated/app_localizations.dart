@@ -2401,7 +2401,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_statusLabel.
   ///
   /// In en, this message translates to:
-  /// **'Default notification status'**
+  /// **'Default Notification Status'**
   String get settingsNotifications_statusLabel;
 
   /// No description provided for @settingsNotifications_on.
@@ -2419,61 +2419,61 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_dayOffsetLabel.
   ///
   /// In en, this message translates to:
-  /// **'Notification day offset'**
+  /// **'Notification Day Offset'**
   String get settingsNotifications_dayOffsetLabel;
 
   /// No description provided for @settingsNotifications_selectDayOffsetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Select day offset'**
+  /// **'Select Day Offset'**
   String get settingsNotifications_selectDayOffsetTitle;
 
   /// No description provided for @settingsNotifications_offsetSameDay.
   ///
   /// In en, this message translates to:
-  /// **'The same day'**
+  /// **'The Same Day'**
   String get settingsNotifications_offsetSameDay;
 
   /// No description provided for @settingsNotifications_offsetDayBefore.
   ///
   /// In en, this message translates to:
-  /// **'The day before'**
+  /// **'The Day Before'**
   String get settingsNotifications_offsetDayBefore;
 
   /// Day-offset option for two or more days before the hearing.
   ///
   /// In en, this message translates to:
-  /// **'Before {days} days'**
+  /// **'Before {days} Days'**
   String settingsNotifications_offsetBeforeDays(int days);
 
   /// No description provided for @settingsNotifications_timeLabel.
   ///
   /// In en, this message translates to:
-  /// **'Notification time'**
+  /// **'Notification Time'**
   String get settingsNotifications_timeLabel;
 
   /// No description provided for @settingsNotifications_reminderBanner.
   ///
   /// In en, this message translates to:
-  /// **'Notifications may not work reliably on your device. Tap to complete setup.'**
+  /// **'Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.'**
   String get settingsNotifications_reminderBanner;
 
   /// No description provided for @settingsNotifications_setupGuide.
   ///
   /// In en, this message translates to:
-  /// **'Battery & auto-start setup guide'**
+  /// **'Battery & Auto-Start Setup Guide'**
   String get settingsNotifications_setupGuide;
 
   /// No description provided for @settingsNotifications_setupGuideSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Required on Xiaomi, Oppo, Vivo and Realme phones'**
+  /// **'Required on Xiaomi, Oppo, Vivo and Realme Phones'**
   String get settingsNotifications_setupGuideSubtitle;
 
   /// No description provided for @settingsNotifications_setupGuidePending.
   ///
   /// In en, this message translates to:
-  /// **'Setup guide arrives in Task 13'**
+  /// **'Setup Guide Arrives in Task 13'**
   String get settingsNotifications_setupGuidePending;
 
   /// No description provided for @settingsViewSettings_title.

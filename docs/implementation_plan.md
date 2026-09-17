@@ -463,7 +463,9 @@ lib/
 │   │
 │   ├── settings/
 │   │   ├── data/
-│   │   │   └── settings_repository.dart
+│   │   │   ├── settings_repository.dart
+│   │   │   ├── district_court_categories.dart    # Shared lower-court category derivation + order helpers
+│   │   │   └── notification_day_offsets.dart     # One day-offset list shared by Settings and the case form
 │   │   └── presentation/
 │   │       ├── settings_main_screen.dart          # Main settings screen (UI: settings_main/code.html)
 │   │       ├── settings_sub_page_modal.dart       # Reusable modal layout with back button for all sub-pages

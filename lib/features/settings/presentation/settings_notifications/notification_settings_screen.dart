@@ -18,14 +18,12 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../data/notification_day_offsets.dart';
 import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 import '../settings_viewmodel.dart';
-
-/// Day offsets the mockup's modal offers: 0 = same day, 1 = day before, …
-const List<int> _dayOffsets = <int>[0, 1, 2, 3, 7];
 
 /// Mockup's default notification time (05:00 PM) until the user picks one.
 const int _defaultNotificationMinutes = 17 * 60;
@@ -136,7 +134,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
         ?.notificationDayOffset;
     final selected = await showDialog<int>(
       context: context,
-      builder: (_) => _DayOffsetDialog(selected: current ?? 1),
+      builder: (_) =>
+          _DayOffsetDialog(selected: current ?? defaultNotificationDayOffset),
     );
     if (selected == null || selected == current) return;
     await ref
@@ -190,7 +189,8 @@ String _dayOffsetLabel(AppLocalizations l, int offset) => switch (offset) {
 
 /// Single-select day-offset modal, matching the mockup's list (dark header,
 /// divided rows, `check_circle` on the active one). Tapping a row selects it
-/// and closes, because the mockup's modal has no confirm button.
+/// and closes, because the mockup's modal has no confirm button. The options
+/// are [notificationDayOffsetOptions], the same list the case form offers.
 class _DayOffsetDialog extends StatelessWidget {
   /// Currently stored offset.
   final int selected;
@@ -216,8 +216,8 @@ class _DayOffsetDialog extends StatelessWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
-                for (final offset in _dayOffsets) ...[
-                  if (offset != _dayOffsets.first)
+                for (final offset in notificationDayOffsetOptions) ...[
+                  if (offset != notificationDayOffsetOptions.first)
                     const Divider(height: 1, color: AppColors.outlineVariant),
                   SettingsOptionRow(
                     label: _dayOffsetLabel(l, offset),

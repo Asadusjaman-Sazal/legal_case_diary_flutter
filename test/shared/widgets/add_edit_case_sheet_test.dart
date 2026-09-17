@@ -27,6 +27,34 @@ Widget _localizedApp(
 }
 
 void main() {
+  group('resolveDefaultNotificationOffsets', () {
+    const options = <int>[0, 1, 2, 3, 7, 15, 30];
+
+    test('mirrors the Settings offset when the field offers it', () {
+      expect(
+        resolveDefaultNotificationOffsets(options: options, preferred: 15),
+        <int>[15],
+      );
+    });
+
+    test('falls back to the first option when the offset is not offered', () {
+      expect(
+        resolveDefaultNotificationOffsets(
+          options: const <int>[0, 1, 3],
+          preferred: 2,
+        ),
+        <int>[0],
+      );
+    });
+
+    test('returns nothing when the field offers nothing', () {
+      expect(
+        resolveDefaultNotificationOffsets(options: const <int>[], preferred: 7),
+        isEmpty,
+      );
+    });
+  });
+
   group('AddEditCaseSheet Phase 1', () {
     testWidgets(
       'renders fields in order and hides lower-only fields initially',
@@ -214,7 +242,7 @@ void main() {
       expect(find.text('Pick a date'), findsNothing);
     });
 
-    testWidgets('shows the standard six Day Offset choices', (
+    testWidgets('shows the shared Day Offset choices', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -239,12 +267,37 @@ void main() {
           .onTap!();
       await tester.pumpAndSettle();
 
+      // The field itself shows the mirrored value, so each label can appear
+      // both in the field and in the open list.
       expect(find.text('The same day'), findsAtLeastNWidgets(1));
-      expect(find.text('The day before'), findsOneWidget);
+      expect(find.text('The day before'), findsAtLeastNWidgets(1));
+      expect(find.text('Before 2 days'), findsOneWidget);
       expect(find.text('Before 3 days'), findsOneWidget);
       expect(find.text('Before 7 days'), findsOneWidget);
       expect(find.text('Before 15 days'), findsOneWidget);
       expect(find.text('Before 30 days'), findsOneWidget);
+    });
+
+    testWidgets('the Day Offset starts from the Settings choice', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(defaultNotificationOffset: 15),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-day-offset')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+
+      // Settings → Notifications is the source; the field mirrors it.
+      expect(find.text('Before 15 days'), findsOneWidget);
     });
 
     testWidgets('restores remembered court hierarchy selections in add mode', (

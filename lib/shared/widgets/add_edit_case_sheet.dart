@@ -31,6 +31,7 @@ import '../../features/cases/data/local/cases_dao.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
 import '../../features/settings/data/district_court_categories.dart';
+import '../../features/settings/data/notification_day_offsets.dart';
 import '../../features/settings/data/local/court_categories_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
 import '../../features/settings/data/local/on_behalfs_dao.dart';
@@ -41,9 +42,6 @@ import 'date_picker_helper.dart';
 
 String _seedLabel(BuildContext context, String id, String fallbackEn) =>
     context.l10n.seedLabel(id, fallbackEn: fallbackEn);
-
-/// Fixed Task 07 notification choices shared by Add/Edit and Quick Update.
-const task07DayOffsetOptions = <int>[0, 1, 3, 7, 15, 30];
 
 /// Effective local write permissions for the current identity.
 class CaseWritePermissions {
@@ -112,7 +110,8 @@ class AddEditCaseLookupData {
     this.caseTypes = const [],
     this.onBehalfs = const [],
     this.steps = const [],
-    this.notificationOffsets = task07DayOffsetOptions,
+    this.notificationOffsets = notificationDayOffsetOptions,
+    this.defaultNotificationOffset = defaultNotificationDayOffset,
     this.lastAddCaseHigherLowerCourt,
     this.lastAddCaseDivision,
     this.lastAddCaseDistrict,
@@ -139,6 +138,10 @@ class AddEditCaseLookupData {
   /// Available notification offsets from per-user notification settings.
   final List<int> notificationOffsets;
 
+  /// The offset stored in Settings → Notifications, which a case without its
+  /// own stored preference starts from.
+  final int defaultNotificationOffset;
+
   /// Last Add Case court hierarchy choices saved for this user.
   final String? lastAddCaseHigherLowerCourt;
   final String? lastAddCaseDivision;
@@ -156,6 +159,20 @@ OnBehalf? resolveOnBehalfSelection({
     return selected;
   }
   return options.length == 1 ? options.single : null;
+}
+
+/// Day Offset a case starts from when it has no stored preference of its own:
+/// the offset configured in Settings → Notifications.
+///
+/// Falls back to the first offered option when the stored offset is not one of
+/// [options] (an older preference, or a value the field does not offer), so the
+/// dropdown is never left empty.
+List<int> resolveDefaultNotificationOffsets({
+  required List<int> options,
+  required int preferred,
+}) {
+  if (options.isEmpty) return const <int>[];
+  return <int>[options.contains(preferred) ? preferred : options.first];
 }
 
 /// Full-screen mobile-first sheet for adding or editing a case.
@@ -400,7 +417,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           _isNotificationEnabled = preference.enabled;
           _selectedNotificationOffsets = _decodeOffsets(
             preference.offsets,
-            fallback: _lookupData?.notificationOffsets.firstOrNull,
+            fallback: _lookupData?.defaultNotificationOffset,
           );
         }
       });
@@ -432,7 +449,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         caseTypes: await CaseTypesDao(db).getAll(),
         onBehalfs: await OnBehalfsDao(db).getAll(),
         steps: await StepsDao(db).getAll(),
-        notificationOffsets: task07DayOffsetOptions,
+        notificationOffsets: notificationDayOffsetOptions,
+        defaultNotificationOffset: settings.notificationDayOffset,
         lastAddCaseHigherLowerCourt: settings.lastAddCaseHigherLowerCourt,
         lastAddCaseDivision: settings.lastAddCaseDivision,
         lastAddCaseDistrict: settings.lastAddCaseDistrict,
@@ -452,7 +470,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         _canEdit = permissions.canEdit;
         if (casePreference != null) {
           _isNotificationEnabled = casePreference.enabled;
-          _selectedNotificationOffsets = _decodeOffsets(casePreference.offsets);
+          _selectedNotificationOffsets = _decodeOffsets(
+            casePreference.offsets,
+            fallback: data.defaultNotificationOffset,
+          );
         }
       });
       _initializeSelection();
@@ -562,9 +583,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       }
     }
     if (_selectedNotificationOffsets.isEmpty) {
-      _selectedNotificationOffsets = data.notificationOffsets.isEmpty
-          ? const []
-          : [data.notificationOffsets.first];
+      _selectedNotificationOffsets = resolveDefaultNotificationOffsets(
+        options: data.notificationOffsets,
+        preferred: data.defaultNotificationOffset,
+      );
     }
     if (mounted) setState(() {});
   }
@@ -1748,6 +1770,12 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       final preference = await CaseNotificationPreferencesDao(
         db,
       ).get(identity.getId(), widget.currentCase.id);
+      // Day Offset mirrors Settings → Notifications when the case has no
+      // preference row of its own.
+      final settingsRepository = await ref.read(
+        settingsRepositoryProvider.future,
+      );
+      final settings = await settingsRepository.getSettings();
       final court = await CourtsDao(db).getById(widget.currentCase.courtId);
       // AD/HCD courts have no steps; the update window shows Result instead.
       _isHigherCourt =
@@ -1772,10 +1800,10 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                   storedSteps.contains(item.stepName),
             )
             .toList(growable: false);
-        _notificationOffsets = task07DayOffsetOptions;
+        _notificationOffsets = notificationDayOffsetOptions;
         _selectedNotificationOffsets = _decodeNotificationOffsets(
           preference?.offsets,
-          fallback: task07DayOffsetOptions.first,
+          fallback: settings.notificationDayOffset,
         );
         _isNotificationEnabled = preference?.enabled ?? true;
         _permissionResolved = true;

@@ -22,8 +22,11 @@ void main() {
     repo = FakeSettingsRepository();
   });
 
-  Future<void> pumpScreen(WidgetTester tester) =>
-      pumpSettingsScreen(tester, const NotificationSettingsScreen(), repo: repo);
+  Future<void> pumpScreen(WidgetTester tester) => pumpSettingsScreen(
+    tester,
+    const NotificationSettingsScreen(),
+    repo: repo,
+  );
 
   testWidgets('shows the mockup controls with the stored values', (
     tester,
@@ -32,11 +35,12 @@ void main() {
 
     expect(find.text('Notifications'), findsOneWidget);
     expect(find.text('DEFAULT NOTIFICATION STATUS'), findsOneWidget);
+    // Every label on this screen is title-cased.
     expect(find.text('On'), findsOneWidget);
     expect(find.text('Off'), findsOneWidget);
     expect(find.text('NOTIFICATION DAY OFFSET'), findsOneWidget);
     // Default offset is one day before, like the mockup.
-    expect(find.text('The day before'), findsOneWidget);
+    expect(find.text('The Day Before'), findsOneWidget);
     expect(find.text('NOTIFICATION TIME'), findsOneWidget);
     // Mockup's 05:00 PM placeholder until the user picks a time.
     expect(find.text('05:00 PM'), findsOneWidget);
@@ -59,20 +63,35 @@ void main() {
   ) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.text('The day before'));
+    await tester.tap(find.text('The Day Before'));
     await tester.pumpAndSettle();
-    expect(find.text('Select day offset'), findsOneWidget);
-    // Every offset the mockup lists is offered.
-    expect(find.text('The same day'), findsOneWidget);
-    expect(find.text('Before 2 days'), findsOneWidget);
-    expect(find.text('Before 7 days'), findsOneWidget);
+    expect(find.text('Select Day Offset'), findsOneWidget);
+    // The shared list: the mockup's days plus Before 15 Days and Before 30 Days.
+    expect(find.text('The Same Day'), findsOneWidget);
+    expect(find.text('Before 2 Days'), findsOneWidget);
+    expect(find.text('Before 7 Days'), findsOneWidget);
+    expect(find.text('Before 15 Days'), findsOneWidget);
+    expect(find.text('Before 30 Days'), findsOneWidget);
 
-    await tester.tap(find.text('Before 3 days'));
+    await tester.tap(find.text('Before 3 Days'));
     await tester.pumpAndSettle();
 
     expect(repo.settings.notificationDayOffset, 3);
     expect(repo.settings.notificationDefaultOffsets, <int>[3]);
-    expect(find.text('Before 3 days'), findsOneWidget);
+    expect(find.text('Before 3 Days'), findsOneWidget);
+  });
+
+  testWidgets('stores the two added long-range offsets', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('The Day Before'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Before 30 Days'));
+    await tester.pumpAndSettle();
+
+    expect(repo.settings.notificationDayOffset, 30);
+    expect(repo.settings.notificationDefaultOffsets, <int>[30]);
+    expect(find.text('Before 30 Days'), findsOneWidget);
   });
 
   testWidgets('the time row opens a picker whose confirm stores the time', (
@@ -111,15 +130,15 @@ void main() {
 
     expect(
       find.text(
-        'Notifications may not work reliably on your device. '
-        'Tap to complete setup.',
+        'Notifications May Not Work Reliably on Your Device. '
+        'Tap to Complete Setup.',
       ),
       findsOneWidget,
     );
-    expect(find.text('Battery & auto-start setup guide'), findsOneWidget);
+    expect(find.text('Battery & Auto-Start Setup Guide'), findsOneWidget);
 
-    await tester.tap(find.text('Battery & auto-start setup guide'));
+    await tester.tap(find.text('Battery & Auto-Start Setup Guide'));
     await tester.pumpAndSettle();
-    expect(find.text('Setup guide arrives in Task 13'), findsOneWidget);
+    expect(find.text('Setup Guide Arrives in Task 13'), findsOneWidget);
   });
 }

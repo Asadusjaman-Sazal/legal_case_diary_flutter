@@ -450,7 +450,8 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('quick-update-day-offset')));
       await tester.pumpAndSettle();
       expect(find.text('The same day'), findsAtLeastNWidgets(1));
-      expect(find.text('The day before'), findsOneWidget);
+      // The field mirrors the Settings offset, so this label can appear twice.
+      expect(find.text('The day before'), findsAtLeastNWidgets(1));
       expect(find.text('Before 3 days'), findsOneWidget);
       expect(find.text('Before 7 days'), findsOneWidget);
       expect(find.text('Before 15 days'), findsOneWidget);
@@ -459,14 +460,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // AD/HCD cases hide the Step picker and show the Result field instead.
-      expect(
-        find.byKey(const ValueKey('quick-update-result')),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const ValueKey('quick-update-step')),
-        findsNothing,
-      );
+      expect(find.byKey(const ValueKey('quick-update-result')), findsOneWidget);
+      expect(find.byKey(const ValueKey('quick-update-step')), findsNothing);
 
       await tester.tap(find.byKey(const ValueKey('quick-update-notification')));
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
@@ -477,7 +472,9 @@ void main() {
         db,
       ).get(identity.getId(), id);
       expect(preference?.enabled, isFalse);
-      expect(preference?.offsets, '[0]');
+      // Untouched Day Offset mirrors Settings → Notifications (default: the
+      // day before), the same rule the Add/Edit form follows.
+      expect(preference?.offsets, '[1]');
     },
   );
 
@@ -632,7 +629,8 @@ void main() {
       find.byKey(const ValueKey('add-edit-case-number')),
       '123456789/2026',
     );
-    // Offset 0 is selected by the form's default; add the second offset.
+    // Offset 1 is selected because the form mirrors Settings → Notifications
+    // (whose default is "the day before"); add the second offset.
     await _selectOffsets(tester, const [3]);
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
@@ -642,7 +640,7 @@ void main() {
     final preference = await CaseNotificationPreferencesDao(
       db,
     ).get(identity.getId(), added.id);
-    expect(preference?.offsets, '[0,3]');
+    expect(preference?.offsets, '[1,3]');
     expect(await CaseHistoryDao(db).getByCaseId(added.id), isEmpty);
 
     await openForm(tester, initialCase: added);
@@ -656,6 +654,39 @@ void main() {
     final edited = await CasesDao(db).getById(added.id);
     expect(edited?.caseNumber, '987654321/2027');
     expect(await CaseHistoryDao(db).getByCaseId(added.id), isEmpty);
+  });
+
+  testWidgets('the Day Offset mirrors the stored notification setting', (
+    WidgetTester tester,
+  ) async {
+    await settingsRepository().upsertSettings(
+      const UserSettings(notificationDayOffset: 15),
+    );
+
+    // No injected lookup data: this is the app's real load path, which reads
+    // the per-user preference row for the Day Offset default.
+    await tester.pumpWidget(
+      appScope(
+        Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              key: const ValueKey('open-task07-form'),
+              onPressed: () => AddEditCaseSheet.show<void>(context),
+              child: const Text('Open form'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('open-task07-form')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('add-edit-day-offset')),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Before 15 days'), findsOneWidget);
   });
 
   testWidgets('High Court fields persist and restore in edit mode', (

@@ -847,12 +847,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsScreen_language => 'Language';
 
   @override
-  String get settingsScreen_languageEnglish => 'English';
-
-  @override
-  String get settingsScreen_languageBengali => 'বাংলা';
-
-  @override
   String get settingsScreen_viewSettings => 'View Settings';
 
   @override
@@ -881,6 +875,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsScreen_noResults => 'No settings found';
+
+  @override
+  String get settingsScreen_languageEnglish => 'English';
+
+  @override
+  String get settingsScreen_languageBengali => 'বাংলা';
+
+  @override
+  String get settingsLanguage_selectHeading => 'Select App Language';
+
+  @override
+  String get settingsLanguage_intro =>
+      'Every label, date and message in the app will use the language you pick here.';
+
+  @override
+  String get settingsLanguage_previewTitle => 'Today\'s Date in This Language';
+
+  @override
+  String get settingsLanguage_selected => 'Selected';
+
+  @override
+  String get settingsLanguage_note =>
+      'This changes only the app\'s interface. Your saved cases and notes stay exactly as they are.';
 
   @override
   String get settingsAccountProfile_profileSubtitle =>

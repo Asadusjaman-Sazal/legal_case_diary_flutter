@@ -75,6 +75,7 @@ void main() {
       'settingsCourtList',
       'settingsLowerCourtCategories',
       'settingsNotifications',
+      'settingsLanguage',
       'settingsViewSettings',
       'settingsGuidelines',
       'settingsAbout',

@@ -848,12 +848,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsScreen_language => 'ভাষা';
 
   @override
-  String get settingsScreen_languageEnglish => 'English';
-
-  @override
-  String get settingsScreen_languageBengali => 'বাংলা';
-
-  @override
   String get settingsScreen_viewSettings => 'ভিউ সেটিংস';
 
   @override
@@ -882,6 +876,29 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsScreen_noResults => 'কোনো সেটিংস পাওয়া যায়নি';
+
+  @override
+  String get settingsScreen_languageEnglish => 'English';
+
+  @override
+  String get settingsScreen_languageBengali => 'বাংলা';
+
+  @override
+  String get settingsLanguage_selectHeading => 'অ্যাপের ভাষা নির্বাচন করুন';
+
+  @override
+  String get settingsLanguage_intro =>
+      'অ্যাপের সব লেখা, তারিখ ও বার্তা এখানে বেছে নেওয়া ভাষায় দেখানো হবে।';
+
+  @override
+  String get settingsLanguage_previewTitle => 'এই ভাষায় আজকের তারিখ';
+
+  @override
+  String get settingsLanguage_selected => 'নির্বাচিত';
+
+  @override
+  String get settingsLanguage_note =>
+      'এটি শুধু অ্যাপের ইন্টারফেস বদলায়। আপনার সংরক্ষিত মামলা ও নোট আগের মতোই থাকবে।';
 
   @override
   String get settingsAccountProfile_profileSubtitle =>

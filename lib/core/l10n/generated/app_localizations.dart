@@ -1654,18 +1654,6 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get settingsScreen_language;
 
-  /// No description provided for @settingsScreen_languageEnglish.
-  ///
-  /// In en, this message translates to:
-  /// **'English'**
-  String get settingsScreen_languageEnglish;
-
-  /// No description provided for @settingsScreen_languageBengali.
-  ///
-  /// In en, this message translates to:
-  /// **'বাংলা'**
-  String get settingsScreen_languageBengali;
-
   /// No description provided for @settingsScreen_viewSettings.
   ///
   /// In en, this message translates to:
@@ -1725,6 +1713,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No settings found'**
   String get settingsScreen_noResults;
+
+  /// No description provided for @settingsScreen_languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get settingsScreen_languageEnglish;
+
+  /// No description provided for @settingsScreen_languageBengali.
+  ///
+  /// In en, this message translates to:
+  /// **'বাংলা'**
+  String get settingsScreen_languageBengali;
+
+  /// No description provided for @settingsLanguage_selectHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Select App Language'**
+  String get settingsLanguage_selectHeading;
+
+  /// No description provided for @settingsLanguage_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Every label, date and message in the app will use the language you pick here.'**
+  String get settingsLanguage_intro;
+
+  /// No description provided for @settingsLanguage_previewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Date in This Language'**
+  String get settingsLanguage_previewTitle;
+
+  /// No description provided for @settingsLanguage_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get settingsLanguage_selected;
+
+  /// No description provided for @settingsLanguage_note.
+  ///
+  /// In en, this message translates to:
+  /// **'This changes only the app\'s interface. Your saved cases and notes stay exactly as they are.'**
+  String get settingsLanguage_note;
 
   /// No description provided for @settingsAccountProfile_profileSubtitle.
   ///

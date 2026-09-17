@@ -152,6 +152,17 @@ class AppTypography {
     color: AppColors.onBackground,
   );
 
+  /// Bengali medium title — Tiro Bangla, 16 / 24, semi-bold. The Bengali
+  /// counterpart of [titleMd], for labels that sit in a title role in either
+  /// script (e.g. the Language screen's option cards).
+  static const TextStyle bengaliTitleMd = TextStyle(
+    fontFamily: _tiroBangla,
+    fontSize: 16.0,
+    fontWeight: FontWeight.w600,
+    height: 1.5,
+    color: AppColors.onBackground,
+  );
+
   /// Bengali medium body — Tiro Bangla, 14 / 20, regular, line-height 1.5.
   static const TextStyle bengaliBodyMd = TextStyle(
     fontFamily: _tiroBangla,

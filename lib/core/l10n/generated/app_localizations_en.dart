@@ -850,7 +850,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsScreen_languageEnglish => 'English';
 
   @override
-  String get settingsScreen_languageBengali => 'Bengali';
+  String get settingsScreen_languageBengali => 'বাংলা';
 
   @override
   String get settingsScreen_viewSettings => 'View Settings';

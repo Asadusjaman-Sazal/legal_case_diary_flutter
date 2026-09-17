@@ -1,3 +1,11 @@
+### 2026-09-17 — Settings → Language button pair — COMPLETE
+
+- **The screen** (`language_screen.dart`) is now one line with two buttons instead of a list with a blue check icon: **English** and **বাংলা**, each `Expanded` at 48 px, the active one filled black with white text, the inactive one white with black text and an outline (`AppColors.outline`). Tapping either still calls `localeProvider.setLocale`.
+- **Fonts are pinned per label, not per locale.** The English label uses `AppTypography.bodyLg` (Inter, the English default) and বাংলা uses `AppTypography.bengaliBodyLg` (Tiro Bangla) via a private `_LanguageButton` that only overrides colour/weight. Because the theme swaps the whole text theme to Tiro Bangla under `bn`, the explicit styles are what keep each word in its own script's typeface in both directions — the new test asserts exactly that under `en` and `bn`.
+- **Both labels are autonyms:** the English ARB value of `settingsScreen_languageBengali` changed from "Bengali" to **বাংলা** (bn already read বাংলা), so both locales show the same pair. No key changes, so nothing else that reads the key moved.
+- **Tests:** new `test/features/language_screen_test.dart` (4: single-line equal halves, black/white/outline states and the swap on tap, per-script font pinning under both locales, persisted `app_locale`). `flutter analyze` clean; `flutter test` **257 passed, 2 skipped**. Version `0.0.179`.
+- **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
+
 ### 2026-09-17 — Notifications screen follow-up (labels, long offsets, Day Offset wiring) — COMPLETE
 
 - **Title case:** every label on Settings → Notifications is title-cased in `app_en.arb` (`Default Notification Status`, `Notification Day Offset`, `Select Day Offset`, `The Same Day`, `The Day Before`, `Before {days} Days`, `Notification Time`, the OEM banner and the setup-guide title/subtitle/pending lines). Bengali values are unchanged — the language has no letter case. Scope was the Notifications screen; the Add/Edit Case form's own Day Offset labels stay sentence-case (different ARB keys).

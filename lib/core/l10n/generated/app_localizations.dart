@@ -1663,7 +1663,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsScreen_languageBengali.
   ///
   /// In en, this message translates to:
-  /// **'Bengali'**
+  /// **'বাংলা'**
   String get settingsScreen_languageBengali;
 
   /// No description provided for @settingsScreen_viewSettings.

@@ -601,7 +601,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedActions_edit => 'সম্পাদনা';
 
   @override
-  String get sharedActions_search => 'নুসন্ধান';
+  String get sharedActions_search => 'অনুসন্ধান';
 
   @override
   String get sharedActions_add => 'যোগ করুন';

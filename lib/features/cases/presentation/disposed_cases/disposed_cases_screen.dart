@@ -24,6 +24,7 @@ import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../case_search.dart';
 import '../cases_screen_modal.dart';
 import 'disposed_help_dialog.dart';
 
@@ -45,11 +46,36 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   Object? _error;
   bool _loading = true;
 
+  // Scoped search state (plan §12.1): the query filters this screen's own
+  // disposed dataset only.
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadCases();
   }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Opens/closes the scoped search bar; closing clears the query so the list
+  /// comes back whole.
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
+  }
+
+  /// The loaded disposed cases the query still matches.
+  List<Case> get _visibleCases => _cases
+      .where((c) => matchesCaseQuery(c, _searchController.text))
+      .toList();
 
   Future<void> _loadCases() async {
     try {
@@ -187,7 +213,10 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       showFab: false,
       showHelpFab: true,
       onHelp: () => showDisposedHelpDialog(context),
-      onSearch: () {},
+      onSearch: _toggleSearch,
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       body: _buildBody(context, l),
     );
   }
@@ -207,21 +236,22 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       );
     }
 
-    return _cases.isEmpty
-        ? Center(
-            child: Text(
-              l.disposedCasesScreen_title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+    final visible = _visibleCases;
+
+    return visible.isEmpty
+        ? CaseListEmptyState(
+            placeholder: l.disposedCasesScreen_title,
+            isSearching: _isSearching,
+            hasAnyCase: _cases.isNotEmpty,
           )
         : RefreshIndicator(
             onRefresh: _loadCases,
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
-              itemCount: _cases.length,
+              itemCount: visible.length,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
-                final currentCase = _cases[index];
+                final currentCase = visible[index];
                 final court = _courtsById[currentCase.courtId];
                 final isHigherCourt =
                     court?.courtCategoryId == appellateDivisionId ||

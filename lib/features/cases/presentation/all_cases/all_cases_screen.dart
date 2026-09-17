@@ -26,6 +26,7 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -53,6 +54,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   // Filter + search state.
   String? _courtCategoryId; // null = All Courts.
   bool _newestFirst = true;
+  bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -65,6 +67,15 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  /// Opens/closes the scoped search bar; closing clears the query so the
+  /// list comes back whole.
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
   }
 
   Future<void> _loadCases() async {
@@ -210,19 +221,21 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     if (mounted) await _loadCases();
   }
 
-  /// Applies the Court Name filter, scoped search, and Chronology ordering.
+  /// Applies the Court Name filter first, then the scoped search (plan §12.1
+  /// — the screen's own dataset is filtered before the text query), and
+  /// finally the Chronology ordering.
   List<Case> _visibleCases() {
-    final query = _searchController.text.trim().toLowerCase();
+    final query = _searchController.text;
     final filtered = _cases.where((c) {
       if (_courtCategoryId != null) {
         final categoryId = _courtsById[c.courtId]?.courtCategoryId;
         if (categoryId != _courtCategoryId) return false;
       }
-      if (query.isEmpty) return true;
-      return c.caseNumber.toLowerCase().contains(query) ||
-          c.petitioner.toLowerCase().contains(query) ||
-          c.respondent.toLowerCase().contains(query) ||
-          c.caseTitleAndSection?.toLowerCase().contains(query) == true;
+      return matchesCaseQuery(
+        c,
+        query,
+        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
+      );
     }).toList();
 
     filtered.sort((a, b) {
@@ -260,7 +273,10 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     return CasesScreenModal(
       title: l.allCasesScreen_title,
       onAddCase: _openAddCase,
-      onSearch: () {},
+      onSearch: _toggleSearch,
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       body: _buildBody(context, l),
     );
   }
@@ -290,11 +306,10 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         _buildFilters(context, l, categories),
         Expanded(
           child: visible.isEmpty
-              ? Center(
-                  child: Text(
-                    l.allCasesScreen_title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+              ? CaseListEmptyState(
+                  placeholder: l.allCasesScreen_title,
+                  isSearching: _isSearching,
+                  hasAnyCase: _cases.isNotEmpty,
                 )
               : RefreshIndicator(
                   onRefresh: _loadCases,

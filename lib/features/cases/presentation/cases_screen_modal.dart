@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
@@ -71,7 +72,12 @@ final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
 /// [isPremium] — when false the sync button is disabled with an entitlement
 ///   tooltip; when true the button is active and calls [onSync].
 /// [onSync] — called when the user taps the sync button (premium only).
-/// [onSearch] — called when the user taps the search icon.
+/// [onSearch] — called when the user taps the search icon (the host screen
+///   toggles its own search state with it).
+/// [isSearching] — when true the shell renders the scoped search bar under the
+///   header; the host screen owns the state so it can filter its own dataset.
+/// [searchController] — query text of the open search bar.
+/// [onSearchChanged] — called on every keystroke so the host can rebuild.
 /// [onViewToggle] — called with `true` for compact, `false` for expanded.
 /// [isCompactView] — current view mode; drives the toggle icon state.
 /// [showFab] — whether to show the Add New Case FAB (false for Disposed Cases).
@@ -88,6 +94,9 @@ class CasesScreenModal extends ConsumerWidget {
   final bool isPremium;
   final VoidCallback? onSync;
   final VoidCallback? onSearch;
+  final bool isSearching;
+  final TextEditingController? searchController;
+  final ValueChanged<String>? onSearchChanged;
   final void Function(bool compact)? onViewToggle;
   final bool isCompactView;
   final bool showFab;
@@ -105,6 +114,9 @@ class CasesScreenModal extends ConsumerWidget {
     this.isPremium = false,
     this.onSync,
     this.onSearch,
+    this.isSearching = false,
+    this.searchController,
+    this.onSearchChanged,
     this.onViewToggle,
     this.isCompactView = true,
     this.showFab = true,
@@ -155,6 +167,11 @@ class CasesScreenModal extends ConsumerWidget {
             isCompactView: isCompactView,
             l: l,
           ),
+          if (isSearching)
+            _CaseSearchBar(
+              controller: searchController,
+              onChanged: onSearchChanged,
+            ),
           Expanded(child: body),
         ],
       ),
@@ -204,6 +221,58 @@ class CasesScreenModal extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: buttons.reversed.toList(),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Scoped search bar
+// ---------------------------------------------------------------------------
+
+/// The prominent search bar the header's search icon opens on every case list.
+///
+/// The host screen owns the query: this only renders the field and reports
+/// changes, so the search stays scoped to that screen's own dataset.
+class _CaseSearchBar extends StatelessWidget {
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+
+  const _CaseSearchBar({required this.controller, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final field = controller;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.sm,
+      ),
+      child: TextField(
+        controller: field,
+        autofocus: true,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: l.sharedActions_search,
+          prefixIcon: const Icon(Icons.search),
+          border: const OutlineInputBorder(),
+          isDense: true,
+          // Only offered while there is something to clear, and only when the
+          // host gave us the field to clear.
+          suffixIcon: field == null || field.text.isEmpty
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l.customDropdown_clear,
+                  onPressed: () {
+                    field.clear();
+                    onChanged?.call('');
+                  },
+                ),
+        ),
+      ),
     );
   }
 }

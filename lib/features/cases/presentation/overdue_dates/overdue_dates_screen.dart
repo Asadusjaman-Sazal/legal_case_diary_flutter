@@ -25,6 +25,7 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -46,10 +47,30 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
   Object? _error;
   bool _loading = true;
 
+  // Scoped search state (plan §12.1): the query filters this screen's own
+  // overdue dataset only, so the Last Updated line stays the dataset's.
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadCases();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Opens/closes the scoped search bar; closing clears the query so the list
+  /// comes back whole.
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
   }
 
   Future<void> _loadCases() async {
@@ -226,8 +247,16 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         return a.orderIndex.compareTo(b.orderIndex);
       });
 
+    final query = _searchController.text;
     final byCourt = <String, List<Case>>{};
     for (final c in _cases) {
+      if (!matchesCaseQuery(
+        c,
+        query,
+        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
+      )) {
+        continue;
+      }
       byCourt.putIfAbsent(c.courtId, () => []).add(c);
     }
 
@@ -247,7 +276,10 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     return CasesScreenModal(
       title: l.overdueDatesScreen_title,
       onAddCase: _openAddCase,
-      onSearch: () {},
+      onSearch: _toggleSearch,
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       body: _buildBody(context, l),
     );
   }
@@ -297,11 +329,10 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
           ),
         Expanded(
           child: groups.isEmpty
-              ? Center(
-                  child: Text(
-                    l.overdueDatesScreen_title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+              ? CaseListEmptyState(
+                  placeholder: l.overdueDatesScreen_title,
+                  isSearching: _isSearching,
+                  hasAnyCase: _cases.isNotEmpty,
                 )
               : RefreshIndicator(
                   onRefresh: _loadCases,

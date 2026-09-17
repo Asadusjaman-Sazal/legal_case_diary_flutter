@@ -25,6 +25,7 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
 const _millisecondsPerDay = 86400000;
@@ -49,10 +50,30 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   Object? _error;
   bool _loading = true;
 
+  // Scoped search state (plan §12.1): the query filters this screen's own
+  // upcoming window only.
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadCases();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Opens/closes the scoped search bar; closing clears the query so the list
+  /// comes back whole.
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
   }
 
   Future<void> _loadCases() async {
@@ -202,9 +223,17 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   /// Groups cases by their normalized Bangladesh civil date, newest first,
   /// and then by court inside each date.
   List<_DateGroup> _dateGroups(AppLocalizations l) {
+    final query = _searchController.text;
     final byDate = <int, List<Case>>{};
     for (final c in _cases) {
       if (c.nextDate == null) continue;
+      if (!matchesCaseQuery(
+        c,
+        query,
+        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
+      )) {
+        continue;
+      }
       final dayStart = AppDateUtils.normalizeToBangladeshStartOfDay(
         c.nextDate!,
       );
@@ -272,7 +301,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     return CasesScreenModal(
       title: l.upcomingCasesScreen_title,
       onAddCase: _openAddCase,
-      onSearch: () {},
+      onSearch: _toggleSearch,
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       body: _buildBody(context, l),
     );
   }
@@ -295,11 +327,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     final groups = _dateGroups(l);
 
     if (groups.isEmpty) {
-      return Center(
-        child: Text(
-          l.upcomingCasesScreen_title,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+      return CaseListEmptyState(
+        placeholder: l.upcomingCasesScreen_title,
+        isSearching: _isSearching,
+        hasAnyCase: _cases.isNotEmpty,
       );
     }
 

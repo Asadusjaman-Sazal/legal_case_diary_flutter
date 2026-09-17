@@ -32,6 +32,7 @@ import '../../../../shared/providers/daily_cause_list_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/calendar_picker_dialog.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -59,11 +60,31 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   /// navigation until the app is closed or the user picks another date.
   late int _selectedDate;
 
+  // Scoped search state (plan §12.1): the query filters the selected date's
+  // hearings only.
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _selectedDate = ref.read(dailyCauseListSelectedDateProvider);
     _loadCases();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Opens/closes the scoped search bar; closing clears the query so the day's
+  /// hearings come back whole.
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) _searchController.clear();
+    });
   }
 
   Future<void> _loadCases() async {
@@ -195,8 +216,16 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         return a.orderIndex.compareTo(b.orderIndex);
       });
 
+    final query = _searchController.text;
     final byCourt = <String, List<Case>>{};
     for (final c in _cases) {
+      if (!matchesCaseQuery(
+        c,
+        query,
+        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
+      )) {
+        continue;
+      }
       byCourt.putIfAbsent(c.courtId, () => []).add(c);
     }
 
@@ -217,7 +246,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
       onAddCase: _openAddCase,
-      onSearch: () {},
+      onSearch: _toggleSearch,
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       body: Column(
         children: [
           _DateSwitcher(
@@ -250,11 +282,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     }
     final groups = _courtGroups();
     return groups.isEmpty
-        ? Center(
-            child: Text(
-              l.dailyCauseListScreen_noHearings,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+        ? CaseListEmptyState(
+            placeholder: l.dailyCauseListScreen_noHearings,
+            isSearching: _isSearching,
+            hasAnyCase: _cases.isNotEmpty,
           )
         : ListView.separated(
             padding: const EdgeInsets.all(AppSpacing.md),

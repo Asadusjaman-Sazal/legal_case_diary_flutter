@@ -70,6 +70,10 @@
 
 **Phase 5 completion:** `flutter analyze` clean; search tests pass. Update `docs/version_history.md`.
 
+### Phase 5 — case-list search delivered early (0.0.195, user request)
+
+The user reported the header search button on the case screens did nothing, so item 1 was pulled forward for all six case screens (item 1's five plus the Daily Cause List). It meets item 1's dataset rule and field set, but it does **not** use the Drift `LIKE` path item 1 specifies: the shared `matchesCaseQuery` matcher in `lib/features/cases/presentation/case_search.dart` filters the rows each screen already loaded, which is the same field set as `CasesDao.search`. `CasesDao.search` / `CaseRepository.search` therefore remain unused — swapping the matcher for the DAO query is the only work item 1 still owes here. Items 2-6 (Notes/Reference/Settings wiring, pagination, DAO field-set tests) are untouched.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Replace `represented party phone (`petitioner_phone` or `respondent_phone`)` with explicit petitioner_phone/respondent_phone and select the represented party through on_behalf_id.

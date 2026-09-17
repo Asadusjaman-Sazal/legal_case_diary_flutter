@@ -38,7 +38,7 @@
   "@@_section_activeCasesScreen": "ACTIVE CASES SCREEN  |  lib/features/cases/presentation/active_cases/active_cases_screen.dart",
   "activeCasesScreen_title": "সক্রিয় মামলা",
   "@@_section_upcomingCasesScreen": "UPCOMING CASES SCREEN  |  lib/features/cases/presentation/upcoming_cases/upcoming_cases_screen.dart",
-  "upcomingCasesScreen_title": "সন্ন মামলা",
+  "upcomingCasesScreen_title": "আসন্ন মামলা",
   "@@_section_dailyCauseListScreen": "DAILY CAUSE LIST SCREEN  |  lib/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart",
   "dailyCauseListScreen_title": "দৈনিক কজ লিস্ট",
   "dailyCauseListScreen_today": "আজ",

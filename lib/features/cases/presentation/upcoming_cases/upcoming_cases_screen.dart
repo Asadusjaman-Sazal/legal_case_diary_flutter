@@ -19,6 +19,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
+import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
@@ -43,6 +44,7 @@ class UpcomingCasesScreen extends ConsumerStatefulWidget {
 class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   List<Case> _cases = const [];
   Map<String, Court> _courtsById = const {};
+  Map<String, CourtCategory> _categoriesById = const {};
   Map<String, OnBehalf> _onBehalfsById = const {};
   Object? _error;
   bool _loading = true;
@@ -67,11 +69,13 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
 
       final cases = await repository.listByNextDateRange(rangeStart, rangeEnd);
       final courts = await CourtsDao(db).getAll();
+      final categories = await CourtCategoriesDao(db).getAll();
       final onBehalfs = await OnBehalfsDao(db).getAll();
       if (!mounted) return;
       setState(() {
         _cases = cases;
         _courtsById = {for (final court in courts) court.id: court};
+        _categoriesById = {for (final c in categories) c.id: c};
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
         _error = null;
         _loading = false;
@@ -195,7 +199,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     if (mounted) await _loadCases();
   }
 
-  /// Groups cases by their normalized Bangladesh civil date, newest first.
+  /// Groups cases by their normalized Bangladesh civil date, newest first,
+  /// and then by court inside each date.
   List<_DateGroup> _dateGroups(AppLocalizations l) {
     final byDate = <int, List<Case>>{};
     for (final c in _cases) {
@@ -212,12 +217,53 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     return [
       for (final key in sortedKeys)
         _DateGroup(
+          // The header upper-cases whatever this returns; the date, month and
+          // weekday follow the active language, digits included.
           dateLabel: key == tomorrowStart
               ? l.general_tomorrow
-              : AppDateUtils.formatFullDate(key, locale: l.localeName),
-          cases: byDate[key]!,
+              : _formatDateTitle(key, l.localeName),
+          courtGroups: _courtGroupsFor(byDate[key]!),
         ),
     ];
+  }
+
+  /// The date-title text for one hearing day: English keeps the short
+  /// `EEE, MMM dd, yyyy` — e.g. SAT, SEP 19, 2026 — while বাংলা spells the
+  /// month out and keeps the language's day-first order:
+  /// `EEE, dd MMMM, yyyy` → বৃহস্পতি, ২৪ সেপ্টেম্বর, ২০২৬.
+  String _formatDateTitle(int dayStart, String locale) {
+    final pattern = locale.startsWith('bn')
+        ? 'EEE, dd MMMM, yyyy'
+        : 'EEE, MMM dd, yyyy';
+    return DateFormat(
+      pattern,
+      locale,
+    ).format(AppDateUtils.bangladeshDateTime(dayStart));
+  }
+
+  /// Splits one date's cases by court, ordered by the pre-seeded court
+  /// hierarchy exactly like the Daily Cause List groups its courts.
+  List<_CourtGroup> _courtGroupsFor(List<Case> cases) {
+    final orderedCourts = _courtsById.values.toList()
+      ..sort((a, b) {
+        final ca = _categoriesById[a.courtCategoryId]?.orderIndex ?? 0;
+        final cb = _categoriesById[b.courtCategoryId]?.orderIndex ?? 0;
+        if (ca != cb) return ca.compareTo(cb);
+        return a.orderIndex.compareTo(b.orderIndex);
+      });
+
+    final byCourt = <String, List<Case>>{};
+    for (final currentCase in cases) {
+      byCourt.putIfAbsent(currentCase.courtId, () => []).add(currentCase);
+    }
+
+    final groups = <_CourtGroup>[];
+    for (final court in orderedCourts) {
+      final courtCases = byCourt[court.id];
+      if (courtCases == null || courtCases.isEmpty) continue;
+      groups.add(_CourtGroup(court: court, cases: courtCases));
+    }
+    return groups;
   }
 
   @override
@@ -275,16 +321,23 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                        group.dateLabel.toUpperCase(),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.5,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                    // The date keeps its own width so it is drawn on a single
+                    // line; the divider is what flexes, filling only the space
+                    // left over once the date is laid out. (Two flexible
+                    // children would split the row in half and wrap the date,
+                    // which is the bug this replaces.)
+                    Text(
+                      group.dateLabel.toUpperCase(),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
+                    const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Divider(
                         color: Theme.of(context).dividerColor,
@@ -295,13 +348,50 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              for (final currentCase in group.cases) ...[
-                _buildCard(currentCase, l),
-                const SizedBox(height: AppSpacing.md),
+              // Cases of the same court sit under one court title, exactly like
+              // the Daily Cause List groups its cards.
+              for (final courtGroup in group.courtGroups) ...[
+                _buildCourtTitle(courtGroup, l),
+                for (final currentCase in courtGroup.cases) ...[
+                  _buildCard(currentCase, l),
+                  const SizedBox(height: AppSpacing.md),
+                ],
               ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// The court title above a group of cards, styled like the Daily Cause List
+  /// court heading (court icon, court name, number of cases).
+  Widget _buildCourtTitle(_CourtGroup group, AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Row(
+        children: [
+          const Icon(Icons.account_balance, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              // Pre-seeded courts store their English name, so the title is
+              // resolved through the seed label lookup to follow the active
+              // language; a court the user added keeps the name they typed.
+              context.l10n.seedLabel(
+                group.court.id,
+                fallbackEn: group.court.courtName,
+              ),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          Text(
+            AppDateUtils.formatDigits(group.cases.length, l.localeName),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -313,16 +403,13 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         court?.courtCategoryId == highCourtDivisionId;
     return CaseCard(
       key: ValueKey('case-card-${currentCase.id}'),
-      variant: CaseCardVariant.list,
+      // Same card layout as the Daily Cause List screen.
+      variant: CaseCardVariant.dailyCauseList,
       caseNumber:
           '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
       title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
       subtitle: currentCase.caseTitleAndSection,
-      // A pre-seeded court stores its English name, so the card resolves it to
-      // follow the active language.
-      courtName: court == null
-          ? null
-          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+      courtName: null, // Shown in the court title above the card.
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
       statusLabel: context.l10n.onBehalfLabel(
         currentCase.onBehalfId,
@@ -353,7 +440,14 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
 
 class _DateGroup {
   final String dateLabel;
+  final List<_CourtGroup> courtGroups;
+
+  const _DateGroup({required this.dateLabel, required this.courtGroups});
+}
+
+class _CourtGroup {
+  final Court court;
   final List<Case> cases;
 
-  const _DateGroup({required this.dateLabel, required this.cases});
+  const _CourtGroup({required this.court, required this.cases});
 }

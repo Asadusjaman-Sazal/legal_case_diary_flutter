@@ -108,7 +108,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get activeCasesScreen_title => 'সক্রিয় মামলা';
 
   @override
-  String get upcomingCasesScreen_title => 'সন্ন মামলা';
+  String get upcomingCasesScreen_title => 'আসন্ন মামলা';
 
   @override
   String get dailyCauseListScreen_title => 'দৈনিক কজ লিস্ট';

@@ -1,6 +1,7 @@
-/// Court list screen: manage courts for a category (higher courts) or a
-/// division+district (lower courts). Supports drag reorder, edit, soft-delete
-/// (custom only), and FAB add. Mirrors
+/// Court list screen: manage the courts of one court category — a Supreme
+/// Court division (higher courts) or one category inside a division+district
+/// (lower courts). Supports drag reorder, edit, soft-delete (custom only), and
+/// a bottom-right add button matching the Add Case button. Mirrors
 /// `courtCategory_lowerCourts-Districts_listOfCourts`.
 library;
 
@@ -12,12 +13,14 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/courts_repository.dart';
 import '../../../../database/app_database.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../settings_sub_page_modal.dart';
+import 'court_category_label.dart';
 
 /// Add/edit dialog for a single court name.
 class _CourtEditDialog extends StatefulWidget {
@@ -106,12 +109,18 @@ class CourtListScreen extends ConsumerStatefulWidget {
   /// District id (lower courts).
   final String? district;
 
+  /// Localization key of [category], passed by the screen that opened this
+  /// one so the header can name the category it lists. Null (a restored route)
+  /// simply falls back to the district-level subtitle.
+  final String? categoryNameKey;
+
   const CourtListScreen({
     super.key,
     this.category,
     this.higherLower,
     this.division,
     this.district,
+    this.categoryNameKey,
   });
 
   @override
@@ -121,6 +130,10 @@ class CourtListScreen extends ConsumerStatefulWidget {
 class _CourtListScreenState extends ConsumerState<CourtListScreen> {
   bool get _isLower => widget.division != null && widget.district != null;
 
+  /// Court category the listed courts belong to.
+  String? get _categoryId =>
+      widget.category ?? (_isLower ? chiefJudicialMagistrateId : null);
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -129,14 +142,21 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
     final title = _isLower
         ? l.settingsCourtList_titleLower(_districtLabel(widget.district!))
         : l.settingsCourtList_titleHigher;
+    final subtitle = widget.categoryNameKey != null
+        ? courtCategoryName(context, widget.categoryNameKey!)
+        : (_isLower ? l.settingsCourtFlow_districts : null);
 
     return SettingsSubPageModal(
       title: title,
-      subtitle: _isLower ? l.settingsCourtFlow_districts : null,
+      subtitle: subtitle,
+      // The Add Case button: black, white `+`, bottom-right.
       floatingActionButton: repoAsync.whenOrNull(
         data: (repo) => FloatingActionButton(
           onPressed: () => _addCourt(context, repo),
-          child: const Icon(Icons.add),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          tooltip: l.settingsCourtList_addTitle,
+          child: const Icon(Icons.add, size: 28),
         ),
       ),
       child: repoAsync.when(
@@ -151,28 +171,26 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
     final name = await showDialog<String>(
       context: context,
       builder: (_) => _CourtEditDialog(
-        higherLowerCourts: _isLower ? 'lower_courts' : 'higher_courts',
+        higherLowerCourts: _isLower ? lowerCourtsOption : higherCourtsOption,
         division: widget.division,
         district: widget.district,
-        courtCategoryId: _isLower
-            ? 'chief_judicial_magistrate'
-            : widget.category!,
+        courtCategoryId: _categoryId!,
       ),
     );
     if (name == null || !mounted) return;
     await repo.insert(
       CourtsCompanion(
         courtName: Value(name),
-        higherLowerCourts: Value(_isLower ? 'lower_courts' : 'higher_courts'),
+        higherLowerCourts: Value(
+          _isLower ? lowerCourtsOption : higherCourtsOption,
+        ),
         division: widget.division == null
             ? const Value.absent()
             : Value(widget.division),
         district: widget.district == null
             ? const Value.absent()
             : Value(widget.district),
-        courtCategoryId: Value(
-          _isLower ? 'chief_judicial_magistrate' : widget.category!,
-        ),
+        courtCategoryId: Value(_categoryId!),
         orderIndex: const Value(0),
       ),
     );
@@ -218,10 +236,10 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
         }
         final courts = snapshot.data ?? const [];
         final items = courts.where((c) {
-          if (isLower) {
-            return c.division == state.division && c.district == state.district;
-          }
-          return true;
+          if (!isLower) return true;
+          return c.division == state.division &&
+              c.district == state.district &&
+              (state.category == null || c.courtCategoryId == state.category);
         }).toList();
         if (items.isEmpty) {
           return Center(
@@ -239,7 +257,11 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
               key: ValueKey(court.id),
               court: court,
               onEdit: () => _editCourt(context, court),
-              onDelete: () => _deleteCourt(context, court),
+              // Pre-seeded courts cannot be deleted, so only the courts the
+              // user added offer the action.
+              onDelete: court.isCustom
+                  ? () => _deleteCourt(context, court)
+                  : null,
             );
           },
         );
@@ -307,13 +329,13 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
 class _CourtTile extends StatelessWidget {
   final Court court;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
 
   const _CourtTile({
     super.key,
     required this.court,
     required this.onEdit,
-    required this.onDelete,
+    this.onDelete,
   });
 
   @override
@@ -328,7 +350,12 @@ class _CourtTile extends StatelessWidget {
       ),
       child: ListTile(
         leading: const Icon(Icons.drag_indicator, color: AppColors.tertiary),
-        title: Text(court.courtName, style: AppTypography.bodyLg),
+        // Seeded courts are labeled from the same pre-seeded data the Add/Edit
+        // Case form reads, so both show the court under the active language.
+        title: Text(
+          context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+          style: AppTypography.bodyLg,
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -337,11 +364,12 @@ class _CourtTile extends StatelessWidget {
               onPressed: onEdit,
               tooltip: l.sharedActions_edit,
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error),
-              onPressed: onDelete,
-              tooltip: l.sharedActions_delete,
-            ),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                onPressed: onDelete,
+                tooltip: l.sharedActions_delete,
+              ),
           ],
         ),
       ),

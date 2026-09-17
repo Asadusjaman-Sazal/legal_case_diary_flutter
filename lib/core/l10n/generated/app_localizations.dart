@@ -2083,7 +2083,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtSteps_courtNamesCategories.
   ///
   /// In en, this message translates to:
-  /// **'Edit Court Names & Categories'**
+  /// **'Edit Court Names'**
   String get settingsEditCourtSteps_courtNamesCategories;
 
   /// No description provided for @settingsEditCourtSteps_courtNamesCategoriesSubtitle.
@@ -2095,7 +2095,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtSteps_lowerCourtCategories.
   ///
   /// In en, this message translates to:
-  /// **'Lower Court Categories'**
+  /// **'Edit Lower Court Categories'**
   String get settingsEditCourtSteps_lowerCourtCategories;
 
   /// No description provided for @settingsEditCourtSteps_lowerCourtCategoriesSubtitle.
@@ -2107,20 +2107,8 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtNames_courtCategory.
   ///
   /// In en, this message translates to:
-  /// **'Court Category'**
+  /// **'Edit Court Names'**
   String get settingsEditCourtNames_courtCategory;
-
-  /// No description provided for @settingsEditCourtNames_supremeCourt.
-  ///
-  /// In en, this message translates to:
-  /// **'Supreme Court of Bangladesh'**
-  String get settingsEditCourtNames_supremeCourt;
-
-  /// No description provided for @settingsEditCourtNames_supremeCourtSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Appellate & High Court Divisions'**
-  String get settingsEditCourtNames_supremeCourtSubtitle;
 
   /// No description provided for @settingsEditCourtNames_lowerCourts.
   ///

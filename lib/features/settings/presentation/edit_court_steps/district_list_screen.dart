@@ -21,7 +21,8 @@ class DistrictListScreen extends ConsumerWidget {
   final String division;
 
   /// Active walkthrough. [AppRoutes.lowerCourtCategoryFlow] routes a district
-  /// into its Lower Court Categories list instead of its list of courts.
+  /// into its Lower Court Categories list; otherwise it opens the district's
+  /// court categories.
   final String? flow;
 
   const DistrictListScreen({super.key, required this.division, this.flow});
@@ -58,11 +59,14 @@ class DistrictListScreen extends ConsumerWidget {
               color: AppColors.tertiary,
               size: 18,
             ),
+            // The Lower Court Categories walkthrough edits the district's
+            // categories; Edit Court Names picks one of them to list its
+            // courts.
             onTap: () => context.push(
               flow == AppRoutes.lowerCourtCategoryFlow
                   ? '${AppRoutes.settingsLowerCourtCategoryList}'
                         '?division=$division&district=$id'
-                  : '${AppRoutes.settingsCourtList}'
+                  : '${AppRoutes.settingsDistrictCourtCategories}'
                         '?division=$division&district=$id',
             ),
           );

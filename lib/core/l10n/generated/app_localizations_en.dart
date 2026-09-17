@@ -1079,8 +1079,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage case types, procedural steps, and on-behalf roles';
 
   @override
-  String get settingsEditCourtSteps_courtNamesCategories =>
-      'Edit Court Names & Categories';
+  String get settingsEditCourtSteps_courtNamesCategories => 'Edit Court Names';
 
   @override
   String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>
@@ -1088,22 +1087,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsEditCourtSteps_lowerCourtCategories =>
-      'Lower Court Categories';
+      'Edit Lower Court Categories';
 
   @override
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>
       'Divisions, districts and their court categories';
 
   @override
-  String get settingsEditCourtNames_courtCategory => 'Court Category';
-
-  @override
-  String get settingsEditCourtNames_supremeCourt =>
-      'Supreme Court of Bangladesh';
-
-  @override
-  String get settingsEditCourtNames_supremeCourtSubtitle =>
-      'Appellate & High Court Divisions';
+  String get settingsEditCourtNames_courtCategory => 'Edit Court Names';
 
   @override
   String get settingsEditCourtNames_lowerCourts => 'Lower Courts';

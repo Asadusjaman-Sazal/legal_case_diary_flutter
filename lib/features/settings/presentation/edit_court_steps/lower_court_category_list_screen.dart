@@ -20,8 +20,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
-import '../../../../core/l10n/app_strings.dart';
-import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
@@ -31,6 +29,7 @@ import '../../data/court_categories_repository.dart';
 import '../../data/courts_repository.dart';
 import '../../data/district_court_categories.dart';
 import '../settings_sub_page_modal.dart';
+import 'court_category_label.dart';
 
 /// Court categories available inside a single division + district.
 class LowerCourtCategoryListScreen extends ConsumerWidget {
@@ -215,7 +214,7 @@ class _DistrictCategoryList extends ConsumerWidget {
               return _CategoryTile(
                 key: ValueKey(category.id),
                 category: category,
-                label: _categoryLabel(context, category),
+                label: courtCategoryLabel(context, category),
                 onEdit: () => _rename(context, ref, category),
                 // Built-in categories cannot be deleted; only what the user
                 // added to this district can.
@@ -267,7 +266,7 @@ class _DistrictCategoryList extends ConsumerWidget {
     WidgetRef ref,
     CourtCategory category,
   ) async {
-    final current = _categoryLabel(context, category);
+    final current = courtCategoryLabel(context, category);
     final name = await showDialog<String>(
       context: context,
       builder: (_) => _CategoryEditDialog(initialName: current),
@@ -289,17 +288,6 @@ class _DistrictCategoryList extends ConsumerWidget {
     if (!confirmed) return;
     await categoriesRepo.delete(category);
   }
-}
-
-/// Localized label for a category row.
-///
-/// Built-in categories store their localization key in `name_key`; categories
-/// the user added store the typed name, which is shown as-is.
-String _categoryLabel(BuildContext context, CourtCategory category) {
-  final grouped = context.l10n.grouped;
-  return grouped[AppStrings.lowerCourtCategoryGroup]?[category.nameKey] ??
-      grouped[AppStrings.courtCategoryGroup]?[category.nameKey] ??
-      category.nameKey;
 }
 
 /// A single reorderable court category row with edit (and custom-only) delete.

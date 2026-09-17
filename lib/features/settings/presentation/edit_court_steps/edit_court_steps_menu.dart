@@ -26,10 +26,10 @@ class EditCourtStepsMenu extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
           SettingsMenuCard(
-            icon: Icons.category_outlined,
-            title: l.settingsEditCourtSteps_editItemTypes,
-            subtitle: l.settingsEditCourtSteps_editItemTypesSubtitle,
-            onTap: () => context.push(AppRoutes.settingsCourtNamesSteps),
+            icon: Icons.account_tree_outlined,
+            title: l.settingsEditCourtSteps_lowerCourtCategories,
+            subtitle: l.settingsEditCourtSteps_lowerCourtCategoriesSubtitle,
+            onTap: () => context.push(AppRoutes.settingsLowerCourtCategories),
           ),
           const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
@@ -40,10 +40,10 @@ class EditCourtStepsMenu extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
-            icon: Icons.account_tree_outlined,
-            title: l.settingsEditCourtSteps_lowerCourtCategories,
-            subtitle: l.settingsEditCourtSteps_lowerCourtCategoriesSubtitle,
-            onTap: () => context.push(AppRoutes.settingsLowerCourtCategories),
+            icon: Icons.category_outlined,
+            title: l.settingsEditCourtSteps_editItemTypes,
+            subtitle: l.settingsEditCourtSteps_editItemTypesSubtitle,
+            onTap: () => context.push(AppRoutes.settingsCourtNamesSteps),
           ),
         ],
       ),

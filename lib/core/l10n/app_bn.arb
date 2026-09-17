@@ -478,9 +478,7 @@
   "settingsEditCourtSteps_lowerCourtCategories": "নিম্ন আদালতের ক্যাটেগরি",
   "settingsEditCourtSteps_lowerCourtCategoriesSubtitle": "বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি",
   "@@_section_settingsEditCourtNames": "SETTINGS - EDIT COURT NAMES & CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart",
-  "settingsEditCourtNames_courtCategory": "আদালতের ক্যাটেগরি",
-  "settingsEditCourtNames_supremeCourt": "বাংলাদেশ সুপ্রিম কোর্ট",
-  "settingsEditCourtNames_supremeCourtSubtitle": "আপিল ও হাইকোর্ট বিভাগ",
+  "settingsEditCourtNames_courtCategory": "আদালতের নাম সম্পাদনা",
   "settingsEditCourtNames_lowerCourts": "নিম্ন আদালত",
   "settingsEditCourtNames_lowerCourtsSubtitle": "জেলা, দায়রা ও বিশেষায়িত আদালত",
   "settingsEditCourtNames_quickTip": "দ্রুত পরামর্শ",
@@ -538,7 +536,7 @@
           }
       }
   },
-  "@@_section_settingsLowerCourtCategories": "SETTINGS - DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/court_category_screen.dart, district_list_screen.dart, lower_court_category_list_screen.dart",
+  "@@_section_settingsLowerCourtCategories": "SETTINGS - DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/court_category_screen.dart, district_list_screen.dart, district_court_category_screen.dart, lower_court_category_list_screen.dart",
   "settingsCourtFlow_divisions": "বিভাগ",
   "settingsCourtFlow_districts": "জেলা",
   "settingsLowerCourtCategories_addTooltip": "আদালতের ক্যাটেগরি যোগ করুন",

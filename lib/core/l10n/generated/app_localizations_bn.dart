@@ -1097,14 +1097,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি';
 
   @override
-  String get settingsEditCourtNames_courtCategory => 'আদালতের ক্যাটেগরি';
-
-  @override
-  String get settingsEditCourtNames_supremeCourt => 'বাংলাদেশ সুপ্রিম কোর্ট';
-
-  @override
-  String get settingsEditCourtNames_supremeCourtSubtitle =>
-      'আপিল ও হাইকোর্ট বিভাগ';
+  String get settingsEditCourtNames_courtCategory => 'আদালতের নাম সম্পাদনা';
 
   @override
   String get settingsEditCourtNames_lowerCourts => 'নিম্ন আদালত';

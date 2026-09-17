@@ -1,6 +1,9 @@
-/// Edit Court Names & Categories screen.
-/// Supreme Court → Appellate/High Court division court lists; Lower Courts →
-/// division picker. Mirrors `settings_editCourtSteps_editCourtNamesCategory`.
+/// Edit Court Names screen.
+///
+/// Supreme Court names are split into the two divisions that actually hold
+/// them — Appellate Division and High Court Division — and Lower Courts steps
+/// into the division → district → court category walkthrough. Mirrors
+/// `settings_editCourtSteps_editCourtNamesCategory`.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,41 +12,50 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
-/// A card row for a top-level court grouping.
-class _CategoryCard extends StatelessWidget {
+/// A card row for one court grouping, optionally carrying the labels the next
+/// screen needs.
+class _CourtGroupCard extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String route;
-  final Map<String, String>? query;
+  final Map<String, String> query;
 
-  const _CategoryCard({
+  /// Localization key of the court category the card opens; handed to the next
+  /// screen through the route so its header can name the category.
+  final String? categoryNameKey;
+
+  const _CourtGroupCard({
     required this.icon,
     required this.title,
-    required this.subtitle,
     required this.route,
-    this.query,
+    this.subtitle,
+    this.query = const {},
+    this.categoryNameKey,
   });
 
   @override
   Widget build(BuildContext context) {
-    final uri = Uri(path: route, queryParameters: query ?? {}).toString();
+    final uri = query.isEmpty
+        ? route
+        : Uri(path: route, queryParameters: query).toString();
     // Shared sub-menu card, so this screen matches the Account & Profile card.
     return SettingsMenuCard(
       icon: icon,
       title: title,
       subtitle: subtitle,
-      onTap: () => context.push(uri),
+      onTap: () => context.push(uri, extra: categoryNameKey),
     );
   }
 }
 
-/// Court Names & Categories entry screen.
+/// Court Names entry screen.
 class EditCourtNamesCategoryScreen extends StatelessWidget {
   const EditCourtNamesCategoryScreen({super.key});
 
@@ -55,19 +67,32 @@ class EditCourtNamesCategoryScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
-          _CategoryCard(
+          // The Supreme Court's own two divisions, each listing the court names
+          // the Add/Edit Case form offers for it.
+          _CourtGroupCard(
             icon: Icons.account_balance_outlined,
-            title: l.settingsEditCourtNames_supremeCourt,
-            subtitle: l.settingsEditCourtNames_supremeCourtSubtitle,
+            title: l.courtCategory_appellateDivision,
             route: AppRoutes.settingsCourtList,
             query: const {
-              'higherLower': 'higher_courts',
-              'category': 'appellate_division',
+              'higherLower': higherCourtsOption,
+              'category': appellateDivisionId,
             },
+            categoryNameKey: 'courtCategory_appellateDivision',
           ),
           const SizedBox(height: AppSpacing.sm),
-          _CategoryCard(
+          _CourtGroupCard(
             icon: Icons.gavel_outlined,
+            title: l.courtCategory_highCourtDivision,
+            route: AppRoutes.settingsCourtList,
+            query: const {
+              'higherLower': higherCourtsOption,
+              'category': highCourtDivisionId,
+            },
+            categoryNameKey: 'courtCategory_highCourtDivision',
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _CourtGroupCard(
+            icon: Icons.account_tree_outlined,
             title: l.settingsEditCourtNames_lowerCourts,
             subtitle: l.settingsEditCourtNames_lowerCourtsSubtitle,
             route: AppRoutes.settingsCourtCategory,

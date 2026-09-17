@@ -32,6 +32,7 @@ import '../../features/settings/presentation/backup_restore_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_names_steps_screen.dart';
+import '../../features/settings/presentation/edit_court_steps/district_court_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/district_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/item_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
@@ -79,6 +80,8 @@ class AppRoutes {
       '/settings/edit-court-steps/court-category';
   static const String settingsDistrictList =
       '/settings/edit-court-steps/district-list';
+  static const String settingsDistrictCourtCategories =
+      '/settings/edit-court-steps/district-court-categories';
   static const String settingsCourtList =
       '/settings/edit-court-steps/court-list';
   static const String settingsLowerCourtCategoryList =
@@ -274,12 +277,22 @@ final List<RouteBase> _shellRoutes = [
     ),
   ),
   GoRoute(
+    path: AppRoutes.settingsDistrictCourtCategories,
+    builder: (context, state) => DistrictCourtCategoryScreen(
+      division: state.uri.queryParameters['division'] ?? 'dhaka',
+      district: state.uri.queryParameters['district'] ?? 'dhaka',
+    ),
+  ),
+  GoRoute(
     path: AppRoutes.settingsCourtList,
     builder: (context, state) => CourtListScreen(
       category: state.uri.queryParameters['category'],
       higherLower: state.uri.queryParameters['higherLower'],
       division: state.uri.queryParameters['division'],
       district: state.uri.queryParameters['district'],
+      // Set by the screen that opened this one; data, not URL state, so it is
+      // simply absent on a restored route.
+      categoryNameKey: state.extra is String ? state.extra! as String : null,
     ),
   ),
   GoRoute(

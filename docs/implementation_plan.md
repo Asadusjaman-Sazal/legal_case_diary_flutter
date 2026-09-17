@@ -473,8 +473,10 @@ lib/
 │   │       │   ├── court_names_steps_screen.dart      # Case Types, Steps, On Behalfs (UI: settings_courtNamesSteps)
 │   │       │   ├── court_category_screen.dart         # Division picker (UI: courtCategory_lowerCourts-Division)
 │   │       │   ├── district_list_screen.dart          # District list (UI: courtCategory_lowerCourts-Districts)
+│   │       │   ├── district_court_category_screen.dart  # A district's court categories (Edit Court Names walkthrough)
 │   │       │   ├── lower_court_category_list_screen.dart  # Lower Court Categories of one district (sub-menu "Lower Court Categories")
-│   │       │   └── court_list_screen.dart             # Court names list (UI: courtCategory_lowerCourts-Districts_listOfCourts)
+│   │       │   ├── court_category_label.dart          # Shared court-category label resolution (seed key or typed name)
+│   │       │   └── court_list_screen.dart             # Court names of one category (UI: courtCategory_lowerCourts-Districts_listOfCourts)
 │   │       ├── settings_notifications/
 │   │       │   └── notification_settings_screen.dart  # (UI: settings_notifications/code.html)
 │   │       ├── settings_view/

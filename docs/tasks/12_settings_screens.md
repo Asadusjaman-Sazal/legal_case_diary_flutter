@@ -41,6 +41,21 @@ The Edit Court/Steps menu carries a third card, **Lower Court Categories**, alon
 
 ---
 
+## Edit Court Names (added during implementation, 2026-09-17)
+
+User-requested restructure of the second Edit Court/Steps card (Phase 3 item 2) — supersedes that mockup's single "Supreme Court of Bangladesh" card:
+
+- **Header** changed from "Court Category" to **"Edit Court Names"** (the label lives under `settingsEditCourtNames_*`; the key name `settingsEditCourtNames_courtCategory` was kept so hand-edited translations stay addressable, only its value changed). The two keys that named the removed card (`settingsEditCourtNames_supremeCourt`, `settingsEditCourtNames_supremeCourtSubtitle`) were deleted from both ARB files.
+- The Supreme Court is **two cards now**: **Appellate Division** and **High Court Division**, each opening that division's court names (`court_list_screen.dart` with `?higherLower=higher_courts&category=<division>`). The card titles reuse the seed category labels (`courtCategory_appellateDivision` / `_highCourtDivision`), i.e. the same strings the Add/Edit Case form shows.
+- **Lower Courts → Division → District** no longer lists every court of the district. It opens `district_court_category_screen.dart` (`AppRoutes.settingsDistrictCourtCategories`), which lists the district's court categories as sub-menu cards using the shared `districtCourtCategories` derivation — the same list the Lower Court Categories screen manages and the Add/Edit Case form offers. A category with no court in that district is not listed. Each card opens that category's court names (`court_list_screen.dart` with `?category=<id>`).
+- The court list is **category-scoped** and keeps drag & drop reorder, edit, and FAB add (now adding into the category being listed, not always CJM). The add button is the Add Case button — black `FloatingActionButton`, white `Icons.add` size 28, default bottom-right. Seeded court names are read through the seed label lookup, so they follow the active language like the form does. **Delete is rendered only on courts the user added**; pre-seeded courts cannot be deleted (`LocalCourtsRepository.delete` refuses them), so the action previously raised an unhandled `StateError`.
+- **New shared helper** `edit_court_steps/court_category_label.dart` (`courtCategoryLabel` / `courtCategoryName`) resolves a category label from either a seed key or a typed name; `lower_court_category_list_screen.dart` and the new picker both use it instead of duplicating the lookup.
+- The `categoryNameKey` that names the header is passed with the route (`context.push(..., extra:)`), not as a URL parameter; a restored deep link simply shows the district-level subtitle.
+
+**Implementation note:** the older build of this screen also had `Uri(queryParameters: {})` produce a trailing `?` on the Lower Courts route; the card now only appends a query string when there is one.
+
+---
+
 ## Phase 1 — Main Settings Page
 
 1. `settings_main_screen.dart` designed exactly like `settings_main\code.html`, **plus a "Guidelines" item before "About"**.

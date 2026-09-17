@@ -1263,13 +1263,226 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsNotifications_title => 'নোটিফিকেশন';
 
   @override
+  String get settingsNotifications_statusLabel => 'ডিফল্ট নোটিফিকেশন স্ট্যাটাস';
+
+  @override
+  String get settingsNotifications_on => 'চালু';
+
+  @override
+  String get settingsNotifications_off => 'বন্ধ';
+
+  @override
+  String get settingsNotifications_dayOffsetLabel =>
+      'নোটিফিকেশনের দিনের ব্যবধান';
+
+  @override
+  String get settingsNotifications_selectDayOffsetTitle =>
+      'দিনের ব্যবধান নির্বাচন করুন';
+
+  @override
+  String get settingsNotifications_offsetSameDay => 'একই দিনে';
+
+  @override
+  String get settingsNotifications_offsetDayBefore => 'একদিন আগে';
+
+  @override
+  String settingsNotifications_offsetBeforeDays(int days) {
+    return '$days দিন আগে';
+  }
+
+  @override
+  String get settingsNotifications_timeLabel => 'নোটিফিকেশনের সময়';
+
+  @override
+  String get settingsNotifications_reminderBanner =>
+      'আপনার ডিভাইসে নোটিফিকেশন যথাযথভাবে কাজ নাও করতে পারে। সেটআপ সম্পন্ন করতে ট্যাপ করুন।';
+
+  @override
+  String get settingsNotifications_setupGuide =>
+      'ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড';
+
+  @override
+  String get settingsNotifications_setupGuideSubtitle =>
+      'শাওমি, অপো, ভিভো ও রিয়েলমি ফোনে প্রয়োজন';
+
+  @override
+  String get settingsNotifications_setupGuidePending =>
+      'সেটআপ গাইড Task 13-এ আসবে';
+
+  @override
   String get settingsViewSettings_title => 'ভিউ সেটিংস';
+
+  @override
+  String get settingsViewSettings_sectionDisplay => 'প্রদর্শন';
+
+  @override
+  String get settingsViewSettings_sectionNavigation => 'নেভিগেশন';
+
+  @override
+  String get settingsViewSettings_upcomingPeriod => 'আসন্ন মামলার সময়সীমা';
+
+  @override
+  String settingsViewSettings_days(int days) {
+    return '$days দিন';
+  }
+
+  @override
+  String get settingsViewSettings_caseListMode => 'মামলার তালিকার ধরন';
+
+  @override
+  String get settingsViewSettings_caseListCompact => 'সংক্ষিপ্ত';
+
+  @override
+  String get settingsViewSettings_caseListExpanded => 'বিস্তারিত';
+
+  @override
+  String get settingsViewSettings_bottomTabs => 'নিচের নেভিগেশন ট্যাব';
+
+  @override
+  String get settingsViewSettings_bottomTabsHint =>
+      'নিচের বারে যে স্ক্রিনগুলো চান সেগুলো বেছে নিন, তারপর টেনে আপনার পছন্দের ক্রমে সাজান।';
+
+  @override
+  String get settingsViewSettings_keepOneTab =>
+      'নিচের বারে অন্তত একটি স্ক্রিন রাখুন।';
+
+  @override
+  String get settingsViewSettings_sideNav => 'সাইড নেভিগেশন অপশন';
+
+  @override
+  String get settingsViewSettings_landingPage => 'ডিফল্ট শুরুর পেজ';
 
   @override
   String get settingsGuidelines_title => 'নির্দেশনা';
 
   @override
+  String get settingsGuidelines_intro =>
+      'বিস্তারিত প্রশাসনিক পদ্ধতি দেখতে নিচের যেকোনো বিষয়ে ট্যাপ করুন।';
+
+  @override
+  String get settingsGuidelines_dailyCauseListTitle =>
+      'দৈনিক কজ লিস্ট ব্যবস্থাপনা';
+
+  @override
+  String get settingsGuidelines_dailyCauseListBody1 =>
+      'আপনার দৈনিক সময়সূচি নির্ভুল রাখতে স্থানীয় ডায়েরি আদালতের অফিসিয়াল কজ লিস্টের সঙ্গে সিঙ্ক করুন। \'কজ লিস্ট\' ট্যাবে গিয়ে উপরের ডান কোণে সিঙ্ক আইকনে ট্যাপ করুন।';
+
+  @override
+  String get settingsGuidelines_dailyCauseListBody2 =>
+      'লক্ষ্য করুন: সক্রিয় মনিটরিংয়ে চিহ্নিত না থাকলে নিষ্পত্তিকৃত মামলা স্বয়ংক্রিয়ভাবে আর্কাইভে চলে যাবে।';
+
+  @override
+  String get settingsGuidelines_referencesTitle =>
+      'মামলার রেফারেন্স ব্যবস্থাপনা';
+
+  @override
+  String get settingsGuidelines_referencesBody1 =>
+      'নতুন মামলা যোগ করার সময় রেফারেন্সের জন্য নির্ধারিত ফরম্যাট ব্যবহার করুন, যাতে পরে সহজে খোঁজা যায়। মামলার ধরন, নম্বর ও বছর লিখুন (যেমন, রিট পিটিশন নং ১২৩৪/২০২৩)।';
+
+  @override
+  String get settingsGuidelines_referencesBody2 =>
+      '\'মামলার বিবরণ\' ভিউয়ের \'নোট\' অংশে নির্দিষ্ট সক্রিয় মামলার সঙ্গে প্রাসঙ্গিক নজির সংযুক্ত করতে পারেন।';
+
+  @override
+  String get settingsGuidelines_backupTitle => 'অফলাইন ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsGuidelines_backupBody1 =>
+      'জাস্টিস লেজার প্রতি ২৪ ঘণ্টায় স্বয়ংক্রিয়ভাবে স্থানীয় ব্যাকআপ নেয়। গুগল ড্রাইভ বা নিরাপদ এন্টারপ্রাইজ সার্ভারে ক্লাউড ব্যাকআপ কনফিগার করতে সেটিংস > ব্যাকআপ অপশনে যান।';
+
+  @override
+  String get settingsGuidelines_backupBody2 =>
+      'ডেটা পুনরুদ্ধার করতে হলে রিকভারি শুরু করার আগে আপনার এনক্রিপশন কী প্রস্তুত রাখুন।';
+
+  @override
+  String get settingsGuidelines_securityTitle => 'নিরাপত্তা ও এনক্রিপশন';
+
+  @override
+  String get settingsGuidelines_securityBody1 =>
+      'সব সংবেদনশীল ক্লায়েন্ট ডেটা ও মামলার নোট এন্ড-টু-এন্ড AES-256 এনক্রিপশনে সুরক্ষিত। ডিক্রিপশন কী কেবল আপনার ডিভাইসেই থাকে।';
+
+  @override
+  String get settingsGuidelines_securityBody2 =>
+      'দৈনন্দিন ব্যবহারে বাড়তি নিরাপত্তার জন্য অ্যাপ সেটিংসে বায়োমেট্রিক প্রমাণীকরণ (ফেস আইডি বা ফিঙ্গারপ্রিন্ট) চালু করার পরামর্শ দিই।';
+
+  @override
   String get settingsAbout_title => 'সম্পর্কিত';
+
+  @override
+  String settingsAbout_version(String version) {
+    return 'সংস্করণ $version';
+  }
+
+  @override
+  String get settingsAbout_designedBy => 'ডিজাইন ও ডেভেলপমেন্ট';
+
+  @override
+  String get settingsAbout_role => 'অ্যাডভোকেট';
+
+  @override
+  String get settingsAbout_emailLabel => 'ইমেইল';
+
+  @override
+  String get settingsAbout_whatsappLabel => 'হোয়াটসঅ্যাপ';
+
+  @override
+  String get settingsAbout_moreAboutApp => 'অ্যাপ সম্পর্কে আরও';
+
+  @override
+  String get settingsAbout_faq => 'সাধারণ প্রশ্ন';
+
+  @override
+  String get settingsAbout_privacyPolicy => 'গোপনীয়তা নীতি';
+
+  @override
+  String get settingsAbout_termsOfService => 'সেবার শর্তাবলী';
+
+  @override
+  String get settingsAbout_support => 'সহায়তা';
+
+  @override
+  String get settingsAbout_dataSafetyTitle => 'ডেটা নিরাপত্তা';
+
+  @override
+  String get settingsAbout_dataSafetyBody =>
+      'আপনার ডেটা আপনার ডিভাইসে সংরক্ষিত থাকে এবং ক্লাউডে এনক্রিপ্টেড থাকে।';
+
+  @override
+  String get settingsAbout_actionPending => 'পরবর্তী কোনো টাস্কে আসবে';
+
+  @override
+  String get settingsMoreAbout_title => 'অ্যাপ সম্পর্কে আরও';
+
+  @override
+  String get settingsMoreAbout_checkUpdates => 'আপডেট পরীক্ষা করুন';
+
+  @override
+  String get settingsMoreAbout_description =>
+      'জাস্টিস লেজার বাংলাদেশি আইনজীবীদের জন্যই তৈরি একটি পূর্ণাঙ্গ ডিজিটাল ডায়েরি। এটি দৈনিক কজ লিস্ট পরিচালনা, আসন্ন ও বাদ পড়া তারিখ নিখুঁতভাবে অনুসরণ এবং গুরুত্বপূর্ণ মামলার রেফারেন্স নিরাপদে সংরক্ষণের জন্য তৈরি। আইন পেশাজীবীদের ব্যস্ত গতি ও নিখুঁত পরিকল্পনার কথা মাথায় রেখে নির্মিত এই অ্যাপ আপনার সবচেয়ে গুরুত্বপূর্ণ ডেটা সবসময় গোছানো ও তাৎক্ষণিকভাবে ব্যবহারযোগ্য রাখে।';
+
+  @override
+  String get settingsMoreAbout_keyFeatures => 'প্রধান বৈশিষ্ট্য';
+
+  @override
+  String get settingsMoreAbout_featureDailyCauseList => 'দৈনিক কজ লিস্ট';
+
+  @override
+  String get settingsMoreAbout_featureOfflineBackup => 'অফলাইন ব্যাকআপ';
+
+  @override
+  String get settingsMoreAbout_featureCaseReferences => 'মামলার রেফারেন্স';
+
+  @override
+  String get settingsMoreAbout_featureSecureSync => 'নিরাপদ সিঙ্ক';
+
+  @override
+  String get settingsMoreAbout_rateApp => 'অ্যাপ রেট করুন';
+
+  @override
+  String get settingsMoreAbout_shareApp => 'অ্যাপ শেয়ার করুন';
+
+  @override
+  String get settingsMoreAbout_footer => 'ডিজাইন ও ডেভেলপমেন্ট';
 
   @override
   String get localeScratch_title => 'স্থানীয়করণ স্ক্র্যাচ';

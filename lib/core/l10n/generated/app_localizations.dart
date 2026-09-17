@@ -2398,11 +2398,161 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get settingsNotifications_title;
 
+  /// No description provided for @settingsNotifications_statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default notification status'**
+  String get settingsNotifications_statusLabel;
+
+  /// No description provided for @settingsNotifications_on.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsNotifications_on;
+
+  /// No description provided for @settingsNotifications_off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsNotifications_off;
+
+  /// No description provided for @settingsNotifications_dayOffsetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification day offset'**
+  String get settingsNotifications_dayOffsetLabel;
+
+  /// No description provided for @settingsNotifications_selectDayOffsetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select day offset'**
+  String get settingsNotifications_selectDayOffsetTitle;
+
+  /// No description provided for @settingsNotifications_offsetSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'The same day'**
+  String get settingsNotifications_offsetSameDay;
+
+  /// No description provided for @settingsNotifications_offsetDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'The day before'**
+  String get settingsNotifications_offsetDayBefore;
+
+  /// Day-offset option for two or more days before the hearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {days} days'**
+  String settingsNotifications_offsetBeforeDays(int days);
+
+  /// No description provided for @settingsNotifications_timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification time'**
+  String get settingsNotifications_timeLabel;
+
+  /// No description provided for @settingsNotifications_reminderBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications may not work reliably on your device. Tap to complete setup.'**
+  String get settingsNotifications_reminderBanner;
+
+  /// No description provided for @settingsNotifications_setupGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery & auto-start setup guide'**
+  String get settingsNotifications_setupGuide;
+
+  /// No description provided for @settingsNotifications_setupGuideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Required on Xiaomi, Oppo, Vivo and Realme phones'**
+  String get settingsNotifications_setupGuideSubtitle;
+
+  /// No description provided for @settingsNotifications_setupGuidePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup guide arrives in Task 13'**
+  String get settingsNotifications_setupGuidePending;
+
   /// No description provided for @settingsViewSettings_title.
   ///
   /// In en, this message translates to:
   /// **'View Settings'**
   String get settingsViewSettings_title;
+
+  /// No description provided for @settingsViewSettings_sectionDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get settingsViewSettings_sectionDisplay;
+
+  /// No description provided for @settingsViewSettings_sectionNavigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation'**
+  String get settingsViewSettings_sectionNavigation;
+
+  /// No description provided for @settingsViewSettings_upcomingPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming cases period'**
+  String get settingsViewSettings_upcomingPeriod;
+
+  /// Number of days the Upcoming Cases screen looks ahead.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String settingsViewSettings_days(int days);
+
+  /// No description provided for @settingsViewSettings_caseListMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Case list display'**
+  String get settingsViewSettings_caseListMode;
+
+  /// No description provided for @settingsViewSettings_caseListCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get settingsViewSettings_caseListCompact;
+
+  /// No description provided for @settingsViewSettings_caseListExpanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Expanded'**
+  String get settingsViewSettings_caseListExpanded;
+
+  /// No description provided for @settingsViewSettings_bottomTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom navigation tabs'**
+  String get settingsViewSettings_bottomTabs;
+
+  /// No description provided for @settingsViewSettings_bottomTabsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the screens you want in the bottom bar, then drag them into the order you prefer.'**
+  String get settingsViewSettings_bottomTabsHint;
+
+  /// No description provided for @settingsViewSettings_keepOneTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one screen in the bottom bar.'**
+  String get settingsViewSettings_keepOneTab;
+
+  /// No description provided for @settingsViewSettings_sideNav.
+  ///
+  /// In en, this message translates to:
+  /// **'Side navigation options'**
+  String get settingsViewSettings_sideNav;
+
+  /// No description provided for @settingsViewSettings_landingPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Default landing page'**
+  String get settingsViewSettings_landingPage;
 
   /// No description provided for @settingsGuidelines_title.
   ///
@@ -2410,11 +2560,233 @@ abstract class AppLocalizations {
   /// **'Guidelines'**
   String get settingsGuidelines_title;
 
+  /// No description provided for @settingsGuidelines_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap on any topic below to expand and view detailed administrative procedures.'**
+  String get settingsGuidelines_intro;
+
+  /// No description provided for @settingsGuidelines_dailyCauseListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Cause List Management'**
+  String get settingsGuidelines_dailyCauseListTitle;
+
+  /// No description provided for @settingsGuidelines_dailyCauseListBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'To ensure your daily schedule is accurate, synchronize your local diary with the court\'s official cause list. Navigate to the \'Cause List\' tab and tap the sync icon in the top right corner.'**
+  String get settingsGuidelines_dailyCauseListBody1;
+
+  /// No description provided for @settingsGuidelines_dailyCauseListBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: Disposed cases will automatically move to the archive unless marked for active monitoring.'**
+  String get settingsGuidelines_dailyCauseListBody2;
+
+  /// No description provided for @settingsGuidelines_referencesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Managing Case References'**
+  String get settingsGuidelines_referencesTitle;
+
+  /// No description provided for @settingsGuidelines_referencesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).'**
+  String get settingsGuidelines_referencesBody1;
+
+  /// No description provided for @settingsGuidelines_referencesBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'You can link relevant legal precedents to specific active cases within the \'Case Details\' view under the \'Notes\' section.'**
+  String get settingsGuidelines_referencesBody2;
+
+  /// No description provided for @settingsGuidelines_backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Backup & Restore'**
+  String get settingsGuidelines_backupTitle;
+
+  /// No description provided for @settingsGuidelines_backupBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings > Backup Options.'**
+  String get settingsGuidelines_backupBody1;
+
+  /// No description provided for @settingsGuidelines_backupBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'If you need to restore data, ensure you have your encryption key available before initiating the recovery process.'**
+  String get settingsGuidelines_backupBody2;
+
+  /// No description provided for @settingsGuidelines_securityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Encryption'**
+  String get settingsGuidelines_securityTitle;
+
+  /// No description provided for @settingsGuidelines_securityBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.'**
+  String get settingsGuidelines_securityBody1;
+
+  /// No description provided for @settingsGuidelines_securityBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.'**
+  String get settingsGuidelines_securityBody2;
+
   /// No description provided for @settingsAbout_title.
   ///
   /// In en, this message translates to:
   /// **'About'**
   String get settingsAbout_title;
+
+  /// Bundled app version, shown on the About and More About the App cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settingsAbout_version(String version);
+
+  /// No description provided for @settingsAbout_designedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Designed & Developed By'**
+  String get settingsAbout_designedBy;
+
+  /// No description provided for @settingsAbout_role.
+  ///
+  /// In en, this message translates to:
+  /// **'Advocate'**
+  String get settingsAbout_role;
+
+  /// No description provided for @settingsAbout_emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get settingsAbout_emailLabel;
+
+  /// No description provided for @settingsAbout_whatsappLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get settingsAbout_whatsappLabel;
+
+  /// No description provided for @settingsAbout_moreAboutApp.
+  ///
+  /// In en, this message translates to:
+  /// **'More About the App'**
+  String get settingsAbout_moreAboutApp;
+
+  /// No description provided for @settingsAbout_faq.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get settingsAbout_faq;
+
+  /// No description provided for @settingsAbout_privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get settingsAbout_privacyPolicy;
+
+  /// No description provided for @settingsAbout_termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get settingsAbout_termsOfService;
+
+  /// No description provided for @settingsAbout_support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get settingsAbout_support;
+
+  /// No description provided for @settingsAbout_dataSafetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Safety'**
+  String get settingsAbout_dataSafetyTitle;
+
+  /// No description provided for @settingsAbout_dataSafetyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is stored locally on your device and encrypted in the cloud.'**
+  String get settingsAbout_dataSafetyBody;
+
+  /// No description provided for @settingsAbout_actionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives in a later task'**
+  String get settingsAbout_actionPending;
+
+  /// No description provided for @settingsMoreAbout_title.
+  ///
+  /// In en, this message translates to:
+  /// **'More About the App'**
+  String get settingsMoreAbout_title;
+
+  /// No description provided for @settingsMoreAbout_checkUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get settingsMoreAbout_checkUpdates;
+
+  /// No description provided for @settingsMoreAbout_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.'**
+  String get settingsMoreAbout_description;
+
+  /// No description provided for @settingsMoreAbout_keyFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Key Features'**
+  String get settingsMoreAbout_keyFeatures;
+
+  /// No description provided for @settingsMoreAbout_featureDailyCauseList.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Cause List'**
+  String get settingsMoreAbout_featureDailyCauseList;
+
+  /// No description provided for @settingsMoreAbout_featureOfflineBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Backup'**
+  String get settingsMoreAbout_featureOfflineBackup;
+
+  /// No description provided for @settingsMoreAbout_featureCaseReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Case References'**
+  String get settingsMoreAbout_featureCaseReferences;
+
+  /// No description provided for @settingsMoreAbout_featureSecureSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Sync'**
+  String get settingsMoreAbout_featureSecureSync;
+
+  /// No description provided for @settingsMoreAbout_rateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate App'**
+  String get settingsMoreAbout_rateApp;
+
+  /// No description provided for @settingsMoreAbout_shareApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share App'**
+  String get settingsMoreAbout_shareApp;
+
+  /// No description provided for @settingsMoreAbout_footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Designed & Developed by'**
+  String get settingsMoreAbout_footer;
 
   /// No description provided for @localeScratch_title.
   ///

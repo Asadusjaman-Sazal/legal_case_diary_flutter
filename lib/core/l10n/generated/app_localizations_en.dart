@@ -1257,13 +1257,223 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications_title => 'Notifications';
 
   @override
+  String get settingsNotifications_statusLabel => 'Default notification status';
+
+  @override
+  String get settingsNotifications_on => 'On';
+
+  @override
+  String get settingsNotifications_off => 'Off';
+
+  @override
+  String get settingsNotifications_dayOffsetLabel => 'Notification day offset';
+
+  @override
+  String get settingsNotifications_selectDayOffsetTitle => 'Select day offset';
+
+  @override
+  String get settingsNotifications_offsetSameDay => 'The same day';
+
+  @override
+  String get settingsNotifications_offsetDayBefore => 'The day before';
+
+  @override
+  String settingsNotifications_offsetBeforeDays(int days) {
+    return 'Before $days days';
+  }
+
+  @override
+  String get settingsNotifications_timeLabel => 'Notification time';
+
+  @override
+  String get settingsNotifications_reminderBanner =>
+      'Notifications may not work reliably on your device. Tap to complete setup.';
+
+  @override
+  String get settingsNotifications_setupGuide =>
+      'Battery & auto-start setup guide';
+
+  @override
+  String get settingsNotifications_setupGuideSubtitle =>
+      'Required on Xiaomi, Oppo, Vivo and Realme phones';
+
+  @override
+  String get settingsNotifications_setupGuidePending =>
+      'Setup guide arrives in Task 13';
+
+  @override
   String get settingsViewSettings_title => 'View Settings';
+
+  @override
+  String get settingsViewSettings_sectionDisplay => 'Display';
+
+  @override
+  String get settingsViewSettings_sectionNavigation => 'Navigation';
+
+  @override
+  String get settingsViewSettings_upcomingPeriod => 'Upcoming cases period';
+
+  @override
+  String settingsViewSettings_days(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get settingsViewSettings_caseListMode => 'Case list display';
+
+  @override
+  String get settingsViewSettings_caseListCompact => 'Compact';
+
+  @override
+  String get settingsViewSettings_caseListExpanded => 'Expanded';
+
+  @override
+  String get settingsViewSettings_bottomTabs => 'Bottom navigation tabs';
+
+  @override
+  String get settingsViewSettings_bottomTabsHint =>
+      'Choose the screens you want in the bottom bar, then drag them into the order you prefer.';
+
+  @override
+  String get settingsViewSettings_keepOneTab =>
+      'Keep at least one screen in the bottom bar.';
+
+  @override
+  String get settingsViewSettings_sideNav => 'Side navigation options';
+
+  @override
+  String get settingsViewSettings_landingPage => 'Default landing page';
 
   @override
   String get settingsGuidelines_title => 'Guidelines';
 
   @override
+  String get settingsGuidelines_intro =>
+      'Tap on any topic below to expand and view detailed administrative procedures.';
+
+  @override
+  String get settingsGuidelines_dailyCauseListTitle =>
+      'Daily Cause List Management';
+
+  @override
+  String get settingsGuidelines_dailyCauseListBody1 =>
+      'To ensure your daily schedule is accurate, synchronize your local diary with the court\'s official cause list. Navigate to the \'Cause List\' tab and tap the sync icon in the top right corner.';
+
+  @override
+  String get settingsGuidelines_dailyCauseListBody2 =>
+      'Note: Disposed cases will automatically move to the archive unless marked for active monitoring.';
+
+  @override
+  String get settingsGuidelines_referencesTitle => 'Managing Case References';
+
+  @override
+  String get settingsGuidelines_referencesBody1 =>
+      'When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).';
+
+  @override
+  String get settingsGuidelines_referencesBody2 =>
+      'You can link relevant legal precedents to specific active cases within the \'Case Details\' view under the \'Notes\' section.';
+
+  @override
+  String get settingsGuidelines_backupTitle => 'Offline Backup & Restore';
+
+  @override
+  String get settingsGuidelines_backupBody1 =>
+      'The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings > Backup Options.';
+
+  @override
+  String get settingsGuidelines_backupBody2 =>
+      'If you need to restore data, ensure you have your encryption key available before initiating the recovery process.';
+
+  @override
+  String get settingsGuidelines_securityTitle => 'Security & Encryption';
+
+  @override
+  String get settingsGuidelines_securityBody1 =>
+      'All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.';
+
+  @override
+  String get settingsGuidelines_securityBody2 =>
+      'We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.';
+
+  @override
   String get settingsAbout_title => 'About';
+
+  @override
+  String settingsAbout_version(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get settingsAbout_designedBy => 'Designed & Developed By';
+
+  @override
+  String get settingsAbout_role => 'Advocate';
+
+  @override
+  String get settingsAbout_emailLabel => 'Email';
+
+  @override
+  String get settingsAbout_whatsappLabel => 'WhatsApp';
+
+  @override
+  String get settingsAbout_moreAboutApp => 'More About the App';
+
+  @override
+  String get settingsAbout_faq => 'FAQ';
+
+  @override
+  String get settingsAbout_privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get settingsAbout_termsOfService => 'Terms of Service';
+
+  @override
+  String get settingsAbout_support => 'Support';
+
+  @override
+  String get settingsAbout_dataSafetyTitle => 'Data Safety';
+
+  @override
+  String get settingsAbout_dataSafetyBody =>
+      'Your data is stored locally on your device and encrypted in the cloud.';
+
+  @override
+  String get settingsAbout_actionPending => 'Arrives in a later task';
+
+  @override
+  String get settingsMoreAbout_title => 'More About the App';
+
+  @override
+  String get settingsMoreAbout_checkUpdates => 'Check for updates';
+
+  @override
+  String get settingsMoreAbout_description =>
+      'Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.';
+
+  @override
+  String get settingsMoreAbout_keyFeatures => 'Key Features';
+
+  @override
+  String get settingsMoreAbout_featureDailyCauseList => 'Daily Cause List';
+
+  @override
+  String get settingsMoreAbout_featureOfflineBackup => 'Offline Backup';
+
+  @override
+  String get settingsMoreAbout_featureCaseReferences => 'Case References';
+
+  @override
+  String get settingsMoreAbout_featureSecureSync => 'Secure Sync';
+
+  @override
+  String get settingsMoreAbout_rateApp => 'Rate App';
+
+  @override
+  String get settingsMoreAbout_shareApp => 'Share App';
+
+  @override
+  String get settingsMoreAbout_footer => 'Designed & Developed by';
 
   @override
   String get localeScratch_title => 'Localization Scratch';

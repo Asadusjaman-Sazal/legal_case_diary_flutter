@@ -47,6 +47,17 @@ class SettingsViewModel extends AsyncNotifier<UserSettings> {
     await repo.upsertSettings(settings);
     await refresh();
   }
+
+  /// Applies [transform] to the settings currently held and persists the
+  /// result, so a Settings screen changes one field without rebuilding the
+  /// whole [UserSettings] value. Named `updateSettings` because Riverpod 3's
+  /// notifier already defines `update`.
+  Future<void> updateSettings(
+    UserSettings Function(UserSettings current) transform,
+  ) async {
+    final current = state.value ?? const UserSettings();
+    await saveSettings(transform(current));
+  }
 }
 
 /// Global provider alias for the settings ViewModel.

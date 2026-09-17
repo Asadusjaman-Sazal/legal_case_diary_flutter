@@ -74,6 +74,11 @@ void main() {
       'settingsItemList',
       'settingsCourtList',
       'settingsLowerCourtCategories',
+      'settingsNotifications',
+      'settingsViewSettings',
+      'settingsGuidelines',
+      'settingsAbout',
+      'settingsMoreAbout',
     ]) {
       expect(markers, contains('@@_section_$section'), reason: section);
     }

@@ -562,11 +562,101 @@
           }
       }
   },
-  "@@_section_settingsOtherPages": "SETTINGS - NOTIFICATIONS / VIEW / GUIDELINES / ABOUT  |  notifications / view settings / guidelines / about sub-pages",
+  "@@_section_settingsNotifications": "SETTINGS - NOTIFICATIONS  |  lib/features/settings/presentation/settings_notifications/notification_settings_screen.dart",
   "settingsNotifications_title": "Notifications",
+  "settingsNotifications_statusLabel": "Default notification status",
+  "settingsNotifications_on": "On",
+  "settingsNotifications_off": "Off",
+  "settingsNotifications_dayOffsetLabel": "Notification day offset",
+  "settingsNotifications_selectDayOffsetTitle": "Select day offset",
+  "settingsNotifications_offsetSameDay": "The same day",
+  "settingsNotifications_offsetDayBefore": "The day before",
+  "settingsNotifications_offsetBeforeDays": "Before {days} days",
+  "@settingsNotifications_offsetBeforeDays": {
+      "description": "Day-offset option for two or more days before the hearing.",
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsNotifications_timeLabel": "Notification time",
+  "settingsNotifications_reminderBanner": "Notifications may not work reliably on your device. Tap to complete setup.",
+  "settingsNotifications_setupGuide": "Battery & auto-start setup guide",
+  "settingsNotifications_setupGuideSubtitle": "Required on Xiaomi, Oppo, Vivo and Realme phones",
+  "settingsNotifications_setupGuidePending": "Setup guide arrives in Task 13",
+  "@@_section_settingsViewSettings": "SETTINGS - VIEW SETTINGS  |  lib/features/settings/presentation/settings_view/view_settings_screen.dart",
   "settingsViewSettings_title": "View Settings",
+  "settingsViewSettings_sectionDisplay": "Display",
+  "settingsViewSettings_sectionNavigation": "Navigation",
+  "settingsViewSettings_upcomingPeriod": "Upcoming cases period",
+  "settingsViewSettings_days": "{days} days",
+  "@settingsViewSettings_days": {
+      "description": "Number of days the Upcoming Cases screen looks ahead.",
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsViewSettings_caseListMode": "Case list display",
+  "settingsViewSettings_caseListCompact": "Compact",
+  "settingsViewSettings_caseListExpanded": "Expanded",
+  "settingsViewSettings_bottomTabs": "Bottom navigation tabs",
+  "settingsViewSettings_bottomTabsHint": "Choose the screens you want in the bottom bar, then drag them into the order you prefer.",
+  "settingsViewSettings_keepOneTab": "Keep at least one screen in the bottom bar.",
+  "settingsViewSettings_sideNav": "Side navigation options",
+  "settingsViewSettings_landingPage": "Default landing page",
+  "@@_section_settingsGuidelines": "SETTINGS - GUIDELINES  |  lib/features/settings/presentation/settings_about/guidelines_screen.dart",
   "settingsGuidelines_title": "Guidelines",
+  "settingsGuidelines_intro": "Tap on any topic below to expand and view detailed administrative procedures.",
+  "settingsGuidelines_dailyCauseListTitle": "Daily Cause List Management",
+  "settingsGuidelines_dailyCauseListBody1": "To ensure your daily schedule is accurate, synchronize your local diary with the court's official cause list. Navigate to the 'Cause List' tab and tap the sync icon in the top right corner.",
+  "settingsGuidelines_dailyCauseListBody2": "Note: Disposed cases will automatically move to the archive unless marked for active monitoring.",
+  "settingsGuidelines_referencesTitle": "Managing Case References",
+  "settingsGuidelines_referencesBody1": "When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).",
+  "settingsGuidelines_referencesBody2": "You can link relevant legal precedents to specific active cases within the 'Case Details' view under the 'Notes' section.",
+  "settingsGuidelines_backupTitle": "Offline Backup & Restore",
+  "settingsGuidelines_backupBody1": "The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings > Backup Options.",
+  "settingsGuidelines_backupBody2": "If you need to restore data, ensure you have your encryption key available before initiating the recovery process.",
+  "settingsGuidelines_securityTitle": "Security & Encryption",
+  "settingsGuidelines_securityBody1": "All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.",
+  "settingsGuidelines_securityBody2": "We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.",
+  "@@_section_settingsAbout": "SETTINGS - ABOUT  |  lib/features/settings/presentation/settings_about/more_about_app_screen.dart (about screen)",
   "settingsAbout_title": "About",
+  "settingsAbout_version": "Version {version}",
+  "@settingsAbout_version": {
+      "description": "Bundled app version, shown on the About and More About the App cards.",
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAbout_designedBy": "Designed & Developed By",
+  "settingsAbout_role": "Advocate",
+  "settingsAbout_emailLabel": "Email",
+  "settingsAbout_whatsappLabel": "WhatsApp",
+  "settingsAbout_moreAboutApp": "More About the App",
+  "settingsAbout_faq": "FAQ",
+  "settingsAbout_privacyPolicy": "Privacy Policy",
+  "settingsAbout_termsOfService": "Terms of Service",
+  "settingsAbout_support": "Support",
+  "settingsAbout_dataSafetyTitle": "Data Safety",
+  "settingsAbout_dataSafetyBody": "Your data is stored locally on your device and encrypted in the cloud.",
+  "settingsAbout_actionPending": "Arrives in a later task",
+  "@@_section_settingsMoreAbout": "SETTINGS - MORE ABOUT THE APP  |  lib/features/settings/presentation/settings_about/more_about_the_app_screen.dart",
+  "settingsMoreAbout_title": "More About the App",
+  "settingsMoreAbout_checkUpdates": "Check for updates",
+  "settingsMoreAbout_description": "Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.",
+  "settingsMoreAbout_keyFeatures": "Key Features",
+  "settingsMoreAbout_featureDailyCauseList": "Daily Cause List",
+  "settingsMoreAbout_featureOfflineBackup": "Offline Backup",
+  "settingsMoreAbout_featureCaseReferences": "Case References",
+  "settingsMoreAbout_featureSecureSync": "Secure Sync",
+  "settingsMoreAbout_rateApp": "Rate App",
+  "settingsMoreAbout_shareApp": "Share App",
+  "settingsMoreAbout_footer": "Designed & Developed by",
   "@@_section_localeScratch": "DEV ONLY - LOCALIZATION SCRATCH  |  dev-only scratch screen - not user facing",
   "localeScratch_title": "Localization Scratch",
   "localeScratch_greeting": "Hello",

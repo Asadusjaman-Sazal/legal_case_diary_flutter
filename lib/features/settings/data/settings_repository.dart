@@ -31,6 +31,9 @@ class UserSettings {
   /// Default landing page route name.
   final String defaultLandingPage;
 
+  /// Whether upcoming-case notifications are enabled for this user.
+  final bool notificationEnabled;
+
   /// Preferred notification time of day in minutes since midnight.
   final int? notificationTime;
 
@@ -64,6 +67,7 @@ class UserSettings {
     ],
     this.sideNavOptions = const {},
     this.defaultLandingPage = 'all_cases',
+    this.notificationEnabled = false,
     this.notificationTime,
     this.notificationDayOffset = 1,
     this.notificationDefaultOffsets = const [1],
@@ -86,6 +90,7 @@ class UserSettings {
     bottomNavTabs: bottomNavTabs,
     sideNavOptions: sideNavOptions,
     defaultLandingPage: defaultLandingPage,
+    notificationEnabled: notificationEnabled,
     notificationTime: notificationTime,
     notificationDayOffset: notificationDayOffset,
     notificationDefaultOffsets: notificationDefaultOffsets,
@@ -96,6 +101,39 @@ class UserSettings {
     lastAddCaseDistrict: district,
   );
 
+  /// Creates a copy with the given fields replaced.
+  UserSettings copyWith({
+    bool? isPremium,
+    int? upcomingCasesPeriod,
+    String? caseListDisplayMode,
+    List<String>? bottomNavTabs,
+    Map<String, dynamic>? sideNavOptions,
+    String? defaultLandingPage,
+    bool? notificationEnabled,
+    int? notificationTime,
+    int? notificationDayOffset,
+    List<int>? notificationDefaultOffsets,
+    String? language,
+    Map<String, dynamic>? backupNudge,
+  }) => UserSettings(
+    isPremium: isPremium ?? this.isPremium,
+    upcomingCasesPeriod: upcomingCasesPeriod ?? this.upcomingCasesPeriod,
+    caseListDisplayMode: caseListDisplayMode ?? this.caseListDisplayMode,
+    bottomNavTabs: bottomNavTabs ?? this.bottomNavTabs,
+    sideNavOptions: sideNavOptions ?? this.sideNavOptions,
+    defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
+    notificationEnabled: notificationEnabled ?? this.notificationEnabled,
+    notificationTime: notificationTime ?? this.notificationTime,
+    notificationDayOffset: notificationDayOffset ?? this.notificationDayOffset,
+    notificationDefaultOffsets:
+        notificationDefaultOffsets ?? this.notificationDefaultOffsets,
+    language: language ?? this.language,
+    backupNudge: backupNudge ?? this.backupNudge,
+    lastAddCaseHigherLowerCourt: lastAddCaseHigherLowerCourt,
+    lastAddCaseDivision: lastAddCaseDivision,
+    lastAddCaseDistrict: lastAddCaseDistrict,
+  );
+
   /// Converts settings to a JSON-serializable map.
   Map<String, dynamic> toJson() => <String, dynamic>{
     'upcoming_cases_period': upcomingCasesPeriod,
@@ -103,6 +141,7 @@ class UserSettings {
     'bottom_nav_tabs': bottomNavTabs,
     'side_nav_options': sideNavOptions,
     'default_landing_page': defaultLandingPage,
+    'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
     'backup_nudge': backupNudge,
@@ -121,6 +160,7 @@ class UserSettings {
     final viewSettingsJson = row.viewSettingsJson;
     if (viewSettingsJson == null) {
       return UserSettings(
+        notificationEnabled: row.notificationEnabled,
         notificationTime: row.notificationTime,
         notificationDefaultOffsets: _readOffsets(
           row.notificationDefaultOffsets,
@@ -147,6 +187,8 @@ class UserSettings {
           : const {},
       defaultLandingPage:
           json['default_landing_page'] as String? ?? 'all_cases',
+      notificationEnabled:
+          json['notification_enabled'] as bool? ?? row.notificationEnabled,
       notificationTime: row.notificationTime,
       notificationDayOffset:
           (json['notification_day_offset'] as num?)?.toInt() ?? 1,
@@ -264,6 +306,7 @@ class LocalSettingsRepository implements SettingsRepository {
     final companion = UserPreferencesCompanion(
       userId: Value(_userId),
       viewSettingsJson: Value(jsonEncode(settings.toJson())),
+      notificationEnabled: Value(settings.notificationEnabled),
       notificationTime: Value(settings.notificationTime),
       notificationDefaultOffsets: Value(
         jsonEncode(settings.notificationDefaultOffsets),

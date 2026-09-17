@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.176
+version: 0.0.177
 
 environment:
   sdk: ^3.12.2
@@ -102,6 +102,10 @@ flutter:
 
   # Required for flutter_localizations code generation.
   generate: true
+
+  # Bundled images (the About screen's developer profile photo).
+  assets:
+    - assets/images/
 
   # Custom fonts for the Justice Ledger design system (Task 02).
   fonts:

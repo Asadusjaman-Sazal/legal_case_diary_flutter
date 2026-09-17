@@ -42,6 +42,7 @@ import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
+import '../../features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 import '../../features/settings/presentation/settings_main_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 import '../../features/settings/presentation/settings_view/view_settings_screen.dart';
@@ -101,6 +102,7 @@ class AppRoutes {
   static const String settingsViewSettings = '/settings/view-settings';
   static const String settingsGuidelines = '/settings/guidelines';
   static const String settingsAbout = '/settings/about';
+  static const String settingsMoreAbout = '/settings/about/more';
   static const String caseDetail = '/case-detail/:caseId';
   static const String login = '/login';
   static const String signup = '/signup';
@@ -324,6 +326,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsAbout,
     builder: (context, state) => const MoreAboutAppScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsMoreAbout,
+    builder: (context, state) => const MoreAboutTheAppScreen(),
   ),
 ];
 

@@ -96,6 +96,15 @@ Implement the full management flow per §8 and the Court Hierarchy Flow:
 
 **Phase 4 completion:** `flutter analyze` clean; verify bottom-nav customization and landing-page change take effect. Update `docs/version_history.md`.
 
+## Phase 4 Implementation Notes (added during implementation, 2026-09-17)
+
+- **Storage:** every Phase 4 value is a **per-user preference** in the existing `user_preferences` row (plan §10 + the Addendum: settings are never firm-shared). No schema change; no SharedPreferences. `notificationEnabled` was stored but never read or written, so `UserSettings` and `LocalSettingsRepository` gained it; the day-offset choice is mirrored into `notificationDefaultOffsets`, so Task 13 can read either field.
+- **Version mechanism (item 3's open question):** the user chose a **bundled Dart constant**, `core/constants/app_version.dart`. `test/core/app_version_test.dart` fails if it drifts from `pubspec.yaml` or from `## Current Version` in `docs/version_history.md`, so the file stays the single source of truth without an asset read.
+- **Approved deviations from the mockups:** the Notifications screen also carries the plan's OEM battery reminder banner and setup-guide row (inert until Task 13, whose guide it points at), and its time row uses Material `showTimePicker` instead of the mockup's custom dial; About shows the version line and uses the bundled `assets/images/dev_profile.jpg` instead of the mockup's remote image (Part A is offline). The mockup's empty "Test Notification" box renders nothing — test notifications are Task 13.
+- **Item 2's "4 tabs" wording:** the user approved picking **any number** of bottom tabs, so the bar renders every stored tab and scrolls horizontally above four instead of capping; ordering is drag-based within the same list.
+- **Extra screen (user-approved):** About's "More About the App" row opens the uncited `settings_moreAboutTheApp` mockup, implemented as `more_about_the_app_screen.dart` + `AppRoutes.settingsMoreAbout`. Its Rate App, Share App and Check for updates actions only report their Part A state (store links and update checks belong to later tasks), and the About screen's remaining rows (FAQ, Privacy Policy, Terms of Service, Support) do the same.
+- **Consequence to revisit:** `case_list_display_mode` is stored but has no consumer yet, and `UserSettings.defaultLandingPage` still defaults to `all_cases` for on-device testing (the plan's default is `daily_cause_list`); the View Settings screen shows and saves whichever value is stored, and its landing-page test seeds `daily_cause_list` explicitly rather than changing that default.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Language, view/navigation configuration, notification defaults, and related settings are durable per-user preferences. Part A persists locally; premium Part B syncs only self-scoped preferences and never shares them across a firm.

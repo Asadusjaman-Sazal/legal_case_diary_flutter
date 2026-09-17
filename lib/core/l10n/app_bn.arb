@@ -562,11 +562,101 @@
           }
       }
   },
-  "@@_section_settingsOtherPages": "SETTINGS - NOTIFICATIONS / VIEW / GUIDELINES / ABOUT  |  notifications / view settings / guidelines / about sub-pages",
+  "@@_section_settingsNotifications": "SETTINGS - NOTIFICATIONS  |  lib/features/settings/presentation/settings_notifications/notification_settings_screen.dart",
   "settingsNotifications_title": "নোটিফিকেশন",
+  "settingsNotifications_statusLabel": "ডিফল্ট নোটিফিকেশন স্ট্যাটাস",
+  "settingsNotifications_on": "চালু",
+  "settingsNotifications_off": "বন্ধ",
+  "settingsNotifications_dayOffsetLabel": "নোটিফিকেশনের দিনের ব্যবধান",
+  "settingsNotifications_selectDayOffsetTitle": "দিনের ব্যবধান নির্বাচন করুন",
+  "settingsNotifications_offsetSameDay": "একই দিনে",
+  "settingsNotifications_offsetDayBefore": "একদিন আগে",
+  "settingsNotifications_offsetBeforeDays": "{days} দিন আগে",
+  "@settingsNotifications_offsetBeforeDays": {
+      "description": "Day-offset option for two or more days before the hearing.",
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsNotifications_timeLabel": "নোটিফিকেশনের সময়",
+  "settingsNotifications_reminderBanner": "আপনার ডিভাইসে নোটিফিকেশন যথাযথভাবে কাজ নাও করতে পারে। সেটআপ সম্পন্ন করতে ট্যাপ করুন।",
+  "settingsNotifications_setupGuide": "ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড",
+  "settingsNotifications_setupGuideSubtitle": "শাওমি, অপো, ভিভো ও রিয়েলমি ফোনে প্রয়োজন",
+  "settingsNotifications_setupGuidePending": "সেটআপ গাইড Task 13-এ আসবে",
+  "@@_section_settingsViewSettings": "SETTINGS - VIEW SETTINGS  |  lib/features/settings/presentation/settings_view/view_settings_screen.dart",
   "settingsViewSettings_title": "ভিউ সেটিংস",
+  "settingsViewSettings_sectionDisplay": "প্রদর্শন",
+  "settingsViewSettings_sectionNavigation": "নেভিগেশন",
+  "settingsViewSettings_upcomingPeriod": "আসন্ন মামলার সময়সীমা",
+  "settingsViewSettings_days": "{days} দিন",
+  "@settingsViewSettings_days": {
+      "description": "Number of days the Upcoming Cases screen looks ahead.",
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsViewSettings_caseListMode": "মামলার তালিকার ধরন",
+  "settingsViewSettings_caseListCompact": "সংক্ষিপ্ত",
+  "settingsViewSettings_caseListExpanded": "বিস্তারিত",
+  "settingsViewSettings_bottomTabs": "নিচের নেভিগেশন ট্যাব",
+  "settingsViewSettings_bottomTabsHint": "নিচের বারে যে স্ক্রিনগুলো চান সেগুলো বেছে নিন, তারপর টেনে আপনার পছন্দের ক্রমে সাজান।",
+  "settingsViewSettings_keepOneTab": "নিচের বারে অন্তত একটি স্ক্রিন রাখুন।",
+  "settingsViewSettings_sideNav": "সাইড নেভিগেশন অপশন",
+  "settingsViewSettings_landingPage": "ডিফল্ট শুরুর পেজ",
+  "@@_section_settingsGuidelines": "SETTINGS - GUIDELINES  |  lib/features/settings/presentation/settings_about/guidelines_screen.dart",
   "settingsGuidelines_title": "নির্দেশনা",
+  "settingsGuidelines_intro": "বিস্তারিত প্রশাসনিক পদ্ধতি দেখতে নিচের যেকোনো বিষয়ে ট্যাপ করুন।",
+  "settingsGuidelines_dailyCauseListTitle": "দৈনিক কজ লিস্ট ব্যবস্থাপনা",
+  "settingsGuidelines_dailyCauseListBody1": "আপনার দৈনিক সময়সূচি নির্ভুল রাখতে স্থানীয় ডায়েরি আদালতের অফিসিয়াল কজ লিস্টের সঙ্গে সিঙ্ক করুন। 'কজ লিস্ট' ট্যাবে গিয়ে উপরের ডান কোণে সিঙ্ক আইকনে ট্যাপ করুন।",
+  "settingsGuidelines_dailyCauseListBody2": "লক্ষ্য করুন: সক্রিয় মনিটরিংয়ে চিহ্নিত না থাকলে নিষ্পত্তিকৃত মামলা স্বয়ংক্রিয়ভাবে আর্কাইভে চলে যাবে।",
+  "settingsGuidelines_referencesTitle": "মামলার রেফারেন্স ব্যবস্থাপনা",
+  "settingsGuidelines_referencesBody1": "নতুন মামলা যোগ করার সময় রেফারেন্সের জন্য নির্ধারিত ফরম্যাট ব্যবহার করুন, যাতে পরে সহজে খোঁজা যায়। মামলার ধরন, নম্বর ও বছর লিখুন (যেমন, রিট পিটিশন নং ১২৩৪/২০২৩)।",
+  "settingsGuidelines_referencesBody2": "'মামলার বিবরণ' ভিউয়ের 'নোট' অংশে নির্দিষ্ট সক্রিয় মামলার সঙ্গে প্রাসঙ্গিক নজির সংযুক্ত করতে পারেন।",
+  "settingsGuidelines_backupTitle": "অফলাইন ব্যাকআপ ও পুনরুদ্ধার",
+  "settingsGuidelines_backupBody1": "জাস্টিস লেজার প্রতি ২৪ ঘণ্টায় স্বয়ংক্রিয়ভাবে স্থানীয় ব্যাকআপ নেয়। গুগল ড্রাইভ বা নিরাপদ এন্টারপ্রাইজ সার্ভারে ক্লাউড ব্যাকআপ কনফিগার করতে সেটিংস > ব্যাকআপ অপশনে যান।",
+  "settingsGuidelines_backupBody2": "ডেটা পুনরুদ্ধার করতে হলে রিকভারি শুরু করার আগে আপনার এনক্রিপশন কী প্রস্তুত রাখুন।",
+  "settingsGuidelines_securityTitle": "নিরাপত্তা ও এনক্রিপশন",
+  "settingsGuidelines_securityBody1": "সব সংবেদনশীল ক্লায়েন্ট ডেটা ও মামলার নোট এন্ড-টু-এন্ড AES-256 এনক্রিপশনে সুরক্ষিত। ডিক্রিপশন কী কেবল আপনার ডিভাইসেই থাকে।",
+  "settingsGuidelines_securityBody2": "দৈনন্দিন ব্যবহারে বাড়তি নিরাপত্তার জন্য অ্যাপ সেটিংসে বায়োমেট্রিক প্রমাণীকরণ (ফেস আইডি বা ফিঙ্গারপ্রিন্ট) চালু করার পরামর্শ দিই।",
+  "@@_section_settingsAbout": "SETTINGS - ABOUT  |  lib/features/settings/presentation/settings_about/more_about_app_screen.dart (about screen)",
   "settingsAbout_title": "সম্পর্কিত",
+  "settingsAbout_version": "সংস্করণ {version}",
+  "@settingsAbout_version": {
+      "description": "Bundled app version, shown on the About and More About the App cards.",
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAbout_designedBy": "ডিজাইন ও ডেভেলপমেন্ট",
+  "settingsAbout_role": "অ্যাডভোকেট",
+  "settingsAbout_emailLabel": "ইমেইল",
+  "settingsAbout_whatsappLabel": "হোয়াটসঅ্যাপ",
+  "settingsAbout_moreAboutApp": "অ্যাপ সম্পর্কে আরও",
+  "settingsAbout_faq": "সাধারণ প্রশ্ন",
+  "settingsAbout_privacyPolicy": "গোপনীয়তা নীতি",
+  "settingsAbout_termsOfService": "সেবার শর্তাবলী",
+  "settingsAbout_support": "সহায়তা",
+  "settingsAbout_dataSafetyTitle": "ডেটা নিরাপত্তা",
+  "settingsAbout_dataSafetyBody": "আপনার ডেটা আপনার ডিভাইসে সংরক্ষিত থাকে এবং ক্লাউডে এনক্রিপ্টেড থাকে।",
+  "settingsAbout_actionPending": "পরবর্তী কোনো টাস্কে আসবে",
+  "@@_section_settingsMoreAbout": "SETTINGS - MORE ABOUT THE APP  |  lib/features/settings/presentation/settings_about/more_about_the_app_screen.dart",
+  "settingsMoreAbout_title": "অ্যাপ সম্পর্কে আরও",
+  "settingsMoreAbout_checkUpdates": "আপডেট পরীক্ষা করুন",
+  "settingsMoreAbout_description": "জাস্টিস লেজার বাংলাদেশি আইনজীবীদের জন্যই তৈরি একটি পূর্ণাঙ্গ ডিজিটাল ডায়েরি। এটি দৈনিক কজ লিস্ট পরিচালনা, আসন্ন ও বাদ পড়া তারিখ নিখুঁতভাবে অনুসরণ এবং গুরুত্বপূর্ণ মামলার রেফারেন্স নিরাপদে সংরক্ষণের জন্য তৈরি। আইন পেশাজীবীদের ব্যস্ত গতি ও নিখুঁত পরিকল্পনার কথা মাথায় রেখে নির্মিত এই অ্যাপ আপনার সবচেয়ে গুরুত্বপূর্ণ ডেটা সবসময় গোছানো ও তাৎক্ষণিকভাবে ব্যবহারযোগ্য রাখে।",
+  "settingsMoreAbout_keyFeatures": "প্রধান বৈশিষ্ট্য",
+  "settingsMoreAbout_featureDailyCauseList": "দৈনিক কজ লিস্ট",
+  "settingsMoreAbout_featureOfflineBackup": "অফলাইন ব্যাকআপ",
+  "settingsMoreAbout_featureCaseReferences": "মামলার রেফারেন্স",
+  "settingsMoreAbout_featureSecureSync": "নিরাপদ সিঙ্ক",
+  "settingsMoreAbout_rateApp": "অ্যাপ রেট করুন",
+  "settingsMoreAbout_shareApp": "অ্যাপ শেয়ার করুন",
+  "settingsMoreAbout_footer": "ডিজাইন ও ডেভেলপমেন্ট",
   "@@_section_localeScratch": "DEV ONLY - LOCALIZATION SCRATCH  |  dev-only scratch screen - not user facing",
   "localeScratch_title": "স্থানীয়করণ স্ক্র্যাচ",
   "localeScratch_greeting": "হ্যালো",

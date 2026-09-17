@@ -394,6 +394,7 @@ lib/
 │   │   ├── app_colors.dart            # Justice Ledger colors
 │   │   ├── app_typography.dart        # Manrope, Inter, IBM Plex, Tiro Bangla
 │   │   ├── app_spacing.dart           # Fluid spacing rules
+│   │   ├── app_version.dart           # Bundled app version shown on About (guarded against pubspec + version history)
 │   │   ├── app_strings.dart           # l10n key references (not raw strings)
 │   │   └── pre_seeded_data.dart       # Pre‑seeded data: courts (nested by district via lowerCourtNamesByDistrict), steps (per category), case types (per category), on behalfs (per category)
 │   ├── theme/
@@ -481,8 +482,10 @@ lib/
 │   │       │   └── notification_settings_screen.dart  # (UI: settings_notifications/code.html)
 │   │       ├── settings_view/
 │   │       │   └── view_settings_screen.dart          # Upcoming Cases Period, tab order, etc.
+│   │       ├── settings_controls.dart             # Shared sub-page controls (section card, 48 px picker row, option row)
 │   │       ├── settings_about/
-│   │       │   ├── more_about_app_screen.dart         # (UI: settings_about/code.html)
+│   │       │   ├── more_about_app_screen.dart         # About (UI: settings_about/code.html)
+│   │       │   ├── more_about_the_app_screen.dart     # More About the App (UI: settings_moreAboutTheApp/code.html)
 │   │       │   └── guidelines_screen.dart             # (UI: guidelines/code.html)
 │   │       └── backup_restore_screen.dart         # (UI: settings_backupRestore/code.html)
 │   │

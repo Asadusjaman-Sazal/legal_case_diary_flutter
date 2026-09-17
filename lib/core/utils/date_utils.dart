@@ -119,6 +119,21 @@ abstract final class AppDateUtils {
     );
   }
 
+  /// Format a wall-clock time, given as minutes since midnight, the way the
+  /// Notifications screen shows it: `HH:MM AM/PM` (Bengali: localized digits
+  /// and day period).
+  static String formatClockTime(
+    int minutesSinceMidnight, {
+    required String locale,
+  }) {
+    final hour = (minutesSinceMidnight ~/ 60) % 24;
+    final minute = minutesSinceMidnight % 60;
+    // Only the civil time fields matter here, so the date part is a dummy.
+    return DateFormat('hh:mm a', locale).format(
+      DateTime(2000, 1, 1, hour, minute),
+    );
+  }
+
   /// Format as a full localized date, e.g. "Tuesday, October 24, 2023".
   static String formatFullDate(int epochMs, {required String locale}) {
     return DateFormat('EEEE, MMMM d, y', locale).format(

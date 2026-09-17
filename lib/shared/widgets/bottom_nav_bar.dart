@@ -12,14 +12,27 @@ import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
 
 /// Descriptor for a single bottom nav tab.
-class _TabDef {
+///
+/// [bottomNavTabDefs] is the single source of tab identity: the bar renders
+/// from it and View Settings offers the same list, so a tab can never exist in
+/// one place only.
+class BottomNavTabDef {
+  /// Stable key persisted in `UserSettings.bottomNavTabs`.
   final String key;
+
+  /// Icon shown when the tab is inactive.
   final IconData icon;
+
+  /// Icon shown while the tab's route is active.
   final IconData activeIcon;
+
+  /// Localized label resolver.
   final String Function(AppLocalizations) label;
+
+  /// Route the tab navigates to.
   final String route;
 
-  const _TabDef({
+  const BottomNavTabDef({
     required this.key,
     required this.icon,
     required this.activeIcon,
@@ -28,43 +41,44 @@ class _TabDef {
   });
 }
 
-const List<_TabDef> _allTabs = [
-  _TabDef(
+/// Every screen that can be placed in the bottom bar.
+const List<BottomNavTabDef> bottomNavTabDefs = [
+  BottomNavTabDef(
     key: 'overdue',
     icon: Icons.error_outline,
     activeIcon: Icons.error,
     label: _labelOverdue,
     route: AppRoutes.overdueDates,
   ),
-  _TabDef(
+  BottomNavTabDef(
     key: 'daily_cause_list',
     icon: Icons.calendar_today_outlined,
     activeIcon: Icons.calendar_today,
     label: _labelDailyCauseList,
     route: AppRoutes.dailyCauseList,
   ),
-  _TabDef(
+  BottomNavTabDef(
     key: 'active',
     icon: Icons.work_outline,
     activeIcon: Icons.work,
     label: _labelActive,
     route: AppRoutes.activeCases,
   ),
-  _TabDef(
+  BottomNavTabDef(
     key: 'upcoming',
     icon: Icons.event_outlined,
     activeIcon: Icons.event,
     label: _labelUpcoming,
     route: AppRoutes.upcomingCases,
   ),
-  _TabDef(
+  BottomNavTabDef(
     key: 'all_cases',
     icon: Icons.list_alt_outlined,
     activeIcon: Icons.list_alt,
     label: _labelAllCases,
     route: AppRoutes.allCases,
   ),
-  _TabDef(
+  BottomNavTabDef(
     key: 'disposed',
     icon: Icons.gavel_outlined,
     activeIcon: Icons.gavel,
@@ -83,7 +97,9 @@ String _labelDisposed(AppLocalizations l) => l.nav_disposedCases;
 /// Bottom navigation bar driven by [tabKeys] from [UserSettings.bottomNavTabs].
 ///
 /// [currentRoute] — the active GoRouter location used to highlight the active tab.
-/// [tabKeys] — ordered list of tab key strings (max 4 rendered; extras ignored).
+/// [tabKeys] — ordered list of tab key strings; every entry is rendered, and
+///   the bar scrolls horizontally once more than four are chosen (the plan's
+///   default selection is four, which still lays out evenly).
 /// [onTabSelected] — called with the route path when a tab is tapped.
 class BottomNavBar extends StatelessWidget {
   final String currentRoute;
@@ -100,12 +116,30 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final keyMap = {for (final t in _allTabs) t.key: t};
+    final keyMap = {for (final t in bottomNavTabDefs) t.key: t};
     final tabs = tabKeys
-        .take(4)
         .map((k) => keyMap[k])
-        .whereType<_TabDef>()
+        .whereType<BottomNavTabDef>()
         .toList();
+
+    // Five or six tabs would squeeze the labels to nothing on a phone, so a
+    // larger selection scrolls instead of shrinking.
+    final Widget content = tabs.length > 4
+        ? SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final tab in tabs)
+                  SizedBox(width: 88, child: _tabButton(context, l, tab)),
+              ],
+            ),
+          )
+        : Row(
+            children: [
+              for (final tab in tabs)
+                Expanded(child: _tabButton(context, l, tab)),
+            ],
+          );
 
     return Container(
       height: 64,
@@ -114,40 +148,38 @@ class BottomNavBar extends StatelessWidget {
         border: Border(top: BorderSide(color: AppColors.outlineVariant)),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      child: Row(
-        children: tabs.map((tab) {
-          final active = currentRoute == tab.route;
-          return Expanded(
-            child: InkWell(
-              onTap: () => onTabSelected(tab.route),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    active ? tab.activeIcon : tab.icon,
-                    size: 24,
-                    color: active
-                        ? AppColors.primary
-                        : AppColors.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    tab.label(l),
-                    style: AppTypography.labelMd.copyWith(
-                      color: active
-                          ? AppColors.primary
-                          : AppColors.onSurfaceVariant,
-                      fontWeight:
-                          active ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+      child: content,
+    );
+  }
+
+  /// One tab: icon plus label, highlighted while its route is active.
+  Widget _tabButton(
+    BuildContext context,
+    AppLocalizations l,
+    BottomNavTabDef tab,
+  ) {
+    final active = currentRoute == tab.route;
+    return InkWell(
+      onTap: () => onTabSelected(tab.route),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            active ? tab.activeIcon : tab.icon,
+            size: 24,
+            color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            tab.label(l),
+            style: AppTypography.labelMd.copyWith(
+              color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
             ),
-          );
-        }).toList(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

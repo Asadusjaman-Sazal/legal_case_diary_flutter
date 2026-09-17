@@ -241,7 +241,14 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
                   title:
                       '${currentCase.petitioner} Vs ${currentCase.respondent}',
                   subtitle: currentCase.caseTitleAndSection,
-                  courtName: court?.courtName,
+                  // A pre-seeded court stores its English name, so the card
+                  // resolves it to follow the active language.
+                  courtName: court == null
+                      ? null
+                      : context.l10n.seedLabel(
+                          court.id,
+                          fallbackEn: court.courtName,
+                        ),
                   judgesName: isHigherCourt
                       ? currentCase.honorableJudges
                       : null,

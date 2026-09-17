@@ -1,9 +1,10 @@
 /// Daily Cause List tests.
 ///
-/// Covers the two things that are easy to get wrong on this screen and are not
+/// Covers the things that are easy to get wrong on this screen and are not
 /// covered elsewhere: the header FAB opening the Add Case form (it was wired to
-/// an empty callback), and the hearing counts/date label following the active
-/// language's numbering system.
+/// an empty callback), the court heading above the cards following the active
+/// language (a pre-seeded court row stores its English name), and the hearing
+/// counts/date label following the active language's numbering system.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -14,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -166,6 +168,60 @@ void main() {
     await tester.tap(find.byTooltip(l.casesModal_addCase));
     await tester.pumpAndSettle();
     expect(find.byType(AddEditCaseSheet), findsOneWidget);
+
+    await unmount(tester);
+  });
+
+  testWidgets('the court title follows the active language', (tester) async {
+    // A pre-seeded court row stores its English name, so the group title above
+    // the cards has to resolve it through the seed data instead of printing the
+    // stored name.
+    final seed = allSeedCourts.firstWhere(
+      (court) =>
+          lowerCourtCategoryIds.contains(court.courtCategoryId) &&
+          court.courtNameBn != court.courtNameEn,
+    );
+    final category = seedCategoryById[seed.courtCategoryId]!;
+    await db
+        .into(db.courtCategories)
+        .insert(
+          CourtCategoriesCompanion(
+            id: Value(category.id),
+            nameKey: Value(category.nameKey),
+            courtLevel: Value(category.courtLevel),
+            orderIndex: Value(category.orderIndex),
+            updatedAt: const Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          CourtsCompanion(
+            id: Value(seed.id),
+            courtName: Value(seed.courtNameEn),
+            higherLowerCourts: Value(seed.higherLowerCourts),
+            courtCategoryId: Value(seed.courtCategoryId),
+            orderIndex: const Value(1),
+            updatedAt: const Value(1),
+          ),
+        );
+    await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('DCL-1'),
+        caseType: const Value('Civil Suit'),
+        courtId: Value(seed.id),
+        onBehalfId: const Value(roleId),
+        petitioner: const Value('Md. Rahim Uddin'),
+        respondent: const Value('Bangladesh Government'),
+        nextDate: Value(AppDateUtils.bangladeshTodayStartOfDay()),
+      ),
+    );
+    await pumpScreen(tester, locale: const Locale('bn'));
+
+    expect(find.text(seed.courtNameBn), findsOneWidget);
+    expect(find.text(seed.courtNameEn), findsNothing);
+    // Guard: the two labels really differ, so the assertion means something.
+    expect(seed.courtNameBn, isNot(seed.courtNameEn));
 
     await unmount(tester);
   });

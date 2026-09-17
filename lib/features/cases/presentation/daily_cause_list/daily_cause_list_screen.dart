@@ -275,7 +275,14 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
-                            group.court.courtName,
+                            // Pre-seeded courts store their English name, so the
+                            // title is resolved through the seed label lookup to
+                            // follow the active language; a court the user added
+                            // keeps the name they typed.
+                            context.l10n.seedLabel(
+                              group.court.id,
+                              fallbackEn: group.court.courtName,
+                            ),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),

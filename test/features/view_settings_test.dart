@@ -125,22 +125,13 @@ void main() {
     await pumpScreen(tester);
     await openDropdown(tester, '4 Screens Selected');
 
-    // The chosen tabs come first, then the rest, every one a check-mark row
-    // with no per-screen icon of its own.
+    // Every screen is listed in the canonical serial whatever is chosen, each
+    // a check-mark row with no per-screen icon of its own.
     expect(
       find.byType(SettingsOptionRow),
       findsNWidgets(canonicalScreens.length),
     );
-    expect(dropdownLabels(tester), <String>[
-      'Active Cases',
-      'Daily Cause List',
-      'Overdue Dates',
-      'Upcoming Cases',
-      'All Cases',
-      'Disposed Cases',
-      'Case Reference',
-      'Notes',
-    ]);
+    expect(dropdownLabels(tester), canonicalScreens);
     expect(find.byIcon(Icons.error_outline), findsNothing);
     // The four defaults are ticked, the four extras are not.
     expect(find.byIcon(Icons.check_circle), findsNWidgets(4));
@@ -255,11 +246,13 @@ void main() {
       'upcoming',
     ]);
 
-    // Drag the first row (Active Cases) past the second one. `timedDrag`
-    // pumps frames between moves, which the reorder needs to track the proxy.
+    // The rows hold the canonical serial — All Cases, Active Cases, Daily Cause
+    // List — so drag Daily Cause List (row 2) above Active Cases (row 1).
+    // `timedDrag` pumps frames between moves, which the reorder needs to track
+    // the proxy.
     await tester.timedDrag(
-      find.byIcon(Icons.drag_indicator).first,
-      const Offset(0, 60),
+      find.byIcon(Icons.drag_indicator).at(2),
+      const Offset(0, -60),
       const Duration(milliseconds: 400),
     );
     await tester.pumpAndSettle();
@@ -270,6 +263,42 @@ void main() {
       'overdue',
       'upcoming',
     ]);
+  });
+
+  testWidgets('choosing a screen never moves it in the list', (tester) async {
+    await pumpScreen(tester);
+    await openDropdown(tester, '4 Screens Selected');
+    expect(dropdownLabels(tester), canonicalScreens);
+
+    // Tick an extra screen and untick a chosen one: the serial holds, so the
+    // user's own drag is the only thing that can rearrange the rows.
+    await tester.tap(find.widgetWithText(SettingsOptionRow, 'All Cases'));
+    await tester.pumpAndSettle();
+    expect(dropdownLabels(tester), canonicalScreens);
+    await tester.tap(find.widgetWithText(SettingsOptionRow, 'Overdue Dates'));
+    await tester.pumpAndSettle();
+    expect(dropdownLabels(tester), canonicalScreens);
+
+    // …and it still holds the next time the dropdown is opened.
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    await openDropdown(tester, '4 Screens Selected');
+    expect(dropdownLabels(tester), canonicalScreens);
+  });
+
+  testWidgets('hiding a section never moves it in the list', (tester) async {
+    await pumpScreen(tester);
+    await openDropdown(tester, '8 of 8 Sections Shown');
+    expect(dropdownLabels(tester), canonicalScreens);
+
+    await tester.tap(find.widgetWithText(SettingsOptionRow, 'Case Reference'));
+    await tester.pumpAndSettle();
+    expect(dropdownLabels(tester), canonicalScreens);
+
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    await openDropdown(tester, '7 of 8 Sections Shown');
+    expect(dropdownLabels(tester), canonicalScreens);
   });
 
   testWidgets('the last remaining tab cannot be removed', (tester) async {

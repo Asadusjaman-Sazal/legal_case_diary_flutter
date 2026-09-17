@@ -2,12 +2,13 @@
 ///
 /// Task 08 Phase 4. Each card carries a red left strip (CaseCardVariant.overdue).
 /// Cards are grouped by court name, maintaining the pre-seeded court hierarchy.
-/// A "Last Updated" status line reflects the local-only Part A state (no sync).
+/// A "Last Updated" status line shows when the listed cases were last modified.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_spacing.dart';
@@ -85,6 +86,30 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     await AddEditCaseSheet.show<void>(context);
     if (mounted) await _loadCases();
   }
+
+  /// When the cases on this screen were last modified.
+  ///
+  /// The newest `updated_at` among the overdue cases currently listed — the
+  /// same field the Notes screen prints on a card — so a date, step or note
+  /// change made anywhere in the app (including from a card's Update window)
+  /// moves this line forward. `null` when the screen has nothing to show.
+  int? get _lastUpdatedAt {
+    int? newest;
+    for (final currentCase in _cases) {
+      if (newest == null || currentCase.updatedAt > newest) {
+        newest = currentCase.updatedAt;
+      }
+    }
+    return newest;
+  }
+
+  /// Formats the status line the way the mockup does — `Thursday, 04/06/26,
+  /// 10:45 AM` — in the active language (Bengali weekday and digits under
+  /// বাংলা).
+  String _formatLastUpdated(AppLocalizations l, int epochMs) => DateFormat(
+    'EEEE, dd/MM/yy, hh:mm a',
+    l.localeName,
+  ).format(AppDateUtils.bangladeshDateTime(epochMs));
 
   Future<void> _launchPartyAction(
     Case currentCase, {
@@ -244,26 +269,32 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
 
     final groups = _courtGroups(l);
 
+    final lastUpdatedAt = _lastUpdatedAt;
+
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.sm,
-            AppSpacing.md,
-            AppSpacing.xs,
+        if (lastUpdatedAt != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.xs,
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.history, size: 14),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    '${l.overdueDatesScreen_lastUpdated}: '
+                    '${_formatLastUpdated(l, lastUpdatedAt)}',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Row(
-            children: [
-              const Icon(Icons.history, size: 14),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                '${l.overdueDatesScreen_lastUpdated}: Local', // Part A: local-only.
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ],
-          ),
-        ),
         Expanded(
           child: groups.isEmpty
               ? Center(
@@ -294,7 +325,13 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                                 const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Text(
-                                    group.court.courtName,
+                                    // Pre-seeded courts store their English
+                                    // name, so the heading is resolved through
+                                    // the seed lookup to follow the language.
+                                    context.l10n.seedLabel(
+                                      group.court.id,
+                                      fallbackEn: group.court.courtName,
+                                    ),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium,

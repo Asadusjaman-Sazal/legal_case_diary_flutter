@@ -251,7 +251,14 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                   parties:
                       '${currentCase.petitioner} Vs ${currentCase.respondent}',
                   title: currentCase.caseTitleAndSection,
-                  courtName: court?.courtName,
+                  // A pre-seeded court stores its English name, so the card
+                  // resolves it to follow the active language.
+                  courtName: court == null
+                      ? null
+                      : context.l10n.seedLabel(
+                          court.id,
+                          fallbackEn: court.courtName,
+                        ),
                   judgesName: isHigherCourt
                       ? currentCase.honorableJudges
                       : null,

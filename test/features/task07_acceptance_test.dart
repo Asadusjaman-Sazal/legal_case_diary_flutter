@@ -909,6 +909,91 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
+  testWidgets('a seeded court name on the card follows the active language', (
+    WidgetTester tester,
+  ) async {
+    // The database stores the seed's English name, so the card has to resolve
+    // it through the seed lookup exactly like the form's court dropdown does.
+    final seed = allSeedCourts.firstWhere(
+      (court) =>
+          lowerCourtCategoryIds.contains(court.courtCategoryId) &&
+          court.courtNameBn != court.courtNameEn,
+    );
+    final category = seedCategoryById[seed.courtCategoryId]!;
+    await db
+        .into(db.courtCategories)
+        .insert(
+          CourtCategoriesCompanion(
+            id: Value(category.id),
+            nameKey: Value(category.nameKey),
+            courtLevel: Value(category.courtLevel),
+            orderIndex: Value(category.orderIndex),
+            updatedAt: const Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          CourtsCompanion(
+            id: Value(seed.id),
+            courtName: Value(seed.courtNameEn),
+            higherLowerCourts: Value(seed.higherLowerCourts),
+            courtCategoryId: Value(seed.courtCategoryId),
+            orderIndex: const Value(1),
+            updatedAt: const Value(1),
+          ),
+        );
+    final cardCaseId = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('BN-COURT-1'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(seed.id),
+        caseType: const Value('Civil'),
+        onBehalfId: Value(onBehalfId),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => const AllCasesScreen()),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          databaseProvider.overrideWith((_) async => db),
+          syncWriteHelperProvider.overrideWith((_) async => syncHelper),
+          localIdentityServiceProvider.overrideWith((_) => identity),
+          caseRepositoryProvider.overrideWith((_) async => caseRepository),
+          settingsRepositoryProvider.overrideWith(
+            (_) async => settingsRepository(),
+          ),
+          caseWritePermissionsProvider.overrideWith(
+            (_) async =>
+                const CaseWritePermissions(canAdd: true, canEdit: true),
+          ),
+        ],
+        child: MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('bn'),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await _pumpUntil(tester, find.byKey(ValueKey('case-card-$cardCaseId')));
+
+    expect(find.text(seed.courtNameBn), findsOneWidget);
+    expect(find.text(seed.courtNameEn), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('All Cases Update action opens the Quick Update dialog', (
     WidgetTester tester,
   ) async {

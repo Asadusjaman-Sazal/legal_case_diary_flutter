@@ -167,8 +167,14 @@ class ViewSettingsScreen extends ConsumerWidget {
   // Bottom navigation tabs and side navigation options
   // -------------------------------------------------------------------------
 
-  /// Bottom-navigation dropdown: every candidate screen as a check-mark row,
-  /// in canonical order with the chosen tabs first, draggable to reorder.
+  /// Bottom-navigation dropdown: every candidate screen as a check-mark row in
+  /// the canonical serial, draggable to reorder.
+  ///
+  /// The rows hold the canonical serial whatever the selection is — ticking a
+  /// screen must never move it — so only a drag, the user's own change,
+  /// rearranges them. A drag also rewrites the saved tab order, which is the
+  /// order the bottom bar renders, so dragging stays the way to set the bar's
+  /// order.
   Future<void> _pickBottomTabs(
     BuildContext context,
     WidgetRef ref,
@@ -179,7 +185,7 @@ class ViewSettingsScreen extends ConsumerWidget {
       context: context,
       builder: (_) => _MultiSelectDropDown(
         title: l.settingsViewSettings_bottomTabs,
-        order: _seedTabOrder(settings.bottomNavTabs),
+        order: <String>[for (final def in bottomNavTabDefs) def.key],
         selected: settings.bottomNavTabs.toSet(),
         labelOf: (key) => _screenLabel(l, key),
         reorderable: true,
@@ -227,14 +233,6 @@ class ViewSettingsScreen extends ConsumerWidget {
   /// Whether one drawer section is currently shown (absent key means shown).
   static bool _isSideNavVisible(UserSettings settings, BottomNavTabDef def) =>
       settings.sideNavOptions[def.route] != false;
-
-  /// Chosen tabs first, then the rest, both in `bottomNavTabDefs` order.
-  static List<String> _seedTabOrder(List<String> chosen) => <String>[
-    ...bottomNavTabDefs.map((tab) => tab.key).where(chosen.contains),
-    ...bottomNavTabDefs
-        .map((tab) => tab.key)
-        .where((key) => !chosen.contains(key)),
-  ];
 
   // -------------------------------------------------------------------------
   // Simple pickers

@@ -19305,6 +19305,40 @@ final Map<String, String> stepLabelBn = Map.unmodifiable(
   ),
 );
 
+/// Step English label → Bengali label, per court category.
+///
+/// A case stores its steps as comma-joined step *names* (the form saves
+/// `stepName`), so showing them in Bengali means mapping each name back through
+/// the seed data. Only one name is shared across categories with different
+/// labels ("Dismissal" is `খারিজ` in the civil district courts but `নথিজাত` for
+/// the executive magistrates), but the map is keyed the same way as
+/// [caseTypeLabelBnByCourtCategory] so the two stay symmetrical.
+final Map<String, Map<String, String>> stepLabelBnByCourtCategory =
+    Map.unmodifiable(
+      Map.fromEntries(
+        seedCategories.map(
+          (category) => MapEntry(
+            category.id,
+            Map<String, String>.unmodifiable(<String, String>{
+              for (final step in category.steps) step.labelEn: step.labelBn,
+            }),
+          ),
+        ),
+      ),
+    );
+
+/// Step English label → Bengali label, ignoring the court category.
+///
+/// Fallback for surfaces that do not know the case's court category; the first
+/// category in seed order wins, so the result is deterministic.
+final Map<String, String> stepLabelBnByEnName = () {
+  final byName = <String, String>{};
+  for (final step in seedCategories.expand((c) => c.steps)) {
+    byName.putIfAbsent(step.labelEn, () => step.labelBn);
+  }
+  return Map<String, String>.unmodifiable(byName);
+}();
+
 /// Display names (both languages) of every disposed step.
 /// A case's `last_step` stores comma-joined step names, so disposal is detected
 /// by matching any of these names. Derived from [disposedStepIds].

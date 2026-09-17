@@ -226,9 +226,14 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
                 final isHigherCourt =
                     court?.courtCategoryId == appellateDivisionId ||
                     court?.courtCategoryId == highCourtDivisionId;
+                // Steps are stored by name, so they need the language lookup;
+                // an AD/HCD case's free-text Result is shown as typed.
                 final stepOrResult =
                     currentCase.lastStep?.trim().isNotEmpty == true
-                    ? currentCase.lastStep!
+                    ? context.l10n.stepNames(
+                        currentCase.lastStep,
+                        courtCategoryId: court?.courtCategoryId,
+                      )
                     : (currentCase.result?.trim().isNotEmpty == true
                           ? currentCase.result!
                           : null);

@@ -1050,7 +1050,14 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     // AD/HCD cases have no Steps; their per-hearing outcome is the Result
     // snapshot, shown in the same slot where lower-court rows show Step.
     final trimmedResult = entry.result?.trim();
-    final mainContent = _isHigherCourt ? trimmedResult : trimmedStep;
+    // Steps are stored by name, so they need the language lookup; an AD/HCD
+    // case's free-text Result is shown as it was typed.
+    final mainContent = _isHigherCourt
+        ? trimmedResult
+        : context.l10n.stepNames(
+            trimmedStep,
+            courtCategoryId: _court?.courtCategoryId,
+          );
     final content = Container(
       key: ValueKey('case-detail-history-entry-${entry.id}'),
       padding: const EdgeInsets.symmetric(
@@ -1163,7 +1170,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     final nextDate = current.nextDate;
     if (nextDate == null) return const SizedBox.shrink();
     final stepOrResult = current.lastStep?.trim().isNotEmpty == true
-        ? current.lastStep!
+        ? context.l10n.stepNames(
+            current.lastStep,
+            courtCategoryId: _court?.courtCategoryId,
+          )
         : (current.result?.trim().isNotEmpty == true ? current.result! : null);
     final white = AppColors.onSecondaryContainer;
     return Container(

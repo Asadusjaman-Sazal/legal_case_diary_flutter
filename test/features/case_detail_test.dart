@@ -117,6 +117,7 @@ void main() {
       int? nextDateMs,
       String courtId = 'court-test',
       String caseType = 'Civil Suit',
+      String? lastStep,
       String? honorableJudges,
       String? tenderNumber,
       String? previousCourtCase,
@@ -139,6 +140,7 @@ void main() {
         CasesCompanion(
           caseNumber: const Value('423/2023'),
           caseType: Value(caseType),
+          lastStep: Value(lastStep),
           petitioner: const Value('Md. Rahim Uddin'),
           respondent: const Value('Bangladesh Government'),
           petitionerLeadCounsel: const Value('Adv. Abdul Kalam'),
@@ -814,6 +816,29 @@ void main() {
       expect(bengali, isNot(caseTypeName));
       expect(find.text('$bengali 423/2023'), findsOneWidget);
       expect(find.text('$caseTypeName 423/2023'), findsNothing);
+    });
+    testWidgets('steps are shown in the active language', (
+      WidgetTester tester,
+    ) async {
+      // `lastStep` stores step *names*, here the pre-seeded English ones.
+      final caseId = await seedCase(
+        courtId: 'court-test',
+        lastStep: 'Arrival',
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      );
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshTodayStartOfDay(),
+        nextEpochMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+        step: 'Filing',
+      );
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      // The Next Date card's step line and the history row's step.
+      expect(find.text(stepLabelBnByEnName['Arrival']!), findsOneWidget);
+      expect(find.text(stepLabelBnByEnName['Filing']!), findsOneWidget);
+      expect(find.text('Arrival'), findsNothing);
+      expect(find.text('Filing'), findsNothing);
     });
 
     testWidgets(

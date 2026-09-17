@@ -320,7 +320,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       subtitle: currentCase.caseTitleAndSection,
       courtName: court?.courtName,
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
-      statusLabel: _onBehalfsById[currentCase.onBehalfId]?.name,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
       alignStatusLabelRight: true,
       nextDate: currentCase.nextDate == null
           ? null
@@ -328,7 +331,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
               'dd/MM/yy, EEE',
               l.localeName,
             ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
-      step: currentCase.lastStep,
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
       result: currentCase.result,
       note: currentCase.notesResults,
       showPhoneButton: true,

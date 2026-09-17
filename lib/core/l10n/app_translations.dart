@@ -74,6 +74,43 @@ class AppTranslations {
         storedName;
   }
 
+  /// Resolves the step names the database stores to labels in the active
+  /// language.
+  ///
+  /// A case's steps are stored as the step *names* the form saved, comma-joined
+  /// (`Hearing,Argument`) — the pre-seeded English label, or whatever the user
+  /// typed for a step they added — so a case card would otherwise keep showing
+  /// English under বাংলা. Every name is resolved through the seed data;
+  /// [courtCategoryId] picks the right label when a name is shared by several
+  /// categories ("Dismissal"), and a name with no pre-seeded match is kept as
+  /// it was stored.
+  String? stepNames(String? storedNames, {String? courtCategoryId}) {
+    if (storedNames == null || !_loc.localeName.startsWith('bn')) {
+      return storedNames;
+    }
+    final byCategory = courtCategoryId == null
+        ? null
+        : seed.stepLabelBnByCourtCategory[courtCategoryId];
+    return storedNames
+        .split(',')
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty)
+        .map(
+          (name) => byCategory?[name] ?? seed.stepLabelBnByEnName[name] ?? name,
+        )
+        .join(',');
+  }
+
+  /// Labels an on-behalf role by its stable ID.
+  ///
+  /// Falls back to [storedName] for a role the user added themselves, and
+  /// returns `null` when the case has no role (or its row is gone), so callers
+  /// can keep hiding the chip.
+  String? onBehalfLabel(String? id, String? storedName) =>
+      id == null || storedName == null
+      ? null
+      : seedLabel(id, fallbackEn: storedName);
+
   /// Hierarchical nested map of translations grouped by screen / domain.
   ///
   /// Parameterized keys (placeholders / message templates) are omitted from

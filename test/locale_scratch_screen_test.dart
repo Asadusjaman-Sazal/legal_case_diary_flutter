@@ -145,5 +145,58 @@ void main() {
       final t = await translations(const Locale('bn'));
       expect(t.caseTypeLabel('My Own Case Type'), 'My Own Case Type');
     });
+
+    test('localizes the comma-joined step names a case stores', () async {
+      final t = await translations(const Locale('bn'));
+      final category = seedCategories.firstWhere((c) => c.steps.length > 1);
+      final first = category.steps.first;
+      final second = category.steps[1];
+      expect(
+        t.stepNames(
+          '${first.labelEn},${second.labelEn}',
+          courtCategoryId: category.id,
+        ),
+        '${first.labelBn},${second.labelBn}',
+      );
+      // Guard: the labels really change, so the assertion above means something.
+      expect(first.labelBn, isNot(first.labelEn));
+    });
+
+    test('uses the court category and keeps unknown step names', () async {
+      final bn = await translations(const Locale('bn'));
+      // "Dismissal" is the one step name shared across categories with
+      // different Bengali labels.
+      const shared = 'Dismissal';
+      final civil = stepLabelBnByCourtCategory[districtCourtsCivilId]?[shared];
+      final executive =
+          stepLabelBnByCourtCategory[executiveMagistrateId]?[shared];
+      expect(civil, isNot(executive));
+      expect(
+        bn.stepNames(shared, courtCategoryId: districtCourtsCivilId),
+        civil,
+      );
+      expect(
+        bn.stepNames(shared, courtCategoryId: executiveMagistrateId),
+        executive,
+      );
+      // A step the user added has no seed label and stays as it was stored.
+      expect(bn.stepNames('Arrival,My Own Step'), isNotNull);
+      expect(bn.stepNames('My Own Step'), 'My Own Step');
+      expect(bn.stepNames(null), isNull);
+
+      // English keeps the stored string exactly as it is.
+      final en = await translations(const Locale('en'));
+      expect(en.stepNames('Arrival,My Own Step'), 'Arrival,My Own Step');
+    });
+
+    test('labels an on-behalf role by its ID', () async {
+      final bn = await translations(const Locale('bn'));
+      final id = onBehalfLabelEn.keys.first;
+      expect(bn.onBehalfLabel(id, onBehalfLabelEn[id]), onBehalfLabelBn[id]);
+      // A role the user added keeps its stored name; no role is null.
+      expect(bn.onBehalfLabel('custom-role', 'My Client'), 'My Client');
+      expect(bn.onBehalfLabel(null, null), isNull);
+      expect(bn.onBehalfLabel('onbehalf-gone', null), isNull);
+    });
   });
 }

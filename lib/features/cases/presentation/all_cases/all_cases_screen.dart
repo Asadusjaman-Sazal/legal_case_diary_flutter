@@ -325,8 +325,10 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                         judgesName: isHigherCourt
                             ? currentCase.honorableJudges
                             : null,
-                        statusLabel:
-                            _onBehalfsById[currentCase.onBehalfId]?.name,
+                        statusLabel: context.l10n.onBehalfLabel(
+                          currentCase.onBehalfId,
+                          _onBehalfsById[currentCase.onBehalfId]?.name,
+                        ),
                         alignStatusLabelRight: true,
                         isOverdue: isOverdue,
                         nextDate: currentCase.nextDate == null
@@ -336,7 +338,10 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                                   currentCase.nextDate!,
                                 ),
                               ),
-                        step: currentCase.lastStep,
+                        step: context.l10n.stepNames(
+                          currentCase.lastStep,
+                          courtCategoryId: court?.courtCategoryId,
+                        ),
                         result: currentCase.result,
                         note: currentCase.notesResults,
                         showPhoneButton: true,

@@ -831,6 +831,84 @@ void main() {
     );
   });
 
+  testWidgets('case cards show On Behalf and Step in the active language', (
+    WidgetTester tester,
+  ) async {
+    // Pre-seeded rows the way the seeder stores them: stable seed ID with the
+    // English name, and steps saved on the case as comma-joined names.
+    const seededRoleId = 'onbehalf-high_court_division-petitioner';
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          const OnBehalfsCompanion(
+            id: Value(seededRoleId),
+            courtCategoryId: Value(highCourtDivisionId),
+            name: Value('Petitioner'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    const storedStep = 'Arrival';
+    final cardCaseId = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('BN-CARD-1'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseType: const Value('Civil'),
+        onBehalfId: const Value(seededRoleId),
+        lastStep: const Value(storedStep),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => const AllCasesScreen()),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          databaseProvider.overrideWith((_) async => db),
+          syncWriteHelperProvider.overrideWith((_) async => syncHelper),
+          localIdentityServiceProvider.overrideWith((_) => identity),
+          caseRepositoryProvider.overrideWith((_) async => caseRepository),
+          settingsRepositoryProvider.overrideWith(
+            (_) async => settingsRepository(),
+          ),
+          caseWritePermissionsProvider.overrideWith(
+            (_) async =>
+                const CaseWritePermissions(canAdd: true, canEdit: true),
+          ),
+        ],
+        child: MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('bn'),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await _pumpUntil(tester, find.byKey(ValueKey('case-card-$cardCaseId')));
+
+    // The role chip and the step line are seed labels, not stored English.
+    final role = onBehalfLabelBn[seededRoleId]!;
+    final step = stepLabelBnByEnName[storedStep]!;
+    expect(role, isNot('Petitioner'));
+    expect(step, isNot(storedStep));
+    expect(find.text(role), findsOneWidget);
+    expect(find.text(step), findsOneWidget);
+
+    // Unmount inside the test body so the drift stream-cleanup zero-timer from
+    // AllCasesScreen's watch fires before the framework checks for pending
+    // timers at teardown.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('All Cases Update action opens the Quick Update dialog', (
     WidgetTester tester,
   ) async {

@@ -21,79 +21,8 @@ import '../../../../database/app_database.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../settings_sub_page_modal.dart';
 import 'court_category_label.dart';
-
-/// Add/edit dialog for a single court name.
-class _CourtEditDialog extends StatefulWidget {
-  final Court? court;
-  final String higherLowerCourts;
-  final String? division;
-  final String? district;
-  final String courtCategoryId;
-
-  const _CourtEditDialog({
-    this.court,
-    required this.higherLowerCourts,
-    this.division,
-    this.district,
-    required this.courtCategoryId,
-  });
-
-  @override
-  State<_CourtEditDialog> createState() => _CourtEditDialogState();
-}
-
-class _CourtEditDialogState extends State<_CourtEditDialog> {
-  late final TextEditingController _controller;
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.court?.courtName ?? '');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(
-        widget.court == null
-            ? l.settingsCourtList_addTitle
-            : l.settingsCourtList_editTitle,
-      ),
-      content: Form(
-        key: _formKey,
-        child: TextFormField(
-          controller: _controller,
-          autofocus: true,
-          decoration: InputDecoration(labelText: l.settingsCourtList_nameLabel),
-          validator: (value) => value == null || value.trim().isEmpty
-              ? l.sharedDialogs_requiredField
-              : null,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (!_formKey.currentState!.validate()) return;
-            Navigator.of(context).pop(_controller.text.trim());
-          },
-          child: Text(l.sharedActions_save),
-        ),
-      ],
-    );
-  }
-}
+import 'edit_name_dialog.dart';
+import 'next_order_index.dart';
 
 /// Court list screen for a category or division+district.
 class CourtListScreen extends ConsumerStatefulWidget {
@@ -168,16 +97,18 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
   }
 
   Future<void> _addCourt(BuildContext context, CourtsRepository repo) async {
+    final l = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => _CourtEditDialog(
-        higherLowerCourts: _isLower ? lowerCourtsOption : higherCourtsOption,
-        division: widget.division,
-        district: widget.district,
-        courtCategoryId: _categoryId!,
+      builder: (_) => EditNameDialog(
+        title: l.settingsCourtList_addTitle,
+        fieldLabel: l.settingsCourtList_nameLabel,
       ),
     );
     if (name == null || !mounted) return;
+    // A new court takes the slot after the courts already listed here, so it
+    // lands at the end instead of tying with the first court.
+    final listed = await _listedCourts(repo);
     await repo.insert(
       CourtsCompanion(
         courtName: Value(name),
@@ -191,9 +122,27 @@ class _CourtListScreenState extends ConsumerState<CourtListScreen> {
             ? const Value.absent()
             : Value(widget.district),
         courtCategoryId: Value(_categoryId!),
-        orderIndex: const Value(0),
+        orderIndex: Value(
+          nextOrderIndex(listed.map((court) => court.orderIndex)),
+        ),
       ),
     );
+  }
+
+  /// The courts this screen lists, read so a new court can be appended after
+  /// them: one court category for higher courts, one division + district +
+  /// category for lower courts.
+  Future<List<Court>> _listedCourts(CourtsRepository repo) async {
+    final all = await repo.listAll();
+    return all
+        .where(
+          (court) =>
+              court.courtCategoryId == _categoryId &&
+              (!_isLower ||
+                  (court.division == widget.division &&
+                      court.district == widget.district)),
+        )
+        .toList(growable: false);
   }
 
   String _districtLabel(String id) {
@@ -284,14 +233,13 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
   }
 
   Future<void> _editCourt(BuildContext context, Court court) async {
+    final l = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => _CourtEditDialog(
-        court: court,
-        higherLowerCourts: court.higherLowerCourts,
-        division: court.division,
-        district: court.district,
-        courtCategoryId: court.courtCategoryId,
+      builder: (_) => EditNameDialog(
+        title: l.settingsCourtList_editTitle,
+        fieldLabel: l.settingsCourtList_nameLabel,
+        initialName: court.courtName,
       ),
     );
     if (name == null || !mounted) return;

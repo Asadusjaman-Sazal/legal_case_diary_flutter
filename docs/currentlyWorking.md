@@ -1,3 +1,9 @@
+### 2026-09-17 — Task 12 Phase 3: Edit Court/Steps add-flow polish — COMPLETE
+
+- **Added rows land last.** Every list in this section sorts by `order_index` alone and every add wrote `0`, so a new row tied with the first row and appeared second. New `edit_court_steps/next_order_index.dart` (`max + 1`), used by `item_list_screen.dart` (case types / steps / on-behalf, per court category) and `court_list_screen.dart` (court names — the listed category, or division + district for lower courts).
+- **One add window.** The three duplicated dialogs (category, court name, case type/step/on-behalf) became the shared `edit_court_steps/edit_name_dialog.dart`: 20% wider (336 px, clamped to the screen), centred Cancel/Save, roomier field and buttons; rename uses it too, so every sub-menu window matches.
+- Version `0.0.176` (`pubspec.yaml`, `version_history.md`). `flutter analyze` clean; `flutter test` 220 passed, 2 skipped. **Resume point unchanged:** Task 12 Phase 3 — the “Edit Case Types, Step etc” tree and the four placeholder sub-pages.
+
 ### 2026-09-17 — Task 12 Phase 3: Edit Court Names restructure — COMPLETE
 
 - **Header:** the screen under Settings → Edit Court/Steps → **Edit Court Names** no longer says “Court Category”. The value of `settingsEditCourtNames_courtCategory` is now “Edit Court Names” (bn: “আদালতের নাম সম্পাদনা”); the key name was kept so hand-edited translations stay addressable, and the two keys that named the removed card (`settingsEditCourtNames_supremeCourt`, `settingsEditCourtNames_supremeCourtSubtitle`) were deleted from both ARB files (they are no longer rendered anywhere). `flutter gen-l10n` re-run; the checked-in generated files follow.

@@ -18,6 +18,8 @@ import '../../data/case_types_repository.dart';
 import '../../data/on_behalfs_repository.dart';
 import '../../data/steps_repository.dart';
 import '../settings_sub_page_modal.dart';
+import 'edit_name_dialog.dart';
+import 'next_order_index.dart';
 
 /// Which kind of item this list manages.
 enum ItemKind { caseTypes, steps, onBehalf }
@@ -35,69 +37,6 @@ String itemKindTitle(AppLocalizations l, ItemKind kind) => switch (kind) {
   ItemKind.steps => l.settingsEditItems_steps,
   ItemKind.onBehalf => l.settingsEditItems_onBehalf,
 };
-
-/// Add/edit dialog for a single named item.
-class _ItemEditDialog extends StatefulWidget {
-  final String? initialName;
-
-  const _ItemEditDialog({this.initialName});
-
-  @override
-  State<_ItemEditDialog> createState() => _ItemEditDialogState();
-}
-
-class _ItemEditDialogState extends State<_ItemEditDialog> {
-  late final TextEditingController _controller;
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialName ?? '');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(
-        widget.initialName == null
-            ? l.settingsItemList_addTitle
-            : l.settingsItemList_editTitle,
-      ),
-      content: Form(
-        key: _formKey,
-        child: TextFormField(
-          controller: _controller,
-          autofocus: true,
-          decoration: InputDecoration(labelText: l.settingsItemList_nameLabel),
-          validator: (value) => value == null || value.trim().isEmpty
-              ? l.sharedDialogs_requiredField
-              : null,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (!_formKey.currentState!.validate()) return;
-            Navigator.of(context).pop(_controller.text.trim());
-          },
-          child: Text(l.sharedActions_save),
-        ),
-      ],
-    );
-  }
-}
 
 /// Generic item list screen (Case Types / Steps / On Behalf).
 class ItemListScreen extends ConsumerWidget {
@@ -185,33 +124,48 @@ class ItemListScreen extends ConsumerWidget {
 
   // Separate typed add/edit callbacks keep the repository generics concrete.
   Future<void> _add(BuildContext context, WidgetRef ref, dynamic repo) async {
+    final l = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => const _ItemEditDialog(),
+      builder: (_) => EditNameDialog(
+        title: l.settingsItemList_addTitle,
+        fieldLabel: l.settingsItemList_nameLabel,
+      ),
     );
     if (name == null || !context.mounted) return;
+    // The new row takes the slot after the rows already in this list, so it
+    // lands at the end instead of tying with the first one.
     if (repo is CaseTypesRepository) {
+      final existing = await repo.listByCategory(categoryId);
       await repo.insert(
         CaseTypesCompanion(
           courtCategoryId: Value(categoryId),
           name: Value(name),
-          orderIndex: const Value(0),
+          orderIndex: Value(
+            nextOrderIndex(existing.map((item) => item.orderIndex)),
+          ),
         ),
       );
     } else if (repo is StepsRepository) {
+      final existing = await repo.listByCategory(categoryId);
       await repo.insert(
         StepsCompanion(
           courtCategoryId: Value(categoryId),
           stepName: Value(name),
-          orderIndex: const Value(0),
+          orderIndex: Value(
+            nextOrderIndex(existing.map((item) => item.orderIndex)),
+          ),
         ),
       );
     } else if (repo is OnBehalfsRepository) {
+      final existing = await repo.listByCategory(categoryId);
       await repo.insert(
         OnBehalfsCompanion(
           courtCategoryId: Value(categoryId),
           name: Value(name),
-          orderIndex: const Value(0),
+          orderIndex: Value(
+            nextOrderIndex(existing.map((item) => item.orderIndex)),
+          ),
         ),
       );
     }
@@ -398,9 +352,14 @@ Future<void> _edit(
   String initial,
   Future<void> Function(String) save,
 ) async {
+  final l = AppLocalizations.of(context);
   final name = await showDialog<String>(
     context: context,
-    builder: (_) => _ItemEditDialog(initialName: initial),
+    builder: (_) => EditNameDialog(
+      title: l.settingsItemList_editTitle,
+      fieldLabel: l.settingsItemList_nameLabel,
+      initialName: initial,
+    ),
   );
   if (name == null || !context.mounted) return;
   await save(name);

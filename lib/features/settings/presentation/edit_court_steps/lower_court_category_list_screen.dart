@@ -30,6 +30,7 @@ import '../../data/courts_repository.dart';
 import '../../data/district_court_categories.dart';
 import '../settings_sub_page_modal.dart';
 import 'court_category_label.dart';
+import 'edit_name_dialog.dart';
 
 /// Court categories available inside a single division + district.
 class LowerCourtCategoryListScreen extends ConsumerWidget {
@@ -120,9 +121,13 @@ class LowerCourtCategoryListScreen extends ConsumerWidget {
         .whenOrNull(data: (repo) => repo);
     if (repo == null) return;
 
+    final l = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => const _CategoryEditDialog(isNew: true),
+      builder: (_) => EditNameDialog(
+        title: l.settingsLowerCourtCategories_addTitle,
+        fieldLabel: l.settingsLowerCourtCategories_nameLabel,
+      ),
     );
     if (name == null || !context.mounted) return;
 
@@ -266,10 +271,15 @@ class _DistrictCategoryList extends ConsumerWidget {
     WidgetRef ref,
     CourtCategory category,
   ) async {
+    final l = AppLocalizations.of(context);
     final current = courtCategoryLabel(context, category);
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => _CategoryEditDialog(initialName: current),
+      builder: (_) => EditNameDialog(
+        title: l.settingsLowerCourtCategories_editTitle,
+        fieldLabel: l.settingsLowerCourtCategories_nameLabel,
+        initialName: current,
+      ),
     );
     if (name == null || !context.mounted || name == current) return;
     await categoriesRepo.update(
@@ -335,72 +345,6 @@ class _CategoryTile extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Add/rename dialog for a court category.
-class _CategoryEditDialog extends StatefulWidget {
-  final String? initialName;
-  final bool isNew;
-
-  const _CategoryEditDialog({this.initialName, this.isNew = false});
-
-  @override
-  State<_CategoryEditDialog> createState() => _CategoryEditDialogState();
-}
-
-class _CategoryEditDialogState extends State<_CategoryEditDialog> {
-  late final TextEditingController _controller;
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialName ?? '');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(
-        widget.isNew
-            ? l.settingsLowerCourtCategories_addTitle
-            : l.settingsLowerCourtCategories_editTitle,
-      ),
-      content: Form(
-        key: _formKey,
-        child: TextFormField(
-          controller: _controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: l.settingsLowerCourtCategories_nameLabel,
-          ),
-          validator: (value) => value == null || value.trim().isEmpty
-              ? l.sharedDialogs_requiredField
-              : null,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (!_formKey.currentState!.validate()) return;
-            Navigator.of(context).pop(_controller.text.trim());
-          },
-          child: Text(l.sharedActions_save),
-        ),
-      ],
     );
   }
 }

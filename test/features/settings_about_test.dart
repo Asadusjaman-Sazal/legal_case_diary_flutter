@@ -7,9 +7,11 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -44,6 +46,41 @@ void main() {
       ],
     );
   }
+
+  testWidgets('shows the bundled app logo in the placeholder gavel frame', (
+    tester,
+  ) async {
+    await pumpAbout(tester);
+
+    // The placeholder gavel chip is gone...
+    expect(find.byIcon(Icons.gavel), findsNothing);
+
+    final logo = find.byWidgetPredicate(
+      (widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName == 'assets/icons/app_logo.png',
+    );
+    // ...replaced by the bundled logo...
+    expect(logo, findsOneWidget);
+    // ...in the same 64 × 64 frame the placeholder occupied.
+    expect(tester.getSize(logo), const Size(64, 64));
+
+    // The asset is really bundled (declared under `assets:` in pubspec.yaml),
+    // so the image loads instead of falling back to the gavel.
+    final bytes = await rootBundle.load('assets/icons/app_logo.png');
+    expect(bytes.lengthInBytes, greaterThan(0));
+
+    // The frame is white like the card behind it, so the logo's transparent
+    // side margins blend in rather than showing as dark bands.
+    final frame = tester.widget<Container>(
+      find.ancestor(of: logo, matching: find.byType(Container)).first,
+    );
+    expect(
+      (frame.decoration as BoxDecoration).color,
+      AppColors.surfaceContainerLowest,
+    );
+  });
 
   testWidgets('shows the app identity, bundled version and developer card', (
     tester,

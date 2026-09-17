@@ -1,12 +1,13 @@
 /// About screen: app identity, developer card, and app-info links.
 ///
-/// Body mirrors `mockup_html_screens/settings_about/code.html`. Two deliberate
+/// Body mirrors `mockup_html_screens/settings_about/code.html`. Three deliberate
 /// additions/changes on top of that mockup (user-approved, Task 12 Phase 4):
-/// the bundled app version is shown under the app name, and the developer
-/// photo comes from `assets/images/dev_profile.jpg` because Part A may not load
-/// the mockup's remote image. The mockup's personal placeholder data (name,
-/// email, phone, court, copyright) stays hard-coded, matching the earlier
-/// placeholder-data decision for mockup-only content.
+/// the bundled app version is shown under the app name, the app logo comes from
+/// `assets/icons/app_logo.png` in the placeholder gavel's 64 × 64 frame, and
+/// the developer photo comes from `assets/images/dev_profile.jpg` because
+/// Part A may not load the mockup's remote image. The mockup's personal
+/// placeholder data (name, email, phone, court, copyright) stays hard-coded,
+/// matching the earlier placeholder-data decision for mockup-only content.
 library;
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,12 @@ import '../settings_sub_page_modal.dart';
 
 /// Bundled developer photo (mockup uses a remote image; Part A is offline).
 const String _developerPhoto = 'assets/images/dev_profile.jpg';
+
+/// Bundled app logo shown in the identity card.
+const String _appLogo = 'assets/icons/app_logo.png';
+
+/// Side of the square logo frame, unchanged from the placeholder gavel chip.
+const double _logoSize = 64;
 
 /// About screen.
 class MoreAboutAppScreen extends StatelessWidget {
@@ -99,7 +106,7 @@ class MoreAboutAppScreen extends StatelessWidget {
   }
 }
 
-/// App identity card: gavel chip, app name and the bundled version.
+/// App identity card: app logo, app name and the bundled version.
 class _AppTitleCard extends StatelessWidget {
   const _AppTitleCard();
 
@@ -112,16 +119,24 @@ class _AppTitleCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: _logoSize,
+            height: _logoSize,
+            clipBehavior: Clip.antiAlias,
+            // White like the card behind it, so the logo's transparent side
+            // margins blend into the card instead of showing as dark bands.
             decoration: BoxDecoration(
-              color: AppColors.primaryContainer,
+              color: AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
             ),
-            child: const Icon(
-              Icons.gavel,
-              size: 32,
-              color: AppColors.onPrimary,
+            // The logo is shown whole inside the placeholder's frame; the
+            // placeholder gavel returns if the asset is missing.
+            child: Image.asset(
+              _appLogo,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Center(
+                // Ink on the white frame, not the placeholder's white-on-navy.
+                child: Icon(Icons.gavel, size: 32, color: AppColors.primary),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),

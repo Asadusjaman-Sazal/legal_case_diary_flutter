@@ -12,6 +12,12 @@
 /// the Bottom Navigation list is reorderable by drag & drop. Default Landing
 /// Page sits in its own card; Display and Navigation each keep theirs.
 ///
+/// Both list dropdowns offer the same screens in the same canonical order, and
+/// both derive that list from [bottomNavTabDefs] — the app's single source of
+/// screen identity — so the two can never disagree. Side Navigation Options
+/// omits Settings because Settings is not removable; the drawer always shows
+/// it, whatever `side_nav_options` holds.
+///
 /// All five values are durable per-user preferences in the local
 /// `user_preferences` row and are never firm-shared. The screens that consume
 /// them (Upcoming Cases, the bottom bar, the drawer, the router's landing-page
@@ -26,7 +32,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
@@ -36,53 +41,27 @@ import '../../data/settings_repository.dart';
 /// Periods the Upcoming Cases screen can look ahead, in days.
 const List<int> _upcomingPeriods = <int>[3, 7, 14, 30];
 
-/// Drawer sections whose visibility the user can toggle, in drawer order.
-/// The settings key is the route path, which is exactly what
-/// `app_navigation_drawer.dart` looks up in `side_nav_options`.
-const List<_NavOption> _sideNavOptions = <_NavOption>[
-  _NavOption(AppRoutes.upcomingCases, 'upcoming'),
-  _NavOption(AppRoutes.dailyCauseList, 'daily_cause_list'),
-  _NavOption(AppRoutes.allCases, 'all_cases'),
-  _NavOption(AppRoutes.disposedCases, 'disposed'),
-  _NavOption(AppRoutes.caseReference, AppRoutes.caseReference),
-  _NavOption(AppRoutes.notes, AppRoutes.notes),
-  _NavOption(AppRoutes.settings, AppRoutes.settings),
-];
-
-/// Screens offered as the default landing page, in `AppRoutes` order.
+/// Screens offered as the default landing page, in canonical order. The two
+/// drawer-only screens (Case Reference, Notes) are not landing pages.
 const List<String> _landingPages = <String>[
+  'all_cases',
+  'active',
   'daily_cause_list',
   'overdue',
-  'active',
   'upcoming',
-  'all_cases',
   'disposed',
 ];
 
-/// One side-navigation toggle: the settings key plus a localized label.
-class _NavOption {
-  /// Key looked up in `UserSettings.sideNavOptions` (a route path).
-  final String settingsKey;
-
-  /// Key `_screenLabel` resolves to the shared `nav_*` label.
-  final String labelKey;
-
-  const _NavOption(this.settingsKey, this.labelKey);
-}
-
-/// Localized label for a bottom-tab / landing-page / side-nav key.
-String _screenLabel(AppLocalizations l, String key) => switch (key) {
-  'overdue' => l.nav_overdueDates,
-  'daily_cause_list' => l.nav_dailyCauseList,
-  'active' => l.nav_activeCases,
-  'upcoming' => l.nav_upcomingCases,
-  'all_cases' => l.nav_allCases,
-  'disposed' => l.nav_disposedCases,
-  AppRoutes.caseReference => l.nav_caseReference,
-  AppRoutes.notes => l.nav_notes,
-  AppRoutes.settings => l.nav_settings,
-  _ => key,
+/// Screen definitions by both of the keys this screen stores: the tab key
+/// (`overdue`) and the route path (`/overdue-dates`).
+final Map<String, BottomNavTabDef> _defByKey = <String, BottomNavTabDef>{
+  for (final def in bottomNavTabDefs) def.key: def,
+  for (final def in bottomNavTabDefs) def.route: def,
 };
+
+/// Localized label for a stored screen key (tab key or route path).
+String _screenLabel(AppLocalizations l, String key) =>
+    _defByKey[key]?.label(l) ?? key;
 
 /// View settings screen.
 class ViewSettingsScreen extends ConsumerWidget {
@@ -93,8 +72,8 @@ class ViewSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final settings =
         ref.watch(settingsViewModelProvider).value ?? const UserSettings();
-    final shownSections = _sideNavOptions
-        .where((option) => _isSideNavVisible(settings, option))
+    final shownSections = bottomNavTabDefs
+        .where((def) => _isSideNavVisible(settings, def))
         .length;
 
     return SettingsSubPageModal(
@@ -158,7 +137,7 @@ class ViewSettingsScreen extends ConsumerWidget {
               SettingsPickerRow(
                 text: l.settingsViewSettings_sideNavCount(
                   shownSections,
-                  _sideNavOptions.length,
+                  bottomNavTabDefs.length,
                 ),
                 icon: Icons.expand_more,
                 onTap: () => _pickSideNav(context, ref, settings),
@@ -189,7 +168,7 @@ class ViewSettingsScreen extends ConsumerWidget {
   // -------------------------------------------------------------------------
 
   /// Bottom-navigation dropdown: every candidate screen as a check-mark row,
-  /// top row first in the order the bar renders, draggable to reorder.
+  /// in canonical order with the chosen tabs first, draggable to reorder.
   Future<void> _pickBottomTabs(
     BuildContext context,
     WidgetRef ref,
@@ -213,29 +192,25 @@ class ViewSettingsScreen extends ConsumerWidget {
   }
 
   /// Side-navigation dropdown: one check-mark row per drawer section, ticked
-  /// while the section is visible.
+  /// while the section is visible. The stored key is the route path, which is
+  /// exactly what `app_navigation_drawer.dart` looks up in `side_nav_options`;
+  /// Settings is absent because the drawer always shows it.
   Future<void> _pickSideNav(
     BuildContext context,
     WidgetRef ref,
     UserSettings settings,
   ) async {
     final l = AppLocalizations.of(context);
-    final labels = <String, String>{
-      for (final option in _sideNavOptions)
-        option.settingsKey: _screenLabel(l, option.labelKey),
-    };
     await showDialog<void>(
       context: context,
       builder: (_) => _MultiSelectDropDown(
         title: l.settingsViewSettings_sideNav,
-        order: <String>[
-          for (final option in _sideNavOptions) option.settingsKey,
-        ],
+        order: <String>[for (final def in bottomNavTabDefs) def.route],
         selected: <String>{
-          for (final option in _sideNavOptions)
-            if (_isSideNavVisible(settings, option)) option.settingsKey,
+          for (final def in bottomNavTabDefs)
+            if (_isSideNavVisible(settings, def)) def.route,
         },
-        labelOf: (key) => labels[key] ?? key,
+        labelOf: (route) => _screenLabel(l, route),
         reorderable: false,
         onChanged: (order, visible) => _update(
           ref,
@@ -250,8 +225,8 @@ class ViewSettingsScreen extends ConsumerWidget {
   }
 
   /// Whether one drawer section is currently shown (absent key means shown).
-  static bool _isSideNavVisible(UserSettings settings, _NavOption option) =>
-      settings.sideNavOptions[option.settingsKey] != false;
+  static bool _isSideNavVisible(UserSettings settings, BottomNavTabDef def) =>
+      settings.sideNavOptions[def.route] != false;
 
   /// Chosen tabs first, then the rest, both in `bottomNavTabDefs` order.
   static List<String> _seedTabOrder(List<String> chosen) => <String>[

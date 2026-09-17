@@ -24,11 +24,16 @@ class _NavItem {
   final String Function(AppLocalizations) label;
   final String route;
 
+  /// Whether Settings > View Settings may hide this item. Settings itself is
+  /// not removable, so a stale `false` for it in [sideNavOptions] is ignored.
+  final bool removable;
+
   const _NavItem({
     required this.visibilityKey,
     required this.icon,
     required this.label,
     required this.route,
+    this.removable = true,
   });
 }
 
@@ -36,7 +41,11 @@ class _NavItem {
 ///
 /// [currentRoute] — the active GoRouter location (e.g. `/daily-cause-list`).
 /// [sideNavOptions] — map from [UserSettings.sideNavOptions]; keys that map
-///   to `false` hide the corresponding item. Unknown keys default to visible.
+///   to `false` hide the corresponding item. Unknown keys default to visible,
+///   and Settings is never hidden (it is the way back to this screen).
+///   Optional keys: All Cases, Active Cases, Daily Cause List, Overdue Dates,
+///   Upcoming Cases, Disposed Cases, Case Reference, Notes — the canonical
+///   order Settings > View Settings lists them in.
 /// [displayName] — optional override for the header name; defaults to the
 ///   saved Profile Full Name (see [profileNameProvider]).
 /// [roleLabel] — user's role (e.g. "Advocate"); shown as a stub when null.
@@ -63,12 +72,20 @@ class AppNavigationDrawer extends ConsumerWidget {
     super.key,
   });
 
+  /// Case screens, in the canonical app screen order used by
+  /// [bottomNavTabDefs] and by Settings > View Settings.
   static const List<_NavItem> _caseItems = [
     _NavItem(
-      visibilityKey: AppRoutes.upcomingCases,
-      icon: Icons.event_outlined,
-      label: _labelUpcoming,
-      route: AppRoutes.upcomingCases,
+      visibilityKey: AppRoutes.allCases,
+      icon: Icons.list_alt_outlined,
+      label: _labelAllCases,
+      route: AppRoutes.allCases,
+    ),
+    _NavItem(
+      visibilityKey: AppRoutes.activeCases,
+      icon: Icons.work_outline,
+      label: _labelActiveCases,
+      route: AppRoutes.activeCases,
     ),
     _NavItem(
       visibilityKey: AppRoutes.dailyCauseList,
@@ -77,10 +94,16 @@ class AppNavigationDrawer extends ConsumerWidget {
       route: AppRoutes.dailyCauseList,
     ),
     _NavItem(
-      visibilityKey: AppRoutes.allCases,
-      icon: Icons.list_alt_outlined,
-      label: _labelAllCases,
-      route: AppRoutes.allCases,
+      visibilityKey: AppRoutes.overdueDates,
+      icon: Icons.error_outline,
+      label: _labelOverdueDates,
+      route: AppRoutes.overdueDates,
+    ),
+    _NavItem(
+      visibilityKey: AppRoutes.upcomingCases,
+      icon: Icons.event_outlined,
+      label: _labelUpcoming,
+      route: AppRoutes.upcomingCases,
     ),
     _NavItem(
       visibilityKey: AppRoutes.disposedCases,
@@ -108,23 +131,28 @@ class AppNavigationDrawer extends ConsumerWidget {
       icon: Icons.settings_outlined,
       label: _labelSettings,
       route: AppRoutes.settings,
+      removable: false,
     ),
   ];
 
   static String _labelUpcoming(AppLocalizations l) => l.nav_upcomingCases;
-  static String _labelDailyCauseList(AppLocalizations l) => l.nav_dailyCauseList;
+  static String _labelDailyCauseList(AppLocalizations l) =>
+      l.nav_dailyCauseList;
   static String _labelAllCases(AppLocalizations l) => l.nav_allCases;
+  static String _labelActiveCases(AppLocalizations l) => l.nav_activeCases;
+  static String _labelOverdueDates(AppLocalizations l) => l.nav_overdueDates;
   static String _labelDisposedCases(AppLocalizations l) => l.nav_disposedCases;
   static String _labelCaseReference(AppLocalizations l) => l.nav_caseReference;
   static String _labelNotes(AppLocalizations l) => l.nav_notes;
   static String _labelSettings(AppLocalizations l) => l.nav_settings;
 
-  bool _isVisible(String key) => sideNavOptions[key] != false;
+  bool _isVisible(_NavItem item) =>
+      !item.removable || sideNavOptions[item.visibilityKey] != false;
 
   bool _isActive(String route) => currentRoute == route;
 
   Widget _buildItem(BuildContext context, AppLocalizations l, _NavItem item) {
-    if (!_isVisible(item.visibilityKey)) return const SizedBox.shrink();
+    if (!_isVisible(item)) return const SizedBox.shrink();
     final active = _isActive(item.route);
     return _DrawerNavTile(
       icon: item.icon,
@@ -163,8 +191,9 @@ class AppNavigationDrawer extends ConsumerWidget {
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: AppColors.primaryContainer,
-                    backgroundImage:
-                        avatarFile != null ? FileImage(avatarFile) : null,
+                    backgroundImage: avatarFile != null
+                        ? FileImage(avatarFile)
+                        : null,
                     child: avatarFile != null
                         ? null
                         : const Icon(

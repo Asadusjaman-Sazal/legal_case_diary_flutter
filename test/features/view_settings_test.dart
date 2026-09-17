@@ -9,13 +9,36 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_view/view_settings_screen.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+import 'package:legal_case_diary/shared/widgets/app_navigation_drawer.dart';
 import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_test_support.dart';
+
+/// The canonical screen order both list dropdowns offer: the drawer sections
+/// that can be hidden, in the order the drawer and the dropdowns list them.
+const List<String> canonicalScreens = <String>[
+  'All Cases',
+  'Active Cases',
+  'Daily Cause List',
+  'Overdue Dates',
+  'Upcoming Cases',
+  'Disposed Cases',
+  'Case Reference',
+  'Notes',
+];
+
+/// Labels of the picker rows currently on screen, in render order.
+List<String> dropdownLabels(WidgetTester tester) => tester
+    .widgetList<SettingsOptionRow>(find.byType(SettingsOptionRow))
+    .map((row) => row.label)
+    .toList();
 
 void main() {
   late FakeSettingsRepository repo;
@@ -62,7 +85,7 @@ void main() {
     expect(find.text('7 Days'), findsOneWidget);
     expect(find.text('Compact'), findsOneWidget);
     expect(find.text('4 Screens Selected'), findsOneWidget);
-    expect(find.text('7 of 7 Sections Shown'), findsOneWidget);
+    expect(find.text('8 of 8 Sections Shown'), findsOneWidget);
     // The list settings are no longer rendered inline on the page.
     expect(find.byType(Checkbox), findsNothing);
     expect(find.byType(SwitchListTile), findsNothing);
@@ -102,21 +125,101 @@ void main() {
     await pumpScreen(tester);
     await openDropdown(tester, '4 Screens Selected');
 
-    // Six candidates, one check-mark row each, and no per-screen icon.
-    expect(find.byType(SettingsOptionRow), findsNWidgets(6));
-    for (final label in <String>[
-      'Overdue Dates',
-      'Daily Cause List',
+    // The chosen tabs come first, then the rest, every one a check-mark row
+    // with no per-screen icon of its own.
+    expect(
+      find.byType(SettingsOptionRow),
+      findsNWidgets(canonicalScreens.length),
+    );
+    expect(dropdownLabels(tester), <String>[
       'Active Cases',
+      'Daily Cause List',
+      'Overdue Dates',
       'Upcoming Cases',
       'All Cases',
       'Disposed Cases',
-    ]) {
-      expect(find.widgetWithText(SettingsOptionRow, label), findsOneWidget);
-    }
+      'Case Reference',
+      'Notes',
+    ]);
     expect(find.byIcon(Icons.error_outline), findsNothing);
-    // The four defaults are ticked, the two extras are not.
+    // The four defaults are ticked, the four extras are not.
     expect(find.byIcon(Icons.check_circle), findsNWidgets(4));
+  });
+
+  testWidgets(
+    'side-navigation options list the canonical screens, not Settings',
+    (tester) async {
+      await pumpScreen(tester);
+      await openDropdown(tester, '8 of 8 Sections Shown');
+
+      expect(
+        find.byType(SettingsOptionRow),
+        findsNWidgets(canonicalScreens.length),
+      );
+      expect(dropdownLabels(tester), canonicalScreens);
+      expect(find.text('Settings'), findsNothing);
+      // Every section is visible, so every row is ticked.
+      expect(
+        find.byIcon(Icons.check_circle),
+        findsNWidgets(canonicalScreens.length),
+      );
+    },
+  );
+
+  testWidgets('every dropdown title stays on a single line', (tester) async {
+    // A narrow phone: the widest title (Side Navigation Options) has the least
+    // room here, so a wrapping title would show up first in this case.
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await pumpScreen(tester);
+    // `titleLg` is 20/28, so one line is exactly 28 px high.
+    const oneLine = 28.0;
+
+    for (final rowText in <String>[
+      '7 Days',
+      'Compact',
+      '4 Screens Selected',
+      '8 of 8 Sections Shown',
+    ]) {
+      await tester.tap(find.widgetWithText(SettingsPickerRow, rowText));
+      await tester.pumpAndSettle();
+
+      final title = tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byType(SettingsPickerDialogHeader),
+              matching: find.byType(Text),
+            ),
+          )
+          .data!;
+      // The painted rect, so a title scaled down to fit is measured as drawn.
+      final titleRect = tester.getRect(find.text(title));
+      final content = tester
+          .getRect(find.byType(SettingsPickerDialogHeader))
+          .deflate(AppSpacing.md);
+
+      expect(
+        titleRect.height,
+        lessThanOrEqualTo(oneLine + 0.5),
+        reason: '"$title" wrapped onto a second line',
+      );
+      // It must also draw fully inside the bar, centred rather than clipped.
+      expect(
+        titleRect.left,
+        greaterThanOrEqualTo(content.left - 0.5),
+        reason: '"$title" overflows the header',
+      );
+      expect(
+        titleRect.right,
+        lessThanOrEqualTo(content.right + 0.5),
+        reason: '"$title" overflows the header',
+      );
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+    }
   });
 
   testWidgets('a bottom-bar tab can be added and removed', (tester) async {
@@ -152,7 +255,7 @@ void main() {
       'upcoming',
     ]);
 
-    // Drag the first row (Overdue Dates) past the second one. `timedDrag`
+    // Drag the first row (Active Cases) past the second one. `timedDrag`
     // pumps frames between moves, which the reorder needs to track the proxy.
     await tester.timedDrag(
       find.byIcon(Icons.drag_indicator).first,
@@ -163,8 +266,8 @@ void main() {
 
     expect(repo.settings.bottomNavTabs, <String>[
       'daily_cause_list',
-      'overdue',
       'active',
+      'overdue',
       'upcoming',
     ]);
   });
@@ -188,8 +291,7 @@ void main() {
 
   testWidgets('side-navigation sections can be hidden', (tester) async {
     await pumpScreen(tester);
-    await openDropdown(tester, '7 of 7 Sections Shown');
-    expect(find.byType(SettingsOptionRow), findsNWidgets(7));
+    await openDropdown(tester, '8 of 8 Sections Shown');
 
     await tester.tap(find.widgetWithText(SettingsOptionRow, 'Disposed Cases'));
     await tester.pumpAndSettle();
@@ -197,7 +299,68 @@ void main() {
     expect(repo.settings.sideNavOptions[AppRoutes.disposedCases], isFalse);
     // The whole map is written, so the untouched sections stay explicitly on.
     expect(repo.settings.sideNavOptions[AppRoutes.notes], isTrue);
-    expect(find.text('6 of 7 Sections Shown'), findsOneWidget);
+    expect(repo.settings.sideNavOptions[AppRoutes.activeCases], isTrue);
+    // Settings is not removable, so the map must not carry its key at all —
+    // a stale `false` from an older build would hide the way back here.
+    expect(
+      repo.settings.sideNavOptions.containsKey(AppRoutes.settings),
+      isFalse,
+    );
+    expect(repo.settings.sideNavOptions, hasLength(canonicalScreens.length));
+    expect(find.text('7 of 8 Sections Shown'), findsOneWidget);
+  });
+
+  testWidgets('the saved options drive the drawer, which keeps Settings', (
+    tester,
+  ) async {
+    repo = FakeSettingsRepository(
+      const UserSettings(
+        sideNavOptions: <String, dynamic>{
+          AppRoutes.disposedCases: false,
+          AppRoutes.settings: false, // Stale key from an older build.
+        },
+      ),
+    );
+    // The drawer header reads the saved profile picture and name.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final prefs = await SharedPreferences.getInstance();
+
+    await pumpSettingsScreen(
+      tester,
+      Scaffold(
+        drawer: AppNavigationDrawer(
+          currentRoute: AppRoutes.allCases,
+          sideNavOptions: repo.settings.sideNavOptions,
+        ),
+        body: const SizedBox.shrink(),
+      ),
+      repo: repo,
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    );
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await tester.pumpAndSettle();
+
+    final drawer = find.byType(Drawer);
+    for (final label in <String>[
+      'All Cases',
+      'Active Cases',
+      'Daily Cause List',
+      'Overdue Dates',
+      'Upcoming Cases',
+      'Case Reference',
+      'Notes',
+      'Settings',
+    ]) {
+      expect(
+        find.descendant(of: drawer, matching: find.text(label)),
+        findsOneWidget,
+        reason: '$label missing from the drawer',
+      );
+    }
+    expect(
+      find.descendant(of: drawer, matching: find.text('Disposed Cases')),
+      findsNothing,
+    );
   });
 
   testWidgets('the default landing page is stored', (tester) async {
@@ -259,7 +422,8 @@ void main() {
     expect(find.text('Overdue Dates'), findsOneWidget);
     expect(find.text('Upcoming Cases'), findsOneWidget);
 
-    // A larger selection renders every tab and scrolls instead of squeezing.
+    // A larger selection renders every tab and scrolls instead of squeezing —
+    // including Case Reference and Notes, which the dropdown now offers too.
     await pumpBar(const <String>[
       'overdue',
       'daily_cause_list',
@@ -267,10 +431,14 @@ void main() {
       'upcoming',
       'all_cases',
       'disposed',
+      'case_reference',
+      'notes',
     ]);
-    expect(find.byType(InkWell), findsNWidgets(6));
+    expect(find.byType(InkWell), findsNWidgets(8));
     expect(find.text('All Cases'), findsOneWidget);
     expect(find.text('Disposed Cases'), findsOneWidget);
+    expect(find.text('Case Reference'), findsOneWidget);
+    expect(find.text('Notes'), findsOneWidget);
     expect(find.byType(SingleChildScrollView), findsOneWidget);
 
     // Tapping a tab reports the route the bar would navigate to.

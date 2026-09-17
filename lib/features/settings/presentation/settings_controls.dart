@@ -202,6 +202,11 @@ class SettingsOptionRow extends StatelessWidget {
 }
 
 /// Header of a picker dialog, matching the mockup's dark header bar.
+///
+/// The title is centred between a spacer and the close button, so it gets the
+/// widest text area the bar can offer, and it is fitted to that area: a long
+/// title such as "Side Navigation Options" stays on one line (scaling down by
+/// the few percent it needs) instead of wrapping into two.
 class SettingsPickerDialogHeader extends StatelessWidget {
   /// Dialog title.
   final String title;
@@ -214,12 +219,18 @@ class SettingsPickerDialogHeader extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
     child: Row(
       children: [
+        // Mirrors the close button so the title stays centred in the bar.
         const SizedBox(width: 48),
         Expanded(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: AppTypography.titleLg.copyWith(color: AppColors.onPrimary),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              maxLines: 1,
+              softWrap: false,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleLg.copyWith(color: AppColors.onPrimary),
+            ),
           ),
         ),
         IconButton(

@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -70,15 +71,22 @@ Future<void> pumpSettingsRouter(
 }
 
 /// Pumps [screen] backed by [repo] with the app's localizations.
+///
+/// [overrides] adds further provider overrides, for screens that reach beyond
+/// settings (the drawer reads the saved profile picture and name).
 Future<void> pumpSettingsScreen(
   WidgetTester tester,
   Widget screen, {
   required SettingsRepository repo,
   Locale locale = const Locale('en'),
+  List<Override> overrides = const <Override>[],
 }) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [settingsRepositoryProvider.overrideWith((ref) async => repo)],
+      overrides: [
+        settingsRepositoryProvider.overrideWith((ref) async => repo),
+        ...overrides,
+      ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

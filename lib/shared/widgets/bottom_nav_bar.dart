@@ -1,4 +1,4 @@
-/// Bottom navigation bar with 4 configurable tabs.
+/// Bottom navigation bar with a configurable tab set.
 ///
 /// Tab order and identity are driven by [UserSettings.bottomNavTabs].
 /// Defaults: overdue / daily_cause_list / active / upcoming.
@@ -41,21 +41,16 @@ class BottomNavTabDef {
   });
 }
 
-/// Every screen that can be placed in the bottom bar.
+/// Every screen that can be placed in the bottom bar, in the app's canonical
+/// screen order — the same order Settings > View Settings offers, so the two
+/// lists can never drift apart.
 const List<BottomNavTabDef> bottomNavTabDefs = [
   BottomNavTabDef(
-    key: 'overdue',
-    icon: Icons.error_outline,
-    activeIcon: Icons.error,
-    label: _labelOverdue,
-    route: AppRoutes.overdueDates,
-  ),
-  BottomNavTabDef(
-    key: 'daily_cause_list',
-    icon: Icons.calendar_today_outlined,
-    activeIcon: Icons.calendar_today,
-    label: _labelDailyCauseList,
-    route: AppRoutes.dailyCauseList,
+    key: 'all_cases',
+    icon: Icons.list_alt_outlined,
+    activeIcon: Icons.list_alt,
+    label: _labelAllCases,
+    route: AppRoutes.allCases,
   ),
   BottomNavTabDef(
     key: 'active',
@@ -65,18 +60,25 @@ const List<BottomNavTabDef> bottomNavTabDefs = [
     route: AppRoutes.activeCases,
   ),
   BottomNavTabDef(
+    key: 'daily_cause_list',
+    icon: Icons.calendar_today_outlined,
+    activeIcon: Icons.calendar_today,
+    label: _labelDailyCauseList,
+    route: AppRoutes.dailyCauseList,
+  ),
+  BottomNavTabDef(
+    key: 'overdue',
+    icon: Icons.error_outline,
+    activeIcon: Icons.error,
+    label: _labelOverdue,
+    route: AppRoutes.overdueDates,
+  ),
+  BottomNavTabDef(
     key: 'upcoming',
     icon: Icons.event_outlined,
     activeIcon: Icons.event,
     label: _labelUpcoming,
     route: AppRoutes.upcomingCases,
-  ),
-  BottomNavTabDef(
-    key: 'all_cases',
-    icon: Icons.list_alt_outlined,
-    activeIcon: Icons.list_alt,
-    label: _labelAllCases,
-    route: AppRoutes.allCases,
   ),
   BottomNavTabDef(
     key: 'disposed',
@@ -85,14 +87,30 @@ const List<BottomNavTabDef> bottomNavTabDefs = [
     label: _labelDisposed,
     route: AppRoutes.disposedCases,
   ),
+  BottomNavTabDef(
+    key: 'case_reference',
+    icon: Icons.menu_book_outlined,
+    activeIcon: Icons.menu_book,
+    label: _labelCaseReference,
+    route: AppRoutes.caseReference,
+  ),
+  BottomNavTabDef(
+    key: 'notes',
+    icon: Icons.sticky_note_2_outlined,
+    activeIcon: Icons.sticky_note_2,
+    label: _labelNotes,
+    route: AppRoutes.notes,
+  ),
 ];
 
-String _labelOverdue(AppLocalizations l) => l.nav_overdueDates;
-String _labelDailyCauseList(AppLocalizations l) => l.nav_dailyCauseList;
-String _labelActive(AppLocalizations l) => l.nav_activeCases;
-String _labelUpcoming(AppLocalizations l) => l.nav_upcomingCases;
 String _labelAllCases(AppLocalizations l) => l.nav_allCases;
+String _labelActive(AppLocalizations l) => l.nav_activeCases;
+String _labelDailyCauseList(AppLocalizations l) => l.nav_dailyCauseList;
+String _labelOverdue(AppLocalizations l) => l.nav_overdueDates;
+String _labelUpcoming(AppLocalizations l) => l.nav_upcomingCases;
 String _labelDisposed(AppLocalizations l) => l.nav_disposedCases;
+String _labelCaseReference(AppLocalizations l) => l.nav_caseReference;
+String _labelNotes(AppLocalizations l) => l.nav_notes;
 
 /// Bottom navigation bar driven by [tabKeys] from [UserSettings.bottomNavTabs].
 ///

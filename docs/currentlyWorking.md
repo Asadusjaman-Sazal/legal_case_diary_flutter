@@ -1,3 +1,10 @@
+### 2026-09-17 — Search bar: always-visible close (x) + tap-outside hides the keyboard — COMPLETE
+
+- **The (x) is always there.** It used to appear only once a letter was typed; it now shows whenever the search is open — case lists, Notes and Case Reference (the last two had no (x) at all) — and tapping it closes the search, clearing the query with it, so the search can be left at any time.
+- **A tap outside hides the keyboard.** The open search field drops focus on a touch anywhere outside it. Flutter's default deliberately keeps the keyboard on mobile touch events, so the field sets `onTapOutside` itself.
+- One shared `ScopedSearchBar` (was the private `_CaseSearchBar`) serves all three screens. `case_list_search_test.dart` is 8: the (x) before any input, closing through the (x) and still through the header icon, and a tap-outside guard that fails without the handler. Nothing else changed. `flutter analyze` clean; 311 passed, 2 skipped. Version `0.0.196`.
+- **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
+
 ### 2026-09-17 — Case list search: the header icon works on all six case screens — COMPLETE
 
 - **What was wrong.** Every case screen passed `onSearch: () {}` to `CasesScreenModal`, so the header search icon was inert: tapping it did nothing at all, on All Cases, Active, Upcoming, Daily Cause List, Overdue and Disposed. (The icon itself, the tooltip and the `searchQuery` parameter were all scaffolded in Task 06; only the wiring was missing. All Cases even kept an unused `_searchController` from the search box Task 08 removed.)

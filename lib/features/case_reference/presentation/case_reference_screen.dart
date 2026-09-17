@@ -117,6 +117,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         isSearching: _isSearching,
         searchController: _searchController,
         onSearchChanged: (_) => setState(() {}),
+        onCloseSearch: _toggleSearch,
         references: visible,
         totalCount: references.length,
         onEdit: (reference) => _openSheet(reference: reference),
@@ -133,6 +134,7 @@ class _ReferenceList extends StatelessWidget {
     required this.isSearching,
     required this.searchController,
     required this.onSearchChanged,
+    required this.onCloseSearch,
     required this.references,
     required this.totalCount,
     required this.onEdit,
@@ -143,6 +145,7 @@ class _ReferenceList extends StatelessWidget {
   final bool isSearching;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
+  final VoidCallback onCloseSearch;
   final List<CaseReference> references;
   final int totalCount;
   final ValueChanged<CaseReference> onEdit;
@@ -156,24 +159,10 @@ class _ReferenceList extends StatelessWidget {
 
     if (isSearching) {
       children.add(
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.sm,
-          ),
-          child: TextField(
-            controller: searchController,
-            autofocus: true,
-            onChanged: onSearchChanged,
-            decoration: InputDecoration(
-              hintText: l.sharedActions_search,
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
+        ScopedSearchBar(
+          controller: searchController,
+          onChanged: onSearchChanged,
+          onClose: onCloseSearch,
         ),
       );
     }

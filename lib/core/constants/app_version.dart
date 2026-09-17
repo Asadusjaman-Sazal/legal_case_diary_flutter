@@ -7,5 +7,5 @@
 /// bump cannot silently leave this constant behind.
 library;
 
-/// User-facing version string, e.g. `0.0.195`.
-const String appVersion = '0.0.195';
+/// User-facing version string, e.g. `0.0.196`.
+const String appVersion = '0.0.196';

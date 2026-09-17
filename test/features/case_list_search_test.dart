@@ -361,22 +361,57 @@ void main() {
     await tester.tap(find.byTooltip(l.casesModal_search));
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
+    // The (x) is on screen before a single letter is typed, so the search can
+    // be closed at any time.
+    expect(find.byTooltip(l.sharedActions_close), findsOneWidget);
 
     await search(tester, 'rahim');
     expect(find.byKey(ValueKey('case-card-${ids['Rahim']}')), findsOneWidget);
     expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsNothing);
 
-    // The clear button empties the query but keeps the bar open.
-    await tester.tap(find.byTooltip(l.customDropdown_clear));
+    // The (x) closes the bar, taking the query with it.
+    await tester.tap(find.byTooltip(l.sharedActions_close));
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
     expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsOneWidget);
 
-    // The header icon closes the bar and the whole list is back.
+    // The header icon still opens the bar and closes it too.
+    await tester.tap(find.byTooltip(l.casesModal_search));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
     await tester.tap(find.byTooltip(l.casesModal_search).first);
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsNothing);
     expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsOneWidget);
+
+    await unmount(tester);
+  });
+
+  testWidgets('a touch outside the open bar hides the keyboard, keeping it open', (
+    tester,
+  ) async {
+    final ids = await seedDatasets();
+    await pumpScreen(tester, AllCasesScreen.new);
+
+    final l = stringsOf(tester, find.byType(AllCasesScreen));
+    await tester.tap(find.byTooltip(l.casesModal_search));
+    await tester.pumpAndSettle();
+    await search(tester, 'rahim');
+
+    // A touch on mobile does not drop focus by itself, so the field has to do
+    // it: without the screen's own handler the keyboard would stay up.
+    final field = tester.widget<EditableText>(find.byType(EditableText));
+    expect(field.focusNode.hasFocus, isTrue);
+
+    // Touch the header title — anything but the field itself.
+    await tester.tapAt(const Offset(200, 28));
+    await tester.pumpAndSettle();
+
+    expect(field.focusNode.hasFocus, isFalse);
+    // The search is still open and still filtering.
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byKey(ValueKey('case-card-${ids['Rahim']}')), findsOneWidget);
+    expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsNothing);
 
     await unmount(tester);
   });

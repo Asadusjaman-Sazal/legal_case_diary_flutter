@@ -72,8 +72,8 @@ final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
 /// [isPremium] — when false the sync button is disabled with an entitlement
 ///   tooltip; when true the button is active and calls [onSync].
 /// [onSync] — called when the user taps the sync button (premium only).
-/// [onSearch] — called when the user taps the search icon (the host screen
-///   toggles its own search state with it).
+/// [onSearch] — called when the user taps the search icon, and by the search
+///   bar's close (x); the host screen toggles its own search state with it.
 /// [isSearching] — when true the shell renders the scoped search bar under the
 ///   header; the host screen owns the state so it can filter its own dataset.
 /// [searchController] — query text of the open search bar.
@@ -168,9 +168,10 @@ class CasesScreenModal extends ConsumerWidget {
             l: l,
           ),
           if (isSearching)
-            _CaseSearchBar(
+            ScopedSearchBar(
               controller: searchController,
               onChanged: onSearchChanged,
+              onClose: onSearch,
             ),
           Expanded(child: body),
         ],
@@ -229,15 +230,22 @@ class CasesScreenModal extends ConsumerWidget {
 // Scoped search bar
 // ---------------------------------------------------------------------------
 
-/// The prominent search bar the header's search icon opens on every case list.
+/// The prominent search bar the header's search icon opens on every case list,
+/// the Notes library and the Case Reference library.
 ///
 /// The host screen owns the query: this only renders the field and reports
 /// changes, so the search stays scoped to that screen's own dataset.
-class _CaseSearchBar extends StatelessWidget {
+class ScopedSearchBar extends StatelessWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onClose;
 
-  const _CaseSearchBar({required this.controller, required this.onChanged});
+  const ScopedSearchBar({
+    required this.controller,
+    this.onChanged,
+    this.onClose,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -254,23 +262,25 @@ class _CaseSearchBar extends StatelessWidget {
         controller: field,
         autofocus: true,
         onChanged: onChanged,
+        // A touch anywhere outside the field drops focus, which hides the
+        // on-screen keyboard while the search stays open.
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         decoration: InputDecoration(
           hintText: l.sharedActions_search,
           prefixIcon: const Icon(Icons.search),
           border: const OutlineInputBorder(),
           isDense: true,
-          // Only offered while there is something to clear, and only when the
-          // host gave us the field to clear.
-          suffixIcon: field == null || field.text.isEmpty
-              ? null
-              : IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: l.customDropdown_clear,
-                  onPressed: () {
-                    field.clear();
-                    onChanged?.call('');
-                  },
-                ),
+          // Always offered, never only-with-text: the (x) is the way out of
+          // the search, so it stays on screen while the query is empty too.
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: l.sharedActions_close,
+            onPressed: () {
+              field?.clear();
+              onChanged?.call('');
+              onClose?.call();
+            },
+          ),
         ),
       ),
     );

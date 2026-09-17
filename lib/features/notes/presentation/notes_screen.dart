@@ -112,6 +112,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         isSearching: _isSearching,
         searchController: _searchController,
         onSearchChanged: (_) => setState(() {}),
+        onCloseSearch: _toggleSearch,
         notes: visible,
         totalCount: notes.length,
         locale: Localizations.localeOf(context).toLanguageTag(),
@@ -129,6 +130,7 @@ class _NotesList extends StatelessWidget {
     required this.isSearching,
     required this.searchController,
     required this.onSearchChanged,
+    required this.onCloseSearch,
     required this.notes,
     required this.totalCount,
     required this.locale,
@@ -140,6 +142,7 @@ class _NotesList extends StatelessWidget {
   final bool isSearching;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
+  final VoidCallback onCloseSearch;
   final List<Note> notes;
   final int totalCount;
   final String locale;
@@ -154,24 +157,10 @@ class _NotesList extends StatelessWidget {
 
     if (isSearching) {
       children.add(
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.sm,
-          ),
-          child: TextField(
-            controller: searchController,
-            autofocus: true,
-            onChanged: onSearchChanged,
-            decoration: InputDecoration(
-              hintText: l.sharedActions_search,
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
+        ScopedSearchBar(
+          controller: searchController,
+          onChanged: onSearchChanged,
+          onClose: onCloseSearch,
         ),
       );
     }

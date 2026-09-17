@@ -42,6 +42,19 @@ void main() {
   late String courtId;
   late String onBehalfId;
 
+  /// Reads every lookup table the form needs; also re-run mid-test after a row
+  /// is added, so a test can hand the form a freshly loaded dataset.
+  Future<AddEditCaseLookupData> loadLookupData() async => AddEditCaseLookupData(
+    courtCategories: await CourtCategoriesDao(db).getAll(),
+    caseCategories: await (db.select(
+      db.caseCategories,
+    )..where((row) => row.isDeleted.equals(false))).get(),
+    courts: await CourtsDao(db).getAll(),
+    caseTypes: await CaseTypesDao(db).getAll(),
+    onBehalfs: await OnBehalfsDao(db).getAll(),
+    notificationOffsets: const [0, 1, 3],
+  );
+
   setUp(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     prefs = await SharedPreferences.getInstance();
@@ -166,16 +179,7 @@ void main() {
           ),
         );
 
-    lookupData = AddEditCaseLookupData(
-      courtCategories: await CourtCategoriesDao(db).getAll(),
-      caseCategories: await (db.select(
-        db.caseCategories,
-      )..where((row) => row.isDeleted.equals(false))).get(),
-      courts: await CourtsDao(db).getAll(),
-      caseTypes: await CaseTypesDao(db).getAll(),
-      onBehalfs: await OnBehalfsDao(db).getAll(),
-      notificationOffsets: const [0, 1, 3],
-    );
+    lookupData = await loadLookupData();
     caseRepository = LocalCaseRepository(
       CasesDao(db),
       CaseHistoryDao(db),
@@ -194,6 +198,7 @@ void main() {
       canAdd: true,
       canEdit: true,
     ),
+    Locale locale = const Locale('en'),
   }) {
     return ProviderScope(
       overrides: [
@@ -213,7 +218,7 @@ void main() {
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('en'),
+        locale: locale,
         home: child,
       ),
     );
@@ -223,6 +228,7 @@ void main() {
     WidgetTester tester, {
     Case? initialCase,
     DateTime? initialNextDate,
+    Locale locale = const Locale('en'),
   }) async {
     await tester.pumpWidget(
       appScope(
@@ -240,11 +246,59 @@ void main() {
             ),
           ),
         ),
+        locale: locale,
       ),
     );
     await tester.tap(find.byKey(const ValueKey('open-task07-form')));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('On Behalf options follow the active language', (
+    WidgetTester tester,
+  ) async {
+    // A pre-seeded option, stored the way the seeder stores it: stable seed ID
+    // with the English name, so only the seed data holds its Bengali label.
+    const seededId = 'onbehalf-high_court_division-petitioner';
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          const OnBehalfsCompanion(
+            id: Value(seededId),
+            courtCategoryId: Value(highCourtDivisionId),
+            name: Value('Petitioner'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    lookupData = await loadLookupData();
+
+    final id = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('ON-BEHALF-1'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: const Value('acceptance-hcd-court'),
+        caseType: const Value('High Court Civil'),
+        onBehalfId: const Value(seededId),
+        nextDate: const Value(1),
+      ),
+    );
+    final current = (await caseRepository.getById(id))!;
+
+    await openForm(tester, initialCase: current, locale: const Locale('bn'));
+    await _select(tester, const ValueKey('add-edit-on-behalf'));
+
+    // The picker lists the Bengali label, not the stored English name.
+    final bengali = onBehalfLabelBn[seededId]!;
+    expect(bengali, isNot('Petitioner'));
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('custom-dropdown-dialog')),
+        matching: find.text(bengali),
+      ),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('Save validates mandatory fields before writing', (
     WidgetTester tester,

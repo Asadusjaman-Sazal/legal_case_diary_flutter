@@ -14,6 +14,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
@@ -316,7 +317,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                         key: ValueKey('case-card-${currentCase.id}'),
                         variant: CaseCardVariant.list,
                         caseNumber:
-                            '${currentCase.caseType} ${currentCase.caseNumber}',
+                            '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
                         title:
                             '${currentCase.petitioner} Vs ${currentCase.respondent}',
                         subtitle: currentCase.caseTitleAndSection,

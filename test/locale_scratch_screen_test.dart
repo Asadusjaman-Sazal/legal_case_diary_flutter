@@ -92,4 +92,58 @@ void main() {
     expect(find.text(caseTypeLabelEn[caseTypeId]!), findsOneWidget);
     expect(find.text(stepLabelEn[stepId]!), findsOneWidget);
   });
+
+  group('caseTypeLabel (a case type stored by name)', () {
+    /// Translations for [locale], without a widget tree.
+    Future<AppTranslations> translations(Locale locale) async =>
+        AppTranslations(await AppLocalizations.delegate.load(locale));
+
+    test('keeps the stored name under English', () async {
+      final t = await translations(const Locale('en'));
+      expect(t.caseTypeLabel('Misc Case-'), 'Misc Case-');
+    });
+
+    test('shows a pre-seeded case type in Bengali', () async {
+      final t = await translations(const Locale('bn'));
+      final category = seedCategories.firstWhere(
+        (c) => c.allCaseTypes.isNotEmpty,
+      );
+      final caseType = category.allCaseTypes.first;
+      expect(
+        t.caseTypeLabel(caseType.labelEn, courtCategoryId: category.id),
+        caseType.labelBn,
+      );
+      // Guard: the label really changes, so the assertion above means something.
+      expect(caseType.labelBn, isNot(caseType.labelEn));
+    });
+
+    test('uses the court category when a name is shared', () async {
+      final t = await translations(const Locale('bn'));
+      // "Misc Case" exists for the civil district courts and for the executive
+      // magistrates with different Bengali labels, so the category decides.
+      const shared = 'Misc Case-';
+      final civil =
+          caseTypeLabelBnByCourtCategory[districtCourtsCivilId]?[shared];
+      final executive =
+          caseTypeLabelBnByCourtCategory[executiveMagistrateId]?[shared];
+      expect(civil, isNotNull);
+      expect(executive, isNotNull);
+      expect(civil, isNot(executive));
+      expect(
+        t.caseTypeLabel(shared, courtCategoryId: districtCourtsCivilId),
+        civil,
+      );
+      expect(
+        t.caseTypeLabel(shared, courtCategoryId: executiveMagistrateId),
+        executive,
+      );
+      // With no category the fallback still localizes rather than showing EN.
+      expect(t.caseTypeLabel(shared), isNot(shared));
+    });
+
+    test('leaves a case type the user added alone', () async {
+      final t = await translations(const Locale('bn'));
+      expect(t.caseTypeLabel('My Own Case Type'), 'My Own Case Type');
+    });
+  });
 }

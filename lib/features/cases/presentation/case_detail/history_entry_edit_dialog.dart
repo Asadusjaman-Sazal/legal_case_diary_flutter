@@ -71,6 +71,9 @@ class _HistoryEntryEditDialogState
   bool _loading = true;
   bool _saving = false;
 
+  /// Court category of the case's court, used only to localize its case type.
+  String? _courtCategoryId;
+
   @override
   void initState() {
     super.initState();
@@ -89,11 +92,13 @@ class _HistoryEntryEditDialogState
   }
 
   /// Steps are category-filtered exactly like the Quick Update window: they
-  /// come from the court category of the case's court.
+  /// come from the court category of the case's court — which is also what
+  /// tells the case type its Bengali label apart from another category's.
   Future<void> _loadSteps() async {
     try {
       final db = await ref.read(databaseProvider.future);
       final court = await CourtsDao(db).getById(widget.caseData.courtId);
+      _courtCategoryId = court?.courtCategoryId;
       final steps = court == null
           ? <Step>[]
           : await StepsDao(db).getByCategory(court.courtCategoryId);
@@ -157,9 +162,7 @@ class _HistoryEntryEditDialogState
           CaseHistoryCompanion(
             id: Value(widget.entry.id),
             hearingDate: Value(hearingMs),
-            noteResult: Value<String?>(
-              note.isEmpty ? null : note,
-            ),
+            noteResult: Value<String?>(note.isEmpty ? null : note),
             result: _isHigherCourt
                 ? Value<String?>(result.isEmpty ? null : result)
                 : const Value<String?>.absent(),
@@ -176,9 +179,7 @@ class _HistoryEntryEditDialogState
                   ? null
                   : _selectedSteps.map((item) => item.stepName).join(','),
             ),
-            noteResult: Value<String?>(
-              note.isEmpty ? null : note,
-            ),
+            noteResult: Value<String?>(note.isEmpty ? null : note),
           ),
           baseEntry: widget.entry,
         );
@@ -259,10 +260,8 @@ class _HistoryEntryEditDialogState
                           child: Column(
                             children: [
                               Text(
-                                '${widget.caseData.caseType} ${widget.caseData.caseNumber}',
-                                key: const ValueKey(
-                                  'history-edit-case-number',
-                                ),
+                                '${context.l10n.caseTypeLabel(widget.caseData.caseType, courtCategoryId: _courtCategoryId)} ${widget.caseData.caseNumber}',
+                                key: const ValueKey('history-edit-case-number'),
                                 style: AppTypography.titleLg.copyWith(
                                   color: AppColors.primary,
                                 ),
@@ -323,9 +322,8 @@ class _HistoryEntryEditDialogState
                             emptyFillColor: AppColors.surface,
                             selectedFillColor: AppColors.surfaceVariant,
                             outlined: true,
-                            onMultiChanged: (values) => setState(
-                              () => _selectedSteps = values,
-                            ),
+                            onMultiChanged: (values) =>
+                                setState(() => _selectedSteps = values),
                           ),
                         ],
                         if (_isHigherCourt) ...[

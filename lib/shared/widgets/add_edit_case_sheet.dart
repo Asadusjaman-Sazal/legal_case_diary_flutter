@@ -997,7 +997,9 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                 label: l.addEditCaseSheet_onBehalf,
                 items: _onBehalfOptions,
                 value: _selectedOnBehalf,
-                itemLabel: (item) => item.name,
+                // Pre-seeded on-behalfs are stored with their English name, so
+                // the label comes from the seed data like every other option.
+                itemLabel: (item) => _seedLabel(context, item.id, item.name),
                 enabled: editable && _courtCategoryId != null,
                 emptyFillColor: AppColors.surface,
                 selectedFillColor: AppColors.surfaceVariant,
@@ -1741,6 +1743,9 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   bool _permissionResolved = false;
   bool _canEdit = false;
 
+  /// Court category of the case's court, used only to localize its case type.
+  String? _courtCategoryId;
+
   @override
   void initState() {
     super.initState();
@@ -1777,6 +1782,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       );
       final settings = await settingsRepository.getSettings();
       final court = await CourtsDao(db).getById(widget.currentCase.courtId);
+      _courtCategoryId = court?.courtCategoryId;
       // AD/HCD courts have no steps; the update window shows Result instead.
       _isHigherCourt =
           court != null &&
@@ -2133,7 +2139,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           child: Column(
                             children: [
                               Text(
-                                '${widget.currentCase.caseType} ${widget.currentCase.caseNumber}',
+                                '${context.l10n.caseTypeLabel(widget.currentCase.caseType, courtCategoryId: _courtCategoryId)} ${widget.currentCase.caseNumber}',
                                 key: const ValueKey('quick-update-case-number'),
                                 style: AppTypography.titleLg.copyWith(
                                   color: AppColors.primary,

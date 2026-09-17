@@ -55,6 +55,25 @@ class AppTranslations {
     return fallbackEn;
   }
 
+  /// Resolves a case type that the database stored **by name** to its label in
+  /// the active language.
+  ///
+  /// `cases.case_type` keeps the case type's name — the pre-seeded English
+  /// label, or whatever the user typed when they added a case type of their
+  /// own — instead of its stable ID, so without this the case headers keep
+  /// showing English under বাংলা. [courtCategoryId] picks the right label when
+  /// a name is shared by several court categories ("Misc Case"); a name with no
+  /// pre-seeded match is a user-added case type and is returned unchanged.
+  String caseTypeLabel(String storedName, {String? courtCategoryId}) {
+    if (!_loc.localeName.startsWith('bn')) return storedName;
+    final byCategory = courtCategoryId == null
+        ? null
+        : seed.caseTypeLabelBnByCourtCategory[courtCategoryId];
+    return byCategory?[storedName] ??
+        seed.caseTypeLabelBnByEnName[storedName] ??
+        storedName;
+  }
+
   /// Hierarchical nested map of translations grouped by screen / domain.
   ///
   /// Parameterized keys (placeholders / message templates) are omitted from
@@ -137,8 +156,10 @@ class AppTranslations {
       AppStrings.caseDetailsScreenRespondent: _loc.caseDetailsScreen_respondent,
       AppStrings.caseDetailsScreenSectionsorcasetitle:
           _loc.caseDetailsScreen_sectionsOrCaseTitle,
-      AppStrings.caseDetailsScreenShowhistory: _loc.caseDetailsScreen_showHistory,
-      AppStrings.caseDetailsScreenHidehistory: _loc.caseDetailsScreen_hideHistory,
+      AppStrings.caseDetailsScreenShowhistory:
+          _loc.caseDetailsScreen_showHistory,
+      AppStrings.caseDetailsScreenHidehistory:
+          _loc.caseDetailsScreen_hideHistory,
       AppStrings.caseDetailsScreenSetreminder:
           _loc.caseDetailsScreen_setReminder,
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,

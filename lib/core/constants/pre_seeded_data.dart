@@ -19331,6 +19331,42 @@ final Map<String, String> caseTypeLabelBn = Map.unmodifiable(
   ),
 );
 
+/// Case type English label → Bengali label, per court category.
+///
+/// `cases.case_type` stores the case type *name* (the English label of the row
+/// it was picked from) rather than its stable ID, so showing it in Bengali
+/// means mapping that name back through the seed data. Twenty of the 160 names
+/// are shared by several court categories with different Bengali labels
+/// ("Misc Case" is `ছানী মিছ-` for the civil district courts but `বিবিধ মোকদ্দমা-`
+/// for the executive magistrates), which is why the court category is the key.
+final Map<String, Map<String, String>> caseTypeLabelBnByCourtCategory =
+    Map.unmodifiable(
+      Map.fromEntries(
+        seedCategories.map(
+          (category) => MapEntry(
+            category.id,
+            Map<String, String>.unmodifiable(<String, String>{
+              for (final caseType in category.allCaseTypes)
+                caseType.labelEn: caseType.labelBn,
+            }),
+          ),
+        ),
+      ),
+    );
+
+/// Case type English label → Bengali label, ignoring the court category.
+///
+/// Fallback for surfaces that do not know the case's court category. When a
+/// name is shared, the first category in seed order wins, so the result is
+/// deterministic rather than arbitrary.
+final Map<String, String> caseTypeLabelBnByEnName = () {
+  final byName = <String, String>{};
+  for (final caseType in seedCategories.expand((c) => c.allCaseTypes)) {
+    byName.putIfAbsent(caseType.labelEn, () => caseType.labelBn);
+  }
+  return Map<String, String>.unmodifiable(byName);
+}();
+
 /// All on-behalf stable IDs → English label.
 final Map<String, String> onBehalfLabelEn = Map.unmodifiable(
   Map.fromEntries(

@@ -535,7 +535,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       children: [
         // L1: case type and case number in big font.
         Text(
-          '${current.caseType} ${current.caseNumber}',
+          '${context.l10n.caseTypeLabel(current.caseType, courtCategoryId: court?.courtCategoryId)} ${current.caseNumber}',
           key: const ValueKey('case-detail-case-number'),
           style: AppTypography.headlineMd,
         ),

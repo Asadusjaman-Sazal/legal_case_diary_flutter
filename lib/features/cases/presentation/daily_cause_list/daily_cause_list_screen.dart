@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
+import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
@@ -147,7 +148,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     }
   }
 
-  Future<void> _launchExternal(Uri uri, {required String failureMessage}) async {
+  Future<void> _launchExternal(
+    Uri uri, {
+    required String failureMessage,
+  }) async {
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -211,9 +215,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         children: [
           _DateSwitcher(
             selectedDate: _selectedDate,
-            onToday: () => _selectDate(
-              AppDateUtils.bangladeshTodayStartOfDay(),
-            ),
+            onToday: () =>
+                _selectDate(AppDateUtils.bangladeshTodayStartOfDay()),
             onTomorrow: () => _selectDate(
               AppDateUtils.bangladeshTodayStartOfDay() +
                   const Duration(days: 1).inMilliseconds,
@@ -271,12 +274,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                         ),
                         Text(
                           '${group.cases.length}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelMedium?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.outline,
                               ),
                         ),
                       ],
@@ -296,11 +296,12 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     final court = _courtsById[currentCase.courtId];
     final isHigherCourt =
         court?.courtCategoryId == appellateDivisionId ||
-            court?.courtCategoryId == highCourtDivisionId;
+        court?.courtCategoryId == highCourtDivisionId;
     return CaseCard(
       key: ValueKey('case-card-${currentCase.id}'),
       variant: CaseCardVariant.dailyCauseList,
-      caseNumber: '${currentCase.caseType} ${currentCase.caseNumber}',
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
       title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
       subtitle: currentCase.caseTitleAndSection,
       courtName: null, // Shown in the group header above the card.
@@ -309,9 +310,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       alignStatusLabelRight: true,
       nextDate: currentCase.nextDate == null
           ? null
-          : DateFormat('dd/MM/yy, EEE', l.localeName).format(
-              AppDateUtils.bangladeshDateTime(currentCase.nextDate!),
-            ),
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
       step: currentCase.lastStep,
       result: currentCase.result,
       note: currentCase.notesResults,
@@ -367,7 +369,9 @@ class _DateSwitcher extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surfaceContainer,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.4)),
+              border: Border.all(
+                color: AppColors.outlineVariant.withValues(alpha: 0.4),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -410,9 +414,7 @@ class _DateSwitcher extends StatelessWidget {
                         const SizedBox(width: AppSpacing.xs),
                         Text(
                           calendarLabel,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
+                          style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(color: AppColors.onPrimary),
                         ),
                       ],
@@ -442,25 +444,25 @@ class _DatePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(999),
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: selected ? AppColors.primary : Colors.transparent,
         borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: selected ? AppColors.onPrimary : AppColors.onSurface,
-                ),
-          ),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: selected ? AppColors.onPrimary : AppColors.onSurface,
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _CourtGroup {

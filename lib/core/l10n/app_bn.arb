@@ -602,10 +602,30 @@
   "settingsViewSettings_caseListMode": "মামলার তালিকার ধরন",
   "settingsViewSettings_caseListCompact": "সংক্ষিপ্ত",
   "settingsViewSettings_caseListExpanded": "বিস্তারিত",
-  "settingsViewSettings_bottomTabs": "নিচের নেভিগেশন ট্যাব",
-  "settingsViewSettings_bottomTabsHint": "নিচের বারে যে স্ক্রিনগুলো চান সেগুলো বেছে নিন, তারপর টেনে আপনার পছন্দের ক্রমে সাজান।",
+  "settingsViewSettings_bottomTabs": "নিচের নেভিগেশন",
+  "settingsViewSettings_bottomTabsCount": "{count}টি স্ক্রিন নির্বাচিত",
+  "@settingsViewSettings_bottomTabsCount": {
+      "description": "Collapsed value of the Bottom Navigation dropdown: how many screens are in the bottom bar.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
   "settingsViewSettings_keepOneTab": "নিচের বারে অন্তত একটি স্ক্রিন রাখুন।",
   "settingsViewSettings_sideNav": "সাইড নেভিগেশন অপশন",
+  "settingsViewSettings_sideNavCount": "{total}টির মধ্যে {shown}টি সেকশন দেখানো হচ্ছে",
+  "@settingsViewSettings_sideNavCount": {
+      "description": "Collapsed value of the Side Navigation Options dropdown: how many drawer sections are visible.",
+      "placeholders": {
+          "shown": {
+              "type": "int"
+          },
+          "total": {
+              "type": "int"
+          }
+      }
+  },
   "settingsViewSettings_landingPage": "ডিফল্ট শুরুর পেজ",
   "@@_section_settingsGuidelines": "SETTINGS - GUIDELINES  |  lib/features/settings/presentation/settings_about/guidelines_screen.dart",
   "settingsGuidelines_title": "নির্দেশনা",

@@ -1336,11 +1336,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsViewSettings_caseListExpanded => 'বিস্তারিত';
 
   @override
-  String get settingsViewSettings_bottomTabs => 'নিচের নেভিগেশন ট্যাব';
+  String get settingsViewSettings_bottomTabs => 'নিচের নেভিগেশন';
 
   @override
-  String get settingsViewSettings_bottomTabsHint =>
-      'নিচের বারে যে স্ক্রিনগুলো চান সেগুলো বেছে নিন, তারপর টেনে আপনার পছন্দের ক্রমে সাজান।';
+  String settingsViewSettings_bottomTabsCount(int count) {
+    return '$countটি স্ক্রিন নির্বাচিত';
+  }
 
   @override
   String get settingsViewSettings_keepOneTab =>
@@ -1348,6 +1349,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsViewSettings_sideNav => 'সাইড নেভিগেশন অপশন';
+
+  @override
+  String settingsViewSettings_sideNavCount(int shown, int total) {
+    return '$totalটির মধ্যে $shownটি সেকশন দেখানো হচ্ছে';
+  }
 
   @override
   String get settingsViewSettings_landingPage => 'ডিফল্ট শুরুর পেজ';

@@ -589,8 +589,8 @@
   "settingsViewSettings_title": "View Settings",
   "settingsViewSettings_sectionDisplay": "Display",
   "settingsViewSettings_sectionNavigation": "Navigation",
-  "settingsViewSettings_upcomingPeriod": "Upcoming cases period",
-  "settingsViewSettings_days": "{days} days",
+  "settingsViewSettings_upcomingPeriod": "Upcoming Cases Period",
+  "settingsViewSettings_days": "{days} Days",
   "@settingsViewSettings_days": {
       "description": "Number of days the Upcoming Cases screen looks ahead.",
       "placeholders": {
@@ -599,14 +599,34 @@
           }
       }
   },
-  "settingsViewSettings_caseListMode": "Case list display",
+  "settingsViewSettings_caseListMode": "Case List Display",
   "settingsViewSettings_caseListCompact": "Compact",
   "settingsViewSettings_caseListExpanded": "Expanded",
-  "settingsViewSettings_bottomTabs": "Bottom navigation tabs",
-  "settingsViewSettings_bottomTabsHint": "Choose the screens you want in the bottom bar, then drag them into the order you prefer.",
-  "settingsViewSettings_keepOneTab": "Keep at least one screen in the bottom bar.",
-  "settingsViewSettings_sideNav": "Side navigation options",
-  "settingsViewSettings_landingPage": "Default landing page",
+  "settingsViewSettings_bottomTabs": "Bottom Navigation",
+  "settingsViewSettings_bottomTabsCount": "{count} Screens Selected",
+  "@settingsViewSettings_bottomTabsCount": {
+      "description": "Collapsed value of the Bottom Navigation dropdown: how many screens are in the bottom bar.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsViewSettings_keepOneTab": "Keep at Least One Screen in the Bottom Bar.",
+  "settingsViewSettings_sideNav": "Side Navigation Options",
+  "settingsViewSettings_sideNavCount": "{shown} of {total} Sections Shown",
+  "@settingsViewSettings_sideNavCount": {
+      "description": "Collapsed value of the Side Navigation Options dropdown: how many drawer sections are visible.",
+      "placeholders": {
+          "shown": {
+              "type": "int"
+          },
+          "total": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsViewSettings_landingPage": "Default Landing Page",
   "@@_section_settingsGuidelines": "SETTINGS - GUIDELINES  |  lib/features/settings/presentation/settings_about/guidelines_screen.dart",
   "settingsGuidelines_title": "Guidelines",
   "settingsGuidelines_intro": "Tap on any topic below to expand and view detailed administrative procedures.",

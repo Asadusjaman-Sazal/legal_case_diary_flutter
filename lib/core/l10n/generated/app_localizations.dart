@@ -2497,19 +2497,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsViewSettings_upcomingPeriod.
   ///
   /// In en, this message translates to:
-  /// **'Upcoming cases period'**
+  /// **'Upcoming Cases Period'**
   String get settingsViewSettings_upcomingPeriod;
 
   /// Number of days the Upcoming Cases screen looks ahead.
   ///
   /// In en, this message translates to:
-  /// **'{days} days'**
+  /// **'{days} Days'**
   String settingsViewSettings_days(int days);
 
   /// No description provided for @settingsViewSettings_caseListMode.
   ///
   /// In en, this message translates to:
-  /// **'Case list display'**
+  /// **'Case List Display'**
   String get settingsViewSettings_caseListMode;
 
   /// No description provided for @settingsViewSettings_caseListCompact.
@@ -2527,31 +2527,37 @@ abstract class AppLocalizations {
   /// No description provided for @settingsViewSettings_bottomTabs.
   ///
   /// In en, this message translates to:
-  /// **'Bottom navigation tabs'**
+  /// **'Bottom Navigation'**
   String get settingsViewSettings_bottomTabs;
 
-  /// No description provided for @settingsViewSettings_bottomTabsHint.
+  /// Collapsed value of the Bottom Navigation dropdown: how many screens are in the bottom bar.
   ///
   /// In en, this message translates to:
-  /// **'Choose the screens you want in the bottom bar, then drag them into the order you prefer.'**
-  String get settingsViewSettings_bottomTabsHint;
+  /// **'{count} Screens Selected'**
+  String settingsViewSettings_bottomTabsCount(int count);
 
   /// No description provided for @settingsViewSettings_keepOneTab.
   ///
   /// In en, this message translates to:
-  /// **'Keep at least one screen in the bottom bar.'**
+  /// **'Keep at Least One Screen in the Bottom Bar.'**
   String get settingsViewSettings_keepOneTab;
 
   /// No description provided for @settingsViewSettings_sideNav.
   ///
   /// In en, this message translates to:
-  /// **'Side navigation options'**
+  /// **'Side Navigation Options'**
   String get settingsViewSettings_sideNav;
+
+  /// Collapsed value of the Side Navigation Options dropdown: how many drawer sections are visible.
+  ///
+  /// In en, this message translates to:
+  /// **'{shown} of {total} Sections Shown'**
+  String settingsViewSettings_sideNavCount(int shown, int total);
 
   /// No description provided for @settingsViewSettings_landingPage.
   ///
   /// In en, this message translates to:
-  /// **'Default landing page'**
+  /// **'Default Landing Page'**
   String get settingsViewSettings_landingPage;
 
   /// No description provided for @settingsGuidelines_title.

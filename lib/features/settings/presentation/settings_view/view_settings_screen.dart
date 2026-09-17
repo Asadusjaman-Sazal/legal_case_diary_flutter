@@ -2,8 +2,15 @@
 ///
 /// There is no mockup for this screen, so the body follows plan §10.1
 /// (`upcoming_cases_period`, `case_list_display_mode`, `bottom_nav_tabs`,
-/// `side_nav_options`, `default_landing_page`) using the same card, section and
-/// 48 px control language as the Notifications screen.
+/// `side_nav_options`, `default_landing_page`) in the same card, section and
+/// 48 px control language as the Notifications screen: every dropdown carries
+/// its own title directly above the control, and both the title and the
+/// collapsed value are Title Case.
+///
+/// The two list settings render as dropdowns too — their items live inside the
+/// picker instead of inline on the page, no item shows a per-screen icon, and
+/// the Bottom Navigation list is reorderable by drag & drop. Default Landing
+/// Page sits in its own card; Display and Navigation each keep theirs.
 ///
 /// All five values are durable per-user preferences in the local
 /// `user_preferences` row and are never firm-shared. The screens that consume
@@ -18,7 +25,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
@@ -79,31 +85,17 @@ String _screenLabel(AppLocalizations l, String key) => switch (key) {
 };
 
 /// View settings screen.
-class ViewSettingsScreen extends ConsumerStatefulWidget {
+class ViewSettingsScreen extends ConsumerWidget {
   const ViewSettingsScreen({super.key});
 
   @override
-  ConsumerState<ViewSettingsScreen> createState() => _ViewSettingsScreenState();
-}
-
-class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
-  /// Display order of *every* candidate tab (chosen ones first). Held locally
-  /// so unselected rows keep their place while the user drags, and seeded once
-  /// from the saved selection.
-  List<String>? _tabOrder;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final settingsAsync = ref.watch(settingsViewModelProvider);
-    final settings = settingsAsync.value ?? const UserSettings();
-    // Seed the display order from the *loaded* selection, not from the loading
-    // frame's defaults, so the saved tabs appear first once settings arrive.
-    if (_tabOrder == null && settingsAsync.hasValue) {
-      _tabOrder = _seedTabOrder(settings.bottomNavTabs);
-    }
-    final order = _tabOrder ?? _seedTabOrder(settings.bottomNavTabs);
-    final chosen = settings.bottomNavTabs;
+    final settings =
+        ref.watch(settingsViewModelProvider).value ?? const UserSettings();
+    final shownSections = _sideNavOptions
+        .where((option) => _isSideNavVisible(settings, option))
+        .length;
 
     return SettingsSubPageModal(
       title: l.settingsViewSettings_title,
@@ -119,17 +111,29 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
             label: l.settingsViewSettings_sectionDisplay,
             children: [
               // Upcoming cases period.
+              SettingsSectionLabel(l.settingsViewSettings_upcomingPeriod),
+              const SizedBox(height: AppSpacing.md),
               SettingsPickerRow(
                 text: l.settingsViewSettings_days(settings.upcomingCasesPeriod),
                 icon: Icons.expand_more,
-                onTap: () => _pickUpcomingPeriod(settings.upcomingCasesPeriod),
+                onTap: () => _pickUpcomingPeriod(
+                  context,
+                  ref,
+                  settings.upcomingCasesPeriod,
+                ),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.xl),
               // Case list display mode.
+              SettingsSectionLabel(l.settingsViewSettings_caseListMode),
+              const SizedBox(height: AppSpacing.md),
               SettingsPickerRow(
                 text: _caseListModeLabel(l, settings.caseListDisplayMode),
                 icon: Icons.expand_more,
-                onTap: () => _pickCaseListMode(settings.caseListDisplayMode),
+                onTap: () => _pickCaseListMode(
+                  context,
+                  ref,
+                  settings.caseListDisplayMode,
+                ),
               ),
             ],
           ),
@@ -137,40 +141,41 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
           _SectionCard(
             label: l.settingsViewSettings_sectionNavigation,
             children: [
-              // Bottom navigation tabs: choose and order in one list.
-              Text(
-                l.settingsViewSettings_bottomTabs,
-                style: AppTypography.bodyLg,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l.settingsViewSettings_bottomTabsHint,
-                style: AppTypography.bodySm,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              _TabChooser(
-                order: order,
-                chosen: chosen,
-                onReorder: _reorderTabs,
-                onToggle: _toggleTab,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              SettingsSectionLabel(l.settingsViewSettings_sideNav),
-              const SizedBox(height: AppSpacing.sm),
-              for (final option in _sideNavOptions)
-                _SideNavSwitch(
-                  label: _screenLabel(l, option.labelKey),
-                  value: settings.sideNavOptions[option.settingsKey] != false,
-                  onChanged: (value) =>
-                      _setSideNavOption(option.settingsKey, value),
-                ),
-              const SizedBox(height: AppSpacing.xl),
-              SettingsSectionLabel(l.settingsViewSettings_landingPage),
+              // Bottom navigation tabs: which screens, in which order.
+              SettingsSectionLabel(l.settingsViewSettings_bottomTabs),
               const SizedBox(height: AppSpacing.md),
+              SettingsPickerRow(
+                text: l.settingsViewSettings_bottomTabsCount(
+                  settings.bottomNavTabs.length,
+                ),
+                icon: Icons.expand_more,
+                onTap: () => _pickBottomTabs(context, ref, settings),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              // Side navigation options: which drawer sections stay visible.
+              SettingsSectionLabel(l.settingsViewSettings_sideNav),
+              const SizedBox(height: AppSpacing.md),
+              SettingsPickerRow(
+                text: l.settingsViewSettings_sideNavCount(
+                  shownSections,
+                  _sideNavOptions.length,
+                ),
+                icon: Icons.expand_more,
+                onTap: () => _pickSideNav(context, ref, settings),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // The landing page is a single choice of its own, so it gets its own
+          // card; its label doubles as the dropdown's title.
+          _SectionCard(
+            label: l.settingsViewSettings_landingPage,
+            children: [
               SettingsPickerRow(
                 text: _screenLabel(l, settings.defaultLandingPage),
                 icon: Icons.expand_more,
-                onTap: () => _pickLandingPage(settings.defaultLandingPage),
+                onTap: () =>
+                    _pickLandingPage(context, ref, settings.defaultLandingPage),
               ),
             ],
           ),
@@ -180,8 +185,73 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
   }
 
   // -------------------------------------------------------------------------
-  // Bottom navigation tabs
+  // Bottom navigation tabs and side navigation options
   // -------------------------------------------------------------------------
+
+  /// Bottom-navigation dropdown: every candidate screen as a check-mark row,
+  /// top row first in the order the bar renders, draggable to reorder.
+  Future<void> _pickBottomTabs(
+    BuildContext context,
+    WidgetRef ref,
+    UserSettings settings,
+  ) async {
+    final l = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _MultiSelectDropDown(
+        title: l.settingsViewSettings_bottomTabs,
+        order: _seedTabOrder(settings.bottomNavTabs),
+        selected: settings.bottomNavTabs.toSet(),
+        labelOf: (key) => _screenLabel(l, key),
+        reorderable: true,
+        minSelected: 1,
+        minSelectedMessage: l.settingsViewSettings_keepOneTab,
+        onChanged: (order, chosen) =>
+            _update(ref, (current) => current.copyWith(bottomNavTabs: chosen)),
+      ),
+    );
+  }
+
+  /// Side-navigation dropdown: one check-mark row per drawer section, ticked
+  /// while the section is visible.
+  Future<void> _pickSideNav(
+    BuildContext context,
+    WidgetRef ref,
+    UserSettings settings,
+  ) async {
+    final l = AppLocalizations.of(context);
+    final labels = <String, String>{
+      for (final option in _sideNavOptions)
+        option.settingsKey: _screenLabel(l, option.labelKey),
+    };
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _MultiSelectDropDown(
+        title: l.settingsViewSettings_sideNav,
+        order: <String>[
+          for (final option in _sideNavOptions) option.settingsKey,
+        ],
+        selected: <String>{
+          for (final option in _sideNavOptions)
+            if (_isSideNavVisible(settings, option)) option.settingsKey,
+        },
+        labelOf: (key) => labels[key] ?? key,
+        reorderable: false,
+        onChanged: (order, visible) => _update(
+          ref,
+          (current) => current.copyWith(
+            sideNavOptions: <String, dynamic>{
+              for (final key in order) key: visible.contains(key),
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Whether one drawer section is currently shown (absent key means shown).
+  static bool _isSideNavVisible(UserSettings settings, _NavOption option) =>
+      settings.sideNavOptions[option.settingsKey] != false;
 
   /// Chosen tabs first, then the rest, both in `bottomNavTabDefs` order.
   static List<String> _seedTabOrder(List<String> chosen) => <String>[
@@ -191,59 +261,18 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
         .where((key) => !chosen.contains(key)),
   ];
 
-  /// Adds or removes a tab, keeping at least one in the bar.
-  Future<void> _toggleTab(String key, bool selected) async {
-    final current = ref.read(settingsViewModelProvider).value;
-    final chosen = current?.bottomNavTabs ?? const <String>[];
-    if (!selected && chosen.length <= 1 && chosen.contains(key)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context).settingsViewSettings_keepOneTab,
-          ),
-        ),
-      );
-      return;
-    }
-    final order = _tabOrder ??= _seedTabOrder(chosen);
-    final next = selected
-        ? <String>[...chosen, key]
-        : chosen.where((k) => k != key).toList();
-    await _saveTabs(_ordered(next, order));
-  }
-
-  /// Moves a tab within the full candidate list and re-saves the selection.
-  Future<void> _reorderTabs(int oldIndex, int newIndex) async {
-    final order = _tabOrder ??= _seedTabOrder(const <String>[]);
-    final moved = List<String>.of(order);
-    final key = moved.removeAt(oldIndex);
-    moved.insert(newIndex, key);
-    setState(() => _tabOrder = moved);
-    final chosen =
-        ref.read(settingsViewModelProvider).value?.bottomNavTabs ??
-        const <String>[];
-    await _saveTabs(_ordered(chosen, moved));
-  }
-
-  /// Writes the chosen tabs to settings, ordered by the display order.
-  Future<void> _saveTabs(List<String> chosen) => ref
-      .read(settingsViewModelProvider.notifier)
-      .updateSettings((settings) => settings.copyWith(bottomNavTabs: chosen));
-
-  /// [keys] in [order], dropping anything no longer offered.
-  static List<String> _ordered(List<String> keys, List<String> order) =>
-      <String>[
-        for (final key in order)
-          if (keys.contains(key)) key,
-      ];
-
   // -------------------------------------------------------------------------
   // Simple pickers
   // -------------------------------------------------------------------------
 
-  Future<void> _pickUpcomingPeriod(int current) async {
+  Future<void> _pickUpcomingPeriod(
+    BuildContext context,
+    WidgetRef ref,
+    int current,
+  ) async {
     final l = AppLocalizations.of(context);
     final selected = await _pickOption<int>(
+      context,
       title: l.settingsViewSettings_upcomingPeriod,
       options: _upcomingPeriods,
       selected: current,
@@ -251,13 +280,19 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
     );
     if (selected == null) return;
     await _update(
+      ref,
       (settings) => settings.copyWith(upcomingCasesPeriod: selected),
     );
   }
 
-  Future<void> _pickCaseListMode(String current) async {
+  Future<void> _pickCaseListMode(
+    BuildContext context,
+    WidgetRef ref,
+    String current,
+  ) async {
     final l = AppLocalizations.of(context);
     final selected = await _pickOption<String>(
+      context,
       title: l.settingsViewSettings_caseListMode,
       options: const <String>['compact', 'expanded'],
       selected: current,
@@ -265,13 +300,19 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
     );
     if (selected == null) return;
     await _update(
+      ref,
       (settings) => settings.copyWith(caseListDisplayMode: selected),
     );
   }
 
-  Future<void> _pickLandingPage(String current) async {
+  Future<void> _pickLandingPage(
+    BuildContext context,
+    WidgetRef ref,
+    String current,
+  ) async {
     final l = AppLocalizations.of(context);
     final selected = await _pickOption<String>(
+      context,
       title: l.settingsViewSettings_landingPage,
       options: _landingPages,
       selected: current,
@@ -279,12 +320,14 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
     );
     if (selected == null) return;
     await _update(
+      ref,
       (settings) => settings.copyWith(defaultLandingPage: selected),
     );
   }
 
   /// Shows a single-select dialog for [options] and returns the choice.
-  Future<T?> _pickOption<T>({
+  Future<T?> _pickOption<T>(
+    BuildContext context, {
     required String title,
     required List<T> options,
     required T selected,
@@ -299,15 +342,10 @@ class _ViewSettingsScreenState extends ConsumerState<ViewSettingsScreen> {
     ),
   );
 
-  /// Persists one drawer-section visibility toggle.
-  Future<void> _setSideNavOption(String key, bool value) => _update(
-    (current) => current.copyWith(
-      sideNavOptions: <String, dynamic>{...current.sideNavOptions, key: value},
-    ),
-  );
-
-  Future<void> _update(UserSettings Function(UserSettings current) transform) =>
-      ref.read(settingsViewModelProvider.notifier).updateSettings(transform);
+  Future<void> _update(
+    WidgetRef ref,
+    UserSettings Function(UserSettings current) transform,
+  ) => ref.read(settingsViewModelProvider.notifier).updateSettings(transform);
 
   /// Localized label of a case-list density mode.
   static String _caseListModeLabel(AppLocalizations l, String mode) =>
@@ -325,8 +363,8 @@ class _SectionCard extends StatelessWidget {
   const _SectionCard({required this.label, required this.children});
 
   @override
-  // A shaped Material rather than a decorated Container: the card holds
-  // ListTiles (the side-nav switches), which must paint on a Material.
+  // A shaped Material rather than a decorated Container so further list rows
+  // can be added here and still paint on a Material.
   Widget build(BuildContext context) => Material(
     color: AppColors.surfaceContainerLowest,
     clipBehavior: Clip.antiAlias,
@@ -348,90 +386,161 @@ class _SectionCard extends StatelessWidget {
   );
 }
 
-/// The six candidate tabs: checkbox to include, drag handle to order.
-class _TabChooser extends StatelessWidget {
+/// Multi-select dropdown: the shared dark picker header over one check-mark
+/// row per item, so a dropdown item carries no icon of its own.
+///
+/// It keeps its own copy of the order and the selection so a tap or a drag
+/// renders immediately, and reports every change through [onChanged]. The
+/// dialog stays open while the user works through the list — every row is an
+/// independent choice — and the header's close button dismisses it. With
+/// [reorderable] each row also gets a drag handle; the saved selection follows
+/// the display order, which is the order the bottom bar renders.
+class _MultiSelectDropDown extends StatefulWidget {
+  /// Dropdown title, shown in the picker header.
+  final String title;
+
   /// Every candidate key, in display order.
   final List<String> order;
 
-  /// Keys currently in the bottom bar.
-  final List<String> chosen;
+  /// Keys that start out selected.
+  final Set<String> selected;
 
-  /// Called with the new (from, to) indexes after a drag.
-  final void Function(int, int) onReorder;
+  /// Localized label of one key.
+  final String Function(String key) labelOf;
 
-  /// Called when a row's checkbox changes.
-  final void Function(String key, bool selected) onToggle;
+  /// Called with the (display order, selection in that order) after a change.
+  final void Function(List<String> order, List<String> selected) onChanged;
 
-  const _TabChooser({
+  /// Whether rows can be dragged into a new order.
+  final bool reorderable;
+
+  /// How many rows must stay selected.
+  final int minSelected;
+
+  /// Shown when the user tries to go below [minSelected].
+  final String? minSelectedMessage;
+
+  const _MultiSelectDropDown({
+    required this.title,
     required this.order,
-    required this.chosen,
-    required this.onReorder,
-    required this.onToggle,
+    required this.selected,
+    required this.labelOf,
+    required this.onChanged,
+    this.reorderable = false,
+    this.minSelected = 0,
+    this.minSelectedMessage,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final defs = {for (final tab in bottomNavTabDefs) tab.key: tab};
-    return ReorderableListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      buildDefaultDragHandles: false,
-      itemCount: order.length,
-      onReorderItem: onReorder,
-      itemBuilder: (context, index) {
-        final key = order[index];
-        final def = defs[key];
-        if (def == null) return const SizedBox.shrink();
-        final selected = chosen.contains(key);
-        return Padding(
-          key: ValueKey(key),
-          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-          child: Row(
-            children: [
-              Checkbox(
-                value: selected,
-                activeColor: AppColors.secondary,
-                onChanged: (value) => onToggle(key, value ?? false),
-              ),
-              Icon(def.icon, size: 20, color: AppColors.onSurfaceVariant),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text(def.label(l), style: AppTypography.bodyMd)),
-              ReorderableDragStartListener(
-                index: index,
-                child: const Padding(
-                  padding: EdgeInsets.all(AppSpacing.sm),
-                  child: Icon(Icons.drag_indicator, color: AppColors.tertiary),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  State<_MultiSelectDropDown> createState() => _MultiSelectDropDownState();
 }
 
-/// One drawer-section visibility row.
-class _SideNavSwitch extends StatelessWidget {
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
+class _MultiSelectDropDownState extends State<_MultiSelectDropDown> {
+  /// Display order of every candidate, as it stands in this dialog.
+  late final List<String> _order = List<String>.of(widget.order);
 
-  const _SideNavSwitch({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
+  /// Currently ticked keys.
+  late final Set<String> _selected = Set<String>.of(widget.selected);
+
+  /// The selection in display order — the order the bottom bar renders.
+  List<String> get _orderedSelection => <String>[
+    for (final key in _order)
+      if (_selected.contains(key)) key,
+  ];
+
+  /// Ticks or unticks [key], refusing to drop below [minSelected].
+  void _toggle(String key) {
+    final removing = _selected.contains(key);
+    if (removing && _selected.length <= widget.minSelected) {
+      final message = widget.minSelectedMessage;
+      if (message != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
+      return;
+    }
+    setState(() {
+      if (removing) {
+        _selected.remove(key);
+      } else {
+        _selected.add(key);
+      }
+    });
+    widget.onChanged(_order, _orderedSelection);
+  }
+
+  /// Moves one row and re-reports the selection in its new order.
+  void _reorder(int oldIndex, int newIndex) {
+    setState(() {
+      final moved = _order.removeAt(oldIndex);
+      _order.insert(newIndex, moved);
+    });
+    widget.onChanged(_order, _orderedSelection);
+  }
 
   @override
-  Widget build(BuildContext context) => SwitchListTile(
-    value: value,
-    onChanged: onChanged,
-    activeThumbColor: AppColors.secondary,
-    contentPadding: EdgeInsets.zero,
-    title: Text(label, style: AppTypography.bodyMd),
+  Widget build(BuildContext context) => Dialog(
+    insetPadding: const EdgeInsets.all(AppSpacing.md),
+    backgroundColor: AppColors.surfaceContainerLowest,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SettingsPickerDialogHeader(title: widget.title),
+        Flexible(child: widget.reorderable ? _draggableRows() : _rows()),
+      ],
+    ),
   );
+
+  /// Rows the user can drag into a new order (bottom navigation).
+  Widget _draggableRows() => ReorderableListView.builder(
+    shrinkWrap: true,
+    buildDefaultDragHandles: false,
+    itemCount: _order.length,
+    onReorderItem: _reorder,
+    itemBuilder: (context, index) => Row(
+      key: ValueKey(_order[index]),
+      children: [
+        Expanded(child: _row(index)),
+        // The drag handle is what makes the item reorderable; the item itself
+        // still shows no screen icon.
+        ReorderableDragStartListener(
+          index: index,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Icon(Icons.drag_indicator, color: AppColors.tertiary),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  /// Rows in fixed order (side navigation options).
+  Widget _rows() => ListView.builder(
+    shrinkWrap: true,
+    itemCount: _order.length,
+    itemBuilder: (context, index) => _row(index),
+  );
+
+  /// One check-mark row, with the divider the picker lists use between rows.
+  Widget _row(int index) {
+    final key = _order[index];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (index > 0)
+          const Divider(height: 1, color: AppColors.outlineVariant),
+        SettingsOptionRow(
+          label: widget.labelOf(key),
+          selected: _selected.contains(key),
+          onTap: () => _toggle(key),
+        ),
+      ],
+    );
+  }
 }
 
 /// Single-select dialog used by the period, density and landing-page pickers.

@@ -1311,15 +1311,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsViewSettings_sectionNavigation => 'Navigation';
 
   @override
-  String get settingsViewSettings_upcomingPeriod => 'Upcoming cases period';
+  String get settingsViewSettings_upcomingPeriod => 'Upcoming Cases Period';
 
   @override
   String settingsViewSettings_days(int days) {
-    return '$days days';
+    return '$days Days';
   }
 
   @override
-  String get settingsViewSettings_caseListMode => 'Case list display';
+  String get settingsViewSettings_caseListMode => 'Case List Display';
 
   @override
   String get settingsViewSettings_caseListCompact => 'Compact';
@@ -1328,21 +1328,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsViewSettings_caseListExpanded => 'Expanded';
 
   @override
-  String get settingsViewSettings_bottomTabs => 'Bottom navigation tabs';
+  String get settingsViewSettings_bottomTabs => 'Bottom Navigation';
 
   @override
-  String get settingsViewSettings_bottomTabsHint =>
-      'Choose the screens you want in the bottom bar, then drag them into the order you prefer.';
+  String settingsViewSettings_bottomTabsCount(int count) {
+    return '$count Screens Selected';
+  }
 
   @override
   String get settingsViewSettings_keepOneTab =>
-      'Keep at least one screen in the bottom bar.';
+      'Keep at Least One Screen in the Bottom Bar.';
 
   @override
-  String get settingsViewSettings_sideNav => 'Side navigation options';
+  String get settingsViewSettings_sideNav => 'Side Navigation Options';
 
   @override
-  String get settingsViewSettings_landingPage => 'Default landing page';
+  String settingsViewSettings_sideNavCount(int shown, int total) {
+    return '$shown of $total Sections Shown';
+  }
+
+  @override
+  String get settingsViewSettings_landingPage => 'Default Landing Page';
 
   @override
   String get settingsGuidelines_title => 'Guidelines';

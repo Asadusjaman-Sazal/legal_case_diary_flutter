@@ -82,22 +82,14 @@
       "description": "Total number of case history entries.",
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },
   "caseDetailsScreen_noHistoryEntries": "No history entries yet.",
   "caseDetailsScreen_showHistory": "Show",
   "caseDetailsScreen_hideHistory": "Hide",
-  "caseDetailsScreen_viewAllHistory": "{count, plural, =1{View All {count} History Entry} other{View All {count} History Entries}}",
-  "@caseDetailsScreen_viewAllHistory": {
-      "description": "Button revealing all case history entries.",
-      "placeholders": {
-          "count": {
-              "type": "int"
-          }
-      }
-  },
   "caseDetailsScreen_daysRemaining": "{count, plural, =0{0 Days Remaining} =1{1 Day Remaining} other{{count} Days Remaining}}",
   "@caseDetailsScreen_daysRemaining": {
       "description": "Countdown shown on the Next Date highlight card.",

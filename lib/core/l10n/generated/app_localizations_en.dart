@@ -220,7 +220,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String caseDetailsScreen_entriesTotal(int count) {
-    return '$count Entries Total';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString Entries Total';
   }
 
   @override
@@ -231,17 +235,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get caseDetailsScreen_hideHistory => 'Hide';
-
-  @override
-  String caseDetailsScreen_viewAllHistory(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'View All $count History Entries',
-      one: 'View All $count History Entry',
-    );
-    return '$_temp0';
-  }
 
   @override
   String caseDetailsScreen_daysRemaining(int count) {

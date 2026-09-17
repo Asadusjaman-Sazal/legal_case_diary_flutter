@@ -74,30 +74,30 @@ class AppTranslations {
         storedName;
   }
 
-  /// Resolves the step names the database stores to labels in the active
-  /// language.
+  /// Resolves the stored steps of a case/history row to the active language.
   ///
-  /// A case's steps are stored as the step *names* the form saved, comma-joined
-  /// (`Hearing,Argument`) — the pre-seeded English label, or whatever the user
+  /// A case's steps are stored comma-joined (`Hearing,Argument`) as the step
+  /// *names* the form saved — the pre-seeded English label, or whatever the user
   /// typed for a step they added — so a case card would otherwise keep showing
-  /// English under বাংলা. Every name is resolved through the seed data;
+  /// English under বাংলা. Each token is resolved through the seed data;
   /// [courtCategoryId] picks the right label when a name is shared by several
-  /// categories ("Dismissal"), and a name with no pre-seeded match is kept as
-  /// it was stored.
+  /// categories ("Dismissal"), and rows written by older builds that stored a
+  /// stable ID, the Bengali label or a differently-cased name are resolved too.
+  /// A token with no pre-seeded match is user text and is kept as it was stored.
   String? stepNames(String? storedNames, {String? courtCategoryId}) {
-    if (storedNames == null || !_loc.localeName.startsWith('bn')) {
-      return storedNames;
-    }
-    final byCategory = courtCategoryId == null
-        ? null
-        : seed.stepLabelBnByCourtCategory[courtCategoryId];
+    if (storedNames == null) return null;
+    final isBengali = _loc.localeName.startsWith('bn');
+    final byCategory = isBengali && courtCategoryId != null
+        ? seed.stepLabelBnByCourtCategory[courtCategoryId]
+        : null;
+    final byToken = isBengali
+        ? seed.stepLabelBnByToken
+        : seed.stepLabelEnByToken;
     return storedNames
         .split(',')
         .map((name) => name.trim())
         .where((name) => name.isNotEmpty)
-        .map(
-          (name) => byCategory?[name] ?? seed.stepLabelBnByEnName[name] ?? name,
-        )
+        .map((name) => byCategory?[name] ?? byToken[name] ?? name)
         .join(',');
   }
 
@@ -200,7 +200,6 @@ class AppTranslations {
       AppStrings.caseDetailsScreenSetreminder:
           _loc.caseDetailsScreen_setReminder,
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,
-      // caseDetailsScreenViewallhistory: parameterized; use _loc.caseDetailsScreen_viewAllHistory(...).
     },
     AppStrings.caseReferenceScreenGroup: <String, String>{
       AppStrings.caseReferenceScreenCommentsnotes:

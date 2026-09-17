@@ -896,7 +896,7 @@ void main() {
 
     // The role chip and the step line are seed labels, not stored English.
     final role = onBehalfLabelBn[seededRoleId]!;
-    final step = stepLabelBnByEnName[storedStep]!;
+    final step = stepLabelBnByToken[storedStep]!;
     expect(role, isNot('Petitioner'));
     expect(step, isNot(storedStep));
     expect(find.text(role), findsOneWidget);

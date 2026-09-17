@@ -220,7 +220,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String caseDetailsScreen_entriesTotal(int count) {
-    return 'মোট $count টি এন্ট্রি';
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'মোট $countString টি এন্ট্রি';
   }
 
   @override
@@ -232,17 +236,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get caseDetailsScreen_hideHistory => 'লুকান';
-
-  @override
-  String caseDetailsScreen_viewAllHistory(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'সব $count টি ইতিহাস এন্ট্রি দেখুন',
-      one: 'সম্পূর্ণ $count টি ইতিহাস এন্ট্রি দেখুন',
-    );
-    return '$_temp0';
-  }
 
   @override
   String caseDetailsScreen_daysRemaining(int count) {

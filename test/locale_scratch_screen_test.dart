@@ -189,6 +189,37 @@ void main() {
       expect(en.stepNames('Arrival,My Own Step'), 'Arrival,My Own Step');
     });
 
+    test('resolves a step stored as an ID or in the other language', () async {
+      final bn = await translations(const Locale('bn'));
+      final en = await translations(const Locale('en'));
+      final category = seedCategories.firstWhere((c) => c.steps.isNotEmpty);
+      final step = category.steps.first;
+      // Rows written by older builds hold the stable ID…
+      expect(bn.stepNames(step.id, courtCategoryId: category.id), step.labelBn);
+      expect(en.stepNames(step.id, courtCategoryId: category.id), step.labelEn);
+      // …or the label in the language that was active at the time.
+      expect(bn.stepNames(step.labelBn), step.labelBn);
+      expect(en.stepNames(step.labelBn), step.labelEn);
+      expect(en.stepNames(step.labelEn), step.labelEn);
+      // A name that differs only in case still resolves.
+      expect(bn.stepNames(step.labelEn.toLowerCase()), step.labelBn);
+    });
+
+    test('maps every seeded step in both directions', () async {
+      // The lookup has to cover every representation a row can store, or a
+      // seeded step would silently fall back to English.
+      for (final step in seedCategories.expand((c) => c.steps)) {
+        expect(stepLabelBnByToken[step.id], step.labelBn);
+        expect(stepLabelBnByToken[step.labelBn], step.labelBn);
+        expect(stepLabelEnByToken[step.id], step.labelEn);
+        expect(stepLabelEnByToken[step.labelEn], step.labelEn);
+        // An English name is shared by categories that label it differently
+        // ("Dismissal"), so it only has to resolve to one of those labels.
+        expect(stepLabelBnByToken[step.labelEn], isNotNull);
+        expect(stepLabelEnByToken[step.labelBn], isNotNull);
+      }
+    });
+
     test('labels an on-behalf role by its ID', () async {
       final bn = await translations(const Locale('bn'));
       final id = onBehalfLabelEn.keys.first;

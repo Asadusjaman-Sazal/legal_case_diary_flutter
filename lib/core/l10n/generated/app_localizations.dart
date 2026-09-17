@@ -530,12 +530,6 @@ abstract class AppLocalizations {
   /// **'Hide'**
   String get caseDetailsScreen_hideHistory;
 
-  /// Button revealing all case history entries.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{View All {count} History Entry} other{View All {count} History Entries}}'**
-  String caseDetailsScreen_viewAllHistory(int count);
-
   /// Countdown shown on the Next Date highlight card.
   ///
   /// In en, this message translates to:

@@ -921,7 +921,6 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     final visible = expanded || history.length <= 3
         ? history
         : history.sublist(0, 3);
-    final showToggle = history.length > 3;
     final body = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -937,10 +936,6 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           )
         else ...[
           for (final entry in visible) _historyEntry(context, l, entry),
-          if (!expanded && showToggle) ...[
-            const Divider(height: 1, color: AppColors.cardBorder),
-            _viewAllButton(context, l, history.length),
-          ],
         ],
       ],
     );
@@ -1142,22 +1137,6 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     return GestureDetector(
       onLongPress: _canEdit ? () => _showHistoryActions(entry) : null,
       child: content,
-    );
-  }
-
-  Widget _viewAllButton(BuildContext context, AppLocalizations l, int total) {
-    return InkWell(
-      key: const ValueKey('case-detail-history-view-all'),
-      onTap: () => setState(() => _showAllHistory = true),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        color: AppColors.surfaceContainerLow,
-        alignment: Alignment.center,
-        child: Text(
-          l.caseDetailsScreen_viewAllHistory(total),
-          style: AppTypography.labelLg.copyWith(color: AppColors.secondary),
-        ),
-      ),
     );
   }
 

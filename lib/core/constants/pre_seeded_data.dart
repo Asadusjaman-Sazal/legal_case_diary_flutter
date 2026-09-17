@@ -19327,17 +19327,32 @@ final Map<String, Map<String, String>> stepLabelBnByCourtCategory =
       ),
     );
 
-/// Step English label → Bengali label, ignoring the court category.
+/// Every representation a stored step token can take → its Bengali label.
 ///
-/// Fallback for surfaces that do not know the case's court category; the first
-/// category in seed order wins, so the result is deterministic.
-final Map<String, String> stepLabelBnByEnName = () {
-  final byName = <String, String>{};
+/// A case stores its steps by *name*, but rows written by older builds or by a
+/// hand-edited step can hold the stable ID, the Bengali label, or a name that
+/// differs only in case. Keying the lookup by all of those means any of them
+/// still renders in the active language; a token found nowhere is user text and
+/// is shown exactly as stored. The first category in seed order wins, so the
+/// result is deterministic.
+final Map<String, String> stepLabelBnByToken = _stepLabelsByToken(stepLabelBn);
+
+/// Every representation a stored step token can take → its English label.
+/// Mirrors [stepLabelBnByToken] for the English UI.
+final Map<String, String> stepLabelEnByToken = _stepLabelsByToken(stepLabelEn);
+
+Map<String, String> _stepLabelsByToken(Map<String, String> labelById) {
+  final byToken = <String, String>{};
   for (final step in seedCategories.expand((c) => c.steps)) {
-    byName.putIfAbsent(step.labelEn, () => step.labelBn);
+    final label = labelById[step.id];
+    if (label == null) continue;
+    for (final token in <String>[step.id, step.labelEn, step.labelBn]) {
+      byToken.putIfAbsent(token, () => label);
+      byToken.putIfAbsent(token.toLowerCase(), () => label);
+    }
   }
-  return Map<String, String>.unmodifiable(byName);
-}();
+  return Map<String, String>.unmodifiable(byToken);
+}
 
 /// Display names (both languages) of every disposed step.
 /// A case's `last_step` stores comma-joined step names, so disposal is detected

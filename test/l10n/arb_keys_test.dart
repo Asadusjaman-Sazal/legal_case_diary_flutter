@@ -44,7 +44,7 @@ void main() {
     for (final key in _keys(en)) {
       final enMessage = en[key] as String;
       // ICU plural/select branches read like placeholders to a simple parser
-      // (`=1{View All ...}`), so they are checked by the parity test instead.
+      // (`=1{...}`), so they are checked by the parity test instead.
       if (enMessage.contains(', plural,') || enMessage.contains(', select,')) {
         continue;
       }

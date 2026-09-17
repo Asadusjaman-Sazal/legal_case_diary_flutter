@@ -348,7 +348,7 @@ void main() {
       },
     );
 
-    testWidgets('shows 3 entries plus the View All toggle and expands on tap', (
+    testWidgets('shows 3 entries and Show expands the list on tap', (
       WidgetTester tester,
     ) async {
       final caseId = await seedCase(nextDateMs: null);
@@ -363,18 +363,20 @@ void main() {
       await pumpDetail(tester, caseId);
 
       expect(find.text('4 Entries Total'), findsOneWidget);
-      expect(find.text('View All 4 History Entries'), findsOneWidget);
-      // Collapsed title row offers the Show toggle.
+      // Collapsed title row offers the Show toggle and no separate expander.
       expect(find.text('Show'), findsOneWidget);
       expect(find.text('Hide'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('case-detail-history-view-all')),
+        findsNothing,
+      );
       expect(find.text('Step 1'), findsNothing); // oldest sits beyond the cap.
       expect(find.text('Step 4'), findsOneWidget);
 
       await tester.tap(
-        find.byKey(const ValueKey('case-detail-history-view-all')),
+        find.byKey(const ValueKey('case-detail-history-show-hide')),
       );
       await tester.pumpAndSettle();
-      expect(find.text('View All 4 History Entries'), findsNothing);
       expect(find.text('Step 4'), findsOneWidget);
       expect(find.text('Step 1'), findsOneWidget);
       // Expanded: the Case History title is pinned to the top and the toggle
@@ -398,7 +400,6 @@ void main() {
       expect(find.text('Show'), findsOneWidget);
       expect(find.text('Hide'), findsNothing);
       expect(find.text('Step 1'), findsNothing);
-      expect(find.text('View All 4 History Entries'), findsOneWidget);
     });
 
     testWidgets(
@@ -429,11 +430,10 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Expanded: all entries render, the View All row is gone, and the
-        // Case History title (with entry count + Hide) is pinned at the top.
+        // Expanded: all entries render and the Case History title (with entry
+        // count + Hide) is pinned at the top.
         expect(find.text('Hide'), findsOneWidget);
         expect(find.text('Show'), findsNothing);
-        expect(find.text('View All 5 History Entries'), findsNothing);
         expect(find.text('Step 1'), findsOneWidget);
         expect(find.text('5 Entries Total'), findsOneWidget);
         expect(find.byType(PinnedHeaderSliver), findsOneWidget);
@@ -835,10 +835,63 @@ void main() {
       await pumpDetail(tester, caseId, locale: const Locale('bn'));
 
       // The Next Date card's step line and the history row's step.
-      expect(find.text(stepLabelBnByEnName['Arrival']!), findsOneWidget);
-      expect(find.text(stepLabelBnByEnName['Filing']!), findsOneWidget);
+      expect(find.text(stepLabelBnByToken['Arrival']!), findsOneWidget);
+      expect(find.text(stepLabelBnByToken['Filing']!), findsOneWidget);
       expect(find.text('Arrival'), findsNothing);
       expect(find.text('Filing'), findsNothing);
+    });
+
+    testWidgets(
+      'a history step stored as an ID resolves, typed text does not',
+      (WidgetTester tester) async {
+        // Rows written by older builds can hold a step's stable ID, which must
+        // still resolve to the language the app is showing.
+        final arrivalId = stepLabelEn.entries
+            .firstWhere((entry) => entry.value == 'Arrival')
+            .key;
+        final caseId = await seedCase(
+          courtId: 'court-test',
+          lastStep: arrivalId,
+        );
+        await seedHistoryEntry(
+          caseId,
+          hearingEpochMs: AppDateUtils.bangladeshTodayStartOfDay(),
+          nextEpochMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+          step: arrivalId,
+        );
+        // A step name the user typed themselves is shown exactly as typed.
+        const typedStep = 'পরীক্ষামূলক ধাপ';
+        await seedHistoryEntry(
+          caseId,
+          hearingEpochMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
+          nextEpochMs: AppDateUtils.bangladeshTodayStartOfDay(),
+          step: typedStep,
+        );
+        await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+        expect(find.text(stepLabelBnByToken[arrivalId]!), findsOneWidget);
+        expect(find.text(typedStep), findsOneWidget); // user text untouched.
+        expect(find.text(arrivalId), findsNothing);
+      },
+    );
+
+    testWidgets('the history entry count uses Bengali numerals', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(nextDateMs: null);
+      for (var i = 1; i <= 4; i++) {
+        await seedHistoryEntry(
+          caseId,
+          hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 1, i),
+          nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 2, i),
+          step: 'Step $i',
+        );
+      }
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      expect(find.text('মোট ৪ টি এন্ট্রি'), findsOneWidget);
+      expect(find.text('মোট 4 টি এন্ট্রি'), findsNothing);
+      expect(find.text('দেখুন'), findsOneWidget);
     });
 
     testWidgets(

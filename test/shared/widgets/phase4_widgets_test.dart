@@ -117,5 +117,99 @@ void main() {
       // Total must reflect only this month's 2, not 2 + 3 = 5 across all dates.
       expect(find.text('Total Hearings: 2'), findsOneWidget);
     });
+
+    testWidgets('dates, years and hearing counts use Bengali digits', (
+      WidgetTester tester,
+    ) async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      final todayCivil = AppDateUtils.bangladeshDateTime(today);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CalendarPickerDialog(
+              initialDate: today,
+              hearingCounts: <int, int>{today: 3},
+              onDateSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final l = AppLocalizations.of(tester.element(find.byType(Dialog).first));
+
+      // Header year, today's cell, its badge and the month's hearing total are
+      // all plain numbers, so none of them may render as ASCII.
+      expect(
+        find.text(
+          AppDateUtils.formatDigits(todayCivil.year, 'bn', grouping: false),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('${todayCivil.year}'), findsNothing);
+      expect(
+        find.text(
+          AppDateUtils.formatDigits(todayCivil.day, 'bn', grouping: false),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('${todayCivil.day}'), findsNothing);
+      expect(
+        find.text(
+          '${l.dailyCauseListScreen_totalHearings} '
+          '${AppDateUtils.formatDigits(3, 'bn')}',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('${l.dailyCauseListScreen_totalHearings} 3'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('the year list uses Bengali digits', (
+      WidgetTester tester,
+    ) async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      final year = AppDateUtils.bangladeshDateTime(today).year;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CalendarPickerDialog(
+              initialDate: today,
+              hearingCounts: const {},
+              onDateSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tapping the header year opens the scrollable year grid; every cell it
+      // renders must use Bengali digits (and no thousands separator).
+      await tester.tap(
+        find.text(AppDateUtils.formatDigits(year, 'bn', grouping: false)),
+      );
+      await tester.pumpAndSettle();
+      final cells = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(GridView),
+              matching: find.byType(Text),
+            ),
+          )
+          .toList();
+      expect(cells, isNotEmpty);
+      for (final cell in cells) {
+        expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
+      }
+    });
   });
 }

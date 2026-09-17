@@ -69,9 +69,11 @@ String _formatPickerHeaderDate(DateTime date, Locale locale) {
   final isBengali = locale.languageCode == 'bn';
   final monthLabels = isBengali ? _bengaliPickerMonths : _englishPickerMonths;
   final weekdayLabels = isBengali ? _bengaliPickerWeekdays : _englishPickerWeekdays;
-  final day = intl.NumberFormat.decimalPattern(
-    isBengali ? 'bn' : 'en',
-  ).format(date.day);
+  final day = AppDateUtils.formatDigits(
+    date.day,
+    locale.languageCode,
+    grouping: false,
+  );
   return '${monthLabels[date.month - 1]} $day, '
       '${weekdayLabels[date.weekday % DateTime.daysPerWeek]}';
 }
@@ -377,7 +379,11 @@ class _DayView extends StatelessWidget {
                             child: Row(
                               children: [
                                 Text(
-                                  '$year',
+                                  AppDateUtils.formatDigits(
+                                    year,
+                                    locale,
+                                    grouping: false,
+                                  ),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium,
@@ -577,7 +583,11 @@ class _DayCell extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            '$day',
+            AppDateUtils.formatDigits(
+              day,
+              AppLocalizations.of(context).localeName,
+              grouping: false,
+            ),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: selected
                       ? colorScheme.onPrimary
@@ -707,7 +717,11 @@ class _YearSelector extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                '$y',
+                AppDateUtils.formatDigits(
+                  y,
+                  AppLocalizations.of(context).localeName,
+                  grouping: false,
+                ),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: isSelected
                           ? AppColors.onPrimary

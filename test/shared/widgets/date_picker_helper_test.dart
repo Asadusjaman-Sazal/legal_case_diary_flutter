@@ -72,6 +72,36 @@ void main() {
     expect(dialog.bottom - button.bottom, greaterThanOrEqualTo(16));
   });
 
+  testWidgets('uses Bengali digits for the year, the day cells and the year list', (
+    WidgetTester tester,
+  ) async {
+    await openPicker(tester, const Locale('bn'));
+
+    // Focused month year (Aug 2026) and the selected 5th — no ASCII digits, and
+    // no thousands separator inside the year.
+    expect(find.text('২০২৬'), findsOneWidget);
+    expect(find.text('2026'), findsNothing);
+    expect(find.text('৫'), findsOneWidget);
+    expect(find.text('5'), findsNothing);
+
+    // Tapping the year opens the scrollable year grid; every year it renders
+    // must use Bengali digits.
+    await tester.tap(find.text('২০২৬'));
+    await tester.pumpAndSettle();
+    final cells = tester
+        .widgetList<Text>(
+          find.descendant(
+            of: find.byType(GridView),
+            matching: find.byType(Text),
+          ),
+        )
+        .toList();
+    expect(cells, isNotEmpty);
+    for (final cell in cells) {
+      expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
+    }
+  });
+
   testWidgets('matches DCL calendar layout: month/year selectors + 7-col weekday body',
       (WidgetTester tester) async {
     await openPicker(tester, const Locale('en'));

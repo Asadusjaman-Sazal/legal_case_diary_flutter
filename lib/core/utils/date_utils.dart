@@ -134,6 +134,27 @@ abstract final class AppDateUtils {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Localized numbers
+  // ---------------------------------------------------------------------------
+
+  /// Formats [value] with the digits of [locale] — `17` under বাংলা is `১৭`.
+  ///
+  /// Calendar grids, year lists and hearing counts draw their numbers as plain
+  /// interpolated text (`'$day'`), which is always ASCII, so they need the
+  /// active language's numbering system. This is the same formatter gen-l10n
+  /// emits for a `format: decimalPattern` placeholder, so hand-drawn calendars
+  /// and ARB messages render digits identically.
+  ///
+  /// [grouping] (on by default) adds thousands separators, which suits counts
+  /// ("১,২৩৪ hearings") but not identifiers: a year has to read `২০২৭`, never
+  /// `২,০২৭`, so years and calendar day cells pass `grouping: false`.
+  static String formatDigits(int value, String locale, {bool grouping = true}) {
+    final format = NumberFormat.decimalPattern(locale);
+    if (!grouping) format.turnOffGrouping();
+    return format.format(value);
+  }
+
   /// Format as a full localized date, e.g. "Tuesday, October 24, 2023".
   static String formatFullDate(int epochMs, {required String locale}) {
     return DateFormat('EEEE, MMMM d, y', locale).format(

@@ -168,6 +168,13 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     }
   }
 
+  /// FAB action: open the Add Case form, then refresh the selected date so a
+  /// case saved with a hearing today appears immediately.
+  Future<void> _openAddCase() async {
+    await AddEditCaseSheet.show<void>(context);
+    if (mounted) await _loadCases();
+  }
+
   Future<void> _openQuickUpdate(Case currentCase) async {
     await QuickUpdateCaseDialog.show(context, currentCase);
     if (mounted) await _loadCases();
@@ -209,7 +216,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     final l = l10n();
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
-      onAddCase: () {},
+      onAddCase: _openAddCase,
       onSearch: () {},
       body: Column(
         children: [
@@ -273,7 +280,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                           ),
                         ),
                         Text(
-                          '${group.cases.length}',
+                          AppDateUtils.formatDigits(
+                            group.cases.length,
+                            l.localeName,
+                          ),
                           style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.outline,

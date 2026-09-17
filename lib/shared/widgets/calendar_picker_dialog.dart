@@ -214,7 +214,11 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                             child: Row(
                               children: [
                                 Text(
-                                  '${_focusedMonth.year}',
+                                  AppDateUtils.formatDigits(
+                                    _focusedMonth.year,
+                                    locale,
+                                    grouping: false,
+                                  ),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium,
@@ -235,7 +239,8 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      '${l.dailyCauseListScreen_totalHearings} $totalHearings',
+                      '${l.dailyCauseListScreen_totalHearings} '
+                      '${AppDateUtils.formatDigits(totalHearings, locale)}',
                       style: Theme.of(context)
                           .textTheme
                           .labelSmall
@@ -325,6 +330,7 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context).localeName;
     final hasHearings = count > 0;
     // Selected (today or not): black fill + white text. A today cell that is NOT
     // the current selection shows a black ring on white with black text, so the
@@ -355,7 +361,7 @@ class _DayCell extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Text(
-              '$day',
+              AppDateUtils.formatDigits(day, locale, grouping: false),
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
@@ -374,7 +380,7 @@ class _DayCell extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    '$count',
+                    AppDateUtils.formatDigits(count, locale),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: selected
                               ? AppColors.primary
@@ -584,6 +590,7 @@ class _YearSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = AppLocalizations.of(context).localeName;
     final years = [
       for (var y = _minYear; y <= _maxYear; y++) y,
     ];
@@ -626,7 +633,7 @@ class _YearSelector extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                '$y',
+                AppDateUtils.formatDigits(y, locale, grouping: false),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: isSelected
                           ? AppColors.onPrimary

@@ -29,3 +29,7 @@
 5. Search covers all five text fields (Plan §12.1 — there is no separate citation-title/body or URL field).
 
 **Phase 2 completion:** `flutter analyze` clean; manual check against both mockups. Update `docs/version_history.md`.
+
+### Phases 1 & 2 — refinement
+
+- **0.0.202** — Both libraries' search box now behaves exactly like the case-list one, because it is the same box in the same place: `ScopedSearchBar` is mounted by `CasesScreenModal` (under the header, above the scrolling list) instead of being the first row of the notes/reference `ListView`. It used to scroll away with the cards, sit inside the list's 16 px padding, and vanish entirely when the library had no rows — an empty library could not be searched at all. The screens pass `isSearching` / `searchController` / `onSearchChanged` to the modal and `_NotesList` / `_ReferenceList` lost the controller, the search callback and the `onCloseSearch` they no longer need. Note/reference filtering, the header search icon, the always-on (x) and tap-outside-to-hide-the-keyboard are unchanged. (`notes_screen.dart`, `case_reference_screen.dart`; tests: `test/features/library_search_test.dart`, 3.)

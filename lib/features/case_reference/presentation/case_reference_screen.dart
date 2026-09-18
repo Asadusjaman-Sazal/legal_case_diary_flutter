@@ -112,12 +112,15 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     return CasesScreenModal(
       title: l.caseReferenceScreen_title,
       onSearch: _toggleSearch,
+      // The bar is mounted by the shared modal, exactly as on the case-list
+      // screens: it sits under the header, above the scrolling list, and stays
+      // there while the library is empty.
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       onAddCase: () => _openSheet(),
       body: _ReferenceList(
         isSearching: _isSearching,
-        searchController: _searchController,
-        onSearchChanged: (_) => setState(() {}),
-        onCloseSearch: _toggleSearch,
         references: visible,
         totalCount: references.length,
         onEdit: (reference) => _openSheet(reference: reference),
@@ -128,13 +131,10 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 }
 
-/// Scrollable reference list with optional inline search field.
+/// Scrollable reference list; the search bar lives in the modal above it.
 class _ReferenceList extends StatelessWidget {
   const _ReferenceList({
     required this.isSearching,
-    required this.searchController,
-    required this.onSearchChanged,
-    required this.onCloseSearch,
     required this.references,
     required this.totalCount,
     required this.onEdit,
@@ -143,9 +143,6 @@ class _ReferenceList extends StatelessWidget {
   });
 
   final bool isSearching;
-  final TextEditingController searchController;
-  final ValueChanged<String> onSearchChanged;
-  final VoidCallback onCloseSearch;
   final List<CaseReference> references;
   final int totalCount;
   final ValueChanged<CaseReference> onEdit;
@@ -156,16 +153,6 @@ class _ReferenceList extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final children = <Widget>[];
-
-    if (isSearching) {
-      children.add(
-        ScopedSearchBar(
-          controller: searchController,
-          onChanged: onSearchChanged,
-          onClose: onCloseSearch,
-        ),
-      );
-    }
 
     if (references.isEmpty) {
       return ListView(

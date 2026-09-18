@@ -107,12 +107,15 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     return CasesScreenModal(
       title: l.notesScreen_title,
       onSearch: _toggleSearch,
+      // The bar is mounted by the shared modal, exactly as on the case-list
+      // screens: it sits under the header, above the scrolling list, and stays
+      // there while the library is empty.
+      isSearching: _isSearching,
+      searchController: _searchController,
+      onSearchChanged: (_) => setState(() {}),
       onAddCase: () => _openDetail(),
       body: _NotesList(
         isSearching: _isSearching,
-        searchController: _searchController,
-        onSearchChanged: (_) => setState(() {}),
-        onCloseSearch: _toggleSearch,
         notes: visible,
         totalCount: notes.length,
         locale: Localizations.localeOf(context).toLanguageTag(),
@@ -124,13 +127,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 }
 
-/// Scrollable notes list with optional inline search field.
+/// Scrollable notes list; the search bar lives in the modal above it.
 class _NotesList extends StatelessWidget {
   const _NotesList({
     required this.isSearching,
-    required this.searchController,
-    required this.onSearchChanged,
-    required this.onCloseSearch,
     required this.notes,
     required this.totalCount,
     required this.locale,
@@ -140,9 +140,6 @@ class _NotesList extends StatelessWidget {
   });
 
   final bool isSearching;
-  final TextEditingController searchController;
-  final ValueChanged<String> onSearchChanged;
-  final VoidCallback onCloseSearch;
   final List<Note> notes;
   final int totalCount;
   final String locale;
@@ -154,16 +151,6 @@ class _NotesList extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final children = <Widget>[];
-
-    if (isSearching) {
-      children.add(
-        ScopedSearchBar(
-          controller: searchController,
-          onChanged: onSearchChanged,
-          onClose: onCloseSearch,
-        ),
-      );
-    }
 
     if (notes.isEmpty) {
       return ListView(

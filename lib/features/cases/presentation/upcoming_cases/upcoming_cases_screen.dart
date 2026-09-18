@@ -434,6 +434,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
 
     return extended
         ? CaseTableView(
+            // The court is already the group heading here, so the table drops
+            // the Name of Court column rather than repeating it in every row.
+            columns: caseTableColumns(exclude: const {CaseTableColumn.court}),
             dateLabel: l.caseCard_nextDate,
             builder: (_, widths) => buildList(widths),
           )
@@ -528,6 +531,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
       widths: widths,
+      columns: caseTableColumns(exclude: const {CaseTableColumn.court}),
       serial: serial,
       courtName: court == null
           ? null

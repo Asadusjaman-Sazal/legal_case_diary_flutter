@@ -17,8 +17,14 @@ import 'case_list_view_mode.dart';
 
 /// The extended case view: one header row over the screen's own rows.
 class CaseTableView extends ConsumerStatefulWidget {
-  /// Label of the trailing date column, named by the host screen ("Next Date",
-  /// "Previous Date" or "Disposed").
+  /// The columns this screen shows, in render order. Defaults to every column;
+  /// a screen that shows the court as a group heading passes a list without
+  /// [CaseTableColumn.court], and Overdue Dates also drops the Step column
+  /// because it folds the step into its date cell.
+  final List<CaseTableColumn> columns;
+
+  /// Label of the date column, named by the host screen ("Next Date", "Previous
+  /// Date", "Previous Date & Step" or "Disposed").
   final String dateLabel;
 
   /// Builds the vertically scrolling body — court groups, date headers and rows
@@ -32,6 +38,7 @@ class CaseTableView extends ConsumerStatefulWidget {
 
   /// Creates the extended-view host.
   const CaseTableView({
+    this.columns = caseTableColumnOrder,
     required this.dateLabel,
     required this.builder,
     super.key,
@@ -93,7 +100,7 @@ class _CaseTableViewState extends ConsumerState<CaseTableView> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final minimum = caseTableMinimumWidth(_widths);
+        final minimum = caseTableMinimumWidth(widget.columns, _widths);
         final width = minimum > constraints.maxWidth
             ? minimum
             : constraints.maxWidth;
@@ -112,6 +119,7 @@ class _CaseTableViewState extends ConsumerState<CaseTableView> {
                   ),
                   child: CaseTableHeader(
                     widths: _widths,
+                    columns: widget.columns,
                     dateLabel: widget.dateLabel,
                     onResizeDelta: _resize,
                     onResizeEnd: _persist,

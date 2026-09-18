@@ -427,9 +427,18 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                 )
               : (extended
                     ? CaseTableView(
-                        // This screen's hearing date has already passed, so its
-                        // date column is the previous date, not the next one.
-                        dateLabel: l.caseCard_previousDate,
+                        // The court is the group heading above each row, so the
+                        // Name of Court column is dropped; there is no separate
+                        // Step column either — it is folded into the date cell
+                        // ("Previous Date & Step").
+                        columns: caseTableColumns(
+                          exclude: const {
+                            CaseTableColumn.court,
+                            CaseTableColumn.step,
+                          },
+                        ),
+                        dateLabel:
+                            '${l.caseCard_previousDate} & ${l.caseCard_lastStep}',
                         builder: (_, widths) => buildList(widths),
                       )
                     : buildList(null)),
@@ -497,6 +506,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
       widths: widths,
+      columns: caseTableColumns(
+        exclude: const {CaseTableColumn.court, CaseTableColumn.step},
+      ),
       serial: serial,
       courtName: court == null
           ? null
@@ -514,6 +526,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       isOverdue: true, // Always overdue; red stripe + red date.
+      // The date column doubles as the step column on this screen.
+      dateShowsStep: true,
       date: currentCase.nextDate == null
           ? null
           : AppDateUtils.formatDisplayDate(

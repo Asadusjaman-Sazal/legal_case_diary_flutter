@@ -57,6 +57,19 @@ enum CaseTableColumn {
 /// Every column, in render order.
 const List<CaseTableColumn> caseTableColumnOrder = CaseTableColumn.values;
 
+/// The columns a screen renders, in render order, minus any it excludes.
+///
+/// A screen that shows the court as a group heading passes
+/// `{CaseTableColumn.court}` so the name is not repeated in every row, and
+/// Overdue Dates — which folds the step into its date cell — also excludes
+/// `CaseTableColumn.step` so the table keeps exactly the columns it shows.
+List<CaseTableColumn> caseTableColumns({
+  Set<CaseTableColumn> exclude = const {},
+}) => <CaseTableColumn>[
+  for (final column in caseTableColumnOrder)
+    if (!exclude.contains(column)) column,
+];
+
 /// Built-in column widths, used until the user drags a rule.
 const Map<CaseTableColumn, double> _defaultWidths = <CaseTableColumn, double>{
   CaseTableColumn.serial: 64,
@@ -135,14 +148,17 @@ Map<String, double> caseTableStoredWidths(
 /// 12 px gutter either side, plus the 16 px screen margin the body already
 /// applies. The header and the rows are laid out to exactly this width, which
 /// is what makes their columns line up.
-double caseTableMinimumWidth(Map<CaseTableColumn, double> widths) {
-  final cells = widths.values.fold<double>(0, (sum, width) => sum + width);
+double caseTableMinimumWidth(
+  List<CaseTableColumn> columns,
+  Map<CaseTableColumn, double> widths,
+) {
+  final cells = columns.fold<double>(0, (sum, column) => sum + widths[column]!);
   return AppSpacing.md * 2 +
       2 +
       caseTableStripWidth +
       AppSpacing.gutter * 2 +
       cells +
-      caseTableDividerWidth * (widths.length - 1);
+      caseTableDividerWidth * (columns.length - 1);
 }
 
 // ---------------------------------------------------------------------------
@@ -159,8 +175,13 @@ class CaseTableHeader extends StatelessWidget {
   /// Current width of every column, in logical pixels.
   final Map<CaseTableColumn, double> widths;
 
-  /// Label of the trailing date column, which each screen names for itself
-  /// ("Next Date", "Previous Date" or "Disposed").
+  /// The columns this screen shows, in render order. A screen that keeps the
+  /// court as a group heading omits [CaseTableColumn.court] here so no empty
+  /// column is drawn under a header for it.
+  final List<CaseTableColumn> columns;
+
+  /// Label of the date column, which each screen names for itself ("Next
+  /// Date", "Previous Date", "Previous Date & Step" or "Disposed").
   final String dateLabel;
 
   /// Called while a rule is dragged, with the column to its left.
@@ -172,6 +193,7 @@ class CaseTableHeader extends StatelessWidget {
   /// Creates the table header row.
   const CaseTableHeader({
     required this.widths,
+    this.columns = caseTableColumnOrder,
     required this.dateLabel,
     this.onResizeDelta,
     this.onResizeEnd,
@@ -196,8 +218,8 @@ class CaseTableHeader extends StatelessWidget {
     };
 
     final children = <Widget>[];
-    for (var i = 0; i < caseTableColumnOrder.length; i++) {
-      final column = caseTableColumnOrder[i];
+    for (var i = 0; i < columns.length; i++) {
+      final column = columns[i];
       children.add(
         SizedBox(
           width: widths[column],
@@ -215,7 +237,7 @@ class CaseTableHeader extends StatelessWidget {
           ),
         ),
       );
-      if (i != caseTableColumnOrder.length - 1) {
+      if (i != columns.length - 1) {
         children.add(
           _ColumnResizeHandle(
             column: column,
@@ -283,6 +305,11 @@ class CaseTableRow extends StatelessWidget {
   /// Current width of every column, in logical pixels.
   final Map<CaseTableColumn, double> widths;
 
+  /// The columns this screen shows, in render order, matching the header it is
+  /// drawn under. A screen that keeps the court as a group heading omits
+  /// [CaseTableColumn.court].
+  final List<CaseTableColumn> columns;
+
   /// 1-based position of the case in the list the screen is showing, rendered
   /// in the active language's digits.
   final int serial;
@@ -321,6 +348,12 @@ class CaseTableRow extends StatelessWidget {
   /// Whether this case is overdue: draws the red left strip and the red date.
   final bool isOverdue;
 
+  /// Whether the date cell also shows [step] beneath the date.
+  ///
+  /// Overdue Dates has no Step column of its own, so it folds the step into
+  /// its "Previous Date & Step" cell instead of dropping it.
+  final bool dateShowsStep;
+
   /// Called by the Update action, when supplied.
   final VoidCallback? onUpdate;
 
@@ -330,6 +363,7 @@ class CaseTableRow extends StatelessWidget {
   /// Creates an extended-view case row.
   const CaseTableRow({
     required this.widths,
+    this.columns = caseTableColumnOrder,
     required this.serial,
     required this.caseType,
     required this.caseNumber,
@@ -342,6 +376,7 @@ class CaseTableRow extends StatelessWidget {
     this.note,
     this.date,
     this.isOverdue = false,
+    this.dateShowsStep = false,
     this.onUpdate,
     this.onTap,
     super.key,
@@ -353,8 +388,8 @@ class CaseTableRow extends StatelessWidget {
     final court = _join([courtName, judgesName]);
 
     final children = <Widget>[];
-    for (var i = 0; i < caseTableColumnOrder.length; i++) {
-      final column = caseTableColumnOrder[i];
+    for (var i = 0; i < columns.length; i++) {
+      final column = columns[i];
       children.add(
         SizedBox(
           width: widths[column],
@@ -364,7 +399,7 @@ class CaseTableRow extends StatelessWidget {
           ),
         ),
       );
-      if (i != caseTableColumnOrder.length - 1) {
+      if (i != columns.length - 1) {
         children.add(const _RowDivider());
       }
     }
@@ -404,9 +439,11 @@ class CaseTableRow extends StatelessWidget {
       case CaseTableColumn.date:
         return _DataCell(
           text: date ?? '',
+          subText: dateShowsStep ? step : null,
           style: AppTypography.bodyMd.copyWith(
             color: isOverdue ? AppColors.error : AppColors.onSurface,
           ),
+          subStyle: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
         );
       case CaseTableColumn.court:
         return _DataCell(text: court, style: AppTypography.bodyMd);
@@ -456,7 +493,14 @@ String _join(List<String?> parts) => parts
 /// user widens the column to read it.
 class _DataCell extends StatelessWidget {
   final String text;
+
+  /// Optional second line shown under [text] (the step, in Overdue Dates'
+  /// combined "Previous Date & Step" cell). Blank means no second line.
+  final String? subText;
   final TextStyle style;
+
+  /// Style of the second line; falls back to [style].
+  final TextStyle? subStyle;
   final TextAlign align;
 
   /// Key placed on the value itself, so a test can read the rendered text.
@@ -464,25 +508,49 @@ class _DataCell extends StatelessWidget {
 
   const _DataCell({
     required this.text,
+    this.subText,
     required this.style,
+    this.subStyle,
     this.align = TextAlign.start,
     this.textKey,
   });
 
   @override
   Widget build(BuildContext context) {
+    final alignment = align == TextAlign.center
+        ? Alignment.center
+        : Alignment.centerLeft;
+    final sub = subText?.trim();
+    final line = Text(
+      text,
+      key: textKey,
+      style: style,
+      textAlign: align,
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+    );
+    if (sub == null || sub.isEmpty) {
+      return Align(alignment: alignment, child: line);
+    }
     return Align(
-      alignment: align == TextAlign.center
-          ? Alignment.center
-          : Alignment.centerLeft,
-      child: Text(
-        text,
-        key: textKey,
-        style: style,
-        textAlign: align,
-        maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
+      alignment: alignment,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: align == TextAlign.center
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: [
+          line,
+          Text(
+            sub,
+            style: subStyle ?? style,
+            textAlign: align,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

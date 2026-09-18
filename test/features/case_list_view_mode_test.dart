@@ -437,18 +437,24 @@ void main() {
       id: 'PAST-1',
       caseNumber: 'PAST-1',
       nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
     );
 
     await pumpScreen(tester, const DailyCauseListScreen());
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
-    // The court sub-heading still sits above the rows, under the header row.
+    // The court sub-heading still sits above the rows, under the header row…
     expect(find.textContaining('Joint District Judge'), findsWidgets);
+    // …so the table does not repeat the court as a column of its own.
+    expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
+    expect(find.byKey(const ValueKey('case-table-cell-court')), findsNothing);
     await unmount(tester);
 
     await pumpScreen(tester, const UpcomingCasesScreen());
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
+    expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
+    expect(find.byKey(const ValueKey('case-table-cell-court')), findsNothing);
     await unmount(tester);
 
     await pumpScreen(tester, const OverdueDatesScreen());
@@ -459,9 +465,66 @@ void main() {
       find.byKey(const ValueKey('case-row-overdue-strip')),
       findsOneWidget,
     );
-    // And this screen names its date column for the past: Previous Date.
-    expect(find.text('Previous Date'), findsOneWidget);
+    // No court and no Step column here either: the heading supplies the court
+    // and the step rides inside the date cell, so the date column is named for
+    // the pair.
+    expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
+    expect(find.byKey(const ValueKey('case-table-header-step')), findsNothing);
+    expect(find.byKey(const ValueKey('case-table-cell-step')), findsNothing);
+    expect(find.text('Previous Date & Step'), findsOneWidget);
     expect(find.text('Next Date'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('case-table-cell-date')),
+        matching: find.text('Arrival'),
+      ),
+      findsOneWidget,
+    );
+    await unmount(tester);
+  });
+
+  testWidgets('the flat lists keep the court column the grouped lists drop', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    // A flat list has no court heading, so the column stays.
+    expect(
+      find.byKey(const ValueKey('case-table-header-court')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('case-table-cell-court')), findsOneWidget);
+
+    await unmount(tester);
+  });
+
+  testWidgets('Overdue Dates folds the step under the previous date', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'PAST-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
+      lastStep: 'Arrival',
+    );
+    await pumpScreen(tester, const OverdueDatesScreen());
+
+    // The single date cell carries two stacked lines: the date, then the step.
+    final dateCell = find.byKey(const ValueKey('case-table-cell-date'));
+    final lines = find.descendant(of: dateCell, matching: find.byType(Text));
+    expect(lines, findsNWidgets(2));
+    expect(
+      tester.getTopLeft(lines.at(0)).dy,
+      lessThan(tester.getTopLeft(lines.at(1)).dy),
+    );
+    expect(tester.widget<Text>(lines.at(0)).data, isNot('Arrival'));
+    expect(tester.widget<Text>(lines.at(1)).data, 'Arrival');
+
     await unmount(tester);
   });
 

@@ -294,6 +294,27 @@ void main() {
       },
     );
 
+    test('UserSettings round-trips the Bottom Navigation screen order', () {
+      const saved = UserSettings(
+        bottomNavTabs: <String>['active', 'all_cases'],
+        bottomNavOrder: <String>['active', 'all_cases', 'notes'],
+      );
+
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          viewSettingsJson: jsonEncode(saved.toJson()),
+          updatedAt: 1,
+        ),
+      );
+
+      expect(restored.bottomNavTabs, saved.bottomNavTabs);
+      expect(restored.bottomNavOrder, saved.bottomNavOrder);
+      // An install that never rearranged a row stores no serial at all.
+      expect(const UserSettings().bottomNavOrder, isEmpty);
+    });
+
     test('UserSettings falls back safely for malformed view JSON', () {
       final settings = UserSettings.fromRow(
         const UserPreference(

@@ -12,13 +12,15 @@
 /// the Bottom Navigation list is reorderable by drag & drop. Default Landing
 /// Page sits in its own card; Display and Navigation each keep theirs.
 ///
-/// Both list dropdowns offer the same screens in the same canonical order, and
-/// both derive that list from [bottomNavTabDefs] — the app's single source of
-/// screen identity — so the two can never disagree. Side Navigation Options
-/// omits Settings because Settings is not removable; the drawer always shows
-/// it, whatever `side_nav_options` holds.
+/// Both list dropdowns offer the same screens — both derive them from
+/// [bottomNavTabDefs], the app's single source of screen identity, so the two
+/// can never disagree. The Bottom Navigation rows are shown in the order the
+/// user saved (`bottom_nav_order`), which is canonical until they rearrange a
+/// row; Side Navigation Options stays in the canonical order. Side Navigation
+/// Options omits Settings because Settings is not removable; the drawer always
+/// shows it, whatever `side_nav_options` holds.
 ///
-/// All five values are durable per-user preferences in the local
+/// All values are durable per-user preferences in the local
 /// `user_preferences` row and are never firm-shared. The screens that consume
 /// them (Upcoming Cases, the bottom bar, the drawer, the router's landing-page
 /// resolution) already read them from settings, so saving here is enough —
@@ -62,6 +64,24 @@ final Map<String, BottomNavTabDef> _defByKey = <String, BottomNavTabDef>{
 /// Localized label for a stored screen key (tab key or route path).
 String _screenLabel(AppLocalizations l, String key) =>
     _defByKey[key]?.label(l) ?? key;
+
+/// Row order of the Bottom Navigation dropdown: the saved serial for the
+/// screens it names, then any screen it does not name in canonical order — a
+/// screen added in a later release, or every screen on an install that has
+/// never rearranged a row, since an empty serial means canonical.
+List<String> _bottomTabSerial(UserSettings settings) {
+  final canonical = <String>[for (final def in bottomNavTabDefs) def.key];
+  final known = canonical.toSet();
+  final stored = <String>[
+    for (final key in settings.bottomNavOrder)
+      if (known.contains(key)) key,
+  ];
+  return <String>[
+    ...stored,
+    for (final key in canonical)
+      if (!stored.contains(key)) key,
+  ];
+}
 
 /// View settings screen.
 class ViewSettingsScreen extends ConsumerWidget {
@@ -167,14 +187,14 @@ class ViewSettingsScreen extends ConsumerWidget {
   // Bottom navigation tabs and side navigation options
   // -------------------------------------------------------------------------
 
-  /// Bottom-navigation dropdown: every candidate screen as a check-mark row in
-  /// the canonical serial, draggable to reorder.
+  /// Bottom-navigation dropdown: every candidate screen as a check-mark row,
+  /// draggable to reorder.
   ///
-  /// The rows hold the canonical serial whatever the selection is — ticking a
-  /// screen must never move it — so only a drag, the user's own change,
-  /// rearranges them. A drag also rewrites the saved tab order, which is the
-  /// order the bottom bar renders, so dragging stays the way to set the bar's
-  /// order.
+  /// The rows open in the saved serial (canonical until the user drags one),
+  /// so ticking a screen never moves it while a drag is remembered: reopening
+  /// the dropdown shows the order the user left it in. A drag also rewrites the
+  /// saved tab order, which is the order the bottom bar renders, so dragging
+  /// stays the way to set the bar's order.
   Future<void> _pickBottomTabs(
     BuildContext context,
     WidgetRef ref,
@@ -185,14 +205,19 @@ class ViewSettingsScreen extends ConsumerWidget {
       context: context,
       builder: (_) => _MultiSelectDropDown(
         title: l.settingsViewSettings_bottomTabs,
-        order: <String>[for (final def in bottomNavTabDefs) def.key],
+        order: _bottomTabSerial(settings),
         selected: settings.bottomNavTabs.toSet(),
         labelOf: (key) => _screenLabel(l, key),
         reorderable: true,
         minSelected: 1,
         minSelectedMessage: l.settingsViewSettings_keepOneTab,
-        onChanged: (order, chosen) =>
-            _update(ref, (current) => current.copyWith(bottomNavTabs: chosen)),
+        // The dragged serial is saved with the selection, so the dropdown and
+        // the bar always agree on the order.
+        onChanged: (order, chosen) => _update(
+          ref,
+          (current) =>
+              current.copyWith(bottomNavTabs: chosen, bottomNavOrder: order),
+        ),
       ),
     );
   }

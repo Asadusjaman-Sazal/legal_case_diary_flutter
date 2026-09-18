@@ -1,3 +1,10 @@
+### 2026-09-18 — View Settings: the Bottom Navigation order is remembered — COMPLETE
+
+- **What was wrong.** The dropdown re-seeded its rows from the canonical `bottomNavTabDefs` order every time it opened. A drag did take effect in the cases screen — it rewrote `bottom_nav_tabs`, which the bar renders — but the dropdown showed the original list again, so the reorder looked forgotten.
+- **The fix.** The row order is now the user's own per-user value, `bottom_nav_order` (inside `view_settings_json`, no schema change), written by the same drag that rewrites the tab order. The dropdown therefore opens in exactly the order the user left, and the bar and the dropdown cannot disagree. An empty or partial serial falls back to the canonical order for the screens it does not name, so an install that never reordered a row is unchanged and a screen added later still appears (at its canonical place).
+- **Tests:** `view_settings_test.dart` is 18 — a dragged order survives closing and reopening the dropdown, and a stored serial that predates a screen still lists that screen, last. `repositories_test.dart` round-trips `bottom_nav_order` through the stored JSON. `flutter analyze` clean; 320 passed, 2 skipped. Version `0.0.200`.
+- **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
+
 ### 2026-09-18 — Edit Case Types, Steps etc: one card open at a time — COMPLETE
 
 - The category cards behave as an accordion now: opening any card closes the one that was open, so only the card the user just tapped shows its Case Types / Steps / On Behalf buttons (tapping the open card still closes it).

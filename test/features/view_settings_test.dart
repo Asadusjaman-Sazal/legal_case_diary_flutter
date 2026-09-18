@@ -265,6 +265,83 @@ void main() {
     ]);
   });
 
+  testWidgets('a dragged order is still the order next time it opens', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+    await openDropdown(tester, '4 Screens Selected');
+
+    // Drag Daily Cause List (row 2) above Active Cases (row 1), as above.
+    await tester.timedDrag(
+      find.byIcon(Icons.drag_indicator).at(2),
+      const Offset(0, -60),
+      const Duration(milliseconds: 400),
+    );
+    await tester.pumpAndSettle();
+
+    const dragged = <String>[
+      'All Cases',
+      'Daily Cause List',
+      'Active Cases',
+      'Overdue Dates',
+      'Upcoming Cases',
+      'Disposed Cases',
+      'Case Reference',
+      'Notes',
+    ];
+    expect(dropdownLabels(tester), dragged);
+    // The whole serial is saved, ticked rows and unticked ones alike.
+    expect(repo.settings.bottomNavOrder, <String>[
+      'all_cases',
+      'daily_cause_list',
+      'active',
+      'overdue',
+      'upcoming',
+      'disposed',
+      'case_reference',
+      'notes',
+    ]);
+
+    // Reopening shows that serial — the old build re-seeded the canonical one.
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    await openDropdown(tester, '4 Screens Selected');
+    expect(dropdownLabels(tester), dragged);
+  });
+
+  testWidgets('a screen added by a later release is still listed', (
+    tester,
+  ) async {
+    // A serial saved before "Notes" existed: the unknown-to-it screen must
+    // still be offered, in its canonical place at the end.
+    repo = FakeSettingsRepository(
+      const UserSettings(
+        bottomNavOrder: <String>[
+          'active',
+          'all_cases',
+          'upcoming',
+          'overdue',
+          'disposed',
+          'daily_cause_list',
+          'case_reference',
+        ],
+      ),
+    );
+    await pumpScreen(tester);
+    await openDropdown(tester, '4 Screens Selected');
+
+    expect(dropdownLabels(tester), <String>[
+      'Active Cases',
+      'All Cases',
+      'Upcoming Cases',
+      'Overdue Dates',
+      'Disposed Cases',
+      'Daily Cause List',
+      'Case Reference',
+      'Notes',
+    ]);
+  });
+
   testWidgets('choosing a screen never moves it in the list', (tester) async {
     await pumpScreen(tester);
     await openDropdown(tester, '4 Screens Selected');

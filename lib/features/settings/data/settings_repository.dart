@@ -25,6 +25,12 @@ class UserSettings {
   /// Ordered list of bottom navigation tabs.
   final List<String> bottomNavTabs;
 
+  /// Display order of every bottom-navigation screen in the View Settings
+  /// dropdown — ticked or not — so the list the user arranged is the list they
+  /// see when they open it again. Empty means the canonical order, which is
+  /// what an install that has never reordered a row falls back to.
+  final List<String> bottomNavOrder;
+
   /// Whether each side navigation option is enabled.
   final Map<String, dynamic> sideNavOptions;
 
@@ -65,6 +71,7 @@ class UserSettings {
       'active',
       'upcoming',
     ],
+    this.bottomNavOrder = const [],
     this.sideNavOptions = const {},
     this.defaultLandingPage = 'all_cases',
     this.notificationEnabled = false,
@@ -88,6 +95,7 @@ class UserSettings {
     upcomingCasesPeriod: upcomingCasesPeriod,
     caseListDisplayMode: caseListDisplayMode,
     bottomNavTabs: bottomNavTabs,
+    bottomNavOrder: bottomNavOrder,
     sideNavOptions: sideNavOptions,
     defaultLandingPage: defaultLandingPage,
     notificationEnabled: notificationEnabled,
@@ -107,6 +115,7 @@ class UserSettings {
     int? upcomingCasesPeriod,
     String? caseListDisplayMode,
     List<String>? bottomNavTabs,
+    List<String>? bottomNavOrder,
     Map<String, dynamic>? sideNavOptions,
     String? defaultLandingPage,
     bool? notificationEnabled,
@@ -120,6 +129,7 @@ class UserSettings {
     upcomingCasesPeriod: upcomingCasesPeriod ?? this.upcomingCasesPeriod,
     caseListDisplayMode: caseListDisplayMode ?? this.caseListDisplayMode,
     bottomNavTabs: bottomNavTabs ?? this.bottomNavTabs,
+    bottomNavOrder: bottomNavOrder ?? this.bottomNavOrder,
     sideNavOptions: sideNavOptions ?? this.sideNavOptions,
     defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
     notificationEnabled: notificationEnabled ?? this.notificationEnabled,
@@ -139,6 +149,7 @@ class UserSettings {
     'upcoming_cases_period': upcomingCasesPeriod,
     'case_list_display_mode': caseListDisplayMode,
     'bottom_nav_tabs': bottomNavTabs,
+    'bottom_nav_order': bottomNavOrder,
     'side_nav_options': sideNavOptions,
     'default_landing_page': defaultLandingPage,
     'notification_enabled': notificationEnabled,
@@ -175,6 +186,7 @@ class UserSettings {
     final tabs = rawTabs is List<dynamic>
         ? rawTabs.cast<String>()
         : const ['overdue', 'daily_cause_list', 'active', 'upcoming'];
+    final rawOrder = json['bottom_nav_order'];
 
     return UserSettings(
       upcomingCasesPeriod:
@@ -182,6 +194,9 @@ class UserSettings {
       caseListDisplayMode:
           json['case_list_display_mode'] as String? ?? 'compact',
       bottomNavTabs: tabs,
+      bottomNavOrder: rawOrder is List<dynamic>
+          ? rawOrder.cast<String>()
+          : const [],
       sideNavOptions: json['side_nav_options'] is Map<String, dynamic>
           ? json['side_nav_options'] as Map<String, dynamic>
           : const {},

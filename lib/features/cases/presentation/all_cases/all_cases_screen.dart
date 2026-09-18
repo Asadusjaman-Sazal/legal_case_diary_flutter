@@ -273,9 +273,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // The compact ↔ extended choice is the shared stored preference, so the
-    // header toggle and Settings → View Settings always agree.
-    final extended = watchCaseListExtendedView(ref);
+    // The compact ↔ extended choice is stored per screen, so this list can be
+    // a table while another case list stays a card list.
+    final extended = watchCaseListExtendedView(ref, CaseListScreenId.allCases);
     return CasesScreenModal(
       title: l.allCasesScreen_title,
       onAddCase: _openAddCase,
@@ -283,7 +283,11 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      onViewToggle: (compact) => setCaseListViewMode(
+        ref,
+        screenId: CaseListScreenId.allCases,
+        compact: compact,
+      ),
       isCompactView: !extended,
       body: _buildBody(context, l, extended: extended),
     );
@@ -431,7 +435,6 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         currentCase.caseType,
         courtCategoryId: court?.courtCategoryId,
       ),
-      caseTitleOrSection: currentCase.caseTitleAndSection,
       caseNumber: currentCase.caseNumber,
       petitioner: currentCase.petitioner,
       respondent: currentCase.respondent,

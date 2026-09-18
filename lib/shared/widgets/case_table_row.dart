@@ -26,10 +26,13 @@ enum CaseTableColumn {
   /// Hosts the Update (quick-update) action.
   update,
 
+  /// The screen's own date — Next Date, Previous Date or Disposed.
+  date,
+
   /// Name of the court, with the judges' name appended for higher courts.
   court,
 
-  /// Localized case type, with any free-text case title/section appended.
+  /// Localized case type, e.g. "Civil Suit".
   caseType,
 
   /// Case number as typed.
@@ -49,9 +52,6 @@ enum CaseTableColumn {
 
   /// Notes / results free text.
   note,
-
-  /// The screen's own date — Next Date, Previous Date or Disposed.
-  date,
 }
 
 /// Every column, in render order.
@@ -208,6 +208,7 @@ class CaseTableHeader extends StatelessWidget {
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w700,
             ),
+            textAlign: TextAlign.center,
             maxLines: 1,
             softWrap: false,
             overflow: TextOverflow.ellipsis,
@@ -295,9 +296,6 @@ class CaseTableRow extends StatelessWidget {
   /// Localized case type, e.g. "Civil Suit".
   final String caseType;
 
-  /// Free-text case title or section the user typed, appended to the case type.
-  final String? caseTitleOrSection;
-
   /// Case number as typed.
   final String caseNumber;
 
@@ -339,7 +337,6 @@ class CaseTableRow extends StatelessWidget {
     required this.respondent,
     this.courtName,
     this.judgesName,
-    this.caseTitleOrSection,
     this.onBehalf,
     this.step,
     this.note,
@@ -354,7 +351,6 @@ class CaseTableRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final court = _join([courtName, judgesName]);
-    final type = _join([caseType, caseTitleOrSection]);
 
     final children = <Widget>[];
     for (var i = 0; i < caseTableColumnOrder.length; i++) {
@@ -364,7 +360,7 @@ class CaseTableRow extends StatelessWidget {
           width: widths[column],
           child: KeyedSubtree(
             key: ValueKey('case-table-cell-${column.name}'),
-            child: _cell(context, l, column, court: court, type: type),
+            child: _cell(context, l, column, court: court),
           ),
         ),
       );
@@ -382,68 +378,62 @@ class CaseTableRow extends StatelessWidget {
     );
   }
 
+  /// Builds one column's value.
+  ///
+  /// Every data cell uses the same [AppTypography.bodyMd] font and size as the
+  /// Name of Court cell, so the row reads as one grid rather than a mix of
+  /// roles; only the colour carries meaning (the muted serial, the red overdue
+  /// date). The black case number is deliberate: in the compact card it is a
+  /// link-blue accent, but in the table it is plain data like its neighbours.
   Widget _cell(
     BuildContext context,
     AppLocalizations l,
     CaseTableColumn column, {
     required String court,
-    required String type,
   }) {
     switch (column) {
       case CaseTableColumn.serial:
         return _DataCell(
           text: AppDateUtils.formatDigits(serial, l.localeName),
           textKey: const ValueKey('case-row-serial'),
-          style: AppTypography.labelLg.copyWith(
-            color: AppColors.outline,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTypography.bodyMd.copyWith(color: AppColors.outline),
           align: TextAlign.center,
         );
       case CaseTableColumn.update:
         return _UpdateCell(l: l, onUpdate: onUpdate);
+      case CaseTableColumn.date:
+        return _DataCell(
+          text: date ?? '',
+          style: AppTypography.bodyMd.copyWith(
+            color: isOverdue ? AppColors.error : AppColors.onSurface,
+          ),
+        );
       case CaseTableColumn.court:
         return _DataCell(text: court, style: AppTypography.bodyMd);
       case CaseTableColumn.caseType:
-        return _DataCell(text: type, style: AppTypography.bodyMd);
+        return _DataCell(text: caseType, style: AppTypography.bodyMd);
       case CaseTableColumn.caseNumber:
         return _DataCell(
           text: caseNumber,
-          style: AppTypography.caseNumber.copyWith(
-            color: isOverdue ? AppColors.onSurface : AppColors.secondary,
-          ),
+          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
         );
       case CaseTableColumn.petitioner:
-        return _DataCell(
-          text: petitioner,
-          style: AppTypography.labelLg.copyWith(fontWeight: FontWeight.w600),
-        );
+        return _DataCell(text: petitioner, style: AppTypography.bodyMd);
       case CaseTableColumn.respondent:
-        return _DataCell(
-          text: respondent,
-          style: AppTypography.labelLg.copyWith(fontWeight: FontWeight.w600),
-        );
+        return _DataCell(text: respondent, style: AppTypography.bodyMd);
       case CaseTableColumn.onBehalf:
         return _DataCell(
           text: onBehalf ?? '',
           textKey: const ValueKey('case-row-status-label'),
-          style: AppTypography.labelMd,
+          style: AppTypography.bodyMd,
         );
       case CaseTableColumn.step:
-        return _DataCell(text: step ?? '', style: AppTypography.labelLg);
+        return _DataCell(text: step ?? '', style: AppTypography.bodyMd);
       case CaseTableColumn.note:
         return _DataCell(
           text: note ?? '',
           textKey: const ValueKey('case-row-note'),
-          style: AppTypography.bodySm,
-        );
-      case CaseTableColumn.date:
-        return _DataCell(
-          text: date ?? '',
-          style: AppTypography.labelLg.copyWith(
-            color: isOverdue ? AppColors.error : AppColors.onSurface,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTypography.bodyMd,
         );
     }
   }

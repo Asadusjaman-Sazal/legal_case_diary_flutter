@@ -3,9 +3,10 @@
 /// The header's view toggle used to do nothing: no screen passed it a callback,
 /// so the icon was a live control with no effect, and `case_list_display_mode`
 /// was stored by View Settings but read by nobody. These tests pin the wiring
-/// that closed that gap — one shared stored preference, the compact card list
-/// swapped for `CaseTableRow` rows, serial numbers only on the flat lists, and
-/// no toggle at all on the two libraries that share the same shell.
+/// that closed that gap and then made the choice **per screen** — each screen
+/// stores its own compact ↔ extended choice, the compact card list is swapped
+/// for `CaseTableRow` rows, serial numbers appear on every screen that gets a
+/// header row, and the two libraries that share the same shell show no toggle.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -16,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -127,6 +129,7 @@ void main() {
     String? lastStep,
     String? result,
     String? notesResults,
+    String? caseTitleAndSection,
   }) => db
       .into(db.cases)
       .insert(
@@ -143,6 +146,7 @@ void main() {
           lastStep: Value(lastStep),
           result: Value(result),
           notesResults: Value(notesResults),
+          caseTitleAndSection: Value(caseTitleAndSection),
           createdAt: const Value(1),
           updatedAt: const Value(1),
         ),
@@ -228,7 +232,10 @@ void main() {
 
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(find.byType(CaseCard), findsNothing);
-    expect((await settings.getSettings()).caseListDisplayMode, 'expanded');
+    expect(
+      (await settings.getSettings()).caseListDisplayModes['all_cases'],
+      'expanded',
+    );
 
     // Tapping again returns to the compact list and stores that too.
     await tester.tap(find.byKey(toggleKey));
@@ -236,10 +243,80 @@ void main() {
 
     expect(find.byType(CaseCard), findsOneWidget);
     expect(find.byType(CaseTableRow), findsNothing);
-    expect((await settings.getSettings()).caseListDisplayMode, 'compact');
+    expect(
+      (await settings.getSettings()).caseListDisplayModes['all_cases'],
+      'compact',
+    );
 
     await unmount(tester);
   });
+
+  testWidgets('each screen stores its own view choice', (
+    WidgetTester tester,
+  ) async {
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    // All Cases is switched to the table; nothing global is written.
+    await tester.tap(find.byKey(toggleKey));
+    await settle(tester);
+    expect(find.byType(CaseTableRow), findsOneWidget);
+    final stored = await settings.getSettings();
+    expect(stored.caseListDisplayModes['all_cases'], 'expanded');
+    expect(stored.caseListDisplayModes.containsKey('active'), isFalse);
+    await unmount(tester);
+
+    // Active Cases, which the user never switched, stays compact — the choice
+    // is the screen's, not the app's.
+    await pumpScreen(tester, const ActiveCasesScreen());
+    expect(find.byType(CaseCard), findsOneWidget);
+    expect(find.byType(CaseTableRow), findsNothing);
+    await unmount(tester);
+
+    // The choice survives a restart: All Cases opens extended again.
+    await pumpScreen(tester, const AllCasesScreen());
+    expect(find.byType(CaseTableRow), findsOneWidget);
+    expect(find.byType(CaseCard), findsNothing);
+
+    await unmount(tester);
+  });
+
+  testWidgets(
+    'the global View Settings mode is the default for screens the user '
+    'never switched',
+    (WidgetTester tester) async {
+      await setStoredMode('expanded');
+      await seedCase(
+        id: 'CASE-1',
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      );
+
+      // No per-screen entry: the global mode applies.
+      await pumpScreen(tester, const AllCasesScreen());
+      expect(find.byType(CaseTableRow), findsOneWidget);
+      await unmount(tester);
+
+      // An explicit per-screen choice overrides the global one.
+      final current = await settings.getSettings();
+      await settings.upsertSettings(
+        current.copyWith(
+          caseListDisplayModes: const <String, String>{'all_cases': 'compact'},
+        ),
+      );
+      await pumpScreen(tester, const AllCasesScreen());
+      expect(find.byType(CaseCard), findsOneWidget);
+      expect(find.byType(CaseTableRow), findsNothing);
+      await unmount(tester);
+
+      // Another screen still follows the global mode.
+      await pumpScreen(tester, const ActiveCasesScreen());
+      expect(find.byType(CaseTableRow), findsOneWidget);
+      await unmount(tester);
+    },
+  );
 
   testWidgets('a stored extended choice opens a case list already extended', (
     WidgetTester tester,
@@ -271,13 +348,13 @@ void main() {
 
     // View Settings renders the ViewModel, not the stream, so the header's
     // write has to leave that ViewModel holding the new value. Otherwise the
-    // dropdown would keep showing the mode the app started with — the same
-    // stale-arrangement bug the bottom-nav order had (0.0.200).
+    // Settings screens would keep showing the mode the app started with — the
+    // same stale-arrangement bug the bottom-nav order had (0.0.200).
     expect(
       (await container.read(
         settingsViewModelProvider.future,
-      )).caseListDisplayMode,
-      'compact',
+      )).caseListDisplayModes['all_cases'],
+      isNull,
     );
 
     await tester.tap(find.byKey(toggleKey));
@@ -286,7 +363,7 @@ void main() {
     expect(
       (await container.read(
         settingsViewModelProvider.future,
-      )).caseListDisplayMode,
+      )).caseListDisplayModes['all_cases'],
       'expanded',
     );
 
@@ -475,10 +552,12 @@ void main() {
 
     expect(find.byKey(const ValueKey('case-table-header')), findsOneWidget);
 
-    // The requested column order, left to right.
+    // The requested column order, left to right: the date column sits before
+    // Name of Court, and every other data column follows it.
     const order = <String>[
       'serial',
       'update',
+      'date',
       'court',
       'caseType',
       'caseNumber',
@@ -487,7 +566,6 @@ void main() {
       'onBehalf',
       'step',
       'note',
-      'date',
     ];
     var previous = double.negativeInfinity;
     for (final column in order) {
@@ -531,6 +609,80 @@ void main() {
         reason: label,
       );
     }
+
+    await unmount(tester);
+  });
+
+  testWidgets('the table honours the requested content and styling rules', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      caseTitleAndSection: 'Section 138, Negotiable Instruments Act',
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    // The Case Type column shows the case type only — the free-text title or
+    // section stays on the compact card, not in this column.
+    final typeCell = find.byKey(const ValueKey('case-table-cell-caseType'));
+    expect(
+      find.descendant(of: typeCell, matching: find.text('Civil Suit')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: typeCell,
+        matching: find.textContaining('Negotiable Instruments'),
+      ),
+      findsNothing,
+    );
+
+    // Every data column shares the Name of Court font and size; the case
+    // number is plain black rather than the card's link blue.
+    final courtText = tester.widget<Text>(
+      find.descendant(
+        of: find.byKey(const ValueKey('case-table-cell-court')),
+        matching: find.byType(Text),
+      ),
+    );
+    for (final column in <String>[
+      'caseType',
+      'caseNumber',
+      'petitioner',
+      'respondent',
+      'onBehalf',
+      'step',
+      'note',
+      'date',
+    ]) {
+      final text = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(ValueKey('case-table-cell-$column')),
+          matching: find.byType(Text),
+        ),
+      );
+      expect(
+        text.style!.fontFamily,
+        courtText.style!.fontFamily,
+        reason: column,
+      );
+      expect(text.style!.fontSize, courtText.style!.fontSize, reason: column);
+    }
+    final numberText = tester.widget<Text>(
+      find.descendant(
+        of: find.byKey(const ValueKey('case-table-cell-caseNumber')),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(numberText.style!.color, AppColors.onSurface);
+
+    // The header is centred; data cells keep their own alignment.
+    final headerText = tester.widget<Text>(
+      find.byKey(const ValueKey('case-table-header-court')),
+    );
+    expect(headerText.textAlign, TextAlign.center);
 
     await unmount(tester);
   });

@@ -1,9 +1,16 @@
 /// Compact ↔ extended ("table") case-list view plumbing.
 ///
-/// The case-list screens share one stored preference — `case_list_display_mode`
-/// (Settings → View Settings → Case List Display) — so the header toggle and the
-/// Settings picker can never disagree. Screens read the live row through
+/// The choice is **per screen**: the header toggle on All Cases can show the
+/// table while Daily Cause List stays a card list, and each screen remembers
+/// its own choice across restarts. Screens read the live row through
 /// [userSettingsStreamProvider]; this file owns the single write path.
+///
+/// Storage is the per-screen map `case_list_display_modes` (screen id → mode)
+/// inside the existing `view_settings_json` blob, with the older global
+/// `case_list_display_mode` (Settings → View Settings → Case List Display) kept
+/// as the default for every screen the user has not switched on its own. A
+/// screen id is the bottom-navigation key, the app's single source of screen
+/// identity, so the two can never drift apart.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +26,45 @@ const String caseListViewModeCompact = 'compact';
 /// Stored value: the extended horizontal-row view.
 const String caseListViewModeExpanded = 'expanded';
 
-/// Whether the extended view is the stored selection.
+/// Stable per-screen ids for the view choice.
 ///
-/// Reads the live settings row rather than the settings ViewModel: the
-/// ViewModel reports `loading` between a write and its refresh, and a nullable
-/// state would flash the compact list mid-toggle.
-bool isCaseListExtendedView(UserSettings? settings) =>
-    settings?.caseListDisplayMode == caseListViewModeExpanded;
+/// Each id is the screen's bottom-navigation key (`bottomNavTabDefs`), so a
+/// stored choice follows the screen wherever it is placed and never collides
+/// with another.
+class CaseListScreenId {
+  CaseListScreenId._();
 
-/// Persists the compact ↔ extended choice.
+  /// All Cases.
+  static const String allCases = 'all_cases';
+
+  /// Active Cases.
+  static const String active = 'active';
+
+  /// Daily Cause List.
+  static const String dailyCauseList = 'daily_cause_list';
+
+  /// Overdue Dates.
+  static const String overdue = 'overdue';
+
+  /// Upcoming Cases.
+  static const String upcoming = 'upcoming';
+
+  /// Disposed Cases.
+  static const String disposed = 'disposed';
+}
+
+/// Whether [screenId] should render the extended view.
+///
+/// The screen's own stored choice wins; a screen that has never been switched
+/// follows the global [UserSettings.caseListDisplayMode], which is the app
+/// default (`compact`) on a fresh install.
+bool isCaseListExtendedView(UserSettings? settings, String screenId) {
+  final mode =
+      settings?.caseListDisplayModes[screenId] ?? settings?.caseListDisplayMode;
+  return mode == caseListViewModeExpanded;
+}
+
+/// Persists one screen's compact ↔ extended choice.
 ///
 /// The full row is read back before it is written so no other preference can be
 /// lost (the settings ViewModel's one-field update falls back to defaults while
@@ -35,14 +72,19 @@ bool isCaseListExtendedView(UserSettings? settings) =>
 /// screens, which read it instead of the stream, show the new mode next time
 /// they build — the same "the arrangement must survive" rule the bottom-nav
 /// order fix (0.0.200) had to satisfy.
-Future<void> setCaseListViewMode(WidgetRef ref, {required bool compact}) async {
+Future<void> setCaseListViewMode(
+  WidgetRef ref, {
+  required String screenId,
+  required bool compact,
+}) async {
   final repo = await ref.read(settingsRepositoryProvider.future);
   final current = await repo.getSettings();
   await repo.upsertSettings(
     current.copyWith(
-      caseListDisplayMode: compact
-          ? caseListViewModeCompact
-          : caseListViewModeExpanded,
+      caseListDisplayModes: <String, String>{
+        ...current.caseListDisplayModes,
+        screenId: compact ? caseListViewModeCompact : caseListViewModeExpanded,
+      },
     ),
   );
   ref.invalidate(settingsViewModelProvider);
@@ -64,9 +106,13 @@ Future<void> setCaseTableColumnWidths(
   ref.invalidate(settingsViewModelProvider);
 }
 
-/// The live compact ↔ extended selection, safe to read during a build.
+/// The live compact ↔ extended selection for [screenId], safe to read during a
+/// build.
 ///
 /// Defaults to the compact view until the stream's first emission, which is the
 /// stored default for a fresh install.
-bool watchCaseListExtendedView(WidgetRef ref) =>
-    isCaseListExtendedView(ref.watch(userSettingsStreamProvider).value);
+bool watchCaseListExtendedView(WidgetRef ref, String screenId) =>
+    isCaseListExtendedView(
+      ref.watch(userSettingsStreamProvider).value,
+      screenId,
+    );

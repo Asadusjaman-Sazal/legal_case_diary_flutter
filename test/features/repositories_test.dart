@@ -335,6 +335,31 @@ void main() {
       expect(const UserSettings().caseTableColumnWidths, isEmpty);
     });
 
+    test('UserSettings round-trips the per-screen view choice', () {
+      const saved = UserSettings(
+        caseListDisplayMode: 'compact',
+        caseListDisplayModes: <String, String>{
+          'all_cases': 'expanded',
+          'overdue': 'compact',
+        },
+      );
+
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          viewSettingsJson: jsonEncode(saved.toJson()),
+          updatedAt: 1,
+        ),
+      );
+
+      expect(restored.caseListDisplayMode, 'compact');
+      expect(restored.caseListDisplayModes, saved.caseListDisplayModes);
+      // An install that has never switched a screen stores no per-screen map,
+      // so every screen follows the global mode.
+      expect(const UserSettings().caseListDisplayModes, isEmpty);
+    });
+
     test('UserSettings falls back safely for malformed view JSON', () {
       final settings = UserSettings.fromRow(
         const UserPreference(

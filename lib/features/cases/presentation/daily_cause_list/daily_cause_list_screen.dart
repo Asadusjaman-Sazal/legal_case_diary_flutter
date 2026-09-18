@@ -246,9 +246,12 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   @override
   Widget build(BuildContext context) {
     final l = l10n();
-    // The compact ↔ extended choice is the shared stored preference, so the
-    // header toggle and Settings → View Settings always agree.
-    final extended = watchCaseListExtendedView(ref);
+    // The compact ↔ extended choice is stored per screen, so this list can be
+    // a table while another case list stays a card list.
+    final extended = watchCaseListExtendedView(
+      ref,
+      CaseListScreenId.dailyCauseList,
+    );
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
       onAddCase: _openAddCase,
@@ -256,7 +259,11 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      onViewToggle: (compact) => setCaseListViewMode(
+        ref,
+        screenId: CaseListScreenId.dailyCauseList,
+        compact: compact,
+      ),
       isCompactView: !extended,
       body: Column(
         children: [
@@ -437,7 +444,6 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         currentCase.caseType,
         courtCategoryId: court?.courtCategoryId,
       ),
-      caseTitleOrSection: currentCase.caseTitleAndSection,
       caseNumber: currentCase.caseNumber,
       petitioner: currentCase.petitioner,
       respondent: currentCase.respondent,

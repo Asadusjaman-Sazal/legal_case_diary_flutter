@@ -20,7 +20,17 @@ class UserSettings {
   final int upcomingCasesPeriod;
 
   /// Case list display mode, e.g. `compact` or `expanded`.
+  ///
+  /// This is the global default used by Settings → View Settings and by every
+  /// case-list screen the user has not switched on its own.
   final String caseListDisplayMode;
+
+  /// Per-screen compact ↔ extended choice, keyed by the screen's stable id
+  /// (`all_cases`, `active`, `daily_cause_list`, `overdue`, `upcoming`,
+  /// `disposed`). An entry overrides the global [caseListDisplayMode] for that
+  /// screen alone, so one screen can stay compact while another is extended.
+  /// Empty means every screen follows the global mode.
+  final Map<String, String> caseListDisplayModes;
 
   /// Ordered list of bottom navigation tabs.
   final List<String> bottomNavTabs;
@@ -71,6 +81,7 @@ class UserSettings {
     this.isPremium = false,
     this.upcomingCasesPeriod = 7,
     this.caseListDisplayMode = 'compact',
+    this.caseListDisplayModes = const {},
     this.bottomNavTabs = const [
       'overdue',
       'daily_cause_list',
@@ -101,6 +112,7 @@ class UserSettings {
     isPremium: isPremium,
     upcomingCasesPeriod: upcomingCasesPeriod,
     caseListDisplayMode: caseListDisplayMode,
+    caseListDisplayModes: caseListDisplayModes,
     bottomNavTabs: bottomNavTabs,
     bottomNavOrder: bottomNavOrder,
     sideNavOptions: sideNavOptions,
@@ -122,6 +134,7 @@ class UserSettings {
     bool? isPremium,
     int? upcomingCasesPeriod,
     String? caseListDisplayMode,
+    Map<String, String>? caseListDisplayModes,
     List<String>? bottomNavTabs,
     List<String>? bottomNavOrder,
     Map<String, dynamic>? sideNavOptions,
@@ -137,6 +150,7 @@ class UserSettings {
     isPremium: isPremium ?? this.isPremium,
     upcomingCasesPeriod: upcomingCasesPeriod ?? this.upcomingCasesPeriod,
     caseListDisplayMode: caseListDisplayMode ?? this.caseListDisplayMode,
+    caseListDisplayModes: caseListDisplayModes ?? this.caseListDisplayModes,
     bottomNavTabs: bottomNavTabs ?? this.bottomNavTabs,
     bottomNavOrder: bottomNavOrder ?? this.bottomNavOrder,
     sideNavOptions: sideNavOptions ?? this.sideNavOptions,
@@ -158,6 +172,7 @@ class UserSettings {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'upcoming_cases_period': upcomingCasesPeriod,
     'case_list_display_mode': caseListDisplayMode,
+    'case_list_display_modes': caseListDisplayModes,
     'bottom_nav_tabs': bottomNavTabs,
     'bottom_nav_order': bottomNavOrder,
     'side_nav_options': sideNavOptions,
@@ -198,6 +213,7 @@ class UserSettings {
         ? rawTabs.cast<String>()
         : const ['overdue', 'daily_cause_list', 'active', 'upcoming'];
     final rawOrder = json['bottom_nav_order'];
+    final rawModes = json['case_list_display_modes'];
     final rawWidths = json['case_table_column_widths'];
 
     return UserSettings(
@@ -205,6 +221,13 @@ class UserSettings {
           (json['upcoming_cases_period'] as num?)?.toInt() ?? 7,
       caseListDisplayMode:
           json['case_list_display_mode'] as String? ?? 'compact',
+      caseListDisplayModes: rawModes is Map
+          ? {
+              for (final entry in rawModes.entries)
+                if (entry.value is String)
+                  '${entry.key}': entry.value as String,
+            }
+          : const {},
       bottomNavTabs: tabs,
       bottomNavOrder: rawOrder is List<dynamic>
           ? rawOrder.cast<String>()

@@ -1158,7 +1158,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCourtNamesSteps_catExecutive => 'Executive Magistrate';
 
   @override
-  String get settingsCourtNamesSteps_catTribunals => 'Tribunals';
+  String get settingsCourtNamesSteps_catMetropolitanSessions =>
+      'Metropolitan Sessions (Criminal)';
 
   @override
   String get settingsItemList_addTitle => 'Add Item';
@@ -1190,6 +1191,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsItemList_catDistrictCivil => 'District (Civil)';
+
+  @override
+  String get settingsItemList_catMetropolitanSessions =>
+      'Metro Sessions (Crim)';
 
   @override
   String get settingsItemList_catCjm => 'CJM';

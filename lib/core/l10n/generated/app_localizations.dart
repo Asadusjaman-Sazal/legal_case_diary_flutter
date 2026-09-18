@@ -2224,11 +2224,11 @@ abstract class AppLocalizations {
   /// **'Executive Magistrate'**
   String get settingsCourtNamesSteps_catExecutive;
 
-  /// No description provided for @settingsCourtNamesSteps_catTribunals.
+  /// No description provided for @settingsCourtNamesSteps_catMetropolitanSessions.
   ///
   /// In en, this message translates to:
-  /// **'Tribunals'**
-  String get settingsCourtNamesSteps_catTribunals;
+  /// **'Metropolitan Sessions (Criminal)'**
+  String get settingsCourtNamesSteps_catMetropolitanSessions;
 
   /// No description provided for @settingsItemList_addTitle.
   ///
@@ -2289,6 +2289,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'District (Civil)'**
   String get settingsItemList_catDistrictCivil;
+
+  /// No description provided for @settingsItemList_catMetropolitanSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Metro Sessions (Crim)'**
+  String get settingsItemList_catMetropolitanSessions;
 
   /// No description provided for @settingsItemList_catCjm.
   ///

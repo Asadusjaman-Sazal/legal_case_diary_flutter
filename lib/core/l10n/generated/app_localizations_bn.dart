@@ -1159,7 +1159,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsCourtNamesSteps_catExecutive => 'নির্বাহী ম্যাজিস্ট্রেট';
 
   @override
-  String get settingsCourtNamesSteps_catTribunals => 'ট্রাইব্যুনাল সমূহ';
+  String get settingsCourtNamesSteps_catMetropolitanSessions =>
+      'মেট্রোপলিটন সেশন (ফৌজদারি)';
 
   @override
   String get settingsItemList_addTitle => 'আইটেম যোগ করুন';
@@ -1192,6 +1193,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsItemList_catDistrictCivil => 'জেলা (দেওয়ানি)';
+
+  @override
+  String get settingsItemList_catMetropolitanSessions => 'মেট্রো দায়রা (ফৌজ.)';
 
   @override
   String get settingsItemList_catCjm => 'সিজেএম';

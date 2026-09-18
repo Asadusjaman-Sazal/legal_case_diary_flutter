@@ -115,6 +115,8 @@ class ItemListScreen extends ConsumerWidget {
         'high_court_division': l.settingsItemList_catHighCourt,
         'district_sessions_criminal': l.settingsItemList_catSessions,
         'district_courts_civil': l.settingsItemList_catDistrictCivil,
+        'metropolitan_sessions_judge_criminal':
+          l.settingsItemList_catMetropolitanSessions,
         'chief_judicial_magistrate': l.settingsItemList_catCjm,
         'chief_metropolitan_magistrate': l.settingsItemList_catCmm,
         'executive_magistrate': l.settingsItemList_catExecutive,

@@ -28,6 +28,7 @@ import '../../../../shared/widgets/case_card.dart';
 import '../../../../shared/widgets/case_table_row.dart';
 import '../case_list_view_mode.dart';
 import '../case_search.dart';
+import '../case_table_view.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -314,7 +315,20 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
 
     final lastUpdatedAt = _lastUpdatedAt;
 
-    final list = RefreshIndicator(
+    // 1-based position of every case in the order this screen shows them, so
+    // the table's serial column numbers the grouped rows the same way the flat
+    // lists number theirs.
+    final serials = <String, int>{};
+    var nextSerial = 1;
+    for (final group in groups) {
+      for (final currentCase in group.cases) {
+        serials[currentCase.id] = nextSerial++;
+      }
+    }
+
+    // [widths] is set only in the extended view, where the table's columns
+    // decide each cell's width; the compact list keeps the cards.
+    Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -360,11 +374,14 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                 ),
               ),
               for (final currentCase in group.cases) ...[
-                // Grouped screens keep their court headers and use no serial
-                // numbers: the grouping is the position cue here.
-                extended
-                    ? _buildRow(currentCase, l)
-                    : _buildCard(currentCase, l),
+                widths == null
+                    ? _buildCard(currentCase, l)
+                    : _buildRow(
+                        currentCase,
+                        l,
+                        serials[currentCase.id]!,
+                        widths,
+                      ),
                 const SizedBox(height: AppSpacing.md),
               ],
             ],
@@ -404,7 +421,14 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
                 )
-              : (extended ? CaseTableBody(child: list) : list),
+              : (extended
+                    ? CaseTableView(
+                        // This screen's hearing date has already passed, so its
+                        // date column is the previous date, not the next one.
+                        dateLabel: l.caseCard_previousDate,
+                        builder: (_, widths) => buildList(widths),
+                      )
+                    : buildList(null)),
         ),
       ],
     );
@@ -454,29 +478,40 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     );
   }
 
-  /// The extended-view row for [currentCase]: same values as [_buildCard], laid
-  /// out horizontally, keeping the red overdue strip and no serial number
-  /// (this screen groups by court).
-  Widget _buildRow(Case currentCase, AppLocalizations l) {
+  /// The extended-view row for [currentCase]: one column per field, carrying
+  /// the same values as [_buildCard], including the red overdue strip.
+  Widget _buildRow(
+    Case currentCase,
+    AppLocalizations l,
+    int serial,
+    Map<CaseTableColumn, double> widths,
+  ) {
     final court = _courtsById[currentCase.courtId];
     final isHigherCourt =
         court?.courtCategoryId == appellateDivisionId ||
         court?.courtCategoryId == highCourtDivisionId;
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
-      variant: CaseCardVariant.overdue,
-      caseNumber:
-          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
-      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
-      subtitle: currentCase.caseTitleAndSection,
-      courtName: null, // Court name is shown in the group header above the row.
+      widths: widths,
+      serial: serial,
+      courtName: court == null
+          ? null
+          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
-      statusLabel: context.l10n.onBehalfLabel(
+      caseType: context.l10n.caseTypeLabel(
+        currentCase.caseType,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      caseTitleOrSection: currentCase.caseTitleAndSection,
+      caseNumber: currentCase.caseNumber,
+      petitioner: currentCase.petitioner,
+      respondent: currentCase.respondent,
+      onBehalf: context.l10n.onBehalfLabel(
         currentCase.onBehalfId,
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       isOverdue: true, // Always overdue; red stripe + red date.
-      nextDate: currentCase.nextDate == null
+      date: currentCase.nextDate == null
           ? null
           : AppDateUtils.formatDisplayDate(
               currentCase.nextDate!,
@@ -488,12 +523,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
-      result: currentCase.result,
       note: currentCase.notesResults,
-      showPhoneButton: true,
-      showMessageButton: true,
-      onPhone: () => _launchPartyAction(currentCase, message: false),
-      onMessage: () => _launchPartyAction(currentCase, message: true),
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );

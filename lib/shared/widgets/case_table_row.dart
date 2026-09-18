@@ -1,13 +1,10 @@
-/// Reusable case row for the case-list screens' extended ("table") view.
+/// The extended ("table") case view: an Excel-like grid of one row per case.
 ///
-/// This is the horizontal counterpart of [CaseCard]: the host screen supplies
-/// exactly the same display values, so switching between the compact card view
-/// and the extended view never loses a field. The row chrome follows the table
-/// view in `mockup_html_screens/overdueDates/code.html` (`#tableView`): a white
-/// row with a bordered Update column, a date/step column, the case number and
-/// parties, and the contact actions. The mockup's row carries fewer fields than
-/// the app's card, so the row additionally renders the court/judges line and the
-/// note the card shows (user-approved full data parity).
+/// The compact card shows a case as a stack of labelled lines. The table shows
+/// the same data as columns — one field per column, one line per cell — with a
+/// single header row above the rows and no per-cell labels. Column widths are
+/// owned by [CaseTableView] (feature layer), dragged from the header's rules
+/// and stored per user, so this file only renders what it is handed.
 library;
 
 import 'package:flutter/material.dart';
@@ -17,82 +14,314 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart';
-import 'case_card.dart';
 
-/// A single case laid out as one horizontal row of the extended view.
+/// The columns of the extended view, in the order they render.
+///
+/// The name of each value is its stable id in the stored width map, so
+/// reordering this enum is a data migration: keep the names.
+enum CaseTableColumn {
+  /// Running position of the row in the list the screen is showing.
+  serial,
+
+  /// Hosts the Update (quick-update) action.
+  update,
+
+  /// Name of the court, with the judges' name appended for higher courts.
+  court,
+
+  /// Localized case type, with any free-text case title/section appended.
+  caseType,
+
+  /// Case number as typed.
+  caseNumber,
+
+  /// Petitioner.
+  petitioner,
+
+  /// Respondent.
+  respondent,
+
+  /// On-behalf role of the user.
+  onBehalf,
+
+  /// Last step (or AD/HCD result).
+  step,
+
+  /// Notes / results free text.
+  note,
+
+  /// The screen's own date — Next Date, Previous Date or Disposed.
+  date,
+}
+
+/// Every column, in render order.
+const List<CaseTableColumn> caseTableColumnOrder = CaseTableColumn.values;
+
+/// Built-in column widths, used until the user drags a rule.
+const Map<CaseTableColumn, double> _defaultWidths = <CaseTableColumn, double>{
+  CaseTableColumn.serial: 64,
+  CaseTableColumn.update: 84,
+  CaseTableColumn.court: 220,
+  CaseTableColumn.caseType: 150,
+  CaseTableColumn.caseNumber: 160,
+  CaseTableColumn.petitioner: 180,
+  CaseTableColumn.respondent: 180,
+  CaseTableColumn.onBehalf: 130,
+  CaseTableColumn.step: 170,
+  CaseTableColumn.note: 220,
+  CaseTableColumn.date: 130,
+};
+
+/// Narrowest a column may be dragged, per column.
+const Map<CaseTableColumn, double> _minWidths = <CaseTableColumn, double>{
+  CaseTableColumn.serial: 48,
+  CaseTableColumn.update: 64,
+  CaseTableColumn.court: 96,
+  CaseTableColumn.caseType: 80,
+  CaseTableColumn.caseNumber: 96,
+  CaseTableColumn.petitioner: 96,
+  CaseTableColumn.respondent: 96,
+  CaseTableColumn.onBehalf: 80,
+  CaseTableColumn.step: 96,
+  CaseTableColumn.note: 96,
+  CaseTableColumn.date: 88,
+};
+
+/// Widest a column may be dragged.
+const double caseTableMaxColumnWidth = 640.0;
+
+/// Width of one inter-column rule, including its grab area either side.
+const double caseTableDividerWidth = 17.0;
+
+/// The 4 px lane every row and the header reserve on the left.
+///
+/// Rows paint it red when they are overdue; every other row leaves it empty.
+/// Reserving it unconditionally is what keeps the header's cells and the data
+/// cells in the same place.
+const double caseTableStripWidth = 4.0;
+
+/// Narrowest allowed width of [column].
+double caseTableMinColumnWidth(CaseTableColumn column) => _minWidths[column]!;
+
+/// The user's stored widths, falling back to the defaults.
+///
+/// Unknown keys are ignored (a column removed in a later release leaves nothing
+/// behind) and every value is clamped to its column's range, so a corrupt row
+/// cannot make a column unusable.
+Map<CaseTableColumn, double> resolveCaseTableWidths(
+  Map<String, dynamic> stored,
+) {
+  final widths = Map<CaseTableColumn, double>.from(_defaultWidths);
+  for (final column in caseTableColumnOrder) {
+    final value = stored[column.name];
+    if (value is! num) continue;
+    widths[column] = value.toDouble().clamp(
+      caseTableMinColumnWidth(column),
+      caseTableMaxColumnWidth,
+    );
+  }
+  return widths;
+}
+
+/// The stored (JSON) form of [widths], keyed by the columns' stable names.
+Map<String, double> caseTableStoredWidths(
+  Map<CaseTableColumn, double> widths,
+) => {for (final entry in widths.entries) entry.key.name: entry.value};
+
+/// Minimum body width the table needs so no column is squeezed.
+///
+/// Adds, on top of the columns, the rules between them and the fixed chrome of
+/// the header and the rows: the 2 px card border, the 4 px strip lane and the
+/// 12 px gutter either side, plus the 16 px screen margin the body already
+/// applies. The header and the rows are laid out to exactly this width, which
+/// is what makes their columns line up.
+double caseTableMinimumWidth(Map<CaseTableColumn, double> widths) {
+  final cells = widths.values.fold<double>(0, (sum, width) => sum + width);
+  return AppSpacing.md * 2 +
+      2 +
+      caseTableStripWidth +
+      AppSpacing.gutter * 2 +
+      cells +
+      caseTableDividerWidth * (widths.length - 1);
+}
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
+/// The single header row above the table's data rows.
+///
+/// Its labels name the columns once, so each data row shows values only. Every
+/// rule between two labels doubles as the column's resize handle: drag it and
+/// [onResizeDelta] reports the horizontal delta for that column, then
+/// [onResizeEnd] fires once the drag finishes so the host can store the size.
+class CaseTableHeader extends StatelessWidget {
+  /// Current width of every column, in logical pixels.
+  final Map<CaseTableColumn, double> widths;
+
+  /// Label of the trailing date column, which each screen names for itself
+  /// ("Next Date", "Previous Date" or "Disposed").
+  final String dateLabel;
+
+  /// Called while a rule is dragged, with the column to its left.
+  final void Function(CaseTableColumn column, double delta)? onResizeDelta;
+
+  /// Called once a resize drag finishes.
+  final VoidCallback? onResizeEnd;
+
+  /// Creates the table header row.
+  const CaseTableHeader({
+    required this.widths,
+    required this.dateLabel,
+    this.onResizeDelta,
+    this.onResizeEnd,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final labels = <CaseTableColumn, String>{
+      CaseTableColumn.serial: l.caseTable_serial,
+      CaseTableColumn.update: l.allCasesScreen_update,
+      CaseTableColumn.court: l.addEditCaseSheet_nameOfCourt,
+      CaseTableColumn.caseType: l.allCasesScreen_caseType,
+      CaseTableColumn.caseNumber: l.addEditCaseSheet_caseNumber,
+      CaseTableColumn.petitioner: l.addEditCaseSheet_petitioner,
+      CaseTableColumn.respondent: l.addEditCaseSheet_respondent,
+      CaseTableColumn.onBehalf: l.allCasesScreen_onBehalf,
+      CaseTableColumn.step: l.caseCard_lastStep,
+      CaseTableColumn.note: l.addEditCaseSheet_note,
+      CaseTableColumn.date: dateLabel,
+    };
+
+    final children = <Widget>[];
+    for (var i = 0; i < caseTableColumnOrder.length; i++) {
+      final column = caseTableColumnOrder[i];
+      children.add(
+        SizedBox(
+          width: widths[column],
+          child: Text(
+            labels[column]!,
+            key: ValueKey('case-table-header-${column.name}'),
+            style: AppTypography.labelMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+      if (i != caseTableColumnOrder.length - 1) {
+        children.add(
+          _ColumnResizeHandle(
+            column: column,
+            onDelta: onResizeDelta,
+            onDragEnd: onResizeEnd,
+          ),
+        );
+      }
+    }
+
+    return _TableFrame(
+      key: const ValueKey('case-table-header'),
+      background: AppColors.surfaceContainerLow,
+      roundedLeft: true,
+      child: Row(children: children),
+    );
+  }
+}
+
+/// The rule between two header cells, draggable to resize the column on its
+/// left.
+class _ColumnResizeHandle extends StatelessWidget {
+  final CaseTableColumn column;
+  final void Function(CaseTableColumn column, double delta)? onDelta;
+  final VoidCallback? onDragEnd;
+
+  const _ColumnResizeHandle({
+    required this.column,
+    required this.onDelta,
+    required this.onDragEnd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final rule = Center(
+      child: Container(width: 1, height: 20, color: AppColors.outlineVariant),
+    );
+    if (onDelta == null) {
+      return SizedBox(width: caseTableDividerWidth, child: rule);
+    }
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeColumn,
+      child: GestureDetector(
+        key: ValueKey('case-table-resize-${column.name}'),
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (details) => onDelta!(column, details.delta.dx),
+        onHorizontalDragEnd: (_) => onDragEnd?.call(),
+        child: SizedBox(width: caseTableDividerWidth, child: rule),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Row
+// ---------------------------------------------------------------------------
+
+/// One case laid out as a single line of the table.
+///
+/// Every cell is a fixed-width column of the shared width map, so a row lines
+/// up with the header and with every other row. The card chrome is unchanged:
+/// the white surface, the border, the rounded corners and — for an overdue
+/// case — the red left strip.
 class CaseTableRow extends StatelessWidget {
-  /// Minimum content width of the extended view.
-  ///
-  /// The mockup scrolls the table horizontally (`min-w-[600px]`) instead of
-  /// squeezing its columns, so the host wraps its body in [CaseTableBody] and
-  /// this is the width that body is guaranteed.
-  static const double minWidth = 600.0;
+  /// Current width of every column, in logical pixels.
+  final Map<CaseTableColumn, double> widths;
 
-  /// Width of the leading serial cell. Only rendered when [serial] is set.
-  static const double _serialColumnWidth = 32.0;
+  /// 1-based position of the case in the list the screen is showing, rendered
+  /// in the active language's digits.
+  final int serial;
 
-  /// Width of the Update action column.
-  static const double _updateColumnWidth = 56.0;
-
-  /// Width of each labelled detail column (date, step/result).
-  static const double _detailColumnWidth = 104.0;
-
-  /// Width of the trailing contact-action column.
-  static const double _contactColumnWidth = 44.0;
-
-  /// Ceiling for the on-behalf chip in the case block, so a long role name can
-  /// never eat the line the case number lives on.
-  static const double _statusLabelMaxWidth = 104.0;
-
-  /// Size of the square icon buttons inside the row.
-  static const double _iconButtonSize = 36.0;
-
-  /// The case-list layout to render; drives the overdue accent, exactly as it
-  /// does for [CaseCard].
-  final CaseCardVariant variant;
-
-  /// 1-based position of this case in the list the screen is currently showing.
-  ///
-  /// Rendered localized (Bengali digits under বাংলা). Null hides the cell — the
-  /// grouped screens (Daily Cause List, Upcoming Cases, Overdue Dates) and the
-  /// libraries do not use serial numbers.
-  final int? serial;
-
-  /// Case identifier shown as the primary data label.
-  final String caseNumber;
-
-  /// Party names or the case title shown beneath [caseNumber].
-  final String title;
-
-  /// Optional section, case type, or descriptive subtitle.
-  final String? subtitle;
-
-  /// Optional court name displayed beside the judges' name.
+  /// Name of the court, resolved to the active language by the caller.
   final String? courtName;
 
-  /// Optional role/status badge, such as Plaintiff or Accused.
-  final String? statusLabel;
-
-  /// Optional next-hearing date, shown in its own labelled column.
-  final String? nextDate;
-
-  /// Step shown in the second detail column.
-  final String? step;
-
-  /// AD/HCD result shown in the second detail column when [step] is absent.
-  final String? result;
-
-  /// Note shown as the last line of the case block.
-  final String? note;
-
-  /// Honorable judges' name, shown beside the court name for AD/HCD cases.
+  /// Honorable judges' name, appended to the court cell for AD/HCD cases.
   final String? judgesName;
 
-  /// Called by the phone action, when supplied.
-  final VoidCallback? onPhone;
+  /// Localized case type, e.g. "Civil Suit".
+  final String caseType;
 
-  /// Called by the message action, when supplied.
-  final VoidCallback? onMessage;
+  /// Free-text case title or section the user typed, appended to the case type.
+  final String? caseTitleOrSection;
+
+  /// Case number as typed.
+  final String caseNumber;
+
+  /// Petitioner.
+  final String petitioner;
+
+  /// Respondent.
+  final String respondent;
+
+  /// On-behalf role of the user, resolved to the active language.
+  final String? onBehalf;
+
+  /// Last step, or the AD/HCD result when the screen shows that instead.
+  final String? step;
+
+  /// Notes / results free text.
+  final String? note;
+
+  /// The screen's own date for this case — next hearing date, previous hearing
+  /// date, or disposal date. `null` leaves the cell empty.
+  final String? date;
+
+  /// Whether this case is overdue: draws the red left strip and the red date.
+  final bool isOverdue;
 
   /// Called by the Update action, when supplied.
   final VoidCallback? onUpdate;
@@ -100,224 +329,176 @@ class CaseTableRow extends StatelessWidget {
   /// Called when the whole row is tapped (opens the case detail screen).
   final VoidCallback? onTap;
 
-  /// Whether the phone action is rendered.
-  final bool showPhoneButton;
-
-  /// Whether the message action is rendered.
-  final bool showMessageButton;
-
-  /// Whether the Update action is rendered.
-  final bool showUpdateButton;
-
-  /// Overrides the date label (e.g. "Previous Date" for overdue cases, or the
-  /// Disposed screen's "Disposed:").
-  final String? dateLabelOverride;
-
-  /// Whether this specific case's date is in the past (overdue). Drives the red
-  /// left strip and the red date text. The Overdue screen always sets this.
-  final bool isOverdue;
-
   /// Creates an extended-view case row.
   const CaseTableRow({
+    required this.widths,
+    required this.serial,
+    required this.caseType,
     required this.caseNumber,
-    required this.title,
-    this.variant = CaseCardVariant.list,
-    this.serial,
-    this.subtitle,
+    required this.petitioner,
+    required this.respondent,
     this.courtName,
-    this.statusLabel,
-    this.nextDate,
-    this.step,
-    this.result,
-    this.note,
     this.judgesName,
-    this.dateLabelOverride,
+    this.caseTitleOrSection,
+    this.onBehalf,
+    this.step,
+    this.note,
+    this.date,
     this.isOverdue = false,
-    this.onPhone,
-    this.onMessage,
     this.onUpdate,
     this.onTap,
-    this.showPhoneButton = true,
-    this.showMessageButton = true,
-    this.showUpdateButton = true,
     super.key,
   });
-
-  /// Whether the red urgency strip is drawn for this row.
-  bool get _showStrip => isOverdue || variant == CaseCardVariant.overdue;
-
-  bool get _hasContacts => showPhoneButton || showMessageButton;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final court = _join([courtName, judgesName]);
+    final type = _join([caseType, caseTitleOrSection]);
 
-    final content = IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (_showStrip)
-            Container(
-              key: const ValueKey('case-row-overdue-strip'),
-              width: 4,
-              color: AppColors.error,
-            ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.gutter),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (serial != null) ...[
-                    _SerialCell(serial: serial!, locale: l.localeName),
-                    const _RowDivider(),
-                  ],
-                  if (showUpdateButton) ...[
-                    _UpdateCell(l: l, onUpdate: onUpdate),
-                    const _RowDivider(),
-                  ],
-                  if (nextDate != null)
-                    _DetailCell(
-                      label:
-                          dateLabelOverride ??
-                          (isOverdue
-                              ? l.caseCard_previousDate
-                              : l.caseCard_nextDate),
-                      value: nextDate!,
-                      isOverdue: isOverdue,
-                    ),
-                  if (step != null || result != null)
-                    _DetailCell(
-                      label: step != null
-                          ? l.caseCard_lastStep
-                          : l.addEditCaseSheet_result,
-                      value: (step ?? result)!,
-                    ),
-                  Expanded(
-                    child: _CaseBlock(
-                      caseNumber: caseNumber,
-                      title: title,
-                      subtitle: subtitle,
-                      courtName: courtName,
-                      judgesName: judgesName,
-                      statusLabel: statusLabel,
-                      note: note,
-                      isOverdue: isOverdue,
-                      l: l,
-                    ),
-                  ),
-                  if (_hasContacts) ...[
-                    const _RowDivider(),
-                    _ContactCell(
-                      l: l,
-                      onPhone: onPhone,
-                      onMessage: onMessage,
-                      showPhoneButton: showPhoneButton,
-                      showMessageButton: showMessageButton,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+    final children = <Widget>[];
+    for (var i = 0; i < caseTableColumnOrder.length; i++) {
+      final column = caseTableColumnOrder[i];
+      children.add(
+        SizedBox(
+          width: widths[column],
+          child: KeyedSubtree(
+            key: ValueKey('case-table-cell-${column.name}'),
+            child: _cell(context, l, column, court: court, type: type),
           ),
-        ],
-      ),
-    );
-
-    // Same shape as [CaseCard]: the row follows the app-wide card radius token
-    // rather than the mockup's `rounded-r-xl`, and the overdue strip squares the
-    // left corners it is drawn against.
-    final radius = BorderRadius.only(
-      topLeft: Radius.circular(_showStrip ? 0 : AppSpacing.cardRadius),
-      bottomLeft: Radius.circular(_showStrip ? 0 : AppSpacing.cardRadius),
-      topRight: const Radius.circular(AppSpacing.cardRadius),
-      bottomRight: const Radius.circular(AppSpacing.cardRadius),
-    );
-
-    if (onTap == null) {
-      return Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLowest,
-          border: Border.all(color: AppColors.cardBorder),
-          borderRadius: radius,
         ),
-        child: content,
       );
+      if (i != caseTableColumnOrder.length - 1) {
+        children.add(const _RowDivider());
+      }
     }
 
-    return Material(
-      color: AppColors.surfaceContainerLowest,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: const BorderSide(color: AppColors.cardBorder),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(onTap: onTap, child: content),
+    return _TableFrame(
+      background: AppColors.surfaceContainerLowest,
+      roundedLeft: !isOverdue,
+      showStrip: isOverdue,
+      onTap: onTap,
+      child: IntrinsicHeight(child: Row(children: children)),
     );
   }
-}
 
-/// Wraps an extended-view body so its fixed columns always fit.
-///
-/// The mockup gives the table a 600 px minimum width and lets it scroll
-/// sideways rather than squeeze its columns; on a phone that is the only way a
-/// row stays readable, so the body is laid out at the wider of the viewport and
-/// [CaseTableRow.minWidth] inside a horizontal scroll view.
-class CaseTableBody extends StatelessWidget {
-  /// The vertically scrolling body (list, groups and rows) to wrap.
-  final Widget child;
-
-  /// Creates the extended-view body wrapper.
-  const CaseTableBody({required this.child, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth > CaseTableRow.minWidth
-            ? constraints.maxWidth
-            : CaseTableRow.minWidth;
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(width: width, child: child),
-        );
-      },
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Cells
-// ---------------------------------------------------------------------------
-
-/// The 1-based position of the case in the list, in the active language's
-/// digits.
-class _SerialCell extends StatelessWidget {
-  final int serial;
-  final String locale;
-
-  const _SerialCell({required this.serial, required this.locale});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: CaseTableRow._serialColumnWidth,
-      child: Center(
-        child: Text(
-          AppDateUtils.formatDigits(serial, locale),
-          key: const ValueKey('case-row-serial'),
+  Widget _cell(
+    BuildContext context,
+    AppLocalizations l,
+    CaseTableColumn column, {
+    required String court,
+    required String type,
+  }) {
+    switch (column) {
+      case CaseTableColumn.serial:
+        return _DataCell(
+          text: AppDateUtils.formatDigits(serial, l.localeName),
+          textKey: const ValueKey('case-row-serial'),
           style: AppTypography.labelLg.copyWith(
             color: AppColors.outline,
             fontWeight: FontWeight.w700,
           ),
-        ),
+          align: TextAlign.center,
+        );
+      case CaseTableColumn.update:
+        return _UpdateCell(l: l, onUpdate: onUpdate);
+      case CaseTableColumn.court:
+        return _DataCell(text: court, style: AppTypography.bodyMd);
+      case CaseTableColumn.caseType:
+        return _DataCell(text: type, style: AppTypography.bodyMd);
+      case CaseTableColumn.caseNumber:
+        return _DataCell(
+          text: caseNumber,
+          style: AppTypography.caseNumber.copyWith(
+            color: isOverdue ? AppColors.onSurface : AppColors.secondary,
+          ),
+        );
+      case CaseTableColumn.petitioner:
+        return _DataCell(
+          text: petitioner,
+          style: AppTypography.labelLg.copyWith(fontWeight: FontWeight.w600),
+        );
+      case CaseTableColumn.respondent:
+        return _DataCell(
+          text: respondent,
+          style: AppTypography.labelLg.copyWith(fontWeight: FontWeight.w600),
+        );
+      case CaseTableColumn.onBehalf:
+        return _DataCell(
+          text: onBehalf ?? '',
+          textKey: const ValueKey('case-row-status-label'),
+          style: AppTypography.labelMd,
+        );
+      case CaseTableColumn.step:
+        return _DataCell(text: step ?? '', style: AppTypography.labelLg);
+      case CaseTableColumn.note:
+        return _DataCell(
+          text: note ?? '',
+          textKey: const ValueKey('case-row-note'),
+          style: AppTypography.bodySm,
+        );
+      case CaseTableColumn.date:
+        return _DataCell(
+          text: date ?? '',
+          style: AppTypography.labelLg.copyWith(
+            color: isOverdue ? AppColors.error : AppColors.onSurface,
+            fontWeight: FontWeight.w700,
+          ),
+        );
+    }
+  }
+}
+
+/// Joins the parts that share one cell, skipping blanks.
+String _join(List<String?> parts) => parts
+    .map((part) => part?.trim() ?? '')
+    .where((part) => part.isNotEmpty)
+    .join(' · ');
+
+// ---------------------------------------------------------------------------
+// Cells and chrome
+// ---------------------------------------------------------------------------
+
+/// The fixed-width, single-line body of one column.
+///
+/// `maxLines: 1` with `softWrap: false` is the "each cell is one line" rule:
+/// a value too long for its column ellipsises rather than wrapping, and the
+/// user widens the column to read it.
+class _DataCell extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final TextAlign align;
+
+  /// Key placed on the value itself, so a test can read the rendered text.
+  final Key? textKey;
+
+  const _DataCell({
+    required this.text,
+    required this.style,
+    this.align = TextAlign.start,
+    this.textKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: align == TextAlign.center
+          ? Alignment.center
+          : Alignment.centerLeft,
+      child: Text(
+        text,
+        key: textKey,
+        style: style,
+        textAlign: align,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 }
 
-/// The bordered Update (edit) column the mockup gives every table row.
+/// The Update action, sized to the Update column.
 class _UpdateCell extends StatelessWidget {
   final AppLocalizations l;
   final VoidCallback? onUpdate;
@@ -326,266 +507,106 @@ class _UpdateCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: CaseTableRow._updateColumnWidth,
-      child: Center(
-        child: IconButton(
-          key: const ValueKey('case-row-update'),
-          tooltip: l.allCasesScreen_update,
-          onPressed: onUpdate,
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-            ),
+    return Center(
+      child: IconButton(
+        key: const ValueKey('case-row-update'),
+        tooltip: l.allCasesScreen_update,
+        onPressed: onUpdate,
+        style: IconButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
           ),
-          constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-          icon: const Icon(Icons.edit_outlined, size: 20),
         ),
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
+        padding: EdgeInsets.zero,
+        icon: const Icon(Icons.edit_outlined, size: 20),
       ),
     );
   }
 }
 
-/// A labelled detail column, the row's counterpart of the card's detail block.
-class _DetailCell extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isOverdue;
-
-  const _DetailCell({
-    required this.label,
-    required this.value,
-    this.isOverdue = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isOverdue ? AppColors.error : AppColors.onSurface;
-    return SizedBox(
-      width: CaseTableRow._detailColumnWidth,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTypography.labelMd.copyWith(color: color),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            value,
-            style: AppTypography.labelLg.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The case number, parties, court, judges and note — everything the card's
-/// heading and body lines carry.
-class _CaseBlock extends StatelessWidget {
-  final String caseNumber;
-  final String title;
-  final String? subtitle;
-  final String? courtName;
-  final String? judgesName;
-  final String? statusLabel;
-  final String? note;
-  final bool isOverdue;
-  final AppLocalizations l;
-
-  const _CaseBlock({
-    required this.caseNumber,
-    required this.title,
-    required this.subtitle,
-    required this.courtName,
-    required this.judgesName,
-    required this.statusLabel,
-    required this.note,
-    required this.isOverdue,
-    required this.l,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final trimmedNote = note?.trim();
-    final trimmedCourt = courtName?.trim();
-    final trimmedJudges = judgesName?.trim();
-    final courtLine = [
-      if (trimmedCourt != null && trimmedCourt.isNotEmpty) trimmedCourt,
-      if (trimmedJudges != null && trimmedJudges.isNotEmpty) trimmedJudges,
-    ].join(' · ');
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                caseNumber,
-                style: AppTypography.caseNumber.copyWith(
-                  color: isOverdue ? AppColors.onSurface : AppColors.secondary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (statusLabel != null) ...[
-              const SizedBox(width: AppSpacing.sm),
-              // Width-capped rather than flexible: the on-behalf label can be a
-              // user's own long role name, and the case number is the primary
-              // label, so the chip gives way (ellipsising) instead of pushing
-              // the number out or overflowing the row on a narrow screen.
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: CaseTableRow._statusLabelMaxWidth,
-                ),
-                child: Container(
-                  key: const ValueKey('case-row-status-label'),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainer,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  ),
-                  child: Text(
-                    statusLabel!,
-                    style: AppTypography.labelMd,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(title, style: AppTypography.titleMd, maxLines: 1),
-        if (subtitle != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(subtitle!, style: AppTypography.bodySm, maxLines: 1),
-        ],
-        if (courtLine.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(courtLine, style: AppTypography.bodySm, maxLines: 1),
-        ],
-        if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            '${l.addEditCaseSheet_note}: $trimmedNote',
-            key: const ValueKey('case-row-note'),
-            style: AppTypography.bodySm,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// The phone and message actions, stacked in their own trailing column.
-class _ContactCell extends StatelessWidget {
-  final AppLocalizations l;
-  final VoidCallback? onPhone;
-  final VoidCallback? onMessage;
-  final bool showPhoneButton;
-  final bool showMessageButton;
-
-  const _ContactCell({
-    required this.l,
-    required this.onPhone,
-    required this.onMessage,
-    required this.showPhoneButton,
-    required this.showMessageButton,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: CaseTableRow._contactColumnWidth,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (showPhoneButton)
-            _ContactButton(
-              tooltip: l.allCasesScreen_phone,
-              icon: Icons.call_outlined,
-              onPressed: onPhone,
-            ),
-          if (showPhoneButton && showMessageButton)
-            const SizedBox(height: AppSpacing.sm),
-          if (showMessageButton)
-            _ContactButton(
-              tooltip: l.allCasesScreen_message,
-              icon: Icons.chat_outlined,
-              onPressed: onMessage,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ContactButton extends StatelessWidget {
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  const _ContactButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      style: IconButton.styleFrom(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-        ),
-      ),
-      constraints: const BoxConstraints.tightFor(
-        width: CaseTableRow._iconButtonSize,
-        height: CaseTableRow._iconButtonSize,
-      ),
-      padding: EdgeInsets.zero,
-      icon: Icon(icon, size: 18),
-    );
-  }
-}
-
-/// The vertical rule between two row columns.
-///
-/// The rules are the table's structure, but three of them at [AppSpacing.md]
-/// each would cost more width than the case block can spare on the mockup's
-/// 600 px minimum, so they sit on the tighter gutter.
+/// The vertical rule between two row cells.
 class _RowDivider extends StatelessWidget {
   const _RowDivider();
 
   @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+  Widget build(BuildContext context) => const SizedBox(
+    width: caseTableDividerWidth,
+    child: Center(
       child: VerticalDivider(width: 1, color: AppColors.outlineVariant),
+    ),
+  );
+}
+
+/// Shared chrome of a header row and a data row.
+///
+/// Both reserve the same 4 px strip lane on the left and the same gutter inside
+/// the border, so their cells start at the same x. Only a data row paints the
+/// lane (red, when overdue).
+class _TableFrame extends StatelessWidget {
+  final Widget child;
+  final Color background;
+  final bool roundedLeft;
+  final bool showStrip;
+  final VoidCallback? onTap;
+
+  const _TableFrame({
+    required this.child,
+    required this.background,
+    required this.roundedLeft,
+    this.showStrip = false,
+    this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Row(
+      children: [
+        if (showStrip)
+          Container(
+            key: const ValueKey('case-row-overdue-strip'),
+            width: caseTableStripWidth,
+            color: AppColors.error,
+          )
+        else
+          const SizedBox(width: caseTableStripWidth),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.gutter),
+            child: child,
+          ),
+        ),
+      ],
+    );
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: _rowRadius(!roundedLeft),
+      ),
+      // The tap target sits inside the frame so the ink stays on top of the
+      // row's own background, and the row's card chrome is drawn once here
+      // rather than re-declared by the interactive and plain variants.
+      child: onTap == null
+          ? content
+          : Material(
+              color: Colors.transparent,
+              child: InkWell(onTap: onTap, child: content),
+            ),
     );
   }
 }
+
+/// The card corners: squared on the left when the red strip is drawn against
+/// them, rounded otherwise, and always rounded on the right — the shape the
+/// compact card uses.
+BorderRadius _rowRadius(bool squaredLeft) => BorderRadius.only(
+  topLeft: Radius.circular(squaredLeft ? 0 : AppSpacing.cardRadius),
+  bottomLeft: Radius.circular(squaredLeft ? 0 : AppSpacing.cardRadius),
+  topRight: const Radius.circular(AppSpacing.cardRadius),
+  bottomRight: const Radius.circular(AppSpacing.cardRadius),
+);

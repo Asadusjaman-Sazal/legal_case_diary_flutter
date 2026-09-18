@@ -34,6 +34,12 @@ class UserSettings {
   /// Whether each side navigation option is enabled.
   final Map<String, dynamic> sideNavOptions;
 
+  /// Per-column widths (logical pixels) the user dragged in the extended
+  /// ("table") case view, keyed by the column's stable id. Empty means the
+  /// built-in defaults, which is what an install that has never resized a
+  /// column gets.
+  final Map<String, double> caseTableColumnWidths;
+
   /// Default landing page route name.
   final String defaultLandingPage;
 
@@ -73,6 +79,7 @@ class UserSettings {
     ],
     this.bottomNavOrder = const [],
     this.sideNavOptions = const {},
+    this.caseTableColumnWidths = const {},
     this.defaultLandingPage = 'all_cases',
     this.notificationEnabled = false,
     this.notificationTime,
@@ -97,6 +104,7 @@ class UserSettings {
     bottomNavTabs: bottomNavTabs,
     bottomNavOrder: bottomNavOrder,
     sideNavOptions: sideNavOptions,
+    caseTableColumnWidths: caseTableColumnWidths,
     defaultLandingPage: defaultLandingPage,
     notificationEnabled: notificationEnabled,
     notificationTime: notificationTime,
@@ -117,6 +125,7 @@ class UserSettings {
     List<String>? bottomNavTabs,
     List<String>? bottomNavOrder,
     Map<String, dynamic>? sideNavOptions,
+    Map<String, double>? caseTableColumnWidths,
     String? defaultLandingPage,
     bool? notificationEnabled,
     int? notificationTime,
@@ -131,6 +140,7 @@ class UserSettings {
     bottomNavTabs: bottomNavTabs ?? this.bottomNavTabs,
     bottomNavOrder: bottomNavOrder ?? this.bottomNavOrder,
     sideNavOptions: sideNavOptions ?? this.sideNavOptions,
+    caseTableColumnWidths: caseTableColumnWidths ?? this.caseTableColumnWidths,
     defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
     notificationEnabled: notificationEnabled ?? this.notificationEnabled,
     notificationTime: notificationTime ?? this.notificationTime,
@@ -151,6 +161,7 @@ class UserSettings {
     'bottom_nav_tabs': bottomNavTabs,
     'bottom_nav_order': bottomNavOrder,
     'side_nav_options': sideNavOptions,
+    'case_table_column_widths': caseTableColumnWidths,
     'default_landing_page': defaultLandingPage,
     'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
@@ -187,6 +198,7 @@ class UserSettings {
         ? rawTabs.cast<String>()
         : const ['overdue', 'daily_cause_list', 'active', 'upcoming'];
     final rawOrder = json['bottom_nav_order'];
+    final rawWidths = json['case_table_column_widths'];
 
     return UserSettings(
       upcomingCasesPeriod:
@@ -199,6 +211,13 @@ class UserSettings {
           : const [],
       sideNavOptions: json['side_nav_options'] is Map<String, dynamic>
           ? json['side_nav_options'] as Map<String, dynamic>
+          : const {},
+      caseTableColumnWidths: rawWidths is Map
+          ? {
+              for (final entry in rawWidths.entries)
+                if (entry.value is num)
+                  '${entry.key}': (entry.value as num).toDouble(),
+            }
           : const {},
       defaultLandingPage:
           json['default_landing_page'] as String? ?? 'all_cases',

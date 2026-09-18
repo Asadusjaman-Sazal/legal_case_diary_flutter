@@ -48,6 +48,22 @@ Future<void> setCaseListViewMode(WidgetRef ref, {required bool compact}) async {
   ref.invalidate(settingsViewModelProvider);
 }
 
+/// Persists the extended view's column widths after a resize drag.
+///
+/// Same read-modify-write contract as [setCaseListViewMode]: the whole stored
+/// row is read back first so no other preference can be dropped, and the
+/// settings ViewModel is invalidated so the Settings screens keep showing the
+/// row that was just written.
+Future<void> setCaseTableColumnWidths(
+  WidgetRef ref,
+  Map<String, double> widths,
+) async {
+  final repo = await ref.read(settingsRepositoryProvider.future);
+  final current = await repo.getSettings();
+  await repo.upsertSettings(current.copyWith(caseTableColumnWidths: widths));
+  ref.invalidate(settingsViewModelProvider);
+}
+
 /// The live compact ↔ extended selection, safe to read during a build.
 ///
 /// Defaults to the compact view until the stream's first emission, which is the

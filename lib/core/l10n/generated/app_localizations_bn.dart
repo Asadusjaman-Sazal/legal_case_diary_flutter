@@ -105,6 +105,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseCard_disposed => 'নিষ্পত্তিকৃত:';
 
   @override
+  String get caseTable_serial => 'ক্রমিক';
+
+  @override
+  String get caseTable_disposed => 'নিষ্পত্তিকৃত';
+
+  @override
   String get activeCasesScreen_title => 'সক্রিয় মামলা';
 
   @override

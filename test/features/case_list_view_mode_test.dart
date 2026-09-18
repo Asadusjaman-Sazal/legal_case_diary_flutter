@@ -345,7 +345,7 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('the grouped lists keep their headings and carry no serial', (
+  testWidgets('the grouped lists keep their headings and number their rows', (
     WidgetTester tester,
   ) async {
     await setStoredMode('expanded');
@@ -364,45 +364,56 @@ void main() {
 
     await pumpScreen(tester, const DailyCauseListScreen());
     expect(find.byType(CaseTableRow), findsOneWidget);
-    expect(find.byKey(serialKey), findsNothing);
+    expect(renderedSerials(tester), <String>['1']);
+    // The court sub-heading still sits above the rows, under the header row.
+    expect(find.textContaining('Joint District Judge'), findsWidgets);
     await unmount(tester);
 
     await pumpScreen(tester, const UpcomingCasesScreen());
     expect(find.byType(CaseTableRow), findsOneWidget);
-    expect(find.byKey(serialKey), findsNothing);
+    expect(renderedSerials(tester), <String>['1']);
     await unmount(tester);
 
     await pumpScreen(tester, const OverdueDatesScreen());
     expect(find.byType(CaseTableRow), findsOneWidget);
-    expect(find.byKey(serialKey), findsNothing);
+    expect(renderedSerials(tester), <String>['1']);
     // The overdue urgency strip follows the row into the extended view.
     expect(
       find.byKey(const ValueKey('case-row-overdue-strip')),
       findsOneWidget,
     );
+    // And this screen names its date column for the past: Previous Date.
+    expect(find.text('Previous Date'), findsOneWidget);
+    expect(find.text('Next Date'), findsNothing);
     await unmount(tester);
   });
 
-  testWidgets('an extended row keeps every field and action of the card', (
+  testWidgets('an extended row shows one data column per field', (
     WidgetTester tester,
   ) async {
     await setStoredMode('expanded');
     await seedCase(
       id: 'CASE-1',
-      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
+      caseNumber: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
       lastStep: 'Arrival',
       notesResults: 'Adjournment sought',
     );
     await pumpScreen(tester, const AllCasesScreen());
 
-    // Full parity: the Update action, both contact actions, the court line and
-    // the note the compact card shows are all still here.
+    // One column per field, and no per-cell labels: each value appears once.
     expect(find.byKey(const ValueKey('case-row-update')), findsOneWidget);
-    expect(find.byIcon(Icons.call_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.chat_outlined), findsOneWidget);
     expect(find.textContaining(courtName), findsWidgets);
     expect(find.byKey(const ValueKey('case-row-note')), findsOneWidget);
-    expect(find.textContaining('Adjournment sought'), findsOneWidget);
+    expect(find.text('Adjournment sought'), findsOneWidget);
+    expect(find.text('Md. Rahim Uddin'), findsOneWidget);
+    expect(find.text('Bangladesh Government'), findsOneWidget);
+    expect(find.text('CASE-1'), findsOneWidget);
+    // The table view drops the card's phone and message actions, per the
+    // requested column list; they stay on the compact card and the detail
+    // screen.
+    expect(find.byIcon(Icons.call_outlined), findsNothing);
+    expect(find.byIcon(Icons.chat_outlined), findsNothing);
 
     await unmount(tester);
   });
@@ -448,6 +459,199 @@ void main() {
         .map((view) => view.scrollDirection);
     expect(directions, contains(Axis.horizontal));
     expect(tester.takeException(), isNull);
+
+    await unmount(tester);
+  });
+
+  testWidgets('the table has one header row naming the columns in order', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    expect(find.byKey(const ValueKey('case-table-header')), findsOneWidget);
+
+    // The requested column order, left to right.
+    const order = <String>[
+      'serial',
+      'update',
+      'court',
+      'caseType',
+      'caseNumber',
+      'petitioner',
+      'respondent',
+      'onBehalf',
+      'step',
+      'note',
+      'date',
+    ];
+    var previous = double.negativeInfinity;
+    for (final column in order) {
+      final finder = find.byKey(ValueKey('case-table-header-$column'));
+      expect(finder, findsOneWidget, reason: column);
+      final dx = tester.getTopLeft(finder).dx;
+      expect(dx, greaterThan(previous), reason: column);
+      previous = dx;
+      // Each header cell sits exactly over its data column, which is why the
+      // rows carry no labels of their own.
+      expect(
+        dx,
+        closeTo(
+          tester.getTopLeft(find.byKey(ValueKey('case-table-cell-$column'))).dx,
+          0.01,
+        ),
+        reason: column,
+      );
+    }
+
+    // The header names every column once; the rows show values only. The
+    // labels are read inside the header, since a value can repeat a word (the
+    // seeded on-behalf role here is literally "Petitioner").
+    final header = find.byKey(const ValueKey('case-table-header'));
+    for (final label in <String>[
+      'Serial',
+      'Update',
+      'Name of Court',
+      'Case Type',
+      'Case Number',
+      'Petitioner',
+      'Respondent',
+      'On Behalf',
+      'Step',
+      'Note',
+      'Next Date',
+    ]) {
+      expect(
+        find.descendant(of: header, matching: find.text(label)),
+        findsOneWidget,
+        reason: label,
+      );
+    }
+
+    await unmount(tester);
+  });
+
+  testWidgets('every table cell shows its data in a single line', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    // A long on-behalf role and a long note: neither may wrap the cell.
+    const longRoleId = 'view-mode-long-role';
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          const OnBehalfsCompanion(
+            id: Value(longRoleId),
+            courtCategoryId: Value(categoryId),
+            name: Value('Opposite Party (Informant)'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await seedCase(
+      id: 'CASE-1',
+      onBehalfId: longRoleId,
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      lastStep: 'Arrival',
+      notesResults: 'Adjournment sought and costs reserved for the next day',
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    final cells = find.byWidgetPredicate(
+      (widget) =>
+          widget is KeyedSubtree &&
+          widget.key is ValueKey<String> &&
+          (widget.key! as ValueKey<String>).value.startsWith(
+            'case-table-cell-',
+          ),
+    );
+    expect(cells, findsNWidgets(caseTableColumnOrder.length));
+    final texts = tester.widgetList<Text>(
+      find.descendant(of: cells, matching: find.byType(Text)),
+    );
+    expect(texts, isNotEmpty);
+    for (final text in texts) {
+      expect(text.maxLines, 1);
+      expect(text.softWrap, isFalse);
+      expect(text.overflow, TextOverflow.ellipsis);
+    }
+
+    await unmount(tester);
+  });
+
+  testWidgets('dragging a header rule resizes the column and stores it', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    final courtCell = find.byKey(const ValueKey('case-table-cell-court'));
+    final before = tester.getSize(courtCell).width;
+    final defaults = resolveCaseTableWidths(const {});
+    expect(before, defaults[CaseTableColumn.court]);
+
+    await tester.drag(
+      find.byKey(const ValueKey('case-table-resize-court')),
+      const Offset(80, 0),
+    );
+    await settle(tester);
+
+    // The column grew on screen, and the size was written to the user's
+    // settings — nothing else in the settings row was disturbed.
+    final after = tester.getSize(courtCell).width;
+    expect(after, greaterThan(before));
+    final stored = (await settings.getSettings()).caseTableColumnWidths;
+    expect(stored['court'], greaterThan(defaults[CaseTableColumn.court]!));
+    expect(after, closeTo(stored['court']!, 0.01));
+
+    // A later visit opens at the size the user left it in.
+    await unmount(tester);
+    await pumpScreen(tester, const AllCasesScreen());
+    expect(
+      tester.getSize(find.byKey(const ValueKey('case-table-cell-court'))).width,
+      closeTo(stored['court']!, 0.01),
+    );
+
+    await unmount(tester);
+  });
+
+  testWidgets('a stored column width is used and a corrupt one is clamped', (
+    WidgetTester tester,
+  ) async {
+    final current = await settings.getSettings();
+    await settings.upsertSettings(
+      current.copyWith(
+        caseListDisplayMode: 'expanded',
+        caseTableColumnWidths: const <String, double>{
+          'note': 320,
+          // Far below the column's floor, and a column that no longer exists.
+          'step': 1,
+          'removed-column': 200,
+        },
+      ),
+    );
+    await seedCase(
+      id: 'CASE-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    expect(
+      tester.getSize(find.byKey(const ValueKey('case-table-cell-note'))).width,
+      320,
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('case-table-cell-step'))).width,
+      caseTableMinColumnWidth(CaseTableColumn.step),
+    );
 
     await unmount(tester);
   });

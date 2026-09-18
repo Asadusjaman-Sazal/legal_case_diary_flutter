@@ -106,6 +106,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseCard_disposed => 'Disposed:';
 
   @override
+  String get caseTable_serial => 'Serial';
+
+  @override
+  String get caseTable_disposed => 'Disposed';
+
+  @override
   String get activeCasesScreen_title => 'Active Cases';
 
   @override

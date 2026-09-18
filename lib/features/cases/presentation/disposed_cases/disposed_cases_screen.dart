@@ -27,6 +27,7 @@ import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_table_row.dart';
 import '../case_list_view_mode.dart';
 import '../case_search.dart';
+import '../case_table_view.dart';
 import '../cases_screen_modal.dart';
 import 'disposed_help_dialog.dart';
 
@@ -256,7 +257,9 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       );
     }
 
-    final list = RefreshIndicator(
+    // [widths] is set only in the extended view, where the table's columns
+    // decide each cell's width; the compact list keeps the cards.
+    Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -267,14 +270,26 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
           final court = _courtsById[currentCase.courtId];
           // Serial numbers are this screen's own running order: searching
           // renumbers the visible list from 1.
-          return extended
-              ? _buildCaseRow(context, l, currentCase, court, index + 1)
-              : _buildCaseCard(context, l, currentCase, court);
+          return widths == null
+              ? _buildCaseCard(context, l, currentCase, court)
+              : _buildCaseRow(
+                  context,
+                  l,
+                  currentCase,
+                  court,
+                  index + 1,
+                  widths,
+                );
         },
       ),
     );
 
-    return extended ? CaseTableBody(child: list) : list;
+    return extended
+        ? CaseTableView(
+            dateLabel: l.caseTable_disposed,
+            builder: (_, widths) => buildList(widths),
+          )
+        : buildList(null);
   }
 
   /// The compact disposed card for [currentCase].
@@ -325,20 +340,22 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     );
   }
 
-  /// The extended-view row for [currentCase]; [serial] is its 1-based position.
-  /// Carries the same values as the disposed card, laid out horizontally.
+  /// The extended-view row for [currentCase]; [serial] is its 1-based position
+  /// and [widths] the table's current column widths. One column per field, so
+  /// the row carries every value the disposed card shows.
   Widget _buildCaseRow(
     BuildContext context,
     AppLocalizations l,
     Case currentCase,
     Court? court,
     int serial,
+    Map<CaseTableColumn, double> widths,
   ) {
     final isHigherCourt =
         court?.courtCategoryId == appellateDivisionId ||
         court?.courtCategoryId == highCourtDivisionId;
-    // The disposal is whichever of the two the card would have shown, keeping
-    // its own label (a seeded Step vs an AD/HCD free-text Result).
+    // The disposal is whichever of the two the card would have shown (a seeded
+    // Step vs an AD/HCD free-text Result).
     final hasStep = currentCase.lastStep?.trim().isNotEmpty == true;
     final stepOrResult = hasStep
         ? context.l10n.stepNames(
@@ -356,22 +373,23 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
           );
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
+      widths: widths,
       serial: serial,
-      caseNumber:
-          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
-      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
-      subtitle: currentCase.caseTitleAndSection,
       courtName: court == null
           ? null
           : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
-      nextDate: disposedDate,
-      dateLabelOverride: l.caseCard_disposed,
-      step: hasStep ? stepOrResult : null,
-      result: hasStep ? null : stepOrResult,
+      caseType: context.l10n.caseTypeLabel(
+        currentCase.caseType,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      caseTitleOrSection: currentCase.caseTitleAndSection,
+      caseNumber: currentCase.caseNumber,
+      petitioner: currentCase.petitioner,
+      respondent: currentCase.respondent,
+      date: disposedDate,
+      step: stepOrResult,
       note: currentCase.notesResults,
-      onPhone: () => _launchPartyAction(currentCase, message: false),
-      onMessage: () => _launchPartyAction(currentCase, message: true),
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );

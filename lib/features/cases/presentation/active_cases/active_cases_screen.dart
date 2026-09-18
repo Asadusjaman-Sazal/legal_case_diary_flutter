@@ -27,6 +27,7 @@ import '../../../../shared/widgets/case_card.dart';
 import '../../../../shared/widgets/case_table_row.dart';
 import '../case_list_view_mode.dart';
 import '../case_search.dart';
+import '../case_table_view.dart';
 import '../cases_screen_modal.dart';
 
 enum _ContactActionTarget { whatsApp, phone, message }
@@ -266,7 +267,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       );
     }
 
-    final list = RefreshIndicator(
+    // [widths] is set only in the extended view, where the table's columns
+    // decide each cell's width; the compact list keeps the cards.
+    Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -277,14 +280,19 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
           final court = _courtsById[currentCase.courtId];
           // Serial numbers are this screen's own running order: searching
           // renumbers the visible list from 1.
-          return extended
-              ? _buildCaseRow(currentCase, court, index + 1, l)
-              : _buildCaseCard(currentCase, court, l);
+          return widths == null
+              ? _buildCaseCard(currentCase, court, l)
+              : _buildCaseRow(currentCase, court, index + 1, l, widths);
         },
       ),
     );
 
-    return extended ? CaseTableBody(child: list) : list;
+    return extended
+        ? CaseTableView(
+            dateLabel: l.caseCard_nextDate,
+            builder: (_, widths) => buildList(widths),
+          )
+        : buildList(null);
   }
 
   /// The compact card for [currentCase].
@@ -335,13 +343,15 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     );
   }
 
-  /// The extended-view row for [currentCase]; [serial] is its 1-based position.
-  /// Carries the same values as [_buildCaseCard], laid out horizontally.
+  /// The extended-view row for [currentCase]; [serial] is its 1-based position
+  /// and [widths] the table's current column widths. One column per field, so
+  /// the row carries every value [_buildCaseCard] shows.
   Widget _buildCaseRow(
     Case currentCase,
     Court? court,
     int serial,
     AppLocalizations l,
+    Map<CaseTableColumn, double> widths,
   ) {
     final isHigherCourt =
         court?.courtCategoryId == appellateDivisionId ||
@@ -351,22 +361,26 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         currentCase.nextDate! < AppDateUtils.bangladeshTodayStartOfDay();
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
-      variant: CaseCardVariant.list,
+      widths: widths,
       serial: serial,
-      caseNumber:
-          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
-      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
-      subtitle: currentCase.caseTitleAndSection,
       courtName: court == null
           ? null
           : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
-      statusLabel: context.l10n.onBehalfLabel(
+      caseType: context.l10n.caseTypeLabel(
+        currentCase.caseType,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      caseTitleOrSection: currentCase.caseTitleAndSection,
+      caseNumber: currentCase.caseNumber,
+      petitioner: currentCase.petitioner,
+      respondent: currentCase.respondent,
+      onBehalf: context.l10n.onBehalfLabel(
         currentCase.onBehalfId,
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       isOverdue: isOverdue,
-      nextDate: currentCase.nextDate == null
+      date: currentCase.nextDate == null
           ? null
           : DateFormat(
               'dd/MM/yy, EEE',
@@ -376,12 +390,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
-      result: currentCase.result,
       note: currentCase.notesResults,
-      showPhoneButton: true,
-      showMessageButton: true,
-      onPhone: () => _launchPartyAction(currentCase, message: false),
-      onMessage: () => _launchPartyAction(currentCase, message: true),
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );

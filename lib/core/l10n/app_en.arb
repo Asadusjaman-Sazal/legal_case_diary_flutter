@@ -35,6 +35,8 @@
   "allCasesScreen_unableToMessage": "Unable to open messages.",
   "allCasesScreen_update": "Update",
   "caseCard_disposed": "Disposed:",
+  "caseTable_serial": "Serial",
+  "caseTable_disposed": "Disposed",
   "@@_section_activeCasesScreen": "ACTIVE CASES SCREEN  |  lib/features/cases/presentation/active_cases/active_cases_screen.dart",
   "activeCasesScreen_title": "Active Cases",
   "@@_section_upcomingCasesScreen": "UPCOMING CASES SCREEN  |  lib/features/cases/presentation/upcoming_cases/upcoming_cases_screen.dart",

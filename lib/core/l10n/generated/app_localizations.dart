@@ -290,6 +290,18 @@ abstract class AppLocalizations {
   /// **'Disposed:'**
   String get caseCard_disposed;
 
+  /// No description provided for @caseTable_serial.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial'**
+  String get caseTable_serial;
+
+  /// No description provided for @caseTable_disposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Disposed'**
+  String get caseTable_disposed;
+
   /// No description provided for @activeCasesScreen_title.
   ///
   /// In en, this message translates to:

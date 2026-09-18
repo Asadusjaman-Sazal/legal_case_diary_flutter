@@ -35,6 +35,8 @@
   "allCasesScreen_unableToMessage": "বার্তা খোলা যায়নি।",
   "allCasesScreen_update": "আপডেট",
   "caseCard_disposed": "নিষ্পত্তিকৃত:",
+  "caseTable_serial": "ক্রমিক",
+  "caseTable_disposed": "নিষ্পত্তিকৃত",
   "@@_section_activeCasesScreen": "ACTIVE CASES SCREEN  |  lib/features/cases/presentation/active_cases/active_cases_screen.dart",
   "activeCasesScreen_title": "সক্রিয় মামলা",
   "@@_section_upcomingCasesScreen": "UPCOMING CASES SCREEN  |  lib/features/cases/presentation/upcoming_cases/upcoming_cases_screen.dart",

@@ -315,6 +315,26 @@ void main() {
       expect(const UserSettings().bottomNavOrder, isEmpty);
     });
 
+    test('UserSettings round-trips the extended view column widths', () {
+      const saved = UserSettings(
+        caseTableColumnWidths: <String, double>{'court': 260.5, 'note': 180},
+      );
+
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          viewSettingsJson: jsonEncode(saved.toJson()),
+          updatedAt: 1,
+        ),
+      );
+
+      expect(restored.caseTableColumnWidths, saved.caseTableColumnWidths);
+      // An install that never dragged a column stores nothing, which the table
+      // reads as "use the built-in defaults".
+      expect(const UserSettings().caseTableColumnWidths, isEmpty);
+    });
+
     test('UserSettings falls back safely for malformed view JSON', () {
       final settings = UserSettings.fromRow(
         const UserPreference(

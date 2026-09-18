@@ -57,6 +57,10 @@ Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/C
 
 **Phase 4 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
+### Phase 4 — refinements
+
+- **0.0.201** — The court heading's case count is the number alone, in the active language's digits, matching the Daily Cause List and Upcoming Cases court titles: it was `'${group.cases.length} Cases'` (ASCII count plus a hard-coded English word, no ARB key, so বাংলা read `2 Cases`) and is now `AppDateUtils.formatDigits(group.cases.length, l.localeName)` (`2` in English, `২` in বাংলা). No ARB key was needed because the word is gone. (`overdue_dates_screen.dart` only; grouping, ordering, the court-name seed lookup and the cards are unchanged.)
+
 ## Phase 5 — Disposed Cases Screen
 
 1. Body from `disposedCases\code.html`. **No Add Case FAB on this screen** (a disposed case is not created here). The mockup's bottom-right FAB is a **Help FAB** (`help_outline` icon) — see item 5.

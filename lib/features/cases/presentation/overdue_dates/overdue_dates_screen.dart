@@ -369,7 +369,14 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${group.cases.length} Cases',
+                                  // The hearing count alone, in the active
+                                  // language's digits, exactly like the Daily
+                                  // Cause List and Upcoming Cases court titles
+                                  // (বাংলা reads ২, not 2 Cases).
+                                  AppDateUtils.formatDigits(
+                                    group.cases.length,
+                                    l.localeName,
+                                  ),
                                   style: Theme.of(context).textTheme.labelMedium
                                       ?.copyWith(
                                         color: Theme.of(

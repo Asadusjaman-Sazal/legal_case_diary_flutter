@@ -1,3 +1,10 @@
+### 2026-09-18 — Overdue Dates: the court case count is the number alone, localized — COMPLETE
+
+- **What was wrong.** The court heading printed `'${group.cases.length} Cases'` — an ASCII count plus a hard-coded English word with no ARB key — so the row read `2 Cases` even under বাংলা, and it did not match the Daily Cause List and Upcoming Cases court titles, which show the number alone. (This is the gap flagged in the 0.0.188 entry below.)
+- **The fix.** It now renders `AppDateUtils.formatDigits(group.cases.length, l.localeName)`, the same call those two screens make, so English reads `2` and বাংলা reads `২`. No ARB key was needed: dropping the word removes the last hard-coded English text on the screen. Nothing else on the screen changed — the grouping, ordering, court-name seed lookup, cards and Last Updated line are untouched.
+- **Tests:** `overdue_dates_test.dart` is 4 — two overdue cases in one court show the English `2` with `2 Cases` asserted absent, and the same count under `Locale('bn')` is `২` with the ASCII `2` gone. `flutter analyze` clean; 321 passed, 2 skipped. Version `0.0.201`.
+- **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
+
 ### 2026-09-18 — View Settings: the Bottom Navigation order is remembered — COMPLETE
 
 - **What was wrong.** The dropdown re-seeded its rows from the canonical `bottomNavTabDefs` order every time it opened. A drag did take effect in the cases screen — it rewrote `bottom_nav_tabs`, which the bar renders — but the dropdown showed the original list again, so the reorder looked forgotten.
@@ -96,7 +103,7 @@
 - **Format matches the mockup.** `Last updated: Thursday, 04/06/26, 10:45 AM` → `DateFormat('EEEE, dd/MM/yy, hh:mm a', l.localeName)` over `AppDateUtils.bangladeshDateTime(epoch)`, so বাংলা reads `সর্বশেষ আপডেট: বৃহস্পতিবার, ০৪/০৬/২৬, ১০:৪৫ AM` (Bengali weekday, Bengali numerals). The label stays the existing `overdueDatesScreen_lastUpdated` key — no ARB change.
 - **Layout:** the text now sits in an `Expanded` so the longer localized line wraps instead of overflowing on a 320 px screen; the test pumps that width in Bengali.
 - **Tests:** new `test/features/overdue_dates_test.dart` (3 tests) — the newest **listed** case wins over a newer case that is not overdue, the line reads the exact English and Bengali strings, and it is absent when the list is empty. Replacing the stamp with `DateTime.now()` fails the two string tests, so they are real guards. `flutter analyze` clean; `flutter test` **291 passed, 2 skipped**. Version `0.0.188`.
-- **Flagged, not changed:** the court group heading in the same screen still reads `'${group.cases.length} Cases'` — an ASCII count plus a hard-coded English word with no ARB key, so it stays `2 Cases` under বাংলা. Out of this round’s scope; one `formatDigits` call plus a new key would fix it.
+- **Flagged, not changed here:** the court group heading in the same screen read `'${group.cases.length} Cases'` — an ASCII count plus a hard-coded English word with no ARB key, so it stayed `2 Cases` under বাংলা. Out of this round’s scope; **fixed in 0.0.201** with one `formatDigits` call and no new key (the word is gone, so only the number is drawn).
 - **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
 
 ### 2026-09-17 — Daily Cause List FAB + localized calendar numbers — COMPLETE

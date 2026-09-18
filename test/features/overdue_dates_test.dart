@@ -188,6 +188,36 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the court title counts the cases in the active language', (
+    WidgetTester tester,
+  ) async {
+    final yesterday = AppDateUtils.bangladeshTodayStartOfDay() - 86400000;
+    await seedCase(
+      id: 'OVERDUE-1',
+      nextDateMs: yesterday,
+      updatedAtMs: overdueUpdatedAt,
+    );
+    await seedCase(
+      id: 'OVERDUE-2',
+      nextDateMs: yesterday,
+      updatedAtMs: overdueUpdatedAt,
+    );
+    await pumpScreen(tester);
+
+    // The number alone, the way the Daily Cause List and Upcoming Cases titles
+    // read it — not the "2 Cases" this screen used to print.
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text('2 Cases'), findsNothing);
+
+    await unmount(tester);
+    // বাংলা writes the same count in Bengali digits.
+    await pumpScreen(tester, locale: const Locale('bn'));
+    expect(find.text('২'), findsOneWidget);
+    expect(find.text('2'), findsNothing);
+
+    await unmount(tester);
+  });
+
   testWidgets('the status line uses the active language', (
     WidgetTester tester,
   ) async {

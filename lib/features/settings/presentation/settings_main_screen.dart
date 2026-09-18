@@ -12,10 +12,9 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
-import '../../../core/providers/repository_providers.dart';
+import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
-import '../../settings/data/settings_repository.dart';
 
 /// A single navigable settings entry within a section.
 class _SettingsItem {
@@ -50,13 +49,6 @@ class SettingsMainScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<SettingsMainScreen> createState() => _SettingsMainScreenState();
 }
-
-/// Watches the live [UserSettings] stream so the navigation drawer's
-/// [sideNavOptions] stay in sync without re-creating a Future on rebuild.
-final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
-  final repo = await ref.watch(settingsRepositoryProvider.future);
-  yield* repo.watchSettings();
-});
 
 class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
   /// Live search query used to filter settings items.
@@ -166,7 +158,9 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
     final query = _searchController.text;
     final visible = _filteredSections(l, query);
 
-    final settingsAsync = ref.watch(_userSettingsProvider);
+    // The shared live settings stream keeps the navigation drawer's
+    // [sideNavOptions] in sync without re-creating a Future on rebuild.
+    final settingsAsync = ref.watch(userSettingsStreamProvider);
     final sideNavOptions = settingsAsync.value?.sideNavOptions ?? const {};
     final currentRoute = GoRouterState.of(context).uri.path;
 

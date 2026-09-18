@@ -25,6 +25,8 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../../../../shared/widgets/case_table_row.dart';
+import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
@@ -298,6 +300,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The compact ↔ extended choice is the shared stored preference, so the
+    // header toggle and Settings → View Settings always agree.
+    final extended = watchCaseListExtendedView(ref);
     return CasesScreenModal(
       title: l.upcomingCasesScreen_title,
       onAddCase: _openAddCase,
@@ -305,11 +310,17 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      body: _buildBody(context, l),
+      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      isCompactView: !extended,
+      body: _buildBody(context, l, extended: extended),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l) {
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l, {
+    required bool extended,
+  }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -334,7 +345,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       );
     }
 
-    return RefreshIndicator(
+    final list = RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -384,7 +395,11 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
               for (final courtGroup in group.courtGroups) ...[
                 _buildCourtTitle(courtGroup, l),
                 for (final currentCase in courtGroup.cases) ...[
-                  _buildCard(currentCase, l),
+                  // Grouped screens keep their court headers and use no serial
+                  // numbers: the grouping is the position cue here.
+                  extended
+                      ? _buildRow(currentCase, l)
+                      : _buildCard(currentCase, l),
                   const SizedBox(height: AppSpacing.md),
                 ],
               ],
@@ -393,6 +408,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         },
       ),
     );
+
+    return extended ? CaseTableBody(child: list) : list;
   }
 
   /// The court title above a group of cards, styled like the Daily Cause List
@@ -447,6 +464,47 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       alignStatusLabelRight: true,
+      nextDate: currentCase.nextDate == null
+          ? null
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      result: currentCase.result,
+      note: currentCase.notesResults,
+      showPhoneButton: true,
+      showMessageButton: true,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
+  }
+
+  /// The extended-view row for [currentCase]: same values as [_buildCard], laid
+  /// out horizontally and without a serial number (this screen groups by date).
+  Widget _buildRow(Case currentCase, AppLocalizations l) {
+    final court = _courtsById[currentCase.courtId];
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    return CaseTableRow(
+      key: ValueKey('case-row-${currentCase.id}'),
+      variant: CaseCardVariant.dailyCauseList,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      courtName: null, // Shown in the court title above the row.
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
       nextDate: currentCase.nextDate == null
           ? null
           : DateFormat(

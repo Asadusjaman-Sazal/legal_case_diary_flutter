@@ -25,6 +25,8 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../../../../shared/widgets/case_table_row.dart';
+import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
@@ -273,6 +275,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The compact ↔ extended choice is the shared stored preference, so the
+    // header toggle and Settings → View Settings always agree.
+    final extended = watchCaseListExtendedView(ref);
     return CasesScreenModal(
       title: l.overdueDatesScreen_title,
       onAddCase: _openAddCase,
@@ -280,11 +285,17 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      body: _buildBody(context, l),
+      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      isCompactView: !extended,
+      body: _buildBody(context, l, extended: extended),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l) {
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l, {
+    required bool extended,
+  }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -302,6 +313,65 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     final groups = _courtGroups(l);
 
     final lastUpdatedAt = _lastUpdatedAt;
+
+    final list = RefreshIndicator(
+      onRefresh: _loadCases,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: groups.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, groupIndex) {
+          final group = groups[groupIndex];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Row(
+                  children: [
+                    const Icon(Icons.account_balance, size: 18),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        // Pre-seeded courts store their English
+                        // name, so the heading is resolved through
+                        // the seed lookup to follow the language.
+                        context.l10n.seedLabel(
+                          group.court.id,
+                          fallbackEn: group.court.courtName,
+                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    Text(
+                      // The hearing count alone, in the active
+                      // language's digits, exactly like the Daily
+                      // Cause List and Upcoming Cases court titles
+                      // (বাংলা reads ২, not 2 Cases).
+                      AppDateUtils.formatDigits(
+                        group.cases.length,
+                        l.localeName,
+                      ),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              for (final currentCase in group.cases) ...[
+                // Grouped screens keep their court headers and use no serial
+                // numbers: the grouping is the position cue here.
+                extended
+                    ? _buildRow(currentCase, l)
+                    : _buildCard(currentCase, l),
+                const SizedBox(height: AppSpacing.md),
+              ],
+            ],
+          );
+        },
+      ),
+    );
 
     return Column(
       children: [
@@ -334,68 +404,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
                 )
-              : RefreshIndicator(
-                  onRefresh: _loadCases,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: groups.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: AppSpacing.md),
-                    itemBuilder: (context, groupIndex) {
-                      final group = groups[groupIndex];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.sm,
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.account_balance, size: 18),
-                                const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    // Pre-seeded courts store their English
-                                    // name, so the heading is resolved through
-                                    // the seed lookup to follow the language.
-                                    context.l10n.seedLabel(
-                                      group.court.id,
-                                      fallbackEn: group.court.courtName,
-                                    ),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
-                                  ),
-                                ),
-                                Text(
-                                  // The hearing count alone, in the active
-                                  // language's digits, exactly like the Daily
-                                  // Cause List and Upcoming Cases court titles
-                                  // (বাংলা reads ২, not 2 Cases).
-                                  AppDateUtils.formatDigits(
-                                    group.cases.length,
-                                    l.localeName,
-                                  ),
-                                  style: Theme.of(context).textTheme.labelMedium
-                                      ?.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.outline,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          for (final currentCase in group.cases) ...[
-                            _buildCard(currentCase, l),
-                            const SizedBox(height: AppSpacing.md),
-                          ],
-                        ],
-                      );
-                    },
-                  ),
-                ),
+              : (extended ? CaseTableBody(child: list) : list),
         ),
       ],
     );
@@ -422,6 +431,51 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       ),
       alignStatusLabelRight: true,
       isOverdue: true, // Always overdue; black case number, red stripe + date.
+      nextDate: currentCase.nextDate == null
+          ? null
+          : AppDateUtils.formatDisplayDate(
+              currentCase.nextDate!,
+              todayLabel: l.caseCard_previousDate,
+              tomorrowLabel: l.caseCard_previousDate,
+              locale: l.localeName,
+            ),
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      result: currentCase.result,
+      note: currentCase.notesResults,
+      showPhoneButton: true,
+      showMessageButton: true,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
+  }
+
+  /// The extended-view row for [currentCase]: same values as [_buildCard], laid
+  /// out horizontally, keeping the red overdue strip and no serial number
+  /// (this screen groups by court).
+  Widget _buildRow(Case currentCase, AppLocalizations l) {
+    final court = _courtsById[currentCase.courtId];
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    return CaseTableRow(
+      key: ValueKey('case-row-${currentCase.id}'),
+      variant: CaseCardVariant.overdue,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      courtName: null, // Court name is shown in the group header above the row.
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
+      isOverdue: true, // Always overdue; red stripe + red date.
       nextDate: currentCase.nextDate == null
           ? null
           : AppDateUtils.formatDisplayDate(

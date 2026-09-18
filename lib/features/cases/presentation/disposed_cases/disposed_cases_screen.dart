@@ -24,6 +24,8 @@ import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../../../../shared/widgets/case_table_row.dart';
+import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../cases_screen_modal.dart';
 import 'disposed_help_dialog.dart';
@@ -73,9 +75,8 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   }
 
   /// The loaded disposed cases the query still matches.
-  List<Case> get _visibleCases => _cases
-      .where((c) => matchesCaseQuery(c, _searchController.text))
-      .toList();
+  List<Case> get _visibleCases =>
+      _cases.where((c) => matchesCaseQuery(c, _searchController.text)).toList();
 
   Future<void> _loadCases() async {
     try {
@@ -208,6 +209,9 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The compact ↔ extended choice is the shared stored preference, so the
+    // header toggle and Settings → View Settings always agree.
+    final extended = watchCaseListExtendedView(ref);
     return CasesScreenModal(
       title: l.disposedCasesScreen_title,
       showFab: false,
@@ -217,11 +221,17 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      body: _buildBody(context, l),
+      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      isCompactView: !extended,
+      body: _buildBody(context, l, extended: extended),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l) {
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l, {
+    required bool extended,
+  }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -238,72 +248,133 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
 
     final visible = _visibleCases;
 
-    return visible.isEmpty
-        ? CaseListEmptyState(
-            placeholder: l.disposedCasesScreen_title,
-            isSearching: _isSearching,
-            hasAnyCase: _cases.isNotEmpty,
+    if (visible.isEmpty) {
+      return CaseListEmptyState(
+        placeholder: l.disposedCasesScreen_title,
+        isSearching: _isSearching,
+        hasAnyCase: _cases.isNotEmpty,
+      );
+    }
+
+    final list = RefreshIndicator(
+      onRefresh: _loadCases,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: visible.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, index) {
+          final currentCase = visible[index];
+          final court = _courtsById[currentCase.courtId];
+          // Serial numbers are this screen's own running order: searching
+          // renumbers the visible list from 1.
+          return extended
+              ? _buildCaseRow(context, l, currentCase, court, index + 1)
+              : _buildCaseCard(context, l, currentCase, court);
+        },
+      ),
+    );
+
+    return extended ? CaseTableBody(child: list) : list;
+  }
+
+  /// The compact disposed card for [currentCase].
+  Widget _buildCaseCard(
+    BuildContext context,
+    AppLocalizations l,
+    Case currentCase,
+    Court? court,
+  ) {
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    // Steps are stored by name, so they need the language lookup;
+    // an AD/HCD case's free-text Result is shown as typed.
+    final stepOrResult = currentCase.lastStep?.trim().isNotEmpty == true
+        ? context.l10n.stepNames(
+            currentCase.lastStep,
+            courtCategoryId: court?.courtCategoryId,
           )
-        : RefreshIndicator(
-            onRefresh: _loadCases,
-            child: ListView.separated(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              itemCount: visible.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-              itemBuilder: (context, index) {
-                final currentCase = visible[index];
-                final court = _courtsById[currentCase.courtId];
-                final isHigherCourt =
-                    court?.courtCategoryId == appellateDivisionId ||
-                    court?.courtCategoryId == highCourtDivisionId;
-                // Steps are stored by name, so they need the language lookup;
-                // an AD/HCD case's free-text Result is shown as typed.
-                final stepOrResult =
-                    currentCase.lastStep?.trim().isNotEmpty == true
-                    ? context.l10n.stepNames(
-                        currentCase.lastStep,
-                        courtCategoryId: court?.courtCategoryId,
-                      )
-                    : (currentCase.result?.trim().isNotEmpty == true
-                          ? currentCase.result!
-                          : null);
-                final disposedDate = currentCase.nextDate == null
-                    ? null
-                    : AppDateUtils.formatDateDDMMYYYY(
-                        currentCase.nextDate!,
-                        locale: l.localeName,
-                      );
-                return _DisposedCaseCard(
-                  key: ValueKey('case-card-${currentCase.id}'),
-                  stepOrResult: stepOrResult,
-                  caseNumber:
-                      '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
-                  parties:
-                      '${currentCase.petitioner} Vs ${currentCase.respondent}',
-                  title: currentCase.caseTitleAndSection,
-                  // A pre-seeded court stores its English name, so the card
-                  // resolves it to follow the active language.
-                  courtName: court == null
-                      ? null
-                      : context.l10n.seedLabel(
-                          court.id,
-                          fallbackEn: court.courtName,
-                        ),
-                  judgesName: isHigherCourt
-                      ? currentCase.honorableJudges
-                      : null,
-                  disposedDate: disposedDate,
-                  note: currentCase.notesResults,
-                  onPhone: () =>
-                      _launchPartyAction(currentCase, message: false),
-                  onMessage: () =>
-                      _launchPartyAction(currentCase, message: true),
-                  onUpdate: () => _openQuickUpdate(currentCase),
-                  onTap: () => _openCaseDetail(currentCase),
-                );
-              },
-            ),
+        : (currentCase.result?.trim().isNotEmpty == true
+              ? currentCase.result!
+              : null);
+    final disposedDate = currentCase.nextDate == null
+        ? null
+        : AppDateUtils.formatDateDDMMYYYY(
+            currentCase.nextDate!,
+            locale: l.localeName,
           );
+    return _DisposedCaseCard(
+      key: ValueKey('case-card-${currentCase.id}'),
+      stepOrResult: stepOrResult,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      parties: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      title: currentCase.caseTitleAndSection,
+      // A pre-seeded court stores its English name, so the card resolves it to
+      // follow the active language.
+      courtName: court == null
+          ? null
+          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      disposedDate: disposedDate,
+      note: currentCase.notesResults,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
+  }
+
+  /// The extended-view row for [currentCase]; [serial] is its 1-based position.
+  /// Carries the same values as the disposed card, laid out horizontally.
+  Widget _buildCaseRow(
+    BuildContext context,
+    AppLocalizations l,
+    Case currentCase,
+    Court? court,
+    int serial,
+  ) {
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    // The disposal is whichever of the two the card would have shown, keeping
+    // its own label (a seeded Step vs an AD/HCD free-text Result).
+    final hasStep = currentCase.lastStep?.trim().isNotEmpty == true;
+    final stepOrResult = hasStep
+        ? context.l10n.stepNames(
+            currentCase.lastStep,
+            courtCategoryId: court?.courtCategoryId,
+          )
+        : (currentCase.result?.trim().isNotEmpty == true
+              ? currentCase.result!
+              : null);
+    final disposedDate = currentCase.nextDate == null
+        ? null
+        : AppDateUtils.formatDateDDMMYYYY(
+            currentCase.nextDate!,
+            locale: l.localeName,
+          );
+    return CaseTableRow(
+      key: ValueKey('case-row-${currentCase.id}'),
+      serial: serial,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      courtName: court == null
+          ? null
+          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      nextDate: disposedDate,
+      dateLabelOverride: l.caseCard_disposed,
+      step: hasStep ? stepOrResult : null,
+      result: hasStep ? null : stepOrResult,
+      note: currentCase.notesResults,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
   }
 }
 

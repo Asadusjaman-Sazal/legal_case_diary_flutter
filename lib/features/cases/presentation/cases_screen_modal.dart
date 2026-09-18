@@ -20,8 +20,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
-import '../../../core/providers/repository_providers.dart';
-import '../../../features/settings/data/settings_repository.dart';
+import '../../../core/providers/settings_providers.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -48,17 +47,6 @@ enum SyncState {
 }
 
 // ---------------------------------------------------------------------------
-// Settings stream provider (scoped to this widget)
-// ---------------------------------------------------------------------------
-
-/// Watches the live [UserSettings] stream so [CasesScreenModal] reacts to
-/// settings changes without re-creating a new Future on every rebuild.
-final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
-  final repo = await ref.watch(settingsRepositoryProvider.future);
-  yield* repo.watchSettings();
-});
-
-// ---------------------------------------------------------------------------
 // CasesScreenModal
 // ---------------------------------------------------------------------------
 
@@ -78,7 +66,9 @@ final _userSettingsProvider = StreamProvider<UserSettings>((ref) async* {
 ///   header; the host screen owns the state so it can filter its own dataset.
 /// [searchController] — query text of the open search bar.
 /// [onSearchChanged] — called on every keystroke so the host can rebuild.
-/// [onViewToggle] — called with `true` for compact, `false` for expanded.
+/// [onViewToggle] — called with `true` for compact, `false` for extended; when
+///   null the header shows no view toggle at all (libraries without a case
+///   list). The host owns the stored mode through `case_list_view_mode.dart`.
 /// [isCompactView] — current view mode; drives the toggle icon state.
 /// [showFab] — whether to show the Add New Case FAB (false for Disposed Cases).
 /// [onAddCase] — called when the FAB is tapped.
@@ -142,7 +132,7 @@ class CasesScreenModal extends ConsumerWidget {
 
     // Watch the live settings stream — stable across rebuilds, no per-rebuild
     // Future creation. Falls back to defaults while the stream is loading.
-    final settingsAsync = ref.watch(_userSettingsProvider);
+    final settingsAsync = ref.watch(userSettingsStreamProvider);
     final settings = settingsAsync.value;
     final tabKeys = settings?.bottomNavTabs ?? _defaultTabs;
     final sideNavOptions = settings?.sideNavOptions ?? const {};
@@ -338,19 +328,24 @@ class _CasesHeader extends StatelessWidget {
             tooltip: l.casesModal_search,
             onPressed: onSearch,
           ),
-          // View toggle: compact ↔ expanded
-          IconButton(
-            icon: Icon(
-              isCompactView
-                  ? Icons.grid_view_outlined
-                  : Icons.view_agenda_outlined,
-              color: AppColors.primary,
+          // View toggle: compact ↔ extended. Drawn only when the host screen
+          // wires it, so the Notes and Case Reference libraries — which share
+          // this shell but have no case list to switch — never show a control
+          // that does nothing.
+          if (onViewToggle != null)
+            IconButton(
+              key: const ValueKey('cases-modal-view-toggle'),
+              icon: Icon(
+                isCompactView
+                    ? Icons.grid_view_outlined
+                    : Icons.view_agenda_outlined,
+                color: AppColors.primary,
+              ),
+              tooltip: isCompactView
+                  ? l.casesModal_viewExpanded
+                  : l.casesModal_viewCompact,
+              onPressed: () => onViewToggle!(!isCompactView),
             ),
-            tooltip: isCompactView
-                ? l.casesModal_viewExpanded
-                : l.casesModal_viewCompact,
-            onPressed: () => onViewToggle?.call(!isCompactView),
-          ),
           // Sync button — top-right per Addendum 2.4
           _SyncButton(
             syncState: syncState,

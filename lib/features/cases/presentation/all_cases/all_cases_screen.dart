@@ -26,6 +26,8 @@ import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../../../../shared/widgets/case_table_row.dart';
+import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
@@ -270,6 +272,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The compact ↔ extended choice is the shared stored preference, so the
+    // header toggle and Settings → View Settings always agree.
+    final extended = watchCaseListExtendedView(ref);
     return CasesScreenModal(
       title: l.allCasesScreen_title,
       onAddCase: _openAddCase,
@@ -277,11 +282,17 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
-      body: _buildBody(context, l),
+      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      isCompactView: !extended,
+      body: _buildBody(context, l, extended: extended),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l) {
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l, {
+    required bool extended,
+  }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -300,6 +311,24 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     final visible = _visibleCases();
 
+    final list = RefreshIndicator(
+      onRefresh: _loadCases,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: visible.length,
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, index) {
+          final currentCase = visible[index];
+          final court = _courtsById[currentCase.courtId];
+          // Serial numbers are this screen's own running order: filtering,
+          // sorting or searching renumbers the visible list from 1.
+          return extended
+              ? _buildCaseRow(currentCase, court, index + 1, l)
+              : _buildCaseCard(currentCase, court, l);
+        },
+      ),
+    );
+
     return Column(
       children: [
         _buildKpiSummary(l),
@@ -311,75 +340,109 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
                 )
-              : RefreshIndicator(
-                  onRefresh: _loadCases,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: visible.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: AppSpacing.md),
-                    itemBuilder: (context, index) {
-                      final currentCase = visible[index];
-                      final court = _courtsById[currentCase.courtId];
-                      final isHigherCourt =
-                          court?.courtCategoryId == appellateDivisionId ||
-                          court?.courtCategoryId == highCourtDivisionId;
-                      final isOverdue =
-                          currentCase.nextDate != null &&
-                          currentCase.nextDate! <
-                              AppDateUtils.bangladeshTodayStartOfDay();
-                      return CaseCard(
-                        key: ValueKey('case-card-${currentCase.id}'),
-                        variant: CaseCardVariant.list,
-                        caseNumber:
-                            '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
-                        title:
-                            '${currentCase.petitioner} Vs ${currentCase.respondent}',
-                        subtitle: currentCase.caseTitleAndSection,
-                        // A pre-seeded court stores its English name, so the
-                        // card resolves it to follow the active language.
-                        courtName: court == null
-                            ? null
-                            : context.l10n.seedLabel(
-                                court.id,
-                                fallbackEn: court.courtName,
-                              ),
-                        judgesName: isHigherCourt
-                            ? currentCase.honorableJudges
-                            : null,
-                        statusLabel: context.l10n.onBehalfLabel(
-                          currentCase.onBehalfId,
-                          _onBehalfsById[currentCase.onBehalfId]?.name,
-                        ),
-                        alignStatusLabelRight: true,
-                        isOverdue: isOverdue,
-                        nextDate: currentCase.nextDate == null
-                            ? null
-                            : DateFormat('dd/MM/yy, EEE', l.localeName).format(
-                                AppDateUtils.bangladeshDateTime(
-                                  currentCase.nextDate!,
-                                ),
-                              ),
-                        step: context.l10n.stepNames(
-                          currentCase.lastStep,
-                          courtCategoryId: court?.courtCategoryId,
-                        ),
-                        result: currentCase.result,
-                        note: currentCase.notesResults,
-                        showPhoneButton: true,
-                        showMessageButton: true,
-                        onPhone: () =>
-                            _launchPartyAction(currentCase, message: false),
-                        onMessage: () =>
-                            _launchPartyAction(currentCase, message: true),
-                        onUpdate: () => _openQuickUpdate(currentCase),
-                        onTap: () => _openCaseDetail(currentCase),
-                      );
-                    },
-                  ),
-                ),
+              : (extended ? CaseTableBody(child: list) : list),
         ),
       ],
+    );
+  }
+
+  /// The compact card for [currentCase].
+  Widget _buildCaseCard(Case currentCase, Court? court, AppLocalizations l) {
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    final isOverdue =
+        currentCase.nextDate != null &&
+        currentCase.nextDate! < AppDateUtils.bangladeshTodayStartOfDay();
+    return CaseCard(
+      key: ValueKey('case-card-${currentCase.id}'),
+      variant: CaseCardVariant.list,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      // A pre-seeded court stores its English name, so the
+      // card resolves it to follow the active language.
+      courtName: court == null
+          ? null
+          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
+      alignStatusLabelRight: true,
+      isOverdue: isOverdue,
+      nextDate: currentCase.nextDate == null
+          ? null
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      result: currentCase.result,
+      note: currentCase.notesResults,
+      showPhoneButton: true,
+      showMessageButton: true,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
+  }
+
+  /// The extended-view row for [currentCase]; [serial] is its 1-based position.
+  /// Carries the same values as [_buildCaseCard], laid out horizontally.
+  Widget _buildCaseRow(
+    Case currentCase,
+    Court? court,
+    int serial,
+    AppLocalizations l,
+  ) {
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    final isOverdue =
+        currentCase.nextDate != null &&
+        currentCase.nextDate! < AppDateUtils.bangladeshTodayStartOfDay();
+    return CaseTableRow(
+      key: ValueKey('case-row-${currentCase.id}'),
+      variant: CaseCardVariant.list,
+      serial: serial,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      courtName: court == null
+          ? null
+          : context.l10n.seedLabel(court.id, fallbackEn: court.courtName),
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
+      isOverdue: isOverdue,
+      nextDate: currentCase.nextDate == null
+          ? null
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      result: currentCase.result,
+      note: currentCase.notesResults,
+      showPhoneButton: true,
+      showMessageButton: true,
+      onPhone: () => _launchPartyAction(currentCase, message: false),
+      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
     );
   }
 

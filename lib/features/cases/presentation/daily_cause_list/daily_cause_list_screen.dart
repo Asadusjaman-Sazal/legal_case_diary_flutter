@@ -32,6 +32,8 @@ import '../../../../shared/providers/daily_cause_list_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/calendar_picker_dialog.dart';
 import '../../../../shared/widgets/case_card.dart';
+import '../../../../shared/widgets/case_table_row.dart';
+import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../cases_screen_modal.dart';
 
@@ -243,6 +245,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   @override
   Widget build(BuildContext context) {
     final l = l10n();
+    // The compact ↔ extended choice is the shared stored preference, so the
+    // header toggle and Settings → View Settings always agree.
+    final extended = watchCaseListExtendedView(ref);
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
       onAddCase: _openAddCase,
@@ -250,6 +255,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: (_) => setState(() {}),
+      onViewToggle: (compact) => setCaseListViewMode(ref, compact: compact),
+      isCompactView: !extended,
       body: Column(
         children: [
           _DateSwitcher(
@@ -262,13 +269,17 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
             ),
             onOpenCalendar: _openCalendarPicker,
           ),
-          Expanded(child: _buildBody(context, l)),
+          Expanded(child: _buildBody(context, l, extended: extended)),
         ],
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, AppLocalizations l) {
+  Widget _buildBody(
+    BuildContext context,
+    AppLocalizations l, {
+    required bool extended,
+  }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -281,63 +292,62 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       );
     }
     final groups = _courtGroups();
-    return groups.isEmpty
-        ? CaseListEmptyState(
-            placeholder: l.dailyCauseListScreen_noHearings,
-            isSearching: _isSearching,
-            hasAnyCase: _cases.isNotEmpty,
-          )
-        : ListView.separated(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            itemCount: groups.length,
-            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-            itemBuilder: (context, groupIndex) {
-              final group = groups[groupIndex];
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    if (groups.isEmpty) {
+      return CaseListEmptyState(
+        placeholder: l.dailyCauseListScreen_noHearings,
+        isSearching: _isSearching,
+        hasAnyCase: _cases.isNotEmpty,
+      );
+    }
+    final list = ListView.separated(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: groups.length,
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+      itemBuilder: (context, groupIndex) {
+        final group = groups[groupIndex];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.sm,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.account_balance, size: 18),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Text(
-                            // Pre-seeded courts store their English name, so the
-                            // title is resolved through the seed label lookup to
-                            // follow the active language; a court the user added
-                            // keeps the name they typed.
-                            context.l10n.seedLabel(
-                              group.court.id,
-                              fallbackEn: group.court.courtName,
-                            ),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        Text(
-                          AppDateUtils.formatDigits(
-                            group.cases.length,
-                            l.localeName,
-                          ),
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                        ),
-                      ],
+                  const Icon(Icons.account_balance, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      // Pre-seeded courts store their English name, so the
+                      // title is resolved through the seed label lookup to
+                      // follow the active language; a court the user added
+                      // keeps the name they typed.
+                      context.l10n.seedLabel(
+                        group.court.id,
+                        fallbackEn: group.court.courtName,
+                      ),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
-                  for (final currentCase in group.cases) ...[
-                    _buildCard(currentCase, l),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
+                  Text(
+                    AppDateUtils.formatDigits(group.cases.length, l.localeName),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
                 ],
-              );
-            },
-          );
+              ),
+            ),
+            for (final currentCase in group.cases) ...[
+              // Grouped screens keep their court headers and use no serial
+              // numbers: the grouping is the position cue here.
+              extended ? _buildRow(currentCase, l) : _buildCard(currentCase, l),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ],
+        );
+      },
+    );
+
+    return extended ? CaseTableBody(child: list) : list;
   }
 
   Widget _buildCard(Case currentCase, AppLocalizations l) {
@@ -359,6 +369,49 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       alignStatusLabelRight: true,
+      nextDate: currentCase.nextDate == null
+          ? null
+          : DateFormat(
+              'dd/MM/yy, EEE',
+              l.localeName,
+            ).format(AppDateUtils.bangladeshDateTime(currentCase.nextDate!)),
+      step: context.l10n.stepNames(
+        currentCase.lastStep,
+        courtCategoryId: court?.courtCategoryId,
+      ),
+      result: currentCase.result,
+      note: currentCase.notesResults,
+      showPhoneButton: true,
+      showMessageButton: true,
+      onPhone: () =>
+          _launchPartyAction(currentCase, target: _ContactActionTarget.phone),
+      onMessage: () =>
+          _launchPartyAction(currentCase, target: _ContactActionTarget.message),
+      onUpdate: () => _openQuickUpdate(currentCase),
+      onTap: () => _openCaseDetail(currentCase),
+    );
+  }
+
+  /// The extended-view row for [currentCase]: same values as [_buildCard], laid
+  /// out horizontally and without a serial number (this screen groups by court).
+  Widget _buildRow(Case currentCase, AppLocalizations l) {
+    final court = _courtsById[currentCase.courtId];
+    final isHigherCourt =
+        court?.courtCategoryId == appellateDivisionId ||
+        court?.courtCategoryId == highCourtDivisionId;
+    return CaseTableRow(
+      key: ValueKey('case-row-${currentCase.id}'),
+      variant: CaseCardVariant.dailyCauseList,
+      caseNumber:
+          '${context.l10n.caseTypeLabel(currentCase.caseType, courtCategoryId: court?.courtCategoryId)} ${currentCase.caseNumber}',
+      title: '${currentCase.petitioner} Vs ${currentCase.respondent}',
+      subtitle: currentCase.caseTitleAndSection,
+      courtName: null, // Shown in the court title above the row.
+      judgesName: isHigherCourt ? currentCase.honorableJudges : null,
+      statusLabel: context.l10n.onBehalfLabel(
+        currentCase.onBehalfId,
+        _onBehalfsById[currentCase.onBehalfId]?.name,
+      ),
       nextDate: currentCase.nextDate == null
           ? null
           : DateFormat(

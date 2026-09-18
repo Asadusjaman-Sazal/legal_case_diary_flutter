@@ -54,8 +54,25 @@ String _categoryLabel(AppLocalizations l, String id) => switch (id) {
 };
 
 /// Court Names, Steps etc entry screen (collapsible category cards).
-class CourtNamesStepsScreen extends StatelessWidget {
+///
+/// At most one card is open at a time, so the screen — not each card — keeps the
+/// id of whichever card that is.
+class CourtNamesStepsScreen extends StatefulWidget {
   const CourtNamesStepsScreen({super.key});
+
+  @override
+  State<CourtNamesStepsScreen> createState() => _CourtNamesStepsScreenState();
+}
+
+class _CourtNamesStepsScreenState extends State<CourtNamesStepsScreen> {
+  /// The open card, or null when every card is collapsed.
+  String? _expandedCategoryId;
+
+  /// Opens [categoryId] and closes whichever card was open, if any; tapping the
+  /// already-open card closes it.
+  void _toggle(String categoryId) => setState(() {
+    _expandedCategoryId = _expandedCategoryId == categoryId ? null : categoryId;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +84,12 @@ class CourtNamesStepsScreen extends StatelessWidget {
         itemCount: labels.length,
         itemBuilder: (context, index) {
           final entry = labels.entries.elementAt(index);
-          return _CategoryCard(categoryId: entry.key, label: entry.value);
+          return _CategoryCard(
+            categoryId: entry.key,
+            label: entry.value,
+            isExpanded: entry.key == _expandedCategoryId,
+            onToggle: () => _toggle(entry.key),
+          );
         },
       ),
     );
@@ -76,20 +98,22 @@ class CourtNamesStepsScreen extends StatelessWidget {
 
 /// A collapsible court-category card.
 ///
-/// Collapsed (the default) it is a single name row; tapping the card toggles it
-/// open, which reveals the three management buttons and makes the card taller.
-class _CategoryCard extends StatefulWidget {
+/// Collapsed it is a single name row; tapping the card opens it, which reveals
+/// the three management buttons and makes the card taller. The open state lives
+/// on the screen (see [CourtNamesStepsScreen]) so opening one card closes the
+/// others.
+class _CategoryCard extends StatelessWidget {
   final String categoryId;
   final String label;
+  final bool isExpanded;
+  final VoidCallback onToggle;
 
-  const _CategoryCard({required this.categoryId, required this.label});
-
-  @override
-  State<_CategoryCard> createState() => _CategoryCardState();
-}
-
-class _CategoryCardState extends State<_CategoryCard> {
-  bool _expanded = false;
+  const _CategoryCard({
+    required this.categoryId,
+    required this.label,
+    required this.isExpanded,
+    required this.onToggle,
+  });
 
   String _route(_ItemKind kind) {
     final kindParam = switch (kind) {
@@ -98,7 +122,7 @@ class _CategoryCardState extends State<_CategoryCard> {
       _ItemKind.onBehalf => 'on_behalf',
     };
     return '${AppRoutes.settingsCourtNamesSteps}'
-        '?kind=$kindParam&category=${widget.categoryId}';
+        '?kind=$kindParam&category=$categoryId';
   }
 
   @override
@@ -113,7 +137,7 @@ class _CategoryCardState extends State<_CategoryCard> {
         side: BorderSide(color: AppColors.surfaceContainer),
       ),
       child: InkWell(
-        onTap: () => setState(() => _expanded = !_expanded),
+        onTap: onToggle,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
@@ -128,10 +152,10 @@ class _CategoryCardState extends State<_CategoryCard> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(widget.label, style: AppTypography.bodyLg),
+                      child: Text(label, style: AppTypography.bodyLg),
                     ),
                     Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      isExpanded ? Icons.expand_less : Icons.expand_more,
                       color: AppColors.tertiary,
                     ),
                   ],
@@ -141,7 +165,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOut,
                 alignment: Alignment.topCenter,
-                child: _expanded
+                child: isExpanded
                     ? Padding(
                         padding: const EdgeInsets.only(top: _actionButtonGap),
                         child: Row(

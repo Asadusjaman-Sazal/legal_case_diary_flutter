@@ -3,7 +3,7 @@
 /// The screen lists the seeded court hierarchy only (the two higher-court
 /// divisions plus the 6 lower-court categories) and every card starts
 /// collapsed: the category name is visible, the three management buttons are
-/// not, and tapping the card toggles them.
+/// not, and tapping the card opens it — one card at a time.
 library;
 
 import 'package:flutter/material.dart';
@@ -130,6 +130,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Case Types'), findsNothing);
     expect(tester.getSize(find.byType(Card).first).height, collapsed.height);
+  });
+
+  testWidgets('opening a card closes the one that was open', (tester) async {
+    await _pumpCards(tester);
+    final collapsed = tester.getSize(find.byType(Card).first).height;
+
+    await tester.tap(find.text('Appellate Division'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(Card).first,
+        matching: find.text('Case Types'),
+      ),
+      findsOneWidget,
+    );
+
+    // Open the third card: its buttons appear, the first card's go away.
+    final thirdCard = find.byType(Card).at(2);
+    await tester.tap(find.text('District Courts (Civil)'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(of: thirdCard, matching: find.text('Case Types')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(Card).first,
+        matching: find.text('Case Types'),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(Card),
+        matching: find.byType(Container),
+      ),
+      findsNWidgets(3),
+      reason: 'only the newly opened card carries buttons',
+    );
+    expect(tester.getSize(find.byType(Card).first).height, collapsed);
+    expect(tester.getSize(thirdCard).height, greaterThan(collapsed));
   });
 
   testWidgets('the three buttons share the card width evenly, in card shape', (

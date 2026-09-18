@@ -1,3 +1,10 @@
+### 2026-09-18 — Edit Case Types, Steps etc: one card open at a time — COMPLETE
+
+- The category cards behave as an accordion now: opening any card closes the one that was open, so only the card the user just tapped shows its Case Types / Steps / On Behalf buttons (tapping the open card still closes it).
+- The open/closed flag moved off each card onto the screen (`_expandedCategoryId`), which is what makes the rule enforceable; the card itself is a stateless view of it. Same screen, same look, nothing else changed.
+- `test/features/court_names_steps_test.dart` gained the guard (now 6): opening the third card must take the buttons off the first and leave exactly one card open. `flutter analyze` clean; 317 passed, 2 skipped. Version `0.0.199`.
+- **Resume point:** unchanged — Task 13 (notification scheduling + the OEM battery/auto-start setup guide the Notifications screen points at).
+
 ### 2026-09-18 — Edit Case Types, Steps etc: seeded categories + collapsible cards — COMPLETE
 
 - **Only the seeded hierarchy.** `court_names_steps_screen.dart` builds its cards from `allCategoryIds`, so it lists Appellate Division, High Court Division and the 6 lower-court categories; the hand-written Tribunals card is gone and Metropolitan Sessions (Criminal) is listed. The list can no longer drift from `pre_seeded_data.dart`.

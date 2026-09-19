@@ -363,9 +363,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       }
     }
 
-    // [widths] is set only in the extended view, where the table's columns
-    // decide each cell's width; the compact list keeps the cards.
-    Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
+    // The compact list: one card row per date group, exactly as this screen has
+    // always drawn it.
+    Widget buildList() => RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -376,53 +376,14 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.sm,
-                  horizontal: AppSpacing.xs,
-                ),
-                child: Row(
-                  children: [
-                    // The date keeps its own width so it is drawn on a single
-                    // line; the divider is what flexes, filling only the space
-                    // left over once the date is laid out. (Two flexible
-                    // children would split the row in half and wrap the date,
-                    // which is the bug this replaces.)
-                    Text(
-                      group.dateLabel.toUpperCase(),
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: Divider(
-                        color: Theme.of(context).dividerColor,
-                        endIndent: 0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _dateHeading(group),
               const SizedBox(height: AppSpacing.sm),
               // Cases of the same court sit under one court title, exactly like
               // the Daily Cause List groups its cards.
               for (final courtGroup in group.courtGroups) ...[
                 _buildCourtTitle(courtGroup, l),
                 for (final currentCase in courtGroup.cases) ...[
-                  widths == null
-                      ? _buildCard(currentCase, l)
-                      : _buildRow(
-                          currentCase,
-                          l,
-                          serials[currentCase.id]!,
-                          widths,
-                        ),
+                  _buildCard(currentCase, l),
                   const SizedBox(height: AppSpacing.md),
                 ],
               ],
@@ -432,16 +393,91 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       ),
     );
 
+    // The extended view pins each court title: it holds the top of the list
+    // until the next court's title reaches it, so the court a row belongs to
+    // stays on screen for as long as its cases do. The date heading above a
+    // group of courts scrolls normally.
+    Widget buildTableList(
+      Map<CaseTableColumn, double> widths,
+    ) => RefreshIndicator(
+      onRefresh: _loadCases,
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+          for (var i = 0; i < groups.length; i++) ...[
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _dateHeading(groups[i]),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                ),
+              ),
+            ),
+            for (final courtGroup in groups[i].courtGroups)
+              CaseTableGroup(
+                // A court can head a group on more than one hearing day, so
+                // the key carries the day too.
+                key: ValueKey('court-header-$i-${courtGroup.court.id}'),
+                heading: _buildCourtTitle(courtGroup, l),
+                headingHeight: caseTableGroupHeaderHeight(context),
+                rows: [
+                  for (final currentCase in courtGroup.cases)
+                    _buildRow(currentCase, l, serials[currentCase.id]!, widths),
+                ],
+              ),
+          ],
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+        ],
+      ),
+    );
+
     return extended
         ? CaseTableView(
             // The court is already the group heading here, so the table drops
             // the Name of Court column rather than repeating it in every row.
             columns: caseTableColumns(exclude: const {CaseTableColumn.court}),
             dateLabel: l.caseCard_nextDate,
-            builder: (_, widths) => buildList(widths),
+            builder: (_, widths) => buildTableList(widths),
           )
-        : buildList(null);
+        : buildList();
   }
+
+  /// The date heading above one hearing day: the day in upper case, then a rule
+  /// filling the rest of the line.
+  ///
+  /// The date keeps its own width so it is drawn on a single line; the divider
+  /// is what flexes, filling only the space left over once the date is laid out.
+  /// (Two flexible children would split the row in half and wrap the date,
+  /// which is the bug this replaces.)
+  Widget _dateHeading(_DateGroup group) => Padding(
+    padding: const EdgeInsets.symmetric(
+      vertical: AppSpacing.sm,
+      horizontal: AppSpacing.xs,
+    ),
+    child: Row(
+      children: [
+        Text(
+          group.dateLabel.toUpperCase(),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Divider(color: Theme.of(context).dividerColor, endIndent: 0),
+        ),
+      ],
+    ),
+  );
 
   /// The court title above a group of cards, styled like the Daily Cause List
   /// court heading (court icon, court name, number of cases).
@@ -558,6 +594,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
+      result: currentCase.result,
       note: currentCase.notesResults,
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),

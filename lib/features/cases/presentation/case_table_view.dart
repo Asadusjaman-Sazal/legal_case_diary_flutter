@@ -10,21 +10,212 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/widgets/case_table_row.dart';
 import 'case_list_view_mode.dart';
+
+/// Height of a pinned court heading in the extended view.
+///
+/// One line of the screen's group title plus the heading's own vertical padding,
+/// which is the box a court heading already occupies in the compact list, scaled
+/// with the user's text size so a larger label is never clipped by the band.
+double caseTableGroupHeaderHeight(BuildContext context) {
+  final style =
+      Theme.of(context).textTheme.titleMedium ?? AppTypography.titleMd;
+  final fontSize = style.fontSize ?? 16;
+  final lineHeight = fontSize * (style.height ?? 1.5);
+  return MediaQuery.textScalerOf(context).scale(lineHeight) + AppSpacing.sm * 2;
+}
+
+/// One court's rows in the extended view, under a heading that stays at the top
+/// of the list for as long as that court's rows are on screen.
+///
+/// The heading and its rows are wrapped in a single [SliverMainAxisGroup], which
+/// is what scopes the pinning to the court: the heading holds the top of the
+/// list while its own cases are being read, then travels up and out as the next
+/// court's heading arrives in its place. (Pinned headers placed side by side in
+/// a scroll view pile up at the top instead — they would all stay on screen at
+/// once — so the group is what makes the handover work.)
+///
+/// Tapping the heading folds the court away and tapping it again brings it back,
+/// so a long day can be read as a list of courts and opened one at a time. A
+/// court starts folded ([initiallyCollapsed]), and the chevron in the band
+/// points down while its cases are hidden.
+///
+/// The band paints the screen background across the table's full width, which
+/// also keeps the rows sliding underneath it hidden while it is pinned.
+class CaseTableGroup extends StatefulWidget {
+  /// The screen's own court heading (icon, name, hearing count), already laid
+  /// out, including its own vertical padding.
+  final Widget heading;
+
+  /// Height of [heading]; use [caseTableGroupHeaderHeight].
+  final double headingHeight;
+
+  /// The court's rows, in the screen's order.
+  final List<Widget> rows;
+
+  /// Whether the court starts with its cases hidden.
+  ///
+  /// Defaults to `true`: the extended view opens as a list of court headings,
+  /// and the user opens the courts they want to read.
+  final bool initiallyCollapsed;
+
+  /// Creates one court's section of the extended view.
+  const CaseTableGroup({
+    required this.heading,
+    required this.headingHeight,
+    required this.rows,
+    this.initiallyCollapsed = true,
+    super.key,
+  });
+
+  @override
+  State<CaseTableGroup> createState() => _CaseTableGroupState();
+}
+
+class _CaseTableGroupState extends State<CaseTableGroup> {
+  /// The one piece of view state this group owns. It lives here rather than in
+  /// the host screen so a court's rows are simply unmounted while it is folded,
+  /// and so each group answers its own heading's tap.
+  late bool _collapsed = widget.initiallyCollapsed;
+
+  void _toggle() => setState(() => _collapsed = !_collapsed);
+
+  @override
+  Widget build(BuildContext context) => SliverMainAxisGroup(
+    slivers: [
+      SliverPersistentHeader(
+        pinned: true,
+        delegate: _GroupHeadingDelegate(
+          height: widget.headingHeight,
+          child: _CaseTableHeading(
+            height: widget.headingHeight,
+            collapsed: _collapsed,
+            onTap: _toggle,
+            child: widget.heading,
+          ),
+        ),
+      ),
+      // A folded court contributes its heading only, so the next court's
+      // heading comes straight up to the top behind it.
+      if (!_collapsed)
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          sliver: SliverList.builder(
+            itemCount: widget.rows.length,
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+              child: widget.rows[index],
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+/// The tappable band around one court's heading, carrying the chevron that says
+/// whether the court's cases are showing.
+///
+/// The whole band is the tap target, not just the arrow, because the heading is
+/// the widest thing on the row; the band's own background is what hides the rows
+/// scrolling underneath it while it is pinned.
+class _CaseTableHeading extends StatelessWidget {
+  final double height;
+  final bool collapsed;
+  final VoidCallback onTap;
+
+  /// The heading the host screen built, inset by the band's own padding.
+  final Widget child;
+
+  const _CaseTableHeading({
+    required this.height,
+    required this.collapsed,
+    required this.onTap,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: height,
+    child: ClipRect(
+      child: Material(
+        color: AppColors.background,
+        child: InkWell(
+          key: const ValueKey('case-table-group-toggle'),
+          onTap: onTap,
+          // The heading's own vertical padding is already part of `height`, so
+          // only the horizontal gutter is added here — as is the arrow, which
+          // sits at the end of the band where the hearing count already is.
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
+              children: [
+                Expanded(child: child),
+                const SizedBox(width: AppSpacing.xs),
+                Icon(
+                  collapsed
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_up,
+                  key: ValueKey(
+                    collapsed
+                        ? 'case-table-group-collapsed'
+                        : 'case-table-group-expanded',
+                  ),
+                  size: 20,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Sizes the pinned band the heading is drawn in.
+class _GroupHeadingDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final Widget child;
+
+  const _GroupHeadingDelegate({required this.height, required this.child});
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) => SizedBox(
+    height: height,
+    // The band is laid out to exactly this height; clipping keeps an unusually
+    // large text scale from painting outside it.
+    child: ClipRect(child: child),
+  );
+
+  @override
+  bool shouldRebuild(_GroupHeadingDelegate oldDelegate) =>
+      oldDelegate.height != height || oldDelegate.child != child;
+}
 
 /// The extended case view: one header row over the screen's own rows.
 class CaseTableView extends ConsumerStatefulWidget {
   /// The columns this screen shows, in render order. Defaults to every column;
   /// a screen that shows the court as a group heading passes a list without
-  /// [CaseTableColumn.court], and Overdue Dates also drops the Step column
-  /// because it folds the step into its date cell.
+  /// [CaseTableColumn.court].
   final List<CaseTableColumn> columns;
 
   /// Label of the date column, named by the host screen ("Next Date", "Previous
-  /// Date", "Previous Date & Step" or "Disposed").
+  /// Date" or "Disposed").
   final String dateLabel;
 
   /// Builds the vertically scrolling body — court groups, date headers and rows

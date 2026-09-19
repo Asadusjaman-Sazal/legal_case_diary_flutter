@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -29,6 +30,7 @@ import 'package:legal_case_diary/features/case_reference/data/reference_reposito
 import 'package:legal_case_diary/features/case_reference/presentation/case_reference_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/active_cases/active_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
+import 'package:legal_case_diary/features/cases/presentation/case_table_view.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/disposed_cases/disposed_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/overdue_dates/overdue_dates_screen.dart';
@@ -125,6 +127,7 @@ void main() {
     required String id,
     String caseNumber = 'CASE-1',
     String onBehalfId = roleId,
+    String? court,
     int? nextDateMs,
     String? lastStep,
     String? result,
@@ -136,7 +139,7 @@ void main() {
         CasesCompanion(
           id: Value(id),
           userId: Value(identity.getId()),
-          courtId: const Value(courtId),
+          courtId: Value(court ?? courtId),
           caseType: const Value('Civil Suit'),
           caseNumber: Value(caseNumber),
           petitioner: const Value('Md. Rahim Uddin'),
@@ -211,6 +214,40 @@ void main() {
   /// The serial numbers the flat list is showing, in order.
   List<String?> renderedSerials(WidgetTester tester) => tester
       .widgetList<Text>(find.byKey(serialKey))
+      .map((text) => text.data)
+      .toList();
+
+  /// Opens or folds one court's group in the extended view.
+  ///
+  /// A grouped screen lists its courts with every group folded, so a test that
+  /// wants to read a court's rows taps its heading first, exactly as the user
+  /// does; tapping it a second time folds the court again.
+  Future<void> toggleCourt(WidgetTester tester, String name) async {
+    final group = find.ancestor(
+      of: find.text(name),
+      matching: find.byType(CaseTableGroup),
+    );
+    expect(group, findsOneWidget);
+    final band = find.descendant(
+      of: group,
+      matching: find.byKey(const ValueKey('case-table-group-toggle')),
+    );
+    expect(band, findsOneWidget);
+    // The band spans the table's whole width, which is wider than the screen
+    // whenever the columns do not fit, so its own centre can sit off-screen:
+    // tap just inside its top-left corner, where it is always on screen.
+    await tester.tapAt(tester.getTopLeft(band) + const Offset(24, 8));
+    await settle(tester);
+  }
+
+  /// The header labels the table is drawing, in render order.
+  List<String?> headerLabels(WidgetTester tester) => tester
+      .widgetList<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('case-table-header')),
+          matching: find.byType(Text),
+        ),
+      )
       .map((text) => text.data)
       .toList();
 
@@ -441,6 +478,7 @@ void main() {
     );
 
     await pumpScreen(tester, const DailyCauseListScreen());
+    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     // The court sub-heading still sits above the rows, under the header row…
@@ -451,6 +489,7 @@ void main() {
     await unmount(tester);
 
     await pumpScreen(tester, const UpcomingCasesScreen());
+    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
@@ -458,6 +497,7 @@ void main() {
     await unmount(tester);
 
     await pumpScreen(tester, const OverdueDatesScreen());
+    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     // The overdue urgency strip follows the row into the extended view.
@@ -465,17 +505,20 @@ void main() {
       find.byKey(const ValueKey('case-row-overdue-strip')),
       findsOneWidget,
     );
-    // No court and no Step column here either: the heading supplies the court
-    // and the step rides inside the date cell, so the date column is named for
-    // the pair.
+    // The heading supplies the court, so that column is dropped — but the
+    // Step/Result column is a column of its own here like everywhere else, and
+    // the date column is named for the date alone.
     expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
-    expect(find.byKey(const ValueKey('case-table-header-step')), findsNothing);
-    expect(find.byKey(const ValueKey('case-table-cell-step')), findsNothing);
-    expect(find.text('Previous Date & Step'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('case-table-header-step')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('case-table-cell-step')), findsOneWidget);
+    expect(find.text('Previous Date'), findsOneWidget);
     expect(find.text('Next Date'), findsNothing);
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('case-table-cell-date')),
+        of: find.byKey(const ValueKey('case-table-cell-step')),
         matching: find.text('Arrival'),
       ),
       findsOneWidget,
@@ -503,7 +546,7 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('Overdue Dates folds the step under the previous date', (
+  testWidgets('Overdue Dates shows the step in its own column, before Note', (
     WidgetTester tester,
   ) async {
     await setStoredMode('expanded');
@@ -513,17 +556,352 @@ void main() {
       lastStep: 'Arrival',
     );
     await pumpScreen(tester, const OverdueDatesScreen());
+    await toggleCourt(tester, courtName);
 
-    // The single date cell carries two stacked lines: the date, then the step.
+    // The date cell is the date alone: one line, no step folded into it.
     final dateCell = find.byKey(const ValueKey('case-table-cell-date'));
-    final lines = find.descendant(of: dateCell, matching: find.byType(Text));
-    expect(lines, findsNWidgets(2));
     expect(
-      tester.getTopLeft(lines.at(0)).dy,
-      lessThan(tester.getTopLeft(lines.at(1)).dy),
+      find.descendant(of: dateCell, matching: find.byType(Text)),
+      findsOneWidget,
     );
-    expect(tester.widget<Text>(lines.at(0)).data, isNot('Arrival'));
-    expect(tester.widget<Text>(lines.at(1)).data, 'Arrival');
+    // The step has a column of its own, next to Note in the render order.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('case-table-cell-step')),
+        matching: find.text('Arrival'),
+      ),
+      findsOneWidget,
+    );
+    final labels = headerLabels(tester);
+    expect(labels, contains('Step/Result'));
+    expect(labels.indexOf('Note'), labels.indexOf('Step/Result') + 1);
+
+    await unmount(tester);
+  });
+
+  testWidgets('the Step/Result column shows an AD/HCD result', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    // A higher court has no step dropdown: its free-text Result is the only
+    // value in the step's slot, so the column has to show it.
+    await seedCase(
+      id: 'HCD-1',
+      caseNumber: 'HCD-1',
+      result: 'Appeal dismissed with costs',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    // A lower-court case with both values keeps the step first and the result
+    // beneath it rather than dropping one of them.
+    await seedCase(
+      id: 'CASE-2',
+      caseNumber: 'CASE-2',
+      lastStep: 'Arrival',
+      result: 'Suit decreed',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+    );
+    await pumpScreen(tester, const AllCasesScreen());
+
+    // The column names both values, replacing the bare "Step".
+    final header = find.byKey(const ValueKey('case-table-header'));
+    expect(
+      find.descendant(of: header, matching: find.text('Step/Result')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: header, matching: find.text('Step')),
+      findsNothing,
+    );
+
+    // The AD/HCD result fills the cell where the step would go.
+    expect(find.byKey(const ValueKey('case-row-step')), findsNWidgets(2));
+    expect(find.text('Appeal dismissed with costs'), findsOneWidget);
+
+    // The case that carries both stacks the result under the step.
+    final stacked = find.ancestor(
+      of: find.text('Arrival'),
+      matching: find.byKey(const ValueKey('case-table-cell-step')),
+    );
+    expect(stacked, findsOneWidget);
+    final lines = find.descendant(of: stacked, matching: find.byType(Text));
+    expect(lines, findsNWidgets(2));
+    expect(tester.widget<Text>(lines.at(0)).data, 'Arrival');
+    expect(tester.widget<Text>(lines.at(1)).data, 'Suit decreed');
+
+    await unmount(tester);
+  });
+
+  testWidgets('a court heading stays pinned while its cases are on screen', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+
+    // A second court, later in the hierarchy, so the screen draws two groups.
+    const secondCategoryId = 'view-mode-category-2';
+    const secondCourtId = 'view-mode-court-2';
+    const secondCourtName = 'Senior Assistant Judge, Dhaka';
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(secondCategoryId),
+            nameKey: Value('courtCategory_districtCourtsCriminal'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value(secondCourtId),
+            courtName: Value(secondCourtName),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value(secondCategoryId),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    // Few cases under the first court, many under the second: the list is long
+    // enough to scroll the second court's heading up to the top.
+    for (var i = 1; i <= 2; i++) {
+      await seedCase(
+        id: 'A-$i',
+        caseNumber: 'A-$i',
+        nextDateMs: today - i * 86400000,
+        lastStep: 'Arrival',
+      );
+    }
+    for (var i = 1; i <= 12; i++) {
+      await seedCase(
+        id: 'B-$i',
+        caseNumber: 'B-$i',
+        court: secondCourtId,
+        nextDateMs: today - i * 86400000,
+        lastStep: 'Arrival',
+      );
+    }
+    await pumpScreen(tester, const OverdueDatesScreen());
+
+    // Both courts start folded, so open them: the pinning is about a heading
+    // and the rows it heads.
+    await toggleCourt(tester, courtName);
+    await toggleCourt(tester, secondCourtName);
+
+    final list = find.byType(CustomScrollView);
+    expect(list, findsOneWidget);
+    // Both court headings are pinned bands, not plain rows.
+    expect(find.byType(CaseTableGroup), findsNWidgets(2));
+    final listTop = tester.getTopLeft(list).dy;
+    double headingTop(String name) => tester.getTopLeft(find.text(name)).dy;
+
+    // The list is as wide as the table, and this table is wider than the test
+    // screen, so the list's own centre can fall outside it: scroll by dragging
+    // from a point that is inside the viewport.
+    Future<void> scrollList(double dy) async {
+      final rect = tester.getRect(list);
+      await tester.dragFrom(
+        Offset(rect.left + 100, rect.top + rect.height / 2),
+        Offset(0, dy),
+      );
+      await settle(tester);
+    }
+
+    // Scrolling inside the first court's cases leaves its heading holding the
+    // top of the list, and the next court's heading still below it.
+    await scrollList(-60);
+    expect(
+      headingTop(courtName),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the first court heading is pinned',
+    );
+    expect(headingTop(secondCourtName), greaterThan(listTop + 60));
+
+    // Scrolling on to the next court hands the top over: the first heading is
+    // pushed out and the second one takes its place.
+    await scrollList(-4000);
+    expect(
+      headingTop(secondCourtName),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the second court heading took the top',
+    );
+    final pushedOut = find.text(courtName);
+    if (pushedOut.evaluate().isNotEmpty) {
+      expect(tester.getTopLeft(pushedOut).dy, lessThan(listTop));
+    }
+
+    await unmount(tester);
+  });
+
+  testWidgets('the grouped screens pin their court headings in the table only', (
+    WidgetTester tester,
+  ) async {
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    // One case for each screen: today's hearings (Daily Cause List), a future
+    // hearing (Upcoming Cases, which starts at tomorrow) and a past one
+    // (Overdue Dates).
+    await seedCase(id: 'TODAY-1', caseNumber: 'TODAY-1', nextDateMs: today);
+    await seedCase(
+      id: 'TOMORROW-1',
+      caseNumber: 'TOMORROW-1',
+      nextDateMs: today + 86400000,
+      lastStep: 'Arrival',
+    );
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    final screens = <Widget>[
+      const DailyCauseListScreen(),
+      const UpcomingCasesScreen(),
+      const OverdueDatesScreen(),
+    ];
+
+    // The compact list keeps the headings it has always had, so the pinning is
+    // a property of the extended view alone.
+    for (final screen in screens) {
+      await pumpScreen(tester, screen);
+      expect(find.byType(CaseCard), findsWidgets);
+      expect(find.byType(CaseTableGroup), findsNothing);
+      await unmount(tester);
+    }
+
+    await setStoredMode('expanded');
+    for (final screen in screens) {
+      await pumpScreen(tester, screen);
+      expect(find.byType(CaseTableGroup), findsWidgets);
+      await toggleCourt(tester, courtName);
+      expect(find.byType(CaseTableRow), findsWidgets);
+      await unmount(tester);
+    }
+  });
+
+  testWidgets('a court heading folds its cases, and starts folded', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+
+    // A second court, later in the hierarchy, so folding one court cannot be
+    // mistaken for folding the whole list.
+    const secondCategoryId = 'view-mode-category-2';
+    const secondCourtId = 'view-mode-court-2';
+    const secondCourtName = 'Senior Assistant Judge, Dhaka';
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(secondCategoryId),
+            nameKey: Value('courtCategory_districtCourtsCriminal'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value(secondCourtId),
+            courtName: Value(secondCourtName),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value(secondCategoryId),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    await seedCase(
+      id: 'PAST-2',
+      caseNumber: 'PAST-2',
+      court: secondCourtId,
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+
+    await pumpScreen(tester, const OverdueDatesScreen());
+
+    // Folded to start with: the courts are listed as headings, no row is drawn,
+    // and each heading carries the down chevron that says cases are hidden
+    // under it.
+    expect(find.byType(CaseTableGroup), findsNWidgets(2));
+    expect(find.byType(CaseTableRow), findsNothing);
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsNWidgets(2),
+    );
+    expect(
+      find.byKey(const ValueKey('case-table-group-expanded')),
+      findsNothing,
+    );
+    // The chevron is the direction that says "cases are hidden under here".
+    expect(
+      tester
+          .widgetList<Icon>(
+            find.byKey(const ValueKey('case-table-group-collapsed')),
+          )
+          .map((icon) => icon.icon),
+      everyElement(Icons.keyboard_arrow_down),
+    );
+
+    // Tapping a heading shows that court's cases, and only that court's: the
+    // chevron turns over to say the cases can be put away again.
+    await toggleCourt(tester, courtName);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('case-table-group-expanded')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsOneWidget,
+    );
+
+    // Tapping the same heading again hides the cases, leaving the heading and
+    // its down chevron behind.
+    await toggleCourt(tester, courtName);
+    expect(find.byType(CaseTableRow), findsNothing);
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsNWidgets(2),
+    );
+
+    await unmount(tester);
+  });
+
+  testWidgets('Overdue Dates shows an AD/HCD result in its Step/Result cell', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    // No step, only a result: the higher court's free text is the only value
+    // the column has to carry.
+    await seedCase(
+      id: 'PAST-1',
+      // Not a disposal term: a result that disposes the case (Dismissed,
+      // Disposed, Discharged) moves it to Disposed Cases and off this screen.
+      result: 'Judgment reserved',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
+    );
+    await pumpScreen(tester, const OverdueDatesScreen());
+    await toggleCourt(tester, courtName);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('case-table-cell-step')),
+        matching: find.text('Judgment reserved'),
+      ),
+      findsOneWidget,
+    );
 
     await unmount(tester);
   });
@@ -662,7 +1040,7 @@ void main() {
       'Petitioner',
       'Respondent',
       'On Behalf',
-      'Step',
+      'Step/Result',
       'Note',
       'Next Date',
     ]) {

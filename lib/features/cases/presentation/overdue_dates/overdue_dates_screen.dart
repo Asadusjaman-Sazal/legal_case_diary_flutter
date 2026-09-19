@@ -330,9 +330,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       }
     }
 
-    // [widths] is set only in the extended view, where the table's columns
-    // decide each cell's width; the compact list keeps the cards.
-    Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
+    // The compact list: one card row per group, with the court heading above
+    // its cards, exactly as this screen has always drawn it.
+    Widget buildList() => RefreshIndicator(
       onRefresh: _loadCases,
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -343,49 +343,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: Row(
-                  children: [
-                    const Icon(Icons.account_balance, size: 18),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        // Pre-seeded courts store their English
-                        // name, so the heading is resolved through
-                        // the seed lookup to follow the language.
-                        context.l10n.seedLabel(
-                          group.court.id,
-                          fallbackEn: group.court.courtName,
-                        ),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Text(
-                      // The hearing count alone, in the active
-                      // language's digits, exactly like the Daily
-                      // Cause List and Upcoming Cases court titles
-                      // (বাংলা reads ২, not 2 Cases).
-                      AppDateUtils.formatDigits(
-                        group.cases.length,
-                        l.localeName,
-                      ),
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _courtHeading(group, l),
               for (final currentCase in group.cases) ...[
-                widths == null
-                    ? _buildCard(currentCase, l)
-                    : _buildRow(
-                        currentCase,
-                        l,
-                        serials[currentCase.id]!,
-                        widths,
-                      ),
+                _buildCard(currentCase, l),
                 const SizedBox(height: AppSpacing.md),
               ],
             ],
@@ -393,6 +353,35 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         },
       ),
     );
+
+    // The extended view pins each court heading: it holds the top of the list
+    // until the next court's heading reaches it, so the court a row belongs to
+    // stays on screen for as long as its cases do.
+    Widget buildTableList(Map<CaseTableColumn, double> widths) =>
+        RefreshIndicator(
+          onRefresh: _loadCases,
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+              for (final group in groups)
+                CaseTableGroup(
+                  key: ValueKey('court-header-${group.court.id}'),
+                  heading: _courtHeading(group, l),
+                  headingHeight: caseTableGroupHeaderHeight(context),
+                  rows: [
+                    for (final currentCase in group.cases)
+                      _buildRow(
+                        currentCase,
+                        l,
+                        serials[currentCase.id]!,
+                        widths,
+                      ),
+                  ],
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            ],
+          ),
+        );
 
     return Column(
       children: [
@@ -428,24 +417,54 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
               : (extended
                     ? CaseTableView(
                         // The court is the group heading above each row, so the
-                        // Name of Court column is dropped; there is no separate
-                        // Step column either — it is folded into the date cell
-                        // ("Previous Date & Step").
+                        // Name of Court column is dropped. Every other column
+                        // stays, the combined Step/Result one included.
                         columns: caseTableColumns(
-                          exclude: const {
-                            CaseTableColumn.court,
-                            CaseTableColumn.step,
-                          },
+                          exclude: const {CaseTableColumn.court},
                         ),
-                        dateLabel:
-                            '${l.caseCard_previousDate} & ${l.caseCard_lastStep}',
-                        builder: (_, widths) => buildList(widths),
+                        dateLabel: l.caseCard_previousDate,
+                        builder: (_, widths) => buildTableList(widths),
                       )
-                    : buildList(null)),
+                    : buildList()),
         ),
       ],
     );
   }
+
+  /// The court heading above a group of cases: the court icon, its name and the
+  /// hearing count, in the pre-seeded hierarchy's order.
+  ///
+  /// Compact draws it above its cards and extended draws it pinned, so the two
+  /// views share one heading.
+  Widget _courtHeading(_CourtGroup group, AppLocalizations l) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+    child: Row(
+      children: [
+        const Icon(Icons.account_balance, size: 18),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            // Pre-seeded courts store their English name, so the heading is
+            // resolved through the seed lookup to follow the language.
+            context.l10n.seedLabel(
+              group.court.id,
+              fallbackEn: group.court.courtName,
+            ),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        Text(
+          // The hearing count alone, in the active language's digits, exactly
+          // like the Daily Cause List and Upcoming Cases court titles (বাংলা
+          // reads ২, not 2 Cases).
+          AppDateUtils.formatDigits(group.cases.length, l.localeName),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
+      ],
+    ),
+  );
 
   Widget _buildCard(Case currentCase, AppLocalizations l) {
     final court = _courtsById[currentCase.courtId];
@@ -506,9 +525,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     return CaseTableRow(
       key: ValueKey('case-row-${currentCase.id}'),
       widths: widths,
-      columns: caseTableColumns(
-        exclude: const {CaseTableColumn.court, CaseTableColumn.step},
-      ),
+      columns: caseTableColumns(exclude: const {CaseTableColumn.court}),
       serial: serial,
       courtName: court == null
           ? null
@@ -526,8 +543,6 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         _onBehalfsById[currentCase.onBehalfId]?.name,
       ),
       isOverdue: true, // Always overdue; red stripe + red date.
-      // The date column doubles as the step column on this screen.
-      dateShowsStep: true,
       date: currentCase.nextDate == null
           ? null
           : AppDateUtils.formatDisplayDate(
@@ -540,6 +555,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
+      result: currentCase.result,
       note: currentCase.notesResults,
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),

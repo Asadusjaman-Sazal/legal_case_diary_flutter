@@ -393,6 +393,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
+      result: currentCase.result,
       note: currentCase.notesResults,
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),

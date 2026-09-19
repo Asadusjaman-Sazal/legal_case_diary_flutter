@@ -47,7 +47,7 @@ enum CaseTableColumn {
   /// On-behalf role of the user.
   onBehalf,
 
-  /// Last step (or AD/HCD result).
+  /// Last step for a lower court, or the AD/HCD result for a higher court.
   step,
 
   /// Notes / results free text.
@@ -60,9 +60,9 @@ const List<CaseTableColumn> caseTableColumnOrder = CaseTableColumn.values;
 /// The columns a screen renders, in render order, minus any it excludes.
 ///
 /// A screen that shows the court as a group heading passes
-/// `{CaseTableColumn.court}` so the name is not repeated in every row, and
-/// Overdue Dates — which folds the step into its date cell — also excludes
-/// `CaseTableColumn.step` so the table keeps exactly the columns it shows.
+/// `{CaseTableColumn.court}` so the name is not repeated in every row; every
+/// other column is shown, including Overdue Dates' Step/Result one, which sits
+/// before Note in the render order above.
 List<CaseTableColumn> caseTableColumns({
   Set<CaseTableColumn> exclude = const {},
 }) => <CaseTableColumn>[
@@ -181,7 +181,7 @@ class CaseTableHeader extends StatelessWidget {
   final List<CaseTableColumn> columns;
 
   /// Label of the date column, which each screen names for itself ("Next
-  /// Date", "Previous Date", "Previous Date & Step" or "Disposed").
+  /// Date", "Previous Date" or "Disposed").
   final String dateLabel;
 
   /// Called while a rule is dragged, with the column to its left.
@@ -212,7 +212,10 @@ class CaseTableHeader extends StatelessWidget {
       CaseTableColumn.petitioner: l.addEditCaseSheet_petitioner,
       CaseTableColumn.respondent: l.addEditCaseSheet_respondent,
       CaseTableColumn.onBehalf: l.allCasesScreen_onBehalf,
-      CaseTableColumn.step: l.caseCard_lastStep,
+      // Carries the step of a lower court and the free-text result of an
+      // AD/HCD case, so the label names both.
+      CaseTableColumn.step:
+          '${l.caseCard_lastStep}/${l.addEditCaseSheet_result}',
       CaseTableColumn.note: l.addEditCaseSheet_note,
       CaseTableColumn.date: dateLabel,
     };
@@ -335,8 +338,13 @@ class CaseTableRow extends StatelessWidget {
   /// On-behalf role of the user, resolved to the active language.
   final String? onBehalf;
 
-  /// Last step, or the AD/HCD result when the screen shows that instead.
+  /// Last step of a lower-court case.
   final String? step;
+
+  /// The AD/HCD free-text result. Always `null` for a lower court, and the
+  /// only value an AD/HCD case carries — those courts have no step dropdown —
+  /// so it fills the Step/Result column in the step's place.
+  final String? result;
 
   /// Notes / results free text.
   final String? note;
@@ -347,12 +355,6 @@ class CaseTableRow extends StatelessWidget {
 
   /// Whether this case is overdue: draws the red left strip and the red date.
   final bool isOverdue;
-
-  /// Whether the date cell also shows [step] beneath the date.
-  ///
-  /// Overdue Dates has no Step column of its own, so it folds the step into
-  /// its "Previous Date & Step" cell instead of dropping it.
-  final bool dateShowsStep;
 
   /// Called by the Update action, when supplied.
   final VoidCallback? onUpdate;
@@ -373,10 +375,10 @@ class CaseTableRow extends StatelessWidget {
     this.judgesName,
     this.onBehalf,
     this.step,
+    this.result,
     this.note,
     this.date,
     this.isOverdue = false,
-    this.dateShowsStep = false,
     this.onUpdate,
     this.onTap,
     super.key,
@@ -386,6 +388,8 @@ class CaseTableRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final court = _join([courtName, judgesName]);
+    final stepText = step?.trim() ?? '';
+    final resultText = result?.trim() ?? '';
 
     final children = <Widget>[];
     for (var i = 0; i < columns.length; i++) {
@@ -395,7 +399,14 @@ class CaseTableRow extends StatelessWidget {
           width: widths[column],
           child: KeyedSubtree(
             key: ValueKey('case-table-cell-${column.name}'),
-            child: _cell(context, l, column, court: court),
+            child: _cell(
+              context,
+              l,
+              column,
+              court: court,
+              stepText: stepText,
+              resultText: resultText,
+            ),
           ),
         ),
       );
@@ -425,6 +436,8 @@ class CaseTableRow extends StatelessWidget {
     AppLocalizations l,
     CaseTableColumn column, {
     required String court,
+    required String stepText,
+    required String resultText,
   }) {
     switch (column) {
       case CaseTableColumn.serial:
@@ -439,11 +452,9 @@ class CaseTableRow extends StatelessWidget {
       case CaseTableColumn.date:
         return _DataCell(
           text: date ?? '',
-          subText: dateShowsStep ? step : null,
           style: AppTypography.bodyMd.copyWith(
             color: isOverdue ? AppColors.error : AppColors.onSurface,
           ),
-          subStyle: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
         );
       case CaseTableColumn.court:
         return _DataCell(text: court, style: AppTypography.bodyMd);
@@ -465,7 +476,17 @@ class CaseTableRow extends StatelessWidget {
           style: AppTypography.bodyMd,
         );
       case CaseTableColumn.step:
-        return _DataCell(text: step ?? '', style: AppTypography.bodyMd);
+        // An AD/HCD case has a result and no step, so the column shows the
+        // result in the step's place; a case that somehow carries both shows
+        // the step first and the result beneath it rather than dropping one.
+        return _DataCell(
+          text: stepText.isNotEmpty ? stepText : resultText,
+          subText: stepText.isNotEmpty && resultText.isNotEmpty
+              ? resultText
+              : null,
+          textKey: const ValueKey('case-row-step'),
+          style: AppTypography.bodyMd,
+        );
       case CaseTableColumn.note:
         return _DataCell(
           text: note ?? '',
@@ -494,13 +515,11 @@ String _join(List<String?> parts) => parts
 class _DataCell extends StatelessWidget {
   final String text;
 
-  /// Optional second line shown under [text] (the step, in Overdue Dates'
-  /// combined "Previous Date & Step" cell). Blank means no second line.
+  /// Optional second line shown under [text] (the result of a case that also
+  /// carries a step). Blank means no second line.
   final String? subText;
   final TextStyle style;
 
-  /// Style of the second line; falls back to [style].
-  final TextStyle? subStyle;
   final TextAlign align;
 
   /// Key placed on the value itself, so a test can read the rendered text.
@@ -510,7 +529,6 @@ class _DataCell extends StatelessWidget {
     required this.text,
     this.subText,
     required this.style,
-    this.subStyle,
     this.align = TextAlign.start,
     this.textKey,
   });
@@ -544,7 +562,7 @@ class _DataCell extends StatelessWidget {
           line,
           Text(
             sub,
-            style: subStyle ?? style,
+            style: style,
             textAlign: align,
             maxLines: 1,
             softWrap: false,

@@ -318,11 +318,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       }
     }
 
-    // [widths] is set only in the extended view, where the table's columns
-    // decide each cell's width; the compact list keeps the cards.
-    Widget buildList(
-      Map<CaseTableColumn, double>? widths,
-    ) => ListView.separated(
+    // The compact list: one card row per group, with the court heading above
+    // its cards, exactly as this screen has always drawn it.
+    Widget buildList() => ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.md),
       itemCount: groups.length,
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
@@ -331,38 +329,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Row(
-                children: [
-                  const Icon(Icons.account_balance, size: 18),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      // Pre-seeded courts store their English name, so the
-                      // title is resolved through the seed label lookup to
-                      // follow the active language; a court the user added
-                      // keeps the name they typed.
-                      context.l10n.seedLabel(
-                        group.court.id,
-                        fallbackEn: group.court.courtName,
-                      ),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Text(
-                    AppDateUtils.formatDigits(group.cases.length, l.localeName),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _courtHeading(group, l),
             for (final currentCase in group.cases) ...[
-              widths == null
-                  ? _buildCard(currentCase, l)
-                  : _buildRow(currentCase, l, serials[currentCase.id]!, widths),
+              _buildCard(currentCase, l),
               const SizedBox(height: AppSpacing.md),
             ],
           ],
@@ -370,16 +339,78 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       },
     );
 
+    // The extended view pins each court heading: it holds the top of the list
+    // until the next court's heading reaches it, so the court a row belongs to
+    // stays on screen for as long as its cases do.
+    Widget buildTableList(Map<CaseTableColumn, double> widths) =>
+        RefreshIndicator(
+          onRefresh: _loadCases,
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+              for (final group in groups)
+                CaseTableGroup(
+                  key: ValueKey('court-header-${group.court.id}'),
+                  heading: _courtHeading(group, l),
+                  headingHeight: caseTableGroupHeaderHeight(context),
+                  rows: [
+                    for (final currentCase in group.cases)
+                      _buildRow(
+                        currentCase,
+                        l,
+                        serials[currentCase.id]!,
+                        widths,
+                      ),
+                  ],
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            ],
+          ),
+        );
+
     return extended
         ? CaseTableView(
             // The court is already the group heading here, so the table drops
             // the Name of Court column rather than repeating it in every row.
             columns: caseTableColumns(exclude: const {CaseTableColumn.court}),
             dateLabel: l.caseCard_nextDate,
-            builder: (_, widths) => buildList(widths),
+            builder: (_, widths) => buildTableList(widths),
           )
-        : buildList(null);
+        : buildList();
   }
+
+  /// The court heading above a group of hearings: the court icon, its name and
+  /// the hearing count, in the pre-seeded hierarchy's order.
+  ///
+  /// Compact draws it above its cards and extended draws it pinned, so the two
+  /// views share one heading.
+  Widget _courtHeading(_CourtGroup group, AppLocalizations l) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+    child: Row(
+      children: [
+        const Icon(Icons.account_balance, size: 18),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            // Pre-seeded courts store their English name, so the title is
+            // resolved through the seed label lookup to follow the active
+            // language; a court the user added keeps the name they typed.
+            context.l10n.seedLabel(
+              group.court.id,
+              fallbackEn: group.court.courtName,
+            ),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
+        Text(
+          AppDateUtils.formatDigits(group.cases.length, l.localeName),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
+      ],
+    ),
+  );
 
   Widget _buildCard(Case currentCase, AppLocalizations l) {
     final court = _courtsById[currentCase.courtId];
@@ -465,6 +496,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         currentCase.lastStep,
         courtCategoryId: court?.courtCategoryId,
       ),
+      result: currentCase.result,
       note: currentCase.notesResults,
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),

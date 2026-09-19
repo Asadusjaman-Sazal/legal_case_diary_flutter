@@ -304,20 +304,34 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
 
   @override
   Widget build(BuildContext context) {
-    // A zero-sized, non-clipping stack: the content is laid out and painted so
-    // it can be captured, but never reaches the visible dialog.
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Positioned(
-          left: -widget.budget.pageWidth,
-          top: 0,
-          child: SizedBox(
-            width: widget.budget.contentWidth,
-            child: _measuring ? _measurementBody() : _pageBody(),
+    // The parent must not decide this layout. A dialog positions its capture
+    // child with *loose* constraints (no `top`/`bottom` on the `Positioned`),
+    // and a `Stack` sized to those asserts `size.isFinite` and aborts the whole
+    // capture — which is how a Bengali print used to fail while an English one
+    // worked, Bengali being the only path that draws this widget. `LimitedBox`
+    // supplies a bound exactly where the parent left one out and passes a
+    // bounded parent through untouched.
+    //
+    // Inside, one block column is laid out at page width with unbounded height,
+    // so every block keeps the natural height the paginator measures, and it is
+    // drawn off the visible area rather than hidden: a capture needs a painted
+    // layer, so `Offstage` and zero opacity would not do.
+    return LimitedBox(
+      maxWidth: widget.budget.contentWidth,
+      maxHeight: widget.budget.contentHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: -widget.budget.pageWidth,
+            top: 0,
+            child: SizedBox(
+              width: widget.budget.contentWidth,
+              child: _measuring ? _measurementBody() : _pageBody(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -398,9 +412,12 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
         ),
       );
       widget.onCompleted(bytes);
-    } catch (error) {
+    } catch (error, stack) {
       // A capture failure is recoverable: the caller shows a message and the
-      // user keeps working.
+      // user keeps working. The cause still goes to the log, because a silent
+      // "could not print" is unfixable in the field.
+      debugPrint('Print capture failed: $error');
+      debugPrintStack(stackTrace: stack, maxFrames: 12);
       if (mounted) {
         widget.onStats?.call(
           PrintCaptureStats(
@@ -415,11 +432,23 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
   }
 
   /// Reads the laid-out height of every block, straight from the flex.
+  ///
+  /// Both guards exist because the failure they describe is the one that is
+  /// hardest to see from a report like "could not print": a capture widget that
+  /// was never laid out. The message says so instead of leaving an assertion
+  /// about an anonymous render box in the log.
   List<double> _measureBlocks() {
-    final flex = _measureKey.currentContext!.findRenderObject()! as RenderFlex;
+    final object = _measureKey.currentContext?.findRenderObject();
+    if (object is! RenderFlex) {
+      throw StateError('The print blocks were never laid out; cannot measure.');
+    }
+
     final heights = <double>[];
-    RenderBox? child = flex.firstChild;
+    RenderBox? child = object.firstChild;
     while (child != null) {
+      if (!child.hasSize) {
+        throw StateError('A print block was left unlaid out; cannot measure.');
+      }
       heights.add(child.size.height);
       child = (child.parentData! as FlexParentData).nextSibling;
     }

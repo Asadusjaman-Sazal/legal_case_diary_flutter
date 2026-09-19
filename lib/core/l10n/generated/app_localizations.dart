@@ -2980,6 +2980,18 @@ abstract class AppLocalizations {
   /// **'Designed & Developed by'**
   String get settingsMoreAbout_footer;
 
+  /// Footer line of every printed document.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed on {date}'**
+  String print_printedOn(String date);
+
+  /// Page counter of every printed document.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String print_pageOf(int page, int total);
+
   /// No description provided for @localeScratch_title.
   ///
   /// In en, this message translates to:

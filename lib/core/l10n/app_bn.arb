@@ -723,6 +723,30 @@
   "settingsMoreAbout_rateApp": "অ্যাপ রেট করুন",
   "settingsMoreAbout_shareApp": "অ্যাপ শেয়ার করুন",
   "settingsMoreAbout_footer": "ডিজাইন ও ডেভেলপমেন্ট",
+  "@@_section_print": "SHARED - PRINT (PDF EXPORT)  |  lib/core/print/print_document.dart (printed document labels)",
+  "print_printedOn": "প্রিন্টের তারিখ {date}",
+  "@print_printedOn": {
+      "description": "Footer line of every printed document.",
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "print_pageOf": "পৃষ্ঠা {page} / {total}",
+  "@print_pageOf": {
+      "description": "Page counter of every printed document.",
+      "placeholders": {
+          "page": {
+              "type": "int",
+              "format": "decimalPattern"
+          },
+          "total": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "@@_section_localeScratch": "DEV ONLY - LOCALIZATION SCRATCH  |  dev-only scratch screen - not user facing",
   "localeScratch_title": "স্থানীয়করণ স্ক্র্যাচ",
   "localeScratch_greeting": "হ্যালো",

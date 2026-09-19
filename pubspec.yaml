@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.214
+version: 0.0.215
 
 environment:
   sdk: ^3.12.2
@@ -60,6 +60,11 @@ dependencies:
 
   path: ^1.9.1
   path_provider: ^2.1.6
+
+  # PDF export, the standard OS print dialog, and sharing the app (Task 14).
+  pdf: ^3.13.0
+  printing: ^5.15.0
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

@@ -723,6 +723,30 @@
   "settingsMoreAbout_rateApp": "Rate App",
   "settingsMoreAbout_shareApp": "Share App",
   "settingsMoreAbout_footer": "Designed & Developed by",
+  "@@_section_print": "SHARED - PRINT (PDF EXPORT)  |  lib/core/print/print_document.dart (printed document labels)",
+  "print_printedOn": "Printed on {date}",
+  "@print_printedOn": {
+      "description": "Footer line of every printed document.",
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "print_pageOf": "Page {page} of {total}",
+  "@print_pageOf": {
+      "description": "Page counter of every printed document.",
+      "placeholders": {
+          "page": {
+              "type": "int",
+              "format": "decimalPattern"
+          },
+          "total": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "@@_section_localeScratch": "DEV ONLY - LOCALIZATION SCRATCH  |  dev-only scratch screen - not user facing",
   "localeScratch_title": "Localization Scratch",
   "localeScratch_greeting": "Hello",

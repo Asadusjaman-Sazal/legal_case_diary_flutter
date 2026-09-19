@@ -1590,6 +1590,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMoreAbout_footer => 'Designed & Developed by';
 
   @override
+  String print_printedOn(String date) {
+    return 'Printed on $date';
+  }
+
+  @override
+  String print_pageOf(int page, int total) {
+    final intl.NumberFormat pageNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String pageString = pageNumberFormat.format(page);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return 'Page $pageString of $totalString';
+  }
+
+  @override
   String get localeScratch_title => 'Localization Scratch';
 
   @override

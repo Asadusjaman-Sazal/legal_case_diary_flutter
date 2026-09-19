@@ -1600,6 +1600,24 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsMoreAbout_footer => 'ডিজাইন ও ডেভেলপমেন্ট';
 
   @override
+  String print_printedOn(String date) {
+    return 'প্রিন্টের তারিখ $date';
+  }
+
+  @override
+  String print_pageOf(int page, int total) {
+    final intl.NumberFormat pageNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String pageString = pageNumberFormat.format(page);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return 'পৃষ্ঠা $pageString / $totalString';
+  }
+
+  @override
   String get localeScratch_title => 'স্থানীয়করণ স্ক্র্যাচ';
 
   @override

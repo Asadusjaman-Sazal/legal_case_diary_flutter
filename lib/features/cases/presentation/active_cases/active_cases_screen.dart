@@ -5,6 +5,8 @@
 /// the task spec.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/print/print_document.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
@@ -55,6 +58,10 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
+  /// The screen's live scoped search (plan §12.1), restricted to the
+  /// non-disposed dataset this screen lists.
+  late final ScopedCaseSearch _search = ScopedCaseSearch(fetch: _searchCases);
+
   @override
   void initState() {
     super.initState();
@@ -72,20 +79,33 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
   }
 
-  /// The loaded cases the query still matches.
-  List<Case> get _visibleCases => _cases
-      .where(
-        (c) => matchesCaseQuery(
-          c,
-          _searchController.text,
-          onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
-        ),
-      )
-      .toList();
+  /// Runs one query through the Drift LIKE path, scoped to the active dataset.
+  Future<List<Case>> _searchCases(String query) async {
+    final repository = await ref.read(caseRepositoryProvider.future);
+    return repository.searchScoped(
+      query,
+      scope: const CaseSearchScope(
+        disposal: CaseSearchDisposal.activeOnly,
+      ),
+    );
+  }
+
+  /// Types into the bar: the query goes to SQL, then the list rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
+  }
+
+  /// The rows the list shows: the query's own result while one is in force,
+  /// otherwise the screen's loaded dataset.
+  List<Case> get _visibleCases => _search.rows ?? _cases;
 
   Future<void> _loadCases() async {
     try {
@@ -102,6 +122,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         _error = null;
         _loading = false;
       });
+      // A reload can change the dataset under an open search, so the query is
+      // re-run rather than answered from stale rows.
+      if (_search.isActive) await _onSearchChanged(_searchController.text);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -178,7 +201,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       onSearch: _toggleSearch,
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
         ref,
         screenId: CaseListScreenId.active,

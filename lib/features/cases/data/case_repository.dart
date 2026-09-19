@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/repositories/base_local_repository.dart';
 import '../../../database/app_database.dart';
 import '../../../sync/sync_write_helper.dart';
+import 'case_search_scope.dart';
 import 'local/case_history_dao.dart';
 import 'local/cases_dao.dart';
 
@@ -41,6 +42,18 @@ abstract class CaseRepository {
 
   /// Searches non-deleted cases.
   Future<List<Case>> search(String query, {int? limit, int? offset});
+
+  /// Searches non-deleted cases restricted to [scope] (plan §12.1).
+  ///
+  /// Every case-list screen's search bar runs on this, so the text query is
+  /// applied by SQL *after* the screen's own dataset predicate rather than to
+  /// whatever rows that screen happened to load.
+  Future<List<Case>> searchScoped(
+    String query, {
+    CaseSearchScope scope,
+    int? limit,
+    int? offset,
+  });
 
   /// Lists non-deleted cases with a next date in the range [start, end].
   Future<List<Case>> listByNextDateRange(
@@ -231,6 +244,19 @@ class LocalCaseRepository
   @override
   Future<List<Case>> search(String query, {int? limit, int? offset}) =>
       _casesDao.search(query, limit: limit, offset: offset);
+
+  @override
+  Future<List<Case>> searchScoped(
+    String query, {
+    CaseSearchScope scope = const CaseSearchScope(),
+    int? limit,
+    int? offset,
+  }) => _casesDao.searchScoped(
+    query,
+    scope: scope,
+    limit: limit,
+    offset: offset,
+  );
 
   @override
   Future<List<Case>> listByNextDateRange(

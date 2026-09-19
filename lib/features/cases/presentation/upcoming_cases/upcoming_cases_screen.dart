@@ -5,6 +5,8 @@
 /// grouped under localized date headers, newest group first.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/print/print_document.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
@@ -60,6 +63,14 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
+  /// The user's upcoming window, kept for the search so a query is scoped to
+  /// the same dates the list shows.
+  int _period = 7;
+
+  /// The screen's live scoped search (plan §12.1), restricted to this screen's
+  /// upcoming window.
+  late final ScopedCaseSearch _search = ScopedCaseSearch(fetch: _searchCases);
+
   @override
   void initState() {
     super.initState();
@@ -77,9 +88,37 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
   }
+
+  /// Runs one query through the Drift LIKE path, scoped to the same
+  /// tomorrow-through-`period` window this screen lists.
+  Future<List<Case>> _searchCases(String query) async {
+    final repository = await ref.read(caseRepositoryProvider.future);
+    final todayStart = AppDateUtils.bangladeshTodayStartOfDay();
+    return repository.searchScoped(
+      query,
+      scope: CaseSearchScope(
+        disposal: CaseSearchDisposal.activeOnly,
+        nextDateStart: todayStart + _millisecondsPerDay, // tomorrow
+        nextDateEnd: todayStart + _millisecondsPerDay * (_period + 1) - 1,
+      ),
+    );
+  }
+
+  /// Types into the bar: the query goes to SQL, then the list rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
+  }
+
+  /// The rows the list shows: the query's own result while one is in force,
+  /// otherwise the screen's loaded dataset.
+  List<Case> get _visibleRows => _search.rows ?? _cases;
 
   Future<void> _loadCases() async {
     try {
@@ -100,12 +139,16 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       if (!mounted) return;
       setState(() {
         _cases = cases;
+        _period = period;
         _courtsById = {for (final court in courts) court.id: court};
         _categoriesById = {for (final c in categories) c.id: c};
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
         _error = null;
         _loading = false;
       });
+      // A reload can change the dataset under an open search, so the query is
+      // re-run rather than answered from stale rows.
+      if (_search.isActive) await _onSearchChanged(_searchController.text);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -185,17 +228,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   /// Groups cases by their normalized Bangladesh civil date, newest first,
   /// and then by court inside each date.
   List<_DateGroup> _dateGroups(AppLocalizations l) {
-    final query = _searchController.text;
     final byDate = <int, List<Case>>{};
-    for (final c in _cases) {
+    for (final c in _visibleRows) {
       if (c.nextDate == null) continue;
-      if (!matchesCaseQuery(
-        c,
-        query,
-        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
-      )) {
-        continue;
-      }
       final dayStart = AppDateUtils.normalizeToBangladeshStartOfDay(
         c.nextDate!,
       );
@@ -270,7 +305,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       onSearch: _toggleSearch,
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
         ref,
         screenId: CaseListScreenId.upcoming,

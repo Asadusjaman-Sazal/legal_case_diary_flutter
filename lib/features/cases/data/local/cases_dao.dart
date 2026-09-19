@@ -7,6 +7,7 @@ import 'package:drift/drift.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
+import '../case_search_scope.dart';
 
 /// Data Access Object for [Cases] table operations.
 class CasesDao {
@@ -89,20 +90,30 @@ class CasesDao {
 
   /// Searches non-deleted cases across case number, parties, counsels, phone,
   /// remarks, and title (case-insensitive).
-  Future<List<Case>> search(String query, {int? limit, int? offset}) async {
-    final pattern = '%${query.toLowerCase()}%';
+  Future<List<Case>> search(String query, {int? limit, int? offset}) =>
+      searchScoped(query, limit: limit, offset: offset);
+
+  /// Searches non-deleted cases within [scope] across the plan §12.1 field set:
+  /// case number, petitioner, respondent, both lead counsels, the represented
+  /// client's own role row resolved through `on_behalf_id`, the party phone,
+  /// the case title/section and the remarks.
+  ///
+  /// This is the path every case-list screen's search bar runs on, so the field
+  /// set and the dataset predicate live in one place instead of being re-done
+  /// in memory per screen.
+  Future<List<Case>> searchScoped(
+    String query, {
+    CaseSearchScope scope = const CaseSearchScope(),
+    int? limit,
+    int? offset,
+  }) async {
+    final pattern = '%${query.trim().toLowerCase()}%';
     final select = db.select(db.cases)
       ..where(
         (row) =>
             row.isDeleted.equals(false) &
-            (row.caseNumber.lower().like(pattern) |
-                row.petitioner.lower().like(pattern) |
-                row.respondent.lower().like(pattern) |
-                row.petitionerLeadCounsel.lower().like(pattern) |
-                row.respondentLeadCounsel.lower().like(pattern) |
-                row.partyPhone.lower().like(pattern) |
-                row.caseTitleAndSection.lower().like(pattern) |
-                row.caseRemarks.lower().like(pattern)),
+            _textMatches(pattern) &
+            _scopeMatches(scope),
       )
       ..orderBy([
         (row) =>
@@ -114,6 +125,63 @@ class CasesDao {
       select.limit(limit, offset: offset ?? 0);
     }
     return select.get();
+  }
+
+  /// The plan §12.1 text predicate.
+  ///
+  /// `search` is every searchable column's case-insensitive `LIKE`; the three
+  /// required columns ([Cases.caseNumber], [Cases.petitioner],
+  /// [Cases.respondent]) are matched directly, and each nullable column is
+  /// guarded so a NULL cannot decide the predicate.
+  Expression<bool> _textMatches(String pattern) {
+    final row = db.cases;
+    final required =
+        row.caseNumber.lower().like(pattern) |
+        row.petitioner.lower().like(pattern) |
+        row.respondent.lower().like(pattern);
+    final optional =
+        _nullableLike(row.petitionerLeadCounsel, pattern) |
+        _nullableLike(row.respondentLeadCounsel, pattern) |
+        _nullableLike(row.partyPhone, pattern) |
+        _nullableLike(row.caseTitleAndSection, pattern) |
+        _nullableLike(row.caseRemarks, pattern);
+    return required | optional | _onBehalfRoleMatches(pattern);
+  }
+
+  /// `NULL LIKE …` guarded form of a substring match on a nullable column.
+  ///
+  /// The guard is `IS NOT NULL AND LIKE …` rather than `IS NULL OR LIKE …`:
+  /// with the OR form a NULL column would make the match **true** for every
+  /// row, and the query would return the whole table. `FALSE AND NULL` is FALSE
+  /// in SQLite, so this form is never NULL and never matches a NULL column.
+  Expression<bool> _nullableLike(Expression<String> column, String pattern) =>
+      column.isNotNull() & column.lower().like(pattern);
+
+  /// The represented client rule: which party a case's single `party_phone`
+  /// belongs to is answered by `on_behalf_id`, so the role row's own label is
+  /// searchable through a subquery on the id reference.
+  Expression<bool> _onBehalfRoleMatches(String pattern) {
+    final roles = db.selectOnly(db.onBehalfs)
+      ..addColumns([db.onBehalfs.id])
+      ..where(db.onBehalfs.name.lower().like(pattern));
+    return db.cases.onBehalfId.isInQuery(roles);
+  }
+
+  /// The screen's own dataset predicate (plan §12.1).
+  Expression<bool> _scopeMatches(CaseSearchScope scope) {
+    final row = db.cases;
+    final disposal = switch (scope.disposal) {
+      CaseSearchDisposal.any => const Constant<bool>(true),
+      CaseSearchDisposal.activeOnly =>
+        _stepIsNotDisposed & _resultIsNotDisposed,
+      CaseSearchDisposal.disposedOnly => _isDisposed,
+    };
+    final start = scope.nextDateStart;
+    final end = scope.nextDateEnd;
+    if (start == null || end == null) return disposal;
+    return disposal &
+        row.nextDate.isNotNull() &
+        row.nextDate.isBetweenValues(start, end);
   }
 
   /// Returns non-deleted cases for a court category.

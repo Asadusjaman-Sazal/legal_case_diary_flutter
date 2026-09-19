@@ -2,43 +2,20 @@
 ///
 /// Plan §12.1: every case listing searches only its own dataset, so the text
 /// query is applied *after* each screen's own filter (date range, disposed
-/// set, court, …). The matcher here is therefore pure and the screen owns the
-/// wiring; the searched fields mirror `CasesDao.search` (case number, parties,
-/// both lead counsels, party phone, case title/section, remarks) plus the
-/// represented client name resolved through the case's on-behalf row.
+/// set, court, …). The search itself is a Drift query — `CasesDao.searchScoped`
+/// owns the field set and the dataset predicate — and the screens each hold one
+/// [ScopedCaseSearch], which hands them the rows the query returned.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 
-/// Whether [currentCase] matches [query] on any of its searchable text fields.
-///
-/// Matching is case-insensitive and substring-based, and an empty query
-/// matches everything, so a screen can call this unconditionally.
-bool matchesCaseQuery(
-  Case currentCase,
-  String query, {
-  String? onBehalfName,
-}) {
-  final needle = query.trim().toLowerCase();
-  if (needle.isEmpty) return true;
-  final haystack = <String?>[
-    currentCase.caseNumber,
-    currentCase.petitioner,
-    currentCase.respondent,
-    currentCase.petitionerLeadCounsel,
-    currentCase.respondentLeadCounsel,
-    currentCase.partyPhone,
-    currentCase.caseTitleAndSection,
-    currentCase.caseRemarks,
-    onBehalfName,
-  ];
-  return haystack.any(
-    (value) => value != null && value.toLowerCase().contains(needle),
-  );
-}
+/// The runner a case-list screen's search bar uses: one [ScopedSearch] over
+/// [Case] rows, filled by `CaseRepository.searchScoped`.
+typedef ScopedCaseSearch = ScopedSearch<Case>;
 
 /// Centred empty state for a case list.
 ///

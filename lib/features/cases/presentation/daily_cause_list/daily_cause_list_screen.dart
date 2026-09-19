@@ -8,6 +8,8 @@
 /// daily-cause-list card layout (no Next Date field).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +25,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/print/print_document.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
@@ -70,6 +73,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
+  /// The screen's live scoped search (plan §12.1), restricted to the selected
+  /// date's hearings.
+  late final ScopedCaseSearch _search = ScopedCaseSearch(fetch: _searchCases);
+
   @override
   void initState() {
     super.initState();
@@ -88,9 +95,36 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
   }
+
+  /// Runs one query through the Drift LIKE path, scoped to the selected day.
+  Future<List<Case>> _searchCases(String query) async {
+    final repository = await ref.read(caseRepositoryProvider.future);
+    return repository.searchScoped(
+      query,
+      scope: CaseSearchScope(
+        disposal: CaseSearchDisposal.activeOnly,
+        nextDateStart: _selectedDate,
+        nextDateEnd:
+            _selectedDate + const Duration(days: 1).inMilliseconds - 1,
+      ),
+    );
+  }
+
+  /// Types into the bar: the query goes to SQL, then the list rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
+  }
+
+  /// The rows the list shows: the query's own result while one is in force,
+  /// otherwise the selected day's hearings.
+  List<Case> get _visibleRows => _search.rows ?? _cases;
 
   Future<void> _loadCases() async {
     try {
@@ -111,6 +145,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         _loading = false;
         _error = null;
       });
+      // A day change or a reload moves the dataset under an open search, so the
+      // query is re-run rather than answered from the previous day's rows.
+      if (_search.isActive) await _onSearchChanged(_searchController.text);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -222,16 +259,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         return a.orderIndex.compareTo(b.orderIndex);
       });
 
-    final query = _searchController.text;
     final byCourt = <String, List<Case>>{};
-    for (final c in _cases) {
-      if (!matchesCaseQuery(
-        c,
-        query,
-        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
-      )) {
-        continue;
-      }
+    for (final c in _visibleRows) {
       byCourt.putIfAbsent(c.courtId, () => []).add(c);
     }
 
@@ -262,7 +291,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       onSearch: _toggleSearch,
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
         ref,
         screenId: CaseListScreenId.dailyCauseList,

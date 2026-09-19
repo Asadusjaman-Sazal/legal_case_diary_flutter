@@ -8,6 +8,8 @@
 /// count boxes' title font size so the two rows read as one block.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,6 +68,10 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
+  /// The screen's live scoped search (plan §12.1): the query runs as a Drift
+  /// query over the All Cases dataset, rather than filtering the loaded rows.
+  late final ScopedCaseSearch _search = ScopedCaseSearch(fetch: _searchCases);
+
   @override
   void initState() {
     super.initState();
@@ -83,9 +89,28 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
   }
+
+  /// Runs one query through the Drift LIKE path for this screen's dataset.
+  Future<List<Case>> _searchCases(String query) async {
+    final repository = await ref.read(caseRepositoryProvider.future);
+    return repository.searchScoped(query);
+  }
+
+  /// Types into the bar: the query goes to SQL, then the list rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
+  }
+
+  /// The rows the list shows: the query's own result while one is in force,
+  /// otherwise the screen's loaded dataset.
+  List<Case> get _visibleRows => _search.rows ?? _cases;
 
   Future<void> _loadCases() async {
     try {
@@ -109,6 +134,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         _error = null;
         _loading = false;
       });
+      // A reload can change the dataset under an open search, so the query is
+      // re-run against the fresh data instead of answering from stale rows.
+      if (_search.isActive) await _onSearchChanged(_searchController.text);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -173,22 +201,17 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     );
   }
 
-  /// Applies the Court Name filter first, then the scoped search (plan §12.1
-  /// — the screen's own dataset is filtered before the text query), and
-  /// finally the Chronology ordering.
+  /// Applies the Court Name filter on top of the scoped search result (plan
+  /// §12.1 — the screen's own dataset is filtered before the text query, and
+  /// the text query itself already ran in SQL), then the Chronology ordering.
   List<Case> _visibleCases() {
-    final query = _searchController.text;
-    final filtered = _cases.where((c) {
-      if (_courtCategoryId != null) {
-        final categoryId = _courtsById[c.courtId]?.courtCategoryId;
-        if (categoryId != _courtCategoryId) return false;
-      }
-      return matchesCaseQuery(
-        c,
-        query,
-        onBehalfName: _onBehalfsById[c.onBehalfId]?.name,
-      );
-    }).toList();
+    final filtered = _visibleRows
+        .where(
+          (c) =>
+              _courtCategoryId == null ||
+              _courtsById[c.courtId]?.courtCategoryId == _courtCategoryId,
+        )
+        .toList();
 
     filtered.sort((a, b) {
       final cmp = a.createdAt.compareTo(b.createdAt);
@@ -232,7 +255,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       onSearch: _toggleSearch,
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
         ref,
         screenId: CaseListScreenId.allCases,

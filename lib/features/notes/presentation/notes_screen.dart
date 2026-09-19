@@ -6,6 +6,8 @@
 /// for the shared header (nav panel + search) and bottom nav.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +15,9 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
@@ -32,6 +36,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
+  /// runs as a Drift `LIKE` query over the note's title and body, rather than
+  /// filtering the notes this screen happened to have loaded.
+  late final ScopedSearch<Note> _search = ScopedSearch(fetch: _searchNotes);
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -41,8 +50,23 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
+  }
+
+  /// Runs one query through `NotesDao.search` (title and body).
+  Future<List<Note>> _searchNotes(String query) async {
+    final repository = await ref.read(notesRepositoryProvider.future);
+    return repository.search(query);
+  }
+
+  /// Types into the bar: the query goes to SQL, then the library rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
   }
 
   /// Opens the full-screen detail editor. [note] is null when creating new.
@@ -96,13 +120,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final notesAsync = ref.watch(notesViewModelProvider);
 
     final notes = notesAsync.value?.items ?? const <Note>[];
-    final query = _searchController.text.trim().toLowerCase();
-    final visible = query.isEmpty
-        ? notes
-        : notes.where((n) {
-            final hay = '${n.title} ${n.body}'.toLowerCase();
-            return hay.contains(query);
-          }).toList();
+    // The query's own rows while one is in force, otherwise the library.
+    final visible = _search.rows ?? notes;
 
     return CasesScreenModal(
       title: l.notesScreen_title,
@@ -112,7 +131,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       // there while the library is empty.
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onAddCase: () => _openDetail(),
       body: _NotesList(
         isSearching: _isSearching,

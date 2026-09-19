@@ -22,6 +22,7 @@ import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/print_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/on_behalf_side.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/cases/data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
@@ -33,42 +34,8 @@ import '../../../../shared/widgets/confirm_dialogs.dart';
 import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
 
-/// Side of a case a party sits on; the single stored `party_phone` is the
-/// represented client's phone and is shown only inside that party's block.
-enum _PartySide { petitioner, respondent }
-
 /// Long-press action chosen from a history item's option sheet.
 enum _HistoryEntryAction { edit, delete }
-
-/// Maps a seeded on-behalf role id to the party side it represents.
-///
-/// Only roles with an unambiguous procedural side are mapped. Unknown or
-/// ambiguous roles (e.g. custom rows) resolve to null so a stored phone is
-/// never mislabelled as belonging to a party.
-///
-/// ponytail: extended when the Task 07 two-column `petitioner_phone` /
-/// `respondent_phone` realignment lands, at which point per-party display no
-/// longer needs a side guess.
-_PartySide? _representedSideOf(OnBehalf role) {
-  final id = role.id;
-  final slug = id.substring(id.lastIndexOf('-') + 1);
-  switch (slug) {
-    case 'petitioner':
-    case 'plaintiff':
-    case 'appellant':
-    case 'revisioner':
-    case 'reviewer':
-    case 'decree_holder':
-      return _PartySide.petitioner;
-    case 'respondent':
-    case 'defendant':
-    case 'accused':
-    case 'judgement_debtor':
-      return _PartySide.respondent;
-    default:
-      return null;
-  }
-}
 
 /// Case detail host: shows a single case with full party/description/history.
 class CaseDetailScreen extends ConsumerStatefulWidget {
@@ -625,7 +592,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   ) {
     final clientSide = _onBehalf == null
         ? null
-        : _representedSideOf(_onBehalf!);
+        : representedSideOf(_onBehalf);
     final clientPhone = current.partyPhone?.trim();
     return _kanbanCard(
       child: Column(
@@ -656,25 +623,25 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           _partyBox(
             context,
             l: l,
-            side: _PartySide.petitioner,
-            isClient: clientSide == _PartySide.petitioner,
+            side: PartySide.petitioner,
+            isClient: clientSide == PartySide.petitioner,
             partyKey: const ValueKey('case-detail-party-petitioner'),
             title: l.caseDetailsScreen_petitioner,
             name: current.petitioner,
             counsel: current.petitionerLeadCounsel,
-            phone: clientSide == _PartySide.petitioner ? clientPhone : null,
+            phone: clientSide == PartySide.petitioner ? clientPhone : null,
           ),
           const SizedBox(height: AppSpacing.lg),
           _partyBox(
             context,
             l: l,
-            side: _PartySide.respondent,
-            isClient: clientSide == _PartySide.respondent,
+            side: PartySide.respondent,
+            isClient: clientSide == PartySide.respondent,
             partyKey: const ValueKey('case-detail-party-respondent'),
             title: l.caseDetailsScreen_respondent,
             name: current.respondent,
             counsel: current.respondentLeadCounsel,
-            phone: clientSide == _PartySide.respondent ? clientPhone : null,
+            phone: clientSide == PartySide.respondent ? clientPhone : null,
           ),
         ],
       ),
@@ -684,7 +651,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Widget _partyBox(
     BuildContext context, {
     required AppLocalizations l,
-    required _PartySide side,
+    required PartySide side,
     required bool isClient,
     required Key partyKey,
     required String title,
@@ -692,7 +659,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     required String? counsel,
     required String? phone,
   }) {
-    final titleColor = side == _PartySide.petitioner
+    final titleColor = side == PartySide.petitioner
         ? AppColors.secondary
         : AppColors.error;
     final trimmedCounsel = counsel?.trim();

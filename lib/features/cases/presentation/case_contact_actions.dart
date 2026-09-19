@@ -23,34 +23,12 @@ import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/services/contact_launcher.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/on_behalf_side.dart';
 import '../../../database/app_database.dart';
 
-/// Side of a case a party sits on.
-enum RepresentedSide { petitioner, respondent }
-
-/// Maps a seeded on-behalf role to the party side it represents.
-///
-/// Only roles with an unambiguous procedural side are mapped; a custom role the
-/// user added returns `null`, so a stored number is never mislabelled because
-/// of a role name the app does not know.
-RepresentedSide? representedSideOf(OnBehalf? role) {
-  if (role == null) return null;
-  final id = role.id;
-  final slug = id.substring(id.lastIndexOf('-') + 1);
-  return switch (slug) {
-    'petitioner' ||
-    'plaintiff' ||
-    'appellant' ||
-    'revisioner' ||
-    'reviewer' ||
-    'decree_holder' => RepresentedSide.petitioner,
-    'respondent' ||
-    'defendant' ||
-    'accused' ||
-    'judgement_debtor' => RepresentedSide.respondent,
-    _ => null,
-  };
-}
+/// The party-side rule lives in `core/utils/on_behalf_side.dart`, so the Case
+/// Detail party card, this chooser and the scoped case search cannot disagree
+/// about who the client is.
 
 /// Who the Phone/Message buttons reach on one case, and why not.
 class ContactTargets {
@@ -93,14 +71,17 @@ ContactTargets resolveContactTargets({
   required AppTranslations translations,
 }) {
   final l = translations.raw;
-  final side = representedSideOf(onBehalf) ?? RepresentedSide.petitioner;
-  final isPetitioner = side == RepresentedSide.petitioner;
+  // An unresolved (custom or missing) role falls back to the petitioner, which
+  // is the side the app labels first everywhere else.
+  final side = representedSideOf(onBehalf) ?? PartySide.petitioner;
+  final isPetitioner = side == PartySide.petitioner;
+  final client = representedClientName(currentCase, onBehalf);
 
   return ContactTargets(
     partyLabel: isPetitioner
         ? l.caseDetailsScreen_petitioner
         : l.caseDetailsScreen_respondent,
-    clientName: isPetitioner ? currentCase.petitioner : currentCase.respondent,
+    clientName: client,
     otherPartyLabel: isPetitioner
         ? l.caseDetailsScreen_respondent
         : l.caseDetailsScreen_petitioner,
@@ -111,12 +92,15 @@ ContactTargets resolveContactTargets({
 
 /// The pre-filled message: the ARB template with this case's own facts.
 ///
-/// The court falls back to the case's stored court text when the id is not
-/// pre-seeded, and the lawyer's name comes from the Profile screen — the same
-/// two values the printed sheet uses.
+/// [clientName] is the **represented** client (resolved through `on_behalf_id`),
+/// not simply the petitioner, so a firm acting for the respondent sends the
+/// respondent's name. The court falls back to the case's stored court text when
+/// the id is not pre-seeded, and the lawyer's name comes from the Profile
+/// screen — the same two values the printed sheet uses.
 String buildContactMessage({
   required AppLocalizations l,
   required Case currentCase,
+  required String clientName,
   required String courtLabel,
   required String lawyerName,
   required bool message,
@@ -127,20 +111,20 @@ String buildContactMessage({
           currentCase.nextDate!,
           locale: l.localeName,
         );
-  final clientName = currentCase.petitioner.trim();
+  final client = clientName.trim();
   final court = courtLabel.trim();
   final lawyer = lawyerName.trim();
 
   return message
       ? l.messageTemplate_clientSms(
-          clientName,
+          client,
           currentCase.caseNumber,
           nextDate,
           court,
           lawyer,
         )
       : l.messageTemplate_clientWhatsApp(
-          clientName,
+          client,
           currentCase.caseNumber,
           nextDate,
           court,
@@ -185,6 +169,7 @@ Future<void> showCaseContactActions(
   final body = buildContactMessage(
     l: l,
     currentCase: currentCase,
+    clientName: targets.clientName,
     courtLabel: courtLabel,
     lawyerName: lawyerName,
     message: message,

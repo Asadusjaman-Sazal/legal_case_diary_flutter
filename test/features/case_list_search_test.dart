@@ -21,13 +21,14 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
+import 'package:legal_case_diary/core/utils/on_behalf_side.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/data/case_repository.dart';
+import 'package:legal_case_diary/features/cases/data/case_search_scope.dart';
 import 'package:legal_case_diary/features/cases/data/local/case_history_dao.dart';
 import 'package:legal_case_diary/features/cases/data/local/cases_dao.dart';
 import 'package:legal_case_diary/features/cases/presentation/active_cases/active_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
-import 'package:legal_case_diary/features/cases/presentation/case_search.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/disposed_cases/disposed_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/overdue_dates/overdue_dates_screen.dart';
@@ -108,6 +109,7 @@ void main() {
     required int nextDate,
     String? step,
     String? petitionerLeadCounsel,
+    String? respondentLeadCounsel,
     String? partyPhone,
     String? titleAndSection,
     String? remarks,
@@ -120,6 +122,7 @@ void main() {
       petitioner: Value(petitioner),
       respondent: Value(respondent),
       petitionerLeadCounsel: Value(petitionerLeadCounsel),
+      respondentLeadCounsel: Value(respondentLeadCounsel),
       partyPhone: Value(partyPhone),
       caseTitleAndSection: Value(titleAndSection),
       caseRemarks: Value(remarks),
@@ -256,95 +259,215 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// A case row for the pure matcher tests (no database needed).
-  Case caseRow({
-    String caseNumber = '110/2021',
-    String petitioner = 'Md. Rahim Uddin',
-    String respondent = 'Bangladesh Government',
-    String? petitionerLeadCounsel,
-    String? respondentLeadCounsel,
-    String? partyPhone,
-    String? caseTitleAndSection,
-    String? caseRemarks,
-  }) => Case(
-    id: 'case-1',
-    userId: 'user-1',
-    courtId: courtId,
-    caseType: 'Civil Suit',
-    caseNumber: caseNumber,
-    petitioner: petitioner,
-    respondent: respondent,
-    petitionerLeadCounsel: petitionerLeadCounsel,
-    respondentLeadCounsel: respondentLeadCounsel,
-    onBehalfId: roleId,
-    partyPhone: partyPhone,
-    caseTitleAndSection: caseTitleAndSection,
-    caseRemarks: caseRemarks,
-    createdAt: 1,
-    updatedAt: 1,
-    isDeleted: false,
-  );
+  group('CasesDao.searchScoped', () {
+    late CasesDao dao;
+    setUp(() => dao = CasesDao(db));
 
-  group('matchesCaseQuery', () {
-    test('an empty or blank query matches every case', () {
-      final row = caseRow();
-      expect(matchesCaseQuery(row, ''), isTrue);
-      expect(matchesCaseQuery(row, '   '), isTrue);
+    test('every searchable field is matched, case-insensitively', () async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      await seedCase(
+        caseNumber: '110/2021',
+        petitioner: 'Md. Rahim Uddin',
+        respondent: 'Bangladesh Government',
+        petitionerLeadCounsel: 'Adv. Karim',
+        respondentLeadCounsel: 'Adv. Salam',
+        partyPhone: '01812332721',
+        titleAndSection: 'Section 138, N.I. Act',
+        remarks: 'Settlement talks ongoing',
+        nextDate: today,
+      );
+
+      // The plan §12.1 field set: case number, both parties, both lead
+      // counsels, the party phone, the case title/section and the remarks.
+      for (final query in <String>[
+        '110/2021',
+        'rahim',
+        'GOVERNMENT',
+        'KARIM',
+        'salam',
+        '181233',
+        '138',
+        'taLks',
+      ]) {
+        expect(await dao.searchScoped(query), hasLength(1), reason: query);
+      }
+
+      // A query that matches nothing stays empty: the NULL columns cannot
+      // swallow the whole predicate and let every row through.
+      expect(await dao.searchScoped('zzz'), isEmpty);
+      expect(await dao.searchScoped('n.i. act'), hasLength(1));
+      expect(await dao.searchScoped('salam karim'), isEmpty);
     });
 
-    test('every searchable field is matched, case-insensitively', () {
-      // The field set mirrors CasesDao.search, so the in-memory query and the
-      // DAO primitive agree on what a case matches.
-      expect(matchesCaseQuery(caseRow(), '110/2021'), isTrue);
-      expect(matchesCaseQuery(caseRow(), 'rahim'), isTrue);
-      expect(matchesCaseQuery(caseRow(), 'GOVERNMENT'), isTrue);
-      expect(
-        matchesCaseQuery(caseRow(petitionerLeadCounsel: 'adv. karim'), 'KARIM'),
-        isTrue,
+    test('the represented party is resolved through on_behalf_id', () async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      await seedCase(
+        caseNumber: '110/2021',
+        petitioner: 'Md. Rahim Uddin',
+        respondent: 'Bangladesh Government',
+        nextDate: today,
       );
+
+      // The role row's own label is searchable through the reference the case
+      // stores, so "who is the client" is reachable by name.
+      expect(await dao.searchScoped('petitioner'), hasLength(1));
+
+      OnBehalf role(String id, String name) => OnBehalf(
+        id: id,
+        courtCategoryId: 'search-category',
+        name: name,
+        orderIndex: 1,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 1,
+        isDeleted: false,
+      );
+
+      final clientCase = (await dao.getAll()).single;
       expect(
-        matchesCaseQuery(
-          caseRow(respondentLeadCounsel: 'Adv. Salam'),
-          'salam',
+        representedClientName(clientCase, role(roleId, 'Petitioner')),
+        'Md. Rahim Uddin',
+      );
+      // Acting for the respondent names the respondent — the bug this rule
+      // exists to prevent.
+      expect(
+        representedClientName(
+          clientCase,
+          role('search-role-respondent', 'Respondent'),
         ),
-        isTrue,
+        'Bangladesh Government',
       );
-      expect(
-        matchesCaseQuery(caseRow(partyPhone: '01812332721'), '181233'),
-        isTrue,
+      // A custom or missing role resolves to nothing rather than guessing.
+      expect(representedSideOf(role('custom-role', 'বাদী')), isNull);
+      expect(representedSideOf(null), isNull);
+    });
+
+    test('the dataset predicate decides what a query can reach', () async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      await seedCase(
+        caseNumber: 'ACT-1',
+        petitioner: 'Active Matter',
+        respondent: 'State',
+        step: 'Arrival',
+        nextDate: today + 2 * dayMs,
       );
+      await seedCase(
+        caseNumber: 'DIS-1',
+        petitioner: 'Disposed Matter',
+        respondent: 'State',
+        step: disposedStepNames.first,
+        nextDate: today - 2 * dayMs,
+      );
+      await seedCase(
+        caseNumber: 'FUT-1',
+        petitioner: 'Distant Matter',
+        respondent: 'State',
+        step: 'Arrival',
+        nextDate: today + 60 * dayMs,
+      );
+
+      // "matter" is in all three: only the screen's own scope decides which
+      // of them that screen can see.
+      expect(await dao.searchScoped('matter'), hasLength(3));
       expect(
-        matchesCaseQuery(
-          caseRow(caseTitleAndSection: 'Section 138, N.I. Act'),
-          '138',
+        await dao.searchScoped(
+          'matter',
+          scope: const CaseSearchScope(
+            disposal: CaseSearchDisposal.activeOnly,
+          ),
         ),
-        isTrue,
+        hasLength(2),
       );
       expect(
-        matchesCaseQuery(caseRow(caseRemarks: 'Settlement talks ongoing'), 'taLks'),
-        isTrue,
+        await dao.searchScoped(
+          'matter',
+          scope: const CaseSearchScope(
+            disposal: CaseSearchDisposal.disposedOnly,
+          ),
+        ),
+        hasLength(1),
+      );
+      // The upcoming window is tomorrow through tomorrow + 7 days.
+      expect(
+        await dao.searchScoped(
+          'matter',
+          scope: CaseSearchScope(
+            disposal: CaseSearchDisposal.activeOnly,
+            nextDateStart: today + dayMs,
+            nextDateEnd: today + 8 * dayMs - 1,
+          ),
+        ),
+        hasLength(1),
+      );
+      // The overdue window is everything before today, active only.
+      expect(
+        await dao.searchScoped(
+          'matter',
+          scope: CaseSearchScope(
+            disposal: CaseSearchDisposal.activeOnly,
+            nextDateStart: 0,
+            nextDateEnd: today - 1,
+          ),
+        ),
+        isEmpty,
       );
     });
 
-    test('the represented client name is matched through its role row', () {
-      final row = caseRow();
-      expect(matchesCaseQuery(row, 'petitioner'), isFalse);
-      expect(matchesCaseQuery(row, 'petitioner', onBehalfName: 'Petitioner'), isTrue);
-      // A role the user typed themselves is matched exactly like a seeded one.
-      expect(
-        matchesCaseQuery(row, 'বাদী', onBehalfName: 'বাদী'),
-        isTrue,
-      );
-    });
+    test('soft-deleted rows are excluded and paging is honoured', () async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      final ids = <String>[];
+      for (var index = 0; index < 3; index++) {
+        ids.add(
+          await seedCase(
+            caseNumber: 'PAG-$index',
+            petitioner: 'Paged Party',
+            respondent: 'State',
+            nextDate: today,
+          ),
+        );
+      }
+      await caseRepository.deleteCase((await caseRepository.getById(ids.first))!);
 
-    test('a non-matching query and absent optional fields never match', () {
-      final bare = caseRow();
-      expect(matchesCaseQuery(bare, 'zzz'), isFalse);
-      // A query against a field this case does not have stays false instead of
-      // throwing on the null.
-      expect(matchesCaseQuery(bare, 'n.i. act'), isFalse);
-      expect(matchesCaseQuery(bare, '0181'), isFalse);
+      expect(await dao.searchScoped('paged'), hasLength(2));
+      expect(await dao.searchScoped('paged', limit: 1), hasLength(1));
+      expect(
+        await dao.searchScoped('paged', limit: 1, offset: 1),
+        hasLength(1),
+      );
+      expect(await dao.searchScoped('paged', limit: 1, offset: 5), isEmpty);
     });
+  });
+
+  testWidgets('the search bar queries the database, not just the loaded rows', (
+    tester,
+  ) async {
+    await seedDatasets();
+    await pumpScreen(tester, AllCasesScreen.new);
+
+    // A case saved after this screen loaded: an in-memory filter over the
+    // loaded rows cannot see it, a Drift query can — which is the whole point
+    // of running the search through the DAO (plan §12.1).
+    final late = await seedCase(
+      caseNumber: 'SRH-9',
+      petitioner: 'Late Arrival Party',
+      respondent: 'State',
+      step: 'Arrival',
+      nextDate: AppDateUtils.bangladeshTodayStartOfDay() + 4 * dayMs,
+    );
+
+    final l = stringsOf(tester, find.byType(AllCasesScreen));
+    await tester.tap(find.byTooltip(l.casesModal_search));
+    await tester.pumpAndSettle();
+    await search(tester, 'late arrival');
+
+    expect(find.byKey(ValueKey('case-card-$late')), findsOneWidget);
+
+    // Closing the bar restores the screen's own dataset.
+    await tester.tap(find.byTooltip(l.sharedActions_close));
+    await tester.pumpAndSettle();
+    expect(find.byKey(ValueKey('case-card-$late')), findsNothing);
+
+    await unmount(tester);
   });
 
   testWidgets('the search icon opens the bar and filters the list', (

@@ -7,6 +7,8 @@
 /// add/edit (Google Keep style). Tapping a card opens the sheet to edit.
 library;
 
+import 'dart:async';
+
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/repository_providers.dart';
+import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
@@ -32,6 +36,13 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
+  /// runs as a Drift `LIKE` query across the reference's five text fields rather
+  /// than filtering the rows this screen happened to have loaded.
+  late final ScopedSearch<CaseReference> _search = ScopedSearch(
+    fetch: _searchReferences,
+  );
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -41,8 +52,23 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
-      if (!_isSearching) _searchController.clear();
+      if (!_isSearching) {
+        _searchController.clear();
+        unawaited(_search.run(''));
+      }
     });
+  }
+
+  /// Runs one query through `CaseReferencesDao.search` (all five text fields).
+  Future<List<CaseReference>> _searchReferences(String query) async {
+    final repository = await ref.read(referenceRepositoryProvider.future);
+    return repository.search(query);
+  }
+
+  /// Types into the bar: the query goes to SQL, then the library rebuilds.
+  Future<void> _onSearchChanged(String query) async {
+    await _search.run(query);
+    if (mounted) setState(() {});
   }
 
   /// Opens the add/edit screen. [reference] is null when creating new.
@@ -99,15 +125,8 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     final referencesAsync = ref.watch(referenceViewModelProvider);
 
     final references = referencesAsync.value?.items ?? const <CaseReference>[];
-    final query = _searchController.text.trim().toLowerCase();
-    final visible = query.isEmpty
-        ? references
-        : references.where((r) {
-            final hay = '${r.referenceAndPageNo} ${r.statute ?? ''} '
-                '${r.sectionOrArticle ?? ''} ${r.titleAndDescription ?? ''} '
-                '${r.commentsNotes ?? ''}'.toLowerCase();
-            return hay.contains(query);
-          }).toList();
+    // The query's own rows while one is in force, otherwise the library.
+    final visible = _search.rows ?? references;
 
     return CasesScreenModal(
       title: l.caseReferenceScreen_title,
@@ -117,7 +136,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       // there while the library is empty.
       isSearching: _isSearching,
       searchController: _searchController,
-      onSearchChanged: (_) => setState(() {}),
+      onSearchChanged: _onSearchChanged,
       onAddCase: () => _openSheet(),
       body: _ReferenceList(
         isSearching: _isSearching,

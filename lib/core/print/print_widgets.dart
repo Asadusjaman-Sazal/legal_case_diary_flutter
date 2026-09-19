@@ -120,7 +120,8 @@ List<Widget> buildPrintBlocks(PrintDocument document) => [
   for (final field in document.meta) _metaBlock(field),
   for (final group in document.groups) ...[
     if (group.heading != null) _groupHeadingBlock(group.heading!),
-    for (final entry in group.entries) ..._entryBlocks(entry),
+    for (final entry in group.entries)
+      ..._entryBlocks(entry, showRules: document.showRules),
   ],
 ];
 
@@ -144,7 +145,8 @@ Widget buildPrintPage({
           children: blocks,
         ),
       ),
-      const SizedBox(height: 1, child: ColoredBox(color: PrintStyle.rule)),
+      if (document.showRules)
+        const SizedBox(height: 1, child: ColoredBox(color: PrintStyle.rule)),
       Padding(
         padding: const EdgeInsets.only(top: 4),
         child: Row(
@@ -177,10 +179,11 @@ List<Widget> _headerBlocks(PrintDocument document) => [
       padding: const EdgeInsets.only(bottom: 2),
       child: Text(document.subtitle, style: PrintStyle.subtitle),
     ),
-  const Padding(
-    padding: EdgeInsets.only(top: 6),
-    child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
-  ),
+  if (document.showRules)
+    const Padding(
+      padding: EdgeInsets.only(top: 6),
+      child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
+    ),
 ];
 
 Widget _metaBlock(PrintField field) => Padding(
@@ -193,31 +196,35 @@ Widget _groupHeadingBlock(String heading) => Padding(
   child: Text(heading, style: PrintStyle.groupHeading),
 );
 
-List<Widget> _entryBlocks(PrintEntry entry) => [
-  Padding(
-    padding: const EdgeInsets.only(top: 5),
-    child: Text(
-      [entry.serial, entry.heading]
-          .where((part) => part.trim().isNotEmpty)
-          .join('. '),
-      style: PrintStyle.entryHeading,
-    ),
-  ),
-  for (final field in entry.fields)
-    Padding(
-      padding: const EdgeInsets.only(top: 1.5),
-      child: _labelledRow(
-        field.label,
-        field.value,
-        PrintStyle.label,
-        PrintStyle.value,
+/// An entry's blocks: its heading line (when it has one), its field rows, and
+/// the hairline rule that closes it unless the document turned rules off.
+List<Widget> _entryBlocks(PrintEntry entry, {required bool showRules}) {
+  final heading = [entry.serial, entry.heading]
+      .where((part) => part.trim().isNotEmpty)
+      .join('. ');
+  return [
+    if (heading.isNotEmpty)
+      Padding(
+        padding: const EdgeInsets.only(top: 5),
+        child: Text(heading, style: PrintStyle.entryHeading),
       ),
-    ),
-  const Padding(
-    padding: EdgeInsets.only(top: 6),
-    child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
-  ),
-];
+    for (final field in entry.fields)
+      Padding(
+        padding: const EdgeInsets.only(top: 1.5),
+        child: _labelledRow(
+          field.label,
+          field.value,
+          PrintStyle.label,
+          PrintStyle.value,
+        ),
+      ),
+    if (showRules)
+      const Padding(
+        padding: EdgeInsets.only(top: 6),
+        child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
+      ),
+  ];
+}
 
 Widget _labelledRow(
   String label,

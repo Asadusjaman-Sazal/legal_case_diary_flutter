@@ -212,6 +212,49 @@ void main() {
     expect(await pageCount(200), greaterThan(1));
   });
 
+  test('the case detail sheet draws no rules; the list layout keeps them',
+      () async {
+    final renderer = PdfNativeRenderer(fontLoader: _diskFontLoader);
+
+    /// The rule tints of the file, in uncompressed form: grey400 is the header
+    /// divider and grey300 the hairline closing an entry. Nothing else this
+    /// renderer draws uses either (text and the two other greys are grey600 and
+    /// grey700), so their presence *is* the rules — stroked, hence `RG`.
+    Future<Set<String>> ruleTints(PrintDocument document) async {
+      final bytes = await renderer.render(document, compress: false);
+      return RegExp(
+        r'0\.74118 0\.74118 0\.74118 (?:rg|RG)'
+        r'|0\.87843 0\.87843 0\.87843 (?:rg|RG)',
+      ).allMatches(latin1.decode(bytes)).map((match) => match.group(0)!).toSet();
+    }
+
+    expect(
+      await ruleTints(_document(title: 'Active Cases', values: ['Karim Rahman'])),
+      isNotEmpty,
+      reason: 'the case list separates its entries with a rule',
+    );
+    expect(
+      await ruleTints(
+        buildCaseDetailDocument(
+          translations: _t('en'),
+          showAllHistory: true,
+          printedAtEpochMs: 1_758_259_200_000,
+          detail: const PrintCaseDetail(
+            caseNumber: '34/26',
+            caseType: 'First Appeal',
+            court: 'Dhaka Judge Court',
+            petitioner: 'Karim Rahman',
+            history: [
+              PrintHistoryEntry(date: '19/09/2026', step: 'Evidence'),
+            ],
+          ),
+        ),
+      ),
+      isEmpty,
+      reason: 'the detail sheet must print no underline under any of its lines',
+    );
+  });
+
   test('a Bengali document is flagged away from this path', () {
     expect(
       _document(title: 'Daily Cause List', values: _bengaliFixtures).needsRaster,

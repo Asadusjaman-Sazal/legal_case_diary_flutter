@@ -141,7 +141,7 @@ class PdfNativeRenderer {
           pw.SizedBox(height: 12),
           for (final group in document.groups) ...[
             if (group.heading != null) _groupHeading(group.heading!, set),
-            ...group.entries.map((entry) => _entry(entry, set)),
+            ...group.entries.map((entry) => _entry(entry, document, set)),
           ],
         ],
       ),
@@ -168,7 +168,8 @@ class PdfNativeRenderer {
             ),
           ),
         pw.SizedBox(height: 6),
-        pw.Divider(height: 1, thickness: 0.6, color: PdfColors.grey400),
+        if (document.showRules)
+          pw.Divider(height: 1, thickness: 0.6, color: PdfColors.grey400),
       ],
     );
   }
@@ -192,24 +193,29 @@ class PdfNativeRenderer {
     );
   }
 
-  /// One case entry: heading line, then its labelled fields.
-  pw.Widget _entry(PrintEntry entry, PrintFontSet set) {
+  /// One case entry: its heading line (when it has one), then its labelled
+  /// fields, closed by the hairline rule unless the document turned rules off.
+  pw.Widget _entry(PrintEntry entry, PrintDocument document, PrintFontSet set) {
+    final heading = [entry.serial, entry.heading]
+        .where((part) => part.trim().isNotEmpty)
+        .join('. ');
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(vertical: 6),
-      decoration: const pw.BoxDecoration(
-        border: pw.Border(
-          bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
-        ),
-      ),
+      decoration: document.showRules
+          ? const pw.BoxDecoration(
+              border: pw.Border(
+                bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+              ),
+            )
+          : null,
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Text(
-            [entry.serial, entry.heading]
-                .where((part) => part.trim().isNotEmpty)
-                .join('. '),
-            style: pw.TextStyle(font: set.data, fontSize: 10.5),
-          ),
+          if (heading.isNotEmpty)
+            pw.Text(
+              heading,
+              style: pw.TextStyle(font: set.data, fontSize: 10.5),
+            ),
           for (final field in entry.fields)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 2),

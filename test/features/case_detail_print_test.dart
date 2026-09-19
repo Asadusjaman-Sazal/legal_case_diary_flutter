@@ -217,15 +217,31 @@ void main() {
     final l = stringsOf(tester);
     final document = renderer.documents.single;
 
-    expect(document.title, contains('423/2023'));
+    // The first line leads with the case type, then the number, then the court.
+    // The type is stored as typed, and the print inserts nothing between them.
+    expect(document.title, startsWith('Civil Suit 423/2023'));
     expect(document.title, contains('Joint District Judge'));
+    // The header line above already carries the case number, so no section
+    // repeats it as an entry heading (history rows keep their own date).
+    final sections = document.groups.where(
+      (group) => group.heading != l.caseDetailsScreen_caseHistory,
+    );
+    for (final entry in sections.expand((group) => group.entries)) {
+      expect(entry.heading, isEmpty);
+    }
+    // And the sheet draws no hairline under any of its lines.
+    expect(document.showRules, isFalse);
     // The labels are the screen's own, so the sheet reads like the screen.
     final labels = document.groups
         .expand((group) => group.entries)
         .expand((entry) => entry.fields)
         .map((field) => field.label)
         .toList();
-    expect(labels, contains(l.addEditCaseSheet_caseNumber));
+    // The case number and case type are on the header line, so the Case Details
+    // section does not repeat them as labelled rows.
+    expect(labels, isNot(contains(l.addEditCaseSheet_caseNumber)));
+    expect(labels, isNot(contains(l.allCasesScreen_caseType)));
+    expect(labels, isNot(contains(l.addEditCaseSheet_nameOfCourt)));
     expect(labels, contains(l.caseDetailsScreen_petitioner));
     expect(labels, contains(l.caseDetailsScreen_sectionsOrCaseTitle));
     // Section headings come from the screen's own labels too.

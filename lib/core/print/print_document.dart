@@ -108,12 +108,13 @@ class PrintCaseGroup {
 /// fields, already in print order.
 class PrintEntry {
   /// Creates a composed printed entry.
-  const PrintEntry({required this.heading, required this.fields, this.serial = ''});
+  const PrintEntry({required this.fields, this.heading = '', this.serial = ''});
 
   /// Localized serial, empty on the screens that show none.
   final String serial;
 
-  /// Primary line of the entry (`110/2021 · Civil Suit`).
+  /// Primary line of the entry (`First Appeal- 34/26`), empty on the entries
+  /// whose section heading has already said what they are (Case Detail).
   final String heading;
 
   /// Labelled values printed under [heading], in canonical order.
@@ -245,12 +246,32 @@ class PrintCaseDetail {
 /// Number of history rows the Case Detail screen shows while collapsed.
 const int collapsedHistoryRows = 3;
 
+/// Case type and case number in the order every printout writes them:
+/// `First Appeal- 34/26` — the type first, then the number, one space between
+/// them — and just the number when the case has no type yet.
+///
+/// Nothing is inserted between the two: the seeded case-type labels already
+/// carry their own trailing dash (`First Appeal-`), so joining with a space is
+/// what produces `First Appeal- 34/26`, and a user-added type simply reads
+/// `Misc 34/26` until it is named with a dash of its own.
+String caseTypeAndCaseNumber(String caseType, String caseNumber) {
+  final type = caseType.trim();
+  final number = caseNumber.trim();
+  if (type.isEmpty) return number;
+  return number.isEmpty ? type : '$type $number';
+}
+
 /// Builds the Case Detail sheet.
 ///
 /// Plan §8 lists a Case History timeline export; the user asked for the whole
-/// detail screen instead, printed "the way the user has the screen" — so the
+/// detail sheet instead, printed "the way the user has the screen" — so the
 /// history honours the screen's own expansion state: [showAllHistory] false
 /// prints the same [collapsedHistoryRows] rows the screen is showing.
+///
+/// Two things this sheet deliberately does not do: it repeats no case number
+/// under a section heading (the header line above already carries it), and it
+/// draws no rules ([showRules] false), so a sheet of a few labelled lines reads
+/// as text rather than as a ruled table.
 PrintDocument buildCaseDetailDocument({
   required AppTranslations translations,
   required PrintCaseDetail detail,
@@ -265,18 +286,19 @@ PrintDocument buildCaseDetailDocument({
   PrintGroup section(String heading, List<PrintField> fields) => PrintGroup(
     heading: heading,
     entries: [
+      // No entry heading: the case number used to be repeated here, once per
+      // section, and the sheet's own first line already carries it.
       PrintEntry(
-        heading: detail.caseNumber,
         fields: fields.where((field) => field.value.trim().isNotEmpty).toList(),
       ),
     ],
   );
 
   final groups = <PrintGroup>[
+    // The first section starts at the judges. The header line above already
+    // says `First Appeal- 34/26 · Dhaka Judge Court`, so Case Number, Case Type
+    // and Name of Court rows would only repeat it.
     section(l.caseDetailsScreen_title, [
-      PrintField(l.addEditCaseSheet_caseNumber, detail.caseNumber),
-      PrintField(l.allCasesScreen_caseType, detail.caseType),
-      PrintField(l.addEditCaseSheet_nameOfCourt, detail.court),
       PrintField(l.addEditCaseSheet_honorableJudges, detail.judges),
       PrintField(l.addEditCaseSheet_nextDate, detail.nextDate),
       PrintField(l.caseCard_lastStep, detail.step),
@@ -323,8 +345,10 @@ PrintDocument buildCaseDetailDocument({
   ];
 
   return PrintDocument(
-    title: '${detail.caseNumber}'
-        '${detail.court.trim().isEmpty ? '' : ' · ${detail.court}'}',
+    title: [
+      caseTypeAndCaseNumber(detail.caseType, detail.caseNumber),
+      if (detail.court.trim().isNotEmpty) detail.court.trim(),
+    ].join(' · '),
     subtitle: detail.history.isEmpty
         ? ''
         : l.caseDetailsScreen_entriesTotal(detail.history.length),
@@ -348,6 +372,7 @@ PrintDocument buildCaseDetailDocument({
       ),
     ),
     pageLabel: l.print_pageOf,
+    showRules: false,
   );
 }
 
@@ -360,6 +385,7 @@ class PrintDocument {
     required this.footer,
     this.subtitle = '',
     this.meta = const [],
+    this.showRules = true,
     this.pageLabel = _defaultPageLabel,
   });
 
@@ -377,6 +403,10 @@ class PrintDocument {
 
   /// Footer line, e.g. `Printed on 19/09/2026`.
   final String footer;
+
+  /// Whether the renderers draw the hairline rules — under the header, under
+  /// each entry and above the footer. The case detail sheet turns them off.
+  final bool showRules;
 
   /// Localized `Page X of Y` line for renderers that paginate.
   final String Function(int page, int total) pageLabel;
@@ -488,11 +518,9 @@ PrintDocument buildCaseListDocument({
   );
 }
 
-/// Primary line of an entry: `110/2021 · Civil Suit`.
-String _entryHeading(PrintCaseRow row) => [
-  row.caseNumber.trim(),
-  if (row.caseType.trim().isNotEmpty) row.caseType.trim(),
-].join(' · ');
+/// Primary line of an entry: `First Appeal- 34/26`.
+String _entryHeading(PrintCaseRow row) =>
+    caseTypeAndCaseNumber(row.caseType, row.caseNumber);
 
 /// Both lead counsels on one line, whichever of them exist.
 String _counselLine(PrintCaseRow row) => [

@@ -24,7 +24,8 @@ final int _printedAt = AppDateUtils.bangladeshCivilDateEpoch(2026, 9, 19);
 
 PrintCaseRow _row({
   String caseNumber = '110/2021',
-  String caseType = 'Civil Suit',
+  // Dash-terminated, as the pre-seeded case-type labels are.
+  String caseType = 'Civil Suit-',
   String petitioner = 'Karim Rahman',
   String respondent = 'State',
   String court = 'Dhaka Judge Court',
@@ -73,7 +74,7 @@ void main() {
       final document = _flatDocument(_t('en'));
       final entry = document.groups.single.entries.single;
 
-      expect(entry.heading, '110/2021 · Civil Suit');
+      expect(entry.heading, 'Civil Suit- 110/2021');
       expect(
         entry.fields.map((field) => field.label),
         [
@@ -90,6 +91,32 @@ void main() {
       expect(entry.fields[0].value, 'Dhaka Judge Court');
       expect(entry.fields[3].value, 'Adv. A. Hossain · Adv. B. Islam');
       expect(entry.fields[6].value, '19/09/2026');
+    });
+
+    test('leads with the case type, then the number, with nothing between', () {
+      // The type's own trailing dash is the only dash on the line.
+      expect(_flatDocument(_t('en')).groups.single.entries.single.heading,
+          'Civil Suit- 110/2021');
+      // A user-added type without a dash is joined by one space, not given one.
+      expect(
+        _flatDocument(_t('en'), rows: [_row(caseType: 'Misc')])
+            .groups
+            .single
+            .entries
+            .single
+            .heading,
+        'Misc 110/2021',
+      );
+      // A case with no type yet prints its number alone, never a bare dash.
+      expect(
+        _flatDocument(_t('en'), rows: [_row(caseType: '')])
+            .groups
+            .single
+            .entries
+            .single
+            .heading,
+        '110/2021',
+      );
     });
 
     test('leaves blank values off the page instead of printing labels alone', () {
@@ -163,6 +190,78 @@ void main() {
         bengali.groups.single.entries.map((entry) => entry.serial),
         ['১', '২'],
       );
+    });
+  });
+
+  group('case detail sheet', () {
+    PrintDocument detailDocument({
+      String caseType = 'First Appeal-',
+      String court = 'Dhaka Judge Court',
+    }) => buildCaseDetailDocument(
+      translations: _t('en'),
+      showAllHistory: true,
+      printedAtEpochMs: _printedAt,
+      detail: PrintCaseDetail(
+        caseNumber: '34/26',
+        caseType: caseType,
+        court: court,
+        judges: 'Md. Justice A. Rahman',
+        nextDate: '19/10/2026',
+        step: 'Evidence',
+        result: 'Adjourned',
+        petitioner: 'Karim Rahman',
+        history: const [
+          PrintHistoryEntry(date: '19/09/2026', step: 'Evidence'),
+        ],
+      ),
+    );
+
+    test('leads with the case type, then the number, then the court', () {
+      // The type carries its own dash; the print adds none.
+      expect(
+        detailDocument(caseType: 'First Appeal-').title,
+        'First Appeal- 34/26 · Dhaka Judge Court',
+      );
+      expect(
+        detailDocument(caseType: 'First Appeal').title,
+        'First Appeal 34/26 · Dhaka Judge Court',
+      );
+      expect(detailDocument(caseType: '').title, '34/26 · Dhaka Judge Court');
+    });
+
+    test('no section repeats the case number under its heading', () {
+      final l = _t('en').raw;
+      final document = detailDocument();
+      final sections = document.groups.where(
+        (group) => group.heading != l.caseDetailsScreen_caseHistory,
+      );
+
+      expect(sections, isNotEmpty);
+      for (final entry in sections.expand((group) => group.entries)) {
+        expect(entry.heading, '');
+        expect(entry.heading, isNot(document.title));
+      }
+      // Nor as labelled rows: only the header line names the type, the number
+      // and the court, so the section starts at the judges.
+      final labels = sections
+          .expand((group) => group.entries)
+          .expand((entry) => entry.fields)
+          .map((field) => field.label)
+          .toList();
+      expect(labels, isNot(contains(l.addEditCaseSheet_caseNumber)));
+      expect(labels, isNot(contains(l.allCasesScreen_caseType)));
+      expect(labels, isNot(contains(l.addEditCaseSheet_nameOfCourt)));
+      expect(labels.first, l.addEditCaseSheet_honorableJudges);
+      // History rows keep their date — that heading says something.
+      final history = document.groups.firstWhere(
+        (group) => group.heading == l.caseDetailsScreen_caseHistory,
+      );
+      expect(history.entries.single.heading, '19/09/2026');
+    });
+
+    test('turns the hairline rules off, so the sheet reads as text', () {
+      expect(detailDocument().showRules, isFalse);
+      expect(_flatDocument(_t('en')).showRules, isTrue);
     });
   });
 

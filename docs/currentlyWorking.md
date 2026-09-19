@@ -1,3 +1,13 @@
+### 2026-09-19 — Print wording and rules the user asked for (case list + Case Detail) — COMPLETE
+
+- **The case-list heading leads with the case type.** `Civil Suit- 110/2021` — type first, then the number, one space between them — and a case with no type yet prints its number alone rather than a dangling dash. `caseTypeAndCaseNumber` is that one rule, shared by the list heading and the Case Detail title, and it inserts nothing: the seeded case-type labels already end with their own dash (`First Appeal-`), so an extra one read `First Appeal-- 34/26`.
+- **Case Detail's first line is the same shape.** `First Appeal- 34/26 · Dhaka Judge Court` instead of number-then-court.
+- **No section repeats the case number.** The header line above already carries it, so the four sections have no entry heading at all; `PrintEntry.heading` is now optional and both renderers skip an empty heading instead of drawing a blank line (history rows keep their date — that heading says something). The Case Details section also lost its **Case Number**, **Case Type** and **Name of Court** rows for the same reason — all three are on the header line — so it now opens with the judges.
+- **No underlines left on the sheet.** New `PrintDocument.showRules` (the Case Detail sheet turns it off) gates the header divider, the rule closing each entry and the rule above the footer, in the native renderer and in the raster widget alike; the case-list print keeps its rules.
+- **On the reported "yellow underlines":** the app draws none. Dumping the rendered file's uncompressed content stream shows black plus grey300/400/600/700 only, so the light greys were the only line under a line, and the sheet now draws none of them. If a yellow underline is still visible on the phone, it is coming from the viewer, not the PDF.
+- **Tests (7 new).** 4 model tests (type-first heading incl. the typeless case, the sheet's type-first title, no repeated case number, rules off), 1 native-renderer test (grey300/grey400 strokes present for a list layout, absent for the detail sheet) and 2 print-block tests (no rule widget, no empty heading line). `flutter analyze` clean; `flutter test` **476 passed, 2 skipped**; version `0.0.221`.
+- **Resume point:** Task 14 remains device-only work (a Bengali print on the Redmi, the print preview and the four contact-launch paths). Next task in order: `docs/tasks/15_backup_restore_and_free_tier_gating.md`.
+
 ### 2026-09-19 — Bug fix: the Bengali print path never laid out — COMPLETE
 
 - **The report:** printing works in English and fails in Bengali, which lands on "প্রিন্ট তৈরি হচ্ছে" and then "প্রিন্ট করা যায়নি". Reproduced on the host in one test, so no device was needed.

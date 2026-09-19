@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/print/print_document.dart';
 import 'package:legal_case_diary/core/print/print_page_capture.dart';
+import 'package:legal_case_diary/core/print/print_widgets.dart';
 
 /// A real PNG, read from disk: the pdf package decodes it itself.
 final Uint8List _logoPng = File('assets/icons/app_logo.png').readAsBytesSync();
@@ -63,7 +64,65 @@ Future<void> _drive(WidgetTester tester, bool Function() done, {int maxFrames = 
   }
 }
 
+/// A one-entry document, with or without the hairline rules.
+PrintDocument _ruled({required bool showRules}) => PrintDocument(
+  title: 'Case Details',
+  footer: 'Printed on 19/09/2026',
+  pageLabel: (page, total) => 'Page $page of $total',
+  showRules: showRules,
+  groups: [
+    PrintGroup(
+      heading: 'Case Details',
+      entries: const [
+        PrintEntry(fields: [PrintField('Petitioner', 'Karim Rahman')]),
+      ],
+    ),
+  ],
+);
+
 void main() {
+  group('print blocks', () {
+    testWidgets('a document without rules draws no hairline anywhere',
+        (tester) async {
+      Future<int> ruleCount(PrintDocument document) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Column(children: buildPrintBlocks(document)),
+              ),
+            ),
+          ),
+        );
+        return tester
+            .widgetList(
+              find.byWidgetPredicate(
+                (widget) => widget is ColoredBox && widget.color == PrintStyle.rule,
+              ),
+            )
+            .length;
+      }
+
+      expect(await ruleCount(_ruled(showRules: true)), greaterThan(0));
+      expect(await ruleCount(_ruled(showRules: false)), 0);
+    });
+
+    testWidgets('a heading-less entry draws no empty heading line',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(children: buildPrintBlocks(_ruled(showRules: true))),
+          ),
+        ),
+      );
+
+      expect(find.text('Petitioner'), findsOneWidget);
+      // Neither an empty heading line nor a stray `". "` joins one.
+      expect(find.text(''), findsNothing);
+    });
+  });
+
   group('page budget', () {
     test('caps the pixel ratio so one page fits the byte budget', () {
       const budget = PrintPageBudget();

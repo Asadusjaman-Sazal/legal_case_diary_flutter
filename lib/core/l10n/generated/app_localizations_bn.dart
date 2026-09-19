@@ -458,6 +458,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get casesContact_phone => 'ফোন';
 
   @override
+  String get casesContact_whatsappNote => 'চ্যাট খুলবে — সেখান থেকে কল করুন।';
+
+  @override
+  String casesContact_noNumber(String party) {
+    return '$party পক্ষের কোনো নম্বর সংরক্ষিত নেই।';
+  }
+
+  @override
   String get casesContact_unableToOpenApp => 'অ্যাপটি খোলা যায়নি।';
 
   @override
@@ -806,8 +814,10 @@ class AppLocalizationsBn extends AppLocalizations {
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এ্রর পরবর্তী তারিখ $nextDate । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।';
+    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর পরবর্তী তারিখ $nextDate, $court। - $lawyerName';
   }
 
   @override
@@ -815,8 +825,10 @@ class AppLocalizationsBn extends AppLocalizations {
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এ্রর পরবর্তী তারিখ $nextDate । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।';
+    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর পরবর্তী তারিখ $nextDate, $court। - $lawyerName';
   }
 
   @override
@@ -1598,6 +1610,33 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsMoreAbout_footer => 'ডিজাইন ও ডেভেলপমেন্ট';
+
+  @override
+  String get print_notAvailable => 'এই স্ক্রিনে প্রিন্ট করা যায় না।';
+
+  @override
+  String appShare_invite(String link) {
+    return 'লিগ্যাল কেস ডায়েরি - বাংলাদেশি আইনজীবীদের জন্য পূর্ণাঙ্গ অফলাইন কেস ডায়েরি।\nএখান থেকে নিন: $link';
+  }
+
+  @override
+  String get appShare_subject => 'লিগ্যাল কেস ডায়েরি';
+
+  @override
+  String get appShare_copied =>
+      'শেয়ার করার অ্যাপ পাওয়া যায়নি, তাই আমন্ত্রণটি ক্লিপবোর্ডে কপি হয়েছে।';
+
+  @override
+  String get appShare_failed => 'অ্যাপ শেয়ার করা যায়নি';
+
+  @override
+  String get print_preparing => 'প্রিন্ট তৈরি হচ্ছে';
+
+  @override
+  String get print_failed => 'প্রিন্ট করা যায়নি';
+
+  @override
+  String get print_nothingToPrint => 'প্রিন্ট করার কিছু নেই';
 
   @override
   String print_printedOn(String date) {

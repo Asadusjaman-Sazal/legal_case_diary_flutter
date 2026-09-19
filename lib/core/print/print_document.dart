@@ -135,6 +135,222 @@ class PrintGroup {
 /// Builds the plain `Page X of Y` line before a localized one is supplied.
 String _defaultPageLabel(int page, int total) => 'Page $page of $total';
 
+/// One Case History row as it is printed.
+class PrintHistoryEntry {
+  /// Creates a printable history row.
+  const PrintHistoryEntry({
+    required this.date,
+    this.step = '',
+    this.result = '',
+    this.note = '',
+  });
+
+  /// The hearing date, already formatted by the caller.
+  final String date;
+
+  /// Localized step label.
+  final String step;
+
+  /// Free-text result (higher courts have no step dropdown).
+  final String result;
+
+  /// Note or result text.
+  final String note;
+}
+
+/// A case reduced to what the Case Detail sheet prints.
+class PrintCaseDetail {
+  /// Creates a printable case detail; every optional field is left off the page
+  /// when empty, so a sheet never shows a label with nothing after it.
+  const PrintCaseDetail({
+    required this.caseNumber,
+    this.caseType = '',
+    this.court = '',
+    this.judges = '',
+    this.nextDate = '',
+    this.step = '',
+    this.result = '',
+    this.petitioner = '',
+    this.respondent = '',
+    this.petitionerCounsel = '',
+    this.respondentCounsel = '',
+    this.onBehalf = '',
+    this.phone = '',
+    this.titleAndSection = '',
+    this.remarks = '',
+    this.tenderNumber = '',
+    this.previousCourtCase = '',
+    this.districtOfOrigin = '',
+    this.history = const [],
+  });
+
+  /// Case number as the user typed it.
+  final String caseNumber;
+
+  /// Localized case type.
+  final String caseType;
+
+  /// Localized court name.
+  final String court;
+
+  /// Judges, shown for the higher courts.
+  final String judges;
+
+  /// Formatted next date.
+  final String nextDate;
+
+  /// Localized current step.
+  final String step;
+
+  /// Free-text result.
+  final String result;
+
+  /// Petitioner party label.
+  final String petitioner;
+
+  /// Respondent party label.
+  final String respondent;
+
+  /// Petitioner's lead counsel.
+  final String petitionerCounsel;
+
+  /// Respondent's lead counsel.
+  final String respondentCounsel;
+
+  /// Localized represented role from `on_behalf_id`.
+  final String onBehalf;
+
+  /// The represented party's phone number.
+  final String phone;
+
+  /// Sections or free-text case title.
+  final String titleAndSection;
+
+  /// Remarks or case summary.
+  final String remarks;
+
+  /// Tender number (tender cases only).
+  final String tenderNumber;
+
+  /// Previous court case reference.
+  final String previousCourtCase;
+
+  /// District of origin (lower courts).
+  final String districtOfOrigin;
+
+  /// The case's history, newest first as the screen shows it.
+  final List<PrintHistoryEntry> history;
+}
+
+/// Number of history rows the Case Detail screen shows while collapsed.
+const int collapsedHistoryRows = 3;
+
+/// Builds the Case Detail sheet.
+///
+/// Plan §8 lists a Case History timeline export; the user asked for the whole
+/// detail screen instead, printed "the way the user has the screen" — so the
+/// history honours the screen's own expansion state: [showAllHistory] false
+/// prints the same [collapsedHistoryRows] rows the screen is showing.
+PrintDocument buildCaseDetailDocument({
+  required AppTranslations translations,
+  required PrintCaseDetail detail,
+  required bool showAllHistory,
+  int? printedAtEpochMs,
+}) {
+  final l = translations.raw;
+  final history = showAllHistory
+      ? detail.history
+      : detail.history.take(collapsedHistoryRows).toList();
+
+  PrintGroup section(String heading, List<PrintField> fields) => PrintGroup(
+    heading: heading,
+    entries: [
+      PrintEntry(
+        heading: detail.caseNumber,
+        fields: fields.where((field) => field.value.trim().isNotEmpty).toList(),
+      ),
+    ],
+  );
+
+  final groups = <PrintGroup>[
+    section(l.caseDetailsScreen_title, [
+      PrintField(l.addEditCaseSheet_caseNumber, detail.caseNumber),
+      PrintField(l.allCasesScreen_caseType, detail.caseType),
+      PrintField(l.addEditCaseSheet_nameOfCourt, detail.court),
+      PrintField(l.addEditCaseSheet_honorableJudges, detail.judges),
+      PrintField(l.addEditCaseSheet_nextDate, detail.nextDate),
+      PrintField(l.caseCard_lastStep, detail.step),
+      PrintField(l.addEditCaseSheet_result, detail.result),
+    ]),
+    section(l.addEditCaseSheet_sectionParties, [
+      PrintField(l.caseDetailsScreen_onBehalfOf, detail.onBehalf),
+      PrintField(l.caseDetailsScreen_petitioner, detail.petitioner),
+      PrintField(
+        l.addEditCaseSheet_petitionerLeadCounsel,
+        detail.petitionerCounsel,
+      ),
+      PrintField(l.caseDetailsScreen_respondent, detail.respondent),
+      PrintField(
+        l.addEditCaseSheet_respondentLeadCounsel,
+        detail.respondentCounsel,
+      ),
+      PrintField(l.addEditCaseSheet_partyPhone, detail.phone),
+    ]),
+    section(l.caseDetailsScreen_caseTitleAndRemark, [
+      PrintField(l.caseDetailsScreen_sectionsOrCaseTitle, detail.titleAndSection),
+      PrintField(l.caseDetailsScreen_remarksOrCaseSummary, detail.remarks),
+    ]),
+    section(l.caseDetailsScreen_otherInformation, [
+      PrintField(l.caseDetailsScreen_tenderNumber, detail.tenderNumber),
+      PrintField(l.caseDetailsScreen_previousCourtCase, detail.previousCourtCase),
+      PrintField(l.caseDetailsScreen_districtOfOrigin, detail.districtOfOrigin),
+    ]),
+    if (history.isNotEmpty)
+      PrintGroup(
+        heading: l.caseDetailsScreen_caseHistory,
+        entries: [
+          for (final entry in history)
+            PrintEntry(
+              heading: entry.date,
+              fields: [
+                PrintField(l.caseCard_lastStep, entry.step),
+                PrintField(l.addEditCaseSheet_result, entry.result),
+                PrintField(l.addEditCaseSheet_note, entry.note),
+              ].where((field) => field.value.trim().isNotEmpty).toList(),
+            ),
+        ],
+      ),
+  ];
+
+  return PrintDocument(
+    title: '${detail.caseNumber}'
+        '${detail.court.trim().isEmpty ? '' : ' · ${detail.court}'}',
+    subtitle: detail.history.isEmpty
+        ? ''
+        : l.caseDetailsScreen_entriesTotal(detail.history.length),
+    meta: [
+      if (detail.petitioner.trim().isNotEmpty || detail.respondent.trim().isNotEmpty)
+        PrintField(
+          l.addEditCaseSheet_sectionParties,
+          [detail.petitioner, detail.respondent]
+              .where((party) => party.trim().isNotEmpty)
+              .join(' · '),
+        ),
+    ],
+    // Sections with nothing in them are dropped, not printed empty.
+    groups: groups
+        .where((group) => group.entries.any((entry) => entry.fields.isNotEmpty))
+        .toList(),
+    footer: l.print_printedOn(
+      AppDateUtils.formatDateDDMMYYYY(
+        printedAtEpochMs ?? DateTime.now().millisecondsSinceEpoch,
+        locale: l.localeName,
+      ),
+    ),
+    pageLabel: l.print_pageOf,
+  );
+}
+
 /// A complete printable document, ready for either renderer.
 class PrintDocument {
   /// Creates a printable document.

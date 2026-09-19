@@ -459,6 +459,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get casesContact_phone => 'Phone';
 
   @override
+  String get casesContact_whatsappNote =>
+      'Opens the chat — start the call from there.';
+
+  @override
+  String casesContact_noNumber(String party) {
+    return 'No number saved for the $party.';
+  }
+
+  @override
   String get casesContact_unableToOpenApp => 'Unable to open the app.';
 
   @override
@@ -805,8 +814,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   ) {
-    return 'Dear $clientName, your case $caseNumber is scheduled for hearing on $nextDate. Please contact us if you have any questions.';
+    return 'Dear $clientName, your case $caseNumber is scheduled for hearing on $nextDate at $court. - $lawyerName';
   }
 
   @override
@@ -814,8 +825,10 @@ class AppLocalizationsEn extends AppLocalizations {
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   ) {
-    return 'Dear $clientName, your case $caseNumber is scheduled for hearing on $nextDate. Please contact us if you have any questions.';
+    return 'Dear $clientName, your case $caseNumber is scheduled for hearing on $nextDate at $court. - $lawyerName';
   }
 
   @override
@@ -1588,6 +1601,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMoreAbout_footer => 'Designed & Developed by';
+
+  @override
+  String get print_notAvailable => 'Print is not available on this screen.';
+
+  @override
+  String appShare_invite(String link) {
+    return 'Legal Case Diary - a complete offline case diary for Bangladeshi lawyers.\nGet it here: $link';
+  }
+
+  @override
+  String get appShare_subject => 'Legal Case Diary';
+
+  @override
+  String get appShare_copied =>
+      'No app to share with, so the invite was copied to your clipboard.';
+
+  @override
+  String get appShare_failed => 'Could Not Share the App';
+
+  @override
+  String get print_preparing => 'Preparing Your Print';
+
+  @override
+  String get print_failed => 'Could Not Print';
+
+  @override
+  String get print_nothingToPrint => 'Nothing to Print';
 
   @override
   String print_printedOn(String date) {

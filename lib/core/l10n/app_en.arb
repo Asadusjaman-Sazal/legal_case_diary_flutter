@@ -199,6 +199,16 @@
   "casesContact_whatsapp": "WhatsApp",
   "casesContact_message": "Message",
   "casesContact_phone": "Phone",
+  "casesContact_whatsappNote": "Opens the chat — start the call from there.",
+  "casesContact_noNumber": "No number saved for the {party}.",
+  "@casesContact_noNumber": {
+      "description": "Shown when a case has no phone number for the named party.",
+      "placeholders": {
+          "party": {
+              "type": "String"
+          }
+      }
+  },
   "casesContact_unableToOpenApp": "Unable to open the app.",
   "casesContact_unableToOpenWhatsApp": "Unable to open WhatsApp.",
   "casesContact_unableToCall": "Unable to place a call.",
@@ -334,7 +344,7 @@
   "division_rangpur": "Rangpur",
   "division_mymensingh": "Mymensingh",
   "@@_section_messageTemplate": "MESSAGE TEMPLATES (SMS / WhatsApp)  |  lib/core/l10n - client SMS / WhatsApp templates",
-  "messageTemplate_clientSms": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.",
+  "messageTemplate_clientSms": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}",
   "@messageTemplate_clientSms": {
       "description": "SMS sent to clients about an upcoming hearing.",
       "placeholders": {
@@ -346,10 +356,16 @@
           },
           "nextDate": {
               "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
+              "type": "String"
           }
       }
   },
-  "messageTemplate_clientWhatsApp": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.",
+  "messageTemplate_clientWhatsApp": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}",
   "@messageTemplate_clientWhatsApp": {
       "description": "WhatsApp template sent to clients about an upcoming hearing.",
       "placeholders": {
@@ -360,6 +376,12 @@
               "type": "String"
           },
           "nextDate": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
               "type": "String"
           }
       }
@@ -724,6 +746,43 @@
   "settingsMoreAbout_shareApp": "Share App",
   "settingsMoreAbout_footer": "Designed & Developed by",
   "@@_section_print": "SHARED - PRINT (PDF EXPORT)  |  lib/core/print/print_document.dart (printed document labels)",
+  "print_notAvailable": "Print is not available on this screen.",
+  "@print_notAvailable": {
+      "description": "Shown when a screen has no printable document (Notes, Case Reference)."
+  },
+  "appShare_invite": "Legal Case Diary - a complete offline case diary for Bangladeshi lawyers.\nGet it here: {link}",
+  "@appShare_invite": {
+      "description": "Invite text handed to the Android share sheet by the Share action.",
+      "placeholders": {
+          "link": {
+              "type": "String"
+          }
+      }
+  },
+  "appShare_subject": "Legal Case Diary",
+  "@appShare_subject": {
+      "description": "Subject of the share intent carrying the app invite."
+  },
+  "appShare_copied": "No app to share with, so the invite was copied to your clipboard.",
+  "@appShare_copied": {
+      "description": "Fallback message when no share target answers the invite."
+  },
+  "appShare_failed": "Could Not Share the App",
+  "@appShare_failed": {
+      "description": "Shown when the share sheet itself failed."
+  },
+  "print_preparing": "Preparing Your Print",
+  "@print_preparing": {
+      "description": "Title of the progress dialog while a document is rendered page by page."
+  },
+  "print_failed": "Could Not Print",
+  "@print_failed": {
+      "description": "Shown when rendering or presenting a print job failed; the user can try again."
+  },
+  "print_nothingToPrint": "Nothing to Print",
+  "@print_nothingToPrint": {
+      "description": "Shown when the current filters leave no rows to print."
+  },
   "print_printedOn": "Printed on {date}",
   "@print_printedOn": {
       "description": "Footer line of every printed document.",

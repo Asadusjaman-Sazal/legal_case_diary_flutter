@@ -932,6 +932,18 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get casesContact_phone;
 
+  /// No description provided for @casesContact_whatsappNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the chat — start the call from there.'**
+  String get casesContact_whatsappNote;
+
+  /// Shown when a case has no phone number for the named party.
+  ///
+  /// In en, this message translates to:
+  /// **'No number saved for the {party}.'**
+  String casesContact_noNumber(String party);
+
   /// No description provided for @casesContact_unableToOpenApp.
   ///
   /// In en, this message translates to:
@@ -1589,21 +1601,25 @@ abstract class AppLocalizations {
   /// SMS sent to clients about an upcoming hearing.
   ///
   /// In en, this message translates to:
-  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.'**
+  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}'**
   String messageTemplate_clientSms(
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   );
 
   /// WhatsApp template sent to clients about an upcoming hearing.
   ///
   /// In en, this message translates to:
-  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate}. Please contact us if you have any questions.'**
+  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}'**
   String messageTemplate_clientWhatsApp(
     String clientName,
     String caseNumber,
     String nextDate,
+    String court,
+    String lawyerName,
   );
 
   /// No description provided for @settingsScreen_title.
@@ -2979,6 +2995,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Designed & Developed by'**
   String get settingsMoreAbout_footer;
+
+  /// Shown when a screen has no printable document (Notes, Case Reference).
+  ///
+  /// In en, this message translates to:
+  /// **'Print is not available on this screen.'**
+  String get print_notAvailable;
+
+  /// Invite text handed to the Android share sheet by the Share action.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Case Diary - a complete offline case diary for Bangladeshi lawyers.\nGet it here: {link}'**
+  String appShare_invite(String link);
+
+  /// Subject of the share intent carrying the app invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Case Diary'**
+  String get appShare_subject;
+
+  /// Fallback message when no share target answers the invite.
+  ///
+  /// In en, this message translates to:
+  /// **'No app to share with, so the invite was copied to your clipboard.'**
+  String get appShare_copied;
+
+  /// Shown when the share sheet itself failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Share the App'**
+  String get appShare_failed;
+
+  /// Title of the progress dialog while a document is rendered page by page.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing Your Print'**
+  String get print_preparing;
+
+  /// Shown when rendering or presenting a print job failed; the user can try again.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Print'**
+  String get print_failed;
+
+  /// Shown when the current filters leave no rows to print.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to Print'**
+  String get print_nothingToPrint;
 
   /// Footer line of every printed document.
   ///

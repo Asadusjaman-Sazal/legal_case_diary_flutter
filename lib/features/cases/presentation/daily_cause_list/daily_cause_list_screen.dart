@@ -12,21 +12,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/print/print_document.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../case_contact_actions.dart';
+import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/cases/data/local/cases_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
+import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/providers/daily_cause_list_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
@@ -37,8 +41,6 @@ import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../case_table_view.dart';
 import '../cases_screen_modal.dart';
-
-enum _ContactActionTarget { whatsApp, phone, message }
 
 /// Daily cause list host: court-grouped hearings for the selected civil date.
 class DailyCauseListScreen extends ConsumerStatefulWidget {
@@ -142,54 +144,22 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     if (picked != null && mounted) _selectDate(picked);
   }
 
-  Future<void> _launchPartyAction(
+  /// Opens the shared Phone/Message chooser for the represented party
+  /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
+  /// the case's single `party_phone`, and the message from the ARB template.
+  Future<void> _contactParty(
     Case currentCase, {
-    required _ContactActionTarget target,
+    required bool message,
   }) async {
-    final phone = currentCase.partyPhone;
-    if (phone == null || phone.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n().dailyCauseListScreen_noPhone)),
-      );
-      return;
-    }
-    if (target == _ContactActionTarget.whatsApp) {
-      await _launchExternal(
-        Uri.parse('https://wa.me/$phone'),
-        failureMessage: l10n().dailyCauseListScreen_whatsappError,
-      );
-    } else {
-      await _launchExternal(
-        Uri(
-          scheme: target == _ContactActionTarget.phone ? 'tel' : 'sms',
-          path: phone,
-        ),
-        failureMessage: target == _ContactActionTarget.phone
-            ? l10n().dailyCauseListScreen_callError
-            : l10n().dailyCauseListScreen_messageError,
-      );
-    }
-  }
-
-  Future<void> _launchExternal(
-    Uri uri, {
-    required String failureMessage,
-  }) async {
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(failureMessage)));
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(failureMessage)));
-    }
+    await showCaseContactActions(
+      context,
+      currentCase: currentCase,
+      court: _courtsById[currentCase.courtId],
+      onBehalf: _onBehalfsById[currentCase.onBehalfId],
+      lawyerName: ref.read(profileNameProvider),
+      message: message,
+      launcher: ref.read(contactLauncherProvider),
+    );
   }
 
   /// FAB action: open the Add Case form, then refresh the selected date so a
@@ -207,6 +177,39 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   Future<void> _openCaseDetail(Case currentCase) async {
     await context.push(AppRoutes.caseDetailPath(currentCase.id));
     if (mounted) await _loadCases();
+  }
+
+  /// The document this screen prints: the selected day's cause list, grouped by
+  /// court exactly as the screen groups it (plan §8 and §12.1).
+  PrintDocument _printDocument(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final headings = <String, String>{};
+    final rows = <Case>[];
+    for (final group in _courtGroups()) {
+      for (final currentCase in group.cases) {
+        rows.add(currentCase);
+        headings[currentCase.id] = printCourtHeading(context.l10n, group.court);
+      }
+    }
+    return buildCaseListPrintDocument(
+      context,
+      CaseListPrintRequest(
+        title: l.dailyCauseListScreen_title,
+        cases: rows,
+        dateColumnLabel: l.caseCard_nextDate,
+        subtitle: AppDateUtils.formatDailyCauseCalendarDate(
+          _selectedDate,
+          locale: l.localeName,
+        ),
+        courtsById: _courtsById,
+        onBehalfsById: _onBehalfsById,
+        groupHeading: (currentCase) => headings[currentCase.id],
+        meta: [
+          if (_searchController.text.trim().isNotEmpty)
+            PrintField(l.sharedActions_search, _searchController.text.trim()),
+        ],
+      ),
+    );
   }
 
   /// Groups selected-date cases by court, ordered by the pre-seeded hierarchy.
@@ -254,6 +257,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     );
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
+      documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,
       isSearching: _isSearching,
@@ -469,9 +473,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       showPhoneButton: true,
       showMessageButton: true,
       onPhone: () =>
-          _launchPartyAction(currentCase, target: _ContactActionTarget.phone),
+          _contactParty(currentCase, message: false),
       onMessage: () =>
-          _launchPartyAction(currentCase, target: _ContactActionTarget.message),
+          _contactParty(currentCase, message: true),
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );

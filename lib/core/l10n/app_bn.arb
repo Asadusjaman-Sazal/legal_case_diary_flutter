@@ -199,6 +199,15 @@
   "casesContact_whatsapp": "হোয়াটসঅ্যাপ",
   "casesContact_message": "বার্তা",
   "casesContact_phone": "ফোন",
+  "casesContact_whatsappNote": "চ্যাট খুলবে — সেখান থেকে কল করুন।",
+  "casesContact_noNumber": "{party} পক্ষের কোনো নম্বর সংরক্ষিত নেই।",
+  "@casesContact_noNumber": {
+      "placeholders": {
+          "party": {
+              "type": "String"
+          }
+      }
+  },
   "casesContact_unableToOpenApp": "অ্যাপটি খোলা যায়নি।",
   "casesContact_unableToOpenWhatsApp": "হোয়াটসঅ্যাপ খোলা যায়নি।",
   "casesContact_unableToCall": "কল করা যায়নি।",
@@ -334,7 +343,7 @@
   "division_rangpur": "রংপুর",
   "division_mymensingh": "ময়মনসিংহ",
   "@@_section_messageTemplate": "MESSAGE TEMPLATES (SMS / WhatsApp)  |  lib/core/l10n - client SMS / WhatsApp templates",
-  "messageTemplate_clientSms": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এ্রর পরবর্তী তারিখ {nextDate} । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।",
+  "messageTemplate_clientSms": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এর পরবর্তী তারিখ {nextDate}, {court}। - {lawyerName}",
   "@messageTemplate_clientSms": {
       "description": "ক্লায়েন্টকে পরবর্তী তারিখ সম্পর্কে এসএমএস পাঠানো হয়েছে।",
       "placeholders": {
@@ -346,10 +355,16 @@
           },
           "nextDate": {
               "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
+              "type": "String"
           }
       }
   },
-  "messageTemplate_clientWhatsApp": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এ্রর পরবর্তী তারিখ {nextDate} । কিছু জানার থাকলে আমাদের সাথে যোগাযোগ করুন।",
+  "messageTemplate_clientWhatsApp": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এর পরবর্তী তারিখ {nextDate}, {court}। - {lawyerName}",
   "@messageTemplate_clientWhatsApp": {
       "description": "ক্লায়েন্টকে পরবর্তী তারিখ সম্পর্কে হোয়াটসঅ্যাপ মেসেজ পাঠানো হয়েছে।",
       "placeholders": {
@@ -360,6 +375,12 @@
               "type": "String"
           },
           "nextDate": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
               "type": "String"
           }
       }
@@ -724,6 +745,43 @@
   "settingsMoreAbout_shareApp": "অ্যাপ শেয়ার করুন",
   "settingsMoreAbout_footer": "ডিজাইন ও ডেভেলপমেন্ট",
   "@@_section_print": "SHARED - PRINT (PDF EXPORT)  |  lib/core/print/print_document.dart (printed document labels)",
+  "print_notAvailable": "এই স্ক্রিনে প্রিন্ট করা যায় না।",
+  "@print_notAvailable": {
+      "description": "Shown when a screen has no printable document (Notes, Case Reference)."
+  },
+  "appShare_invite": "লিগ্যাল কেস ডায়েরি - বাংলাদেশি আইনজীবীদের জন্য পূর্ণাঙ্গ অফলাইন কেস ডায়েরি।\nএখান থেকে নিন: {link}",
+  "@appShare_invite": {
+      "description": "Invite text handed to the Android share sheet by the Share action.",
+      "placeholders": {
+          "link": {
+              "type": "String"
+          }
+      }
+  },
+  "appShare_subject": "লিগ্যাল কেস ডায়েরি",
+  "@appShare_subject": {
+      "description": "Subject of the share intent carrying the app invite."
+  },
+  "appShare_copied": "শেয়ার করার অ্যাপ পাওয়া যায়নি, তাই আমন্ত্রণটি ক্লিপবোর্ডে কপি হয়েছে।",
+  "@appShare_copied": {
+      "description": "Fallback message when no share target answers the invite."
+  },
+  "appShare_failed": "অ্যাপ শেয়ার করা যায়নি",
+  "@appShare_failed": {
+      "description": "Shown when the share sheet itself failed."
+  },
+  "print_preparing": "প্রিন্ট তৈরি হচ্ছে",
+  "@print_preparing": {
+      "description": "Title of the progress dialog while a document is rendered page by page."
+  },
+  "print_failed": "প্রিন্ট করা যায়নি",
+  "@print_failed": {
+      "description": "Shown when rendering or presenting a print job failed; the user can try again."
+  },
+  "print_nothingToPrint": "প্রিন্ট করার কিছু নেই",
+  "@print_nothingToPrint": {
+      "description": "Shown when the current filters leave no rows to print."
+  },
   "print_printedOn": "প্রিন্টের তারিখ {date}",
   "@print_printedOn": {
       "description": "Footer line of every printed document.",

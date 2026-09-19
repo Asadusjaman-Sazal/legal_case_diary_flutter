@@ -20,7 +20,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/print/print_document.dart';
+import '../../../core/print/print_flow.dart';
+import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
+import '../../../core/services/app_share_service.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -74,8 +78,12 @@ enum SyncState {
 /// [onAddCase] — called when the FAB is tapped.
 /// [showHelpFab] — whether to show the Help FAB (Disposed Cases only).
 /// [onHelp] — called when the Help FAB is tapped.
-/// [onPrint] — forwarded to [AppNavigationDrawer].
-/// [onShare] — forwarded to [AppNavigationDrawer].
+/// [documentBuilder] — builds the printable document from what the host screen
+///   is showing (Task 14). When it is absent the shell says so instead of
+///   leaving a dead Print tap; Share always works, because it shares the app.
+/// [onPrint] — overrides the Print action entirely (used by hosts that own
+///   their own print path).
+/// [onShare] — overrides the Share action.
 class CasesScreenModal extends ConsumerWidget {
   final String title;
   final Widget body;
@@ -96,6 +104,9 @@ class CasesScreenModal extends ConsumerWidget {
   final VoidCallback? onPrint;
   final VoidCallback? onShare;
 
+  /// Builds the printable document from the host screen's current rows.
+  final PrintDocument Function()? documentBuilder;
+
   const CasesScreenModal({
     required this.title,
     required this.body,
@@ -115,8 +126,63 @@ class CasesScreenModal extends ConsumerWidget {
     this.onHelp,
     this.onPrint,
     this.onShare,
+    this.documentBuilder,
     super.key,
   });
+
+  /// Renders the host screen's document and presents the OS print dialog.
+  Future<void> _printDocument(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    final outcome = await printDocument(
+      context: context,
+      document: documentBuilder!(),
+      service: ref.read(printServiceProvider),
+      renderer: ref.read(printDocumentRendererProvider),
+    );
+    if (!context.mounted) return;
+
+    // A presented job and a deliberate cancel need no message; a failure and an
+    // empty dataset do, and never as a crash.
+    switch (outcome) {
+      case PrintOutcome.nothingToPrint:
+        _say(context, l.print_nothingToPrint);
+      case PrintOutcome.failed:
+        _say(context, l.print_failed);
+      case PrintOutcome.presented:
+      case PrintOutcome.cancelled:
+        break;
+    }
+  }
+
+  /// Print is not part of this screen's data, so say that instead of a dead tap.
+  void _showPrintUnavailable(BuildContext context, AppLocalizations l) =>
+      _say(context, l.print_notAvailable);
+
+  /// Shares the app itself (never the PDF — the two actions stay separate).
+  Future<void> _shareApp(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    final outcome = await ref
+        .read(appShareServiceProvider)
+        .shareApp(
+          message: l.appShare_invite(appStoreUrl),
+          subject: l.appShare_subject,
+        );
+    if (!context.mounted) return;
+
+    switch (outcome) {
+      case AppShareOutcome.copiedToClipboard:
+        _say(context, l.appShare_copied);
+      case AppShareOutcome.failed:
+        _say(context, l.appShare_failed);
+      case AppShareOutcome.shared:
+      case AppShareOutcome.dismissed:
+        break;
+    }
+  }
+
+  void _say(BuildContext context, String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   static const List<String> _defaultTabs = [
     'overdue',
@@ -142,8 +208,10 @@ class CasesScreenModal extends ConsumerWidget {
       drawer: AppNavigationDrawer(
         currentRoute: currentRoute,
         sideNavOptions: sideNavOptions,
-        onPrint: onPrint,
-        onShare: onShare,
+        onPrint: documentBuilder == null
+            ? (onPrint ?? () => _showPrintUnavailable(context, l))
+            : () => _printDocument(context, ref),
+        onShare: onShare ?? () => _shareApp(context, ref),
       ),
       body: Column(
         children: [

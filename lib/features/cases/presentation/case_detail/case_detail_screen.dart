@@ -9,7 +9,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -17,6 +16,10 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/print/print_document.dart';
+import '../../../../core/print/print_flow.dart';
+import '../../../../core/providers/contact_providers.dart';
+import '../../../../core/providers/print_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../database/app_database.dart';
@@ -25,11 +28,10 @@ import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../../../shared/widgets/confirm_dialogs.dart';
+import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
-
-/// Launch targets offered by the Phone/Message contact chooser.
-enum _ContactActionTarget { whatsApp, phone, message }
 
 /// Side of a case a party sits on; the single stored `party_phone` is the
 /// represented client's phone and is shown only inside that party's block.
@@ -267,102 +269,111 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     }
   }
 
-  Future<void> _launchPartyContact(
-    String? phone, {
-    required bool message,
-  }) async {
-    final value = phone?.trim();
-    if (value == null || value.isEmpty) return;
-    final l = AppLocalizations.of(context);
-
-    final target = await showDialog<_ContactActionTarget>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.casesContact_openWith),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              key: ValueKey(
-                'case-detail-${message ? 'message' : 'call'}-whatsapp',
-              ),
-              leading: const Icon(Icons.chat_outlined),
-              title: Text(l.casesContact_whatsapp),
-              onTap: () =>
-                  Navigator.of(context).pop(_ContactActionTarget.whatsApp),
-            ),
-            ListTile(
-              key: ValueKey(
-                'case-detail-${message ? 'message' : 'call'}-native',
-              ),
-              leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-              title: Text(
-                message
-                    ? l.caseDetailsScreen_message
-                    : l.caseDetailsScreen_phone,
-              ),
-              onTap: () => Navigator.of(context).pop(
-                message
-                    ? _ContactActionTarget.message
-                    : _ContactActionTarget.phone,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            key: ValueKey('case-detail-${message ? 'message' : 'call'}-cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.sharedDialogs_cancel),
-          ),
-        ],
-      ),
+  /// Opens the shared Phone/Message chooser for the represented party.
+  Future<void> _contact({required bool message}) async {
+    final current = _current;
+    if (current == null) return;
+    await showCaseContactActions(
+      context,
+      currentCase: current,
+      court: _court,
+      onBehalf: _onBehalf,
+      lawyerName: ref.read(profileNameProvider),
+      message: message,
+      launcher: ref.read(contactLauncherProvider),
     );
-    if (!mounted || target == null) return;
-
-    String failureMessage = l.casesContact_unableToOpenApp;
-    try {
-      if (target == _ContactActionTarget.whatsApp) {
-        final normalized = value.replaceAll(RegExp(r'\D'), '');
-        if (normalized.isEmpty) return;
-        failureMessage = l.casesContact_unableToOpenWhatsApp;
-        final launched = await launchUrl(
-          Uri.https('wa.me', normalized),
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failureMessage)));
-        }
-      } else {
-        failureMessage = target == _ContactActionTarget.phone
-            ? l.casesContact_unableToCall
-            : l.casesContact_unableToMessage;
-        final launched = await launchUrl(
-          Uri(
-            scheme: target == _ContactActionTarget.phone ? 'tel' : 'sms',
-            path: value,
-          ),
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(failureMessage)));
-        }
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(failureMessage)));
-    }
   }
 
   // -------------------------------------------------------------------------
   // Build helpers
   // -------------------------------------------------------------------------
+
+  /// Prints this case's detail sheet exactly as the screen is showing it —
+  /// including whether the history is expanded — and hands it to the OS dialog
+  /// (the user's chosen entry point for the Case History export).
+  Future<void> _print(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final current = _current;
+    if (current == null) return;
+
+    final outcome = await printDocument(
+      context: context,
+      document: _printDocument(context, current),
+      service: ref.read(printServiceProvider),
+      renderer: ref.read(printDocumentRendererProvider),
+    );
+    if (!context.mounted) return;
+
+    switch (outcome) {
+      case PrintOutcome.nothingToPrint:
+        _say(context, l.print_nothingToPrint);
+      case PrintOutcome.failed:
+        _say(context, l.print_failed);
+      case PrintOutcome.presented:
+      case PrintOutcome.cancelled:
+        break;
+    }
+  }
+
+  /// The printable detail sheet: the same sections, the same localized labels
+  /// and the same history rows the screen shows while it is expanded or
+  /// collapsed (3 rows).
+  PrintDocument _printDocument(BuildContext context, Case current) {
+    final l = AppLocalizations.of(context);
+    final step = context.l10n.stepNames(
+      current.lastStep,
+      courtCategoryId: _court?.courtCategoryId,
+    );
+    final onBehalf = _onBehalf;
+
+    return buildCaseDetailDocument(
+      translations: context.l10n,
+      showAllHistory: _showAllHistory,
+      detail: PrintCaseDetail(
+        caseNumber: current.caseNumber,
+        caseType: context.l10n.caseTypeLabel(
+          current.caseType,
+          courtCategoryId: _court?.courtCategoryId,
+        ),
+        court: _court == null ? '' : _courtLabel(context, _court!),
+        judges: current.honorableJudges ?? '',
+        nextDate: current.nextDate == null
+            ? ''
+            : _formatHistoryDate(l, current.nextDate!),
+        step: step ?? '',
+        result: current.result ?? '',
+        petitioner: current.petitioner,
+        respondent: current.respondent,
+        petitionerCounsel: current.petitionerLeadCounsel ?? '',
+        respondentCounsel: current.respondentLeadCounsel ?? '',
+        onBehalf: onBehalf == null ? '' : _roleLabel(context, onBehalf),
+        phone: current.partyPhone ?? '',
+        titleAndSection: current.caseTitleAndSection ?? '',
+        remarks: current.notesResults ?? '',
+        tenderNumber: current.tenderNumber ?? '',
+        previousCourtCase: current.previousCourtCase ?? '',
+        districtOfOrigin: current.districtOfOrigin ?? '',
+        history: [
+          for (final entry in _history)
+            PrintHistoryEntry(
+              date: _formatHistoryDate(l, entry.hearingDate),
+              step:
+                  context.l10n.stepNames(
+                    entry.lastStep,
+                    courtCategoryId: _court?.courtCategoryId,
+                  ) ??
+                  '',
+              result: entry.result ?? '',
+              note: entry.noteResult ?? '',
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _say(BuildContext context, String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   String _courtLabel(BuildContext context, Court court) =>
       context.l10n.seedLabel(court.id, fallbackEn: court.courtName);
@@ -585,8 +596,14 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             _headerButton(
               key: const ValueKey('case-detail-edit'),
               icon: Icons.edit_outlined,
-              label: l.caseDetailsScreen_editCase,
+              label: l.sharedActions_edit,
               onPressed: _openEditCase,
+            ),
+            _headerButton(
+              key: const ValueKey('case-detail-print'),
+              icon: Icons.print_outlined,
+              label: l.nav_print,
+              onPressed: () => _print(context),
             ),
             _headerButton(
               key: const ValueKey('case-detail-close'),
@@ -734,8 +751,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                       key: const ValueKey('case-detail-party-phone'),
                       icon: Icons.call_outlined,
                       tooltip: l.caseDetailsScreen_phone,
-                      onTap: () =>
-                          _launchPartyContact(trimmedPhone, message: false),
+                      onTap: () => _contact(message: false),
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     _contactIcon(
@@ -743,8 +759,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                       key: const ValueKey('case-detail-party-message'),
                       icon: Icons.chat_outlined,
                       tooltip: l.caseDetailsScreen_message,
-                      onTap: () =>
-                          _launchPartyContact(trimmedPhone, message: true),
+                      onTap: () => _contact(message: true),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(

@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -20,13 +19,18 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/print/print_document.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../case_contact_actions.dart';
+import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
+import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
@@ -35,8 +39,6 @@ import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../case_table_view.dart';
 import '../cases_screen_modal.dart';
-
-enum _ContactActionTarget { whatsApp, phone, message }
 
 /// All Cases host: repository-backed list with KPI summary and filters.
 class AllCasesScreen extends ConsumerStatefulWidget {
@@ -121,101 +123,22 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     if (mounted) await _loadCases();
   }
 
-  Future<void> _launchPartyAction(
+  /// Opens the shared Phone/Message chooser for the represented party
+  /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
+  /// the case's single `party_phone`, and the message from the ARB template.
+  Future<void> _contactParty(
     Case currentCase, {
     required bool message,
   }) async {
-    final l = AppLocalizations.of(context);
-    final phone = currentCase.partyPhone?.trim();
-    if (phone == null || phone.isEmpty) return;
-
-    final target = await _showContactTargetChooser(message: message);
-    if (!mounted || target == null) return;
-
-    if (target == _ContactActionTarget.whatsApp) {
-      // WhatsApp has no documented direct-call URI; open the contact/chat as
-      // the safe fallback, where the user can start a call or send a message.
-      final normalized = phone.replaceAll(RegExp(r'\D'), '');
-      if (normalized.isEmpty) return;
-      await _launchExternal(
-        Uri.https('wa.me', normalized),
-        failureMessage: l.casesContact_unableToOpenWhatsApp,
-      );
-    } else {
-      await _launchExternal(
-        Uri(
-          scheme: target == _ContactActionTarget.phone ? 'tel' : 'sms',
-          path: phone,
-        ),
-        failureMessage: target == _ContactActionTarget.phone
-            ? l.casesContact_unableToCall
-            : l.casesContact_unableToMessage,
-      );
-    }
-  }
-
-  Future<_ContactActionTarget?> _showContactTargetChooser({
-    required bool message,
-  }) => showDialog<_ContactActionTarget>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(AppLocalizations.of(context).casesContact_openWith),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            key: ValueKey('case-card-${message ? 'message' : 'call'}-whatsapp'),
-            leading: const Icon(Icons.chat_outlined),
-            title: Text(AppLocalizations.of(context).casesContact_whatsapp),
-            onTap: () =>
-                Navigator.of(context).pop(_ContactActionTarget.whatsApp),
-          ),
-          ListTile(
-            key: ValueKey('case-card-${message ? 'message' : 'call'}-native'),
-            leading: Icon(message ? Icons.sms_outlined : Icons.call_outlined),
-            title: Text(
-              message
-                  ? AppLocalizations.of(context).casesContact_message
-                  : AppLocalizations.of(context).casesContact_phone,
-            ),
-            onTap: () => Navigator.of(context).pop(
-              message
-                  ? _ContactActionTarget.message
-                  : _ContactActionTarget.phone,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(AppLocalizations.of(context).sharedActions_cancel),
-        ),
-      ],
-    ),
-  );
-
-  Future<void> _launchExternal(
-    Uri uri, {
-    required String failureMessage,
-  }) async {
-    try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(failureMessage)));
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(failureMessage)));
-    }
+    await showCaseContactActions(
+      context,
+      currentCase: currentCase,
+      court: _courtsById[currentCase.courtId],
+      onBehalf: _onBehalfsById[currentCase.onBehalfId],
+      lawyerName: ref.read(profileNameProvider),
+      message: message,
+      launcher: ref.read(contactLauncherProvider),
+    );
   }
 
   Future<void> _openQuickUpdate(Case currentCase) async {
@@ -226,6 +149,28 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   Future<void> _openCaseDetail(Case currentCase) async {
     await context.push(AppRoutes.caseDetailPath(currentCase.id));
     if (mounted) await _loadCases();
+  }
+
+  /// The document this screen prints: the rows it is showing, with the court
+  /// filter, the search query and the chronology choice already applied, so the
+  /// printout cannot disagree with the list (plan §8 and §12.1).
+  PrintDocument _printDocument(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return buildCaseListPrintDocument(
+      context,
+      CaseListPrintRequest(
+        title: l.allCasesScreen_title,
+        cases: _visibleCases(),
+        dateColumnLabel: l.caseCard_nextDate,
+        courtsById: _courtsById,
+        onBehalfsById: _onBehalfsById,
+        showSerial: true,
+        meta: [
+          if (_searchController.text.trim().isNotEmpty)
+            PrintField(l.sharedActions_search, _searchController.text.trim()),
+        ],
+      ),
+    );
   }
 
   /// Applies the Court Name filter first, then the scoped search (plan §12.1
@@ -282,6 +227,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     final extended = watchCaseListExtendedView(ref, CaseListScreenId.allCases);
     return CasesScreenModal(
       title: l.allCasesScreen_title,
+      documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,
       isSearching: _isSearching,
@@ -404,8 +350,8 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       note: currentCase.notesResults,
       showPhoneButton: true,
       showMessageButton: true,
-      onPhone: () => _launchPartyAction(currentCase, message: false),
-      onMessage: () => _launchPartyAction(currentCase, message: true),
+      onPhone: () => _contactParty(currentCase, message: false),
+      onMessage: () => _contactParty(currentCase, message: true),
       onUpdate: () => _openQuickUpdate(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );

@@ -1319,8 +1319,95 @@ class AppLocalizationsEn extends AppLocalizations {
       'Required on Xiaomi, Oppo, Vivo and Realme Phones';
 
   @override
-  String get settingsNotifications_setupGuidePending =>
-      'Setup Guide Arrives in Task 13';
+  String get settingsNotifications_sendTest => 'Send Test Notification';
+
+  @override
+  String get settingsNotifications_sendTestSubtitle =>
+      'See how a hearing alert looks on this phone';
+
+  @override
+  String get settingsNotifications_testSent => 'Test Notification Sent';
+
+  @override
+  String get settingsNotifications_testFailed =>
+      'Could Not Show a Notification. Check the App\'s Notification Permission.';
+
+  @override
+  String get notificationJob_channelName => 'Hearing Alerts';
+
+  @override
+  String get notificationJob_channelDescription =>
+      'Daily reminders for your upcoming hearings';
+
+  @override
+  String get notificationJob_titleSameDay => 'Hearing Today';
+
+  @override
+  String get notificationJob_titleDayBefore => 'Hearing Tomorrow';
+
+  @override
+  String notificationJob_titleBeforeDays(String days) {
+    return 'Hearing in $days Days';
+  }
+
+  @override
+  String notificationJob_parties(String petitioner, String respondent) {
+    return '$petitioner vs $respondent';
+  }
+
+  @override
+  String get notificationJob_testTitle => 'Test Notification';
+
+  @override
+  String get notificationJob_testBody =>
+      'Hearing alerts are working. This is how a hearing reminder will look.';
+
+  @override
+  String get settingsBatteryGuide_intro =>
+      'Xiaomi, Oppo, Vivo, Realme and similar phones stop background alarms to save battery, so hearing reminders can fail silently. These two or three steps keep them working.';
+
+  @override
+  String get settingsBatteryGuide_autoStartTitle => 'Allow Auto-Start';
+
+  @override
+  String get settingsBatteryGuide_autoStartBody =>
+      'In your phone\'s settings, open Auto-start (or Startup manager) and allow Legal Case Diary to start by itself.';
+
+  @override
+  String get settingsBatteryGuide_batteryTitle =>
+      'Set Battery Usage to Unrestricted';
+
+  @override
+  String get settingsBatteryGuide_batteryBody =>
+      'Open Battery then App battery usage (or Battery optimization), choose Legal Case Diary and select Unrestricted / No restrictions.';
+
+  @override
+  String get settingsBatteryGuide_exactTitle => 'Allow Exact Alarms';
+
+  @override
+  String get settingsBatteryGuide_exactBody =>
+      'On Android 12 and newer, allow Alarms & reminders for Legal Case Diary; otherwise the daily reminder can arrive late.';
+
+  @override
+  String get settingsBatteryGuide_takeMeThere => 'Take Me There';
+
+  @override
+  String get settingsBatteryGuide_exactAllowed =>
+      'Exact Alarms Are Already Allowed';
+
+  @override
+  String get settingsBatteryGuide_openFailed =>
+      'Could Not Open That Settings Page. Please Set It Manually.';
+
+  @override
+  String get settingsBatteryGuide_done => 'Done, I\'ve Completed the Steps';
+
+  @override
+  String get settingsBatteryGuide_skip => 'Skip for Now';
+
+  @override
+  String get settingsBatteryGuide_skipNote =>
+      'You can finish this later from Settings → Notifications.';
 
   @override
   String get settingsViewSettings_title => 'View Settings';

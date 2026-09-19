@@ -2512,11 +2512,155 @@ abstract class AppLocalizations {
   /// **'Required on Xiaomi, Oppo, Vivo and Realme Phones'**
   String get settingsNotifications_setupGuideSubtitle;
 
-  /// No description provided for @settingsNotifications_setupGuidePending.
+  /// No description provided for @settingsNotifications_sendTest.
   ///
   /// In en, this message translates to:
-  /// **'Setup Guide Arrives in Task 13'**
-  String get settingsNotifications_setupGuidePending;
+  /// **'Send Test Notification'**
+  String get settingsNotifications_sendTest;
+
+  /// No description provided for @settingsNotifications_sendTestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See how a hearing alert looks on this phone'**
+  String get settingsNotifications_sendTestSubtitle;
+
+  /// No description provided for @settingsNotifications_testSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification Sent'**
+  String get settingsNotifications_testSent;
+
+  /// No description provided for @settingsNotifications_testFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Show a Notification. Check the App\'s Notification Permission.'**
+  String get settingsNotifications_testFailed;
+
+  /// No description provided for @notificationJob_channelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearing Alerts'**
+  String get notificationJob_channelName;
+
+  /// No description provided for @notificationJob_channelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders for your upcoming hearings'**
+  String get notificationJob_channelDescription;
+
+  /// No description provided for @notificationJob_titleSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearing Today'**
+  String get notificationJob_titleSameDay;
+
+  /// No description provided for @notificationJob_titleDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearing Tomorrow'**
+  String get notificationJob_titleDayBefore;
+
+  /// Title of an alert posted several days before the hearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearing in {days} Days'**
+  String notificationJob_titleBeforeDays(String days);
+
+  /// Party line of a hearing alert.
+  ///
+  /// In en, this message translates to:
+  /// **'{petitioner} vs {respondent}'**
+  String notificationJob_parties(String petitioner, String respondent);
+
+  /// No description provided for @notificationJob_testTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification'**
+  String get notificationJob_testTitle;
+
+  /// No description provided for @notificationJob_testBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearing alerts are working. This is how a hearing reminder will look.'**
+  String get notificationJob_testBody;
+
+  /// No description provided for @settingsBatteryGuide_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Xiaomi, Oppo, Vivo, Realme and similar phones stop background alarms to save battery, so hearing reminders can fail silently. These two or three steps keep them working.'**
+  String get settingsBatteryGuide_intro;
+
+  /// No description provided for @settingsBatteryGuide_autoStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Auto-Start'**
+  String get settingsBatteryGuide_autoStartTitle;
+
+  /// No description provided for @settingsBatteryGuide_autoStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'In your phone\'s settings, open Auto-start (or Startup manager) and allow Legal Case Diary to start by itself.'**
+  String get settingsBatteryGuide_autoStartBody;
+
+  /// No description provided for @settingsBatteryGuide_batteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Battery Usage to Unrestricted'**
+  String get settingsBatteryGuide_batteryTitle;
+
+  /// No description provided for @settingsBatteryGuide_batteryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Battery then App battery usage (or Battery optimization), choose Legal Case Diary and select Unrestricted / No restrictions.'**
+  String get settingsBatteryGuide_batteryBody;
+
+  /// No description provided for @settingsBatteryGuide_exactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Exact Alarms'**
+  String get settingsBatteryGuide_exactTitle;
+
+  /// No description provided for @settingsBatteryGuide_exactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'On Android 12 and newer, allow Alarms & reminders for Legal Case Diary; otherwise the daily reminder can arrive late.'**
+  String get settingsBatteryGuide_exactBody;
+
+  /// No description provided for @settingsBatteryGuide_takeMeThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Me There'**
+  String get settingsBatteryGuide_takeMeThere;
+
+  /// No description provided for @settingsBatteryGuide_exactAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact Alarms Are Already Allowed'**
+  String get settingsBatteryGuide_exactAllowed;
+
+  /// No description provided for @settingsBatteryGuide_openFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Open That Settings Page. Please Set It Manually.'**
+  String get settingsBatteryGuide_openFailed;
+
+  /// No description provided for @settingsBatteryGuide_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done, I\'ve Completed the Steps'**
+  String get settingsBatteryGuide_done;
+
+  /// No description provided for @settingsBatteryGuide_skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for Now'**
+  String get settingsBatteryGuide_skip;
+
+  /// No description provided for @settingsBatteryGuide_skipNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can finish this later from Settings → Notifications.'**
+  String get settingsBatteryGuide_skipNote;
 
   /// No description provided for @settingsViewSettings_title.
   ///

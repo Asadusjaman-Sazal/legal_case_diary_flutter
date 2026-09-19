@@ -1326,8 +1326,97 @@ class AppLocalizationsBn extends AppLocalizations {
       'শাওমি, অপো, ভিভো ও রিয়েলমি ফোনে প্রয়োজন';
 
   @override
-  String get settingsNotifications_setupGuidePending =>
-      'সেটআপ গাইড Task 13-এ আসবে';
+  String get settingsNotifications_sendTest => 'পরীক্ষামূলক নোটিফিকেশন পাঠান';
+
+  @override
+  String get settingsNotifications_sendTestSubtitle =>
+      'এই ফোনে শুনানির অ্যালার্ট কেমন দেখায় তা দেখুন';
+
+  @override
+  String get settingsNotifications_testSent =>
+      'পরীক্ষামূলক নোটিফিকেশন পাঠানো হয়েছে';
+
+  @override
+  String get settingsNotifications_testFailed =>
+      'নোটিফিকেশন দেখানো যায়নি। অ্যাপের নোটিফিকেশন অনুমতি যাচাই করুন।';
+
+  @override
+  String get notificationJob_channelName => 'শুনানির অ্যালার্ট';
+
+  @override
+  String get notificationJob_channelDescription =>
+      'আসন্ন শুনানির দৈনিক রিমাইন্ডার';
+
+  @override
+  String get notificationJob_titleSameDay => 'আজ শুনানি';
+
+  @override
+  String get notificationJob_titleDayBefore => 'আগামীকাল শুনানি';
+
+  @override
+  String notificationJob_titleBeforeDays(String days) {
+    return '$days দিন পর শুনানি';
+  }
+
+  @override
+  String notificationJob_parties(String petitioner, String respondent) {
+    return '$petitioner বনাম $respondent';
+  }
+
+  @override
+  String get notificationJob_testTitle => 'পরীক্ষামূলক নোটিফিকেশন';
+
+  @override
+  String get notificationJob_testBody =>
+      'শুনানির অ্যালার্ট কাজ করছে। আসল রিমাইন্ডার এমনই দেখাবে।';
+
+  @override
+  String get settingsBatteryGuide_intro =>
+      'শাওমি, অপো, ভিভো, রিয়েলমি ও অনুরূপ ফোন ব্যাটারি বাঁচাতে ব্যাকগ্রাউন্ড অ্যালার্ম বন্ধ করে দেয়, তাই শুনানির রিমাইন্ডার নীরবে ব্যর্থ হতে পারে। এই দুই-তিনটি ধাপ সেগুলো চালু রাখবে।';
+
+  @override
+  String get settingsBatteryGuide_autoStartTitle => 'অটো-স্টার্ট অনুমতি দিন';
+
+  @override
+  String get settingsBatteryGuide_autoStartBody =>
+      'ফোনের সেটিংসে অটো-স্টার্ট (বা স্টার্টআপ ম্যানেজার) খুলে Legal Case Diary-কে নিজে চালু হতে অনুমতি দিন।';
+
+  @override
+  String get settingsBatteryGuide_batteryTitle =>
+      'ব্যাটারি ব্যবহার সীমাহীন করুন';
+
+  @override
+  String get settingsBatteryGuide_batteryBody =>
+      'ব্যাটারি, তারপর অ্যাপ ব্যাটারি ব্যবহার (বা ব্যাটারি অপটিমাইজেশন) খুলে Legal Case Diary বেছে নিন এবং সীমাহীন / কোনো সীমাবদ্ধতা নেই নির্বাচন করুন।';
+
+  @override
+  String get settingsBatteryGuide_exactTitle =>
+      'নির্দিষ্ট অ্যালার্ম অনুমতি দিন';
+
+  @override
+  String get settingsBatteryGuide_exactBody =>
+      'অ্যান্ড্রয়েড ১২ ও নতুন সংস্করণে Legal Case Diary-র জন্য অ্যালার্ম ও রিমাইন্ডার অনুমতি দিন; নাহলে দৈনিক রিমাইন্ডার দেরিতে আসতে পারে।';
+
+  @override
+  String get settingsBatteryGuide_takeMeThere => 'সেখানে নিয়ে যান';
+
+  @override
+  String get settingsBatteryGuide_exactAllowed =>
+      'নির্দিষ্ট অ্যালার্ম ইতিমধ্যেই অনুমোদিত';
+
+  @override
+  String get settingsBatteryGuide_openFailed =>
+      'সেটিংস পেজটি খোলা যায়নি। অনুগ্রহ করে নিজে সেট করুন।';
+
+  @override
+  String get settingsBatteryGuide_done => 'সম্পন্ন, আমি ধাপগুলো করেছি';
+
+  @override
+  String get settingsBatteryGuide_skip => 'এখনই নয়';
+
+  @override
+  String get settingsBatteryGuide_skipNote =>
+      'পরে Settings → Notifications থেকে সম্পূর্ণ করতে পারবেন।';
 
   @override
   String get settingsViewSettings_title => 'ভিউ সেটিংস';

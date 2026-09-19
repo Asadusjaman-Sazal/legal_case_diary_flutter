@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_colors.dart';
 import 'core/l10n/generated/app_localizations.dart';
+import 'core/notifications/notification_setup_gate.dart';
+import 'core/notifications/notification_tap_listener.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'shared/providers/locale_provider.dart';
@@ -29,7 +31,18 @@ class App extends ConsumerWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme(locale),
         locale: locale,
-        builder: (context, child) => _buildSystemUiLayer(child),
+        // Both sit outside the app's navigator: the gate so it can offer the
+        // OEM setup guide over whatever screen the app opens on, and the
+        // listener so a notification tap can route in from anywhere.
+        builder: (context, child) => _buildSystemUiLayer(
+          NotificationSetupGate(
+            router: router,
+            child: NotificationTapListener(
+              router: router,
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
+        ),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         routerConfig: router,

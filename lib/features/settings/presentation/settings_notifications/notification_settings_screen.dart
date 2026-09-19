@@ -12,10 +12,16 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/router/app_router.dart';
+// The mockup's default alert time lives with the scheduler so the screen and
+// the daily job cannot drift apart.
+import '../../../../core/notifications/notification_plan.dart';
+import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../data/notification_day_offsets.dart';
@@ -24,9 +30,6 @@ import '../settings_controls.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 import '../settings_viewmodel.dart';
-
-/// Mockup's default notification time (05:00 PM) until the user picks one.
-const int _defaultNotificationMinutes = 17 * 60;
 
 /// Notification settings screen.
 class NotificationSettingsScreen extends ConsumerWidget {
@@ -37,8 +40,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final settings =
         ref.watch(settingsViewModelProvider).value ?? const UserSettings();
-    final timeMinutes =
-        settings.notificationTime ?? _defaultNotificationMinutes;
+    final timeMinutes = settings.notificationTime ?? defaultNotificationMinutes;
 
     return SettingsSubPageModal(
       title: l.settingsNotifications_title,
@@ -102,29 +104,75 @@ class NotificationSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           // OEM battery-killer reminder: the plan keeps this on the screen until
-          // the user finishes the setup guide (Task 13 renders that guide).
-          _SetupReminderBanner(
-            message: l.settingsNotifications_reminderBanner,
-            onTap: () => _showPending(context, l),
-          ),
-          const SizedBox(height: AppSpacing.md),
+          // the user finishes the setup guide, and tapping it opens the guide.
+          if (!settings.notificationSetupDone) ...[
+            _SetupReminderBanner(
+              message: l.settingsNotifications_reminderBanner,
+              onTap: () => context.push(AppRoutes.settingsBatterySetupGuide),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
           SettingsMenuCard(
             icon: Icons.battery_charging_full,
             title: l.settingsNotifications_setupGuide,
             subtitle: l.settingsNotifications_setupGuideSubtitle,
-            onTap: () => _showPending(context, l),
+            onTap: () => context.push(AppRoutes.settingsBatterySetupGuide),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          // The mockup's Test Notification section: a real alert through the
+          // real channel, so the user can check delivery without waiting for
+          // the daily alarm.
+          SettingsMenuCard(
+            icon: Icons.notifications_active_outlined,
+            title: l.settingsNotifications_sendTest,
+            subtitle: l.settingsNotifications_sendTestSubtitle,
+            onTap: () => _sendTestNotification(context, ref),
           ),
         ],
       ),
     );
   }
 
-  /// Persists the notification master toggle.
-  Future<void> _setEnabled(WidgetRef ref, bool enabled) => ref
-      .read(settingsViewModelProvider.notifier)
-      .updateSettings(
-        (current) => current.copyWith(notificationEnabled: enabled),
-      );
+  /// Posts a test notification, asking for the OS permission first.
+  ///
+  /// Without the permission the alert would be silently dropped by Android, so
+  /// a refusal is reported instead of being papered over with a success message.
+  Future<void> _sendTestNotification(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    final scheduler = ref.read(notificationSchedulerProvider);
+    if (!await scheduler.notificationsAllowed()) {
+      await scheduler.requestNotificationsPermission();
+    }
+    final allowed = await scheduler.notificationsAllowed();
+    if (allowed) await scheduler.showTestNotification();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          allowed
+              ? l.settingsNotifications_testSent
+              : l.settingsNotifications_testFailed,
+        ),
+      ),
+    );
+  }
+
+  /// Persists the notification master toggle and re-arms the daily alarm.
+  Future<void> _setEnabled(WidgetRef ref, bool enabled) async {
+    await ref
+        .read(settingsViewModelProvider.notifier)
+        .updateSettings(
+          (current) => current.copyWith(notificationEnabled: enabled),
+        );
+    await _resyncSchedule(ref);
+  }
+
+  /// Keeps the armed alarm in step with what was just saved.
+  ///
+  /// The scheduler reads the stored settings on every call, so one call covers
+  /// both a changed time and switching alerts off (which cancels the alarm).
+  Future<void> _resyncSchedule(WidgetRef ref) =>
+      ref.read(notificationSchedulerProvider).syncSchedule();
 
   /// Opens the day-offset modal and stores the choice.
   Future<void> _pickDayOffset(BuildContext context, WidgetRef ref) async {
@@ -148,6 +196,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             notificationDefaultOffsets: <int>[selected],
           ),
         );
+    await _resyncSchedule(ref);
   }
 
   /// Opens the platform time picker and stores the choice in minutes.
@@ -170,14 +219,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
         .updateSettings(
           (settings) => settings.copyWith(notificationTime: minutes),
         );
+    await _resyncSchedule(ref);
   }
 
-  /// Part A notice for the guide entry, whose screen ships with Task 13.
-  void _showPending(BuildContext context, AppLocalizations l) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l.settingsNotifications_setupGuidePending)),
-    );
-  }
 }
 
 /// Localized label of one day-offset option.

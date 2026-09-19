@@ -10,9 +10,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 
+import '../core/notification_test_support.dart';
 import 'settings_test_support.dart';
 
 void main() {
@@ -123,6 +125,43 @@ void main() {
     expect(find.text('08:30 AM'), findsOneWidget);
   });
 
+  testWidgets('every notification change re-arms the daily alarm', (
+    tester,
+  ) async {
+    // Task 13 Phase 2: the stored preference is only half the story — the armed
+    // alarm has to follow it, including switching alerts off (which cancels it).
+    final scheduler = FakeNotificationScheduler();
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    await tester.tap(find.text('On'));
+    await tester.pumpAndSettle();
+    expect(scheduler.syncScheduleCalls, 1);
+
+    await tester.tap(find.text('Off'));
+    await tester.pumpAndSettle();
+    expect(scheduler.syncScheduleCalls, 2);
+
+    await tester.tap(find.text('The Day Before'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Before 3 Days'));
+    await tester.pumpAndSettle();
+    expect(scheduler.syncScheduleCalls, 3);
+    expect(repo.settings.notificationDayOffset, 3);
+
+    await tester.tap(find.text('05:00 PM'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(scheduler.syncScheduleCalls, 4);
+  });
+
   testWidgets('shows the OEM reminder banner and setup-guide entry', (
     tester,
   ) async {
@@ -136,9 +175,85 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Battery & Auto-Start Setup Guide'), findsOneWidget);
+  });
 
-    await tester.tap(find.text('Battery & Auto-Start Setup Guide'));
+  testWidgets('the reminder banner goes away once the setup is completed', (
+    tester,
+  ) async {
+    repo = FakeSettingsRepository(
+      const UserSettings(notificationSetupDone: true),
+    );
+    await pumpScreen(tester);
+
+    expect(
+      find.text(
+        'Notifications May Not Work Reliably on Your Device. '
+        'Tap to Complete Setup.',
+      ),
+      findsNothing,
+    );
+    // The guide stays reachable from Settings either way.
+    expect(find.text('Battery & Auto-Start Setup Guide'), findsOneWidget);
+  });
+
+  testWidgets('the test action posts a real notification and says so', (
+    tester,
+  ) async {
+    // Tall viewport: the test-alert card sits below the three mockup controls,
+    // and an off-screen card is not built at all.
+    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+
+    final scheduler = FakeNotificationScheduler();
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    await tester.tap(find.text('Send Test Notification'));
     await tester.pumpAndSettle();
-    expect(find.text('Setup Guide Arrives in Task 13'), findsOneWidget);
+
+    expect(scheduler.testNotifications, 1);
+    // The permission was already granted, so it is not asked for again.
+    expect(scheduler.permissionRequests, 0);
+    expect(find.text('Test Notification Sent'), findsOneWidget);
+  });
+
+  testWidgets('a blocked permission is reported, not papered over', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+
+    final scheduler = FakeNotificationScheduler()
+      ..notificationsAllowedValue = false;
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    await tester.tap(find.text('Send Test Notification'));
+    await tester.pumpAndSettle();
+
+    expect(scheduler.permissionRequests, 1);
+    // Nothing was posted, because the OS would have dropped it.
+    expect(scheduler.testNotifications, 0);
+    expect(
+      find.text(
+        "Could Not Show a Notification. Check the App's Notification "
+        'Permission.',
+      ),
+      findsOneWidget,
+    );
   });
 }

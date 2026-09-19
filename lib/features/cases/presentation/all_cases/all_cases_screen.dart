@@ -2,6 +2,10 @@
 ///
 /// Task 08 Phase 1 adds the KPI summary, Court Name + Chronology filters,
 /// first-come-first-served serial ordering, and a scoped search box.
+///
+/// Each count box in the KPI summary is tappable and opens the list it counts
+/// (Active Cases / Disposed Cases), and the filter dropdowns' text carries the
+/// count boxes' title font size so the two rows read as one block.
 library;
 
 import 'package:flutter/material.dart';
@@ -472,17 +476,22 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         children: [
           Expanded(
             child: _KpiTile(
+              key: const ValueKey('all-cases-kpi-active'),
               label: l.allCasesScreen_activeCases,
               value: _activeCount.toString(),
               valueColor: AppColors.success,
+              // Each count box opens the list that count belongs to.
+              onTap: () => context.push(AppRoutes.activeCases),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: _KpiTile(
+              key: const ValueKey('all-cases-kpi-disposed'),
               label: l.allCasesScreen_disposedCases,
               value: _disposedCount.toString(),
               valueColor: AppColors.secondary,
+              onTap: () => context.push(AppRoutes.disposedCases),
             ),
           ),
         ],
@@ -506,8 +515,14 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             child: DropdownButtonFormField<String?>(
               initialValue: _courtCategoryId,
               isExpanded: true,
+              // The dropdown's own text carries the count boxes' title font
+              // size, so the summary row and the filter row read as one block.
+              style: AppTypography.titleMd.copyWith(fontSize: 14 * 0.6),
               decoration: InputDecoration(
                 labelText: l.allCasesScreen_filterByCourt,
+                labelStyle: AppTypography.labelLg.copyWith(
+                  fontSize: 14 * 0.6,
+                ),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
@@ -534,8 +549,12 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             child: DropdownButtonFormField<bool>(
               initialValue: _newestFirst,
               isExpanded: true,
+              style: AppTypography.titleMd.copyWith(fontSize: 14 * 0.6),
               decoration: InputDecoration(
                 labelText: l.allCasesScreen_newestFirst,
+                labelStyle: AppTypography.labelLg.copyWith(
+                  fontSize: 14 * 0.6,
+                ),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
@@ -564,48 +583,63 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
 }
 
 /// Compact KPI tile used in the All Cases summary row.
+///
+/// Tappable: the Active tile opens Active Cases and the Disposed tile opens
+/// Disposed Cases, so the count a user is reading is one tap from its list.
 class _KpiTile extends StatelessWidget {
   final String label;
   final String value;
   final Color valueColor;
+  final VoidCallback onTap;
 
   const _KpiTile({
+    super.key,
     required this.label,
     required this.value,
     required this.valueColor,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     // Sized ~40% smaller than the default tile (padding, radius, fonts, gap).
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md * 0.6),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        border: Border.all(color: AppColors.outlineVariant),
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 0.6),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: AppTypography.labelMd.copyWith(
-              fontSize: 14 * 0.6,
-              color: AppColors.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
+    final radius = BorderRadius.circular(AppSpacing.cardRadius * 0.6);
+    return Material(
+      // The Material carries the fill so InkWell can paint its ripple.
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md * 0.6),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.outlineVariant),
+            borderRadius: radius,
           ),
-          const SizedBox(height: AppSpacing.xs * 0.6),
-          Text(
-            value,
-            style: AppTypography.titleLg.copyWith(
-              fontSize: 20 * 0.6,
-              color: valueColor,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: AppTypography.labelMd.copyWith(
+                  fontSize: 14 * 0.6,
+                  color: AppColors.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xs * 0.6),
+              Text(
+                value,
+                style: AppTypography.titleLg.copyWith(
+                  fontSize: 20 * 0.6,
+                  color: valueColor,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -36,6 +36,15 @@ class LocalIdentityService {
     return _cached!;
   }
 
+  /// Reads the stored identity **without creating one**.
+  ///
+  /// Background isolates (the notification job) must never mint an identity,
+  /// so they use this and simply do nothing when the app has not stored one yet.
+  String? peekId() {
+    final stored = _prefs.getString(_key);
+    return (stored == null || stored.isEmpty) ? null : stored;
+  }
+
   /// Clears the cached identity and removes it from persistent storage.
   ///
   /// Useful during logout / account-switch flows in Part B.

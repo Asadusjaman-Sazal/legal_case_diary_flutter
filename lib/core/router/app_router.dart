@@ -44,10 +44,12 @@ import '../../features/settings/presentation/settings_about/guidelines_screen.da
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 import '../../features/settings/presentation/settings_main_screen.dart';
+import '../../features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 import '../../features/settings/presentation/settings_view/view_settings_screen.dart';
 import '../../shared/widgets/database_guard.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../providers/notification_providers.dart';
 import '../providers/repository_providers.dart';
 
 // ---------------------------------------------------------------------------
@@ -99,6 +101,8 @@ class AppRoutes {
   static const String settingsCourtNamesSteps =
       '/settings/edit-court-steps/court-names-steps';
   static const String settingsNotifications = '/settings/notifications';
+  static const String settingsBatterySetupGuide =
+      '/settings/battery-setup-guide';
   static const String settingsViewSettings = '/settings/view-settings';
   static const String settingsGuidelines = '/settings/guidelines';
   static const String settingsAbout = '/settings/about';
@@ -140,6 +144,17 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
     initialLocation = AppRoutes.landingPageRoute(s.defaultLandingPage);
   } catch (_) {
     // Settings unavailable — keep default.
+  }
+
+  // A hearing tap that launched the app opens that case directly, overriding
+  // the configured landing page for this one launch (Task 13 Phase 1, item 5).
+  try {
+    final caseId = await ref.read(notificationSchedulerProvider).launchCaseId();
+    if (caseId != null && caseId.isNotEmpty) {
+      initialLocation = AppRoutes.caseDetailPath(caseId);
+    }
+  } catch (_) {
+    // No notification launched the app (or the platform has no plugin).
   }
 
   return GoRouter(
@@ -314,6 +329,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsNotifications,
     builder: (context, state) => const NotificationSettingsScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsBatterySetupGuide,
+    builder: (context, state) => const BatterySetupGuideScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsViewSettings,

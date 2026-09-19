@@ -585,7 +585,52 @@
   "settingsNotifications_reminderBanner": "Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.",
   "settingsNotifications_setupGuide": "Battery & Auto-Start Setup Guide",
   "settingsNotifications_setupGuideSubtitle": "Required on Xiaomi, Oppo, Vivo and Realme Phones",
-  "settingsNotifications_setupGuidePending": "Setup Guide Arrives in Task 13",
+  "settingsNotifications_sendTest": "Send Test Notification",
+  "settingsNotifications_sendTestSubtitle": "See how a hearing alert looks on this phone",
+  "settingsNotifications_testSent": "Test Notification Sent",
+  "settingsNotifications_testFailed": "Could Not Show a Notification. Check the App's Notification Permission.",
+  "@@_section_notificationJob": "NOTIFICATIONS - DAILY HEARING ALERTS  |  lib/core/notifications/notification_plan.dart",
+  "notificationJob_channelName": "Hearing Alerts",
+  "notificationJob_channelDescription": "Daily reminders for your upcoming hearings",
+  "notificationJob_titleSameDay": "Hearing Today",
+  "notificationJob_titleDayBefore": "Hearing Tomorrow",
+  "notificationJob_titleBeforeDays": "Hearing in {days} Days",
+  "@notificationJob_titleBeforeDays": {
+      "description": "Title of an alert posted several days before the hearing.",
+      "placeholders": {
+          "days": {
+              "type": "String"
+          }
+      }
+  },
+  "notificationJob_parties": "{petitioner} vs {respondent}",
+  "@notificationJob_parties": {
+      "description": "Party line of a hearing alert.",
+      "placeholders": {
+          "petitioner": {
+              "type": "String"
+          },
+          "respondent": {
+              "type": "String"
+          }
+      }
+  },
+  "notificationJob_testTitle": "Test Notification",
+  "notificationJob_testBody": "Hearing alerts are working. This is how a hearing reminder will look.",
+  "@@_section_settingsBatteryGuide": "SETTINGS - BATTERY & AUTO-START GUIDE  |  lib/features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart",
+  "settingsBatteryGuide_intro": "Xiaomi, Oppo, Vivo, Realme and similar phones stop background alarms to save battery, so hearing reminders can fail silently. These two or three steps keep them working.",
+  "settingsBatteryGuide_autoStartTitle": "Allow Auto-Start",
+  "settingsBatteryGuide_autoStartBody": "In your phone's settings, open Auto-start (or Startup manager) and allow Legal Case Diary to start by itself.",
+  "settingsBatteryGuide_batteryTitle": "Set Battery Usage to Unrestricted",
+  "settingsBatteryGuide_batteryBody": "Open Battery then App battery usage (or Battery optimization), choose Legal Case Diary and select Unrestricted / No restrictions.",
+  "settingsBatteryGuide_exactTitle": "Allow Exact Alarms",
+  "settingsBatteryGuide_exactBody": "On Android 12 and newer, allow Alarms & reminders for Legal Case Diary; otherwise the daily reminder can arrive late.",
+  "settingsBatteryGuide_takeMeThere": "Take Me There",
+  "settingsBatteryGuide_exactAllowed": "Exact Alarms Are Already Allowed",
+  "settingsBatteryGuide_openFailed": "Could Not Open That Settings Page. Please Set It Manually.",
+  "settingsBatteryGuide_done": "Done, I've Completed the Steps",
+  "settingsBatteryGuide_skip": "Skip for Now",
+  "settingsBatteryGuide_skipNote": "You can finish this later from Settings → Notifications.",
   "@@_section_settingsViewSettings": "SETTINGS - VIEW SETTINGS  |  lib/features/settings/presentation/settings_view/view_settings_screen.dart",
   "settingsViewSettings_title": "View Settings",
   "settingsViewSettings_sectionDisplay": "Display",

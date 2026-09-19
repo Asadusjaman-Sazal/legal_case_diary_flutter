@@ -26,6 +26,15 @@ class CaseNotificationPreferencesDao {
       ..where((row) => row.userId.equals(userId)))
       .watch();
 
+  /// Returns every per-case preference of [userId].
+  ///
+  /// Used by the daily notification job, which runs in a background isolate
+  /// without a Riverpod scope and therefore cannot watch a stream.
+  Future<List<CaseNotificationPreference>> getByUserId(String userId) async =>
+      (db.select(db.caseNotificationPreferences)
+            ..where((row) => row.userId.equals(userId)))
+          .get();
+
   /// Inserts or updates a per-case notification preference.
   Future<int> upsert(CaseNotificationPreferencesCompanion preference) async =>
       db.into(db.caseNotificationPreferences).insert(

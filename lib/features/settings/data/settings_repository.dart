@@ -73,6 +73,19 @@ class UserSettings {
   /// Available notification offsets selected in per-user settings.
   final List<int> notificationDefaultOffsets;
 
+  /// Whether the user finished the OEM battery/auto-start setup guide.
+  ///
+  /// Until this is true the Notifications screen keeps showing the plan's
+  /// non-intrusive "notifications may not work reliably" banner.
+  final bool notificationSetupDone;
+
+  /// Whether the guide has already opened by itself on this device.
+  ///
+  /// Keeps the first-launch offer to exactly one showing, whatever the user did
+  /// with it (a skip still leaves [notificationSetupDone] false, so the banner
+  /// keeps nudging without the screen ever reappearing unbidden).
+  final bool notificationGuideShown;
+
   /// Selected UI language code.
   final String language;
 
@@ -105,6 +118,8 @@ class UserSettings {
     this.notificationTime,
     this.notificationDayOffset = 1,
     this.notificationDefaultOffsets = const [1],
+    this.notificationSetupDone = false,
+    this.notificationGuideShown = false,
     this.language = 'en',
     this.backupNudge = const {},
     this.lastAddCaseHigherLowerCourt,
@@ -132,6 +147,8 @@ class UserSettings {
     notificationTime: notificationTime,
     notificationDayOffset: notificationDayOffset,
     notificationDefaultOffsets: notificationDefaultOffsets,
+    notificationSetupDone: notificationSetupDone,
+    notificationGuideShown: notificationGuideShown,
     language: language,
     backupNudge: backupNudge,
     lastAddCaseHigherLowerCourt: higherLowerCourt,
@@ -155,6 +172,8 @@ class UserSettings {
     int? notificationTime,
     int? notificationDayOffset,
     List<int>? notificationDefaultOffsets,
+    bool? notificationSetupDone,
+    bool? notificationGuideShown,
     String? language,
     Map<String, dynamic>? backupNudge,
   }) => UserSettings(
@@ -174,6 +193,8 @@ class UserSettings {
     notificationDayOffset: notificationDayOffset ?? this.notificationDayOffset,
     notificationDefaultOffsets:
         notificationDefaultOffsets ?? this.notificationDefaultOffsets,
+    notificationSetupDone: notificationSetupDone ?? this.notificationSetupDone,
+    notificationGuideShown: notificationGuideShown ?? this.notificationGuideShown,
     language: language ?? this.language,
     backupNudge: backupNudge ?? this.backupNudge,
     lastAddCaseHigherLowerCourt: lastAddCaseHigherLowerCourt,
@@ -195,6 +216,8 @@ class UserSettings {
     'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
+    'notification_setup_done': notificationSetupDone,
+    'notification_guide_shown': notificationGuideShown,
     'backup_nudge': backupNudge,
     'last_add_case_higher_lower_court': lastAddCaseHigherLowerCourt,
     'last_add_case_division': lastAddCaseDivision,
@@ -277,6 +300,9 @@ class UserSettings {
         row.notificationDefaultOffsets ?? json['notification_default_offsets'],
         fallback: (json['notification_day_offset'] as num?)?.toInt() ?? 1,
       ),
+      notificationSetupDone: json['notification_setup_done'] as bool? ?? false,
+      notificationGuideShown:
+          json['notification_guide_shown'] as bool? ?? false,
       language: effectiveLanguage,
       backupNudge: json['backup_nudge'] is Map<String, dynamic>
           ? json['backup_nudge'] as Map<String, dynamic>

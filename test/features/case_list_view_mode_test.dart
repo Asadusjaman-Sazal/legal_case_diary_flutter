@@ -217,11 +217,11 @@ void main() {
       .map((text) => text.data)
       .toList();
 
-  /// Opens or folds one court's group in the extended view.
+  /// Folds or re-opens one court's group in the extended view.
   ///
-  /// A grouped screen lists its courts with every group folded, so a test that
-  /// wants to read a court's rows taps its heading first, exactly as the user
-  /// does; tapping it a second time folds the court again.
+  /// A grouped screen opens with every court expanded, so a test that wants to
+  /// read a court's rows needs no tap; tapping the heading folds that court
+  /// away, exactly as the user does, and tapping it again brings the rows back.
   Future<void> toggleCourt(WidgetTester tester, String name) async {
     final group = find.ancestor(
       of: find.text(name),
@@ -478,7 +478,6 @@ void main() {
     );
 
     await pumpScreen(tester, const DailyCauseListScreen());
-    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     // The court sub-heading still sits above the rows, under the header row…
@@ -489,7 +488,6 @@ void main() {
     await unmount(tester);
 
     await pumpScreen(tester, const UpcomingCasesScreen());
-    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     expect(find.byKey(const ValueKey('case-table-header-court')), findsNothing);
@@ -497,7 +495,6 @@ void main() {
     await unmount(tester);
 
     await pumpScreen(tester, const OverdueDatesScreen());
-    await toggleCourt(tester, courtName);
     expect(find.byType(CaseTableRow), findsOneWidget);
     expect(renderedSerials(tester), <String>['1']);
     // The overdue urgency strip follows the row into the extended view.
@@ -556,7 +553,6 @@ void main() {
       lastStep: 'Arrival',
     );
     await pumpScreen(tester, const OverdueDatesScreen());
-    await toggleCourt(tester, courtName);
 
     // The date cell is the date alone: one line, no step folded into it.
     final dateCell = find.byKey(const ValueKey('case-table-cell-date'));
@@ -686,11 +682,8 @@ void main() {
     }
     await pumpScreen(tester, const OverdueDatesScreen());
 
-    // Both courts start folded, so open them: the pinning is about a heading
-    // and the rows it heads.
-    await toggleCourt(tester, courtName);
-    await toggleCourt(tester, secondCourtName);
-
+    // Courts open expanded, so both headings already have their rows on screen:
+    // the pinning is about a heading and the rows it heads.
     final list = find.byType(CustomScrollView);
     expect(list, findsOneWidget);
     // Both court headings are pinned bands, not plain rows.
@@ -775,13 +768,13 @@ void main() {
     for (final screen in screens) {
       await pumpScreen(tester, screen);
       expect(find.byType(CaseTableGroup), findsWidgets);
-      await toggleCourt(tester, courtName);
+      // Every court opens expanded, so its rows are on screen with no tap.
       expect(find.byType(CaseTableRow), findsWidgets);
       await unmount(tester);
     }
   });
 
-  testWidgets('a court heading folds its cases, and starts folded', (
+  testWidgets('a court heading folds its cases, and starts expanded', (
     WidgetTester tester,
   ) async {
     await setStoredMode('expanded');
@@ -831,52 +824,84 @@ void main() {
 
     await pumpScreen(tester, const OverdueDatesScreen());
 
-    // Folded to start with: the courts are listed as headings, no row is drawn,
-    // and each heading carries the down chevron that says cases are hidden
-    // under it.
+    // Expanded to start with: both courts draw their rows, and no heading shows
+    // the down chevron — the rows are already there to read.
     expect(find.byType(CaseTableGroup), findsNWidgets(2));
-    expect(find.byType(CaseTableRow), findsNothing);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsOneWidget);
     expect(
       find.byKey(const ValueKey('case-table-group-collapsed')),
-      findsNWidgets(2),
-    );
-    expect(
-      find.byKey(const ValueKey('case-table-group-expanded')),
       findsNothing,
+    );
+
+    // Tapping a heading hides that court's cases, and only that court's: only
+    // the folded heading carries the down chevron that says so.
+    await toggleCourt(tester, courtName);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsNothing);
+    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsOneWidget,
     );
     // The chevron is the direction that says "cases are hidden under here".
     expect(
       tester
-          .widgetList<Icon>(
+          .widget<Icon>(
             find.byKey(const ValueKey('case-table-group-collapsed')),
           )
-          .map((icon) => icon.icon),
-      everyElement(Icons.keyboard_arrow_down),
+          .icon,
+      Icons.keyboard_arrow_down,
     );
 
-    // Tapping a heading shows that court's cases, and only that court's: the
-    // chevron turns over to say the cases can be put away again.
+    // Tapping the same heading again brings the cases back, leaving no chevron
+    // behind because the rows say the cases are showing.
     await toggleCourt(tester, courtName);
     expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
-    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsNothing);
-    expect(
-      find.byKey(const ValueKey('case-table-group-expanded')),
-      findsOneWidget,
-    );
     expect(
       find.byKey(const ValueKey('case-table-group-collapsed')),
-      findsOneWidget,
+      findsNothing,
     );
 
-    // Tapping the same heading again hides the cases, leaving the heading and
-    // its down chevron behind.
+    await unmount(tester);
+  });
+
+  testWidgets('a folded court stays folded across a restart, per screen', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
+      lastStep: 'Arrival',
+    );
+    await pumpScreen(tester, const OverdueDatesScreen());
+
+    // The court opens expanded; folding it writes the choice to the app.
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
     await toggleCourt(tester, courtName);
-    expect(find.byType(CaseTableRow), findsNothing);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsNothing);
+    expect(
+      (await settings.getSettings()).caseTableCollapsedCourts['overdue'],
+      contains(courtId),
+    );
+    await unmount(tester);
+
+    // The choice survives a restart: the court opens folded again.
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsNothing);
     expect(
       find.byKey(const ValueKey('case-table-group-collapsed')),
-      findsNWidgets(2),
+      findsOneWidget,
     );
 
+    // Re-opening it clears the stored choice, so the screen stores what it shows.
+    await toggleCourt(tester, courtName);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    expect(
+      (await settings.getSettings()).caseTableCollapsedCourts['overdue'],
+      isNull,
+    );
     await unmount(tester);
   });
 
@@ -894,7 +919,6 @@ void main() {
       nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
     );
     await pumpScreen(tester, const OverdueDatesScreen());
-    await toggleCourt(tester, courtName);
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('case-table-cell-step')),

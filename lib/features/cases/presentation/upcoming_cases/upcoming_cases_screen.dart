@@ -393,6 +393,14 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       ),
     );
 
+    // Courts the user folded away on this screen, read from the app settings so
+    // the fold choice survives leaving and re-opening the screen. A court that
+    // heads groups on more than one hearing day folds as one header.
+    final collapsedCourts = watchCaseTableCollapsedCourts(
+      ref,
+      CaseListScreenId.upcoming,
+    );
+
     // The extended view pins each court title: it holds the top of the list
     // until the next court's title reaches it, so the court a row belongs to
     // stays on screen for as long as its cases do. The date heading above a
@@ -424,6 +432,15 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
                 key: ValueKey('court-header-$i-${courtGroup.court.id}'),
                 heading: _buildCourtTitle(courtGroup, l),
                 headingHeight: caseTableGroupHeaderHeight(context),
+                initiallyCollapsed: collapsedCourts.contains(
+                  courtGroup.court.id,
+                ),
+                onToggle: (collapsed) => setCaseTableCourtCollapsed(
+                  ref,
+                  screenId: CaseListScreenId.upcoming,
+                  courtId: courtGroup.court.id,
+                  collapsed: collapsed,
+                ),
                 rows: [
                   for (final currentCase in courtGroup.cases)
                     _buildRow(currentCase, l, serials[currentCase.id]!, widths),

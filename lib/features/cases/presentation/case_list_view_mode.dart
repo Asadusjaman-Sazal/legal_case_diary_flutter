@@ -116,3 +116,48 @@ bool watchCaseListExtendedView(WidgetRef ref, String screenId) =>
       ref.watch(userSettingsStreamProvider).value,
       screenId,
     );
+
+/// The court groups the user has folded away in [screenId]'s extended view,
+/// safe to read during a build.
+///
+/// Empty until the stream's first emission, which is the stored default: every
+/// court opens expanded on a fresh install.
+Set<String> watchCaseTableCollapsedCourts(WidgetRef ref, String screenId) =>
+    (ref.watch(userSettingsStreamProvider).value
+            ?.caseTableCollapsedCourts[screenId] ??
+        const <String>[])
+    .toSet();
+
+/// Persists one court group's folded ↔ expanded choice in [screenId]'s extended
+/// view.
+///
+/// Same read-modify-write contract as [setCaseListViewMode]: the whole stored
+/// row is read back first so no other preference can be dropped, the entry is
+/// removed entirely once a screen has nothing folded (so a fresh install and a
+/// fully reopened screen store the same row), and the settings ViewModel is
+/// invalidated so the Settings screens keep showing the row just written.
+Future<void> setCaseTableCourtCollapsed(
+  WidgetRef ref, {
+  required String screenId,
+  required String courtId,
+  required bool collapsed,
+}) async {
+  final repo = await ref.read(settingsRepositoryProvider.future);
+  final current = await repo.getSettings();
+  final groups = <String, List<String>>{
+    ...current.caseTableCollapsedCourts,
+  };
+  final ids = <String>{...?groups[screenId]};
+  if (collapsed) {
+    ids.add(courtId);
+  } else {
+    ids.remove(courtId);
+  }
+  if (ids.isEmpty) {
+    groups.remove(screenId);
+  } else {
+    groups[screenId] = ids.toList();
+  }
+  await repo.upsertSettings(current.copyWith(caseTableCollapsedCourts: groups));
+  ref.invalidate(settingsViewModelProvider);
+}

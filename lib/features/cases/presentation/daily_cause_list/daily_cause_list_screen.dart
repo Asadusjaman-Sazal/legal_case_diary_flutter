@@ -342,6 +342,13 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     // The extended view pins each court heading: it holds the top of the list
     // until the next court's heading reaches it, so the court a row belongs to
     // stays on screen for as long as its cases do.
+    // Courts the user folded away on this screen, read from the app settings so
+    // the fold choice survives leaving and re-opening the screen.
+    final collapsedCourts = watchCaseTableCollapsedCourts(
+      ref,
+      CaseListScreenId.dailyCauseList,
+    );
+
     Widget buildTableList(Map<CaseTableColumn, double> widths) =>
         RefreshIndicator(
           onRefresh: _loadCases,
@@ -353,6 +360,13 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                   key: ValueKey('court-header-${group.court.id}'),
                   heading: _courtHeading(group, l),
                   headingHeight: caseTableGroupHeaderHeight(context),
+                  initiallyCollapsed: collapsedCourts.contains(group.court.id),
+                  onToggle: (collapsed) => setCaseTableCourtCollapsed(
+                    ref,
+                    screenId: CaseListScreenId.dailyCauseList,
+                    courtId: group.court.id,
+                    collapsed: collapsed,
+                  ),
                   rows: [
                     for (final currentCase in group.cases)
                       _buildRow(

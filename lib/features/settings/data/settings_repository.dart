@@ -50,6 +50,14 @@ class UserSettings {
   /// column gets.
   final Map<String, double> caseTableColumnWidths;
 
+  /// Per-screen court groups the user folded away in the extended ("table")
+  /// case view, keyed by the screen's stable id (`overdue`,
+  /// `daily_cause_list`, `upcoming`) and holding the folded courts' ids. A
+  /// court not listed opens expanded, which is the app default; the choice is
+  /// the screen's, so folding a court on Daily Cause List leaves Overdue
+  /// Dates' copy of it open.
+  final Map<String, List<String>> caseTableCollapsedCourts;
+
   /// Default landing page route name.
   final String defaultLandingPage;
 
@@ -91,6 +99,7 @@ class UserSettings {
     this.bottomNavOrder = const [],
     this.sideNavOptions = const {},
     this.caseTableColumnWidths = const {},
+    this.caseTableCollapsedCourts = const {},
     this.defaultLandingPage = 'all_cases',
     this.notificationEnabled = false,
     this.notificationTime,
@@ -117,6 +126,7 @@ class UserSettings {
     bottomNavOrder: bottomNavOrder,
     sideNavOptions: sideNavOptions,
     caseTableColumnWidths: caseTableColumnWidths,
+    caseTableCollapsedCourts: caseTableCollapsedCourts,
     defaultLandingPage: defaultLandingPage,
     notificationEnabled: notificationEnabled,
     notificationTime: notificationTime,
@@ -139,6 +149,7 @@ class UserSettings {
     List<String>? bottomNavOrder,
     Map<String, dynamic>? sideNavOptions,
     Map<String, double>? caseTableColumnWidths,
+    Map<String, List<String>>? caseTableCollapsedCourts,
     String? defaultLandingPage,
     bool? notificationEnabled,
     int? notificationTime,
@@ -155,6 +166,8 @@ class UserSettings {
     bottomNavOrder: bottomNavOrder ?? this.bottomNavOrder,
     sideNavOptions: sideNavOptions ?? this.sideNavOptions,
     caseTableColumnWidths: caseTableColumnWidths ?? this.caseTableColumnWidths,
+    caseTableCollapsedCourts:
+        caseTableCollapsedCourts ?? this.caseTableCollapsedCourts,
     defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
     notificationEnabled: notificationEnabled ?? this.notificationEnabled,
     notificationTime: notificationTime ?? this.notificationTime,
@@ -177,6 +190,7 @@ class UserSettings {
     'bottom_nav_order': bottomNavOrder,
     'side_nav_options': sideNavOptions,
     'case_table_column_widths': caseTableColumnWidths,
+    'case_table_collapsed_courts': caseTableCollapsedCourts,
     'default_landing_page': defaultLandingPage,
     'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
@@ -215,6 +229,7 @@ class UserSettings {
     final rawOrder = json['bottom_nav_order'];
     final rawModes = json['case_list_display_modes'];
     final rawWidths = json['case_table_column_widths'];
+    final rawCollapsed = json['case_table_collapsed_courts'];
 
     return UserSettings(
       upcomingCasesPeriod:
@@ -240,6 +255,15 @@ class UserSettings {
               for (final entry in rawWidths.entries)
                 if (entry.value is num)
                   '${entry.key}': (entry.value as num).toDouble(),
+            }
+          : const {},
+      caseTableCollapsedCourts: rawCollapsed is Map
+          ? {
+              for (final entry in rawCollapsed.entries)
+                if (entry.value is List)
+                  '${entry.key}': (entry.value as List)
+                      .whereType<String>()
+                      .toList(),
             }
           : const {},
       defaultLandingPage:

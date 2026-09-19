@@ -8,4 +8,4 @@
 library;
 
 /// User-facing version string, e.g. `0.0.207`.
-const String appVersion = '0.0.208';
+const String appVersion = '0.0.209';

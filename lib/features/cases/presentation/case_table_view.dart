@@ -42,8 +42,10 @@ double caseTableGroupHeaderHeight(BuildContext context) {
 ///
 /// Tapping the heading folds the court away and tapping it again brings it back,
 /// so a long day can be read as a list of courts and opened one at a time. A
-/// court starts folded ([initiallyCollapsed]), and the chevron in the band
-/// points down while its cases are hidden.
+/// court starts expanded ([initiallyCollapsed]) — the screen is handed the
+/// court's stored fold state and [onToggle] writes the new one back — and a
+/// folded court's band carries a chevron pointing down. An expanded court shows
+/// no chevron at all, since the rows below it already say the cases are there.
 ///
 /// The band paints the screen background across the table's full width, which
 /// also keeps the rows sliding underneath it hidden while it is pinned.
@@ -60,16 +62,24 @@ class CaseTableGroup extends StatefulWidget {
 
   /// Whether the court starts with its cases hidden.
   ///
-  /// Defaults to `true`: the extended view opens as a list of court headings,
-  /// and the user opens the courts they want to read.
+  /// Defaults to `false`: the extended view opens with every court expanded, so
+  /// the rows are there to read straight away. A grouped screen passes the
+  /// court's stored fold state here, which is what makes the user's choice
+  /// survive leaving and re-opening the screen.
   final bool initiallyCollapsed;
+
+  /// Called with the court's new fold state after a heading tap, so the host
+  /// can persist the choice. A screen that does not store the state simply
+  /// omits it and the group stays in memory for the visit.
+  final void Function(bool collapsed)? onToggle;
 
   /// Creates one court's section of the extended view.
   const CaseTableGroup({
     required this.heading,
     required this.headingHeight,
     required this.rows,
-    this.initiallyCollapsed = true,
+    this.initiallyCollapsed = false,
+    this.onToggle,
     super.key,
   });
 
@@ -83,7 +93,11 @@ class _CaseTableGroupState extends State<CaseTableGroup> {
   /// and so each group answers its own heading's tap.
   late bool _collapsed = widget.initiallyCollapsed;
 
-  void _toggle() => setState(() => _collapsed = !_collapsed);
+  void _toggle() {
+    final collapsed = !_collapsed;
+    setState(() => _collapsed = collapsed);
+    widget.onToggle?.call(collapsed);
+  }
 
   @override
   Widget build(BuildContext context) => SliverMainAxisGroup(
@@ -117,8 +131,8 @@ class _CaseTableGroupState extends State<CaseTableGroup> {
   );
 }
 
-/// The tappable band around one court's heading, carrying the chevron that says
-/// whether the court's cases are showing.
+/// The tappable band around one court's heading, carrying the down chevron that
+/// says the court's cases are hidden under it.
 ///
 /// The whole band is the tap target, not just the arrow, because the heading is
 /// the widest thing on the row; the band's own background is what hides the rows
@@ -155,19 +169,18 @@ class _CaseTableHeading extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(child: child),
-                const SizedBox(width: AppSpacing.xs),
-                Icon(
-                  collapsed
-                      ? Icons.keyboard_arrow_down
-                      : Icons.keyboard_arrow_up,
-                  key: ValueKey(
-                    collapsed
-                        ? 'case-table-group-collapsed'
-                        : 'case-table-group-expanded',
+                // Only a hidden court says so: the chevron points down under a
+                // folded heading, and an expanded one draws nothing, because
+                // its rows are already on screen.
+                if (collapsed) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    key: ValueKey('case-table-group-collapsed'),
+                    size: 20,
+                    color: AppColors.onSurfaceVariant,
                   ),
-                  size: 20,
-                  color: AppColors.onSurfaceVariant,
-                ),
+                ],
               ],
             ),
           ),

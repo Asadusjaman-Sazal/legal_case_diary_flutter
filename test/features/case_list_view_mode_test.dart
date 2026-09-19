@@ -7,6 +7,11 @@
 /// stores its own compact ↔ extended choice, the compact card list is swapped
 /// for `CaseTableRow` rows, serial numbers appear on every screen that gets a
 /// header row, and the two libraries that share the same shell show no toggle.
+///
+/// The grouped screens (Overdue Dates, Daily Cause List, Upcoming Cases) draw a
+/// court's cases the same way in both views: one pinned, foldable `CaseTableGroup`
+/// per court — cards in the compact list, rows in the table — so a folded court
+/// and the stored fold choice mean the same thing whichever view is on screen.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -217,11 +222,12 @@ void main() {
       .map((text) => text.data)
       .toList();
 
-  /// Folds or re-opens one court's group in the extended view.
+  /// Folds or re-opens one court's group on a grouped screen, in either view.
   ///
   /// A grouped screen opens with every court expanded, so a test that wants to
-  /// read a court's rows needs no tap; tapping the heading folds that court
-  /// away, exactly as the user does, and tapping it again brings the rows back.
+  /// read a court's cases needs no tap; tapping the heading folds that court
+  /// away, exactly as the user does, and tapping it again brings them back —
+  /// rows in the table, cards in the compact list.
   Future<void> toggleCourt(WidgetTester tester, String name) async {
     final group = find.ancestor(
       of: find.text(name),
@@ -729,7 +735,87 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('the grouped screens pin their court headings in the table only', (
+  testWidgets('the compact card list pins the same court headings', (
+    WidgetTester tester,
+  ) async {
+    // The same shape as the extended pinning test — a short first court and a
+    // long second one — so the handover has to happen in the card list too.
+    const secondCategoryId = 'view-mode-category-2';
+    const secondCourtId = 'view-mode-court-2';
+    const secondCourtName = 'Senior Assistant Judge, Dhaka';
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(secondCategoryId),
+            nameKey: Value('courtCategory_districtCourtsCriminal'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value(secondCourtId),
+            courtName: Value(secondCourtName),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value(secondCategoryId),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    for (var i = 1; i <= 2; i++) {
+      await seedCase(
+        id: 'A-$i',
+        caseNumber: 'A-$i',
+        nextDateMs: today - i * 86400000,
+        lastStep: 'Arrival',
+      );
+    }
+    for (var i = 1; i <= 12; i++) {
+      await seedCase(
+        id: 'B-$i',
+        caseNumber: 'B-$i',
+        court: secondCourtId,
+        nextDateMs: today - i * 86400000,
+        lastStep: 'Arrival',
+      );
+    }
+
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byType(CaseCard), findsWidgets);
+    final list = find.byType(CustomScrollView);
+    expect(list, findsOneWidget);
+    final listTop = tester.getTopLeft(list).dy;
+    double headingTop(String name) => tester.getTopLeft(find.text(name)).dy;
+
+    // Scrolling inside the first court's cards leaves its heading holding the
+    // top of the list, exactly as it does over the table's rows.
+    await tester.drag(list, const Offset(0, -60));
+    await settle(tester);
+    expect(
+      headingTop(courtName),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the first court heading is pinned in the card list',
+    );
+
+    // Scrolling on to the next court hands the top over there too.
+    await tester.drag(list, const Offset(0, -4000));
+    await settle(tester);
+    expect(
+      headingTop(secondCourtName),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the second court heading took the top in the card list',
+    );
+
+    await unmount(tester);
+  });
+
+  testWidgets('the grouped screens pin their court headings in both views', (
     WidgetTester tester,
   ) async {
     final today = AppDateUtils.bangladeshTodayStartOfDay();
@@ -755,12 +841,19 @@ void main() {
       const OverdueDatesScreen(),
     ];
 
-    // The compact list keeps the headings it has always had, so the pinning is
-    // a property of the extended view alone.
+    // The compact card list heads each court with the same pinned, foldable
+    // group the table uses, so the heading behaviour does not depend on which
+    // view the screen is in.
     for (final screen in screens) {
       await pumpScreen(tester, screen);
+      expect(find.byType(CaseTableGroup), findsWidgets);
+      expect(find.byType(CaseTableRow), findsNothing);
+      // Every court opens expanded, so its cards are on screen with no tap.
       expect(find.byType(CaseCard), findsWidgets);
-      expect(find.byType(CaseTableGroup), findsNothing);
+      expect(
+        find.byKey(const ValueKey('case-table-group-collapsed')),
+        findsNothing,
+      );
       await unmount(tester);
     }
 
@@ -896,6 +989,99 @@ void main() {
     );
 
     // Re-opening it clears the stored choice, so the screen stores what it shows.
+    await toggleCourt(tester, courtName);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    expect(
+      (await settings.getSettings()).caseTableCollapsedCourts['overdue'],
+      isNull,
+    );
+    await unmount(tester);
+  });
+
+  testWidgets('the compact card list folds a court, and shares the choice', (
+    WidgetTester tester,
+  ) async {
+    // A second court, later in the hierarchy, so folding one court cannot be
+    // mistaken for folding the whole list.
+    const secondCategoryId = 'view-mode-category-2';
+    const secondCourtId = 'view-mode-court-2';
+    const secondCourtName = 'Senior Assistant Judge, Dhaka';
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(secondCategoryId),
+            nameKey: Value('courtCategory_districtCourtsCriminal'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value(secondCourtId),
+            courtName: Value(secondCourtName),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value(secondCategoryId),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    await seedCase(
+      id: 'PAST-2',
+      caseNumber: 'PAST-2',
+      court: secondCourtId,
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+
+    // The compact list is the app default, and it opens with both courts'
+    // cards on screen.
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byType(CaseCard), findsNWidgets(2));
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsNothing,
+    );
+
+    // Tapping a court heading in the card list hides that court's cards, and
+    // only that court's.
+    await toggleCourt(tester, courtName);
+    expect(find.byKey(const ValueKey('case-card-PAST-1')), findsNothing);
+    expect(find.byKey(const ValueKey('case-card-PAST-2')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsOneWidget,
+    );
+    // The choice is stored for the screen, so it survives a restart...
+    expect(
+      (await settings.getSettings()).caseTableCollapsedCourts['overdue'],
+      contains(courtId),
+    );
+    await unmount(tester);
+
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-card-PAST-1')), findsNothing);
+    expect(find.byKey(const ValueKey('case-card-PAST-2')), findsOneWidget);
+    await unmount(tester);
+
+    // ...and the two views read the same entry: the table opens with the court
+    // still folded, because the fold is one state and not one per view.
+    await setStoredMode('expanded');
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsNothing);
+    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsOneWidget);
+
+    // Re-opening it in the table clears it for the card list too.
     await toggleCourt(tester, courtName);
     expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
     expect(

@@ -1,6 +1,10 @@
 /// Hosts the extended ("table") case view: the header row, the horizontal
 /// scroll that keeps the header aligned with the rows, and the column widths.
 ///
+/// It also holds [CaseTableGroup], the pinned and foldable court group both case
+/// list views draw a court with — the extended view over its rows, the compact
+/// card list over its cards.
+///
 /// Widths are the one piece of table state the user owns: they are read from
 /// the stored per-user settings when the screen opens, updated live while a
 /// header rule is dragged, and written back when the drag ends. A screen only
@@ -17,11 +21,11 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../shared/widgets/case_table_row.dart';
 import 'case_list_view_mode.dart';
 
-/// Height of a pinned court heading in the extended view.
+/// Height of a pinned court heading in either case list view.
 ///
 /// One line of the screen's group title plus the heading's own vertical padding,
-/// which is the box a court heading already occupies in the compact list, scaled
-/// with the user's text size so a larger label is never clipped by the band.
+/// which is the box a court heading already occupies in the list, scaled with
+/// the user's text size so a larger label is never clipped by the band.
 double caseTableGroupHeaderHeight(BuildContext context) {
   final style =
       Theme.of(context).textTheme.titleMedium ?? AppTypography.titleMd;
@@ -30,10 +34,15 @@ double caseTableGroupHeaderHeight(BuildContext context) {
   return MediaQuery.textScalerOf(context).scale(lineHeight) + AppSpacing.sm * 2;
 }
 
-/// One court's rows in the extended view, under a heading that stays at the top
-/// of the list for as long as that court's rows are on screen.
+/// One court's cases, under a heading that stays at the top of the list for as
+/// long as that court's cases are on screen.
 ///
-/// The heading and its rows are wrapped in a single [SliverMainAxisGroup], which
+/// Both case list views use it: the extended table passes its rows, the compact
+/// list passes its cards, and a grouping screen gets the same pinned, foldable
+/// heading either way. The screen hands it whatever widgets that view draws and
+/// the heading behaviour is identical.
+///
+/// The heading and its cases are wrapped in a single [SliverMainAxisGroup], which
 /// is what scopes the pinning to the court: the heading holds the top of the
 /// list while its own cases are being read, then travels up and out as the next
 /// court's heading arrives in its place. (Pinned headers placed side by side in
@@ -43,12 +52,13 @@ double caseTableGroupHeaderHeight(BuildContext context) {
 /// Tapping the heading folds the court away and tapping it again brings it back,
 /// so a long day can be read as a list of courts and opened one at a time. A
 /// court starts expanded ([initiallyCollapsed]) — the screen is handed the
-/// court's stored fold state and [onToggle] writes the new one back — and a
-/// folded court's band carries a chevron pointing down. An expanded court shows
-/// no chevron at all, since the rows below it already say the cases are there.
+/// court's stored fold state and [onToggle] writes the new one back, so both
+/// views fold together and the choice survives a restart — and a folded court's
+/// band carries a chevron pointing down. An expanded court shows no chevron at
+/// all, since the cases below it are already on screen.
 ///
-/// The band paints the screen background across the table's full width, which
-/// also keeps the rows sliding underneath it hidden while it is pinned.
+/// The band paints the screen background across the list's full width, which
+/// also keeps the cases sliding underneath it hidden while it is pinned.
 class CaseTableGroup extends StatefulWidget {
   /// The screen's own court heading (icon, name, hearing count), already laid
   /// out, including its own vertical padding.
@@ -57,7 +67,8 @@ class CaseTableGroup extends StatefulWidget {
   /// Height of [heading]; use [caseTableGroupHeaderHeight].
   final double headingHeight;
 
-  /// The court's rows, in the screen's order.
+  /// The court's cases, in the screen's order: cards in the compact list, table
+  /// rows in the extended view.
   final List<Widget> rows;
 
   /// Whether the court starts with its cases hidden.
@@ -135,8 +146,8 @@ class _CaseTableGroupState extends State<CaseTableGroup> {
 /// says the court's cases are hidden under it.
 ///
 /// The whole band is the tap target, not just the arrow, because the heading is
-/// the widest thing on the row; the band's own background is what hides the rows
-/// scrolling underneath it while it is pinned.
+/// the widest thing on the line; the band's own background is what hides the
+/// cases scrolling underneath it while it is pinned.
 class _CaseTableHeading extends StatelessWidget {
   final double height;
   final bool collapsed;

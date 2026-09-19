@@ -318,37 +318,48 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       }
     }
 
-    // The compact list: one card row per group, with the court heading above
-    // its cards, exactly as this screen has always drawn it.
-    Widget buildList() => ListView.separated(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: groups.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, groupIndex) {
-        final group = groups[groupIndex];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _courtHeading(group, l),
-            for (final currentCase in group.cases) ...[
-              _buildCard(currentCase, l),
-              const SizedBox(height: AppSpacing.md),
-            ],
-          ],
-        );
-      },
-    );
-
-    // The extended view pins each court heading: it holds the top of the list
-    // until the next court's heading reaches it, so the court a row belongs to
-    // stays on screen for as long as its cases do.
     // Courts the user folded away on this screen, read from the app settings so
-    // the fold choice survives leaving and re-opening the screen.
+    // the fold choice survives leaving and re-opening the screen. Both views
+    // read the same entry, so a court folded in one is folded in the other.
     final collapsedCourts = watchCaseTableCollapsedCourts(
       ref,
       CaseListScreenId.dailyCauseList,
     );
 
+    /// Folds or re-opens one court here, whichever view asked for it.
+    Future<void> toggleCourt(String courtId, bool collapsed) =>
+        setCaseTableCourtCollapsed(
+          ref,
+          screenId: CaseListScreenId.dailyCauseList,
+          courtId: courtId,
+          collapsed: collapsed,
+        );
+
+    // The compact list: the court heading pins to the top of the list for as
+    // long as that court's own cards are on screen, and tapping it folds that
+    // court's cases away — the same heading the extended view draws, only over
+    // cards instead of rows.
+    Widget buildList() => CustomScrollView(
+      slivers: [
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+        for (final group in groups)
+          CaseTableGroup(
+            key: ValueKey('court-header-${group.court.id}'),
+            heading: _courtHeading(group, l),
+            headingHeight: caseTableGroupHeaderHeight(context),
+            initiallyCollapsed: collapsedCourts.contains(group.court.id),
+            onToggle: (collapsed) => toggleCourt(group.court.id, collapsed),
+            rows: [
+              for (final currentCase in group.cases) _buildCard(currentCase, l),
+            ],
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+      ],
+    );
+
+    // The extended view pins the same court headings over its rows: a heading
+    // holds the top of the list until the next court's heading reaches it, so
+    // the court a row belongs to stays on screen for as long as its cases do.
     Widget buildTableList(Map<CaseTableColumn, double> widths) =>
         RefreshIndicator(
           onRefresh: _loadCases,
@@ -361,11 +372,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                   heading: _courtHeading(group, l),
                   headingHeight: caseTableGroupHeaderHeight(context),
                   initiallyCollapsed: collapsedCourts.contains(group.court.id),
-                  onToggle: (collapsed) => setCaseTableCourtCollapsed(
-                    ref,
-                    screenId: CaseListScreenId.dailyCauseList,
-                    courtId: group.court.id,
-                    collapsed: collapsed,
+                  onToggle: (collapsed) => toggleCourt(
+                    group.court.id,
+                    collapsed,
                   ),
                   rows: [
                     for (final currentCase in group.cases)

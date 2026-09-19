@@ -363,68 +363,51 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       }
     }
 
-    // The compact list: one card row per date group, exactly as this screen has
-    // always drawn it.
-    Widget buildList() => RefreshIndicator(
-      onRefresh: _loadCases,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        itemCount: groups.length,
-        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-        itemBuilder: (context, groupIndex) {
-          final group = groups[groupIndex];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _dateHeading(group),
-              const SizedBox(height: AppSpacing.sm),
-              // Cases of the same court sit under one court title, exactly like
-              // the Daily Cause List groups its cards.
-              for (final courtGroup in group.courtGroups) ...[
-                _buildCourtTitle(courtGroup, l),
-                for (final currentCase in courtGroup.cases) ...[
-                  _buildCard(currentCase, l),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-              ],
-            ],
-          );
-        },
-      ),
-    );
-
     // Courts the user folded away on this screen, read from the app settings so
     // the fold choice survives leaving and re-opening the screen. A court that
-    // heads groups on more than one hearing day folds as one header.
+    // heads groups on more than one hearing day folds as one header, and both
+    // views read the same entry, so a court folded in one is folded in the
+    // other.
     final collapsedCourts = watchCaseTableCollapsedCourts(
       ref,
       CaseListScreenId.upcoming,
     );
 
-    // The extended view pins each court title: it holds the top of the list
-    // until the next court's title reaches it, so the court a row belongs to
-    // stays on screen for as long as its cases do. The date heading above a
-    // group of courts scrolls normally.
-    Widget buildTableList(
-      Map<CaseTableColumn, double> widths,
-    ) => RefreshIndicator(
+    /// Folds or re-opens one court here, whichever view asked for it.
+    Future<void> toggleCourt(String courtId, bool collapsed) =>
+        setCaseTableCourtCollapsed(
+          ref,
+          screenId: CaseListScreenId.upcoming,
+          courtId: courtId,
+          collapsed: collapsed,
+        );
+
+    // The date heading above one day's courts: an ordinary row that scrolls
+    // away, so the pinned court titles have the list top to themselves.
+    Widget dateHeadingSliver(_DateGroup group) => SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      sliver: SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _dateHeading(group),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+
+    // The compact list: the court title pins to the top of the list for as long
+    // as that court's own cards are on screen, and tapping it folds that
+    // court's cases away — the same title the extended view draws, only over
+    // cards instead of rows. The date heading stays an ordinary row.
+    Widget buildList() => RefreshIndicator(
       onRefresh: _loadCases,
       child: CustomScrollView(
         slivers: [
           const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
           for (var i = 0; i < groups.length; i++) ...[
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _dateHeading(groups[i]),
-                    const SizedBox(height: AppSpacing.sm),
-                  ],
-                ),
-              ),
-            ),
+            dateHeadingSliver(groups[i]),
             for (final courtGroup in groups[i].courtGroups)
               CaseTableGroup(
                 // A court can head a group on more than one hearing day, so
@@ -435,12 +418,43 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
                 initiallyCollapsed: collapsedCourts.contains(
                   courtGroup.court.id,
                 ),
-                onToggle: (collapsed) => setCaseTableCourtCollapsed(
-                  ref,
-                  screenId: CaseListScreenId.upcoming,
-                  courtId: courtGroup.court.id,
-                  collapsed: collapsed,
+                onToggle: (collapsed) =>
+                    toggleCourt(courtGroup.court.id, collapsed),
+                rows: [
+                  for (final currentCase in courtGroup.cases)
+                    _buildCard(currentCase, l),
+                ],
+              ),
+          ],
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+        ],
+      ),
+    );
+
+    // The extended view pins the same court titles over its rows: a title holds
+    // the top of the list until the next court's title reaches it, so the court
+    // a row belongs to stays on screen for as long as its cases do.
+    Widget buildTableList(
+      Map<CaseTableColumn, double> widths,
+    ) => RefreshIndicator(
+      onRefresh: _loadCases,
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+          for (var i = 0; i < groups.length; i++) ...[
+            dateHeadingSliver(groups[i]),
+            for (final courtGroup in groups[i].courtGroups)
+              CaseTableGroup(
+                // A court can head a group on more than one hearing day, so
+                // the key carries the day too.
+                key: ValueKey('court-header-$i-${courtGroup.court.id}'),
+                heading: _buildCourtTitle(courtGroup, l),
+                headingHeight: caseTableGroupHeaderHeight(context),
+                initiallyCollapsed: collapsedCourts.contains(
+                  courtGroup.court.id,
                 ),
+                onToggle: (collapsed) =>
+                    toggleCourt(courtGroup.court.id, collapsed),
                 rows: [
                   for (final currentCase in courtGroup.cases)
                     _buildRow(currentCase, l, serials[currentCase.id]!, widths),

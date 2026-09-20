@@ -1,3 +1,15 @@
+### 2026-09-20 — Privacy Policy and Terms of Service drafted — DOCUMENTED
+
+- **The request:** analyse the implementation plan, the task files and the app, then write the app's Privacy Policy and Terms of Service.
+- **Written from the app as it is, not as the plan hopes.** `docs/legal/privacy_policy.md` and `docs/legal/terms_of_service.md`. The single most important fact they turn on is that the **released version transmits nothing**: the policy states plainly that we collect no data, that the diary sits encrypted on the device (key in Keystore-backed storage), that the codebase contains **no analytics, crash-reporting, advertising or tracking** (verified against `pubspec.yaml` and `lib/`), and that anything leaving the phone does so only because the user saved, shared, printed or sent it. Cloud, account, firm and payment data are described in a separate section that says outright it takes effect when that version is released.
+- **Permissions are explained from the manifest**, not guessed: only notifications/exact alarms, wake lock and boot-completed are requested — no location, contacts, camera, microphone or broad file access. The `SCHEDULE_EXACT_ALARM` inexact-alarm fallback is described as it behaves.
+- **The terms encode the real commercial rules:** the 50-live-case free plan and the promise that the limit never hides, blocks or deletes existing cases; ৳100 monthly and ৳1,000 annual with no lifetime plan; **purchasing is not yet open and subscriptions never auto-renew** (manual MFS verification); the 48-hour grace period; the three-submissions-per-24-hours rate limit; firm-owner billing and associate permissions; the **unrecoverable backup passphrase**; and that hearing dates must be verified with the court because the app is not a court record.
+- **Decisions are marked, not invented.** Both drafts carry explicit `[TO CONFIRM]` placeholders for the legal entity and postal address, the Supabase hosting region and transfer basis, retention periods, refund policy, liability cap, whether premium is unlimited, the withdrawal remedy, and governing law and venue — answering these speculatively in a published legal document would be worse than leaving them visible.
+- **One thing the drafts deliberately do not promise:** the in-app "Delete Account" control in Manage Account still only reports its pending state, so deletion is described as handled by contacting us until the online version ships.
+- **Not yet wired into the app.** The About screen's Privacy Policy and Terms of Service rows still report "Arrives in a later task"; these files are the copy they will show.
+- **Version `0.0.238`** (doc-only, bumped because the repo logs every edit). No code changed. `flutter analyze` clean; `flutter test` 583 passed, 2 skipped.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-20 — More About the App: the outlined actions stop painting black — COMPLETE
 
 - **The report:** the “Check for updates” button had a weird background and text colour and needed to line up with the theme and the screen's other buttons.

@@ -2050,7 +2050,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportA3 =>
-      'Please write to us at adv.asadusjaman@gmail.com, or open Settings > About for our email and WhatsApp contact. Describe what you were doing when the problem occurred, together with your phone model and the app version shown in Settings > About.';
+      'Open Settings > About > Support and write to us there — the message opens already carrying your app version and your phone model. Describe what you were doing when the problem occurred. You can also write to adv.asadusjaman@gmail.com.';
 
   @override
   String get settingsAbout_title => 'About';
@@ -2065,12 +2065,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAbout_role => 'Advocate';
-
-  @override
-  String get settingsAbout_emailLabel => 'Email';
-
-  @override
-  String get settingsAbout_whatsappLabel => 'WhatsApp';
 
   @override
   String get settingsAbout_moreAboutApp => 'More About the App';
@@ -2097,6 +2091,78 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsLegal_loadFailed =>
       'Could not open this document. Please try again.';
+
+  @override
+  String get settingsSupport_title => 'Support';
+
+  @override
+  String get settingsSupport_scope =>
+      'We can help you with the app itself: how a feature works, something that is not behaving as it should, or a backup that will not restore. We cannot see your diary — it stays on your phone — and we cannot check, confirm or look up a hearing date for you.';
+
+  @override
+  String get settingsSupport_faqLead =>
+      'Most questions are already answered here.';
+
+  @override
+  String get settingsSupport_faqLink => 'Open Guidelines & FAQs';
+
+  @override
+  String get settingsSupport_channelsLabel => 'Write to us';
+
+  @override
+  String get settingsSupport_channelsHint =>
+      'Either channel opens with the message below already written.';
+
+  @override
+  String get settingsSupport_channelWhatsApp => 'WhatsApp';
+
+  @override
+  String get settingsSupport_channelEmail => 'Email';
+
+  @override
+  String get settingsSupport_previewLabel => 'The message that opens';
+
+  @override
+  String get settingsSupport_messageSubject => 'Legal Case Diary support';
+
+  @override
+  String get settingsSupport_messageIntro =>
+      'Hello, I need help with Legal Case Diary.';
+
+  @override
+  String get settingsSupport_messageVersion => 'App version';
+
+  @override
+  String get settingsSupport_messagePhone => 'Phone';
+
+  @override
+  String get settingsSupport_messageLanguage => 'App language';
+
+  @override
+  String get settingsSupport_messagePrompt =>
+      'What happened, and what I did just before it:';
+
+  @override
+  String get settingsSupport_warningTitle => 'Never send these';
+
+  @override
+  String get settingsSupport_warningBody =>
+      'Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.';
+
+  @override
+  String get settingsSupport_replyTitle => 'When you will hear back';
+
+  @override
+  String get settingsSupport_replyBody =>
+      'Support is handled by the app\'s developer alongside court work, so a reply usually takes one to two working days (Sunday to Thursday). There is no phone line and no live chat — the answer comes back to the WhatsApp or email address you wrote from.';
+
+  @override
+  String get settingsSupport_unableToOpenWhatsApp =>
+      'WhatsApp could not be opened.';
+
+  @override
+  String get settingsSupport_unableToOpenEmail =>
+      'No email app could be opened.';
 
   @override
   String get settingsMoreAbout_title => 'More About the App';

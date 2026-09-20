@@ -39,6 +39,47 @@ class SettingsSectionLabel extends StatelessWidget {
   );
 }
 
+/// Bordered row that opens another screen: label on the left, a chevron right.
+///
+/// About's menu rows and Support's Guidelines & FAQs link are the same control,
+/// so it lives here rather than being copied into each screen.
+class SettingsLinkRow extends StatelessWidget {
+  /// Row label, stored in sentence case (the screens decide on casing).
+  final String label;
+
+  /// Opens the destination.
+  final VoidCallback onTap;
+
+  const SettingsLinkRow({super.key, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: AppColors.surfaceContainerLowest,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      side: BorderSide(color: AppColors.outlineVariant),
+    ),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.titleMd.copyWith(color: AppColors.primary),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.outline),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 /// Full-width 48 px control row: label on the left, an affordance on the right.
 ///
 /// Used by the Notifications and View Settings pickers, whose mockup markup is

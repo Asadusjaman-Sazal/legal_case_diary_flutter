@@ -3677,7 +3677,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_faqCatDataAndSupportA3.
   ///
   /// In en, this message translates to:
-  /// **'Please write to us at adv.asadusjaman@gmail.com, or open Settings > About for our email and WhatsApp contact. Describe what you were doing when the problem occurred, together with your phone model and the app version shown in Settings > About.'**
+  /// **'Open Settings > About > Support and write to us there — the message opens already carrying your app version and your phone model. Describe what you were doing when the problem occurred. You can also write to adv.asadusjaman@gmail.com.'**
   String get settingsGuidelines_faqCatDataAndSupportA3;
 
   /// No description provided for @settingsAbout_title.
@@ -3703,18 +3703,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Advocate'**
   String get settingsAbout_role;
-
-  /// No description provided for @settingsAbout_emailLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get settingsAbout_emailLabel;
-
-  /// No description provided for @settingsAbout_whatsappLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'WhatsApp'**
-  String get settingsAbout_whatsappLabel;
 
   /// No description provided for @settingsAbout_moreAboutApp.
   ///
@@ -3763,6 +3751,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open this document. Please try again.'**
   String get settingsLegal_loadFailed;
+
+  /// No description provided for @settingsSupport_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get settingsSupport_title;
+
+  /// No description provided for @settingsSupport_scope.
+  ///
+  /// In en, this message translates to:
+  /// **'We can help you with the app itself: how a feature works, something that is not behaving as it should, or a backup that will not restore. We cannot see your diary — it stays on your phone — and we cannot check, confirm or look up a hearing date for you.'**
+  String get settingsSupport_scope;
+
+  /// No description provided for @settingsSupport_faqLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Most questions are already answered here.'**
+  String get settingsSupport_faqLead;
+
+  /// No description provided for @settingsSupport_faqLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Guidelines & FAQs'**
+  String get settingsSupport_faqLink;
+
+  /// No description provided for @settingsSupport_channelsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to us'**
+  String get settingsSupport_channelsLabel;
+
+  /// No description provided for @settingsSupport_channelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Either channel opens with the message below already written.'**
+  String get settingsSupport_channelsHint;
+
+  /// No description provided for @settingsSupport_channelWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get settingsSupport_channelWhatsApp;
+
+  /// No description provided for @settingsSupport_channelEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get settingsSupport_channelEmail;
+
+  /// No description provided for @settingsSupport_previewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'The message that opens'**
+  String get settingsSupport_previewLabel;
+
+  /// No description provided for @settingsSupport_messageSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Case Diary support'**
+  String get settingsSupport_messageSubject;
+
+  /// No description provided for @settingsSupport_messageIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, I need help with Legal Case Diary.'**
+  String get settingsSupport_messageIntro;
+
+  /// No description provided for @settingsSupport_messageVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get settingsSupport_messageVersion;
+
+  /// No description provided for @settingsSupport_messagePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get settingsSupport_messagePhone;
+
+  /// No description provided for @settingsSupport_messageLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App language'**
+  String get settingsSupport_messageLanguage;
+
+  /// No description provided for @settingsSupport_messagePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened, and what I did just before it:'**
+  String get settingsSupport_messagePrompt;
+
+  /// No description provided for @settingsSupport_warningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Never send these'**
+  String get settingsSupport_warningTitle;
+
+  /// No description provided for @settingsSupport_warningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.'**
+  String get settingsSupport_warningBody;
+
+  /// No description provided for @settingsSupport_replyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When you will hear back'**
+  String get settingsSupport_replyTitle;
+
+  /// No description provided for @settingsSupport_replyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Support is handled by the app\'s developer alongside court work, so a reply usually takes one to two working days (Sunday to Thursday). There is no phone line and no live chat — the answer comes back to the WhatsApp or email address you wrote from.'**
+  String get settingsSupport_replyBody;
+
+  /// No description provided for @settingsSupport_unableToOpenWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp could not be opened.'**
+  String get settingsSupport_unableToOpenWhatsApp;
+
+  /// No description provided for @settingsSupport_unableToOpenEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app could be opened.'**
+  String get settingsSupport_unableToOpenEmail;
 
   /// No description provided for @settingsMoreAbout_title.
   ///

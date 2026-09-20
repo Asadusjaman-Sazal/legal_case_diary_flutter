@@ -50,21 +50,27 @@ class FakeSettingsRepository implements SettingsRepository {
 ///
 /// The screens under test push other routes (`context.push`), which needs a
 /// real router rather than a plain [Navigator]; [routes] is the minimal route
-/// table each test declares.
+/// table each test declares. A [ProviderScope] wraps the app because a pushed
+/// screen may read providers (Support reads the device facts and the contact
+/// launcher); [overrides] seeds them with fakes.
 Future<void> pumpSettingsRouter(
   WidgetTester tester, {
   required String location,
   required List<RouteBase> routes,
   Locale locale = const Locale('en'),
+  List<Override> overrides = const <Override>[],
 }) async {
   final router = GoRouter(initialLocation: location, routes: routes);
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(
-      routerConfig: router,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: locale,
+    ProviderScope(
+      overrides: overrides,
+      child: MaterialApp.router(
+        routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
+      ),
     ),
   );
   await tester.pumpAndSettle();

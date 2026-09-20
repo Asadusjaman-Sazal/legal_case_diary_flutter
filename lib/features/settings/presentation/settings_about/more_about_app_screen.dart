@@ -6,12 +6,14 @@
 /// `assets/icons/app_logo.png` in the placeholder gavel's 64 × 64 frame, and
 /// the developer photo comes from `assets/images/dev_profile.jpg` because
 /// Part A may not load the mockup's remote image. The mockup's personal
-/// placeholder data (name, email, phone, court, copyright) stays hard-coded,
-/// matching the earlier placeholder-data decision for mockup-only content.
+/// placeholder data (name, court, copyright) stays hard-coded, matching the
+/// earlier placeholder-data decision for mockup-only content.
 ///
-/// The Privacy Policy and Terms of Service rows open the bundled documents from
-/// `docs/legal/` in the app's current language; Support is the only row left
-/// that reports a pending state.
+/// The mockup's Email and WhatsApp rows are gone (user-requested): the support
+/// channels live on the Support screen, reached from this screen's own row, so
+/// the developer card carries identity only. Privacy Policy and Terms of Service
+/// open the bundled documents from `docs/legal/` in the app's current language,
+/// and every row on this screen now opens a real screen.
 library;
 
 import 'package:flutter/material.dart';
@@ -56,27 +58,27 @@ class MoreAboutAppScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           const _DeveloperCard(),
           const SizedBox(height: AppSpacing.md),
-          // Menu rows. More About the App and the two legal documents have
-          // screens; Support arrives with a later task, and the FAQs live on
-          // the Guidelines & FAQs screen, so there is no FAQ row here.
-          _MenuRow(
+          // Menu rows. Every one has a screen: More About the App, the two
+          // legal documents and Support. The FAQs live on the Guidelines & FAQs
+          // screen (which Support links to), so there is no FAQ row here.
+          SettingsLinkRow(
             label: l.settingsAbout_moreAboutApp,
             onTap: () => context.push(AppRoutes.settingsMoreAbout),
           ),
           const SizedBox(height: AppSpacing.xs),
-          _MenuRow(
+          SettingsLinkRow(
             label: l.settingsAbout_privacyPolicy,
             onTap: () => context.push(AppRoutes.settingsPrivacyPolicy),
           ),
           const SizedBox(height: AppSpacing.xs),
-          _MenuRow(
+          SettingsLinkRow(
             label: l.settingsAbout_termsOfService,
             onTap: () => context.push(AppRoutes.settingsTermsOfService),
           ),
           const SizedBox(height: AppSpacing.xs),
-          _MenuRow(
+          SettingsLinkRow(
             label: l.settingsAbout_support,
-            onTap: () => _showPending(context, l),
+            onTap: () => context.push(AppRoutes.settingsSupport),
           ),
           const SizedBox(height: AppSpacing.md),
           _DataSafetyCard(
@@ -96,13 +98,6 @@ class MoreAboutAppScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  /// Part A notice for the rows whose screens are not built yet (Support).
-  void _showPending(BuildContext context, AppLocalizations l) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.settingsAbout_actionPending)));
   }
 }
 
@@ -207,20 +202,6 @@ class _DeveloperCard extends StatelessWidget {
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                _ContactRow(
-                  icon: Icons.mail_outline,
-                  iconColor: AppColors.secondary,
-                  label: l.settingsAbout_emailLabel,
-                  value: 'adv.asadusjaman@gmail.com',
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _ContactRow(
-                  icon: Icons.chat_outlined,
-                  iconColor: AppColors.success,
-                  label: l.settingsAbout_whatsappLabel,
-                  value: '+8801835252721',
-                ),
               ],
             ),
           ),
@@ -265,95 +246,6 @@ class _DeveloperAvatar extends StatelessWidget {
         color: AppColors.surfaceContainer,
         alignment: Alignment.center,
         child: Text('AS', style: AppTypography.titleLg),
-      ),
-    ),
-  );
-}
-
-/// One contact row: round icon chip, uppercase label, value.
-class _ContactRow extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String value;
-
-  const _ContactRow({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      color: AppColors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      border: Border.all(color: AppColors.outlineVariant),
-    ),
-    padding: const EdgeInsets.all(AppSpacing.sm),
-    child: Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.surfaceContainerLowest,
-          ),
-          child: Icon(icon, size: 20, color: iconColor),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: AppTypography.labelMd.copyWith(color: AppColors.outline),
-              ),
-              Text(
-                value,
-                style: AppTypography.titleMd.copyWith(color: AppColors.primary),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-/// One white menu row: title plus the shared chevron.
-class _MenuRow extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _MenuRow({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: AppColors.surfaceContainerLowest,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      side: BorderSide(color: AppColors.outlineVariant),
-    ),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: AppTypography.titleMd.copyWith(color: AppColors.primary),
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.outline),
-          ],
-        ),
       ),
     ),
   );

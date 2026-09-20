@@ -4,6 +4,9 @@
 /// here and hand it to a [ContactLauncher]. The same seam lets the tests assert
 /// exactly which URI a tap would open, which is the part worth pinning: the
 /// Addendum forbids undocumented URL schemes, so the routes taken are a rule.
+///
+/// The Support screen (Settings > About > Support) reuses the same helpers for
+/// its WhatsApp chat and `mailto:` channels.
 library;
 
 import 'package:url_launcher/url_launcher.dart';
@@ -56,6 +59,16 @@ Uri telUri(String number) => Uri(scheme: 'tel', path: number);
 /// `sms:` URI with the pre-filled message body (plan §9's template).
 Uri smsUri(String number, String body) =>
     Uri(scheme: 'sms', path: number, queryParameters: {'body': body});
+
+/// `mailto:<address>?subject=<subject>&body=<message>` — the mail app's route.
+///
+/// Used by the Support screen, whose pre-filled message is written once and
+/// handed to both channels.
+Uri mailtoUri(String address, String subject, String body) => Uri(
+  scheme: 'mailto',
+  path: address,
+  queryParameters: {'subject': subject, 'body': body},
+);
 
 /// `https://wa.me/<number>?text=<message>` — WhatsApp's documented chat route.
 ///

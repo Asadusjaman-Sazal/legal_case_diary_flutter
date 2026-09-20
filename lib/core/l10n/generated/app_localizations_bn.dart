@@ -2061,7 +2061,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportA3 =>
-      'adv.asadusjaman@gmail.com-এ লিখুন, অথবা সেটিংস > সম্পর্কিত-এ গিয়ে আমাদের ইমেইল ও হোয়াটসঅ্যাপ যোগাযোগ দেখুন। সমস্যার সময় আপনি কী করছিলেন, আপনার ফোনের মডেল এবং সেটিংস > সম্পর্কিত-এ দেখা যাওয়া অ্যাপ সংস্করণ লিখুন।';
+      'সেটিংস > সম্পর্কিত > সহায়তা থেকে আমাদের লিখুন — বার্তাটি আপনার অ্যাপ সংস্করণ ও ফোনের মডেল লেখা অবস্থায় খুলবে। সমস্যার সময় আপনি কী করছিলেন তা লিখুন। চাইলে adv.asadusjaman@gmail.com ঠিকানায়ও লিখতে পারেন।';
 
   @override
   String get settingsAbout_title => 'সম্পর্কিত';
@@ -2076,12 +2076,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsAbout_role => 'অ্যাডভোকেট';
-
-  @override
-  String get settingsAbout_emailLabel => 'ইমেইল';
-
-  @override
-  String get settingsAbout_whatsappLabel => 'হোয়াটসঅ্যাপ';
 
   @override
   String get settingsAbout_moreAboutApp => 'অ্যাপ সম্পর্কে আরও';
@@ -2108,6 +2102,78 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsLegal_loadFailed =>
       'এই নথিটি খোলা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsSupport_title => 'সহায়তা';
+
+  @override
+  String get settingsSupport_scope =>
+      'আমরা অ্যাপটি নিয়েই সহায়তা করতে পারি: কোনো সুবিধা কীভাবে কাজ করে, কিছু ঠিকভাবে কাজ করছে না, বা কোনো ব্যাকআপ পুনরুদ্ধার হচ্ছে না। আপনার ডায়েরি আমরা দেখতে পাই না — তা আপনার ফোনেই থাকে — এবং আপনার হয়ে কোনো শুনানির তারিখ যাচাই, নিশ্চিত বা খুঁজে দিতে পারি না।';
+
+  @override
+  String get settingsSupport_faqLead =>
+      'অধিকাংশ প্রশ্নের উত্তর এখানেই দেওয়া আছে।';
+
+  @override
+  String get settingsSupport_faqLink => 'নির্দেশনা ও প্রশ্নোত্তর খুলুন';
+
+  @override
+  String get settingsSupport_channelsLabel => 'আমাদের লিখুন';
+
+  @override
+  String get settingsSupport_channelsHint =>
+      'যে মাধ্যমেই খুলুন, নিচের বার্তাটি লেখা অবস্থায় থাকবে।';
+
+  @override
+  String get settingsSupport_channelWhatsApp => 'হোয়াটসঅ্যাপ';
+
+  @override
+  String get settingsSupport_channelEmail => 'ইমেইল';
+
+  @override
+  String get settingsSupport_previewLabel => 'যে বার্তাটি খুলবে';
+
+  @override
+  String get settingsSupport_messageSubject => 'লিগ্যাল কেস ডায়েরি — সহায়তা';
+
+  @override
+  String get settingsSupport_messageIntro =>
+      'আসসালামু আলাইকুম, লিগ্যাল কেস ডায়েরি নিয়ে আমার সহায়তা দরকার।';
+
+  @override
+  String get settingsSupport_messageVersion => 'অ্যাপ সংস্করণ';
+
+  @override
+  String get settingsSupport_messagePhone => 'ফোন';
+
+  @override
+  String get settingsSupport_messageLanguage => 'অ্যাপের ভাষা';
+
+  @override
+  String get settingsSupport_messagePrompt =>
+      'কী হয়েছে, এবং তার ঠিক আগে আমি কী করছিলাম:';
+
+  @override
+  String get settingsSupport_warningTitle => 'এগুলো কখনো পাঠাবেন না';
+
+  @override
+  String get settingsSupport_warningBody =>
+      'আপনার পাসফ্রেজ, ডায়েরির ডেটাবেস ফাইল বা ব্যাকআপ ফাইল। আমরা কখনো এগুলো চাইব না, আর যে বার্তায় এগুলো চাওয়া হয় তা আমাদের কাছ থেকে আসেনি।';
+
+  @override
+  String get settingsSupport_replyTitle => 'কখন উত্তর পাবেন';
+
+  @override
+  String get settingsSupport_replyBody =>
+      'সহায়তা অ্যাপের ডেভেলপার নিজেই দেখেন, আদালতের কাজের পাশাপাশি; তাই উত্তর পেতে সাধারণত এক থেকে দুই কর্মদিবস (রবিবার থেকে বৃহস্পতিবার) লাগে। কোনো ফোন লাইন বা লাইভ চ্যাট নেই — আপনি যে হোয়াটসঅ্যাপ বা ইমেইল থেকে লিখবেন, সেখানেই উত্তর পাবেন।';
+
+  @override
+  String get settingsSupport_unableToOpenWhatsApp =>
+      'হোয়াটসঅ্যাপ খোলা যায়নি।';
+
+  @override
+  String get settingsSupport_unableToOpenEmail =>
+      'কোনো ইমেইল অ্যাপ খোলা যায়নি।';
 
   @override
   String get settingsMoreAbout_title => 'অ্যাপ সম্পর্কে আরও';

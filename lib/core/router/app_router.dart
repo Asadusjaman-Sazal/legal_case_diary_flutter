@@ -44,6 +44,7 @@ import '../../features/settings/presentation/legal/legal_document_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_the_app_screen.dart';
+import '../../features/settings/presentation/settings_about/support_screen.dart';
 import '../../features/settings/presentation/settings_main_screen.dart';
 import '../../features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
@@ -110,6 +111,7 @@ class AppRoutes {
   static const String settingsMoreAbout = '/settings/about/more';
   static const String settingsPrivacyPolicy = '/settings/about/privacy';
   static const String settingsTermsOfService = '/settings/about/terms';
+  static const String settingsSupport = '/settings/about/support';
   static const String caseDetail = '/case-detail/:caseId';
   static const String login = '/login';
   static const String signup = '/signup';
@@ -362,6 +364,10 @@ final List<RouteBase> _shellRoutes = [
     path: AppRoutes.settingsTermsOfService,
     builder: (context, state) =>
         const LegalDocumentScreen(document: LegalDocument.termsOfService),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsSupport,
+    builder: (context, state) => const SupportScreen(),
   ),
 ];
 

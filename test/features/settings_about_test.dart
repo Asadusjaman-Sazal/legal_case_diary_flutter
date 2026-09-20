@@ -1,9 +1,9 @@
 /// Tests for the About screen and the More About the App screen (Phase 4).
 ///
 /// Both mirror their mockups (`settings_about`, `settings_moreAboutTheApp`) and
-/// show the bundled `appVersion`. About's "More About the App" row is the only
-/// navigation target that exists yet; the remaining rows report their Part A
-/// state through a snackbar.
+/// show the bundled `appVersion`. Two user-requested departures from the About
+/// mockup are pinned here: the developer card no longer carries the email and
+/// WhatsApp rows, and the Support row now opens the Support screen.
 library;
 
 import 'package:flutter/material.dart';
@@ -17,8 +17,10 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/features/settings/presentation/legal/legal_document_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_about/guidelines_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_app_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_the_app_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_about/support_screen.dart';
 
 import 'settings_test_support.dart';
 
@@ -54,6 +56,14 @@ void main() {
           path: AppRoutes.settingsTermsOfService,
           builder: (context, state) =>
               const LegalDocumentScreen(document: LegalDocument.termsOfService),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsSupport,
+          builder: (context, state) => const SupportScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsGuidelines,
+          builder: (context, state) => const GuidelinesScreen(),
         ),
       ],
     );
@@ -109,10 +119,12 @@ void main() {
       find.text('District & Sessions Judge Court, Narayanganj.'),
       findsOneWidget,
     );
-    expect(find.text('EMAIL'), findsOneWidget);
-    expect(find.text('adv.asadusjaman@gmail.com'), findsOneWidget);
-    expect(find.text('WHATSAPP'), findsOneWidget);
-    expect(find.text('+8801835252721'), findsOneWidget);
+    // The card carries identity only: the support channels moved to the Support
+    // screen (user-requested), so neither contact row is here any more.
+    expect(find.text('EMAIL'), findsNothing);
+    expect(find.text('WHATSAPP'), findsNothing);
+    expect(find.text('adv.asadusjaman@gmail.com'), findsNothing);
+    expect(find.text('+8801835252721'), findsNothing);
 
     // The mockup's remote photo is replaced by the bundled asset.
     expect(
@@ -160,18 +172,19 @@ void main() {
     expect(find.text('KEY FEATURES'), findsOneWidget);
   });
 
-  testWidgets('rows without a screen report their Part A state', (
-    tester,
-  ) async {
+  testWidgets('the Support row opens the Support screen', (tester) async {
     await pumpAbout(tester);
 
     await tester.tap(find.text('Support'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Arrives in a later task'), findsOneWidget);
-    // The row only reports: the About screen stays put.
-    expect(find.text('Support'), findsOneWidget);
-    expect(find.text('Check for updates'), findsNothing);
+    // No About row reports a pending state any more: the last one navigates.
+    expect(find.byType(SupportScreen), findsOneWidget);
+    expect(find.text('Arrives in a later task'), findsNothing);
+    expect(
+      find.textContaining('We can help you with the app itself'),
+      findsOneWidget,
+    );
   });
 
   // The document body loads from the asset bundle, which is real asynchronous

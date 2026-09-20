@@ -1082,8 +1082,24 @@ class AppLocalizationsBn extends AppLocalizations {
       'এখনো কোনো ব্যাকআপ করা হয়নি।';
 
   @override
-  String get settingsBackupRestore_enginePending =>
-      'ক্লাউড ব্যাকআপ এখনো পাওয়া যাচ্ছে না';
+  String get settingsBackupRestore_driveShareTitle => 'গুগল ড্রাইভে পাঠাবেন?';
+
+  @override
+  String get settingsBackupRestore_driveShareBody =>
+      'আপনার ব্যাকআপ সংরক্ষিত হয়েছে। শেয়ার শিট থেকে এটি গুগল ড্রাইভে পাঠান।';
+
+  @override
+  String get settingsBackupRestore_driveShareSend => 'পাঠান';
+
+  @override
+  String get settingsBackupRestore_driveShareNotNow => 'এখন নয়';
+
+  @override
+  String get settingsBackupRestore_shareFailed => 'শেয়ার শিট খোলা যায়নি।';
+
+  @override
+  String get settingsBackupRestore_shareSubject =>
+      'লিগ্যাল কেস ডায়েরি ব্যাকআপ';
 
   @override
   String get settingsBackupRestore_scheduleOff => 'বন্ধ';

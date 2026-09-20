@@ -9,18 +9,20 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
+import 'package:legal_case_diary/core/providers/print_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/settings/data/backup_file_gateway.dart';
@@ -28,6 +30,8 @@ import 'package:legal_case_diary/features/settings/data/backup_metadata_store.da
 import 'package:legal_case_diary/features/settings/presentation/backup_restore_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+
+import '../core/print_test_support.dart';
 
 /// Records what the screen asked the platform dialogs to do.
 class _FakeBackupGateway implements BackupFileGateway {
@@ -49,6 +53,13 @@ class _FakeBackupGateway implements BackupFileGateway {
   /// Bytes the export engine handed to the save dialog.
   Uint8List? savedBytes;
 
+  /// Whether the fake also writes those bytes to [savePath].
+  ///
+  /// Off by default, because the real Android save dialog usually returns a
+  /// `content://` location that is not a filesystem path — the case the share
+  /// flow has to work around.
+  bool writeToDisk = false;
+
   /// File name the export engine asked for.
   String? savedName;
 
@@ -62,6 +73,8 @@ class _FakeBackupGateway implements BackupFileGateway {
     if (cancelSave) throw const BackupSaveCancelledException();
     savedName = fileName;
     savedBytes = bytes;
+    // A real platform write, when the test wants a file that exists.
+    if (writeToDisk) File(savePath).writeAsBytesSync(bytes, flush: true);
     return savePath;
   }
 
@@ -125,10 +138,24 @@ Future<PickedBackupFile> _encryptedBackup(String secret) async {
   );
 }
 
+/// Points `path_provider` at [directory].
+///
+/// The share flow asks it for the app's temporary directory, and no plugin
+/// answers on a test host, so the channel is mocked with a real folder.
+void _mockTemporaryDirectory(Directory directory) {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        (call) async => directory.path,
+      );
+}
+
 void main() {
   late AppDatabase db;
   late SharedPreferences prefs;
   late _FakeBackupGateway gateway;
+  late RecordingShareService shareService;
+  late Directory tempDir;
 
   setUpAll(() {
     // One in-memory database per test is the point here.
@@ -140,6 +167,19 @@ void main() {
     prefs = await SharedPreferences.getInstance();
     db = AppDatabase(NativeDatabase.memory());
     gateway = _FakeBackupGateway();
+    shareService = RecordingShareService();
+    // The share flow keeps its courier copy through `path_provider`; every
+    // test gets a real directory that is removed again afterwards.
+    tempDir = Directory.systemTemp.createTempSync('lcb_backup_screen');
+    addTearDown(() {
+      try {
+        if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+      } on FileSystemException {
+        // Windows can still hold a handle for a moment; the OS clears its own
+        // temp directory, so a locked leftover is not worth failing a test for.
+      }
+    });
+    _mockTemporaryDirectory(tempDir);
   });
 
   tearDown(() async {
@@ -158,6 +198,7 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           backupFileGatewayProvider.overrideWithValue(gateway),
+          appShareServiceProvider.overrideWithValue(shareService),
           // Everything else about the export stays real; only the key
           // derivation is cheap, because its default stretch pauses between
           // batches and the fake clock here never advances those pauses.
@@ -494,14 +535,150 @@ void main() {
     expect(find.text('Open this backup'), findsNothing);
   });
 
-  testWidgets('the cloud action still reports that it is not available', (
+  testWidgets('the Drive action makes a local backup, then offers to send it', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    // It asks for the passphrase exactly like the local action, because it is
+    // the same backup — the app never uploads anything itself.
+    await tapAction(tester, 'Backup to Google Drive');
+    expect(find.text('Protect this backup'), findsOneWidget);
+    await enterPassphrase(
+      tester,
+      passphrase: 'correct horse',
+      confirmation: 'correct horse',
+      confirmLabel: 'Encrypt and save',
+    );
+
+    // The file is written and recorded before any sharing is offered, and it is
+    // the encrypted container, not a plaintext copy.
+    final bytes = gateway.savedBytes;
+    expect(bytes, isNotNull);
+    expect(
+      EncryptedBackup.decode(utf8.decode(bytes!)).format,
+      kEncryptedBackupFormat,
+    );
+    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(prefs.getInt(lastSuccessfulBackupAtKey), isNotNull);
+
+    // The offer window names the file that was just saved, and nothing has been
+    // shared yet.
+    expect(find.text('Send to Google Drive?'), findsOneWidget);
+    expect(find.textContaining('Your backup is saved.'), findsOneWidget);
+    expect(find.text(gateway.savePath), findsWidgets);
+    expect(shareService.files, isEmpty);
+
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    // This save location is not a filesystem path (Android's Save-to dialog
+    // hands back a content URI), so the sheet receives a copy of the very same
+    // bytes — a share sheet cannot attach a content URI.
+    final shared = shareService.files.single;
+    expect(shared.subject, 'Legal Case Diary backup');
+    expect(shared.path, isNot(gateway.savePath));
+    expect(shared.path, endsWith(gateway.savedName!));
+    // Sync on purpose: real async I/O never completes under the fake clock.
+    expect(File(shared.path).readAsBytesSync(), bytes);
+  });
+
+  testWidgets('a saved file that really exists is shared as it is', (
+    tester,
+  ) async {
+    gateway
+      ..savePath =
+          '${tempDir.path}${Platform.pathSeparator}legal-case-diary.lcbak'
+      ..writeToDisk = true;
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Backup to Google Drive');
+    await enterPassphrase(
+      tester,
+      passphrase: 'correct horse',
+      confirmation: 'correct horse',
+      confirmLabel: 'Encrypt and save',
+    );
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    // A real path needs no copy: the file the user keeps is the file the sheet
+    // gets, so the two can never drift apart.
+    expect(shareService.files.single.path, gateway.savePath);
+    expect(File(gateway.savePath).readAsBytesSync(), gateway.savedBytes);
+  });
+
+  testWidgets('declining the Drive offer keeps the backup and shares nothing', (
     tester,
   ) async {
     await pumpScreen(tester);
 
     await tapAction(tester, 'Backup to Google Drive');
+    await enterPassphrase(
+      tester,
+      passphrase: 'correct horse',
+      confirmation: 'correct horse',
+      confirmLabel: 'Encrypt and save',
+    );
+    expect(find.text('Send to Google Drive?'), findsOneWidget);
 
-    expect(find.text('Cloud backup is not available yet'), findsOneWidget);
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+
+    // Declining the sheet is not a failed backup: the file and its record stay.
+    expect(shareService.files, isEmpty);
+    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(find.text('No backup has been made yet.'), findsNothing);
+  });
+
+  testWidgets('a cancelled passphrase window writes and shares nothing', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Backup to Google Drive');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(gateway.savedBytes, isNull);
+    expect(find.text('Send to Google Drive?'), findsNothing);
+    expect(shareService.files, isEmpty);
+  });
+
+  testWidgets('a share sheet that cannot open is reported', (tester) async {
+    shareService.outcome = AppShareOutcome.failed;
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Backup to Google Drive');
+    await enterPassphrase(
+      tester,
+      passphrase: 'correct horse',
+      confirmation: 'correct horse',
+      confirmLabel: 'Encrypt and save',
+    );
+    await tester.tap(find.text('Send'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Could not open the share sheet.'), findsOneWidget);
+    // The backup itself is unaffected by a share that never happened.
+    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+  });
+
+  testWidgets('a dismissed save dialog offers no share', (tester) async {
+    gateway.cancelSave = true;
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Backup to Google Drive');
+    await enterPassphrase(
+      tester,
+      passphrase: 'correct horse',
+      confirmation: 'correct horse',
+      confirmLabel: 'Encrypt and save',
+    );
+
+    expect(find.text('Send to Google Drive?'), findsNothing);
+    expect(shareService.files, isEmpty);
+    expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);
   });
 
   test('only the file gateway imports the platform picker', () {

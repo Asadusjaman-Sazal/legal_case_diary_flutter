@@ -10,10 +10,12 @@
 /// single export path (Sync Plan §5) and only the destination changes.
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'backup_repository.dart';
 
@@ -102,3 +104,60 @@ class FilePickerBackupGateway implements BackupFileGateway {
 final backupFileGatewayProvider = Provider<BackupFileGateway>(
   (ref) => const FilePickerBackupGateway(),
 );
+
+/// A [BackupArchiveSink] that also keeps a copy the share sheet can attach.
+///
+/// Used by Backup to Google Drive: the backup itself is written through the same
+/// Save-to dialog as the local action — so the file the user keeps and the file
+/// the status card reports are one and the same — and a second copy is left in a
+/// location the platform's share sheet can read.
+///
+/// The copy exists because the Save-to dialog may hand back a `content://` URI
+/// (Android's storage framework), and no share sheet can attach one. When the
+/// chosen location is a real file it is shared as it is; otherwise the same
+/// encrypted bytes are written to the app's temporary directory. That copy sits
+/// in the cache, which the platform may clear at any time — it is a courier, not
+/// the backup, which is why [savedPath] is what callers record.
+class ShareableBackupSink implements BackupArchiveSink {
+  /// The dialog-backed gateway the backup is written through.
+  final BackupFileGateway gateway;
+
+  /// Where the user's own file went; null until [write] succeeds.
+  String? savedPath;
+
+  /// A path the share sheet can attach; null until [write] succeeds.
+  String? sharePath;
+
+  /// Creates the sink.
+  ShareableBackupSink(this.gateway);
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    final written = await gateway.write(fileName: fileName, bytes: bytes);
+    savedPath = written;
+    sharePath = await _shareablePath(written, fileName, bytes);
+    return written;
+  }
+
+  /// [written] when the platform gave a real file, otherwise a temporary copy.
+  ///
+  /// The copy is written synchronously on purpose: this is a one-shot write of
+  /// bytes that are already in memory, it happens under the export's progress
+  /// window, and it keeps the whole export a single uninterrupted sequence
+  /// instead of handing the event loop a write whose completion is not
+  /// observable by the caller.
+  static Future<String> _shareablePath(
+    String written,
+    String fileName,
+    Uint8List bytes,
+  ) async {
+    if (File(written).existsSync()) return written;
+    final directory = await getTemporaryDirectory();
+    final copy = File('${directory.path}${Platform.pathSeparator}$fileName');
+    copy.writeAsBytesSync(bytes, flush: true);
+    return copy.path;
+  }
+}

@@ -54,10 +54,16 @@ class RecordingPrintService implements PrintService {
 /// An invite the fake share service was asked to hand over.
 typedef SharedInvite = ({String message, String subject});
 
+/// A file the fake share service was asked to attach.
+typedef SharedFile = ({String path, String subject});
+
 /// Stands in for the Android share sheet.
 class RecordingShareService implements AppShareService {
   /// Every invite, in call order.
   final List<SharedInvite> invites = [];
+
+  /// Every attached file, in call order.
+  final List<SharedFile> files = [];
 
   /// What the platform reports back.
   AppShareOutcome outcome = AppShareOutcome.shared;
@@ -68,6 +74,15 @@ class RecordingShareService implements AppShareService {
     String subject = '',
   }) async {
     invites.add((message: message, subject: subject));
+    return outcome;
+  }
+
+  @override
+  Future<AppShareOutcome> shareFile({
+    required String path,
+    String subject = '',
+  }) async {
+    files.add((path: path, subject: subject));
     return outcome;
   }
 }

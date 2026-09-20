@@ -6,7 +6,9 @@
 /// Exit windows. Two of them are destructive-safe by design —
 /// [showRestoreReplaceDialog] must be answered before any data is replaced, and
 /// [runWithBackupProgress] cannot be dismissed, so a running export or import
-/// can never be cancelled into an unknown state.
+/// can never be cancelled into an unknown state. [showBackupShareDialog] is the
+/// only one that cannot affect the data: by the time it appears the backup is
+/// already written and recorded.
 library;
 
 import 'package:flutter/material.dart';
@@ -199,6 +201,66 @@ Future<void> showRestoreCompleteDialog(
       ],
     ),
   );
+}
+
+/// Offers to send the backup that was just written through the share sheet.
+///
+/// Returns true when the user chooses to send it. The file is already saved and
+/// the archive already recorded either way, so this window only decides whether
+/// the share sheet opens — it never changes what was written, and its answer is
+/// not a success or failure of the backup itself.
+Future<bool> showBackupShareDialog(
+  BuildContext context, {
+  required String path,
+}) async {
+  final l = AppLocalizations.of(context);
+  final send = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      constraints: const BoxConstraints(minWidth: 300),
+      title: Text(l.settingsBackupRestore_driveShareTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.settingsBackupRestore_driveShareBody,
+            style: AppTypography.bodyMd,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // The saved location, so the user sees which file is being offered —
+          // and knows it is already on their device before any sharing.
+          Text(
+            path,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+            maxLines: 2,
+          ),
+        ],
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: _actionSize,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.settingsBackupRestore_driveShareNotNow),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            minimumSize: _actionSize,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.settingsBackupRestore_driveShareSend),
+        ),
+      ],
+    ),
+  );
+  return send == true;
 }
 
 /// Runs [task] behind a non-dismissible progress window.

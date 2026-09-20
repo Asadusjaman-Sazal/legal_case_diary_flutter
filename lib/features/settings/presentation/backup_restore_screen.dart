@@ -7,10 +7,11 @@
 ///
 /// Wired to the Task 15 engine: **Backup to Local Storage** asks for a
 /// passphrase, exports, and hands the encrypted file to the platform's
-/// "Save to…" dialog; **Restore from backup** picks a file, decrypts and
-/// validates it, asks before replacing local data, imports in one transaction
-/// and reloads the app. The Google Drive button stays a stub — cloud backup
-/// arrives with premium sync in Part B.
+/// "Save to…" dialog; **Backup to Google Drive** makes that same local backup
+/// and then offers the platform share sheet, which is where Google Drive is a
+/// target — the app stays offline, so it never uploads anything itself;
+/// **Restore from backup** picks a file, decrypts and validates it, asks before
+/// replacing local data, imports in one transaction and reloads the app.
 library;
 
 import 'package:flutter/material.dart';
@@ -22,11 +23,14 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/app_version.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../data/backup_file_gateway.dart';
 import '../data/backup_metadata_store.dart';
+import '../data/backup_repository.dart';
 import 'backup_dialogs.dart';
 import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
@@ -98,28 +102,35 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// started twice from a double tap.
   bool _busy = false;
 
-  /// Runs the export engine, then the platform's save dialog.
+  /// Runs the export every backup action shares.
   ///
-  /// A dismissed save dialog writes nothing and records nothing, because the
-  /// archive is only recorded once the sink reported success.
-  Future<void> _backupToLocalStorage() async {
+  /// [sink] is the only difference between the two backup buttons: the platform
+  /// gateway for a local backup, or a [ShareableBackupSink] when the flow goes
+  /// on to the share sheet. A dismissed save dialog writes nothing and records
+  /// nothing, because the archive is only recorded once the sink reported
+  /// success.
+  ///
+  /// Returns the export receipt, or null when nothing was written — a
+  /// cancelled dialog or a failure that has already been reported — so the
+  /// caller stops instead of offering the next step for a file that is not
+  /// there.
+  Future<BackupExportResult?> _exportBackup(BackupArchiveSink sink) async {
     final l = AppLocalizations.of(context);
     final secret = await showBackupPassphraseDialog(context);
-    if (secret == null || !mounted) return;
+    if (secret == null || !mounted) return null;
 
     setState(() => _busy = true);
     try {
       final repository = await ref.read(backupRepositoryProvider.future);
-      final gateway = ref.read(backupFileGatewayProvider);
       // The progress window needs a context that is still in the tree, and the
       // export below it can take a second (the key derivation is deliberately
       // slow), so the user sees why nothing responded yet.
-      if (!mounted) return;
+      if (!mounted) return null;
       final result = await runWithBackupProgress(
         context,
         l.settingsBackupRestore_backupProgress,
         () => repository.exportSnapshot(
-          sink: gateway,
+          sink: sink,
           appVersion: appVersion,
           recoverySecret: secret,
           kdfIterations: ref.read(backupKdfIterationsProvider),
@@ -128,14 +139,67 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       await ref
           .read(backupMetadataProvider.notifier)
           .recordSuccess(at: result.envelope.exportedAt, path: result.path);
-      _showMessage(l.settingsBackupRestore_backupSaved(result.path));
+      return result;
     } on BackupSaveCancelledException {
       // The user closed the save dialog: nothing was written, nothing to say.
+      return null;
     } catch (error, stack) {
       debugPrint('Backup failed: $error\n$stack');
       _showMessage(l.settingsBackupRestore_backupFailed);
+      return null;
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Backup to Local Storage: the export, then the saved location.
+  Future<void> _backupToLocalStorage() async {
+    final result = await _exportBackup(ref.read(backupFileGatewayProvider));
+    if (result == null || !mounted) return;
+    _showMessage(
+      AppLocalizations.of(context).settingsBackupRestore_backupSaved(
+        result.path,
+      ),
+    );
+  }
+
+  /// Backup to Google Drive: the same local backup, then an offer to send it.
+  ///
+  /// The diary is offline (Part A), so the Drive button cannot upload anything
+  /// itself. It does the one thing that is honest and useful: writes the same
+  /// encrypted backup the local action writes — through the same save dialog, so
+  /// the file the user keeps is the file the status card reports — and then
+  /// offers the platform share sheet, which is where Google Drive appears as a
+  /// target.
+  Future<void> _backupToDrive() async {
+    final sink = ShareableBackupSink(ref.read(backupFileGatewayProvider));
+    final result = await _exportBackup(sink);
+    if (result == null || !mounted) return;
+
+    // The backup is saved and recorded by now, so this window only decides
+    // whether the share sheet opens — declining it is not a failed backup.
+    final send = await showBackupShareDialog(context, path: result.path);
+    if (!send || !mounted) return;
+
+    final l = AppLocalizations.of(context);
+    final outcome = await ref
+        .read(appShareServiceProvider)
+        .shareFile(
+          // The sink's copy when the platform returned a content URI no share
+          // sheet can attach, otherwise the user's own file.
+          path: sink.sharePath ?? result.path,
+          subject: l.settingsBackupRestore_shareSubject,
+        );
+    if (!mounted) return;
+    switch (outcome) {
+      case AppShareOutcome.failed:
+        _showMessage(l.settingsBackupRestore_shareFailed);
+      // A sheet the user dismissed needs no message, and a completed share is
+      // self-evident: the file is already on their device either way.
+      case AppShareOutcome.shared:
+      case AppShareOutcome.dismissed:
+      case AppShareOutcome.copiedToClipboard:
+        break;
     }
   }
 
@@ -239,12 +303,6 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  /// Part A has no cloud: the Drive action reports that instead of failing.
-  void _cloudNotice() {
-    final l = AppLocalizations.of(context);
-    _showMessage(l.settingsBackupRestore_enginePending);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -263,7 +321,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           _SectionHeader(l.settingsBackupRestore_sectionBackup),
           _ActionCard(
             onBackupLocal: _busy ? null : _backupToLocalStorage,
-            onBackupDrive: _busy ? null : _cloudNotice,
+            onBackupDrive: _busy ? null : _backupToDrive,
             onRestore: _busy ? null : _restoreFromBackup,
           ),
           const _BackupNote(),

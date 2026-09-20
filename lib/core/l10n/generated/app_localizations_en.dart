@@ -1081,8 +1081,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'No backup has been made yet.';
 
   @override
-  String get settingsBackupRestore_enginePending =>
-      'Cloud backup is not available yet';
+  String get settingsBackupRestore_driveShareTitle => 'Send to Google Drive?';
+
+  @override
+  String get settingsBackupRestore_driveShareBody =>
+      'Your backup is saved. Send it to Google Drive from the share sheet.';
+
+  @override
+  String get settingsBackupRestore_driveShareSend => 'Send';
+
+  @override
+  String get settingsBackupRestore_driveShareNotNow => 'Not now';
+
+  @override
+  String get settingsBackupRestore_shareFailed =>
+      'Could not open the share sheet.';
+
+  @override
+  String get settingsBackupRestore_shareSubject => 'Legal Case Diary backup';
 
   @override
   String get settingsBackupRestore_scheduleOff => 'Off';

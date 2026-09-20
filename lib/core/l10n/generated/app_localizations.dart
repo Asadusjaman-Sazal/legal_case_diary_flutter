@@ -2084,11 +2084,41 @@ abstract class AppLocalizations {
   /// **'No backup has been made yet.'**
   String get settingsBackupRestore_lastBackupPlaceholder;
 
-  /// No description provided for @settingsBackupRestore_enginePending.
+  /// No description provided for @settingsBackupRestore_driveShareTitle.
   ///
   /// In en, this message translates to:
-  /// **'Cloud backup is not available yet'**
-  String get settingsBackupRestore_enginePending;
+  /// **'Send to Google Drive?'**
+  String get settingsBackupRestore_driveShareTitle;
+
+  /// No description provided for @settingsBackupRestore_driveShareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your backup is saved. Send it to Google Drive from the share sheet.'**
+  String get settingsBackupRestore_driveShareBody;
+
+  /// No description provided for @settingsBackupRestore_driveShareSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get settingsBackupRestore_driveShareSend;
+
+  /// No description provided for @settingsBackupRestore_driveShareNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get settingsBackupRestore_driveShareNotNow;
+
+  /// No description provided for @settingsBackupRestore_shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the share sheet.'**
+  String get settingsBackupRestore_shareFailed;
+
+  /// No description provided for @settingsBackupRestore_shareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Case Diary backup'**
+  String get settingsBackupRestore_shareSubject;
 
   /// No description provided for @settingsBackupRestore_scheduleOff.
   ///

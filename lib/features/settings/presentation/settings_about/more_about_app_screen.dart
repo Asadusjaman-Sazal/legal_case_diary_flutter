@@ -187,7 +187,7 @@ class _DeveloperCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  l.settingsAbout_role.toUpperCase(),
+                  l.settingsAbout_role,
                   style: AppTypography.labelLg.copyWith(
                     color: AppColors.secondary,
                     fontWeight: FontWeight.w700,
@@ -215,7 +215,7 @@ class _DeveloperCard extends StatelessWidget {
                 color: AppColors.surfaceContainerLowest,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: Text(
-                  l.settingsAbout_designedBy.toUpperCase(),
+                  l.settingsAbout_designedBy,
                   style: AppTypography.labelMd.copyWith(
                     color: AppColors.outline,
                   ),
@@ -284,7 +284,7 @@ class _DataSafetyCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title.toUpperCase(),
+                title,
                 style: AppTypography.titleMd.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,

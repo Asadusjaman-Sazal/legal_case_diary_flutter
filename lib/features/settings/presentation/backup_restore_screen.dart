@@ -344,7 +344,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   }
 }
 
-/// Uppercase section heading (mockup `label-lg` + `tracking-wider`).
+/// Section heading (mockup `label-lg` + `tracking-wider`).
 class _SectionHeader extends StatelessWidget {
   final String text;
 
@@ -358,9 +358,7 @@ class _SectionHeader extends StatelessWidget {
       bottom: AppSpacing.md,
     ),
     child: Text(
-      // Section headings are upper-cased for style, so the translations
-      // stay in normal sentence case.
-      text.toUpperCase(),
+      text,
       style: AppTypography.labelLg.copyWith(
         color: AppColors.onSurfaceVariant,
         letterSpacing: 0.7, // tracking-wider — 0.05em at 14 px.

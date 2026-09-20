@@ -42,8 +42,8 @@ void main() {
     await pump(tester);
 
     expect(find.text('Guidelines & FAQs'), findsOneWidget);
-    expect(find.text('GUIDELINES'), findsOneWidget);
-    expect(find.text('FAQS'), findsOneWidget);
+    expect(find.text('Guidelines'), findsOneWidget);
+    expect(find.text('FAQs'), findsOneWidget);
 
     // The four guideline topics.
     expect(find.text('Daily Cause List'), findsOneWidget);

@@ -21,6 +21,7 @@ Binding project-wide rules for all agents. Task-specific requirements live in `d
 8. **Mobile-first only.** No tablet/desktop optimization yet.
 9. **Mockups are mandatory:** screen bodies must exactly match the referenced files under `legal_case_diary_flutter\mockup_html_screens\`.
 10. **Rev 2.4 scope contract:** editable court categories/courts/steps/case types/on-behalfs are domain-synced and firm-shared in firm mode; language, view, navigation, notification, and backup-nudge settings are always per-user.
+11. **Casing:** user-facing English text is **Title Case** — the first letter of every word capital, the rest lowercase — written that way in the ARB itself. Section headings follow the same rule, so there is no render-time `toUpperCase()`/ALL-CAPS styling. Proper nouns, acronyms, product names and the names of courts, offices and roles keep their capitals (WhatsApp, FAQs, PDF, Google Drive, Legal Case Diary, Chief Judicial Magistrate). Bengali is unaffected: it has no letter case.
 
 ## Phase completion protocol (end of EVERY phase)
 

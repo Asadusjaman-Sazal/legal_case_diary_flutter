@@ -66,7 +66,7 @@ void main() {
     // And it tells the user the way back that needs no payment.
     expect(find.textContaining('Deleting a case frees a slot'), findsOneWidget);
 
-    expect(find.text('PREMIUM INCLUDES'), findsOneWidget);
+    expect(find.text('Premium includes'), findsOneWidget);
     for (final benefit in <String>[
       'Unlimited cases',
       'Secure encrypted cloud backup',
@@ -76,7 +76,7 @@ void main() {
       expect(find.text(benefit), findsOneWidget);
     }
 
-    expect(find.text('PLANS'), findsOneWidget);
+    expect(find.text('Plans'), findsOneWidget);
     expect(find.text('Monthly'), findsOneWidget);
     expect(find.text('Annual'), findsOneWidget);
     expect(find.text('৳$paywallMonthlyPrice per month'), findsOneWidget);

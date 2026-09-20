@@ -122,20 +122,20 @@ void main() {
     expect(find.text(l.settingsGuidelines_title), findsOneWidget);
 
     // WhatsApp, then email, each naming the address it writes to.
-    expect(find.text('WHATSAPP'), findsOneWidget);
+    expect(find.text('WhatsApp'), findsOneWidget);
     expect(find.text(supportWhatsAppNumber), findsOneWidget);
-    expect(find.text('EMAIL'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
     expect(find.text(supportEmailAddress), findsOneWidget);
     expect(find.text(l.settingsSupport_channelsHint), findsOneWidget);
 
     // The never-send warning and the honest reply time are both on the screen.
     expect(
-      find.text(l.settingsSupport_warningTitle.toUpperCase()),
+      find.text(l.settingsSupport_warningTitle),
       findsOneWidget,
     );
     expect(find.text(l.settingsSupport_warningBody), findsOneWidget);
     expect(
-      find.text(l.settingsSupport_replyTitle.toUpperCase()),
+      find.text(l.settingsSupport_replyTitle),
       findsOneWidget,
     );
     expect(find.text(l.settingsSupport_replyBody), findsOneWidget);
@@ -153,7 +153,7 @@ void main() {
 
     expect(find.byType(GuidelinesScreen), findsOneWidget);
     expect(
-      find.text(l.settingsGuidelines_sectionGuidelines.toUpperCase()),
+      find.text(l.settingsGuidelines_sectionGuidelines),
       findsOneWidget,
     );
   });
@@ -237,7 +237,7 @@ void main() {
     expect(find.text(l.settingsSupport_title), findsOneWidget);
     expect(find.text(l.settingsSupport_scope), findsOneWidget);
     expect(
-      find.text(l.settingsSupport_channelWhatsApp.toUpperCase()),
+      find.text(l.settingsSupport_channelWhatsApp),
       findsOneWidget,
     );
     expect(find.text(l.settingsSupport_replyBody), findsOneWidget);

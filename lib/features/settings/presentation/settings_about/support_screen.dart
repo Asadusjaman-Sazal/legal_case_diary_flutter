@@ -242,7 +242,7 @@ class _BodyCard extends StatelessWidget {
   );
 }
 
-/// One channel: icon chip, uppercase label, the address it writes to, chevron.
+/// One channel: icon chip, Title Case label, the address it writes to, chevron.
 class _ChannelCard extends StatelessWidget {
   /// Stable key part, so the tests address the channel they mean.
   final String channelKey;
@@ -292,7 +292,7 @@ class _ChannelCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    label.toUpperCase(),
+                    label,
                     style: AppTypography.labelMd.copyWith(
                       color: AppColors.outline,
                     ),
@@ -399,7 +399,7 @@ class _NoteCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title.toUpperCase(),
+                title,
                 style: AppTypography.titleMd.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,

@@ -167,8 +167,7 @@ class _SectionHeader extends StatelessWidget {
       bottom: AppSpacing.md,
     ),
     child: Text(
-      // Upper-cased for style, so the translations stay in sentence case.
-      text.toUpperCase(),
+      text,
       style: AppTypography.labelLg.copyWith(
         color: AppColors.onSurfaceVariant,
         letterSpacing: 0.7,

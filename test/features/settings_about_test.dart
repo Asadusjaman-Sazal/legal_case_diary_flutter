@@ -112,17 +112,17 @@ void main() {
     expect(find.text('About'), findsOneWidget);
     expect(find.text('Legal Case Diary'), findsOneWidget);
     expect(find.text('Version $appVersion'), findsOneWidget);
-    expect(find.text('DESIGNED & DEVELOPED BY'), findsOneWidget);
+    expect(find.text('Designed & Developed By'), findsOneWidget);
     expect(find.text('Asadusjaman Sazal'), findsOneWidget);
-    expect(find.text('ADVOCATE'), findsOneWidget);
+    expect(find.text('Advocate'), findsOneWidget);
     expect(
       find.text('District & Sessions Judge Court, Narayanganj.'),
       findsOneWidget,
     );
     // The card carries identity only: the support channels moved to the Support
     // screen (user-requested), so neither contact row is here any more.
-    expect(find.text('EMAIL'), findsNothing);
-    expect(find.text('WHATSAPP'), findsNothing);
+    expect(find.text('Email'), findsNothing);
+    expect(find.text('WhatsApp'), findsNothing);
     expect(find.text('adv.asadusjaman@gmail.com'), findsNothing);
     expect(find.text('+8801835252721'), findsNothing);
 
@@ -150,7 +150,7 @@ void main() {
     expect(find.text('Privacy Policy'), findsOneWidget);
     expect(find.text('Terms of Service'), findsOneWidget);
     expect(find.text('Support'), findsOneWidget);
-    expect(find.text('DATA SAFETY'), findsOneWidget);
+    expect(find.text('Data Safety'), findsOneWidget);
     expect(
       find.text(
         'Your diary and your backup files are stored on your device in '
@@ -169,7 +169,7 @@ void main() {
 
     // The pushed screen replaces the visible route.
     expect(find.text('Check for updates'), findsOneWidget);
-    expect(find.text('KEY FEATURES'), findsOneWidget);
+    expect(find.text('Key Features'), findsOneWidget);
   });
 
   testWidgets('the Support row opens the Support screen', (tester) async {
@@ -242,7 +242,7 @@ void main() {
     );
     expect(find.textContaining('Justice Ledger'), findsNothing);
 
-    expect(find.text('KEY FEATURES'), findsOneWidget);
+    expect(find.text('Key Features'), findsOneWidget);
     expect(find.text('Daily Cause List'), findsOneWidget);
     expect(find.text('Offline Backup'), findsOneWidget);
     expect(find.text('Case References'), findsOneWidget);
@@ -276,7 +276,7 @@ void main() {
     expect(find.text('Arrives in a later task'), findsOneWidget);
 
     // Still on the same screen: nothing navigated away from the pushed route.
-    expect(find.text('KEY FEATURES'), findsOneWidget);
+    expect(find.text('Key Features'), findsOneWidget);
   });
 
   testWidgets('the app theme does not paint the outlined actions black', (
@@ -342,11 +342,11 @@ void main() {
 
     expect(find.text(l.settingsAbout_title), findsOneWidget);
     expect(find.text(l.settingsAbout_moreAboutApp), findsOneWidget);
-    expect(find.text(l.settingsAbout_dataSafetyTitle.toUpperCase()), findsOne);
+    expect(find.text(l.settingsAbout_dataSafetyTitle), findsOne);
 
     await tester.tap(find.text(l.settingsAbout_moreAboutApp));
     await tester.pumpAndSettle();
-    expect(find.text(l.settingsMoreAbout_keyFeatures.toUpperCase()), findsOne);
+    expect(find.text(l.settingsMoreAbout_keyFeatures), findsOne);
     expect(find.text(l.settingsMoreAbout_rateApp), findsOneWidget);
   });
 }

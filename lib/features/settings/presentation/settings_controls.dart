@@ -1,7 +1,7 @@
 /// Shared controls for the Settings sub-page bodies.
 ///
 /// Notifications, View Settings and About all render the same three pieces: a
-/// white bordered section card, an uppercase section label, and a full-width
+/// white bordered section card, a Title Case section label, and a full-width
 /// 48 px control row. They live here so those screens cannot drift apart the
 /// way the mockups' repeated markup would otherwise allow.
 library;
@@ -22,16 +22,16 @@ BoxDecoration settingsCardDecoration({
   border: Border.all(color: AppColors.outlineVariant),
 );
 
-/// Uppercase section heading (mockup `label-md` + tracking).
+/// Section heading (mockup `label-md` + tracking).
 class SettingsSectionLabel extends StatelessWidget {
-  /// Label text; stored in sentence case because it is upper-cased here.
+  /// Label text; written in Title Case, like every other label in the app.
   final String text;
 
   const SettingsSectionLabel(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) => Text(
-    text.toUpperCase(),
+    text,
     style: AppTypography.labelMd.copyWith(
       color: AppColors.onSurfaceVariant,
       letterSpacing: 0.6, // tracking-wider at 12 px.

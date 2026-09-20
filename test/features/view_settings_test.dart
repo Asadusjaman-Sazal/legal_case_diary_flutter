@@ -73,14 +73,14 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.text('View Settings'), findsOneWidget);
-    // Card labels, upper-cased by the shared section label.
-    expect(find.text('DISPLAY'), findsOneWidget);
-    expect(find.text('NAVIGATION'), findsOneWidget);
+    // Card labels, Title Case via the shared section label.
+    expect(find.text('Display'), findsOneWidget);
+    expect(find.text('Navigation'), findsOneWidget);
     // Every dropdown is titled above the control, in Title Case.
-    expect(find.text('UPCOMING CASES PERIOD'), findsOneWidget);
-    expect(find.text('CASE LIST DISPLAY'), findsOneWidget);
-    expect(find.text('BOTTOM NAVIGATION'), findsOneWidget);
-    expect(find.text('SIDE NAVIGATION OPTIONS'), findsOneWidget);
+    expect(find.text('Upcoming Cases Period'), findsWidgets);
+    expect(find.text('Case List Display'), findsWidgets);
+    expect(find.text('Bottom Navigation'), findsWidgets);
+    expect(find.text('Side Navigation Options'), findsWidgets);
     // Collapsed values: plan §10.1 defaults, all Title Case.
     expect(find.text('7 Days'), findsOneWidget);
     expect(find.text('Compact'), findsOneWidget);
@@ -90,8 +90,8 @@ void main() {
     expect(find.byType(Checkbox), findsNothing);
     expect(find.byType(SwitchListTile), findsNothing);
     // Default Landing Page sits in a card of its own, below Navigation.
-    await scrollTo(tester, find.text('DEFAULT LANDING PAGE'));
-    expect(find.text('DEFAULT LANDING PAGE'), findsOneWidget);
+    await scrollTo(tester, find.text('Default Landing Page'));
+    expect(find.text('Default Landing Page'), findsWidgets);
     expect(find.widgetWithText(SettingsPickerRow, 'All Cases'), findsOneWidget);
   });
 
@@ -186,7 +186,13 @@ void main() {
           )
           .data!;
       // The painted rect, so a title scaled down to fit is measured as drawn.
-      final titleRect = tester.getRect(find.text(title));
+      // Scoped to the header: the section label behind it now shares the words.
+      final titleRect = tester.getRect(
+        find.descendant(
+          of: find.byType(SettingsPickerDialogHeader),
+          matching: find.text(title),
+        ),
+      );
       final content = tester
           .getRect(find.byType(SettingsPickerDialogHeader))
           .deflate(AppSpacing.md);

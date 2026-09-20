@@ -248,14 +248,14 @@ void main() {
   testWidgets('shows the mockup sections with no backup yet', (tester) async {
     await pumpScreen(tester);
 
+    // The screen title and the section label both read the same words.
     expect(find.text('Backup & Restore'), findsWidgets);
-    expect(find.text('BACKUP & RESTORE'), findsOneWidget);
     expect(find.text('Backup to Local Storage'), findsOneWidget);
     expect(find.text('Backup to Google Drive'), findsOneWidget);
     expect(find.text('Restore from backup'), findsOneWidget);
-    expect(find.text('AUTOMATIC BACKUP'), findsOneWidget);
+    expect(find.text('Automatic Backup'), findsOneWidget);
     expect(find.text('Everyday'), findsOneWidget);
-    expect(find.text('BACKUP STATUS'), findsOneWidget);
+    expect(find.text('Backup Status'), findsOneWidget);
     expect(find.text('Last successful backup'), findsOneWidget);
     // The status card is honest until a backup exists.
     expect(find.text('No backup has been made yet.'), findsOneWidget);

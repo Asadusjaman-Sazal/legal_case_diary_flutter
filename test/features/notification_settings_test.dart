@@ -36,14 +36,14 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.text('Notifications'), findsOneWidget);
-    expect(find.text('DEFAULT NOTIFICATION STATUS'), findsOneWidget);
+    expect(find.text('Default Notification Status'), findsOneWidget);
     // Every label on this screen is title-cased.
     expect(find.text('On'), findsOneWidget);
     expect(find.text('Off'), findsOneWidget);
-    expect(find.text('NOTIFICATION DAY OFFSET'), findsOneWidget);
+    expect(find.text('Notification Day Offset'), findsOneWidget);
     // Default offset is one day before, like the mockup.
     expect(find.text('The Day Before'), findsOneWidget);
-    expect(find.text('NOTIFICATION TIME'), findsOneWidget);
+    expect(find.text('Notification Time'), findsOneWidget);
     // Mockup's 05:00 PM placeholder until the user picks a time.
     expect(find.text('05:00 PM'), findsOneWidget);
   });

@@ -440,7 +440,7 @@ class _SectionHeader extends StatelessWidget {
       AppSpacing.xs,
     ),
     child: Text(
-      title.toUpperCase(),
+      title,
       style: AppTypography.labelMd.copyWith(
         color: AppColors.tertiary,
         fontWeight: FontWeight.w600,

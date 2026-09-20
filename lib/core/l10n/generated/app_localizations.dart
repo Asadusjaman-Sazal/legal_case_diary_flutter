@@ -3722,12 +3722,6 @@ abstract class AppLocalizations {
   /// **'More About the App'**
   String get settingsAbout_moreAboutApp;
 
-  /// No description provided for @settingsAbout_faq.
-  ///
-  /// In en, this message translates to:
-  /// **'FAQ'**
-  String get settingsAbout_faq;
-
   /// No description provided for @settingsAbout_privacyPolicy.
   ///
   /// In en, this message translates to:
@@ -3755,7 +3749,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAbout_dataSafetyBody.
   ///
   /// In en, this message translates to:
-  /// **'Your data is stored locally on your device and encrypted in the cloud.'**
+  /// **'Your diary and your backup files are stored on your device in encrypted form. Nothing is uploaded unless you send it.'**
   String get settingsAbout_dataSafetyBody;
 
   /// No description provided for @settingsAbout_actionPending.
@@ -3779,7 +3773,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsMoreAbout_description.
   ///
   /// In en, this message translates to:
-  /// **'Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.'**
+  /// **'Legal Case Diary is a complete offline case diary built for lawyers in Bangladesh. It organises your cases and hearings into a daily cause list, tracks upcoming and overdue dates so nothing is missed, and keeps your notes and case references beside them. Everything is entered by you and stored on your device in encrypted form — no account is required, and no data leaves your phone unless you send it.'**
   String get settingsMoreAbout_description;
 
   /// No description provided for @settingsMoreAbout_keyFeatures.
@@ -3806,11 +3800,11 @@ abstract class AppLocalizations {
   /// **'Case References'**
   String get settingsMoreAbout_featureCaseReferences;
 
-  /// No description provided for @settingsMoreAbout_featureSecureSync.
+  /// No description provided for @settingsMoreAbout_featureHearingNotifications.
   ///
   /// In en, this message translates to:
-  /// **'Secure Sync'**
-  String get settingsMoreAbout_featureSecureSync;
+  /// **'Hearing Notifications'**
+  String get settingsMoreAbout_featureHearingNotifications;
 
   /// No description provided for @settingsMoreAbout_rateApp.
   ///

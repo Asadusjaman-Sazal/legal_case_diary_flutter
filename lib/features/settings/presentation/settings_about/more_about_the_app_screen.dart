@@ -6,7 +6,9 @@
 /// About screen it belongs to.
 ///
 /// The mockup's version placeholder is replaced with the bundled app version,
-/// and "Check for updates", "Rate App" and "Share App" only report their Part A
+/// its description and feature list are rewritten to match the app as built
+/// (the mockup named the app "Justice Ledger" and listed cloud sync), and
+/// "Check for updates", "Rate App" and "Share App" only report their Part A
 /// state: store links and update checks belong to later tasks.
 library;
 
@@ -21,13 +23,15 @@ import '../settings_controls.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
-/// Key features listed in the mockup, in order.
+/// Key features offered in the app. The mockup's fourth row was "Secure Sync",
+/// which the offline version does not have, so it is replaced by hearing
+/// notifications — a feature that is actually here.
 const List<({IconData icon, String Function(AppLocalizations) label})>
 _featureRows = <({IconData icon, String Function(AppLocalizations) label})>[
   (icon: Icons.calendar_month_outlined, label: _dailyCauseList),
   (icon: Icons.cloud_download_outlined, label: _offlineBackup),
   (icon: Icons.menu_book_outlined, label: _caseReferences),
-  (icon: Icons.lock_outline, label: _secureSync),
+  (icon: Icons.notifications_active_outlined, label: _hearingNotifications),
 ];
 
 String _dailyCauseList(AppLocalizations l) =>
@@ -36,7 +40,8 @@ String _offlineBackup(AppLocalizations l) =>
     l.settingsMoreAbout_featureOfflineBackup;
 String _caseReferences(AppLocalizations l) =>
     l.settingsMoreAbout_featureCaseReferences;
-String _secureSync(AppLocalizations l) => l.settingsMoreAbout_featureSecureSync;
+String _hearingNotifications(AppLocalizations l) =>
+    l.settingsMoreAbout_featureHearingNotifications;
 
 /// More About the App screen.
 class MoreAboutTheAppScreen extends StatelessWidget {

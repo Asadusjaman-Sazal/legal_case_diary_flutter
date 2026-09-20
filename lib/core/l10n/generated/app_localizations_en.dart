@@ -2076,9 +2076,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAbout_moreAboutApp => 'More About the App';
 
   @override
-  String get settingsAbout_faq => 'FAQ';
-
-  @override
   String get settingsAbout_privacyPolicy => 'Privacy Policy';
 
   @override
@@ -2092,7 +2089,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAbout_dataSafetyBody =>
-      'Your data is stored locally on your device and encrypted in the cloud.';
+      'Your diary and your backup files are stored on your device in encrypted form. Nothing is uploaded unless you send it.';
 
   @override
   String get settingsAbout_actionPending => 'Arrives in a later task';
@@ -2105,7 +2102,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMoreAbout_description =>
-      'Justice Ledger is a comprehensive digital diary exclusively crafted for Bangladeshi lawyers. It is designed to streamline the management of daily cause lists, rigorously track upcoming and missed dates, and store vital case references securely. Built with precision and the demanding pace of legal professionals in mind, it ensures that your most critical data is always organized and instantly accessible.';
+      'Legal Case Diary is a complete offline case diary built for lawyers in Bangladesh. It organises your cases and hearings into a daily cause list, tracks upcoming and overdue dates so nothing is missed, and keeps your notes and case references beside them. Everything is entered by you and stored on your device in encrypted form — no account is required, and no data leaves your phone unless you send it.';
 
   @override
   String get settingsMoreAbout_keyFeatures => 'Key Features';
@@ -2120,7 +2117,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMoreAbout_featureCaseReferences => 'Case References';
 
   @override
-  String get settingsMoreAbout_featureSecureSync => 'Secure Sync';
+  String get settingsMoreAbout_featureHearingNotifications =>
+      'Hearing Notifications';
 
   @override
   String get settingsMoreAbout_rateApp => 'Rate App';

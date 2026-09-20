@@ -1,3 +1,15 @@
+### 2026-09-20 — Settings > About: FAQ row removed, More About the App rewritten — COMPLETE
+
+- **The request:** drop the FAQ row from About, rewrite the More About the App section so its copy matches the app, and keep the version log short.
+- **FAQ row removed, key deleted.** The row pointed at a snackbar while the real FAQs now live on the Guidelines & FAQs screen, so the row and its `settingsAbout_faq` key are gone from both ARB files. About now lists More About the App, Privacy Policy, Terms of Service and Support.
+- **The description named the wrong app and the wrong product.** It called the app “Justice Ledger” (the mockup's placeholder) and read as marketing. It now opens with “Legal Case Diary is a complete offline case diary built for lawyers in Bangladesh”, describes the daily cause list, the upcoming and overdue date tracking, notes and case references, and states plainly that everything is entered by the user, stored on the device in encrypted form, needs no account, and leaves the phone only when the user sends it.
+- **“Secure Sync” was a feature the offline version cannot offer**, so that feature row is replaced by **Hearing Notifications** — real, and one of the app's headline features. The key was renamed (`settingsMoreAbout_featureHearingNotifications`) rather than left named after something that does not exist, and its icon became a notification bell.
+- **The Data Safety note was false:** it said the data was “stored locally … and encrypted in the cloud”, and nothing is in any cloud. It now says the diary and backup files are stored on the device in encrypted form and that nothing is uploaded unless the user sends it. Flagged because it sits outside the two bullets but on the same screen and is the same class of defect.
+- **Tests:** `settings_about_test.dart` updated rather than loosened — the row list now asserts there is **no** FAQ row, the Data Safety assertion uses the corrected sentence, the pending-row test drives Privacy Policy instead of FAQ, and the description test asserts “built for lawyers in Bangladesh” plus the absence of “Justice Ledger”, while the feature list asserts Hearing Notifications and the absence of Secure Sync.
+- **Version `0.0.236`.** No new dependency. `flutter analyze` clean; `flutter test` 582 passed, 2 skipped.
+- **Not changed, worth knowing:** the More About the App screen's **Share App** button still reports “Arrives in a later task” although the side-navigation Share action already works through `AppShareService`; the same action behaves differently in two places. And Privacy Policy / Terms of Service / Support are still placeholder rows with no task owning them.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-20 — Settings > Guidelines becomes Guidelines & FAQs — COMPLETE
 
 - **The request:** put the rewritten professional copy into the app in both English and Bengali, rename the screen, keep the collapsible card style, and keep the version log short and precise.

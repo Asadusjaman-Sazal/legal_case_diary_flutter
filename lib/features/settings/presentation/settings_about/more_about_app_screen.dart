@@ -53,15 +53,11 @@ class MoreAboutAppScreen extends StatelessWidget {
           const _DeveloperCard(),
           const SizedBox(height: AppSpacing.md),
           // Menu rows; only "More About the App" has a screen so far, and
-          // More/FAQ/Privacy/Terms/Support arrive with later tasks.
+          // Privacy/Terms/Support arrive with later tasks. The FAQs live on the
+          // Guidelines & FAQs screen, so there is no FAQ row here.
           _MenuRow(
             label: l.settingsAbout_moreAboutApp,
             onTap: () => context.push(AppRoutes.settingsMoreAbout),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          _MenuRow(
-            label: l.settingsAbout_faq,
-            onTap: () => _showPending(context, l),
           ),
           const SizedBox(height: AppSpacing.xs),
           _MenuRow(

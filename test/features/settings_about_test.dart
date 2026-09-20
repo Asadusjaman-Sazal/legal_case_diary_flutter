@@ -121,15 +121,16 @@ void main() {
     await pumpAbout(tester);
 
     expect(find.text('More About the App'), findsOneWidget);
-    expect(find.text('FAQ'), findsOneWidget);
+    // The FAQs are reached from their own settings row, so About has no FAQ row.
+    expect(find.text('FAQ'), findsNothing);
     expect(find.text('Privacy Policy'), findsOneWidget);
     expect(find.text('Terms of Service'), findsOneWidget);
     expect(find.text('Support'), findsOneWidget);
     expect(find.text('DATA SAFETY'), findsOneWidget);
     expect(
       find.text(
-        'Your data is stored locally on your device and encrypted in the '
-        'cloud.',
+        'Your diary and your backup files are stored on your device in '
+        'encrypted form. Nothing is uploaded unless you send it.',
       ),
       findsOneWidget,
     );
@@ -145,7 +146,6 @@ void main() {
     // The pushed screen replaces the visible route.
     expect(find.text('Check for updates'), findsOneWidget);
     expect(find.text('KEY FEATURES'), findsOneWidget);
-    expect(find.text('FAQ'), findsNothing);
   });
 
   testWidgets('rows without a screen report their Part A state', (
@@ -153,12 +153,12 @@ void main() {
   ) async {
     await pumpAbout(tester);
 
-    await tester.tap(find.text('FAQ'));
+    await tester.tap(find.text('Privacy Policy'));
     await tester.pumpAndSettle();
 
     expect(find.text('Arrives in a later task'), findsOneWidget);
     // The row only reports: the About screen stays put.
-    expect(find.text('FAQ'), findsOneWidget);
+    expect(find.text('Privacy Policy'), findsOneWidget);
     expect(find.text('Check for updates'), findsNothing);
   });
 
@@ -174,13 +174,20 @@ void main() {
     expect(find.text('Legal Case Diary'), findsOneWidget);
     expect(find.text('Version $appVersion'), findsOneWidget);
     expect(find.text('Check for updates'), findsOneWidget);
-    expect(find.textContaining('comprehensive digital diary'), findsOneWidget);
+    // The description names this app, and the feature list names only what the
+    // offline version has.
+    expect(
+      find.textContaining('built for lawyers in Bangladesh'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Justice Ledger'), findsNothing);
 
     expect(find.text('KEY FEATURES'), findsOneWidget);
     expect(find.text('Daily Cause List'), findsOneWidget);
     expect(find.text('Offline Backup'), findsOneWidget);
     expect(find.text('Case References'), findsOneWidget);
-    expect(find.text('Secure Sync'), findsOneWidget);
+    expect(find.text('Hearing Notifications'), findsOneWidget);
+    expect(find.text('Secure Sync'), findsNothing);
 
     expect(find.text('Rate App'), findsOneWidget);
     expect(find.text('Share App'), findsOneWidget);

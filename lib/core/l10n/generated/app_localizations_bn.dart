@@ -2087,9 +2087,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsAbout_moreAboutApp => 'অ্যাপ সম্পর্কে আরও';
 
   @override
-  String get settingsAbout_faq => 'সাধারণ প্রশ্ন';
-
-  @override
   String get settingsAbout_privacyPolicy => 'গোপনীয়তা নীতি';
 
   @override
@@ -2103,7 +2100,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsAbout_dataSafetyBody =>
-      'আপনার ডেটা আপনার ডিভাইসে সংরক্ষিত থাকে এবং ক্লাউডে এনক্রিপ্টেড থাকে।';
+      'আপনার ডায়েরি ও ব্যাকআপ ফাইল আপনার ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। আপনি নিজে না পাঠালে কোনো কিছু আপলোড হয় না।';
 
   @override
   String get settingsAbout_actionPending => 'পরবর্তী কোনো টাস্কে আসবে';
@@ -2116,7 +2113,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsMoreAbout_description =>
-      'জাস্টিস লেজার বাংলাদেশি আইনজীবীদের জন্যই তৈরি একটি পূর্ণাঙ্গ ডিজিটাল ডায়েরি। এটি দৈনিক কজ লিস্ট পরিচালনা, আসন্ন ও বাদ পড়া তারিখ নিখুঁতভাবে অনুসরণ এবং গুরুত্বপূর্ণ মামলার রেফারেন্স নিরাপদে সংরক্ষণের জন্য তৈরি। আইন পেশাজীবীদের ব্যস্ত গতি ও নিখুঁত পরিকল্পনার কথা মাথায় রেখে নির্মিত এই অ্যাপ আপনার সবচেয়ে গুরুত্বপূর্ণ ডেটা সবসময় গোছানো ও তাৎক্ষণিকভাবে ব্যবহারযোগ্য রাখে।';
+      'লিগ্যাল কেস ডায়েরি বাংলাদেশের আইনজীবীদের জন্য তৈরি একটি সম্পূর্ণ অফলাইন মামলার ডায়েরি। এটি আপনার মামলা ও শুনানিগুলো দৈনিক কজ লিস্টে সাজায়, আসন্ন ও মেয়াদোত্তীর্ণ তারিখের হিসাব রাখে যাতে কোনোটি বাদ না পড়ে, এবং সঙ্গে আপনার নোট ও মামলার রেফারেন্স সংরক্ষণ করে। সব তথ্য আপনি নিজে লিখেন এবং তা আপনার ডিভাইসে এনক্রিপ্ট করা অবস্থায় থাকে — কোনো অ্যাকাউন্ট লাগে না, আর আপনি নিজে না পাঠালে কোনো তথ্য ফোন থেকে বাইরে যায় না।';
 
   @override
   String get settingsMoreAbout_keyFeatures => 'প্রধান বৈশিষ্ট্য';
@@ -2131,7 +2128,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsMoreAbout_featureCaseReferences => 'মামলার রেফারেন্স';
 
   @override
-  String get settingsMoreAbout_featureSecureSync => 'নিরাপদ সিঙ্ক';
+  String get settingsMoreAbout_featureHearingNotifications =>
+      'শুনানির নোটিফিকেশন';
 
   @override
   String get settingsMoreAbout_rateApp => 'অ্যাপ রেট করুন';

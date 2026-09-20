@@ -395,24 +395,69 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     required VoidCallback? onPressed,
     Color backgroundColor = Colors.black,
     Color foregroundColor = Colors.white,
+    bool iconOnly = false,
   }) {
-    return FilledButton.icon(
-      key: key,
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        minimumSize: const Size(0, 40),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        ),
-        textStyle: AppTypography.labelLg.copyWith(color: foregroundColor),
+    final style = FilledButton.styleFrom(
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      minimumSize: const Size(0, 40),
+      padding: iconOnly
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
       ),
-      icon: Icon(icon, size: 18),
-      label: Text(label),
+      textStyle: AppTypography.labelLg.copyWith(color: foregroundColor),
+    );
+
+    if (!iconOnly) {
+      return FilledButton.icon(
+        key: key,
+        onPressed: onPressed,
+        style: style,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+      );
+    }
+
+    // No visible text, so the label moves to the tooltip and the semantics
+    // label: the button keeps a name for the screen reader and on long press.
+    return Tooltip(
+      message: label,
+      child: FilledButton(
+        key: key,
+        onPressed: onPressed,
+        style: style,
+        child: Icon(icon, size: 18),
+      ),
     );
   }
+
+  /// One icon-only action in the header's evenly spaced row.
+  ///
+  /// [Expanded] holds the slot — four equal slots plus equal gaps are what keep
+  /// the icons at an even distance — and [FractionallySizedBox] makes the button
+  /// take 70% of its slot, i.e. 30% narrower than it, so an icon reads as a
+  /// button rather than as a full-width bar.
+  Widget _headerAction({
+    required Key key,
+    required IconData icon,
+    required String label,
+    required VoidCallback? onPressed,
+    Color backgroundColor = Colors.black,
+  }) => Expanded(
+    child: FractionallySizedBox(
+      widthFactor: 0.7,
+      child: _headerButton(
+        key: key,
+        icon: icon,
+        label: label,
+        onPressed: onPressed,
+        backgroundColor: backgroundColor,
+        iconOnly: true,
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -548,31 +593,38 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           ],
           const SizedBox(height: AppSpacing.md),
         ],
-        // L3: Delete / Edit Case / Close actions.
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
+        // L3: Delete / Edit / Print / Close — icon-only, one evenly spaced row.
+        // The labels used to make this a `Wrap` that broke onto two lines; they
+        // now live on as each button's tooltip and semantics label. The four
+        // equal slots keep the icons on one line at an even distance, each button
+        // takes 70% of its slot (so the icons are not full-width bars), and the
+        // slot gap is 48% of `AppSpacing.sm` — the original 8 pt cut 40% and then
+        // 20% again, from 4.8 to 3.84 pt.
+        Row(
           children: [
-            _headerButton(
+            _headerAction(
               key: const ValueKey('case-detail-delete'),
               icon: Icons.delete_outline,
               label: l.caseDetailsScreen_delete,
               backgroundColor: AppColors.error,
               onPressed: _canEdit ? _confirmDeleteCase : null,
             ),
-            _headerButton(
+            const SizedBox(width: AppSpacing.sm * 0.48),
+            _headerAction(
               key: const ValueKey('case-detail-edit'),
               icon: Icons.edit_outlined,
               label: l.sharedActions_edit,
               onPressed: _openEditCase,
             ),
-            _headerButton(
+            const SizedBox(width: AppSpacing.sm * 0.48),
+            _headerAction(
               key: const ValueKey('case-detail-print'),
               icon: Icons.print_outlined,
               label: l.nav_print,
               onPressed: () => _print(context),
             ),
-            _headerButton(
+            const SizedBox(width: AppSpacing.sm * 0.48),
+            _headerAction(
               key: const ValueKey('case-detail-close'),
               icon: Icons.close,
               label: l.caseDetailsScreen_close,

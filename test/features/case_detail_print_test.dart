@@ -190,17 +190,51 @@ void main() {
           .firstWhere((group) => group.heading == l.caseDetailsScreen_caseHistory)
           .entries;
 
-  testWidgets('the header offers Edit and Print instead of Edit Case', (
+  testWidgets('the header actions are icon-only on one evenly spaced row', (
     tester,
   ) async {
     final caseId = await seedCase(1);
     await pumpDetail(tester, caseId);
 
+    const keys = [
+      'case-detail-delete',
+      'case-detail-edit',
+      'case-detail-print',
+      'case-detail-close',
+    ];
+    for (final key in keys) {
+      final button = find.byKey(ValueKey(key));
+      expect(button, findsOneWidget, reason: '$key is missing');
+      // Icon only: the button draws an icon and no label text at all.
+      expect(
+        find.descendant(of: button, matching: find.byType(Icon)),
+        findsOneWidget,
+        reason: '$key should draw an icon',
+      );
+      expect(
+        find.descendant(of: button, matching: find.byType(Text)),
+        findsNothing,
+        reason: '$key still draws a text label',
+      );
+    }
     final l = stringsOf(tester);
-    expect(find.text(l.sharedActions_edit), findsOneWidget);
-    expect(find.byKey(const ValueKey('case-detail-print')), findsOneWidget);
-    // The narrower label is the whole reason the row fits three actions.
+    expect(find.text(l.sharedActions_edit), findsNothing);
     expect(find.text(l.caseDetailsScreen_editCase), findsNothing);
+
+    // One line: every button shares the same vertical centre.
+    final centres = [
+      for (final key in keys) tester.getCenter(find.byKey(ValueKey(key))),
+    ];
+    expect(centres.map((centre) => centre.dy.round()).toSet(), hasLength(1));
+
+    // Even distance: consecutive centres are equally far apart.
+    final gaps = [
+      for (var i = 1; i < centres.length; i++)
+        centres[i].dx - centres[i - 1].dx,
+    ];
+    for (final gap in gaps) {
+      expect(gap, closeTo(gaps.first, 0.5));
+    }
 
     await unmount(tester);
   });

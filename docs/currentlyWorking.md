@@ -1,3 +1,13 @@
+### 2026-09-20 — Case Detail header actions: icon-only, one evenly spaced line — COMPLETE
+
+- **The request:** the Delete / Edit / Print / Close row on Case Detail wrapped onto two lines. Remove the text labels, show only the icons, and put the four buttons one line at an even distance.
+- **Why it wrapped:** the row was a `Wrap` of `FilledButton.icon`s, so each label's width (and its wrap to a second line) decided the layout — and the labels are longer in Bengali than in English.
+- **What it is now:** a `Row` of four equal `Expanded` buttons with equal `SizedBox` gaps, so the four icons sit on one line at even centres. Scaffold-wide margins are unchanged.
+- **The labels are not lost.** `_headerButton` gained an `iconOnly` flag; in that mode it renders a plain `FilledButton` wrapped in a `Tooltip(message: label)`, so the label survives as the tooltip and the semantics name, and a long-press still says what the icon does. The 'case not found' fallback keeps its labelled Close button.
+- **Tests.** `case_detail_print_test.dart`'s header test was rewritten: it now asserts each of the four keys draws an `Icon` and **no** `Text`, and measures the row — all four buttons share one vertical centre and their consecutive centres are equally spaced. The old test asserted the `Edit` label was on screen, which is exactly what this change removes. `case_detail_test.dart` only used the keys, so it was untouched. `flutter analyze` clean; **479 passed, 2 skipped**.
+- **Version `0.0.225`.**
+- **Resume point:** unchanged — Task 14 remains device-only for the manual print preview and the four contact-launch paths; next task in order `docs/tasks/15_backup_restore_and_free_tier_gating.md`.
+
 ### 2026-09-20 — Print type enlarged: a field's value is 14 pt, and the two renderers now share one scale — COMPLETE
 
 - **The request:** the field values on a printout (Petitioner, Respondent, …) should read at 14 pt, with the rest of the type scaled to match and the page still fitting A4 ("field values like Petitioner, Respondent" maps to `PrintStyle.value`, which was the 8.5 pt / 9.5 pt row in the size table).

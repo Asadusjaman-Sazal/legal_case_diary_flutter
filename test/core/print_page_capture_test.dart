@@ -64,12 +64,12 @@ Future<void> _drive(WidgetTester tester, bool Function() done, {int maxFrames = 
   }
 }
 
-/// A one-entry document, with or without the hairline rules.
-PrintDocument _ruled({required bool showRules}) => PrintDocument(
+/// A one-entry document with a heading-less entry, like the detail sheet's
+/// sections.
+PrintDocument _pageDocument() => PrintDocument(
   title: 'Case Details',
   footer: 'Printed on 19/09/2026',
   pageLabel: (page, total) => 'Page $page of $total',
-  showRules: showRules,
   groups: [
     PrintGroup(
       heading: 'Case Details',
@@ -80,41 +80,105 @@ PrintDocument _ruled({required bool showRules}) => PrintDocument(
   ],
 );
 
+/// Pumps [child] with nothing but a directionality around it, so every
+/// `ColoredBox` in the tree is one the print layer drew.
+Future<void> _pumpBare(WidgetTester tester, Widget child) => tester.pumpWidget(
+  Directionality(textDirection: TextDirection.ltr, child: child),
+);
+
 void main() {
   group('print blocks', () {
-    testWidgets('a document without rules draws no hairline anywhere',
-        (tester) async {
-      Future<int> ruleCount(PrintDocument document) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: Column(children: buildPrintBlocks(document)),
-              ),
-            ),
-          ),
-        );
-        return tester
-            .widgetList(
-              find.byWidgetPredicate(
-                (widget) => widget is ColoredBox && widget.color == PrintStyle.rule,
-              ),
-            )
-            .length;
-      }
+    testWidgets('a page draws text and no line anywhere', (tester) async {
+      await _pumpBare(
+        tester,
+        SingleChildScrollView(
+          child: Column(children: buildPrintBlocks(_pageDocument())),
+        ),
+      );
 
-      expect(await ruleCount(_ruled(showRules: true)), greaterThan(0));
-      expect(await ruleCount(_ruled(showRules: false)), 0);
+      expect(
+        find.byType(ColoredBox),
+        findsNothing,
+        reason: 'a block drew a rule under a line',
+      );
+    });
+
+    testWidgets('no printed line inherits the ambient fallback underline',
+        (tester) async {
+      // The capture is painted outside any `Material` (it is a sibling of the
+      // progress dialog, not a child of it), so the ambient [DefaultTextStyle]
+      // is `MaterialApp`'s fallback "consider putting your text in a Material"
+      // style: red, monospace, font size 48, and — the part that showed up on
+      // paper — a **double underline in #FFFF00**. A print style that left
+      // `decoration` unset was merged with it and kept that underline, so every
+      // printed line came out double-underlined in yellow. This is the same
+      // style `MaterialApp` installs, verbatim.
+      const fallback = TextStyle(
+        color: Color(0xD0FF0000),
+        fontFamily: 'monospace',
+        fontSize: 48.0,
+        fontWeight: FontWeight.w900,
+        decoration: TextDecoration.underline,
+        decorationColor: Color(0xFFFFFF00),
+        decorationStyle: TextDecorationStyle.double,
+      );
+
+      final document = _pageDocument();
+      await _pumpBare(
+        tester,
+        DefaultTextStyle(
+          style: fallback,
+          child: buildPrintPage(
+            document: document,
+            blocks: buildPrintBlocks(document),
+            pageIndex: 0,
+            pageCount: 1,
+            budget: const PrintPageBudget(),
+          ),
+        ),
+      );
+
+      final spans = tester
+          .widgetList<RichText>(find.byType(RichText))
+          .map((text) => text.text)
+          .whereType<TextSpan>()
+          .toList();
+      expect(spans, isNotEmpty, reason: 'the page drew no text at all');
+      for (final span in spans) {
+        expect(
+          span.style?.decoration,
+          isNull,
+          reason: 'a printed line inherited the fallback underline',
+        );
+      }
+    });
+
+    testWidgets('a captured page is opaque paper, never transparency',
+        (tester) async {
+      await _pumpBare(
+        tester,
+        buildPrintPage(
+          document: _pageDocument(),
+          blocks: buildPrintBlocks(_pageDocument()),
+          pageIndex: 0,
+          pageCount: 1,
+          budget: const PrintPageBudget(),
+        ),
+      );
+
+      final page = tester.widgetList<ColoredBox>(find.byType(ColoredBox));
+      expect(
+        page.map((box) => box.color),
+        [PrintStyle.page],
+        reason: 'the page must be opaque white and carry no other fill',
+      );
     });
 
     testWidgets('a heading-less entry draws no empty heading line',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Column(children: buildPrintBlocks(_ruled(showRules: true))),
-          ),
-        ),
+      await _pumpBare(
+        tester,
+        Column(children: buildPrintBlocks(_pageDocument())),
       );
 
       expect(find.text('Petitioner'), findsOneWidget);

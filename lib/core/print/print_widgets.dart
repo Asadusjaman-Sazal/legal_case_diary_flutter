@@ -11,6 +11,17 @@
 /// must not tint it. Latin runs use the project's English families, and every
 /// style falls back to Tiro Bangla so Bengali is drawn with the font the plan
 /// requires whichever language the UI is in.
+///
+/// Every style is `inherit: false`, and that is load-bearing rather than
+/// cosmetic. The capture is drawn outside any `Material` — it is a sibling of
+/// the progress dialog, not a child of it — so the ambient [DefaultTextStyle]
+/// is `MaterialApp`'s fallback "put this text in a Material" style, whose
+/// decoration is a **double underline in `#FFFF00`**. A `TextStyle` that leaves
+/// `decoration` unset is *merged* with that ambient style and keeps its
+/// decoration, so every printed line came out double-underlined in yellow on
+/// the page image, and nothing in a theme could take it off. A non-inheriting
+/// style ignores the ambient style entirely, so what is printed is exactly what
+/// is declared here.
 library;
 
 import 'package:flutter/widgets.dart';
@@ -23,6 +34,7 @@ import 'print_page_capture.dart';
 abstract final class PrintStyle {
   /// Document title.
   static const TextStyle title = TextStyle(
+    inherit: false,
     fontFamily: 'Manrope',
     fontFamilyFallback: _bengali,
     fontSize: 15,
@@ -33,6 +45,7 @@ abstract final class PrintStyle {
 
   /// Dataset description under the title.
   static const TextStyle subtitle = TextStyle(
+    inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
     fontSize: 8,
@@ -42,6 +55,7 @@ abstract final class PrintStyle {
 
   /// A group heading (court or date).
   static const TextStyle groupHeading = TextStyle(
+    inherit: false,
     fontFamily: 'Manrope',
     fontFamilyFallback: _bengali,
     fontSize: 11,
@@ -52,6 +66,7 @@ abstract final class PrintStyle {
 
   /// An entry's primary line (case number and case type).
   static const TextStyle entryHeading = TextStyle(
+    inherit: false,
     fontFamily: 'IBMPlexSans',
     fontFamilyFallback: _bengali,
     fontSize: 9.5,
@@ -62,6 +77,7 @@ abstract final class PrintStyle {
 
   /// A field's value.
   static const TextStyle value = TextStyle(
+    inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
     fontSize: 8.5,
@@ -71,6 +87,7 @@ abstract final class PrintStyle {
 
   /// A field's label.
   static const TextStyle label = TextStyle(
+    inherit: false,
     fontFamily: 'IBMPlexSans',
     fontFamilyFallback: _bengali,
     fontSize: 7,
@@ -80,6 +97,7 @@ abstract final class PrintStyle {
 
   /// A header fact (`Date range: …`).
   static const TextStyle meta = TextStyle(
+    inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
     fontSize: 8,
@@ -89,6 +107,7 @@ abstract final class PrintStyle {
 
   /// The page footer and page counter.
   static const TextStyle footer = TextStyle(
+    inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
     fontSize: 7,
@@ -102,8 +121,13 @@ abstract final class PrintStyle {
   /// Secondary ink.
   static const Color muted = Color(0xFF475569);
 
-  /// Hairline rules.
-  static const Color rule = Color(0xFFCBD5E1);
+  /// The page itself: opaque white, and the reason it is here rather than left
+  /// transparent is that a captured page *is* paper. Capturing on nothing
+  /// leaves the image ~99% transparent, and the PDF then carries an alpha mask
+  /// whose misreading by a viewer or a print driver shows up on exactly the
+  /// thin dark strokes of a page — a doubled, tinted line. An opaque page has
+  /// no mask to misread.
+  static const Color page = Color(0xFFFFFFFF);
 
   /// Width of a field's label column.
   static const double labelColumnWidth = 92;
@@ -120,35 +144,34 @@ List<Widget> buildPrintBlocks(PrintDocument document) => [
   for (final field in document.meta) _metaBlock(field),
   for (final group in document.groups) ...[
     if (group.heading != null) _groupHeadingBlock(group.heading!),
-    for (final entry in group.entries)
-      ..._entryBlocks(entry, showRules: document.showRules),
+    for (final entry in group.entries) ..._entryBlocks(entry),
   ],
 ];
 
-/// One captured page: its blocks, plus the footer line and the page counter.
+/// One captured page: opaque paper, its blocks, its footer and page counter.
 Widget buildPrintPage({
   required PrintDocument document,
   required List<Widget> blocks,
   required int pageIndex,
   required int pageCount,
   required PrintPageBudget budget,
-}) => SizedBox(
-  width: budget.contentWidth,
-  height: budget.contentHeight,
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: blocks,
+}) => ColoredBox(
+  color: PrintStyle.page,
+  child: SizedBox(
+    width: budget.contentWidth,
+    height: budget.contentHeight,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: blocks,
+          ),
         ),
-      ),
-      if (document.showRules)
-        const SizedBox(height: 1, child: ColoredBox(color: PrintStyle.rule)),
-      Padding(
-        padding: const EdgeInsets.only(top: 4),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -162,10 +185,11 @@ Widget buildPrintPage({
             ),
             Text(document.pageLabel(pageIndex + 1, pageCount),
                 style: PrintStyle.footer),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   ),
 );
 
@@ -179,11 +203,6 @@ List<Widget> _headerBlocks(PrintDocument document) => [
       padding: const EdgeInsets.only(bottom: 2),
       child: Text(document.subtitle, style: PrintStyle.subtitle),
     ),
-  if (document.showRules)
-    const Padding(
-      padding: EdgeInsets.only(top: 6),
-      child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
-    ),
 ];
 
 Widget _metaBlock(PrintField field) => Padding(
@@ -196,9 +215,11 @@ Widget _groupHeadingBlock(String heading) => Padding(
   child: Text(heading, style: PrintStyle.groupHeading),
 );
 
-/// An entry's blocks: its heading line (when it has one), its field rows, and
-/// the hairline rule that closes it unless the document turned rules off.
-List<Widget> _entryBlocks(PrintEntry entry, {required bool showRules}) {
+/// An entry's blocks: its heading line (when it has one) and its field rows.
+///
+/// No rule closes the entry and no rule sits under a line anywhere: the printed
+/// page draws text and nothing else.
+List<Widget> _entryBlocks(PrintEntry entry) {
   final heading = [entry.serial, entry.heading]
       .where((part) => part.trim().isNotEmpty)
       .join('. ');
@@ -217,11 +238,6 @@ List<Widget> _entryBlocks(PrintEntry entry, {required bool showRules}) {
           PrintStyle.label,
           PrintStyle.value,
         ),
-      ),
-    if (showRules)
-      const Padding(
-        padding: EdgeInsets.only(top: 6),
-        child: SizedBox(height: 0.5, child: ColoredBox(color: PrintStyle.rule)),
       ),
   ];
 }

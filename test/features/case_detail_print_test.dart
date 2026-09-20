@@ -229,8 +229,8 @@ void main() {
     for (final entry in sections.expand((group) => group.entries)) {
       expect(entry.heading, isEmpty);
     }
-    // And the sheet draws no hairline under any of its lines.
-    expect(document.showRules, isFalse);
+    // No hairline under any line: the sheet is checked at the renderer level,
+    // which is where a line could ever be drawn.
     // The labels are the screen's own, so the sheet reads like the screen.
     final labels = document.groups
         .expand((group) => group.entries)

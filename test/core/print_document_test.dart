@@ -259,10 +259,6 @@ void main() {
       expect(history.entries.single.heading, '19/09/2026');
     });
 
-    test('turns the hairline rules off, so the sheet reads as text', () {
-      expect(detailDocument().showRules, isFalse);
-      expect(_flatDocument(_t('en')).showRules, isTrue);
-    });
   });
 
   group('localized document furniture', () {

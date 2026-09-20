@@ -83,7 +83,104 @@ Future<double> _inkFraction(WidgetTester tester, Uint8List png) async {
   return fraction;
 }
 
+/// Captures the print page of [document] with the engine's own encoder.
+Future<Uint8List> _captureFirstPage(
+  WidgetTester tester,
+  PrintDocument document,
+) async {
+  Uint8List? page;
+  Uint8List? result;
+  Object? failure;
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: PrintPageCapture(
+          document: document,
+          pageEncoder: encodePagePng,
+          assembler: (request) async {
+            page ??= request.pages.first;
+            return Uint8List.fromList(const [1, 2, 3]);
+          },
+          onCompleted: (bytes) => result = bytes,
+          onCancelled: () {},
+          onFailed: (error) => failure = error,
+        ),
+      ),
+    ),
+  );
+
+  for (var i = 0; i < 200 && result == null && failure == null; i++) {
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+  }
+  expect(failure, isNull, reason: 'capture threw: $failure');
+  expect(page, isNotNull);
+  return page!;
+}
+
 void main() {
+  testWidgets('a Bengali page is captured on opaque paper, not transparency',
+      (tester) async {
+    final png = await _captureFirstPage(tester, _bengaliDocument(entries: 8));
+
+    late int transparent;
+    late int white;
+    late int total;
+    await tester.runAsync(() async {
+      final codec = await ui.instantiateImageCodec(png);
+      final image = (await codec.getNextFrame()).image;
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes = data!.buffer.asUint8List();
+      transparent = 0;
+      white = 0;
+      total = bytes.length ~/ 4;
+      for (var i = 0; i + 3 < bytes.length; i += 4) {
+        if (bytes[i + 3] != 255) transparent++;
+        if (bytes[i] == 255 && bytes[i + 1] == 255 && bytes[i + 2] == 255) {
+          white++;
+        }
+      }
+      image.dispose();
+      codec.dispose();
+    });
+
+    // A captured page used to be ~99% transparent, which is what leaves an
+    // alpha mask in the PDF for a viewer or a print driver to misread as a
+    // doubled, tinted line. Now the page is white paper: the only
+    // part-transparent pixels left are the outermost edge the raster grid
+    // clips, and white owns the page instead of transparency owning it.
+    expect(transparent, lessThan(total ~/ 100), reason: 'the page is see-through');
+    expect(white, greaterThan(total ~/ 2), reason: 'the page is not white paper');
+  });
+
+  testWidgets('the page image the PDF embeds is paper, not a transparency', (
+    tester,
+  ) async {
+    final page = await _captureFirstPage(tester, _bengaliDocument(entries: 8));
+
+    final pdf = String.fromCharCodes(
+      (await tester.runAsync(
+        () => assembleRasterPdf(
+          RasterPdfRequest(
+            pages: [page],
+            title: 'আজকের কজ লিস্ট',
+            pageWidth: 595.28,
+            pageHeight: 841.89,
+            margin: 32,
+          ),
+        ),
+      ))!,
+    );
+
+    // The pdf package gives *every* raster image an alpha mask, so the mask
+    // itself cannot be removed here — what the opaque capture buys is a mask
+    // that is uniformly opaque paper, with nothing for a viewer or a print
+    // driver to separate into a doubled, tinted line.
+    expect(pdf, contains('/SMask'));
+    expect(pdf, contains('/ColorSpace/DeviceRGB'));
+  });
+
   testWidgets('a Bengali document prints through the progress dialog', (
     tester,
   ) async {

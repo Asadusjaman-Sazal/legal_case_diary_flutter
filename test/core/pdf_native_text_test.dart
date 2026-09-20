@@ -212,47 +212,54 @@ void main() {
     expect(await pageCount(200), greaterThan(1));
   });
 
-  test('the case detail sheet draws no rules; the list layout keeps them',
-      () async {
+  test('no printed page draws a rule under a line', () async {
     final renderer = PdfNativeRenderer(fontLoader: _diskFontLoader);
 
-    /// The rule tints of the file, in uncompressed form: grey400 is the header
-    /// divider and grey300 the hairline closing an entry. Nothing else this
-    /// renderer draws uses either (text and the two other greys are grey600 and
-    /// grey700), so their presence *is* the rules — stroked, hence `RG`.
-    Future<Set<String>> ruleTints(PrintDocument document) async {
+    /// Every grey this file draws, read straight out of the uncompressed
+    /// content stream.
+    Future<Set<String>> greys(PrintDocument document) async {
       final bytes = await renderer.render(document, compress: false);
       return RegExp(
         r'0\.74118 0\.74118 0\.74118 (?:rg|RG)'
-        r'|0\.87843 0\.87843 0\.87843 (?:rg|RG)',
+        r'|0\.87843 0\.87843 0\.87843 (?:rg|RG)'
+        r'|0\.45882 0\.45882 0\.45882 (?:rg|RG)'
+        r'|0\.38039 0\.38039 0\.38039 (?:rg|RG)',
       ).allMatches(latin1.decode(bytes)).map((match) => match.group(0)!).toSet();
     }
 
-    expect(
-      await ruleTints(_document(title: 'Active Cases', values: ['Karim Rahman'])),
-      isNotEmpty,
-      reason: 'the case list separates its entries with a rule',
+    /// The rule tints alone: grey400 was the header divider and grey300 the
+    /// hairline that closed an entry. Nothing else this renderer draws uses
+    /// either — its two other greys are grey600 for the footer and grey700 for
+    /// a field's label — so their presence *is* a rule. Stroked, hence `RG`.
+    Set<String> rules(Set<String> greys) => greys
+        .where((grey) => grey.contains('74118') || grey.contains('87843'))
+        .toSet();
+
+    final list = await greys(
+      _document(title: 'Active Cases', values: ['Karim Rahman']),
     );
-    expect(
-      await ruleTints(
-        buildCaseDetailDocument(
-          translations: _t('en'),
-          showAllHistory: true,
-          printedAtEpochMs: 1_758_259_200_000,
-          detail: const PrintCaseDetail(
-            caseNumber: '34/26',
-            caseType: 'First Appeal',
-            court: 'Dhaka Judge Court',
-            petitioner: 'Karim Rahman',
-            history: [
-              PrintHistoryEntry(date: '19/09/2026', step: 'Evidence'),
-            ],
-          ),
+    final detail = await greys(
+      buildCaseDetailDocument(
+        translations: _t('en'),
+        showAllHistory: true,
+        printedAtEpochMs: 1_758_259_200_000,
+        detail: const PrintCaseDetail(
+          caseNumber: '34/26',
+          caseType: 'First Appeal',
+          court: 'Dhaka Judge Court',
+          petitioner: 'Karim Rahman',
+          history: [PrintHistoryEntry(date: '19/09/2026', step: 'Evidence')],
         ),
       ),
-      isEmpty,
-      reason: 'the detail sheet must print no underline under any of its lines',
     );
+
+    expect(rules(list), isEmpty, reason: 'a list page drew a rule');
+    expect(rules(detail), isEmpty, reason: 'the detail sheet drew a rule');
+    // The check has teeth: both documents do draw their own grey text (the
+    // footer's grey600 and the labels' grey700), so an empty rule set means the
+    // rules are gone rather than the pattern finding nothing at all.
+    expect(list, isNotEmpty);
+    expect(detail, isNotEmpty);
   });
 
   test('a Bengali document is flagged away from this path', () {

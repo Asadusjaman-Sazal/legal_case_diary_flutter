@@ -268,10 +268,10 @@ String caseTypeAndCaseNumber(String caseType, String caseNumber) {
 /// history honours the screen's own expansion state: [showAllHistory] false
 /// prints the same [collapsedHistoryRows] rows the screen is showing.
 ///
-/// Two things this sheet deliberately does not do: it repeats no case number
-/// under a section heading (the header line above already carries it), and it
-/// draws no rules ([showRules] false), so a sheet of a few labelled lines reads
-/// as text rather than as a ruled table.
+/// Two things this sheet deliberately does not do: it repeats no case number,
+/// case type or court under a section heading (the header line above already
+/// carries all three), and it draws no rules — like every other printed page,
+/// which draws text and nothing else.
 PrintDocument buildCaseDetailDocument({
   required AppTranslations translations,
   required PrintCaseDetail detail,
@@ -372,7 +372,6 @@ PrintDocument buildCaseDetailDocument({
       ),
     ),
     pageLabel: l.print_pageOf,
-    showRules: false,
   );
 }
 
@@ -385,7 +384,6 @@ class PrintDocument {
     required this.footer,
     this.subtitle = '',
     this.meta = const [],
-    this.showRules = true,
     this.pageLabel = _defaultPageLabel,
   });
 
@@ -403,10 +401,6 @@ class PrintDocument {
 
   /// Footer line, e.g. `Printed on 19/09/2026`.
   final String footer;
-
-  /// Whether the renderers draw the hairline rules — under the header, under
-  /// each entry and above the footer. The case detail sheet turns them off.
-  final bool showRules;
 
   /// Localized `Page X of Y` line for renderers that paginate.
   final String Function(int page, int total) pageLabel;

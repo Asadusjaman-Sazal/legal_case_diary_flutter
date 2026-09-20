@@ -141,7 +141,7 @@ class PdfNativeRenderer {
           pw.SizedBox(height: 12),
           for (final group in document.groups) ...[
             if (group.heading != null) _groupHeading(group.heading!, set),
-            ...group.entries.map((entry) => _entry(entry, document, set)),
+            ...group.entries.map((entry) => _entry(entry, set)),
           ],
         ],
       ),
@@ -168,8 +168,6 @@ class PdfNativeRenderer {
             ),
           ),
         pw.SizedBox(height: 6),
-        if (document.showRules)
-          pw.Divider(height: 1, thickness: 0.6, color: PdfColors.grey400),
       ],
     );
   }
@@ -194,20 +192,14 @@ class PdfNativeRenderer {
   }
 
   /// One case entry: its heading line (when it has one), then its labelled
-  /// fields, closed by the hairline rule unless the document turned rules off.
-  pw.Widget _entry(PrintEntry entry, PrintDocument document, PrintFontSet set) {
+  /// fields. No rule closes an entry and none sits under a line anywhere — the
+  /// page draws text and nothing else.
+  pw.Widget _entry(PrintEntry entry, PrintFontSet set) {
     final heading = [entry.serial, entry.heading]
         .where((part) => part.trim().isNotEmpty)
         .join('. ');
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(vertical: 6),
-      decoration: document.showRules
-          ? const pw.BoxDecoration(
-              border: pw.Border(
-                bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
-              ),
-            )
-          : null,
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [

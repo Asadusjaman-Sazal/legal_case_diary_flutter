@@ -1775,7 +1775,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsScreen_guidelines.
   ///
   /// In en, this message translates to:
-  /// **'Guidelines'**
+  /// **'Guidelines & FAQs'**
   String get settingsScreen_guidelines;
 
   /// No description provided for @settingsScreen_about.
@@ -3089,49 +3089,55 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_title.
   ///
   /// In en, this message translates to:
-  /// **'Guidelines'**
+  /// **'Guidelines & FAQs'**
   String get settingsGuidelines_title;
 
   /// No description provided for @settingsGuidelines_intro.
   ///
   /// In en, this message translates to:
-  /// **'Tap on any topic below to expand and view detailed administrative procedures.'**
+  /// **'How the app works, and answers to the questions we are asked most often. Tap a card to expand it.'**
   String get settingsGuidelines_intro;
+
+  /// No description provided for @settingsGuidelines_sectionGuidelines.
+  ///
+  /// In en, this message translates to:
+  /// **'Guidelines'**
+  String get settingsGuidelines_sectionGuidelines;
 
   /// No description provided for @settingsGuidelines_dailyCauseListTitle.
   ///
   /// In en, this message translates to:
-  /// **'Daily Cause List Management'**
+  /// **'Daily Cause List'**
   String get settingsGuidelines_dailyCauseListTitle;
 
   /// No description provided for @settingsGuidelines_dailyCauseListBody1.
   ///
   /// In en, this message translates to:
-  /// **'To ensure your daily schedule is accurate, synchronize your local diary with the court\'s official cause list. Navigate to the \'Cause List\' tab and tap the sync icon in the top right corner.'**
+  /// **'The Daily Cause List shows the hearings you have recorded for a single date, grouped by court in your court hierarchy, with a total for the day. Use the calendar to choose another date; today is selected by default.'**
   String get settingsGuidelines_dailyCauseListBody1;
 
   /// No description provided for @settingsGuidelines_dailyCauseListBody2.
   ///
   /// In en, this message translates to:
-  /// **'Note: Disposed cases will automatically move to the archive unless marked for active monitoring.'**
+  /// **'The list is built from your own case records, so it is only as accurate as they are. Keep each case\'s next date and latest step current, and record a hearing from the list itself as soon as you leave the courtroom. Cases whose hearing date has passed without an update appear under Overdue Dates until you record the outcome.'**
   String get settingsGuidelines_dailyCauseListBody2;
 
   /// No description provided for @settingsGuidelines_referencesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Managing Case References'**
+  /// **'Case References & Notes'**
   String get settingsGuidelines_referencesTitle;
 
   /// No description provided for @settingsGuidelines_referencesBody1.
   ///
   /// In en, this message translates to:
-  /// **'When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).'**
+  /// **'Case Reference is your own library of citations, kept separately from any case. For each entry you can record the reference (for example, 25 DLR (AD) 142), the statute and section, a title and description, and private comments. Pin the entries you cite most often to keep them at the top of the list.'**
   String get settingsGuidelines_referencesBody1;
 
   /// No description provided for @settingsGuidelines_referencesBody2.
   ///
   /// In en, this message translates to:
-  /// **'You can link relevant legal precedents to specific active cases within the \'Case Details\' view under the \'Notes\' section.'**
+  /// **'General notes belong in Notes, which also stands on its own. Both allow you to undo a deletion immediately after making it.'**
   String get settingsGuidelines_referencesBody2;
 
   /// No description provided for @settingsGuidelines_backupTitle.
@@ -3143,13 +3149,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_backupBody1.
   ///
   /// In en, this message translates to:
-  /// **'The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings > Backup Options.'**
+  /// **'Your diary lives on this device. In Settings > Backup & Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a passphrase for the file, and the app never stores or sends it.'**
   String get settingsGuidelines_backupBody1;
 
   /// No description provided for @settingsGuidelines_backupBody2.
   ///
   /// In en, this message translates to:
-  /// **'If you need to restore data, ensure you have your encryption key available before initiating the recovery process.'**
+  /// **'Restore from backup reads a backup file and replaces the contents of the app with the file\'s contents. This cannot be undone, so make a fresh backup before restoring. If no backup has been made in the current month, the app displays a reminder you can dismiss.'**
   String get settingsGuidelines_backupBody2;
 
   /// No description provided for @settingsGuidelines_securityTitle.
@@ -3161,14 +3167,518 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_securityBody1.
   ///
   /// In en, this message translates to:
-  /// **'All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.'**
+  /// **'Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your passphrase on the device itself with PBKDF2-HMAC-SHA256. Neither the passphrase nor the key is stored or transmitted anywhere.'**
   String get settingsGuidelines_securityBody1;
 
   /// No description provided for @settingsGuidelines_securityBody2.
   ///
   /// In en, this message translates to:
-  /// **'We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.'**
+  /// **'In the offline version, nothing leaves your phone unless you send it. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.'**
   String get settingsGuidelines_securityBody2;
+
+  /// No description provided for @settingsGuidelines_sectionFaqs.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQs'**
+  String get settingsGuidelines_sectionFaqs;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get settingsGuidelines_faqCatGettingStarted;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the app work without an internet connection?'**
+  String get settingsGuidelines_faqCatGettingStartedQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. The app is built to work fully offline — adding and editing cases, the Daily Cause List, printing and backups all work with no connection. Online sync is not part of the offline version.'**
+  String get settingsGuidelines_faqCatGettingStartedA1;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I add a case?'**
+  String get settingsGuidelines_faqCatGettingStartedQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button on any cases page. The case is then filed onto the relevant pages automatically, based on the information you enter.'**
+  String get settingsGuidelines_faqCatGettingStartedA2;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Where does a case appear after I add it?'**
+  String get settingsGuidelines_faqCatGettingStartedQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA3.
+  ///
+  /// In en, this message translates to:
+  /// **'A case appears on more than one page, each answering a different question: Active Cases lists everything still running; Upcoming Cases lists hearings within your chosen period; Daily Cause List shows the hearings for one date; All Cases is the full list with sorting and court filtering; Overdue Dates shows cases whose hearing date has passed without an update; and Disposed Cases holds cases you have marked as disposed.'**
+  String get settingsGuidelines_faqCatGettingStartedA3;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the difference between updating a case and editing a case?'**
+  String get settingsGuidelines_faqCatGettingStartedQ4;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Update records a new step or result and adds it to the case\'s history — use it after each hearing. Edit Case changes the case\'s own details, such as the parties, court or case number — use it to correct recorded information.'**
+  String get settingsGuidelines_faqCatGettingStartedA4;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I mark a case as disposed?'**
+  String get settingsGuidelines_faqCatGettingStartedQ5;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA5.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the case in the Update screen or the Edit Case form and select নিষ্পত্তি (Disposed). For Appellate Division and High Court Division cases you can also type \"Disposed\" or \"নিষ্পত্তি\". The case then moves from Active Cases to Disposed Cases.'**
+  String get settingsGuidelines_faqCatGettingStartedA5;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I move a case back to Active Cases?'**
+  String get settingsGuidelines_faqCatGettingStartedQ6;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA6.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the case and choose any step or result other than নিষ্পত্তি (Disposed). The case returns to Active Cases.'**
+  String get settingsGuidelines_faqCatGettingStartedA6;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ7.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens when I delete a case?'**
+  String get settingsGuidelines_faqCatGettingStartedQ7;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA7.
+  ///
+  /// In en, this message translates to:
+  /// **'The case is removed from your diary and frees a slot on the free plan. Deletion cannot be undone, so delete only cases you no longer need a record of. Notes and case references, by contrast, can be undone immediately after deleting.'**
+  String get settingsGuidelines_faqCatGettingStartedA7;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ8.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the Overdue Dates page?'**
+  String get settingsGuidelines_faqCatGettingStartedQ8;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA8.
+  ///
+  /// In en, this message translates to:
+  /// **'It lists cases whose hearing date has passed without a recorded outcome, with the date they were last updated. It is the fastest way to find matters you have not yet caught up on. Recording a new step or result removes the case from the list.'**
+  String get settingsGuidelines_faqCatGettingStartedA8;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding and viewing cases'**
+  String get settingsGuidelines_faqCatFindingCases;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'I added a case but can\'t find it with search.'**
+  String get settingsGuidelines_faqCatFindingCasesQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Search matches the script you entered. A case recorded in English is found with an English query, and a case recorded in Bengali with a Bengali query. A Bengali case number will not match an English search, and vice versa.'**
+  String get settingsGuidelines_faqCatFindingCasesA1;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How far ahead does the Upcoming Cases list show hearings?'**
+  String get settingsGuidelines_faqCatFindingCasesQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesA2.
+  ///
+  /// In en, this message translates to:
+  /// **'By default, the next 7 days. To change this, go to Settings > View Settings > Upcoming Cases Period.'**
+  String get settingsGuidelines_faqCatFindingCasesA2;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change how cases are displayed?'**
+  String get settingsGuidelines_faqCatFindingCasesQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesA3.
+  ///
+  /// In en, this message translates to:
+  /// **'The default compact view uses cards to fit as much information as possible into as little space as possible. Switch to extended view using the toggle beside the search field on the Cases screen, or in Settings > View Settings > Case List View.'**
+  String get settingsGuidelines_faqCatFindingCasesA3;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'What does the Daily Cause List show?'**
+  String get settingsGuidelines_faqCatFindingCasesQ4;
+
+  /// No description provided for @settingsGuidelines_faqCatFindingCasesA4.
+  ///
+  /// In en, this message translates to:
+  /// **'The hearings recorded in your diary for one date, grouped by court in your court hierarchy, with a total for the day. Choose the date from the calendar; today is selected by default.'**
+  String get settingsGuidelines_faqCatFindingCasesA4;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrinting.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes, references and printing'**
+  String get settingsGuidelines_faqCatNotesAndPrinting;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the difference between Notes and Case References?'**
+  String get settingsGuidelines_faqCatNotesAndPrintingQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes holds free-form notes with a title and body. Case Reference is a structured library of citations — reference, statute, section, description and private comments — which you can pin. Both are separate from your cases and neither is linked to one automatically.'**
+  String get settingsGuidelines_faqCatNotesAndPrintingA1;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'What can I print?'**
+  String get settingsGuidelines_faqCatNotesAndPrintingQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingA2.
+  ///
+  /// In en, this message translates to:
+  /// **'A case\'s details, and case lists. Print produces a formatted PDF and uses the device\'s printing options. Print is not available on the Notes and Case Reference screens.'**
+  String get settingsGuidelines_faqCatNotesAndPrintingA2;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I contact a client about a case?'**
+  String get settingsGuidelines_faqCatNotesAndPrintingQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatNotesAndPrintingA3.
+  ///
+  /// In en, this message translates to:
+  /// **'A case that carries the client\'s phone number offers Call, Message and WhatsApp actions, and a prepared message containing the client\'s name, the case number, the next hearing date and the court. Review the message before sending — the app cannot check that the number or the hearing date is current.'**
+  String get settingsGuidelines_faqCatNotesAndPrintingA3;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and restore'**
+  String get settingsGuidelines_faqCatBackupAndRestore;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I back up my diary?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. No account and no internet connection are required.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA1;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the app back up automatically?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the offline version — each backup is started by you. If no backup has been made in the current month, the app displays a reminder, which you can dismiss.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA2;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'I forgot my passphrase. Can you recover it?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA3.
+  ///
+  /// In en, this message translates to:
+  /// **'No. The passphrase is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a passphrase you can keep safely.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA3;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'What does restoring a backup do to my current data?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ4;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring replaces everything currently in the app with the contents of the backup file. It does not merge, and it cannot be undone. Back up your current diary first if there is anything in it you may still need. If the app already holds data, it asks you to confirm before anything is replaced.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA4;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I move my diary to a new phone?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ5;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA5.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings > Backup & Restore, and use Restore from backup with the same passphrase.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA5;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I use a backup made by a different version of the app?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ6;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA6.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups made by older versions are upgraded automatically when restored. A backup made by a newer version than the one you are running is refused, so update the app first and then restore.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA6;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ7.
+  ///
+  /// In en, this message translates to:
+  /// **'What happens to my data if I delete the app or lose my phone?'**
+  String get settingsGuidelines_faqCatBackupAndRestoreQ7;
+
+  /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA7.
+  ///
+  /// In en, this message translates to:
+  /// **'In the offline version your diary is stored only on the device, so uninstalling the app or losing the phone also loses the data unless you hold a backup file. Keep a recent backup, and store a copy somewhere outside the phone.'**
+  String get settingsGuidelines_faqCatBackupAndRestoreA7;
+
+  /// No description provided for @settingsGuidelines_faqCatNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsGuidelines_faqCatNotifications;
+
+  /// No description provided for @settingsGuidelines_faqCatNotificationsQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Why didn\'t my hearing notification arrive?'**
+  String get settingsGuidelines_faqCatNotificationsQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatNotificationsA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Android phones stop background apps to save battery, which prevents hearing alerts. In Settings > Notifications, tap Battery & Auto-Start Setup Guide and follow the steps for your phone, then use Send Test Notification to confirm that alerts arrive.'**
+  String get settingsGuidelines_faqCatNotificationsA1;
+
+  /// No description provided for @settingsGuidelines_faqCatNotificationsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change when hearing notifications are sent?'**
+  String get settingsGuidelines_faqCatNotificationsQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatNotificationsA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. In Settings > Notifications you can choose the day offset — the same day, the day before, or a number of days before the hearing — and the time of day. Notifications can be turned off entirely from the same screen.'**
+  String get settingsGuidelines_faqCatNotificationsA2;
+
+  /// No description provided for @settingsGuidelines_faqCatLanguageAndDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Language and display'**
+  String get settingsGuidelines_faqCatLanguageAndDisplay;
+
+  /// No description provided for @settingsGuidelines_faqCatLanguageAndDisplayQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I change the app language?'**
+  String get settingsGuidelines_faqCatLanguageAndDisplayQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatLanguageAndDisplayA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Language and choose English or বাংলা. The change applies throughout the app, and numbers are displayed in the numerals of the selected language. The app language does not change the language your case data was entered in, which is what search matches against.'**
+  String get settingsGuidelines_faqCatLanguageAndDisplayA1;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan and premium'**
+  String get settingsGuidelines_faqCatFreePlanAndPremium;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the app free?'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. The offline app costs nothing to use and holds up to 50 cases. Premium raises that limit and will add online sync when it launches.'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA1;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Why can\'t I add a case?'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA2.
+  ///
+  /// In en, this message translates to:
+  /// **'The free plan holds up to 50 cases. At the limit, the Add Case form opens the premium screen instead. Nothing is hidden or deleted — you can still view, edit, print and delete every case you have, and deleting a case frees a slot.'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA2;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'What stays free?'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything except adding cases beyond the limit: viewing, editing, updating, deleting and printing cases, the Daily Cause List, client details and contact actions, Notes, Case References, and Backup & Restore.'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA3;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'Why isn\'t cloud backup offered for free?'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ4;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup and online mode depend on a backend service, which we pay for. Your subscription will cover the cost of storing your data securely online, which is why that service cannot be offered at no charge.'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA4;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I subscribe now?'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ5;
+
+  /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA5.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet. The premium screen shows the available plans, but purchases open with the online version. Until then the offline app is fully usable, and your data stays on your device.'**
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA5;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts and customisation'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisation;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are some district court names not what I expect?'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationA1.
+  ///
+  /// In en, this message translates to:
+  /// **'We sourced court names for all 64 districts from the Government\'s Cause List website (causelist.judiciary.gov.bd) and used them unchanged. You can rename any court to your preference in Settings > Edit Court/Steps.'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA1;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I add my own courts, case types, steps or on-behalf items?'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Settings > Edit Court/Steps lets you add, rename and delete the courts, case types, steps and on-behalf entries used in the Add and Edit Case forms. Deleting an item cannot be undone.'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA2;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do Tribunals and Special Tribunals appear?'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationA3.
+  ///
+  /// In en, this message translates to:
+  /// **'So that tribunals display the correct case types, steps and on-behalf options, we grouped them by subject:\n\nCivil tribunals → District Judge Court (Civil)\nCriminal tribunals → Sessions Judge Court (Criminal)\nCriminal tribunals in metropolitan areas → Metropolitan Sessions Judge Court (Criminal)'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA3;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'I can\'t find the court I\'m looking for.'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ4;
+
+  /// No description provided for @settingsGuidelines_faqCatCourtsAndCustomisationA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts are listed under the following categories:\n\nDistrict Judge Court (Civil)\n1. District and Additional District Judge Courts\n2. Joint District Judge Courts\n3. Civil & Senior Civil Judge Courts\n4. Family Courts & Family Appeal Court\n5. Land Survey Tribunal & Land Survey Appeal Tribunal\n6. Commercial Court\n7. Labour Court\n\nSessions Judge Court (Criminal) and Metropolitan Sessions Judge Court (Criminal)\n1. Sessions and Additional Sessions Judge Courts\n2. Joint Sessions Judge Courts\n3. Women and Child Abuse Suppression Tribunal\n4. Child Violence Prevention Tribunal\n5. Special Tribunals\n\nChief Judicial Magistrate Court and Chief Metropolitan Magistrate Court\n1. Chief and Additional Chief Judicial Magistrate\n2. Special Magistrate Courts\n3. Speedy Trial Court\n4. Environment Court\n5. Forest Court\n6. Senior Judicial Magistrate Courts\n7. Judicial Magistrate Courts\n8. Cognizance Courts'**
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA4;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Data, privacy and support'**
+  String get settingsGuidelines_faqCatDataAndSupport;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is my data stored, and who can see it?'**
+  String get settingsGuidelines_faqCatDataAndSupportQ1;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportA1.
+  ///
+  /// In en, this message translates to:
+  /// **'In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else, and no account is required. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.'**
+  String get settingsGuidelines_faqCatDataAndSupportA1;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the app a substitute for court records?'**
+  String get settingsGuidelines_faqCatDataAndSupportQ2;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportA2.
+  ///
+  /// In en, this message translates to:
+  /// **'No. The app is a personal record-keeping tool for your own practice. The information in it is entered by you, and the official cause list and court records remain authoritative. Always verify a hearing date against the court before relying on it.'**
+  String get settingsGuidelines_faqCatDataAndSupportA2;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'My question isn\'t answered here.'**
+  String get settingsGuidelines_faqCatDataAndSupportQ3;
+
+  /// No description provided for @settingsGuidelines_faqCatDataAndSupportA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write to us at adv.asadusjaman@gmail.com, or open Settings > About for our email and WhatsApp contact. Describe what you were doing when the problem occurred, together with your phone model and the app version shown in Settings > About.'**
+  String get settingsGuidelines_faqCatDataAndSupportA3;
 
   /// No description provided for @settingsAbout_title.
   ///

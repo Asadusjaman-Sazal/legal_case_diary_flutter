@@ -915,7 +915,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsScreen_viewSettings => 'ভিউ সেটিংস';
 
   @override
-  String get settingsScreen_guidelines => 'নির্দেশনা';
+  String get settingsScreen_guidelines => 'নির্দেশনা ও প্রশ্নোত্তর';
 
   @override
   String get settingsScreen_about => 'সম্পর্কিত';
@@ -1679,57 +1679,389 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsViewSettings_landingPage => 'ডিফল্ট শুরুর পেজ';
 
   @override
-  String get settingsGuidelines_title => 'নির্দেশনা';
+  String get settingsGuidelines_title => 'নির্দেশনা ও প্রশ্নোত্তর';
 
   @override
   String get settingsGuidelines_intro =>
-      'বিস্তারিত প্রশাসনিক পদ্ধতি দেখতে নিচের যেকোনো বিষয়ে ট্যাপ করুন।';
+      'অ্যাপটি কীভাবে কাজ করে, এবং সবচেয়ে বেশি জিজ্ঞাসিত প্রশ্নের উত্তর। বিস্তারিত দেখতে যেকোনো কার্ডে ট্যাপ করুন।';
 
   @override
-  String get settingsGuidelines_dailyCauseListTitle =>
-      'দৈনিক কজ লিস্ট ব্যবস্থাপনা';
+  String get settingsGuidelines_sectionGuidelines => 'নির্দেশনা';
+
+  @override
+  String get settingsGuidelines_dailyCauseListTitle => 'দৈনিক কজ লিস্ট';
 
   @override
   String get settingsGuidelines_dailyCauseListBody1 =>
-      'আপনার দৈনিক সময়সূচি নির্ভুল রাখতে স্থানীয় ডায়েরি আদালতের অফিসিয়াল কজ লিস্টের সঙ্গে সিঙ্ক করুন। \'কজ লিস্ট\' ট্যাবে গিয়ে উপরের ডান কোণে সিঙ্ক আইকনে ট্যাপ করুন।';
+      'দৈনিক কজ লিস্ট আপনার রেকর্ড করা একদিনের শুনানিগুলো আপনার আদালত-ক্রম অনুযায়ী আদালতভিত্তিক গ্রুপে এবং দিনের মোট সংখ্যাসহ দেখায়। ক্যালেন্ডার থেকে অন্য তারিখ বাছাই করুন; ডিফল্টভাবে আজকের তারিখ নির্বাচিত থাকে।';
 
   @override
   String get settingsGuidelines_dailyCauseListBody2 =>
-      'লক্ষ্য করুন: সক্রিয় মনিটরিংয়ে চিহ্নিত না থাকলে নিষ্পত্তিকৃত মামলা স্বয়ংক্রিয়ভাবে আর্কাইভে চলে যাবে।';
+      'তালিকাটি আপনার নিজের মামলার তথ্য থেকে তৈরি, তাই তথ্য যত নির্ভুল তালিকাও তত নির্ভুল। প্রতিটি মামলার পরবর্তী তারিখ ও সর্বশেষ ধাপ হালনাগাদ রাখুন এবং আদালত থেকে ফেরার সঙ্গে সঙ্গে তালিকা থেকেই শুনানির ফলাফল লিখুন। হালনাগাদ ছাড়া শুনানির তারিখ পেরিয়ে গেলে ফলাফল লেখা পর্যন্ত মামলাটি \'মেয়াদোত্তীর্ণ তারিখ\' অংশে থাকবে।';
 
   @override
-  String get settingsGuidelines_referencesTitle =>
-      'মামলার রেফারেন্স ব্যবস্থাপনা';
+  String get settingsGuidelines_referencesTitle => 'মামলার রেফারেন্স ও নোট';
 
   @override
   String get settingsGuidelines_referencesBody1 =>
-      'নতুন মামলা যোগ করার সময় রেফারেন্সের জন্য নির্ধারিত ফরম্যাট ব্যবহার করুন, যাতে পরে সহজে খোঁজা যায়। মামলার ধরন, নম্বর ও বছর লিখুন (যেমন, রিট পিটিশন নং ১২৩৪/২০২৩)।';
+      'মামলার রেফারেন্স হলো আপনার নিজস্ব নজির-সংগ্রহ, যা কোনো নির্দিষ্ট মামলার সঙ্গে যুক্ত নয়। প্রতিটি এন্ট্রিতে রেফারেন্স (যেমন, ২৫ ডিএলআর (এডি) ১৪২), আইন ও ধারা, শিরোনাম ও বিবরণ এবং ব্যক্তিগত মন্তব্য লিখতে পারেন। বেশি ব্যবহৃত এন্ট্রি পিন করে তালিকার উপরে রাখুন।';
 
   @override
   String get settingsGuidelines_referencesBody2 =>
-      '\'মামলার বিবরণ\' ভিউয়ের \'নোট\' অংশে নির্দিষ্ট সক্রিয় মামলার সঙ্গে প্রাসঙ্গিক নজির সংযুক্ত করতে পারেন।';
+      'সাধারণ নোটের জন্য রয়েছে \'নোট\' অংশ, যা স্বতন্ত্রভাবে ব্যবহৃত হয়। দুটোতেই মুছে ফেলার পরপরই \'পূর্বাবস্থায় ফেরান\' সুবিধা পাওয়া যায়।';
 
   @override
   String get settingsGuidelines_backupTitle => 'অফলাইন ব্যাকআপ ও পুনরুদ্ধার';
 
   @override
   String get settingsGuidelines_backupBody1 =>
-      'জাস্টিস লেজার প্রতি ২৪ ঘণ্টায় স্বয়ংক্রিয়ভাবে স্থানীয় ব্যাকআপ নেয়। গুগল ড্রাইভ বা নিরাপদ এন্টারপ্রাইজ সার্ভারে ক্লাউড ব্যাকআপ কনফিগার করতে সেটিংস > ব্যাকআপ অপশনে যান।';
+      'আপনার ডায়েরি এই ডিভাইসেই থাকে। সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\' বেছে নিলে আপনার পছন্দের স্থানে এনক্রিপ্ট করা একটি কপি সংরক্ষিত হয় — মেমোরি কার্ড, ফোনের কোনো ফোল্ডার বা সিস্টেমের ফাইল পিকার যেখানে পৌঁছায়। ফাইলটির জন্য আপনি একটি পাসফ্রেজ দেন, যা অ্যাপ কোথাও সংরক্ষণ বা পাঠায় না।';
 
   @override
   String get settingsGuidelines_backupBody2 =>
-      'ডেটা পুনরুদ্ধার করতে হলে রিকভারি শুরু করার আগে আপনার এনক্রিপশন কী প্রস্তুত রাখুন।';
+      '\'ব্যাকআপ থেকে পুনরুদ্ধার\' ব্যাকআপ ফাইল পড়ে অ্যাপের বর্তমান তথ্য সেই ফাইলের বিষয়বস্তু দিয়ে প্রতিস্থাপন করে। এটি ফেরানো যায় না, তাই পুনরুদ্ধারের আগে নতুন ব্যাকআপ নিন। চলতি মাসে কোনো ব্যাকআপ না থাকলে অ্যাপ একটি মনে করিয়ে দেওয়ার বার্তা দেখায়, যা আপনি বন্ধ করতে পারেন।';
 
   @override
   String get settingsGuidelines_securityTitle => 'নিরাপত্তা ও এনক্রিপশন';
 
   @override
   String get settingsGuidelines_securityBody1 =>
-      'সব সংবেদনশীল ক্লায়েন্ট ডেটা ও মামলার নোট এন্ড-টু-এন্ড AES-256 এনক্রিপশনে সুরক্ষিত। ডিক্রিপশন কী কেবল আপনার ডিভাইসেই থাকে।';
+      'আপনার মামলার ডায়েরি এই ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। ব্যাকআপ ফাইল AES-256-GCM দিয়ে এনক্রিপ্ট করা হয়, যার চাবি আপনার পাসফ্রেজ থেকে ডিভাইসেই PBKDF2-HMAC-SHA256 দিয়ে তৈরি হয়। পাসফ্রেজ বা চাবি কোথাও সংরক্ষণ বা প্রেরণ করা হয় না।';
 
   @override
   String get settingsGuidelines_securityBody2 =>
-      'দৈনন্দিন ব্যবহারে বাড়তি নিরাপত্তার জন্য অ্যাপ সেটিংসে বায়োমেট্রিক প্রমাণীকরণ (ফেস আইডি বা ফিঙ্গারপ্রিন্ট) চালু করার পরামর্শ দিই।';
+      'অফলাইন সংস্করণে আপনি নিজে না পাঠালে আপনার ফোন থেকে কোনো তথ্য বাইরে যায় না। পাসফ্রেজ নিরাপদে রেখে দিন — ব্যাকআপ থাকলেও পাসফ্রেজ হারালে সেটি আমরা বা অন্য কেউ খুলতে পারবে না।';
+
+  @override
+  String get settingsGuidelines_sectionFaqs => 'সাধারণ জিজ্ঞাসা';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStarted => 'শুরু করা';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ1 =>
+      'অ্যাপটি কি ইন্টারনেট সংযোগ ছাড়া চলে?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA1 =>
+      'হ্যাঁ। অ্যাপটি সম্পূর্ণ অফলাইনে কাজ করার জন্য তৈরি — মামলা যোগ ও সম্পাদনা, দৈনিক কজ লিস্ট, প্রিন্ট এবং ব্যাকআপ সবই সংযোগ ছাড়া চলে। অফলাইন সংস্করণে অনলাইন সিঙ্ক নেই।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ2 =>
+      'কীভাবে নতুন মামলা যোগ করব?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA2 =>
+      'যেকোনো মামলার পাতায় + বোতামে ট্যাপ করুন। আপনি যে তথ্য দেবেন, তার ভিত্তিতে মামলাটি সংশ্লিষ্ট পাতাগুলোতে স্বয়ংক্রিয়ভাবে যুক্ত হবে।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ3 =>
+      'মামলা যোগ করার পর কোথায় দেখা যাবে?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA3 =>
+      'একটি মামলা একাধিক পাতায় দেখা যায়, প্রতিটি ভিন্ন প্রশ্নের উত্তর দেয়: \'সক্রিয় মামলা\' চলমান সব মামলা দেখায়; \'আসন্ন মামলা\' আপনার নির্বাচিত সময়ের শুনানি দেখায়; \'দৈনিক কজ লিস্ট\' একদিনের শুনানি দেখায়; \'সব মামলা\' সাজানো ও আদালতভিত্তিক ফিল্টারসহ পূর্ণ তালিকা; \'মেয়াদোত্তীর্ণ তারিখ\' হালনাগাদ ছাড়া শুনানির তারিখ পেরিয়ে যাওয়া মামলা দেখায়; আর \'নিষ্পত্তিকৃত মামলা\' আপনি নিষ্পত্তি হিসেবে চিহ্নিত মামলাগুলো ধরে রাখে।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ4 =>
+      'মামলা \'আপডেট\' ও \'সম্পাদনা\' করার মধ্যে পার্থক্য কী?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA4 =>
+      '\'আপডেট\' নতুন ধাপ বা ফলাফল লিখে মামলার ইতিহাসে যোগ করে — প্রতিটি শুনানির পর এটি ব্যবহার করুন। \'মামলা সম্পাদনা\' মামলার নিজস্ব তথ্য, যেমন পক্ষ, আদালত বা মামলা নম্বর পরিবর্তন করে — ভুল তথ্য সংশোধনে এটি ব্যবহার করুন।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ5 =>
+      'কীভাবে মামলা নিষ্পত্তি হিসেবে চিহ্নিত করব?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA5 =>
+      '\'আপডেট\' স্ক্রিনে বা \'মামলা সম্পাদনা\' ফর্মে মামলাটি খুলে নিষ্পত্তি (Disposed) নির্বাচন করুন। আপিল বিভাগ ও হাইকোর্ট বিভাগের মামলার ক্ষেত্রে \'Disposed\' বা \'নিষ্পত্তি\' টাইপও করতে পারেন। এরপর মামলাটি \'সক্রিয় মামলা\' থেকে \'নিষ্পত্তিকৃত মামলা\'-য় চলে যাবে।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ6 =>
+      'নিষ্পত্তিকৃত মামলা আবার সক্রিয় মামলায় কীভাবে ফিরিয়ে আনব?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA6 =>
+      'মামলাটি খুলে নিষ্পত্তি (Disposed) ছাড়া অন্য যেকোনো ধাপ বা ফলাফল বেছে নিন। মামলাটি আবার \'সক্রিয় মামলা\'-য় ফিরে আসবে।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ7 =>
+      'মামলা মুছে ফেললে কী হয়?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA7 =>
+      'মামলাটি আপনার ডায়েরি থেকে সরে যায় এবং ফ্রি প্ল্যানে একটি স্লট খালি হয়। মুছে ফেলা ফেরানো যায় না, তাই যার রেকর্ড আর দরকার নেই কেবল সেটিই মুছুন। তবে নোট ও মামলার রেফারেন্স মুছে ফেলার পরপরই ফিরিয়ে আনা যায়।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ8 =>
+      '\'মেয়াদোত্তীর্ণ তারিখ\' পাতাটি কী?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA8 =>
+      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো সর্বশেষ হালনাগাদের তারিখসহ এখানে দেখা যায়। এখনো যেসব মামলায় হাত দেওয়া হয়নি তা খুঁজে বের করার সবচেয়ে সহজ উপায় এটি। নতুন ধাপ বা ফলাফল লিখলে মামলাটি তালিকা থেকে সরে যায়।';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCases => 'মামলা খোঁজা ও দেখা';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesQ1 =>
+      'মামলা যোগ করেছি কিন্তু সার্চে পাচ্ছি না।';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesA1 =>
+      'সার্চ আপনার লেখা লিপির সঙ্গে মিলিয়ে খোঁজে। ইংরেজিতে লেখা মামলা ইংরেজি অনুসন্ধানে এবং বাংলায় লেখা মামলা বাংলা অনুসন্ধানে পাওয়া যাবে। বাংলায় লেখা মামলা নম্বর ইংরেজি অনুসন্ধানে মিলবে না, এবং উল্টোটাও নয়।';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesQ2 =>
+      '\'আসন্ন মামলা\' তালিকায় কত দিন আগ পর্যন্ত শুনানি দেখা যায়?';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesA2 =>
+      'ডিফল্টভাবে পরবর্তী ৭ দিন। এটি বদলাতে সেটিংস > ভিউ সেটিংস > আসন্ন মামলার সময়কাল-এ যান।';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesQ3 =>
+      'মামলা কীভাবে দেখানো হয় তা বদলাতে পারি?';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesA3 =>
+      'ডিফল্ট \'সংক্ষিপ্ত ভিউ\' কার্ড ব্যবহার করে যতটুকু জায়গায় সম্ভব ততটুকু তথ্য দেখায়। মামলার স্ক্রিনে সার্চ ফিল্ডের পাশের টগল অথবা সেটিংস > ভিউ সেটিংস > মামলার তালিকা ভিউ থেকে \'বিস্তৃত ভিউ\'-তে যেতে পারেন।';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesQ4 =>
+      '\'দৈনিক কজ লিস্ট\' কী দেখায়?';
+
+  @override
+  String get settingsGuidelines_faqCatFindingCasesA4 =>
+      'আপনার ডায়েরিতে রেকর্ড করা একদিনের শুনানিগুলো আপনার আদালত-ক্রম অনুযায়ী আদালতভিত্তিক গ্রুপে এবং দিনের মোট সংখ্যাসহ দেখায়। ক্যালেন্ডার থেকে তারিখ বাছাই করুন; ডিফল্টভাবে আজকের তারিখ থাকে।';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrinting =>
+      'নোট, রেফারেন্স ও প্রিন্ট';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingQ1 =>
+      '\'নোট\' ও \'মামলার রেফারেন্স\'-এর পার্থক্য কী?';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingA1 =>
+      '\'নোট\' শিরোনাম ও বিবরণসহ সাধারণ নোট রাখে। \'মামলার রেফারেন্স\' কাঠামোবদ্ধ নজির-সংগ্রহ — রেফারেন্স, আইন, ধারা, বিবরণ ও ব্যক্তিগত মন্তব্য — যা পিন করা যায়। দুটোই মামলা থেকে আলাদা এবং কোনোটি স্বয়ংক্রিয়ভাবে মামলার সঙ্গে যুক্ত হয় না।';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingQ2 =>
+      'কী কী প্রিন্ট করা যায়?';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingA2 =>
+      'মামলার বিবরণ এবং মামলার তালিকা। প্রিন্ট একটি সাজানো পিডিএফ তৈরি করে এবং ডিভাইসের প্রিন্ট সুবিধা ব্যবহার করে। \'নোট\' ও \'মামলার রেফারেন্স\' স্ক্রিনে প্রিন্ট পাওয়া যায় না।';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingQ3 =>
+      'মামলা সম্পর্কে ক্লায়েন্টকে কীভাবে জানাব?';
+
+  @override
+  String get settingsGuidelines_faqCatNotesAndPrintingA3 =>
+      'ক্লায়েন্টের ফোন নম্বর থাকা মামলায় \'কল\', \'মেসেজ\' ও \'হোয়াটসঅ্যাপ\' সুবিধা আছে, সঙ্গে ক্লায়েন্টের নাম, মামলা নম্বর, পরবর্তী শুনানির তারিখ ও আদালতসহ প্রস্তুত বার্তা। পাঠানোর আগে বার্তাটি দেখে নিন — নম্বর বা তারিখ হালনাগাদ আছে কিনা অ্যাপ যাচাই করতে পারে না।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestore =>
+      'ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ1 =>
+      'কীভাবে ডায়েরির ব্যাকআপ নেব?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA1 =>
+      'সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\'-এ ট্যাপ করুন। ফাইলটি কোথায় সংরক্ষিত হবে তা আপনি বেছে নেন এবং একটি পাসফ্রেজ দেন যা ফাইলটি এনক্রিপ্ট করে। কোনো অ্যাকাউন্ট বা ইন্টারনেট সংযোগ লাগে না।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ2 =>
+      'অ্যাপ কি নিজে থেকেই ব্যাকআপ নেয়?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA2 =>
+      'অফলাইন সংস্করণে না — প্রতিটি ব্যাকআপ আপনি নিজে শুরু করেন। চলতি মাসে কোনো ব্যাকআপ না থাকলে অ্যাপ একটি মনে করিয়ে দেওয়ার বার্তা দেখায়, যা আপনি বন্ধ করতে পারেন।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ3 =>
+      'পাসফ্রেজ ভুলে গেছি। আপনি কি তা উদ্ধার করতে পারবেন?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA3 =>
+      'না। পাসফ্রেজ আপনার ডিভাইসে বা অন্য কোথাও সংরক্ষণ করা হয় না, তাই তা ছাড়া ব্যাকআপ খোলা যায় না। হারিয়ে গেলে আপনার মনে রাখা যায় এমন একটি পাসফ্রেজ দিয়ে নতুন ব্যাকআপ নিন।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ4 =>
+      'ব্যাকআপ পুনরুদ্ধার করলে আমার বর্তমান তথ্যের কী হবে?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA4 =>
+      'পুনরুদ্ধার অ্যাপের বর্তমান সব তথ্য ব্যাকআপ ফাইলের বিষয়বস্তু দিয়ে প্রতিস্থাপন করে। এটি একসঙ্গে মেলায় না এবং ফেরানোও যায় না। বর্তমান ডায়েরিতে দরকারি কিছু থাকলে আগে তার ব্যাকআপ নিন। অ্যাপে আগে থেকেই তথ্য থাকলে প্রতিস্থাপনের আগে অ্যাপ আপনার সম্মতি চায়।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ5 =>
+      'নতুন ফোনে ডায়েরি কীভাবে নেব?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA5 =>
+      'বর্তমান ফোনে একটি ব্যাকআপ নিয়ে ফাইলটি নতুন ফোন থেকে পাওয়া যায় এমন জায়গায় রাখুন — মেমোরি কার্ড, গুগল ড্রাইভ বা নিজেকে পাঠানো ইমেইল। নতুন ফোনে অ্যাপ ইনস্টল করে সেটিংস > ব্যাকআপ ও পুনরুদ্ধার থেকে একই পাসফ্রেজ দিয়ে \'ব্যাকআপ থেকে পুনরুদ্ধার\' করুন।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ6 =>
+      'অ্যাপের ভিন্ন সংস্করণে নেওয়া ব্যাকআপ ব্যবহার করা যাবে?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA6 =>
+      'পুরোনো সংস্করণের ব্যাকআপ পুনরুদ্ধারের সময় স্বয়ংক্রিয়ভাবে হালনাগাদ হয়। আপনার চলমান সংস্করণের চেয়ে নতুন সংস্করণে নেওয়া ব্যাকআপ গ্রহণ করা হয় না, তাই আগে অ্যাপ হালনাগাদ করে তারপর পুনরুদ্ধার করুন।';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreQ7 =>
+      'অ্যাপ মুছে ফেললে বা ফোন হারালে আমার তথ্যের কী হবে?';
+
+  @override
+  String get settingsGuidelines_faqCatBackupAndRestoreA7 =>
+      'অফলাইন সংস্করণে আপনার ডায়েরি কেবল ডিভাইসেই থাকে, তাই ব্যাকআপ ফাইল না থাকলে অ্যাপ আনইনস্টল করলে বা ফোন হারালে তথ্যও হারিয়ে যায়। সাম্প্রতিক ব্যাকআপ রাখুন এবং একটি কপি ফোনের বাইরে সংরক্ষণ করুন।';
+
+  @override
+  String get settingsGuidelines_faqCatNotifications => 'নোটিফিকেশন';
+
+  @override
+  String get settingsGuidelines_faqCatNotificationsQ1 =>
+      'শুনানির নোটিফিকেশন এলো না কেন?';
+
+  @override
+  String get settingsGuidelines_faqCatNotificationsA1 =>
+      'বেশিরভাগ অ্যান্ড্রয়েড ফোন ব্যাটারি বাঁচাতে ব্যাকগ্রাউন্ড অ্যাপ বন্ধ করে দেয়, ফলে শুনানির সতর্কতা আসে না। সেটিংস > নোটিফিকেশন-এ গিয়ে \'ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড\'-এ ট্যাপ করে আপনার ফোনের ধাপগুলো অনুসরণ করুন, তারপর \'পরীক্ষামূলক নোটিফিকেশন পাঠান\' দিয়ে নিশ্চিত হোন।';
+
+  @override
+  String get settingsGuidelines_faqCatNotificationsQ2 =>
+      'শুনানির নোটিফিকেশন কখন পাঠানো হবে তা বদলাতে পারি?';
+
+  @override
+  String get settingsGuidelines_faqCatNotificationsA2 =>
+      'হ্যাঁ। সেটিংস > নোটিফিকেশন-এ দিনের ব্যবধান — একই দিন, আগের দিন বা শুনানির কয়েক দিন আগে — এবং সময় বেছে নিতে পারেন। একই স্ক্রিন থেকে নোটিফিকেশন সম্পূর্ণ বন্ধও করা যায়।';
+
+  @override
+  String get settingsGuidelines_faqCatLanguageAndDisplay => 'ভাষা ও প্রদর্শন';
+
+  @override
+  String get settingsGuidelines_faqCatLanguageAndDisplayQ1 =>
+      'অ্যাপের ভাষা কীভাবে বদলাব?';
+
+  @override
+  String get settingsGuidelines_faqCatLanguageAndDisplayA1 =>
+      'সেটিংস > ভাষা-য় গিয়ে ইংরেজি বা বাংলা বেছে নিন। পরিবর্তন পুরো অ্যাপে প্রযোজ্য হবে এবং সংখ্যাগুলো নির্বাচিত ভাষার অঙ্কে দেখানো হবে। অ্যাপের ভাষা আপনার মামলার তথ্য যে ভাষায় লেখা হয়েছে তা বদলায় না, আর সার্চ সেই তথ্যের সঙ্গেই মেলে।';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremium =>
+      'ফ্রি প্ল্যান ও প্রিমিয়াম';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ1 =>
+      'অ্যাপটি কি ফ্রি?';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA1 =>
+      'হ্যাঁ। অফলাইন অ্যাপটি ব্যবহারে কোনো খরচ নেই এবং এতে ৫০টি পর্যন্ত মামলা রাখা যায়। প্রিমিয়াম এই সীমা বাড়াবে এবং চালু হলে অনলাইন সিঙ্ক যোগ করবে।';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ2 =>
+      'মামলা যোগ করতে পারছি না কেন?';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA2 =>
+      'ফ্রি প্ল্যানে ৫০টি পর্যন্ত মামলা রাখা যায়। সীমায় পৌঁছালে \'মামলা যোগ\' ফর্মের বদলে প্রিমিয়াম স্ক্রিন খোলে। কিছুই লুকানো বা মুছে ফেলা হয় না — আপনার সব মামলা দেখা, সম্পাদনা, প্রিন্ট ও মুছে ফেলার সুবিধা আগের মতোই থাকে এবং মামলা মুছলে একটি স্লট খালি হয়।';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ3 =>
+      'কী কী ফ্রি থাকে?';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA3 =>
+      'সীমার বাইরে নতুন মামলা যোগ করা ছাড়া বাকি সব: মামলা দেখা, সম্পাদনা, আপডেট, মুছে ফেলা ও প্রিন্ট, দৈনিক কজ লিস্ট, ক্লায়েন্টের তথ্য ও যোগাযোগের সুবিধা, নোট, মামলার রেফারেন্স এবং ব্যাকআপ ও পুনরুদ্ধার।';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ4 =>
+      'ক্লাউড ব্যাকআপ ফ্রি দেওয়া হয় না কেন?';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA4 =>
+      'ক্লাউড ব্যাকআপ ও অনলাইন মোড একটি ব্যাকএন্ড সেবার উপর নির্ভর করে, যার খরচ আমরা বহন করি। আপনার সাবস্ক্রিপশন আপনার তথ্য নিরাপদে অনলাইনে রাখার এই খরচটিই বহন করবে, তাই সেবাটি বিনামূল্যে দেওয়া সম্ভব নয়।';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumQ5 =>
+      'এখনই সাবস্ক্রাইব করা যাবে?';
+
+  @override
+  String get settingsGuidelines_faqCatFreePlanAndPremiumA5 =>
+      'এখনো নয়। প্রিমিয়াম স্ক্রিনে পরিকল্পনাগুলো দেখা যায়, তবে কেনাকাটা অনলাইন সংস্করণের সঙ্গে চালু হবে। ততদিন অফলাইন অ্যাপটি সম্পূর্ণ ব্যবহারযোগ্য এবং আপনার তথ্য আপনার ডিভাইসেই থাকে।';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisation =>
+      'আদালত ও কাস্টমাইজেশন';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ1 =>
+      'কিছু জেলার আদালতের নাম প্রত্যাশার সঙ্গে মিলছে না কেন?';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA1 =>
+      '৬৪টি জেলার আদালতের নাম আমরা সরকারের কজ লিস্ট ওয়েবসাইট (causelist.judiciary.gov.bd) থেকে সংগ্রহ করে কোনো পরিবর্তন ছাড়াই ব্যবহার করেছি। সেটিংস > আদালত/ধাপ সম্পাদনা থেকে যেকোনো আদালতের নাম আপনার পছন্দমতো বদলাতে পারেন।';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ2 =>
+      'নিজের আদালত, মামলার ধরন, ধাপ বা পক্ষ যোগ করতে পারি?';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA2 =>
+      'হ্যাঁ। সেটিংস > আদালত/ধাপ সম্পাদনা থেকে \'মামলা যোগ\' ও \'মামলা সম্পাদনা\' ফর্মে ব্যবহৃত আদালত, মামলার ধরন, ধাপ ও পক্ষের এন্ট্রি যোগ, নাম পরিবর্তন ও মুছে ফেলা যায়। কোনো এন্ট্রি মুছে ফেলা আর ফেরানো যায় না।';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ3 =>
+      'ট্রাইব্যুনাল ও বিশেষ ট্রাইব্যুনাল কোথায় আছে?';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA3 =>
+      'ট্রাইব্যুনালের জন্য সঠিক মামলার ধরন, ধাপ ও পক্ষের অপশন দেখাতে আমরা সেগুলো বিষয় অনুযায়ী সাজিয়েছি:\n\nদেওয়ানি ট্রাইব্যুনাল → জেলা জজ আদালত (দেওয়ানি)\nফৌজদারি ট্রাইব্যুনাল → দায়রা জজ আদালত (ফৌজদারি)\nমহানগর এলাকার ফৌজদারি ট্রাইব্যুনাল → মহানগর দায়রা জজ আদালত (ফৌজদারি)';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationQ4 =>
+      'আমার খোঁজা আদালতটি পাচ্ছি না।';
+
+  @override
+  String get settingsGuidelines_faqCatCourtsAndCustomisationA4 =>
+      'আদালতগুলো অ্যাপে নিচের শ্রেণিভুক্ত:\n\nজেলা জজ আদালত (দেওয়ানি)\n১. জেলা ও অতিরিক্ত জেলা জজ আদালত\n২. যুগ্ম জেলা জজ আদালত\n৩. দেওয়ানি ও সিনিয়র দেওয়ানি জজ আদালত\n৪. পারিবারিক আদালত ও পারিবারিক আপিল আদালত\n৫. ভূমি জরিপ ট্রাইব্যুনাল ও ভূমি জরিপ আপিল ট্রাইব্যুনাল\n৬. বাণিজ্যিক আদালত\n৭. শ্রম আদালত\n\nদায়রা জজ আদালত (ফৌজদারি) ও মহানগর দায়রা জজ আদালত (ফৌজদারি)\n১. দায়রা ও অতিরিক্ত দায়রা জজ আদালত\n২. যুগ্ম দায়রা জজ আদালত\n৩. নারী ও শিশু নির্যাতন দমন ট্রাইব্যুনাল\n৪. শিশু নির্যাতন প্রতিরোধ ট্রাইব্যুনাল\n৫. বিশেষ ট্রাইব্যুনাল\n\nচীফ জুডিসিয়াল ম্যাজিস্ট্রেট আদালত ও চীফ মেট্রোপলিটন ম্যাজিস্ট্রেট আদালত\n১. চীফ ও অতিরিক্ত চীফ জুডিসিয়াল ম্যাজিস্ট্রেট\n২. বিশেষ ম্যাজিস্ট্রেট আদালত\n৩. দ্রুত বিচার আদালত\n৪. পরিবেশ আদালত\n৫. বন আদালত\n৬. সিনিয়র জুডিসিয়াল ম্যাজিস্ট্রেট আদালত\n৭. জুডিসিয়াল ম্যাজিস্ট্রেট আদালত\n৮. আমলযোগ্য অপরাধ আদালত';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupport =>
+      'তথ্য, গোপনীয়তা ও সহায়তা';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportQ1 =>
+      'আমার তথ্য কোথায় থাকে এবং কে দেখতে পারে?';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportA1 =>
+      'অফলাইন সংস্করণে আপনার লেখা সব তথ্য ডিভাইসেই এনক্রিপ্ট করা অবস্থায় থাকে। আমাদের বা অন্য কারো কাছে কিছু পাঠানো হয় না এবং কোনো অ্যাকাউন্ট লাগে না। ব্যাকআপ ফাইল এনক্রিপ্ট করা এবং কেবল আপনার দেওয়া পাসফ্রেজ দিয়েই খোলা যায়। অনলাইন সংস্করণ চালু হলে কী তথ্য কোথায় রাখা হবে তা ব্যবহারের আগে আলাদা নির্দেশনায় জানানো হবে।';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportQ2 =>
+      'অ্যাপটি কি আদালতের রেকর্ডের বিকল্প?';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportA2 =>
+      'না। অ্যাপটি আপনার নিজের কাজের জন্য একটি ব্যক্তিগত রেকর্ড রাখার মাধ্যম। এর তথ্য আপনি নিজে লেখেন এবং অফিসিয়াল কজ লিস্ট ও আদালতের রেকর্ডই চূড়ান্ত। শুনানির তারিখের উপর নির্ভর করার আগে সর্বদা আদালত থেকে যাচাই করুন।';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportQ3 =>
+      'এখানে উত্তর নেই, কীভাবে যোগাযোগ করব?';
+
+  @override
+  String get settingsGuidelines_faqCatDataAndSupportA3 =>
+      'adv.asadusjaman@gmail.com-এ লিখুন, অথবা সেটিংস > সম্পর্কিত-এ গিয়ে আমাদের ইমেইল ও হোয়াটসঅ্যাপ যোগাযোগ দেখুন। সমস্যার সময় আপনি কী করছিলেন, আপনার ফোনের মডেল এবং সেটিংস > সম্পর্কিত-এ দেখা যাওয়া অ্যাপ সংস্করণ লিখুন।';
 
   @override
   String get settingsAbout_title => 'সম্পর্কিত';

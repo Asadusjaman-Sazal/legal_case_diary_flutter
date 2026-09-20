@@ -25,7 +25,6 @@ import '../../core/router/app_router.dart';
 import '../../core/services/local_identity_service.dart';
 import '../../database/app_database.dart';
 import '../../features/accounts_and_profile/data/local/firm_members_dao.dart';
-import '../../features/accounts_and_profile/data/local/firms_dao.dart';
 import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
 import '../../features/cases/data/case_form_repository.dart';
 import '../../features/cases/data/local/cases_dao.dart';
@@ -33,6 +32,7 @@ import '../../features/settings/data/local/case_notification_preferences_dao.dar
 import '../../features/settings/data/local/case_types_dao.dart';
 import '../../features/settings/data/district_court_categories.dart';
 import '../../features/settings/data/notification_day_offsets.dart';
+import '../../features/settings/data/premium_access.dart';
 import '../../features/settings/data/local/court_categories_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
 import '../../features/settings/data/local/on_behalfs_dao.dart';
@@ -77,29 +77,6 @@ final caseWritePermissionsProvider = FutureProvider<CaseWritePermissions>((
     canEdit: member?.canEdit ?? false,
   );
 });
-
-/// Resolves premium entitlement from the cached subscription expiry.
-///
-/// Individual users use their profile expiry. Firm users use the firm's
-/// mirrored expiry, which is the source of truth for all associates. The
-/// 48-hour grace period is intentionally applied here rather than trusting the
-/// display-only subscription status flag.
-Future<bool> resolvePremiumAccess(
-  AppDatabase db,
-  String userId, {
-  DateTime? now,
-}) async {
-  final profile = await ProfilesDao(db).getById(userId);
-  final expiry = profile?.firmId == null
-      ? profile?.subscriptionExpiry
-      : (await FirmsDao(db).getById(profile!.firmId!))?.subscriptionExpiry;
-  if (expiry == null) return false;
-  final graceExpiry = DateTime.fromMillisecondsSinceEpoch(
-    expiry,
-    isUtc: true,
-  ).add(const Duration(hours: 48));
-  return graceExpiry.isAfter((now ?? DateTime.now()).toUtc());
-}
 
 /// Data required by the form's cascading dropdowns.
 class AddEditCaseLookupData {

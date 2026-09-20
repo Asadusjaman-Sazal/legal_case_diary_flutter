@@ -27,6 +27,14 @@ const String lastBackupPathKey = 'last_backup_path';
 /// Preference key holding the chosen automatic-backup interval in days.
 const String backupScheduleDaysKey = 'backup_schedule_days';
 
+/// Preference key holding the epoch-ms of the last monthly backup nudge.
+///
+/// Phase 6's "at most once per calendar month" rule, and the task names the key,
+/// so the name is part of the task's contract. Recorded when the nudge is shown
+/// rather than when it is dismissed, so a launch the user abandons still counts
+/// as asked (the same rule the OEM setup guide follows).
+const String lastBackupNudgeAtKey = 'last_backup_nudge_at';
+
 /// Interval the mockup shows selected on a fresh install ("Everyday").
 const int defaultBackupScheduleDays = 1;
 
@@ -41,11 +49,15 @@ class BackupMetadata {
   /// Chosen automatic-backup interval in days; 0 means "Off".
   final int scheduleDays;
 
+  /// Epoch-ms of the last monthly backup nudge, or null when never shown.
+  final int? lastNudgedAt;
+
   /// Creates a metadata snapshot.
   const BackupMetadata({
     this.lastSuccessfulAt,
     this.lastPath,
     this.scheduleDays = defaultBackupScheduleDays,
+    this.lastNudgedAt,
   });
 
   /// Whether a backup has ever completed on this device.
@@ -64,6 +76,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastPath: _prefs.getString(lastBackupPathKey),
       scheduleDays:
           _prefs.getInt(backupScheduleDaysKey) ?? defaultBackupScheduleDays,
+      lastNudgedAt: _prefs.getInt(lastBackupNudgeAtKey),
     );
   }
 
@@ -78,6 +91,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastSuccessfulAt: at,
       lastPath: path,
       scheduleDays: state.scheduleDays,
+      lastNudgedAt: state.lastNudgedAt,
     );
   }
 
@@ -89,6 +103,23 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastSuccessfulAt: state.lastSuccessfulAt,
       lastPath: state.lastPath,
       scheduleDays: days,
+      lastNudgedAt: state.lastNudgedAt,
+    );
+  }
+
+  /// Records that the monthly nudge was shown at [at] (epoch ms).
+  ///
+  /// Written when the banner appears, not when it is dismissed: the rule is "at
+  /// most once per calendar month", and a user who closes the app without
+  /// touching the banner has still been reminded. A backup later the same month
+  /// is recorded as usual, and the next nudge waits for the next month.
+  Future<void> recordNudge({required int at}) async {
+    await _prefs.setInt(lastBackupNudgeAtKey, at);
+    state = BackupMetadata(
+      lastSuccessfulAt: state.lastSuccessfulAt,
+      lastPath: state.lastPath,
+      scheduleDays: state.scheduleDays,
+      lastNudgedAt: at,
     );
   }
 }

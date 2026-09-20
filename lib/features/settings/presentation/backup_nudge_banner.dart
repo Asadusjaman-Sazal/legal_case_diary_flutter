@@ -1,0 +1,229 @@
+/// The monthly "back up your data" nudge (Task 15 Phase 6).
+///
+/// A free user's local export is the only safety net they have, so once a
+/// calendar month the app asks them to use it. The nudge is deliberately a
+/// **dismissible banner, never a dialog**: it does not interrupt whatever the
+/// user opened the app to do, it can be ignored with one tap, and it goes away
+/// on its own for the rest of the month either way.
+///
+/// It is mounted above the app's navigator (see `app.dart`), the same place the
+/// OEM setup guide is offered from, so it appears on whatever screen the app
+/// opens on — including a launch straight into a case. The route is pushed
+/// through the router we are given, because a widget above the navigator has no
+/// `context.push` of its own.
+///
+/// Four conditions must all hold, and every one of them is a reason *not* to
+/// nag: the user is free (premium users are not at risk), the diary actually
+/// holds a live case (a fresh install has nothing to lose), no backup has been
+/// made this Bangladesh month, and no nudge has been shown in it either. The
+/// nudge is then **recorded as shown** — not as dismissed — so an abandoned
+/// launch still counts as the month's one ask, exactly like the setup guide.
+library;
+
+import 'dart:developer' as dev;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/backup/backup_nudge.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
+import '../../../core/services/local_identity_service.dart';
+import '../../../shared/providers/database_provider.dart';
+import '../data/backup_metadata_store.dart';
+import '../data/premium_access.dart';
+import '../../cases/data/local/cases_dao.dart';
+
+/// Mounts [child] and, when the month's nudge is due, a banner above it.
+class BackupNudgeBanner extends ConsumerStatefulWidget {
+  /// Router used to open Backup & Restore from the banner.
+  final GoRouter router;
+
+  /// The app content below the banner.
+  final Widget child;
+
+  /// Creates the banner gate.
+  const BackupNudgeBanner({
+    required this.router,
+    required this.child,
+    super.key,
+  });
+
+  @override
+  ConsumerState<BackupNudgeBanner> createState() => _BackupNudgeBannerState();
+}
+
+class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
+  /// Whether this session is showing the nudge.
+  ///
+  /// Local on purpose: the decision is recorded in the store as soon as the
+  /// banner appears, so the store cannot be what keeps it on screen — otherwise
+  /// recording it would hide it in the same frame.
+  bool _visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame, so a launch from a notification has already routed
+    // and nothing is being built while we decide.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _decide());
+  }
+
+  Future<void> _decide() async {
+    try {
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+      final db = await ref.read(databaseProvider.future);
+      if (!mounted) return;
+
+      // Premium users sync to the cloud; the nudge is for free users only.
+      final hasPremiumAccess = await resolvePremiumAccess(
+        db,
+        ref.read(localIdentityServiceProvider).getId(),
+      );
+
+      // Nothing to lose, nothing to nag about: a fresh install has no cases yet.
+      final hasCases = await CasesDao(db).getNonDeletedCaseCount() > 0;
+
+      final metadata = ref.read(backupMetadataProvider);
+      final due = isBackupNudgeDue(
+        now: now,
+        lastBackupAt: metadata.lastSuccessfulAt,
+        lastNudgedAt: metadata.lastNudgedAt,
+      );
+      if (hasPremiumAccess || !hasCases || !due) return;
+
+      // Recorded before showing: one ask per calendar month, whatever the user
+      // does with it next.
+      await ref.read(backupMetadataProvider.notifier).recordNudge(at: now);
+      if (!mounted) return;
+      setState(() => _visible = true);
+    } catch (error, stackTrace) {
+      // A reminder is an enhancement; a failure here must never affect startup.
+      dev.log(
+        'Monthly backup nudge failed',
+        name: 'backup',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// Opens Backup & Restore, where the actual backup is one tap away.
+  void _openBackupRestore() {
+    setState(() => _visible = false);
+    widget.router.push(AppRoutes.settingsBackupRestore);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return widget.child;
+    final l = AppLocalizations.of(context);
+    return Column(
+      children: [
+        _NudgeStrip(
+          message: l.backupNudge_message,
+          actionLabel: l.backupNudge_action,
+          dismissTooltip: l.backupNudge_dismiss,
+          onTap: _openBackupRestore,
+          onDismiss: () => setState(() => _visible = false),
+        ),
+        // The strip has consumed the status-bar inset, so the app below must not
+        // pad for it a second time.
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: widget.child,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The banner itself: a tappable strip with a dismiss control.
+class _NudgeStrip extends StatelessWidget {
+  final String message;
+  final String actionLabel;
+  final String dismissTooltip;
+  final VoidCallback onTap;
+  final VoidCallback onDismiss;
+
+  const _NudgeStrip({
+    required this.message,
+    required this.actionLabel,
+    required this.dismissTooltip,
+    required this.onTap,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: AppColors.primaryContainer,
+    child: SafeArea(
+      bottom: false,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.edgeMargin,
+            AppSpacing.sm,
+            AppSpacing.xs,
+            AppSpacing.sm,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.backup_outlined,
+                size: 20,
+                color: AppColors.onPrimaryContainer,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      message,
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.onPrimaryContainer,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      actionLabel,
+                      style: AppTypography.labelLg.copyWith(
+                        color: AppColors.onPrimaryContainer,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.onPrimaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // No `tooltip` here, and that is not an oversight: this banner is
+              // mounted above the app's navigator, so there is no Overlay
+              // ancestor for a Tooltip to float in. The label still reaches
+              // screen readers through the icon's semantics.
+              IconButton(
+                key: const ValueKey('backup-nudge-dismiss'),
+                icon: Icon(
+                  Icons.close,
+                  size: 18,
+                  semanticLabel: dismissTooltip,
+                ),
+                color: AppColors.onPrimaryContainer,
+                onPressed: onDismiss,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}

@@ -26,6 +26,7 @@ import 'package:legal_case_diary/features/settings/data/local/court_categories_d
 import 'package:legal_case_diary/features/settings/data/local/courts_dao.dart';
 import 'package:legal_case_diary/features/settings/data/local/on_behalfs_dao.dart';
 import 'package:legal_case_diary/features/settings/data/local/user_preferences_dao.dart';
+import 'package:legal_case_diary/features/settings/data/premium_access.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';

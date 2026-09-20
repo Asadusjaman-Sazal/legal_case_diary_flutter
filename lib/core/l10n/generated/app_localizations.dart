@@ -2174,6 +2174,24 @@ abstract class AppLocalizations {
   /// **'No backup has been made yet.'**
   String get settingsBackupRestore_lastBackupPlaceholder;
 
+  /// No description provided for @backupNudge_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not backed up this month. Your cases live only on this phone — save a backup to keep them safe.'**
+  String get backupNudge_message;
+
+  /// No description provided for @backupNudge_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up to local storage'**
+  String get backupNudge_action;
+
+  /// No description provided for @backupNudge_dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss for this month'**
+  String get backupNudge_dismiss;
+
   /// No description provided for @settingsBackupRestore_driveShareTitle.
   ///
   /// In en, this message translates to:

@@ -1,14 +1,32 @@
+* There are multiple pages related to cases. Where and how do I add a case?
+= You can add a new case from any of the case related pages using the plus button. Based on the data the case will appear in related pages.
+
+* How do I mark a case disposed?
+= While updating a case's using the Update screen or Edi Case form, choose Disposed in English/নিষ্পত্তি in Bengali or write Disposed in English/নিষ্পত্তি in Bengali for Appellate Division and High Court Division cases and the case will be marked as disposed and be moved from Active Cases page to Disposed Cases page.
+
+* How do I revive/remove a case from Disposed Cases page to Active Cases page?
+= Simply choose any step/result other than Disposed in English/নিষ্পত্তি in Bengali and the case will be moved from the Disposed Cases page to Active Cases page.
+
+* I added a case but cannot find it using the search. How do I find it?
+= If you add a case information in English, then you will have to search specifically in English, vise versa for Bengali. You cannot find a case number in Bengali, if you wrote it in English.
+
+* How many days in advance the cases are shown in Upcomoning days?
+= By default, the app shows cases for upcoming 7 days. However, you can change this to your liking from Settings>View Settings>Upcoming Cases Period.
+
+* I don't like how cases are shown. Can I change this?
+= By default, the app shows cases in compact view, a card style view, to show as much data as possible in as little space as possible. However, you can change this and use extended view from the toggle beside search button in cases screen and from Settings>View Settings>Case List View.
+
 * Why the name of courts for certain districts are wrong?
-= We have collected the names of courts for all 64 district from Govt.'s https://causelist.judiciary.gov.bd/ website and used in the app without modification. However, you can modify name of courts as per your liking from Settings>.........
+= We have collected the names of courts for all 64 district from Govt.'s https://causelist.judiciary.gov.bd/ website and used them in the app without modification. However, you can modify name of courts as per your liking from Settings>Edit Court/Steps.
 
 * Can I use the app for free?
 = Absolutely. The offline version of the app is completely free to use.
 
-* Why cloud backup/online mode is not free?
-=
+* Why don't you offer cloud backup/online mode for free?
+= Cloud backup/Online mode requires backend service like Supabase, which cost us money. So, we basically take the money that requires to save your data securely online from you. And that is exactly why we can't offer this service for free.
 
 * In which court categories are Tribunals and Special Tribunals are located?
-= To show filtered case types, steps, on behalf etc for tribunals, we have moved tribunals of civil nature to District Judge Court (Civil), tribunals of criminal nature to Sessions Judge Court (Criminal), tribunals of criminal nature from metropolitan area to Metropolitan Sessions Judge Court (Criminal).
+= To show filtered case types, steps, on behalf etc for tribunals, we moved tribunals of civil nature to District Judge Court (Civil), tribunals of criminal nature to Sessions Judge Court (Criminal), tribunals of criminal nature from metropolitan area to Metropolitan Sessions Judge Court (Criminal) respectively.
 
 * Cannot find the court name you are looking for?
 = The courts are listed in the app under the following court categories:
@@ -41,9 +59,151 @@
 7. Judicial Magistrate Courts
 8. Cognizance Courts
 
+* I have a question/query that is not listed here. How do I reach you?
+= Please, contact us from Settings>Support.
+
+=================================================
+|Revised:					 |
+=================================================
 
 
+PART 1 — Guidelines (the four topic cards)
+Daily Cause List
 
+The Daily Cause List shows the hearings you have recorded for a single date, grouped by court in your court hierarchy, with a total for the day. Open the calendar to choose another date; today is selected by default.
+
+The list is built from your own case records, so it is only as accurate as they are. Keep each case's next date and latest step current, and record a hearing from the list itself as soon as you leave the courtroom. Cases whose hearing date has passed without an update appear under Overdue Dates until you record the outcome.
+
+Managing Case References
+
+Case Reference is your own library of citations, kept separately from any case. For each entry you can record the reference (for example, 25 DLR (AD) 142), the statute and section, a title and description, and private comments. Pin the entries you cite most often to keep them at the top of the list.
+
+General notes belong in Notes, which also stands on its own. Both allow you to undo a deletion immediately after making it.
+
+Offline Backup & Restore
+
+Your diary lives on this device. In Settings > Backup & Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a passphrase for the file, and the app never stores or sends it.
+
+Restore from backup reads a backup file and replaces the contents of the app with the file's contents. This cannot be undone, so make a fresh backup before restoring. If no backup has been made in the current month, the app displays a reminder you can dismiss once you have backed up.
+
+Security & Encryption
+
+Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your passphrase on the device itself with PBKDF2-HMAC-SHA256. Neither the passphrase nor the key is stored or transmitted anywhere.
+
+In the offline version, nothing leaves your phone unless you send it. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.
+
+PART 2 — FAQ
+Getting started
+Does the app work without an internet connection? Yes. The app is built to work fully offline — adding and editing cases, the Daily Cause List, printing and backups all work with no connection. Online sync is not part of the offline version.
+
+How do I add a case? Tap the + button on any cases page. The case is then filed automatically onto the relevant pages, based on the information you enter.
+
+Where does a case appear after I add it? A case appears on more than one page, each answering a different question: Active Cases lists everything still running; Upcoming Cases lists hearings within your chosen period; Daily Cause List shows the hearings for one date; All Cases is the full list with sorting and court filtering; Overdue Dates shows cases whose hearing date has passed without an update; and Disposed Cases holds cases you have marked as disposed.
+
+What is the difference between updating a case and editing a case? Update records a new step or result and adds it to the case's history — use it after each hearing. Edit Case changes the case's own details, such as the parties, court or case number — use it to correct recorded information.
+
+How do I mark a case as disposed? Open the case in the Update screen or the Edit Case form and select নিষ্পত্তি (Disposed). For Appellate Division and High Court Division cases you can also type "Disposed" or "নিষ্পত্তি". The case then moves from Active Cases to Disposed Cases.
+
+How do I move a case back to Active Cases? Open the case and choose any step or result other than নিষ্পত্তি (Disposed). The case returns to Active Cases.
+
+What happens when I delete a case? The case is removed from your diary and frees a slot on the free plan. Deletion cannot be undone, so delete only cases you no longer need a record of. Notes and case references, by contrast, can be undone immediately after deleting.
+
+What is the Overdue Dates page? It lists cases whose hearing date has passed without a recorded outcome, with the date they were last updated. It is the fastest way to find matters you have not yet caught up on. Recording a new step or result removes the case from the list.
+
+Finding and viewing cases
+I added a case but can't find it with search. Search matches the script you entered. A case recorded in English is found with an English query, and a case recorded in Bengali with a Bengali query. A Bengali case number will not match an English search, and vice versa.
+
+How far ahead does the Upcoming Cases list show hearings? By default, the next 7 days. To change this, go to Settings > View Settings > Upcoming Cases Period.
+
+Can I change how cases are displayed? The default compact view uses cards to fit as much information as possible into as little space as possible. Switch to extended view using the toggle beside the search field on the Cases screen, or in Settings > View Settings > Case List View.
+
+What does the Daily Cause List show? The hearings recorded in your diary for one date, grouped by court in your court hierarchy, with a total for the day. Choose the date from the calendar; today is selected by default.
+
+Notes, references and printing
+What is the difference between Notes and Case References? Notes holds free-form notes with a title and body. Case Reference is a structured library of citations — reference, statute, section, description and private comments — which you can pin. Both are separate from your cases and neither is linked to one automatically.
+
+What can I print? A case's details, and case lists. Print produces a formatted PDF and uses the device's printing options. Print is not available on the Notes and Case Reference screens.
+
+How do I contact a client about a case? A case that carries the client's phone number offers Call, Message and WhatsApp actions, and a prepared message containing the client's name, the case number, the next hearing date and the court. Review the message before sending — the app cannot check that the number or the hearing date is current.
+
+Backup and restore
+How do I back up my diary? Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. No account and no internet connection are required.
+
+Does the app back up automatically? Not in the offline version — each backup is started by you. If no backup has been made in the current month, the app displays a reminder, which you can dismiss.
+
+I forgot my passphrase. Can you recover it? No. The passphrase is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a passphrase you can keep safely.
+
+What does restoring a backup do to my current data? Restoring replaces everything currently in the app with the contents of the backup file. It does not merge, and it cannot be undone. Back up your current diary first if there is anything in it you may still need. If the app already holds data, it asks you to confirm before anything is replaced.
+
+How do I move my diary to a new phone? Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings > Backup & Restore, and use Restore from backup with the same passphrase.
+
+Can I use a backup made by a different version of the app? Backups made by older versions are upgraded automatically when restored. A backup made by a newer version than the one you are running is refused, so update the app first and then restore.
+
+What happens to my data if I delete the app or lose my phone? In the offline version your diary is stored only on the device, so uninstalling the app or losing the phone also loses the data unless you hold a backup file. Keep a recent backup, and store a copy somewhere outside the phone.
+
+Notifications
+Why didn't my hearing notification arrive? Most Android phones stop background apps to save battery, which prevents hearing alerts. In Settings > Notifications, tap Battery & Auto-Start Setup Guide and follow the steps for your phone, then use Send Test Notification to confirm that alerts arrive.
+
+Can I change when hearing notifications are sent? Yes. In Settings > Notifications you can choose the day offset — the same day, the day before, or a number of days before the hearing — and the time of day. Notifications can be turned off entirely from the same screen.
+
+Language and display
+How do I change the app language? Go to Settings > Language and choose English or বাংলা. The change applies throughout the app, and numbers are displayed in the numerals of the selected language. The language of the app does not change the language your case data was entered in, which is what search matches against.
+
+Free plan and premium
+Is the app free? Yes. The offline app costs nothing to use and holds up to 50 cases. Premium raises that limit and will add online sync when it launches.
+
+Why can't I add a case? The free plan holds up to 50 cases. At the limit, the Add Case form opens the premium screen instead. Nothing is hidden or deleted — you can still view, edit, print and delete every case you have, and deleting a case frees a slot.
+
+What stays free? Everything except adding cases beyond the limit: viewing, editing, updating, deleting and printing cases, the Daily Cause List, Client details and contact actions, Notes, Case References, and Backup & Restore.
+
+Why isn't cloud backup offered for free? Cloud backup and online mode depend on a backend service, which we pay for. Your subscription will cover the cost of storing your data securely online, which is why that service cannot be offered at no charge.
+
+Can I subscribe now? Not yet. The premium screen shows the available plans, but purchases open with the online version. Until then the offline app is fully usable, and your data stays on your device.
+
+Courts and customisation
+Why are some district court names not what I expect? We sourced court names for all 64 districts from the Government's Cause List website (causelist.judiciary.gov.bd) and used them unchanged. You can rename any court to your preference in Settings > Edit Court/Steps.
+
+Can I add my own courts, case types, steps or on-behalf items? Yes. Settings > Edit Court/Steps lets you add, rename and delete the courts, case types, steps and on-behalf entries used in the Add and Edit Case forms. Deleting an item cannot be undone.
+
+Where do Tribunals and Special Tribunals appear? So that tribunals display the correct case types, steps and on-behalf options, we grouped them by subject:
+
+Civil tribunals → District Judge Court (Civil)
+Criminal tribunals → Sessions Judge Court (Criminal)
+Criminal tribunals in metropolitan areas → Metropolitan Sessions Judge Court (Criminal)
+I can't find the court I'm looking for. Courts are listed under the following categories:
+
+District Judge Court (Civil)
+
+District and Additional District Judge Courts
+Joint District Judge Courts
+Civil & Senior Civil Judge Courts
+Family Courts & Family Appeal Court
+Land Survey Tribunal & Land Survey Appeal Tribunal
+Commercial Court
+Labour Court
+Sessions Judge Court (Criminal) and Metropolitan Sessions Judge Court (Criminal)
+
+Sessions and Additional Sessions Judge Courts
+Joint Sessions Judge Courts
+Women and Child Abuse Suppression Tribunal
+Child Violence Prevention Tribunal
+Special Tribunals
+Chief Judicial Magistrate and Chief Metropolitan Magistrate
+
+Chief and Additional Chief Judicial Magistrate
+Special Magistrate Courts
+Speedy Trial Court
+Environment Court
+Forest Court
+Senior Judicial Magistrate Courts
+Judicial Magistrate Courts
+Cognizance Courts
+Data, privacy and support
+Where is my data stored, and who can see it? In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else, and no account is required. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.
+
+Is the app a substitute for court records? No. The app is a personal record-keeping tool for your own practice. Information in it is entered by you, and the official cause list and court records remain authoritative. Always verify a hearing date against the court before relying on it.
+
+My question isn't answered here. Please write to us at [your support address] and describe what you were doing when the problem occurred, together with your phone model and app version from Settings > About.
 
 
 

@@ -1134,6 +1134,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'No backup has been made yet.';
 
   @override
+  String get backupNudge_message =>
+      'You have not backed up this month. Your cases live only on this phone — save a backup to keep them safe.';
+
+  @override
+  String get backupNudge_action => 'Back up to local storage';
+
+  @override
+  String get backupNudge_dismiss => 'Dismiss for this month';
+
+  @override
   String get settingsBackupRestore_driveShareTitle => 'Send to Google Drive?';
 
   @override

@@ -1135,6 +1135,16 @@ class AppLocalizationsBn extends AppLocalizations {
       'এখনো কোনো ব্যাকআপ করা হয়নি।';
 
   @override
+  String get backupNudge_message =>
+      'এই মাসে কোনো ব্যাকআপ নেওয়া হয়নি। আপনার মামলাগুলো শুধু এই ফোনেই আছে — নিরাপদ রাখতে একটি ব্যাকআপ সংরক্ষণ করুন।';
+
+  @override
+  String get backupNudge_action => 'লোকাল স্টোরেজে ব্যাকআপ';
+
+  @override
+  String get backupNudge_dismiss => 'এই মাসের জন্য বন্ধ করুন';
+
+  @override
   String get settingsBackupRestore_driveShareTitle => 'গুগল ড্রাইভে পাঠাবেন?';
 
   @override

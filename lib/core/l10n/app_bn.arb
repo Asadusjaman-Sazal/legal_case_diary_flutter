@@ -262,6 +262,42 @@
   "sync_paused": "সিঙ্ক বিরতি",
   "sync_error": "সিঙ্ক ত্রুটি",
   "sync_unavailable": "সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন",
+  "paywall_title": "প্রিমিয়াম",
+  "paywall_limitTitle": "ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে",
+  "paywall_limitBody": "ফ্রি প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; ক্লায়েন্ট ম্যানেজমেন্ট, দৈনিক মামলার তালিকা, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকে।",
+  "@paywall_limitBody": {
+      "placeholders": {
+          "limit": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_benefitsTitle": "প্রিমিয়ামে যা থাকে",
+  "paywall_benefitUnlimitedCases": "আনলিমিটেড মামলা",
+  "paywall_benefitCloudBackup": "নিরাপদ এনক্রিপ্টেড ক্লাউড ব্যাকআপ",
+  "paywall_benefitMultiDevice": "যে ডিভাইসেই সাইন ইন করুন, ডায়েরি সেখানেই",
+  "paywall_benefitFirmMode": "সহকারীদের জন্য ফার্ম মোড",
+  "paywall_plansTitle": "প্ল্যান",
+  "paywall_planMonthly": "মাসিক",
+  "paywall_planMonthlyPrice": "৳{price} / মাস",
+  "@paywall_planMonthlyPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planAnnual": "বার্ষিক",
+  "paywall_planAnnualPrice": "৳{price} / বছর",
+  "@paywall_planAnnualPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_comingSoon": "শীঘ্রই আসছে",
+  "paywall_note": "সাবস্ক্রিপশন এখনো চালু হয়নি। এই স্ক্রিনে দেখা যাচ্ছে প্রিমিয়ামে কী থাকবে এবং কোন প্ল্যানের দাম কত।",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "আগামীকাল",
   "sharedActions_save": "সংরক্ষণ",

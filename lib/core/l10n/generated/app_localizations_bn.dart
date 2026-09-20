@@ -600,6 +600,59 @@ class AppLocalizationsBn extends AppLocalizations {
       'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
 
   @override
+  String get paywall_title => 'প্রিমিয়াম';
+
+  @override
+  String get paywall_limitTitle => 'ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে';
+
+  @override
+  String paywall_limitBody(String limit) {
+    return 'ফ্রি প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; ক্লায়েন্ট ম্যানেজমেন্ট, দৈনিক মামলার তালিকা, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকে।';
+  }
+
+  @override
+  String get paywall_benefitsTitle => 'প্রিমিয়ামে যা থাকে';
+
+  @override
+  String get paywall_benefitUnlimitedCases => 'আনলিমিটেড মামলা';
+
+  @override
+  String get paywall_benefitCloudBackup => 'নিরাপদ এনক্রিপ্টেড ক্লাউড ব্যাকআপ';
+
+  @override
+  String get paywall_benefitMultiDevice =>
+      'যে ডিভাইসেই সাইন ইন করুন, ডায়েরি সেখানেই';
+
+  @override
+  String get paywall_benefitFirmMode => 'সহকারীদের জন্য ফার্ম মোড';
+
+  @override
+  String get paywall_plansTitle => 'প্ল্যান';
+
+  @override
+  String get paywall_planMonthly => 'মাসিক';
+
+  @override
+  String paywall_planMonthlyPrice(String price) {
+    return '৳$price / মাস';
+  }
+
+  @override
+  String get paywall_planAnnual => 'বার্ষিক';
+
+  @override
+  String paywall_planAnnualPrice(String price) {
+    return '৳$price / বছর';
+  }
+
+  @override
+  String get paywall_comingSoon => 'শীঘ্রই আসছে';
+
+  @override
+  String get paywall_note =>
+      'সাবস্ক্রিপশন এখনো চালু হয়নি। এই স্ক্রিনে দেখা যাচ্ছে প্রিমিয়ামে কী থাকবে এবং কোন প্ল্যানের দাম কত।';
+
+  @override
   String get general_tomorrow => 'আগামীকাল';
 
   @override

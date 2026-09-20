@@ -1202,6 +1202,96 @@ abstract class AppLocalizations {
   /// **'Sync requires a premium subscription'**
   String get sync_unavailable;
 
+  /// No description provided for @paywall_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get paywall_title;
+
+  /// No description provided for @paywall_limitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan limit reached'**
+  String get paywall_limitTitle;
+
+  /// No description provided for @paywall_limitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Client Management, the Daily Cause List, editing and printing — stays free.'**
+  String paywall_limitBody(String limit);
+
+  /// No description provided for @paywall_benefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium includes'**
+  String get paywall_benefitsTitle;
+
+  /// No description provided for @paywall_benefitUnlimitedCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited cases'**
+  String get paywall_benefitUnlimitedCases;
+
+  /// No description provided for @paywall_benefitCloudBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure encrypted cloud backup'**
+  String get paywall_benefitCloudBackup;
+
+  /// No description provided for @paywall_benefitMultiDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your diary on every device you sign in on'**
+  String get paywall_benefitMultiDevice;
+
+  /// No description provided for @paywall_benefitFirmMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm mode for your associates'**
+  String get paywall_benefitFirmMode;
+
+  /// No description provided for @paywall_plansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get paywall_plansTitle;
+
+  /// No description provided for @paywall_planMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get paywall_planMonthly;
+
+  /// No description provided for @paywall_planMonthlyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{price} per month'**
+  String paywall_planMonthlyPrice(String price);
+
+  /// No description provided for @paywall_planAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get paywall_planAnnual;
+
+  /// No description provided for @paywall_planAnnualPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{price} per year'**
+  String paywall_planAnnualPrice(String price);
+
+  /// No description provided for @paywall_comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get paywall_comingSoon;
+
+  /// No description provided for @paywall_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.'**
+  String get paywall_note;
+
   /// No description provided for @general_tomorrow.
   ///
   /// In en, this message translates to:

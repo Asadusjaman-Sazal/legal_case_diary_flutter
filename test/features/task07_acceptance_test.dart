@@ -19,6 +19,7 @@ import 'package:legal_case_diary/features/cases/data/case_repository.dart';
 import 'package:legal_case_diary/features/cases/data/local/case_history_dao.dart';
 import 'package:legal_case_diary/features/cases/data/local/cases_dao.dart';
 import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
+import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
 import 'package:legal_case_diary/features/settings/data/local/case_notification_preferences_dao.dart';
 import 'package:legal_case_diary/features/settings/data/local/case_types_dao.dart';
 import 'package:legal_case_diary/features/settings/data/local/court_categories_dao.dart';
@@ -192,14 +193,22 @@ void main() {
   SettingsRepository settingsRepository() =>
       LocalSettingsRepository(UserPreferencesDao(db), identity);
 
+  /// The app's providers under a plain [MaterialApp] (`child`) or a
+  /// [MaterialApp.router] (`router`) — the free-tier gate needs the latter,
+  /// because it navigates with `context.push`.
   ProviderScope appScope(
-    Widget child, {
+    Widget? child, {
     CaseWritePermissions permissions = const CaseWritePermissions(
       canAdd: true,
       canEdit: true,
     ),
     Locale locale = const Locale('en'),
+    GoRouter? router,
   }) {
+    assert(
+      (child == null) != (router == null),
+      'pass exactly one of child and router',
+    );
     return ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
@@ -215,13 +224,99 @@ void main() {
         ),
         caseWritePermissionsProvider.overrideWith((_) async => permissions),
       ],
-      child: MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: locale,
-        home: child,
+      child: router == null
+          ? MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: locale,
+              home: child,
+            )
+          : MaterialApp.router(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: locale,
+              routerConfig: router,
+            ),
+    );
+  }
+
+  /// Opens the Add Case form under a router that can reach the paywall.
+  ///
+  /// The sheet is opened the way the app opens it — as a modal route of its own
+  /// — because the gate navigates relative to the sheet and a successful save
+  /// pops the sheet's route; a form mounted as the root body has no route to
+  /// pop and would take the whole tree with it.
+  Future<void> openFormWithPaywall(WidgetTester tester) async {
+    final host = Scaffold(
+      body: Builder(
+        builder: (context) => ElevatedButton(
+          key: const ValueKey('open-task07-form'),
+          onPressed: () => AddEditCaseSheet.show<void>(
+            context,
+            lookupData: lookupData,
+            initialNextDate: DateTime(2026, 7, 31),
+          ),
+          child: const Text('Open form'),
+        ),
       ),
     );
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => host),
+        GoRoute(
+          path: AppRoutes.paywall,
+          builder: (context, state) => const PaywallScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(appScope(null, router: router));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('open-task07-form')));
+    await tester.pumpAndSettle();
+  }
+
+  /// Inserts [count] live cases, for tests that start near the free limit.
+  Future<List<Case>> seedLiveCases(int count, {String prefix = 'SEED'}) async {
+    final ids = <String>[];
+    for (var index = 0; index < count; index++) {
+      ids.add(
+        await caseRepository.insertCase(
+          CasesCompanion(
+            caseNumber: Value('$prefix-$index'),
+            petitioner: const Value('Alice'),
+            respondent: const Value('Bob'),
+            courtId: Value(courtId),
+            caseType: const Value('Civil'),
+            onBehalfId: Value(onBehalfId),
+          ),
+        ),
+      );
+    }
+    return [for (final id in ids) (await caseRepository.getById(id))!];
+  }
+
+  /// Fills the minimum an acceptance-division case needs and saves it.
+  Future<void> fillAndSaveAcceptanceCase(
+    WidgetTester tester, {
+    required String caseNumber,
+  }) async {
+    await _select(tester, const ValueKey('add-edit-higher-lower-court'));
+    await tester.tap(find.byKey(const ValueKey('appellate_division')));
+    await tester.pumpAndSettle();
+    await _select(tester, const ValueKey('add-edit-name-of-court'));
+    await tester.tap(find.text('Acceptance High Court'));
+    await tester.pumpAndSettle();
+    await _selectAcceptanceCaseCategory(tester);
+    await _select(tester, const ValueKey('add-edit-case-type'));
+    await tester.tap(find.text('Civil'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('add-edit-case-number')),
+      caseNumber,
+    );
+    await tester.tap(find.byKey(const ValueKey('add-edit-save')));
+    await tester.pumpAndSettle();
   }
 
   Future<void> openForm(
@@ -561,7 +656,7 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.paywall,
-          builder: (context, state) => const Text('Paywall — Task 15'),
+          builder: (context, state) => const PaywallScreen(),
         ),
       ],
     );
@@ -608,7 +703,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Paywall — Task 15'), findsOneWidget);
+    // The gate lands on the real paywall, which says why it opened.
+    expect(find.byType(PaywallScreen), findsOneWidget);
+    expect(find.text('Free plan limit reached'), findsOneWidget);
     expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
   });
 
@@ -661,8 +758,86 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('add-edit-save')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Paywall — Task 15'), findsNothing);
+    expect(find.byType(PaywallScreen), findsNothing);
     expect(await CasesDao(db).getNonDeletedCaseCount(), 51);
+  });
+
+  testWidgets('soft-deleted cases never count against the free limit', (
+    WidgetTester tester,
+  ) async {
+    // 51 rows exist, but two are tombstones: the limit counts live cases only,
+    // so this database is two cases below the gate, not one above it.
+    final seeded = await seedLiveCases(51, prefix: 'TOMBSTONE');
+    await caseRepository.deleteCase(seeded[0]);
+    await caseRepository.deleteCase(seeded[1]);
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 49);
+
+    await openFormWithPaywall(tester);
+    await fillAndSaveAcceptanceCase(tester, caseNumber: 'FIFTIETH/2026');
+
+    expect(find.byType(PaywallScreen), findsNothing);
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
+  });
+
+  testWidgets('deleting a case makes room under the free limit', (
+    WidgetTester tester,
+  ) async {
+    final seeded = await seedLiveCases(50, prefix: 'FULL');
+
+    // At exactly 50 live cases a free user is blocked, and the paywall says so.
+    await openFormWithPaywall(tester);
+    await fillAndSaveAcceptanceCase(tester, caseNumber: 'BLOCKED/2026');
+    expect(find.byType(PaywallScreen), findsOneWidget);
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
+
+    // The way back is a delete, not a payment: a soft-deleted case never counts.
+    await caseRepository.deleteCase(seeded.first);
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 49);
+
+    await openFormWithPaywall(tester);
+    await fillAndSaveAcceptanceCase(tester, caseNumber: 'MADE-ROOM/2026');
+    expect(find.byType(PaywallScreen), findsNothing);
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
+  });
+
+  testWidgets('editing a case is never gated by the free limit', (
+    WidgetTester tester,
+  ) async {
+    // One case the form can actually reopen: the bare seeded rows carry no case
+    // category or next date, and an edit passes the same mandatory-field
+    // validation the form always applies.
+    final editableId = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('EDITABLE-1'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseCategoryId: const Value('acceptance-case-category'),
+        caseType: const Value('Civil'),
+        onBehalfId: Value(onBehalfId),
+        nextDate: const Value(1),
+      ),
+    );
+    final existing = (await caseRepository.getById(editableId))!;
+    await seedLiveCases(49, prefix: 'EDIT');
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
+
+    // A lapsed-premium user with 200 cases keeps every one of them editable,
+    // viewable and deletable — only *adding* past the limit is gated.
+    await openForm(tester, initialCase: existing);
+    await tester.enterText(
+      find.byKey(const ValueKey('add-edit-case-number')),
+      'EDITED/2026',
+    );
+    await tester.tap(find.byKey(const ValueKey('add-edit-save')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PaywallScreen), findsNothing);
+    expect(
+      (await CasesDao(db).getById(existing.id))?.caseNumber,
+      'EDITED/2026',
+    );
+    expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
   });
 
   testWidgets('Add and Edit persist the case and notification JSON', (

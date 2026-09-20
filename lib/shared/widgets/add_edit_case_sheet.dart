@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/constants/free_tier.dart';
 import '../../core/constants/pre_seeded_data.dart';
 import '../../core/l10n/app_translations.dart';
 import '../../core/l10n/generated/app_localizations.dart';
@@ -1585,7 +1586,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           db,
           identity.getId(),
         );
-        if (count >= 50 && !hasPremiumAccess) {
+        if (count >= freeTierCaseLimit && !hasPremiumAccess) {
           if (mounted) {
             setState(() => _isSaving = false);
             context.push(AppRoutes.paywall);

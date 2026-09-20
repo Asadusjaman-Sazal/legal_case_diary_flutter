@@ -601,6 +601,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sync_unavailable => 'Sync requires a premium subscription';
 
   @override
+  String get paywall_title => 'Premium';
+
+  @override
+  String get paywall_limitTitle => 'Free plan limit reached';
+
+  @override
+  String paywall_limitBody(String limit) {
+    return 'The free plan holds up to $limit cases. Deleting a case frees a slot, and everything else — Client Management, the Daily Cause List, editing and printing — stays free.';
+  }
+
+  @override
+  String get paywall_benefitsTitle => 'Premium includes';
+
+  @override
+  String get paywall_benefitUnlimitedCases => 'Unlimited cases';
+
+  @override
+  String get paywall_benefitCloudBackup => 'Secure encrypted cloud backup';
+
+  @override
+  String get paywall_benefitMultiDevice =>
+      'Your diary on every device you sign in on';
+
+  @override
+  String get paywall_benefitFirmMode => 'Firm mode for your associates';
+
+  @override
+  String get paywall_plansTitle => 'Plans';
+
+  @override
+  String get paywall_planMonthly => 'Monthly';
+
+  @override
+  String paywall_planMonthlyPrice(String price) {
+    return '৳$price per month';
+  }
+
+  @override
+  String get paywall_planAnnual => 'Annual';
+
+  @override
+  String paywall_planAnnualPrice(String price) {
+    return '৳$price per year';
+  }
+
+  @override
+  String get paywall_comingSoon => 'Coming soon';
+
+  @override
+  String get paywall_note =>
+      'Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.';
+
+  @override
   String get general_tomorrow => 'Tomorrow';
 
   @override

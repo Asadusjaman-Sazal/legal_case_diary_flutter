@@ -64,15 +64,29 @@ Uri smsUri(String number, String body) =>
 ///
 /// Used by the Support screen, whose pre-filled message is written once and
 /// handed to both channels.
+///
+/// The query is encoded pair by pair with [Uri.encodeComponent] instead of
+/// `queryParameters`: `Uri`'s own query encoder writes a space as `+` (it is
+/// built for HTML form bodies, where `+` means space), but a mail client reads
+/// the `body` literally, so every space in the message arrived as a plus sign.
+/// `%20` is the encoding every mail app decodes as a space.
 Uri mailtoUri(String address, String subject, String body) => Uri(
   scheme: 'mailto',
   path: address,
-  queryParameters: {'subject': subject, 'body': body},
+  query: '${_mailtoField('subject', subject)}&${_mailtoField('body', body)}',
 );
+
+/// One `mailto:` query field, percent-encoded so a space stays a space.
+String _mailtoField(String name, String value) =>
+    '${Uri.encodeComponent(name)}=${Uri.encodeComponent(value)}';
 
 /// `https://wa.me/<number>?text=<message>` — WhatsApp's documented chat route.
 ///
 /// This is the fallback the Addendum asks for: WhatsApp publishes no call URL
 /// scheme, so the app opens the chat and never invents a call scheme.
+///
+/// This one keeps `queryParameters` (the form-style `+`-for-space encoding)
+/// on purpose: WhatsApp's handler decodes `+` as a space, so the message the
+/// user sees is unaffected - unlike `mailto:` above, which is read literally.
 Uri whatsAppUri(String number, String message) =>
     Uri.https('wa.me', '/$number', {'text': message});

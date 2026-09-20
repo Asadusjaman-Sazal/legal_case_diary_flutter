@@ -117,6 +117,16 @@ void main() {
       expect(whatsApp.host, 'wa.me');
       expect(whatsApp.path, '/8801812332721');
       expect(whatsApp.queryParameters['text'], 'Dear Client, hello');
+
+      // A mail client reads the body literally, so a space must never be
+      // written as `+` (it did once, and every space arrived as a plus sign).
+      final mail = mailtoUri('dev@example.com', 'Subject here', 'Dear\nDev');
+      expect(mail.scheme, 'mailto');
+      expect(mail.path, 'dev@example.com');
+      expect(mail.query, isNot(contains('+')));
+      expect(mail.query, contains('%20'));
+      expect(mail.queryParameters['subject'], 'Subject here');
+      expect(mail.queryParameters['body'], 'Dear\nDev');
     });
   });
 

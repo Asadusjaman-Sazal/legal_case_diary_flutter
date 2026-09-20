@@ -26,22 +26,21 @@ Binding project-wide rules for all agents. Task-specific requirements live in `d
 
 1. Run `flutter analyze`; fix ALL errors and warnings you introduced. Phase is not complete until clean.
 2. **Read Files:** Read `docs/version_history.md`, `pubspec.yaml`, and `docs/currentlyWorking.md`.
-3. **Increment Version:** Read the current version under `## Current Version` in `docs/version_history.md`. Sequentially increment the **patch** component (`X.Y.Z` → `X.Y.Z+1`). Do not guess or recall from memory.
-4. **Format Entry:** Format entry as: `Version: X.Y.Z - [brief summary]`
-5. **Update `docs/version_history.md`:**
-   - Replace the line directly under `## Current Version` with the new entry.
-   - Append the **exact same line** to the bottom of `## Version History` (never insert at top, duplicate headings, or alter past entries).
-6. **Update `pubspec.yaml`:** Set `version: X.Y.Z` (exact numeric string only, no prefix or summary).
+3. **Record the version with the script, never by hand:** `python tool/record_version.py --summary "One short, precise sentence."` reads the version under `## Current Version`, increments the **patch** component (`X.Y.Z` → `X.Y.Z+1`), writes the new entry as the **only** entry there (it replaces the previous one — a new entry is never placed above it), appends that same line directly under the last line of `## Version History Log` (never after a blank line), and updates `pubspec.yaml` and `lib/core/constants/app_version.dart`. Do not edit those four places by hand.
+4. **Keep the summary short and precise:** one sentence, at most 300 characters, saying what changed and why. The long account (request, decisions, tests, resume point) belongs in `docs/currentlyWorking.md`.
+5. **The rules are enforced, not remembered.** `test/core/version_history_test.dart` fails the suite on a duplicated `## Current Version` entry, an entry missing from the end of the history, a blank or stray line between entries, an over-long entry, or a version that does not increase; `python tool/record_version.py --check` reports the same without writing. Fix the log with the script, never by hand.
+6. **`pubspec.yaml` and `lib/core/constants/app_version.dart`:** the script above writes both to the new version, so there is nothing to do by hand; if you ever write them by hand, keep the exact numeric string (no prefix or summary) and re-run `python tool/record_version.py --check`.
 7. **Update `docs/currentlyWorking.md`:** Document completed phase and next resume point.
 8. **File Layout Reference (`docs/version_history.md`)**
 ```markdown
-- ## Current Version
+## Current Version:
 Version: 0.0.41 - Task 07 Phase 1 complete: ...
 
-- ## Version History
+## Version History Log:
 ...
 Version: 0.0.40 - Task 06 Phase 4 complete: ...
 Version: 0.0.41 - Task 07 Phase 1 complete: ...
+```
 
 ## Session protocol
 

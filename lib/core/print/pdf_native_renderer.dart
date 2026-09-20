@@ -157,14 +157,14 @@ class PdfNativeRenderer {
       children: [
         pw.Text(
           document.title,
-          style: pw.TextStyle(font: set.headline, fontSize: 18),
+          style: pw.TextStyle(font: set.headline, fontSize: 25),
         ),
         if (document.subtitle.trim().isNotEmpty)
           pw.Padding(
             padding: const pw.EdgeInsets.only(top: 2),
             child: pw.Text(
               document.subtitle,
-              style: pw.TextStyle(font: set.body, fontSize: 9, color: PdfColors.grey700),
+              style: pw.TextStyle(font: set.body, fontSize: 13, color: PdfColors.grey700),
             ),
           ),
         pw.SizedBox(height: 6),
@@ -176,7 +176,7 @@ class PdfNativeRenderer {
   pw.Widget _metaLine(PrintField field, PrintFontSet set) {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(top: 4),
-      child: _labelledRow(field, set, labelWidth: 84),
+      child: _labelledRow(field, set, labelWidth: 126),
     );
   }
 
@@ -186,7 +186,7 @@ class PdfNativeRenderer {
       padding: const pw.EdgeInsets.only(top: 12, bottom: 2),
       child: pw.Text(
         heading,
-        style: pw.TextStyle(font: set.headline, fontSize: 12),
+        style: pw.TextStyle(font: set.headline, fontSize: 18),
       ),
     );
   }
@@ -206,7 +206,7 @@ class PdfNativeRenderer {
           if (heading.isNotEmpty)
             pw.Text(
               heading,
-              style: pw.TextStyle(font: set.data, fontSize: 10.5),
+              style: pw.TextStyle(font: set.data, fontSize: 16),
             ),
           for (final field in entry.fields)
             pw.Padding(
@@ -222,7 +222,7 @@ class PdfNativeRenderer {
   pw.Widget _labelledRow(
     PrintField field,
     PrintFontSet set, {
-    double labelWidth = 96,
+    double labelWidth = 158,
   }) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -233,7 +233,7 @@ class PdfNativeRenderer {
             field.label,
             style: pw.TextStyle(
               font: set.data,
-              fontSize: 8,
+              fontSize: 12,
               color: PdfColors.grey700,
             ),
           ),
@@ -241,7 +241,7 @@ class PdfNativeRenderer {
         pw.Expanded(
           child: pw.Text(
             field.value,
-            style: pw.TextStyle(font: set.body, fontSize: 9.5),
+            style: pw.TextStyle(font: set.body, fontSize: 14),
           ),
         ),
       ],
@@ -257,11 +257,11 @@ class PdfNativeRenderer {
         children: [
           pw.Text(
             document.footer,
-            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+            style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
           ),
           pw.Text(
             document.pageLabel(page, total),
-            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+            style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
           ),
         ],
       ),

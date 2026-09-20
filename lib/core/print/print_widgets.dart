@@ -37,7 +37,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Manrope',
     fontFamilyFallback: _bengali,
-    fontSize: 15,
+    fontSize: 25,
     height: 1.3,
     color: ink,
     fontWeight: FontWeight.w600,
@@ -48,7 +48,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
-    fontSize: 8,
+    fontSize: 13,
     height: 1.4,
     color: muted,
   );
@@ -58,7 +58,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Manrope',
     fontFamilyFallback: _bengali,
-    fontSize: 11,
+    fontSize: 18,
     height: 1.3,
     color: ink,
     fontWeight: FontWeight.w600,
@@ -69,7 +69,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'IBMPlexSans',
     fontFamilyFallback: _bengali,
-    fontSize: 9.5,
+    fontSize: 16,
     height: 1.35,
     color: ink,
     fontWeight: FontWeight.w600,
@@ -80,7 +80,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
-    fontSize: 8.5,
+    fontSize: 14,
     height: 1.4,
     color: ink,
   );
@@ -90,7 +90,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'IBMPlexSans',
     fontFamilyFallback: _bengali,
-    fontSize: 7,
+    fontSize: 12,
     height: 1.4,
     color: muted,
   );
@@ -100,7 +100,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
-    fontSize: 8,
+    fontSize: 13,
     height: 1.4,
     color: muted,
   );
@@ -110,7 +110,7 @@ abstract final class PrintStyle {
     inherit: false,
     fontFamily: 'Inter',
     fontFamilyFallback: _bengali,
-    fontSize: 7,
+    fontSize: 12,
     height: 1.4,
     color: muted,
   );
@@ -130,7 +130,11 @@ abstract final class PrintStyle {
   static const Color page = Color(0xFFFFFFFF);
 
   /// Width of a field's label column.
-  static const double labelColumnWidth = 92;
+  ///
+  /// Scaled with the label (92 pt at the old 7 pt label); at the current 12 pt
+  /// it keeps the longest label (`Respondent's Lead Counsel`) on one line, so a
+  /// bigger type does not turn every field row into two label lines.
+  static const double labelColumnWidth = 158;
 
   static const List<String> _bengali = ['TiroBangla'];
 }

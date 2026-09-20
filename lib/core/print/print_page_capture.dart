@@ -42,9 +42,10 @@ class PrintPageBudget {
   /// A4 height in points.
   static const double a4Height = 841.89;
 
-  /// Space reserved for the page's own footer line and page counter (the rule,
-  /// its padding and the text line).
-  static const double footerHeight = 20;
+  /// Space reserved for the page's own footer line and page counter (the top
+  /// padding and the text line). Sized to the footer's own type: 12 pt at a
+  /// 1.4 line height plus the 4 pt gap is 20.8 pt.
+  static const double footerHeight = 24;
 
   /// Page width in points.
   final double pageWidth;

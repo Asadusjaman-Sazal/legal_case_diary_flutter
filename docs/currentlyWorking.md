@@ -1,3 +1,14 @@
+### 2026-09-20 — Print type enlarged: a field's value is 14 pt, and the two renderers now share one scale — COMPLETE
+
+- **The request:** the field values on a printout (Petitioner, Respondent, …) should read at 14 pt, with the rest of the type scaled to match and the page still fitting A4 ("field values like Petitioner, Respondent" maps to `PrintStyle.value`, which was the 8.5 pt / 9.5 pt row in the size table).
+- **One scale, not two.** The native (Latin-only) and raster (Bengali) renderers had drifted apart — 18 vs 15 title, 9.5 vs 8.5 value, 8 vs 7 label — so the same document printed visibly smaller in Bengali. Both now use: title 25, subtitle 13, group heading 18, entry heading 16, **field value 14**, field label 12, header fact 13, footer 12. That resolves the drift flagged when the sizes were first asked about.
+- **The label column had to grow with the label.** A fixed 92 pt column holding the old 7 pt label would wrap `Respondent's Lead Counsel` and `Remarks or Case Summary` at 12 pt, so `labelColumnWidth` is 158 (92 × 12/7) and the native field/meta widths are 158/126 — the longest labels still fit one line.
+- **The footer reservation had to grow too.** A 12 pt footer at a 1.4 line height plus its 4 pt gap is 20.8 pt, past the old `footerHeight` of 20; it is now 24, so the paginator never under-reserves and the page cannot overrun.
+- **Fit was measured, not assumed.** A real 40-entry Bengali cause list (seven fields each) rendered through the raster path makes **11 A4 pages at 3.6 entries per page with no overflow** — the paginator measures the very blocks it draws, so larger type costs entries per page rather than spilling off the sheet. A 40-case list is thus ~11 sheets; if that is too many, the title/heading sizes (25/18) are the cheapest to trim.
+- **Tests.** `flutter analyze` clean; **479 passed, 2 skipped** (no new tests: the existing Bengali-dialog capture, the opacity check and the 200-row pagination test all still pass at the new sizes).
+- **Version `0.0.224`.**
+- **Resume point:** unchanged — Task 14 remains device-only for the manual print preview and the four contact-launch paths; next task in order `docs/tasks/15_backup_restore_and_free_tier_gating.md`.
+
 ### 2026-09-20 — The double yellow underline on a print, found at last: the fallback text style — COMPLETE
 
 - **The attached Bengali print finally identified the "doubled, tinted line".** 0.0.221 and 0.0.222 chased it through the line rules and the alpha mask and concluded the app drew no yellow at all — the file was read back byte by byte this time, and it *does*: the embedded page image carries **20,261 pixels of pure `#FFFF00` blended with white**, in two thin lines under *every* text line of the Case Detail sheet. That is a yellow **double underline**, not a rule, and no rule, alpha mask or colour transform could produce it.

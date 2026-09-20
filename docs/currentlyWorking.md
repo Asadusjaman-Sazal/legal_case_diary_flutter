@@ -1,3 +1,13 @@
+### 2026-09-20 — More About the App: the outlined actions stop painting black — COMPLETE
+
+- **The report:** the “Check for updates” button had a weird background and text colour and needed to line up with the theme and the screen's other buttons.
+- **The cause was the theme, not that button.** `AppTheme.lightTheme` gives every `OutlinedButton` a black surface, and the button only overrode its foreground and border — so it rendered **blue text on black**. Measured rather than assumed: a probe pumped the screen under the real theme and read the painted `Material` colour, which came back `0xFF000000`.
+- **The same leak hit “Share App”**, which showed **navy text on black** — effectively unreadable, and the mockup never asked for a black outlined button in either place (it specifies `border-secondary text-secondary`). Both now set their surface explicitly to `Colors.transparent` and keep the app's palette: the update action a secondary border and label, share a primary label with an `outlineVariant` border. The update action also takes the screen's button radius (`sheetRadius`) and drops the duplicated colour on its `Text`, so the label colour has one source.
+- **Why no test caught it, and what now does.** The shared settings test harness pumps a plain `MaterialApp` with **no theme**, so every theme-driven colour bug is invisible to the suite. Rather than changing that shared harness (which would affect many suites), `settings_about_test.dart` gained a test that pumps this screen under `AppTheme.lightTheme` and asserts the surface behind each outlined action's label is **not** black. `settings_about_test.dart` is now 9 tests.
+- **Not changed:** the theme itself still paints outlined buttons black globally (the battery-guide and dropdown actions rely on it), and the More About **Share App** button still only reports “Arrives in a later task” although the side-navigation Share works — the same action still behaves differently in two places.
+- **Version `0.0.237`.** No new dependency. `flutter analyze` clean; `flutter test` 583 passed, 2 skipped.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-20 — Settings > About: FAQ row removed, More About the App rewritten — COMPLETE
 
 - **The request:** drop the FAQ row from About, rewrite the More About the App section so its copy matches the app, and keep the version log short.

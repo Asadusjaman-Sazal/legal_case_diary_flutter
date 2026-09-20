@@ -88,19 +88,20 @@ class MoreAboutTheAppScreen extends StatelessWidget {
                 ),
                 OutlinedButton(
                   onPressed: () => _showPending(context, l),
+                  // The app theme paints every outlined button black, which the
+                  // mockup never asked for here — it is an outlined secondary
+                  // action (`border-secondary text-secondary`). The surface is
+                  // therefore set explicitly so the colour cannot leak in and
+                  // leave blue text on black.
                   style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
                     foregroundColor: AppColors.secondary,
                     side: const BorderSide(color: AppColors.secondary),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
                     ),
                   ),
-                  child: Text(
-                    l.settingsMoreAbout_checkUpdates,
-                    style: AppTypography.labelLg.copyWith(
-                      color: AppColors.secondary,
-                    ),
-                  ),
+                  child: Text(l.settingsMoreAbout_checkUpdates),
                 ),
               ],
             ),
@@ -172,7 +173,10 @@ class MoreAboutTheAppScreen extends StatelessWidget {
               onPressed: () => _showPending(context, l),
               icon: const Icon(Icons.share_outlined, size: 20),
               label: Text(l.settingsMoreAbout_shareApp),
+              // Same theme leak as the update action above: without an explicit
+              // surface this rendered as navy text on a black button.
               style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.transparent,
                 foregroundColor: AppColors.primary,
                 side: BorderSide(color: AppColors.outlineVariant),
                 textStyle: AppTypography.labelLg,

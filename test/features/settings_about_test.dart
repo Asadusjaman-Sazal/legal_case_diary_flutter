@@ -15,6 +15,7 @@ import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
+import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_app_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 
@@ -217,6 +218,53 @@ void main() {
 
     // Still on the same screen: nothing navigated away from the pushed route.
     expect(find.text('KEY FEATURES'), findsOneWidget);
+  });
+
+  testWidgets('the app theme does not paint the outlined actions black', (
+    tester,
+  ) async {
+    // The shared settings harness pumps without the app theme, so this class of
+    // bug is invisible to every other test — the theme paints outlined buttons
+    // black, which left the blue "Check for updates" label on a black surface.
+    await tester.binding.setSurfaceSize(const Size(420, 1400));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: AppRoutes.settingsMoreAbout,
+      routes: [
+        GoRoute(
+          path: AppRoutes.settingsMoreAbout,
+          builder: (context, state) => const MoreAboutTheAppScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routerConfig: router,
+        theme: AppTheme.lightTheme(const Locale('en')),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // The painted surface behind each outlined action's label.
+    Color? paintedBehind(String label) {
+      final button = find.ancestor(
+        of: find.text(label),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      );
+      return tester
+          .widgetList<Material>(
+            find.descendant(of: button, matching: find.byType(Material)),
+          )
+          .first
+          .color;
+    }
+
+    expect(paintedBehind('Check for updates'), isNot(Colors.black));
+    expect(paintedBehind('Share App'), isNot(Colors.black));
   });
 
   testWidgets('renders the Bengali copy under Locale(bn)', (tester) async {

@@ -1078,11 +1078,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_lastBackupPlaceholder =>
-      'Oct 20, 2023 at 10:45 AM';
+      'No backup has been made yet.';
 
   @override
   String get settingsBackupRestore_enginePending =>
-      'Backup engine arrives in Task 15';
+      'Cloud backup is not available yet';
 
   @override
   String get settingsBackupRestore_scheduleOff => 'Off';
@@ -1098,6 +1098,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_scheduleEveryMonth => 'Every month';
+
+  @override
+  String get settingsBackupRestore_passphraseTitle => 'Protect this backup';
+
+  @override
+  String get settingsBackupRestore_passphraseBody =>
+      'The backup is encrypted with this passphrase. It is not stored anywhere, so without it the file can never be restored.';
+
+  @override
+  String get settingsBackupRestore_passphraseLabel => 'Passphrase';
+
+  @override
+  String get settingsBackupRestore_passphraseConfirmLabel =>
+      'Confirm passphrase';
+
+  @override
+  String get settingsBackupRestore_passphraseRequired => 'Enter a passphrase.';
+
+  @override
+  String get settingsBackupRestore_passphraseMismatch =>
+      'The two passphrases do not match.';
+
+  @override
+  String get settingsBackupRestore_encryptAndSave => 'Encrypt and save';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseTitle =>
+      'Open this backup';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseBody =>
+      'Enter the passphrase this backup was created with.';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseHint =>
+      'A backup made before encryption was added opens without a passphrase.';
+
+  @override
+  String get settingsBackupRestore_openBackup => 'Open backup';
+
+  @override
+  String get settingsBackupRestore_backupProgress => 'Creating your backup…';
+
+  @override
+  String get settingsBackupRestore_restoreProgress => 'Restoring your data…';
+
+  @override
+  String settingsBackupRestore_backupSaved(String path) {
+    return 'Backup saved to $path';
+  }
+
+  @override
+  String get settingsBackupRestore_backupFailed =>
+      'Could not create the backup.';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsTitle =>
+      'Replace all current data?';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsBackedUp => 'Backed up';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsAppVersion => 'App version';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsRecords => 'Records';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsWarning =>
+      'Everything currently on this device will be replaced. This cannot be undone.';
+
+  @override
+  String get settingsBackupRestore_restoreReplace => 'Replace';
+
+  @override
+  String get settingsBackupRestore_restoreCompleteTitle => 'Restore complete';
+
+  @override
+  String settingsBackupRestore_restoreCompleteBody(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString records restored.';
+  }
+
+  @override
+  String get settingsBackupRestore_restoreCompleteNote =>
+      'The app will now reload your data.';
+
+  @override
+  String get settingsBackupRestore_errorInvalidFile =>
+      'That file is not a backup made by this app.';
+
+  @override
+  String get settingsBackupRestore_errorUnsupportedVersion =>
+      'This backup was made by a newer version of the app.';
+
+  @override
+  String get settingsBackupRestore_errorWrongSecret =>
+      'Wrong passphrase, or the backup file has been changed.';
+
+  @override
+  String get settingsBackupRestore_errorDamaged =>
+      'The backup file is damaged and cannot be restored.';
+
+  @override
+  String get settingsBackupRestore_errorConflict =>
+      'The app gained new data while restoring, so nothing was changed.';
+
+  @override
+  String get settingsBackupRestore_errorImportFailed =>
+      'The restore failed. Your existing data was left unchanged.';
+
+  @override
+  String get settingsBackupRestore_errorOpenFile => 'Could not open that file.';
 
   @override
   String get settingsEditCourtSteps_editItemTypes =>

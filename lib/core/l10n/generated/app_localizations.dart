@@ -2081,13 +2081,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestore_lastBackupPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'Oct 20, 2023 at 10:45 AM'**
+  /// **'No backup has been made yet.'**
   String get settingsBackupRestore_lastBackupPlaceholder;
 
   /// No description provided for @settingsBackupRestore_enginePending.
   ///
   /// In en, this message translates to:
-  /// **'Backup engine arrives in Task 15'**
+  /// **'Cloud backup is not available yet'**
   String get settingsBackupRestore_enginePending;
 
   /// No description provided for @settingsBackupRestore_scheduleOff.
@@ -2119,6 +2119,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Every month'**
   String get settingsBackupRestore_scheduleEveryMonth;
+
+  /// No description provided for @settingsBackupRestore_passphraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect this backup'**
+  String get settingsBackupRestore_passphraseTitle;
+
+  /// No description provided for @settingsBackupRestore_passphraseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup is encrypted with this passphrase. It is not stored anywhere, so without it the file can never be restored.'**
+  String get settingsBackupRestore_passphraseBody;
+
+  /// No description provided for @settingsBackupRestore_passphraseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get settingsBackupRestore_passphraseLabel;
+
+  /// No description provided for @settingsBackupRestore_passphraseConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm passphrase'**
+  String get settingsBackupRestore_passphraseConfirmLabel;
+
+  /// No description provided for @settingsBackupRestore_passphraseRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a passphrase.'**
+  String get settingsBackupRestore_passphraseRequired;
+
+  /// No description provided for @settingsBackupRestore_passphraseMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases do not match.'**
+  String get settingsBackupRestore_passphraseMismatch;
+
+  /// No description provided for @settingsBackupRestore_encryptAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypt and save'**
+  String get settingsBackupRestore_encryptAndSave;
+
+  /// No description provided for @settingsBackupRestore_recoveryPassphraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this backup'**
+  String get settingsBackupRestore_recoveryPassphraseTitle;
+
+  /// No description provided for @settingsBackupRestore_recoveryPassphraseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the passphrase this backup was created with.'**
+  String get settingsBackupRestore_recoveryPassphraseBody;
+
+  /// No description provided for @settingsBackupRestore_recoveryPassphraseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup made before encryption was added opens without a passphrase.'**
+  String get settingsBackupRestore_recoveryPassphraseHint;
+
+  /// No description provided for @settingsBackupRestore_openBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open backup'**
+  String get settingsBackupRestore_openBackup;
+
+  /// No description provided for @settingsBackupRestore_backupProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating your backup…'**
+  String get settingsBackupRestore_backupProgress;
+
+  /// No description provided for @settingsBackupRestore_restoreProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring your data…'**
+  String get settingsBackupRestore_restoreProgress;
+
+  /// BACKUP STATUS
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved to {path}'**
+  String settingsBackupRestore_backupSaved(String path);
+
+  /// No description provided for @settingsBackupRestore_backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the backup.'**
+  String get settingsBackupRestore_backupFailed;
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all current data?'**
+  String get settingsBackupRestore_restoreDetailsTitle;
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsBackedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up'**
+  String get settingsBackupRestore_restoreDetailsBackedUp;
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsAppVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get settingsBackupRestore_restoreDetailsAppVersion;
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get settingsBackupRestore_restoreDetailsRecords;
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything currently on this device will be replaced. This cannot be undone.'**
+  String get settingsBackupRestore_restoreDetailsWarning;
+
+  /// No description provided for @settingsBackupRestore_restoreReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get settingsBackupRestore_restoreReplace;
+
+  /// No description provided for @settingsBackupRestore_restoreCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore complete'**
+  String get settingsBackupRestore_restoreCompleteTitle;
+
+  /// RESTORE
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records restored.'**
+  String settingsBackupRestore_restoreCompleteBody(int count);
+
+  /// No description provided for @settingsBackupRestore_restoreCompleteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The app will now reload your data.'**
+  String get settingsBackupRestore_restoreCompleteNote;
+
+  /// No description provided for @settingsBackupRestore_errorInvalidFile.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not a backup made by this app.'**
+  String get settingsBackupRestore_errorInvalidFile;
+
+  /// No description provided for @settingsBackupRestore_errorUnsupportedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made by a newer version of the app.'**
+  String get settingsBackupRestore_errorUnsupportedVersion;
+
+  /// No description provided for @settingsBackupRestore_errorWrongSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong passphrase, or the backup file has been changed.'**
+  String get settingsBackupRestore_errorWrongSecret;
+
+  /// No description provided for @settingsBackupRestore_errorDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup file is damaged and cannot be restored.'**
+  String get settingsBackupRestore_errorDamaged;
+
+  /// No description provided for @settingsBackupRestore_errorConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The app gained new data while restoring, so nothing was changed.'**
+  String get settingsBackupRestore_errorConflict;
+
+  /// No description provided for @settingsBackupRestore_errorImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The restore failed. Your existing data was left unchanged.'**
+  String get settingsBackupRestore_errorImportFailed;
+
+  /// No description provided for @settingsBackupRestore_errorOpenFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open that file.'**
+  String get settingsBackupRestore_errorOpenFile;
 
   /// No description provided for @settingsEditCourtSteps_editItemTypes.
   ///

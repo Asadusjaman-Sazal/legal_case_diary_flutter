@@ -13,6 +13,7 @@ import '../../features/cases/data/local/case_history_dao.dart';
 import '../../features/cases/data/local/cases_dao.dart';
 import '../../features/notes/data/local/notes_dao.dart';
 import '../../features/notes/data/notes_repository.dart';
+import '../../features/settings/data/backup_repository.dart';
 import '../../features/settings/data/case_types_repository.dart';
 import '../../features/settings/data/court_categories_repository.dart';
 import '../../features/settings/data/courts_repository.dart';
@@ -29,6 +30,7 @@ import '../../features/settings/data/steps_repository.dart';
 import '../../sync/delete_requests_dao.dart';
 import '../../sync/sync_write_helper.dart';
 import '../../shared/providers/database_provider.dart';
+import '../backup/backup_cipher.dart';
 import '../services/local_identity_service.dart';
 
 /// Provider for the public case repository interface.
@@ -89,6 +91,26 @@ final settingsRepositoryProvider = FutureProvider<SettingsRepository>((
   final identity = ref.watch(localIdentityServiceProvider);
   return LocalSettingsRepository(UserPreferencesDao(db), identity);
 });
+
+/// Provider for the local backup export/restore engine.
+///
+/// The Backup & Restore screen owns the dialogs, the passphrase and the
+/// confirmation; this repository owns the snapshot, the encryption and the
+/// single import transaction (Task 15).
+final backupRepositoryProvider = FutureProvider<BackupRepository>((ref) async {
+  final db = await ref.watch(databaseProvider.future);
+  return BackupRepository(db);
+});
+
+/// PBKDF2 iterations one backup export pays for.
+///
+/// Production always uses [kBackupKdfIterations]. The default stretch is
+/// deliberately slow and yields to the event loop between batches, which the
+/// fake clock of a widget test never advances — so widget tests override this
+/// with a fast count and keep every other part of the export real.
+final backupKdfIterationsProvider = Provider<int>(
+  (ref) => kBackupKdfIterations,
+);
 
 /// Provider for [DeleteRequestsRepository].
 final deleteRequestsRepositoryProvider =

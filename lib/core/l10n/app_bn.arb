@@ -484,13 +484,61 @@
   "settingsBackupRestore_encryptionNote": "ব্যাকআপ এনক্রিপ্ট করা হয় এবং আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।",
   "settingsBackupRestore_offlineNote": "নোট: শুধুমাত্র অফলাইন অ্যাকাউন্টের জন্য পুনরুদ্ধার উপলব্ধ।",
   "settingsBackupRestore_lastSuccessfulBackup": "সর্বশেষ সফল ব্যাকআপ",
-  "settingsBackupRestore_lastBackupPlaceholder": "২০ অক্টোবর, ২০২৩, সকাল ১০:৪৫",
-  "settingsBackupRestore_enginePending": "ব্যাকআপ ইঞ্জিন Task 15-এ আসবে",
+  "settingsBackupRestore_lastBackupPlaceholder": "এখনো কোনো ব্যাকআপ করা হয়নি।",
+  "settingsBackupRestore_enginePending": "ক্লাউড ব্যাকআপ এখনো পাওয়া যাচ্ছে না",
   "settingsBackupRestore_scheduleOff": "বন্ধ",
   "settingsBackupRestore_scheduleEveryday": "প্রতিদিন",
   "settingsBackupRestore_scheduleEvery3Days": "প্রতি ৩ দিনে",
   "settingsBackupRestore_scheduleEvery7Days": "প্রতি ৭ দিনে",
   "settingsBackupRestore_scheduleEveryMonth": "প্রতি মাসে",
+  "settingsBackupRestore_passphraseTitle": "এই ব্যাকআপ সুরক্ষিত করুন",
+  "settingsBackupRestore_passphraseBody": "এই পাসফ্রেজ দিয়ে ব্যাকআপটি এনক্রিপ্ট করা হয়। এটি কোথাও সংরক্ষণ করা হয় না, তাই এটি ছাড়া ফাইলটি কখনো পুনরুদ্ধার করা যাবে না।",
+  "settingsBackupRestore_passphraseLabel": "পাসফ্রেজ",
+  "settingsBackupRestore_passphraseConfirmLabel": "পাসফ্রেজ নিশ্চিত করুন",
+  "settingsBackupRestore_passphraseRequired": "একটি পাসফ্রেজ লিখুন।",
+  "settingsBackupRestore_passphraseMismatch": "দুটি পাসফ্রেজ মিলছে না।",
+  "settingsBackupRestore_encryptAndSave": "এনক্রিপ্ট করে সংরক্ষণ করুন",
+  "settingsBackupRestore_recoveryPassphraseTitle": "এই ব্যাকআপ খুলুন",
+  "settingsBackupRestore_recoveryPassphraseBody": "যে পাসফ্রেজ দিয়ে ব্যাকআপটি তৈরি হয়েছিল, সেটি লিখুন।",
+  "settingsBackupRestore_recoveryPassphraseHint": "এনক্রিপশন চালু হওয়ার আগে তৈরি পুরনো ব্যাকআপ পাসফ্রেজ ছাড়াই খোলে।",
+  "settingsBackupRestore_openBackup": "ব্যাকআপ খুলুন",
+  "settingsBackupRestore_backupProgress": "আপনার ব্যাকআপ তৈরি হচ্ছে…",
+  "settingsBackupRestore_restoreProgress": "আপনার ডেটা পুনরুদ্ধার হচ্ছে…",
+  "settingsBackupRestore_backupSaved": "ব্যাকআপ সংরক্ষিত হয়েছে: {path}",
+  "@settingsBackupRestore_backupSaved": {
+      "description": "BACKUP STATUS",
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsBackupRestore_backupFailed": "ব্যাকআপ তৈরি করা যায়নি।",
+  "settingsBackupRestore_restoreDetailsTitle": "বর্তমান সব ডেটা প্রতিস্থাপন করবেন?",
+  "settingsBackupRestore_restoreDetailsBackedUp": "ব্যাকআপের সময়",
+  "settingsBackupRestore_restoreDetailsAppVersion": "অ্যাপ সংস্করণ",
+  "settingsBackupRestore_restoreDetailsRecords": "রেকর্ড",
+  "settingsBackupRestore_restoreDetailsWarning": "এই ডিভাইসে থাকা সব ডেটা প্রতিস্থাপিত হবে। এটি ফিরিয়ে আনা যাবে না।",
+  "settingsBackupRestore_restoreReplace": "প্রতিস্থাপন করুন",
+  "settingsBackupRestore_restoreCompleteTitle": "পুনরুদ্ধার সম্পন্ন",
+  "settingsBackupRestore_restoreCompleteBody": "{count} রেকর্ড পুনরুদ্ধার হয়েছে।",
+  "@settingsBackupRestore_restoreCompleteBody": {
+      "description": "RESTORE",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
+  "settingsBackupRestore_restoreCompleteNote": "অ্যাপটি এখন আপনার ডেটা আবার লোড করবে।",
+  "settingsBackupRestore_errorInvalidFile": "ফাইলটি এই অ্যাপের তৈরি ব্যাকআপ নয়।",
+  "settingsBackupRestore_errorUnsupportedVersion": "ব্যাকআপটি অ্যাপের নতুন কোনো সংস্করণে তৈরি করা হয়েছে।",
+  "settingsBackupRestore_errorWrongSecret": "পাসফ্রেজ ভুল, অথবা ব্যাকআপ ফাইলটি পরিবর্তিত হয়েছে।",
+  "settingsBackupRestore_errorDamaged": "ব্যাকআপ ফাইলটি ক্ষতিগ্রস্ত, পুনরুদ্ধার করা যাবে না।",
+  "settingsBackupRestore_errorConflict": "পুনরুদ্ধারের সময় নতুন ডেটা এসেছে, তাই কিছুই বদলানো হয়নি।",
+  "settingsBackupRestore_errorImportFailed": "পুনরুদ্ধার ব্যর্থ হয়েছে। আপনার আগের ডেটা অপরিবর্তিত রয়েছে।",
+  "settingsBackupRestore_errorOpenFile": "ফাইলটি খোলা যায়নি।",
   "@@_section_settingsEditCourtSteps": "SETTINGS - EDIT COURT/STEPS MENU  |  lib/features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart",
   "settingsEditCourtSteps_editItemTypes": "মামলার ধরন, ধাপ ইত্যাদি সম্পাদনা",
   "settingsEditCourtSteps_editItemTypesSubtitle": "মামলার ধরন, কার্যপদ্ধতির ধাপ ও পক্ষের ভূমিকা পরিচালনা করুন",

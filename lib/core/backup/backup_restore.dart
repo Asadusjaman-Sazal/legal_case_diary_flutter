@@ -158,7 +158,9 @@ Map<String, dynamic> migrateBackupPayload(
 ///
 /// [recoverySecret] is used only when the file is an encrypted container; a
 /// legacy plaintext envelope needs no secret, so callers may pass whatever the
-/// user typed.
+/// user typed (including nothing). An *empty* passphrase on an encrypted file is
+/// reported as [BackupRestoreFailure.wrongSecretOrTampered] rather than as a
+/// thrown argument error, so the restore screen has one failure channel.
 ///
 /// [adapters] and [targetSchemaVersion] are injectable so the upgrade chain can
 /// be exercised before a second schema version exists.
@@ -245,6 +247,14 @@ Future<BackupEnvelope> _openEncrypted(
   final List<int> plaintext;
   try {
     plaintext = await decryptBackup(container, recoverySecret: recoverySecret);
+  } on ArgumentError {
+    // `decryptBackup` refuses an empty secret outright (an empty passphrase is
+    // an unprotected file). For a restore that is simply a secret the user did
+    // not supply, so it joins the secret failure rather than escaping.
+    throw const BackupRestoreException(
+      BackupRestoreFailure.wrongSecretOrTampered,
+      'An empty passphrase cannot open an encrypted backup.',
+    );
   } on BackupDecryptionException catch (error) {
     throw BackupRestoreException(
       switch (error.failure) {

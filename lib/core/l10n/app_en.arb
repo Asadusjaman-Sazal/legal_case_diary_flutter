@@ -485,13 +485,61 @@
   "settingsBackupRestore_encryptionNote": "Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.",
   "settingsBackupRestore_offlineNote": "Note: Restoration is available for offline accounts only.",
   "settingsBackupRestore_lastSuccessfulBackup": "Last successful backup",
-  "settingsBackupRestore_lastBackupPlaceholder": "Oct 20, 2023 at 10:45 AM",
-  "settingsBackupRestore_enginePending": "Backup engine arrives in Task 15",
+  "settingsBackupRestore_lastBackupPlaceholder": "No backup has been made yet.",
+  "settingsBackupRestore_enginePending": "Cloud backup is not available yet",
   "settingsBackupRestore_scheduleOff": "Off",
   "settingsBackupRestore_scheduleEveryday": "Everyday",
   "settingsBackupRestore_scheduleEvery3Days": "Every 3 days",
   "settingsBackupRestore_scheduleEvery7Days": "Every 7 days",
   "settingsBackupRestore_scheduleEveryMonth": "Every month",
+  "settingsBackupRestore_passphraseTitle": "Protect this backup",
+  "settingsBackupRestore_passphraseBody": "The backup is encrypted with this passphrase. It is not stored anywhere, so without it the file can never be restored.",
+  "settingsBackupRestore_passphraseLabel": "Passphrase",
+  "settingsBackupRestore_passphraseConfirmLabel": "Confirm passphrase",
+  "settingsBackupRestore_passphraseRequired": "Enter a passphrase.",
+  "settingsBackupRestore_passphraseMismatch": "The two passphrases do not match.",
+  "settingsBackupRestore_encryptAndSave": "Encrypt and save",
+  "settingsBackupRestore_recoveryPassphraseTitle": "Open this backup",
+  "settingsBackupRestore_recoveryPassphraseBody": "Enter the passphrase this backup was created with.",
+  "settingsBackupRestore_recoveryPassphraseHint": "A backup made before encryption was added opens without a passphrase.",
+  "settingsBackupRestore_openBackup": "Open backup",
+  "settingsBackupRestore_backupProgress": "Creating your backup…",
+  "settingsBackupRestore_restoreProgress": "Restoring your data…",
+  "settingsBackupRestore_backupSaved": "Backup saved to {path}",
+  "@settingsBackupRestore_backupSaved": {
+      "description": "BACKUP STATUS",
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsBackupRestore_backupFailed": "Could not create the backup.",
+  "settingsBackupRestore_restoreDetailsTitle": "Replace all current data?",
+  "settingsBackupRestore_restoreDetailsBackedUp": "Backed up",
+  "settingsBackupRestore_restoreDetailsAppVersion": "App version",
+  "settingsBackupRestore_restoreDetailsRecords": "Records",
+  "settingsBackupRestore_restoreDetailsWarning": "Everything currently on this device will be replaced. This cannot be undone.",
+  "settingsBackupRestore_restoreReplace": "Replace",
+  "settingsBackupRestore_restoreCompleteTitle": "Restore complete",
+  "settingsBackupRestore_restoreCompleteBody": "{count} records restored.",
+  "@settingsBackupRestore_restoreCompleteBody": {
+      "description": "RESTORE",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
+  "settingsBackupRestore_restoreCompleteNote": "The app will now reload your data.",
+  "settingsBackupRestore_errorInvalidFile": "That file is not a backup made by this app.",
+  "settingsBackupRestore_errorUnsupportedVersion": "This backup was made by a newer version of the app.",
+  "settingsBackupRestore_errorWrongSecret": "Wrong passphrase, or the backup file has been changed.",
+  "settingsBackupRestore_errorDamaged": "The backup file is damaged and cannot be restored.",
+  "settingsBackupRestore_errorConflict": "The app gained new data while restoring, so nothing was changed.",
+  "settingsBackupRestore_errorImportFailed": "The restore failed. Your existing data was left unchanged.",
+  "settingsBackupRestore_errorOpenFile": "Could not open that file.",
   "@@_section_settingsEditCourtSteps": "SETTINGS - EDIT COURT/STEPS MENU  |  lib/features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart",
   "settingsEditCourtSteps_editItemTypes": "Edit Case Types, Step etc",
   "settingsEditCourtSteps_editItemTypesSubtitle": "Manage case types, procedural steps, and on-behalf roles",

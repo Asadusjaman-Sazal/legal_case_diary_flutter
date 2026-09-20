@@ -1079,11 +1079,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_lastBackupPlaceholder =>
-      '২০ অক্টোবর, ২০২৩, সকাল ১০:৪৫';
+      'এখনো কোনো ব্যাকআপ করা হয়নি।';
 
   @override
   String get settingsBackupRestore_enginePending =>
-      'ব্যাকআপ ইঞ্জিন Task 15-এ আসবে';
+      'ক্লাউড ব্যাকআপ এখনো পাওয়া যাচ্ছে না';
 
   @override
   String get settingsBackupRestore_scheduleOff => 'বন্ধ';
@@ -1099,6 +1099,126 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_scheduleEveryMonth => 'প্রতি মাসে';
+
+  @override
+  String get settingsBackupRestore_passphraseTitle =>
+      'এই ব্যাকআপ সুরক্ষিত করুন';
+
+  @override
+  String get settingsBackupRestore_passphraseBody =>
+      'এই পাসফ্রেজ দিয়ে ব্যাকআপটি এনক্রিপ্ট করা হয়। এটি কোথাও সংরক্ষণ করা হয় না, তাই এটি ছাড়া ফাইলটি কখনো পুনরুদ্ধার করা যাবে না।';
+
+  @override
+  String get settingsBackupRestore_passphraseLabel => 'পাসফ্রেজ';
+
+  @override
+  String get settingsBackupRestore_passphraseConfirmLabel =>
+      'পাসফ্রেজ নিশ্চিত করুন';
+
+  @override
+  String get settingsBackupRestore_passphraseRequired => 'একটি পাসফ্রেজ লিখুন।';
+
+  @override
+  String get settingsBackupRestore_passphraseMismatch =>
+      'দুটি পাসফ্রেজ মিলছে না।';
+
+  @override
+  String get settingsBackupRestore_encryptAndSave =>
+      'এনক্রিপ্ট করে সংরক্ষণ করুন';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseTitle =>
+      'এই ব্যাকআপ খুলুন';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseBody =>
+      'যে পাসফ্রেজ দিয়ে ব্যাকআপটি তৈরি হয়েছিল, সেটি লিখুন।';
+
+  @override
+  String get settingsBackupRestore_recoveryPassphraseHint =>
+      'এনক্রিপশন চালু হওয়ার আগে তৈরি পুরনো ব্যাকআপ পাসফ্রেজ ছাড়াই খোলে।';
+
+  @override
+  String get settingsBackupRestore_openBackup => 'ব্যাকআপ খুলুন';
+
+  @override
+  String get settingsBackupRestore_backupProgress =>
+      'আপনার ব্যাকআপ তৈরি হচ্ছে…';
+
+  @override
+  String get settingsBackupRestore_restoreProgress =>
+      'আপনার ডেটা পুনরুদ্ধার হচ্ছে…';
+
+  @override
+  String settingsBackupRestore_backupSaved(String path) {
+    return 'ব্যাকআপ সংরক্ষিত হয়েছে: $path';
+  }
+
+  @override
+  String get settingsBackupRestore_backupFailed => 'ব্যাকআপ তৈরি করা যায়নি।';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsTitle =>
+      'বর্তমান সব ডেটা প্রতিস্থাপন করবেন?';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsBackedUp => 'ব্যাকআপের সময়';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsAppVersion => 'অ্যাপ সংস্করণ';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsRecords => 'রেকর্ড';
+
+  @override
+  String get settingsBackupRestore_restoreDetailsWarning =>
+      'এই ডিভাইসে থাকা সব ডেটা প্রতিস্থাপিত হবে। এটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get settingsBackupRestore_restoreReplace => 'প্রতিস্থাপন করুন';
+
+  @override
+  String get settingsBackupRestore_restoreCompleteTitle => 'পুনরুদ্ধার সম্পন্ন';
+
+  @override
+  String settingsBackupRestore_restoreCompleteBody(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString রেকর্ড পুনরুদ্ধার হয়েছে।';
+  }
+
+  @override
+  String get settingsBackupRestore_restoreCompleteNote =>
+      'অ্যাপটি এখন আপনার ডেটা আবার লোড করবে।';
+
+  @override
+  String get settingsBackupRestore_errorInvalidFile =>
+      'ফাইলটি এই অ্যাপের তৈরি ব্যাকআপ নয়।';
+
+  @override
+  String get settingsBackupRestore_errorUnsupportedVersion =>
+      'ব্যাকআপটি অ্যাপের নতুন কোনো সংস্করণে তৈরি করা হয়েছে।';
+
+  @override
+  String get settingsBackupRestore_errorWrongSecret =>
+      'পাসফ্রেজ ভুল, অথবা ব্যাকআপ ফাইলটি পরিবর্তিত হয়েছে।';
+
+  @override
+  String get settingsBackupRestore_errorDamaged =>
+      'ব্যাকআপ ফাইলটি ক্ষতিগ্রস্ত, পুনরুদ্ধার করা যাবে না।';
+
+  @override
+  String get settingsBackupRestore_errorConflict =>
+      'পুনরুদ্ধারের সময় নতুন ডেটা এসেছে, তাই কিছুই বদলানো হয়নি।';
+
+  @override
+  String get settingsBackupRestore_errorImportFailed =>
+      'পুনরুদ্ধার ব্যর্থ হয়েছে। আপনার আগের ডেটা অপরিবর্তিত রয়েছে।';
+
+  @override
+  String get settingsBackupRestore_errorOpenFile => 'ফাইলটি খোলা যায়নি।';
 
   @override
   String get settingsEditCourtSteps_editItemTypes =>

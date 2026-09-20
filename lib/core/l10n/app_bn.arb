@@ -908,6 +908,7 @@
   "settingsAbout_dataSafetyTitle": "ডেটা নিরাপত্তা",
   "settingsAbout_dataSafetyBody": "আপনার ডায়েরি ও ব্যাকআপ ফাইল আপনার ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। আপনি নিজে না পাঠালে কোনো কিছু আপলোড হয় না।",
   "settingsAbout_actionPending": "পরবর্তী কোনো টাস্কে আসবে",
+  "settingsLegal_loadFailed": "এই নথিটি খোলা যায়নি। আবার চেষ্টা করুন।",
   "@@_section_settingsMoreAbout": "SETTINGS - MORE ABOUT THE APP  |  lib/features/settings/presentation/settings_about/more_about_the_app_screen.dart",
   "settingsMoreAbout_title": "অ্যাপ সম্পর্কে আরও",
   "settingsMoreAbout_checkUpdates": "আপডেট পরীক্ষা করুন",

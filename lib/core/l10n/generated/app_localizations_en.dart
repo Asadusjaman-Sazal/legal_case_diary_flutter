@@ -2095,6 +2095,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAbout_actionPending => 'Arrives in a later task';
 
   @override
+  String get settingsLegal_loadFailed =>
+      'Could not open this document. Please try again.';
+
+  @override
   String get settingsMoreAbout_title => 'More About the App';
 
   @override

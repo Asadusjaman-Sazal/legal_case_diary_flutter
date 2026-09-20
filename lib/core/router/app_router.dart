@@ -40,6 +40,7 @@ import '../../features/settings/presentation/edit_court_steps/edit_court_steps_m
 import '../../features/settings/presentation/edit_court_steps/lower_court_category_list_screen.dart';
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
+import '../../features/settings/presentation/legal/legal_document_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_the_app_screen.dart';
@@ -107,6 +108,8 @@ class AppRoutes {
   static const String settingsGuidelines = '/settings/guidelines';
   static const String settingsAbout = '/settings/about';
   static const String settingsMoreAbout = '/settings/about/more';
+  static const String settingsPrivacyPolicy = '/settings/about/privacy';
+  static const String settingsTermsOfService = '/settings/about/terms';
   static const String caseDetail = '/case-detail/:caseId';
   static const String login = '/login';
   static const String signup = '/signup';
@@ -349,6 +352,16 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsMoreAbout,
     builder: (context, state) => const MoreAboutTheAppScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsPrivacyPolicy,
+    builder: (context, state) =>
+        const LegalDocumentScreen(document: LegalDocument.privacyPolicy),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsTermsOfService,
+    builder: (context, state) =>
+        const LegalDocumentScreen(document: LegalDocument.termsOfService),
   ),
 ];
 

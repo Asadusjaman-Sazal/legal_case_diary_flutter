@@ -8,6 +8,10 @@
 /// Part A may not load the mockup's remote image. The mockup's personal
 /// placeholder data (name, email, phone, court, copyright) stays hard-coded,
 /// matching the earlier placeholder-data decision for mockup-only content.
+///
+/// The Privacy Policy and Terms of Service rows open the bundled documents from
+/// `docs/legal/` in the app's current language; Support is the only row left
+/// that reports a pending state.
 library;
 
 import 'package:flutter/material.dart';
@@ -52,9 +56,9 @@ class MoreAboutAppScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           const _DeveloperCard(),
           const SizedBox(height: AppSpacing.md),
-          // Menu rows; only "More About the App" has a screen so far, and
-          // Privacy/Terms/Support arrive with later tasks. The FAQs live on the
-          // Guidelines & FAQs screen, so there is no FAQ row here.
+          // Menu rows. More About the App and the two legal documents have
+          // screens; Support arrives with a later task, and the FAQs live on
+          // the Guidelines & FAQs screen, so there is no FAQ row here.
           _MenuRow(
             label: l.settingsAbout_moreAboutApp,
             onTap: () => context.push(AppRoutes.settingsMoreAbout),
@@ -62,12 +66,12 @@ class MoreAboutAppScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           _MenuRow(
             label: l.settingsAbout_privacyPolicy,
-            onTap: () => _showPending(context, l),
+            onTap: () => context.push(AppRoutes.settingsPrivacyPolicy),
           ),
           const SizedBox(height: AppSpacing.xs),
           _MenuRow(
             label: l.settingsAbout_termsOfService,
-            onTap: () => _showPending(context, l),
+            onTap: () => context.push(AppRoutes.settingsTermsOfService),
           ),
           const SizedBox(height: AppSpacing.xs),
           _MenuRow(
@@ -94,7 +98,7 @@ class MoreAboutAppScreen extends StatelessWidget {
     );
   }
 
-  /// Part A notice for the rows whose screens are not built yet.
+  /// Part A notice for the rows whose screens are not built yet (Support).
   void _showPending(BuildContext context, AppLocalizations l) {
     ScaffoldMessenger.of(
       context,

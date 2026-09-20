@@ -3758,6 +3758,12 @@ abstract class AppLocalizations {
   /// **'Arrives in a later task'**
   String get settingsAbout_actionPending;
 
+  /// No description provided for @settingsLegal_loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this document. Please try again.'**
+  String get settingsLegal_loadFailed;
+
   /// No description provided for @settingsMoreAbout_title.
   ///
   /// In en, this message translates to:

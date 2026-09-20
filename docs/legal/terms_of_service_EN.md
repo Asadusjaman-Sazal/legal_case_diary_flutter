@@ -1,7 +1,9 @@
 # Terms of Service — Legal Case Diary
 
 **Effective date:** [TO CONFIRM — set on release]
+
 **Applies to:** the Legal Case Diary Android application ("the app")
+
 **Document version:** 1.0 (draft)
 
 > **Status:** draft for legal review. Items marked **[TO CONFIRM]** are business decisions that

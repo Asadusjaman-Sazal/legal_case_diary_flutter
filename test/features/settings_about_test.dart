@@ -16,6 +16,7 @@ import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
+import 'package:legal_case_diary/features/settings/presentation/legal/legal_document_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_app_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 
@@ -43,6 +44,16 @@ void main() {
         GoRoute(
           path: AppRoutes.settingsMoreAbout,
           builder: (context, state) => const MoreAboutTheAppScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsPrivacyPolicy,
+          builder: (context, state) =>
+              const LegalDocumentScreen(document: LegalDocument.privacyPolicy),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsTermsOfService,
+          builder: (context, state) =>
+              const LegalDocumentScreen(document: LegalDocument.termsOfService),
         ),
       ],
     );
@@ -154,13 +165,48 @@ void main() {
   ) async {
     await pumpAbout(tester);
 
-    await tester.tap(find.text('Privacy Policy'));
+    await tester.tap(find.text('Support'));
     await tester.pumpAndSettle();
 
     expect(find.text('Arrives in a later task'), findsOneWidget);
     // The row only reports: the About screen stays put.
-    expect(find.text('Privacy Policy'), findsOneWidget);
+    expect(find.text('Support'), findsOneWidget);
     expect(find.text('Check for updates'), findsNothing);
+  });
+
+  // The document body loads from the asset bundle, which is real asynchronous
+  // I/O the test clock does not drive, so these two pin the row's navigation and
+  // the window title; `legal_document_screen_test.dart` covers the document text
+  // under both languages.
+  testWidgets('the Privacy Policy row opens the document', (tester) async {
+    await pumpAbout(tester);
+
+    await tester.tap(find.text('Privacy Policy'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // The row's label is still in the tree below the pushed route, so the check
+    // is on the screen that opened and on the document's own heading, not on the
+    // duplicated row text.
+    expect(find.byType(LegalDocumentScreen), findsOneWidget);
+    expect(
+      find.textContaining('Privacy Policy — Legal Case Diary'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the Terms of Service row opens the document', (tester) async {
+    await pumpAbout(tester);
+
+    await tester.tap(find.text('Terms of Service'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(LegalDocumentScreen), findsOneWidget);
+    expect(
+      find.textContaining('Terms of Service — Legal Case Diary'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows the version card, description and key features', (
@@ -234,6 +280,16 @@ void main() {
         GoRoute(
           path: AppRoutes.settingsMoreAbout,
           builder: (context, state) => const MoreAboutTheAppScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsPrivacyPolicy,
+          builder: (context, state) =>
+              const LegalDocumentScreen(document: LegalDocument.privacyPolicy),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsTermsOfService,
+          builder: (context, state) =>
+              const LegalDocumentScreen(document: LegalDocument.termsOfService),
         ),
       ],
     );

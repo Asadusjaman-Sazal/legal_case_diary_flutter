@@ -1,243 +1,161 @@
-# Privacy Policy — Legal Case Diary
+# গোপনীয়তা নীতি — লিগ্যাল কেস ডায়েরি
 
-**Effective date:** [TO CONFIRM — set on release]
-**Applies to:** the Legal Case Diary Android application ("the app", "we", "us")
-**Document version:** 1.0 (draft)
+**কার্যকর তারিখ:** [নিশ্চিত করতে হবে — প্রকাশের সময় নির্ধারণ করা হবে]
 
-> **Status:** draft for legal review. Items marked **[TO CONFIRM]** are business decisions that
-> must be settled before this is published. This document reflects the app as built: the released
-> version works **entirely offline** and transmits nothing. The online-sync sections describe the
-> version that follows, and they take effect when that version is released.
+**প্রযোজ্য:** লিগ্যাল কেস ডায়েরি অ্যান্ড্রয়েড অ্যাপ্লিকেশন ("অ্যাপ", "আমরা")
 
----
+**নথির সংস্করণ:** ১.০ (খসড়া)
 
-## 1. Summary
-
-- **In the offline version, we collect nothing about you.** Your diary — your cases, your clients'
-  details, your notes and your references — is stored only on your device, in encrypted form. It is
-  never sent to us and we cannot see it.
-- **We do not sell, rent or share your data.** The app contains no advertising, no analytics and no
-  third-party tracking.
-- **You decide what leaves your phone.** A backup file, a printed PDF or a message to a client
-  leaves the device only when you choose to save, share or send it.
-- **When the online version launches**, storing your diary in the cloud becomes possible, and this
-  policy will then also cover the account and cloud data described in section 6.
+> **অবস্থা:** আইনি পর্যালোচনার জন্য খসড়া। **[নিশ্চিত করতে হবে]** চিহ্নিত বিষয়গুলো এমন ব্যবসায়িক সিদ্ধান্ত, যা এই নীতি প্রকাশের আগে নির্ধারণ করতে হবে। এই নথি অ্যাপটি যেমন তৈরি হয়েছে তেমনই বর্ণনা করে: প্রকাশিত সংস্করণটি **সম্পূর্ণ অফলাইনে** চলে এবং কোনো তথ্য প্রেরণ করে না। অনলাইন সিঙ্কের অংশগুলো পরবর্তী সংস্করণের বর্ণনা, এবং সেসব ওই সংস্করণ প্রকাশের সময় কার্যকর হবে।
 
 ---
 
-## 2. Who is responsible for your data
+## ১. সারসংক্ষেপ
 
-The app is developed and published by **Asadusjaman Sazal**, an individual developer based in
-Narayanganj, Bangladesh. For the purposes of this policy, we are the controller of any data we
-ourselves hold. **[TO CONFIRM: legal entity — sole developer or registered business — and the full
-postal address to publish.]**
-
-- **Email:** adv.asadusjaman@gmail.com
-- **WhatsApp:** +880 1835 252721
-
-**Important:** for the case and client information you enter, **you are the controller and we are
-not**. That information concerns your clients, opposing parties, witnesses and others. In the
-offline version we never hold it. If you enable online sync, we hold it only on your instruction, as
-your processor, under section 6.
+- **অফলাইন সংস্করণে আমরা আপনার সম্পর্কে কোনো তথ্য সংগ্রহ করি না।** আপনার ডায়েরি — আপনার মামলা, ক্লায়েন্টের তথ্য, নোট ও রেফারেন্স — কেবল আপনার ডিভাইসে এনক্রিপ্টেড অবস্থায় সংরক্ষিত থাকে। এটি কখনো আমাদের কাছে পাঠানো হয় না এবং আমরা তা দেখতে পাই না।
+- **আমরা আপনার তথ্য বিক্রি, ভাড়া বা শেয়ার করি না।** অ্যাপে কোনো বিজ্ঞাপন, কোনো অ্যানালিটিক্স এবং কোনো তৃতীয় পক্ষের ট্র্যাকিং নেই।
+- **আপনার ফোন থেকে কী বাইরে যাবে তা আপনি নির্ধারণ করেন।** ব্যাকআপ ফাইল, প্রিন্ট করা পিডিএফ কিংবা ক্লায়েন্টকে পাঠানো বার্তা — আপনি সংরক্ষণ, শেয়ার বা পাঠানোর সিদ্ধান্ত নিলেই কেবল তা ডিভাইস ছেড়ে যায়।
+- **অনলাইন সংস্করণ চালু হলে** আপনার ডায়েরি ক্লাউডে রাখা সম্ভব হবে, এবং তখন এই নীতিটি ধারা ৬-এ বর্ণিত অ্যাকাউন্ট ও ক্লাউড তথ্যও অন্তর্ভুক্ত করবে।
 
 ---
 
-## 3. What the app does with your data, by version
+## ২. আপনার তথ্যের জন্য কে দায়ী
 
-| | Offline version (released) | Online version (when released) |
+অ্যাপটি তৈরি ও প্রকাশ করেছে **আসাদুজ্জামান সাজল**, বাংলাদেশের নারায়ণগঞ্জে অবস্থিত একজন ব্যক্তিগত ডেভেলপার। এই নীতির উদ্দেশ্যে, আমরা যা নিজেরা সংরক্ষণ করি তার নিয়ন্ত্রক আমাদের নিজেদের। **[নিশ্চিত করতে হবে: আইনি সত্তা — একক ডেভেলপার নাকি নিবন্ধিত ব্যবসা — এবং প্রকাশযোগ্য পূর্ণ ডাক ঠিকানা।]**
+
+- **ইমেইল:** adv.asadusjaman@gmail.com
+- **হোয়াটসঅ্যাপ:** +৮৮০ ১৮৩৫ ২৫২৭২১
+
+**গুরুত্বপূর্ণ:** আপনি যে মামলা ও ক্লায়েন্টের তথ্য লিখবেন, **তার নিয়ন্ত্রক আপনি, আমরা নই**। সেই তথ্য আপনার ক্লায়েন্ট, বিপক্ষ পক্ষ, সাক্ষী ও অন্যদের সম্পর্কে। অফলাইন সংস্করণে আমরা তা কখনো সংরক্ষণ করি না। আপনি অনলাইন সিঙ্ক চালু করলে আমরা তা কেবল আপনার নির্দেশে, আপনার প্রক্রিয়াকরণকারী হিসেবে, ধারা ৬ অনুযায়ী সংরক্ষণ করি।
+
+---
+
+## ৩. সংস্করণ অনুযায়ী অ্যাপটি আপনার তথ্য দিয়ে কী করে
+
+| | অফলাইন সংস্করণ (প্রকাশিত) | অনলাইন সংস্করণ (প্রকাশিত হলে) |
 |---|---|---|
-| Where your diary is stored | Only on your device | On your device **and**, if you subscribe and enable sync, on our cloud database |
-| Is anything sent to us? | **No** | Only the synced records needed to keep your devices in step |
-| Account required? | **No** | Yes, to sync |
-| Encryption at rest | Full-database encryption on the device | Full-database encryption on the device; encryption in transit and at rest in the cloud |
+| আপনার ডায়েরি কোথায় থাকে | কেবল আপনার ডিভাইসে | আপনার ডিভাইসে **এবং**, আপনি সাবস্ক্রাইব করে সিঙ্ক চালু করলে, আমাদের ক্লাউড ডেটাবেসে |
+| আমাদের কাছে কোনো তথ্য পাঠানো হয় কি? | **না** | কেবল আপনার ডিভাইসগুলো সমন্বিত রাখতে প্রয়োজনীয় সিঙ্ক করা রেকর্ড |
+| অ্যাকাউন্ট প্রয়োজন? | **না** | সিঙ্কের জন্য হ্যাঁ |
+| সংরক্ষণে এনক্রিপশন | ডিভাইসে সম্পূর্ণ ডেটাবেস এনক্রিপশন | ডিভাইসে সম্পূর্ণ ডেটাবেস এনক্রিপশন; ক্লাউডে প্রেরণকালে ও সংরক্ষণে এনক্রিপশন |
 
-You may use the offline version indefinitely without ever creating an account. Nothing in this
-policy obliges you to enable sync.
+আপনি কখনো অ্যাকাউন্ট না খুলেও অনির্দিষ্টকাল অফলাইন সংস্করণ ব্যবহার করতে পারেন। এই নীতির কোনো কিছুই আপনাকে সিঙ্ক চালু করতে বাধ্য করে না।
 
 ---
 
-## 4. What is stored on your device
+## ৪. আপনার ডিভাইসে কী সংরক্ষিত থাকে
 
-The app stores the following locally. None of it leaves your device unless you take an action in
-section 5.
+অ্যাপটি নিচের তথ্য স্থানীয়ভাবে সংরক্ষণ করে। ধারা ৫-এ বর্ণিত কোনো কাজ আপনি না করলে এগুলোর কিছুই আপনার ডিভাইস ছেড়ে যায় না।
 
-**Case and diary records** — case type, number and year; court, court category, district and
-division; parties (petitioner, respondent, and on whose behalf you appear); your client's name and
-phone number where you enter it; hearing dates; the steps, results and history you record; remarks;
-and whether a case is disposed.
+**মামলা ও ডায়েরির রেকর্ড** — মামলার ধরন, নম্বর ও বছর; আদালত, আদালতের শ্রেণি, জেলা ও বিভাগ; পক্ষগুলো (বাদী, বিবাদী এবং আপনি যার পক্ষে শুনানি করছেন); আপনি লিখলে ক্লায়েন্টের নাম ও ফোন নম্বর; শুনানির তারিখ; আপনার লেখা ধাপ, ফলাফল ও ইতিহাস; মন্তব্য; এবং মামলাটি নিষ্পত্তিকৃত কিনা।
 
-**Notes and references** — your notes (title and body) and your case-reference library (reference or
-citation, statute, section, title, description and comments). A case reference is a personal
-citation library entry; it is not transmitted anywhere.
+**নোট ও রেফারেন্স** — আপনার নোট (শিরোনাম ও বিবরণ) এবং আপনার মামলার রেফারেন্স-সংগ্রহ (রেফারেন্স বা সাইটেশন, আইন, ধারা, শিরোনাম, বিবরণ ও মন্তব্য)। মামলার রেফারেন্স হলো আপনার ব্যক্তিগত সাইটেশন-সংগ্রহের এন্ট্রি; এটি কোথাও প্রেরণ করা হয় না।
 
-**Your profile details**, used for your own display and for printed documents — full name, bar
-association, membership number, office address and mobile number, and a profile picture if you
-choose one.
+**আপনার প্রোফাইলের তথ্য**, যা আপনার নিজের প্রদর্শন ও প্রিন্ট করা নথির জন্য ব্যবহৃত হয় — পূর্ণ নাম, বার অ্যাসোসিয়েশন, সদস্য নম্বর, অফিসের ঠিকানা ও মোবাইল নম্বর, এবং আপনি বেছে নিলে একটি প্রোফাইল ছবি।
 
-**App settings and state** — language, view preferences, the default landing page, notification
-preferences (whether alerts are on, how many days before a hearing, and the time of day), backup
-status (the time and location of your last backup and your chosen interval), and the local flag that
-records that the monthly backup reminder has been shown.
+**অ্যাপের সেটিংস ও অবস্থা** — ভাষা, ভিউ পছন্দ, ডিফল্ট শুরুর পেজ, নোটিফিকেশন পছন্দ (সতর্কতা চালু আছে কিনা, শুনানির কত দিন আগে এবং দিনের কোন সময়), ব্যাকআপের অবস্থা (আপনার সর্বশেষ ব্যাকআপের সময় ও স্থান এবং আপনার নির্বাচিত ব্যবধান), এবং মাসিক ব্যাকআপ স্মরণ দেখানো হয়েছে কিনা তা লিপিবদ্ধ করা স্থানীয় ফ্ল্যাগ।
 
-**Third parties' personal data.** Your entries may include personal data about other people —
-clients, opposing parties, witnesses, court staff. You are responsible for having a lawful basis to
-hold that information and for the professional duties of confidentiality that apply to it.
+**তৃতীয় পক্ষের ব্যক্তিগত তথ্য।** আপনার এন্ট্রিতে অন্য ব্যক্তিদের ব্যক্তিগত তথ্য থাকতে পারে — ক্লায়েন্ট, বিপক্ষ পক্ষ, সাক্ষী, আদালতের কর্মী। সেই তথ্য সংরক্ষণের বৈধ ভিত্তি থাকা এবং তার উপর প্রযোজ্য পেশাগত গোপনীয়তার দায়িত্ব পালন করা আপনার দায়িত্ব।
 
-**Permissions the app requests, and why:**
+**অ্যাপ যে অনুমতিগুলো চায় এবং কেন:**
 
-| Permission | Why it is needed |
+| অনুমতি | কেন প্রয়োজন |
 |---|---|
-| Notifications / exact alarms (`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`) | To deliver hearing reminders at the time you choose. If you decline, the app falls back to an inexact alarm or no reminder, and everything else keeps working. |
-| Run at startup (`RECEIVE_BOOT_COMPLETED`), wake lock (`WAKE_LOCK`) | To re-arm your hearing reminders after the phone restarts and to let a reminder fire while the device is idle. |
+| নোটিফিকেশন / নির্দিষ্ট অ্যালার্ম (`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`) | আপনার বেছে নেওয়া সময়ে শুনানির স্মরণ পাঠাতে। আপনি না দিলে অ্যাপ একটি অনির্দিষ্ট অ্যালার্মে বা স্মরণ ছাড়াই চলে, এবং বাকি সবকিছু আগের মতোই কাজ করে। |
+| চালু হওয়ার সময় চলা (`RECEIVE_BOOT_COMPLETED`), ওয়েক লক (`WAKE_LOCK`) | ফোন পুনরায় চালু হওয়ার পর আপনার শুনানির স্মরণ পুনরায় সক্রিয় করতে এবং ডিভাইস নিষ্ক্রিয় থাকলেও স্মরণ পাঠাতে। |
 
-The app does **not** request location, contacts, camera, microphone, or broad file access. When you
-choose a file to save a backup to or open one from, you do so through the operating system's own
-picker, and the app receives only the file you selected.
+অ্যাপটি অবস্থান, পরিচিতি, ক্যামেরা, মাইক্রোফোন বা ব্যাপক ফাইল অ্যাক্সেসের অনুমতি চায় **না**। ব্যাকআপ সংরক্ষণের জন্য ফাইল বাছাই বা খোলার সময় আপনি অপারেটিং সিস্টেমের নিজস্ব পিকার ব্যবহার করেন, এবং অ্যাপ কেবল আপনার নির্বাচিত ফাইলটিই পায়।
 
 ---
 
-## 5. When your data leaves the device — always because you asked
+## ৫. আপনার তথ্য কখন ডিভাইস ছাড়ে — সর্বদা আপনার অনুরোধেই
 
-- **Backups.** A backup file is written where you choose, through the system file picker. The file is
-  encrypted with AES-256-GCM using a key derived from *your* passphrase. **We never receive your
-  passphrase and cannot recover it or decrypt your backup.** If you send that file to Google Drive,
-  email or anywhere else, that copy is then governed by that service's own terms and privacy policy.
-- **Sharing and printing.** When you share a backup, print a case list or case details, or send a
-  prepared message to a client over SMS or WhatsApp, that content goes to the app or service you
-  chose. We are not involved and receive no copy.
-- **Support.** If you contact us, we see whatever you choose to send — for example your description
-  of a problem, your phone model, your app version, or a screenshot. Please do not send us the
-  contents of your diary or your passphrase unless you intend to share them.
+- **ব্যাকআপ।** আপনি যে স্থানে বেছে নেন, সেখানেই সিস্টেমের ফাইল পিকারের মাধ্যমে ব্যাকআপ ফাইল লেখা হয়। ফাইলটি AES-256-GCM দিয়ে এনক্রিপ্ট করা হয়, যার চাবি তৈরি হয় *আপনার* পাসফ্রেজ থেকে। **আমরা কখনো আপনার পাসফ্রেজ পাই না এবং তা উদ্ধার করতে বা আপনার ব্যাকআপ ডিক্রিপ্ট করতে পারি না।** আপনি সেই ফাইল গুগল ড্রাইভে, ইমেইলে বা অন্য কোথাও পাঠালে সেই কপিটি তখন ওই সেবার নিজস্ব শর্ত ও গোপনীয়তা নীতি দ্বারা নিয়ন্ত্রিত হয়।
+- **শেয়ার ও প্রিন্ট।** ব্যাকআপ শেয়ার করা, মামলার তালিকা বা মামলার বিবরণ প্রিন্ট করা, কিংবা এসএমএস বা হোয়াটসঅ্যাপে ক্লায়েন্টকে প্রস্তুত বার্তা পাঠানো — এসব ক্ষেত্রে সেই বিষয়বস্তু আপনার বেছে নেওয়া অ্যাপ বা সেবার কাছে যায়। আমরা এতে জড়িত নই এবং কোনো কপি পাই না।
+- **সহায়তা।** আপনি আমাদের সঙ্গে যোগাযোগ করলে আপনি যা পাঠাতে বেছে নেন তা-ই আমরা দেখি — যেমন সমস্যার বিবরণ, আপনার ফোনের মডেল, আপনার অ্যাপ সংস্করণ বা একটি স্ক্রিনশট। আপনি শেয়ার করতে না চাইলে আপনার ডায়েরির বিষয়বস্তু বা আপনার পাসফ্রেজ আমাদের পাঠাবেন না।
 
 ---
 
-## 6. The online version — accounts, cloud sync and payments
+## ৬. অনলাইন সংস্করণ — অ্যাকাউন্ট, ক্লাউড সিঙ্ক ও পেমেন্ট
 
-This section applies **only** once the online version is released and you choose to create an
-account or subscribe. **The released offline version does not collect any of this.**
+এই ধারা **কেবল** অনলাইন সংস্করণ প্রকাশের পর, আপনি অ্যাকাউন্ট খুলতে বা সাবস্ক্রাইব করতে বেছে নিলে প্রযোজ্য। **প্রকাশিত অফলাইন সংস্করণ এসবের কিছুই সংগ্রহ করে না।**
 
-**Account data.** Full name, email address, password, and your role (individual, firm owner,
-associate or viewer). Authentication is handled by our hosting provider, Supabase; **passwords are
-stored only as salted hashes and are never visible to us**. If you join a firm, your name, role and
-permission flags (add, edit, delete) are shared with the other members of that firm, because the app
-shows who last edited a record.
+**অ্যাকাউন্টের তথ্য।** পূর্ণ নাম, ইমেইল ঠিকানা, পাসওয়ার্ড এবং আপনার ভূমিকা (ব্যক্তিগত, ফার্মের মালিক, সহযোগী বা ভিউয়ার)। প্রমাণীকরণ পরিচালনা করে আমাদের হোস্টিং সেবাদাতা Supabase; **পাসওয়ার্ড শুধু সল্টেড হ্যাশ হিসেবে সংরক্ষিত হয় এবং তা কখনো আমাদের কাছে দৃশ্যমান হয় না**। আপনি কোনো ফার্মে যোগ দিলে আপনার নাম, ভূমিকা ও অনুমতির ফ্ল্যাগ (যোগ, সম্পাদনা, মুছে ফেলা) ওই ফার্মের অন্য সদস্যদের সঙ্গে শেয়ার হয়, কারণ অ্যাপ দেখায় কে সর্বশেষ কোনো রেকর্ড সম্পাদনা করেছে।
 
-**Firm data.** Firm or chamber name; the membership and permission records of its associates;
-single-use invite codes, which are stored **only as SHA-256 hashes** — the plaintext code is shown
-once and never stored or logged; a record of failed invite attempts, used to rate-limit password-
-like guessing.
+**ফার্মের তথ্য।** ফার্ম বা চেম্বারের নাম; তার সহযোগীদের সদস্যপদ ও অনুমতির রেকর্ড; একবার-ব্যবহারযোগ্য আমন্ত্রণ কোড, যা **কেবল SHA-256 হ্যাশ হিসেবে** সংরক্ষিত হয় — প্লেইনটেক্সট কোড একবারই দেখানো হয়, কখনো সংরক্ষণ বা লগ করা হয় না; এবং ব্যর্থ আমন্ত্রণ প্রচেষ্টার রেকর্ড, যা পাসওয়ার্ডের মতো অনুমান আটকাতে হার-সীমা নির্ধারণে ব্যবহৃত হয়।
 
-**Synced diary records.** If you subscribe and enable sync, the records described in section 4
-(cases, history, notes, references, and any courts, case types, steps or on-behalf entries you
-customised) are copied to our cloud database so your devices stay in step. Access is restricted by
-row-level security so that, by default, only you and — if you are in a firm — the members of your
-firm can reach them. Firm deletion requests and conflict records are also kept so that permissions
-and disputed edits are auditable.
+**সিঙ্ক করা ডায়েরির রেকর্ড।** আপনি সাবস্ক্রাইব করে সিঙ্ক চালু করলে ধারা ৪-এ বর্ণিত রেকর্ডগুলো (মামলা, ইতিহাস, নোট, রেফারেন্স এবং আপনার কাস্টমাইজ করা আদালত, মামলার ধরন, ধাপ বা পক্ষের এন্ট্রি) আপনার ডিভাইসগুলো সমন্বিত রাখতে আমাদের ক্লাউড ডেটাবেসে অনুলিপি করা হয়। row-level security দ্বারা অ্যাক্সেস সীমাবদ্ধ রাখা হয়, যাতে ডিফল্টভাবে কেবল আপনি এবং — আপনি ফার্মে থাকলে — আপনার ফার্মের সদস্যরা তা দেখতে পারেন। অনুমতি ও বিতর্কিত সম্পাদনা নিরীক্ষণযোগ্য রাখতে ফার্মের মুছে ফেলার অনুরোধ ও দ্বন্দ্বের রেকর্ডও সংরক্ষণ করা হয়।
 
-**Payment data.** Plans are paid by mobile financial service (bKash, Nagad or Rocket) and verified
-manually by us. To verify a payment we collect the plan chosen, the exact amount, the provider, the
-**sender's mobile number**, the **transaction ID**, and any review notes; we also keep an audit
-record of who approved it and what expiry it produced. We do **not** collect or store card or bank
-account details, and we do not process the payment itself — the transfer happens entirely between
-you and the provider.
+**পেমেন্টের তথ্য।** প্ল্যানের টাকা মোবাইল ফাইন্যান্সিয়াল সার্ভিসে (bKash, Nagad বা Rocket) দেওয়া হয় এবং আমরা তা হাতে যাচাই করি। পেমেন্ট যাচাই করতে আমরা সংগ্রহ করি নির্বাচিত প্ল্যান, সঠিক পরিমাণ, সেবাদাতার নাম, **প্রেরকের মোবাইল নম্বর**, **লেনদেন আইডি (TrxID)** এবং পর্যালোচনার নোট; এছাড়া কে তা অনুমোদন করেছে ও কোন মেয়াদ তৈরি হয়েছে তার নিরীক্ষা রেকর্ডও রাখা হয়। আমরা কার্ড বা ব্যাংক অ্যাকাউন্টের তথ্য **সংগ্রহ বা সংরক্ষণ করি না**, এবং পেমেন্টটি আমরা প্রক্রিয়া করি না — লেনদেনটি সম্পূর্ণভাবে আপনার ও সেবাদাতার মধ্যে ঘটে।
 
-**Diagnostics.** The app currently contains no analytics, crash-reporting or advertising software,
-and we do not track your use of it. If we ever add diagnostic reporting, it will be limited to
-technical metadata by default, will exclude your case content and any key or passphrase, and will
-require your explicit consent before any payload is included.
+**ডায়াগনস্টিকস।** অ্যাপে বর্তমানে কোনো অ্যানালিটিক্স, ক্র্যাশ-রিপোর্টিং বা বিজ্ঞাপন সফটওয়্যার নেই, এবং আমরা আপনার ব্যবহার ট্র্যাক করি না। ভবিষ্যতে যদি ডায়াগনস্টিক রিপোর্টিং যোগ করা হয়, তা ডিফল্টভাবে কেবল কারিগরি মেটাডেটায় সীমাবদ্ধ থাকবে, আপনার মামলার বিষয়বস্তু এবং কোনো চাবি বা পাসফ্রেজ বাদ দেবে, এবং কোনো পেলোড অন্তর্ভুক্ত করার আগে আপনার স্পষ্ট সম্মতি নেবে।
 
-**Third parties who process data for us:**
+**আমাদের হয়ে তথ্য প্রক্রিয়া করা তৃতীয় পক্ষ:**
 
-| Provider | Purpose | Notes |
+| সেবাদাতা | উদ্দেশ্য | মন্তব্য |
 |---|---|---|
-| Supabase | Cloud database, authentication and file infrastructure | Our processor; the data is held in Supabase's infrastructure **[TO CONFIRM: hosting region]** |
-| Google Play | App distribution and, where applicable, purchase processing | Governed by Google's own terms |
-| Google Drive, email, messaging apps | Receiving a backup or shared content | Only when you choose them; not our processors |
+| Supabase | ক্লাউড ডেটাবেস, প্রমাণীকরণ ও ফাইল পরিকাঠামো | আমাদের প্রক্রিয়াকরণকারী; তথ্য Supabase-এর পরিকাঠামোয় সংরক্ষিত হয় **[নিশ্চিত করতে হবে: হোস্টিং অঞ্চল]** |
+| Google Play | অ্যাপ বিতরণ এবং প্রযোজ্য ক্ষেত্রে ক্রয় প্রক্রিয়াকরণ | Google-এর নিজস্ব শর্ত দ্বারা নিয়ন্ত্রিত |
+| গুগল ড্রাইভ, ইমেইল, মেসেজিং অ্যাপ | ব্যাকআপ বা শেয়ার করা বিষয়বস্তু গ্রহণ | কেবল আপনি বেছে নিলে; এরা আমাদের প্রক্রিয়াকরণকারী নয় |
 
-**International transfers.** Our hosting provider may store data outside Bangladesh. Where data is
-transferred, we rely on the provider's contractual safeguards. **[TO CONFIRM: region and the
-transfer basis to cite.]**
+**আন্তর্জাতিক তথ্য স্থানান্তর।** আমাদের হোস্টিং সেবাদাতা বাংলাদেশের বাইরে তথ্য সংরক্ষণ করতে পারে। তথ্য স্থানান্তরের ক্ষেত্রে আমরা সেবাদাতার চুক্তিভিত্তিক সুরক্ষার উপর নির্ভর করি। **[নিশ্চিত করতে হবে: অঞ্চল এবং যে ভিত্তিতে স্থানান্তর হবে তা উল্লেখ করা হবে।]**
 
 ---
 
-## 7. How long we keep data
+## ৭. আমরা কত দিন তথ্য সংরক্ষণ করি
 
-| Data | Retained |
+| তথ্য | সংরক্ষণের সময় |
 |---|---|
-| Everything stored on your device | Until you delete it in the app, or uninstall the app or clear its data |
-| Backup files you created | Under your control, wherever you saved them. We hold none and cannot delete yours for you. |
-| Account and synced records (online) | While your account exists. On deletion of your account, removed from live systems within **[TO CONFIRM: e.g. 30 days]**, and from backups within **[TO CONFIRM: e.g. 90 days]**. |
-| Payment submissions and approval records | For accounting, dispute and audit purposes for **[TO CONFIRM: e.g. 6 years]** after the payment, then deleted. |
-| Failed invite attempts (online) | Automatically cleaned up within one day. |
+| আপনার ডিভাইসে সংরক্ষিত সবকিছু | অ্যাপে আপনি তা মুছে ফেলা, অথবা অ্যাপ আনইনস্টল করা বা তার তথ্য মুছে ফেলা পর্যন্ত |
+| আপনার তৈরি করা ব্যাকআপ ফাইল | আপনার নিয়ন্ত্রণে, যেখানে রেখেছেন সেখানেই। আমরা কোনোটি রাখি না এবং আপনার ব্যাকআপ আমরা মুছতে পারি না। |
+| অ্যাকাউন্ট ও সিঙ্ক করা রেকর্ড (অনলাইন) | আপনার অ্যাকাউন্ট যতদিন থাকবে ততদিন। অ্যাকাউন্ট মুছে ফেললে সক্রিয় সিস্টেম থেকে **[নিশ্চিত করতে হবে: যেমন ৩০ দিন]** এবং ব্যাকআপ থেকে **[নিশ্চিত করতে হবে: যেমন ৯০ দিন]** মধ্যে সরিয়ে ফেলা হয়। |
+| পেমেন্ট জমা ও অনুমোদনের রেকর্ড | হিসাবরক্ষণ, বিরোধ নিষ্পত্তি ও নিরীক্ষার জন্য পেমেন্টের পর **[নিশ্চিত করতে হবে: যেমন ৬ বছর]**, তারপর মুছে ফেলা হয়। |
+| ব্যর্থ আমন্ত্রণ প্রচেষ্টা (অনলাইন) | এক দিনের মধ্যেই স্বয়ংক্রিয়ভাবে পরিষ্কার করা হয়। |
 
 ---
 
-## 8. Your choices and rights
+## ৮. আপনার পছন্দ ও অধিকার
 
-- **Access and portability.** Everything the app holds is yours and is visible in the app. The
-  in-app **Backup to Local Storage** function produces a complete, portable, encrypted copy of your
-  diary at any time — this is your export.
-- **Correction.** You can edit or delete any record in the app.
-- **Deletion.**
-  - *Device data:* delete records in the app, or uninstall the app / clear its data.
-  - *Account and cloud data (online version):* email us at adv.asadusjaman@gmail.com from your
-    registered address and we will delete your account and its cloud records. **Note that the
-    in-app "Delete Account" control in Settings is not yet active** — until the online version
-    ships, deletion is handled by contacting us.
-  - *Backups you hold:* only you can delete these. Because they are encrypted with your passphrase,
-    we cannot open or erase them.
-- **Withdrawing consent.** You can stop sync at any time and continue using the app offline. You can
-  turn notifications off in Settings.
-- **Complaints.** Contact us first at the address in section 2. You may also have the right to
-  complain to the relevant data-protection authority in your jurisdiction.
+- **প্রবেশাধিকার ও বহনযোগ্যতা।** অ্যাপে যা আছে সবই আপনার এবং অ্যাপেই দৃশ্যমান। অ্যাপের **লোকাল স্টোরেজে ব্যাকআপ** সুবিধা যেকোনো সময় আপনার ডায়েরির একটি সম্পূর্ণ, বহনযোগ্য, এনক্রিপ্টেড কপি তৈরি করে — এটিই আপনার এক্সপোর্ট।
+- **সংশোধন।** অ্যাপে যেকোনো রেকর্ড আপনি সম্পাদনা বা মুছে ফেলতে পারেন।
+- **মুছে ফেলা।**
+  - *ডিভাইসের তথ্য:* অ্যাপে রেকর্ড মুছুন, অথবা অ্যাপ আনইনস্টল করুন / তার তথ্য মুছে ফেলুন।
+  - *অ্যাকাউন্ট ও ক্লাউড তথ্য (অনলাইন সংস্করণ):* আপনার নিবন্ধিত ঠিকানা থেকে adv.asadusjaman@gmail.com-এ ইমেইল করুন; আমরা আপনার অ্যাকাউন্ট ও তার ক্লাউড রেকর্ড মুছে ফেলব। **লক্ষ্য করুন, সেটিংসে থাকা অ্যাপের "অ্যাকাউন্ট মুছুন" নিয়ন্ত্রণ এখনো সক্রিয় নয়** — অনলাইন সংস্করণ প্রকাশের আগে মুছে ফেলার কাজটি আমাদের সঙ্গে যোগাযোগের মাধ্যমেই সম্পন্ন হয়।
+  - *আপনার কাছে থাকা ব্যাকআপ:* এগুলো কেবল আপনিই মুছতে পারেন। যেহেতু এগুলো আপনার পাসফ্রেজ দিয়ে এনক্রিপ্ট করা, আমরা এগুলো খুলতেও বা মুছতেও পারি না।
+- **সম্মতি প্রত্যাহার।** আপনি যেকোনো সময় সিঙ্ক বন্ধ করে অফলাইনেই অ্যাপ ব্যবহার চালিয়ে যেতে পারেন। সেটিংস থেকে নোটিফিকেশন বন্ধ করতে পারেন।
+- **অভিযোগ।** প্রথমে ধারা ২-এর ঠিকানায় আমাদের জানান। এছাড়াও আপনার এখতিয়ারের সংশ্লিষ্ট তথ্য-সুরক্ষা কর্তৃপক্ষের কাছে অভিযোগ করার অধিকার আপনার থাকতে পারে।
 
 ---
 
-## 9. How we protect data
+## ৯. আমরা তথ্য কীভাবে সুরক্ষিত রাখি
 
-- **On your device, your diary is not stored in plaintext.** The local database is fully encrypted;
-  the key is generated on your device and held in Android Keystore-backed secure storage, never in
-  the app's plain preferences, never in source code, and never in logs.
-- **Backups are encrypted** with AES-256-GCM, with the key derived from your passphrase using
-  PBKDF2-HMAC-SHA256. The file carries a versioned header, a nonce, an authentication tag and a
-  checksum, so a damaged or altered file is rejected rather than imported.
-- **When syncing (online version),** data is encrypted in transit, access is restricted by row-level
-  security so that one user cannot read another's records, premium entitlement is checked on the
-  server rather than trusted from the device, and only narrowly-scoped server functions may change
-  subscription status or approve a payment.
-- **On logout,** the device's local database is wiped to prevent one account's data appearing in
-  another's session. Before that wipe, the app offers to export your data so nothing unsynced is
-  lost silently.
-- **Only passwords we cannot read.** We never ask for, store or transmit your backup passphrase.
+- **আপনার ডিভাইসে আপনার ডায়েরি প্লেইনটেক্সটে সংরক্ষিত থাকে না।** স্থানীয় ডেটাবেস সম্পূর্ণভাবে এনক্রিপ্ট করা; চাবিটি আপনার ডিভাইসেই তৈরি হয় এবং Android Keystore-ভিত্তিক নিরাপদ স্টোরেজে রাখা হয় — কখনো অ্যাপের সাধারণ প্রেফারেন্সে, কখনো সোর্স কোডে, কখনো লগে নয়।
+- **ব্যাকআপ এনক্রিপ্টেড**, AES-256-GCM দিয়ে, চাবি আপনার পাসফ্রেজ থেকে PBKDF2-HMAC-SHA256 দিয়ে তৈরি। ফাইলটিতে একটি সংস্করণযুক্ত হেডার, নন্স, প্রমাণীকরণ ট্যাগ ও চেকসাম থাকে, তাই ক্ষতিগ্রস্ত বা পরিবর্তিত ফাইল আমদানি না করে প্রত্যাখ্যান করা হয়।
+- **সিঙ্কের সময় (অনলাইন সংস্করণে),** তথ্য প্রেরণকালে এনক্রিপ্টেড থাকে, row-level security দ্বারা অ্যাক্সেস সীমাবদ্ধ থাকে যাতে এক ব্যবহারকারী অন্যের রেকর্ড পড়তে না পারেন, প্রিমিয়াম entitlement ডিভাইসে না মেনে সার্ভারে যাচাই করা হয়, এবং কেবল সংকীর্ণ পরিসরের সার্ভার ফাংশনই সাবস্ক্রিপশনের অবস্থা পরিবর্তন বা পেমেন্ট অনুমোদন করতে পারে।
+- **লগআউটে** এক অ্যাকাউন্টের তথ্য অন্য সেশনে দেখা যাওয়া রোধ করতে ডিভাইসের স্থানীয় ডেটাবেস মুছে ফেলা হয়। সেই মোছার আগে অ্যাপ আপনার তথ্য এক্সপোর্ট করার সুযোগ দেয়, যাতে সিঙ্ক না হওয়া কোনো কাজ নীরবে হারিয়ে না যায়।
+- **কেবল আমরা যা পড়তে পারি না এমন পাসওয়ার্ড।** আপনার ব্যাকআপ পাসফ্রেজ আমরা কখনো চাই না, সংরক্ষণ করি না বা প্রেরণ করি না।
 
-No system is perfectly secure. If you become aware of a security issue, please tell us at the
-address in section 2 so we can act on it.
+কোনো সিস্টেমই নিখুঁতভাবে নিরাপদ নয়। নিরাপত্তার কোনো সমস্যার কথা জানতে পারলে ধারা ২-এর ঠিকানায় আমাদের জানান, যাতে আমরা ব্যবস্থা নিতে পারি।
 
 ---
 
-## 10. Children
+## ১০. শিশু
 
-The app is a professional tool for legal practitioners and their staff. It is not intended for
-anyone under 18, and we do not knowingly hold data about children except where it appears in a
-lawyer's own case records.
+অ্যাপটি আইন পেশাজীবী ও তাদের কর্মীদের জন্য একটি পেশাগত সরঞ্জাম। এটি ১৮ বছরের কম বয়সীদের জন্য নয়, এবং আইনজীবীর নিজের মামলার রেকর্ডে যেখানে আছে সেখানে ছাড়া শিশুদের সম্পর্কে আমরা সচেতনভাবে কোনো তথ্য সংরক্ষণ করি না।
 
 ---
 
-## 11. Changes to this policy
+## ১১. এই নীতির পরিবর্তন
 
-If we change this policy we will update the version and effective date above and show the current
-version in the app's About screen. Where a change materially affects how your data is handled — for
-example, when online sync begins — we will tell you in the app before the change takes effect.
+এই নীতি পরিবর্তন করলে উপরের সংস্করণ ও কার্যকর তারিখ হালনাগাদ করা হবে এবং অ্যাপের সম্পর্কিত (About) স্ক্রিনে বর্তমান সংস্করণ দেখানো হবে। কোনো পরিবর্তন আপনার তথ্য কীভাবে পরিচালিত হয় তা গুরুত্বপূর্ণভাবে প্রভাবিত করলে — যেমন অনলাইন সিঙ্ক শুরু হওয়া — পরিবর্তন কার্যকর হওয়ার আগে আমরা অ্যাপেই তা জানাব।
 
 ---
 
-## 12. Contact
+## ১২. যোগাযোগ
 
-**Asadusjaman Sazal** — adv.asadusjaman@gmail.com — WhatsApp +880 1835 252721
-**[TO CONFIRM: postal address for formal notices.]**
+**আসাদুজ্জামান সাজল** — adv.asadusjaman@gmail.com — হোয়াটসঅ্যাপ +৮৮০ ১৮৩৫ ২৫২৭২১
+**[নিশ্চিত করতে হবে: আনুষ্ঠানিক নোটিশের জন্য ডাক ঠিকানা।]**
 
 ---
 
-*This document is a draft prepared alongside the app's implementation and is not a substitute for
-legal advice. It should be reviewed by a qualified lawyer, particularly on the governing-law and
-international-transfer points, before publication.*
+*এই নথিটি অ্যাপের বাস্তবায়নের সঙ্গে সমান্তরালে প্রস্তুত একটি খসড়া এবং আইনি পরামর্শের বিকল্প নয়। প্রকাশের আগে একজন যোগ্য আইনজীবী দিয়ে এটি পর্যালোচনা করানো উচিত, বিশেষ করে প্রযোজ্য আইন ও আন্তর্জাতিক তথ্য স্থানান্তরের বিষয়গুলো।*

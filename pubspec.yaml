@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.238
+version: 0.0.239
 
 environment:
   sdk: ^3.12.2
@@ -115,6 +115,10 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    # The legal documents shown by Settings > About. They are bundled from
+    # `docs/legal/` on purpose: it is the single copy, so the text the app shows
+    # can never drift from the text in the repository.
+    - docs/legal/
 
   # Custom fonts for the Justice Ledger design system (Task 02).
   fonts:

@@ -2106,6 +2106,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsAbout_actionPending => 'পরবর্তী কোনো টাস্কে আসবে';
 
   @override
+  String get settingsLegal_loadFailed =>
+      'এই নথিটি খোলা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get settingsMoreAbout_title => 'অ্যাপ সম্পর্কে আরও';
 
   @override

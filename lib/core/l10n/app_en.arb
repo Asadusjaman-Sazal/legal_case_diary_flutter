@@ -909,6 +909,7 @@
   "settingsAbout_dataSafetyTitle": "Data Safety",
   "settingsAbout_dataSafetyBody": "Your diary and your backup files are stored on your device in encrypted form. Nothing is uploaded unless you send it.",
   "settingsAbout_actionPending": "Arrives in a later task",
+  "settingsLegal_loadFailed": "Could not open this document. Please try again.",
   "@@_section_settingsMoreAbout": "SETTINGS - MORE ABOUT THE APP  |  lib/features/settings/presentation/settings_about/more_about_the_app_screen.dart",
   "settingsMoreAbout_title": "More About the App",
   "settingsMoreAbout_checkUpdates": "Check for updates",

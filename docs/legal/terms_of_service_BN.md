@@ -1,273 +1,188 @@
-# Terms of Service — Legal Case Diary
+# সেবার শর্তাবলি — লিগ্যাল কেস ডায়েরি
 
-**Effective date:** [TO CONFIRM — set on release]
-**Applies to:** the Legal Case Diary Android application ("the app")
-**Document version:** 1.0 (draft)
+**কার্যকর তারিখ:** [নিশ্চিত করতে হবে — প্রকাশের সময় নির্ধারণ করা হবে]
 
-> **Status:** draft for legal review. Items marked **[TO CONFIRM]** are business decisions that
-> must be settled before publication. Sections about paid subscriptions take effect when purchasing
-> opens; the released version is free and offline.
+**প্রযোজ্য:** লিগ্যাল কেস ডায়েরি অ্যান্ড্রয়েড অ্যাপ্লিকেশন ("অ্যাপ")
 
----
+**নথির সংস্করণ:** ১.০ (খসড়া)
 
-## 1. Agreement
-
-By installing or using Legal Case Diary you agree to these Terms. If you do not agree, do not use
-the app. If you use the app on behalf of a chamber or firm, you confirm you are authorised to accept
-these Terms for it.
-
-The app is published by **Asadusjaman Sazal**, an individual developer in Narayanganj, Bangladesh
-("we", "us"). Contact: adv.asadusjaman@gmail.com, WhatsApp +880 1835 252721.
+> **অবস্থা:** আইনি পর্যালোচনার জন্য খসড়া। **[নিশ্চিত করতে হবে]** চিহ্নিত বিষয়গুলো এমন ব্যবসায়িক সিদ্ধান্ত, যা প্রকাশের আগে নির্ধারণ করতে হবে। সশুল্ক সাবস্ক্রিপশন সম্পর্কিত ধারাগুলো ক্রয় চালু হওয়ার সময় কার্যকর হবে; প্রকাশিত সংস্করণটি ফ্রি এবং অফলাইন।
 
 ---
 
-## 2. What the app is — and what it is not
+## ১. সম্মতি
 
-Legal Case Diary is a **personal record-keeping tool** for legal practitioners. It helps you record
-cases, hearing dates, steps, notes and references, see a daily cause list, and be reminded of
-hearings.
+লিগ্যাল কেস ডায়েরি ইনস্টল বা ব্যবহার করার মাধ্যমে আপনি এই শর্তাবলিতে সম্মত হচ্ছেন। আপনি সম্মত না হলে অ্যাপটি ব্যবহার করবেন না। আপনি কোনো চেম্বার বা ফার্মের পক্ষে অ্যাপটি ব্যবহার করলে, আপনি নিশ্চিত করছেন যে তার পক্ষে এই শর্তাবলি গ্রহণ করার ক্ষমতা আপনার আছে।
 
-**It is not legal advice, and it is not a court record.** Specifically:
-
-- **Verify every hearing date with the court.** The cause list and hearing dates in the app are
-  drawn from what *you* entered. The official cause list and the court's records are authoritative,
-  and they can change without notice to us.
-- Court names pre-seeded in the app come from the Government's cause-list website
-  (causelist.judiciary.gov.bd) and are used unmodified; you can rename any of them yourself.
-- The app is not a substitute for your professional judgement, your file-keeping obligations, or
-  any duty you owe a client or a court.
-- Printed output is generated from your data and is only as accurate as that data.
+অ্যাপটি প্রকাশ করেছে **আসাদুজ্জামান সাজল**, বাংলাদেশের নারায়ণগঞ্জে অবস্থিত একজন ব্যক্তিগত ডেভেলপার ("আমরা")। যোগাযোগ: adv.asadusjaman@gmail.com, হোয়াটসঅ্যাপ +৮৮০ ১৮৩৫ ২৫২৭২১।
 
 ---
 
-## 3. Eligibility
+## ২. অ্যাপটি কী — এবং কী নয়
 
-You must be at least 18 and either a qualified legal practitioner, a member of a firm or chamber,
-or staff authorised by one. You are responsible for complying with the rules of your Bar, your
-firm's policies and any applicable law, including the professional duties of confidentiality you owe
-your clients.
+লিগ্যাল কেস ডায়েরি আইন পেশাজীবীদের জন্য একটি **ব্যক্তিগত রেকর্ড রাখার সরঞ্জাম**। এটি আপনার মামলা, শুনানির তারিখ, ধাপ, নোট ও রেফারেন্স লিখতে, দৈনিক কজ লিস্ট দেখতে এবং শুনানির স্মরণ পেতে সাহায্য করে।
 
----
+**এটি আইনি পরামর্শ নয়, এবং এটি আদালতের রেকর্ডও নয়।** সুনির্দিষ্টভাবে:
 
-## 4. Your account, and firm mode
-
-**Offline use needs no account.** When the online version is released, an account will be required
-for synchronisation and for firm features.
-
-- Give accurate registration details and keep them current.
-- Keep your password confidential. You are responsible for activity under your account.
-- One person, one account. Do not share credentials.
-- **Firm owners** control the firm's subscription and the permissions of its associates (add, edit,
-  delete) and may invite or remove associates. An owner must have the authority to make those
-  decisions for their firm.
-- **Associates** are bound by the permissions their firm sets, and their access to the firm's data
-  ends when the firm removes them.
-- When a firm's subscription lapses beyond the grace period, synchronisation stops for the whole
-  firm and the app returns to local-only operation. Existing data is not deleted.
+- **প্রতিটি শুনানির তারিখ আদালত থেকে যাচাই করুন।** অ্যাপের কজ লিস্ট ও শুনানির তারিখ *আপনার* লেখা তথ্য থেকে তৈরি। অফিসিয়াল কজ লিস্ট ও আদালতের রেকর্ডই চূড়ান্ত, এবং আমাদের না জানিয়েও সেগুলো বদলাতে পারে।
+- অ্যাপে আগে থেকে যুক্ত আদালতের নামগুলো সরকারের কজ লিস্ট ওয়েবসাইট (causelist.judiciary.gov.bd) থেকে নেওয়া এবং কোনো পরিবর্তন ছাড়াই ব্যবহৃত; আপনি নিজেই যেকোনো নাম বদলাতে পারেন।
+- অ্যাপটি আপনার পেশাগত বিচারবিবেচনা, আপনার নথিরক্ষণের দায়িত্ব, কিংবা ক্লায়েন্ট বা আদালতের প্রতি আপনার কোনো দায়িত্বের বিকল্প নয়।
+- প্রিন্ট করা ফলাফল আপনার তথ্য থেকেই তৈরি হয় এবং তথ্য যতটুকু নির্ভুল, ফলাফলও ততটুকুই।
 
 ---
 
-## 5. Licence
+## ৩. যোগ্যতা
 
-We grant you a personal, non-exclusive, non-transferable, revocable licence to use the app for your
-own professional practice. You may not:
-
-- copy, sell, rent, sublicense or commercially exploit the app;
-- reverse-engineer, decompile or attempt to derive the app's source code or encryption keys, except
-  where that restriction is prohibited by law;
-- remove or obscure any proprietary notice; or
-- use the app to build a competing product.
-
-The app, its design, its text and its software remain our property or that of our licensors. Your
-data remains yours — see section 8.
+আপনার বয়স অন্তত ১৮ হতে হবে এবং আপনাকে একজন যোগ্য আইন পেশাজীবী, কোনো ফার্ম বা চেম্বারের সদস্য, বা তাদের অনুমোদিত কর্মী হতে হবে। আপনার বার-এর নিয়মাবলি, আপনার ফার্মের নীতিমালা ও প্রযোজ্য আইন মেনে চলা — ক্লায়েন্টের প্রতি আপনার পেশাগত গোপনীয়তার দায়িত্বসহ — আপনার দায়িত্ব।
 
 ---
 
-## 6. Free plan, Premium, and what you are paying for
+## ৪. আপনার অ্যাকাউন্ট এবং ফার্ম মোড
 
-**Free plan.** The offline app is free. It holds up to **50 live cases**. The limit counts cases you
-have not deleted; soft-deleted records are excluded, so deleting a case frees a slot. At the limit,
-adding a further case is blocked and the premium screen is shown. **Nothing already in your diary is
-ever hidden, blocked or deleted** because of the limit — you keep every case you have, and you may
-continue to view, edit, update, print and delete them. Cloud sync is not part of the free plan.
+**অফলাইনে ব্যবহারের জন্য কোনো অ্যাকাউন্ট লাগে না।** অনলাইন সংস্করণ প্রকাশিত হলে সিঙ্ক্রোনাইজেশন ও ফার্ম-সংক্রান্ত সুবিধার জন্য অ্যাকাউন্ট প্রয়োজন হবে।
 
-**Premium.** Premium raises the case limit and, when the online version is released, enables cloud
-synchronisation, multi-device use and firm mode. The plans are **৳100 per month** and **৳1,000 per
-year**. There is no lifetime plan. **[TO CONFIRM: whether the premium case limit is unlimited.]**
-
-- **Purchasing is not yet open.** The premium screen shows the plans, but the purchase actions are
-  disabled until the online version ships. Until then, nothing in the app can take your money.
-- **No automatic renewal.** Subscriptions are activated manually after we verify your payment, so
-  nothing is charged to you automatically and no plan renews without a fresh payment from you.
-- **Expiry and grace.** When a subscription ends, synchronisation continues for a **48-hour grace
-  period**, during which the app shows a renewal notice. After that, sync stops and the app returns
-  to local-only operation.
-- **Lapsed users keep everything.** If you do not renew, the 50-case limit does **not** apply to
-  cases you already hold. It gates only *adding* further cases on a free entitlement.
-- **Price changes.** We may change prices for future periods. A change will be shown in the app
-  before you pay it, and it never affects a period you have already paid for.
-
-**Refunds.** Subscriptions are for a fixed term and are activated manually, often within a day or
-two of your payment. **[TO CONFIRM: refund policy.]** Nothing in this section removes any right you
-have under the law that applies to you or under the app store's own policies.
+- নিবন্ধনের তথ্য নির্ভুল দিন এবং হালনাগাদ রাখুন।
+- পাসওয়ার্ড গোপন রাখুন। আপনার অ্যাকাউন্টের অধীনে যাবতীয় কার্যক্রমের দায়িত্ব আপনার।
+- একজন একজন, একটি অ্যাকাউন্ট। লগইন তথ্য কারো সঙ্গে শেয়ার করবেন না।
+- **ফার্মের মালিক** ফার্মের সাবস্ক্রিপশন এবং সহযোগীদের অনুমতি (যোগ, সম্পাদনা, মুছে ফেলা) নিয়ন্ত্রণ করেন এবং সহযোগীদের আমন্ত্রণ জানাতে বা সরাতে পারেন। ফার্মের পক্ষে সেই সিদ্ধান্ত নেওয়ার অধিকার মালিকের থাকতে হবে।
+- **সহযোগীরা** ফার্মের নির্ধারিত অনুমতি দ্বারা বাধ্য থাকেন, এবং ফার্ম তাদের সরিয়ে দিলে ফার্মের তথ্যে তাদের প্রবেশাধিকার শেষ হয়ে যায়।
+- ফার্মের সাবস্ক্রিপশন গ্রেস পিরিয়ড ছাড়িয়ে গেলে পুরো ফার্মের সিঙ্ক্রোনাইজেশন বন্ধ হয়ে যায় এবং অ্যাপ কেবল স্থানীয়ভাবে চলতে থাকে। আগের তথ্য মুছে ফেলা হয় না।
 
 ---
 
-## 7. Payments
+## ৫. লাইসেন্স
 
-Payment is made by mobile financial service — **bKash, Nagad or Rocket** — directly to the number
-shown in the app, and is verified manually.
+আপনার নিজের পেশাগত কাজে অ্যাপটি ব্যবহারের জন্য আমরা আপনাকে ব্যক্তিগত, অ-একচেটিয়া, হস্তান্তরযোগ্য নয় এবং প্রত্যাহারযোগ্য একটি লাইসেন্স দিচ্ছি। আপনি যা করতে পারবেন না:
 
-- You are responsible for sending the **exact amount** to the **correct number** and for entering the
-  **correct transaction ID** and sender number. A wrong amount, number or ID may delay or prevent
-  activation.
-- Each account may make at most **three payment submissions in any 24 hours**. This limit exists to
-  prevent abuse and applies to the account, not the device.
-- Submitting false, altered, reused or fraudulent payment details, or attempting to obtain premium
-  access without paying, may result in your submission being rejected, your premium access being
-  withdrawn, and your account being suspended or terminated.
-- A subscription is tied to the account that paid for it and is not transferable.
-- A firm owner's payment covers their firm's associates for as long as it is valid. It is the owner's
-  responsibility to renew.
-- We keep a record of each submission, its approval and the resulting expiry, for accounting, dispute
-  resolution and audit purposes.
+- অ্যাপটি কপি, বিক্রয়, ভাড়া, উপ-লাইসেন্স বা বাণিজ্যিকভাবে ব্যবহার করা;
+- অ্যাপের সোর্স কোড বা এনক্রিপশন চাবি উদ্ধারের চেষ্টা করে রিভার্স-ইঞ্জিনিয়ার বা ডিকম্পাইল করা, যেখানে আইন এমন নিষেধাজ্ঞা মানে না সেখানে ছাড়া;
+- কোনো মালিকানা সংক্রান্ত নোটিশ মুছে ফেলা বা আড়াল করা; কিংবা
+- অ্যাপটি ব্যবহার করে প্রতিযোগী কোনো পণ্য তৈরি করা।
 
-Transfers are made through the provider's own service, and the provider's terms govern that
-transaction. We never ask for your bKash, Nagad or Rocket password, PIN or one-time code. **Anyone
-who does is not us.** We also never ask for your backup passphrase.
+অ্যাপ, তার ডিজাইন, তার লেখা ও তার সফটওয়্যার আমাদের বা আমাদের লাইসেন্সদাতাদের সম্পত্তি। আপনার তথ্য আপনারই থাকে — দেখুন ধারা ৮।
 
 ---
 
-## 8. Your data and your responsibility for it
+## ৬. ফ্রি প্ল্যান, প্রিমিয়াম এবং আপনি কিসের টাকা দিচ্ছেন
 
-**You own your data.** You grant us only the limited licence needed to operate the app: to store it
-on your device, and — if you enable sync in the online version — to transmit, store and process it so
-that your devices and your firm's members stay in step. We do not sell your data, and the app
-contains no advertising or tracking.
+**ফ্রি প্ল্যান।** অফলাইন অ্যাপটি ফ্রি। এতে সর্বোচ্চ **৫০টি সক্রিয় মামলা** রাখা যায়। এই সীমা আপনার মুছে না ফেলা মামলাগুলো গোনে; soft-deleted রেকর্ড বাদ পড়ে, তাই একটি মামলা মুছলে একটি স্লট খালি হয়। সীমায় পৌঁছালে আরেকটি মামলা যোগ করা বন্ধ হয় এবং প্রিমিয়াম স্ক্রিন দেখানো হয়। সীমার কারণে **আপনার ডায়েরিতে আগে থেকে থাকা কিছুই কখনো লুকানো, বন্ধ বা মুছে ফেলা হয় না** — আপনার সব মামলা আপনার কাছেই থাকে, এবং আপনি সেগুলো দেখা, সম্পাদনা, আপডেট, প্রিন্ট ও মুছে ফেলা চালিয়ে যেতে পারেন। ক্লাউড সিঙ্ক ফ্রি প্ল্যানের অংশ নয়।
 
-**You are responsible for:**
+**প্রিমিয়াম।** প্রিমিয়াম মামলার সীমা বাড়ায় এবং অনলাইন সংস্করণ প্রকাশিত হলে ক্লাউড সিঙ্ক্রোনাইজেশন, একাধিক ডিভাইসে ব্যবহার ও ফার্ম মোড চালু করে। প্ল্যান দুটি: **মাসিক ৳১০০** এবং **বাৎসরিক ৳১,০০০**। কোনো লাইফটাইম প্ল্যান নেই। **[নিশ্চিত করতে হবে: প্রিমিয়ামে মামলার সংখ্যা সীমাহীন হবে কি না।]**
 
-- the accuracy and lawfulness of what you enter, including personal data about clients, opposing
-  parties, witnesses and others, and for the confidentiality you owe them;
-- keeping your own backups. A local export is the only safety net in the offline version, and the app
-  reminds you monthly if you have not made one;
-- **your backup passphrase.** It is never stored or sent anywhere, and it cannot be recovered by us
-  or by anyone else. A backup whose passphrase is lost is permanently unreadable;
-- your device and its security, including screen lock and not leaving the app open to others.
+- **ক্রয় এখনো চালু হয়নি।** প্রিমিয়াম স্ক্রিনে প্ল্যানগুলো দেখা যায়, কিন্তু অনলাইন সংস্করণ প্রকাশের আগে ক্রয়ের বোতামগুলো নিষ্ক্রিয় থাকে। ততদিন অ্যাপের কোনো কিছু আপনার কাছ থেকে টাকা নিতে পারে না।
+- **স্বয়ংক্রিয় নবায়ন নেই।** আপনার পেমেন্ট আমরা যাচাই করার পর সাবস্ক্রিপশন হাতে সক্রিয় করা হয়, তাই স্বয়ংক্রিয়ভাবে আপনার কাছ থেকে কোনো টাকা কাটা হয় না এবং আপনার নতুন পেমেন্ট ছাড়া কোনো প্ল্যান নবায়ন হয় না।
+- **মেয়াদ শেষ ও গ্রেস পিরিয়ড।** সাবস্ক্রিপশন শেষ হলে **৪৮ ঘণ্টার গ্রেস পিরিয়ড** পর্যন্ত সিঙ্ক্রোনাইজেশন চালু থাকে, যার সময় অ্যাপ নবায়নের বার্তা দেখায়। এরপর সিঙ্ক বন্ধ হয় এবং অ্যাপ কেবল স্থানীয়ভাবে চলে।
+- **মেয়াদ শেষ হওয়া ব্যবহারকারীর সবই থেকে যায়।** আপনি নবায়ন না করলে আপনার কাছে আগে থেকে থাকা মামলাগুলোতে ৫০-এর সীমা **প্রযোজ্য হয় না**। ফ্রি entitlement-এ সীমাটি কেবল *নতুন* মামলা যোগ করা বন্ধ করে।
+- **মূল্য পরিবর্তন।** ভবিষ্যতের সময়ের জন্য আমরা মূল্য বদলাতে পারি। পরিশোধের আগে অ্যাপে পরিবর্তনটি দেখানো হবে, এবং আপনি যে সময়ের টাকা ইতিমধ্যে দিয়েছেন তাতে এর কোনো প্রভাব পড়বে না।
 
-**Data loss.** We are not responsible for loss of data caused by an action outside our control —
-losing or wiping your phone, uninstalling the app, clearing its data, a forgotten passphrase, a
-failed or interrupted backup, a corrupted or tampered backup file, or a third-party service such as a
-cloud drive or messaging app. Keep regular backups and store a copy somewhere other than the phone.
-
-**Deleted data cannot be recovered.** Deleting a case in the app cannot be undone. Restoring a backup
-replaces the diary's contents entirely and cannot be undone, so back up the current data first if you
-may need it.
+**অর্থ ফেরত।** সাবস্ক্রিপশন নির্দিষ্ট সময়ের জন্য এবং হাতে সক্রিয় করা হয়, প্রায়ই পেমেন্টের এক-দুই দিনের মধ্যে। **[নিশ্চিত করতে হবে: অর্থ ফেরতের নীতি।]** এই ধারার কোনো কিছুই আপনার ক্ষেত্রে প্রযোজ্য আইন বা অ্যাপ স্টোরের নীতিমালার অধীনে আপনার কোনো অধিকার কেড়ে নেয় না।
 
 ---
 
-## 9. Acceptable use
+## ৭. পেমেন্ট
 
-You must not use the app to:
+টাকা দেওয়া হয় মোবাইল ফাইন্যান্সিয়াল সার্ভিসে — **bKash, Nagad বা Rocket** — অ্যাপে দেখানো নম্বরে সরাসরি, এবং তা হাতে যাচাই করা হয়।
 
-- break the law or a court order, or infringe anyone's rights;
-- store or distribute material you are not lawfully entitled to hold;
-- gain or attempt to gain access to another person's or firm's data;
-- circumvent the case limit, the payment submission limit, invitation code protections or any other
-  technical control;
-- interfere with the app, our services, or anyone else's use of them; or
-- misrepresent the app's output as an official court record.
+- **সঠিক পরিমাণ** টাকা **সঠিক নম্বরে** পাঠানো এবং **সঠিক লেনদেন আইডি** ও প্রেরকের নম্বর লেখার দায়িত্ব আপনার। ভুল পরিমাণ, নম্বর বা আইডি সক্রিয়করণ বিলম্বিত বা বাধাগ্রস্ত করতে পারে।
+- প্রতিটি অ্যাকাউন্ট **যেকোনো ২৪ ঘণ্টায় সর্বোচ্চ তিনটি পেমেন্ট জমা** দিতে পারে। অপব্যবহার রোধে এই সীমা রয়েছে এবং এটি ডিভাইসের নয়, অ্যাকাউন্টের ক্ষেত্রে প্রযোজ্য।
+- মিথ্যা, পরিবর্তিত, পুনরায় ব্যবহৃত বা প্রতারণামূলক পেমেন্ট তথ্য জমা দেওয়া, কিংবা টাকা না দিয়ে প্রিমিয়াম সুবিধা নেওয়ার চেষ্টা করলে আপনার জমা প্রত্যাখ্যাত হতে পারে, প্রিমিয়াম প্রবেশাধিকার প্রত্যাহার হতে পারে এবং আপনার অ্যাকাউন্ট স্থগিত বা বাতিল হতে পারে।
+- সাবস্ক্রিপশন যে অ্যাকাউন্ট টাকা দিয়েছে তার সঙ্গে যুক্ত এবং তা হস্তান্তরযোগ্য নয়।
+- ফার্মের মালিকের পেমেন্ট যতদিন কার্যকর থাকে ততদিন তার ফার্মের সহযোগীদেরও কভার করে। নবায়ন করা মালিকের দায়িত্ব।
+- হিসাবরক্ষণ, বিরোধ নিষ্পত্তি ও নিরীক্ষার জন্য আমরা প্রতিটি জমা, তার অনুমোদন এবং তাতে তৈরি হওয়া মেয়াদের রেকর্ড রাখি।
 
----
-
-## 10. Availability and changes to the app
-
-- **The offline version works without a network connection.** We do not promise any particular level
-  of service for cloud features; they may be unavailable during maintenance, outages or changes, and
-  we may modify or withdraw features. Where a paid feature is withdrawn before your paid period ends,
-  **[TO CONFIRM: remedy — e.g. pro-rata refund or continuation to period end]**.
-- Hearing notifications depend on your device and its battery-management behaviour. Many Android
-  phones stop background work to save power; the app provides a battery and auto-start setup guide
-  and a test notification, but we cannot guarantee that an alert will always be delivered on time.
-  Do not rely on the app as your only reminder of a hearing.
-- We may release updates that change the app's behaviour. Backups made by an **older** version are
-  upgraded automatically when restored; a backup made by a **newer** version is refused.
+টাকা পাঠানো হয় সেবাদাতার নিজস্ব সেবার মাধ্যমে, এবং সেই লেনদেন সেবাদাতার শর্তাবলি দ্বারা নিয়ন্ত্রিত। আপনার bKash, Nagad বা Rocket-এর পাসওয়ার্ড, পিন বা ওয়ান-টাইম কোড আমরা কখনো চাই না। **যে চায় সে আমরা নই।** আপনার ব্যাকআপ পাসফ্রেজও আমরা কখনো চাই না।
 
 ---
 
-## 11. Third-party services
+## ৮. আপনার তথ্য এবং তার দায়িত্ব
 
-The app relies on services we do not control, including Google Play for distribution, Supabase for
-cloud infrastructure (online version), and — only when you choose them — your file picker, cloud
-drive, email, SMS and messaging apps, and your mobile financial service provider. Their terms and
-privacy policies apply to their part of the service, and we are not responsible for their acts or
-omissions.
+**আপনার তথ্য আপনারই।** অ্যাপ চালানোর জন্য প্রয়োজনীয় সীমিত লাইসেন্সটুকুই আপনি আমাদের দিচ্ছেন: তথ্য আপনার ডিভাইসে সংরক্ষণ করা, এবং — অনলাইন সংস্করণে আপনি সিঙ্ক চালু করলে — আপনার ডিভাইসগুলো ও আপনার ফার্মের সদস্যরা সমন্বিত থাকতে তা প্রেরণ, সংরক্ষণ ও প্রক্রিয়া করা। আমরা আপনার তথ্য বিক্রি করি না, এবং অ্যাপে কোনো বিজ্ঞাপন বা ট্র্যাকিং নেই।
 
----
+**যেসব বিষয়ে দায়িত্ব আপনার:**
 
-## 12. Disclaimers
+- আপনি যা লিখবেন তার নির্ভুলতা ও বৈধতা, ক্লায়েন্ট, বিপক্ষ পক্ষ, সাক্ষী ও অন্যদের ব্যক্তিগত তথ্যসহ, এবং তাদের প্রতি আপনার গোপনীয়তার দায়িত্ব;
+- নিজের ব্যাকআপ রাখা। অফলাইন সংস্করণে স্থানীয় এক্সপোর্টই একমাত্র নিরাপত্তা-জাল, আর আপনি ব্যাকআপ না নিলে অ্যাপ মাসে একবার মনে করিয়ে দেয়;
+- **আপনার ব্যাকআপ পাসফ্রেজ।** এটি কোথাও সংরক্ষণ বা প্রেরণ করা হয় না, এবং আমরা বা অন্য কেউ তা উদ্ধার করতে পারে না। পাসফ্রেজ হারানো ব্যাকআপ চিরকালের জন্য পড়া যায় না;
+- আপনার ডিভাইস ও তার নিরাপত্তা, স্ক্রিন লকসহ এবং অন্যদের সামনে অ্যাপ খোলা না রাখা।
 
-To the fullest extent permitted by law, the app is provided **"as is" and "as available"**, without
-warranties of any kind, express or implied, including fitness for a particular purpose, accuracy, or
-uninterrupted or error-free operation. We do not warrant that the app will meet your requirements,
-that its output is accurate, or that any defect will be corrected. Nothing in these Terms excludes
-any warranty or right that cannot lawfully be excluded.
+**তথ্য হারানো।** আমাদের নিয়ন্ত্রণের বাইরের কোনো কারণে তথ্য হারালে তার দায়িত্ব আমাদের নয় — ফোন হারানো বা মুছে যাওয়া, অ্যাপ আনইনস্টল করা, তার তথ্য মুছে ফেলা, পাসফ্রেজ ভুলে যাওয়া, ব্যর্থ বা বাধাগ্রস্ত ব্যাকআপ, ক্ষতিগ্রস্ত বা পরিবর্তিত ব্যাকআপ ফাইল, কিংবা ক্লাউড ড্রাইভ বা মেসেজিং অ্যাপের মতো কোনো তৃতীয় পক্ষের সেবা। নিয়মিত ব্যাকআপ রাখুন এবং একটি কপি ফোনের বাইরে সংরক্ষণ করুন।
+
+**মুছে ফেলা তথ্য ফিরিয়ে আনা যায় না।** অ্যাপে একটি মামলা মুছে ফেলা ফেরানো যায় না। ব্যাকআপ পুনরুদ্ধার করলে ডায়েরির বিষয়বস্তু সম্পূর্ণভাবে প্রতিস্থাপিত হয় এবং তা ফেরানো যায় না, তাই দরকার হতে পারে এমন তথ্য থাকলে আগে তার ব্যাকআপ নিন।
 
 ---
 
-## 13. Limitation of liability
+## ৯. গ্রহণযোগ্য ব্যবহার
 
-To the fullest extent permitted by law:
+আপনি অ্যাপটি ব্যবহার করে নিচের কাজগুলো করতে পারবেন না:
 
-- We are not liable for indirect, incidental, special, consequential or punitive loss, or for loss of
-  profits, goodwill, clients, or business opportunity; nor for the consequences of a missed hearing,
-  a missed filing deadline, or a wrong date entered into the app.
-- Our total liability arising out of or relating to the app is limited to the greater of
-  **[TO CONFIRM: amount, e.g. ৳5,000 or the amount you paid in the 12 months before the claim]**.
-- Nothing here limits liability that cannot lawfully be limited, including for fraud.
-
----
-
-## 14. Indemnity
-
-You agree to indemnify us against claims, losses and reasonable costs arising from your unlawful use
-of the app, your breach of these Terms, or your handling of personal data about other people that
-you entered into the app.
+- আইন বা আদালতের আদেশ ভঙ্গ করা, কিংবা কারো অধিকার ক্ষুণ্ণ করা;
+- আপনার বৈধভাবে রাখার অধিকার নেই এমন উপাদান সংরক্ষণ বা বিতরণ করা;
+- অন্য ব্যক্তি বা ফার্মের তথ্যে প্রবেশ করা বা প্রবেশের চেষ্টা করা;
+- মামলার সীমা, পেমেন্ট জমার সীমা, আমন্ত্রণ কোডের সুরক্ষা বা অন্য কোনো কারিগরি নিয়ন্ত্রণ এড়ানোর চেষ্টা করা;
+- অ্যাপ, আমাদের সেবা বা অন্য কারো ব্যবহারে ব্যাঘাত ঘটানো; কিংবা
+- অ্যাপের ফলাফলকে অফিসিয়াল আদালতের রেকর্ড হিসেবে উপস্থাপন করা।
 
 ---
 
-## 15. Suspension and termination
+## ১০. সেবার প্রাপ্যতা ও অ্যাপের পরিবর্তন
 
-We may suspend or terminate your access if you breach these Terms, if a payment is fraudulent or
-reversed, or where we are required to by law. You may stop using the app at any time. On termination,
-your licence ends, but the obligations in sections 8, 12, 13, 14 and 16 continue to apply. For
-account deletion, see the Privacy Policy; note that the in-app "Delete Account" control is not yet
-active and deletion is handled by contacting us.
+- **অফলাইন সংস্করণ নেটওয়ার্ক সংযোগ ছাড়াই চলে।** ক্লাউড সুবিধার জন্য আমরা কোনো নির্দিষ্ট মানের সেবার প্রতিশ্রুতি দিই না; রক্ষণাবেক্ষণ, বিভ্রাট বা পরিবর্তনের সময় তা পাওয়া নাও যেতে পারে, এবং আমরা সুবিধা পরিবর্তন বা প্রত্যাহার করতে পারি। আপনার পরিশোধিত সময় শেষ হওয়ার আগে কোনো সশুল্ক সুবিধা প্রত্যাহার করা হলে **[নিশ্চিত করতে হবে: প্রতিকার — যেমন আনুপাতিক অর্থ ফেরত বা সময়শেষ পর্যন্ত সেবা চালু রাখা]**।
+- শুনানির নোটিফিকেশন আপনার ডিভাইস ও তার ব্যাটারি-ব্যবস্থাপনার উপর নির্ভর করে। অনেক অ্যান্ড্রয়েড ফোন ব্যাটারি বাঁচাতে ব্যাকগ্রাউন্ডের কাজ বন্ধ করে দেয়; অ্যাপটি ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড এবং একটি পরীক্ষামূলক নোটিফিকেশন দেয়, তবে সতর্কতা সবসময় সময়মতো পৌঁছাবে বলে আমরা নিশ্চয়তা দিতে পারি না। শুনানির একমাত্র স্মরণ হিসেবে অ্যাপের উপর নির্ভর করবেন না।
+- আমরা এমন আপডেট প্রকাশ করতে পারি যা অ্যাপের আচরণ বদলায়। **পুরোনো** সংস্করণের ব্যাকআপ পুনরুদ্ধারের সময় স্বয়ংক্রিয়ভাবে হালনাগাদ হয়; **নতুন** সংস্করণে নেওয়া ব্যাকআপ গ্রহণ করা হয় না।
 
 ---
 
-## 16. Governing law and disputes
+## ১১. তৃতীয় পক্ষের সেবা
 
-These Terms are governed by the laws of **Bangladesh**, and the courts of **[TO CONFIRM:
-Narayanganj / Dhaka]** have exclusive jurisdiction, unless the law that applies to you gives you the
-right to bring proceedings elsewhere. **[TO CONFIRM — this clause should be reviewed by a lawyer.]**
+অ্যাপটি আমাদের নিয়ন্ত্রণের বাইরের কিছু সেবার উপর নির্ভর করে, যার মধ্যে রয়েছে বিতরণের জন্য Google Play, ক্লাউড পরিকাঠামোর জন্য Supabase (অনলাইন সংস্করণ), এবং — কেবল আপনি বেছে নিলে — আপনার ফাইল পিকার, ক্লাউড ড্রাইভ, ইমেইল, এসএমএস ও মেসেজিং অ্যাপ এবং আপনার মোবাইল ফাইন্যান্সিয়াল সার্ভিস সেবাদাতা। সেবার যে অংশ তাদের, তার জন্য তাদের শর্তাবলি ও গোপনীয়তা নীতি প্রযোজ্য, এবং তাদের কাজ বা অনিয়মের দায়িত্ব আমাদের নয়।
 
 ---
 
-## 17. Changes to these Terms
+## ১২. দায়-অস্বীকৃতি
 
-We may update these Terms. The current version and effective date are shown above and in the app's
-About screen, and we will tell you in the app about material changes before they take effect.
-Continuing to use the app after a change means you accept the updated Terms.
+আইন যতটুকু অনুমতি দেয়, অ্যাপটি **"যেমন আছে" এবং "যেভাবে পাওয়া যায়"** সেইভাবে দেওয়া, কোনো ধরনের প্রকাশ্য বা অন্তর্নিহিত ওয়ারেন্টি ছাড়া, যার মধ্যে নির্দিষ্ট উদ্দেশ্যে উপযোগিতা, নির্ভুলতা, কিংবা নিরবচ্ছিন্ন বা ত্রুটিমুক্ত পরিচালনাও অন্তর্ভুক্ত। অ্যাপ আপনার প্রয়োজন পূরণ করবে, তার ফলাফল নির্ভুল হবে, বা কোনো ত্রুটি সংশোধন করা হবে — এগুলো আমরা নিশ্চিত করি না। এই শর্তাবলির কোনো কিছুই এমন কোনো ওয়ারেন্টি বা অধিকার বাতিল করে না যা আইনত বাতিল করা যায় না।
 
 ---
 
-## 18. Contact
+## ১৩. দায়ের সীমা
 
-**Asadusjaman Sazal** — adv.asadusjaman@gmail.com — WhatsApp +880 1835 252721
-**[TO CONFIRM: postal address for formal notices.]**
+আইন যতটুকু অনুমতি দেয়:
+
+- পরোক্ষ, আকস্মিক, বিশেষ, পরিণামী বা শাস্তিমূলক ক্ষতি, কিংবা মুনাফা, সুনাম, ক্লায়েন্ট বা ব্যবসার সুযোগ হারানোর জন্য আমরা দায়ী নই; শুনানি মিস হওয়া, নির্ধারিত সময়সীমা মিস হওয়া বা অ্যাপে ভুল তারিখ লেখার পরিণতির জন্যও নয়।
+- অ্যাপ থেকে উদ্ভূত বা অ্যাপ-সংক্রান্ত আমাদের মোট দায় সর্বোচ্চ **[নিশ্চিত করতে হবে: পরিমাণ, যেমন ৳৫,০০০ বা দাবির আগের ১২ মাসে আপনি যত টাকা দিয়েছেন তার সমান]** পর্যন্ত সীমাবদ্ধ।
+- এখানে কিছুই এমন দায় সীমিত করে না যা আইনত সীমিত করা যায় না, যার মধ্যে প্রতারণাও রয়েছে।
 
 ---
 
-*This document is a draft prepared alongside the app's implementation and is not a substitute for
-legal advice. It should be reviewed by a qualified lawyer before publication.*
+## ১৪. ক্ষতিপূরণ
+
+অ্যাপের আপনার অবৈধ ব্যবহার, এই শর্তাবলির আপনার লঙ্ঘন, কিংবা অ্যাপে আপনার লেখা অন্য ব্যক্তিদের ব্যক্তিগত তথ্য পরিচালনা থেকে উদ্ভূত দাবি, ক্ষতি ও যুক্তিসঙ্গত খরচের জন্য আপনি আমাদের ক্ষতিপূরণ দিতে সম্মত থাকেন।
+
+---
+
+## ১৫. স্থগিতকরণ ও বাতিল
+
+আপনি এই শর্তাবলি লঙ্ঘন করলে, কোনো পেমেন্ট প্রতারণামূলক বা বাতিল হলে, কিংবা আইনগতভাবে আমরা বাধ্য হলে আপনার প্রবেশাধিকার আমরা স্থগিত বা বাতিল করতে পারি। আপনি যেকোনো সময় অ্যাপ ব্যবহার বন্ধ করতে পারেন। বাতিল হলে আপনার লাইসেন্স শেষ হয়, তবে ধারা ৮, ১২, ১৩, ১৪ ও ১৬-এর বাধ্যবাধকতা বলবৎ থাকে। অ্যাকাউন্ট মুছে ফেলার জন্য গোপনীয়তা নীতি দেখুন; লক্ষ্য করুন, অ্যাপের "অ্যাকাউন্ট মুছুন" নিয়ন্ত্রণ এখনো সক্রিয় নয় এবং মুছে ফেলার কাজটি আমাদের সঙ্গে যোগাযোগের মাধ্যমে সম্পন্ন হয়।
+
+---
+
+## ১৬. প্রযোজ্য আইন ও বিরোধ
+
+এই শর্তাবলি **বাংলাদেশের** আইন দ্বারা পরিচালিত, এবং **[নিশ্চিত করতে হবে: নারায়ণগঞ্জ / ঢাকা]**-এর আদালতের একচেটিয়া এখতিয়ার থাকবে, যদি না আপনার ক্ষেত্রে প্রযোজ্য আইন আপনাকে অন্যত্র মামলা করার অধিকার দেয়। **[নিশ্চিত করতে হবে — এই ধারাটি একজন আইনজীবী দিয়ে পর্যালোচনা করানো উচিত।]**
+
+---
+
+## ১৭. এই শর্তাবলির পরিবর্তন
+
+আমরা এই শর্তাবলি হালনাগাদ করতে পারি। বর্তমান সংস্করণ ও কার্যকর তারিখ উপরে এবং অ্যাপের সম্পর্কিত (About) স্ক্রিনে দেখানো হয়, এবং গুরুত্বপূর্ণ পরিবর্তন কার্যকর হওয়ার আগে আমরা অ্যাপেই তা জানাব। পরিবর্তনের পর অ্যাপ ব্যবহার চালিয়ে গেলে আপনি হালনাগাদ শর্তাবলিতে সম্মত হচ্ছেন।
+
+---
+
+## ১৮. যোগাযোগ
+
+**আসাদুজ্জামান সাজল** — adv.asadusjaman@gmail.com — হোয়াটসঅ্যাপ +৮৮০ ১৮৩৫ ২৫২৭২১
+**[নিশ্চিত করতে হবে: আনুষ্ঠানিক নোটিশের জন্য ডাক ঠিকানা।]**
+
+---
+
+*এই নথিটি অ্যাপের বাস্তবায়নের সঙ্গে সমান্তরালে প্রস্তুত একটি খসড়া এবং আইনি পরামর্শের বিকল্প নয়। প্রকাশের আগে একজন যোগ্য আইনজীবী দিয়ে এটি পর্যালোচনা করানো উচিত।*

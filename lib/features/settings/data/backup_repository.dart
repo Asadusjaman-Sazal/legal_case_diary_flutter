@@ -1,4 +1,4 @@
-/// Local backup export engine (Task 15 Phase 1).
+/// Local backup export engine (Task 15 Phases 1–2).
 ///
 /// One code path serves every export the app performs: the manual
 /// "Backup to Local Storage" action and, in Part B, the logout auto-export and
@@ -23,11 +23,18 @@
 /// Nonportable secure credentials (the database encryption key and the local
 /// identity/token material held in secure storage) are never part of the
 /// database, so they are excluded by construction and recreated locally.
+///
+/// Every export is **encrypted** (Task 15 Phase 2, Plan §12.3.1): the envelope's
+/// bytes are sealed into the authenticated container from
+/// `core/backup/backup_cipher.dart` with a key derived from the caller's
+/// recovery secret, so a plaintext snapshot never reaches shared storage. The
+/// secret is passed in per call and never stored, logged or recorded.
 library;
 
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../../../core/backup/backup_cipher.dart';
 import '../../../core/backup/backup_format.dart';
 import '../../../database/app_database.dart';
 import '../../../sync/sync_metadata_dao.dart';
@@ -168,23 +175,38 @@ class BackupRepository {
     );
   }
 
-  /// Runs one export: snapshot → serialize → write through [sink] → record.
+  /// Runs one export: snapshot → serialize → encrypt → write through [sink] →
+  /// record.
   ///
-  /// This is the single export path every caller shares. The archive's path,
-  /// checksum and completion state are recorded only **after** the sink reports
-  /// success, so a failed write can never leave a "complete" archive behind.
+  /// This is the single export path every caller shares, and it always writes
+  /// the authenticated-encrypted container (§12.3.1 forbids plaintext exports),
+  /// so the recovery secret is required rather than optional. The archive's
+  /// path, checksum and completion state are recorded only **after** the sink
+  /// reports success, so a failed write can never leave a "complete" archive
+  /// behind.
+  ///
+  /// [kdfIterations] is injectable so tests need not pay a full PBKDF2 stretch.
   Future<BackupExportResult> exportSnapshot({
     required BackupArchiveSink sink,
     required String appVersion,
+    required String recoverySecret,
     int? exportedAt,
     String? fileName,
+    int kdfIterations = kBackupKdfIterations,
   }) async {
     final stamp = exportedAt ?? DateTime.now().toUtc().millisecondsSinceEpoch;
     final envelope = await buildEnvelope(
       appVersion: appVersion,
       exportedAt: stamp,
     );
-    final bytes = Uint8List.fromList(utf8.encode(envelope.encode()));
+    final container = await encryptBackup(
+      plaintext: utf8.encode(envelope.encode()),
+      recoverySecret: recoverySecret,
+      appVersion: appVersion,
+      createdAt: stamp,
+      iterations: kdfIterations,
+    );
+    final bytes = Uint8List.fromList(utf8.encode(container.encode()));
     final path = await sink.write(
       fileName: fileName ?? defaultBackupFileName(stamp),
       bytes: bytes,
@@ -223,13 +245,15 @@ class BackupRepository {
 
 /// Default backup file name for an export taken at [exportedAt].
 ///
-/// UTC `legal-case-diary-backup-YYYYMMDD-HHMMSS.json` — sortable, unique per
-/// second, and independent of the device locale.
+/// UTC `legal-case-diary-backup-YYYYMMDD-HHMMSS.lcbak` — sortable, unique per
+/// second, and independent of the device locale. The extension is not `.json`
+/// because the file is the encrypted container, not readable JSON; Phase 3's
+/// picker filters on it.
 String defaultBackupFileName(int exportedAt) {
   final at = DateTime.fromMillisecondsSinceEpoch(exportedAt, isUtc: true);
   String two(int value) => value.toString().padLeft(2, '0');
   final stamp =
       '${at.year}${two(at.month)}${two(at.day)}'
       '-${two(at.hour)}${two(at.minute)}${two(at.second)}';
-  return 'legal-case-diary-backup-$stamp.json';
+  return 'legal-case-diary-backup-$stamp.lcbak';
 }

@@ -1,8 +1,10 @@
-/// Tests for the local backup export engine (Task 15 Phase 1).
+/// Tests for the local backup export engine (Task 15 Phases 1–2).
 ///
 /// The engine snapshots every portable table as raw rows so ids, sync columns
-/// and tombstones survive unchanged. These tests pin the table coverage, the
-/// row fidelity, the written envelope and the recorded archive state.
+/// and tombstones survive unchanged, then seals that snapshot into the
+/// authenticated-encrypted container. These tests pin the table coverage, the
+/// row fidelity, the encrypted file that is actually written and the recorded
+/// archive state.
 library;
 
 import 'dart:convert';
@@ -13,6 +15,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -44,6 +47,9 @@ class _RecordingSink implements BackupArchiveSink {
     return '/tmp/$fileName';
   }
 }
+
+/// The recovery secret every export in this suite uses.
+const String _secret = "a lawyer's strong passphrase";
 
 void main() {
   group('BackupRepository', () {
@@ -198,20 +204,29 @@ void main() {
       expect(notes.single['is_deleted'], 1);
     });
 
-    test('exportSnapshot writes a versioned envelope and records the archive', () async {
+    test('exportSnapshot writes an encrypted container and records the archive', () async {
       await addCase('110/2021');
       final sink = _RecordingSink();
 
       final result = await backup.exportSnapshot(
         sink: sink,
         appVersion: '0.0.227',
+        recoverySecret: _secret,
         exportedAt: 1700000000000,
+        kdfIterations: 1000,
       );
 
-      // The file itself is a valid, self-verifying envelope.
+      // The file itself is an authenticated container holding a self-verifying
+      // envelope: decrypt first, then read the versioned document inside.
       expect(sink.written.keys.single, defaultBackupFileName(1700000000000));
       final bytes = sink.written.values.single;
-      final decoded = BackupEnvelope.decode(utf8.decode(bytes));
+      final container = EncryptedBackup.decode(utf8.decode(bytes));
+      expect(container.format, kEncryptedBackupFormat);
+      expect(container.formatVersion, kEncryptedBackupFormatVersion);
+      expect(container.checksum, checksumOfBytes(utf8.encode(result.envelope.encode())));
+      final decoded = BackupEnvelope.decode(
+        utf8.decode(await decryptBackup(container, recoverySecret: _secret)),
+      );
       expect(decoded.schemaVersion, kBackupSchemaVersion);
       expect(decoded.appVersion, '0.0.227');
       expect(decoded.exportedAt, 1700000000000);
@@ -228,12 +243,41 @@ void main() {
       expect(archive.hasCompletedArchive, isTrue);
     });
 
+    test('the exported file never contains the case data or the secret', () async {
+      await addCase('110/2021');
+      final sink = _RecordingSink();
+
+      await backup.exportSnapshot(
+        sink: sink,
+        appVersion: '0.0.227',
+        recoverySecret: _secret,
+        exportedAt: 1700000000000,
+        kdfIterations: 1000,
+      );
+
+      // §12.3.1: no plaintext export ever reaches storage.
+      final file = utf8.decode(sink.written.values.single);
+      expect(file, isNot(contains('110/2021')));
+      expect(file, isNot(contains('Alice')));
+      expect(file, isNot(contains('schema_version')));
+      expect(file, isNot(contains(_secret)));
+      // It is the container: a wrong secret cannot open it.
+      await expectLater(
+        decryptBackup(
+          EncryptedBackup.decode(file),
+          recoverySecret: 'not the passphrase',
+        ),
+        throwsA(isA<BackupDecryptionException>()),
+      );
+    });
+
     test('a failed write never records a completed archive', () async {
       final sink = _FailingSink();
       await expectLater(
         backup.exportSnapshot(
           sink: sink,
           appVersion: '0.0.227',
+          recoverySecret: _secret,
           exportedAt: 1000,
         ),
         throwsA(isA<StateError>()),
@@ -251,12 +295,12 @@ void main() {
   });
 
   group('defaultBackupFileName', () {
-    test('is a sortable UTC timestamp with the json extension', () {
+    test('is a sortable UTC timestamp with the encrypted-backup extension', () {
       // 2026-09-20 05:06:07 UTC.
       final stamp = DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch;
       expect(
         defaultBackupFileName(stamp),
-        'legal-case-diary-backup-20260920-050607.json',
+        'legal-case-diary-backup-20260920-050607.lcbak',
       );
     });
   });

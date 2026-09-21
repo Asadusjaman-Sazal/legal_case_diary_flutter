@@ -166,6 +166,15 @@
   "addEditCaseSheet_offsetSameDay": "The same day",
   "addEditCaseSheet_offsetDayBefore": "The day before",
   "addEditCaseSheet_offsetDaysBefore": "Before {count} days",
+  "@addEditCaseSheet_offsetDaysBefore": {
+      "description": "Day-offset option for two or more days before the hearing, in the language's own digits.",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "addEditCaseSheet_step": "Step",
   "addEditCaseSheet_result": "Result",
   "addEditCaseSheet_note": "Note",
@@ -689,10 +698,11 @@
   "settingsNotifications_offsetDayBefore": "The Day Before",
   "settingsNotifications_offsetBeforeDays": "Before {days} Days",
   "@settingsNotifications_offsetBeforeDays": {
-      "description": "Day-offset option for two or more days before the hearing.",
+      "description": "Day-offset option for two or more days before the hearing, in the language's own digits.",
       "placeholders": {
           "days": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

@@ -166,6 +166,30 @@ void main() {
     expect(find.text('08:30 AM'), findsOneWidget);
   });
 
+  testWidgets('বাংলা day offsets carry Bengali digits', (tester) async {
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      locale: const Locale('bn'),
+    );
+
+    await tester.tap(find.text('একদিন আগে'));
+    await tester.pumpAndSettle();
+
+    // The day count is the language's own digits, not the raw number.
+    expect(find.text('২ দিন আগে'), findsOneWidget);
+    expect(find.text('৩০ দিন আগে'), findsOneWidget);
+    expect(find.text('2 দিন আগে'), findsNothing);
+
+    // And the row behind the picker reads the same way once one is ticked.
+    await tester.tap(find.text('১৫ দিন আগে'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.text('একদিন আগে, ১৫ দিন আগে'), findsOneWidget);
+  });
+
   testWidgets('বাংলা opens the same 12-hour window English does', (
     tester,
   ) async {

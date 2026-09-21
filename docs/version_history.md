@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.243 - Settings > Notifications: the day offset is a multi-select list saving on every tick with the last one pinned, and the Bengali time window is 12-hour with localized digits and app-sized Cancel/OK.
+Version: 0.0.244 - Day-offset labels in Settings > Notifications, the Add/Edit Case form and the Quick Update window now format their day count with the language's own digits, so Bengali shows its own numerals instead of raw ASCII ones.
 --------------------------------------
 
 ## Version History Log:
@@ -257,3 +257,4 @@ Version: 0.0.240 - Settings > About > Support is now a real screen, and the deve
 Version: 0.0.241 - Support's email channel no longer turns every space into a plus sign, and the version log is now written by one script and policed by a test that fails the suite when it is hand-edited.
 Version: 0.0.242 - Settings labels are Title Case again, the ALL-CAPS section headings are gone, and the casing rule in AGENTS.md now says Title Case instead of sentence case.
 Version: 0.0.243 - Settings > Notifications: the day offset is a multi-select list saving on every tick with the last one pinned, and the Bengali time window is 12-hour with localized digits and app-sized Cancel/OK.
+Version: 0.0.244 - Day-offset labels in Settings > Notifications, the Add/Edit Case form and the Quick Update window now format their day count with the language's own digits, so Bengali shows its own numerals instead of raw ASCII ones.

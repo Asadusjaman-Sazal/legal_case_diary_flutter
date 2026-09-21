@@ -1,3 +1,13 @@
+### 2026-09-21 — Day-offset numbers follow the language's digits — COMPLETE
+
+- **The report:** in বাংলা the day-offset options read `2 দিন আগে`, `7 দিন আগে` — ASCII digits inside a Bengali sentence.
+- **The cause:** both day-offset strings declared their placeholder as a bare `int` (`"type": "int"` with no `format`), so gen-l10n emitted the raw number with `toString()` instead of a number formatter. Neither key had a per-placeholder format, and `addEditCaseSheet_offsetDaysBefore` had no `@` metadata block at all.
+- **The fix is the format, not a hand-built string.** `settingsNotifications_offsetBeforeDays` (Settings → Notifications) and `addEditCaseSheet_offsetDaysBefore` (the Add/Edit Case form and the Quick Update window) both declare `"format": "decimalPattern"` in both ARBs, which is the same thing every other counted string in the app already does (`caseDetailsScreen_entriesTotal`, `settingsBackupRestore_restoreCompleteBody`, `print_pageOf`). gen-l10n now emits `NumberFormat.decimalPattern(localeName)` for both, so বাংলা reads `২ দিন আগে` / `৩০ দিন আগে` and English is unchanged (`Before 2 Days` / `Before 2 days`).
+- **Scope kept to those two keys.** The alert title's `notificationJob_titleBeforeDays` takes an already-formatted `String` (the caller localizes it), and no other string on either surface carries a number.
+- **Tests (2 new).** `notification_settings_test.dart` opens the picker in বাংলা, asserts `২ দিন আগে` and `৩০ দিন আগে`, asserts the ASCII form `2 দিন আগে` is gone, and checks the joined row behind it (`একদিন আগে, ১৫ দিন আগে`); `task07_acceptance_test.dart` does the same for the Quick Update window's dropdown. `flutter analyze` clean; `flutter test` 624 passed, 2 skipped.
+- **Version `0.0.244`** (recorded by `tool/record_version.py`). No new dependency.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-21 — Notification settings: several day offsets, and বাংলা gets the English time window — COMPLETE
 
 - **The request (Settings > Notifications only):** day offset should allow multiple selection, so one case can alert several times; বাংলা should show the same time window English does, with the time in Bengali and AM/PM left as letters; and the window's Cancel/OK should be the size of the app's other dialog buttons.

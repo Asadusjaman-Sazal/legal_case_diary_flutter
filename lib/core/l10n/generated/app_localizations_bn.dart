@@ -379,8 +379,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_offsetDayBefore => 'আগের দিন';
 
   @override
-  String addEditCaseSheet_offsetDaysBefore(Object count) {
-    return '$count দিন আগে';
+  String addEditCaseSheet_offsetDaysBefore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString দিন আগে';
   }
 
   @override
@@ -1522,7 +1526,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String settingsNotifications_offsetBeforeDays(int days) {
-    return '$days দিন আগে';
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+
+    return '$daysString দিন আগে';
   }
 
   @override

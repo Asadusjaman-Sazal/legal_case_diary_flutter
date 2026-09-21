@@ -628,6 +628,40 @@ void main() {
     },
   );
 
+  testWidgets('the Quick Update day offsets carry Bengali digits', (
+    WidgetTester tester,
+  ) async {
+    final id = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('306/23'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseType: const Value('Civil Suit'),
+        onBehalfId: Value(onBehalfId),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+    final current = (await caseRepository.getById(id))!;
+
+    await tester.pumpWidget(
+      appScope(
+        QuickUpdateCaseDialog(currentCase: current),
+        locale: const Locale('bn'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('quick-update-day-offset')));
+    await tester.pumpAndSettle();
+
+    // The day count follows the active language's digits, like Settings →
+    // Notifications, instead of the raw number in a Bengali sentence.
+    expect(find.text('২ দিন আগে'), findsOneWidget);
+    expect(find.text('৩০ দিন আগে'), findsOneWidget);
+    expect(find.text('2 দিন আগে'), findsNothing);
+  });
+
   testWidgets('Add case routes to paywall at the free-tier limit', (
     WidgetTester tester,
   ) async {

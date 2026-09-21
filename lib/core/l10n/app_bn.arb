@@ -166,6 +166,15 @@
   "addEditCaseSheet_offsetSameDay": "একই দিন",
   "addEditCaseSheet_offsetDayBefore": "আগের দিন",
   "addEditCaseSheet_offsetDaysBefore": "{count} দিন আগে",
+  "@addEditCaseSheet_offsetDaysBefore": {
+      "description": "Day-offset option for two or more days before the hearing, in the language's own digits.",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "addEditCaseSheet_step": "ধাপ",
   "addEditCaseSheet_result": "ফলাফল",
   "addEditCaseSheet_note": "নোট",
@@ -688,10 +697,11 @@
   "settingsNotifications_offsetDayBefore": "একদিন আগে",
   "settingsNotifications_offsetBeforeDays": "{days} দিন আগে",
   "@settingsNotifications_offsetBeforeDays": {
-      "description": "Day-offset option for two or more days before the hearing.",
+      "description": "Day-offset option for two or more days before the hearing, in the language's own digits.",
       "placeholders": {
           "days": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

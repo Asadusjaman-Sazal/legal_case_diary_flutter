@@ -782,11 +782,11 @@ abstract class AppLocalizations {
   /// **'The day before'**
   String get addEditCaseSheet_offsetDayBefore;
 
-  /// No description provided for @addEditCaseSheet_offsetDaysBefore.
+  /// Day-offset option for two or more days before the hearing, in the language's own digits.
   ///
   /// In en, this message translates to:
   /// **'Before {count} days'**
-  String addEditCaseSheet_offsetDaysBefore(Object count);
+  String addEditCaseSheet_offsetDaysBefore(int count);
 
   /// No description provided for @addEditCaseSheet_step.
   ///
@@ -2828,7 +2828,7 @@ abstract class AppLocalizations {
   /// **'The Day Before'**
   String get settingsNotifications_offsetDayBefore;
 
-  /// Day-offset option for two or more days before the hearing.
+  /// Day-offset option for two or more days before the hearing, in the language's own digits.
   ///
   /// In en, this message translates to:
   /// **'Before {days} Days'**

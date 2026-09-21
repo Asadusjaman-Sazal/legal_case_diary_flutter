@@ -23,15 +23,21 @@ HearingCandidate _candidate({
   required int nextDateEpochMs,
   String caseId = 'case-1',
   String caseNumber = '110/2021',
+  // A pre-seeded label, dash included, so the alert's first line is the real
+  // shape the app stores rather than a made-up one.
+  String caseType = 'Civil Appeal-',
+  String? courtCategoryId,
   String petitioner = 'Karim',
   String respondent = 'State',
   String? storedCourtName,
 }) => HearingCandidate(
   caseId: caseId,
   caseNumber: caseNumber,
+  caseType: caseType,
   petitioner: petitioner,
   respondent: respondent,
   courtId: seed.courtLabelEn.keys.first,
+  courtCategoryId: courtCategoryId,
   storedCourtName: storedCourtName,
   nextDateEpochMs: nextDateEpochMs,
 );
@@ -180,7 +186,7 @@ void main() {
   });
 
   group('alert copy', () {
-    test('the body carries the case number, parties and localized court', () {
+    test('the body carries the case type then the number, parties and court', () {
       final courtId = seed.courtLabelEn.keys.first;
       final english = seed.courtLabelEn[courtId]!;
 
@@ -199,11 +205,91 @@ void main() {
       );
 
       final lines = plan.alerts.single.body.split('\n');
-      expect(lines.first, '110/2021');
+      // The type comes first and its own trailing dash separates the two: no
+      // separator is added, and the number stays as the user typed it.
+      expect(lines.first, 'Civil Appeal- 110/2021');
       expect(lines, contains('Karim vs State'));
       expect(lines, contains(english));
       // The pre-seeded label wins over the stored name.
       expect(plan.alerts.single.body, isNot(contains('Stored English Name')));
+    });
+
+    test('a case with no case type keeps the bare number on the first line', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseType: ''),
+        ],
+        preferences: const {},
+        translations: _translations('en'),
+      );
+
+      expect(plan.alerts.single.body.split('\n').first, '110/2021');
+    });
+
+    test('the case type follows Bengali like every other seed label', () {
+      // `cases.case_type` stores the English label, so the alert has to map it
+      // back through the seed data under বাংলা.
+      final bengali = seed.caseTypeLabelBnByEnName['Civil Appeal-']!;
+      expect(bengali, isNot('Civil Appeal-'));
+
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
+        preferences: const {},
+        translations: _translations('bn'),
+      );
+
+      final firstLine = plan.alerts.single.body.split('\n').first;
+      expect(firstLine, '$bengali 110/2021');
+      expect(firstLine, isNot(contains('Civil Appeal')));
+    });
+
+    test('a case type shared by two court categories follows the case\'s own', () {
+      // Twenty pre-seeded names are labelled differently by different court
+      // categories, so the label is resolved through the case's court category
+      // instead of whichever category happens to come first.
+      final byName = <String, Map<String, String>>{};
+      for (final category in seed.caseTypeLabelBnByCourtCategory.entries) {
+        for (final type in category.value.entries) {
+          byName.putIfAbsent(type.key, () => <String, String>{})[category
+              .key] = type.value;
+        }
+      }
+      final shared = byName.entries.firstWhere(
+        (entry) => entry.value.values.toSet().length > 1,
+      );
+      final first = shared.value.entries.first;
+      final other = shared.value.entries.firstWhere(
+        (entry) => entry.value != first.value,
+      );
+
+      String firstLineFor(String? courtCategoryId) => buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            caseType: shared.key,
+            courtCategoryId: courtCategoryId,
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('bn'),
+      ).alerts.single.body.split('\n').first;
+
+      expect(firstLineFor(first.key), '${first.value} 110/2021');
+      expect(firstLineFor(other.key), '${other.value} 110/2021');
+      // With no category to go on, the by-name fallback is the documented one.
+      expect(
+        firstLineFor(null),
+        '${seed.caseTypeLabelBnByEnName[shared.key]} 110/2021',
+      );
     });
 
     test('a user-added court keeps the name the user typed', () {
@@ -215,6 +301,7 @@ void main() {
           HearingCandidate(
             caseId: 'case-1',
             caseNumber: '110/2021',
+            caseType: 'Civil Appeal-',
             petitioner: 'Karim',
             respondent: 'State',
             courtId: 'court_the_user_added',
@@ -263,8 +350,8 @@ void main() {
       final lines = plan.alerts.single.body.split('\n');
       expect(lines, isNot(contains('')),
       );
-      expect(lines.first, '110/2021');
-      // Case number and court only — no empty party line, no "vs".
+      expect(lines.first, 'Civil Appeal- 110/2021');
+      // Case line and court only — no empty party line, no "vs".
       expect(lines.any((line) => line.contains('vs')), isFalse);
     });
 

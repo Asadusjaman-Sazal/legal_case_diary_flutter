@@ -61,6 +61,12 @@ class HearingCandidate {
   /// Case number as the user typed it, e.g. `110/2021`.
   final String caseNumber;
 
+  /// Case type as stored on the case, e.g. `Civil Appeal-`.
+  ///
+  /// The pre-seeded labels carry their own trailing dash, so the alert puts the
+  /// type in front of the number and adds no separator of its own.
+  final String caseType;
+
   /// Petitioner party label.
   final String petitioner;
 
@@ -69,6 +75,11 @@ class HearingCandidate {
 
   /// Court id, resolved to a localized label through the seed data.
   final String courtId;
+
+  /// Court category of [courtId], used to pick the right localized case type
+  /// when several categories share one English label. Null when the court row
+  /// could not be read.
+  final String? courtCategoryId;
 
   /// Stored court name, used when the id is not pre-seeded (user-added court).
   final String? storedCourtName;
@@ -80,9 +91,11 @@ class HearingCandidate {
   const HearingCandidate({
     required this.caseId,
     required this.caseNumber,
+    required this.caseType,
     required this.petitioner,
     required this.respondent,
     required this.courtId,
+    this.courtCategoryId,
     required this.storedCourtName,
     required this.nextDateEpochMs,
   });
@@ -259,12 +272,31 @@ NotificationPlan buildNotificationPlan({
     fallbackEn: candidate.storedCourtName ?? '',
   );
   final body = <String>[
-    candidate.caseNumber,
+    _caseLine(candidate, translations),
     ?parties,
     if (court.isNotEmpty) court,
   ].join('\n');
 
   return (title: title, body: body);
+}
+
+/// `Case Type Case Number` — `Civil Appeal- 110/2021`, in the active language.
+///
+/// The type comes first and its own trailing dash is the separator the seed
+/// labels already carry, so the two are joined by a space (the same shape the
+/// case sheet's header uses). A case with no type keeps the bare number.
+String _caseLine(HearingCandidate candidate, AppTranslations translations) {
+  final caseType = translations
+      .caseTypeLabel(
+        candidate.caseType,
+        courtCategoryId: candidate.courtCategoryId,
+      )
+      .trim();
+  final caseNumber = candidate.caseNumber.trim();
+  return <String>[
+    if (caseType.isNotEmpty) caseType,
+    if (caseNumber.isNotEmpty) caseNumber,
+  ].join(' ');
 }
 
 /// `Petitioner vs Respondent`, the one party that exists, or null when neither.

@@ -102,25 +102,29 @@ Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
     final windowEnd = todayStart + (widest + 1) * _millisecondsPerDay - 1;
 
     final candidates = <HearingCandidate>[];
-    final courtNames = <String, String?>{};
+    // The court row is read once per court: its name labels the alert, and its
+    // category picks the right localized case type when several categories
+    // share one English label.
+    final courts = <String, Court?>{};
     for (final row in await CasesDao(
       db,
     ).getByNextDateRange(todayStart, windowEnd)) {
       final nextDate = row.nextDate;
       if (nextDate == null) continue;
-      if (!courtNames.containsKey(row.courtId)) {
-        courtNames[row.courtId] = (await CourtsDao(
-          db,
-        ).getById(row.courtId))?.courtName;
+      if (!courts.containsKey(row.courtId)) {
+        courts[row.courtId] = await CourtsDao(db).getById(row.courtId);
       }
+      final court = courts[row.courtId];
       candidates.add(
         HearingCandidate(
           caseId: row.id,
           caseNumber: row.caseNumber,
+          caseType: row.caseType,
           petitioner: row.petitioner,
           respondent: row.respondent,
           courtId: row.courtId,
-          storedCourtName: courtNames[row.courtId],
+          courtCategoryId: court?.courtCategoryId,
+          storedCourtName: court?.courtName,
           nextDateEpochMs: nextDate,
         ),
       );

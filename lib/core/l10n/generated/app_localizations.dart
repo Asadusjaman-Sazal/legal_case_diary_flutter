@@ -932,18 +932,6 @@ abstract class AppLocalizations {
   /// **'Phone'**
   String get casesContact_phone;
 
-  /// No description provided for @casesContact_whatsappNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Opens the chat — start the call from there.'**
-  String get casesContact_whatsappNote;
-
-  /// Shown when a case has no phone number for the named party.
-  ///
-  /// In en, this message translates to:
-  /// **'No number saved for the {party}.'**
-  String casesContact_noNumber(String party);
-
   /// No description provided for @casesContact_unableToOpenApp.
   ///
   /// In en, this message translates to:

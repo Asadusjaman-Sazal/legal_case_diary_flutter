@@ -208,15 +208,6 @@
   "casesContact_whatsapp": "হোয়াটসঅ্যাপ",
   "casesContact_message": "বার্তা",
   "casesContact_phone": "ফোন",
-  "casesContact_whatsappNote": "চ্যাট খুলবে — সেখান থেকে কল করুন।",
-  "casesContact_noNumber": "{party} পক্ষের কোনো নম্বর সংরক্ষিত নেই।",
-  "@casesContact_noNumber": {
-      "placeholders": {
-          "party": {
-              "type": "String"
-          }
-      }
-  },
   "casesContact_unableToOpenApp": "অ্যাপটি খোলা যায়নি।",
   "casesContact_unableToOpenWhatsApp": "হোয়াটসঅ্যাপ খোলা যায়নি।",
   "casesContact_unableToCall": "কল করা যায়নি।",

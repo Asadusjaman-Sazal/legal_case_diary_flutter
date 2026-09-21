@@ -463,15 +463,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get casesContact_phone => 'Phone';
 
   @override
-  String get casesContact_whatsappNote =>
-      'Opens the chat — start the call from there.';
-
-  @override
-  String casesContact_noNumber(String party) {
-    return 'No number saved for the $party.';
-  }
-
-  @override
   String get casesContact_unableToOpenApp => 'Unable to open the app.';
 
   @override

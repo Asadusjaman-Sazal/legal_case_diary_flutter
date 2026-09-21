@@ -1,11 +1,13 @@
 /// Task 14 Phase 4 tests: the shared Phone/Message actions.
 ///
 /// What is worth pinning here is every rule the Addendum names — the represented
-/// party comes from `on_behalf_id` rather than field order, the pre-filled text
-/// is the ARB template with the case's own facts, and the only routes launched
-/// are the documented `tel:`, `sms:` and `https://wa.me/…` ones (WhatsApp
-/// publishes no call scheme, so the chat is the fallback). The launcher is a
-/// seam, so the tests assert the exact URI a tap produces without a device.
+/// party comes from `on_behalf_id` rather than field order, the message sheet's
+/// pre-filled text is the ARB template with the case's own facts, and the only
+/// routes launched are the documented `tel:`, `sms:` and `https://wa.me/…` ones
+/// (WhatsApp publishes no call scheme, so the chat is the fallback). The window
+/// itself names no party and prints no number, and the call sheet's WhatsApp
+/// route opens the bare chat. The launcher is a seam, so the tests assert the
+/// exact URI a tap produces without a device.
 library;
 
 import 'package:flutter/material.dart';
@@ -118,6 +120,12 @@ void main() {
       expect(whatsApp.path, '/8801812332721');
       expect(whatsApp.queryParameters['text'], 'Dear Client, hello');
 
+      // The bare chat: the same path with nothing written into the composer.
+      expect(
+        whatsAppChatUri('8801812332721').toString(),
+        'https://wa.me/8801812332721',
+      );
+
       // A mail client reads the body literally, so a space must never be
       // written as `+` (it did once, and every space arrived as a plus sign).
       final mail = mailtoUri('dev@example.com', 'Subject here', 'Dear\nDev');
@@ -176,7 +184,7 @@ void main() {
         clientName: 'Md. Rahim Uddin',
         courtLabel: 'Joint District Judge, 2nd Court, Dhaka',
         lawyerName: 'Adv. Rahima Khatun',
-        message: true,
+        whatsApp: false,
       );
 
       expect(body, contains('Md. Rahim Uddin'));
@@ -201,7 +209,7 @@ void main() {
         clientName: 'মো. রহিম উদ্দিন',
         courtLabel: 'জয়েন্ট জেলা জজ, ২য় আদালত, ঢাকা',
         lawyerName: 'অ্যাড. রহিমা খাতুন',
-        message: true,
+        whatsApp: false,
       );
 
       expect(body, contains('মো. রহিম উদ্দিন'));
@@ -215,27 +223,23 @@ void main() {
       expect(body, isNot(contains('{')));
     });
 
-    test('the WhatsApp text uses the WhatsApp template', () async {
+    test('each channel fills its own template with the same facts', () async {
       final l = await AppLocalizations.delegate.load(const Locale('en'));
-      final sms = buildContactMessage(
+      String body({required bool whatsApp}) => buildContactMessage(
         l: l,
         currentCase: caseRow(),
         clientName: 'Md. Rahim Uddin',
         courtLabel: 'Court',
         lawyerName: 'Lawyer',
-        message: true,
-      );
-      final whatsApp = buildContactMessage(
-        l: l,
-        currentCase: caseRow(),
-        clientName: 'Md. Rahim Uddin',
-        courtLabel: 'Court',
-        lawyerName: 'Lawyer',
-        message: false,
+        whatsApp: whatsApp,
       );
 
-      expect(sms, isNotEmpty);
-      expect(whatsApp, isNotEmpty);
+      // The two templates read the same today; each channel still owns its own
+      // key, and both carry the case's facts with no placeholder left behind.
+      for (final whatsApp in <bool>[true, false]) {
+        expect(body(whatsApp: whatsApp), contains('423/2023'));
+        expect(body(whatsApp: whatsApp), isNot(contains('{')));
+      }
     });
   });
 
@@ -283,9 +287,7 @@ void main() {
       'case-contact-${message ? 'message' : 'call'}';
 
   group('the chooser', () {
-    testWidgets('shows both parties, the represented one reachable', (
-      tester,
-    ) async {
+    testWidgets('offers the two routes, and no party or number', (tester) async {
       final launcher = _RecordingLauncher();
       await pumpChooser(tester, message: false, launcher: launcher);
       final l = AppLocalizations.of(tester.element(find.byType(AlertDialog)));
@@ -293,37 +295,27 @@ void main() {
       expect(find.byKey(const ValueKey('case-contact-dialog')), findsOneWidget);
       expect(find.text(l.casesContact_openWith), findsOneWidget);
 
-      // The represented client: enabled, with the number on show.
-      expect(
-        find.byKey(ValueKey('${prefix(false)}-party-represented')),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Md. Rahim Uddin'), findsOneWidget);
-      expect(find.text('01812332721'), findsOneWidget);
-
-      // The other side: listed, with the reason it is not reachable, so the
-      // client's number is never silently reused.
-      expect(
-        find.byKey(ValueKey('${prefix(false)}-party-other')),
-        findsOneWidget,
-      );
-      expect(
-        find.text(l.casesContact_noNumber(l.caseDetailsScreen_respondent)),
-        findsOneWidget,
-      );
-
       // No undocumented call scheme: WhatsApp is offered as the chat, with the
-      // standard dialer beside it.
+      // standard dialer beside it — and with no subtitle under it.
       expect(find.text(l.casesContact_whatsapp), findsOneWidget);
-      expect(find.text(l.casesContact_whatsappNote), findsOneWidget);
       expect(find.text(l.casesContact_phone), findsOneWidget);
+      expect(find.byType(ListTile), findsNWidgets(2));
+
+      // Nothing about the parties, either of them: the client's number is the
+      // case's own `party_phone`, and the window is not a second place to read
+      // it — or the opponent's — from.
+      expect(find.text('Md. Rahim Uddin'), findsNothing);
+      expect(find.text('Bangladesh Government'), findsNothing);
+      expect(find.textContaining('01812332721'), findsNothing);
+      expect(find.textContaining('No number saved'), findsNothing);
+      expect(find.textContaining('start the call from there'), findsNothing);
 
       await tester.tap(find.byKey(ValueKey('case-card-call-cancel')));
       await tester.pumpAndSettle();
       expect(launcher.opened, isEmpty);
     });
 
-    testWidgets('the represented party follows the on-behalf role', (
+    testWidgets('the message names the represented client, not the petitioner', (
       tester,
     ) async {
       final launcher = _RecordingLauncher();
@@ -332,14 +324,6 @@ void main() {
         message: true,
         launcher: launcher,
         onBehalf: role('contact-category-role-respondent', 'Respondent'),
-      );
-      final l = AppLocalizations.of(tester.element(find.byType(AlertDialog)));
-
-      // Acting for the respondent: the respondent is the client now.
-      expect(find.textContaining('Bangladesh Government'), findsOneWidget);
-      expect(
-        find.text(l.casesContact_noNumber(l.caseDetailsScreen_petitioner)),
-        findsOneWidget,
       );
 
       await tester.tap(find.byKey(ValueKey('${prefix(true)}-native')));
@@ -350,21 +334,13 @@ void main() {
       expect(body, isNot(contains('Md. Rahim Uddin')));
     });
 
-    testWidgets('a case with no number disables both routes and says why', (
-      tester,
-    ) async {
+    testWidgets('a case with no number disables both routes', (tester) async {
       final launcher = _RecordingLauncher();
       await pumpChooser(
         tester,
         message: false,
         launcher: launcher,
         currentCase: caseRow(partyPhone: null),
-      );
-      final l = AppLocalizations.of(tester.element(find.byType(AlertDialog)));
-
-      expect(
-        find.text(l.casesContact_noNumber(l.caseDetailsScreen_petitioner)),
-        findsOneWidget,
       );
 
       await tester.tap(find.byKey(ValueKey('${prefix(false)}-whatsapp')));
@@ -426,11 +402,16 @@ void main() {
       expect(launcher.opened.single.toString(), 'tel:01812332721');
     });
 
-    testWidgets('Phone → WhatsApp opens the chat, never a call scheme', (
+    testWidgets('Phone → WhatsApp opens the bare chat, never a call scheme', (
       tester,
     ) async {
       final launcher = _RecordingLauncher();
-      await pumpChooser(tester, message: false, launcher: launcher);
+      await pumpChooser(
+        tester,
+        message: false,
+        launcher: launcher,
+        currentCase: caseRow(partyPhone: '+880 1812-332721'),
+      );
 
       await tester.tap(find.byKey(ValueKey('${prefix(false)}-whatsapp')));
       await tester.pumpAndSettle();
@@ -438,6 +419,10 @@ void main() {
       final uri = launcher.opened.single;
       expect(uri.scheme, 'https');
       expect(uri.host, 'wa.me');
+      // The digits-only path, and no text: calling the client is what this
+      // route is for, so nothing is written into their composer.
+      expect(uri.path, '/8801812332721');
+      expect(uri.queryParameters, isEmpty);
     });
 
     testWidgets('a refused launch is reported instead of failing silently', (

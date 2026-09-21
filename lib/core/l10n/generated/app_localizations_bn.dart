@@ -462,14 +462,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get casesContact_phone => 'ফোন';
 
   @override
-  String get casesContact_whatsappNote => 'চ্যাট খুলবে — সেখান থেকে কল করুন।';
-
-  @override
-  String casesContact_noNumber(String party) {
-    return '$party পক্ষের কোনো নম্বর সংরক্ষিত নেই।';
-  }
-
-  @override
   String get casesContact_unableToOpenApp => 'অ্যাপটি খোলা যায়নি।';
 
   @override

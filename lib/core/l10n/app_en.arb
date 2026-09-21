@@ -208,16 +208,6 @@
   "casesContact_whatsapp": "WhatsApp",
   "casesContact_message": "Message",
   "casesContact_phone": "Phone",
-  "casesContact_whatsappNote": "Opens the chat — start the call from there.",
-  "casesContact_noNumber": "No number saved for the {party}.",
-  "@casesContact_noNumber": {
-      "description": "Shown when a case has no phone number for the named party.",
-      "placeholders": {
-          "party": {
-              "type": "String"
-          }
-      }
-  },
   "casesContact_unableToOpenApp": "Unable to open the app.",
   "casesContact_unableToOpenWhatsApp": "Unable to open WhatsApp.",
   "casesContact_unableToCall": "Unable to place a call.",

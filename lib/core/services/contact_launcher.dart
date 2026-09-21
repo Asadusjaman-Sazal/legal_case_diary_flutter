@@ -80,7 +80,15 @@ Uri mailtoUri(String address, String subject, String body) => Uri(
 String _mailtoField(String name, String value) =>
     '${Uri.encodeComponent(name)}=${Uri.encodeComponent(value)}';
 
-/// `https://wa.me/<number>?text=<message>` — WhatsApp's documented chat route.
+/// `https://wa.me/<number>` — WhatsApp's documented chat route, with no text.
+///
+/// The case contact chooser opens this from both its call and message sheets:
+/// it lands the user in the client's chat, which is where a call is started and
+/// where they can write whatever they actually want to say. Nothing is
+/// pre-written into the composer for them.
+Uri whatsAppChatUri(String number) => Uri.https('wa.me', '/$number');
+
+/// `https://wa.me/<number>?text=<message>` — the chat route with the text.
 ///
 /// This is the fallback the Addendum asks for: WhatsApp publishes no call URL
 /// scheme, so the app opens the chat and never invents a call scheme.

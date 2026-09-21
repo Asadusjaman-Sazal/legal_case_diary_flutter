@@ -1,9 +1,14 @@
 /// Notification settings screen: upcoming-case alert preferences.
 ///
 /// Body mirrors `mockup_html_screens/settings_notifications/code.html` — one
-/// white card with the notification status, the day offset and the delivery
+/// white card with the notification status, the day offsets and the delivery
 /// time — plus the OEM battery-setup reminder banner and guide entry that the
 /// plan (§10, Task 13) requires on this screen.
+///
+/// The day offsets are a multi-select list, so one hearing can alert several
+/// times (the same choice the case form offers per case), and the picker row
+/// shows every ticked offset. The time window stays Flutter's, with the Bengali
+/// bundle layered over it so বাংলা shows the English 12-hour window.
 ///
 /// Every value is a durable per-user preference in the local `user_preferences`
 /// row (never firm-shared); premium self-scoped sync arrives in Part B. The
@@ -25,6 +30,7 @@ import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../data/notification_day_offsets.dart';
+import 'bengali_time_picker_localizations.dart';
 import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
 import '../settings_menu_card.dart';
@@ -41,6 +47,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final settings =
         ref.watch(settingsViewModelProvider).value ?? const UserSettings();
     final timeMinutes = settings.notificationTime ?? defaultNotificationMinutes;
+    final dayOffsets = _tickedDayOffsets(settings);
 
     return SettingsSubPageModal(
       title: l.settingsNotifications_title,
@@ -79,11 +86,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                // Notification day offset.
+                // Notification day offsets — every ticked one alerts.
                 SettingsSectionLabel(l.settingsNotifications_dayOffsetLabel),
                 const SizedBox(height: AppSpacing.md),
                 SettingsPickerRow(
-                  text: _dayOffsetLabel(l, settings.notificationDayOffset),
+                  text: _dayOffsetsLabel(l, dayOffsets),
                   icon: Icons.expand_more,
                   onTap: () => _pickDayOffset(context, ref),
                 ),
@@ -174,32 +181,59 @@ class NotificationSettingsScreen extends ConsumerWidget {
   Future<void> _resyncSchedule(WidgetRef ref) =>
       ref.read(notificationSchedulerProvider).syncSchedule();
 
-  /// Opens the day-offset modal and stores the choice.
+  /// Opens the day-offset picker and stores every tick.
+  ///
+  /// Ticking a row saves straight away — like the ON/OFF pair above it — so
+  /// the dialog needs no confirm button and the header's close button simply
+  /// dismisses it. One offset always stays ticked: an empty list would be
+  /// indistinguishable from the master switch being off.
   Future<void> _pickDayOffset(BuildContext context, WidgetRef ref) async {
-    final current = ref
-        .read(settingsViewModelProvider)
-        .value
-        ?.notificationDayOffset;
-    final selected = await showDialog<int>(
+    final l = AppLocalizations.of(context);
+    final settings =
+        ref.read(settingsViewModelProvider).value ?? const UserSettings();
+    await showDialog<void>(
       context: context,
-      builder: (_) =>
-          _DayOffsetDialog(selected: current ?? defaultNotificationDayOffset),
+      builder: (_) => SettingsMultiSelectDialog<int>(
+        title: l.settingsNotifications_selectDayOffsetTitle,
+        order: notificationDayOffsetOptions,
+        selected: _tickedDayOffsets(settings).toSet(),
+        labelOf: (offset) => _dayOffsetLabel(l, offset),
+        minSelected: 1,
+        minSelectedMessage: l.settingsNotifications_keepOneOffset,
+        onChanged: (_, chosen) => _storeDayOffsets(ref, chosen),
+      ),
     );
-    if (selected == null || selected == current) return;
+  }
+
+  /// Stores the ticked day offsets and re-arms the daily alarm.
+  ///
+  /// The single `notificationDayOffset` the case form starts from stays in
+  /// step with the list: it is the earliest offset ticked, so a new case
+  /// defaults to the nearest alert the user asked for.
+  Future<void> _storeDayOffsets(WidgetRef ref, List<int> offsets) async {
+    final chosen = <int>[
+      for (final offset in notificationDayOffsetOptions)
+        if (offsets.contains(offset)) offset,
+    ];
+    if (chosen.isEmpty) return;
     await ref
         .read(settingsViewModelProvider.notifier)
         .updateSettings(
           (settings) => settings.copyWith(
-            notificationDayOffset: selected,
-            // The single choice is mirrored into the offsets list so the daily
-            // job (Task 13) can read either field.
-            notificationDefaultOffsets: <int>[selected],
+            notificationDayOffset: chosen.first,
+            notificationDefaultOffsets: chosen,
           ),
         );
     await _resyncSchedule(ref);
   }
 
   /// Opens the platform time picker and stores the choice in minutes.
+  ///
+  /// The window is Flutter's, but two things are pinned so বাংলা shows what
+  /// English shows: the 12-hour dial with its AM/PM toggle (Flutter's Bengali
+  /// bundle asks for a 24-hour clock, see [BengaliTimePickerLocalizations]) and
+  /// the dialog action size the rest of the app's dialogs use — Flutter sizes
+  /// Cancel/OK to their own label, which drifts with the language.
   Future<void> _pickTime(
     BuildContext context,
     WidgetRef ref,
@@ -211,6 +245,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
         hour: currentMinutes ~/ 60,
         minute: currentMinutes % 60,
       ),
+      builder: (context, child) => Localizations.override(
+        context: context,
+        delegates: const <LocalizationsDelegate<dynamic>>[
+          BengaliTimePickerLocalizationsDelegate(),
+        ],
+        child: TimePickerTheme(
+          data: _timePickerTheme,
+          child: child ?? const SizedBox.shrink(),
+        ),
+      ),
     );
     if (picked == null) return;
     final minutes = picked.hour * 60 + picked.minute;
@@ -221,7 +265,36 @@ class NotificationSettingsScreen extends ConsumerWidget {
         );
     await _resyncSchedule(ref);
   }
+}
 
+/// The dialog action size and text style the app's dialogs share — 112x48 at
+/// 16 pt, the same pair `confirm_dialogs.dart`, `backup_dialogs.dart` and the
+/// Exit App window use.
+const Size _dialogActionSize = Size(112, 48);
+const TextStyle _dialogActionTextStyle = TextStyle(fontSize: 16);
+
+/// Cancel/OK inside the time window, sized like every other dialog button.
+final TimePickerThemeData _timePickerTheme = TimePickerThemeData(
+  cancelButtonStyle: TextButton.styleFrom(
+    minimumSize: _dialogActionSize,
+    textStyle: _dialogActionTextStyle,
+  ),
+  confirmButtonStyle: TextButton.styleFrom(
+    minimumSize: _dialogActionSize,
+    textStyle: _dialogActionTextStyle,
+  ),
+);
+
+/// Day offsets to show as ticked, in the picker's order.
+///
+/// The stored list is the source of truth; it is always non-empty, and an
+/// install that has never ticked anything carries the default.
+List<int> _tickedDayOffsets(UserSettings settings) {
+  final ticked = <int>[
+    for (final offset in notificationDayOffsetOptions)
+      if (settings.notificationDefaultOffsets.contains(offset)) offset,
+  ];
+  return ticked.isEmpty ? const <int>[defaultNotificationDayOffset] : ticked;
 }
 
 /// Localized label of one day-offset option.
@@ -231,52 +304,9 @@ String _dayOffsetLabel(AppLocalizations l, int offset) => switch (offset) {
   _ => l.settingsNotifications_offsetBeforeDays(offset),
 };
 
-/// Single-select day-offset modal, matching the mockup's list (dark header,
-/// divided rows, `check_circle` on the active one). Tapping a row selects it
-/// and closes, because the mockup's modal has no confirm button. The options
-/// are [notificationDayOffsetOptions], the same list the case form offers.
-class _DayOffsetDialog extends StatelessWidget {
-  /// Currently stored offset.
-  final int selected;
-
-  const _DayOffsetDialog({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Dialog(
-      insetPadding: const EdgeInsets.all(AppSpacing.md),
-      backgroundColor: AppColors.surfaceContainerLowest,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SettingsPickerDialogHeader(
-            title: l.settingsNotifications_selectDayOffsetTitle,
-          ),
-          Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                for (final offset in notificationDayOffsetOptions) ...[
-                  if (offset != notificationDayOffsetOptions.first)
-                    const Divider(height: 1, color: AppColors.outlineVariant),
-                  SettingsOptionRow(
-                    label: _dayOffsetLabel(l, offset),
-                    selected: offset == selected,
-                    onTap: () => Navigator.of(context).pop(offset),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+/// The picker row's value: every ticked offset, in the picker's order.
+String _dayOffsetsLabel(AppLocalizations l, List<int> offsets) =>
+    offsets.map((offset) => _dayOffsetLabel(l, offset)).join(', ');
 
 /// The plan's persistent, non-intrusive "notifications may not work" banner.
 class _SetupReminderBanner extends StatelessWidget {

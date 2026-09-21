@@ -2810,6 +2810,12 @@ abstract class AppLocalizations {
   /// **'Select Day Offset'**
   String get settingsNotifications_selectDayOffsetTitle;
 
+  /// No description provided for @settingsNotifications_keepOneOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at Least One Day Offset.'**
+  String get settingsNotifications_keepOneOffset;
+
   /// No description provided for @settingsNotifications_offsetSameDay.
   ///
   /// In en, this message translates to:

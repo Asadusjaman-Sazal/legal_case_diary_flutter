@@ -203,7 +203,7 @@ class ViewSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
-      builder: (_) => _MultiSelectDropDown(
+      builder: (_) => SettingsMultiSelectDialog<String>(
         title: l.settingsViewSettings_bottomTabs,
         order: _bottomTabSerial(settings),
         selected: settings.bottomNavTabs.toSet(),
@@ -234,7 +234,7 @@ class ViewSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
-      builder: (_) => _MultiSelectDropDown(
+      builder: (_) => SettingsMultiSelectDialog<String>(
         title: l.settingsViewSettings_sideNav,
         order: <String>[for (final def in bottomNavTabDefs) def.route],
         selected: <String>{
@@ -353,7 +353,7 @@ class ViewSettingsScreen extends ConsumerWidget {
       };
 }
 
-/// One Settings card with the uppercase label above its controls.
+/// One Settings card with the Title Case label above its controls.
 class _SectionCard extends StatelessWidget {
   final String label;
   final List<Widget> children;
@@ -384,162 +384,6 @@ class _SectionCard extends StatelessWidget {
   );
 }
 
-/// Multi-select dropdown: the shared dark picker header over one check-mark
-/// row per item, so a dropdown item carries no icon of its own.
-///
-/// It keeps its own copy of the order and the selection so a tap or a drag
-/// renders immediately, and reports every change through [onChanged]. The
-/// dialog stays open while the user works through the list — every row is an
-/// independent choice — and the header's close button dismisses it. With
-/// [reorderable] each row also gets a drag handle; the saved selection follows
-/// the display order, which is the order the bottom bar renders.
-class _MultiSelectDropDown extends StatefulWidget {
-  /// Dropdown title, shown in the picker header.
-  final String title;
-
-  /// Every candidate key, in display order.
-  final List<String> order;
-
-  /// Keys that start out selected.
-  final Set<String> selected;
-
-  /// Localized label of one key.
-  final String Function(String key) labelOf;
-
-  /// Called with the (display order, selection in that order) after a change.
-  final void Function(List<String> order, List<String> selected) onChanged;
-
-  /// Whether rows can be dragged into a new order.
-  final bool reorderable;
-
-  /// How many rows must stay selected.
-  final int minSelected;
-
-  /// Shown when the user tries to go below [minSelected].
-  final String? minSelectedMessage;
-
-  const _MultiSelectDropDown({
-    required this.title,
-    required this.order,
-    required this.selected,
-    required this.labelOf,
-    required this.onChanged,
-    this.reorderable = false,
-    this.minSelected = 0,
-    this.minSelectedMessage,
-  });
-
-  @override
-  State<_MultiSelectDropDown> createState() => _MultiSelectDropDownState();
-}
-
-class _MultiSelectDropDownState extends State<_MultiSelectDropDown> {
-  /// Display order of every candidate, as it stands in this dialog.
-  late final List<String> _order = List<String>.of(widget.order);
-
-  /// Currently ticked keys.
-  late final Set<String> _selected = Set<String>.of(widget.selected);
-
-  /// The selection in display order — the order the bottom bar renders.
-  List<String> get _orderedSelection => <String>[
-    for (final key in _order)
-      if (_selected.contains(key)) key,
-  ];
-
-  /// Ticks or unticks [key], refusing to drop below [minSelected].
-  void _toggle(String key) {
-    final removing = _selected.contains(key);
-    if (removing && _selected.length <= widget.minSelected) {
-      final message = widget.minSelectedMessage;
-      if (message != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-      }
-      return;
-    }
-    setState(() {
-      if (removing) {
-        _selected.remove(key);
-      } else {
-        _selected.add(key);
-      }
-    });
-    widget.onChanged(_order, _orderedSelection);
-  }
-
-  /// Moves one row and re-reports the selection in its new order.
-  void _reorder(int oldIndex, int newIndex) {
-    setState(() {
-      final moved = _order.removeAt(oldIndex);
-      _order.insert(newIndex, moved);
-    });
-    widget.onChanged(_order, _orderedSelection);
-  }
-
-  @override
-  Widget build(BuildContext context) => Dialog(
-    insetPadding: const EdgeInsets.all(AppSpacing.md),
-    backgroundColor: AppColors.surfaceContainerLowest,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-    ),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SettingsPickerDialogHeader(title: widget.title),
-        Flexible(child: widget.reorderable ? _draggableRows() : _rows()),
-      ],
-    ),
-  );
-
-  /// Rows the user can drag into a new order (bottom navigation).
-  Widget _draggableRows() => ReorderableListView.builder(
-    shrinkWrap: true,
-    buildDefaultDragHandles: false,
-    itemCount: _order.length,
-    onReorderItem: _reorder,
-    itemBuilder: (context, index) => Row(
-      key: ValueKey(_order[index]),
-      children: [
-        Expanded(child: _row(index)),
-        // The drag handle is what makes the item reorderable; the item itself
-        // still shows no screen icon.
-        ReorderableDragStartListener(
-          index: index,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Icon(Icons.drag_indicator, color: AppColors.tertiary),
-          ),
-        ),
-      ],
-    ),
-  );
-
-  /// Rows in fixed order (side navigation options).
-  Widget _rows() => ListView.builder(
-    shrinkWrap: true,
-    itemCount: _order.length,
-    itemBuilder: (context, index) => _row(index),
-  );
-
-  /// One check-mark row, with the divider the picker lists use between rows.
-  Widget _row(int index) {
-    final key = _order[index];
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (index > 0)
-          const Divider(height: 1, color: AppColors.outlineVariant),
-        SettingsOptionRow(
-          label: widget.labelOf(key),
-          selected: _selected.contains(key),
-          onTap: () => _toggle(key),
-        ),
-      ],
-    );
-  }
-}
 
 /// Single-select dialog used by the period, density and landing-page pickers.
 class _OptionDialog<T> extends StatelessWidget {

@@ -2,8 +2,9 @@
 ///
 /// Notifications, View Settings and About all render the same three pieces: a
 /// white bordered section card, a Title Case section label, and a full-width
-/// 48 px control row. They live here so those screens cannot drift apart the
-/// way the mockups' repeated markup would otherwise allow.
+/// 48 px control row — plus the picker dialogs those rows open. They live here
+/// so those screens cannot drift apart the way the mockups' repeated markup
+/// would otherwise allow.
 library;
 
 import 'package:flutter/material.dart';
@@ -116,7 +117,16 @@ class SettingsPickerRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Row(
             children: [
-              Expanded(child: Text(text, style: AppTypography.bodyLg)),
+              // One line only: a multi-value picker (several day offsets) can
+              // hand over more text than the row's 48 px can hold.
+              Expanded(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyLg,
+                ),
+              ),
               Icon(icon, color: AppColors.onSurfaceVariant),
             ],
           ),
@@ -240,6 +250,165 @@ class SettingsOptionRow extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Multi-select picker dialog: a dark header over one check-mark row per
+/// option, reporting every tick as it happens.
+///
+/// View Settings (bottom navigation, side navigation) and Notifications (day
+/// offsets) all need "tick as many as you like" over the same list, so the
+/// dialog lives here instead of being copied into each screen. [onChanged]
+/// fires on every toggle — there is no confirm button — because the screens
+/// behind it store each change straight away.
+class SettingsMultiSelectDialog<T extends Object> extends StatefulWidget {
+  /// Dialog title, shown in the header bar.
+  final String title;
+
+  /// Every candidate value, in display order.
+  final List<T> order;
+
+  /// Values that start out ticked.
+  final Set<T> selected;
+
+  /// Localized label of one value.
+  final String Function(T value) labelOf;
+
+  /// Called with the (display order, ticked values in that order) after a tick.
+  final void Function(List<T> order, List<T> selected) onChanged;
+
+  /// Whether rows can be dragged into a new order.
+  final bool reorderable;
+
+  /// How many values must stay ticked.
+  final int minSelected;
+
+  /// Shown when the user tries to go below [minSelected].
+  final String? minSelectedMessage;
+
+  const SettingsMultiSelectDialog({
+    super.key,
+    required this.title,
+    required this.order,
+    required this.selected,
+    required this.labelOf,
+    required this.onChanged,
+    this.reorderable = false,
+    this.minSelected = 0,
+    this.minSelectedMessage,
+  });
+
+  @override
+  State<SettingsMultiSelectDialog<T>> createState() =>
+      _SettingsMultiSelectDialogState<T>();
+}
+
+class _SettingsMultiSelectDialogState<T extends Object>
+    extends State<SettingsMultiSelectDialog<T>> {
+  /// Display order of every candidate, as it stands in this dialog.
+  late final List<T> _order = List<T>.of(widget.order);
+
+  /// Currently ticked values.
+  late final Set<T> _selected = Set<T>.of(widget.selected);
+
+  /// The ticked values in display order — the order the caller stores them in.
+  List<T> get _orderedSelection => <T>[
+    for (final value in _order)
+      if (_selected.contains(value)) value,
+  ];
+
+  /// Ticks or unticks [value], refusing to drop below [minSelected].
+  void _toggle(T value) {
+    final removing = _selected.contains(value);
+    if (removing && _selected.length <= widget.minSelected) {
+      final message = widget.minSelectedMessage;
+      if (message != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
+      return;
+    }
+    setState(() {
+      if (removing) {
+        _selected.remove(value);
+      } else {
+        _selected.add(value);
+      }
+    });
+    widget.onChanged(_order, _orderedSelection);
+  }
+
+  /// Moves one row and re-reports the selection in its new order.
+  void _reorder(int oldIndex, int newIndex) {
+    setState(() {
+      final moved = _order.removeAt(oldIndex);
+      _order.insert(newIndex, moved);
+    });
+    widget.onChanged(_order, _orderedSelection);
+  }
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+    insetPadding: const EdgeInsets.all(AppSpacing.md),
+    backgroundColor: AppColors.surfaceContainerLowest,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SettingsPickerDialogHeader(title: widget.title),
+        Flexible(child: widget.reorderable ? _draggableRows() : _rows()),
+      ],
+    ),
+  );
+
+  /// Rows the user can drag into a new order (bottom navigation).
+  Widget _draggableRows() => ReorderableListView.builder(
+    shrinkWrap: true,
+    buildDefaultDragHandles: false,
+    itemCount: _order.length,
+    onReorderItem: _reorder,
+    itemBuilder: (context, index) => Row(
+      key: ValueKey<T>(_order[index]),
+      children: [
+        Expanded(child: _row(index)),
+        // The drag handle is what makes the item reorderable; the item itself
+        // still shows no screen icon.
+        ReorderableDragStartListener(
+          index: index,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Icon(Icons.drag_indicator, color: AppColors.tertiary),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  /// Rows in fixed order (side navigation options, day offsets).
+  Widget _rows() => ListView.builder(
+    shrinkWrap: true,
+    itemCount: _order.length,
+    itemBuilder: (context, index) => _row(index),
+  );
+
+  /// One check-mark row, with the divider the picker lists use between rows.
+  Widget _row(int index) {
+    final value = _order[index];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (index > 0)
+          const Divider(height: 1, color: AppColors.outlineVariant),
+        SettingsOptionRow(
+          label: widget.labelOf(value),
+          selected: _selected.contains(value),
+          onTap: () => _toggle(value),
+        ),
+      ],
+    );
+  }
 }
 
 /// Header of a picker dialog, matching the mockup's dark header bar.

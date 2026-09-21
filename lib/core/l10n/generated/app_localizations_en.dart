@@ -1502,6 +1502,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications_selectDayOffsetTitle => 'Select Day Offset';
 
   @override
+  String get settingsNotifications_keepOneOffset =>
+      'Keep at Least One Day Offset.';
+
+  @override
   String get settingsNotifications_offsetSameDay => 'The Same Day';
 
   @override

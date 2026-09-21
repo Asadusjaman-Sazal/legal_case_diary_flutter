@@ -2,9 +2,14 @@
 ///
 /// The screen reads and writes the per-user `user_preferences` row through
 /// [SettingsRepository], so these tests drive it with the shared fake and
-/// assert what gets stored: the ON/OFF status, the day offset (mirrored into
-/// the offsets list), the delivery time, and the OEM reminder banner plus
-/// setup-guide entry the plan adds on top of the mockup's three controls.
+/// assert what gets stored: the ON/OFF status, the day offsets (several at
+/// once, the single `notificationDayOffset` following the nearest one), the
+/// delivery time, and the OEM reminder banner plus setup-guide entry the plan
+/// adds on top of the mockup's three controls.
+///
+/// The time window is Flutter's, so the বাংলা test asserts what the Bengali
+/// bundle is layered over it for: the English 12-hour layout with Bengali
+/// digits, Latin AM/PM and the app's dialog action size.
 library;
 
 import 'package:flutter/material.dart';
@@ -12,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 
 import '../core/notification_test_support.dart';
@@ -60,7 +66,7 @@ void main() {
     expect(repo.settings.notificationEnabled, isFalse);
   });
 
-  testWidgets('the day-offset dialog stores the choice and its offsets list', (
+  testWidgets('the day-offset picker ticks several offsets at once', (
     tester,
   ) async {
     await pumpScreen(tester);
@@ -74,13 +80,47 @@ void main() {
     expect(find.text('Before 7 Days'), findsOneWidget);
     expect(find.text('Before 15 Days'), findsOneWidget);
     expect(find.text('Before 30 Days'), findsOneWidget);
+    // The stored default is the ticked row.
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
 
+    // A second choice joins the first instead of replacing it, and the picker
+    // stays open for the next tick: a hearing can alert several times.
     await tester.tap(find.text('Before 3 Days'));
     await tester.pumpAndSettle();
+    expect(find.text('Select Day Offset'), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+    expect(repo.settings.notificationDefaultOffsets, <int>[1, 3]);
+    // The case form's single default is the nearest offset ticked.
+    expect(repo.settings.notificationDayOffset, 1);
 
-    expect(repo.settings.notificationDayOffset, 3);
-    expect(repo.settings.notificationDefaultOffsets, <int>[3]);
-    expect(find.text('Before 3 Days'), findsOneWidget);
+    await tester.tap(find.text('Before 30 Days'));
+    await tester.pumpAndSettle();
+    expect(repo.settings.notificationDefaultOffsets, <int>[1, 3, 30]);
+
+    // Unticking takes one back out.
+    await tester.tap(find.text('Before 3 Days'));
+    await tester.pumpAndSettle();
+    expect(repo.settings.notificationDefaultOffsets, <int>[1, 30]);
+
+    // The row behind the picker shows the whole selection, in picker order.
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.text('The Day Before, Before 30 Days'), findsOneWidget);
+  });
+
+  testWidgets('the last remaining day offset cannot be unticked', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('The Day Before'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(SettingsOptionRow, 'The Day Before'));
+    await tester.pumpAndSettle();
+
+    // An empty list would read as "never alert", so the last tick stays on.
+    expect(repo.settings.notificationDefaultOffsets, <int>[1]);
+    expect(find.text('Keep at Least One Day Offset.'), findsOneWidget);
   });
 
   testWidgets('stores the two added long-range offsets', (tester) async {
@@ -88,12 +128,13 @@ void main() {
 
     await tester.tap(find.text('The Day Before'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Before 15 Days'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Before 30 Days'));
     await tester.pumpAndSettle();
 
-    expect(repo.settings.notificationDayOffset, 30);
-    expect(repo.settings.notificationDefaultOffsets, <int>[30]);
-    expect(find.text('Before 30 Days'), findsOneWidget);
+    expect(repo.settings.notificationDefaultOffsets, <int>[1, 15, 30]);
+    expect(repo.settings.notificationDayOffset, 1);
   });
 
   testWidgets('the time row opens a picker whose confirm stores the time', (
@@ -125,6 +166,53 @@ void main() {
     expect(find.text('08:30 AM'), findsOneWidget);
   });
 
+  testWidgets('বাংলা opens the same 12-hour window English does', (
+    tester,
+  ) async {
+    repo = FakeSettingsRepository(
+      const UserSettings(notificationTime: 8 * 60 + 30),
+    );
+    final scheduler = FakeNotificationScheduler();
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      locale: const Locale('bn'),
+      overrides: [
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    await tester.tap(find.text('০৮:৩০ AM'));
+    await tester.pumpAndSettle();
+
+    // Flutter's window, on the English clock layout Bengali Material does not
+    // ask for: a 12-hour dial with the AM/PM toggle beside it.
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+    expect(find.text('AM'), findsOneWidget);
+    expect(find.text('PM'), findsOneWidget);
+    // The time itself is Bengali — digits localized, AM/PM left as letters.
+    expect(find.text('৩০'), findsOneWidget);
+
+    // Cancel/OK carry the app's dialog action size (112x48 at 16 pt) instead of
+    // being sized to their own label.
+    final actions = find.descendant(
+      of: find.byType(TimePickerDialog),
+      matching: find.byType(TextButton),
+    );
+    expect(actions, findsNWidgets(2));
+    expect(tester.getSize(actions.first).height, 48);
+    expect(tester.getSize(actions.last).height, 48);
+    expect(tester.getSize(actions.first).width, greaterThanOrEqualTo(112));
+    expect(tester.getSize(actions.last).width, greaterThanOrEqualTo(112));
+
+    // Dismissing the window stores nothing.
+    await tester.tap(find.text('বাতিল করুন'));
+    await tester.pumpAndSettle();
+    expect(repo.settings.notificationTime, 8 * 60 + 30);
+    expect(scheduler.syncScheduleCalls, 0);
+  });
+
   testWidgets('every notification change re-arms the daily alarm', (
     tester,
   ) async {
@@ -153,7 +241,10 @@ void main() {
     await tester.tap(find.text('Before 3 Days'));
     await tester.pumpAndSettle();
     expect(scheduler.syncScheduleCalls, 3);
-    expect(repo.settings.notificationDayOffset, 3);
+    expect(repo.settings.notificationDefaultOffsets, <int>[1, 3]);
+    // The picker stays open, so close it before reaching the row behind it.
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('05:00 PM'));
     await tester.pumpAndSettle();

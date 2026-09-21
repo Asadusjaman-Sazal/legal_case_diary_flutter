@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.242 - Settings labels are Title Case again, the ALL-CAPS section headings are gone, and the casing rule in AGENTS.md now says Title Case instead of sentence case.
+Version: 0.0.243 - Settings > Notifications: the day offset is a multi-select list saving on every tick with the last one pinned, and the Bengali time window is 12-hour with localized digits and app-sized Cancel/OK.
 --------------------------------------
 
 ## Version History Log:
@@ -256,3 +256,4 @@ Version: 0.0.239 - Settings > About's Privacy Policy and Terms of Service rows n
 Version: 0.0.240 - Settings > About > Support is now a real screen, and the developer card above it carries identity only. The Support screen states its scope before offering anything (the diary never leaves the phone, and a hearing date cannot be checked for the user), links into Guidelines & FAQs, then offers WhatsApp and Email, each opening with the same pre-filled diagnostics message the screen itself shows - app version, the phone model and Android release read behind `supportDeviceFactsProvider`, and the app language, with the user's own description left to fill in - and closes with the plain warning never to send the passphrase, the diary database or a backup file, plus the honest reply time (one to two working days, Sunday to Thursday, no phone line and no live chat). A new `mailtoUri` helper joined the contact launcher, and the shared `SettingsLinkRow` replaced About's private menu row. The About card's Email and WhatsApp rows are gone and the FAQ that pointed at them now points at Support. Tests: new `support_screen_test.dart` (7) and an updated `settings_about_test.dart` (11). `flutter analyze` clean; `flutter test` 615 passed, 2 skipped.
 Version: 0.0.241 - Support's email channel no longer turns every space into a plus sign, and the version log is now written by one script and policed by a test that fails the suite when it is hand-edited.
 Version: 0.0.242 - Settings labels are Title Case again, the ALL-CAPS section headings are gone, and the casing rule in AGENTS.md now says Title Case instead of sentence case.
+Version: 0.0.243 - Settings > Notifications: the day offset is a multi-select list saving on every tick with the last one pinned, and the Bengali time window is 12-hour with localized digits and app-sized Cancel/OK.

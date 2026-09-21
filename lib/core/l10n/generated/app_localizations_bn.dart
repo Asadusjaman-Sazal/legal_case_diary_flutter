@@ -894,7 +894,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsScreen_profile => 'প্রোফাইল';
 
   @override
-  String get settingsScreen_manageAccount => 'অ্যাকান্ট ব্যবস্থাপনা';
+  String get settingsScreen_manageAccount => 'অ্যাকাউন্ট ব্যবস্থাপনা';
 
   @override
   String get settingsScreen_onlineSync => 'অনলাইন সিঙ্ক';
@@ -1024,7 +1024,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsProfile_saved => 'প্রোফাইল সংরক্ষিত হয়েছে (অফলাইন)';
 
   @override
-  String get settingsManageAccount_title => '্যাকাউন্ট ব্যবস্থাপনা';
+  String get settingsManageAccount_title => 'অ্যাকাউন্ট ব্যবস্থাপনা';
 
   @override
   String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
@@ -1509,6 +1509,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsNotifications_selectDayOffsetTitle =>
       'দিনের ব্যবধান নির্বাচন করুন';
+
+  @override
+  String get settingsNotifications_keepOneOffset =>
+      'অন্তত একটি দিনের ব্যবধান রাখুন।';
 
   @override
   String get settingsNotifications_offsetSameDay => 'একই দিনে';

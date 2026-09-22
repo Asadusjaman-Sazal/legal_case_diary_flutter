@@ -3,10 +3,13 @@
 /// Task 12 Phase 2 (Part A): data is shown by default; a FAB opens an edit
 /// sheet. The avatar edit button picks a profile picture, saved locally through
 /// [profilePictureProvider] so it persists across launches and is reused by the
-/// Manage Account screen; a red delete button clears it. The Full Name is kept
-/// in [profileNameProvider] so the navigation drawer header shows the same name.
-/// Other profile fields bind to real data in Part B (Task 17) via
-/// [ProfileRepository].
+/// Manage Account screen; a red delete button clears it. The five fields are
+/// kept in [profileFieldsProvider], so the navigation drawer header and the
+/// case screens show the same values.
+///
+/// A new user starts with a blank profile: nothing is seeded, and each field
+/// renders `—` (and the heading `Your Name`) until the user fills it in. Real
+/// remote data binds in Part B (Task 17) via [ProfileRepository].
 library;
 
 import 'dart:io';
@@ -33,20 +36,14 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  // Editor controllers, seeded from the saved record when the sheet opens and
+  // read back into it on Save. They start blank because a new user's profile is
+  // blank — no mockup sample data is stored anywhere.
   final _fullName = TextEditingController();
-  final _barAssociation = TextEditingController(text: 'Dhaka Bar Association');
-  final _membershipNo = TextEditingController(text: '1557');
-  final _officeAddress = TextEditingController(
-    text: 'Chamber 402, High Court Annex, Dhaka-1000',
-  );
-  final _mobile = TextEditingController(text: '1812332721');
-
-  @override
-  void initState() {
-    super.initState();
-    // Seed the editor with the shared (persisted) full name.
-    _fullName.text = ref.read(profileNameProvider);
-  }
+  final _barAssociation = TextEditingController();
+  final _membershipNo = TextEditingController();
+  final _officeAddress = TextEditingController();
+  final _mobile = TextEditingController();
 
   @override
   void dispose() {
@@ -70,8 +67,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref.read(profilePictureProvider.notifier).clear();
 
   void _openEditSheet() {
-    // Editable controllers operate directly on the same state, so the read
-    // view reflects edits when the sheet is saved.
+    // Seed the editor with the saved record, so a sheet dismissed without
+    // saving never leaves half-typed values behind for the next open.
+    final saved = ref.read(profileFieldsProvider);
+    _fullName.text = saved.fullName;
+    _barAssociation.text = saved.barAssociation;
+    _membershipNo.text = saved.membershipNo;
+    _officeAddress.text = saved.officeAddress;
+    _mobile.text = saved.mobile;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -85,10 +88,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         membershipNo: _membershipNo,
         officeAddress: _officeAddress,
         mobile: _mobile,
-        onSave: () {
-          // Persist the shared name so the drawer header stays in sync.
-          ref.read(profileNameProvider.notifier).setName(_fullName.text);
+        onSave: () async {
+          // Persist the whole record, so the read view and every other screen
+          // that shows the user update together.
+          await ref
+              .read(profileFieldsProvider.notifier)
+              .save(
+                ProfileFields(
+                  fullName: _fullName.text,
+                  barAssociation: _barAssociation.text,
+                  membershipNo: _membershipNo.text,
+                  officeAddress: _officeAddress.text,
+                  mobile: _mobile.text,
+                ),
+              );
+          if (!sheetContext.mounted) return;
           Navigator.of(sheetContext).pop();
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context).settingsProfile_saved),
@@ -102,7 +118,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final displayName = ref.watch(profileNameProvider).trim();
+    // The read view renders the saved record, not the editor's controllers.
+    final profile = ref.watch(profileFieldsProvider);
+    final displayName = profile.fullName;
     final avatarFile = ref.watch(profilePictureProvider);
     return SettingsSubPageModal(
       title: l.settingsProfile_title,
@@ -157,29 +175,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     _DataRow(
                       icon: Icons.account_balance_outlined,
                       label: l.settingsProfile_barAssociation,
-                      value: _barAssociation.text.isNotEmpty
-                          ? _barAssociation.text
+                      value: profile.barAssociation.isNotEmpty
+                          ? profile.barAssociation
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.badge_outlined,
                       label: l.settingsProfile_membershipNo,
-                      value: _membershipNo.text.isNotEmpty
-                          ? _membershipNo.text
+                      value: profile.membershipNo.isNotEmpty
+                          ? profile.membershipNo
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.location_on_outlined,
                       label: l.settingsProfile_officeAddress,
-                      value: _officeAddress.text.isNotEmpty
-                          ? _officeAddress.text
+                      value: profile.officeAddress.isNotEmpty
+                          ? profile.officeAddress
                           : '—',
                     ),
                     _DataRow(
                       icon: Icons.call_outlined,
                       label: l.settingsProfile_mobileNo,
-                      value: _mobile.text.isNotEmpty
-                          ? '+880 ${_mobile.text}'
+                      value: profile.mobile.isNotEmpty
+                          ? '+880 ${profile.mobile}'
                           : '—',
                     ),
                   ],

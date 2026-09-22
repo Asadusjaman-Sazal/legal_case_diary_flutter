@@ -1,8 +1,9 @@
-/// Tests for the shared profile Full Name and its use in the drawer header.
+/// Tests for the shared profile record and its use in the drawer header.
 ///
-/// Covers the locally persisted name ([ProfileNameNotifier]), the Profile
-/// screen saving it, and the navigation drawer header showing the saved picture
-/// plus that name.
+/// Covers the locally persisted record ([ProfileFieldsNotifier]), the blank
+/// profile every new install starts with, the Profile screen saving the whole
+/// record, and the navigation drawer header rendering the saved picture plus
+/// full name.
 library;
 
 import 'dart:convert';
@@ -24,6 +25,15 @@ final List<int> _pngBytes = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/'
   'q842iQAAAABJRU5ErkJggg==',
 );
+
+/// The mockup sample values, which must never be seeded into a real install.
+const List<String> _mockupSampleValues = <String>[
+  'Asadusjaman',
+  'Dhaka Bar Association',
+  '1557',
+  'Chamber 402, High Court Annex, Dhaka-1000',
+  '1812332721',
+];
 
 void main() {
   late SharedPreferences prefs;
@@ -51,81 +61,170 @@ void main() {
   }
 
   Widget app(Widget child) => ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-        child: MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: child,
-        ),
-      );
+    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: child,
+    ),
+  );
 
-  test('name notifier defaults, persists, and ignores unchanged values',
-      () async {
+  /// A container over the same preferences, as a fresh app launch sees them.
+  ProviderContainer container() {
     final container = ProviderContainer(
       overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
     );
     addTearDown(container.dispose);
+    return container;
+  }
 
-    expect(container.read(profileNameProvider), defaultProfileFullName);
+  test('a new install starts with a blank profile and no stored record', () {
+    final c = container();
 
-    await container.read(profileNameProvider.notifier).setName('  Rahim Uddin ');
-    expect(container.read(profileNameProvider), 'Rahim Uddin');
-    expect(prefs.getString(profileFullNameKey), 'Rahim Uddin');
-
-    // A fresh container (app restart) reads the persisted name.
-    final restarted = ProviderContainer(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-    );
-    addTearDown(restarted.dispose);
-    expect(restarted.read(profileNameProvider), 'Rahim Uddin');
+    expect(c.read(profileFieldsProvider), ProfileFields.blank);
+    expect(c.read(profileNameProvider), isEmpty);
+    expect(prefs.getString(profileFieldsKey), isNull);
   });
 
-  testWidgets('Profile screen saves the Full Name into the shared store',
-      (tester) async {
+  test('the record persists trimmed and ignores unchanged saves', () async {
+    final c = container();
+    await c
+        .read(profileFieldsProvider.notifier)
+        .save(
+          const ProfileFields(
+            fullName: '  Rahim Uddin ',
+            barAssociation: ' Dhaka Bar Association ',
+            mobile: ' 1812332721 ',
+          ),
+        );
+
+    expect(c.read(profileNameProvider), 'Rahim Uddin');
+    expect(prefs.getString(profileFullNameKey), isNull);
+    final stored = ProfileFields.fromJson(
+      jsonDecode(prefs.getString(profileFieldsKey)!) as Map<String, dynamic>,
+    );
+    expect(stored.barAssociation, 'Dhaka Bar Association');
+    expect(stored.mobile, '1812332721');
+    expect(stored.membershipNo, isEmpty);
+
+    // A fresh container (app restart) reads the persisted record.
+    final restarted = container();
+    expect(restarted.read(profileFieldsProvider).fullName, 'Rahim Uddin');
+    expect(restarted.read(profileFieldsProvider).barAssociation,
+        'Dhaka Bar Association');
+  });
+
+  test('an install that saved only a name keeps it', () async {
+    await prefs.setString(profileFullNameKey, 'Rahim Uddin');
+
+    final c = container();
+    expect(c.read(profileFieldsProvider).fullName, 'Rahim Uddin');
+
+    // Saving the record folds the legacy key into it.
+    await c
+        .read(profileFieldsProvider.notifier)
+        .save(c.read(profileFieldsProvider).copyWith(mobile: '1812332721'));
+    expect(prefs.getString(profileFullNameKey), isNull);
+    expect(container().read(profileFieldsProvider).fullName, 'Rahim Uddin');
+  });
+
+  testWidgets('Profile screen shows an empty profile on a fresh install', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(app(const ProfileScreen()));
     await tester.pumpAndSettle();
-    expect(find.text('Adv. $defaultProfileFullName'), findsOneWidget);
+
+    // The mockups' sample values are placeholders, never a new user's data.
+    for (final sample in _mockupSampleValues) {
+      expect(find.text(sample), findsNothing, reason: sample);
+      expect(find.textContaining(sample), findsNothing, reason: sample);
+    }
+    expect(find.text('Your Name'), findsOneWidget);
+    expect(find.text('—'), findsNWidgets(5));
+  });
+
+  testWidgets('Profile screen saves and reopens the whole record', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(app(const ProfileScreen()));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Edit profile'));
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, defaultProfileFullName),
+      find.widgetWithText(TextFormField, 'Enter your full name'),
       'Rahim Uddin',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Enter bar association name'),
+      'Dhaka Bar Association',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Enter registration number'),
+      '1557',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, '1XXXXXXXXX'),
+      '1812332721',
     );
     await tester.tap(find.text('Save Profile'));
     await tester.pumpAndSettle();
 
-    // Persisted for the rest of the app (drawer header) and shown in the read
-    // view immediately.
-    expect(prefs.getString(profileFullNameKey), 'Rahim Uddin');
+    // Persisted for the rest of the app and shown in the read view immediately.
+    final stored = ProfileFields.fromJson(
+      jsonDecode(prefs.getString(profileFieldsKey)!) as Map<String, dynamic>,
+    );
+    expect(stored.fullName, 'Rahim Uddin');
+    expect(stored.barAssociation, 'Dhaka Bar Association');
+    expect(stored.membershipNo, '1557');
+    expect(stored.mobile, '1812332721');
     expect(find.text('Adv. Rahim Uddin'), findsOneWidget);
+    expect(find.text('Dhaka Bar Association'), findsOneWidget);
+    expect(find.text('+880 1812332721'), findsOneWidget);
+
+    // Reopening the editor shows the saved values.
+    await tester.tap(find.byTooltip('Edit profile'));
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(TextFormField, 'Rahim Uddin'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('drawer header shows the saved picture and full name',
-      (tester) async {
+  testWidgets('drawer header shows the saved picture and full name', (
+    tester,
+  ) async {
     final picture = writePicture('drawer.png');
     await prefs.setString(profilePicturePathKey, picture.path);
-    await prefs.setString(profileFullNameKey, 'Rahim Uddin');
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Rahim Uddin'));
 
     await tester.pumpWidget(app(_drawerHost()));
     await _openDrawer(tester);
 
     expect(
-      find.descendant(of: find.byType(Drawer), matching: find.text('Rahim Uddin')),
+      find.descendant(
+        of: find.byType(Drawer),
+        matching: find.text('Rahim Uddin'),
+      ),
       findsOneWidget,
     );
     expect(_drawerAvatarPaths(tester), contains(picture.path));
   });
 
-  testWidgets('drawer header falls back to the person icon and saved name',
-      (tester) async {
-    await prefs.setString(profileFullNameKey, 'Rahim Uddin');
+  testWidgets('drawer header falls back to the person icon and saved name', (
+    tester,
+  ) async {
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Rahim Uddin'));
 
     await tester.pumpWidget(app(_drawerHost()));
     await _openDrawer(tester);
@@ -139,7 +238,10 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byType(Drawer), matching: find.text('Rahim Uddin')),
+      find.descendant(
+        of: find.byType(Drawer),
+        matching: find.text('Rahim Uddin'),
+      ),
       findsOneWidget,
     );
   });
@@ -147,9 +249,9 @@ void main() {
 
 /// Scaffold hosting the app drawer, mirroring how the case screens mount it.
 Widget _drawerHost() => Scaffold(
-      drawer: const AppNavigationDrawer(currentRoute: '/all-cases'),
-      body: const SizedBox.shrink(),
-    );
+  drawer: const AppNavigationDrawer(currentRoute: '/all-cases'),
+  body: const SizedBox.shrink(),
+);
 
 /// Opens the hosted drawer and settles its animation.
 Future<void> _openDrawer(WidgetTester tester) async {

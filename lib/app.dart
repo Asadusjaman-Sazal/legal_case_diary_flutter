@@ -9,13 +9,16 @@ import 'core/notifications/notification_tap_listener.dart';
 import 'features/settings/presentation/backup_nudge_banner.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/font_size_scope.dart';
+import 'features/settings/presentation/settings_viewmodel.dart';
 import 'shared/providers/locale_provider.dart';
 
 /// The root widget of the Legal Case Diary application.
 ///
 /// Uses [MaterialApp.router] with [GoRouter] from [appRouterProvider].
 /// Watches the active locale from [localeProvider] and rebuilds whenever
-/// the user switches languages. Shows a minimal loading screen while the
+/// the user switches languages, and the saved font size step from
+/// [settingsViewModelProvider]. Shows a minimal loading screen while the
 /// router resolves the initial landing page from [SettingsRepository].
 class App extends ConsumerWidget {
   const App({super.key});
@@ -24,6 +27,14 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final routerAsync = ref.watch(appRouterProvider);
+    // The step only exists once settings have loaded, so the first frame after
+    // a cold start is the shipped size; the saved step lands with the settings
+    // the router already had to read before it could resolve a landing page.
+    final fontSizeStep = ref.watch(
+      settingsViewModelProvider.select(
+        (settings) => settings.value?.fontSizeStep ?? 0,
+      ),
+    );
 
     return routerAsync.when(
       data: (router) => MaterialApp.router(
@@ -37,13 +48,18 @@ class App extends ConsumerWidget {
         // listener so a notification tap can route in from anywhere, and the
         // monthly backup nudge so a free user sees it wherever they land.
         builder: (context, child) => _buildSystemUiLayer(
-          NotificationSetupGate(
-            router: router,
-            child: NotificationTapListener(
+          // The font size step wraps the whole app — every route, dialog, sheet
+          // and overlay — and is added on top of the device's own text scale.
+          FontSizeScope(
+            step: fontSizeStep,
+            child: NotificationSetupGate(
               router: router,
-              child: BackupNudgeBanner(
+              child: NotificationTapListener(
                 router: router,
-                child: child ?? const SizedBox.shrink(),
+                child: BackupNudgeBanner(
+                  router: router,
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           ),

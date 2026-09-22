@@ -749,6 +749,7 @@
   "@@_section_settingsViewSettings": "SETTINGS - VIEW SETTINGS  |  lib/features/settings/presentation/settings_view/view_settings_screen.dart",
   "settingsViewSettings_title": "ভিউ সেটিংস",
   "settingsViewSettings_sectionDisplay": "প্রদর্শন",
+  "settingsViewSettings_sectionFontSize": "ফন্ট সাইজ",
   "settingsViewSettings_sectionNavigation": "নেভিগেশন",
   "settingsViewSettings_upcomingPeriod": "আসন্ন মামলার সময়সীমা",
   "settingsViewSettings_days": "{days} দিন",
@@ -763,6 +764,28 @@
   "settingsViewSettings_caseListMode": "মামলার তালিকার ধরন",
   "settingsViewSettings_caseListCompact": "সংক্ষিপ্ত",
   "settingsViewSettings_caseListExpanded": "বিস্তারিত",
+  "settingsViewSettings_fontSizeDefault": "ডিফল্ট",
+  "settingsViewSettings_fontSizeMore": "+{step}",
+  "@settingsViewSettings_fontSizeMore": {
+      "description": "Current font size step when it is above Default. The step itself arrives already in the language's digits.",
+      "placeholders": {
+          "step": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsViewSettings_fontSizeLess": "-{step}",
+  "@settingsViewSettings_fontSizeLess": {
+      "description": "Current font size step when it is below Default. The step itself arrives already in the language's digits.",
+      "placeholders": {
+          "step": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsViewSettings_fontSizeIncrease": "ফন্ট সাইজ বাড়ান",
+  "settingsViewSettings_fontSizeDecrease": "ফন্ট সাইজ কমান",
+  "settingsViewSettings_fontSizeReset": "ডিফল্টে ফিরিয়ে দিন",
   "settingsViewSettings_bottomTabs": "নিচের নেভিগেশন",
   "settingsViewSettings_bottomTabsCount": "{count}টি স্ক্রিন নির্বাচিত",
   "@settingsViewSettings_bottomTabsCount": {

@@ -7,6 +7,11 @@
 /// its own title directly above the control, and both the title and the
 /// collapsed value are Title Case.
 ///
+/// Font Size is the screen's own addition to that list: a − / + stepper whose
+/// step (`font_size_step`) is added to every text size in the app by
+/// [FontSizeScope] at the app root. It is the one control here that changes the
+/// screen you are standing on as you use it.
+///
 /// The two list settings render as dropdowns too — their items live inside the
 /// picker instead of inline on the page, no item shows a per-screen icon, and
 /// the Bottom Navigation list is reorderable by drag & drop. Default Landing
@@ -33,7 +38,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
@@ -132,6 +139,21 @@ class ViewSettingsScreen extends ConsumerWidget {
                   context,
                   ref,
                   settings.caseListDisplayMode,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // Font size: the section's label is the control's title, and the
+          // control names its own value, so there is no second label.
+          _SectionCard(
+            label: l.settingsViewSettings_sectionFontSize,
+            children: [
+              _FontSizeStepper(
+                step: settings.fontSizeStep,
+                onChanged: (next) => _update(
+                  ref,
+                  (current) => current.copyWith(fontSizeStep: next),
                 ),
               ),
             ],
@@ -351,6 +373,115 @@ class ViewSettingsScreen extends ConsumerWidget {
         'expanded' => l.settingsViewSettings_caseListExpanded,
         _ => l.settingsViewSettings_caseListCompact,
       };
+}
+
+/// The Font Size control: two buttons and the current step between them.
+///
+/// The step is what every text's own size gains or loses, so the middle reads
+/// `Default` at 0 and `+2` / `-2` away from it, in the language's own digits.
+/// A button at the end of the range is disabled rather than silently doing
+/// nothing, and tapping the value resets to `Default` — the fastest way back
+/// from an experiment with the largest sizes.
+class _FontSizeStepper extends StatelessWidget {
+  /// Saved step in logical pixels; 0 is the shipped default.
+  final int step;
+
+  /// Called with the new step after a tap.
+  final ValueChanged<int> onChanged;
+
+  const _FontSizeStepper({required this.step, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final digits = AppDateUtils.formatDigits(
+      step.abs(),
+      Localizations.localeOf(context).toLanguageTag(),
+      grouping: false,
+    );
+    final label = switch (step) {
+      0 => l.settingsViewSettings_fontSizeDefault,
+      > 0 => l.settingsViewSettings_fontSizeMore(digits),
+      _ => l.settingsViewSettings_fontSizeLess(digits),
+    };
+
+    return Row(
+      children: [
+        _StepButton(
+          icon: Icons.remove,
+          tooltip: l.settingsViewSettings_fontSizeDecrease,
+          onTap: step <= fontSizeStepMin ? null : () => onChanged(step - 1),
+        ),
+        Expanded(
+          child: Center(
+            child: Tooltip(
+              message: l.settingsViewSettings_fontSizeReset,
+              child: InkWell(
+                onTap: step == 0 ? null : () => onChanged(0),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Text(
+                    label,
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        _StepButton(
+          icon: Icons.add,
+          tooltip: l.settingsViewSettings_fontSizeIncrease,
+          onTap: step >= fontSizeStepMax ? null : () => onChanged(step + 1),
+        ),
+      ],
+    );
+  }
+}
+
+/// A 48 px square stepper button, drawn in the picker row's own language.
+class _StepButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onTap;
+
+  const _StepButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Material(
+      color: AppColors.surfaceContainerLowest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        side: BorderSide(color: AppColors.outlineVariant),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Icon(
+            icon,
+            color: onTap == null
+                ? AppColors.outlineVariant
+                : AppColors.onSurfaceVariant,
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// One Settings card with the Title Case label above its controls.

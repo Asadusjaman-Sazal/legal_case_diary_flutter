@@ -50,14 +50,8 @@ void main() {
   Future<void> pumpScreen(WidgetTester tester) =>
       pumpSettingsScreen(tester, const ViewSettingsScreen(), repo: repo);
 
-  /// Opens one of the two list dropdowns from its collapsed row.
-  Future<void> openDropdown(WidgetTester tester, String rowText) async {
-    await tester.tap(find.widgetWithText(SettingsPickerRow, rowText));
-    await tester.pumpAndSettle();
-  }
-
   /// Scrolls [finder] into view; the page is taller than the test viewport, so
-  /// its last card is not built until the list is scrolled.
+  /// a card below the fold is not built until the list is scrolled.
   Future<void> scrollTo(WidgetTester tester, Finder finder) async {
     await tester.scrollUntilVisible(
       finder,
@@ -67,7 +61,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('shows the five settings, each with its own title', (
+  /// Opens a picker from its collapsed row.
+  ///
+  /// The row is scrolled into view first: a row below the fold is not built
+  /// until the list reaches it, and a tap that lands off screen would silently
+  /// open nothing.
+  Future<void> openDropdown(WidgetTester tester, String rowText) async {
+    final row = find.widgetWithText(SettingsPickerRow, rowText);
+    await scrollTo(tester, row);
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('shows the six settings, each with its own title', (
     tester,
   ) async {
     await pumpScreen(tester);
@@ -75,6 +81,7 @@ void main() {
     expect(find.text('View Settings'), findsOneWidget);
     // Card labels, Title Case via the shared section label.
     expect(find.text('Display'), findsOneWidget);
+    expect(find.text('Font Size'), findsOneWidget);
     expect(find.text('Navigation'), findsOneWidget);
     // Every dropdown is titled above the control, in Title Case.
     expect(find.text('Upcoming Cases Period'), findsWidgets);
@@ -98,8 +105,7 @@ void main() {
   testWidgets('the upcoming-cases period is stored', (tester) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.widgetWithText(SettingsPickerRow, '7 Days'));
-    await tester.pumpAndSettle();
+    await openDropdown(tester, '7 Days');
     await tester.tap(find.widgetWithText(SettingsOptionRow, '14 Days'));
     await tester.pumpAndSettle();
 
@@ -110,13 +116,107 @@ void main() {
   testWidgets('the case-list display mode is stored', (tester) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.widgetWithText(SettingsPickerRow, 'Compact'));
-    await tester.pumpAndSettle();
+    await openDropdown(tester, 'Compact');
     await tester.tap(find.widgetWithText(SettingsOptionRow, 'Expanded'));
     await tester.pumpAndSettle();
 
     expect(repo.settings.caseListDisplayMode, 'expanded');
     expect(find.text('Expanded'), findsOneWidget);
+  });
+
+  group('Font Size', () {
+    /// Taps one of the stepper's two buttons.
+    Future<void> tapStep(WidgetTester tester, String tooltip) async {
+      await tester.tap(find.byTooltip(tooltip));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the step is stored, up and down, and shown beside it', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      // The stepper sits below the fold, so bring its value into view first.
+      await scrollTo(tester, find.byTooltip('Increase Font Size'));
+
+      // A fresh install ships the default, so the value says so.
+      expect(find.text('Font Size'), findsOneWidget);
+      expect(find.text('Default'), findsOneWidget);
+
+      await tapStep(tester, 'Increase Font Size');
+      expect(repo.settings.fontSizeStep, 1);
+      expect(find.text('+1'), findsOneWidget);
+
+      await tapStep(tester, 'Increase Font Size');
+      expect(repo.settings.fontSizeStep, 2);
+      expect(find.text('+2'), findsOneWidget);
+
+      await tapStep(tester, 'Decrease Font Size');
+      expect(repo.settings.fontSizeStep, 1);
+
+      // Down past Default and into the shrinking half.
+      await tapStep(tester, 'Decrease Font Size');
+      await tapStep(tester, 'Decrease Font Size');
+      expect(repo.settings.fontSizeStep, -1);
+      expect(find.text('-1'), findsOneWidget);
+    });
+
+    testWidgets('the step stops at its maximum', (tester) async {
+      repo = FakeSettingsRepository(
+        const UserSettings(fontSizeStep: fontSizeStepMax),
+      );
+      await pumpScreen(tester);
+      await scrollTo(tester, find.text('+$fontSizeStepMax'));
+
+      await tapStep(tester, 'Increase Font Size');
+
+      expect(repo.settings.fontSizeStep, fontSizeStepMax);
+      expect(find.text('+$fontSizeStepMax'), findsOneWidget);
+    });
+
+    testWidgets('the step stops at its minimum', (tester) async {
+      repo = FakeSettingsRepository(
+        const UserSettings(fontSizeStep: fontSizeStepMin),
+      );
+      await pumpScreen(tester);
+      await scrollTo(tester, find.text('$fontSizeStepMin'));
+
+      await tapStep(tester, 'Decrease Font Size');
+
+      expect(repo.settings.fontSizeStep, fontSizeStepMin);
+      expect(find.text('$fontSizeStepMin'), findsOneWidget);
+    });
+
+    testWidgets('tapping the value returns it to Default', (tester) async {
+      repo = FakeSettingsRepository(const UserSettings(fontSizeStep: 4));
+      await pumpScreen(tester);
+      await scrollTo(tester, find.text('+4'));
+
+      await tester.tap(find.text('+4'));
+      await tester.pumpAndSettle();
+
+      expect(repo.settings.fontSizeStep, 0);
+      expect(find.text('Default'), findsOneWidget);
+    });
+
+    testWidgets('the step is written in the language’s own digits', (
+      tester,
+    ) async {
+      repo = FakeSettingsRepository(const UserSettings(fontSizeStep: 3));
+      await pumpSettingsScreen(
+        tester,
+        const ViewSettingsScreen(),
+        repo: repo,
+        locale: const Locale('bn'),
+      );
+      await scrollTo(tester, find.text('+৩'));
+
+      expect(find.text('+৩'), findsOneWidget);
+    });
+
+    test('a step outside the range is clamped on read', () {
+      expect(clampFontSizeStep(fontSizeStepMax + 1), fontSizeStepMax);
+      expect(clampFontSizeStep(fontSizeStepMin - 1), fontSizeStepMin);
+    });
   });
 
   testWidgets('the bottom-navigation dropdown lists every candidate screen', (
@@ -174,7 +274,7 @@ void main() {
       '4 Screens Selected',
       '8 of 8 Sections Shown',
     ]) {
-      await tester.tap(find.widgetWithText(SettingsPickerRow, rowText));
+      await openDropdown(tester, rowText);
       await tester.pumpAndSettle();
 
       final title = tester

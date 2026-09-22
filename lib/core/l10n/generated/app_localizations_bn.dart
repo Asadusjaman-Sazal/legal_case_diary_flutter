@@ -1641,6 +1641,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsViewSettings_sectionDisplay => 'প্রদর্শন';
 
   @override
+  String get settingsViewSettings_sectionFontSize => 'ফন্ট সাইজ';
+
+  @override
   String get settingsViewSettings_sectionNavigation => 'নেভিগেশন';
 
   @override
@@ -1659,6 +1662,28 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsViewSettings_caseListExpanded => 'বিস্তারিত';
+
+  @override
+  String get settingsViewSettings_fontSizeDefault => 'ডিফল্ট';
+
+  @override
+  String settingsViewSettings_fontSizeMore(String step) {
+    return '+$step';
+  }
+
+  @override
+  String settingsViewSettings_fontSizeLess(String step) {
+    return '-$step';
+  }
+
+  @override
+  String get settingsViewSettings_fontSizeIncrease => 'ফন্ট সাইজ বাড়ান';
+
+  @override
+  String get settingsViewSettings_fontSizeDecrease => 'ফন্ট সাইজ কমান';
+
+  @override
+  String get settingsViewSettings_fontSizeReset => 'ডিফল্টে ফিরিয়ে দিন';
 
   @override
   String get settingsViewSettings_bottomTabs => 'নিচের নেভিগেশন';

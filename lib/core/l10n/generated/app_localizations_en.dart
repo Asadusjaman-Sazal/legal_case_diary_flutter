@@ -1629,6 +1629,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsViewSettings_sectionDisplay => 'Display';
 
   @override
+  String get settingsViewSettings_sectionFontSize => 'Font Size';
+
+  @override
   String get settingsViewSettings_sectionNavigation => 'Navigation';
 
   @override
@@ -1647,6 +1650,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsViewSettings_caseListExpanded => 'Expanded';
+
+  @override
+  String get settingsViewSettings_fontSizeDefault => 'Default';
+
+  @override
+  String settingsViewSettings_fontSizeMore(String step) {
+    return '+$step';
+  }
+
+  @override
+  String settingsViewSettings_fontSizeLess(String step) {
+    return '-$step';
+  }
+
+  @override
+  String get settingsViewSettings_fontSizeIncrease => 'Increase Font Size';
+
+  @override
+  String get settingsViewSettings_fontSizeDecrease => 'Decrease Font Size';
+
+  @override
+  String get settingsViewSettings_fontSizeReset => 'Reset to Default';
 
   @override
   String get settingsViewSettings_bottomTabs => 'Bottom Navigation';

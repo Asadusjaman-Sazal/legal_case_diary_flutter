@@ -749,6 +749,7 @@
   "@@_section_settingsViewSettings": "SETTINGS - VIEW SETTINGS  |  lib/features/settings/presentation/settings_view/view_settings_screen.dart",
   "settingsViewSettings_title": "View Settings",
   "settingsViewSettings_sectionDisplay": "Display",
+  "settingsViewSettings_sectionFontSize": "Font Size",
   "settingsViewSettings_sectionNavigation": "Navigation",
   "settingsViewSettings_upcomingPeriod": "Upcoming Cases Period",
   "settingsViewSettings_days": "{days} Days",
@@ -763,6 +764,28 @@
   "settingsViewSettings_caseListMode": "Case List Display",
   "settingsViewSettings_caseListCompact": "Compact",
   "settingsViewSettings_caseListExpanded": "Expanded",
+  "settingsViewSettings_fontSizeDefault": "Default",
+  "settingsViewSettings_fontSizeMore": "+{step}",
+  "@settingsViewSettings_fontSizeMore": {
+      "description": "Current font size step when it is above Default. The step itself arrives already in the language's digits.",
+      "placeholders": {
+          "step": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsViewSettings_fontSizeLess": "-{step}",
+  "@settingsViewSettings_fontSizeLess": {
+      "description": "Current font size step when it is below Default. The step itself arrives already in the language's digits.",
+      "placeholders": {
+          "step": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsViewSettings_fontSizeIncrease": "Increase Font Size",
+  "settingsViewSettings_fontSizeDecrease": "Decrease Font Size",
+  "settingsViewSettings_fontSizeReset": "Reset to Default",
   "settingsViewSettings_bottomTabs": "Bottom Navigation",
   "settingsViewSettings_bottomTabsCount": "{count} Screens Selected",
   "@settingsViewSettings_bottomTabsCount": {

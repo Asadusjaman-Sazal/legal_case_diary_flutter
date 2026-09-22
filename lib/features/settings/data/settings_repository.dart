@@ -10,6 +10,19 @@ import '../../../core/services/local_identity_service.dart';
 import '../../../database/app_database.dart';
 import 'local/user_preferences_dao.dart';
 
+/// Smallest font size step the user can pick, in logical pixels.
+const int fontSizeStepMin = -2;
+
+/// Largest font size step: the widest the app is laid out to absorb.
+const int fontSizeStepMax = 6;
+
+/// [step] held inside [fontSizeStepMin]..[fontSizeStepMax].
+///
+/// Applied on read as well as on write, so a value written by an older build, a
+/// restored backup or a hand-edited preference can never push every screen's
+/// text past what the layouts were measured for.
+int clampFontSizeStep(int step) => step.clamp(fontSizeStepMin, fontSizeStepMax);
+
 /// Aggregated view of a user's settings.
 class UserSettings {
   /// Whether the user currently has premium access.
@@ -60,6 +73,12 @@ class UserSettings {
 
   /// Default landing page route name.
   final String defaultLandingPage;
+
+  /// App-wide font size step in logical pixels, added to every text size.
+  ///
+  /// 0 means the sizes the app ships with, so every install starts unmodified.
+  /// See [fontSizeStepMin] and [fontSizeStepMax] for the bounds.
+  final int fontSizeStep;
 
   /// Whether upcoming-case notifications are enabled for this user.
   final bool notificationEnabled;
@@ -114,6 +133,7 @@ class UserSettings {
     this.caseTableColumnWidths = const {},
     this.caseTableCollapsedCourts = const {},
     this.defaultLandingPage = 'all_cases',
+    this.fontSizeStep = 0,
     this.notificationEnabled = false,
     this.notificationTime,
     this.notificationDayOffset = 1,
@@ -143,6 +163,7 @@ class UserSettings {
     caseTableColumnWidths: caseTableColumnWidths,
     caseTableCollapsedCourts: caseTableCollapsedCourts,
     defaultLandingPage: defaultLandingPage,
+    fontSizeStep: fontSizeStep,
     notificationEnabled: notificationEnabled,
     notificationTime: notificationTime,
     notificationDayOffset: notificationDayOffset,
@@ -168,6 +189,7 @@ class UserSettings {
     Map<String, double>? caseTableColumnWidths,
     Map<String, List<String>>? caseTableCollapsedCourts,
     String? defaultLandingPage,
+    int? fontSizeStep,
     bool? notificationEnabled,
     int? notificationTime,
     int? notificationDayOffset,
@@ -188,6 +210,7 @@ class UserSettings {
     caseTableCollapsedCourts:
         caseTableCollapsedCourts ?? this.caseTableCollapsedCourts,
     defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
+    fontSizeStep: fontSizeStep ?? this.fontSizeStep,
     notificationEnabled: notificationEnabled ?? this.notificationEnabled,
     notificationTime: notificationTime ?? this.notificationTime,
     notificationDayOffset: notificationDayOffset ?? this.notificationDayOffset,
@@ -213,6 +236,7 @@ class UserSettings {
     'case_table_column_widths': caseTableColumnWidths,
     'case_table_collapsed_courts': caseTableCollapsedCourts,
     'default_landing_page': defaultLandingPage,
+    'font_size_step': fontSizeStep,
     'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
@@ -291,6 +315,9 @@ class UserSettings {
           : const {},
       defaultLandingPage:
           json['default_landing_page'] as String? ?? 'all_cases',
+      fontSizeStep: clampFontSizeStep(
+        (json['font_size_step'] as num?)?.toInt() ?? 0,
+      ),
       notificationEnabled:
           json['notification_enabled'] as bool? ?? row.notificationEnabled,
       notificationTime: row.notificationTime,

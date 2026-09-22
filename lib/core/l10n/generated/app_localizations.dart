@@ -3008,6 +3008,12 @@ abstract class AppLocalizations {
   /// **'Display'**
   String get settingsViewSettings_sectionDisplay;
 
+  /// No description provided for @settingsViewSettings_sectionFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get settingsViewSettings_sectionFontSize;
+
   /// No description provided for @settingsViewSettings_sectionNavigation.
   ///
   /// In en, this message translates to:
@@ -3043,6 +3049,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expanded'**
   String get settingsViewSettings_caseListExpanded;
+
+  /// No description provided for @settingsViewSettings_fontSizeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsViewSettings_fontSizeDefault;
+
+  /// Current font size step when it is above Default. The step itself arrives already in the language's digits.
+  ///
+  /// In en, this message translates to:
+  /// **'+{step}'**
+  String settingsViewSettings_fontSizeMore(String step);
+
+  /// Current font size step when it is below Default. The step itself arrives already in the language's digits.
+  ///
+  /// In en, this message translates to:
+  /// **'-{step}'**
+  String settingsViewSettings_fontSizeLess(String step);
+
+  /// No description provided for @settingsViewSettings_fontSizeIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase Font Size'**
+  String get settingsViewSettings_fontSizeIncrease;
+
+  /// No description provided for @settingsViewSettings_fontSizeDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease Font Size'**
+  String get settingsViewSettings_fontSizeDecrease;
+
+  /// No description provided for @settingsViewSettings_fontSizeReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Default'**
+  String get settingsViewSettings_fontSizeReset;
 
   /// No description provided for @settingsViewSettings_bottomTabs.
   ///

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.250 - View Settings gains a Font Size section: a -/+ step added to every text app-wide through one TextScaler at the app root, stored per user.
+Version: 0.0.252 - Hearing alerts now fall back to the case's Result line for AD/HCD cases, which carry no step.
 --------------------------------------
 
 ## Version History Log:
@@ -264,3 +264,5 @@ Version: 0.0.247 - The Profile screen no longer ships seeded sample data: all fi
 Version: 0.0.248 - Guidelines & FAQs now brief every case screen and document the mandatory first-launch account, replacing the copy that said no account is required.
 Version: 0.0.249 - The note editor's title is now 2 px above its body (30 px down to 18) instead of the mockup's oversized headline size.
 Version: 0.0.250 - View Settings gains a Font Size section: a -/+ step added to every text app-wide through one TextScaler at the app root, stored per user.
+Version: 0.0.251 - Hearing alerts now list case, parties, court and the labelled step, and post as BigText so the expanded view stops cutting a line short.
+Version: 0.0.252 - Hearing alerts now fall back to the case's Result line for AD/HCD cases, which carry no step.

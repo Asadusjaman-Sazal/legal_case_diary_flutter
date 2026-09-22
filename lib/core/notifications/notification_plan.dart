@@ -73,6 +73,14 @@ class HearingCandidate {
   /// Respondent party label.
   final String respondent;
 
+  /// The case's most recent court step(s) as stored on the case, e.g. `Hearing`
+  /// or `Hearing,Argument`. Null when the case has no step recorded yet.
+  final String? lastStep;
+
+  /// The AD/HCD result text as stored on the case, i.e. the disposal keyword a
+  /// higher-court case records instead of a step. Null for lower courts.
+  final String? result;
+
   /// Court id, resolved to a localized label through the seed data.
   final String courtId;
 
@@ -94,6 +102,8 @@ class HearingCandidate {
     required this.caseType,
     required this.petitioner,
     required this.respondent,
+    this.lastStep,
+    this.result,
     required this.courtId,
     this.courtCategoryId,
     required this.storedCourtName,
@@ -252,6 +262,13 @@ NotificationPlan buildNotificationPlan({
 }
 
 /// Title and body of one alert, in the active language.
+///
+/// The body is the four lines the user reads in the expanded notification:
+/// `Case Type Case Number`, `Petitioner vs Respondent`, the court name, and the
+/// case's step — or its Result when the case has no step, which is how an
+/// Appellate & High Court Division case records its outcome instead (the same
+/// either/or rule the case card applies). Empty parts are dropped rather than
+/// left as blank lines.
 ({String title, String body}) _alertCopy(
   HearingCandidate candidate,
   int offsetDays,
@@ -271,10 +288,26 @@ NotificationPlan buildNotificationPlan({
     candidate.courtId,
     fallbackEn: candidate.storedCourtName ?? '',
   );
+  // The stored step names are English on every case, so they are resolved the
+  // same way the case card does it — through the seed data and the case's own
+  // court category, which is what tells two identically named steps apart.
+  final step = translations
+      .stepNames(candidate.lastStep, courtCategoryId: candidate.courtCategoryId)
+      ?.trim();
+  // Step when the case has one, otherwise the AD/HCD result — the card's rule.
+  // The result is free text the user typed, so it is shown verbatim.
+  final result = candidate.result?.trim();
+  final lastLine = switch ((step, result)) {
+    (final String s, _) when s.isNotEmpty => '${l.caseCard_lastStep}: $s',
+    (_, final String? r) when r != null && r.isNotEmpty =>
+      '${l.addEditCaseSheet_result}: $r',
+    _ => null,
+  };
   final body = <String>[
     _caseLine(candidate, translations),
     ?parties,
     if (court.isNotEmpty) court,
+    ?lastLine,
   ].join('\n');
 
   return (title: title, body: body);

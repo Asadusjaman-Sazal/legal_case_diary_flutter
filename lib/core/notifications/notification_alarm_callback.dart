@@ -122,6 +122,8 @@ Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
           caseType: row.caseType,
           petitioner: row.petitioner,
           respondent: row.respondent,
+          lastStep: row.lastStep,
+          result: row.result,
           courtId: row.courtId,
           courtCategoryId: court?.courtCategoryId,
           storedCourtName: court?.courtName,

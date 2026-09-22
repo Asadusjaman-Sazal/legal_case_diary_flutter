@@ -99,6 +99,41 @@ void main() {
     }
   });
 
+  test('the alert body is posted with a BigText style', () {
+    // There is no Android notification to inspect on the test host, so the rule
+    // that keeps the expanded view readable is guarded at source level: with no
+    // style, Android lays the text out itself and ellipsises a line, which is
+    // how a long `Petitioner vs Respondent` line was cut short.
+    final gateway = File('${_folder}android_notification_gateway.dart')
+        .readAsStringSync();
+
+    expect(
+      gateway.contains('styleInformation: BigTextStyleInformation(body)'),
+      isTrue,
+      reason: 'The alert body must be handed to Android as BigText text.',
+    );
+    expect(gateway.contains('body: alert.body'), isTrue);
+  });
+
+  test('the job carries the case step and result into the alert body', () {
+    // The step/result line is only as good as the wiring that fills it, and the
+    // job itself needs a real database and the alarm isolate to run.
+    final job = File('${_folder}notification_alarm_callback.dart')
+        .readAsStringSync();
+
+    expect(
+      job.contains('lastStep: row.lastStep'),
+      isTrue,
+      reason: 'The alert lists the case step, so the candidate must carry it.',
+    );
+    expect(
+      job.contains('result: row.result'),
+      isTrue,
+      reason: 'An AD/HCD case has no step, so the alert needs its Result — a '
+          'silent drop here would leave those cases without that line.',
+    );
+  });
+
   test('the alarm entry point stays annotated for the AOT compiler', () {
     final job = File('${_folder}notification_alarm_callback.dart')
         .readAsStringSync();

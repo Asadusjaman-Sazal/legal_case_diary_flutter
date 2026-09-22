@@ -139,14 +139,18 @@ abstract final class AndroidNotificationGateway {
     if (alerts.isEmpty) return;
     await _initializePlugin();
 
-    final details = _details(channelName, channelDescription);
-
     for (final alert in alerts) {
       await _plugin.show(
         id: alert.notificationId,
         title: alert.title,
         body: alert.body,
-        notificationDetails: NotificationDetails(android: details),
+        notificationDetails: NotificationDetails(
+          android: _details(
+            channelName,
+            channelDescription,
+            body: alert.body,
+          ),
+        ),
         // The payload is the case id; a tap deep-links to that case's detail.
         payload: alert.caseId,
       );
@@ -154,10 +158,17 @@ abstract final class AndroidNotificationGateway {
   }
 
   /// The one high-importance channel every hearing alert shares.
+  ///
+  /// [body] is handed over as a BigText style, and that is what makes the alert
+  /// readable: without a style Android lays the text out itself and ellipsises a
+  /// line — even in the expanded view, where a long `Petitioner vs Respondent`
+  /// line was cut after a few characters. BigText shows the whole body, each
+  /// body line on its own line and wrapped where it is long.
   static AndroidNotificationDetails _details(
     String channelName,
-    String channelDescription,
-  ) => AndroidNotificationDetails(
+    String channelDescription, {
+    required String body,
+  }) => AndroidNotificationDetails(
     channelId,
     channelName,
     channelDescription: channelDescription,
@@ -166,6 +177,7 @@ abstract final class AndroidNotificationGateway {
     priority: Priority.high,
     groupKey: groupKey,
     category: AndroidNotificationCategory.reminder,
+    styleInformation: BigTextStyleInformation(body),
   );
 
   /// Posts a single immediate notification through the real channel.
@@ -181,7 +193,7 @@ abstract final class AndroidNotificationGateway {
       title: title,
       body: body,
       notificationDetails: NotificationDetails(
-        android: _details(channelName, channelDescription),
+        android: _details(channelName, channelDescription, body: body),
       ),
     );
   }

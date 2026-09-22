@@ -29,6 +29,8 @@ HearingCandidate _candidate({
   String? courtCategoryId,
   String petitioner = 'Karim',
   String respondent = 'State',
+  String? lastStep,
+  String? result,
   String? storedCourtName,
 }) => HearingCandidate(
   caseId: caseId,
@@ -36,6 +38,8 @@ HearingCandidate _candidate({
   caseType: caseType,
   petitioner: petitioner,
   respondent: respondent,
+  lastStep: lastStep,
+  result: result,
   courtId: seed.courtLabelEn.keys.first,
   courtCategoryId: courtCategoryId,
   storedCourtName: storedCourtName,
@@ -186,9 +190,10 @@ void main() {
   });
 
   group('alert copy', () {
-    test('the body carries the case type then the number, parties and court', () {
+    test('the body carries four ordered lines: case, parties, court, step', () {
       final courtId = seed.courtLabelEn.keys.first;
       final english = seed.courtLabelEn[courtId]!;
+      final step = seed.stepLabelEnByToken['Hearing']!;
 
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
@@ -197,6 +202,7 @@ void main() {
         cases: [
           _candidate(
             nextDateEpochMs: _hearingAt(todayStart, 1),
+            lastStep: 'Hearing',
             storedCourtName: 'Stored English Name',
           ),
         ],
@@ -204,14 +210,156 @@ void main() {
         translations: _translations('en'),
       );
 
-      final lines = plan.alerts.single.body.split('\n');
       // The type comes first and its own trailing dash separates the two: no
       // separator is added, and the number stays as the user typed it.
-      expect(lines.first, 'Civil Appeal- 110/2021');
-      expect(lines, contains('Karim vs State'));
-      expect(lines, contains(english));
-      // The pre-seeded label wins over the stored name.
+      expect(plan.alerts.single.body.split('\n'), <String>[
+        'Civil Appeal- 110/2021',
+        'Karim vs State',
+        english,
+        'Step: $step',
+      ]);
+      // The pre-seeded label wins over the stored court name.
       expect(plan.alerts.single.body, isNot(contains('Stored English Name')));
+    });
+
+    test('a case with no step keeps its three lines', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
+        preferences: const {},
+        translations: _translations('en'),
+      );
+
+      final lines = plan.alerts.single.body.split('\n');
+      expect(lines, hasLength(3));
+      expect(lines.any((line) => line.startsWith('Step')), isFalse);
+    });
+
+    test('an AD/HCD case shows its Result instead of a step', () {
+      // Higher-court cases carry no step at all: the outcome is the Result
+      // field, and without the fallback the alert would drop the line entirely.
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            result: 'Disposed',
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('en'),
+      );
+
+      expect(plan.alerts.single.body.split('\n').last, 'Result: Disposed');
+    });
+
+    test('the result follows the language and keeps the typed text', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            result: '  নিষ্পত্তি  ',
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('bn'),
+      );
+
+      final label = _translations('bn').raw.addEditCaseSheet_result;
+      expect(plan.alerts.single.body.split('\n').last, '$label: নিষ্পত্তি');
+    });
+
+    test('a case with both keeps the step, like the case card', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            lastStep: 'Hearing',
+            result: 'Disposed',
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('en'),
+      );
+
+      final lines = plan.alerts.single.body.split('\n');
+      expect(lines.last, 'Step: Hearing');
+      expect(lines.any((line) => line.contains('Result')), isFalse);
+    });
+
+    test('the step is resolved like the case card resolves it', () {
+      // Every case stores its steps in English, so the alert has to map them
+      // back through the seed data under বাংলা — and through the case's own
+      // court category, which is what tells two identically named steps apart.
+      final byName = <String, Map<String, String>>{};
+      for (final category in seed.stepLabelBnByCourtCategory.entries) {
+        for (final step in category.value.entries) {
+          byName.putIfAbsent(step.key, () => <String, String>{})[category
+              .key] = step.value;
+        }
+      }
+      final shared = byName.entries.firstWhere(
+        (entry) => entry.value.values.toSet().length > 1,
+      );
+      final first = shared.value.entries.first;
+      final other = shared.value.entries.firstWhere(
+        (entry) => entry.value != first.value,
+      );
+
+      String stepLineFor(String? courtCategoryId) => buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            lastStep: shared.key,
+            courtCategoryId: courtCategoryId,
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('bn'),
+      ).alerts.single.body.split('\n').last;
+
+      final label = _translations('bn').raw.caseCard_lastStep;
+      expect(stepLineFor(first.key), '$label: ${first.value}');
+      expect(stepLineFor(other.key), '$label: ${other.value}');
+      // With no category to go on, the by-token fallback is the documented one.
+      expect(
+        stepLineFor(null),
+        '$label: ${seed.stepLabelBnByToken[shared.key]}',
+      );
+    });
+
+    test('a step the user typed themselves is kept as it was stored', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(
+            nextDateEpochMs: _hearingAt(todayStart, 1),
+            lastStep: 'My Own Step',
+          ),
+        ],
+        preferences: const {},
+        translations: _translations('bn'),
+      );
+
+      expect(
+        plan.alerts.single.body.split('\n').last,
+        '${_translations('bn').raw.caseCard_lastStep}: My Own Step',
+      );
     });
 
     test('a case with no case type keeps the bare number on the first line', () {

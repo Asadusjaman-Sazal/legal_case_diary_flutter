@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.248 - Guidelines & FAQs now brief every case screen and document the mandatory first-launch account, replacing the copy that said no account is required.
+Version: 0.0.249 - The note editor's title is now 2 px above its body (30 px down to 18) instead of the mockup's oversized headline size.
 --------------------------------------
 
 ## Version History Log:
@@ -262,3 +262,4 @@ Version: 0.0.245 - The Phone/Message window keeps only the WhatsApp and phone/me
 Version: 0.0.246 - Hearing alerts now open with the case type in front of the case number, localized through the case's court category, with no separator added because the seeded labels already end in a dash.
 Version: 0.0.247 - The Profile screen no longer ships seeded sample data: all five fields live in one blank-by-default record that persists per user.
 Version: 0.0.248 - Guidelines & FAQs now brief every case screen and document the mandatory first-launch account, replacing the copy that said no account is required.
+Version: 0.0.249 - The note editor's title is now 2 px above its body (30 px down to 18) instead of the mockup's oversized headline size.

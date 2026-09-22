@@ -19,6 +19,13 @@ import '../../../database/app_database.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
 import 'notes_viewmodel.dart';
 
+/// Note title size: 2 px above the note body, which the editor sets to
+/// `bodyLg` (16). That pairing is what the user asked for — a 12 px body would
+/// take a 14 px title — and it deliberately replaces the mockup's
+/// `headline-lg` (30 px), which dominated the note instead of heading it.
+/// Manrope semi-bold is kept, so the title still reads as a title.
+const double _noteTitleSize = 18;
+
 /// Full-screen note editor. [note] is null when creating a new note.
 class NoteDetailScreen extends ConsumerStatefulWidget {
   const NoteDetailScreen({this.note, super.key});
@@ -188,7 +195,8 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                             filled: false,
                             fillColor: Colors.transparent,
                             hintText: l.notesScreen_noteTitle,
-                            hintStyle: AppTypography.headlineLg.copyWith(
+                            hintStyle: AppTypography.titleLg.copyWith(
+                              fontSize: _noteTitleSize,
                               color: AppColors.onSurfaceVariant
                                   .withValues(alpha: 0.4),
                             ),
@@ -201,8 +209,10 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                             contentPadding: EdgeInsets.zero,
                             isCollapsed: true,
                           ),
-                          style: AppTypography.headlineLg
-                              .copyWith(color: AppColors.primary),
+                          style: AppTypography.titleLg.copyWith(
+                            fontSize: _noteTitleSize,
+                            color: AppColors.primary,
+                          ),
                           maxLines: null,
                           textInputAction: TextInputAction.next,
                         ),

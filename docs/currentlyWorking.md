@@ -1,3 +1,13 @@
+### 2026-09-22 — The note editor's title is 2 px above its body — COMPLETE
+
+- **The request (Note screen only):** the title inside a note looked far too big; it should be 2 px bigger than the note body.
+- **The pairing, in the user's own terms:** a 12 px body takes a 14 px title, so a `bodyLg` body (16) takes an 18 px title — the relationship the answer to the size question defined. `_noteTitleSize` sits at the top of `note_detail_screen.dart` with that reasoning, and the change is 30 px → 18 px.
+- **The mockup said otherwise.** `mockup_html_screens/notes/code.html` writes `font-headline-lg` on the title field and `font-body-lg` on the note field, which is exactly what the screen was built to — the deviation is deliberate and marked in the code comment, and it needs recording in Task 11's mockup notes if the override is to be permanent.
+- **Manrope semi-bold is kept** (`titleLg` with its size overridden, not `bodyLg`), so the title still reads as a heading at a size that no longer dominates what follows. The hint inherits the same size, so the placeholder is the same as the text that replaces it.
+- **Tests (1 new, `test/features/note_detail_screen_test.dart`).** The Notes screens had no coverage; the new test pins the title at `bodyLg.fontSize + 2` and the body at `bodyLg.fontSize` by comparing the two rendered fields, so the *relationship* is what is guarded rather than a literal that a token change would invalidate. `flutter analyze` clean; `flutter test` 633 passed, 2 skipped.
+- **Version `0.0.249`** (recorded by `tool/record_version.py`). No new dependency.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. The interrupted legal-document work (privacy policy, terms of service and their Bengali copies still promise "offline use needs no account") is **not** done and still stands; it was stopped before any file was edited.
+
 ### 2026-09-22 — Guidelines document an account for everyone, and brief each case screen — COMPLETE
 
 - **The request (Guidelines & FAQs only):** a very short brief about the All Cases screen and the other case screens, and a correction — offline/free use does **not** run without an account. Every user creates an account when the app is first opened; it handshakes with Supabase and takes the UUID, which removes the placeholder-owner data migration and makes the later step to cloud backup a switch rather than a transfer. Everyone starts on the free plan.

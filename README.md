@@ -95,6 +95,25 @@ The verification strategy covers:
 
 See [`docs/tasks/22_verification_plan.md`](docs/tasks/22_verification_plan.md) for the full verification checklist.
 
+## Release Builds
+
+Release artifacts are signed with the project release keystore (alias `upload`). The keystore is kept
+**outside this repository** on the release machine — never copy it back in — and `android/key.properties`,
+which is git-ignored, supplies its absolute path and password. Fill in the password there before the first
+release build; use forward slashes in `storeFile`, because a `.properties` file treats `\` as an escape
+character.
+
+```bash
+flutter build appbundle --release   # Google Play upload
+flutter build apk --release         # installable APK
+```
+
+A release build fails immediately with an explanatory error while `android/key.properties` is missing
+or blank, so a debug-signed artifact can never be published by accident; debug and profile builds are
+unaffected. Keep an offline backup of the keystore and its password in separate places, and record the
+certificate fingerprints (`keytool -list -v -keystore <keystore>`) because Google Play and any future
+API-key restriction need them.
+
 ## Documentation
 
 - [Authoritative implementation plan](docs/implementation_plan.md)

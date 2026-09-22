@@ -44,6 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Release signing: the keystore and its credentials must never be committed
+# (android/.gitignore already covers android/key.properties)
+*.jks
+*.keystore
+
 #Freebuff files
 .freebuff/
 /.freebuff

@@ -3098,6 +3098,24 @@ abstract class AppLocalizations {
   /// **'Guidelines'**
   String get settingsGuidelines_sectionGuidelines;
 
+  /// No description provided for @settingsGuidelines_accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Account'**
+  String get settingsGuidelines_accountTitle;
+
+  /// No description provided for @settingsGuidelines_accountBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'You create your account the first time you open the app — it takes a moment, and it is required for everyone, the free plan included. Everything you record afterwards belongs to that account.'**
+  String get settingsGuidelines_accountBody1;
+
+  /// No description provided for @settingsGuidelines_accountBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Every account starts on the free plan, which is local to this device, and stays there until you upgrade. Because your diary was yours from the first case, upgrading needs nothing re-entered or transferred — cloud backup simply switches on.'**
+  String get settingsGuidelines_accountBody2;
+
   /// No description provided for @settingsGuidelines_dailyCauseListTitle.
   ///
   /// In en, this message translates to:
@@ -3115,6 +3133,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The list is built from your own case records, so it is only as accurate as they are. Keep each case\'s next date and latest step current, and record a hearing from the list itself as soon as you leave the courtroom. Cases whose hearing date has passed without an update appear under Overdue Dates until you record the outcome.'**
   String get settingsGuidelines_dailyCauseListBody2;
+
+  /// No description provided for @settingsGuidelines_allCasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All Cases'**
+  String get settingsGuidelines_allCasesTitle;
+
+  /// No description provided for @settingsGuidelines_allCasesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every case you have, with the Active and Disposed counts above the list — tap a count to open that list. Search by party, counsel, case number or phone, narrow the list with Filter by Court and Newest/Oldest First, and switch between card and table view.'**
+  String get settingsGuidelines_allCasesBody1;
+
+  /// No description provided for @settingsGuidelines_activeCasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Cases'**
+  String get settingsGuidelines_activeCasesTitle;
+
+  /// No description provided for @settingsGuidelines_activeCasesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the cases still running, with nothing disposed mixed in. Open one here to update it or to record the outcome of a hearing.'**
+  String get settingsGuidelines_activeCasesBody1;
+
+  /// No description provided for @settingsGuidelines_overdueDatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Dates'**
+  String get settingsGuidelines_overdueDatesTitle;
+
+  /// No description provided for @settingsGuidelines_overdueDatesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases whose hearing date has passed without a recorded outcome, grouped by court and showing when each was last updated. Recording a new step or result removes the case from the list.'**
+  String get settingsGuidelines_overdueDatesBody1;
+
+  /// No description provided for @settingsGuidelines_upcomingCasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Cases'**
+  String get settingsGuidelines_upcomingCasesTitle;
+
+  /// No description provided for @settingsGuidelines_upcomingCasesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hearings grouped by date, from tomorrow to the end of the period you set in Settings > View Settings > Upcoming Cases Period — 7 days by default. This is the list to check before leaving for court.'**
+  String get settingsGuidelines_upcomingCasesBody1;
+
+  /// No description provided for @settingsGuidelines_disposedCasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disposed Cases'**
+  String get settingsGuidelines_disposedCasesTitle;
+
+  /// No description provided for @settingsGuidelines_disposedCasesBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'The cases you have closed, each showing its disposal date, parties, final note and latest history. There is no Add Case button here; the Help button explains how a case is marked as disposed.'**
+  String get settingsGuidelines_disposedCasesBody1;
 
   /// No description provided for @settingsGuidelines_referencesTitle.
   ///
@@ -3167,7 +3245,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_securityBody2.
   ///
   /// In en, this message translates to:
-  /// **'In the offline version, nothing leaves your phone unless you send it. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.'**
+  /// **'In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.'**
   String get settingsGuidelines_securityBody2;
 
   /// No description provided for @settingsGuidelines_sectionFaqs.
@@ -3191,7 +3269,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_faqCatGettingStartedA1.
   ///
   /// In en, this message translates to:
-  /// **'Yes. The app is built to work fully offline — adding and editing cases, the Daily Cause List, printing and backups all work with no connection. Online sync is not part of the offline version.'**
+  /// **'Yes — once your account exists. The app is built to work fully offline: adding and editing cases, the Daily Cause List, printing and backups all work with no connection. Your account is created once, when you first open the app, and does not need to be signed in again to use the diary. Online sync is not part of the offline version.'**
   String get settingsGuidelines_faqCatGettingStartedA1;
 
   /// No description provided for @settingsGuidelines_faqCatGettingStartedQ2.
@@ -3277,6 +3355,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It lists cases whose hearing date has passed without a recorded outcome, with the date they were last updated. It is the fastest way to find matters you have not yet caught up on. Recording a new step or result removes the case from the list.'**
   String get settingsGuidelines_faqCatGettingStartedA8;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedQ9.
+  ///
+  /// In en, this message translates to:
+  /// **'Do I need an account?'**
+  String get settingsGuidelines_faqCatGettingStartedQ9;
+
+  /// No description provided for @settingsGuidelines_faqCatGettingStartedA9.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. An account is required for everyone, the free plan included, and you create it the first time you open the app. Your diary belongs to that account, so when you upgrade to premium your existing cases are already yours — cloud backup switches on with nothing re-entered, exported or transferred.'**
+  String get settingsGuidelines_faqCatGettingStartedA9;
 
   /// No description provided for @settingsGuidelines_faqCatFindingCases.
   ///
@@ -3389,7 +3479,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreA1.
   ///
   /// In en, this message translates to:
-  /// **'Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. No account and no internet connection are required.'**
+  /// **'Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. Your account is already in place, so no internet connection is required.'**
   String get settingsGuidelines_faqCatBackupAndRestoreA1;
 
   /// No description provided for @settingsGuidelines_faqCatBackupAndRestoreQ2.
@@ -3527,7 +3617,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumA1.
   ///
   /// In en, this message translates to:
-  /// **'Yes. The offline app costs nothing to use and holds up to 50 cases. Premium raises that limit and will add online sync when it launches.'**
+  /// **'Yes. Every account starts on the free plan, which costs nothing, holds up to 50 cases and keeps them on this device. Premium raises that limit and will add cloud backup and sync when it launches.'**
   String get settingsGuidelines_faqCatFreePlanAndPremiumA1;
 
   /// No description provided for @settingsGuidelines_faqCatFreePlanAndPremiumQ2.
@@ -3647,7 +3737,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsGuidelines_faqCatDataAndSupportA1.
   ///
   /// In en, this message translates to:
-  /// **'In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else, and no account is required. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.'**
+  /// **'In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.'**
   String get settingsGuidelines_faqCatDataAndSupportA1;
 
   /// No description provided for @settingsGuidelines_faqCatDataAndSupportQ2.

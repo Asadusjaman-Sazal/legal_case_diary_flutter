@@ -5,10 +5,13 @@
 /// an accordion — one open at a time, tapping the open card closes it again,
 /// exactly the interaction `mockup_html_screens/guidelines/code.html` defines.
 ///
-/// The copy lives in the ARB files and describes only shipped behaviour: the
-/// offline app, its 50-case free plan, encrypted local backups, and the monthly
-/// reminder. Features that arrive with the online version are named as such
-/// rather than documented as if they were here.
+/// The copy lives in the ARB files. It covers the shipped offline app (its
+/// 50-case free plan, encrypted local backups and the monthly reminder) plus the
+/// product decision that every user creates an account when the app is first
+/// opened — the sole case where the copy describes a flow the offline Part A
+/// build does not carry yet, because it is what the free plan and the later
+/// upgrade to cloud backup both rest on. Features that arrive with the online
+/// version are named as such rather than documented as if they were here.
 library;
 
 import 'package:flutter/material.dart';
@@ -54,8 +57,19 @@ class _FaqCategory {
   });
 }
 
-/// The four guideline topics, in mockup order.
+/// The guideline topics: the account first, then the six case screens in the
+/// drawer's canonical order (Daily Cause List follows Active Cases there, but it
+/// is the mockup's own first topic and is kept at the head of the screen
+/// cards), then the three reference topics.
 const List<_Topic> _topics = <_Topic>[
+  _Topic(
+    icon: Icons.person_outline,
+    title: _accountTitle,
+    paragraphs: <String Function(AppLocalizations)>[
+      _accountBody1,
+      _accountBody2,
+    ],
+  ),
   _Topic(
     icon: Icons.event_note_outlined,
     title: _dailyCauseListTitle,
@@ -63,6 +77,31 @@ const List<_Topic> _topics = <_Topic>[
       _dailyCauseListBody1,
       _dailyCauseListBody2,
     ],
+  ),
+  _Topic(
+    icon: Icons.list_alt_outlined,
+    title: _allCasesTitle,
+    paragraphs: <String Function(AppLocalizations)>[_allCasesBody1],
+  ),
+  _Topic(
+    icon: Icons.work_outline,
+    title: _activeCasesTitle,
+    paragraphs: <String Function(AppLocalizations)>[_activeCasesBody1],
+  ),
+  _Topic(
+    icon: Icons.error_outline,
+    title: _overdueDatesTitle,
+    paragraphs: <String Function(AppLocalizations)>[_overdueDatesBody1],
+  ),
+  _Topic(
+    icon: Icons.event_outlined,
+    title: _upcomingCasesTitle,
+    paragraphs: <String Function(AppLocalizations)>[_upcomingCasesBody1],
+  ),
+  _Topic(
+    icon: Icons.gavel_outlined,
+    title: _disposedCasesTitle,
+    paragraphs: <String Function(AppLocalizations)>[_disposedCasesBody1],
   ),
   _Topic(
     icon: Icons.library_books_outlined,
@@ -87,6 +126,27 @@ const List<_Topic> _topics = <_Topic>[
   ),
 ];
 
+String _accountTitle(AppLocalizations l) => l.settingsGuidelines_accountTitle;
+String _accountBody1(AppLocalizations l) => l.settingsGuidelines_accountBody1;
+String _accountBody2(AppLocalizations l) => l.settingsGuidelines_accountBody2;
+String _allCasesTitle(AppLocalizations l) => l.settingsGuidelines_allCasesTitle;
+String _allCasesBody1(AppLocalizations l) => l.settingsGuidelines_allCasesBody1;
+String _activeCasesTitle(AppLocalizations l) =>
+    l.settingsGuidelines_activeCasesTitle;
+String _activeCasesBody1(AppLocalizations l) =>
+    l.settingsGuidelines_activeCasesBody1;
+String _overdueDatesTitle(AppLocalizations l) =>
+    l.settingsGuidelines_overdueDatesTitle;
+String _overdueDatesBody1(AppLocalizations l) =>
+    l.settingsGuidelines_overdueDatesBody1;
+String _upcomingCasesTitle(AppLocalizations l) =>
+    l.settingsGuidelines_upcomingCasesTitle;
+String _upcomingCasesBody1(AppLocalizations l) =>
+    l.settingsGuidelines_upcomingCasesBody1;
+String _disposedCasesTitle(AppLocalizations l) =>
+    l.settingsGuidelines_disposedCasesTitle;
+String _disposedCasesBody1(AppLocalizations l) =>
+    l.settingsGuidelines_disposedCasesBody1;
 String _dailyCauseListTitle(AppLocalizations l) =>
     l.settingsGuidelines_dailyCauseListTitle;
 String _dailyCauseListBody1(AppLocalizations l) =>
@@ -124,6 +184,7 @@ const List<_FaqCategory> _faqCategories = <_FaqCategory>[
       _FaqEntry(question: _gettingStartedQ6, answer: _gettingStartedA6),
       _FaqEntry(question: _gettingStartedQ7, answer: _gettingStartedA7),
       _FaqEntry(question: _gettingStartedQ8, answer: _gettingStartedA8),
+      _FaqEntry(question: _gettingStartedQ9, answer: _gettingStartedA9),
     ],
   ),
   _FaqCategory(
@@ -251,6 +312,10 @@ String _gettingStartedQ8(AppLocalizations l) =>
     l.settingsGuidelines_faqCatGettingStartedQ8;
 String _gettingStartedA8(AppLocalizations l) =>
     l.settingsGuidelines_faqCatGettingStartedA8;
+String _gettingStartedQ9(AppLocalizations l) =>
+    l.settingsGuidelines_faqCatGettingStartedQ9;
+String _gettingStartedA9(AppLocalizations l) =>
+    l.settingsGuidelines_faqCatGettingStartedA9;
 
 String _findingCasesTitle(AppLocalizations l) =>
     l.settingsGuidelines_faqCatFindingCases;

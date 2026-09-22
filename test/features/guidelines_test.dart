@@ -45,8 +45,14 @@ void main() {
     expect(find.text('Guidelines'), findsOneWidget);
     expect(find.text('FAQs'), findsOneWidget);
 
-    // The four guideline topics.
+    // The account topic, the six case screens, then the reference topics.
+    expect(find.text('Your Account'), findsOneWidget);
     expect(find.text('Daily Cause List'), findsOneWidget);
+    expect(find.text('All Cases'), findsOneWidget);
+    expect(find.text('Active Cases'), findsOneWidget);
+    expect(find.text('Upcoming Cases'), findsOneWidget);
+    expect(find.text('Overdue Dates'), findsOneWidget);
+    expect(find.text('Disposed Cases'), findsOneWidget);
     expect(find.text('Case References & Notes'), findsOneWidget);
     expect(find.text('Offline Backup & Restore'), findsOneWidget);
     expect(find.text('Security & Encryption'), findsOneWidget);
@@ -75,7 +81,7 @@ void main() {
     await tester.tap(find.text('Daily Cause List'));
     await tester.pumpAndSettle();
     expect(find.textContaining('grouped by court in your court hierarchy'), findsOne);
-    expect(find.textContaining('Overdue Dates'), findsOneWidget);
+    expect(find.textContaining('appear under Overdue Dates'), findsOne);
     expect(_openChevrons(), findsOneWidget);
 
     // Opening a second topic closes the first.
@@ -89,6 +95,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('AES-256-GCM'), findsNothing);
     expect(_openChevrons(), findsNothing);
+  });
+
+  testWidgets('the account card states the account is required', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    await tester.tap(find.text('Your Account'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('required for everyone'), findsOne);
+    expect(find.textContaining('starts on the free plan'), findsOne);
+    expect(find.textContaining('nothing re-entered'), findsOne);
+  });
+
+  testWidgets('the account question sits in Getting started', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('Getting started'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Do I need an account?'), findsOneWidget);
+    expect(find.textContaining('required for everyone'), findsOne);
   });
 
   testWidgets('opens an FAQ group and lists its questions with answers', (
@@ -131,6 +160,10 @@ void main() {
       findsOneWidget,
     );
 
+    expect(find.text(l.settingsGuidelines_accountTitle), findsOneWidget);
+    expect(find.text(l.settingsGuidelines_allCasesTitle), findsOneWidget);
+    expect(find.text(l.settingsGuidelines_disposedCasesTitle), findsOneWidget);
+
     await tester.tap(find.text(l.settingsGuidelines_dailyCauseListTitle));
     await tester.pumpAndSettle();
     expect(find.text(l.settingsGuidelines_dailyCauseListBody1), findsOneWidget);
@@ -145,6 +178,8 @@ void main() {
       'sync icon',
       'Backup Options',
       'end-to-end',
+      // The account is mandatory for every user, free plan included.
+      'no account',
     ];
     final forbiddenBn = <String>[
       'জাস্টিস লেজার',
@@ -153,6 +188,7 @@ void main() {
       'সিঙ্ক আইকনে',
       'ব্যাকআপ অপশনে',
       'এন্ড-টু-এন্ড',
+      'অ্যাকাউন্ট লাগে না',
     ];
 
     for (final path in const [

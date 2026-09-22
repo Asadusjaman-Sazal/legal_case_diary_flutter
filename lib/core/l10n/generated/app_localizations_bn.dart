@@ -1694,6 +1694,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsGuidelines_sectionGuidelines => 'নির্দেশনা';
 
   @override
+  String get settingsGuidelines_accountTitle => 'আপনার অ্যাকাউন্ট';
+
+  @override
+  String get settingsGuidelines_accountBody1 =>
+      'অ্যাপটি প্রথমবার খোলার সময়ই আপনি আপনার অ্যাকাউন্ট তৈরি করে নেবেন — এতে এক মুহূর্ত লাগে এবং ফ্রি প্ল্যানসহ সবার জন্যই এটি বাধ্যতামূলক। এরপর আপনি যা কিছু লিখবেন, সবই ওই অ্যাকাউন্টেরই থাকবে।';
+
+  @override
+  String get settingsGuidelines_accountBody2 =>
+      'প্রতিটি অ্যাকাউন্ট এই ডিভাইসে সীমাবদ্ধ ফ্রি প্ল্যান দিয়েই শুরু হয় এবং আপনি আপগ্রেড না করা পর্যন্ত সেখানেই থাকে। প্রথম মামলা থেকেই ডায়েরিটি আপনার অ্যাকাউন্টের সঙ্গে যুক্ত থাকায় আপগ্রেড করতে কোনো তথ্য নতুন করে লিখতে বা স্থানান্তর করতে হয় না — ক্লাউড ব্যাকআপ কেবল চালু হয়ে যায়।';
+
+  @override
   String get settingsGuidelines_dailyCauseListTitle => 'দৈনিক কজ লিস্ট';
 
   @override
@@ -1703,6 +1714,41 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsGuidelines_dailyCauseListBody2 =>
       'তালিকাটি আপনার নিজের মামলার তথ্য থেকে তৈরি, তাই তথ্য যত নির্ভুল তালিকাও তত নির্ভুল। প্রতিটি মামলার পরবর্তী তারিখ ও সর্বশেষ ধাপ হালনাগাদ রাখুন এবং আদালত থেকে ফেরার সঙ্গে সঙ্গে তালিকা থেকেই শুনানির ফলাফল লিখুন। হালনাগাদ ছাড়া শুনানির তারিখ পেরিয়ে গেলে ফলাফল লেখা পর্যন্ত মামলাটি \'মেয়াদোত্তীর্ণ তারিখ\' অংশে থাকবে।';
+
+  @override
+  String get settingsGuidelines_allCasesTitle => 'সব মামলা';
+
+  @override
+  String get settingsGuidelines_allCasesBody1 =>
+      'আপনার সব মামলা এক তালিকায়, উপরে সক্রিয় ও নিষ্পত্তিকৃত মামলার সংখ্যাসহ — সংখ্যায় ট্যাপ করলে সেই তালিকা খোলে। পক্ষ, কৌঁসুলি, মামলা নম্বর বা ফোন দিয়ে খুঁজুন, \'আদালত অনুযায়ী ফিল্টার\' ও \'নতুন প্রথমে/পুরাতন প্রথমে\' দিয়ে তালিকা ছোট করুন, আর কার্ড ও টেবিল ভিউয়ের মধ্যে বদল করুন।';
+
+  @override
+  String get settingsGuidelines_activeCasesTitle => 'সক্রিয় মামলা';
+
+  @override
+  String get settingsGuidelines_activeCasesBody1 =>
+      'কেবল চলমান মামলাগুলো; নিষ্পত্তিকৃত কোনো মামলা এখানে থাকে না। এখান থেকে মামলা খুলে হালনাগাদ করুন বা শুনানির ফলাফল লিখুন।';
+
+  @override
+  String get settingsGuidelines_overdueDatesTitle => 'মেয়াদোত্তীর্ণ তারিখ';
+
+  @override
+  String get settingsGuidelines_overdueDatesBody1 =>
+      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো আদালত অনুযায়ী সাজানো থাকে এবং কোনটি কবে সর্বশেষ হালনাগাদ হয়েছে তা দেখা যায়। নতুন ধাপ বা ফলাফল লিখলে মামলাটি এই তালিকা থেকে সরে যায়।';
+
+  @override
+  String get settingsGuidelines_upcomingCasesTitle => 'আসন্ন মামলা';
+
+  @override
+  String get settingsGuidelines_upcomingCasesBody1 =>
+      'আগামীকাল থেকে শুরু করে সেটিংস > ভিউ সেটিংস > আসন্ন মামলার সময়কাল-এ নির্ধারিত সময়ের শেষ দিন পর্যন্ত শুনানিগুলো তারিখ অনুযায়ী সাজানো থাকে — ডিফল্টভাবে ৭ দিন। আদালতে বেরোনোর আগে এই তালিকাটি দেখে নিন।';
+
+  @override
+  String get settingsGuidelines_disposedCasesTitle => 'নিষ্পত্তিকৃত মামলা';
+
+  @override
+  String get settingsGuidelines_disposedCasesBody1 =>
+      'আপনার নিষ্পত্তি করা মামলাগুলো — প্রতিটিতে নিষ্পত্তির তারিখ, পক্ষ, সর্বশেষ নোট ও সাম্প্রতিক ইতিহাস দেখা যায়। এখানে \'মামলা যোগ\' বোতাম নেই; মামলা কীভাবে নিষ্পত্তি হিসেবে চিহ্নিত হয় তা \'সহায়তা\' বোতামে লেখা আছে।';
 
   @override
   String get settingsGuidelines_referencesTitle => 'মামলার রেফারেন্স ও নোট';
@@ -1735,7 +1781,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_securityBody2 =>
-      'অফলাইন সংস্করণে আপনি নিজে না পাঠালে আপনার ফোন থেকে কোনো তথ্য বাইরে যায় না। পাসফ্রেজ নিরাপদে রেখে দিন — ব্যাকআপ থাকলেও পাসফ্রেজ হারালে সেটি আমরা বা অন্য কেউ খুলতে পারবে না।';
+      'অফলাইন সংস্করণে আপনার সাইন-আপের অ্যাকাউন্টের তথ্য ছাড়া আর কিছুই আপনার ফোন থেকে বাইরে যায় না — মামলার কোনো তথ্য নয়। পাসফ্রেজ নিরাপদে রেখে দিন — ব্যাকআপ থাকলেও পাসফ্রেজ হারালে সেটি আমরা বা অন্য কেউ খুলতে পারবে না।';
 
   @override
   String get settingsGuidelines_sectionFaqs => 'সাধারণ জিজ্ঞাসা';
@@ -1749,7 +1795,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatGettingStartedA1 =>
-      'হ্যাঁ। অ্যাপটি সম্পূর্ণ অফলাইনে কাজ করার জন্য তৈরি — মামলা যোগ ও সম্পাদনা, দৈনিক কজ লিস্ট, প্রিন্ট এবং ব্যাকআপ সবই সংযোগ ছাড়া চলে। অফলাইন সংস্করণে অনলাইন সিঙ্ক নেই।';
+      'হ্যাঁ — আপনার অ্যাকাউন্ট থাকলে। অ্যাপটি সম্পূর্ণ অফলাইনে কাজ করার জন্য তৈরি: মামলা যোগ ও সম্পাদনা, দৈনিক কজ লিস্ট, প্রিন্ট এবং ব্যাকআপ সবই সংযোগ ছাড়া চলে। অ্যাকাউন্ট কেবল অ্যাপটি প্রথমবার খোলার সময় একবার তৈরি করতে হয়; ডায়েরি ব্যবহারের জন্য আবার সাইন-ইন করতে হয় না। অফলাইন সংস্করণে অনলাইন সিঙ্ক নেই।';
 
   @override
   String get settingsGuidelines_faqCatGettingStartedQ2 =>
@@ -1806,6 +1852,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsGuidelines_faqCatGettingStartedA8 =>
       'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো সর্বশেষ হালনাগাদের তারিখসহ এখানে দেখা যায়। এখনো যেসব মামলায় হাত দেওয়া হয়নি তা খুঁজে বের করার সবচেয়ে সহজ উপায় এটি। নতুন ধাপ বা ফলাফল লিখলে মামলাটি তালিকা থেকে সরে যায়।';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedQ9 =>
+      'আমার কি অ্যাকাউন্ট দরকার?';
+
+  @override
+  String get settingsGuidelines_faqCatGettingStartedA9 =>
+      'হ্যাঁ। ফ্রি প্ল্যানসহ সবার জন্যই অ্যাকাউন্ট বাধ্যতামূলক, এবং অ্যাপটি প্রথমবার খোলার সময়ই সেটি তৈরি করতে হয়। আপনার ডায়েরি ওই অ্যাকাউন্টেরই থাকে, তাই প্রিমিয়ামে উন্নীত হলে আপনার আগের মামলাগুলো আগেই আপনার — নতুন করে কিছু লিখতে, রপ্তানি করতে বা স্থানান্তর করতে হয় না; ক্লাউড ব্যাকআপ কেবল চালু হয়ে যায়।';
 
   @override
   String get settingsGuidelines_faqCatFindingCases => 'মামলা খোঁজা ও দেখা';
@@ -1880,7 +1934,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA1 =>
-      'সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\'-এ ট্যাপ করুন। ফাইলটি কোথায় সংরক্ষিত হবে তা আপনি বেছে নেন এবং একটি পাসফ্রেজ দেন যা ফাইলটি এনক্রিপ্ট করে। কোনো অ্যাকাউন্ট বা ইন্টারনেট সংযোগ লাগে না।';
+      'সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\'-এ ট্যাপ করুন। ফাইলটি কোথায় সংরক্ষিত হবে তা আপনি বেছে নেন এবং একটি পাসফ্রেজ দেন যা ফাইলটি এনক্রিপ্ট করে। আপনার অ্যাকাউন্ট আগেই তৈরি করা থাকে, তাই ইন্টারনেট সংযোগের দরকার নেই।';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ2 =>
@@ -1970,7 +2024,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumA1 =>
-      'হ্যাঁ। অফলাইন অ্যাপটি ব্যবহারে কোনো খরচ নেই এবং এতে ৫০টি পর্যন্ত মামলা রাখা যায়। প্রিমিয়াম এই সীমা বাড়াবে এবং চালু হলে অনলাইন সিঙ্ক যোগ করবে।';
+      'হ্যাঁ। প্রতিটি অ্যাকাউন্ট ফ্রি প্ল্যান দিয়েই শুরু হয় — এতে কোনো খরচ নেই, ৫০টি পর্যন্ত মামলা রাখা যায় এবং সব মামলা এই ডিভাইসেই থাকে। প্রিমিয়াম এই সীমা বাড়াবে এবং চালু হলে ক্লাউড ব্যাকআপ ও সিঙ্ক যোগ করবে।';
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumQ2 =>
@@ -2050,7 +2104,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportA1 =>
-      'অফলাইন সংস্করণে আপনার লেখা সব তথ্য ডিভাইসেই এনক্রিপ্ট করা অবস্থায় থাকে। আমাদের বা অন্য কারো কাছে কিছু পাঠানো হয় না এবং কোনো অ্যাকাউন্ট লাগে না। ব্যাকআপ ফাইল এনক্রিপ্ট করা এবং কেবল আপনার দেওয়া পাসফ্রেজ দিয়েই খোলা যায়। অনলাইন সংস্করণ চালু হলে কী তথ্য কোথায় রাখা হবে তা ব্যবহারের আগে আলাদা নির্দেশনায় জানানো হবে।';
+      'অফলাইন সংস্করণে আপনার লেখা সব তথ্য ডিভাইসেই এনক্রিপ্ট করা অবস্থায় থাকে। আমাদের বা অন্য কারো কাছে কিছু পাঠানো হয় না। প্রথম মামলা থেকেই ডায়েরিটি আপনার অ্যাকাউন্টের সঙ্গে যুক্ত থাকে — ফ্রি প্ল্যানে এটি কোনো মামলার তথ্য কোথাও পাঠায় না। ব্যাকআপ ফাইল এনক্রিপ্ট করা এবং কেবল আপনার দেওয়া পাসফ্রেজ দিয়েই খোলা যায়। অনলাইন সংস্করণ চালু হলে কী তথ্য কোথায় রাখা হবে তা ব্যবহারের আগে আলাদা নির্দেশনায় জানানো হবে।';
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportQ2 =>

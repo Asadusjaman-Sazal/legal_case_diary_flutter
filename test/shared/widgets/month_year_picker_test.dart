@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -83,7 +84,7 @@ void main() {
     }
   });
 
-  testWidgets('every label is the app text black; only the current row is bold', (
+  testWidgets('the current row is bigger and bold; every row is app text black', (
     WidgetTester tester,
   ) async {
     await openColumns(tester);
@@ -95,13 +96,73 @@ void main() {
       ),
     );
 
+    // The current value is told apart by size and weight: one type step up from
+    // the rows around it, and bold.
     expect(row('August').style?.fontWeight, FontWeight.bold);
     expect(row('September').style?.fontWeight, FontWeight.normal);
+    expect(
+      row('August').style?.fontSize,
+      greaterThan(row('September').style!.fontSize!),
+    );
+    expect(
+      row('September').style?.fontSize,
+      row('July').style?.fontSize,
+    );
+
     // Row colours are the app's own text black, at full strength — the fade that
     // made the iOS wheel's neighbours look grey is gone.
     for (final label in ['July', 'August', 'September', '2026']) {
       expect(row(label).style?.color, AppColors.onSurface, reason: label);
     }
+  });
+
+  testWidgets('Month centres in its half; Year sits a seam gap past the seam', (
+    WidgetTester tester,
+  ) async {
+    await openColumns(tester);
+
+    // The picker's own middle is the seam the two columns meet on. The Month
+    // column centres its labels in its half, so no month name can change where
+    // the pair sits, and the Year column starts one seam gap into the other.
+    final picker = tester.getRect(find.byType(MonthYearPickerColumns));
+    expect(
+      tester.getRect(find.text('August')).center.dx,
+      closeTo(picker.left + picker.width / 4, 1),
+    );
+    expect(
+      tester.getRect(find.text('2026')).left - picker.center.dx,
+      closeTo(monthYearPickerSeamGap, 1),
+    );
+  });
+
+  testWidgets('a light platform click plays as each row passes the middle', (
+    WidgetTester tester,
+  ) async {
+    final sounds = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'SystemSound.play') {
+            sounds.add(call.arguments as String);
+          }
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await openColumns(tester);
+    expect(sounds, isEmpty, reason: 'opening the picker makes no sound');
+
+    // One row past the middle, one click — the platform sound, so the phone's
+    // own touch-sound setting decides whether it is heard.
+    final yearController =
+        columnOf(tester, monthYearPickerYearColumnKey).controller
+            as FixedExtentScrollController;
+    yearController.jumpToItem(2027 - 1900);
+    await tester.pumpAndSettle();
+
+    expect(sounds, [SystemSoundType.click.toString()]);
   });
 
   testWidgets('tapping a row confirms both columns as they stand', (

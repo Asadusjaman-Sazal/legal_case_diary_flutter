@@ -8,15 +8,20 @@
 /// [ListWheelScrollView] is still what drives it — that is the widget that snaps
 /// one row at a time and keeps the row in the middle the current value — but its
 /// cylinder is given a diameter so much larger than the column that the rows are
-/// drawn flat: none is bent, magnified or faded, so every label paints at its own
-/// size in the app's own text colour, and the current row differs from its
-/// neighbours by weight alone. Tapping a row confirms the pair.
+/// drawn flat: none is bent, magnified or faded, so every label paints in the
+/// app's own text colour, and the current row differs from its neighbours by one
+/// type step and by weight. The Month column centres its labels in its own half
+/// and the Year column sits just past the seam between them, so the pair keeps a
+/// fixed, readable gap whatever month is showing. Each row that passes the middle
+/// plays a light platform click; tapping a row confirms the pair.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_spacing.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart' show AppDateUtils;
 
@@ -32,6 +37,14 @@ const Key monthYearPickerMonthColumnKey = ValueKey('month-picker-column');
 
 /// The Year column's key, so a test (or a finder) can address it.
 const Key monthYearPickerYearColumnKey = ValueKey('year-picker-column');
+
+/// How far past the seam the Year column's labels sit.
+///
+/// The two columns meet at the picker's middle: the Month column centres its
+/// labels in its own half, and the Year column starts this far into the other
+/// half, so the pair reads as one "August 2026" across a gap that no label width
+/// can change.
+const double monthYearPickerSeamGap = AppSpacing.lg;
 
 /// The flattened cylinder's diameter, as a multiple of a column's height.
 ///
@@ -106,6 +119,7 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                 selectedIndex: _month - 1,
                 onChanged: (index) => setState(() => _month = index + 1),
                 onRowTapped: (index) => widget.onPicked(index + 1, _year),
+                labelAlignment: Alignment.center,
               ),
             ),
             Expanded(
@@ -123,6 +137,10 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                     setState(() => _year = widget.firstYear + index),
                 onRowTapped: (index) =>
                     widget.onPicked(_month, widget.firstYear + index),
+                labelAlignment: Alignment.centerLeft,
+                seamInset: const EdgeInsets.only(
+                  left: monthYearPickerSeamGap,
+                ),
               ),
             ),
           ],
@@ -147,12 +165,21 @@ class _PickerColumn extends StatefulWidget {
   /// Confirms the pair, carrying the tapped row's index.
   final ValueChanged<int> onRowTapped;
 
+  /// Where in its own column this column's labels sit: centred for the Month
+  /// column, against the seam for the Year column.
+  final Alignment labelAlignment;
+
+  /// Distance this column's labels keep from the seam.
+  final EdgeInsets seamInset;
+
   const _PickerColumn({
     super.key,
     required this.labels,
     required this.selectedIndex,
     required this.onChanged,
     required this.onRowTapped,
+    required this.labelAlignment,
+    this.seamInset = EdgeInsets.zero,
   });
 
   @override
@@ -185,7 +212,13 @@ class _PickerColumnState extends State<_PickerColumn> {
       // list draws every label at its own size and at full strength.
       useMagnifier: false,
       overAndUnderCenterOpacity: 1,
-      onSelectedItemChanged: widget.onChanged,
+      onSelectedItemChanged: (index) {
+        // A light click as each row passes the middle, played through the
+        // platform so the phone's own touch-sound setting decides whether it is
+        // heard at all.
+        SystemSound.play(SystemSoundType.click);
+        widget.onChanged(index);
+      },
       childDelegate: ListWheelChildBuilderDelegate(
         childCount: widget.labels.length,
         builder: (context, index) => GestureDetector(
@@ -193,16 +226,24 @@ class _PickerColumnState extends State<_PickerColumn> {
           // tap always means one choice.
           behavior: HitTestBehavior.opaque,
           onTap: () => widget.onRowTapped(index),
-          child: Center(
-            // The app's own text colour, undimmed: the current row is told apart
-            // by weight, not by size or opacity.
-            child: Text(
-              widget.labels[index],
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.onSurface,
-                fontWeight: index == widget.selectedIndex
-                    ? FontWeight.bold
-                    : FontWeight.normal,
+          child: Padding(
+            padding: widget.seamInset,
+            child: Align(
+              alignment: widget.labelAlignment,
+              // The app's own text colour, undimmed. The current row is the
+              // theme's next size up and bold, which is what marks it as the
+              // value a tap will confirm.
+              child: Text(
+                widget.labels[index],
+                style: (index == widget.selectedIndex
+                        ? Theme.of(context).textTheme.titleLarge
+                        : Theme.of(context).textTheme.bodyLarge)
+                    ?.copyWith(
+                  color: AppColors.onSurface,
+                  fontWeight: index == widget.selectedIndex
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
               ),
             ),
           ),

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.256 - The calendars' Month/Year selector is a straight list now: rows are no longer bent, magnified or faded, the current value is bold black in the middle, and nothing is painted over it.
+Version: 0.0.258 - The Month column centres its labels with the Year a seam gap past the middle, and each row that passes the middle plays a light platform click.
 --------------------------------------
 
 ## Version History Log:
@@ -270,3 +270,5 @@ Version: 0.0.253 - The Battery & Auto-Start Setup guide now ticks completed step
 Version: 0.0.254 - Calendar month/year selectors on the Add/Edit Case, Quick Update and Daily Cause List pickers are single-column top-to-bottom lists with the selected option enlarged, and the year list now spans 1900-2100.
 Version: 0.0.255 - The calendar's month and year selectors are now iOS side-by-side wheels on the Add/Edit Case, Quick Update and Daily Cause List pickers, confirmed by tapping a row over the same 1900-2100 years.
 Version: 0.0.256 - The calendars' Month/Year selector is a straight list now: rows are no longer bent, magnified or faded, the current value is bold black in the middle, and nothing is painted over it.
+Version: 0.0.257 - The Month and Year columns hold their labels against the middle seam, and the current value steps up one type size in bold.
+Version: 0.0.258 - The Month column centres its labels with the Year a seam gap past the middle, and each row that passes the middle plays a light platform click.

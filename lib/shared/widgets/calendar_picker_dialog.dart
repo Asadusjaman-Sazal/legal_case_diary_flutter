@@ -16,17 +16,12 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart';
+import 'month_year_picker.dart';
 
-/// Year span the year list offers and the picker's month navigation stays
-/// inside, so a month step can never leave what the year list can select.
+/// Year span the year column offers and the picker's month navigation stays
+/// inside, so a month step can never leave what the year column can select.
 const int _calendarMinYear = 1900;
 const int _calendarMaxYear = 2100;
-
-/// Height of one month/year option row, including its 2 px outer gap.
-///
-/// Fixed so the list opens scrolled to the selected row without measuring
-/// anything, however many years there are.
-const double _pickerOptionRowExtent = 52;
 
 /// A dialog shell hosting the Daily Cause List badge calendar.
 ///
@@ -91,7 +86,7 @@ class _BadgeCalendarGrid extends StatefulWidget {
   State<_BadgeCalendarGrid> createState() => _BadgeCalendarGridState();
 }
 
-enum _PickerMode { day, month, year }
+enum _PickerMode { day, monthYear }
 
 class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
   /// The focused month (Bangladesh civil date, day pinned to 1).
@@ -100,7 +95,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
   /// Currently selected civil date (epoch ms at start of day).
   late int _selected;
 
-  /// Which selection view is showing: the day grid, the month list, or the year list.
+  /// Which selection view is showing: the day grid or the month/year columns.
   _PickerMode _mode = _PickerMode.day;
 
   @override
@@ -117,17 +112,19 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     setState(() => _focusedMonth = next);
   }
 
-  /// Sets the focused year (keeps month/day) and returns to the day grid.
-  void _pickYear(int year) => setState(() {
-        _focusedMonth = DateTime(year, _focusedMonth.month, 1);
+  /// Applies the month and year confirmed by a tap and returns to the day grid.
+  void _pickMonthYear(int month, int year) => setState(() {
+        _focusedMonth = DateTime(year, month, 1);
         _mode = _PickerMode.day;
       });
 
-  /// Sets the focused month (keeps year/day) and returns to the day grid.
-  void _pickMonth(int month) => setState(() {
-        _focusedMonth = DateTime(_focusedMonth.year, month, 1);
-        _mode = _PickerMode.day;
-      });
+  /// Opens the month/year columns, or closes them back to the day grid. Both
+  /// columns appear together, whichever header opened them.
+  void _toggleMonthYear() => setState(
+        () => _mode = _mode == _PickerMode.monthYear
+            ? _PickerMode.day
+            : _PickerMode.monthYear,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -178,10 +175,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap: () => setState(() => _mode =
-                              _mode == _PickerMode.month
-                                  ? _PickerMode.day
-                                  : _PickerMode.month),
+                          onTap: _toggleMonthYear,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -211,10 +205,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                         ),
                         const SizedBox(width: 6),
                         InkWell(
-                          onTap: () => setState(() => _mode =
-                              _mode == _PickerMode.year
-                                  ? _PickerMode.day
-                                  : _PickerMode.year),
+                          onTap: _toggleMonthYear,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -266,31 +257,29 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
             ],
           ),
         ),
-        // Body switches between day grid, month list, and year list.
+        // Body switches between the day grid and the month/year columns.
         Expanded(
-          child: _mode == _PickerMode.month
-              ? _MonthSelector(
-                  selectedMonth: month,
-                  onSelect: _pickMonth,
+          child: _mode == _PickerMode.monthYear
+              ? MonthYearPickerColumns(
+                  firstYear: _calendarMinYear,
+                  lastYear: _calendarMaxYear,
+                  month: month,
+                  year: year,
+                  onPicked: _pickMonthYear,
                 )
-              : _mode == _PickerMode.year
-                  ? _YearSelector(
-                      selectedYear: year,
-                      onSelect: _pickYear,
-                    )
-                  : _DayGridView(
-                      year: year,
-                      month: month,
-                      leadingBlanks: leadingBlanks,
-                      daysInMonth: daysInMonth,
-                      hearingCounts: widget.hearingCounts,
-                      isToday: (epoch) =>
-                          epoch == AppDateUtils.bangladeshTodayStartOfDay(),
-                      isSelected: (epoch) => epoch == _selected,
-                      onPick: widget.onDateSelected,
-                      onPrevMonth: () => _changeMonth(-1),
-                      onNextMonth: () => _changeMonth(1),
-                    ),
+              : _DayGridView(
+                  year: year,
+                  month: month,
+                  leadingBlanks: leadingBlanks,
+                  daysInMonth: daysInMonth,
+                  hearingCounts: widget.hearingCounts,
+                  isToday: (epoch) =>
+                      epoch == AppDateUtils.bangladeshTodayStartOfDay(),
+                  isSelected: (epoch) => epoch == _selected,
+                  onPick: widget.onDateSelected,
+                  onPrevMonth: () => _changeMonth(-1),
+                  onNextMonth: () => _changeMonth(1),
+                ),
         ),
         const SizedBox(height: AppSpacing.md),
         // Close button (black background, white text — matches app theme).
@@ -523,138 +512,6 @@ class _DayGridView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// A tappable single-column list of all 12 months for the focused year.
-class _MonthSelector extends StatelessWidget {
-  final int selectedMonth;
-  final ValueChanged<int> onSelect;
-
-  const _MonthSelector({
-    required this.selectedMonth,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final months = List<String>.generate(
-      12,
-      (i) => DateFormat('MMMM', l.localeName).format(DateTime(2023, i + 1, 1)),
-    );
-    return _PickerOptionList(
-      labels: months,
-      selectedIndex: selectedMonth - 1,
-      onSelect: (index) => onSelect(index + 1),
-    );
-  }
-}
-
-/// A scrollable single-column list of the selectable years (1900–2100).
-class _YearSelector extends StatelessWidget {
-  final int selectedYear;
-  final ValueChanged<int> onSelect;
-
-  const _YearSelector({
-    required this.selectedYear,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context).localeName;
-    return _PickerOptionList(
-      labels: [
-        for (var y = _calendarMinYear; y <= _calendarMaxYear; y++)
-          AppDateUtils.formatDigits(y, locale, grouping: false),
-      ],
-      selectedIndex: (selectedYear - _calendarMinYear)
-          .clamp(0, _calendarMaxYear - _calendarMinYear),
-      onSelect: (index) => onSelect(_calendarMinYear + index),
-    );
-  }
-}
-
-/// A vertical single-column option list for the month and year selectors.
-///
-/// One label per line, top to bottom, opened with the selected row in view.
-/// (Both selectors used to be multi-column grids, which made the current
-/// month/year hard to find.)
-class _PickerOptionList extends StatelessWidget {
-  final List<String> labels;
-  final int selectedIndex;
-  final ValueChanged<int> onSelect;
-
-  const _PickerOptionList({
-    required this.labels,
-    required this.selectedIndex,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      // The scroll view clamps this to its own extent, so the last year's row
-      // is never left unreachable.
-      controller: ScrollController(
-        initialScrollOffset: selectedIndex * _pickerOptionRowExtent,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      itemExtent: _pickerOptionRowExtent,
-      itemCount: labels.length,
-      itemBuilder: (context, index) => _PickerOptionRow(
-        label: labels[index],
-        selected: index == selectedIndex,
-        onTap: () => onSelect(index),
-      ),
-    );
-  }
-}
-
-/// One month/year row: the selected one is drawn a little larger and bold on
-/// the primary fill, so the current choice is identifiable at a glance.
-class _PickerOptionRow extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PickerOptionRow({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final base = Theme.of(context).textTheme.labelLarge;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-        child: Container(
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : null,
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-            border: selected ? null : Border.all(color: AppColors.surfaceDim),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: base?.copyWith(
-                color: selected ? AppColors.onPrimary : AppColors.onSurface,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                fontSize: selected ? (base.fontSize ?? 14) + 4 : null,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

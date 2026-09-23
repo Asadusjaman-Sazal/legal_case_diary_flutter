@@ -5,6 +5,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_sub_page_modal.dart';
 import 'package:legal_case_diary/shared/widgets/calendar_picker_dialog.dart';
+import 'package:legal_case_diary/shared/widgets/month_year_picker.dart';
 
 void main() {
   group('SettingsSubPageModal', () {
@@ -193,8 +194,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Tapping the header year opens the scrollable year list; every row it
-      // renders must use Bengali digits (and no thousands separator).
+      // Tapping the header year opens the month/year columns; every year the
+      // year column renders must use Bengali digits (and no separator).
       await tester.tap(
         find.text(AppDateUtils.formatDigits(year, 'bn', grouping: false)),
       );
@@ -202,7 +203,7 @@ void main() {
       final cells = tester
           .widgetList<Text>(
             find.descendant(
-              of: find.byType(ListView),
+              of: find.byKey(monthYearPickerYearColumnKey),
               matching: find.byType(Text),
             ),
           )
@@ -213,79 +214,80 @@ void main() {
       }
     });
 
-    testWidgets('month and year read as one option per line, 1900-2100 years',
-        (WidgetTester tester) async {
-      final today = AppDateUtils.bangladeshTodayStartOfDay();
-      final todayCivil = AppDateUtils.bangladeshDateTime(today);
-      final monthLabel =
-          intl.DateFormat('MMMM').format(DateTime(todayCivil.year, todayCivil.month, 1));
-      final nextMonthLabel = intl.DateFormat('MMMM')
-          .format(DateTime(todayCivil.year, todayCivil.month + 1, 1));
+    testWidgets(
+      'month and year are straight columns, 1900-2100, confirmed by a tap',
+      (WidgetTester tester) async {
+        final today = AppDateUtils.bangladeshTodayStartOfDay();
+        final todayCivil = AppDateUtils.bangladeshDateTime(today);
+        final monthLabel = intl.DateFormat(
+          'MMMM',
+        ).format(DateTime(todayCivil.year, todayCivil.month, 1));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: CalendarPickerDialog(
-              initialDate: today,
-              hearingCounts: const {},
-              onDateSelected: (_) {},
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CalendarPickerDialog(
+                initialDate: today,
+                hearingCounts: const {},
+                onDateSelected: (_) {},
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Months: one column, one month per line (was a 3-column grid), opened
-      // with the focused month in view and drawn larger than its neighbours.
-      await tester.tap(find.text(monthLabel));
-      await tester.pumpAndSettle();
-      var list = tester.widget<ListView>(find.byType(ListView));
-      expect(
-        (list.childrenDelegate as SliverChildBuilderDelegate)
-            .estimatedChildCount,
-        12,
-      );
-      Text row(String label) => tester.widget<Text>(
-            find.descendant(
-              of: find.byType(ListView),
-              matching: find.text(label),
-            ),
-          );
-      final nextMonth = tester.getRect(find.text(nextMonthLabel));
-      final monthRow = tester.getRect(
-        find.descendant(
-          of: find.byType(ListView),
-          matching: find.text(monthLabel),
-        ),
-      );
-      // Same horizontal centre (one column), one row apart. Centres are compared
-      // because the enlarged selected label is taller than its neighbour.
-      expect(nextMonth.center.dx, monthRow.center.dx);
-      expect(nextMonth.center.dy - monthRow.center.dy, closeTo(list.itemExtent!, 0.5));
-      expect(
-        row(monthLabel).style!.fontSize!,
-        greaterThan(row(nextMonthLabel).style!.fontSize!),
-      );
+        FixedExtentScrollController controllerOf(Key key) =>
+            tester
+                    .widget<ListWheelScrollView>(
+                      find.descendant(
+                        of: find.byKey(key),
+                        matching: find.byType(ListWheelScrollView),
+                      ),
+                    )
+                    .controller!
+                as FixedExtentScrollController;
 
-      // Years: the same single column, spanning 1900-2100 and opened at the
-      // focused year rather than at 1900.
-      await tester.tap(find.text('${todayCivil.year}'));
-      await tester.pumpAndSettle();
-      list = tester.widget<ListView>(find.byType(ListView));
-      expect(
-        (list.childrenDelegate as SliverChildBuilderDelegate)
-            .estimatedChildCount,
-        201,
-      );
-      expect(
-        list.controller!.offset,
-        (todayCivil.year - 1900) * list.itemExtent!,
-      );
-      expect(find.text('1900'), findsNothing);
-      expect(row('${todayCivil.year}').style!.fontSize!,
-          greaterThan(row('${todayCivil.year + 1}').style!.fontSize!));
-    });
+        // The header's month opens both columns at once; the year column spans
+        // 1900-2100 and opens on the focused year rather than at 1900.
+        await tester.tap(find.text(monthLabel));
+        await tester.pumpAndSettle();
+        expect(
+          controllerOf(monthYearPickerMonthColumnKey).selectedItem,
+          todayCivil.month - 1,
+        );
+        expect(
+          controllerOf(monthYearPickerYearColumnKey).selectedItem,
+          todayCivil.year - 1900,
+        );
+        expect(
+          tester
+              .widget<ListWheelScrollView>(
+                find.descendant(
+                  of: find.byKey(monthYearPickerYearColumnKey),
+                  matching: find.byType(ListWheelScrollView),
+                ),
+              )
+              .childDelegate
+              .estimatedChildCount,
+          201,
+        );
+
+        // Spinning the year column moves only that column; tapping the centred
+        // month row then confirms both columns and returns to the day grid.
+        controllerOf(monthYearPickerYearColumnKey).jumpToItem(2100 - 1900);
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(monthYearPickerMonthColumnKey),
+            matching: find.text(monthLabel),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(ListWheelScrollView), findsNothing);
+        expect(find.text('2100'), findsOneWidget);
+      },
+    );
   });
 }

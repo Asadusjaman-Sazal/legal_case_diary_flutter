@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/shared/widgets/date_picker_helper.dart';
+import 'package:legal_case_diary/shared/widgets/month_year_picker.dart';
 
 void main() {
   final selectedDate = DateTime(2026, 8, 5);
@@ -72,53 +73,57 @@ void main() {
     expect(dialog.bottom - button.bottom, greaterThanOrEqualTo(16));
   });
 
-  testWidgets('uses Bengali digits for the year, the day cells and the year list', (
+  testWidgets(
+    'uses Bengali digits for the year, the day cells and the year list',
+    (WidgetTester tester) async {
+      await openPicker(tester, const Locale('bn'));
+
+      // Focused month year (Aug 2026) and the selected 5th — no ASCII digits, and
+      // no thousands separator inside the year.
+      expect(find.text('২০২৬'), findsOneWidget);
+      expect(find.text('2026'), findsNothing);
+      expect(find.text('৫'), findsOneWidget);
+      expect(find.text('5'), findsNothing);
+
+      // Tapping the year opens the month/year columns; every year the year
+      // column renders must use Bengali digits.
+      await tester.tap(find.text('২০২৬'));
+      await tester.pumpAndSettle();
+      final cells = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(monthYearPickerYearColumnKey),
+              matching: find.byType(Text),
+            ),
+          )
+          .toList();
+      expect(cells, isNotEmpty);
+      for (final cell in cells) {
+        expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
+      }
+    },
+  );
+
+  testWidgets(
+    'matches DCL calendar layout: month/year selectors + 7-col weekday body',
+    (WidgetTester tester) async {
+      await openPicker(tester, const Locale('en'));
+
+      // Month/year header with chevron navigation (matches Daily Cause List).
+      expect(find.byIcon(Icons.chevron_left), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+      expect(find.text('August'), findsOneWidget);
+      expect(find.text('2026'), findsOneWidget);
+
+      // Cancel/OK buttons preserved.
+      expect(find.widgetWithText(TextButton, 'Cancel'), findsOneWidget);
+      expect(find.widgetWithText(TextButton, 'OK'), findsOneWidget);
+    },
+  );
+
+  testWidgets('today renders as a selected (black-filled) cell on open', (
     WidgetTester tester,
   ) async {
-    await openPicker(tester, const Locale('bn'));
-
-    // Focused month year (Aug 2026) and the selected 5th — no ASCII digits, and
-    // no thousands separator inside the year.
-    expect(find.text('২০২৬'), findsOneWidget);
-    expect(find.text('2026'), findsNothing);
-    expect(find.text('৫'), findsOneWidget);
-    expect(find.text('5'), findsNothing);
-
-    // Tapping the year opens the scrollable year list; every year it renders
-    // must use Bengali digits.
-    await tester.tap(find.text('২০২৬'));
-    await tester.pumpAndSettle();
-    final cells = tester
-        .widgetList<Text>(
-          find.descendant(
-            of: find.byType(ListView),
-            matching: find.byType(Text),
-          ),
-        )
-        .toList();
-    expect(cells, isNotEmpty);
-    for (final cell in cells) {
-      expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
-    }
-  });
-
-  testWidgets('matches DCL calendar layout: month/year selectors + 7-col weekday body',
-      (WidgetTester tester) async {
-    await openPicker(tester, const Locale('en'));
-
-    // Month/year header with chevron navigation (matches Daily Cause List).
-    expect(find.byIcon(Icons.chevron_left), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
-    expect(find.text('August'), findsOneWidget);
-    expect(find.text('2026'), findsOneWidget);
-
-    // Cancel/OK buttons preserved.
-    expect(find.widgetWithText(TextButton, 'Cancel'), findsOneWidget);
-    expect(find.widgetWithText(TextButton, 'OK'), findsOneWidget);
-  });
-
-  testWidgets('today renders as a selected (black-filled) cell on open',
-      (WidgetTester tester) async {
     // Default selection is today, so today's cell must be filled (primary color)
     // with white text — same as any selected date.
     await tester.pumpWidget(
@@ -200,60 +205,43 @@ void main() {
     expect(find.text('Aug 5, Wed'), findsNothing);
   });
 
-  testWidgets('month and year read as one option per line, years 1900-2100',
+  testWidgets('month and year are straight columns, opened on the current pair',
       (WidgetTester tester) async {
     await openPicker(tester, const Locale('en'));
 
-    Text rowText(String label) => tester.widget<Text>(
+    ListWheelScrollView column(Key key) => tester.widget<ListWheelScrollView>(
           find.descendant(
-            of: find.byType(ListView),
-            matching: find.text(label),
+            of: find.byKey(key),
+            matching: find.byType(ListWheelScrollView),
           ),
         );
+    FixedExtentScrollController controllerOf(Key key) =>
+        column(key).controller! as FixedExtentScrollController;
+    Finder row(Key key, String label) =>
+        find.descendant(of: find.byKey(key), matching: find.text(label));
 
-    // Months: a single column, one month per line, opened at August (the
-    // focused month) with that row drawn larger than its neighbour.
+    // Tapping the header's month opens both columns at once, each on the
+    // focused month and year.
     await tester.tap(find.text('August'));
     await tester.pumpAndSettle();
-    var list = tester.widget<ListView>(find.byType(ListView));
+    expect(controllerOf(monthYearPickerMonthColumnKey).selectedItem, 7);
     expect(
-      (list.childrenDelegate as SliverChildBuilderDelegate)
-          .estimatedChildCount,
-      12,
+      controllerOf(monthYearPickerYearColumnKey).selectedItem,
+      2026 - 1900,
     );
-    final september = tester.getRect(find.text('September'));
-    final augustRow = tester.getRect(
-      find.descendant(
-        of: find.byType(ListView),
-        matching: find.text('August'),
-      ),
-    );
-    // Same horizontal centre (one column), one row apart. Centres are compared
-    // because the enlarged selected label is taller than its neighbour.
-    expect(september.center.dx, augustRow.center.dx);
-    expect(september.center.dy - augustRow.center.dy, closeTo(list.itemExtent!, 0.5));
     expect(
-      rowText('August').style!.fontSize!,
-      greaterThan(rowText('September').style!.fontSize!),
-    );
-
-    // Years: the same single column, 1900-2100, opened at the focused year.
-    // (The plain picker's month/year selectors live in the day view, so the
-    // focused month row is tapped first to go back there.)
-    await tester.tap(find.text('August'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('2026'));
-    await tester.pumpAndSettle();
-    list = tester.widget<ListView>(find.byType(ListView));
-    expect(
-      (list.childrenDelegate as SliverChildBuilderDelegate)
-          .estimatedChildCount,
+      column(monthYearPickerYearColumnKey).childDelegate.estimatedChildCount,
       201,
     );
-    expect(list.controller!.offset, (2026 - 1900) * list.itemExtent!);
-    expect(
-      rowText('2026').style!.fontSize!,
-      greaterThan(rowText('2027').style!.fontSize!),
-    );
+
+    // Spinning the year column moves only that column; tapping a month row then
+    // confirms both columns and returns to the day grid.
+    controllerOf(monthYearPickerYearColumnKey).jumpToItem(2100 - 1900);
+    await tester.pumpAndSettle();
+    await tester.tap(row(monthYearPickerMonthColumnKey, 'August'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListWheelScrollView), findsNothing);
+    expect(find.text('2100'), findsOneWidget);
+    expect(find.text('August'), findsOneWidget);
   });
 }

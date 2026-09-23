@@ -2,8 +2,9 @@
 ///
 /// Uses a custom grid that matches the Daily Cause List badge calendar's layout
 /// (month/year chevron selectors, weekday 7-column body, window dimensions) but
-/// keeps its own header (selected-date title), Material today ring, and the
-/// Cancel/OK action buttons. No hearing counts (unlike the badge calendar).
+/// keeps its own header (selected-date title), its Material today ring, and the
+/// Cancel/OK action buttons. No hearing counts (unlike the badge calendar). Its
+/// month/year selector is the shared straight-list one (`month_year_picker.dart`).
 library;
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart' show AppDateUtils;
+import 'month_year_picker.dart';
 
 const _englishPickerMonths = <String>[
   'Jan',
@@ -78,21 +80,15 @@ String _formatPickerHeaderDate(DateTime date, Locale locale) {
       '${weekdayLabels[date.weekday % DateTime.daysPerWeek]}';
 }
 
-enum _PickerMode { day, month, year }
+enum _PickerMode { day, monthYear }
 
 /// Year span the picker offers and accepts.
 ///
-/// The month and year lists read one option per line; the year list runs
+/// The columns read month and year side by side, the year column running
 /// 1900–2100, and the day grid refuses dates outside that same span so the
-/// list can always reach the year the picker is holding.
+/// columns can always reach the year the picker is holding.
 const int _pickerMinYear = 1900;
 const int _pickerMaxYear = 2100;
-
-/// Height of one month/year option row, including its 2 px outer gap.
-///
-/// Fixed so the list opens scrolled to the selected row without measuring
-/// anything, however many years there are.
-const double _pickerOptionRowExtent = 52;
 
 class _PlainDatePickerDialog extends StatefulWidget {
   const _PlainDatePickerDialog({
@@ -134,23 +130,34 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
     setState(() => _focusedMonth = next);
   }
 
-  void _pickYear(int year) => setState(() {
-        _focusedMonth = DateTime(year, _focusedMonth.month, 1);
+  /// Applies the month and year confirmed by a tap and returns to the day grid.
+  void _pickMonthYear(int month, int year) => setState(() {
+        _focusedMonth = DateTime(year, month, 1);
         _mode = _PickerMode.day;
       });
 
-  void _pickMonth(int month) => setState(() {
-        _focusedMonth = DateTime(_focusedMonth.year, month, 1);
-        _mode = _PickerMode.day;
-      });
+  /// Opens the month/year columns, or closes them back to the day grid.
+  void _toggleMonthYear() => setState(
+        () => _mode = _mode == _PickerMode.monthYear
+            ? _PickerMode.day
+            : _PickerMode.monthYear,
+      );
 
   bool _isEnabledDay(int epoch) {
     final date = AppDateUtils.bangladeshDateTime(epoch);
     return !date.isBefore(
-          DateTime(widget.firstDate.year, widget.firstDate.month, widget.firstDate.day),
+          DateTime(
+            widget.firstDate.year,
+            widget.firstDate.month,
+            widget.firstDate.day,
+          ),
         ) &&
         !date.isAfter(
-          DateTime(widget.lastDate.year, widget.lastDate.month, widget.lastDate.day),
+          DateTime(
+            widget.lastDate.year,
+            widget.lastDate.month,
+            widget.lastDate.day,
+          ),
         );
   }
 
@@ -176,8 +183,8 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
     final actionButtonStyle = widget.styleActions
         ? TextButton.styleFrom(
             alignment: Alignment.center,
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
             fixedSize: const Size(132, 52),
             padding: const EdgeInsets.symmetric(horizontal: 18),
             shape: RoundedRectangleBorder(
@@ -223,39 +230,28 @@ class _PlainDatePickerDialogState extends State<_PlainDatePickerDialog> {
                   style: headerStyle,
                 ),
               ),
-              // Calendar body: day grid (with month/year selectors), or the
-              // month/year list selectors.
+              // Calendar body: the day grid, or the month/year columns its
+              // header opens.
               Expanded(
-                child: _mode == _PickerMode.month
-                    ? _MonthSelector(
-                        selectedMonth: _focusedMonth.month,
-                        onSelect: _pickMonth,
+                child: _mode == _PickerMode.monthYear
+                    ? MonthYearPickerColumns(
+                        firstYear: widget.firstDate.year,
+                        lastYear: widget.lastDate.year,
+                        month: _focusedMonth.month,
+                        year: _focusedMonth.year,
+                        onPicked: _pickMonthYear,
                       )
-                    : _mode == _PickerMode.year
-                        ? _YearSelector(
-                            firstYear: widget.firstDate.year,
-                            lastYear: widget.lastDate.year,
-                            selectedYear: _focusedMonth.year,
-                            onSelect: _pickYear,
-                          )
-                        : _DayView(
-                            focusedMonth: _focusedMonth,
-                            selectedEpoch: _selectedEpoch,
-                            onPrevMonth: () => _changeMonth(-1),
-                            onNextMonth: () => _changeMonth(1),
-                            onSelectMonth: () => setState(() =>
-                                _mode = _mode == _PickerMode.month
-                                    ? _PickerMode.day
-                                    : _PickerMode.month),
-                            onSelectYear: () => setState(() =>
-                                _mode = _mode == _PickerMode.year
-                                    ? _PickerMode.day
-                                    : _PickerMode.year),
-                            isToday: (epoch) =>
-                                epoch == AppDateUtils.bangladeshTodayStartOfDay(),
-                            isEnabled: _isEnabledDay,
-                            onPick: _selectDay,
-                          ),
+                    : _DayView(
+                        focusedMonth: _focusedMonth,
+                        selectedEpoch: _selectedEpoch,
+                        onPrevMonth: () => _changeMonth(-1),
+                        onNextMonth: () => _changeMonth(1),
+                        onSelectMonthYear: _toggleMonthYear,
+                        isToday: (epoch) =>
+                            epoch == AppDateUtils.bangladeshTodayStartOfDay(),
+                        isEnabled: _isEnabledDay,
+                        onPick: _selectDay,
+                      ),
               ),
               // Cancel / OK action buttons — unchanged.
               Padding(
@@ -303,8 +299,7 @@ class _DayView extends StatelessWidget {
   final int selectedEpoch;
   final VoidCallback onPrevMonth;
   final VoidCallback onNextMonth;
-  final VoidCallback onSelectMonth;
-  final VoidCallback onSelectYear;
+  final VoidCallback onSelectMonthYear;
   final bool Function(int epoch) isToday;
   final bool Function(int epoch) isEnabled;
   final ValueChanged<int> onPick;
@@ -314,8 +309,7 @@ class _DayView extends StatelessWidget {
     required this.selectedEpoch,
     required this.onPrevMonth,
     required this.onNextMonth,
-    required this.onSelectMonth,
-    required this.onSelectYear,
+    required this.onSelectMonthYear,
     required this.isToday,
     required this.isEnabled,
     required this.onPick,
@@ -353,7 +347,7 @@ class _DayView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap: onSelectMonth,
+                          onTap: onSelectMonthYear,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -383,7 +377,7 @@ class _DayView extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         InkWell(
-                          onTap: onSelectYear,
+                          onTap: onSelectMonthYear,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -618,142 +612,6 @@ class _DayCell extends StatelessWidget {
   }
 }
 
-/// A vertical single-column option list for the month and year selectors.
-///
-/// One label per line, top to bottom, opened with the selected row in view.
-/// (Both selectors used to be multi-column grids, which made the current
-/// month/year hard to find.)
-class _PickerOptionList extends StatelessWidget {
-  final List<String> labels;
-  final int selectedIndex;
-  final ValueChanged<int> onSelect;
-
-  const _PickerOptionList({
-    required this.labels,
-    required this.selectedIndex,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      // The scroll view clamps this to its own extent, so the last year's row
-      // is never left unreachable.
-      controller: ScrollController(
-        initialScrollOffset: selectedIndex * _pickerOptionRowExtent,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      itemExtent: _pickerOptionRowExtent,
-      itemCount: labels.length,
-      itemBuilder: (context, index) => _PickerOptionRow(
-        label: labels[index],
-        selected: index == selectedIndex,
-        onTap: () => onSelect(index),
-      ),
-    );
-  }
-}
-
-/// One month/year row: the selected one is drawn a little larger and bold on
-/// the primary fill, so the current choice is identifiable at a glance.
-class _PickerOptionRow extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PickerOptionRow({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final base = Theme.of(context).textTheme.labelLarge;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-        child: Container(
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : null,
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-            border: selected ? null : Border.all(color: AppColors.surfaceDim),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: base?.copyWith(
-                color: selected ? AppColors.onPrimary : AppColors.onSurface,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                fontSize: selected ? (base.fontSize ?? 14) + 4 : null,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A tappable single-column list of all 12 months for the focused year.
-class _MonthSelector extends StatelessWidget {
-  final int selectedMonth;
-  final ValueChanged<int> onSelect;
-
-  const _MonthSelector({
-    required this.selectedMonth,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final months = List<String>.generate(
-      12,
-      (i) => intl.DateFormat('MMMM', l.localeName)
-          .format(DateTime(2023, i + 1, 1)),
-    );
-    return _PickerOptionList(
-      labels: months,
-      selectedIndex: selectedMonth - 1,
-      onSelect: (index) => onSelect(index + 1),
-    );
-  }
-}
-
-/// A scrollable single-column list of the selectable years.
-class _YearSelector extends StatelessWidget {
-  final int firstYear;
-  final int lastYear;
-  final int selectedYear;
-  final ValueChanged<int> onSelect;
-
-  const _YearSelector({
-    required this.firstYear,
-    required this.lastYear,
-    required this.selectedYear,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = AppLocalizations.of(context).localeName;
-    return _PickerOptionList(
-      labels: [
-        for (var y = firstYear; y <= lastYear; y++)
-          AppDateUtils.formatDigits(y, locale, grouping: false),
-      ],
-      selectedIndex: (selectedYear - firstYear).clamp(0, lastYear - firstYear),
-      onSelect: (index) => onSelect(firstYear + index),
-    );
-  }
-}
-
 /// Returns the date-only value used as the default picker selection.
 ///
 /// Keeping this calculation separate makes the today-default rule reusable and
@@ -765,10 +623,10 @@ DateTime plainDatePickerInitialDate([DateTime? now]) {
 /// Opens a plain date picker defaulting to today.
 ///
 /// The calendar body matches the Daily Cause List badge calendar (month/year
-/// `<>` selectors, weekday 7-column grid, window dimensions) but keeps its own
-/// header and Cancel/OK buttons. [initialDate] may be supplied by an edit form;
-/// when omitted the picker opens on today. Unless [firstDate]/[lastDate] narrow
-/// it, the picker spans the year list's own 1900–2100. Returns date-only, or
+/// columns, weekday 7-column grid, window dimensions) but keeps its own header
+/// and Cancel/OK buttons. [initialDate] may be supplied by an edit form; when
+/// omitted the picker opens on today. Unless [firstDate]/[lastDate] narrow it,
+/// the picker spans the year column's own 1900–2100. Returns date-only, or
 /// `null` on cancel.
 Future<DateTime?> showPlainDatePicker(
   BuildContext context, {

@@ -39,6 +39,12 @@ class FakeNotificationScheduler implements NotificationScheduler {
   /// so tests that expect the "already allowed" copy set it explicitly.
   bool exactAlarmsAllowedValue = false;
 
+  /// Answer of [batteryOptimizationIgnored].
+  ///
+  /// Defaults to `false` too: a fresh install is battery-optimized until the
+  /// user exempts it.
+  bool batteryUnrestrictedValue = false;
+
   /// Handler registered through [onCaseSelected]; call it to simulate a tap.
   ValueChanged<String>? caseSelected;
 
@@ -75,6 +81,9 @@ class FakeNotificationScheduler implements NotificationScheduler {
 
   @override
   Future<bool> canScheduleExactAlarms() async => exactAlarmsAllowedValue;
+
+  @override
+  Future<bool> batteryOptimizationIgnored() async => batteryUnrestrictedValue;
 
   @override
   Future<bool> openExactAlarmSettings() async {

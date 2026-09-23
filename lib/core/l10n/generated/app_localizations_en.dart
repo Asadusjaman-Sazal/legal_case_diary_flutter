@@ -1609,6 +1609,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Exact Alarms Are Already Allowed';
 
   @override
+  String get settingsBatteryGuide_batteryAllowed =>
+      'Battery Usage Is Already Unrestricted';
+
+  @override
+  String get settingsBatteryGuide_autoStartDone =>
+      'Auto-Start Marked As Done By You';
+
+  @override
+  String get settingsBatteryGuide_markDone => 'Mark As Done';
+
+  @override
+  String get settingsBatteryGuide_markNotDone => 'Mark As Not Done';
+
+  @override
   String get settingsBatteryGuide_openFailed =>
       'Could Not Open That Settings Page. Please Set It Manually.';
 

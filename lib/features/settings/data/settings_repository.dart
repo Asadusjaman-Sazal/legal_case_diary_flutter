@@ -105,6 +105,14 @@ class UserSettings {
   /// keeps nudging without the screen ever reappearing unbidden).
   final bool notificationGuideShown;
 
+  /// Whether the user marked the setup guide's **auto-start** step as done.
+  ///
+  /// The other two steps are read from the phone; Android exposes no API for the
+  /// auto-start / startup-manager setting (it is an OEM feature, not a
+  /// permission), so the user's own confirmation is the only record of it and is
+  /// kept per-user like the rest of the guide's state.
+  final bool notificationAutoStartDone;
+
   /// Selected UI language code.
   final String language;
 
@@ -140,6 +148,7 @@ class UserSettings {
     this.notificationDefaultOffsets = const [1],
     this.notificationSetupDone = false,
     this.notificationGuideShown = false,
+    this.notificationAutoStartDone = false,
     this.language = 'en',
     this.backupNudge = const {},
     this.lastAddCaseHigherLowerCourt,
@@ -170,6 +179,7 @@ class UserSettings {
     notificationDefaultOffsets: notificationDefaultOffsets,
     notificationSetupDone: notificationSetupDone,
     notificationGuideShown: notificationGuideShown,
+    notificationAutoStartDone: notificationAutoStartDone,
     language: language,
     backupNudge: backupNudge,
     lastAddCaseHigherLowerCourt: higherLowerCourt,
@@ -196,6 +206,7 @@ class UserSettings {
     List<int>? notificationDefaultOffsets,
     bool? notificationSetupDone,
     bool? notificationGuideShown,
+    bool? notificationAutoStartDone,
     String? language,
     Map<String, dynamic>? backupNudge,
   }) => UserSettings(
@@ -218,6 +229,8 @@ class UserSettings {
         notificationDefaultOffsets ?? this.notificationDefaultOffsets,
     notificationSetupDone: notificationSetupDone ?? this.notificationSetupDone,
     notificationGuideShown: notificationGuideShown ?? this.notificationGuideShown,
+    notificationAutoStartDone:
+        notificationAutoStartDone ?? this.notificationAutoStartDone,
     language: language ?? this.language,
     backupNudge: backupNudge ?? this.backupNudge,
     lastAddCaseHigherLowerCourt: lastAddCaseHigherLowerCourt,
@@ -242,6 +255,7 @@ class UserSettings {
     'notification_default_offsets': notificationDefaultOffsets,
     'notification_setup_done': notificationSetupDone,
     'notification_guide_shown': notificationGuideShown,
+    'notification_auto_start_done': notificationAutoStartDone,
     'backup_nudge': backupNudge,
     'last_add_case_higher_lower_court': lastAddCaseHigherLowerCourt,
     'last_add_case_division': lastAddCaseDivision,
@@ -330,6 +344,8 @@ class UserSettings {
       notificationSetupDone: json['notification_setup_done'] as bool? ?? false,
       notificationGuideShown:
           json['notification_guide_shown'] as bool? ?? false,
+      notificationAutoStartDone:
+          json['notification_auto_start_done'] as bool? ?? false,
       language: effectiveLanguage,
       backupNudge: json['backup_nudge'] is Map<String, dynamic>
           ? json['backup_nudge'] as Map<String, dynamic>

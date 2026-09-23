@@ -1621,6 +1621,21 @@ class AppLocalizationsBn extends AppLocalizations {
       'নির্দিষ্ট অ্যালার্ম ইতিমধ্যেই অনুমোদিত';
 
   @override
+  String get settingsBatteryGuide_batteryAllowed =>
+      'ব্যাটারি ব্যবহার ইতিমধ্যেই সীমাহীন';
+
+  @override
+  String get settingsBatteryGuide_autoStartDone =>
+      'আপনি অটো-স্টার্ট সম্পন্ন হিসেবে চিহ্নিত করেছেন';
+
+  @override
+  String get settingsBatteryGuide_markDone => 'সম্পন্ন হিসেবে চিহ্নিত করুন';
+
+  @override
+  String get settingsBatteryGuide_markNotDone =>
+      'সম্পন্ন নয় হিসেবে চিহ্নিত করুন';
+
+  @override
   String get settingsBatteryGuide_openFailed =>
       'সেটিংস পেজটি খোলা যায়নি। অনুগ্রহ করে নিজে সেট করুন।';
 

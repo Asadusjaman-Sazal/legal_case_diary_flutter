@@ -2972,6 +2972,30 @@ abstract class AppLocalizations {
   /// **'Exact Alarms Are Already Allowed'**
   String get settingsBatteryGuide_exactAllowed;
 
+  /// No description provided for @settingsBatteryGuide_batteryAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery Usage Is Already Unrestricted'**
+  String get settingsBatteryGuide_batteryAllowed;
+
+  /// No description provided for @settingsBatteryGuide_autoStartDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Start Marked As Done By You'**
+  String get settingsBatteryGuide_autoStartDone;
+
+  /// No description provided for @settingsBatteryGuide_markDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark As Done'**
+  String get settingsBatteryGuide_markDone;
+
+  /// No description provided for @settingsBatteryGuide_markNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark As Not Done'**
+  String get settingsBatteryGuide_markNotDone;
+
   /// No description provided for @settingsBatteryGuide_openFailed.
   ///
   /// In en, this message translates to:

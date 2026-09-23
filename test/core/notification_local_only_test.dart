@@ -134,6 +134,40 @@ void main() {
     );
   });
 
+  test('the battery-optimization check names one protocol on both sides', () {
+    // The Dart half and `MainActivity.kt` are two ends of one method channel
+    // with no compile-time link: a rename on either side would silently leave
+    // the setup guide's battery step un-ticked, and the test host cannot answer
+    // the question the channel carries.
+    final gateway = File(
+      '${_folder}android_notification_gateway.dart',
+    ).readAsStringSync();
+    final activity = File(
+      'android/app/src/main/kotlin/com/legalcasediary/app/MainActivity.kt',
+    ).readAsStringSync();
+
+    expect(
+      gateway.contains("'com.legalcasediary.app/device_setup'"),
+      isTrue,
+      reason: 'The gateway must ask the channel the host activity serves.',
+    );
+    expect(
+      activity.contains('"com.legalcasediary.app/device_setup"'),
+      isTrue,
+    );
+    expect(gateway.contains("'isIgnoringBatteryOptimizations'"), isTrue);
+    expect(
+      activity.contains('"isIgnoringBatteryOptimizations"'),
+      isTrue,
+      reason: 'The activity must still answer the method the gateway calls.',
+    );
+    expect(
+      activity.contains('isIgnoringBatteryOptimizations(packageName)'),
+      isTrue,
+      reason: 'The answer must come from the OS, not from a stored guess.',
+    );
+  });
+
   test('the alarm entry point stays annotated for the AOT compiler', () {
     final job = File('${_folder}notification_alarm_callback.dart')
         .readAsStringSync();

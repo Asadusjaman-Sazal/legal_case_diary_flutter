@@ -82,6 +82,13 @@ abstract class NotificationScheduler {
   /// alarms. Used by the OEM setup guide, alongside the battery steps.
   Future<bool> openExactAlarmSettings();
 
+  /// Whether the OS has this app off battery optimization ("Unrestricted").
+  ///
+  /// Lets the setup guide tick the battery step from the phone's own state
+  /// rather than from what the user says they did. `false` where the platform
+  /// cannot say, which leaves the step un-ticked.
+  Future<bool> batteryOptimizationIgnored();
+
   /// (Re-)arms the daily hearing job from the stored settings. Idempotent: it
   /// cancels the previous alarm first and does nothing when alerts are off.
   Future<void> syncSchedule();

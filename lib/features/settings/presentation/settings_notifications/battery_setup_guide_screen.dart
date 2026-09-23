@@ -6,12 +6,20 @@
 /// Each step has a "Take Me There" button that jumps to the phone's own settings
 /// page, with the app's details page as the fallback when the OEM page is gone.
 ///
+/// **A step the phone can answer is ticked in green from the phone's own state**
+/// (battery optimization, exact alarms) and re-read whenever the app comes back
+/// from a settings page. Auto-start is the exception: Android exposes no API for
+/// an OEM-only setting, so that step is the user's own tick — the same
+/// arrangement as pressing "Done" at the bottom.
+///
 /// **No mockup exists for this screen**, so it is built from the Settings
 /// chrome and the shared controls the Notifications mockup already established
 /// (`SettingsSubPageModal` + `settings_controls.dart`), as approved with the
 /// user. Finishing or skipping the guide records the choice in the per-user
 /// `user_preferences` row, which is what hides the reminder banner.
 library;
+
+import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +30,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/notifications/oem_setup_guide.dart';
 import '../../../../core/providers/notification_providers.dart';
+import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
@@ -38,28 +47,101 @@ class BatterySetupGuideScreen extends ConsumerStatefulWidget {
 }
 
 class _BatterySetupGuideScreenState
-    extends ConsumerState<BatterySetupGuideScreen> {
+    extends ConsumerState<BatterySetupGuideScreen>
+    with WidgetsBindingObserver {
   /// Steps for this device; null until the manufacturer has been read.
   OemGuidePlan? _plan;
 
-  /// Whether exact alarms are already permitted, so the step can say so.
+  /// Whether exact alarms are already permitted: the phone's own answer.
   bool _exactAlarmsAllowed = false;
+
+  /// Whether the phone already has the app off battery optimization.
+  bool _batteryUnrestricted = false;
+
+  /// Whether the user ticked the auto-start step; the phone cannot say, so their
+  /// word is kept in the per-user settings.
+  bool _autoStartDone = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDeviceSetup();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // "Take Me There" hands the user to the phone's own settings, so the only
+    // moment either answer can have changed is on the way back.
+    if (state == AppLifecycleState.resumed) _refreshDeviceChecks();
+  }
+
+  /// Reads the phone's state and the user's own tick, then shows the plan.
   Future<void> _loadDeviceSetup() async {
     final scheduler = ref.read(notificationSchedulerProvider);
     final identity = await scheduler.deviceIdentity();
+    // The guide is an enhancement and this is the app's first screen on a fresh
+    // install, so a failed settings read leaves the steps usable with auto-start
+    // simply un-ticked, rather than hanging the screen on its spinner.
+    UserSettings settings;
+    try {
+      settings = await ref.read(settingsViewModelProvider.future);
+    } catch (error, stackTrace) {
+      dev.log(
+        'Setup guide could not read the saved auto-start tick',
+        name: 'notifications',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      settings = const UserSettings();
+    }
     final exactAllowed = await scheduler.canScheduleExactAlarms();
+    final batteryUnrestricted = await scheduler.batteryOptimizationIgnored();
     if (!mounted) return;
     setState(() {
       _plan = oemGuidePlanFor(identity);
       _exactAlarmsAllowed = exactAllowed;
+      _batteryUnrestricted = batteryUnrestricted;
+      _autoStartDone = settings.notificationAutoStartDone;
     });
+  }
+
+  /// Re-reads the two checks the high-level OS can answer.
+  ///
+  /// Runs on every resume, so a permission granted on a settings page shows up
+  /// as soon as the user returns instead of at the next screen open.
+  Future<void> _refreshDeviceChecks() async {
+    final scheduler = ref.read(notificationSchedulerProvider);
+    final exactAllowed = await scheduler.canScheduleExactAlarms();
+    final batteryUnrestricted = await scheduler.batteryOptimizationIgnored();
+    if (!mounted) return;
+    setState(() {
+      _exactAlarmsAllowed = exactAllowed;
+      _batteryUnrestricted = batteryUnrestricted;
+    });
+  }
+
+  /// Whether [step] is done: the phone's answer, except auto-start.
+  bool _isDone(OemGuideStepId step) => switch (step) {
+    OemGuideStepId.autoStart => _autoStartDone,
+    OemGuideStepId.batteryUnrestricted => _batteryUnrestricted,
+    OemGuideStepId.exactAlarms => _exactAlarmsAllowed,
+  };
+
+  /// Records (or clears) the user's own auto-start confirmation.
+  Future<void> _setAutoStartDone(bool done) async {
+    setState(() => _autoStartDone = done);
+    await ref
+        .read(settingsViewModelProvider.notifier)
+        .updateSettings(
+          (settings) => settings.copyWith(notificationAutoStartDone: done),
+        );
   }
 
   @override
@@ -94,9 +176,12 @@ class _BatterySetupGuideScreenState
                   _GuideStepCard(
                     number: index + 1,
                     step: step,
-                    showAllowedState:
-                        step == OemGuideStepId.exactAlarms &&
-                        _exactAlarmsAllowed,
+                    done: _isDone(step),
+                    // Auto-start is the one step Android cannot read, so it is
+                    // the one the user ticks (and un-ticks) themselves.
+                    onToggleDone: step == OemGuideStepId.autoStart
+                        ? () => _setAutoStartDone(!_autoStartDone)
+                        : null,
                     onTakeMeThere: () => _takeMeThere(step),
                   ),
                 ],
@@ -162,6 +247,9 @@ class _BatterySetupGuideScreenState
 }
 
 /// One numbered step: what to do, why, and a button that opens the page.
+///
+/// A done step is drawn in green — badge, title and the line that replaces the
+/// button — so the whole guide reads at a glance.
 class _GuideStepCard extends StatelessWidget {
   /// Step number shown in the badge (1-based).
   final int number;
@@ -169,8 +257,12 @@ class _GuideStepCard extends StatelessWidget {
   /// Which step this is.
   final OemGuideStepId step;
 
-  /// Whether to state that this step is already done (exact alarms only).
-  final bool showAllowedState;
+  /// Whether the step is done, and so drawn in green.
+  final bool done;
+
+  /// Ticks or un-ticks a step the user confirms themselves; null for the steps
+  /// the phone answers on its own.
+  final VoidCallback? onToggleDone;
 
   /// Opens the phone's settings page for this step.
   final VoidCallback onTakeMeThere;
@@ -178,7 +270,8 @@ class _GuideStepCard extends StatelessWidget {
   const _GuideStepCard({
     required this.number,
     required this.step,
-    required this.showAllowedState,
+    required this.done,
+    required this.onToggleDone,
     required this.onTakeMeThere,
   });
 
@@ -199,6 +292,13 @@ class _GuideStepCard extends StatelessWidget {
         l.settingsBatteryGuide_exactBody,
       ),
     };
+    // One line per step, each naming how *that* step's completion is known.
+    final doneLabel = switch (step) {
+      OemGuideStepId.autoStart => l.settingsBatteryGuide_autoStartDone,
+      OemGuideStepId.batteryUnrestricted =>
+        l.settingsBatteryGuide_batteryAllowed,
+      OemGuideStepId.exactAlarms => l.settingsBatteryGuide_exactAllowed,
+    };
 
     return Container(
       decoration: settingsCardDecoration(),
@@ -209,21 +309,30 @@ class _GuideStepCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _StepBadge(number: number),
+              _StepBadge(number: number, done: done),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppTypography.bodyLg),
+                    Text(
+                      title,
+                      style: done
+                          ? AppTypography.bodyLg.copyWith(
+                              color: AppColors.success,
+                            )
+                          : AppTypography.bodyLg,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
+                    // The instructions stay neutral in both states: they are
+                    // still worth reading while the step is checked.
                     Text(body, style: AppTypography.bodySm),
                   ],
                 ),
               ),
             ],
           ),
-          if (showAllowedState) ...[
+          if (done) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
@@ -235,8 +344,10 @@ class _GuideStepCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    l.settingsBatteryGuide_exactAllowed,
-                    style: AppTypography.bodySm,
+                    doneLabel,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.success,
+                    ),
                   ),
                 ),
               ],
@@ -252,31 +363,47 @@ class _GuideStepCard extends StatelessWidget {
               ),
             ),
           ],
+          if (onToggleDone != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            TextButton(
+              onPressed: onToggleDone,
+              child: Text(
+                done
+                    ? l.settingsBatteryGuide_markNotDone
+                    : l.settingsBatteryGuide_markDone,
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// Circular step number.
+/// Circular step number, which becomes a green tick once the step is done.
 class _StepBadge extends StatelessWidget {
-  /// Number to show.
+  /// Number to show while the step is outstanding.
   final int number;
 
-  const _StepBadge({required this.number});
+  /// Whether the step is done.
+  final bool done;
+
+  const _StepBadge({required this.number, required this.done});
 
   @override
   Widget build(BuildContext context) => Container(
     width: 28,
     height: 28,
     alignment: Alignment.center,
-    decoration: const BoxDecoration(
-      color: AppColors.primaryContainer,
+    decoration: BoxDecoration(
+      color: done ? AppColors.success : AppColors.primaryContainer,
       shape: BoxShape.circle,
     ),
-    child: Text(
-      '$number',
-      style: AppTypography.labelLg.copyWith(color: AppColors.onPrimary),
-    ),
+    child: done
+        ? const Icon(Icons.check, size: 18, color: AppColors.onPrimary)
+        : Text(
+            '$number',
+            style: AppTypography.labelLg.copyWith(color: AppColors.onPrimary),
+          ),
   );
 }

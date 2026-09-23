@@ -15,7 +15,8 @@ import 'dart:developer' as dev;
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
+// `services.dart` re-exports the parts of `foundation.dart` used here
+// (`ValueChanged`), so the single import keeps the gateway's header honest.
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -46,6 +47,14 @@ abstract final class AndroidNotificationGateway {
 
   /// Notification id of the one-off test alert.
   static const int testNotificationId = 1300;
+
+  /// Channel for the one device check no plugin in the app exposes.
+  ///
+  /// Served by `MainActivity.kt`; the protocol carries a single method, so the
+  /// Dart side names no Android class and the Windows port ignores it.
+  static const MethodChannel _setupChannel = MethodChannel(
+    'com.legalcasediary.app/device_setup',
+  );
 
   static final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
@@ -125,6 +134,26 @@ abstract final class AndroidNotificationGateway {
   static Future<bool> requestExactAlarmsPermission() async {
     await _initializePlugin();
     return await _androidPlugin?.requestExactAlarmsPermission() ?? false;
+  }
+
+  /// Whether this phone has the app off battery optimization.
+  ///
+  /// `PowerManager.isIgnoringBatteryOptimizations` is the OS's own answer to
+  /// the setup guide's battery step — exactly the state the Battery-usage
+  /// screen writes — and no installed plugin exposes it, so the app queries its
+  /// own host activity. `false` where the channel is missing (the test host, the
+  /// Windows build), which leaves the step offering its button rather than
+  /// claiming to be done.
+  static Future<bool> batteryOptimizationIgnored() async {
+    try {
+      return await _setupChannel.invokeMethod<bool>(
+            'isIgnoringBatteryOptimizations',
+          ) ??
+          false;
+    } catch (error, stackTrace) {
+      reportFailure(error, stackTrace);
+      return false;
+    }
   }
 
   /// Posts one high-importance notification per alert.

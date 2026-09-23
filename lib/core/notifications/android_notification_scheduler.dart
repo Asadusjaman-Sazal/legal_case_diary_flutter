@@ -86,6 +86,16 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   }
 
   @override
+  Future<bool> batteryOptimizationIgnored() async {
+    try {
+      return await AndroidNotificationGateway.batteryOptimizationIgnored();
+    } catch (error, stackTrace) {
+      AndroidNotificationGateway.reportFailure(error, stackTrace);
+      return false;
+    }
+  }
+
+  @override
   Future<void> syncSchedule() async {
     try {
       // Always cancel first: re-arming with a stale time would leave two alarms

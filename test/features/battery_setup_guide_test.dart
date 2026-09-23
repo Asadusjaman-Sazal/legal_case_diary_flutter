@@ -5,22 +5,30 @@
 /// localized copy, the "Take Me There" fall-through when an OEM page is missing,
 /// what Done and Skip store, and the first-launch offer that must happen once —
 /// and only on the phones that need it.
+///
+/// A second group covers the completed state: a step the phone reports as done is
+/// green with no button, a step goes green the moment the user comes back from
+/// the phone's own settings, and auto-start — which Android cannot read — is the
+/// user's own tick, remembered per user.
 library;
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/app.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/notifications/oem_setup_guide.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
@@ -72,6 +80,24 @@ Future<void> _pumpGuide(
   );
   await tester.pumpAndSettle();
 }
+
+/// Sends one lifecycle message to the framework, as the engine would.
+///
+/// This is how the guide learns that the user left for the phone's own settings
+/// page and came back, which is the only moment a granted permission becomes
+/// visible to it.
+Future<void> _sendLifecycle(WidgetTester tester, String state) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    'flutter/lifecycle',
+    const StringCodec().encodeMessage(state),
+    (_) {},
+  );
+  await tester.pumpAndSettle();
+}
+
+/// The rendered colour of the title of the step whose title starts with [title].
+Color? _stepTitleColor(WidgetTester tester, String title) =>
+    tester.widget<Text>(find.text(title)).style?.color;
 
 void main() {
   late FakeSettingsRepository repo;
@@ -182,6 +208,103 @@ void main() {
     expect(find.text('Exact Alarms Are Already Allowed'), findsOneWidget);
     // The other two steps still offer their button.
     expect(find.text('Take Me There'), findsNWidgets(2));
+  });
+
+  testWidgets('a step the phone reports as exempt is green, with no button', (
+    tester,
+  ) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    scheduler.batteryUnrestrictedValue = true;
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(find.text('Battery Usage Is Already Unrestricted'), findsOneWidget);
+    expect(
+      _stepTitleColor(tester, 'Set Battery Usage to Unrestricted'),
+      AppColors.success,
+    );
+    expect(find.byIcon(Icons.check), findsOneWidget);
+    // A done step no longer offers to open its settings page.
+    expect(find.text('Take Me There'), findsNWidgets(2));
+  });
+
+  testWidgets('an outstanding step is not green', (tester) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(
+      _stepTitleColor(tester, 'Set Battery Usage to Unrestricted'),
+      isNot(AppColors.success),
+    );
+    expect(find.byIcon(Icons.check), findsNothing);
+  });
+
+  testWidgets('a step turns green when the user returns from the phone settings', (
+    tester,
+  ) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(find.text('Battery Usage Is Already Unrestricted'), findsNothing);
+
+    // The user exempts the app on the phone's own screen, then comes back.
+    scheduler.batteryUnrestrictedValue = true;
+    await _sendLifecycle(tester, 'AppLifecycleState.inactive');
+    await _sendLifecycle(tester, 'AppLifecycleState.resumed');
+
+    expect(find.text('Battery Usage Is Already Unrestricted'), findsOneWidget);
+  });
+
+  testWidgets('the user ticks auto-start themselves, and can un-tick it', (
+    tester,
+  ) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    await tester.tap(find.text('Mark As Done'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Auto-Start Marked As Done By You'), findsOneWidget);
+    expect(repo.settings.notificationAutoStartDone, isTrue);
+    expect(find.text('Take Me There'), findsNWidgets(2));
+
+    await tester.tap(find.text('Mark As Not Done'));
+    await tester.pumpAndSettle();
+
+    expect(repo.settings.notificationAutoStartDone, isFalse);
+    expect(find.text('Take Me There'), findsNWidgets(3));
+  });
+
+  testWidgets('a remembered auto-start tick is green when the guide reopens', (
+    tester,
+  ) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    await _pumpGuide(
+      tester,
+      repo: FakeSettingsRepository(
+        const UserSettings(notificationAutoStartDone: true),
+      ),
+      scheduler: scheduler,
+    );
+
+    expect(find.text('Auto-Start Marked As Done By You'), findsOneWidget);
+    expect(
+      _stepTitleColor(tester, 'Allow Auto-Start'),
+      AppColors.success,
+    );
+  });
+
+  testWidgets('the completed state is localized too', (tester) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
+    scheduler.batteryUnrestrictedValue = true;
+    await _pumpGuide(
+      tester,
+      repo: repo,
+      scheduler: scheduler,
+      locale: const Locale('bn'),
+    );
+
+    expect(find.text('ব্যাটারি ব্যবহার ইতিমধ্যেই সীমাহীন'), findsOneWidget);
+    expect(find.text('সম্পন্ন হিসেবে চিহ্নিত করুন'), findsOneWidget);
   });
 
   testWidgets('Done stores the setup and re-arms the alarm', (tester) async {

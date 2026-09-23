@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.252 - Hearing alerts now fall back to the case's Result line for AD/HCD cases, which carry no step.
+Version: 0.0.253 - The Battery & Auto-Start Setup guide now ticks completed steps in green from the phone itself: battery and exact alarms are real OS checks re-read on return, and auto-start is the user's own tick.
 --------------------------------------
 
 ## Version History Log:
@@ -266,3 +266,4 @@ Version: 0.0.249 - The note editor's title is now 2 px above its body (30 px dow
 Version: 0.0.250 - View Settings gains a Font Size section: a -/+ step added to every text app-wide through one TextScaler at the app root, stored per user.
 Version: 0.0.251 - Hearing alerts now list case, parties, court and the labelled step, and post as BigText so the expanded view stops cutting a line short.
 Version: 0.0.252 - Hearing alerts now fall back to the case's Result line for AD/HCD cases, which carry no step.
+Version: 0.0.253 - The Battery & Auto-Start Setup guide now ticks completed steps in green from the phone itself: battery and exact alarms are real OS checks re-read on return, and auto-start is the user's own tick.

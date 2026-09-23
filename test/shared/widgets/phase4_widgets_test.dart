@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_sub_page_modal.dart';
@@ -192,7 +193,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Tapping the header year opens the scrollable year grid; every cell it
+      // Tapping the header year opens the scrollable year list; every row it
       // renders must use Bengali digits (and no thousands separator).
       await tester.tap(
         find.text(AppDateUtils.formatDigits(year, 'bn', grouping: false)),
@@ -201,7 +202,7 @@ void main() {
       final cells = tester
           .widgetList<Text>(
             find.descendant(
-              of: find.byType(GridView),
+              of: find.byType(ListView),
               matching: find.byType(Text),
             ),
           )
@@ -210,6 +211,81 @@ void main() {
       for (final cell in cells) {
         expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
       }
+    });
+
+    testWidgets('month and year read as one option per line, 1900-2100 years',
+        (WidgetTester tester) async {
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      final todayCivil = AppDateUtils.bangladeshDateTime(today);
+      final monthLabel =
+          intl.DateFormat('MMMM').format(DateTime(todayCivil.year, todayCivil.month, 1));
+      final nextMonthLabel = intl.DateFormat('MMMM')
+          .format(DateTime(todayCivil.year, todayCivil.month + 1, 1));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CalendarPickerDialog(
+              initialDate: today,
+              hearingCounts: const {},
+              onDateSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Months: one column, one month per line (was a 3-column grid), opened
+      // with the focused month in view and drawn larger than its neighbours.
+      await tester.tap(find.text(monthLabel));
+      await tester.pumpAndSettle();
+      var list = tester.widget<ListView>(find.byType(ListView));
+      expect(
+        (list.childrenDelegate as SliverChildBuilderDelegate)
+            .estimatedChildCount,
+        12,
+      );
+      Text row(String label) => tester.widget<Text>(
+            find.descendant(
+              of: find.byType(ListView),
+              matching: find.text(label),
+            ),
+          );
+      final nextMonth = tester.getRect(find.text(nextMonthLabel));
+      final monthRow = tester.getRect(
+        find.descendant(
+          of: find.byType(ListView),
+          matching: find.text(monthLabel),
+        ),
+      );
+      // Same horizontal centre (one column), one row apart. Centres are compared
+      // because the enlarged selected label is taller than its neighbour.
+      expect(nextMonth.center.dx, monthRow.center.dx);
+      expect(nextMonth.center.dy - monthRow.center.dy, closeTo(list.itemExtent!, 0.5));
+      expect(
+        row(monthLabel).style!.fontSize!,
+        greaterThan(row(nextMonthLabel).style!.fontSize!),
+      );
+
+      // Years: the same single column, spanning 1900-2100 and opened at the
+      // focused year rather than at 1900.
+      await tester.tap(find.text('${todayCivil.year}'));
+      await tester.pumpAndSettle();
+      list = tester.widget<ListView>(find.byType(ListView));
+      expect(
+        (list.childrenDelegate as SliverChildBuilderDelegate)
+            .estimatedChildCount,
+        201,
+      );
+      expect(
+        list.controller!.offset,
+        (todayCivil.year - 1900) * list.itemExtent!,
+      );
+      expect(find.text('1900'), findsNothing);
+      expect(row('${todayCivil.year}').style!.fontSize!,
+          greaterThan(row('${todayCivil.year + 1}').style!.fontSize!));
     });
   });
 }

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.253 - The Battery & Auto-Start Setup guide now ticks completed steps in green from the phone itself: battery and exact alarms are real OS checks re-read on return, and auto-start is the user's own tick.
+Version: 0.0.254 - Calendar month/year selectors on the Add/Edit Case, Quick Update and Daily Cause List pickers are single-column top-to-bottom lists with the selected option enlarged, and the year list now spans 1900-2100.
 --------------------------------------
 
 ## Version History Log:
@@ -267,3 +267,4 @@ Version: 0.0.250 - View Settings gains a Font Size section: a -/+ step added to 
 Version: 0.0.251 - Hearing alerts now list case, parties, court and the labelled step, and post as BigText so the expanded view stops cutting a line short.
 Version: 0.0.252 - Hearing alerts now fall back to the case's Result line for AD/HCD cases, which carry no step.
 Version: 0.0.253 - The Battery & Auto-Start Setup guide now ticks completed steps in green from the phone itself: battery and exact alarms are real OS checks re-read on return, and auto-start is the user's own tick.
+Version: 0.0.254 - Calendar month/year selectors on the Add/Edit Case, Quick Update and Daily Cause List pickers are single-column top-to-bottom lists with the selected option enlarged, and the year list now spans 1900-2100.

@@ -80,6 +80,20 @@ String _formatPickerHeaderDate(DateTime date, Locale locale) {
 
 enum _PickerMode { day, month, year }
 
+/// Year span the picker offers and accepts.
+///
+/// The month and year lists read one option per line; the year list runs
+/// 1900–2100, and the day grid refuses dates outside that same span so the
+/// list can always reach the year the picker is holding.
+const int _pickerMinYear = 1900;
+const int _pickerMaxYear = 2100;
+
+/// Height of one month/year option row, including its 2 px outer gap.
+///
+/// Fixed so the list opens scrolled to the selected row without measuring
+/// anything, however many years there are.
+const double _pickerOptionRowExtent = 52;
+
 class _PlainDatePickerDialog extends StatefulWidget {
   const _PlainDatePickerDialog({
     required this.initialDate,
@@ -604,7 +618,89 @@ class _DayCell extends StatelessWidget {
   }
 }
 
-/// A tappable grid of all 12 months for the focused year.
+/// A vertical single-column option list for the month and year selectors.
+///
+/// One label per line, top to bottom, opened with the selected row in view.
+/// (Both selectors used to be multi-column grids, which made the current
+/// month/year hard to find.)
+class _PickerOptionList extends StatelessWidget {
+  final List<String> labels;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  const _PickerOptionList({
+    required this.labels,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      // The scroll view clamps this to its own extent, so the last year's row
+      // is never left unreachable.
+      controller: ScrollController(
+        initialScrollOffset: selectedIndex * _pickerOptionRowExtent,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      itemExtent: _pickerOptionRowExtent,
+      itemCount: labels.length,
+      itemBuilder: (context, index) => _PickerOptionRow(
+        label: labels[index],
+        selected: index == selectedIndex,
+        onTap: () => onSelect(index),
+      ),
+    );
+  }
+}
+
+/// One month/year row: the selected one is drawn a little larger and bold on
+/// the primary fill, so the current choice is identifiable at a glance.
+class _PickerOptionRow extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _PickerOptionRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context).textTheme.labelLarge;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : null,
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            border: selected ? null : Border.all(color: AppColors.surfaceDim),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: base?.copyWith(
+                color: selected ? AppColors.onPrimary : AppColors.onSurface,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                fontSize: selected ? (base.fontSize ?? 14) + 4 : null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A tappable single-column list of all 12 months for the focused year.
 class _MonthSelector extends StatelessWidget {
   final int selectedMonth;
   final ValueChanged<int> onSelect;
@@ -622,50 +718,16 @@ class _MonthSelector extends StatelessWidget {
       (i) => intl.DateFormat('MMMM', l.localeName)
           .format(DateTime(2023, i + 1, 1)),
     );
-    return GridView.count(
-      crossAxisCount: 3,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: List<Widget>.generate(12, (i) {
-        final m = i + 1;
-        final isSelected = m == selectedMonth;
-        return InkWell(
-          onTap: () => onSelect(m),
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : null,
-              borderRadius: BorderRadius.circular(AppSpacing.sm),
-              border: isSelected
-                  ? null
-                  : Border.all(color: AppColors.surfaceDim),
-            ),
-            child: Center(
-              child: Text(
-                months[i],
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.onSurface,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-              ),
-            ),
-          ),
-        );
-      }),
+    return _PickerOptionList(
+      labels: months,
+      selectedIndex: selectedMonth - 1,
+      onSelect: (index) => onSelect(index + 1),
     );
   }
 }
 
-/// A scrollable list of selectable years spanning the picker's date bounds.
+/// A scrollable single-column list of the selectable years.
 class _YearSelector extends StatelessWidget {
-  static const double _childAspectRatio = 2.2;
-
   final int firstYear;
   final int lastYear;
   final int selectedYear;
@@ -680,60 +742,14 @@ class _YearSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final years = [for (var y = firstYear; y <= lastYear; y++) y];
-    final rowHeight =
-        (MediaQuery.of(context).size.width - AppSpacing.md * 2) /
-            4 /
-            _childAspectRatio +
-        AppSpacing.sm;
-    final initialRow = (selectedYear - firstYear) ~/ 4;
-    final controller = ScrollController(
-      initialScrollOffset:
-          (initialRow * rowHeight).clamp(0.0, (years.length / 4) * rowHeight),
-    );
-    return GridView.builder(
-      controller: controller,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: AppSpacing.sm,
-        crossAxisSpacing: AppSpacing.sm,
-        childAspectRatio: _childAspectRatio,
-      ),
-      itemCount: years.length,
-      itemBuilder: (context, index) {
-        final y = years[index];
-        final isSelected = y == selectedYear;
-        return InkWell(
-          onTap: () => onSelect(y),
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : null,
-              borderRadius: BorderRadius.circular(AppSpacing.sm),
-              border: isSelected
-                  ? null
-                  : Border.all(color: AppColors.surfaceDim),
-            ),
-            child: Center(
-              child: Text(
-                AppDateUtils.formatDigits(
-                  y,
-                  AppLocalizations.of(context).localeName,
-                  grouping: false,
-                ),
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.onSurface,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-              ),
-            ),
-          ),
-        );
-      },
+    final locale = AppLocalizations.of(context).localeName;
+    return _PickerOptionList(
+      labels: [
+        for (var y = firstYear; y <= lastYear; y++)
+          AppDateUtils.formatDigits(y, locale, grouping: false),
+      ],
+      selectedIndex: (selectedYear - firstYear).clamp(0, lastYear - firstYear),
+      onSelect: (index) => onSelect(firstYear + index),
     );
   }
 }
@@ -751,7 +767,9 @@ DateTime plainDatePickerInitialDate([DateTime? now]) {
 /// The calendar body matches the Daily Cause List badge calendar (month/year
 /// `<>` selectors, weekday 7-column grid, window dimensions) but keeps its own
 /// header and Cancel/OK buttons. [initialDate] may be supplied by an edit form;
-/// when omitted the picker opens on today. Returns date-only, or `null` on cancel.
+/// when omitted the picker opens on today. Unless [firstDate]/[lastDate] narrow
+/// it, the picker spans the year list's own 1900–2100. Returns date-only, or
+/// `null` on cancel.
 Future<DateTime?> showPlainDatePicker(
   BuildContext context, {
   DateTime? initialDate,
@@ -761,10 +779,10 @@ Future<DateTime?> showPlainDatePicker(
 }) async {
   final today = plainDatePickerInitialDate();
   final effectiveFirstDate = DateUtils.dateOnly(
-    firstDate ?? DateTime(today.year - 100),
+    firstDate ?? DateTime(_pickerMinYear),
   );
   final effectiveLastDate = DateUtils.dateOnly(
-    lastDate ?? DateTime(today.year + 100),
+    lastDate ?? DateTime(_pickerMaxYear, 12, 31),
   );
   if (effectiveFirstDate.isAfter(effectiveLastDate)) {
     throw ArgumentError.value(

@@ -1,3 +1,14 @@
+### 2026-09-23 — The calendar's month and year read as single-column lists, 1900–2100 — COMPLETE
+
+- **The request (the calendars only: Add/Edit Case, Update, Daily Cause List):** Month and Year were shown as multi-column grids; they should read as one option per line, top to bottom, with the selected one enlarged, and the year should list 1900–2100.
+- **Two files, one shape.** Only `date_picker_helper.dart` (Add/Edit Case's date and Next Date, the Quick Update window, Edit History Entry) and `calendar_picker_dialog.dart` (Daily Cause List) hold those selectors, and both now render them through a new private `_PickerOptionList`/`_PickerOptionRow` pair: a fixed-extent (52 px) `ListView` of full-width rows, one per line, opened scrolled to the selected row. The 3-column month grid and the 4-column year grid are gone, and the row styling (radius, border, primary fill) is unchanged.
+- **The selected row is identifiable.** It keeps the old primary fill and gains 4 px on `labelLarge` (14 → 18) in bold, so the current Month/Year stands out from its neighbours. The tests assert the size *relationship* rather than the literal, so a token change cannot silently flatten it.
+- **1900–2100 is both the list and the bounds** (the user's choice on both points). The DCL year list's hard-coded 1926–2126 became 1900–2100 and its chevron month navigation is now held inside that span, so a month step can never leave what the year list can select; the shared picker's default bounds moved from today ±100 years to 1900-01-01 – 2100-12-31, so a date the year list cannot reach is also a date the picker refuses.
+- **Tests (2 new, 2 updated; suite 665 passed, 2 skipped).** The two year-list tests read the `ListView` instead of a `GridView`; the new pair pins the single column (same centre dx, rows one `itemExtent` apart), the enlarged selected row for month *and* year, the 12/201 option counts, and that the year list opens at the focused year (offset = (year − 1900) × row height) rather than at 1900. `flutter analyze` clean.
+- **Not covered by a mockup:** neither the DCL mockup's calendar modal nor the form mockups define a month/year list, so this change follows the user's instruction alone; worth recording with Task 09's mockup notes if a later pass re-derives those selectors from the design.
+- **Version `0.0.254`** (recorded by `tool/record_version.py`). No new dependency.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look at the year list: 201 rows with the focused year at the top is the one part of this a widget test can measure but not judge.
+
 ### 2026-09-23 — The Battery & Auto-Start Setup guide shows completed steps in green — COMPLETE
 
 - **The request (Settings > Notifications only):** the guide's steps should show as completed, in green, from what the phone says rather than from what the user claims.

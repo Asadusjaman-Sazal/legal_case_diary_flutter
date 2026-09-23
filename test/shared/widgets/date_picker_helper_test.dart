@@ -84,14 +84,14 @@ void main() {
     expect(find.text('৫'), findsOneWidget);
     expect(find.text('5'), findsNothing);
 
-    // Tapping the year opens the scrollable year grid; every year it renders
+    // Tapping the year opens the scrollable year list; every year it renders
     // must use Bengali digits.
     await tester.tap(find.text('২০২৬'));
     await tester.pumpAndSettle();
     final cells = tester
         .widgetList<Text>(
           find.descendant(
-            of: find.byType(GridView),
+            of: find.byType(ListView),
             matching: find.byType(Text),
           ),
         )
@@ -198,5 +198,62 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(find.text('Aug 5, Wed'), findsNothing);
+  });
+
+  testWidgets('month and year read as one option per line, years 1900-2100',
+      (WidgetTester tester) async {
+    await openPicker(tester, const Locale('en'));
+
+    Text rowText(String label) => tester.widget<Text>(
+          find.descendant(
+            of: find.byType(ListView),
+            matching: find.text(label),
+          ),
+        );
+
+    // Months: a single column, one month per line, opened at August (the
+    // focused month) with that row drawn larger than its neighbour.
+    await tester.tap(find.text('August'));
+    await tester.pumpAndSettle();
+    var list = tester.widget<ListView>(find.byType(ListView));
+    expect(
+      (list.childrenDelegate as SliverChildBuilderDelegate)
+          .estimatedChildCount,
+      12,
+    );
+    final september = tester.getRect(find.text('September'));
+    final augustRow = tester.getRect(
+      find.descendant(
+        of: find.byType(ListView),
+        matching: find.text('August'),
+      ),
+    );
+    // Same horizontal centre (one column), one row apart. Centres are compared
+    // because the enlarged selected label is taller than its neighbour.
+    expect(september.center.dx, augustRow.center.dx);
+    expect(september.center.dy - augustRow.center.dy, closeTo(list.itemExtent!, 0.5));
+    expect(
+      rowText('August').style!.fontSize!,
+      greaterThan(rowText('September').style!.fontSize!),
+    );
+
+    // Years: the same single column, 1900-2100, opened at the focused year.
+    // (The plain picker's month/year selectors live in the day view, so the
+    // focused month row is tapped first to go back there.)
+    await tester.tap(find.text('August'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('2026'));
+    await tester.pumpAndSettle();
+    list = tester.widget<ListView>(find.byType(ListView));
+    expect(
+      (list.childrenDelegate as SliverChildBuilderDelegate)
+          .estimatedChildCount,
+      201,
+    );
+    expect(list.controller!.offset, (2026 - 1900) * list.itemExtent!);
+    expect(
+      rowText('2026').style!.fontSize!,
+      greaterThan(rowText('2027').style!.fontSize!),
+    );
   });
 }

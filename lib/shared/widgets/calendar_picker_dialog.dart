@@ -17,6 +17,17 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart';
 
+/// Year span the year list offers and the picker's month navigation stays
+/// inside, so a month step can never leave what the year list can select.
+const int _calendarMinYear = 1900;
+const int _calendarMaxYear = 2100;
+
+/// Height of one month/year option row, including its 2 px outer gap.
+///
+/// Fixed so the list opens scrolled to the selected row without measuring
+/// anything, however many years there are.
+const double _pickerOptionRowExtent = 52;
+
 /// A dialog shell hosting the Daily Cause List badge calendar.
 ///
 /// [initialDate] is the currently selected Bangladesh civil date (epoch ms at
@@ -100,12 +111,11 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     _focusedMonth = DateTime(d.year, d.month, 1);
   }
 
-  void _changeMonth(int delta) =>
-      setState(() => _focusedMonth = DateTime(
-            _focusedMonth.year,
-            _focusedMonth.month + delta,
-            1,
-          ));
+  void _changeMonth(int delta) {
+    final next = DateTime(_focusedMonth.year, _focusedMonth.month + delta, 1);
+    if (next.year < _calendarMinYear || next.year > _calendarMaxYear) return;
+    setState(() => _focusedMonth = next);
+  }
 
   /// Sets the focused year (keeps month/day) and returns to the day grid.
   void _pickYear(int year) => setState(() {
@@ -517,7 +527,7 @@ class _DayGridView extends StatelessWidget {
   }
 }
 
-/// A tappable grid of all 12 months for the focused year.
+/// A tappable single-column list of all 12 months for the focused year.
 class _MonthSelector extends StatelessWidget {
   final int selectedMonth;
   final ValueChanged<int> onSelect;
@@ -534,52 +544,16 @@ class _MonthSelector extends StatelessWidget {
       12,
       (i) => DateFormat('MMMM', l.localeName).format(DateTime(2023, i + 1, 1)),
     );
-    return GridView.count(
-      crossAxisCount: 3,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: List<Widget>.generate(12, (i) {
-        final m = i + 1;
-        final isSelected = m == selectedMonth;
-        return InkWell(
-          onTap: () => onSelect(m),
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : null,
-              borderRadius: BorderRadius.circular(AppSpacing.sm),
-              border: isSelected
-                  ? null
-                  : Border.all(color: AppColors.surfaceDim),
-            ),
-            child: Center(
-              child: Text(
-                months[i],
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.onSurface,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-              ),
-            ),
-          ),
-        );
-      }),
+    return _PickerOptionList(
+      labels: months,
+      selectedIndex: selectedMonth - 1,
+      onSelect: (index) => onSelect(index + 1),
     );
   }
 }
 
-/// A scrollable list of selectable years spanning 1926–2126.
+/// A scrollable single-column list of the selectable years (1900–2100).
 class _YearSelector extends StatelessWidget {
-  static const int _minYear = 1926;
-  static const int _maxYear = 2126;
-  static const double _childAspectRatio = 2.2;
-
   final int selectedYear;
   final ValueChanged<int> onSelect;
 
@@ -591,61 +565,96 @@ class _YearSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = AppLocalizations.of(context).localeName;
-    final years = [
-      for (var y = _minYear; y <= _maxYear; y++) y,
-    ];
-    // Approximate row height so we can scroll the focused (current) year into
-    // view on open — 4 columns, fixed aspect ratio against the available width.
-    final rowHeight = (MediaQuery.of(context).size.width - AppSpacing.md * 2) /
-            4 /
-            _childAspectRatio +
-        AppSpacing.sm;
-    final initialRow = (selectedYear - _minYear) ~/ 4;
-    final controller = ScrollController(
-      initialScrollOffset: (initialRow * rowHeight).clamp(
-        0.0,
-        (years.length / 4) * rowHeight,
+    return _PickerOptionList(
+      labels: [
+        for (var y = _calendarMinYear; y <= _calendarMaxYear; y++)
+          AppDateUtils.formatDigits(y, locale, grouping: false),
+      ],
+      selectedIndex: (selectedYear - _calendarMinYear)
+          .clamp(0, _calendarMaxYear - _calendarMinYear),
+      onSelect: (index) => onSelect(_calendarMinYear + index),
+    );
+  }
+}
+
+/// A vertical single-column option list for the month and year selectors.
+///
+/// One label per line, top to bottom, opened with the selected row in view.
+/// (Both selectors used to be multi-column grids, which made the current
+/// month/year hard to find.)
+class _PickerOptionList extends StatelessWidget {
+  final List<String> labels;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  const _PickerOptionList({
+    required this.labels,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      // The scroll view clamps this to its own extent, so the last year's row
+      // is never left unreachable.
+      controller: ScrollController(
+        initialScrollOffset: selectedIndex * _pickerOptionRowExtent,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      itemExtent: _pickerOptionRowExtent,
+      itemCount: labels.length,
+      itemBuilder: (context, index) => _PickerOptionRow(
+        label: labels[index],
+        selected: index == selectedIndex,
+        onTap: () => onSelect(index),
       ),
     );
-    return GridView.builder(
-      controller: controller,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: AppSpacing.sm,
-        crossAxisSpacing: AppSpacing.sm,
-        childAspectRatio: _childAspectRatio,
-      ),
-      itemCount: years.length,
-      itemBuilder: (context, index) {
-        final y = years[index];
-        final isSelected = y == selectedYear;
-        return InkWell(
-          onTap: () => onSelect(y),
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : null,
-              borderRadius: BorderRadius.circular(AppSpacing.sm),
-              border: isSelected
-                  ? null
-                  : Border.all(color: AppColors.surfaceDim),
-            ),
-            child: Center(
-              child: Text(
-                AppDateUtils.formatDigits(y, locale, grouping: false),
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isSelected
-                          ? AppColors.onPrimary
-                          : AppColors.onSurface,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
+  }
+}
+
+/// One month/year row: the selected one is drawn a little larger and bold on
+/// the primary fill, so the current choice is identifiable at a glance.
+class _PickerOptionRow extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _PickerOptionRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context).textTheme.labelLarge;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        child: Container(
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : null,
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            border: selected ? null : Border.all(color: AppColors.surfaceDim),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: base?.copyWith(
+                color: selected ? AppColors.onPrimary : AppColors.onSurface,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                fontSize: selected ? (base.fontSize ?? 14) + 4 : null,
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

@@ -10,6 +10,7 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:drift/drift.dart' show Value, Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +53,12 @@ class _RecordingSink implements BackupArchiveSink {
 
 /// The recovery secret every export in this suite uses.
 const String _secret = "a lawyer's strong passphrase";
+
+/// A workbook's parts, keyed by part path, so a test can read what was written.
+Map<String, String> _workbookParts(Uint8List bytes) => <String, String>{
+  for (final file in ZipDecoder().decodeBytes(bytes).files)
+    if (file.isFile) file.name: utf8.decode(file.readBytes()!),
+};
 
 void main() {
   group('BackupRepository', () {
@@ -382,6 +389,50 @@ void main() {
       // not a reason to ask before replacing the four sheets.
       expect(await backup.hasDataInTables(<String>['cases', 'notes']), isTrue);
       expect(await backup.hasDataInTables(<String>['cases']), isFalse);
+    });
+
+    test('the sample template carries this diary’s own reference data', () async {
+      final bytes = await backup.buildExcelTemplateWorkbook(
+        appVersion: '0.0.263',
+        categoryLabel: (nameKey) => 'LABEL:$nameKey',
+      );
+      final parts = _workbookParts(bytes);
+
+      // The sample adds the sheets that show the user what to quote...
+      final workbook = parts['xl/workbook.xml']!;
+      for (final sheet in <String>[
+        ...excelSheetTables.keys,
+        ...excelTemplateSheets,
+        excelInfoSheet,
+      ]) {
+        expect(workbook, contains('name="$sheet"'));
+      }
+      // ...filled from the live diary, so the court id a hand-typed case has to
+      // quote is right there, next to the category label the app shows.
+      final courts = parts['xl/worksheets/sheet6.xml']!;
+      expect(courts, contains(courtId));
+      expect(courts, contains('Test Court'));
+      expect(courts, contains('LABEL:test_category'));
+      // Every reference sheet leads with one clearly-labelled sample row.
+      expect(courts, contains('Example — $excelSampleRowLabel'));
+    });
+
+    test('the sample restores, its case row quoting the real court and role', () async {
+      final bytes = await backup.buildExcelTemplateWorkbook(
+        appVersion: '0.0.263',
+      );
+
+      // The reader skips the sample's reference and Guide sheets, so the file the
+      // user downloaded is the file they can fill in and restore.
+      final opened = backup.openExcelBackup(bytes);
+      expect(opened.kind, BackupFileKind.excel);
+      final cases = (opened.tables['cases'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(cases, hasLength(1));
+      // The example case points at data this diary really holds, so it is a
+      // workable starting point rather than a row of column names.
+      expect(cases.single['court_id'], courtId);
+      expect(cases.single['on_behalf_id'], onBehalfId);
     });
 
     test('a hand-added workbook row with a blank id is given one', () {

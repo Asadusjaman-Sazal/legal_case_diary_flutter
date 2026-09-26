@@ -36,7 +36,8 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/drift.dart' show DriftSqlType, Table, TableInfo, Variable;
+import 'package:drift/drift.dart'
+    show DriftSqlType, QueryRow, Table, TableInfo, Variable;
 import 'package:uuid/uuid.dart';
 
 import '../../../core/backup/backup_cipher.dart';
@@ -324,13 +325,147 @@ class BackupRepository {
     );
   }
 
-  /// Builds the sample template: the same headers, one example row per sheet.
-  List<int> buildExcelTemplateWorkbook({required String appVersion}) =>
+  /// Builds the sample template: the same headers, one example row per sheet, the
+  /// reference sheets, and the Guide.
+  ///
+  /// Asynchronous because the sample is filled from **this device's** data: to
+  /// inject a case by hand the user has to quote the very court, role and category
+  /// ids their cases already point at, and only the live database has those. Each
+  /// reference sheet leads with one clearly-labelled sample row so the shape is
+  /// visible even before the diary holds any.
+  Future<Uint8List> buildExcelTemplateWorkbook({
+    required String appVersion,
+    String Function(String nameKey)? categoryLabel,
+  }) async {
+    final reference = await _referenceData(categoryLabel);
+    return excelBytes(
       buildExcelTemplate(
         appVersion: appVersion,
         schemaVersion: kBackupSchemaVersion,
         columns: excelColumnSpecs(),
-      );
+        exampleValues: <String, Map<String, Object?>>{
+          'cases': reference.exampleCaseValues,
+        },
+        extraSheets: <ExcelTemplateSheet>[
+          reference.sheets[excelCourtsSheet]!,
+          reference.sheets[excelCaseCategoriesSheet]!,
+          reference.sheets[excelCaseTypesSheet]!,
+          reference.sheets[excelStepsSheet]!,
+          reference.sheets[excelOnBehalfsSheet]!,
+          _guideSheet,
+        ],
+      ),
+    );
+  }
+
+  /// The sample's reference sheets, read from the live diary.
+  ///
+  /// Each sheet is the parent category's display label, then the row itself, then
+  /// the columns the Cases sheet quotes: ids for `court_id`, `on_behalf_id` and
+  /// `case_category_id`, and names for `case_type` and `last_step`, which the
+  /// schema stores as plain text. Soft-deleted rows are left out, since a case may
+  /// not point at one.
+  Future<_ExcelReferenceData> _referenceData(
+    String Function(String nameKey)? categoryLabel,
+  ) async {
+    /// Turns a court category's stored name key into the label the app shows.
+    String label(String? nameKey) =>
+        nameKey == null ? '' : (categoryLabel?.call(nameKey) ?? nameKey);
+
+    Future<List<List<Object?>>> rowsOf(
+      String sql,
+      List<Object?> Function(QueryRow row) cells,
+    ) async {
+      final rows = await db.customSelect(sql).get();
+      return <List<Object?>>[for (final row in rows) cells(row)];
+    }
+
+    final courts = await rowsOf(_courtsSql, (row) => <Object?>[
+      row.read<String>('row_id'),
+      row.read<String>('row_name'),
+      label(row.read<String?>('category_key')),
+    ]);
+    final caseCategories = await rowsOf(_caseCategoriesSql, (row) => <Object?>[
+      row.read<String>('row_id'),
+      row.read<String>('row_name'),
+      label(row.read<String?>('category_key')),
+    ]);
+    final caseTypes = await rowsOf(_caseTypesSql, (row) => <Object?>[
+      row.read<String>('row_name'),
+      label(row.read<String?>('category_key')),
+      row.read<String?>('case_category_name') ?? '',
+    ]);
+    final steps = await rowsOf(_stepsSql, (row) => <Object?>[
+      row.read<String>('row_name'),
+      label(row.read<String?>('category_key')),
+    ]);
+    final onBehalfs = await rowsOf(_onBehalfsSql, (row) => <Object?>[
+      row.read<String>('row_id'),
+      row.read<String>('row_name'),
+      label(row.read<String?>('category_key')),
+    ]);
+
+    /// The sample row every reference sheet leads with, so the shape is visible
+    /// before the diary holds anything. It has to be deleted before restoring
+    /// only because it is not real data — the app never reads these sheets.
+    const sample = 'Example — $excelSampleRowLabel';
+
+    return _ExcelReferenceData(
+      sheets: <String, ExcelTemplateSheet>{
+        excelCourtsSheet: ExcelTemplateSheet(excelCourtsSheet, const <String>[
+          'Court ID',
+          'Court Name',
+          'Court Category',
+        ], <List<Object?>>[
+          <Object?>['example-court-id', sample, sample],
+          ...courts,
+        ]),
+        excelCaseCategoriesSheet: ExcelTemplateSheet(
+          excelCaseCategoriesSheet,
+          const <String>['Case Category ID', 'Case Category', 'Court Category'],
+          <List<Object?>>[
+            <Object?>['example-case-category-id', sample, sample],
+            ...caseCategories,
+          ],
+        ),
+        excelCaseTypesSheet: ExcelTemplateSheet(
+          excelCaseTypesSheet,
+          const <String>['Case Type', 'Court Category', 'Case Category'],
+          <List<Object?>>[
+            <Object?>[sample, sample, sample],
+            ...caseTypes,
+          ],
+        ),
+        excelStepsSheet: ExcelTemplateSheet(
+          excelStepsSheet,
+          const <String>['Step', 'Court Category'],
+          <List<Object?>>[
+            <Object?>[sample, sample],
+            ...steps,
+          ],
+        ),
+        excelOnBehalfsSheet: ExcelTemplateSheet(
+          excelOnBehalfsSheet,
+          const <String>['On Behalf ID', 'On Behalf', 'Court Category'],
+          <List<Object?>>[
+            <Object?>['example-on-behalf-id', sample, sample],
+            ...onBehalfs,
+          ],
+        ),
+      },
+      // The first real row of each sheet fills the example case, so its foreign
+      // keys point at data this diary actually holds. A sheet the diary has no
+      // rows for supplies nothing, and the column keeps its placeholder.
+      exampleCaseValues: <String, Object?>{
+        if (courts.isNotEmpty) 'court_id': courts.first[0],
+        if (onBehalfs.isNotEmpty) 'on_behalf_id': onBehalfs.first[0],
+        if (caseCategories.isNotEmpty)
+          'case_category_id': caseCategories.first[0],
+        if (caseTypes.isNotEmpty) 'case_type': caseTypes.first[0],
+        if (steps.isNotEmpty) 'last_step': steps.first[0],
+      },
+    );
+  }
 
   /// Runs one Excel export: build the workbook → write through [sink] → record.
   ///
@@ -609,6 +744,111 @@ Variable _variableFor(Object? value) => switch (value) {
     'The backup stores a value this build cannot import.',
   ),
 };
+
+/// Text the sample row of every template reference sheet carries, so the user can
+/// tell it apart from their own data.
+const String excelSampleRowLabel = 'Sample Row';
+
+/// The Guide sheet: how to add one's own cases to the workbook.
+///
+/// English, like the sheet names, so the same workbook reads the same whoever
+/// generated it — a localized Guide would only make sense in the language it was
+/// written in.
+final ExcelTemplateSheet _guideSheet = ExcelTemplateSheet(
+  excelGuideSheet,
+  const <String>['Guide'],
+  <List<Object?>>[
+    for (final line in _guideLines) <Object?>[line],
+  ],
+);
+
+/// The Guide sheet's prose, one line per row.
+const List<String> _guideLines = <String>[
+  'Legal Case Diary — Excel Template Guide',
+  '',
+  'How To Add Your Own Cases',
+  '1. Open the Cases sheet. Its first row lists the columns; do not change it.',
+  '2. Add one row per case underneath. Every other sheet here works the same way.',
+  '3. Leave the id cell blank and the app gives the new row a fresh id of its own.',
+  '4. court_id has to be an id from the Courts sheet, and on_behalf_id one from the On Behalfs sheet.',
+  '5. case_type has to be a name from the Case Types sheet, and last_step one from the Steps sheet.',
+  '6. case_category_id is optional; leave it blank, or use an id from the Case Categories sheet.',
+  '7. Every required column must be filled. The app refuses the whole file otherwise and names the sheet and row.',
+  '',
+  'Dates And Times',
+  'Dates are stored as Unix epoch milliseconds, as a plain whole number: 1 January 2026 is 1767225600000.',
+  'created_at and updated_at are required, so copy a timestamp from an existing row if you are unsure.',
+  '',
+  'The Other Sheets',
+  'Courts, Case Categories, Case Types, Steps and On Behalfs list the reference data this diary already holds, so you can see the exact ids and names to quote. Each of them starts with one Example — Sample Row row; delete it.',
+  'Case History, Notes and Case References hold the records that belong to a case. Each row needs the case_id of a case that exists, either already in the diary or added in this same file.',
+  'Courts, steps and settings themselves cannot be added here — that is done in the app.',
+  '',
+  'Restoring The File',
+  'Save the workbook as .xlsx, then choose Restore from Backup in Settings > Backup & Restore and pick this file.',
+  'The app replaces what Cases, Case History, Notes and Case References hold on this device with what the file holds, and leaves the rest of the diary alone. It asks before it replaces anything.',
+  '',
+  'Please Note',
+  'This workbook is a plaintext spreadsheet: anyone who opens it can read your case data.',
+  'Do not rename the sheets or the header cells, and do not reorder the columns: the app matches both by name.',
+];
+
+/// Tables the sample's reference sheets are read from, ordered by the parent
+/// court category so related rows stay together. Soft-deleted rows are excluded.
+const String _courtsSql =
+    'SELECT c.id AS row_id, c.court_name AS row_name, '
+    'cc.name_key AS category_key FROM courts c '
+    'LEFT JOIN court_categories cc ON cc.id = c.court_category_id '
+    'WHERE c.is_deleted = 0 '
+    'ORDER BY cc.order_index, c.order_index, c.court_name';
+
+/// Case categories, by display name, with their court category.
+const String _caseCategoriesSql =
+    'SELECT k.id AS row_id, k.name AS row_name, '
+    'cc.name_key AS category_key FROM case_categories k '
+    'LEFT JOIN court_categories cc ON cc.id = k.court_category_id '
+    'WHERE k.is_deleted = 0 '
+    'ORDER BY cc.order_index, k.order_index, k.name';
+
+/// Case types: the name `cases.case_type` stores, plus its scopes.
+const String _caseTypesSql =
+    'SELECT t.name AS row_name, cc.name_key AS category_key, '
+    'k.name AS case_category_name FROM case_types t '
+    'LEFT JOIN court_categories cc ON cc.id = t.court_category_id '
+    'LEFT JOIN case_categories k ON k.id = t.case_category_id '
+    'WHERE t.is_deleted = 0 '
+    'ORDER BY cc.order_index, t.order_index, t.name';
+
+/// Steps: the name `cases.last_step` stores.
+const String _stepsSql =
+    'SELECT s.step_name AS row_name, cc.name_key AS category_key '
+    'FROM steps s '
+    'LEFT JOIN court_categories cc ON cc.id = s.court_category_id '
+    'WHERE s.is_deleted = 0 '
+    'ORDER BY cc.order_index, s.order_index, s.step_name';
+
+/// Representational roles, by display name.
+const String _onBehalfsSql =
+    'SELECT o.id AS row_id, o.name AS row_name, cc.name_key AS category_key '
+    'FROM on_behalfs o '
+    'LEFT JOIN court_categories cc ON cc.id = o.court_category_id '
+    'WHERE o.is_deleted = 0 '
+    'ORDER BY cc.order_index, o.order_index, o.name';
+
+/// One built set of template reference sheets, plus the values that make the
+/// sample case row believable.
+class _ExcelReferenceData {
+  /// Sheet name → the sheet, already carrying its sample row and live rows.
+  final Map<String, ExcelTemplateSheet> sheets;
+
+  /// `cases` column → value taken from the diary's own reference data.
+  final Map<String, Object?> exampleCaseValues;
+
+  const _ExcelReferenceData({
+    required this.sheets,
+    required this.exampleCaseValues,
+  });
+}
 
 /// Default backup file name for an export taken at [exportedAt].
 ///

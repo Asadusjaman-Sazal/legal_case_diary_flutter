@@ -1122,7 +1122,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupRestore_sectionBackup => 'Backup & Restore';
 
   @override
+  String get settingsBackupRestore_sectionBackupSubtitle =>
+      'Back Up Or Restore Your Diary';
+
+  @override
   String get settingsBackupRestore_sectionAutomaticBackup => 'Automatic Backup';
+
+  @override
+  String get settingsBackupRestore_sectionAutomaticBackupSubtitle =>
+      'Choose How Often Your Diary Backs Up';
 
   @override
   String get settingsBackupRestore_sectionStatus => 'Backup Status';
@@ -1134,7 +1142,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupRestore_backupDrive => 'Backup to Google Drive';
 
   @override
-  String get settingsBackupRestore_restore => 'Restore from backup';
+  String get settingsBackupRestore_restore => 'Restore from Backup';
 
   @override
   String get settingsBackupRestore_encryptionNote =>
@@ -1146,7 +1154,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_lastSuccessfulBackup =>
-      'Last successful backup';
+      'Last Successful Backup';
 
   @override
   String get settingsBackupRestore_lastBackupPlaceholder =>
@@ -1323,6 +1331,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_sectionExcelFormat => 'Excel Backup Format';
+
+  @override
+  String get settingsBackupRestore_sectionExcelFormatSubtitle =>
+      'See The Format And Download A Sample';
+
+  @override
+  String get settingsBackupRestore_excelTemplateNote =>
+      'The sample workbook also carries Courts, Case Types, Steps, On Behalfs and Case Categories sheets, plus a Guide sheet. Those extra sheets are there only to show you what to fill in — the app leaves them alone when restoring.';
 
   @override
   String get settingsBackupRestore_excelIntro =>

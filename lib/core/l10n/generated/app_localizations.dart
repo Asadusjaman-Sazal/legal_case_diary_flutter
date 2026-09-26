@@ -2144,11 +2144,23 @@ abstract class AppLocalizations {
   /// **'Backup & Restore'**
   String get settingsBackupRestore_sectionBackup;
 
+  /// No description provided for @settingsBackupRestore_sectionBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back Up Or Restore Your Diary'**
+  String get settingsBackupRestore_sectionBackupSubtitle;
+
   /// No description provided for @settingsBackupRestore_sectionAutomaticBackup.
   ///
   /// In en, this message translates to:
   /// **'Automatic Backup'**
   String get settingsBackupRestore_sectionAutomaticBackup;
+
+  /// No description provided for @settingsBackupRestore_sectionAutomaticBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose How Often Your Diary Backs Up'**
+  String get settingsBackupRestore_sectionAutomaticBackupSubtitle;
 
   /// No description provided for @settingsBackupRestore_sectionStatus.
   ///
@@ -2171,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestore_restore.
   ///
   /// In en, this message translates to:
-  /// **'Restore from backup'**
+  /// **'Restore from Backup'**
   String get settingsBackupRestore_restore;
 
   /// No description provided for @settingsBackupRestore_encryptionNote.
@@ -2189,7 +2201,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestore_lastSuccessfulBackup.
   ///
   /// In en, this message translates to:
-  /// **'Last successful backup'**
+  /// **'Last Successful Backup'**
   String get settingsBackupRestore_lastSuccessfulBackup;
 
   /// No description provided for @settingsBackupRestore_lastBackupPlaceholder.
@@ -2485,6 +2497,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Excel Backup Format'**
   String get settingsBackupRestore_sectionExcelFormat;
+
+  /// No description provided for @settingsBackupRestore_sectionExcelFormatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See The Format And Download A Sample'**
+  String get settingsBackupRestore_sectionExcelFormatSubtitle;
+
+  /// No description provided for @settingsBackupRestore_excelTemplateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The sample workbook also carries Courts, Case Types, Steps, On Behalfs and Case Categories sheets, plus a Guide sheet. Those extra sheets are there only to show you what to fill in — the app leaves them alone when restoring.'**
+  String get settingsBackupRestore_excelTemplateNote;
 
   /// No description provided for @settingsBackupRestore_excelIntro.
   ///

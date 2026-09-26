@@ -30,6 +30,7 @@ import 'package:legal_case_diary/features/settings/data/backup_file_gateway.dart
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/backup_restore_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
@@ -307,7 +308,7 @@ void main() {
     expect(find.text('Backup to Local Storage'), findsOneWidget);
     expect(find.text('Backup as Excel File'), findsOneWidget);
     expect(find.text('Backup to Google Drive'), findsOneWidget);
-    expect(find.text('Restore from backup'), findsOneWidget);
+    expect(find.text('Restore from Backup'), findsOneWidget);
     expect(
       tester.getTopLeft(find.byKey(const ValueKey('backup-excel'))).dy,
       greaterThan(
@@ -320,14 +321,24 @@ void main() {
         tester.getTopLeft(find.byKey(const ValueKey('backup-drive'))).dy,
       ),
     );
+    // Each collapsible heading is the app's standard sub-menu button — the very
+    // control the Account & Profile menu uses — with an expand chevron.
+    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
+
     // Nothing inside the other sections is built while they are closed.
     expect(find.text('Everyday'), findsNothing);
-    expect(find.text('Last successful backup'), findsNothing);
-    expect(find.byKey(const ValueKey('backup-status-path')), findsNothing);
 
-    // The status card is honest until a backup exists.
-    await openSection(tester, 'status');
-    expect(find.text('Last successful backup'), findsOneWidget);
+    // Backup Status is not a button: it keeps the mockup's plain heading and is
+    // always open, so there is nothing here to tap.
+    expect(
+      find.byKey(const ValueKey('backup-section-toggle-status')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('backup-section-chevron-status')),
+      findsNothing,
+    );
+    expect(find.text('Last Successful Backup'), findsOneWidget);
     expect(find.text('No backup has been made yet.'), findsOneWidget);
     expect(find.byKey(const ValueKey('backup-status-path')), findsNothing);
   });
@@ -381,6 +392,8 @@ void main() {
     expect(find.textContaining('row\'s id blank'), findsOneWidget);
     // And the honest limit of the format.
     expect(find.textContaining('not a complete backup'), findsOneWidget);
+    // The sample's extra reference sheets are explained where it is downloaded.
+    expect(find.textContaining('plus a Guide sheet'), findsOneWidget);
   });
 
   testWidgets('the Excel note says the workbook is not encrypted', (
@@ -422,10 +435,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(gateway.savedName, 'legal-case-diary-template.xlsx');
+    final parts = workbookParts(gateway.savedBytes!);
     // The sample carries the same headers the reader validates, so it can never
     // show the user a column the app would refuse.
-    final cases = workbookParts(gateway.savedBytes!)['xl/worksheets/sheet2.xml']!;
+    final cases = parts['xl/worksheets/sheet2.xml']!;
     expect(cases, contains('<t xml:space="preserve">case_number</t>'));
+    // And it carries the reference sheets and the Guide the user reads, in
+    // addition to the four data sheets a backup has.
+    expect(parts['xl/workbook.xml'], contains('name="Courts"'));
+    expect(parts['xl/workbook.xml'], contains('name="Case Types"'));
+    expect(parts['xl/workbook.xml'], contains('name="Steps"'));
+    expect(parts['xl/workbook.xml'], contains('name="On Behalfs"'));
+    expect(parts['xl/workbook.xml'], contains('name="Guide"'));
     expect(find.textContaining('Template saved to'), findsOneWidget);
   });
 
@@ -442,7 +463,7 @@ void main() {
     gateway.picked = await excelBackup();
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
 
     // A workbook carries no passphrase, and the window says which sheets go.
     expect(find.text('Open this backup'), findsNothing);
@@ -490,7 +511,7 @@ void main() {
     );
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
 
     expect(find.text('Open this backup'), findsNothing);
     // The message points at the sheet and the exact header to restore.
@@ -520,7 +541,6 @@ void main() {
     await pumpScreen(tester);
 
     // 05:06 UTC is 11:06 in Bangladesh, the timezone every date on the app uses.
-    await openSection(tester, 'status');
     expect(find.text('20/09/26, 11:06 AM'), findsOneWidget);
     expect(find.text('/storage/backup.lcbak'), findsOneWidget);
   });
@@ -594,7 +614,6 @@ void main() {
       '/storage/emulated/0/Download/legal-case-diary.lcbak',
     );
     expect(prefs.getInt(lastSuccessfulBackupAtKey), envelope.exportedAt);
-    await openSection(tester, 'status');
     expect(
       find.text('/storage/emulated/0/Download/legal-case-diary.lcbak'),
       findsOneWidget,
@@ -610,7 +629,6 @@ void main() {
 
     expect(gateway.savedBytes, isNull);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);
-    await openSection(tester, 'status');
     expect(find.text('No backup has been made yet.'), findsOneWidget);
   });
 
@@ -630,7 +648,6 @@ void main() {
     // the archive is only recorded after the file really exists.
     expect(find.textContaining('Backup saved to'), findsNothing);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);
-    await openSection(tester, 'status');
     expect(find.text('No backup has been made yet.'), findsOneWidget);
   });
 
@@ -658,7 +675,7 @@ void main() {
     gateway.picked = _legacyBackup();
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
     // A legacy plaintext file opens without a passphrase.
     await enterPassphrase(
       tester,
@@ -688,7 +705,7 @@ void main() {
     gateway.picked = _legacyBackup(notes: 1);
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
     await enterPassphrase(
       tester,
       passphrase: '',
@@ -718,7 +735,7 @@ void main() {
     expect(untouched.data['n'], 1);
 
     // Choosing Replace does the restore and reports it.
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
     await enterPassphrase(
       tester,
       passphrase: '',
@@ -749,7 +766,7 @@ void main() {
     gateway.picked = await _encryptedBackup('the real passphrase');
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
     await enterPassphrase(
       tester,
       passphrase: 'not the passphrase',
@@ -775,7 +792,7 @@ void main() {
     );
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
     await enterPassphrase(
       tester,
       passphrase: '',
@@ -792,7 +809,7 @@ void main() {
     gateway.pickError = StateError('no content provider');
     await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from backup');
+    await tapAction(tester, 'Restore from Backup');
 
     expect(find.text('Could not open that file.'), findsOneWidget);
     expect(find.text('Open this backup'), findsNothing);

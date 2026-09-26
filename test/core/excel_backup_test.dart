@@ -167,6 +167,40 @@ void main() {
       // point and not just headers.
       expect(data.tables['cases']!.single['id'], 'id');
     });
+
+    test('writes the extra reference sheets, and skips them on the way back', () {
+      final bytes = buildExcelTemplate(
+        appVersion: '0.0.262',
+        schemaVersion: 1,
+        columns: _columns(),
+        // The caller fills the example case's foreign keys from its own data, so
+        // the sample reads as a believable case instead of column names.
+        exampleValues: <String, Map<String, Object?>>{
+          'cases': <String, Object?>{'court_id': 'court-1'},
+        },
+        extraSheets: const <ExcelTemplateSheet>[
+          ExcelTemplateSheet('Courts', <String>['Court ID'], <List<Object?>>[
+            <Object?>['court-1'],
+          ]),
+          ExcelTemplateSheet('Guide', <String>['Guide'], <List<Object?>>[
+            <Object?>['How To Add Your Own Cases'],
+          ]),
+        ],
+      );
+
+      final workbook = _parts(bytes)['xl/workbook.xml']!;
+      expect(workbook, contains('name="Courts"'));
+      expect(workbook, contains('name="Guide"'));
+
+      // The reader tolerates the template's own extra sheets and reads only the
+      // four data sheets — which is what lets the user fill in the very sample
+      // they downloaded and restore it without deleting anything first.
+      final data = _decoded(bytes);
+      expect(data.tables.keys.toSet(), excelSheetTables.values.toSet());
+      // The supplied value wins, and every other cell keeps its placeholder.
+      expect(data.tables['cases']!.single['court_id'], 'court-1');
+      expect(data.tables['cases']!.single['case_number'], 'case_number');
+    });
   });
 
   group('refusals', () {

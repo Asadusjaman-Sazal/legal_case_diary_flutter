@@ -1123,8 +1123,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsBackupRestore_sectionBackup => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override
+  String get settingsBackupRestore_sectionBackupSubtitle =>
+      'আপনার ডায়েরি ব্যাকআপ করুন বা পুনরুদ্ধার করুন';
+
+  @override
   String get settingsBackupRestore_sectionAutomaticBackup =>
       'স্বয়ংক্রিয় ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_sectionAutomaticBackupSubtitle =>
+      'আপনার ডায়েরি কত ঘন ঘন ব্যাকআপ হবে তা বেছে নিন';
 
   @override
   String get settingsBackupRestore_sectionStatus => 'ব্যাকআপ অবস্থা';
@@ -1329,6 +1337,14 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsBackupRestore_sectionExcelFormat =>
       'এক্সেল ব্যাকআপ ফরম্যাট';
+
+  @override
+  String get settingsBackupRestore_sectionExcelFormatSubtitle =>
+      'ফরম্যাট দেখুন ও একটি নমুনা ডাউনলোড করুন';
+
+  @override
+  String get settingsBackupRestore_excelTemplateNote =>
+      'নমুনা ওয়ার্কবুকে Courts, Case Types, Steps, On Behalfs ও Case Categories শিট এবং একটি Guide শিটও থাকে। এই বাড়তি শিটগুলো শুধু দেখানোর জন্য — পুনরুদ্ধারের সময় অ্যাপ এগুলো ছুঁয়ে দেখে না।';
 
   @override
   String get settingsBackupRestore_excelIntro =>

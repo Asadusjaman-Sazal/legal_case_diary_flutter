@@ -41,6 +41,45 @@ const String excelCaseReferencesSheet = 'Case References';
 /// Sheet carrying the workbook's format metadata.
 const String excelInfoSheet = 'Info';
 
+/// Template-only sheets, in workbook order. They exist so the downloadable
+/// **sample** shows the user the exact courts, case types, steps and roles their
+/// own cases have to point at; a real backup never carries them, and the reader
+/// skips them, so editing the sample and restoring it works as-is.
+const String excelCourtsSheet = 'Courts';
+
+/// Template-only sheet listing the case categories a case can be filed under.
+const String excelCaseCategoriesSheet = 'Case Categories';
+
+/// Template-only sheet listing the case types, by the name `cases.case_type`
+/// stores.
+const String excelCaseTypesSheet = 'Case Types';
+
+/// Template-only sheet listing the procedural steps, by the name
+/// `cases.last_step` stores.
+const String excelStepsSheet = 'Steps';
+
+/// Template-only sheet listing the representational roles a case can be filed
+/// on behalf of.
+const String excelOnBehalfsSheet = 'On Behalfs';
+
+/// Template-only sheet explaining, in prose, how to add one's own cases.
+const String excelGuideSheet = 'Guide';
+
+/// Every template-only sheet name.
+///
+/// The reader accepts these and leaves them alone; they are documentation, not
+/// data, so a workbook that still carries them imports exactly what its four data
+/// sheets hold. Sheet names stay English identifiers for the same reason the data
+/// sheets' do: one workbook has to work in either app language.
+const Set<String> excelTemplateSheets = <String>{
+  excelCourtsSheet,
+  excelCaseCategoriesSheet,
+  excelCaseTypesSheet,
+  excelStepsSheet,
+  excelOnBehalfsSheet,
+  excelGuideSheet,
+};
+
 /// Sheet name → database table name, in workbook order.
 ///
 /// Sheet names are **fixed English identifiers, not UI text**: one workbook has
@@ -236,15 +275,39 @@ List<int> encodeExcelBackup({
   return _workbookBytes(sheets);
 }
 
+/// One extra sheet the sample carries: a reference table the user reads, or the
+/// Guide's prose. Never written by a real export and never read back.
+class ExcelTemplateSheet {
+  /// Sheet name, as Excel shows it.
+  final String name;
+
+  /// Header row; may be empty for a sheet that is pure prose.
+  final List<String> headers;
+
+  /// Data rows, one cell list each.
+  final List<List<Object?>> rows;
+
+  /// Creates a template-only sheet.
+  const ExcelTemplateSheet(this.name, this.headers, this.rows);
+}
+
 /// Builds the sample template: the same headers, with one example row per sheet.
 ///
 /// Generated from [columns] rather than shipped as an asset, so the template can
 /// never drift from the reader that validates a real file. The example values are
-/// the column kinds' own placeholders, not anybody's case data.
+/// the column kinds' own placeholders, not anybody's case data, except where
+/// [exampleValues] supplies a real value — the caller fills the foreign keys of
+/// the example case from its own reference data, so the sample row reads as a
+/// believable case instead of a wall of column names.
+///
+/// [extraSheets] are the reference and Guide sheets the sample adds; a real
+/// export passes none.
 List<int> buildExcelTemplate({
   required String appVersion,
   required int schemaVersion,
   required Map<String, List<ExcelColumnSpec>> columns,
+  Map<String, Map<String, Object?>> exampleValues = const {},
+  List<ExcelTemplateSheet> extraSheets = const [],
 }) {
   final sheets = <_Sheet>[
     _Sheet(excelInfoSheet, <String>['key', 'value'], <List<Object?>>[
@@ -256,15 +319,24 @@ List<int> buildExcelTemplate({
   ];
   for (final entry in excelSheetTables.entries) {
     final specs = columns[entry.value] ?? const <ExcelColumnSpec>[];
+    final overrides = exampleValues[entry.value] ?? const <String, Object?>{};
     sheets.add(
       _Sheet(
         entry.key,
         <String>[for (final spec in specs) spec.name],
         <List<Object?>>[
-          <Object?>[for (final spec in specs) _templateValue(spec)],
+          <Object?>[
+            for (final spec in specs)
+              overrides.containsKey(spec.name)
+                  ? overrides[spec.name]
+                  : _templateValue(spec),
+          ],
         ],
       ),
     );
+  }
+  for (final extra in extraSheets) {
+    sheets.add(_Sheet(extra.name, extra.headers, extra.rows));
   }
   return _workbookBytes(sheets);
 }
@@ -487,8 +559,14 @@ ExcelBackupData decodeExcelBackup(
   final bodies = _sheetBodies(parts);
 
   // Sheet names first: an unrecognised sheet is refused before anything is read,
-  // so a workbook that is not ours is never half-interpreted.
-  final allowed = <String>{excelInfoSheet, ...excelSheetTables.keys};
+  // so a workbook that is not ours is never half-interpreted. The template's
+  // reference and Guide sheets are accepted and then ignored, which is what lets
+  // the user fill in the very sample they downloaded and restore it.
+  final allowed = <String>{
+    excelInfoSheet,
+    ...excelSheetTables.keys,
+    ...excelTemplateSheets,
+  };
   for (final name in bodies.keys) {
     if (!allowed.contains(name)) {
       throw ExcelBackupRefusal(ExcelRefusalReason.unknownSheet, sheet: name);

@@ -3,8 +3,11 @@
 ///
 /// Body mirrors `mockup_html_screens/settings_backupRestore/code.html`: the
 /// action card, the note, a radio-list schedule card and the status card. The
-/// mockup's four section headings are now **collapsible**, one open at a time,
-/// because the screen had grown past what fits on a phone at once.
+/// mockup's first three section headings are **sub-menu buttons** (the shared
+/// `SettingsMenuCard`, the same control the Account & Profile menu uses) that
+/// reveal their options one at a time, because the screen had grown past what
+/// fits on a phone at once; Backup Status keeps the mockup's plain heading and is
+/// always on screen, since it is a report rather than a set of options.
 ///
 /// Wired to the Task 15 engine: **Backup to Local Storage** asks for a
 /// passphrase, exports, and hands the encrypted file to the platform's
@@ -36,6 +39,7 @@ import '../data/backup_file_gateway.dart';
 import '../data/backup_metadata_store.dart';
 import '../data/backup_repository.dart';
 import 'backup_dialogs.dart';
+import 'edit_court_steps/court_category_label.dart';
 import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 
@@ -93,7 +97,10 @@ List<_BackupInterval> _intervals(AppLocalizations l) => [
 ];
 
 /// The screen's collapsible sections, in the order they are drawn.
-enum _Section { backup, automaticBackup, excelFormat, status }
+///
+/// Backup Status is deliberately not a member: it is a report the user reads at a
+/// glance, not a set of options, so it is always on screen and never collapses.
+enum _Section { backup, automaticBackup, excelFormat }
 
 /// Backup & Restore screen per `settings_backupRestore`.
 class BackupRestoreScreen extends ConsumerStatefulWidget {
@@ -267,8 +274,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     setState(() => _busy = true);
     try {
       final repository = await ref.read(backupRepositoryProvider.future);
-      final bytes = excelBytes(
-        repository.buildExcelTemplateWorkbook(appVersion: appVersion),
+      final bytes = await repository.buildExcelTemplateWorkbook(
+        appVersion: appVersion,
+        // Court categories are stored as localization keys, so the sample shows
+        // the same label the rest of the app shows. Guarded because the label is
+        // resolved after the repository's queries, by which time the screen may
+        // have left the tree.
+        categoryLabel: (nameKey) =>
+            mounted ? courtCategoryName(context, nameKey) : nameKey,
       );
       if (!mounted) return;
       final path = await ref
@@ -459,7 +472,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           // Section 1: manual backup / restore actions.
           _CollapsibleSection(
             id: 'backup',
+            icon: Icons.backup_outlined,
             title: l.settingsBackupRestore_sectionBackup,
+            subtitle: l.settingsBackupRestore_sectionBackupSubtitle,
             open: _openSection == _Section.backup,
             onToggle: () => _toggleSection(_Section.backup),
             child: Column(
@@ -479,7 +494,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           // Section 2: automatic-backup schedule.
           _CollapsibleSection(
             id: 'automatic',
+            icon: Icons.schedule,
             title: l.settingsBackupRestore_sectionAutomaticBackup,
+            subtitle: l.settingsBackupRestore_sectionAutomaticBackupSubtitle,
             open: _openSection == _Section.automaticBackup,
             onToggle: () => _toggleSection(_Section.automaticBackup),
             child: _ScheduleCard(
@@ -493,7 +510,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           // Section 3: the workbook format a restore expects.
           _CollapsibleSection(
             id: 'excel',
+            icon: Icons.grid_on,
             title: l.settingsBackupRestore_sectionExcelFormat,
+            subtitle: l.settingsBackupRestore_sectionExcelFormatSubtitle,
             open: _openSection == _Section.excelFormat,
             onToggle: () => _toggleSection(_Section.excelFormat),
             child: _ExcelFormatCard(
@@ -501,38 +520,42 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // Section 4: last successful backup.
-          _CollapsibleSection(
-            id: 'status',
-            title: l.settingsBackupRestore_sectionStatus,
-            open: _openSection == _Section.status,
-            onToggle: () => _toggleSection(_Section.status),
-            child: _StatusCard(metadata: metadata),
-          ),
+          // Section 4: last successful backup. Always open — the mockup's plain
+          // heading, never a button.
+          _SectionHeading(l.settingsBackupRestore_sectionStatus),
+          const SizedBox(height: AppSpacing.sm),
+          _StatusCard(metadata: metadata),
         ],
       ),
     );
   }
 }
 
-/// One collapsible section: the mockup's heading, now a control.
+/// One collapsible section: a sub-menu button that reveals its options.
 ///
-/// Tapping the heading opens its options and closes whichever section was open,
-/// so the screen shows one set of options at a time instead of all four stacked —
-/// which is what the section was asked for. The chevron says which way it will
-/// move, and the whole header row is the tap target, so the label is as easy to
-/// hit as the icon. A closed section is not built at all, so it costs nothing.
+/// The header is the app's shared [SettingsMenuCard] — the very control the
+/// Account & Profile menu draws its sub-menus with — so a section here reads as
+/// one more menu entry, with the expand chevron standing in for that card's
+/// "open a screen" arrow. Tapping it opens its options and closes whichever
+/// section was open, so the screen shows one set of options at a time. A closed
+/// section is not built at all, so it costs nothing.
 class _CollapsibleSection extends StatelessWidget {
   /// Stable id, used for the widget keys the tests drive.
   final String id;
+
+  /// Leading icon of the header button.
+  final IconData icon;
   final String title;
+  final String subtitle;
   final bool open;
   final VoidCallback onToggle;
   final Widget child;
 
   const _CollapsibleSection({
     required this.id,
+    required this.icon,
     required this.title,
+    required this.subtitle,
     required this.open,
     required this.onToggle,
     required this.child,
@@ -543,34 +566,16 @@ class _CollapsibleSection extends StatelessWidget {
     key: ValueKey('backup-section-$id'),
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      InkWell(
+      SettingsMenuCard(
         key: ValueKey('backup-section-toggle-$id'),
+        icon: icon,
+        title: title,
+        subtitle: subtitle,
         onTap: onToggle,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.labelLg.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    letterSpacing: 0.7, // tracking-wider — 0.05em at 14 px.
-                  ),
-                ),
-              ),
-              Icon(
-                open ? Icons.expand_less : Icons.expand_more,
-                key: ValueKey('backup-section-chevron-$id'),
-                size: 22,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ],
-          ),
+        trailing: Icon(
+          open ? Icons.expand_less : Icons.expand_more,
+          key: ValueKey('backup-section-chevron-$id'),
+          color: AppColors.tertiary,
         ),
       ),
       // The reveal animates so the list below does not jump when a section opens
@@ -587,6 +592,32 @@ class _CollapsibleSection extends StatelessWidget {
             : const SizedBox(width: double.infinity),
       ),
     ],
+  );
+}
+
+/// A plain, non-interactive section heading.
+///
+/// Backup Status keeps the mockup's static heading rather than becoming a
+/// button: it is a report that should already be readable when the screen opens.
+class _SectionHeading extends StatelessWidget {
+  /// Heading text, written in Title Case like every other label in the app.
+  final String title;
+
+  const _SectionHeading(this.title);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.xs,
+      vertical: AppSpacing.sm,
+    ),
+    child: Text(
+      title,
+      style: AppTypography.labelLg.copyWith(
+        color: AppColors.onSurfaceVariant,
+        letterSpacing: 0.7, // tracking-wider — 0.05em at 14 px.
+      ),
+    ),
   );
 }
 
@@ -756,6 +787,10 @@ class _ExcelFormatCard extends StatelessWidget {
           Text(l.settingsBackupRestore_excelIdNote, style: hint),
           const SizedBox(height: AppSpacing.sm),
           Text(l.settingsBackupRestore_excelPartialNote, style: hint),
+          const SizedBox(height: AppSpacing.sm),
+          // The template's extra reference sheets, stated where the button is, so
+          // the reader knows why the sample has more sheets than a backup does.
+          Text(l.settingsBackupRestore_excelTemplateNote, style: hint),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
             width: double.infinity,

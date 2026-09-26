@@ -1028,6 +1028,42 @@ abstract class AppLocalizations {
   /// **'Undo'**
   String get notesScreen_undo;
 
+  /// No description provided for @notesScreen_newTextNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Note'**
+  String get notesScreen_newTextNote;
+
+  /// No description provided for @notesScreen_newTodo.
+  ///
+  /// In en, this message translates to:
+  /// **'To-Do'**
+  String get notesScreen_newTodo;
+
+  /// No description provided for @notesScreen_listItemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'List Item'**
+  String get notesScreen_listItemHint;
+
+  /// No description provided for @notesScreen_addItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Item'**
+  String get notesScreen_addItem;
+
+  /// No description provided for @notesScreen_removeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Item'**
+  String get notesScreen_removeItem;
+
+  /// How many checklist items a to-do note's card did not have room to show, in the language's own digits.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} More'**
+  String notesScreen_itemsMore(int count);
+
   /// No description provided for @caseReferenceScreen_title.
   ///
   /// In en, this message translates to:

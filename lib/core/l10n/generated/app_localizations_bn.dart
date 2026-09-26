@@ -512,6 +512,30 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notesScreen_undo => 'পূর্বাবস্থায় ফেরত';
 
   @override
+  String get notesScreen_newTextNote => 'টেক্সট নোট';
+
+  @override
+  String get notesScreen_newTodo => 'করণীয় তালিকা';
+
+  @override
+  String get notesScreen_listItemHint => 'তালিকার আইটেম';
+
+  @override
+  String get notesScreen_addItem => 'আইটেম যোগ করুন';
+
+  @override
+  String get notesScreen_removeItem => 'আইটেম মুছুন';
+
+  @override
+  String notesScreen_itemsMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString আরও';
+  }
+
+  @override
   String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
 
   @override

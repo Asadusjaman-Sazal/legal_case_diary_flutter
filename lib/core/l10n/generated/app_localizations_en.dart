@@ -513,6 +513,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesScreen_undo => 'Undo';
 
   @override
+  String get notesScreen_newTextNote => 'Text Note';
+
+  @override
+  String get notesScreen_newTodo => 'To-Do';
+
+  @override
+  String get notesScreen_listItemHint => 'List Item';
+
+  @override
+  String get notesScreen_addItem => 'Add Item';
+
+  @override
+  String get notesScreen_removeItem => 'Remove Item';
+
+  @override
+  String notesScreen_itemsMore(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '+$countString More';
+  }
+
+  @override
   String get caseReferenceScreen_title => 'Case Reference';
 
   @override

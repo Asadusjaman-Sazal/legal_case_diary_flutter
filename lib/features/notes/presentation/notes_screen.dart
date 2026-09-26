@@ -21,8 +21,15 @@ import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
+import '../data/note_items.dart';
 import 'note_detail_screen.dart';
 import 'notes_viewmodel.dart';
+
+/// Checklist rows a note card shows before it falls back to "+N more".
+///
+/// Three keeps the card the same height as a three-line text note and leaves
+/// the card's title the thing that is read.
+const int _cardItemLimit = 3;
 
 /// Notes library screen.
 class NotesScreen extends ConsumerStatefulWidget {
@@ -69,13 +76,63 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     if (mounted) setState(() {});
   }
 
-  /// Opens the full-screen detail editor. [note] is null when creating new.
+  /// Opens the full-screen detail editor. [note] is null when creating new, and
+  /// [isTodo] then picks which kind the new note is.
   /// If the detail screen pops with a deleted [Note], shows the undo snackbar.
-  Future<void> _openDetail({Note? note}) async {
+  Future<void> _openDetail({Note? note, bool isTodo = false}) async {
     final result = await Navigator.of(context).push<Note?>(
-      MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
+      MaterialPageRoute(
+        builder: (_) => NoteDetailScreen(note: note, isTodo: isTodo),
+      ),
     );
     if (result is Note && mounted) _showUndoSnackBar(result);
+  }
+
+  /// The FAB asks which kind of note to create before opening the editor.
+  ///
+  /// The two options are the whole of this sheet — there is no confirm button,
+  /// and dismissing it creates nothing.
+  Future<void> _chooseNoteKind() async {
+    final l = AppLocalizations.of(context);
+    final isTodo = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: AppColors.surfaceContainerLowest,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.sheetRadius),
+        ),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const ValueKey('add-note-text'),
+              leading: const Icon(
+                Icons.notes,
+                color: AppColors.onSurfaceVariant,
+              ),
+              title: Text(
+                l.notesScreen_newTextNote,
+                style: AppTypography.bodyLg,
+              ),
+              onTap: () => Navigator.of(sheetContext).pop(false),
+            ),
+            ListTile(
+              key: const ValueKey('add-note-todo'),
+              leading: const Icon(
+                Icons.checklist,
+                color: AppColors.onSurfaceVariant,
+              ),
+              title: Text(l.notesScreen_newTodo, style: AppTypography.bodyLg),
+              onTap: () => Navigator.of(sheetContext).pop(true),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (isTodo == null || !mounted) return;
+    await _openDetail(isTodo: isTodo);
   }
 
   Future<void> _confirmDelete(Note note) async {
@@ -132,7 +189,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
-      onAddCase: () => _openDetail(),
+      onAddCase: _chooseNoteKind,
       body: _NotesList(
         isSearching: _isSearching,
         notes: visible,
@@ -205,6 +262,62 @@ class _NotesList extends StatelessWidget {
     children.add(const SizedBox(height: AppSpacing.lg));
 
     return ListView(padding: const EdgeInsets.all(AppSpacing.md), children: children);
+  }
+}
+
+/// A to-do note's card body: its first few rows with their ticks, then a count
+/// of the ones the card did not have room for.
+class _TodoCardPreview extends StatelessWidget {
+  const _TodoCardPreview({required this.items});
+
+  final List<NoteItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final visible = items.take(_cardItemLimit).toList(growable: false);
+    final hidden = items.length - visible.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final item in visible)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Row(
+              children: [
+                Icon(
+                  item.done
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank,
+                  size: 16,
+                  color: AppColors.onSurfaceVariant,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    item.text,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                      decoration: item.done
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (hidden > 0)
+          Text(
+            l.notesScreen_itemsMore(hidden),
+            style: AppTypography.labelMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+      ],
+    );
   }
 }
 
@@ -301,15 +414,19 @@ class _NoteCardState extends State<_NoteCard> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                // Part 3: body text.
-                Text(
-                  note.body,
-                  style: AppTypography.bodyMd.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                // Part 3: the body — the note's own text, or a to-do's compact
+                // checklist, so the two kinds read differently at a glance.
+                if (decodeNoteItems(note.items) case final items?)
+                  _TodoCardPreview(items: items)
+                else
+                  Text(
+                    note.body,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
               ],
             ),
           ),

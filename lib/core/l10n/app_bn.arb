@@ -233,6 +233,21 @@
   "notesScreen_drafting": "খসড়া লেখা হচ্ছে...",
   "notesScreen_noteDeleted": "নোট মোছা হয়েছে",
   "notesScreen_undo": "পূর্বাবস্থায় ফেরত",
+  "notesScreen_newTextNote": "টেক্সট নোট",
+  "notesScreen_newTodo": "করণীয় তালিকা",
+  "notesScreen_listItemHint": "তালিকার আইটেম",
+  "notesScreen_addItem": "আইটেম যোগ করুন",
+  "notesScreen_removeItem": "আইটেম মুছুন",
+  "notesScreen_itemsMore": "+{count} আরও",
+  "@notesScreen_itemsMore": {
+      "description": "How many checklist items a to-do note's card did not have room to show, in the language's own digits.",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "@@_section_caseReferenceScreen": "CASE REFERENCE SCREEN  |  lib/features/case_reference/presentation/case_reference_screen.dart",
   "caseReferenceScreen_title": "মামলার রেফারেন্স",
   "caseReferenceScreen_referenceAndPageNo": "রেফারেন্স ও পৃষ্ঠা নং",

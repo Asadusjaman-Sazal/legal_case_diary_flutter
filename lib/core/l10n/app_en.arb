@@ -233,6 +233,21 @@
   "notesScreen_drafting": "Drafting...",
   "notesScreen_noteDeleted": "Note deleted",
   "notesScreen_undo": "Undo",
+  "notesScreen_newTextNote": "Text Note",
+  "notesScreen_newTodo": "To-Do",
+  "notesScreen_listItemHint": "List Item",
+  "notesScreen_addItem": "Add Item",
+  "notesScreen_removeItem": "Remove Item",
+  "notesScreen_itemsMore": "+{count} More",
+  "@notesScreen_itemsMore": {
+      "description": "How many checklist items a to-do note's card did not have room to show, in the language's own digits.",
+      "placeholders": {
+          "count": {
+              "type": "int",
+              "format": "decimalPattern"
+          }
+      }
+  },
   "@@_section_caseReferenceScreen": "CASE REFERENCE SCREEN  |  lib/features/case_reference/presentation/case_reference_screen.dart",
   "caseReferenceScreen_title": "Case Reference",
   "caseReferenceScreen_referenceAndPageNo": "Reference & Page No",

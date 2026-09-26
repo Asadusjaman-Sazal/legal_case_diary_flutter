@@ -192,6 +192,7 @@ class LocalNotesRepository with BaseLocalRepository implements NotesRepository {
     final fields = <String>[];
     if (companion.title.present) fields.add('title');
     if (companion.body.present) fields.add('body');
+    if (companion.items.present) fields.add('items');
     if (companion.isPinned.present) fields.add('is_pinned');
     return fields;
   }

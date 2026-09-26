@@ -7868,6 +7868,15 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _itemsMeta = const VerificationMeta('items');
+  @override
+  late final GeneratedColumn<String> items = GeneratedColumn<String>(
+    'items',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isPinnedMeta = const VerificationMeta(
     'isPinned',
   );
@@ -7960,6 +7969,7 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
     firmId,
     title,
     body,
+    items,
     isPinned,
     createdAt,
     updatedAt,
@@ -8014,6 +8024,12 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
       );
     } else if (isInserting) {
       context.missing(_bodyMeta);
+    }
+    if (data.containsKey('items')) {
+      context.handle(
+        _itemsMeta,
+        items.isAcceptableOrUnknown(data['items']!, _itemsMeta),
+      );
     }
     if (data.containsKey('is_pinned')) {
       context.handle(
@@ -8093,6 +8109,10 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, Note> {
         DriftSqlType.string,
         data['${effectivePrefix}body'],
       )!,
+      items: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}items'],
+      ),
       isPinned: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_pinned'],
@@ -8144,7 +8164,16 @@ class Note extends DataClass implements Insertable<Note> {
   final String title;
 
   /// Note body.
+  ///
+  /// For a to-do note this mirrors the item texts, one per line, so the existing
+  /// title+body search finds a to-do by what is on its list without parsing
+  /// JSON. The checklist itself renders from [items].
   final String body;
+
+  /// To-do checklist as a JSON array of `{text, done}` objects, in display
+  /// order. Null for a plain text note; an empty to-do stores `[]`, so its kind
+  /// never changes just because it has nothing on it yet.
+  final String? items;
 
   /// Pinned notes appear first.
   final bool isPinned;
@@ -8162,6 +8191,7 @@ class Note extends DataClass implements Insertable<Note> {
     this.firmId,
     required this.title,
     required this.body,
+    this.items,
     required this.isPinned,
     required this.createdAt,
     required this.updatedAt,
@@ -8180,6 +8210,9 @@ class Note extends DataClass implements Insertable<Note> {
     }
     map['title'] = Variable<String>(title);
     map['body'] = Variable<String>(body);
+    if (!nullToAbsent || items != null) {
+      map['items'] = Variable<String>(items);
+    }
     map['is_pinned'] = Variable<bool>(isPinned);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
@@ -8205,6 +8238,9 @@ class Note extends DataClass implements Insertable<Note> {
           : Value(firmId),
       title: Value(title),
       body: Value(body),
+      items: items == null && nullToAbsent
+          ? const Value.absent()
+          : Value(items),
       isPinned: Value(isPinned),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -8232,6 +8268,7 @@ class Note extends DataClass implements Insertable<Note> {
       firmId: serializer.fromJson<String?>(json['firmId']),
       title: serializer.fromJson<String>(json['title']),
       body: serializer.fromJson<String>(json['body']),
+      items: serializer.fromJson<String?>(json['items']),
       isPinned: serializer.fromJson<bool>(json['isPinned']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
@@ -8250,6 +8287,7 @@ class Note extends DataClass implements Insertable<Note> {
       'firmId': serializer.toJson<String?>(firmId),
       'title': serializer.toJson<String>(title),
       'body': serializer.toJson<String>(body),
+      'items': serializer.toJson<String?>(items),
       'isPinned': serializer.toJson<bool>(isPinned),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
@@ -8266,6 +8304,7 @@ class Note extends DataClass implements Insertable<Note> {
     Value<String?> firmId = const Value.absent(),
     String? title,
     String? body,
+    Value<String?> items = const Value.absent(),
     bool? isPinned,
     int? createdAt,
     int? updatedAt,
@@ -8279,6 +8318,7 @@ class Note extends DataClass implements Insertable<Note> {
     firmId: firmId.present ? firmId.value : this.firmId,
     title: title ?? this.title,
     body: body ?? this.body,
+    items: items.present ? items.value : this.items,
     isPinned: isPinned ?? this.isPinned,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -8296,6 +8336,7 @@ class Note extends DataClass implements Insertable<Note> {
       firmId: data.firmId.present ? data.firmId.value : this.firmId,
       title: data.title.present ? data.title.value : this.title,
       body: data.body.present ? data.body.value : this.body,
+      items: data.items.present ? data.items.value : this.items,
       isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -8316,6 +8357,7 @@ class Note extends DataClass implements Insertable<Note> {
           ..write('firmId: $firmId, ')
           ..write('title: $title, ')
           ..write('body: $body, ')
+          ..write('items: $items, ')
           ..write('isPinned: $isPinned, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -8334,6 +8376,7 @@ class Note extends DataClass implements Insertable<Note> {
     firmId,
     title,
     body,
+    items,
     isPinned,
     createdAt,
     updatedAt,
@@ -8351,6 +8394,7 @@ class Note extends DataClass implements Insertable<Note> {
           other.firmId == this.firmId &&
           other.title == this.title &&
           other.body == this.body &&
+          other.items == this.items &&
           other.isPinned == this.isPinned &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -8366,6 +8410,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
   final Value<String?> firmId;
   final Value<String> title;
   final Value<String> body;
+  final Value<String?> items;
   final Value<bool> isPinned;
   final Value<int> createdAt;
   final Value<int> updatedAt;
@@ -8380,6 +8425,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.firmId = const Value.absent(),
     this.title = const Value.absent(),
     this.body = const Value.absent(),
+    this.items = const Value.absent(),
     this.isPinned = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -8395,6 +8441,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     this.firmId = const Value.absent(),
     required String title,
     required String body,
+    this.items = const Value.absent(),
     this.isPinned = const Value.absent(),
     required int createdAt,
     required int updatedAt,
@@ -8415,6 +8462,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Expression<String>? firmId,
     Expression<String>? title,
     Expression<String>? body,
+    Expression<String>? items,
     Expression<bool>? isPinned,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
@@ -8430,6 +8478,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       if (firmId != null) 'firm_id': firmId,
       if (title != null) 'title': title,
       if (body != null) 'body': body,
+      if (items != null) 'items': items,
       if (isPinned != null) 'is_pinned': isPinned,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -8447,6 +8496,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
     Value<String?>? firmId,
     Value<String>? title,
     Value<String>? body,
+    Value<String?>? items,
     Value<bool>? isPinned,
     Value<int>? createdAt,
     Value<int>? updatedAt,
@@ -8462,6 +8512,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
       firmId: firmId ?? this.firmId,
       title: title ?? this.title,
       body: body ?? this.body,
+      items: items ?? this.items,
       isPinned: isPinned ?? this.isPinned,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -8490,6 +8541,9 @@ class NotesCompanion extends UpdateCompanion<Note> {
     }
     if (body.present) {
       map['body'] = Variable<String>(body.value);
+    }
+    if (items.present) {
+      map['items'] = Variable<String>(items.value);
     }
     if (isPinned.present) {
       map['is_pinned'] = Variable<bool>(isPinned.value);
@@ -8526,6 +8580,7 @@ class NotesCompanion extends UpdateCompanion<Note> {
           ..write('firmId: $firmId, ')
           ..write('title: $title, ')
           ..write('body: $body, ')
+          ..write('items: $items, ')
           ..write('isPinned: $isPinned, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -21035,6 +21090,7 @@ typedef $$NotesTableCreateCompanionBuilder =
       Value<String?> firmId,
       required String title,
       required String body,
+      Value<String?> items,
       Value<bool> isPinned,
       required int createdAt,
       required int updatedAt,
@@ -21051,6 +21107,7 @@ typedef $$NotesTableUpdateCompanionBuilder =
       Value<String?> firmId,
       Value<String> title,
       Value<String> body,
+      Value<String?> items,
       Value<bool> isPinned,
       Value<int> createdAt,
       Value<int> updatedAt,
@@ -21091,6 +21148,11 @@ class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
 
   ColumnFilters<String> get body => $composableBuilder(
     column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get items => $composableBuilder(
+    column: $table.items,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -21164,6 +21226,11 @@ class $$NotesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get items => $composableBuilder(
+    column: $table.items,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isPinned => $composableBuilder(
     column: $table.isPinned,
     builder: (column) => ColumnOrderings(column),
@@ -21224,6 +21291,9 @@ class $$NotesTableAnnotationComposer
   GeneratedColumn<String> get body =>
       $composableBuilder(column: $table.body, builder: (column) => column);
 
+  GeneratedColumn<String> get items =>
+      $composableBuilder(column: $table.items, builder: (column) => column);
+
   GeneratedColumn<bool> get isPinned =>
       $composableBuilder(column: $table.isPinned, builder: (column) => column);
 
@@ -21281,6 +21351,7 @@ class $$NotesTableTableManager
                 Value<String?> firmId = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> body = const Value.absent(),
+                Value<String?> items = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
@@ -21295,6 +21366,7 @@ class $$NotesTableTableManager
                 firmId: firmId,
                 title: title,
                 body: body,
+                items: items,
                 isPinned: isPinned,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -21311,6 +21383,7 @@ class $$NotesTableTableManager
                 Value<String?> firmId = const Value.absent(),
                 required String title,
                 required String body,
+                Value<String?> items = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
@@ -21325,6 +21398,7 @@ class $$NotesTableTableManager
                 firmId: firmId,
                 title: title,
                 body: body,
+                items: items,
                 isPinned: isPinned,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

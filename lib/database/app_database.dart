@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -70,7 +70,8 @@ class AppDatabase extends _$AppDatabase {
   /// adding the AD/HCD result snapshot to `case_history`, then v6→v7 by adding
   /// the division/district scope for user-created lower-court categories, then
   /// v7→v8 by adding the per-case notification time to
-  /// `case_notification_preferences`.
+  /// `case_notification_preferences`, then v8→v9 by adding the to-do checklist
+  /// to `notes`.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -116,6 +117,9 @@ class AppDatabase extends _$AppDatabase {
           caseNotificationPreferences,
           caseNotificationPreferences.timeMinutes,
         );
+      }
+      if (from < 9) {
+        await m.addColumn(notes, notes.items);
       }
     },
     beforeOpen: (details) async {

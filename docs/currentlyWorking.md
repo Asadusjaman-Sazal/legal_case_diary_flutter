@@ -1,3 +1,11 @@
+### 2026-09-26 — The Part A manual test pass is refreshed against 0.0.271 — COMPLETE
+
+- **Why:** Task 15 Phase 6 and the pass itself both make it the gate before Task 16, and it had gone stale — it named version `0.0.233` and `579 passed`, written before the seven Task 15 refinements.
+- **This is a verification, not a rewrite.** Every quoted message, key and route was checked against the code rather than assumed, and all are unchanged at `0.0.271`: the package id `com.legalcasediary.app`, the four preference keys in `features/settings/data/backup_metadata_store.dart`, the `archive.path` / `archive.checksum` / `archive.state` keys in `backup_repository.dart`, and the ARB strings behind the wrong-passphrase, not-a-backup, newer-version, share-failed and monthly-nudge copy. The counts are corrected to **739 passed, 2 skipped**, `flutter analyze` clean.
+- **No box is ticked, deliberately.** The pass is still entirely unrun; the refresh only means a device failure can no longer be explained away as a doc that drifted.
+- **Version `0.0.272`** (recorded by `tool/record_version.py`). No code changed.
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-26 — Settings > About: the developer card stays centred in landscape — COMPLETE
 
 - **The request (Settings > About only):** on some devices and in horizontal mode the **Designed & Developed by** section sits on the left instead of staying centred. Fix it.

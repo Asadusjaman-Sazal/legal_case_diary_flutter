@@ -2,9 +2,11 @@
 
 > **Why this exists.** Task 15 Phase 6 closes with: *“PART A is now complete — run the full offline manual test pass before starting Task 16.”* Part A is the whole offline app (Tasks 01–15). This document is that pass.
 >
-> **What it is not.** It is not a re-run of the automated suite. `flutter analyze` is clean and `flutter test` is **579 passed, 2 skipped**; the 50-case boundary, the encryption round-trip, tamper rejection, the restore rollback, the nudge rule and the month boundary are all pinned by tests. Every item below exists because **only a device can prove it** — a platform channel, an OS dialog, a real status bar, an aggressive OEM, or a physical print/share target.
+> **What it is not.** It is not a re-run of the automated suite. `flutter analyze` is clean and `flutter test` is **739 passed, 2 skipped**; the 50-case boundary, the encryption round-trip, tamper rejection, the restore rollback, the nudge rule and the month boundary are all pinned by tests. Every item below exists because **only a device can prove it** — a platform channel, an OS dialog, a real status bar, an aggressive OEM, or a physical print/share target.
 >
 > **Ends with:** a recorded pass/fail per item. Any failure is fixed through the normal phase protocol (a new `docs/version_history.md` entry + `docs/currentlyWorking.md` note) before Task 16 begins.
+>
+> **Re-verified 26 September 2026 at `0.0.271`** (the version carrying the seven Task 15 refinements after the pass was first written). The quoted messages, the package id, the preference keys, the `archive.*` keys and the routes below were each checked against the code rather than assumed, so an item that fails on the device is a device finding and not a doc that drifted. None has been run yet: every box in this pass is still empty.
 
 ---
 
@@ -143,7 +145,7 @@ These were never recorded as done (see `docs/currentlyWorking.md`); fold them in
 
 ## Recording the result
 
-1. Note the **version** you tested (`0.0.233` at the time of writing) and the device(s) with their Android version.
+1. Note the **version** you tested (`0.0.271` at the time of writing) and the device(s) with their Android version.
 2. Mark each item **PASS / FAIL / N/A**; for every FAIL, capture the screen, the exact message shown and the `adb logcat -s flutter` lines around it.
 3. Fix failures through the normal phase protocol — a new entry in `docs/version_history.md` (with a version bump) and a note in `docs/currentlyWorking.md`, including what the device proved that the tests could not.
 4. Only then start Task 16 (Part B: Supabase, auth and sync). Anything still unverified here must be carried forward explicitly, not silently.

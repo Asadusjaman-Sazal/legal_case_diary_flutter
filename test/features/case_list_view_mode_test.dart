@@ -35,6 +35,7 @@ import 'package:legal_case_diary/features/case_reference/data/reference_reposito
 import 'package:legal_case_diary/features/case_reference/presentation/case_reference_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/active_cases/active_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
+import 'package:legal_case_diary/features/cases/presentation/case_list_view_mode.dart';
 import 'package:legal_case_diary/features/cases/presentation/case_table_view.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/disposed_cases/disposed_cases_screen.dart';
@@ -125,6 +126,32 @@ void main() {
   Future<void> setStoredMode(String mode) async {
     final current = await settings.getSettings();
     await settings.upsertSettings(current.copyWith(caseListDisplayMode: mode));
+  }
+
+  /// Stores [ids] as [screenId]'s folded courts, stamped with the Bangladesh
+  /// civil day that starts at [dayStart].
+  ///
+  /// The app stores the day a fold was made so a new day can open every court
+  /// again; seeding the stamp is how a test says "this fold was made
+  /// yesterday" without waiting for midnight.
+  Future<void> seedFolds(
+    String screenId,
+    List<String> ids, {
+    required int dayStart,
+  }) async {
+    final current = await settings.getSettings();
+    await settings.upsertSettings(
+      current.copyWith(
+        caseTableCollapsedCourts: <String, List<String>>{
+          ...current.caseTableCollapsedCourts,
+          screenId: ids,
+        },
+        caseTableCollapsedDays: <String, int>{
+          ...current.caseTableCollapsedDays,
+          screenId: dayStart,
+        },
+      ),
+    );
   }
 
   /// Inserts a case row directly so the test controls the dates it needs.
@@ -995,6 +1022,127 @@ void main() {
       (await settings.getSettings()).caseTableCollapsedCourts['overdue'],
       isNull,
     );
+    await unmount(tester);
+  });
+
+  testWidgets('a fold made yesterday opens expanded today', (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    // The court was folded away yesterday and the screen was not opened again
+    // before the day turned over.
+    await seedFolds('overdue', <String>[courtId], dayStart: today - 86400000);
+
+    // The new day starts the list the way a fresh install does: every court
+    // showing, because a fold is one day's choice and not a standing setting.
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('case-table-group-collapsed')),
+      findsNothing,
+    );
+    await unmount(tester);
+  });
+
+  testWidgets("a fold made today drops yesterday's folds, and is stamped today", (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    // A second court, later in the hierarchy, so "yesterday's court came back"
+    // cannot be mistaken for the fold that was just made.
+    const secondCategoryId = 'view-mode-category-2';
+    const secondCourtId = 'view-mode-court-2';
+    const secondCourtName = 'Senior Assistant Judge, Dhaka';
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value(secondCategoryId),
+            nameKey: Value('courtCategory_districtCourtsCriminal'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(2),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value(secondCourtId),
+            courtName: Value(secondCourtName),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value(secondCategoryId),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    await seedCase(
+      id: 'PAST-2',
+      caseNumber: 'PAST-2',
+      court: secondCourtId,
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    await seedFolds('overdue', <String>[courtId], dayStart: today - 86400000);
+
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+
+    // Folding the other court today starts a fresh set: yesterday's court is not
+    // revived alongside it, and the set is stamped with today so it holds until
+    // the next day turns over.
+    await toggleCourt(tester, secondCourtName);
+    expect(find.byKey(const ValueKey('case-row-PAST-2')), findsNothing);
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
+    final stored = await settings.getSettings();
+    expect(stored.caseTableCollapsedCourts['overdue'], <String>[secondCourtId]);
+    expect(stored.caseTableCollapsedDays['overdue'], today);
+    await unmount(tester);
+  });
+
+  testWidgets("one screen's new day leaves another screen's fold alone", (
+    WidgetTester tester,
+  ) async {
+    await setStoredMode('expanded');
+    final today = AppDateUtils.bangladeshTodayStartOfDay();
+    await seedCase(id: 'TODAY-1', caseNumber: 'TODAY-1', nextDateMs: today);
+    await seedCase(
+      id: 'PAST-1',
+      caseNumber: 'PAST-1',
+      nextDateMs: today - 86400000,
+      lastStep: 'Arrival',
+    );
+    // The same court, folded on two screens on two different days: Daily Cause
+    // List was folded today, Overdue Dates yesterday.
+    await seedFolds(
+      CaseListScreenId.dailyCauseList,
+      <String>[courtId],
+      dayStart: today,
+    );
+    await seedFolds('overdue', <String>[courtId], dayStart: today - 86400000);
+
+    // The day stamp belongs to the screen, so today's fold still holds on Daily
+    // Cause List while Overdue Dates opens the same court expanded.
+    await pumpScreen(tester, const DailyCauseListScreen());
+    expect(find.byKey(const ValueKey('case-row-TODAY-1')), findsNothing);
+    await unmount(tester);
+
+    await pumpScreen(tester, const OverdueDatesScreen());
+    expect(find.byKey(const ValueKey('case-row-PAST-1')), findsOneWidget);
     await unmount(tester);
   });
 

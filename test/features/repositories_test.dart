@@ -360,6 +360,34 @@ void main() {
       expect(const UserSettings().caseListDisplayModes, isEmpty);
     });
 
+    test('UserSettings round-trips which day each screen was folded', () {
+      const saved = UserSettings(
+        caseTableCollapsedCourts: <String, List<String>>{
+          'overdue': <String>['court-1', 'court-2'],
+          'daily_cause_list': <String>['court-1'],
+        },
+        caseTableCollapsedDays: <String, int>{
+          'overdue': 1758844800000,
+          'daily_cause_list': 1758844800000,
+        },
+      );
+
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          viewSettingsJson: jsonEncode(saved.toJson()),
+          updatedAt: 1,
+        ),
+      );
+
+      expect(restored.caseTableCollapsedCourts, saved.caseTableCollapsedCourts);
+      expect(restored.caseTableCollapsedDays, saved.caseTableCollapsedDays);
+      // An install that never folded a court stores no day either, which every
+      // grouped screen reads as "all courts open".
+      expect(const UserSettings().caseTableCollapsedDays, isEmpty);
+    });
+
     test('UserSettings falls back safely for malformed view JSON', () {
       final settings = UserSettings.fromRow(
         const UserPreference(

@@ -68,8 +68,17 @@ class UserSettings {
   /// `daily_cause_list`, `upcoming`) and holding the folded courts' ids. A
   /// court not listed opens expanded, which is the app default; the choice is
   /// the screen's, so folding a court on Daily Cause List leaves Overdue
-  /// Dates' copy of it open.
+  /// Dates' copy of it open. Only the folds made today count — see
+  /// [caseTableCollapsedDays].
   final Map<String, List<String>> caseTableCollapsedCourts;
+
+  /// Bangladesh civil day (start-of-day epoch-ms) on which each screen's fold
+  /// choice in [caseTableCollapsedCourts] was last made, keyed by the same
+  /// screen ids. A fold is one day's choice: a screen whose stamp is not today
+  /// reads as fully expanded, so every grouped case list opens a new day with
+  /// every court showing. The stamp is dropped together with the screen's fold
+  /// list once that list is emptied.
+  final Map<String, int> caseTableCollapsedDays;
 
   /// Default landing page route name.
   final String defaultLandingPage;
@@ -140,6 +149,7 @@ class UserSettings {
     this.sideNavOptions = const {},
     this.caseTableColumnWidths = const {},
     this.caseTableCollapsedCourts = const {},
+    this.caseTableCollapsedDays = const {},
     this.defaultLandingPage = 'all_cases',
     this.fontSizeStep = 0,
     this.notificationEnabled = false,
@@ -171,6 +181,7 @@ class UserSettings {
     sideNavOptions: sideNavOptions,
     caseTableColumnWidths: caseTableColumnWidths,
     caseTableCollapsedCourts: caseTableCollapsedCourts,
+    caseTableCollapsedDays: caseTableCollapsedDays,
     defaultLandingPage: defaultLandingPage,
     fontSizeStep: fontSizeStep,
     notificationEnabled: notificationEnabled,
@@ -198,6 +209,7 @@ class UserSettings {
     Map<String, dynamic>? sideNavOptions,
     Map<String, double>? caseTableColumnWidths,
     Map<String, List<String>>? caseTableCollapsedCourts,
+    Map<String, int>? caseTableCollapsedDays,
     String? defaultLandingPage,
     int? fontSizeStep,
     bool? notificationEnabled,
@@ -220,6 +232,8 @@ class UserSettings {
     caseTableColumnWidths: caseTableColumnWidths ?? this.caseTableColumnWidths,
     caseTableCollapsedCourts:
         caseTableCollapsedCourts ?? this.caseTableCollapsedCourts,
+    caseTableCollapsedDays:
+        caseTableCollapsedDays ?? this.caseTableCollapsedDays,
     defaultLandingPage: defaultLandingPage ?? this.defaultLandingPage,
     fontSizeStep: fontSizeStep ?? this.fontSizeStep,
     notificationEnabled: notificationEnabled ?? this.notificationEnabled,
@@ -248,6 +262,7 @@ class UserSettings {
     'side_nav_options': sideNavOptions,
     'case_table_column_widths': caseTableColumnWidths,
     'case_table_collapsed_courts': caseTableCollapsedCourts,
+    'case_table_collapsed_days': caseTableCollapsedDays,
     'default_landing_page': defaultLandingPage,
     'font_size_step': fontSizeStep,
     'notification_enabled': notificationEnabled,
@@ -291,6 +306,7 @@ class UserSettings {
     final rawModes = json['case_list_display_modes'];
     final rawWidths = json['case_table_column_widths'];
     final rawCollapsed = json['case_table_collapsed_courts'];
+    final rawCollapsedDays = json['case_table_collapsed_days'];
 
     return UserSettings(
       upcomingCasesPeriod:
@@ -325,6 +341,13 @@ class UserSettings {
                   '${entry.key}': (entry.value as List)
                       .whereType<String>()
                       .toList(),
+            }
+          : const {},
+      caseTableCollapsedDays: rawCollapsedDays is Map
+          ? {
+              for (final entry in rawCollapsedDays.entries)
+                if (entry.value is num)
+                  '${entry.key}': (entry.value as num).toInt(),
             }
           : const {},
       defaultLandingPage:

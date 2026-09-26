@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/providers/settings_providers.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
 
@@ -117,25 +118,43 @@ bool watchCaseListExtendedView(WidgetRef ref, String screenId) =>
       screenId,
     );
 
-/// The court groups the user has folded away in [screenId]'s extended view,
-/// safe to read during a build.
+/// The court groups the user has folded away in [screenId], safe to read during
+/// a build.
 ///
-/// Empty until the stream's first emission, which is the stored default: every
-/// court opens expanded on a fresh install.
+/// A fold lasts one day: only folds stamped with today's Bangladesh civil day
+/// count, so the first time a grouped case list is opened on a new day every
+/// court is showing again. Empty is also what the stream's first emission and a
+/// fresh install give, both of which mean "every court opens expanded".
 Set<String> watchCaseTableCollapsedCourts(WidgetRef ref, String screenId) =>
-    (ref.watch(userSettingsStreamProvider).value
-            ?.caseTableCollapsedCourts[screenId] ??
-        const <String>[])
-    .toSet();
+    _foldedCourtsToday(ref.watch(userSettingsStreamProvider).value, screenId);
 
-/// Persists one court group's folded ↔ expanded choice in [screenId]'s extended
-/// view.
+/// The folds in [screenId] that were made today, or none when the last one was
+/// made on an earlier day.
+///
+/// The stamp is compared against [AppDateUtils.bangladeshTodayStartOfDay], the
+/// app's civil day everywhere, so "today" turns over at Bangladesh midnight. A
+/// missing stamp counts as an earlier day, which is what an install that
+/// upgraded from a build without stamps gets: fully expanded.
+Set<String> _foldedCourtsToday(UserSettings? settings, String screenId) {
+  if (settings?.caseTableCollapsedDays[screenId] !=
+      AppDateUtils.bangladeshTodayStartOfDay()) {
+    // Mutable: the write path adds the court the user just folded to this set.
+    return <String>{};
+  }
+  return {...?settings?.caseTableCollapsedCourts[screenId]};
+}
+
+/// Persists one court group's folded ↔ expanded choice in [screenId].
 ///
 /// Same read-modify-write contract as [setCaseListViewMode]: the whole stored
 /// row is read back first so no other preference can be dropped, the entry is
 /// removed entirely once a screen has nothing folded (so a fresh install and a
 /// fully reopened screen store the same row), and the settings ViewModel is
 /// invalidated so the Settings screens keep showing the row just written.
+///
+/// The write starts from [_foldedCourtsToday], so an earlier day's folds can
+/// never come back when the user folds something new — the new day's first fold
+/// replaces them and is stamped with today.
 Future<void> setCaseTableCourtCollapsed(
   WidgetRef ref, {
   required String screenId,
@@ -147,7 +166,8 @@ Future<void> setCaseTableCourtCollapsed(
   final groups = <String, List<String>>{
     ...current.caseTableCollapsedCourts,
   };
-  final ids = <String>{...?groups[screenId]};
+  final days = <String, int>{...current.caseTableCollapsedDays};
+  final ids = _foldedCourtsToday(current, screenId);
   if (collapsed) {
     ids.add(courtId);
   } else {
@@ -155,9 +175,16 @@ Future<void> setCaseTableCourtCollapsed(
   }
   if (ids.isEmpty) {
     groups.remove(screenId);
+    days.remove(screenId);
   } else {
     groups[screenId] = ids.toList();
+    days[screenId] = AppDateUtils.bangladeshTodayStartOfDay();
   }
-  await repo.upsertSettings(current.copyWith(caseTableCollapsedCourts: groups));
+  await repo.upsertSettings(
+    current.copyWith(
+      caseTableCollapsedCourts: groups,
+      caseTableCollapsedDays: days,
+    ),
+  );
   ref.invalidate(settingsViewModelProvider);
 }

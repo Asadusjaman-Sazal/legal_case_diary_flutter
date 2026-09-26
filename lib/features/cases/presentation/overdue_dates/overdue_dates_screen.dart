@@ -317,8 +317,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     }
 
     // Courts the user folded away on this screen, read from the app settings so
-    // the fold choice survives leaving and re-opening the screen. Both views
-    // read the same entry, so a court folded in one is folded in the other.
+    // the fold choice survives leaving and re-opening the screen for the rest
+    // of the day. Both views read the same entry, so a court folded in one is
+    // folded in the other, and a new day opens every court again.
     final collapsedCourts = watchCaseTableCollapsedCourts(
       ref,
       CaseListScreenId.overdue,

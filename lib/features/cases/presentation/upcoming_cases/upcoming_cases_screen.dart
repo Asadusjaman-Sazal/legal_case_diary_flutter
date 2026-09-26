@@ -359,10 +359,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     }
 
     // Courts the user folded away on this screen, read from the app settings so
-    // the fold choice survives leaving and re-opening the screen. A court that
-    // heads groups on more than one hearing day folds as one header, and both
-    // views read the same entry, so a court folded in one is folded in the
-    // other.
+    // the fold choice survives leaving and re-opening the screen for the rest
+    // of the day, and a new day opens every court again. A court that heads
+    // groups on more than one hearing day folds as one header, and both views
+    // read the same entry, so a court folded in one is folded in the other.
     final collapsedCourts = watchCaseTableCollapsedCourts(
       ref,
       CaseListScreenId.upcoming,

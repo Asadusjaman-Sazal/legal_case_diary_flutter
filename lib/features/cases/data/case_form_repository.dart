@@ -22,12 +22,16 @@ class CaseFormRepository {
   final TransactionalCaseRepository _caseRepository;
 
   /// Saves the case and notification preference as one local transaction.
+  ///
+  /// [notificationTimeMinutes] is the case's own alert time; null means the
+  /// case follows the user's default time in Settings → Notifications.
   Future<String> save({
     required CasesCompanion companion,
     required Case? initialCase,
     required String userId,
     required bool notificationEnabled,
     required List<int> notificationOffsets,
+    int? notificationTimeMinutes,
     required int updatedAt,
   }) async {
     return db.transaction(() async {
@@ -48,6 +52,7 @@ class CaseFormRepository {
           caseId: Value(id),
           enabled: Value(notificationEnabled),
           offsets: Value(jsonEncode(notificationOffsets)),
+          timeMinutes: Value(notificationTimeMinutes),
           updatedAt: Value(updatedAt),
         ),
       );

@@ -30,7 +30,7 @@ import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../data/notification_day_offsets.dart';
-import 'bengali_time_picker_localizations.dart';
+import 'notification_time_picker.dart';
 import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
 import '../settings_menu_card.dart';
@@ -227,34 +227,16 @@ class NotificationSettingsScreen extends ConsumerWidget {
     await _resyncSchedule(ref);
   }
 
-  /// Opens the platform time picker and stores the choice in minutes.
-  ///
-  /// The window is Flutter's, but two things are pinned so বাংলা shows what
-  /// English shows: the 12-hour dial with its AM/PM toggle (Flutter's Bengali
-  /// bundle asks for a 24-hour clock, see [BengaliTimePickerLocalizations]) and
-  /// the dialog action size the rest of the app's dialogs use — Flutter sizes
-  /// Cancel/OK to their own label, which drifts with the language.
+  /// Opens the shared notification-time window and stores the choice in
+  /// minutes. The same window the case form's Notification Time field opens.
   Future<void> _pickTime(
     BuildContext context,
     WidgetRef ref,
     int currentMinutes,
   ) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(
-        hour: currentMinutes ~/ 60,
-        minute: currentMinutes % 60,
-      ),
-      builder: (context, child) => Localizations.override(
-        context: context,
-        delegates: const <LocalizationsDelegate<dynamic>>[
-          BengaliTimePickerLocalizationsDelegate(),
-        ],
-        child: TimePickerTheme(
-          data: _timePickerTheme,
-          child: child ?? const SizedBox.shrink(),
-        ),
-      ),
+    final picked = await showNotificationTimePicker(
+      context,
+      initialMinutes: currentMinutes,
     );
     if (picked == null) return;
     final minutes = picked.hour * 60 + picked.minute;
@@ -266,24 +248,6 @@ class NotificationSettingsScreen extends ConsumerWidget {
     await _resyncSchedule(ref);
   }
 }
-
-/// The dialog action size and text style the app's dialogs share — 112x48 at
-/// 16 pt, the same pair `confirm_dialogs.dart`, `backup_dialogs.dart` and the
-/// Exit App window use.
-const Size _dialogActionSize = Size(112, 48);
-const TextStyle _dialogActionTextStyle = TextStyle(fontSize: 16);
-
-/// Cancel/OK inside the time window, sized like every other dialog button.
-final TimePickerThemeData _timePickerTheme = TimePickerThemeData(
-  cancelButtonStyle: TextButton.styleFrom(
-    minimumSize: _dialogActionSize,
-    textStyle: _dialogActionTextStyle,
-  ),
-  confirmButtonStyle: TextButton.styleFrom(
-    minimumSize: _dialogActionSize,
-    textStyle: _dialogActionTextStyle,
-  ),
-);
 
 /// Day offsets to show as ticked, in the picker's order.
 ///

@@ -36,15 +36,19 @@ const int _millisecondsPerDay = 24 * 60 * 60 * 1000;
 /// Entry point the alarm service executes in its background isolate.
 ///
 /// Top-level and `@pragma('vm:entry-point')` on purpose: the AOT compiler must
-/// keep it, and `AndroidAlarmManager` resolves it by callback handle.
+/// keep it, and `AndroidAlarmManager` resolves it by callback handle. [alarmId]
+/// is the id the alarm was armed with — `alertAlarmIdBase + minutes` — which is
+/// how a run knows which time slot it is posting for.
 @pragma('vm:entry-point')
-Future<void> notificationAlarmCallback() async {
+Future<void> notificationAlarmCallback(int alarmId) async {
   WidgetsFlutterBinding.ensureInitialized();
   // This isolate is not the app's root isolate, so the plugins registered on
   // the alarm engine have to be wired to this isolate's channel handlers.
   DartPluginRegistrant.ensureInitialized();
   try {
-    await runHearingNotificationJob();
+    await runHearingNotificationJob(
+      slotMinutes: AndroidNotificationGateway.alertMinutesForId(alarmId),
+    );
   } catch (error, stackTrace) {
     // A failed job must never crash the alarm service; the next launch or
     // settings change re-arms the schedule anyway.
@@ -60,8 +64,14 @@ Future<void> notificationAlarmCallback() async {
 /// Runs today's job and re-arms tomorrow's alarm; returns the alerts posted.
 ///
 /// [nowEpochMs] is injectable so the offset arithmetic can be tested without a
-/// device clock.
-Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
+/// device clock. [slotMinutes] is the alert time this run is for: only cases
+/// whose effective time is that slot are posted, so a case that picked its own
+/// time is not alerted by another slot's run. Null (a legacy alarm, or a direct
+/// call) posts every due case, as the single-alarm build did.
+Future<List<HearingAlert>> runHearingNotificationJob({
+  int? nowEpochMs,
+  int? slotMinutes,
+}) async {
   final prefs = await SharedPreferences.getInstance();
   // Read the identity without minting one: a background isolate must never
   // create a user identity, only follow the one the app already stored.
@@ -91,6 +101,7 @@ Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
       preferences[row.caseId] = HearingPreference(
         enabled: row.enabled,
         offsets: decodeNotificationOffsets(row.offsets),
+        timeMinutes: row.timeMinutes,
       );
     }
 
@@ -142,6 +153,9 @@ Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
       cases: candidates,
       preferences: preferences,
       translations: translations,
+      defaultTimeMinutes:
+          settings.notificationTime ?? defaultNotificationMinutes,
+      onlyTimeMinutes: slotMinutes,
     );
 
     if (!plan.isEmpty) {
@@ -153,9 +167,14 @@ Future<List<HearingAlert>> runHearingNotificationJob({int? nowEpochMs}) async {
     }
 
     // Re-arm from inside the job so the chain survives without the app ever
-    // being opened (Android clears one-shot alarms after they fire).
+    // being opened (Android clears one-shot alarms after they fire). The run
+    // re-arms its own slot, so every armed time keeps its own daily chain; a
+    // slot whose last case moved away simply is not re-armed and stops.
     await AndroidNotificationGateway.scheduleDailyAlarm(
-      timeMinutes: settings.notificationTime ?? defaultNotificationMinutes,
+      timeMinutes:
+          slotMinutes ??
+          settings.notificationTime ??
+          defaultNotificationMinutes,
       callback: notificationAlarmCallback,
       precision: alarmPrecisionFor(
         exactAllowed: await AndroidNotificationGateway.exactAlarmsAllowed(),

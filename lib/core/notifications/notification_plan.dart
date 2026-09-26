@@ -119,8 +119,39 @@ class HearingPreference {
   /// The case's own offsets; null or empty means "use the user's defaults".
   final List<int>? offsets;
 
+  /// The case's own alert time (minutes since midnight); null means "use the
+  /// user's default time" from Settings → Notifications.
+  final int? timeMinutes;
+
   /// Creates an override.
-  const HearingPreference({this.enabled = true, this.offsets});
+  const HearingPreference({this.enabled = true, this.offsets, this.timeMinutes});
+}
+
+/// Whether [minutes] is a real time of day, so a hand-edited or corrupt value
+/// can never arm an alarm for a nonsense moment.
+bool isValidTimeOfDay(int minutes) => minutes >= 0 && minutes < 24 * 60;
+
+/// The time a case's alerts fire: its own override, else the user's default.
+int effectiveTimeMinutes(int defaultMinutes, HearingPreference? preference) {
+  final own = preference?.timeMinutes;
+  return own != null && isValidTimeOfDay(own) ? own : defaultMinutes;
+}
+
+/// Every distinct alert time currently in use: the user's default plus each
+/// stored per-case override, ascending.
+///
+/// One alarm is armed per value, so a case that picked its own time is alerted
+/// then rather than at the default. Nulls (a case with no override) and
+/// nonsense values are dropped rather than armed.
+List<int> distinctNotificationTimes(
+  int defaultMinutes,
+  Iterable<int?> caseTimes,
+) {
+  final times = <int>{defaultMinutes};
+  for (final own in caseTimes) {
+    if (own != null && isValidTimeOfDay(own)) times.add(own);
+  }
+  return times.toList()..sort();
 }
 
 /// One day of work for the job.
@@ -225,6 +256,8 @@ NotificationPlan buildNotificationPlan({
   required List<HearingCandidate> cases,
   required Map<String, HearingPreference> preferences,
   required AppTranslations translations,
+  int defaultTimeMinutes = defaultNotificationMinutes,
+  int? onlyTimeMinutes,
 }) {
   if (!enabled) return const NotificationPlan(<HearingAlert>[]);
 
@@ -239,6 +272,13 @@ NotificationPlan buildNotificationPlan({
       dateEpochMs: candidate.nextDateEpochMs,
     );
     if (!effectiveOffsets(defaultOffsets, preference).contains(offsetDays)) {
+      continue;
+    }
+    // One alarm is armed per distinct time, so a case whose own time differs
+    // from the slot that just fired belongs to another alarm's run.
+    if (onlyTimeMinutes != null &&
+        effectiveTimeMinutes(defaultTimeMinutes, preference) !=
+            onlyTimeMinutes) {
       continue;
     }
 

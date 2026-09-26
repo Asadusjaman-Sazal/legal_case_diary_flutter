@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.258 - The Month column centres its labels with the Year a seam gap past the middle, and each row that passes the middle plays a light platform click.
+Version: 0.0.259 - Add a per-case Notification Time to the Add/Edit Case and Quick Update windows: it follows Settings by default, overrides it per case, and is delivered by one alarm per distinct time.
 --------------------------------------
 
 ## Version History Log:
@@ -272,3 +272,4 @@ Version: 0.0.255 - The calendar's month and year selectors are now iOS side-by-s
 Version: 0.0.256 - The calendars' Month/Year selector is a straight list now: rows are no longer bent, magnified or faded, the current value is bold black in the middle, and nothing is painted over it.
 Version: 0.0.257 - The Month and Year columns hold their labels against the middle seam, and the current value steps up one type size in bold.
 Version: 0.0.258 - The Month column centres its labels with the Year a seam gap past the middle, and each row that passes the middle plays a light platform click.
+Version: 0.0.259 - Add a per-case Notification Time to the Add/Edit Case and Quick Update windows: it follows Settings by default, overrides it per case, and is delivered by one alarm per distinct time.

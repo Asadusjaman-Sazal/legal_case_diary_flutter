@@ -23,6 +23,11 @@ class CaseNotificationPreferences extends Table {
   /// user's default offsets.
   TextColumn get offsets => text().nullable()();
 
+  /// Minutes since midnight for this case's alerts; if null, the case follows
+  /// the user's default notification time in `user_preferences`. A value here
+  /// is a per-case override, so one case can alert at a different time of day.
+  IntColumn get timeMinutes => integer().nullable()();
+
   /// Timestamp when these preferences were last updated (epoch ms).
   IntColumn get updatedAt => integer()();
 

@@ -15,6 +15,7 @@ import 'dart:developer' as dev;
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // `services.dart` re-exports the parts of `foundation.dart` used here
 // (`ValueChanged`), so the single import keeps the gateway's header honest.
 import 'package:flutter/services.dart';
@@ -26,11 +27,22 @@ import 'oem_setup_guide.dart';
 
 /// Low-level Android operations shared by the app and the background job.
 abstract final class AndroidNotificationGateway {
-  /// Alarm request id of the single daily job.
+  /// Base alarm request id of the hearing alerts.
   ///
-  /// Stable forever: the boot/update rescheduling path looks the alarm up by
-  /// this id, so changing it would strand an already-scheduled alarm.
-  static const int dailyJobId = 1301;
+  /// One alarm is armed per distinct alert time, every one derived from this
+  /// base plus its time of day (`alertAlarmIdBase + minutes`), so the background
+  /// job can read which slot fired from the id it is handed. The base is kept
+  /// clear of `1301`, the single daily alarm's id in earlier builds: such an
+  /// alarm is then recognised as unknown — it posts what is due and hands over
+  /// to the new schedule — instead of being misread as the midnight slot.
+  static const int alertAlarmIdBase = 1301 + 24 * 60;
+
+  /// SharedPreferences key naming the alert times whose alarms are armed.
+  ///
+  /// The bookkeeping that lets a sync cancel the slots it no longer wants:
+  /// without it a stale alarm could not be found again, since its id is derived
+  /// from a time the settings no longer mention.
+  static const String _armedTimesKey = 'notification_armed_times';
 
   /// Notification channel id holding every hearing alert.
   static const String channelId = 'hearing_alerts';
@@ -330,12 +342,13 @@ abstract final class AndroidNotificationGateway {
     await _plugin.cancelAll();
   }
 
-  /// Arms the daily job for the next occurrence of [timeMinutes]
+  /// Arms the alert alarm for the next occurrence of [timeMinutes]
   /// (Bangladesh wall-clock, minutes since midnight).
   ///
   /// [callback] is the `@pragma('vm:entry-point')` job function; it is passed
   /// in rather than imported so this gateway stays free of the job's database
-  /// logic (and of an import cycle).
+  /// logic (and of an import cycle). The callback takes the alarm id, which is
+  /// how the job learns which time slot it is running for.
   ///
   /// `setExactAndAllowWhileIdle` with `wakeup: true` per plan §10, plus
   /// `rescheduleOnReboot: true` so the plugin's reboot receiver re-arms it.
@@ -356,7 +369,7 @@ abstract final class AndroidNotificationGateway {
     );
     await AndroidAlarmManager.oneShotAt(
       DateTime.fromMillisecondsSinceEpoch(fireAt),
-      dailyJobId,
+      alertAlarmIdBase + timeMinutes,
       callback,
       exact: precision == AlarmPrecision.exact,
       wakeup: true,
@@ -365,9 +378,78 @@ abstract final class AndroidNotificationGateway {
     );
   }
 
-  /// Cancels the daily job if it is armed.
-  static Future<void> cancelDailyAlarm() async {
-    await AndroidAlarmManager.cancel(dailyJobId);
+  /// Cancels the alarm armed for [timeMinutes], if any.
+  static Future<void> cancelDailyAlarm(int timeMinutes) async {
+    await AndroidAlarmManager.cancel(alertAlarmIdBase + timeMinutes);
+  }
+
+  /// The alert time encoded in [alarmId], or null when the id is not one of
+  /// this app's alert alarms (an alarm from an earlier build, say). The job
+  /// learns its slot from exactly this.
+  static int? alertMinutesForId(int alarmId) {
+    final minutes = alarmId - alertAlarmIdBase;
+    return isValidTimeOfDay(minutes) ? minutes : null;
+  }
+
+  /// Arms one alarm per distinct alert time and cancels the rest.
+  ///
+  /// Idempotent, and the single entry point the foreground scheduler uses: a
+  /// slot that is no longer wanted is cancelled rather than left to fire once
+  /// more, and the armed set is remembered so the next sync can do the same.
+  static Future<void> syncAlertAlarms({
+    required Iterable<int> times,
+    required Function callback,
+    required AlarmPrecision precision,
+  }) async {
+    final wanted = times.where(isValidTimeOfDay).toSet();
+    for (final stale in (await armedAlertTimes()).difference(wanted)) {
+      await cancelDailyAlarm(stale);
+    }
+    for (final time in wanted) {
+      await scheduleDailyAlarm(
+        timeMinutes: time,
+        callback: callback,
+        precision: precision,
+      );
+    }
+    await _storeArmedAlertTimes(wanted);
+  }
+
+  /// Cancels every armed alert alarm and forgets them.
+  ///
+  /// Used on sign-out/account switch, where a previous identity's alerts must
+  /// not outlive it.
+  static Future<void> cancelAllAlertAlarms() async {
+    for (final time in await armedAlertTimes()) {
+      await cancelDailyAlarm(time);
+    }
+    await _storeArmedAlertTimes(const <int>{});
+  }
+
+  /// Alert times whose alarms this app has armed.
+  static Future<Set<int>> armedAlertTimes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getStringList(_armedTimesKey);
+      if (stored == null) return <int>{};
+      return stored.map(int.tryParse).whereType<int>().toSet();
+    } catch (error, stackTrace) {
+      // Unreadable bookkeeping must not block arming: the sync simply has no
+      // stale slots to cancel, and the next successful write restores it.
+      reportFailure(error, stackTrace);
+      return <int>{};
+    }
+  }
+
+  static Future<void> _storeArmedAlertTimes(Set<int> times) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_armedTimesKey, [
+        for (final time in times) '$time',
+      ]);
+    } catch (error, stackTrace) {
+      reportFailure(error, stackTrace);
+    }
   }
 
   /// Logs and swallows a failure so a background job never kills the alarm

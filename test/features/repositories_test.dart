@@ -552,6 +552,7 @@ void main() {
           userId: syncHelper.currentUserId,
           notificationEnabled: false,
           notificationOffsets: const [0, 2],
+          notificationTimeMinutes: 9 * 60,
           updatedAt: 3000,
         );
 
@@ -561,6 +562,8 @@ void main() {
         ).get(syncHelper.currentUserId, id);
         expect(preference?.enabled, isFalse);
         expect(preference?.offsets, '[0,2]');
+        // The per-case Notification Time rides the same atomic write.
+        expect(preference?.timeMinutes, 9 * 60);
       },
     );
 

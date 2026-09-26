@@ -609,4 +609,92 @@ void main() {
       expect(first, isNot(notificationIdFor('other-case')));
     });
   });
+
+  group('per-case notification time', () {
+    const defaultTime = 17 * 60;
+
+    test('a case follows the default until it picks its own time', () {
+      expect(effectiveTimeMinutes(defaultTime, null), defaultTime);
+      expect(
+        effectiveTimeMinutes(defaultTime, const HearingPreference()),
+        defaultTime,
+      );
+      expect(
+        effectiveTimeMinutes(defaultTime, const HearingPreference(timeMinutes: 9 * 60)),
+        9 * 60,
+      );
+      // A hand-edited or corrupt value cannot move a case off the default.
+      expect(
+        effectiveTimeMinutes(
+          defaultTime,
+          const HearingPreference(timeMinutes: 24 * 60),
+        ),
+        defaultTime,
+      );
+    });
+
+    test('one alarm slot is armed per distinct time in use', () {
+      expect(distinctNotificationTimes(defaultTime, const []), [defaultTime]);
+      expect(
+        distinctNotificationTimes(defaultTime, const [null, 9 * 60, 9 * 60, 8 * 60]),
+        [8 * 60, 9 * 60, defaultTime],
+      );
+      // Nonsense values are dropped rather than armed for a moment that is
+      // not a time of day at all.
+      expect(
+        distinctNotificationTimes(defaultTime, const [null, -1, 24 * 60]),
+        [defaultTime],
+      );
+    });
+
+    test('a slot run posts only that slot\'s cases', () {
+      final cases = [
+        _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'early'),
+        _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'late'),
+      ];
+      final preferences = const {
+        'early': HearingPreference(timeMinutes: 9 * 60),
+      };
+
+      final morning = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: cases,
+        preferences: preferences,
+        translations: _translations('en'),
+        defaultTimeMinutes: defaultTime,
+        onlyTimeMinutes: 9 * 60,
+      );
+      final evening = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: cases,
+        preferences: preferences,
+        translations: _translations('en'),
+        defaultTimeMinutes: defaultTime,
+        onlyTimeMinutes: defaultTime,
+      );
+
+      expect(morning.alerts.map((a) => a.caseId), ['early']);
+      expect(evening.alerts.map((a) => a.caseId), ['late']);
+    });
+
+    test('with no slot given every due case is alerted, as before', () {
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        enabled: true,
+        defaultOffsets: const [1],
+        cases: [
+          _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'early'),
+          _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'late'),
+        ],
+        preferences: const {'early': HearingPreference(timeMinutes: 9 * 60)},
+        translations: _translations('en'),
+      );
+
+      expect(plan.alerts, hasLength(2));
+    });
+  });
 }

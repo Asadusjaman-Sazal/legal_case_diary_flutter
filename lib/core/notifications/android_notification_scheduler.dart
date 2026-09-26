@@ -24,12 +24,20 @@ import 'oem_setup_guide.dart';
 class AndroidNotificationScheduler implements NotificationScheduler {
   /// Creates the scheduler.
   ///
-  /// [readSettings] supplies the live per-user settings; injecting it keeps this
-  /// class independent of Riverpod and of the repository's construction.
-  AndroidNotificationScheduler({required this.readSettings});
+  /// [readSettings] supplies the live per-user settings and [readCaseTimes] the
+  /// stored per-case Notification Time overrides; injecting both keeps this
+  /// class independent of Riverpod and of the repositories' construction.
+  AndroidNotificationScheduler({
+    required this.readSettings,
+    required this.readCaseTimes,
+  });
 
   /// Reads the current per-user settings.
   final Future<UserSettings> Function() readSettings;
+
+  /// Reads every stored per-case alert time (null for cases that follow the
+  /// default), so a slot can be armed for each one that overrides the time.
+  final Future<List<int?>> Function() readCaseTimes;
 
   /// Handler invoked for a tap on a posted hearing notification.
   ValueChanged<String>? _caseSelected;
@@ -98,12 +106,13 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   @override
   Future<void> syncSchedule() async {
     try {
-      // Always cancel first: re-arming with a stale time would leave two alarms
-      // racing for the same request id.
-      await AndroidNotificationGateway.cancelDailyAlarm();
-
       final settings = await readSettings();
-      if (!settings.notificationEnabled) return;
+      if (!settings.notificationEnabled) {
+        // Cancelling is explicit rather than implicit: a switched-off preference
+        // must not leave yesterday's slots to wake the phone once more.
+        await AndroidNotificationGateway.cancelAllAlertAlarms();
+        return;
+      }
 
       // Android 13+ needs POST_NOTIFICATIONS at runtime; without it every alert
       // would be posted and silently dropped by the OS. The permission is asked
@@ -112,8 +121,14 @@ class AndroidNotificationScheduler implements NotificationScheduler {
         await AndroidNotificationGateway.requestNotificationsPermission();
       }
 
-      await AndroidNotificationGateway.scheduleDailyAlarm(
-        timeMinutes: settings.notificationTime ?? defaultNotificationMinutes,
+      // One alarm per distinct time: the user's default plus every case that
+      // picked its own Notification Time. The arming is idempotent and cancels
+      // the slots this sync no longer wants.
+      await AndroidNotificationGateway.syncAlertAlarms(
+        times: distinctNotificationTimes(
+          settings.notificationTime ?? defaultNotificationMinutes,
+          await readCaseTimes(),
+        ),
         callback: notificationAlarmCallback,
         // Android 14 denies exact alarms by default: ask, and fall back to an
         // inexact idle-safe alarm rather than scheduling nothing at all.
@@ -131,7 +146,7 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   @override
   Future<void> cancelAll() async {
     try {
-      await AndroidNotificationGateway.cancelDailyAlarm();
+      await AndroidNotificationGateway.cancelAllAlertAlarms();
       await AndroidNotificationGateway.cancelAllPresentedAlerts();
     } catch (error, stackTrace) {
       AndroidNotificationGateway.reportFailure(error, stackTrace);

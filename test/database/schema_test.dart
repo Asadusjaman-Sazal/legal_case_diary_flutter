@@ -173,6 +173,23 @@ void main() {
       );
     });
 
+    test('case_notification_preferences carries the per-case time', () async {
+      // The Notification Time a case can set for itself; null means it follows
+      // the user's default time in `user_preferences`.
+      final columns = await _tableColumns(db, 'case_notification_preferences');
+      expect(
+        columns,
+        containsAll(<String>[
+          'user_id',
+          'case_id',
+          'enabled',
+          'offsets',
+          'time_minutes',
+          'updated_at',
+        ]),
+      );
+    });
+
     test('activeCases query filters out deleted rows', () async {
       final now = DateTime.now().toUtc().millisecondsSinceEpoch;
       await _insertCase(db, id: 'active', isDeleted: false, updatedAt: now);

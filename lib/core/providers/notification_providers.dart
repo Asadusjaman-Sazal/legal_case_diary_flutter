@@ -7,19 +7,30 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/settings/data/local/case_notification_preferences_dao.dart';
+import '../../shared/providers/database_provider.dart';
 import '../notifications/android_notification_scheduler.dart';
 import '../notifications/notification_scheduler.dart';
+import '../services/local_identity_service.dart';
 import 'repository_providers.dart';
 
 /// The platform notification scheduler.
 ///
-/// Reads settings through [settingsRepositoryProvider] on every call so a
-/// preference changed elsewhere is always the one the alarm is armed with.
+/// Reads settings and the per-case Notification Time overrides on every call so
+/// a preference changed elsewhere is always what the alarms are armed with.
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
   return AndroidNotificationScheduler(
     readSettings: () async {
       final repo = await ref.read(settingsRepositoryProvider.future);
       return repo.getSettings();
+    },
+    readCaseTimes: () async {
+      final db = await ref.read(databaseProvider.future);
+      final identity = ref.read(localIdentityServiceProvider);
+      final rows = await CaseNotificationPreferencesDao(
+        db,
+      ).getByUserId(identity.getId());
+      return [for (final row in rows) row.timeMinutes];
     },
   );
 });

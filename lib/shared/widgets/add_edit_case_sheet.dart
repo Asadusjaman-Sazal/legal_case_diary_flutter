@@ -20,10 +20,14 @@ import '../../core/constants/free_tier.dart';
 import '../../core/constants/pre_seeded_data.dart';
 import '../../core/l10n/app_translations.dart';
 import '../../core/l10n/generated/app_localizations.dart';
+import '../../core/notifications/notification_plan.dart';
+import '../../core/providers/notification_providers.dart';
 import '../../core/providers/repository_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/services/local_identity_service.dart';
+import '../../core/utils/date_utils.dart';
 import '../../database/app_database.dart';
+import '../../features/settings/presentation/settings_notifications/notification_time_picker.dart';
 import '../../features/accounts_and_profile/data/local/firm_members_dao.dart';
 import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
 import '../../features/cases/data/case_form_repository.dart';
@@ -90,6 +94,7 @@ class AddEditCaseLookupData {
     this.steps = const [],
     this.notificationOffsets = notificationDayOffsetOptions,
     this.defaultNotificationOffset = defaultNotificationDayOffset,
+    this.defaultNotificationTime = defaultNotificationMinutes,
     this.lastAddCaseHigherLowerCourt,
     this.lastAddCaseDivision,
     this.lastAddCaseDistrict,
@@ -119,6 +124,10 @@ class AddEditCaseLookupData {
   /// The offset stored in Settings → Notifications, which a case without its
   /// own stored preference starts from.
   final int defaultNotificationOffset;
+
+  /// The alert time stored in Settings → Notifications, which a case without
+  /// its own Notification Time follows.
+  final int defaultNotificationTime;
 
   /// Last Add Case court hierarchy choices saved for this user.
   final String? lastAddCaseHigherLowerCourt;
@@ -237,6 +246,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isNotificationEnabled = true;
+  // This case's own alert time; null means it follows the Settings default.
+  int? _notificationTimeMinutes;
   bool _notificationPreferenceLoading = false;
   bool _permissionResolved = false;
   bool _canAdd = true;
@@ -393,6 +404,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         _notificationPreferenceLoading = false;
         if (preference != null) {
           _isNotificationEnabled = preference.enabled;
+          _notificationTimeMinutes = preference.timeMinutes;
           _selectedNotificationOffsets = _decodeOffsets(
             preference.offsets,
             fallback: _lookupData?.defaultNotificationOffset,
@@ -429,6 +441,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         steps: await StepsDao(db).getAll(),
         notificationOffsets: notificationDayOffsetOptions,
         defaultNotificationOffset: settings.notificationDayOffset,
+        defaultNotificationTime:
+            settings.notificationTime ?? defaultNotificationMinutes,
         lastAddCaseHigherLowerCourt: settings.lastAddCaseHigherLowerCourt,
         lastAddCaseDivision: settings.lastAddCaseDivision,
         lastAddCaseDistrict: settings.lastAddCaseDistrict,
@@ -448,6 +462,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         _canEdit = permissions.canEdit;
         if (casePreference != null) {
           _isNotificationEnabled = casePreference.enabled;
+          _notificationTimeMinutes = casePreference.timeMinutes;
           _selectedNotificationOffsets = _decodeOffsets(
             casePreference.offsets,
             fallback: data.defaultNotificationOffset,
@@ -1019,20 +1034,33 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
             children: [
               _nextDateAndNotificationRow(context, editable),
               const SizedBox(height: AppSpacing.md),
-              CustomDropdown<int>(
-                fieldKey: const ValueKey('add-edit-day-offset'),
-                label: l.addEditCaseSheet_dayOffset,
-                items: _lookupData?.notificationOffsets ?? const [],
-                selectedValues: _selectedNotificationOffsets,
-                multiSelect: true,
-                searchable: false,
-                itemLabel: (item) => _offsetLabel(context, item),
-                enabled: editable,
-                emptyFillColor: AppColors.surface,
-                selectedFillColor: AppColors.surfaceVariant,
-                outlined: true,
-                onMultiChanged: (values) =>
-                    setState(() => _selectedNotificationOffsets = values),
+              // Day Offset and Notification Time share one line: how early the
+              // alert goes out on the left, what time of day on the right.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CustomDropdown<int>(
+                      fieldKey: const ValueKey('add-edit-day-offset'),
+                      label: l.addEditCaseSheet_dayOffset,
+                      items: _lookupData?.notificationOffsets ?? const [],
+                      selectedValues: _selectedNotificationOffsets,
+                      multiSelect: true,
+                      searchable: false,
+                      itemLabel: (item) => _offsetLabel(context, item),
+                      enabled: editable,
+                      emptyFillColor: AppColors.surface,
+                      selectedFillColor: AppColors.surfaceVariant,
+                      outlined: true,
+                      onMultiChanged: (values) =>
+                          setState(() => _selectedNotificationOffsets = values),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _notificationTimeField(context, editable),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.md),
               if (_isHigherCourt)
@@ -1391,6 +1419,70 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         : l.addEditCaseSheet_offsetDaysBefore(offset);
   }
 
+  /// This case's Notification Time: follows the Settings default until the user
+  /// picks its own, and tapping opens the very window Settings opens.
+  Widget _notificationTimeField(BuildContext context, bool editable) {
+    final l = AppLocalizations.of(context);
+    final effective =
+        _notificationTimeMinutes ?? _lookupData!.defaultNotificationTime;
+    final isOverride = _notificationTimeMinutes != null;
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.settingsNotifications_timeLabel, style: AppTypography.labelLg),
+        const SizedBox(height: AppSpacing.xs),
+        InkWell(
+          key: const ValueKey('add-edit-notification-time'),
+          onTap: editable ? () => _pickNotificationTime(effective) : null,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              enabled: editable,
+              fillColor: AppColors.surfaceVariant,
+              enabledBorder: border,
+              focusedBorder: border,
+              // The reset clears this case's override, handing it back to the
+              // Settings default; it only appears while there is one to clear.
+              suffixIcon: isOverride
+                  ? IconButton(
+                      key: const ValueKey('add-edit-notification-time-reset'),
+                      tooltip: l.settingsViewSettings_fontSizeReset,
+                      onPressed: editable
+                          ? () => setState(
+                              () => _notificationTimeMinutes = null,
+                            )
+                          : null,
+                      icon: const Icon(Icons.restart_alt),
+                    )
+                  : const Icon(Icons.schedule),
+            ),
+            child: Text(
+              AppDateUtils.formatClockTime(
+                effective,
+                locale: Localizations.localeOf(context).languageCode,
+              ),
+              style: AppTypography.bodyMd,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickNotificationTime(int initialMinutes) async {
+    final picked = await showNotificationTimePicker(
+      context,
+      initialMinutes: initialMinutes,
+    );
+    if (picked == null || !mounted) return;
+    setState(
+      () => _notificationTimeMinutes = picked.hour * 60 + picked.minute,
+    );
+  }
+
   Future<void> _pickNextDate() async {
     final date = await showPlainDatePicker(
       context,
@@ -1642,8 +1734,11 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         userId: identity.getId(),
         notificationEnabled: _isNotificationEnabled,
         notificationOffsets: _selectedNotificationOffsets,
+        notificationTimeMinutes: _notificationTimeMinutes,
         updatedAt: now,
       );
+      // Re-arm the alert alarms: this case may add a time slot or move one.
+      await ref.read(notificationSchedulerProvider).syncSchedule();
       if (!mounted) return;
       widget.onSave?.call();
       Navigator.of(context).pop(id);
@@ -1714,6 +1809,9 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
   List<Step> _selectedSteps = const [];
   List<int> _notificationOffsets = const [];
   List<int> _selectedNotificationOffsets = const [];
+  // The case's own alert time; null means it follows the Settings default.
+  int? _notificationTimeMinutes;
+  int _defaultNotificationTime = defaultNotificationMinutes;
   bool _isNotificationEnabled = true;
   bool _isHigherCourt = false;
   bool _loading = true;
@@ -1790,6 +1888,9 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
           fallback: settings.notificationDayOffset,
         );
         _isNotificationEnabled = preference?.enabled ?? true;
+        _notificationTimeMinutes = preference?.timeMinutes;
+        _defaultNotificationTime =
+            settings.notificationTime ?? defaultNotificationMinutes;
         _permissionResolved = true;
         _canEdit = permissions.canEdit;
         _loading = false;
@@ -1979,6 +2080,72 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     );
   }
 
+  /// The case's Notification Time, the same control the Add/Edit Case form
+  /// shows: the Settings default until the user picks its own.
+  Widget _quickUpdateNotificationTimeField(
+    BuildContext context,
+    bool editable,
+  ) {
+    final l = AppLocalizations.of(context);
+    final effective = _notificationTimeMinutes ?? _defaultNotificationTime;
+    final isOverride = _notificationTimeMinutes != null;
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      borderSide: const BorderSide(color: AppColors.outlineVariant),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.settingsNotifications_timeLabel, style: AppTypography.labelLg),
+        const SizedBox(height: AppSpacing.xs),
+        InkWell(
+          key: const ValueKey('quick-update-notification-time'),
+          onTap: editable ? () => _pickNotificationTime(effective) : null,
+          child: InputDecorator(
+            decoration: InputDecoration(
+              enabled: editable,
+              fillColor: AppColors.surfaceVariant,
+              enabledBorder: border,
+              focusedBorder: border,
+              suffixIcon: isOverride
+                  ? IconButton(
+                      key: const ValueKey(
+                        'quick-update-notification-time-reset',
+                      ),
+                      tooltip: l.settingsViewSettings_fontSizeReset,
+                      onPressed: editable
+                          ? () => setState(
+                              () => _notificationTimeMinutes = null,
+                            )
+                          : null,
+                      icon: const Icon(Icons.restart_alt),
+                    )
+                  : const Icon(Icons.schedule),
+            ),
+            child: Text(
+              AppDateUtils.formatClockTime(
+                effective,
+                locale: Localizations.localeOf(context).languageCode,
+              ),
+              style: AppTypography.bodyMd,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickNotificationTime(int initialMinutes) async {
+    final picked = await showNotificationTimePicker(
+      context,
+      initialMinutes: initialMinutes,
+    );
+    if (picked == null || !mounted) return;
+    setState(
+      () => _notificationTimeMinutes = picked.hour * 60 + picked.minute,
+    );
+  }
+
   String _offsetLabel(BuildContext context, int offset) {
     final l = AppLocalizations.of(context);
     return offset == 0
@@ -2035,10 +2202,13 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
             caseId: Value(widget.currentCase.id),
             enabled: Value(_isNotificationEnabled),
             offsets: Value(jsonEncode(_selectedNotificationOffsets)),
+            timeMinutes: Value(_notificationTimeMinutes),
             updatedAt: Value(updatedAt),
           ),
         );
       });
+      // Re-arm the alert alarms: this update may add a time slot or move one.
+      await ref.read(notificationSchedulerProvider).syncSchedule();
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
@@ -2144,21 +2314,40 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                           editable,
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        CustomDropdown<int>(
-                          fieldKey: const ValueKey('quick-update-day-offset'),
-                          label: l.addEditCaseSheet_dayOffset,
-                          items: _notificationOffsets,
-                          selectedValues: _selectedNotificationOffsets,
-                          multiSelect: true,
-                          searchable: false,
-                          itemLabel: (item) => _offsetLabel(context, item),
-                          enabled: editable,
-                          emptyFillColor: AppColors.surface,
-                          selectedFillColor: AppColors.surfaceVariant,
-                          outlined: true,
-                          onMultiChanged: (values) => setState(
-                            () => _selectedNotificationOffsets = values,
-                          ),
+                        // Day Offset and Notification Time share one line, as
+                        // they do on the Add/Edit Case form.
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: CustomDropdown<int>(
+                                fieldKey: const ValueKey(
+                                  'quick-update-day-offset',
+                                ),
+                                label: l.addEditCaseSheet_dayOffset,
+                                items: _notificationOffsets,
+                                selectedValues: _selectedNotificationOffsets,
+                                multiSelect: true,
+                                searchable: false,
+                                itemLabel: (item) =>
+                                    _offsetLabel(context, item),
+                                enabled: editable,
+                                emptyFillColor: AppColors.surface,
+                                selectedFillColor: AppColors.surfaceVariant,
+                                outlined: true,
+                                onMultiChanged: (values) => setState(
+                                  () => _selectedNotificationOffsets = values,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: _quickUpdateNotificationTimeField(
+                                context,
+                                editable,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: AppSpacing.md),
                         if (_isHigherCourt)

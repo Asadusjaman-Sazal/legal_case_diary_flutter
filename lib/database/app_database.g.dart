@@ -15119,6 +15119,17 @@ class $CaseNotificationPreferencesTable extends CaseNotificationPreferences
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _timeMinutesMeta = const VerificationMeta(
+    'timeMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> timeMinutes = GeneratedColumn<int>(
+    'time_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -15136,6 +15147,7 @@ class $CaseNotificationPreferencesTable extends CaseNotificationPreferences
     caseId,
     enabled,
     offsets,
+    timeMinutes,
     updatedAt,
   ];
   @override
@@ -15178,6 +15190,15 @@ class $CaseNotificationPreferencesTable extends CaseNotificationPreferences
         offsets.isAcceptableOrUnknown(data['offsets']!, _offsetsMeta),
       );
     }
+    if (data.containsKey('time_minutes')) {
+      context.handle(
+        _timeMinutesMeta,
+        timeMinutes.isAcceptableOrUnknown(
+          data['time_minutes']!,
+          _timeMinutesMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -15214,6 +15235,10 @@ class $CaseNotificationPreferencesTable extends CaseNotificationPreferences
         DriftSqlType.string,
         data['${effectivePrefix}offsets'],
       ),
+      timeMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_minutes'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}updated_at'],
@@ -15242,6 +15267,11 @@ class CaseNotificationPreference extends DataClass
   /// user's default offsets.
   final String? offsets;
 
+  /// Minutes since midnight for this case's alerts; if null, the case follows
+  /// the user's default notification time in `user_preferences`. A value here
+  /// is a per-case override, so one case can alert at a different time of day.
+  final int? timeMinutes;
+
   /// Timestamp when these preferences were last updated (epoch ms).
   final int updatedAt;
   const CaseNotificationPreference({
@@ -15249,6 +15279,7 @@ class CaseNotificationPreference extends DataClass
     required this.caseId,
     required this.enabled,
     this.offsets,
+    this.timeMinutes,
     required this.updatedAt,
   });
   @override
@@ -15259,6 +15290,9 @@ class CaseNotificationPreference extends DataClass
     map['enabled'] = Variable<bool>(enabled);
     if (!nullToAbsent || offsets != null) {
       map['offsets'] = Variable<String>(offsets);
+    }
+    if (!nullToAbsent || timeMinutes != null) {
+      map['time_minutes'] = Variable<int>(timeMinutes);
     }
     map['updated_at'] = Variable<int>(updatedAt);
     return map;
@@ -15272,6 +15306,9 @@ class CaseNotificationPreference extends DataClass
       offsets: offsets == null && nullToAbsent
           ? const Value.absent()
           : Value(offsets),
+      timeMinutes: timeMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeMinutes),
       updatedAt: Value(updatedAt),
     );
   }
@@ -15286,6 +15323,7 @@ class CaseNotificationPreference extends DataClass
       caseId: serializer.fromJson<String>(json['caseId']),
       enabled: serializer.fromJson<bool>(json['enabled']),
       offsets: serializer.fromJson<String?>(json['offsets']),
+      timeMinutes: serializer.fromJson<int?>(json['timeMinutes']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
   }
@@ -15297,6 +15335,7 @@ class CaseNotificationPreference extends DataClass
       'caseId': serializer.toJson<String>(caseId),
       'enabled': serializer.toJson<bool>(enabled),
       'offsets': serializer.toJson<String?>(offsets),
+      'timeMinutes': serializer.toJson<int?>(timeMinutes),
       'updatedAt': serializer.toJson<int>(updatedAt),
     };
   }
@@ -15306,12 +15345,14 @@ class CaseNotificationPreference extends DataClass
     String? caseId,
     bool? enabled,
     Value<String?> offsets = const Value.absent(),
+    Value<int?> timeMinutes = const Value.absent(),
     int? updatedAt,
   }) => CaseNotificationPreference(
     userId: userId ?? this.userId,
     caseId: caseId ?? this.caseId,
     enabled: enabled ?? this.enabled,
     offsets: offsets.present ? offsets.value : this.offsets,
+    timeMinutes: timeMinutes.present ? timeMinutes.value : this.timeMinutes,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   CaseNotificationPreference copyWithCompanion(
@@ -15322,6 +15363,9 @@ class CaseNotificationPreference extends DataClass
       caseId: data.caseId.present ? data.caseId.value : this.caseId,
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
       offsets: data.offsets.present ? data.offsets.value : this.offsets,
+      timeMinutes: data.timeMinutes.present
+          ? data.timeMinutes.value
+          : this.timeMinutes,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -15333,13 +15377,15 @@ class CaseNotificationPreference extends DataClass
           ..write('caseId: $caseId, ')
           ..write('enabled: $enabled, ')
           ..write('offsets: $offsets, ')
+          ..write('timeMinutes: $timeMinutes, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(userId, caseId, enabled, offsets, updatedAt);
+  int get hashCode =>
+      Object.hash(userId, caseId, enabled, offsets, timeMinutes, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -15348,6 +15394,7 @@ class CaseNotificationPreference extends DataClass
           other.caseId == this.caseId &&
           other.enabled == this.enabled &&
           other.offsets == this.offsets &&
+          other.timeMinutes == this.timeMinutes &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -15357,6 +15404,7 @@ class CaseNotificationPreferencesCompanion
   final Value<String> caseId;
   final Value<bool> enabled;
   final Value<String?> offsets;
+  final Value<int?> timeMinutes;
   final Value<int> updatedAt;
   final Value<int> rowid;
   const CaseNotificationPreferencesCompanion({
@@ -15364,6 +15412,7 @@ class CaseNotificationPreferencesCompanion
     this.caseId = const Value.absent(),
     this.enabled = const Value.absent(),
     this.offsets = const Value.absent(),
+    this.timeMinutes = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -15372,6 +15421,7 @@ class CaseNotificationPreferencesCompanion
     required String caseId,
     this.enabled = const Value.absent(),
     this.offsets = const Value.absent(),
+    this.timeMinutes = const Value.absent(),
     required int updatedAt,
     this.rowid = const Value.absent(),
   }) : userId = Value(userId),
@@ -15382,6 +15432,7 @@ class CaseNotificationPreferencesCompanion
     Expression<String>? caseId,
     Expression<bool>? enabled,
     Expression<String>? offsets,
+    Expression<int>? timeMinutes,
     Expression<int>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -15390,6 +15441,7 @@ class CaseNotificationPreferencesCompanion
       if (caseId != null) 'case_id': caseId,
       if (enabled != null) 'enabled': enabled,
       if (offsets != null) 'offsets': offsets,
+      if (timeMinutes != null) 'time_minutes': timeMinutes,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -15400,6 +15452,7 @@ class CaseNotificationPreferencesCompanion
     Value<String>? caseId,
     Value<bool>? enabled,
     Value<String?>? offsets,
+    Value<int?>? timeMinutes,
     Value<int>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -15408,6 +15461,7 @@ class CaseNotificationPreferencesCompanion
       caseId: caseId ?? this.caseId,
       enabled: enabled ?? this.enabled,
       offsets: offsets ?? this.offsets,
+      timeMinutes: timeMinutes ?? this.timeMinutes,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -15428,6 +15482,9 @@ class CaseNotificationPreferencesCompanion
     if (offsets.present) {
       map['offsets'] = Variable<String>(offsets.value);
     }
+    if (timeMinutes.present) {
+      map['time_minutes'] = Variable<int>(timeMinutes.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
@@ -15444,6 +15501,7 @@ class CaseNotificationPreferencesCompanion
           ..write('caseId: $caseId, ')
           ..write('enabled: $enabled, ')
           ..write('offsets: $offsets, ')
+          ..write('timeMinutes: $timeMinutes, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -24354,6 +24412,7 @@ typedef $$CaseNotificationPreferencesTableCreateCompanionBuilder =
       required String caseId,
       Value<bool> enabled,
       Value<String?> offsets,
+      Value<int?> timeMinutes,
       required int updatedAt,
       Value<int> rowid,
     });
@@ -24363,6 +24422,7 @@ typedef $$CaseNotificationPreferencesTableUpdateCompanionBuilder =
       Value<String> caseId,
       Value<bool> enabled,
       Value<String?> offsets,
+      Value<int?> timeMinutes,
       Value<int> updatedAt,
       Value<int> rowid,
     });
@@ -24393,6 +24453,11 @@ class $$CaseNotificationPreferencesTableFilterComposer
 
   ColumnFilters<String> get offsets => $composableBuilder(
     column: $table.offsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeMinutes => $composableBuilder(
+    column: $table.timeMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24431,6 +24496,11 @@ class $$CaseNotificationPreferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get timeMinutes => $composableBuilder(
+    column: $table.timeMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -24457,6 +24527,11 @@ class $$CaseNotificationPreferencesTableAnnotationComposer
 
   GeneratedColumn<String> get offsets =>
       $composableBuilder(column: $table.offsets, builder: (column) => column);
+
+  GeneratedColumn<int> get timeMinutes => $composableBuilder(
+    column: $table.timeMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -24512,6 +24587,7 @@ class $$CaseNotificationPreferencesTableTableManager
                 Value<String> caseId = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
                 Value<String?> offsets = const Value.absent(),
+                Value<int?> timeMinutes = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CaseNotificationPreferencesCompanion(
@@ -24519,6 +24595,7 @@ class $$CaseNotificationPreferencesTableTableManager
                 caseId: caseId,
                 enabled: enabled,
                 offsets: offsets,
+                timeMinutes: timeMinutes,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -24528,6 +24605,7 @@ class $$CaseNotificationPreferencesTableTableManager
                 required String caseId,
                 Value<bool> enabled = const Value.absent(),
                 Value<String?> offsets = const Value.absent(),
+                Value<int?> timeMinutes = const Value.absent(),
                 required int updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => CaseNotificationPreferencesCompanion.insert(
@@ -24535,6 +24613,7 @@ class $$CaseNotificationPreferencesTableTableManager
                 caseId: caseId,
                 enabled: enabled,
                 offsets: offsets,
+                timeMinutes: timeMinutes,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

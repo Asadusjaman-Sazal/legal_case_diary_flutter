@@ -177,6 +177,17 @@ void main() {
       reason: 'AndroidAlarmManager resolves the job by callback handle; without '
           'the annotation a release build can strip it.',
     );
-    expect(job.contains('Future<void> notificationAlarmCallback()'), isTrue);
+    expect(
+      job.contains('Future<void> notificationAlarmCallback(int alarmId)'),
+      isTrue,
+      reason: 'The alarm hands the job its id, which is how a run knows which '
+          'time slot it is posting for.',
+    );
+    expect(
+      job.contains('AndroidNotificationGateway.alertMinutesForId(alarmId)'),
+      isTrue,
+      reason: 'The alarm id is the only thing carrying the slot into the job '
+          'isolate; dropping it would post every case at every slot.',
+    );
   });
 }

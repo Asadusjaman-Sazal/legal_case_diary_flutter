@@ -953,6 +953,117 @@ void main() {
     expect(find.text('Before 15 days'), findsOneWidget);
   });
 
+  testWidgets(
+    'the Notification Time follows Settings and is overridden per case',
+    (WidgetTester tester) async {
+      await settingsRepository().upsertSettings(
+        const UserSettings(notificationTime: 9 * 60 + 30),
+      );
+
+      // The real load path, so the default time comes from the stored settings.
+      await tester.pumpWidget(
+        appScope(
+          Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                key: const ValueKey('open-task07-form'),
+                onPressed: () => AddEditCaseSheet.show<void>(context),
+                child: const Text('Open form'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('open-task07-form')));
+      await tester.pumpAndSettle();
+
+      final timeField = find.byKey(
+        const ValueKey('add-edit-notification-time'),
+      );
+      await tester.scrollUntilVisible(
+        timeField,
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      // scrollUntilVisible stops as soon as the field is technically on screen,
+      // which leaves it under the sheet's footer; lift it clear so the tap lands.
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, -160),
+      );
+      await tester.pumpAndSettle();
+      // Day Offset and Notification Time share the one line.
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('add-edit-day-offset'))).dx,
+        lessThan(tester.getCenter(timeField).dx),
+      );
+      // Following the default, and nothing to reset yet.
+      expect(find.text('09:30 AM'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('add-edit-notification-time-reset')),
+        findsNothing,
+      );
+
+      await _pickNotificationTime(
+        tester,
+        const ValueKey('add-edit-notification-time'),
+        hour: 11,
+        minute: 5,
+      );
+
+      // The case's own time replaces the default, and can be handed back.
+      expect(find.text('11:05 AM'), findsOneWidget);
+      await tester.tap(
+        find.byKey(const ValueKey('add-edit-notification-time-reset')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('09:30 AM'), findsOneWidget);
+    },
+  );
+
+  testWidgets('Quick Update overrides the notification time for one case', (
+    WidgetTester tester,
+  ) async {
+    await settingsRepository().upsertSettings(
+      const UserSettings(notificationTime: 9 * 60 + 30),
+    );
+    final id = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('410/23'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseType: const Value('Civil Suit'),
+        onBehalfId: Value(onBehalfId),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+    final current = (await caseRepository.getById(id))!;
+
+    await tester.pumpWidget(
+      appScope(QuickUpdateCaseDialog(currentCase: current)),
+    );
+    await tester.pumpAndSettle();
+
+    // Same control as the form: the Settings time until it is overridden.
+    expect(find.text('09:30 AM'), findsOneWidget);
+    await _pickNotificationTime(
+      tester,
+      const ValueKey('quick-update-notification-time'),
+      hour: 11,
+      minute: 5,
+    );
+    expect(find.text('11:05 AM'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    final preference = await CaseNotificationPreferencesDao(
+      db,
+    ).get(identity.getId(), id);
+    expect(preference?.timeMinutes, 11 * 60 + 5);
+  });
+
   testWidgets('High Court fields persist and restore in edit mode', (
     WidgetTester tester,
   ) async {
@@ -1388,5 +1499,28 @@ Future<void> _selectOffsets(WidgetTester tester, List<int> offsets) async {
 Future<void> _selectAcceptanceCaseCategory(WidgetTester tester) async {
   await _select(tester, const ValueKey('add-edit-case-category'));
   await tester.tap(find.text('Acceptance Civil Cases'));
+  await tester.pumpAndSettle();
+}
+
+/// Opens the shared notification-time window from [fieldKey] and types a time
+/// through its keyboard entry — the only way a widget test can choose a value
+/// on the dial.
+Future<void> _pickNotificationTime(
+  WidgetTester tester,
+  Key fieldKey, {
+  required int hour,
+  required int minute,
+}) async {
+  await tester.tap(find.byKey(fieldKey));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byIcon(Icons.keyboard_outlined));
+  await tester.pumpAndSettle();
+  // The hour and minute cells are the last two text fields the window builds
+  // after the hidden ones Flutter keeps for the dial's accessibility layer.
+  final fields = find.byType(TextField);
+  final count = fields.evaluate().length;
+  await tester.enterText(fields.at(count - 2), '$hour');
+  await tester.enterText(fields.at(count - 1), '$minute');
+  await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
 }

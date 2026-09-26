@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Overdue Dates'**
   String get nav_overdueDates;
 
+  /// No description provided for @drawerOf.
+  ///
+  /// In en, this message translates to:
+  /// **'of'**
+  String get drawerOf;
+
   /// No description provided for @allCasesScreen_title.
   ///
   /// In en, this message translates to:

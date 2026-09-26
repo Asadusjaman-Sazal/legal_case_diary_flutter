@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.266 - Add an adaptive launcher icon so the Android app icon draws the logo large instead of the small legacy icon, keeping the Legal Case Diary text clear of the launcher mask.
+Version: 0.0.268 - Side menu: black fill on the selected item and a locale-aware, centre-aligned three-line profile header.
 --------------------------------------
 
 ## Version History Log:
@@ -280,3 +280,5 @@ Version: 0.0.263 - Add a plaintext Excel backup and restore to Settings > Backup
 Version: 0.0.264 - Make Backup & Restore's three section headings the app's standard sub-menu buttons, keep Backup Status always open, and put live reference sheets plus a Guide in the Excel template.
 Version: 0.0.265 - Add a District column to the Excel template's Courts sheet and group lower courts by district, then court category, keeping the AD and HCD rows unchanged.
 Version: 0.0.266 - Add an adaptive launcher icon so the Android app icon draws the logo large instead of the small legacy icon, keeping the Legal Case Diary text clear of the launcher mask.
+Version: 0.0.267 - Switch bottom navigation screens with no transition at all, removing the zoom-and-fade that was making some users unwell.
+Version: 0.0.268 - Side menu: black fill on the selected item and a locale-aware, centre-aligned three-line profile header.

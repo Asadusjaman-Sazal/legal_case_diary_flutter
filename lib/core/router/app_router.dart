@@ -205,38 +205,55 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
 });
 
 /// Shell-level routes (all screens that share the bottom nav / drawer shell).
+///
+/// The screens a bottom nav tab opens are built as [NoTransitionPage]s, so
+/// switching between them is instant rather than animated. The default
+/// transition is a zoom-and-fade, and that motion is what was making some users
+/// feel unwell; a plain switch has no motion at all. Only the bottom nav's own
+/// screens are declared this way — every other route keeps the app's normal
+/// transition. Note that GoRouter picks the transition from the route, not from
+/// what was tapped, so a route declared here is also instant when the drawer (or
+/// a case-list summary card) opens the same screen.
 final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.dailyCauseList,
-    builder: (context, state) => const DailyCauseListScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: DailyCauseListScreen()),
   ),
   GoRoute(
     path: AppRoutes.allCases,
-    builder: (context, state) => const AllCasesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: AllCasesScreen()),
   ),
   GoRoute(
     path: AppRoutes.activeCases,
-    builder: (context, state) => const ActiveCasesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: ActiveCasesScreen()),
   ),
   GoRoute(
     path: AppRoutes.upcomingCases,
-    builder: (context, state) => const UpcomingCasesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: UpcomingCasesScreen()),
   ),
   GoRoute(
     path: AppRoutes.overdueDates,
-    builder: (context, state) => const OverdueDatesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: OverdueDatesScreen()),
   ),
   GoRoute(
     path: AppRoutes.disposedCases,
-    builder: (context, state) => const DisposedCasesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: DisposedCasesScreen()),
   ),
   GoRoute(
     path: AppRoutes.notes,
-    builder: (context, state) => const NotesScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: NotesScreen()),
   ),
   GoRoute(
     path: AppRoutes.caseReference,
-    builder: (context, state) => const CaseReferenceScreen(),
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: CaseReferenceScreen()),
   ),
   // Settings tree
   GoRoute(

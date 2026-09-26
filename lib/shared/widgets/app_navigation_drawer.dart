@@ -1,7 +1,7 @@
 /// Left navigation drawer for all case screens.
 ///
 /// Displays a profile header, grouped nav items, and Print/Share actions.
-/// Active item is highlighted with a [AppColors.secondaryContainer] pill.
+/// Active item is highlighted with a black pill.
 /// Item visibility is driven by [sideNavOptions] from [UserSettings].
 library;
 
@@ -48,7 +48,6 @@ class _NavItem {
 ///   order Settings > View Settings lists them in.
 /// [displayName] — optional override for the header name; defaults to the
 ///   saved Profile Full Name (see [profileNameProvider]).
-/// [roleLabel] — user's role (e.g. "Advocate"); shown as a stub when null.
 /// [onPrint] — callback for the Print action (Task 14 implements the service).
 /// [onShare] — callback for the Share action (Task 14 implements the service).
 ///
@@ -58,7 +57,6 @@ class AppNavigationDrawer extends ConsumerWidget {
   final String currentRoute;
   final Map<String, dynamic> sideNavOptions;
   final String? displayName;
-  final String? roleLabel;
   final VoidCallback? onPrint;
   final VoidCallback? onShare;
 
@@ -66,7 +64,6 @@ class AppNavigationDrawer extends ConsumerWidget {
     required this.currentRoute,
     this.sideNavOptions = const {},
     this.displayName,
-    this.roleLabel,
     this.onPrint,
     this.onShare,
     super.key,
@@ -173,6 +170,11 @@ class AppNavigationDrawer extends ConsumerWidget {
     final avatarFile = ref.watch(profilePictureProvider);
     final savedName = ref.watch(profileNameProvider);
     final headerName = (displayName ?? savedName).trim();
+    // The header reads as a possessive phrase, so the app name and the lawyer's
+    // name swap places between the two languages ("Legal Case Diary of <name>"
+    // vs "<name> এর লিগ্যাল কেস ডায়েরি").
+    final isBengali = l.localeName.startsWith('bn');
+    final nameLine = headerName.isNotEmpty ? headerName : '—';
     return Drawer(
       backgroundColor: AppColors.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(),
@@ -181,7 +183,8 @@ class AppNavigationDrawer extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ----------------------------------------------------------------
-            // Profile header — matches mockup: avatar, name, role, app subtitle
+            // Profile header — avatar with three centre-aligned lines: the app
+            // name, the "of" / "এর" connector, and the lawyer's name.
             // ----------------------------------------------------------------
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
@@ -205,33 +208,27 @@ class AppNavigationDrawer extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          headerName.isNotEmpty ? headerName : '—',
-                          style: AppTypography.titleLg.copyWith(
-                            color: AppColors.primary,
+                        if (isBengali) ...[
+                          _headerLine(
+                            nameLine,
+                            AppTypography.titleLg.copyWith(
+                              color: AppColors.primary,
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (roleLabel != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            roleLabel!,
-                            style: AppTypography.labelLg,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          _headerLine(l.drawerOf, _connectorStyle),
+                          _headerLine(l.appName, _appNameStyle),
+                        ] else ...[
+                          _headerLine(l.appName, _appNameStyle),
+                          _headerLine(l.drawerOf, _connectorStyle),
+                          _headerLine(
+                            nameLine,
+                            AppTypography.titleLg.copyWith(
+                              color: AppColors.primary,
+                            ),
                           ),
                         ],
-                        const SizedBox(height: 4),
-                        Text(
-                          l.appName,
-                          style: AppTypography.labelMd.copyWith(
-                            color: AppColors.primary,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -276,6 +273,29 @@ class AppNavigationDrawer extends ConsumerWidget {
   }
 }
 
+/// Centred single-line header text with an ellipsis guard.
+Widget _headerLine(String text, TextStyle style) => Padding(
+  padding: const EdgeInsets.symmetric(vertical: 1),
+  child: Text(
+    text,
+    style: style,
+    textAlign: TextAlign.center,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+  ),
+);
+
+/// Style for the app-name line in the profile header.
+final TextStyle _appNameStyle = AppTypography.labelMd.copyWith(
+  color: AppColors.primary,
+  letterSpacing: 0.8,
+);
+
+/// Style for the "of" / "এর" connector line in the profile header.
+final TextStyle _connectorStyle = AppTypography.labelMd.copyWith(
+  color: AppColors.onSurfaceVariant,
+);
+
 class _DrawerNavTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -294,7 +314,9 @@ class _DrawerNavTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: Material(
-        color: active ? AppColors.secondaryContainer : Colors.transparent,
+        // Black fill for the selected screen, matching the app's black action
+        // buttons (Update, Call, Message, Add Case, ...).
+        color: active ? Colors.black : Colors.transparent,
         borderRadius: BorderRadius.circular(24),
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
@@ -306,18 +328,14 @@ class _DrawerNavTile extends StatelessWidget {
                 Icon(
                   icon,
                   size: 22,
-                  color: active
-                      ? AppColors.onSecondaryContainer
-                      : AppColors.onSurfaceVariant,
+                  color: active ? Colors.white : AppColors.onSurfaceVariant,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     label,
                     style: AppTypography.labelLg.copyWith(
-                      color: active
-                          ? AppColors.onSecondaryContainer
-                          : AppColors.onSurfaceVariant,
+                      color: active ? Colors.white : AppColors.onSurfaceVariant,
                       fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),

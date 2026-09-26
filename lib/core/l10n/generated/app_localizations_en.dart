@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_overdueDates => 'Overdue Dates';
 
   @override
+  String get drawerOf => 'of';
+
+  @override
   String get allCasesScreen_title => 'All Cases';
 
   @override

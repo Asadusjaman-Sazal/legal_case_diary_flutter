@@ -15,6 +15,7 @@
   "nav_share": "শেয়ার",
   "nav_activeCases": "চলতি মামলা",
   "nav_overdueDates": "বিলম্বিত তারিখ",
+  "drawerOf": "এর",
   "@@_section_allCasesScreen": "ALL CASES SCREEN  |  lib/features/cases/presentation/all_cases/all_cases_screen.dart",
   "allCasesScreen_title": "সব মামলা",
   "allCasesScreen_activeCases": "সক্রিয় মামলা",

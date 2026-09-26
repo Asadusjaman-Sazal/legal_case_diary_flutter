@@ -48,6 +48,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get nav_overdueDates => 'বিলম্বিত তারিখ';
 
   @override
+  String get drawerOf => 'এর';
+
+  @override
   String get allCasesScreen_title => 'সব মামলা';
 
   @override

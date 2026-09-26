@@ -15,6 +15,7 @@
   "nav_share": "Share",
   "nav_activeCases": "Active Cases",
   "nav_overdueDates": "Overdue Dates",
+  "drawerOf": "of",
   "@@_section_allCasesScreen": "ALL CASES SCREEN  |  lib/features/cases/presentation/all_cases/all_cases_screen.dart",
   "allCasesScreen_title": "All Cases",
   "allCasesScreen_activeCases": "Active Cases",

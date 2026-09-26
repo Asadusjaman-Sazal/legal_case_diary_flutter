@@ -2468,6 +2468,142 @@ abstract class AppLocalizations {
   /// **'Could not open that file.'**
   String get settingsBackupRestore_errorOpenFile;
 
+  /// No description provided for @settingsBackupRestore_backupExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup as Excel File'**
+  String get settingsBackupRestore_backupExcel;
+
+  /// No description provided for @settingsBackupRestore_excelNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The Excel file is a spreadsheet and is not encrypted. Anyone who opens it can read your case data.'**
+  String get settingsBackupRestore_excelNote;
+
+  /// No description provided for @settingsBackupRestore_sectionExcelFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Excel Backup Format'**
+  String get settingsBackupRestore_sectionExcelFormat;
+
+  /// No description provided for @settingsBackupRestore_excelIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The Excel file holds four sheets — Cases, Case History, Notes and Case References — plus an Info sheet. Keep the sheet names and the first row of every sheet exactly as they are: the app matches them when restoring.'**
+  String get settingsBackupRestore_excelIntro;
+
+  /// No description provided for @settingsBackupRestore_excelPartialNote.
+  ///
+  /// In en, this message translates to:
+  /// **'It is not a complete backup. Courts, steps and your settings are not in it, so restore it into a diary that already has them.'**
+  String get settingsBackupRestore_excelPartialNote;
+
+  /// No description provided for @settingsBackupRestore_excelIdNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a row\'s id blank and the app gives it a new one. Every other required cell must be filled.'**
+  String get settingsBackupRestore_excelIdNote;
+
+  /// No description provided for @settingsBackupRestore_excelTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Template File'**
+  String get settingsBackupRestore_excelTemplate;
+
+  /// No description provided for @settingsBackupRestore_excelProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating your Excel file…'**
+  String get settingsBackupRestore_excelProgress;
+
+  /// EXCEL BACKUP
+  ///
+  /// In en, this message translates to:
+  /// **'Excel file saved to {path}'**
+  String settingsBackupRestore_excelSaved(String path);
+
+  /// EXCEL TEMPLATE
+  ///
+  /// In en, this message translates to:
+  /// **'Template saved to {path}'**
+  String settingsBackupRestore_excelTemplateSaved(String path);
+
+  /// No description provided for @settingsBackupRestore_excelNotSpreadsheet.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not a spreadsheet.'**
+  String get settingsBackupRestore_excelNotSpreadsheet;
+
+  /// No description provided for @settingsBackupRestore_excelNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'That workbook is not a Legal Case Diary Excel backup.'**
+  String get settingsBackupRestore_excelNotBackup;
+
+  /// No description provided for @settingsBackupRestore_excelNewerVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'This workbook was made by a newer version of the app.'**
+  String get settingsBackupRestore_excelNewerVersion;
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'The workbook has a sheet this format does not define: {sheet}'**
+  String settingsBackupRestore_excelUnknownSheet(String sheet);
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'The workbook has no {sheet} sheet.'**
+  String settingsBackupRestore_excelMissingSheet(String sheet);
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'The {sheet} sheet has a column this format does not define: {column}'**
+  String settingsBackupRestore_excelUnknownColumn(String sheet, String column);
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'The {sheet} sheet is missing the {column} column.'**
+  String settingsBackupRestore_excelMissingColumn(String sheet, String column);
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'The {sheet} sheet has no rows.'**
+  String settingsBackupRestore_excelEmptySheet(String sheet);
+
+  /// EXCEL FORMAT REFUSALS
+  ///
+  /// In en, this message translates to:
+  /// **'{sheet}, row {row}: {column} must be filled.'**
+  String settingsBackupRestore_excelMissingValue(
+    String sheet,
+    int row,
+    String column,
+  );
+
+  /// No description provided for @settingsBackupRestore_restoreDetailsSheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheets'**
+  String get settingsBackupRestore_restoreDetailsSheets;
+
+  /// No description provided for @settingsBackupRestore_restoreExcelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the data in these sheets?'**
+  String get settingsBackupRestore_restoreExcelTitle;
+
+  /// No description provided for @settingsBackupRestore_restoreExcelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The sheets in this file replace those records on this device. Everything else is kept.'**
+  String get settingsBackupRestore_restoreExcelWarning;
+
   /// No description provided for @settingsEditCourtSteps_editItemTypes.
   ///
   /// In en, this message translates to:

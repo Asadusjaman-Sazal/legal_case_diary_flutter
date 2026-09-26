@@ -10,13 +10,15 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show Value, Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
+import 'package:legal_case_diary/core/backup/backup_restore.dart';
+import 'package:legal_case_diary/core/backup/excel_backup.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/data/case_repository.dart';
@@ -292,6 +294,123 @@ void main() {
       expect(archive.state, isNull);
       expect(archive.hasCompletedArchive, isFalse);
     });
+
+    test('the Excel sheet columns are the live schema columns, in order', () {
+      for (final table in excelSheetTables.values) {
+        final info = db.allTables.firstWhere(
+          (candidate) => candidate.actualTableName == table,
+        );
+        final specs = backup.excelColumnSpecsFor(table);
+        // Derived from the schema rather than listed by hand, so the workbook,
+        // the sample template and the reader cannot drift from the tables.
+        expect(
+          specs.map((spec) => spec.name),
+          info.$columns.map((column) => column.name),
+        );
+        expect(
+          specs.map((spec) => spec.required),
+          info.$columns.map((column) => column.requiredDuringInsert),
+        );
+      }
+      expect(backup.excelColumnSpecs().keys, excelSheetTables.values);
+    });
+
+    test('a workbook round-trips the four tables and their values', () async {
+      final id = await notesRepo.insertNote(
+        const NotesCompanion(
+          title: Value('Reminder'),
+          body: Value('File the affidavit'),
+        ),
+      );
+
+      final bytes = await backup.buildExcelWorkbook(
+        appVersion: '0.0.262',
+        exportedAt: 1758844800000,
+      );
+      final opened = backup.openExcelBackup(bytes);
+
+      expect(opened.kind, BackupFileKind.excel);
+      expect(opened.tables.keys.toSet(), excelSheetTables.values.toSet());
+      final notes = (opened.tables['notes'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(notes, hasLength(1));
+      // The id, the sync columns and the text come back as the app wrote them,
+      // which is what lets a restored row be pushed later unchanged.
+      expect(notes.single['id'], id);
+      expect(notes.single['title'], 'Reminder');
+      expect(notes.single['is_deleted'], isFalse);
+      expect(notes.single['updated_at'], isA<int>());
+    });
+
+    test('a workbook import replaces only the tables the file carries', () async {
+      await notesRepo.insertNote(
+        const NotesCompanion(title: Value('Mine'), body: Value('Body')),
+      );
+      final bytes = await backup.buildExcelWorkbook(
+        appVersion: '0.0.262',
+        exportedAt: 1758844800000,
+      );
+
+      final result = await backup.restoreSnapshot(
+        backup: backup.openExcelBackup(bytes),
+        replaceExisting: true,
+      );
+
+      expect(result.replacedExisting, isTrue);
+      expect(result.tableCount, excelSheetTables.length);
+      // The note survives its own replace...
+      final notes = await db
+          .customSelect('SELECT COUNT(*) AS n FROM notes')
+          .getSingle();
+      expect(notes.data['n'], 1);
+      // ...and the court the file never carried is still there, which is what
+      // keeps a partial file from emptying the diary's reference data.
+      final courts = await db
+          .customSelect(
+            'SELECT COUNT(*) AS n FROM courts WHERE id = ?',
+            variables: <Variable>[Variable(courtId)],
+          )
+          .getSingle();
+      expect(courts.data['n'], 1);
+    });
+
+    test('a scoped file only asks about the tables it would replace', () async {
+      await notesRepo.insertNote(
+        const NotesCompanion(title: Value('Mine'), body: Value('Body')),
+      );
+      // The court holds a row, but a workbook does not carry `courts`, so it is
+      // not a reason to ask before replacing the four sheets.
+      expect(await backup.hasDataInTables(<String>['cases', 'notes']), isTrue);
+      expect(await backup.hasDataInTables(<String>['cases']), isFalse);
+    });
+
+    test('a hand-added workbook row with a blank id is given one', () {
+      final specs = backup.excelColumnSpecsFor('notes');
+      final rebuilt = encodeExcelBackup(
+        appVersion: '0.0.262',
+        exportedAt: 1758844800000,
+        schemaVersion: 1,
+        columns: backup.excelColumnSpecs(),
+        tables: <String, List<Map<String, dynamic>>>{
+          for (final table in excelSheetTables.values)
+            table: table == 'notes'
+                ? <Map<String, dynamic>>[
+                    <String, dynamic>{
+                      for (final spec in specs)
+                        spec.name: spec.name == 'id' ? '' : _sampleValue(spec),
+                    },
+                  ]
+                : const <Map<String, dynamic>>[],
+        },
+      );
+
+      // A blank id is what makes a row typed into Excel importable; any other
+      // blank in a required column is refused by the format reader instead.
+      final opened = backup.openExcelBackup(rebuilt, newId: () => 'fresh-id');
+      final notes = (opened.tables['notes'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(notes.single['id'], 'fresh-id');
+    });
   });
 
   group('defaultBackupFileName', () {
@@ -303,8 +422,25 @@ void main() {
         'legal-case-diary-backup-20260920-050607.lcbak',
       );
     });
+
+    test('names a workbook with the extension Excel recognises', () {
+      final stamp = DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch;
+      expect(
+        defaultExcelFileName(stamp),
+        'legal-case-diary-20260920-050607.xlsx',
+      );
+    });
   });
+
 }
+
+/// A plausible, non-empty value for one column of the sample row.
+Object _sampleValue(ExcelColumnSpec spec) => switch (spec.kind) {
+  ExcelCellKind.integer => 1,
+  ExcelCellKind.real => 1.0,
+  ExcelCellKind.boolean => false,
+  ExcelCellKind.text => 'sample',
+};
 
 /// Fails the write so the "no completed archive on failure" rule can be tested.
 class _FailingSink implements BackupArchiveSink {

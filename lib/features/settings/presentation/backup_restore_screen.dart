@@ -1,23 +1,27 @@
 /// Backup & Restore screen: manual backup/restore actions, automatic-backup
 /// schedule, and the last-backup status (Task 15 Phase 4).
 ///
-/// Body mirrors `mockup_html_screens/settings_backupRestore/code.html`: three
-/// primary action buttons inside one card, the encrypted-backup note, a
-/// radio-list schedule card, and the status card.
+/// Body mirrors `mockup_html_screens/settings_backupRestore/code.html`: the
+/// action card, the note, a radio-list schedule card and the status card. The
+/// mockup's four section headings are now **collapsible**, one open at a time,
+/// because the screen had grown past what fits on a phone at once.
 ///
 /// Wired to the Task 15 engine: **Backup to Local Storage** asks for a
 /// passphrase, exports, and hands the encrypted file to the platform's
-/// "Save to…" dialog; **Backup to Google Drive** makes that same local backup
-/// and then offers the platform share sheet, which is where Google Drive is a
-/// target — the app stays offline, so it never uploads anything itself;
-/// **Restore from backup** picks a file, decrypts and validates it, asks before
-/// replacing local data, imports in one transaction and reloads the app.
+/// "Save to…" dialog; **Backup as Excel File** writes the plaintext workbook of
+/// the four tables a lawyer edits; **Backup to Google Drive** makes that same
+/// local backup and then offers the platform share sheet, which is where Google
+/// Drive is a target — the app stays offline, so it never uploads anything
+/// itself; **Restore from backup** picks a file, works out whether it is the
+/// encrypted container or an Excel workbook, validates it, asks before replacing
+/// local data, imports in one transaction and reloads the app.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/backup/backup_restore.dart';
+import '../../../core/backup/excel_backup.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -88,6 +92,9 @@ List<_BackupInterval> _intervals(AppLocalizations l) => [
   ),
 ];
 
+/// The screen's collapsible sections, in the order they are drawn.
+enum _Section { backup, automaticBackup, excelFormat, status }
+
 /// Backup & Restore screen per `settings_backupRestore`.
 class BackupRestoreScreen extends ConsumerStatefulWidget {
   const BackupRestoreScreen({super.key});
@@ -101,6 +108,19 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// Whether an export or a restore is running, so the actions cannot be
   /// started twice from a double tap.
   bool _busy = false;
+
+  /// Which section is open; null when every section is closed.
+  ///
+  /// Backup & Restore opens by default because it holds the actions the screen
+  /// exists for. Kept in memory rather than stored: which section the user last
+  /// looked at is not worth a preference, and a remembered answer would be the
+  /// wrong one the next time they come here to do something else.
+  _Section? _openSection = _Section.backup;
+
+  /// Opens [section] and closes whichever was open, so only one is ever open.
+  void _toggleSection(_Section section) => setState(
+    () => _openSection = _openSection == section ? null : section,
+  );
 
   /// Runs the export every backup action shares.
   ///
@@ -203,7 +223,75 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     }
   }
 
+  /// Backup as Excel File: the plaintext workbook, then its saved location.
+  ///
+  /// It asks for no passphrase, because the file is a spreadsheet the user opens
+  /// in Excel and cannot be sealed in the app's container. The note under the
+  /// card says so before the file is written, and the export says the same thing
+  /// when it is read back.
+  Future<void> _backupToExcel() async {
+    final l = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      final repository = await ref.read(backupRepositoryProvider.future);
+      if (!mounted) return;
+      final result = await runWithBackupProgress(
+        context,
+        l.settingsBackupRestore_excelProgress,
+        () => repository.exportExcelWorkbook(
+          sink: ref.read(backupFileGatewayProvider),
+          appVersion: appVersion,
+        ),
+      );
+      await ref
+          .read(backupMetadataProvider.notifier)
+          .recordSuccess(at: result.exportedAt, path: result.path);
+      _showMessage(l.settingsBackupRestore_excelSaved(result.path));
+    } on BackupSaveCancelledException {
+      // The save dialog was dismissed: nothing was written, nothing to say.
+      return;
+    } catch (error, stack) {
+      debugPrint('Excel backup failed: $error\n$stack');
+      _showMessage(l.settingsBackupRestore_backupFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Saves the sample workbook that shows the format a restore expects.
+  ///
+  /// Generated from the same column list the reader validates, so the sample can
+  /// never show a header the app would refuse.
+  Future<void> _saveExcelTemplate() async {
+    final l = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      final repository = await ref.read(backupRepositoryProvider.future);
+      final bytes = excelBytes(
+        repository.buildExcelTemplateWorkbook(appVersion: appVersion),
+      );
+      if (!mounted) return;
+      final path = await ref
+          .read(backupFileGatewayProvider)
+          .write(fileName: 'legal-case-diary-template.xlsx', bytes: bytes);
+      _showMessage(l.settingsBackupRestore_excelTemplateSaved(path));
+    } on BackupSaveCancelledException {
+      return;
+    } catch (error, stack) {
+      debugPrint('Excel template save failed: $error\n$stack');
+      _showMessage(l.settingsBackupRestore_backupFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   /// Picks a file, opens it, confirms, then imports it in one transaction.
+  ///
+  /// One flow serves both formats. A workbook is recognised by its ZIP signature
+  /// and never asked for a passphrase it does not have; the encrypted container
+  /// takes the passphrase route as before. From there both become an
+  /// [OpenedBackup] and share the confirm-and-replace step, the transaction and
+  /// the reload.
   Future<void> _restoreFromBackup() async {
     final l = AppLocalizations.of(context);
 
@@ -217,10 +305,17 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     }
     if (picked == null || !mounted) return;
 
-    // Asked before opening: a legacy plaintext backup opens with an empty
-    // passphrase, and an encrypted one reports a wrong passphrase.
-    final secret = await showRecoveryPassphraseDialog(context);
-    if (secret == null || !mounted) return;
+    final isSpreadsheet = looksLikeSpreadsheet(picked.bytes);
+    final String secret;
+    if (isSpreadsheet) {
+      secret = '';
+    } else {
+      // Asked before opening: a legacy plaintext backup opens with an empty
+      // passphrase, and an encrypted one reports a wrong passphrase.
+      final entered = await showRecoveryPassphraseDialog(context);
+      if (entered == null || !mounted) return;
+      secret = entered;
+    }
 
     setState(() => _busy = true);
     try {
@@ -228,15 +323,21 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       if (!mounted) return;
       // Decrypt and authenticate before anything else: a file that fails here
       // cannot have touched the database.
-      final opened = await runWithBackupProgress(
-        context,
-        l.settingsBackupRestore_restoreProgress,
-        () => openBackupFile(bytes: picked!.bytes, recoverySecret: secret),
-      );
+      final opened = isSpreadsheet
+          ? repository.openExcelBackup(picked.bytes)
+          : await runWithBackupProgress(
+              context,
+              l.settingsBackupRestore_restoreProgress,
+              () => openBackupFile(bytes: picked!.bytes, recoverySecret: secret),
+            );
       if (!mounted) return;
 
-      // Restores never merge silently: existing data asks first.
-      final hasExistingData = await repository.hasExistingData();
+      // Restores never merge silently: existing data asks first. The check is
+      // scoped to the tables the file carries, so a four-sheet workbook never
+      // asks about — and never replaces — anything outside its own scope.
+      final hasExistingData = await repository.hasDataInTables(
+        opened.tables.keys.toList(),
+      );
       if (!mounted) return;
       if (hasExistingData) {
         final confirmed = await showRestoreReplaceDialog(
@@ -262,6 +363,11 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       // stale. Re-opening the database is the app's own reload lever (the same
       // one the key-loss recovery path uses) and rebuilds every screen's data.
       ref.invalidate(databaseProvider);
+    } on ExcelBackupRefusal catch (error) {
+      // A workbook that is off-format names the sheet, the column and the row, so
+      // the user can go and correct exactly that cell.
+      debugPrint('Excel restore refused: $error');
+      _showMessage(_excelRefusalMessage(l, error));
     } on BackupRestoreException catch (error) {
       debugPrint('Restore refused: ${error.failure.name} — ${error.message}');
       _showMessage(_restoreFailureMessage(l, error.failure));
@@ -291,6 +397,39 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       l.settingsBackupRestore_errorImportFailed,
   };
 
+  /// The user-facing message for one workbook refusal.
+  ///
+  /// The sheet, the column and the spreadsheet row are interpolated into the
+  /// message: the whole point of validating the workbook rather than letting the
+  /// database refuse it is that the user is told which cell to fix.
+  String _excelRefusalMessage(AppLocalizations l, ExcelBackupRefusal refusal) {
+    final sheet = refusal.sheet ?? '';
+    final column = refusal.column ?? '';
+    return switch (refusal.reason) {
+      ExcelRefusalReason.notASpreadsheet =>
+        l.settingsBackupRestore_excelNotSpreadsheet,
+      ExcelRefusalReason.notABackup => l.settingsBackupRestore_excelNotBackup,
+      ExcelRefusalReason.newerVersion =>
+        l.settingsBackupRestore_excelNewerVersion,
+      ExcelRefusalReason.unknownSheet =>
+        l.settingsBackupRestore_excelUnknownSheet(sheet),
+      ExcelRefusalReason.missingSheet =>
+        l.settingsBackupRestore_excelMissingSheet(sheet),
+      ExcelRefusalReason.unknownColumn =>
+        l.settingsBackupRestore_excelUnknownColumn(sheet, column),
+      ExcelRefusalReason.missingColumn =>
+        l.settingsBackupRestore_excelMissingColumn(sheet, column),
+      ExcelRefusalReason.emptySheet =>
+        l.settingsBackupRestore_excelEmptySheet(sheet),
+      ExcelRefusalReason.missingValue =>
+        l.settingsBackupRestore_excelMissingValue(
+          sheet,
+          refusal.row ?? 0,
+          column,
+        ),
+    };
+  }
+
   /// Shows [message] unless the screen has already left the tree.
   ///
   /// The guard lives here rather than at each call site, so a flow that ends
@@ -318,59 +457,147 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         ),
         children: [
           // Section 1: manual backup / restore actions.
-          _SectionHeader(l.settingsBackupRestore_sectionBackup),
-          _ActionCard(
-            onBackupLocal: _busy ? null : _backupToLocalStorage,
-            onBackupDrive: _busy ? null : _backupToDrive,
-            onRestore: _busy ? null : _restoreFromBackup,
+          _CollapsibleSection(
+            id: 'backup',
+            title: l.settingsBackupRestore_sectionBackup,
+            open: _openSection == _Section.backup,
+            onToggle: () => _toggleSection(_Section.backup),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ActionCard(
+                  onBackupLocal: _busy ? null : _backupToLocalStorage,
+                  onBackupExcel: _busy ? null : _backupToExcel,
+                  onBackupDrive: _busy ? null : _backupToDrive,
+                  onRestore: _busy ? null : _restoreFromBackup,
+                ),
+                const _BackupNote(),
+              ],
+            ),
           ),
-          const _BackupNote(),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           // Section 2: automatic-backup schedule.
-          _SectionHeader(l.settingsBackupRestore_sectionAutomaticBackup),
-          _ScheduleCard(
-            selectedDays: metadata.scheduleDays,
-            onChanged: (days) => ref
-                .read(backupMetadataProvider.notifier)
-                .setScheduleDays(days),
+          _CollapsibleSection(
+            id: 'automatic',
+            title: l.settingsBackupRestore_sectionAutomaticBackup,
+            open: _openSection == _Section.automaticBackup,
+            onToggle: () => _toggleSection(_Section.automaticBackup),
+            child: _ScheduleCard(
+              selectedDays: metadata.scheduleDays,
+              onChanged: (days) => ref
+                  .read(backupMetadataProvider.notifier)
+                  .setScheduleDays(days),
+            ),
           ),
-          const SizedBox(height: AppSpacing.xl),
-          // Section 3: last successful backup.
-          _SectionHeader(l.settingsBackupRestore_sectionStatus),
-          _StatusCard(metadata: metadata),
+          const SizedBox(height: AppSpacing.lg),
+          // Section 3: the workbook format a restore expects.
+          _CollapsibleSection(
+            id: 'excel',
+            title: l.settingsBackupRestore_sectionExcelFormat,
+            open: _openSection == _Section.excelFormat,
+            onToggle: () => _toggleSection(_Section.excelFormat),
+            child: _ExcelFormatCard(
+              onTemplate: _busy ? null : _saveExcelTemplate,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // Section 4: last successful backup.
+          _CollapsibleSection(
+            id: 'status',
+            title: l.settingsBackupRestore_sectionStatus,
+            open: _openSection == _Section.status,
+            onToggle: () => _toggleSection(_Section.status),
+            child: _StatusCard(metadata: metadata),
+          ),
         ],
       ),
     );
   }
 }
 
-/// Section heading (mockup `label-lg` + `tracking-wider`).
-class _SectionHeader extends StatelessWidget {
-  final String text;
+/// One collapsible section: the mockup's heading, now a control.
+///
+/// Tapping the heading opens its options and closes whichever section was open,
+/// so the screen shows one set of options at a time instead of all four stacked —
+/// which is what the section was asked for. The chevron says which way it will
+/// move, and the whole header row is the tap target, so the label is as easy to
+/// hit as the icon. A closed section is not built at all, so it costs nothing.
+class _CollapsibleSection extends StatelessWidget {
+  /// Stable id, used for the widget keys the tests drive.
+  final String id;
+  final String title;
+  final bool open;
+  final VoidCallback onToggle;
+  final Widget child;
 
-  const _SectionHeader(this.text);
+  const _CollapsibleSection({
+    required this.id,
+    required this.title,
+    required this.open,
+    required this.onToggle,
+    required this.child,
+  });
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(
-      left: AppSpacing.xs,
-      right: AppSpacing.xs,
-      bottom: AppSpacing.md,
-    ),
-    child: Text(
-      text,
-      style: AppTypography.labelLg.copyWith(
-        color: AppColors.onSurfaceVariant,
-        letterSpacing: 0.7, // tracking-wider — 0.05em at 14 px.
+  Widget build(BuildContext context) => Column(
+    key: ValueKey('backup-section-$id'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      InkWell(
+        key: ValueKey('backup-section-toggle-$id'),
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs,
+            vertical: AppSpacing.sm,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTypography.labelLg.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                    letterSpacing: 0.7, // tracking-wider — 0.05em at 14 px.
+                  ),
+                ),
+              ),
+              Icon(
+                open ? Icons.expand_less : Icons.expand_more,
+                key: ValueKey('backup-section-chevron-$id'),
+                size: 22,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
       ),
-    ),
+      // The reveal animates so the list below does not jump when a section opens
+      // under the reader's thumb.
+      AnimatedSize(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        alignment: Alignment.topCenter,
+        child: open
+            ? Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: child,
+              )
+            : const SizedBox(width: double.infinity),
+      ),
+    ],
   );
 }
 
-/// The three manual actions stacked in one card, per the mockup.
+/// The manual actions stacked in one card, per the mockup's order with the Excel
+/// backup added directly after the local one.
 class _ActionCard extends StatelessWidget {
   /// Runs the local backup flow; null while one is already running.
   final VoidCallback? onBackupLocal;
+
+  /// Runs the plaintext Excel export; null while one is already running.
+  final VoidCallback? onBackupExcel;
 
   /// Reports that cloud backup is not available yet.
   final VoidCallback? onBackupDrive;
@@ -380,6 +607,7 @@ class _ActionCard extends StatelessWidget {
 
   const _ActionCard({
     required this.onBackupLocal,
+    required this.onBackupExcel,
     required this.onBackupDrive,
     required this.onRestore,
   });
@@ -397,6 +625,13 @@ class _ActionCard extends StatelessWidget {
             icon: Icons.cloud_upload,
             label: l.settingsBackupRestore_backupLocal,
             onPressed: onBackupLocal,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _ActionButton(
+            key: const ValueKey('backup-excel'),
+            icon: Icons.grid_on,
+            label: l.settingsBackupRestore_backupExcel,
+            onPressed: onBackupExcel,
           ),
           const SizedBox(height: AppSpacing.md),
           _ActionButton(
@@ -475,9 +710,70 @@ class _BackupNote extends StatelessWidget {
             l.settingsBackupRestore_encryptionNote,
             style: AppTypography.bodySm,
           ),
+          // The Excel exception to the line above, stated where the user is about
+          // to press the button rather than buried in a help page.
+          Text(
+            l.settingsBackupRestore_excelNote,
+            style: AppTypography.bodySm,
+          ),
           Text(
             l.settingsBackupRestore_offlineNote,
             style: AppTypography.bodySm,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The Excel-format section: what the workbook has to look like, and the sample.
+///
+/// The requirement is stated up front because a restore matches the sheets by
+/// name and the columns by header row, so a renamed sheet or column is refused —
+/// saying so here is what makes that refusal unsurprising. The template is
+/// generated from the very column list the reader validates, so what it shows can
+/// never be something the app would reject.
+class _ExcelFormatCard extends StatelessWidget {
+  /// Saves the sample workbook; null while another action is running.
+  final VoidCallback? onTemplate;
+
+  const _ExcelFormatCard({required this.onTemplate});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final hint = AppTypography.bodySm.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
+    return Container(
+      decoration: _cardDecoration(color: AppColors.surfaceBright),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.settingsBackupRestore_excelIntro, style: AppTypography.bodyMd),
+          const SizedBox(height: AppSpacing.sm),
+          Text(l.settingsBackupRestore_excelIdNote, style: hint),
+          const SizedBox(height: AppSpacing.sm),
+          Text(l.settingsBackupRestore_excelPartialNote, style: hint),
+          const SizedBox(height: AppSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            height: settingsPrimaryButtonHeight,
+            child: FilledButton.icon(
+              key: const ValueKey('backup-excel-template'),
+              onPressed: onTemplate,
+              icon: const Icon(Icons.download, size: 20),
+              label: Text(l.settingsBackupRestore_excelTemplate),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.labelLg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                ),
+              ),
+            ),
           ),
         ],
       ),

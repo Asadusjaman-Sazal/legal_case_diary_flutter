@@ -1320,6 +1320,109 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsBackupRestore_errorOpenFile => 'ফাইলটি খোলা যায়নি।';
 
   @override
+  String get settingsBackupRestore_backupExcel => 'এক্সেল ফাইল হিসেবে ব্যাকআপ';
+
+  @override
+  String get settingsBackupRestore_excelNote =>
+      'এক্সেল ফাইলটি একটি স্প্রেডশিট এবং এনক্রিপ্ট করা নয়। যে কেউ এটি খুললে আপনার মামলার তথ্য পড়তে পারবে।';
+
+  @override
+  String get settingsBackupRestore_sectionExcelFormat =>
+      'এক্সেল ব্যাকআপ ফরম্যাট';
+
+  @override
+  String get settingsBackupRestore_excelIntro =>
+      'এক্সেল ফাইলে চারটি শিট থাকে — Cases, Case History, Notes ও Case References — এবং একটি Info শিট। শিটের নাম এবং প্রতিটি শিটের প্রথম সারি হুবহু অপরিবর্তিত রাখুন: পুনরুদ্ধারের সময় অ্যাপ এগুলো মিলিয়ে দেখে।';
+
+  @override
+  String get settingsBackupRestore_excelPartialNote =>
+      'এটি সম্পূর্ণ ব্যাকআপ নয়। আদালত, ধাপ ও আপনার সেটিংস এতে নেই, তাই এমন ডায়েরিতে পুনরুদ্ধার করুন যেখানে এগুলো আগে থেকেই আছে।';
+
+  @override
+  String get settingsBackupRestore_excelIdNote =>
+      'কোনো সারির id খালি রাখলে অ্যাপ নতুন একটি দেবে। বাকি প্রতিটি আবশ্যক ঘর অবশ্যই পূরণ করতে হবে।';
+
+  @override
+  String get settingsBackupRestore_excelTemplate =>
+      'টেমপ্লেট ফাইল ডাউনলোড করুন';
+
+  @override
+  String get settingsBackupRestore_excelProgress =>
+      'আপনার এক্সেল ফাইল তৈরি হচ্ছে…';
+
+  @override
+  String settingsBackupRestore_excelSaved(String path) {
+    return 'এক্সেল ফাইল $path-এ সংরক্ষিত হয়েছে';
+  }
+
+  @override
+  String settingsBackupRestore_excelTemplateSaved(String path) {
+    return 'টেমপ্লেট $path-এ সংরক্ষিত হয়েছে';
+  }
+
+  @override
+  String get settingsBackupRestore_excelNotSpreadsheet =>
+      'ফাইলটি একটি স্প্রেডশিট নয়।';
+
+  @override
+  String get settingsBackupRestore_excelNotBackup =>
+      'ওয়ার্কবুকটি Legal Case Diary-এর একটি এক্সেল ব্যাকআপ নয়।';
+
+  @override
+  String get settingsBackupRestore_excelNewerVersion =>
+      'এই ওয়ার্কবুকটি অ্যাপের একটি নতুন সংস্করণে তৈরি হয়েছে।';
+
+  @override
+  String settingsBackupRestore_excelUnknownSheet(String sheet) {
+    return 'ওয়ার্কবুকে এই ফরম্যাটে নেই এমন একটি শিট আছে: $sheet';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingSheet(String sheet) {
+    return 'ওয়ার্কবুকে $sheet শিট নেই।';
+  }
+
+  @override
+  String settingsBackupRestore_excelUnknownColumn(String sheet, String column) {
+    return '$sheet শিটে এই ফরম্যাটে নেই এমন একটি কলাম আছে: $column';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingColumn(String sheet, String column) {
+    return '$sheet শিটে $column কলামটি নেই।';
+  }
+
+  @override
+  String settingsBackupRestore_excelEmptySheet(String sheet) {
+    return '$sheet শিটে কোনো সারি নেই।';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingValue(
+    String sheet,
+    int row,
+    String column,
+  ) {
+    final intl.NumberFormat rowNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowString = rowNumberFormat.format(row);
+
+    return '$sheet, সারি $rowString: $column অবশ্যই পূরণ করতে হবে।';
+  }
+
+  @override
+  String get settingsBackupRestore_restoreDetailsSheets => 'শিট';
+
+  @override
+  String get settingsBackupRestore_restoreExcelTitle =>
+      'এই শিটগুলোর ডেটা প্রতিস্থাপন করবেন?';
+
+  @override
+  String get settingsBackupRestore_restoreExcelWarning =>
+      'এই ফাইলের শিটগুলো এই ডিভাইসের সেই রেকর্ডগুলো প্রতিস্থাপন করবে। বাকি সব অপরিবর্তিত থাকবে।';
+
+  @override
   String get settingsEditCourtSteps_editItemTypes =>
       'মামলার ধরন, ধাপ ইত্যাদি সম্পাদনা';
 

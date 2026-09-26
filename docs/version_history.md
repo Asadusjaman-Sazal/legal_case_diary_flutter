@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.262 - Reset each grouped case list's folded courts at Bangladesh midnight, so Daily Cause List, Overdue Dates and Upcoming Cases open every court again on a new day.
+Version: 0.0.263 - Add a plaintext Excel backup and restore to Settings > Backup & Restore, make its sections collapsible, and ship a downloadable format template.
 --------------------------------------
 
 ## Version History Log:
@@ -276,3 +276,4 @@ Version: 0.0.259 - Add a per-case Notification Time to the Add/Edit Case and Qui
 Version: 0.0.260 - Add a to-do kind of note: the Notes add button offers Text Note or To-Do, the editor body is Keep's checklist, and notes.items stores it (schema v9) with body mirroring the items for search.
 Version: 0.0.261 - Whiten the to-do Add Item label, and make unticking an item put it back in its original position instead of leaving it at the bottom.
 Version: 0.0.262 - Reset each grouped case list's folded courts at Bangladesh midnight, so Daily Cause List, Overdue Dates and Upcoming Cases open every court again on a new day.
+Version: 0.0.263 - Add a plaintext Excel backup and restore to Settings > Backup & Restore, make its sections collapsible, and ship a downloadable format template.

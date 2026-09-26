@@ -36,11 +36,13 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:drift/drift.dart' show Variable;
+import 'package:drift/drift.dart' show DriftSqlType, Table, TableInfo, Variable;
+import 'package:uuid/uuid.dart';
 
 import '../../../core/backup/backup_cipher.dart';
 import '../../../core/backup/backup_format.dart';
 import '../../../core/backup/backup_restore.dart';
+import '../../../core/backup/excel_backup.dart';
 import '../../../database/app_database.dart';
 import '../../../sync/sync_metadata_dao.dart';
 
@@ -247,13 +249,13 @@ class BackupRepository {
     state: await _metadata.getValue(archiveStateKey),
   );
 
-  /// Whether any portable table holds a row.
+  /// Whether any of [tables] holds a row.
   ///
   /// Tombstones and queued writes count as data: restoring into a database that
   /// holds nothing but a soft-delete or a pending `sync_queue` entry would still
   /// discard information, so the collision check must not ignore them.
-  Future<bool> hasExistingData() async {
-    for (final name in backupTableOrder) {
+  Future<bool> hasDataInTables(Iterable<String> tables) async {
+    for (final name in tables) {
       final row = await db
           .customSelect('SELECT 1 FROM "$name" LIMIT 1')
           .getSingleOrNull();
@@ -262,13 +264,142 @@ class BackupRepository {
     return false;
   }
 
-  /// Imports an opened backup into the local database.
+  /// Whether any portable table holds a row.
+  Future<bool> hasExistingData() => hasDataInTables(backupTableOrder);
+
+  // -------------------------------------------------------------------------
+  // Excel workbook backup (plan deviation: see the Task 15 note)
+  //
+  // A plaintext spreadsheet covering the four tables a lawyer edits directly.
+  // The columns are read from the live schema, the rows come from the same
+  // `collectTables` snapshot the encrypted export uses, and the import is handed
+  // back to `restoreSnapshot` through the same payload shape — so there is one
+  // row reader, one set of import rules and one upgrade path for both formats.
+  // -------------------------------------------------------------------------
+
+  /// Column specs for every Excel sheet, derived from the live schema.
+  Map<String, List<ExcelColumnSpec>> excelColumnSpecs() =>
+      <String, List<ExcelColumnSpec>>{
+        for (final table in excelSheetTables.values)
+          table: excelColumnSpecsFor(table),
+      };
+
+  /// Column specs for one table, in the table's own column order.
   ///
-  /// Everything happens in **one transaction**: the collision check, the
-  /// delete-all and every insert. A failure anywhere rolls the whole thing back,
-  /// so a restore can never leave the database half-replaced. Rows keep their
-  /// original ids and sync columns (they are inserted verbatim from the file), so
-  /// a later premium upgrade can push the restored data unchanged.
+  /// Derived rather than hand-listed: adding a column to a table adds it to the
+  /// next export, the sample template and the reader at once, because all three
+  /// read this list.
+  List<ExcelColumnSpec> excelColumnSpecsFor(String table) => <ExcelColumnSpec>[
+    for (final column in _tableInfo(table).$columns)
+      ExcelColumnSpec(
+        name: column.name,
+        required: column.requiredDuringInsert,
+        kind: _cellKind(column.type),
+      ),
+  ];
+
+  /// The schema's table with [name]. Every portable table is present.
+  TableInfo<Table, Object?> _tableInfo(String name) =>
+      db.allTables.firstWhere((table) => table.actualTableName == name);
+
+  /// Builds the Excel workbook for the current local state.
+  Future<Uint8List> buildExcelWorkbook({
+    required String appVersion,
+    required int exportedAt,
+  }) async {
+    final collected = await collectTables();
+    return excelBytes(
+      encodeExcelBackup(
+        appVersion: appVersion,
+        exportedAt: exportedAt,
+        schemaVersion: kBackupSchemaVersion,
+        columns: excelColumnSpecs(),
+        tables: <String, List<Map<String, dynamic>>>{
+          for (final table in excelSheetTables.values)
+            table: collected[table] is List
+                ? (collected[table] as List).cast<Map<String, dynamic>>()
+                : const <Map<String, dynamic>>[],
+        },
+      ),
+    );
+  }
+
+  /// Builds the sample template: the same headers, one example row per sheet.
+  List<int> buildExcelTemplateWorkbook({required String appVersion}) =>
+      buildExcelTemplate(
+        appVersion: appVersion,
+        schemaVersion: kBackupSchemaVersion,
+        columns: excelColumnSpecs(),
+      );
+
+  /// Runs one Excel export: build the workbook → write through [sink] → record.
+  ///
+  /// It is **plaintext on purpose**: a spreadsheet the user opens in Excel cannot
+  /// be sealed in the app's authenticated container, which is the deliberate
+  /// deviation from §12.3.1 that the screen warns about and the Task 15 note
+  /// records. As with the encrypted export, the archive is recorded only after
+  /// the sink reports success, so a dismissed save dialog records nothing.
+  Future<ExcelExportResult> exportExcelWorkbook({
+    required BackupArchiveSink sink,
+    required String appVersion,
+    int? exportedAt,
+  }) async {
+    final stamp = exportedAt ?? DateTime.now().toUtc().millisecondsSinceEpoch;
+    final bytes = await buildExcelWorkbook(
+      appVersion: appVersion,
+      exportedAt: stamp,
+    );
+    final path = await sink.write(
+      fileName: defaultExcelFileName(stamp),
+      bytes: bytes,
+    );
+    await recordArchive(
+      path: path,
+      checksum: checksumOfBytes(bytes),
+      state: archiveStateComplete,
+    );
+    return ExcelExportResult(path: path, exportedAt: stamp);
+  }
+
+  /// Decodes a workbook into an [OpenedBackup] the restore path accepts.
+  ///
+  /// The rows are wrapped in the same payload shape, and pushed through the same
+  /// per-version adapters, as an encrypted backup — so a newer spreadsheet format
+  /// is upgraded by one shared chain rather than a second one that could
+  /// disagree with it.
+  OpenedBackup openExcelBackup(List<int> bytes, {String Function()? newId}) {
+    final data = decodeExcelBackup(
+      bytes,
+      columns: excelColumnSpecs(),
+      supportedSchemaVersion: kBackupSchemaVersion,
+      newId: newId ?? const Uuid().v4,
+    );
+    final payload = <String, dynamic>{
+      kBackupTablesSection: <String, dynamic>{
+        for (final entry in data.tables.entries) entry.key: entry.value,
+      },
+    };
+    return OpenedBackup(
+      kind: BackupFileKind.excel,
+      schemaVersion: data.schemaVersion,
+      appVersion: data.appVersion,
+      exportedAt: data.exportedAt,
+      payload: migrateBackupPayload(payload, fromVersion: data.schemaVersion),
+    );
+  }
+
+/// Imports an opened backup into the local database.
+///
+/// Everything happens in **one transaction**: the collision check, the
+/// delete-all and every insert. A failure anywhere rolls the whole thing back,
+/// so a restore can never leave the database half-replaced. Rows keep their
+/// original ids and sync columns (they are inserted verbatim from the file), so
+/// a later premium upgrade can push the restored data unchanged.
+///
+/// The file's **own tables are the scope** of both the replace and the collision
+/// check — a full backup carries every portable table and replaces the lot, while
+/// a scoped file replaces only what it carries. That is what makes a partial
+/// format like an Excel workbook safe to restore into a working diary.
   ///
   /// When the database already holds data and [replaceExisting] is false this
   /// throws [BackupRestoreFailure.conflictNeedsConfirmation] **before writing
@@ -285,10 +416,21 @@ class BackupRepository {
       0,
       (sum, rows) => sum + rows.length,
     );
+    // The file's own tables are the whole scope: the collision check, the wipe
+    // and the inserts all walk this list, in the FK-safe order. A JSON backup
+    // carries every portable table, so its behaviour is exactly as it was; a
+    // scoped file — an Excel workbook covering four tables — replaces those four
+    // and leaves every other table (courts, steps, preferences, the queue)
+    // untouched, which is what keeps a partial file from emptying the diary's
+    // reference data.
+    final scope = <String>[
+      for (final name in backupTableOrder)
+        if (tables.containsKey(name)) name,
+    ];
     var replaced = false;
     try {
       await db.transaction(() async {
-        final existing = await hasExistingData();
+        final existing = await hasDataInTables(scope);
         if (existing && !replaceExisting) {
           throw const BackupRestoreException(
             BackupRestoreFailure.conflictNeedsConfirmation,
@@ -299,12 +441,12 @@ class BackupRepository {
           replaced = true;
           // Child before parent, so the ON DELETE constraints never block the
           // wipe: the reverse of the FK-safe export order.
-          for (final name in backupTableOrder.reversed) {
+          for (final name in scope.reversed) {
             await db.customStatement('DELETE FROM "$name"');
           }
         }
         // Parent before child, the same order the export wrote them in.
-        for (final name in backupTableOrder) {
+        for (final name in scope) {
           for (final row in tables[name] ?? const <Map<String, dynamic>>[]) {
             await _insertRow(name, row);
           }
@@ -474,11 +616,48 @@ Variable _variableFor(Object? value) => switch (value) {
 /// second, and independent of the device locale. The extension is not `.json`
 /// because the file is the encrypted container, not readable JSON; Phase 3's
 /// picker filters on it.
-String defaultBackupFileName(int exportedAt) {
+String defaultBackupFileName(int exportedAt) =>
+    'legal-case-diary-backup-${_fileStamp(exportedAt)}.lcbak';
+
+/// Default workbook file name for an export taken at [exportedAt].
+///
+/// Mirrors [defaultBackupFileName] with the extension Excel itself recognises, so
+/// the save dialog offers the file as a spreadsheet and the picker can find it
+/// again.
+String defaultExcelFileName(int exportedAt) =>
+    'legal-case-diary-${_fileStamp(exportedAt)}.xlsx';
+
+/// UTC `YYYYMMDD-HHMMSS`, the stamp both default file names share.
+String _fileStamp(int exportedAt) {
   final at = DateTime.fromMillisecondsSinceEpoch(exportedAt, isUtc: true);
   String two(int value) => value.toString().padLeft(2, '0');
-  final stamp =
-      '${at.year}${two(at.month)}${two(at.day)}'
+  return '${at.year}${two(at.month)}${two(at.day)}'
       '-${two(at.hour)}${two(at.minute)}${two(at.second)}';
-  return 'legal-case-diary-backup-$stamp.lcbak';
+}
+
+/// The cell kind a database column's values round-trip through.
+///
+/// The app stores every date and timestamp as an integer (epoch millis), so the
+/// three kinds the schema actually uses cover it; anything else stays text, which
+/// is the safe default for a value the workbook only has to carry.
+/// Takes the column's type as `Object` because drift does not export the
+/// `BaseSqlType` that `GeneratedColumn.type` is declared with; the constants
+/// below are what it actually holds.
+ExcelCellKind _cellKind(Object type) => switch (type) {
+  DriftSqlType.bool => ExcelCellKind.boolean,
+  DriftSqlType.int || DriftSqlType.bigInt => ExcelCellKind.integer,
+  DriftSqlType.double => ExcelCellKind.real,
+  _ => ExcelCellKind.text,
+};
+
+/// The receipt of one Excel export.
+class ExcelExportResult {
+  /// Path the workbook was written to.
+  final String path;
+
+  /// Export time in epoch milliseconds.
+  final int exportedAt;
+
+  /// Creates an Excel export receipt.
+  const ExcelExportResult({required this.path, required this.exportedAt});
 }

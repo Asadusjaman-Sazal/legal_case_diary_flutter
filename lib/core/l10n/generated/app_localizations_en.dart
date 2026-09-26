@@ -1315,6 +1315,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupRestore_errorOpenFile => 'Could not open that file.';
 
   @override
+  String get settingsBackupRestore_backupExcel => 'Backup as Excel File';
+
+  @override
+  String get settingsBackupRestore_excelNote =>
+      'The Excel file is a spreadsheet and is not encrypted. Anyone who opens it can read your case data.';
+
+  @override
+  String get settingsBackupRestore_sectionExcelFormat => 'Excel Backup Format';
+
+  @override
+  String get settingsBackupRestore_excelIntro =>
+      'The Excel file holds four sheets — Cases, Case History, Notes and Case References — plus an Info sheet. Keep the sheet names and the first row of every sheet exactly as they are: the app matches them when restoring.';
+
+  @override
+  String get settingsBackupRestore_excelPartialNote =>
+      'It is not a complete backup. Courts, steps and your settings are not in it, so restore it into a diary that already has them.';
+
+  @override
+  String get settingsBackupRestore_excelIdNote =>
+      'Leave a row\'s id blank and the app gives it a new one. Every other required cell must be filled.';
+
+  @override
+  String get settingsBackupRestore_excelTemplate => 'Download Template File';
+
+  @override
+  String get settingsBackupRestore_excelProgress => 'Creating your Excel file…';
+
+  @override
+  String settingsBackupRestore_excelSaved(String path) {
+    return 'Excel file saved to $path';
+  }
+
+  @override
+  String settingsBackupRestore_excelTemplateSaved(String path) {
+    return 'Template saved to $path';
+  }
+
+  @override
+  String get settingsBackupRestore_excelNotSpreadsheet =>
+      'That file is not a spreadsheet.';
+
+  @override
+  String get settingsBackupRestore_excelNotBackup =>
+      'That workbook is not a Legal Case Diary Excel backup.';
+
+  @override
+  String get settingsBackupRestore_excelNewerVersion =>
+      'This workbook was made by a newer version of the app.';
+
+  @override
+  String settingsBackupRestore_excelUnknownSheet(String sheet) {
+    return 'The workbook has a sheet this format does not define: $sheet';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingSheet(String sheet) {
+    return 'The workbook has no $sheet sheet.';
+  }
+
+  @override
+  String settingsBackupRestore_excelUnknownColumn(String sheet, String column) {
+    return 'The $sheet sheet has a column this format does not define: $column';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingColumn(String sheet, String column) {
+    return 'The $sheet sheet is missing the $column column.';
+  }
+
+  @override
+  String settingsBackupRestore_excelEmptySheet(String sheet) {
+    return 'The $sheet sheet has no rows.';
+  }
+
+  @override
+  String settingsBackupRestore_excelMissingValue(
+    String sheet,
+    int row,
+    String column,
+  ) {
+    final intl.NumberFormat rowNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String rowString = rowNumberFormat.format(row);
+
+    return '$sheet, row $rowString: $column must be filled.';
+  }
+
+  @override
+  String get settingsBackupRestore_restoreDetailsSheets => 'Sheets';
+
+  @override
+  String get settingsBackupRestore_restoreExcelTitle =>
+      'Replace the data in these sheets?';
+
+  @override
+  String get settingsBackupRestore_restoreExcelWarning =>
+      'The sheets in this file replace those records on this device. Everything else is kept.';
+
+  @override
   String get settingsEditCourtSteps_editItemTypes =>
       'Edit Case Types, Step etc';
 

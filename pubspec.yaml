@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.262
+version: 0.0.263
 
 environment:
   sdk: ^3.12.2
@@ -68,6 +68,13 @@ dependencies:
   crypto: ^3.0.7
   cryptography: ^2.9.0
   file_picker: ^13.1.0
+
+  # Excel (.xlsx) backup read/write (Task 15). Both were already resolved
+  # transitively through `pdf`, and the app now builds and parses the OOXML/ZIP
+  # container itself: the `excel` package pins `xml <7`, which `pdf` cannot use,
+  # so the two can never coexist in this project.
+  archive: ^4.0.9
+  xml: ^7.0.1
 
 dev_dependencies:
   flutter_test:

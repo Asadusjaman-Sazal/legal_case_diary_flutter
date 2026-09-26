@@ -27,7 +27,24 @@ enum BackupFileKind {
   /// (0.0.227 and earlier). Still restorable — it is a real user's only copy —
   /// but the caller should say that it was never encrypted.
   legacyPlaintext,
+
+  /// An Excel workbook from `core/backup/excel_backup.dart`: the four tables a
+  /// lawyer edits directly, in a plaintext spreadsheet. Carries no recovery
+  /// secret, so it never goes through the cipher at all.
+  excel,
 }
+
+/// Whether [bytes] start with the ZIP local-file signature.
+///
+/// An `.xlsx` workbook is a ZIP, and the app's encrypted container is JSON, so
+/// this one check is what tells a spreadsheet from a backup **before** the
+/// restore flow asks for a passphrase it could not use.
+bool looksLikeSpreadsheet(List<int> bytes) =>
+    bytes.length >= 4 &&
+    bytes[0] == 0x50 &&
+    bytes[1] == 0x4B &&
+    (bytes[2] == 0x03 || bytes[2] == 0x05 || bytes[2] == 0x07) &&
+    (bytes[3] == 0x04 || bytes[3] == 0x06 || bytes[3] == 0x08);
 
 /// Why a backup could not be opened or imported.
 ///

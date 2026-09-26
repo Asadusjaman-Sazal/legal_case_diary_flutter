@@ -14,6 +14,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../core/backup/backup_restore.dart';
+import '../../../core/backup/excel_backup.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -98,11 +99,19 @@ Future<bool> showRestoreReplaceDialog(
   required OpenedBackup backup,
 }) async {
   final l = AppLocalizations.of(context);
+  // A workbook replaces only the tables it carries, so this window says which
+  // ones those are rather than warning that everything on the device goes — which
+  // is true of the encrypted backup and false of a four-sheet file.
+  final workbook = backup.kind == BackupFileKind.excel;
   final replaced = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
       constraints: const BoxConstraints(minWidth: 300),
-      title: Text(l.settingsBackupRestore_restoreDetailsTitle),
+      title: Text(
+        workbook
+            ? l.settingsBackupRestore_restoreExcelTitle
+            : l.settingsBackupRestore_restoreDetailsTitle,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,6 +129,11 @@ Future<bool> showRestoreReplaceDialog(
             label: l.settingsBackupRestore_restoreDetailsAppVersion,
             value: backup.appVersion,
           ),
+          if (workbook)
+            _DetailRow(
+              label: l.settingsBackupRestore_restoreDetailsSheets,
+              value: _sheetsOf(backup),
+            ),
           _DetailRow(
             label: l.settingsBackupRestore_restoreDetailsRecords,
             value: AppDateUtils.formatDigits(
@@ -129,7 +143,9 @@ Future<bool> showRestoreReplaceDialog(
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            l.settingsBackupRestore_restoreDetailsWarning,
+            workbook
+                ? l.settingsBackupRestore_restoreExcelWarning
+                : l.settingsBackupRestore_restoreDetailsWarning,
             style: AppTypography.bodySm.copyWith(color: AppColors.error),
           ),
         ],
@@ -516,4 +532,13 @@ int _rowCount(OpenedBackup backup) {
     if (rows is List) total += rows.length;
   }
   return total;
+}
+
+/// The workbook's data-sheet names, in the order the sheets are written.
+String _sheetsOf(OpenedBackup backup) {
+  final tables = backup.tables.keys.toSet();
+  return <String>[
+    for (final entry in excelSheetTables.entries)
+      if (tables.contains(entry.value)) entry.key,
+  ].join(', ');
 }

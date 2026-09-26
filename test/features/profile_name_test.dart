@@ -201,6 +201,32 @@ void main() {
     );
   });
 
+  testWidgets('the edit form scrolls clear of the keyboard', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(app(const ProfileScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Edit profile'));
+    await tester.pumpAndSettle();
+
+    // The keyboard covers the bottom third. The form must scroll above it
+    // instead of overflowing (the "Bottom overflowed by N pixels" bug).
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(
+      find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byType(SingleChildScrollView),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('drawer header shows the saved picture and full name', (
     tester,
   ) async {

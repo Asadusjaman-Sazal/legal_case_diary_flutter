@@ -390,6 +390,9 @@ class _EditSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    // The form is taller than the space left above the keyboard, so it lives in
+    // a scroll view: the sheet keeps its content-height size on a normal screen
+    // and scrolls once the keyboard covers the bottom, instead of overflowing.
     return Padding(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -397,61 +400,63 @@ class _EditSheet extends StatelessWidget {
         AppSpacing.lg,
         bottom + AppSpacing.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l.settingsProfile_editTitle, style: AppTypography.titleLg),
-          SizedBox(height: AppSpacing.lg),
-          _Field(
-            icon: Icons.person_outline,
-            label: l.settingsProfile_fullName,
-            controller: fullName,
-            hint: l.settingsProfile_fullNameHint,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _Field(
-            icon: Icons.account_balance_outlined,
-            label: l.settingsProfile_barAssociation,
-            controller: barAssociation,
-            hint: l.settingsProfile_barAssociationHint,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _Field(
-            icon: Icons.badge_outlined,
-            label: l.settingsProfile_membershipNo,
-            controller: membershipNo,
-            hint: l.settingsProfile_membershipNoHint,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _Field(
-            icon: Icons.location_on_outlined,
-            label: l.settingsProfile_officeAddress,
-            controller: officeAddress,
-            hint: l.settingsProfile_officeAddressHint,
-            maxLines: 3,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _MobileField(controller: mobile),
-          SizedBox(height: AppSpacing.md),
-          SizedBox(
-            // Shared sub-menu CTA height; see [settingsPrimaryButtonHeight].
-            height: settingsPrimaryButtonHeight,
-            child: FilledButton.icon(
-              onPressed: onSave,
-              icon: const Icon(Icons.save_outlined),
-              label: Text(l.settingsProfile_save),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.onPrimary,
-                textStyle: AppTypography.titleMd,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.md),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.settingsProfile_editTitle, style: AppTypography.titleLg),
+            SizedBox(height: AppSpacing.lg),
+            _Field(
+              icon: Icons.person_outline,
+              label: l.settingsProfile_fullName,
+              controller: fullName,
+              hint: l.settingsProfile_fullNameHint,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            _Field(
+              icon: Icons.account_balance_outlined,
+              label: l.settingsProfile_barAssociation,
+              controller: barAssociation,
+              hint: l.settingsProfile_barAssociationHint,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            _Field(
+              icon: Icons.badge_outlined,
+              label: l.settingsProfile_membershipNo,
+              controller: membershipNo,
+              hint: l.settingsProfile_membershipNoHint,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            _Field(
+              icon: Icons.location_on_outlined,
+              label: l.settingsProfile_officeAddress,
+              controller: officeAddress,
+              hint: l.settingsProfile_officeAddressHint,
+              maxLines: 3,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            _MobileField(controller: mobile),
+            SizedBox(height: AppSpacing.md),
+            SizedBox(
+              // Shared sub-menu CTA height; see [settingsPrimaryButtonHeight].
+              height: settingsPrimaryButtonHeight,
+              child: FilledButton.icon(
+                onPressed: onSave,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(l.settingsProfile_save),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.onPrimary,
+                  textStyle: AppTypography.titleMd,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.md),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,12 @@
+### 2026-09-26 — The checklist puts an item back where it was — COMPLETE
+
+- **The request (the to-do editor only):** the Add Item button's text should be white, and unticking an item should return it to its original position instead of leaving it at the bottom.
+- **The white was an override, not a missing style.** The app's global `textButtonTheme` already fills a TextButton black with white text; the Add Item label was overriding that foreground with `onSurfaceVariant`, which is what made it read grey. It and its `+` icon are now `AppColors.onPrimary` — the icon too, because a grey glyph beside white text is the same defect in a different place.
+- **The position is now remembered per row.** Each row carries a fixed `order` — its place among the unticked rows, assigned when it is loaded or added — and ticking still sends a row to the very bottom. Unticking reinserts it **before the first unticked row that outranks it**, so it lands exactly where it started rather than at the end of the unticked block (which is what a plain stable partition gave). A row added later takes the next `order`, so it stays at the end of the unticked block.
+- **Tests (1 rewritten, 1 new; suite 692 passed, 2 skipped).** The unticking test now seeds three rows and checks the full round trip — middle row to the bottom when ticked, back between its neighbours when unticked, with the strike-through cleared. The new one pins the Add Item label at `AppColors.onPrimary`, which is the only thing that would notice the colour being overridden again.
+- **Version `0.0.261`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-26 — A note can be a checklist now — COMPLETE
 
 - **The request (Notes screen only):** tapping the + button should offer two kinds — text note and to-do; a text note stays as it is, and a to-do's screen is the same except the body becomes Google Keep's list.

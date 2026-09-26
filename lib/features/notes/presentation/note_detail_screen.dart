@@ -52,12 +52,18 @@ class NoteDetailScreen extends ConsumerStatefulWidget {
 /// One editable to-do row: its text, its tick, and the focus node that lets
 /// Enter open the next row.
 class _TodoRow {
-  _TodoRow({required String text, required this.done})
+  _TodoRow({required String text, required this.done, required this.order})
     : controller = TextEditingController(text: text);
 
   final TextEditingController controller;
   final FocusNode focusNode = FocusNode();
   bool done;
+
+  /// The row's place among the unticked rows, fixed when it was created.
+  ///
+  /// Ticking and unticking only move a row aside in the list; this is what puts
+  /// it back where it was, instead of at the end, when it is unticked.
+  final int order;
 
   void dispose() {
     controller.dispose();
@@ -74,6 +80,10 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   /// The checklist, in display order: every unticked row, then every ticked one.
   final List<_TodoRow> _todoRows = [];
 
+  /// Next [order] handed out, so a row added later sorts after the rows it
+  /// was added to.
+  int _nextItemOrder = 0;
+
   @override
   void initState() {
     super.initState();
@@ -87,10 +97,16 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     if (_isTodo) {
       final stored = storedItems ?? const <NoteItem>[];
       for (final item in stored) {
-        _todoRows.add(_TodoRow(text: item.text, done: item.done));
+        _todoRows.add(
+          _TodoRow(
+            text: item.text,
+            done: item.done,
+            order: _nextItemOrder++,
+          ),
+        );
       }
       // A brand-new to-do opens ready to type, like Keep's own empty list.
-      if (_todoRows.isEmpty) _todoRows.add(_TodoRow(text: '', done: false));
+      if (_todoRows.isEmpty) _todoRows.add(_newRow(text: ''));
     }
   }
 
@@ -175,36 +191,51 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     if (mounted) Navigator.of(context).pop(widget.note);
   }
 
+  /// Creates a row with the next [order] in line.
+  _TodoRow _newRow({required String text, bool done = false}) =>
+      _TodoRow(text: text, done: done, order: _nextItemOrder++);
+
+  /// Index of the first ticked row, or the list's length when there is none.
+  ///
+  /// Everything before it is the unticked block; everything from it on is the
+  /// ticked one.
+  int get _firstTicked {
+    final first = _todoRows.indexWhere((row) => row.done);
+    return first == -1 ? _todoRows.length : first;
+  }
+
   /// Ticks or unticks one row and re-lays the list out.
   ///
-  /// Google Keep's own rule, applied as a stable partition: unticked rows first,
-  /// ticked ones below, each block keeping the order it already had. So ticking
-  /// drops a row to the bottom and unticking lifts it back above them.
+  /// Unticked rows come first and ticked ones below them. Ticking sends the row
+  /// to the **bottom**, below every ticked row before it; unticking puts it back
+  /// among the unticked rows **at the place its own [order] gives it**, which is
+  /// where it was before it was ever ticked.
   void _setDone(int index, bool done) {
     setState(() {
-      _todoRows[index].done = done;
-      final unticked = <_TodoRow>[
-        for (final row in _todoRows)
-          if (!row.done) row,
-      ];
-      final ticked = <_TodoRow>[
-        for (final row in _todoRows)
-          if (row.done) row,
-      ];
-      _todoRows
-        ..clear()
-        ..addAll(unticked)
-        ..addAll(ticked);
+      final row = _todoRows[index];
+      row.done = done;
+      _todoRows.removeAt(index);
+      if (done) {
+        _todoRows.add(row);
+        return;
+      }
+      // Back into the unticked block, before the first row that outranks it.
+      final untickedCount = _firstTicked;
+      var target = untickedCount;
+      for (var i = 0; i < untickedCount; i++) {
+        if (_todoRows[i].order > row.order) {
+          target = i;
+          break;
+        }
+      }
+      _todoRows.insert(target, row);
     });
   }
 
   /// Adds an empty row at the end of the unticked block and focuses it.
   void _addItem() {
-    final row = _TodoRow(text: '', done: false);
-    setState(() {
-      final lastUnticked = _todoRows.lastIndexWhere((item) => !item.done);
-      _todoRows.insert(lastUnticked + 1, row);
-    });
+    final row = _newRow(text: '');
+    setState(() => _todoRows.insert(_firstTicked, row));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) row.focusNode.requestFocus();
     });
@@ -413,11 +444,13 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
           child: TextButton.icon(
             key: const ValueKey('todo-add-item'),
             onPressed: _addItem,
-            icon: const Icon(Icons.add, color: AppColors.onSurfaceVariant),
+            // The app's TextButtons are filled black, so the label and its
+            // icon read white on it.
+            icon: const Icon(Icons.add, color: AppColors.onPrimary),
             label: Text(
               l.notesScreen_addItem,
               style: AppTypography.bodyLg.copyWith(
-                color: AppColors.onSurfaceVariant,
+                color: AppColors.onPrimary,
               ),
             ),
             style: TextButton.styleFrom(

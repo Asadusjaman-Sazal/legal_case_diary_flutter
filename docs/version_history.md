@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.260 - Add a to-do kind of note: the Notes add button offers Text Note or To-Do, the editor body is Keep's checklist, and notes.items stores it (schema v9) with body mirroring the items for search.
+Version: 0.0.261 - Whiten the to-do Add Item label, and make unticking an item put it back in its original position instead of leaving it at the bottom.
 --------------------------------------
 
 ## Version History Log:
@@ -274,3 +274,4 @@ Version: 0.0.257 - The Month and Year columns hold their labels against the midd
 Version: 0.0.258 - The Month column centres its labels with the Year a seam gap past the middle, and each row that passes the middle plays a light platform click.
 Version: 0.0.259 - Add a per-case Notification Time to the Add/Edit Case and Quick Update windows: it follows Settings by default, overrides it per case, and is delivered by one alarm per distinct time.
 Version: 0.0.260 - Add a to-do kind of note: the Notes add button offers Text Note or To-Do, the editor body is Keep's checklist, and notes.items stores it (schema v9) with body mirroring the items for search.
+Version: 0.0.261 - Whiten the to-do Add Item label, and make unticking an item put it back in its original position instead of leaving it at the bottom.

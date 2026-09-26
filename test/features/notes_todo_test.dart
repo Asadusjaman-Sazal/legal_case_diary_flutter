@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -225,30 +226,43 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('unticking clears the strike-through and rejoins the unticked '
-        'rows', (tester) async {
-      // Unticked first, ticked below — the order the editor itself writes.
+    testWidgets('unticking puts an item back in its own place', (tester) async {
       final note = await seedTodo(const [
         NoteItem(text: 'One'),
-        NoteItem(text: 'Two', done: true),
+        NoteItem(text: 'Two'),
+        NoteItem(text: 'Three'),
       ]);
       await pumpEditor(tester, note: note);
 
       await tester.tap(find.byKey(const ValueKey('todo-checkbox-1')));
       await settle(tester);
+      // Ticked: below every unticked row.
+      expect(rowText(tester, 0), 'One');
+      expect(rowText(tester, 1), 'Three');
+      expect(rowText(tester, 2), 'Two');
+      expect(rowStyle(tester, 2).decoration, TextDecoration.lineThrough);
 
-      // It keeps its place in the unticked block's own order, but leaves the
-      // ticked one, so the strike-through is gone.
+      await tester.tap(find.byKey(const ValueKey('todo-checkbox-2')));
+      await settle(tester);
+      // Unticked: back between 'One' and 'Three', where it started — not at the
+      // bottom of the list, and no longer struck through.
       expect(rowText(tester, 0), 'One');
       expect(rowText(tester, 1), 'Two');
+      expect(rowText(tester, 2), 'Three');
       expect(rowStyle(tester, 1).decoration, isNull);
+      await unmount(tester);
+    });
 
-      // Ticking 'One' now drops it below 'Two', which only happens if 'Two' is
-      // back in the unticked block.
-      await tester.tap(find.byKey(const ValueKey('todo-checkbox-0')));
-      await settle(tester);
-      expect(rowText(tester, 0), 'Two');
-      expect(rowText(tester, 1), 'One');
+    testWidgets('the Add Item button reads white', (tester) async {
+      await pumpEditor(tester, isTodo: true);
+
+      final label = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('todo-add-item')),
+          matching: find.text('Add Item'),
+        ),
+      );
+      expect(label.style?.color, AppColors.onPrimary);
       await unmount(tester);
     });
 

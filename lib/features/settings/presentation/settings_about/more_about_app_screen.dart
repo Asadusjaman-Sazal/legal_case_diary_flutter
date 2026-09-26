@@ -167,42 +167,50 @@ class _DeveloperCard extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
-            child: Column(
-              children: [
-                const _DeveloperAvatar(),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Asadusjaman Sazal',
-                  style: AppTypography.titleLg.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
+          // Spans the card so the identity block centres on the card, not on
+          // its own widest line: a Stack hands a non-positioned child loose
+          // width, and the Column would otherwise shrink-wrap to the one-line
+          // court name and be pinned to the card's left edge (visible in
+          // landscape, where the card is wider than that line).
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
+              child: Column(
+                children: [
+                  const _DeveloperAvatar(),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'Asadusjaman Sazal',
+                    style: AppTypography.titleLg.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  l.settingsAbout_role,
-                  style: AppTypography.labelLg.copyWith(
-                    color: AppColors.secondary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l.settingsAbout_role,
+                    style: AppTypography.labelLg.copyWith(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'District & Sessions Judge Court, Narayanganj.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodyMd.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'District & Sessions Judge Court, Narayanganj.',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           // Floating "Designed & developed by" label, breaking the top edge.

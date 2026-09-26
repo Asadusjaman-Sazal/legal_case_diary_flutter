@@ -349,4 +349,48 @@ void main() {
     expect(find.text(l.settingsMoreAbout_keyFeatures), findsOne);
     expect(find.text(l.settingsMoreAbout_rateApp), findsOneWidget);
   });
+
+  testWidgets('developer card keeps its identity block on the card centre', (
+    tester,
+  ) async {
+    // A wide surface: the card is now wider than the developer card's one-line
+    // court name, which is the case where the block used to be pinned to the
+    // card's left edge instead of centring on it (visible in landscape).
+    await tester.binding.setSurfaceSize(const Size(900, 700));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final router = GoRouter(
+      initialLocation: AppRoutes.settingsAbout,
+      routes: [
+        GoRoute(
+          path: AppRoutes.settingsAbout,
+          builder: (context, state) => const MoreAboutAppScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routerConfig: router,
+        theme: AppTheme.lightTheme(const Locale('en')),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // The floating label and every line of the identity block share the card's
+    // centre line, as the mockup's block-level centring does.
+    for (final label in const [
+      'Designed & Developed By',
+      'Asadusjaman Sazal',
+      'Advocate',
+    ]) {
+      expect(
+        tester.getCenter(find.text(label)).dx,
+        closeTo(900 / 2, 0.5),
+        reason: '"$label" should sit on the card centre line',
+      );
+    }
+  });
 }

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.270 - Edit Profile form scrolls clear of the keyboard instead of overflowing above it.
+Version: 0.0.271 - Settings > About: the developer card's identity block centres on the card again, so it no longer drifts to the left edge in landscape.
 --------------------------------------
 
 ## Version History Log:
@@ -284,3 +284,4 @@ Version: 0.0.267 - Switch bottom navigation screens with no transition at all, r
 Version: 0.0.268 - Side menu: black fill on the selected item and a locale-aware, centre-aligned three-line profile header.
 Version: 0.0.269 - Retired the action blue app-wide: every active/selected state now uses the one black of the buttons and the side menu.
 Version: 0.0.270 - Edit Profile form scrolls clear of the keyboard instead of overflowing above it.
+Version: 0.0.271 - Settings > About: the developer card's identity block centres on the card again, so it no longer drifts to the left edge in landscape.

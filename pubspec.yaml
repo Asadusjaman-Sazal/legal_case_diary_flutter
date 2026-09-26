@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.265
+version: 0.0.266
 
 environment:
   sdk: ^3.12.2
@@ -107,6 +107,23 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: assets/icons/app_logo.png
+  # Adaptive icon (Android 8+), which is what stops the launcher drawing the
+  # logo as a small legacy icon on a plate. The background MUST be opaque: an
+  # adaptive icon's background layer may not contain transparency (Android
+  # Developers, "Implementing Adaptive Icons": "background drawables must be
+  # opaque whilst foregrounds can contain transparency"), and a transparent value
+  # is filled in by the launcher — it renders as a black plate. So the background
+  # is a plain white plate, which the navy book sits on.
+  #
+  # 22% is the size the user settled on. The canvas is 108 dp and may be masked to
+  # 72 dp (36 dp radius), so the largest size at which EVERY logo pixel stays
+  # inside is 24% (farthest pixel 34.89 dp from the centre). At 23% it is
+  # 36.23 dp — sub-pixel past the rim — and at 22% it is 37.52 dp, about 1.5 dp
+  # (~6 px at xxxhdpi), so the outermost corner of the cover's page edge is
+  # trimmed slightly. See docs/currentlyWorking.md for the full sweep.
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icons/app_logo.png
+  adaptive_icon_foreground_inset: 22
   web:
     generate: true
     image_path: assets/icons/app_logo.png

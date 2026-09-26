@@ -333,11 +333,16 @@ class BackupRepository {
   /// ids their cases already point at, and only the live database has those. Each
   /// reference sheet leads with one clearly-labelled sample row so the shape is
   /// visible even before the diary holds any.
+  ///
+  /// [districtLabel] resolves a court's stored district id to the name the sheet
+  /// shows; the Courts sheet groups its lower rows by it, so it is sorted in the
+  /// same language the sheet was generated in.
   Future<Uint8List> buildExcelTemplateWorkbook({
     required String appVersion,
     String Function(String nameKey)? categoryLabel,
+    String Function(String districtId)? districtLabel,
   }) async {
-    final reference = await _referenceData(categoryLabel);
+    final reference = await _referenceData(categoryLabel, districtLabel);
     return excelBytes(
       buildExcelTemplate(
         appVersion: appVersion,
@@ -367,10 +372,15 @@ class BackupRepository {
   /// not point at one.
   Future<_ExcelReferenceData> _referenceData(
     String Function(String nameKey)? categoryLabel,
+    String Function(String districtId)? districtLabel,
   ) async {
     /// Turns a court category's stored name key into the label the app shows.
     String label(String? nameKey) =>
         nameKey == null ? '' : (categoryLabel?.call(nameKey) ?? nameKey);
+
+    /// Turns a court's stored district id into the name the app shows.
+    String district(String? id) =>
+        id == null ? '' : (districtLabel?.call(id) ?? id);
 
     Future<List<List<Object?>>> rowsOf(
       String sql,
@@ -380,11 +390,42 @@ class BackupRepository {
       return <List<Object?>>[for (final row in rows) cells(row)];
     }
 
-    final courts = await rowsOf(_courtsSql, (row) => <Object?>[
-      row.read<String>('row_id'),
-      row.read<String>('row_name'),
-      label(row.read<String?>('category_key')),
-    ]);
+    // Lower courts are grouped by district so the Courts sheet can be filtered by
+    // one; AD/HCD rows carry no district and stay at the top in their own order.
+    // Sorting here rather than in SQL keeps the district names alphabetical in
+    // whichever language the sheet was generated in.
+    final courtRows = await db.customSelect(_courtsSql).get();
+    int byCategoryOrder(QueryRow a, QueryRow b) {
+      final category = (a.read<int?>('category_order') ?? 0).compareTo(
+        b.read<int?>('category_order') ?? 0,
+      );
+      if (category != 0) return category;
+      final order = a.read<int>('row_order').compareTo(b.read<int>('row_order'));
+      if (order != 0) return order;
+      return a.read<String>('row_name').compareTo(b.read<String>('row_name'));
+    }
+
+    courtRows.sort((a, b) {
+      final aDistrict = a.read<String?>('district_id');
+      final bDistrict = b.read<String?>('district_id');
+      if (aDistrict == null || bDistrict == null) {
+        if (aDistrict == bDistrict) return byCategoryOrder(a, b);
+        return aDistrict == null ? -1 : 1;
+      }
+      final byDistrict = district(
+        aDistrict,
+      ).toLowerCase().compareTo(district(bDistrict).toLowerCase());
+      return byDistrict != 0 ? byDistrict : byCategoryOrder(a, b);
+    });
+    final courts = <List<Object?>>[
+      for (final row in courtRows)
+        <Object?>[
+          row.read<String>('row_id'),
+          row.read<String>('row_name'),
+          label(row.read<String?>('category_key')),
+          district(row.read<String?>('district_id')),
+        ],
+    ];
     final caseCategories = await rowsOf(_caseCategoriesSql, (row) => <Object?>[
       row.read<String>('row_id'),
       row.read<String>('row_name'),
@@ -416,8 +457,9 @@ class BackupRepository {
           'Court ID',
           'Court Name',
           'Court Category',
+          'District',
         ], <List<Object?>>[
-          <Object?>['example-court-id', sample, sample],
+          <Object?>['example-court-id', sample, sample, sample],
           ...courts,
         ]),
         excelCaseCategoriesSheet: ExcelTemplateSheet(
@@ -781,6 +823,7 @@ const List<String> _guideLines = <String>[
   '',
   'The Other Sheets',
   'Courts, Case Categories, Case Types, Steps and On Behalfs list the reference data this diary already holds, so you can see the exact ids and names to quote. Each of them starts with one Example — Sample Row row; delete it.',
+  'On the Courts sheet the District column groups the lower courts by district, so you can filter them by it; it is blank for the Appellate Division and the High Court Division.',
   'Case History, Notes and Case References hold the records that belong to a case. Each row needs the case_id of a case that exists, either already in the diary or added in this same file.',
   'Courts, steps and settings themselves cannot be added here — that is done in the app.',
   '',
@@ -793,14 +836,17 @@ const List<String> _guideLines = <String>[
   'Do not rename the sheets or the header cells, and do not reorder the columns: the app matches both by name.',
 ];
 
-/// Tables the sample's reference sheets are read from, ordered by the parent
-/// court category so related rows stay together. Soft-deleted rows are excluded.
+/// Courts for the sample's Courts sheet. Soft-deleted rows are excluded, and the
+/// district id and the two order columns come back so the rows can be sorted in
+/// Dart — by district first, so the sheet can be filtered by it, then by court
+/// category and court order as before.
 const String _courtsSql =
     'SELECT c.id AS row_id, c.court_name AS row_name, '
-    'cc.name_key AS category_key FROM courts c '
+    'cc.name_key AS category_key, c.district AS district_id, '
+    'cc.order_index AS category_order, c.order_index AS row_order '
+    'FROM courts c '
     'LEFT JOIN court_categories cc ON cc.id = c.court_category_id '
-    'WHERE c.is_deleted = 0 '
-    'ORDER BY cc.order_index, c.order_index, c.court_name';
+    'WHERE c.is_deleted = 0';
 
 /// Case categories, by display name, with their court category.
 const String _caseCategoriesSql =

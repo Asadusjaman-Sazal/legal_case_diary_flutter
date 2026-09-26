@@ -413,8 +413,100 @@ void main() {
       expect(courts, contains(courtId));
       expect(courts, contains('Test Court'));
       expect(courts, contains('LABEL:test_category'));
+      // The Courts sheet leads with a District column, so a court can be found by
+      // the district it sits in.
+      expect(courts, contains('Court Category'));
+      expect(courts, contains('District'));
       // Every reference sheet leads with one clearly-labelled sample row.
       expect(courts, contains('Example — $excelSampleRowLabel'));
+    });
+
+    test('the Courts sheet groups lower courts by district, AD and HCD first',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      final syncHelper = SyncWriteHelper(
+        SyncQueueDao(db),
+        LocalIdentityService(prefs),
+      );
+      final categories = LocalCourtCategoriesRepository(
+        CourtCategoriesDao(db),
+        syncHelper,
+      );
+      final courts = LocalCourtsRepository(CourtsDao(db), syncHelper);
+      final highCourt = await categories.insert(
+        CourtCategoriesCompanion(
+          nameKey: const Value('high_court_division'),
+          courtLevel: const Value('high_court'),
+          orderIndex: const Value(0),
+        ),
+      );
+      final civil = await categories.insert(
+        CourtCategoriesCompanion(
+          nameKey: const Value('district_courts_civil'),
+          courtLevel: const Value('lower'),
+          orderIndex: const Value(2),
+        ),
+      );
+      final sessions = await categories.insert(
+        CourtCategoriesCompanion(
+          nameKey: const Value('district_sessions_criminal'),
+          courtLevel: const Value('lower'),
+          orderIndex: const Value(3),
+        ),
+      );
+      // AD/HCD first (no district), then the lower courts of one district in
+      // court-category order, then the next district.
+      await courts.insert(CourtsCompanion(
+        courtName: const Value('High Court Division Court'),
+        higherLowerCourts: const Value('higher_courts'),
+        courtCategoryId: Value(highCourt),
+        orderIndex: const Value(0),
+      ));
+      await courts.insert(CourtsCompanion(
+        courtName: const Value('Dhaka Civil Court'),
+        higherLowerCourts: const Value('lower_courts'),
+        courtCategoryId: Value(civil),
+        district: const Value('dhaka'),
+        orderIndex: const Value(1),
+      ));
+      await courts.insert(CourtsCompanion(
+        courtName: const Value('Dhaka Sessions Court'),
+        higherLowerCourts: const Value('lower_courts'),
+        courtCategoryId: Value(sessions),
+        district: const Value('dhaka'),
+        orderIndex: const Value(1),
+      ));
+      await courts.insert(CourtsCompanion(
+        courtName: const Value('Gazipur Civil Court'),
+        higherLowerCourts: const Value('lower_courts'),
+        courtCategoryId: Value(civil),
+        district: const Value('gazipur'),
+        orderIndex: const Value(2),
+      ));
+
+      final bytes = await backup.buildExcelTemplateWorkbook(
+        appVersion: '0.0.264',
+        districtLabel: (id) => 'DISTRICT:$id',
+      );
+      final sheet = _workbookParts(bytes)['xl/worksheets/sheet6.xml']!;
+
+      // The district column carries the district's name, not its id.
+      expect(sheet, contains('DISTRICT:dhaka'));
+      expect(sheet, contains('DISTRICT:gazipur'));
+      // AD/HCD stay above every district-grouped lower court...
+      expect(
+        sheet.indexOf('High Court Division Court'),
+        lessThan(sheet.indexOf('Dhaka Civil Court')),
+      );
+      // ...and within a district the courts follow court-category order.
+      expect(
+        sheet.indexOf('Dhaka Civil Court'),
+        lessThan(sheet.indexOf('Dhaka Sessions Court')),
+      );
+      expect(
+        sheet.indexOf('Dhaka Sessions Court'),
+        lessThan(sheet.indexOf('Gazipur Civil Court')),
+      );
     });
 
     test('the sample restores, its case row quoting the real court and role', () async {

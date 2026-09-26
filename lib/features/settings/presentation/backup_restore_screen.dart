@@ -29,6 +29,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/app_version.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/repository_providers.dart';
@@ -282,6 +283,11 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         // have left the tree.
         categoryLabel: (nameKey) =>
             mounted ? courtCategoryName(context, nameKey) : nameKey,
+        // Districts are stored as stable ids as well; the Courts sheet shows the
+        // same name the app shows, so the column filters in the user's language.
+        districtLabel: (districtId) => mounted
+            ? context.l10n.seedLabel(districtId, fallbackEn: districtId)
+            : districtId,
       );
       if (!mounted) return;
       final path = await ref

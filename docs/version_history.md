@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.264 - Make Backup & Restore's three section headings the app's standard sub-menu buttons, keep Backup Status always open, and put live reference sheets plus a Guide in the Excel template.
+Version: 0.0.265 - Add a District column to the Excel template's Courts sheet and group lower courts by district, then court category, keeping the AD and HCD rows unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -278,3 +278,4 @@ Version: 0.0.261 - Whiten the to-do Add Item label, and make unticking an item p
 Version: 0.0.262 - Reset each grouped case list's folded courts at Bangladesh midnight, so Daily Cause List, Overdue Dates and Upcoming Cases open every court again on a new day.
 Version: 0.0.263 - Add a plaintext Excel backup and restore to Settings > Backup & Restore, make its sections collapsible, and ship a downloadable format template.
 Version: 0.0.264 - Make Backup & Restore's three section headings the app's standard sub-menu buttons, keep Backup Status always open, and put live reference sheets plus a Guide in the Excel template.
+Version: 0.0.265 - Add a District column to the Excel template's Courts sheet and group lower courts by district, then court category, keeping the AD and HCD rows unchanged.

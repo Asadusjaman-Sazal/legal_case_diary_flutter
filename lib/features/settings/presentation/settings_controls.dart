@@ -163,16 +163,13 @@ class SettingsChoiceButton extends StatelessWidget {
     child: SizedBox(
       height: 48,
       child: Material(
-        // The active half is the dark, filled control from the mockup.
-        color: selected
-            ? AppColors.onPrimaryFixed
-            : AppColors.surfaceContainerLowest,
+        // The active half is the filled black control, matching every other
+        // active state in the app.
+        color: selected ? Colors.black : AppColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
           side: BorderSide(
-            color: selected
-                ? AppColors.onPrimaryFixed
-                : AppColors.outlineVariant,
+            color: selected ? Colors.black : AppColors.outlineVariant,
           ),
         ),
         child: InkWell(

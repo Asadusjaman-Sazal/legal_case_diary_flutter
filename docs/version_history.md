@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.268 - Side menu: black fill on the selected item and a locale-aware, centre-aligned three-line profile header.
+Version: 0.0.269 - Retired the action blue app-wide: every active/selected state now uses the one black of the buttons and the side menu.
 --------------------------------------
 
 ## Version History Log:
@@ -282,3 +282,4 @@ Version: 0.0.265 - Add a District column to the Excel template's Courts sheet an
 Version: 0.0.266 - Add an adaptive launcher icon so the Android app icon draws the logo large instead of the small legacy icon, keeping the Legal Case Diary text clear of the launcher mask.
 Version: 0.0.267 - Switch bottom navigation screens with no transition at all, removing the zoom-and-fade that was making some users unwell.
 Version: 0.0.268 - Side menu: black fill on the selected item and a locale-aware, centre-aligned three-line profile header.
+Version: 0.0.269 - Retired the action blue app-wide: every active/selected state now uses the one black of the buttons and the side menu.

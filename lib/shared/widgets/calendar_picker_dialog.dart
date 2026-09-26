@@ -337,11 +337,11 @@ class _DayCell extends StatelessWidget {
     // both flags are true and it correctly renders as the selected (filled) cell.
     final selected = isSelected;
     final todayUnselected = isToday && !isSelected;
-    final backgroundColor = selected ? AppColors.primary : null;
+    final backgroundColor = selected ? Colors.black : null;
     final foreground = selected
         ? AppColors.onPrimary
         : todayUnselected
-            ? AppColors.primary
+            ? Colors.black
             : AppColors.onSurface;
 
     return InkWell(
@@ -353,7 +353,7 @@ class _DayCell extends StatelessWidget {
           shape: BoxShape.circle,
           color: backgroundColor,
           border: todayUnselected
-              ? Border.all(color: AppColors.primary, width: 2)
+              ? Border.all(color: Colors.black, width: 2)
               : null,
         ),
         child: Stack(

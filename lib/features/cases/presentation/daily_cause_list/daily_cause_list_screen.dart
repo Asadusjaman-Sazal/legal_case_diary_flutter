@@ -684,7 +684,7 @@ class _DatePill extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: selected ? AppColors.primary : Colors.transparent,
+        color: selected ? Colors.black : Colors.transparent,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(

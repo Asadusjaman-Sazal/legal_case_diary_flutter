@@ -584,9 +584,9 @@ class _DayCell extends StatelessWidget {
         margin: const EdgeInsets.all(2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: selected ? colorScheme.primary : null,
+          color: selected ? Colors.black : null,
           border: todayUnselected
-              ? Border.all(color: colorScheme.primary, width: 2)
+              ? Border.all(color: Colors.black, width: 2)
               : null,
         ),
         child: Center(
@@ -600,7 +600,7 @@ class _DayCell extends StatelessWidget {
                   color: selected
                       ? colorScheme.onPrimary
                       : todayUnselected
-                          ? colorScheme.primary
+                          ? Colors.black
                           : textColor,
                   fontWeight:
                       (isSelected || isToday) ? FontWeight.bold : FontWeight.normal,

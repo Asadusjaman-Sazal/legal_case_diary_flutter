@@ -185,13 +185,13 @@ class BottomNavBar extends StatelessWidget {
           Icon(
             active ? tab.activeIcon : tab.icon,
             size: 24,
-            color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+            color: active ? Colors.black : AppColors.onSurfaceVariant,
           ),
           const SizedBox(height: 2),
           Text(
             tab.label(l),
             style: AppTypography.labelMd.copyWith(
-              color: active ? AppColors.primary : AppColors.onSurfaceVariant,
+              color: active ? Colors.black : AppColors.onSurfaceVariant,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
             ),
             maxLines: 1,

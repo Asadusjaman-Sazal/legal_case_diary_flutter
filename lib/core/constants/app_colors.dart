@@ -26,14 +26,19 @@ class AppColors {
   // Action / secondary palette
   // ----------------------------------------------------------------------
 
-  /// Action blue — CTAs, active states, key highlights.
-  static const Color secondary = Color(0xFF2563EB);
+  /// Active / selected black — CTAs, active states, key highlights.
+  ///
+  /// Was the action blue. Every active or selected state now uses the one
+  /// black that the buttons, the side menu and the Language picker already
+  /// share, so no screen marks a choice in blue.
+  static const Color secondary = Color(0xFF000000);
 
   /// On-secondary color.
   static const Color onSecondary = Color(0xFFFFFFFF);
 
-  /// Secondary container.
-  static const Color secondaryContainer = Color(0xFF316BF3);
+  /// Secondary container — also the unified active black (e.g. the Case Detail
+  /// Next Date highlight card).
+  static const Color secondaryContainer = Color(0xFF000000);
 
   /// On-secondary container.
   static const Color onSecondaryContainer = Color(0xFFFEFCFF);
@@ -136,32 +141,36 @@ class AppColors {
 
   // ----------------------------------------------------------------------
   // Fixed / tonal palette (for chips, badges, hover states)
+  //
+  // The pale tints below were the last blue in the palette. They now carry a
+  // neutral grey instead, so nothing tints a surface blue; the tint names are
+  // kept so existing call sites keep compiling.
   // ----------------------------------------------------------------------
 
-  /// Primary fixed.
-  static const Color primaryFixed = Color(0xFFDAE2FD);
+  /// Neutral tonal tint (was the pale primary blue).
+  static const Color primaryFixed = Color(0xFFE6E8EA);
 
-  /// Primary fixed dim.
-  static const Color primaryFixedDim = Color(0xFFBEC6E0);
+  /// Neutral tonal tint, dim (was the pale primary blue).
+  static const Color primaryFixedDim = Color(0xFFC6C6CD);
 
   /// On-primary fixed.
   static const Color onPrimaryFixed = Color(0xFF131B2E);
 
-  /// Secondary fixed.
-  static const Color secondaryFixed = Color(0xFFDBE1FF);
+  /// Neutral chip / badge fill (was the pale action-blue tint).
+  static const Color secondaryFixed = Color(0xFFE6E8EA);
 
-  /// Secondary fixed dim.
-  static const Color secondaryFixedDim = Color(0xFFB4C5FF);
+  /// Neutral chip / card border (was the pale action-blue tint).
+  static const Color secondaryFixedDim = Color(0xFFC6C6CD);
 
-  /// Tertiary fixed.
-  static const Color tertiaryFixed = Color(0xFFD3E4FE);
+  /// Neutral card fill (was the pale blue tint).
+  static const Color tertiaryFixed = Color(0xFFECEEF0);
 
   /// Tertiary fixed dim.
-  static const Color tertiaryFixedDim = Color(0xFFB7C8E1);
+  static const Color tertiaryFixedDim = Color(0xFFC6C6CD);
 
   /// Subtle overlay used in place of BackdropFilter.
   static const Color overlay54 = Color(0x8A000000);
 
-  /// Subtle secondary tint overlay for hover/press states.
-  static const Color secondaryHover = Color(0x0D2563EB);
+  /// Subtle neutral tint overlay for selected/hover rows (was a blue tint).
+  static const Color secondaryHover = Color(0x0D000000);
 }

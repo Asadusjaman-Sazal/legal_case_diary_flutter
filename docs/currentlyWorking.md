@@ -1,3 +1,13 @@
+### 2026-09-27 — Backup & Restore opens with every section closed — COMPLETE
+
+- **The request (Settings > Backup & Restore only):** the screen always opened with the **Backup & Restore** section already expanded; every section should stay closed until the user taps a heading. Change nothing else.
+- **The change is one field.** `_openSection` defaulted to `_Section.backup` and now defaults to `null`, so all three headings (Backup & Restore, Automatic Backup, Excel Backup Format) start collapsed; tapping one still reveals it and closes whichever was open. Its doc comment was rewritten to say every section starts closed. No layout, string, mockup or other screen changed.
+- **Tests updated to the new default.** `backup_restore_screen_test.dart`'s *shows the mockup sections with no backup yet* now asserts none of the four actions are built until a heading is tapped, and *only one section is open at a time* starts from a closed chevron before opening the backup section and re-checking the four actions' mockup order. The shared `tapAction` helper opens the section when the target is not already showing (conditional, not a toggle, so a test that taps twice keeps it open), and the Excel-note test opens the section before reading it.
+- **Mockup left as it is, by the instruction.** `settings_backupRestore/code.html` still draws the first section expanded (its chevron `expand_less`); it documents the section's contents as the state a user reaches by tapping, and the request was to change nothing outside the screen.
+- **Tests:** `flutter analyze` clean; `flutter test` **739 passed, 2 skipped** (unchanged count — the two reshaped tests kept their number).
+- **Version `0.0.275`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-27 — The mockup pass's two documentation gaps are closed: seven headings Title-Cased in the ARB, DESIGN.md's count corrected — COMPLETE
 
 - **What this closes.** The mockup-correction pass left exactly two open items — the seven sentence-case ARB headings it recorded rather than rewrote, and two stale docs (DESIGN.md's "26 files", `paywall_screen.dart`'s "Uppercase section heading" comment). Both are done here, so nothing from that pass is outstanding except the optional PNG refresh below.

@@ -227,15 +227,23 @@ void main() {
     "VALUES ('archive.state', 'complete', 1)",
   );
 
-  /// Taps an action button by its mockup label.
-  Future<void> tapAction(WidgetTester tester, String label) async {
-    await tester.tap(find.text(label));
-    await tester.pumpAndSettle();
-  }
-
   /// Opens one collapsible section, which closes whichever was open.
   Future<void> openSection(WidgetTester tester, String id) async {
     await tester.tap(find.byKey(ValueKey('backup-section-toggle-$id')));
+    await tester.pumpAndSettle();
+  }
+
+  /// Taps an action button by its mockup label.
+  ///
+  /// Every action lives in the Backup & Restore section, which starts closed, so
+  /// this opens it if it is not already showing — the same tap the user makes
+  /// before pressing one. A test that taps two actions in a row leaves the
+  /// section open between them, so the open is conditional rather than a toggle.
+  Future<void> tapAction(WidgetTester tester, String label) async {
+    if (find.text(label).evaluate().isEmpty) {
+      await openSection(tester, 'backup');
+    }
+    await tester.tap(find.text(label));
     await tester.pumpAndSettle();
   }
 
@@ -303,29 +311,17 @@ void main() {
     expect(find.text('Excel Backup Format'), findsOneWidget);
     expect(find.text('Backup Status'), findsOneWidget);
 
-    // ...and Backup & Restore opens first, so its four actions are showing, in
-    // the mockup's order with the Excel backup directly after the local one.
-    expect(find.text('Backup to Local Storage'), findsOneWidget);
-    expect(find.text('Backup as Excel File'), findsOneWidget);
-    expect(find.text('Backup to Google Drive'), findsOneWidget);
-    expect(find.text('Restore from Backup'), findsOneWidget);
-    expect(
-      tester.getTopLeft(find.byKey(const ValueKey('backup-excel'))).dy,
-      greaterThan(
-        tester.getTopLeft(find.byKey(const ValueKey('backup-local'))).dy,
-      ),
-    );
-    expect(
-      tester.getTopLeft(find.byKey(const ValueKey('backup-excel'))).dy,
-      lessThan(
-        tester.getTopLeft(find.byKey(const ValueKey('backup-drive'))).dy,
-      ),
-    );
+    // ...and every section starts closed, so none of the options are showing
+    // until the user taps a heading.
+    expect(find.text('Backup to Local Storage'), findsNothing);
+    expect(find.text('Backup as Excel File'), findsNothing);
+    expect(find.text('Backup to Google Drive'), findsNothing);
+    expect(find.text('Restore from Backup'), findsNothing);
     // Each collapsible heading is the app's standard sub-menu button — the very
     // control the Account & Profile menu uses — with an expand chevron.
     expect(find.byType(SettingsMenuCard), findsNWidgets(3));
 
-    // Nothing inside the other sections is built while they are closed.
+    // Nothing inside any section is built while they are closed.
     expect(find.text('Everyday'), findsNothing);
 
     // Backup Status is not a button: it keeps the mockup's plain heading and is
@@ -346,7 +342,20 @@ void main() {
   testWidgets('only one section is open at a time', (tester) async {
     await pumpScreen(tester);
 
-    // The first section opens with the screen, so its chevron points up.
+    // Every section starts closed, so its chevron points down...
+    expect(
+      tester
+          .widget<Icon>(
+            find.byKey(const ValueKey('backup-section-chevron-backup')),
+          )
+          .icon,
+      Icons.expand_more,
+    );
+
+    // ...and opening the first reveals its four actions, in the mockup's order
+    // with the Excel backup directly after the local one, chevron turned up.
+    await openSection(tester, 'backup');
+    expect(find.text('Backup to Local Storage'), findsOneWidget);
     expect(
       tester
           .widget<Icon>(
@@ -354,6 +363,18 @@ void main() {
           )
           .icon,
       Icons.expand_less,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('backup-excel'))).dy,
+      greaterThan(
+        tester.getTopLeft(find.byKey(const ValueKey('backup-local'))).dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('backup-excel'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('backup-drive'))).dy,
+      ),
     );
 
     // Opening the schedule closes the section that was open: the user never has
@@ -400,6 +421,8 @@ void main() {
     tester,
   ) async {
     await pumpScreen(tester);
+    // The note sits under the action card, inside the section that starts closed.
+    await openSection(tester, 'backup');
     expect(find.textContaining('is not encrypted'), findsOneWidget);
   });
 

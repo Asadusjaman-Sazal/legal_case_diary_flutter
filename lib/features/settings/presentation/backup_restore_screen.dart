@@ -119,11 +119,12 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
   /// Which section is open; null when every section is closed.
   ///
-  /// Backup & Restore opens by default because it holds the actions the screen
-  /// exists for. Kept in memory rather than stored: which section the user last
-  /// looked at is not worth a preference, and a remembered answer would be the
-  /// wrong one the next time they come here to do something else.
-  _Section? _openSection = _Section.backup;
+  /// Every section starts closed, so the screen opens as a short list of
+  /// headings and reveals its options only when the user taps one. Kept in
+  /// memory rather than stored: which section the user last looked at is not
+  /// worth a preference, and a remembered answer would be the wrong one the next
+  /// time they come here to do something else.
+  _Section? _openSection;
 
   /// Opens [section] and closes whichever was open, so only one is ever open.
   void _toggleSection(_Section section) => setState(

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.276 - Monthly backup nudge now floats mid-screen as a red banner with white text instead of shrinking the app below a top strip.
+Version: 0.0.279 - Backup nudge window widened from 280 to 320 px so the Back up to Local Storage action label fits on one line.
 --------------------------------------
 
 ## Version History Log:
@@ -290,3 +290,6 @@ Version: 0.0.273 - Mockup pass complete: every screen mockup now follows the DES
 Version: 0.0.274 - Closed the mockup pass's two documentation gaps: the seven ARB section headings are Title Case per rule 11, and DESIGN.md's stale 26-file count now reads 30.
 Version: 0.0.275 - Settings > Backup & Restore now opens with every section closed; a section expands only when the user taps its heading.
 Version: 0.0.276 - Monthly backup nudge now floats mid-screen as a red banner with white text instead of shrinking the app below a top strip.
+Version: 0.0.277 - Monthly backup nudge now renders as a small centred window the size of the Exit App confirmation, with its text one step larger.
+Version: 0.0.278 - Monthly backup nudge window now sizes to its own text vertically, so it is a small centred window instead of a full-screen-tall card.
+Version: 0.0.279 - Backup nudge window widened from 280 to 320 px so the Back up to Local Storage action label fits on one line.

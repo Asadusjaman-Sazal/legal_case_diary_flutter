@@ -1,3 +1,32 @@
+### 2026-09-27 — The nudge window is a little wider, so its action fits one line — COMPLETE
+
+- **The request:** widen the nudge window a bit so "Back up to Local Storage" sits on a single line.
+- **The arithmetic that shows it was wrapping by a hair.** The action uses `AppTypography.titleMd` — Inter 16 semibold — measuring roughly 187 px for that string. After the icon (20), its gap (8), the dismiss button (~48) and the card's padding, the 280 px cap left the text column only ~184 px, so the label broke onto a second line. At 320 px the column gets ~224 px, leaving comfortable headroom.
+- **The change is the constant.** `_nudgeWindowWidth` 280.0 → **320.0** (its doc now explains it is deliberately a little wider than Flutter's `AlertDialog` `minWidth` so the label fits on one line, and still far narrower than the screen). Nothing else: same tokens, colours, sizes, icons, gate logic, `ValueKey('backup-nudge-dismiss')`, tap-to-open and strings.
+- **Tests:** `flutter analyze` clean; `flutter test test/features/backup_nudge_banner_test.dart` **8 passed**, full `flutter test` **739 passed, 2 skipped**.
+- **Version `0.0.279`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look: the action label should now read on one line, with the message wrapping to a few short lines.
+
+### 2026-09-27 — The monthly backup nudge window now wraps its text vertically — COMPLETE
+
+- **The report:** 0.0.277 fixed the width but the window still ran the full screen height. That was the whole remaining defect.
+- **One field was wrong.** The card's `Row` has an `Expanded` text `Column`, and a `Column` defaults to `MainAxisSize.max`. Under the loose vertical constraints coming down from `Center`/`SafeArea` that made the column fill the screen height, so the red window stretched top to bottom regardless of the 280 px width cap. The column now sets **`mainAxisSize: MainAxisSize.min`**, so the window is exactly as tall as its two lines plus the padding — a small centred window, like the Exit App confirmation.
+- **Nothing else changed.** Width cap, tokens, colours, elevation, radius, text sizes (`bodyMd` / `titleMd`), icon sizes, the four-condition gate, recorded-not-dismissed, `ValueKey('backup-nudge-dismiss')`, tap-to-open and the strings are all as they were; `_NudgeCard`'s doc now says the window is "sized to its own content".
+- **Tests:** `flutter analyze` clean; `flutter test` **739 passed, 2 skipped** (the 8 nudge tests unmodified).
+- **Version `0.0.278`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look: the nudge should now be a short red window the width of the Exit App confirmation, sitting in the middle of the screen with the app fully visible around it.
+
+### 2026-09-27 — The monthly backup nudge is now a small centred window, with its text one step larger — COMPLETE
+
+- **The request (the monthly backup nudge only):** the nudge still read as *full screen*; make it **small, like the app's Exit App window**, showing in **the middle of the screen**, and **increase its text size by 1**. Nothing else.
+- **Why it looked full screen, and the one field that fixed it.** The card is a `Material` wrapping a `Row` with an `Expanded` text column, so inside the `Center` it stretched to fill the screen minus the `AppSpacing.edgeMargin` padding. It is now wrapped in a `ConstrainedBox(maxWidth: _nudgeWindowWidth)`, where `_nudgeWindowWidth = 280.0` — the same width the Exit App `AlertDialog` settles on (Flutter's default `BoxConstraints(minWidth: 280)`, already documented in `edit_name_dialog.dart`). It stays centred by the existing `Center`, and there is still **no scrim**, so taps on the app around the window pass through — a window, not a full-screen dialog.
+- **Text one step up the scale** (the user chose the token route over a literal +1): the message `AppTypography.bodySm` (12) → **`bodyMd`** (14), and the underlined action `AppTypography.labelLg` (14) → **`titleMd`** (16). Icons (20 / 18) are unchanged — the request was about text. Colours, radius, elevation, wording and the `Route`/gate logic are untouched.
+- **Comments updated to the new shape:** the file header no longer calls it a "dismissible banner, never a dialog" (it now reads *dismissible and non-modal, never a blocking dialog* and notes the Exit-App footprint), `_NudgeCard`'s doc says "window" instead of "banner", and the `build()` comment records that the constraint — not a scrim — is what makes it a window. The no-`Tooltip` rationale (no `Overlay` above the navigator) still holds and was kept.
+- **Nothing behavioural moved.** The four-condition gate, recorded-not-dismissed, `_openBackupRestore`, `ValueKey('backup-nudge-dismiss')`, tap-to-open and the localized strings are unchanged, so all 8 tests in `backup_nudge_banner_test.dart` pass unmodified. No mockup documents the nudge, so hard rule 9 asks for no HTML/PNG change.
+- **Tests:** `flutter analyze` clean; `flutter test` **739 passed, 2 skipped**.
+- **Version `0.0.277`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look: confirm the nudge reads as a small window the width of the Exit App confirmation, centred, with the larger text, and that tapping it still opens Backup & Restore.
+
 ### 2026-09-27 — The monthly backup nudge floats mid-screen instead of shrinking the app — COMPLETE
 
 - **The request (the monthly backup nudge only):** the nudge was taking a strip at the top and the app content below it literally shrank; show it as a **banner in the middle of the screen** instead, with **white text on a red background**. Nothing else was to change.

@@ -1,17 +1,20 @@
 /// The monthly "back up your data" nudge (Task 15 Phase 6).
 ///
 /// A free user's local export is the only safety net they have, so once a
-/// calendar month the app asks them to use it. The nudge is deliberately a
-/// **dismissible banner, never a dialog**: it does not interrupt whatever the
-/// user opened the app to do, it can be ignored with one tap, and it goes away
-/// on its own for the rest of the month either way.
+/// calendar month the app asks them to use it. The nudge is deliberately
+/// **dismissible and non-modal, never a blocking dialog**: it does not
+/// interrupt whatever the user opened the app to do, it can be ignored with one
+/// tap, and it goes away on its own for the rest of the month either way. It is
+/// drawn as a small centred window, about the footprint of the Exit App
+/// confirmation, so it never covers the screen it sits on.
 ///
 /// It is mounted above the app's navigator (see `app.dart`), the same place the
 /// OEM setup guide is offered from, so it appears on whatever screen the app
 /// opens on — including a launch straight into a case. The route is pushed
 /// through the router we are given, because a widget above the navigator has no
-/// `context.push` of its own. It floats mid-screen over the app rather than
-/// taking a strip at the top, so the screen behind it never shrinks.
+/// `context.push` of its own. It floats mid-screen over the app as a small
+/// window rather than taking a strip at the top, so the screen behind it never
+/// shrinks and stays tappable.
 ///
 /// Four conditions must all hold, and every one of them is a reason *not* to
 /// nag: the user is free (premium users are not at risk), the diary actually
@@ -39,7 +42,7 @@ import '../data/backup_metadata_store.dart';
 import '../data/premium_access.dart';
 import '../../cases/data/local/cases_dao.dart';
 
-/// Mounts [child] and, when the month's nudge is due, a banner over it.
+/// Mounts [child] and, when the month's nudge is due, a small window over it.
 class BackupNudgeBanner extends ConsumerStatefulWidget {
   /// Router used to open Backup & Restore from the banner.
   final GoRouter router;
@@ -57,6 +60,12 @@ class BackupNudgeBanner extends ConsumerStatefulWidget {
   @override
   ConsumerState<BackupNudgeBanner> createState() => _BackupNudgeBannerState();
 }
+
+/// The window's maximum width: a little wider than Flutter's default
+/// [AlertDialog] `minWidth` (280), which the Exit App confirmation settles on,
+/// so the underlined action label fits on a single line instead of wrapping by
+/// a hair. Still far narrower than the screen — a window, not a dialog.
+const double _nudgeWindowWidth = 320.0;
 
 class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
   /// Whether this session is showing the nudge.
@@ -125,8 +134,10 @@ class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
     final l = AppLocalizations.of(context);
     // A Stack rather than a Column: the nudge floats in the middle of the
     // screen, so the app below keeps its full height instead of shrinking to
-    // make room for a strip. The centered child is the only hit target, so taps
-    // on the app around the card still work.
+    // make room for a strip. The same `EdgeInsets` side margin keeps the window
+    // off the edges on a narrow phone. The centered child is the only hit
+    // target, so taps on the app around the window still work — there is no
+    // scrim, which is what keeps it a window rather than a full-screen dialog.
     return Stack(
       children: [
         widget.child,
@@ -137,12 +148,17 @@ class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.edgeMargin,
                 ),
-                child: _NudgeCard(
-                  message: l.backupNudge_message,
-                  actionLabel: l.backupNudge_action,
-                  dismissTooltip: l.backupNudge_dismiss,
-                  onTap: _openBackupRestore,
-                  onDismiss: () => setState(() => _visible = false),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: _nudgeWindowWidth,
+                  ),
+                  child: _NudgeCard(
+                    message: l.backupNudge_message,
+                    actionLabel: l.backupNudge_action,
+                    dismissTooltip: l.backupNudge_dismiss,
+                    onTap: _openBackupRestore,
+                    onDismiss: () => setState(() => _visible = false),
+                  ),
                 ),
               ),
             ),
@@ -153,7 +169,8 @@ class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
   }
 }
 
-/// The banner itself: a tappable card mid-screen with a dismiss control.
+/// The window itself: a tappable card mid-screen, sized to its own content,
+/// with a dismiss control.
 class _NudgeCard extends StatelessWidget {
   final String message;
   final String actionLabel;
@@ -195,18 +212,22 @@ class _NudgeCard extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
+                // `min` so the window wraps its two lines of text: the default
+                // `max` would stretch it to the screen height and make the
+                // "small window" cover everything vertically.
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     message,
-                    style: AppTypography.bodySm.copyWith(
+                    style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onError,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     actionLabel,
-                    style: AppTypography.labelLg.copyWith(
+                    style: AppTypography.titleMd.copyWith(
                       color: AppColors.onError,
                       decoration: TextDecoration.underline,
                       decorationColor: AppColors.onError,

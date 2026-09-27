@@ -1,3 +1,15 @@
+### 2026-09-27 — The Settings drawer's Share works like the case screens' — COMPLETE
+
+- **The report:** Share in the side menu works on the case screens but does nothing from Settings.
+- **Cause:** the drawer only knows the callbacks it is handed — `onShare` and `onPrint` default to null and their tiles call `callback?.call()`. `cases_screen_modal.dart` supplied Share; `settings_main_screen.dart` passed only `currentRoute` and `sideNavOptions`, so its Share tile was a dead tap. The action itself also lived as a private method inside the case-screen shell, which is why the second caller had nothing to call.
+- **The action is now shared, not duplicated.** New `lib/core/services/app_share_flow.dart` holds `shareAppInvite(context, ref)` — the invite text and subject from the ARB, the service call, and the two messages the user must see (the clipboard fallback and a failure) — mirroring how `core/print/print_flow.dart` owns Print. `cases_screen_modal.dart`'s private `_shareApp` is deleted and both screens call the shared action, so there is exactly one implementation.
+- **Two files changed, no new API:** `settings_main_screen.dart` passes `onShare: () => shareAppInvite(context, ref)`, and `cases_screen_modal.dart` points at the same function. No drawer, ARB or mockup change.
+- **Tests (2 new).** New `test/features/settings_drawer_share_test.dart` pumps the **real** Settings screen through a router, opens the drawer, scrolls to Share (it sits below the fold), taps it and asserts the invite carries `appStoreUrl` with a non-empty subject — and that the clipboard fallback is said out loud. Both were verified to fail with the `onShare` wiring removed. There was no test for the Settings screen at all before this, so the wiring was unguarded.
+- **Two things found while writing it, both pre-existing and both flagged rather than changed silently:** the drawer's **Print** tile is still a dead tap on Settings (`onPrint` is not passed; the case screens say *Print is not available for this screen* in that situation), and Flutter asserts that the Settings rows' ink splashes may be invisible because their `ListTile`s sit inside the settings card's decorated box. The new test drains that unrelated assertion explicitly (with a comment) so it cannot mask the Share checks.
+- **Tests:** `flutter analyze` clean; full `flutter test` **744 passed, 2 skipped**.
+- **Version `0.0.285`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look: open the drawer from Settings and share, with and without a share target available (E4 in `part_a_manual_test_pass.md`).
+
 ### 2026-09-27 — Daily Cause List is the shipped default landing page — COMPLETE
 
 - **The request:** set Daily Cause List as the default landing page, changing only the View Settings setting.

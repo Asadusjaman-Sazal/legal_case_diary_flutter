@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.284 - Default landing page is now Daily Cause List (plan §10.1), replacing the All Cases on-device-testing default in UserSettings.
+Version: 0.0.285 - Settings' navigation drawer now wires the shared Share action, so its Share tile opens the app invite instead of being a dead tap.
 --------------------------------------
 
 ## Version History Log:
@@ -298,3 +298,4 @@ Version: 0.0.281 - Case Detail's Next Date card paints the blue it had before th
 Version: 0.0.282 - Next Date card's border now uses the card blue instead of the active black, removing the dark rim the blue fill revealed.
 Version: 0.0.283 - Settings' Default Notification Status is now only the default an individual case starts from, so a case switched on alerts while the switch is off.
 Version: 0.0.284 - Default landing page is now Daily Cause List (plan §10.1), replacing the All Cases on-device-testing default in UserSettings.
+Version: 0.0.285 - Settings' navigation drawer now wires the shared Share action, so its Share tile opens the app invite instead of being a dead tap.

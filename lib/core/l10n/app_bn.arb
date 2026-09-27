@@ -90,7 +90,7 @@
           }
       }
   },
-  "caseDetailsScreen_noHistoryEntries": "এখনো কোনো ইতিহাস এন্ট্রি নেই।",
+  "caseDetailsScreen_noHistoryEntries": "এখনো কোনো কেস হিস্টোরি যুক্ত করা হয়নি।",
   "caseDetailsScreen_showHistory": "দেখুন",
   "caseDetailsScreen_hideHistory": "লুকান",
   "caseDetailsScreen_daysRemaining": "{count, plural, =0{আর ০ দিন বাকি} =1{আর ১ দিন বাকি} other{আর {count} দিন বাকি}}",
@@ -227,7 +227,7 @@
   "notesScreen_delete": "মুছুন",
   "notesScreen_pin": "পিন",
   "notesScreen_modified": "পরিবর্তিত",
-  "notesScreen_empty": "এখনও কোনো নোট নেই। যোগ করতে + ট্যাপ করুন।",
+  "notesScreen_empty": "এখনও কোনো নোট যুক্ত করা হয়নি। যোগ করতে + ট্যাপ করুন।",
   "notesScreen_noteTitle": "শিরোনাম",
   "notesScreen_noteBody": "নোট",
   "notesScreen_noteBodyPlaceholder": "আপনার নোট এখানে লিখুন...",
@@ -559,7 +559,7 @@
   "settingsBackupRestore_passphraseConfirmLabel": "পাসফ্রেজ নিশ্চিত করুন",
   "settingsBackupRestore_passphraseRequired": "একটি পাসফ্রেজ লিখুন।",
   "settingsBackupRestore_passphraseMismatch": "দুটি পাসফ্রেজ মিলছে না।",
-  "settingsBackupRestore_encryptAndSave": "এনক্রিপ্ট করে সংরক্ষণ করুন",
+  "settingsBackupRestore_encryptAndSave": "এনক্রিপ্ট ও সংরক্ষণ",
   "settingsBackupRestore_recoveryPassphraseTitle": "এই ব্যাকআপ খুলুন",
   "settingsBackupRestore_recoveryPassphraseBody": "যে পাসফ্রেজ দিয়ে ব্যাকআপটি তৈরি হয়েছিল, সেটি লিখুন।",
   "settingsBackupRestore_recoveryPassphraseHint": "এনক্রিপশন চালু হওয়ার আগে তৈরি পুরনো ব্যাকআপ পাসফ্রেজ ছাড়াই খোলে।",
@@ -655,7 +655,7 @@
   "settingsItemList_addTitle": "আইটেম যোগ করুন",
   "settingsItemList_editTitle": "আইটেম সম্পাদনা",
   "settingsItemList_nameLabel": "নাম",
-  "settingsItemList_empty": "এখনো কোনো আইটেম নেই। নিচে একটি যোগ করুন।",
+  "settingsItemList_empty": "এখনো কোনো আইটেম যুক্ত করা হয়নি। নিচে একটি যোগ করুন।",
   "settingsItemList_deleteTitle": "আইটেম মুছুন",
   "settingsItemList_deleteMessage": "এই আইটেমটি মুছে ফেলবেন? এই কাজটি ফিরিয়ে আনা যাবে না।",
   "settingsItemList_catAppellate": "আপিল",
@@ -672,7 +672,7 @@
   "settingsCourtList_editTitle": "আদালত সম্পাদনা",
   "settingsCourtList_nameLabel": "আদালতের নাম",
   "settingsCourtList_titleHigher": "আদালতের নাম",
-  "settingsCourtList_empty": "এখনো কোনো আদালত নেই। নিচে একটি যোগ করুন।",
+  "settingsCourtList_empty": "এখনো কোনো আদালত যুক্ত করা হয়নি। নিচে একটি যোগ করুন।",
   "settingsCourtList_deleteTitle": "আদালত মুছুন",
   "settingsCourtList_deleteMessage": "\"{name}\" মুছে ফেলবেন? এই কাজটি ফিরিয়ে আনা যাবে না।",
   "@settingsCourtList_deleteMessage": {
@@ -699,7 +699,7 @@
   "settingsLowerCourtCategories_addTitle": "আদালতের ক্যাটেগরি যোগ করুন",
   "settingsLowerCourtCategories_editTitle": "আদালতের ক্যাটেগরি সম্পাদনা",
   "settingsLowerCourtCategories_nameLabel": "ক্যাটেগরির নাম",
-  "settingsLowerCourtCategories_empty": "এই জেলায় এখনো কোনো আদালতের ক্যাটেগরি নেই।",
+  "settingsLowerCourtCategories_empty": "এই জেলায় এখনো কোনো আদালতের ক্যাটেগরি যুক্ত করা হয়নি।",
   "settingsCourtFlow_divisionTitle": "{division} বিভাগ",
   "@settingsCourtFlow_divisionTitle": {
       "description": "DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES",

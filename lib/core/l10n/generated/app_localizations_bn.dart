@@ -238,7 +238,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get caseDetailsScreen_noHistoryEntries =>
-      'এখনো কোনো ইতিহাস এন্ট্রি নেই।';
+      'এখনো কোনো কেস হিস্টোরি যুক্ত করা হয়নি।';
 
   @override
   String get caseDetailsScreen_showHistory => 'দেখুন';
@@ -494,7 +494,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get notesScreen_modified => 'পরিবর্তিত';
 
   @override
-  String get notesScreen_empty => 'এখনও কোনো নোট নেই। যোগ করতে + ট্যাপ করুন।';
+  String get notesScreen_empty =>
+      'এখনও কোনো নোট যুক্ত করা হয়নি। যোগ করতে + ট্যাপ করুন।';
 
   @override
   String get notesScreen_noteTitle => 'শিরোনাম';
@@ -1233,8 +1234,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'দুটি পাসফ্রেজ মিলছে না।';
 
   @override
-  String get settingsBackupRestore_encryptAndSave =>
-      'এনক্রিপ্ট করে সংরক্ষণ করুন';
+  String get settingsBackupRestore_encryptAndSave => 'এনক্রিপ্ট ও সংরক্ষণ';
 
   @override
   String get settingsBackupRestore_recoveryPassphraseTitle =>
@@ -1532,7 +1532,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsItemList_empty =>
-      'এখনো কোনো আইটেম নেই। নিচে একটি যোগ করুন।';
+      'এখনো কোনো আইটেম যুক্ত করা হয়নি। নিচে একটি যোগ করুন।';
 
   @override
   String get settingsItemList_deleteTitle => 'আইটেম মুছুন';
@@ -1582,7 +1582,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsCourtList_empty =>
-      'এখনো কোনো আদালত নেই। নিচে একটি যোগ করুন।';
+      'এখনো কোনো আদালত যুক্ত করা হয়নি। নিচে একটি যোগ করুন।';
 
   @override
   String get settingsCourtList_deleteTitle => 'আদালত মুছুন';
@@ -1620,7 +1620,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsLowerCourtCategories_empty =>
-      'এই জেলায় এখনো কোনো আদালতের ক্যাটেগরি নেই।';
+      'এই জেলায় এখনো কোনো আদালতের ক্যাটেগরি যুক্ত করা হয়নি।';
 
   @override
   String settingsCourtFlow_divisionTitle(String division) {

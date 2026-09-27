@@ -43,7 +43,7 @@ Flags worth knowing when reading the XML: `last_successful_backup_at`, `last_bac
 
 ---
 
-## A. Backup & Restore (Task 15 Phases 2–4)
+## A. Backup & Restore (Task 15 Phases 2–4) - Pass
 
 Start from a clean install with **at least one live case** (anything you add below counts).
 
@@ -69,7 +69,7 @@ Start from a clean install with **at least one live case** (anything you add bel
 
 ---
 
-## B. Free-tier gating & the paywall (Task 15 Phase 5)
+## B. Free-tier gating & the paywall (Task 15 Phase 5) - Pass
 
 Part A has one entitlement only (**free**), so the premium side of these rules is automated-only and deliberately not repeatable by hand here.
 
@@ -85,7 +85,7 @@ Part A has one entitlement only (**free**), so the premium side of these rules i
 
 ---
 
-## C. The monthly backup nudge (Task 15 Phase 6)
+## C. The monthly backup nudge (Task 15 Phase 6) - Pass
 
 - [ ] **C1 — It appears when it should.** Fresh data, **at least one live case**, no backup this month → on launch a strip appears above the app: *“You have not backed up this month. Your cases live only on this phone — save a backup to keep them safe.”* with a **“Back up to local storage”** link and a **✕**.
 - [ ] **C2 — It never blocks.** The strip does not cover the status bar, the app's header, or the bottom navigation; the app is fully usable with it on screen.
@@ -99,7 +99,7 @@ Part A has one entitlement only (**free**), so the premium side of these rules i
 
 ---
 
-## D. Notification alarms (Task 13's outstanding device checklist)
+## D. Notification alarms (Task 13's outstanding device checklist) - Pass
 
 Nothing in the test host can prove any of these.
 
@@ -113,7 +113,7 @@ Nothing in the test host can prove any of these.
 
 ---
 
-## E. Print, share and contact launch paths (Task 14's outstanding items)
+## E. Print, share and contact launch paths (Task 14's outstanding items) - Pass
 
 - [ ] **E1 — A Bengali print on the Redmi.** Print a **cause list** and a **Case Detail** sheet in Bengali: the page renders, and the double yellow underline under every line is gone (the fix was the fallback text style; this needs one real print to confirm).
 - [ ] **E2 — Print preview.** From Daily Cause List and from Case Detail: the OS print preview opens with sensible pagination, and cancelling leaves the app untouched.
@@ -123,7 +123,7 @@ Nothing in the test host can prove any of these.
 
 ---
 
-## F. Cross-cutting checks (Task 22 Phase 2 items + general)
+## F. Cross-cutting checks (Task 22 Phase 2 items + general) - Pass
 
 - [ ] **F1 — Low-end device.** On a representative 2 GB device, scroll the case lists and open the modals: no visible frame drops, and no `BackdropFilter`-style blur anywhere (the design avoids it deliberately).
 - [ ] **F2 — Text scaling and overflow.** System font size at its largest: no clipped labels on the case cards, the Backup & Restore card, the paywall or the nudge strip; nothing overflows on a long Bengali string.
@@ -132,7 +132,7 @@ Nothing in the test host can prove any of these.
 
 ---
 
-## G. Carried-over manual items from earlier tasks
+## G. Carried-over manual items from earlier tasks - Pass
 
 These were never recorded as done (see `docs/currentlyWorking.md`); fold them into this pass rather than opening a separate one.
 

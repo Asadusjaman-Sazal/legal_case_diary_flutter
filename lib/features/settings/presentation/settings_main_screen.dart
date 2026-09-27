@@ -14,6 +14,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 
 /// A single navigable settings entry within a section.
@@ -169,6 +170,9 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
       drawer: AppNavigationDrawer(
         currentRoute: currentRoute,
         sideNavOptions: sideNavOptions,
+        // The same Share action the case screens' drawer offers: the drawer
+        // only knows the callback, so a screen that omits it leaves a dead tap.
+        onShare: () => shareAppInvite(context, ref),
       ),
       body: SafeArea(
         child: Column(

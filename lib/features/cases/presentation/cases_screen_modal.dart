@@ -24,7 +24,7 @@ import '../../../core/print/print_document.dart';
 import '../../../core/print/print_flow.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
-import '../../../core/services/app_share_service.dart';
+import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 
@@ -158,28 +158,6 @@ class CasesScreenModal extends ConsumerWidget {
   void _showPrintUnavailable(BuildContext context, AppLocalizations l) =>
       _say(context, l.print_notAvailable);
 
-  /// Shares the app itself (never the PDF — the two actions stay separate).
-  Future<void> _shareApp(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    final outcome = await ref
-        .read(appShareServiceProvider)
-        .shareApp(
-          message: l.appShare_invite(appStoreUrl),
-          subject: l.appShare_subject,
-        );
-    if (!context.mounted) return;
-
-    switch (outcome) {
-      case AppShareOutcome.copiedToClipboard:
-        _say(context, l.appShare_copied);
-      case AppShareOutcome.failed:
-        _say(context, l.appShare_failed);
-      case AppShareOutcome.shared:
-      case AppShareOutcome.dismissed:
-        break;
-    }
-  }
-
   void _say(BuildContext context, String message) => ScaffoldMessenger.of(
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
@@ -211,7 +189,10 @@ class CasesScreenModal extends ConsumerWidget {
         onPrint: documentBuilder == null
             ? (onPrint ?? () => _showPrintUnavailable(context, l))
             : () => _printDocument(context, ref),
-        onShare: onShare ?? () => _shareApp(context, ref),
+        // Shares the app itself, never the PDF — the two actions stay separate.
+        // The action is shared with every other drawer (Settings included),
+        // so it lives in `core/services/app_share_flow.dart`.
+        onShare: onShare ?? () => shareAppInvite(context, ref),
       ),
       body: Column(
         children: [

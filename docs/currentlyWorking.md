@@ -1,3 +1,14 @@
+### 2026-09-27 — Daily Cause List is the shipped default landing page — COMPLETE
+
+- **The request:** set Daily Cause List as the default landing page, changing only the View Settings setting.
+- **It is the plan's own default, restored.** Plan §10.1 specifies `default_landing_page` = `daily_cause_list`; `UserSettings` shipped `all_cases` as an explicit **on-device testing** deviation, flagged in `docs/tasks/12_settings_screens.md` ("Still to revisit") and in an old `currentlyWorking` note ("revert `defaultLandingPage` to `'daily_cause_list'` when Task 09 lands"). Task 09 landed long ago; the default now matches the plan.
+- **The change is two values in one file** — `settings_repository.dart`: the `UserSettings` constructor default and the `view_settings_json` read fallback both move from `'all_cases'` to `'daily_cause_list'`. Nothing else moved: the View Settings screen already shows and saves whatever is stored, the landing-page option list and its order are untouched, and `AppRoutes.landingPageRoute` already resolves `daily_cause_list` (through its default branch), as does the router's own fallback when settings cannot be read. No ARB or mockup change: both already list Daily Cause List.
+- **Existing installs keep a stored choice, deliberately.** A stored `default_landing_page` is a real user preference, so no migration rewrites it — a device that already saved `all_cases` keeps landing on All Cases until the user picks a page on View Settings. Flagged here rather than silently resetting it.
+- **Tests updated to the new default:** `widget_test.dart`'s root smoke test now expects `DailyCauseListScreen` at launch (its title says so too); `notification_tap_test.dart` expects Daily Cause List as the landing page behind a notification-opened detail (both the cold-launch override test and the close-falls-back test); `view_settings_test.dart` takes the landing page from `UserSettings()`'s own default instead of seeding `daily_cause_list`, and its "six settings" test now expects the row to read *Daily Cause List*.
+- **Tests:** `flutter analyze` clean; full `flutter test` **742 passed, 2 skipped**.
+- **Version `0.0.284`** (recorded by `tool/record_version.py`). Version `0.0.284` is also recorded in `docs/tasks/12_settings_screens.md`, whose "Still to revisit" bullet became "Settled".
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look on a *cleared* install: a fresh launch should open Daily Cause List with it selected on View Settings.
+
 ### 2026-09-27 — Settings' notification switch is a default, not a veto — COMPLETE
 
 - **The report:** with **Default Notification Status** off in Settings → Notifications, switching notifications on for an individual case posted nothing for it. The switch must not decide whether alerts are shown; it only sets the on/off an individual case starts from.

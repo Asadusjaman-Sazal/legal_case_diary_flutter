@@ -99,7 +99,11 @@ void main() {
     // Default Landing Page sits in a card of its own, below Navigation.
     await scrollTo(tester, find.text('Default Landing Page'));
     expect(find.text('Default Landing Page'), findsWidgets);
-    expect(find.widgetWithText(SettingsPickerRow, 'All Cases'), findsOneWidget);
+    // Plan §10.1's default landing page — what a fresh install ships with.
+    expect(
+      find.widgetWithText(SettingsPickerRow, 'Daily Cause List'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the upcoming-cases period is stored', (tester) async {
@@ -576,12 +580,9 @@ void main() {
   });
 
   testWidgets('the default landing page is stored', (tester) async {
-    // Seeded explicitly: `UserSettings` currently defaults to `all_cases` for
-    // on-device testing (see docs/currentlyWorking.md), while plan §10.1 calls
-    // for Daily Cause List. The screen must simply show and save what is stored.
-    repo = FakeSettingsRepository(
-      const UserSettings(defaultLandingPage: 'daily_cause_list'),
-    );
+    // Taken from `UserSettings`' own default, so this also pins the shipped
+    // default to Daily Cause List (plan §10.1) rather than seeding it.
+    repo = FakeSettingsRepository(const UserSettings());
     await pumpScreen(tester);
 
     // The landing page card is the last one and can start below the viewport,

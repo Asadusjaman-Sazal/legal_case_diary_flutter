@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/app.dart';
 import 'package:legal_case_diary/database/app_database.dart';
-import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
+import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('App root smoke test — router lands on All Cases', (
+  testWidgets('App root smoke test — router lands on Daily Cause List', (
     WidgetTester tester,
   ) async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -36,10 +36,10 @@ void main() {
     // Wait for the DatabaseGuard and router to settle.
     await tester.pumpAndSettle();
 
-    // Default landing page is All Cases (Task 07 production host). The
-    // header title is localized (default locale is Bengali), so assert the
-    // screen type instead of a text string.
-    expect(find.byType(AllCasesScreen), findsOneWidget);
+    // A fresh install has no stored preference, so it lands on the default
+    // landing page: Daily Cause List (plan §10.1). The header title is localized
+    // (default locale is Bengali), so assert the screen type, not a text string.
+    expect(find.byType(DailyCauseListScreen), findsOneWidget);
     expect(find.byType(SafeArea), findsOneWidget);
     final systemUi = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
       find.byType(AnnotatedRegion<SystemUiOverlayStyle>),

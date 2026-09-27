@@ -80,7 +80,11 @@ class UserSettings {
   /// list once that list is emptied.
   final Map<String, int> caseTableCollapsedDays;
 
-  /// Default landing page route name.
+  /// Default landing page route name, chosen on View Settings.
+  ///
+  /// A fresh install lands on Daily Cause List: it is the screen the day's work
+  /// starts from, and the value plan §10.1 specifies. `all_cases` was only ever
+  /// an on-device testing default and is no longer the shipped one.
   final String defaultLandingPage;
 
   /// App-wide font size step in logical pixels, added to every text size.
@@ -150,7 +154,7 @@ class UserSettings {
     this.caseTableColumnWidths = const {},
     this.caseTableCollapsedCourts = const {},
     this.caseTableCollapsedDays = const {},
-    this.defaultLandingPage = 'all_cases',
+    this.defaultLandingPage = 'daily_cause_list',
     this.fontSizeStep = 0,
     this.notificationEnabled = false,
     this.notificationTime,
@@ -351,7 +355,7 @@ class UserSettings {
             }
           : const {},
       defaultLandingPage:
-          json['default_landing_page'] as String? ?? 'all_cases',
+          json['default_landing_page'] as String? ?? 'daily_cause_list',
       fontSizeStep: clampFontSizeStep(
         (json['font_size_step'] as num?)?.toInt() ?? 0,
       ),

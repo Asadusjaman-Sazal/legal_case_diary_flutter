@@ -14,8 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/app.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
-import 'package:legal_case_diary/features/cases/presentation/all_cases/all_cases_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/case_detail/case_detail_screen.dart';
+import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
@@ -62,8 +62,9 @@ void main() {
     addTearDown(() async => db.close());
 
     expect(find.byType(CaseDetailScreen), findsOneWidget);
-    // The stored landing page (All Cases) is overridden for this launch only.
-    expect(find.byType(AllCasesScreen), findsNothing);
+    // The default landing page (Daily Cause List) is overridden for this launch
+    // only.
+    expect(find.byType(DailyCauseListScreen), findsNothing);
     expect(scheduler.initializeCalls, 1);
 
     await _unmount(tester);
@@ -77,7 +78,7 @@ void main() {
     addTearDown(() async => db.close());
 
     expect(find.byType(CaseDetailScreen), findsNothing);
-    expect(find.byType(AllCasesScreen), findsOneWidget);
+    expect(find.byType(DailyCauseListScreen), findsOneWidget);
 
     await _unmount(tester);
   });
@@ -96,7 +97,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CaseDetailScreen), findsNothing);
-    expect(find.byType(AllCasesScreen), findsOneWidget);
+    expect(find.byType(DailyCauseListScreen), findsOneWidget);
 
     await _unmount(tester);
   });

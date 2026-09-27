@@ -1,3 +1,14 @@
+### 2026-09-27 — The monthly backup nudge floats mid-screen instead of shrinking the app — COMPLETE
+
+- **The request (the monthly backup nudge only):** the nudge was taking a strip at the top and the app content below it literally shrank; show it as a **banner in the middle of the screen** instead, with **white text on a red background**. Nothing else was to change.
+- **The shrink was the layout, not the colours.** `BackupNudgeBanner.build()` returned a `Column` with the strip first and an `Expanded` + `MediaQuery.removePadding(removeTop: true)` around `widget.child` under it, so the app consumed the leftover height and had its top inset stripped. It now returns a **`Stack`**: `widget.child` fills the screen at its full size and a `Positioned.fill` + `SafeArea` + `Center` paints the card over it. `RenderPositionedBox` is not hit-testable outside its child, so the area around the card still passes taps through to the app.
+- **The strip became a card.** `_NudgeStrip` is renamed `_NudgeCard` — a rounded (`AppSpacing.cardRadius`), elevated `Material` inset by `AppSpacing.edgeMargin` on each side, with `color: AppColors.error` (`#DC2626`) and the icon, message, underlined action and dismiss button all `AppColors.onError` (white). Existing tokens only; no new colour literals.
+- **Nothing behavioural moved.** The four-condition gate, the recorded-not-dismissed rule, `_openBackupRestore`, the `ValueKey('backup-nudge-dismiss')` dismiss control, the tap-to-open behaviour and the localized strings are untouched, so all 8 tests in `backup_nudge_banner_test.dart` pass unmodified. `app.dart` is unchanged — the child still comes from it.
+- **No mockup documents the nudge** (`mockup_html_screens/` has no nudge folder), so hard rule 9 asks for no HTML/PNG change here.
+- **Tests:** `flutter analyze` clean; `flutter test` **739 passed, 2 skipped**.
+- **Version `0.0.276`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look at the nudge on a free account with cases: confirm the card sits centred in red, that the app behind it is full height, and that tapping it still opens Backup & Restore.
+
 ### 2026-09-27 — Backup & Restore opens with every section closed — COMPLETE
 
 - **The request (Settings > Backup & Restore only):** the screen always opened with the **Backup & Restore** section already expanded; every section should stay closed until the user taps a heading. Change nothing else.

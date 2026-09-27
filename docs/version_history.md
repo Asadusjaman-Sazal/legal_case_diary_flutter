@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.275 - Settings > Backup & Restore now opens with every section closed; a section expands only when the user taps its heading.
+Version: 0.0.276 - Monthly backup nudge now floats mid-screen as a red banner with white text instead of shrinking the app below a top strip.
 --------------------------------------
 
 ## Version History Log:
@@ -289,3 +289,4 @@ Version: 0.0.272 - Part A manual test pass refreshed at 0.0.271: stale version a
 Version: 0.0.273 - Mockup pass complete: every screen mockup now follows the DESIGN.md rules at 390 px, Case Detail's Next Date is Title Case in code and mockup alike, and Paywall, Support, Privacy and Terms gained their first mockups.
 Version: 0.0.274 - Closed the mockup pass's two documentation gaps: the seven ARB section headings are Title Case per rule 11, and DESIGN.md's stale 26-file count now reads 30.
 Version: 0.0.275 - Settings > Backup & Restore now opens with every section closed; a section expands only when the user taps its heading.
+Version: 0.0.276 - Monthly backup nudge now floats mid-screen as a red banner with white text instead of shrinking the app below a top strip.

@@ -10,7 +10,8 @@
 /// OEM setup guide is offered from, so it appears on whatever screen the app
 /// opens on — including a launch straight into a case. The route is pushed
 /// through the router we are given, because a widget above the navigator has no
-/// `context.push` of its own.
+/// `context.push` of its own. It floats mid-screen over the app rather than
+/// taking a strip at the top, so the screen behind it never shrinks.
 ///
 /// Four conditions must all hold, and every one of them is a reason *not* to
 /// nag: the user is free (premium users are not at risk), the diary actually
@@ -38,7 +39,7 @@ import '../data/backup_metadata_store.dart';
 import '../data/premium_access.dart';
 import '../../cases/data/local/cases_dao.dart';
 
-/// Mounts [child] and, when the month's nudge is due, a banner above it.
+/// Mounts [child] and, when the month's nudge is due, a banner over it.
 class BackupNudgeBanner extends ConsumerStatefulWidget {
   /// Router used to open Backup & Restore from the banner.
   final GoRouter router;
@@ -122,22 +123,29 @@ class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
   Widget build(BuildContext context) {
     if (!_visible) return widget.child;
     final l = AppLocalizations.of(context);
-    return Column(
+    // A Stack rather than a Column: the nudge floats in the middle of the
+    // screen, so the app below keeps its full height instead of shrinking to
+    // make room for a strip. The centered child is the only hit target, so taps
+    // on the app around the card still work.
+    return Stack(
       children: [
-        _NudgeStrip(
-          message: l.backupNudge_message,
-          actionLabel: l.backupNudge_action,
-          dismissTooltip: l.backupNudge_dismiss,
-          onTap: _openBackupRestore,
-          onDismiss: () => setState(() => _visible = false),
-        ),
-        // The strip has consumed the status-bar inset, so the app below must not
-        // pad for it a second time.
-        Expanded(
-          child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: widget.child,
+        widget.child,
+        Positioned.fill(
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.edgeMargin,
+                ),
+                child: _NudgeCard(
+                  message: l.backupNudge_message,
+                  actionLabel: l.backupNudge_action,
+                  dismissTooltip: l.backupNudge_dismiss,
+                  onTap: _openBackupRestore,
+                  onDismiss: () => setState(() => _visible = false),
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -145,15 +153,15 @@ class _BackupNudgeBannerState extends ConsumerState<BackupNudgeBanner> {
   }
 }
 
-/// The banner itself: a tappable strip with a dismiss control.
-class _NudgeStrip extends StatelessWidget {
+/// The banner itself: a tappable card mid-screen with a dismiss control.
+class _NudgeCard extends StatelessWidget {
   final String message;
   final String actionLabel;
   final String dismissTooltip;
   final VoidCallback onTap;
   final VoidCallback onDismiss;
 
-  const _NudgeStrip({
+  const _NudgeCard({
     required this.message,
     required this.actionLabel,
     required this.dismissTooltip,
@@ -163,65 +171,65 @@ class _NudgeStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: AppColors.primaryContainer,
-    child: SafeArea(
-      bottom: false,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.edgeMargin,
-            AppSpacing.sm,
-            AppSpacing.xs,
-            AppSpacing.sm,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.backup_outlined,
-                size: 20,
-                color: AppColors.onPrimaryContainer,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      message,
-                      style: AppTypography.bodySm.copyWith(
-                        color: AppColors.onPrimaryContainer,
-                      ),
+    color: AppColors.error,
+    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+    clipBehavior: Clip.antiAlias,
+    elevation: 6,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.xs,
+          AppSpacing.md,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.backup_outlined,
+              size: 20,
+              color: AppColors.onError,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.onError,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      actionLabel,
-                      style: AppTypography.labelLg.copyWith(
-                        color: AppColors.onPrimaryContainer,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.onPrimaryContainer,
-                      ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    actionLabel,
+                    style: AppTypography.labelLg.copyWith(
+                      color: AppColors.onError,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.onError,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              // No `tooltip` here, and that is not an oversight: this banner is
-              // mounted above the app's navigator, so there is no Overlay
-              // ancestor for a Tooltip to float in. The label still reaches
-              // screen readers through the icon's semantics.
-              IconButton(
-                key: const ValueKey('backup-nudge-dismiss'),
-                icon: Icon(
-                  Icons.close,
-                  size: 18,
-                  semanticLabel: dismissTooltip,
-                ),
-                color: AppColors.onPrimaryContainer,
-                onPressed: onDismiss,
+            ),
+            // No `tooltip` here, and that is not an oversight: this banner is
+            // mounted above the app's navigator, so there is no Overlay
+            // ancestor for a Tooltip to float in. The label still reaches
+            // screen readers through the icon's semantics.
+            IconButton(
+              key: const ValueKey('backup-nudge-dismiss'),
+              icon: Icon(
+                Icons.close,
+                size: 18,
+                semanticLabel: dismissTooltip,
               ),
-            ],
-          ),
+              color: AppColors.onError,
+              onPressed: onDismiss,
+            ),
+          ],
         ),
       ),
     ),

@@ -1,3 +1,23 @@
+### 2026-09-27 — The Next Date card's border is blue too, so no dark rim — COMPLETE
+
+- **The question:** a black tint/edge showed around the newly blue Next Date card.
+- **Cause:** the card's own `BoxDecoration` had `border: Border.all(color: AppColors.secondary)` — 1 px of the unified active black (`#000000`). It had been invisible while the fill was `AppColors.secondaryContainer` (`#000000` too); once the fill became blue the same border painted a dark rim just inside the rounded edge. Nothing else on the card is black — text, icon and divider are `onSecondaryContainer` — and the container carries no elevation, and the mockup's `border-secondary` was black-on-black for the same reason.
+- **The fix, by the user's choice:** the border now uses `_nextDateCardBlue`, the same blue as the fill, so it stays declared (as the mockup has a border) but reads as a seamless edge. `_nextDateCardBlue`'s doc now covers the border and says why it is not `AppColors.secondary`.
+- **Tests:** `flutter analyze` clean; the Next Date card assertion in `case_detail_test.dart` now pins the border colour as well as the fill; full `flutter test` **740 passed, 2 skipped**.
+- **Version `0.0.282`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
+### 2026-09-27 — The Case Detail Next Date card is blue again — COMPLETE
+
+- **The request:** in the Case Detail screen only, make the Next Date card's background the blue it used to be.
+- **The exact blue came from history, not from a guess.** The card filled with `AppColors.secondaryContainer` = `#000000`; `git log -p` on `app_colors.dart` shows that token was `Color(0xFF316BF3)` before the active-black unification, so `0xFF316BF3` is the previous card colour and is what the fill now uses.
+- **The blue is one file-local constant, as instructed.** `_nextDateCardBlue` lives in `case_detail_screen.dart` (with a `ponytail:` note naming the ceiling — promote it to `AppColors` if a second screen ever wants it). `AppColors` is untouched, so this is the only surface in the app that varies from the unified black.
+- **The conflict the user decided, and how it was resolved.** `test/core/active_black_test.dart` bans the retired blues — this hex included — anywhere in `lib/`, and `mockup_html_screens/caseDetails/code.html` draws the card black. Asked to choose, the user picked a local constant plus relaxing the guard, so the test gained an `_allowedBlues` map naming this one file and this one hex (paths normalized to `/` so the lookup also works on Windows); its name and header now say "outside the documented exception". Every other file is still checked.
+- **Left as asked, deliberately:** only the fill changed. The 1 px border stays `AppColors.secondary` (black) and the Set Reminder pill's text stays `AppColors.secondaryContainer` (black) — the mockup and the palette elsewhere are unchanged. Say the word if the border should go blue with it.
+- **Tests:** `flutter analyze` clean; `case_detail_test.dart` now pins the card's `BoxDecoration.color` to `0xFF316BF3` (a colour is a one-line change no other assertion notices) and `active_black_test.dart`'s guard still passes; full `flutter test` **740 passed, 2 skipped**.
+- **Version `0.0.281`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device look: the Next Date card should read as the blue highlight it once was, with white text and the white Set Reminder pill.
+
 ### 2026-09-27 — Closing a notification-opened case detail lands on the landing page, not a black screen — COMPLETE
 
 - **The report:** the app is closed; a hearing notification is tapped and opens that case's detail view; closing the detail leaves the app on a black screen. It should return to the user's configured default landing page.

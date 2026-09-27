@@ -294,6 +294,21 @@ void main() {
           find.byKey(const ValueKey('case-detail-next-date-card')),
           findsOneWidget,
         );
+        // The card keeps the blue it has always had (the user's instruction; the
+        // one exception to the active-black rule). Pinned here because a colour
+        // is a one-line change no other assertion would notice.
+        final nextDateCard = tester.widget<Container>(
+          find.byKey(const ValueKey('case-detail-next-date-card')),
+        );
+        final nextDateDecoration =
+            nextDateCard.decoration! as BoxDecoration;
+        expect(nextDateDecoration.color, const Color(0xFF316BF3));
+        // The border matches the fill: the shared active black would ring the
+        // blue card in a dark rim.
+        expect(
+          nextDateDecoration.border!.top.color,
+          const Color(0xFF316BF3),
+        );
         expect(find.text('5 Days Remaining'), findsOneWidget);
         expect(
           find.byKey(const ValueKey('case-detail-set-reminder')),

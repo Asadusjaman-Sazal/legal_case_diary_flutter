@@ -42,6 +42,23 @@ import '../../../../shared/widgets/confirm_dialogs.dart';
 import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
 
+/// The Next Date highlight card's fill and border — the blue this card used
+/// before the active-black unification turned every highlight black (the value
+/// [AppColors.secondaryContainer] held until then).
+///
+/// The border is the same blue, not `AppColors.secondary`: a black border that
+/// was invisible on the old black fill would ring a blue card in a dark rim.
+///
+/// Deliberately local to this screen, and therefore the one surface that stays
+/// blue: `AppColors` keeps its unified black and the Case Detail screen is the
+/// only place that varies from it.
+///
+/// `ponytail:` the ceiling is that this file is the single home of that blue;
+/// if a second screen ever wants it, move it into `AppColors` as a named token
+/// instead of copying the hex. `test/core/active_black_test.dart` names this
+/// file as its one allowed exception.
+const Color _nextDateCardBlue = Color(0xFF316BF3);
+
 /// Long-press action chosen from a history item's option sheet.
 enum _HistoryEntryAction { edit, delete }
 
@@ -1242,9 +1259,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       key: const ValueKey('case-detail-next-date-card'),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.secondaryContainer,
+        color: _nextDateCardBlue,
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        border: Border.all(color: AppColors.secondary),
+        // Same blue as the fill, so it reads as a seamless edge rather than the
+        // dark rim the shared active black would draw on it.
+        border: Border.all(color: _nextDateCardBlue),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

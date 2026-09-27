@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.280 - Closing a notification-opened case detail now falls back to the configured landing page instead of emptying the navigator into a black screen.
+Version: 0.0.282 - Next Date card's border now uses the card blue instead of the active black, removing the dark rim the blue fill revealed.
 --------------------------------------
 
 ## Version History Log:
@@ -294,3 +294,5 @@ Version: 0.0.277 - Monthly backup nudge now renders as a small centred window th
 Version: 0.0.278 - Monthly backup nudge window now sizes to its own text vertically, so it is a small centred window instead of a full-screen-tall card.
 Version: 0.0.279 - Backup nudge window widened from 280 to 320 px so the Back up to Local Storage action label fits on one line.
 Version: 0.0.280 - Closing a notification-opened case detail now falls back to the configured landing page instead of emptying the navigator into a black screen.
+Version: 0.0.281 - Case Detail's Next Date card paints the blue it had before the active-black unification, as a documented one-file exception to the palette rule.
+Version: 0.0.282 - Next Date card's border now uses the card blue instead of the active black, removing the dark rim the blue fill revealed.

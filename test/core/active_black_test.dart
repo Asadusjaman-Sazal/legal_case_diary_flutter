@@ -5,6 +5,11 @@
 /// blue tints became neutral grey. A colour is a one-line change that no widget
 /// test would notice, so the palette and the active-state widgets are pinned
 /// here by reading the sources.
+///
+/// One exception is allowed, and only this one: the Case Detail screen's Next
+/// Date card, which the user asked to keep its long-standing blue. It is named
+/// in [_allowedBlues] rather than left unnamed, so the rule stays enforced
+/// everywhere else.
 library;
 
 import 'dart:io';
@@ -24,6 +29,16 @@ const List<String> _retiredBlues = <String>[
   '0xFFBEC6E0',
   '0xFF0D2563EB',
 ];
+
+/// The one deliberate exception to the blue ban: the Case Detail screen's Next
+/// Date card, which the user asked to keep the blue it has always had. Keyed by
+/// the normalized (`/`-separated) source path, so the map works on Windows too.
+/// Every other file still counts as an offender.
+const Map<String, Set<String>> _allowedBlues = <String, Set<String>>{
+  'lib/features/cases/presentation/case_detail/case_detail_screen.dart': <String>{
+    '0xFF316BF3',
+  },
+};
 
 /// Widgets whose selected state used the dark ink instead of the pure black.
 const List<String> _activeStateWidgets = <String>[
@@ -49,16 +64,20 @@ void main() {
     );
   });
 
-  test('no blue accent survives anywhere in lib/', () {
+  test('no blue accent survives in lib/ outside the documented exception', () {
     final offenders = <String>[];
     for (final entity in Directory('lib').listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      final normalizedPath = entity.path.replaceAll(r'\', '/');
+      final allowed = _allowedBlues[normalizedPath] ?? const <String>{};
       final text = entity.readAsStringSync();
       for (final blue in _retiredBlues) {
-        if (text.contains(blue)) offenders.add('${entity.path}: $blue');
+        if (text.contains(blue) && !allowed.contains(blue)) {
+          offenders.add('$normalizedPath: $blue');
+        }
       }
       if (RegExp(r'Colors\.blue\b').hasMatch(text)) {
-        offenders.add('${entity.path}: Colors.blue');
+        offenders.add('$normalizedPath: Colors.blue');
       }
     }
     expect(offenders, isEmpty, reason: offenders.join('\n'));

@@ -740,7 +740,7 @@ void main() {
 
     // The gate lands on the real paywall, which says why it opened.
     expect(find.byType(PaywallScreen), findsOneWidget);
-    expect(find.text('Free plan limit reached'), findsOneWidget);
+    expect(find.text('Free Plan Limit Reached'), findsOneWidget);
     expect(await CasesDao(db).getNonDeletedCaseCount(), 50);
   });
 

@@ -329,15 +329,13 @@ void main() {
     final expected = DateFormat(
       'EEE, MMM dd, yyyy',
       'en',
-    ).format(AppDateUtils.bangladeshDateTime(hearing)).toUpperCase();
+    ).format(AppDateUtils.bangladeshDateTime(hearing));
     expect(expected, contains(', '));
     expect(find.text(expected), findsOneWidget);
 
     // The long form the screen used before is gone.
     expect(
-      find.text(
-        AppDateUtils.formatFullDate(hearing, locale: 'en').toUpperCase(),
-      ),
+      find.text(AppDateUtils.formatFullDate(hearing, locale: 'en')),
       findsNothing,
     );
 
@@ -354,7 +352,7 @@ void main() {
     final expected = DateFormat(
       'EEE, dd MMMM, yyyy',
       'bn',
-    ).format(AppDateUtils.bangladeshDateTime(hearing)).toUpperCase();
+    ).format(AppDateUtils.bangladeshDateTime(hearing));
     expect(expected, isNot(contains('SEP')));
     expect(find.text(expected), findsOneWidget);
 
@@ -362,7 +360,7 @@ void main() {
     final short = DateFormat(
       'EEE, MMM dd, yyyy',
       'bn',
-    ).format(AppDateUtils.bangladeshDateTime(hearing)).toUpperCase();
+    ).format(AppDateUtils.bangladeshDateTime(hearing));
     expect(short, isNot(expected));
     expect(find.text(short), findsNothing);
 
@@ -382,9 +380,10 @@ void main() {
     await pumpScreen(tester);
 
     final label = find.text(
-      DateFormat('EEE, dd MMMM, yyyy', 'bn')
-          .format(AppDateUtils.bangladeshDateTime(hearing))
-          .toUpperCase(),
+      DateFormat(
+        'EEE, dd MMMM, yyyy',
+        'bn',
+      ).format(AppDateUtils.bangladeshDateTime(hearing)),
     );
     expect(label, findsOneWidget);
     final labelRect = tester.getRect(label);

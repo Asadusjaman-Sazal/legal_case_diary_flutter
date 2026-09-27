@@ -1,245 +1,512 @@
-<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Guidelines - Justice Ledger</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@500;600;700&amp;display=swap" rel="stylesheet">
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<!-- Tailwind CSS -->
+<title>Guidelines - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Tailwind Configuration -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "outline": "#76777d",
-                        "surface-tint": "#565e74",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "outline-variant": "#c6c6cd",
-                        "primary-fixed": "#dae2fd",
-                        "background": "#f7f9fb",
-                        "surface-dim": "#d8dadc",
-                        "surface-container": "#eceef0",
-                        "inverse-on-surface": "#eff1f3",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "surface-container-lowest": "#ffffff",
-                        "on-secondary": "#ffffff",
-                        "on-primary-fixed": "#131b2e",
-                        "primary": "#000000",
-                        "surface-bright": "#f7f9fb",
-                        "error-container": "#ffdad6",
-                        "on-tertiary-container": "#75859d",
-                        "error": "#ba1a1a",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-error": "#ffffff",
-                        "surface-variant": "#e0e3e5",
-                        "on-tertiary": "#ffffff",
-                        "court-notice": "#DC2626",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "on-surface": "#191c1e",
-                        "tertiary": "#000000",
-                        "surface-container-high": "#e6e8ea",
-                        "secondary-container": "#316bf3",
-                        "inverse-surface": "#2d3133",
-                        "tertiary-container": "#0b1c30",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "tertiary-fixed": "#d3e4fe",
-                        "on-secondary-container": "#fefcff",
-                        "inverse-primary": "#bec6e0",
-                        "on-error-container": "#93000a",
-                        "on-secondary-fixed": "#00174b",
-                        "secondary-fixed": "#dbe1ff",
-                        "status-active": "#059669",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "surface": "#f7f9fb",
-                        "on-surface-variant": "#45464d",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "secondary": "#0051d5",
-                        "on-primary-container": "#7c839b",
-                        "primary-fixed-dim": "#bec6e0",
-                        "on-primary": "#ffffff",
-                        "surface-container-low": "#f2f4f6",
-                        "primary-container": "#131b2e",
-                        "ink-dark": "#020617",
-                        "on-background": "#191c1e"
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    spacing: {
-                        "sm": "8px",
-                        "gutter": "12px",
-                        "edge-margin": "16px",
-                        "xl": "32px",
-                        "md": "16px",
-                        "lg": "24px",
-                        "xs": "4px",
-                        "unit": "4px"
-                    },
-                    fontFamily: {
-                        "title-lg": ["Manrope"],
-                        "headline-md": ["Manrope"],
-                        "label-md": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "label-lg": ["IBM Plex Sans"],
-                        "headline-lg": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "case-number": ["IBM Plex Sans"],
-                        "body-md": ["Inter"],
-                        "body-lg": ["Inter"]
-                    },
-                    fontSize: {
-                        "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
-                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
-                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.5px", fontWeight: "500" }],
-                        "title-md": ["16px", { lineHeight: "24px", fontWeight: "600" }],
-                        "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.1px", fontWeight: "500" }],
-                        "headline-lg": ["30px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "700" }],
-                        "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }],
-                        "case-number": ["14px", { lineHeight: "20px", letterSpacing: "0.2px", fontWeight: "700" }],
-                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
-                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }]
-                    }
-                }
-            }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .bn { font-family: 'Tiro Bangla', sans-serif; }
+</style>
 </head>
-<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
-<!-- TopAppBar -->
-<header class="flex items-center px-edge-margin h-16 w-full bg-surface dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline sticky top-0 z-40">
-<button class="mr-gutter text-on-surface-variant dark:text-outline hover:bg-surface-container-low dark:hover:bg-surface-container-high p-sm rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-<h1 class="font-title-lg text-title-lg text-primary dark:text-on-surface flex-1 truncate">Guidelines</h1>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-40 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Guidelines</h1>
+  </div>
 </header>
-<!-- Main Content Canvas -->
-<main class="flex-1 overflow-y-auto px-edge-margin py-lg pb-[96px] space-y-md">
-<div class="mb-lg">
 
-<p class="font-body-md text-body-md text-on-surface-variant">Tap on any topic below to expand and view detailed administrative procedures.</p>
-</div>
-<!-- Accordion Container -->
-<div class="space-y-sm" id="guidelines-accordion">
-<!-- Topic 1 -->
-<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
-<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
-<div class="flex items-center space-x-gutter">
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined">event_note</span>
-</div>
-<span class="font-title-md text-title-md text-primary">Daily Cause List Management</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
-</button>
-<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
-<div class="p-md text-on-surface-variant font-body-md space-y-sm">
-<p class="">To ensure your daily schedule is accurate, synchronize your local diary with the court's official cause list. Navigate to the 'Cause List' tab and tap the sync icon in the top right corner.</p>
-<p class=""><strong>Note:</strong> Disposed cases will automatically move to the archive unless marked for active monitoring.</p>
-</div>
-</div>
-</div>
-<!-- Topic 2 -->
-<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
-<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
-<div class="flex items-center space-x-gutter">
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined">library_books</span>
-</div>
-<span class="font-title-md text-title-md text-primary">Managing Case References</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
-</button>
-<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
-<div class="p-md text-on-surface-variant font-body-md space-y-sm">
-<p class="">When adding a new case, use the standardized format for case references to enable efficient search later. Enter the Case Type, Number, and Year (e.g., Writ Petition No. 1234 of 2023).</p>
-<p class="">You can link relevant legal precedents to specific active cases within the 'Case Details' view under the 'Notes' section.</p>
-</div>
-</div>
-</div>
-<!-- Topic 3 -->
-<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
-<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
-<div class="flex items-center space-x-gutter">
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined">cloud_sync</span>
-</div>
-<span class="font-title-md text-title-md text-primary">Offline Backup &amp; Restore</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
-</button>
-<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
-<div class="p-md text-on-surface-variant font-body-md space-y-sm">
-<p class="">The Justice Ledger automatically performs a local backup every 24 hours. To configure cloud backups to Google Drive or secure enterprise servers, visit Settings &gt; Backup Options.</p>
-<p class="">If you need to restore data, ensure you have your encryption key available before initiating the recovery process.</p>
-</div>
-</div>
-</div>
-<!-- Topic 4 -->
-<div class="accordion-item bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 border-outline-variant">
-<button aria-expanded="false" class="accordion-header w-full flex items-center justify-between p-md text-left hover:bg-surface-container-low focus:outline-none focus:bg-surface-container-low transition-colors duration-200">
-<div class="flex items-center space-x-gutter">
-<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined">shield_lock</span>
-</div>
-<span class="font-title-md text-title-md text-primary">Security &amp; Encryption</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300" style="transform: rotate(0deg);">expand_more</span>
-</button>
-<div class="accordion-content bg-surface-container-low border-t border-outline-variant/50 hidden">
-<div class="p-md text-on-surface-variant font-body-md space-y-sm">
-<p class="">All sensitive client data and case notes are protected using end-to-end AES-256 encryption. The decryption key remains solely on your device.</p>
-<p class="">We recommend enabling biometric authentication (Face ID or Fingerprint) in the app settings to add an additional layer of security for daily access.</p>
-</div>
-</div>
-</div>
-</div>
+<main class="max-w-lg mx-auto w-full px-edge-margin py-lg pb-[96px]">
+  <p class="font-body-md text-body-md text-on-surface-variant">How the app works, and answers to the questions we are asked most often. Tap a card to expand it.</p>
+
+  <!-- GUIDELINES -->
+  <h2 class="mt-lg font-label-md text-label-md font-semibold text-tertiary">Guidelines</h2>
+  <div class="mt-sm flex flex-col gap-sm" id="guidelines-accordion">
+    <!-- 1. Your Account -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>
+          <span class="font-title-md text-title-md text-primary">Your Account</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>You create your account the first time you open the app — it takes a moment, and it is required for everyone, the free plan included. Everything you record afterwards belongs to that account.</p>
+          <p>Every account starts on the free plan, which is local to this device, and stays there until you upgrade. Because your diary was yours from the first case, upgrading needs nothing re-entered or transferred — cloud backup simply switches on.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 2. Daily Cause List -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">event_note</span></div>
+          <span class="font-title-md text-title-md text-primary">Daily Cause List</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>The Daily Cause List shows the hearings you have recorded for a single date, grouped by court in your court hierarchy, with a total for the day. Use the calendar to choose another date; today is selected by default.</p>
+          <p>The list is built from your own case records, so it is only as accurate as they are. Keep each case's next date and latest step current, and record a hearing from the list itself as soon as you leave the courtroom. Cases whose hearing date has passed without an update appear under Overdue Dates until you record the outcome.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 3. All Cases -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">list_alt</span></div>
+          <span class="font-title-md text-title-md text-primary">All Cases</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Every case you have, with the Active and Disposed counts above the list — tap a count to open that list. Search by party, counsel, case number or phone, narrow the list with Filter by Court and Newest/Oldest First, and switch between card and table view.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 4. Active Cases -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">work</span></div>
+          <span class="font-title-md text-title-md text-primary">Active Cases</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Only the cases still running, with nothing disposed mixed in. Open one here to update it or to record the outcome of a hearing.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 5. Overdue Dates -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">error</span></div>
+          <span class="font-title-md text-title-md text-primary">Overdue Dates</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Cases whose hearing date has passed without a recorded outcome, grouped by court and showing when each was last updated. Recording a new step or result removes the case from the list.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 6. Upcoming Cases -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">event</span></div>
+          <span class="font-title-md text-title-md text-primary">Upcoming Cases</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Hearings grouped by date, from tomorrow to the end of the period you set in Settings &gt; View Settings &gt; Upcoming Cases Period — 7 days by default. This is the list to check before leaving for court.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 7. Disposed Cases -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">gavel</span></div>
+          <span class="font-title-md text-title-md text-primary">Disposed Cases</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>The cases you have closed, each showing its disposal date, parties, final note and latest history. There is no Add Case button here; the Help button explains how a case is marked as disposed.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 8. Case References & Notes -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">library_books</span></div>
+          <span class="font-title-md text-title-md text-primary">Case References &amp; Notes</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Case Reference is your own library of citations, kept separately from any case. For each entry you can record the reference (for example, 25 DLR (AD) 142), the statute and section, a title and description, and private comments. Pin the entries you cite most often to keep them at the top of the list.</p>
+          <p>General notes belong in Notes, which also stands on its own. Both allow you to undo a deletion immediately after making it.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 9. Offline Backup & Restore -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">cloud_sync</span></div>
+          <span class="font-title-md text-title-md text-primary">Offline Backup &amp; Restore</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Your diary lives on this device. In Settings &gt; Backup &amp; Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a passphrase for the file, and the app never stores or sends it.</p>
+          <p>Restore from backup reads a backup file and replaces the contents of the app with the file's contents. This cannot be undone, so make a fresh backup before restoring. If no backup has been made in the current month, the app displays a reminder you can dismiss.</p>
+        </div>
+      </div>
+    </div>
+    <!-- 10. Security & Encryption -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">shield</span></div>
+          <span class="font-title-md text-title-md text-primary">Security &amp; Encryption</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
+          <p>Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your passphrase on the device itself with PBKDF2-HMAC-SHA256. Neither the passphrase nor the key is stored or transmitted anywhere.</p>
+          <p>In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQS -->
+  <h2 class="mt-lg font-label-md text-label-md font-semibold text-tertiary">FAQs</h2>
+  <div class="mt-sm flex flex-col gap-sm" id="faq-accordion">
+    <!-- Getting started -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">play_circle</span></div>
+          <span class="font-title-md text-title-md text-primary">Getting Started</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">Does the app work without an internet connection?</p><p class="mt-xs leading-relaxed">Yes — once your account exists. The app is built to work fully offline: adding and editing cases, the Daily Cause List, printing and backups all work with no connection. Your account is created once, when you first open the app, and does not need to be signed in again to use the diary. Online sync is not part of the offline version.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I add a case?</p><p class="mt-xs leading-relaxed">Tap the + button on any cases page. The case is then filed onto the relevant pages automatically, based on the information you enter.</p></div>
+          <div><p class="font-semibold text-on-surface">Where does a case appear after I add it?</p><p class="mt-xs leading-relaxed">A case appears on more than one page, each answering a different question: Active Cases lists everything still running; Upcoming Cases lists hearings within your chosen period; Daily Cause List shows the hearings for one date; All Cases is the full list with sorting and court filtering; Overdue Dates shows cases whose hearing date has passed without an update; and Disposed Cases holds cases you have marked as disposed.</p></div>
+          <div><p class="font-semibold text-on-surface">What is the difference between updating a case and editing a case?</p><p class="mt-xs leading-relaxed">Update records a new step or result and adds it to the case's history — use it after each hearing. Edit Case changes the case's own details, such as the parties, court or case number — use it to correct recorded information.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I mark a case as disposed?</p><p class="mt-xs leading-relaxed">Open the case in the Update screen or the Edit Case form and select <span class="bn">নিষ্পত্তি</span> (Disposed). For Appellate Division and High Court Division cases you can also type "Disposed" or "<span class="bn">নিষ্পত্তি</span>". The case then moves from Active Cases to Disposed Cases.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I move a case back to Active Cases?</p><p class="mt-xs leading-relaxed">Open the case and choose any step or result other than <span class="bn">নিষ্পত্তি</span> (Disposed). The case returns to Active Cases.</p></div>
+          <div><p class="font-semibold text-on-surface">What happens when I delete a case?</p><p class="mt-xs leading-relaxed">The case is removed from your diary and frees a slot on the free plan. Deletion cannot be undone, so delete only cases you no longer need a record of. Notes and case references, by contrast, can be undone immediately after deleting.</p></div>
+          <div><p class="font-semibold text-on-surface">What is the Overdue Dates page?</p><p class="mt-xs leading-relaxed">It lists cases whose hearing date has passed without a recorded outcome, with the date they were last updated. It is the fastest way to find matters you have not yet caught up on. Recording a new step or result removes the case from the list.</p></div>
+          <div><p class="font-semibold text-on-surface">Do I need an account?</p><p class="mt-xs leading-relaxed">Yes. An account is required for everyone, the free plan included, and you create it the first time you open the app. Your diary belongs to that account, so when you upgrade to premium your existing cases are already yours — cloud backup switches on with nothing re-entered, exported or transferred.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Finding and viewing cases -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">search</span></div>
+          <span class="font-title-md text-title-md text-primary">Finding And Viewing Cases</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">I added a case but can't find it with search.</p><p class="mt-xs leading-relaxed">Search matches the script you entered. A case recorded in English is found with an English query, and a case recorded in Bengali with a Bengali query. A Bengali case number will not match an English search, and vice versa.</p></div>
+          <div><p class="font-semibold text-on-surface">How far ahead does the Upcoming Cases list show hearings?</p><p class="mt-xs leading-relaxed">By default, the next 7 days. To change this, go to Settings &gt; View Settings &gt; Upcoming Cases Period.</p></div>
+          <div><p class="font-semibold text-on-surface">Can I change how cases are displayed?</p><p class="mt-xs leading-relaxed">The default compact view uses cards to fit as much information as possible into as little space as possible. Switch to extended view using the toggle beside the search field on the Cases screen, or in Settings &gt; View Settings &gt; Case List View.</p></div>
+          <div><p class="font-semibold text-on-surface">What does the Daily Cause List show?</p><p class="mt-xs leading-relaxed">The hearings recorded in your diary for one date, grouped by court in your court hierarchy, with a total for the day. Choose the date from the calendar; today is selected by default.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Notes, references and printing -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">description</span></div>
+          <span class="font-title-md text-title-md text-primary">Notes, References And Printing</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">What is the difference between Notes and Case References?</p><p class="mt-xs leading-relaxed">Notes holds free-form notes with a title and body. Case Reference is a structured library of citations — reference, statute, section, description and private comments — which you can pin. Both are separate from your cases and neither is linked to one automatically.</p></div>
+          <div><p class="font-semibold text-on-surface">What can I print?</p><p class="mt-xs leading-relaxed">A case's details, and case lists. Print produces a formatted PDF and uses the device's printing options. Print is not available on the Notes and Case Reference screens.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I contact a client about a case?</p><p class="mt-xs leading-relaxed">A case that carries the client's phone number offers Call, Message and WhatsApp actions, and a prepared message containing the client's name, the case number, the next hearing date and the court. Review the message before sending — the app cannot check that the number or the hearing date is current.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Backup and restore -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">backup</span></div>
+          <span class="font-title-md text-title-md text-primary">Backup And Restore</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">How do I back up my diary?</p><p class="mt-xs leading-relaxed">Go to Settings &gt; Backup &amp; Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. Your account is already in place, so no internet connection is required.</p></div>
+          <div><p class="font-semibold text-on-surface">Does the app back up automatically?</p><p class="mt-xs leading-relaxed">Not in the offline version — each backup is started by you. If no backup has been made in the current month, the app displays a reminder, which you can dismiss.</p></div>
+          <div><p class="font-semibold text-on-surface">I forgot my passphrase. Can you recover it?</p><p class="mt-xs leading-relaxed">No. The passphrase is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a passphrase you can keep safely.</p></div>
+          <div><p class="font-semibold text-on-surface">What does restoring a backup do to my current data?</p><p class="mt-xs leading-relaxed">Restoring replaces everything currently in the app with the contents of the backup file. It does not merge, and it cannot be undone. Back up your current diary first if there is anything in it you may still need. If the app already holds data, it asks you to confirm before anything is replaced.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I move my diary to a new phone?</p><p class="mt-xs leading-relaxed">Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings &gt; Backup &amp; Restore, and use Restore from backup with the same passphrase.</p></div>
+          <div><p class="font-semibold text-on-surface">Can I use a backup made by a different version of the app?</p><p class="mt-xs leading-relaxed">Backups made by older versions are upgraded automatically when restored. A backup made by a newer version than the one you are running is refused, so update the app first and then restore.</p></div>
+          <div><p class="font-semibold text-on-surface">What happens to my data if I delete the app or lose my phone?</p><p class="mt-xs leading-relaxed">In the offline version your diary is stored only on the device, so uninstalling the app or losing the phone also loses the data unless you hold a backup file. Keep a recent backup, and store a copy somewhere outside the phone.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Notifications -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">notifications</span></div>
+          <span class="font-title-md text-title-md text-primary">Notifications</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">Why didn't my hearing notification arrive?</p><p class="mt-xs leading-relaxed">Most Android phones stop background apps to save battery, which prevents hearing alerts. In Settings &gt; Notifications, tap Battery &amp; Auto-Start Setup Guide and follow the steps for your phone, then use Send Test Notification to confirm that alerts arrive.</p></div>
+          <div><p class="font-semibold text-on-surface">Can I change when hearing notifications are sent?</p><p class="mt-xs leading-relaxed">Yes. In Settings &gt; Notifications you can choose the day offset — the same day, the day before, or a number of days before the hearing — and the time of day. Notifications can be turned off entirely from the same screen.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Language and display -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">translate</span></div>
+          <span class="font-title-md text-title-md text-primary">Language And Display</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">How do I change the app language?</p><p class="mt-xs leading-relaxed">Go to Settings &gt; Language and choose English or <span class="bn">বাংলা</span>. The change applies throughout the app, and numbers are displayed in the numerals of the selected language. The app language does not change the language your case data was entered in, which is what search matches against.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Free plan and premium -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">workspace_premium</span></div>
+          <span class="font-title-md text-title-md text-primary">Free Plan And Premium</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">Is the app free?</p><p class="mt-xs leading-relaxed">Yes. Every account starts on the free plan, which costs nothing, holds up to 50 cases and keeps them on this device. Premium raises that limit and will add cloud backup and sync when it launches.</p></div>
+          <div><p class="font-semibold text-on-surface">Why can't I add a case?</p><p class="mt-xs leading-relaxed">The free plan holds up to 50 cases. At the limit, the Add Case form opens the premium screen instead. Nothing is hidden or deleted — you can still view, edit, print and delete every case you have, and deleting a case frees a slot.</p></div>
+          <div><p class="font-semibold text-on-surface">What stays free?</p><p class="mt-xs leading-relaxed">Everything except adding cases beyond the limit: viewing, editing, updating, deleting and printing cases, the Daily Cause List, client details and contact actions, Notes, Case References, and Backup &amp; Restore.</p></div>
+          <div><p class="font-semibold text-on-surface">Why isn't cloud backup offered for free?</p><p class="mt-xs leading-relaxed">Cloud backup and online mode depend on a backend service, which we pay for. Your subscription will cover the cost of storing your data securely online, which is why that service cannot be offered at no charge.</p></div>
+          <div><p class="font-semibold text-on-surface">Can I subscribe now?</p><p class="mt-xs leading-relaxed">Not yet. The premium screen shows the available plans, but purchases open with the online version. Until then the offline app is fully usable, and your data stays on your device.</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Courts and customisation -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">account_balance</span></div>
+          <span class="font-title-md text-title-md text-primary">Courts And Customisation</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">Why are some district court names not what I expect?</p><p class="mt-xs leading-relaxed">We sourced court names for all 64 districts from the Government's Cause List website (causelist.judiciary.gov.bd) and used them unchanged. You can rename any court to your preference in Settings &gt; Edit Court/Steps.</p></div>
+          <div><p class="font-semibold text-on-surface">Can I add my own courts, case types, steps or on-behalf items?</p><p class="mt-xs leading-relaxed">Yes. Settings &gt; Edit Court/Steps lets you add, rename and delete the courts, case types, steps and on-behalf entries used in the Add and Edit Case forms. Deleting an item cannot be undone.</p></div>
+          <div><p class="font-semibold text-on-surface">Where do Tribunals and Special Tribunals appear?</p><p class="mt-xs leading-relaxed">So that tribunals display the correct case types, steps and on-behalf options, we grouped them by subject:<br><br>Civil tribunals → District Judge Court (Civil)<br>Criminal tribunals → Sessions Judge Court (Criminal)<br>Criminal tribunals in metropolitan areas → Metropolitan Sessions Judge Court (Criminal)</p></div>
+          <div><p class="font-semibold text-on-surface">I can't find the court I'm looking for.</p><p class="mt-xs leading-relaxed">Courts are listed under the following categories:<br><br>District Judge Court (Civil)<br>1. District and Additional District Judge Courts<br>2. Joint District Judge Courts<br>3. Civil &amp; Senior Civil Judge Courts<br>4. Family Courts &amp; Family Appeal Court<br>5. Land Survey Tribunal &amp; Land Survey Appeal Tribunal<br>6. Commercial Court<br>7. Labour Court<br><br>Sessions Judge Court (Criminal) and Metropolitan Sessions Judge Court (Criminal)<br>1. Sessions and Additional Sessions Judge Courts<br>2. Joint Sessions Judge Courts<br>3. Women and Child Abuse Suppression Tribunal<br>4. Child Violence Prevention Tribunal<br>5. Special Tribunals<br><br>Chief Judicial Magistrate Court and Chief Metropolitan Magistrate Court<br>1. Chief and Additional Chief Judicial Magistrate<br>2. Special Magistrate Courts<br>3. Speedy Trial Court<br>4. Environment Court<br>5. Forest Court<br>6. Senior Judicial Magistrate Courts<br>7. Judicial Magistrate Courts<br>8. Cognizance Courts</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Data, privacy and support -->
+    <div class="accordion-item bg-surface-container-lowest border rounded-lg overflow-hidden border-outline-variant">
+      <button aria-expanded="false" class="accordion-header w-full flex items-center justify-between gap-gutter p-md text-left hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-gutter">
+          <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">privacy_tip</span></div>
+          <span class="font-title-md text-title-md text-primary">Data, Privacy And Support</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant accordion-icon transition-transform duration-300">expand_more</span>
+      </button>
+      <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
+        <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
+          <div><p class="font-semibold text-on-surface">Where is my data stored, and who can see it?</p><p class="mt-xs leading-relaxed">In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.</p></div>
+          <div><p class="font-semibold text-on-surface">Is the app a substitute for court records?</p><p class="mt-xs leading-relaxed">No. The app is a personal record-keeping tool for your own practice. The information in it is entered by you, and the official cause list and court records remain authoritative. Always verify a hearing date against the court before relying on it.</p></div>
+          <div><p class="font-semibold text-on-surface">My question isn't answered here.</p><p class="mt-xs leading-relaxed">Open Settings &gt; About &gt; Support and write to us there — the message opens already carrying your app version and your phone model. Describe what you were doing when the problem occurred. You can also write to adv.asadusjaman@gmail.com.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
-<!-- BottomNavBar -->
 
-<!-- Accordion Logic -->
+<!-- Accordion logic: one card open at a time across both sections; tapping the
+     open card closes it again. The open card takes the ink border. -->
 <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const accordionHeaders = document.querySelectorAll('.accordion-header');
+  document.addEventListener('DOMContentLoaded', () => {
+    const headers = document.querySelectorAll('.accordion-header');
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const item = header.closest('.accordion-item');
+        const content = item.querySelector('.accordion-content');
+        const icon = header.querySelector('.accordion-icon');
+        const isExpanded = header.getAttribute('aria-expanded') === 'true';
 
-            accordionHeaders.forEach(header => {
-                header.addEventListener('click', () => {
-                    const item = header.closest('.accordion-item');
-                    const content = item.querySelector('.accordion-content');
-                    const icon = header.querySelector('.accordion-icon');
-                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
-
-                    // Close all active items
-                    document.querySelectorAll('.accordion-item').forEach(i => {
-                        i.classList.remove('border-primary', 'shadow-sm');
-                        i.classList.add('border-outline-variant');
-                        const h = i.querySelector('.accordion-header');
-                        h.setAttribute('aria-expanded', 'false');
-                        i.querySelector('.accordion-content').classList.add('hidden');
-                        i.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
-                    });
-
-                    // If it wasn't expanded, open it
-                    if (!isExpanded) {
-                        item.classList.remove('border-outline-variant');
-                        item.classList.add('border-primary', 'shadow-sm');
-                        header.setAttribute('aria-expanded', 'true');
-                        content.classList.remove('hidden');
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                });
-            });
+        document.querySelectorAll('.accordion-item').forEach(i => {
+          i.classList.remove('border-primary');
+          i.classList.add('border-outline-variant');
+          i.querySelector('.accordion-header').setAttribute('aria-expanded', 'false');
+          i.querySelector('.accordion-content').classList.add('hidden');
+          i.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
         });
-    </script>
 
-
-</body></html>
+        if (!isExpanded) {
+          item.classList.remove('border-outline-variant');
+          item.classList.add('border-primary');
+          header.setAttribute('aria-expanded', 'true');
+          content.classList.remove('hidden');
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

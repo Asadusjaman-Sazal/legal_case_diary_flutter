@@ -279,8 +279,8 @@
   "sync_error": "Sync error",
   "sync_unavailable": "Sync requires a premium subscription",
   "paywall_title": "Premium",
-  "paywall_limitTitle": "Free plan limit reached",
-  "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Client Management, the Daily Cause List, editing and printing — stays free.",
+  "paywall_limitTitle": "Free Plan Limit Reached",
+  "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",
   "@paywall_limitBody": {
       "placeholders": {
           "limit": {
@@ -288,7 +288,7 @@
           }
       }
   },
-  "paywall_benefitsTitle": "Premium includes",
+  "paywall_benefitsTitle": "Premium Includes",
   "paywall_benefitUnlimitedCases": "Unlimited cases",
   "paywall_benefitCloudBackup": "Secure encrypted cloud backup",
   "paywall_benefitMultiDevice": "Your diary on every device you sign in on",
@@ -312,7 +312,7 @@
           }
       }
   },
-  "paywall_comingSoon": "Coming soon",
+  "paywall_comingSoon": "Coming Soon",
   "paywall_note": "Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "Tomorrow",
@@ -1075,20 +1075,20 @@
   "settingsSupport_scope": "We can help you with the app itself: how a feature works, something that is not behaving as it should, or a backup that will not restore. We cannot see your diary — it stays on your phone — and we cannot check, confirm or look up a hearing date for you.",
   "settingsSupport_faqLead": "Most questions are already answered here.",
   "settingsSupport_faqLink": "Open Guidelines & FAQs",
-  "settingsSupport_channelsLabel": "Write to us",
+  "settingsSupport_channelsLabel": "Write To Us",
   "settingsSupport_channelsHint": "Either channel opens with the message below already written.",
   "settingsSupport_channelWhatsApp": "WhatsApp",
   "settingsSupport_channelEmail": "Email",
-  "settingsSupport_previewLabel": "The message that opens",
+  "settingsSupport_previewLabel": "The Message That Opens",
   "settingsSupport_messageSubject": "Legal Case Diary support",
   "settingsSupport_messageIntro": "Hello, I need help with Legal Case Diary.",
   "settingsSupport_messageVersion": "App version",
   "settingsSupport_messagePhone": "Phone",
   "settingsSupport_messageLanguage": "App language",
   "settingsSupport_messagePrompt": "What happened, and what I did just before it:",
-  "settingsSupport_warningTitle": "Never send these",
+  "settingsSupport_warningTitle": "Never Send These",
   "settingsSupport_warningBody": "Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.",
-  "settingsSupport_replyTitle": "When you will hear back",
+  "settingsSupport_replyTitle": "When You Will Hear Back",
   "settingsSupport_replyBody": "Support is handled by the app's developer alongside court work, so a reply usually takes one to two working days (Sunday to Thursday). There is no phone line and no live chat — the answer comes back to the WhatsApp or email address you wrote from.",
   "settingsSupport_unableToOpenWhatsApp": "WhatsApp could not be opened.",
   "settingsSupport_unableToOpenEmail": "No email app could be opened.",

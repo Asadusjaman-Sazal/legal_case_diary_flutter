@@ -1,222 +1,205 @@
-<!DOCTYPE html><html lang="en" style=""><!-- Screen: Login --><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Login</title>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<!-- Tailwind CSS -->
+<title>Login - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Tailwind Theme Configuration -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "court-notice": "#DC2626",
-                    "tertiary-container": "#0b1c30",
-                    "primary": "#000000",
-                    "on-primary-fixed": "#131b2e",
-                    "inverse-primary": "#bec6e0",
-                    "secondary-container": "#316bf3",
-                    "on-secondary-fixed": "#00174b",
-                    "tertiary": "#000000",
-                    "surface-variant": "#F1F5F9",
-                    "on-primary-fixed-variant": "#3f465c",
-                    "on-primary-container": "#7c839b",
-                    "status-active": "#059669",
-                    "outline": "#76777d",
-                    "on-tertiary-fixed": "#0b1c30",
-                    "primary-fixed": "#dae2fd",
-                    "tertiary-fixed-dim": "#b7c8e1",
-                    "tertiary-fixed": "#d3e4fe",
-                    "primary-fixed-dim": "#bec6e0",
-                    "surface-container": "#eceef0",
-                    "ink-dark": "#020617",
-                    "outline-variant": "#c6c6cd",
-                    "primary-container": "#131b2e",
-                    "on-surface": "#191c1e",
-                    "on-surface-variant": "#45464d",
-                    "secondary-fixed": "#dbe1ff",
-                    "inverse-surface": "#2d3133",
-                    "on-tertiary": "#ffffff",
-                    "surface-tint": "#565e74",
-                    "on-error": "#ffffff",
-                    "secondary": "#0051d5",
-                    "surface": "#f7f9fb",
-                    "surface-bright": "#f7f9fb",
-                    "on-secondary-fixed-variant": "#003ea8",
-                    "on-tertiary-container": "#75859d",
-                    "surface-container-highest": "#e0e3e5",
-                    "on-primary": "#ffffff",
-                    "error": "#ba1a1a",
-                    "on-background": "#191c1e",
-                    "background": "#f7f9fb",
-                    "error-container": "#ffdad6",
-                    "surface-container-high": "#e6e8ea",
-                    "surface-container-lowest": "#ffffff",
-                    "surface-dim": "#d8dadc",
-                    "on-secondary-container": "#fefcff",
-                    "surface-container-low": "#f2f4f6",
-                    "secondary-fixed-dim": "#b4c5ff",
-                    "on-secondary": "#ffffff",
-                    "on-error-container": "#93000a",
-                    "inverse-on-surface": "#eff1f3",
-                    "on-tertiary-fixed-variant": "#38485d"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "xl": "32px",
-                    "unit": "4px",
-                    "md": "16px",
-                    "gutter": "12px",
-                    "lg": "24px",
-                    "edge-margin": "16px",
-                    "xs": "4px",
-                    "sm": "8px"
-            },
-            "fontFamily": {
-                    "case-number": ["IBM Plex Sans"],
-                    "headline-md": ["Manrope"],
-                    "title-lg": ["Manrope"],
-                    "headline-lg": ["Manrope"],
-                    "label-lg": ["IBM Plex Sans"],
-                    "body-sm": ["Inter"],
-                    "title-md": ["Inter"],
-                    "body-md": ["Inter"],
-                    "label-md": ["IBM Plex Sans"],
-                    "body-lg": ["Inter"]
-            },
-            "fontSize": {
-                    "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
-                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                    "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
-                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
-                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
-            }
-          }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
       }
-    </script>
+    }
+  }
+</script>
 <style>
-        .input-filled {
-            box-shadow: 0 1px 0 0 theme('colors.outline-variant');
-            transition: box-shadow 0.2s ease, background-color 0.2s ease;
-        }
-        .input-filled:focus-within {
-            box-shadow: 0 2px 0 0 theme('colors.ink-dark');
-            background-color: theme('colors.surface-container-lowest');
-        }
-    </style>
+  body { background-color: #f8fafc; }
+</style>
 </head>
 <body class="bg-background min-h-screen flex flex-col justify-center items-center p-edge-margin antialiased">
-<!-- Container Card (Level 1 Elevation) -->
-<div class="w-full max-w-[400px] bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-<!-- Header Section -->
-<div class="flex flex-col items-center mb-xl">
-<div class="w-12 h-12 bg-ink-dark rounded-full flex items-center justify-center mb-sm">
-<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: &quot;FILL&quot; 1;">
-                    account_balance
-                </span>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-ink-dark text-center">
-                Legal Case Diary</h1>
-<p class="font-body-md text-body-md text-on-surface-variant text-center mt-xs">
-                Sign in to your legal workspace
-            </p>
-</div>
-<!-- Form Section -->
-<form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
-<!-- Email Field -->
-<div class="flex flex-col">
-<label class="font-label-md text-label-md text-on-surface-variant mb-unit" for="email">
-                    Email</label>
-<div class="input-filled bg-surface-variant rounded-t-DEFAULT">
-<input class="w-full bg-transparent border-none focus:ring-0 px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50" id="email" placeholder="counsel@example.com" type="text">
-</div>
-</div>
-<!-- Password Field -->
-<div class="flex flex-col">
-<div class="flex justify-between items-end mb-unit">
-<label class="font-label-md text-label-md text-on-surface-variant" for="password">
-                        Password
-                    </label>
-<a class="font-label-md text-label-md text-secondary hover:underline transition-all" href="#">
-                        Forgot Password?
-                    </a>
-</div>
-<div class="input-filled bg-surface-variant rounded-t-DEFAULT relative flex items-center">
-<input class="w-full bg-transparent border-none focus:ring-0 pl-md pr-xl py-sm font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50" id="password" placeholder="••••••••" type="password">
-<button class="absolute right-md text-on-surface-variant hover:text-ink-dark transition-colors flex items-center justify-center" onclick="togglePassword()" type="button">
-<span class="material-symbols-outlined text-[20px]" id="visibility-icon">
-                            visibility_off
-                        </span>
-</button>
-</div>
-</div>
-<!-- Login Action -->
-<button class="w-full bg-ink-dark text-on-primary font-title-md text-title-md py-gutter rounded-lg hover:bg-on-primary-fixed transition-colors mt-sm active:scale-[0.98]" type="submit">
-                Login
-            </button>
-</form>
-<!-- Divider -->
-<div class="flex items-center gap-sm my-lg">
-<div class="flex-1 h-px bg-outline-variant"></div>
-<span class="font-body-sm text-body-sm text-on-surface-variant">Or continue with</span>
-<div class="flex-1 h-px bg-outline-variant"></div>
-</div>
-<!-- Social Login -->
-<button class="w-full border border-outline-variant bg-surface-container-lowest text-on-surface font-title-md text-title-md py-gutter rounded-lg hover:bg-surface-container-low transition-colors flex justify-center items-center gap-sm active:scale-[0.98]" type="button">
-<svg fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
-<path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.66 15.63 16.88 16.8 15.72 17.58V20.34H19.28C21.36 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"></path>
-<path d="M12 23C14.97 23 17.46 22.02 19.28 20.34L15.72 17.58C14.74 18.24 13.48 18.64 12 18.64C9.14 18.64 6.72 16.71 5.84 14.12H2.16V16.96C3.98 20.58 7.7 23 12 23Z" fill="#34A853"></path>
-<path d="M5.84 14.12C5.61 13.44 5.49 12.73 5.49 12C5.49 11.27 5.61 10.56 5.84 9.88V7.04H2.16C1.41 8.53 1 10.22 1 12C1 13.78 1.41 15.47 2.16 16.96L5.84 14.12Z" fill="#FBBC05"></path>
-<path d="M12 5.36C13.62 5.36 15.07 5.92 16.22 7.02L19.36 3.88C17.46 2.1 14.97 1 12 1C7.7 1 3.98 3.42 2.16 7.04L5.84 9.88C6.72 7.29 9.14 5.36 12 5.36Z" fill="#EA4335"></path>
-</svg>
-            Login with Google
+<!-- Sign-in card. The shipped screen is a Part B stub; this mockup is the design. -->
+<div class="w-full max-w-[400px] bg-surface-container-lowest border border-outline-variant rounded-2xl p-lg">
+  <div class="flex flex-col items-center mb-xl">
+    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-sm">
+      <span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+    </div>
+    <h1 class="font-headline-lg text-headline-lg text-primary text-center">Legal Case Diary</h1>
+    <p class="mt-xs font-body-md text-body-md text-on-surface-variant text-center">Sign in to your legal workspace</p>
+  </div>
+
+  <form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+    <div class="flex flex-col">
+      <label class="mb-unit font-label-md text-label-md text-on-surface-variant" for="email">Email</label>
+      <input class="w-full bg-surface-variant border-0 border-b-2 border-card-border focus:border-primary focus:ring-0 rounded-t px-md py-sm font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50" id="email" placeholder="counsel@example.com" type="text">
+    </div>
+
+    <div class="flex flex-col">
+      <div class="flex justify-between items-end mb-unit">
+        <label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+        <a class="font-label-md text-label-md text-secondary hover:underline" href="#">Forgot Password?</a>
+      </div>
+      <div class="relative flex items-center">
+        <input class="w-full bg-surface-variant border-0 border-b-2 border-card-border focus:border-primary focus:ring-0 rounded-t pl-md pr-xl py-sm font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50" id="password" placeholder="••••••••" type="password">
+        <button class="absolute right-md text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center" onclick="togglePassword()" type="button">
+          <span class="material-symbols-outlined text-[20px]" id="visibility-icon">visibility_off</span>
         </button>
+      </div>
+    </div>
+
+    <button class="w-full bg-secondary text-on-secondary font-title-md text-title-md py-gutter rounded-lg hover:opacity-90 transition-opacity mt-sm" type="submit">Login</button>
+  </form>
+
+  <div class="flex items-center gap-sm my-lg">
+    <div class="flex-1 h-px bg-outline-variant"></div>
+    <span class="font-body-sm text-body-sm text-on-surface-variant">Or continue with</span>
+    <div class="flex-1 h-px bg-outline-variant"></div>
+  </div>
+
+  <button class="w-full border border-outline-variant bg-surface-container-lowest text-on-surface font-title-md text-title-md py-gutter rounded-lg hover:bg-secondary-hover transition-colors flex justify-center items-center gap-sm" type="button">
+    <svg fill="none" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.66 15.63 16.88 16.8 15.72 17.58V20.34H19.28C21.36 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"></path>
+      <path d="M12 23C14.97 23 17.46 22.02 19.28 20.34L15.72 17.58C14.74 18.24 13.48 18.64 12 18.64C9.14 18.64 6.72 16.71 5.84 14.12H2.16V16.96C3.98 20.58 7.7 23 12 23Z" fill="#34A853"></path>
+      <path d="M5.84 14.12C5.61 13.44 5.49 12.73 5.49 12C5.49 11.27 5.61 10.56 5.84 9.88V7.04H2.16C1.41 8.53 1 10.22 1 12C1 13.78 1.41 15.47 2.16 16.96L5.84 14.12Z" fill="#FBBC05"></path>
+      <path d="M12 5.36C13.62 5.36 15.07 5.92 16.22 7.02L19.36 3.88C17.46 2.1 14.97 1 12 1C7.7 1 3.98 3.42 2.16 7.04L5.84 9.88C6.72 7.29 9.14 5.36 12 5.36Z" fill="#EA4335"></path>
+    </svg>
+    Login with Google
+  </button>
 </div>
-<!-- Footer -->
+
 <div class="mt-lg text-center">
-<p class="font-body-md text-body-md text-on-surface-variant">
-            Don't have an account? 
-            <a class="font-title-md text-title-md text-secondary hover:underline transition-all ml-unit" href="#">
-                Sign Up
-            </a>
-</p>
+  <p class="font-body-md text-body-md text-on-surface-variant">
+    Don't have an account?
+    <a class="ml-unit font-title-md text-title-md text-secondary hover:underline" href="#">Sign Up</a>
+  </p>
 </div>
-<!-- Interactive Scripts -->
+
 <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const visibilityIcon = document.getElementById('visibility-icon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                visibilityIcon.textContent = 'visibility';
-            } else {
-                passwordInput.type = 'password';
-                visibilityIcon.textContent = 'visibility_off';
-            }
-        }
-    </script>
-
-
-
-
-</body></html>
+  function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const visibilityIcon = document.getElementById('visibility-icon');
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      visibilityIcon.textContent = 'visibility';
+    } else {
+      passwordInput.type = 'password';
+      visibilityIcon.textContent = 'visibility_off';
+    }
+  }
+</script>
+</body>
+</html>

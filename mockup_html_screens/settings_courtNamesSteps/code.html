@@ -1,290 +1,194 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Court Names, Steps etc</title>
+<title>Court Names, Steps etc - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&amp;family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              "colors": {
-                      "surface-container-lowest": "#ffffff",
-                      "secondary-container": "#316bf3",
-                      "outline": "#76777d",
-                      "on-primary-container": "#7c839b",
-                      "inverse-surface": "#2d3133",
-                      "surface-tint": "#565e74",
-                      "secondary-fixed-dim": "#b4c5ff",
-                      "on-primary-fixed-variant": "#3f465c",
-                      "background": "#f7f9fb",
-                      "surface": "#f7f9fb",
-                      "primary-fixed-dim": "#bec6e0",
-                      "outline-variant": "#c6c6cd",
-                      "secondary": "#0051d5",
-                      "on-secondary": "#ffffff",
-                      "inverse-on-surface": "#eff1f3",
-                      "secondary-fixed": "#dbe1ff",
-                      "primary-container": "#131b2e",
-                      "on-tertiary-fixed-variant": "#38485d",
-                      "on-surface-variant": "#45464d",
-                      "tertiary-fixed": "#d3e4fe",
-                      "error": "#ba1a1a",
-                      "on-secondary-fixed-variant": "#003ea8",
-                      "ink-dark": "#020617",
-                      "surface-container-high": "#e6e8ea",
-                      "surface-variant": "#e0e3e5",
-                      "on-tertiary-fixed": "#0b1c30",
-                      "tertiary": "#000000",
-                      "on-tertiary-container": "#75859d",
-                      "surface-container-low": "#f2f4f6",
-                      "tertiary-container": "#0b1c30",
-                      "status-active": "#059669",
-                      "primary": "#000000",
-                      "surface-container": "#eceef0",
-                      "on-error-container": "#93000a",
-                      "error-container": "#ffdad6",
-                      "on-secondary-fixed": "#00174b",
-                      "surface-dim": "#d8dadc",
-                      "on-background": "#191c1e",
-                      "inverse-primary": "#bec6e0",
-                      "on-secondary-container": "#fefcff",
-                      "surface-bright": "#f7f9fb",
-                      "on-primary": "#ffffff",
-                      "on-tertiary": "#ffffff",
-                      "tertiary-fixed-dim": "#b7c8e1",
-                      "surface-container-highest": "#e0e3e5",
-                      "on-primary-fixed": "#131b2e",
-                      "on-error": "#ffffff",
-                      "primary-fixed": "#dae2fd",
-                      "on-surface": "#191c1e",
-                      "court-notice": "#DC2626"
-              },
-              "borderRadius": {
-                      "DEFAULT": "0.125rem",
-                      "lg": "0.25rem",
-                      "xl": "0.5rem",
-                      "full": "0.75rem"
-              },
-              "spacing": {
-                      "xs": "4px",
-                      "xl": "32px",
-                      "gutter": "12px",
-                      "md": "16px",
-                      "edge-margin": "16px",
-                      "unit": "4px",
-                      "sm": "8px",
-                      "lg": "24px"
-              },
-              "fontFamily": {
-                      "label-md": [
-                              "IBM Plex Sans"
-                      ],
-                      "body-md": [
-                              "Inter"
-                      ],
-                      "title-lg": [
-                              "Manrope"
-                      ],
-                      "headline-lg": [
-                              "Manrope"
-                      ],
-                      "body-lg": [
-                              "Inter"
-                      ],
-                      "title-md": [
-                              "Inter"
-                      ],
-                      "headline-md": [
-                              "Manrope"
-                      ],
-                      "body-sm": [
-                              "Inter"
-                      ],
-                      "label-lg": [
-                              "IBM Plex Sans"
-                      ],
-                      "case-number": [
-                              "IBM Plex Sans"
-                      ]
-              },
-              "fontSize": {
-                      "label-md": [
-                              "12px",
-                              {
-                                      "lineHeight": "16px",
-                                      "letterSpacing": "0.5px",
-                                      "fontWeight": "500"
-                              }
-                      ],
-                      "body-md": [
-                              "14px",
-                              {
-                                      "lineHeight": "20px",
-                                      "fontWeight": "400"
-                              }
-                      ],
-                      "title-lg": [
-                              "20px",
-                              {
-                                      "lineHeight": "28px",
-                                      "fontWeight": "600"
-                              }
-                      ],
-                      "headline-lg": [
-                              "30px",
-                              {
-                                      "lineHeight": "38px",
-                                      "letterSpacing": "-0.02em",
-                                      "fontWeight": "700"
-                              }
-                      ],
-                      "body-lg": [
-                              "16px",
-                              {
-                                      "lineHeight": "24px",
-                                      "fontWeight": "400"
-                              }
-                      ],
-                      "title-md": [
-                              "16px",
-                              {
-                                      "lineHeight": "24px",
-                                      "fontWeight": "600"
-                              }
-                      ],
-                      "headline-md": [
-                              "24px",
-                              {
-                                      "lineHeight": "32px",
-                                      "fontWeight": "600"
-                              }
-                      ],
-                      "body-sm": [
-                              "12px",
-                              {
-                                      "lineHeight": "16px",
-                                      "fontWeight": "400"
-                              }
-                      ],
-                      "label-lg": [
-                              "14px",
-                              {
-                                      "lineHeight": "20px",
-                                      "letterSpacing": "0.1px",
-                                      "fontWeight": "500"
-                              }
-                      ],
-                      "case-number": [
-                              "14px",
-                              {
-                                      "lineHeight": "20px",
-                                      "letterSpacing": "0.2px",
-                                      "fontWeight": "700"
-                              }
-                      ]
-              }
-      },
-          },
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
         }
-      </script>
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+</style>
 </head>
-<body class="bg-surface text-on-surface antialiased font-body-md min-h-screen flex flex-col">
-<!-- TopAppBar -->
-<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline w-full sticky top-0 z-40">
-<div class="flex items-center px-edge-margin h-16 w-full max-w-screen-xl mx-auto">
-<div class="flex items-center gap-4 w-full">
-<button class="p-2 -ml-2 rounded-full hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-70 text-on-surface-variant dark:text-surface-variant">
-<span class="material-symbols-outlined" data-icon="menu">menu</span>
-</button>
-<h1 class="font-headline-md text-headline-md text-ink-dark dark:text-on-primary-fixed truncate">
-                    Court Names, Steps etc
-                </h1>
-</div>
-</div>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Court Names, Steps etc</h1>
+  </div>
 </header>
-<!-- SubPage Header Back Arrow -->
-<div class="px-edge-margin py-4 w-full max-w-screen-xl mx-auto flex items-center">
-<button class="p-2 -ml-2 rounded-full hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors cursor-pointer active:opacity-70 text-on-surface-variant">
-<span class="material-symbols-outlined text-ink-dark" data-icon="arrow_back">arrow_back</span>
-</button>
-</div>
-<!-- Main Content Canvas -->
-<main class="flex-1 w-full max-w-screen-xl mx-auto px-edge-margin pb-24 space-y-4">
-<!-- Card 1 -->
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm">
-<h2 class="font-title-lg text-title-lg text-ink-dark mb-4 border-b border-outline-variant pb-2">দায়রা জজ আদালত (ফৌজদারী)</h2>
-<div class="grid grid-cols-2 gap-3">
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Court Names
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Case Type
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Steps
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    On Behalf
-                </button>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm">
-<h2 class="font-title-lg text-title-lg text-ink-dark mb-4 border-b border-outline-variant pb-2">জেলা জজ আদালত (দেওয়ানী)</h2>
-<div class="grid grid-cols-2 gap-3">
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Court Names
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Case Type
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Steps
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    On Behalf
-                </button>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm">
-<h2 class="font-title-lg text-title-lg text-ink-dark mb-4 border-b border-outline-variant pb-2">চীফ জুডিঃ ম্যাজিস্ট্রেট আদালত</h2>
-<div class="grid grid-cols-2 gap-3">
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Court Names
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Case Type
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Steps
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    On Behalf
-                </button>
-</div>
-</div>
-<!-- Card 4 -->
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm">
-<h2 class="font-title-lg text-title-lg text-ink-dark mb-4 border-b border-outline-variant pb-2">নির্বাহী ম্যাজিঃ, রাজস্ব আদালত ইত্যাদি</h2>
-<div class="grid grid-cols-2 gap-3">
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Court Names
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Case Type
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    Steps
-                </button>
-<button class="w-full bg-surface-bright border border-outline-variant rounded-lg py-3 px-2 text-center font-label-md text-label-md text-ink-dark hover:bg-surface-container-low transition-colors">
-                    On Behalf
-                </button>
-</div>
-</div>
+
+<!-- One collapsible card per seeded court category, in category order.
+     At most one card is open at a time; the open card grows three 44 px
+     action buttons below its name row. -->
+<main class="max-w-lg mx-auto w-full">
+  <div class="p-md flex flex-col gap-xs">
+
+    <!-- Open card: name row plus the three management buttons. -->
+    <div class="bg-surface border border-surface-container rounded-xl p-md">
+      <div class="flex items-center min-h-[44px]">
+        <p class="flex-1 font-body-lg text-body-lg text-on-surface">Appellate Division</p>
+        <span class="material-symbols-outlined text-tertiary">expand_less</span>
+      </div>
+      <div class="mt-sm flex gap-sm">
+        <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">Case Types</button>
+        <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">Steps</button>
+        <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">On Behalf</button>
+      </div>
+    </div>
+
+    <!-- Collapsed cards: the name row alone. -->
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">High Court Division</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">District Courts (Civil)</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">District &amp; Sessions (Criminal)</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">Metropolitan Sessions (Criminal)</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">Chief Judicial Magistrate</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">Chief Metropolitan Magistrate</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+
+    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+      <p class="flex-1 font-body-lg text-body-lg text-on-surface">Executive Magistrate</p>
+      <span class="material-symbols-outlined text-tertiary">expand_more</span>
+    </button>
+  </div>
 </main>
-</body></html>
+</body>
+</html>

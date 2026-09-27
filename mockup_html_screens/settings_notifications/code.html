@@ -1,258 +1,290 @@
-<!DOCTYPE html><html lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Notifications Settings</title>
+<title>Notifications - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@500;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-container": "#316bf3",
-                        "outline": "#76777d",
-                        "on-primary-container": "#7c839b",
-                        "inverse-surface": "#2d3133",
-                        "surface-tint": "#565e74",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "background": "#f7f9fb",
-                        "surface": "#f7f9fb",
-                        "outline-variant": "#c6c6cd",
-                        "primary-fixed-dim": "#bec6e0",
-                        "on-secondary": "#ffffff",
-                        "inverse-on-surface": "#eff1f3",
-                        "secondary": "#0051d5",
-                        "secondary-fixed": "#dbe1ff",
-                        "primary-container": "#131b2e",
-                        "tertiary-fixed": "#d3e4fe",
-                        "error": "#ba1a1a",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "on-surface-variant": "#45464d",
-                        "surface-container-high": "#e6e8ea",
-                        "surface-variant": "#e0e3e5",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "ink-dark": "#020617",
-                        "on-tertiary-container": "#75859d",
-                        "tertiary": "#000000",
-                        "tertiary-container": "#0b1c30",
-                        "surface-container-low": "#f2f4f6",
-                        "surface-container": "#eceef0",
-                        "on-error-container": "#93000a",
-                        "status-active": "#059669",
-                        "primary": "#000000",
-                        "surface-dim": "#d8dadc",
-                        "error-container": "#ffdad6",
-                        "on-secondary-fixed": "#00174b",
-                        "on-primary": "#ffffff",
-                        "on-background": "#191c1e",
-                        "inverse-primary": "#bec6e0",
-                        "on-secondary-container": "#fefcff",
-                        "surface-bright": "#f7f9fb",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "primary-fixed": "#dae2fd",
-                        "on-surface": "#191c1e",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed": "#131b2e",
-                        "on-error": "#ffffff",
-                        "court-notice": "#DC2626"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "md": "16px",
-                        "xs": "4px",
-                        "xl": "32px",
-                        "gutter": "12px",
-                        "unit": "4px",
-                        "sm": "8px",
-                        "lg": "24px",
-                        "edge-margin": "16px"
-                    },
-                    "fontFamily": {
-                        "label-lg": ["IBM Plex Sans"],
-                        "case-number": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "headline-md": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "title-lg": ["Manrope"],
-                        "headline-lg": ["Manrope"],
-                        "label-md": ["IBM Plex Sans"],
-                        "body-md": ["Inter"]
-                    },
-                    "fontSize": {
-                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
-                        "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
-                        "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
-                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
-                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
-                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
-                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
-                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
-                    }
-                }
-            }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.6px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
 </head>
-<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen">
-<!-- SubPage Header -->
-<header class="bg-surface-container-lowest px-edge-margin pt-md pb-md sticky top-0 z-50">
-<div class="flex flex-col gap-sm">
-<h1 class="font-headline-md text-headline-md font-bold text-primary">Notifications</h1>
-<button class="flex items-center text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors w-fit">
-<span class="material-symbols-outlined mr-sm text-[20px]">arrow_back</span><br></button>
-</div>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Notifications</h1>
+  </div>
 </header>
-<!-- Main Content Canvas -->
-<main class="p-edge-margin">
-<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg shadow-sm">
-<!-- Default Notification Status -->
-<div class="mb-xl">
-<label class="font-label-md text-label-md text-on-surface-variant block mb-md">DEFAULT NOTIFICATION STATUS</label>
-<div class="flex gap-md h-12">
-<button class="flex-1 rounded border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg transition-colors hover:bg-surface-container-low active:scale-95">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-                        ON
-                    </button>
-<button class="flex-1 rounded border border-on-primary-fixed bg-on-primary-fixed text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg shadow-sm transition-transform active:scale-95">
-<span class="material-symbols-outlined text-[20px]">notifications_off</span>
-                        OFF
-                    </button>
-</div>
-</div>
-<!-- Notification Day Offset -->
-<div class="mb-xl">
-<label class="font-label-md text-label-md text-on-surface-variant block mb-md">NOTIFICATION DAY OFFSET</label>
-<div class="relative">
-<button class="w-full h-12 rounded border border-outline-variant bg-surface-container-lowest px-md font-body-lg text-primary flex items-center justify-between outline-none cursor-pointer transition-colors hover:border-outline" onclick="document.getElementById('day-offset-modal').classList.remove('hidden')">
-<span class="">The day before</span>
-<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
-</button>
-</div>
-</div>
-<!-- Notification Time -->
-<div class="mb-xl">
-<label class="font-label-md text-label-md text-on-surface-variant block mb-md">NOTIFICATION TIME</label>
-<div class="relative">
-<button class="w-full h-12 rounded border border-outline-variant bg-surface-container-lowest px-md font-body-lg text-primary flex items-center justify-between outline-none cursor-pointer transition-colors hover:border-outline" onclick="document.getElementById('time-picker-modal').classList.remove('hidden')">
-<span class="">05:00 PM</span>
-<span class="material-symbols-outlined text-on-surface-variant">schedule</span>
-</button>
-</div>
-</div>
-<!-- Test Notification Button -->
-<div class="mt-xl pt-lg border-t border-surface-variant">
-</div>
-</div>
+
+<main class="max-w-lg mx-auto w-full px-edge-margin py-md flex flex-col">
+
+  <!-- Preferences card: status pair, day offsets and time, all in one card. -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+
+    <p class="font-label-md text-label-md text-on-surface-variant">Default Notification Status</p>
+    <div class="mt-md flex gap-md">
+      <!-- Off is the active half: the filled black control. -->
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg active:opacity-80">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        On
+      </button>
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg">
+        <span class="material-symbols-outlined text-[20px]">notifications_off</span>
+        Off
+      </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Notification Day Offset</p>
+    <div class="mt-md">
+      <button class="w-full h-12 rounded-sm border border-outline-variant bg-surface-container-lowest px-md flex items-center active:bg-surface-container-low">
+        <span class="flex-1 text-left font-body-lg text-body-lg text-on-surface">The Day Before</span>
+        <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+      </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Notification Time</p>
+    <div class="mt-md">
+      <button class="w-full h-12 rounded-sm border border-outline-variant bg-surface-container-lowest px-md flex items-center active:bg-surface-container-low">
+        <span class="flex-1 text-left font-body-lg text-body-lg text-on-surface">05:00 PM</span>
+        <span class="material-symbols-outlined text-on-surface-variant">schedule</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- OEM battery reminder; hides once the setup guide is finished. -->
+  <div class="mt-lg bg-error-container rounded-lg p-md flex items-start gap-md">
+    <span class="material-symbols-outlined text-error">warning</span>
+    <p class="flex-1 font-body-md text-body-md text-on-error-container">Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.</p>
+  </div>
+
+  <!-- Battery & auto-start setup guide. -->
+  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">battery_charging_full</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Battery &amp; Auto-Start Setup Guide</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">Required on Xiaomi, Oppo, Vivo and Realme Phones</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
+  <!-- Test notification. -->
+  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">notifications_active</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Send Test Notification</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">See How a Hearing Alert Looks on This Phone</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
 </main>
-<!-- Day Offset Selection Modal -->
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-md hidden" id="day-offset-modal">
-<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('day-offset-modal').classList.add('hidden')"></div>
-<div class="relative bg-surface-container-lowest w-full max-w-[400px] max-h-[80vh] rounded-xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
-<!-- Modal Header -->
-<div class="bg-primary-container text-on-primary px-lg py-md flex items-center justify-between sticky top-0 z-10">
-<h2 class="font-headline-md text-title-lg flex-1 text-center">Select Day Offset</h2>
-<button class="p-2 hover:bg-white/10 rounded-full transition-colors" onclick="document.getElementById('day-offset-modal').classList.add('hidden')">
-<span class="material-symbols-outlined">close</span>
-</button>
+
+<!-- Day-offset picker: dark header over one check row per offset. Several
+     offsets can stay ticked, and at least one always does. Hidden until the
+     row is tapped, like the other screens' modals. -->
+<div class="hidden fixed inset-0 z-[100] items-center justify-center bg-overlay-54 p-md" id="day-offset-modal">
+  <div class="relative bg-surface-container-lowest w-full max-w-[400px] max-h-[80vh] rounded-lg shadow-2xl flex flex-col overflow-hidden">
+    <div class="bg-primary-container h-14 px-md flex items-center">
+      <span class="w-12"></span>
+      <p class="flex-1 text-center font-title-lg text-title-lg text-on-primary">Select Day Offset</p>
+      <button aria-label="Close" class="w-12 h-12 flex items-center justify-center text-on-primary active:opacity-70">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="overflow-y-auto">
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Same Day</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg font-bold text-secondary">The Day Before</span>
+        <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">Before 2 Days</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">Before 3 Days</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">Before 7 Days</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">Before 15 Days</span>
+      </button>
+      <div class="border-t border-outline-variant"></div>
+      <button class="w-full px-lg py-md flex items-center text-left active:bg-surface-container-high">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">Before 30 Days</span>
+      </button>
+    </div>
+  </div>
 </div>
-<!-- Search Bar -->
-<div class="p-md border-b border-outline-variant">
+
+<!-- Notification-time window: Flutter's dial clock, pinned to the app's
+     112 x 48 dialog actions. -->
+<div class="hidden fixed inset-0 z-[100] items-center justify-center bg-overlay-54 p-md" id="time-picker-modal">
+  <div class="relative bg-surface-container-lowest w-full max-w-[340px] rounded-2xl shadow-2xl overflow-hidden">
+    <div class="bg-surface-container-low px-lg pt-lg pb-md">
+      <p class="font-body-sm text-body-sm text-on-surface-variant">Select Time</p>
+      <div class="mt-xs flex items-baseline gap-xs">
+        <span class="font-headline-lg text-headline-lg text-primary">05</span>
+        <span class="font-headline-lg text-headline-lg text-primary">:</span>
+        <span class="font-headline-lg text-headline-lg text-primary">00</span>
+        <div class="ml-sm flex flex-col gap-xs">
+          <span class="px-sm py-xs rounded-sm bg-secondary text-on-primary font-label-lg text-label-lg">PM</span>
+          <span class="px-sm py-xs rounded-sm text-on-surface-variant font-label-lg text-label-lg">AM</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-lg flex justify-center">
+      <div class="relative w-56 h-56 rounded-full bg-surface-container-high flex items-center justify-center">
+        <div class="absolute w-1 h-14 bg-secondary origin-bottom bottom-1/2 left-1/2 -translate-x-1/2 rounded-full">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[10px] border-b-black"></div>
+        </div>
+        <div class="w-2 h-2 bg-secondary rounded-full z-10"></div>
+        <div class="absolute inset-4 font-label-lg text-label-lg text-primary">
+          <span class="absolute top-0 left-1/2 -translate-x-1/2">12</span>
+          <span class="absolute right-0 top-1/2 -translate-y-1/2">3</span>
+          <span class="absolute bottom-0 left-1/2 -translate-x-1/2">6</span>
+          <span class="absolute left-0 top-1/2 -translate-y-1/2">9</span>
+          <span class="absolute top-[10%] right-[25%]">1</span>
+          <span class="absolute top-[25%] right-[10%]">2</span>
+          <span class="absolute bottom-[25%] right-[10%]">4</span>
+          <span class="absolute bottom-[10%] right-[25%]">5</span>
+          <span class="absolute bottom-[10%] left-[25%]">7</span>
+          <span class="absolute bottom-[25%] left-[10%]">8</span>
+          <span class="absolute top-[25%] left-[10%]">10</span>
+          <span class="absolute top-[10%] left-[25%]">11</span>
+        </div>
+      </div>
+    </div>
+    <div class="px-lg pb-lg flex justify-end gap-md">
+      <button class="w-28 h-12 flex items-center justify-center font-body-lg text-body-lg text-primary active:opacity-70">Cancel</button>
+      <button class="w-28 h-12 flex items-center justify-center font-body-lg text-body-lg text-primary active:opacity-70">OK</button>
+    </div>
+  </div>
 </div>
-<!-- List Items -->
-<div class="flex-1 overflow-y-auto">
-<div class="flex flex-col">
-<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
-<span class="">The same day</span>
-</button>
-<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-secondary font-bold flex items-center justify-between">
-<span class="">The day before</span>
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
-</button>
-<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
-<span class="">Before 2 days</span>
-</button>
-<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
-<span class="">Before 3 days</span>
-</button>
-<button class="px-lg py-4 text-left hover:bg-surface-container-high border-b border-outline-variant/30 transition-colors text-on-surface flex items-center justify-between">
-<span class="">Before 7 days</span>
-</button>
-</div>
-</div>
-<!-- Footer Actions -->
-</div>
-</div>
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-md" id="time-picker-modal">
-<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('time-picker-modal').classList.add('hidden')"></div>
-<div class="relative bg-surface-container-lowest w-full max-w-[320px] rounded-xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300 overflow-hidden">
-<!-- Header / Digital Display -->
-<div class="p-lg bg-surface-container-low">
-<div class="text-label-md text-on-surface-variant mb-md">SELECT TIME</div>
-<div class="flex items-center justify-center gap-xs">
-<div class="text-on-secondary-container rounded-lg p-md text-[48px] font-headline-md leading-none bg-black text-white">05</div>
-<div class="text-[48px] font-headline-md text-on-surface">:</div>
-<div class="bg-surface-container-highest text-on-surface-variant rounded-lg p-md text-[48px] font-headline-md leading-none">00</div>
-<div class="flex flex-col gap-xs ml-md">
-<div class="px-md py-sm text-on-secondary-container rounded font-bold text-label-lg bg-black text-white">PM</div>
-<div class="px-md py-sm bg-surface-container-highest text-on-surface-variant rounded font-bold text-label-lg">AM</div>
-</div>
-</div>
-</div>
-<!-- Analog Clock Dial -->
-<div class="p-lg flex justify-center">
-<div class="relative w-64 h-64 bg-surface-container-high rounded-full flex items-center justify-center">
-<!-- Clock Hand -->
-<div class="absolute w-1 h-14 bg-black origin-bottom bottom-1/2 left-1/2 -translate-x-1/2 rounded-full">
-  <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[10px] border-b-black"></div>
-</div>
-<!-- Center Dot -->
-<div class="w-2 h-2 bg-black rounded-full z-10"></div>
-<!-- Numbers -->
-<div class="absolute inset-4">
-<div class="absolute top-0 left-1/2 -translate-x-1/2 font-label-lg text-primary">12</div>
-<div class="absolute right-0 top-1/2 -translate-y-1/2 font-label-lg">3</div>
-<div class="absolute bottom-0 left-1/2 -translate-x-1/2 font-label-lg">6</div>
-<div class="absolute left-0 top-1/2 -translate-y-1/2 font-label-lg">9</div>
-<div class="absolute top-[10%] right-[25%] font-label-lg">1</div>
-<div class="absolute top-[25%] right-[10%] font-label-lg">2</div>
-<div class="absolute bottom-[25%] right-[10%] font-label-lg">4</div>
-<div class="absolute bottom-[10%] right-[25%] font-label-lg">5</div>
-<div class="absolute bottom-[10%] left-[25%] font-label-lg">7</div>
-<div class="absolute bottom-[25%] left-[10%] font-label-lg">8</div>
-<div class="absolute top-[25%] left-[10%] font-label-lg">10</div>
-<div class="absolute top-[10%] left-[25%] font-label-lg">11</div>
-</div>
-</div>
-</div>
-<!-- Footer Actions -->
-<div class="p-md flex justify-end gap-md">
-<button class="px-lg py-md font-label-lg hover:bg-surface-container-low rounded transition-colors text-primary" onclick="document.getElementById('time-picker-modal').classList.add('hidden')">CANCEL</button>
-<button class="px-lg py-md font-label-lg hover:bg-surface-container-low rounded transition-colors text-primary" onclick="document.getElementById('time-picker-modal').classList.add('hidden')">OK</button>
-</div>
-</div>
-</div></body></html>
+</body>
+</html>

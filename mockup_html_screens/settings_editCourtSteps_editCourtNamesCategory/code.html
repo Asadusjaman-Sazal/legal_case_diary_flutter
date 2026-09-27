@@ -1,214 +1,175 @@
-<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Court Category - Legal Diary</title>
+<title>Edit Court Names - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100..900&amp;family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-secondary-fixed": "#00174b",
-                        "inverse-on-surface": "#eff1f3",
-                        "on-primary-container": "#7c839b",
-                        "court-notice": "#DC2626",
-                        "error": "#ba1a1a",
-                        "surface-variant": "#e0e3e5",
-                        "status-active": "#059669",
-                        "secondary-container": "#316bf3",
-                        "surface-container-low": "#f2f4f6",
-                        "primary-fixed": "#dae2fd",
-                        "on-error-container": "#93000a",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "primary-fixed-dim": "#bec6e0",
-                        "surface-container-lowest": "#ffffff",
-                        "on-tertiary": "#ffffff",
-                        "primary": "#000000",
-                        "tertiary-fixed": "#d3e4fe",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "on-error": "#ffffff",
-                        "on-secondary": "#ffffff",
-                        "primary-container": "#131b2e",
-                        "surface-bright": "#f7f9fb",
-                        "inverse-surface": "#2d3133",
-                        "surface-tint": "#565e74",
-                        "surface-container-high": "#e6e8ea",
-                        "tertiary": "#000000",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "tertiary-container": "#0b1c30",
-                        "surface-container": "#eceef0",
-                        "on-tertiary-container": "#75859d",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "secondary-fixed": "#dbe1ff",
-                        "surface": "#f7f9fb",
-                        "on-primary-fixed": "#131b2e",
-                        "background": "#f7f9fb",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "ink-dark": "#020617",
-                        "on-surface": "#191c1e",
-                        "on-primary": "#ffffff",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "surface-dim": "#d8dadc",
-                        "outline-variant": "#c6c6cd",
-                        "inverse-primary": "#bec6e0",
-                        "error-container": "#ffdad6",
-                        "outline": "#76777d",
-                        "on-secondary-container": "#fefcff",
-                        "on-background": "#191c1e",
-                        "on-surface-variant": "#45464d",
-                        "secondary": "#0051d5"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "sm": "8px",
-                        "lg": "24px",
-                        "unit": "4px",
-                        "xs": "4px",
-                        "gutter": "12px",
-                        "xl": "32px",
-                        "md": "16px",
-                        "edge-margin": "16px"
-                    },
-                    "fontFamily": {
-                        "label-md": ["IBM Plex Sans"],
-                        "case-number": ["IBM Plex Sans"],
-                        "body-lg": ["Inter"],
-                        "headline-lg": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "label-lg": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "title-lg": ["Manrope"],
-                        "headline-md": ["Manrope"],
-                        "body-md": ["Inter"]
-                    },
-                    "fontSize": {
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
-                        "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
-                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
-                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
-                    }
-                },
-            },
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-        }
-        
-        /* High-density list animations */
-        .list-item-hover {
-            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .list-item-hover:active {
-            transform: scale(0.995);
-            transition: transform 0.1s ease-out;
-        }
-    </style>
+  body { background-color: #f8fafc; }
+</style>
 </head>
-<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md">
-<!-- SubPageHeader: Mimicking pattern from SCREEN_27 -->
-<header class="sticky top-0 z-50 bg-surface-container-low border-b border-outline-variant px-edge-margin h-16 flex items-center gap-4">
-<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:opacity-80 active:scale-95">
-<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
-</button>
-<div class="absolute left-1/2 -translate-x-1/2">
-<h1 class="font-headline-md text-headline-md font-bold text-primary">Court Category</h1>
-</div>
-</header><div class="flex items-center px-edge-margin h-[56px] w-full bg-surface"><button aria-label="Go back" class="p-sm hover:bg-surface-container rounded-full transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-on-surface">arrow_back</span></button></div>
-<!-- Main Content Canvas -->
-<main class="flex-1 w-full max-w-[1200px] mx-auto md:px-lg py-md">
-<!-- Settings Group Container -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-<!-- List Item: Supreme Court -->
-<div class="group flex items-center justify-between p-md bg-surface-container-lowest border-b border-outline-variant cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
-<span class="material-symbols-outlined text-primary">account_balance</span>
-</div>
-<div class="flex flex-col">
-<span class="font-title-md text-title-md text-on-surface">Supreme Court of Bangladesh</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant">Appellate &amp; High Court Divisions</span>
-</div>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
-</div>
-<!-- List Item: Lower Courts -->
-<div class="group flex items-center justify-between p-md bg-surface-container-lowest cursor-pointer transition-all duration-200 active:scale-[0.98] hover:bg-surface-container-low">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high transition-colors">
-<span class="material-symbols-outlined text-primary">gavel</span>
-</div>
-<div class="flex flex-col">
-<span class="font-title-md text-title-md text-on-surface">Lower Courts</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant">District, Session &amp; Specialized Courts</span>
-</div>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-all">chevron_right</span>
-</div>
-</div>
-<!-- Descriptive Note: Maintaining Professional Information Density -->
-<div class="mt-lg px-md">
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Edit Court Names</h1>
+  </div>
+</header>
 
-</div>
+<main class="max-w-lg mx-auto w-full p-md flex flex-col">
+  <!-- The Supreme Court's own two divisions, then the lower-court walkthrough. -->
+  <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">account_balance</span>
+    <p class="ml-md flex-1 font-body-lg text-body-lg text-on-surface">Appellate Division</p>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
+  <button class="mt-sm w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">gavel</span>
+    <p class="ml-md flex-1 font-body-lg text-body-lg text-on-surface">High Court Division</p>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
+  <button class="mt-sm w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">account_tree</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Lower Courts</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">District, Session &amp; Specialized Courts</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
+  <!-- Quick Tip footer. -->
+  <div class="mt-md p-md bg-surface-container rounded-xl">
+    <p class="font-body-lg text-body-lg text-on-surface">Quick Tip</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface">Need specialized tribunals? Add them under the relevant division and district, then assign a court category.</p>
+  </div>
 </main>
-<!-- Contextual Information Card: High-end UI Pattern (Bento-lite) -->
-<section class="max-w-[1200px] mx-auto w-full px-edge-margin md:px-lg mt-xl mb-xl">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
-
-<div class="relative overflow-hidden rounded-xl border border-outline-variant p-lg flex flex-col justify-end min-h-[160px] shadow-sm bg-surface-container-lowest">
-<div class="absolute inset-0 z-0 opacity-10">
-<!-- Abstract legal pattern visualization -->
-<div class="absolute inset-0" style="background-image: radial-gradient(#0051d5 1px, transparent 1px); background-size: 20px 20px;"></div>
-</div>
-<div class="relative z-10">
-<span class="font-label-md text-label-md text-secondary uppercase tracking-widest block mb-1">Quick Tip</span>
-<h4 class="font-title-md text-title-md text-primary">Need specialized tribunals?</h4>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
-                        Tribunals and special courts are categorized under 'Lower Courts' for administrative grouping.
-                    </p>
-</div>
-</div>
-</div>
-</section>
-<!-- Navigation suppressed for focused task (Transactional/Settings sub-page) as per "Relevance Check" rule -->
-<script>
-        // Simple micro-interaction for list items
-        document.querySelectorAll('.list-item-hover').forEach(item => {
-            item.addEventListener('click', (e) => {
-                // e.preventDefault(); // Keep as link for demo
-                console.log('Navigating to category details...');
-            });
-        });
-    </script>
-
-
-
-
-
-
-</body></html>
+</body>
+</html>

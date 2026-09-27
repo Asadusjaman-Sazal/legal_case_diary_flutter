@@ -243,7 +243,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     return [
       for (final key in sortedKeys)
         _DateGroup(
-          // The header upper-cases whatever this returns; the date, month and
+          // The header renders this as-is (Title Case); the date, month and
           // weekday follow the active language, digits included.
           dateLabel: key == tomorrowStart
               ? l.general_tomorrow
@@ -254,7 +254,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   }
 
   /// The date-title text for one hearing day: English keeps the short
-  /// `EEE, MMM dd, yyyy` — e.g. SAT, SEP 19, 2026 — while বাংলা spells the
+  /// `EEE, MMM dd, yyyy` — e.g. Sat, Sep 19, 2026 — while বাংলা spells the
   /// month out and keeps the language's day-first order:
   /// `EEE, dd MMMM, yyyy` → বৃহস্পতি, ২৪ সেপ্টেম্বর, ২০২৬.
   String _formatDateTitle(int dayStart, String locale) {
@@ -472,7 +472,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         : buildList();
   }
 
-  /// The date heading above one hearing day: the day in upper case, then a rule
+  /// The date heading above one hearing day: the day in Title Case, then a rule
   /// filling the rest of the line.
   ///
   /// The date keeps its own width so it is drawn on a single line; the divider
@@ -487,7 +487,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     child: Row(
       children: [
         Text(
-          group.dateLabel.toUpperCase(),
+          group.dateLabel,
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.ellipsis,

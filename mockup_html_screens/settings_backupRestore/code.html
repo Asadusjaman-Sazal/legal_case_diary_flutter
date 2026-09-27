@@ -1,280 +1,219 @@
-<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Offline Backup - Digital Case Diary</title>
+<title>Backup &amp; Restore - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=IBM+Plex+Sans:wght@500;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "secondary": "#0051d5",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "inverse-surface": "#2d3133",
-                        "tertiary-container": "#0b1c30",
-                        "surface-dim": "#d8dadc",
-                        "surface-tint": "#565e74",
-                        "tertiary-fixed": "#d3e4fe",
-                        "on-secondary-fixed": "#00174b",
-                        "on-primary": "#ffffff",
-                        "inverse-on-surface": "#eff1f3",
-                        "primary-fixed": "#dae2fd",
-                        "on-secondary": "#ffffff",
-                        "surface-variant": "#F1F5F9",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "on-secondary-container": "#fefcff",
-                        "surface-container": "#eceef0",
-                        "on-tertiary-container": "#75859d",
-                        "secondary-container": "#316bf3",
-                        "surface-container-highest": "#e0e3e5",
-                        "surface-bright": "#f7f9fb",
-                        "on-tertiary": "#ffffff",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "background": "#f7f9fb",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "primary-fixed-dim": "#bec6e0",
-                        "primary-container": "#131b2e",
-                        "primary": "#0F172A",
-                        "error": "#ba1a1a",
-                        "tertiary": "#000000",
-                        "error-container": "#ffdad6",
-                        "on-surface": "#191c1e",
-                        "on-surface-variant": "#45464d",
-                        "on-primary-container": "#7c839b",
-                        "ink-dark": "#020617",
-                        "on-background": "#191c1e",
-                        "on-error-container": "#93000a",
-                        "surface-container-high": "#e6e8ea",
-                        "surface-container-low": "#f2f4f6",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "surface-container-lowest": "#ffffff",
-                        "on-primary-fixed": "#131b2e",
-                        "court-notice": "#DC2626",
-                        "secondary-fixed": "#dbe1ff",
-                        "outline": "#76777d",
-                        "surface": "#f7f9fb",
-                        "status-active": "#059669",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "inverse-primary": "#bec6e0",
-                        "outline-variant": "#c6c6cd",
-                        "on-error": "#ffffff"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "gutter": "12px",
-                        "edge-margin": "16px",
-                        "sm": "8px",
-                        "md": "16px",
-                        "lg": "24px",
-                        "xs": "4px",
-                        "xl": "32px",
-                        "unit": "4px"
-                    },
-                    "fontFamily": {
-                        "body-sm": ["Inter"],
-                        "body-md": ["Inter"],
-                        "label-md": ["IBM Plex Sans"],
-                        "headline-md": ["Manrope"],
-                        "body-lg": ["Inter"],
-                        "headline-lg": ["Manrope"],
-                        "case-number": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "title-lg": ["Manrope"],
-                        "label-lg": ["IBM Plex Sans"]
-                    }
-                }
-            }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            background-color: #f7f9fb;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .data-strip {
-            border-bottom: 1px solid #E2E8F0;
-        }
-        .data-strip:last-child {
-            border-bottom: none;
-        }
-    </style>
+  body { background-color: #f8fafc; }
+</style>
 </head>
-<body class="font-body-md text-on-surface">
-<!-- SubPageHeader Component -->
-<header class="sticky top-0 z-30 flex justify-between items-center px-edge-margin h-[56px] w-full bg-surface border-b border-outline-variant">
-<div class="flex items-center gap-md"><button class="p-sm hover:bg-surface-container rounded-full transition-colors flex items-center justify-center" aria-label="Open menu"><span class="material-symbols-outlined text-on-surface">menu</span></button>
-
-<h1 class="font-headline-md text-headline-md font-bold text-primary">Backup &amp; Restore</h1>
-</div>
-<div class="flex items-center gap-sm">
-<button class="p-sm hover:bg-surface-container rounded-full transition-colors">
-<!-- Placeholder for potential right-side actions -->
-</button>
-</div>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Backup &amp; Restore</h1>
+  </div>
 </header>
-<main class="max-w-[1200px] mx-auto pb-xl"><div class="px-edge-margin pt-sm"><button class="p-sm hover:bg-surface-container rounded-full transition-colors flex items-center justify-center" onclick="history.back()" aria-label="Go back"><span class="material-symbols-outlined text-on-surface">arrow_back</span></button></div>
-<!-- Section 1: Backup & Restore -->
-<section class="mt-lg px-edge-margin">
-<h2 class="font-label-lg text-label-lg text-on-surface-variant mb-md tracking-wider">BACKUP &amp; RESTORE</h2>
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-<div class="p-md space-y-md">
-<button class="w-full h-12 bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-sm hover:opacity-90 active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">cloud_upload</span>Backup to Local Storage</button>
-<button class="w-full h-12 bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-sm hover:opacity-90 active:scale-[0.98] transition-all"><span class="material-symbols-outlined">add_to_drive</span>Backup to Google Drive</button>
-<div class="pt-sm">
-<button class="w-full h-12 bg-primary text-on-primary font-label-lg text-label-lg rounded-xl flex items-center justify-center gap-sm hover:opacity-90 active:scale-[0.98] transition-all"><span class="material-symbols-outlined">settings_backup_restore</span>Restore from backup</button>
-</div>
-</div>
-</div>
-<p class="mt-sm px-xs font-body-sm text-body-sm text-on-surface-variant">
-                Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.
-            <br>Note: Restoration is available for offline accounts only .&nbsp;</p>
-</section>
-<!-- Section 2: Automatic Backup -->
-<section class="mt-xl px-edge-margin">
-<h2 class="font-label-lg text-label-lg text-on-surface-variant mb-md tracking-wider">AUTOMATIC BACKUP</h2>
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-<form id="backupInterval">
-<label class="data-strip flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<span class="material-symbols-outlined text-on-surface-variant">block</span>
-<span class="font-body-md text-body-md">Off</span>
-</div>
-<input class="w-5 h-5 text-secondary focus:ring-secondary border-outline-variant" name="interval" type="radio" value="0">
-</label><label class="data-strip flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<span class="material-symbols-outlined text-on-surface-variant">today</span>
-<span class="font-body-md text-body-md">Everyday</span>
-</div>
-<input checked="" class="w-5 h-5 text-secondary focus:ring-secondary border-outline-variant" name="interval" type="radio" value="1">
-</label>
-<label class="data-strip flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<span class="material-symbols-outlined text-on-surface-variant">calendar_view_week</span>
-<span class="font-body-md text-body-md">Every 3 days</span>
-</div>
-<input class="w-5 h-5 text-secondary focus:ring-secondary border-outline-variant" name="interval" type="radio" value="3">
-</label>
-<label class="data-strip flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<span class="material-symbols-outlined text-on-surface-variant">event_repeat</span>
-<span class="font-body-md text-body-md">Every 7 days</span>
-</div>
-<input class="w-5 h-5 text-secondary focus:ring-secondary border-outline-variant" name="interval" type="radio" value="7">
-</label>
-<label class="data-strip flex items-center justify-between p-md cursor-pointer hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<span class="material-symbols-outlined text-on-surface-variant">calendar_month</span>
-<span class="font-body-md text-body-md">Every month</span>
-</div>
-<input class="w-5 h-5 text-secondary focus:ring-secondary border-outline-variant" name="interval" type="radio" value="30">
-</label>
-</form>
-</div>
-</section>
-<!-- Section 3: Backup Status -->
-<section class="mt-xl px-edge-margin">
-<h2 class="font-label-lg text-label-lg text-on-surface-variant mb-md tracking-wider">BACKUP STATUS</h2>
-<div class="bg-surface-bright border border-outline-variant rounded-xl p-lg flex items-start gap-md shadow-sm relative overflow-hidden">
-<div class="absolute top-0 right-0 p-xs">
 
-</div>
-<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: &quot;FILL&quot; 1;">verified</span>
-</div>
-<div class="flex flex-col gap-xs">
-<span class="font-title-md text-title-md text-primary">Last successful backup</span>
-<span class="font-body-md text-body-md text-on-surface-variant">Oct 20, 2023 at 10:45 AM</span>
+<main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
+  <!-- Section 1 (open): manual backup / restore actions. The heading is the
+       shared sub-menu card; the chevron shows the section is expanded. -->
+  <div class="flex flex-col">
+    <div class="bg-surface border border-surface-container rounded-xl p-md flex items-center">
+      <span class="material-symbols-outlined text-primary text-[28px]">backup</span>
+      <div class="ml-md flex-1">
+        <p class="font-body-lg text-body-lg text-on-surface">Backup &amp; Restore</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Back Up Or Restore Your Diary</p>
+      </div>
+      <span class="material-symbols-outlined text-tertiary">expand_less</span>
+    </div>
 
-</div>
-</div>
-</section>
-<!-- Informational Visual -->
-<section class="mt-xl px-edge-margin text-center">
+    <div class="mt-sm">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col gap-md">
+        <button class="w-full h-14 flex items-center justify-center gap-sm bg-secondary text-on-secondary font-label-lg text-label-lg rounded-lg hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+          Backup to Local Storage
+        </button>
+        <button class="w-full h-14 flex items-center justify-center gap-sm bg-secondary text-on-secondary font-label-lg text-label-lg rounded-lg hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined">grid_on</span>
+          Backup as Excel File
+        </button>
+        <button class="w-full h-14 flex items-center justify-center gap-sm bg-secondary text-on-secondary font-label-lg text-label-lg rounded-lg hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined">add_to_drive</span>
+          Backup to Google Drive
+        </button>
+        <button class="w-full h-14 flex items-center justify-center gap-sm bg-secondary text-on-secondary font-label-lg text-label-lg rounded-lg hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined">settings_backup_restore</span>
+          Restore from Backup
+        </button>
+      </div>
+      <div class="mt-sm px-xs flex flex-col gap-xs">
+        <p class="font-body-sm text-body-sm text-on-surface">Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.</p>
+        <p class="font-body-sm text-body-sm text-on-surface">The Excel file is a spreadsheet and is not encrypted. Anyone who opens it can read your case data.</p>
+        <p class="font-body-sm text-body-sm text-on-surface">Note: Restoration is available for offline accounts only.</p>
+      </div>
+    </div>
+  </div>
 
-</section>
+  <!-- Section 2 (collapsed): automatic-backup schedule. -->
+  <div class="mt-lg bg-surface border border-surface-container rounded-xl p-md flex items-center">
+    <span class="material-symbols-outlined text-primary text-[28px]">schedule</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Automatic Backup</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">Choose How Often Your Diary Backs Up</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">expand_more</span>
+  </div>
+
+  <!-- Section 3 (collapsed): the workbook format a restore expects. -->
+  <div class="mt-lg bg-surface border border-surface-container rounded-xl p-md flex items-center">
+    <span class="material-symbols-outlined text-primary text-[28px]">grid_on</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Excel Backup Format</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">See The Format And Download A Sample</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">expand_more</span>
+  </div>
+
+  <!-- Section 4: last successful backup. A report, so a plain heading — never a
+       button and never collapsible. -->
+  <h2 class="mt-lg mb-sm font-label-lg text-label-lg text-on-surface-variant">Backup Status</h2>
+  <div class="bg-surface-bright border border-outline-variant rounded-lg p-lg flex items-start gap-md">
+    <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style="background-color: rgba(0,0,0,0.05);">
+      <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+    </div>
+    <div class="flex flex-col gap-xs">
+      <span class="font-title-md text-title-md text-primary">Last Successful Backup</span>
+      <span class="font-body-md text-body-md text-on-surface-variant">Oct 20, 2023 at 10:45 AM</span>
+    </div>
+  </div>
 </main>
-<!-- Bottom Navigation Suppression Logic: This is a sub-page, so no bottom nav as per instructions -->
-<script>
-        // Micro-interactions for Radio Selection
-        document.querySelectorAll('input[name="interval"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                // Visual feedback for selection
-                console.log('Backup interval set to:', e.target.value, 'days');
-                
-                // Add a brief subtle flash to the selected container
-                const label = e.target.closest('label');
-                label.classList.add('bg-secondary/10');
-                setTimeout(() => {
-                    label.classList.remove('bg-secondary/10');
-                }, 400);
-            });
-        });
-
-        // Backup Simulation
-        const backupBtn = document.querySelector('button:has(span:contains("Make full app backup"))');
-        if (backupBtn) {
-            backupBtn.addEventListener('click', () => {
-                const originalContent = backupBtn.innerHTML;
-                backupBtn.disabled = true;
-                backupBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Backing up...
-                `;
-                
-                setTimeout(() => {
-                    backupBtn.innerHTML = `
-                        <span class="material-symbols-outlined">check_circle</span>
-                        Backup Completed
-                    `;
-                    backupBtn.classList.remove('bg-primary');
-                    backupBtn.classList.add('bg-status-active');
-                    
-                    setTimeout(() => {
-                        backupBtn.innerHTML = originalContent;
-                        backupBtn.disabled = false;
-                        backupBtn.classList.add('bg-primary');
-                        backupBtn.classList.remove('bg-status-active');
-                    }, 2000);
-                }, 2500);
-            });
-        }
-        
-        // Custom Material Icons selector helper for simulation
-        window.addEventListener('DOMContentLoaded', () => {
-            // Find span with text "Make full app backup" inside a button
-            const spans = document.querySelectorAll('button span');
-            spans.forEach(s => {
-                if (s.textContent.includes('cloud_upload')) {
-                    const btn = s.closest('button');
-                    // Add listener here if needed
-                }
-            });
-        });
-    </script>
-
-
-
-
-
-
-
-
-
-
-</body></html>
+</body>
+</html>

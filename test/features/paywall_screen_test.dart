@@ -57,7 +57,7 @@ void main() {
 
     expect(find.byType(PaywallScreen), findsOneWidget);
     expect(find.text('Premium'), findsOneWidget);
-    expect(find.text('Free plan limit reached'), findsOneWidget);
+    expect(find.text('Free Plan Limit Reached'), findsOneWidget);
     // The sentence uses the same constant the gate enforces.
     expect(
       find.textContaining('up to $freeTierCaseLimit cases'),
@@ -66,7 +66,7 @@ void main() {
     // And it tells the user the way back that needs no payment.
     expect(find.textContaining('Deleting a case frees a slot'), findsOneWidget);
 
-    expect(find.text('Premium includes'), findsOneWidget);
+    expect(find.text('Premium Includes'), findsOneWidget);
     for (final benefit in <String>[
       'Unlimited cases',
       'Secure encrypted cloud backup',
@@ -92,7 +92,7 @@ void main() {
     await pumpPaywall(tester);
 
     final actions = tester.widgetList<FilledButton>(
-      find.widgetWithText(FilledButton, 'Coming soon'),
+      find.widgetWithText(FilledButton, 'Coming Soon'),
     );
     expect(actions, hasLength(2));
     for (final action in actions) {
@@ -100,7 +100,7 @@ void main() {
     }
 
     // Tapping one changes nothing: no route, no message, no crash.
-    await tester.tap(find.text('Coming soon').first);
+    await tester.tap(find.text('Coming Soon').first);
     await tester.pumpAndSettle();
     expect(find.byType(PaywallScreen), findsOneWidget);
   });

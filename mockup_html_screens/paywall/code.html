@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Paywall - Legal Case Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  /* A disabled FilledButton keeps the theme's own disabled paint (onSurface at
+     12% with a 38% label), not the ink its enabled state would use. */
+  .btn-disabled { background-color: rgba(25, 28, 30, 0.12); color: rgba(25, 28, 30, 0.38); }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+
+<!-- Paywall: a top-level route outside the shell, so there is no bottom
+     navigation. The app bar's back arrow is the way out — Cancel means "keep my
+     cases as they are". -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
+  <div class="flex items-center h-14 px-md max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-title-lg text-title-lg text-primary">Premium</h1>
+  </div>
+</header>
+
+<main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
+
+  <!-- Why the screen opened: the 50-case free limit, and what is still free. -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <div class="flex items-center">
+      <span class="material-symbols-outlined text-[20px] text-secondary">workspace_premium</span>
+      <span class="ml-sm flex-1 font-title-md text-title-md text-on-surface">Free Plan Limit Reached</span>
+    </div>
+    <p class="mt-sm font-body-md text-body-md text-on-surface">The free plan holds up to 50 cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.</p>
+  </div>
+
+  <div class="h-xl"></div>
+
+  <!-- What premium includes: one ticked row each. -->
+  <p class="px-xs pb-md font-label-lg text-label-lg text-on-surface-variant" style="letter-spacing:0.7px;">Premium Includes</p>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <div class="flex items-start">
+      <span class="material-symbols-outlined text-[18px] text-success">check_circle</span>
+      <span class="ml-sm flex-1 font-body-md text-body-md text-on-surface">Unlimited cases</span>
+    </div>
+    <div class="mt-md flex items-start">
+      <span class="material-symbols-outlined text-[18px] text-success">check_circle</span>
+      <span class="ml-sm flex-1 font-body-md text-body-md text-on-surface">Secure encrypted cloud backup</span>
+    </div>
+    <div class="mt-md flex items-start">
+      <span class="material-symbols-outlined text-[18px] text-success">check_circle</span>
+      <span class="ml-sm flex-1 font-body-md text-body-md text-on-surface">Your diary on every device you sign in on</span>
+    </div>
+    <div class="mt-md flex items-start">
+      <span class="material-symbols-outlined text-[18px] text-success">check_circle</span>
+      <span class="ml-sm flex-1 font-body-md text-body-md text-on-surface">Firm mode for your associates</span>
+    </div>
+  </div>
+
+  <div class="h-xl"></div>
+
+  <!-- The plans and their prices. Both actions are disabled on purpose: this
+       stub must not look like it can take money before Task 21 wires payments.
+       There is no lifetime plan, which is why only two rows are drawn. -->
+  <p class="px-xs pb-md font-label-lg text-label-lg text-on-surface-variant" style="letter-spacing:0.7px;">Plans</p>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Monthly</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳100 per month</p>
+      </div>
+      <div class="ml-md"><span class="btn-disabled inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Coming Soon</span></div>
+    </div>
+    <div class="my-lg border-t border-outline-variant"></div>
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Annual</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳1,000 per year</p>
+      </div>
+      <div class="ml-md"><span class="btn-disabled inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Coming Soon</span></div>
+    </div>
+  </div>
+
+  <p class="mt-md font-body-sm text-body-sm text-on-surface-variant">Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.</p>
+</main>
+
+</body>
+</html>

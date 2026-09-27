@@ -1,437 +1,341 @@
-<!DOCTYPE html><html class="light" lang="en" style="width: 390px; height: 885px; overflow: hidden; position: relative;"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Legal Diary - Case Notes</title>
+<title>Notes - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface": "#f7f9fb",
-                        "surface-dim": "#d8dadc",
-                        "inverse-on-surface": "#eff1f3",
-                        "primary": "#000000",
-                        "inverse-primary": "#bec6e0",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "tertiary-fixed": "#d3e4fe",
-                        "on-tertiary": "#ffffff",
-                        "background": "#f7f9fb",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-fixed": "#dbe1ff",
-                        "on-background": "#191c1e",
-                        "outline-variant": "#c6c6cd",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "error": "#ba1a1a",
-                        "surface-tint": "#565e74",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "secondary-container": "#316bf3",
-                        "on-primary": "#ffffff",
-                        "inverse-surface": "#2d3133",
-                        "on-secondary": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "surface-container-highest": "#e0e3e5",
-                        "primary-fixed-dim": "#bec6e0",
-                        "outline": "#76777d",
-                        "ink-dark": "#020617",
-                        "surface-variant": "#e0e3e5",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "on-primary-fixed": "#131b2e",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "on-secondary-container": "#fefcff",
-                        "surface-bright": "#f7f9fb",
-                        "on-error-container": "#93000a",
-                        "on-secondary-fixed": "#00174b",
-                        "court-notice": "#DC2626",
-                        "surface-container": "#eceef0",
-                        "on-surface-variant": "#45464d",
-                        "primary-container": "#131b2e",
-                        "on-tertiary-container": "#75859d",
-                        "on-surface": "#191c1e",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "surface-container-low": "#f2f4f6",
-                        "status-active": "#059669",
-                        "tertiary-container": "#0b1c30",
-                        "surface-container-high": "#e6e8ea",
-                        "on-primary-container": "#7c839b",
-                        "secondary": "#0051d5",
-                        "tertiary": "#000000",
-                        "primary-fixed": "#dae2fd",
-                        "on-error": "#ffffff"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "md": "16px",
-                        "unit": "4px",
-                        "edge-margin": "16px",
-                        "xl": "32px",
-                        "gutter": "12px",
-                        "xs": "4px",
-                        "sm": "8px",
-                        "lg": "24px"
-                    },
-                    "fontFamily": {
-                        "body-md": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "case-number": ["IBM Plex Sans"],
-                        "title-lg": ["Manrope"],
-                        "label-lg": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "headline-lg": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "headline-md": ["Manrope"],
-                        "label-md": ["IBM Plex Sans"]
-                    },
-                    "fontSize": {
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
-                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
-                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
-                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}]
-                    }
-                }
-            }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
-        }
-    </style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
 </head>
-<body class="bg-surface font-body-md text-on-surface selection:bg-secondary-fixed">
-<div class="flex h-screen overflow-hidden">
-<!-- SideNavBar (Shared Component) -->
-<aside class="hidden md:flex flex-col h-full w-64 bg-surface dark:bg-surface-container-lowest border-r border-outline-variant sticky left-0 top-0 z-50" id="main-sidebar">
-<div class="p-lg flex flex-col h-full">
-<!-- Header -->
-<div class="mb-xl">
-<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">Legal Diary</h1>
-<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Bangladesh Supreme Court</p>
-</div>
-<!-- CTA -->
-<button class="mb-lg w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm px-md rounded hover:opacity-90 transition-all active:scale-[0.98]" onclick="openCreateNoteModal()">
-<span class="material-symbols-outlined text-[20px]">add</span>
-<span class="font-label-lg text-label-lg">New Entry</span>
-</button>
-<!-- Navigation -->
-<nav class="flex-1 space-y-unit">
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="font-body-md text-body-md">Dashboard</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">event_note</span>
-<span class="font-body-md text-body-md">Daily Cause List</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">gavel</span>
-<span class="font-body-md text-body-md">Active Cases</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm rounded text-secondary dark:text-secondary-fixed font-bold border-l-4 border-secondary bg-secondary/5" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">description</span>
-<span class="font-body-md text-body-md">Case Notes</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">history_toggle_off</span>
-<span class="font-body-md text-body-md">Missed Dates</span>
-</a>
-</nav>
-<!-- Footer -->
-<div class="mt-auto pt-lg border-t border-outline-variant space-y-unit">
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">settings</span>
-<span class="font-body-md text-body-md">Settings</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm rounded group hover:bg-secondary/5 transition-colors text-on-surface-variant hover:text-primary" href="#">
-<span class="material-symbols-outlined">help_outline</span>
-<span class="font-body-md text-body-md">Support</span>
-</a>
-</div>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="flex-1 flex flex-col h-full overflow-hidden bg-surface">
-<!-- TopAppBar (Shared Component) -->
-<header class="flex justify-between items-center w-full px-edge-margin h-16 bg-surface-container-low dark:bg-surface-container-highest border-b border-outline-variant sticky top-0 z-40">
-<div class="flex items-center gap-md">
-<button class="md:hidden material-symbols-outlined text-on-surface" onclick="toggleMobileNav()">menu</button>
-<h2 class="font-title-lg text-title-lg text-primary">Notes</h2>
-</div>
-<div class="flex items-center gap-lg">
-<!-- Search Bar (on_right) -->
-<div class="hidden md:flex items-center bg-surface-container border border-outline-variant rounded px-md py-xs w-64 focus-within:ring-1 focus-within:ring-secondary transition-all">
-<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full placeholder:text-on-surface-variant/50" placeholder="Search notes..." type="text">
-</div>
-<div class="flex items-center gap-md">
-<button class="flex items-center gap-sm group">
-<span class="hidden lg:block font-label-lg text-label-lg text-on-surface-variant group-hover:text-primary transition-colors">Adv. Karim</span>
-</button>
-</div>
-</div>
-</header>
-<!-- Scrollable Canvas -->
-<div class="flex-1 overflow-y-auto custom-scrollbar p-lg">
-<!-- Notes Toolbar & Hero -->
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-md">
-<div>
+<body class="bg-background text-on-surface font-body-md">
+<main class="max-w-lg mx-auto min-h-screen flex flex-col bg-background">
 
-</div>
-<div class="flex items-center gap-sm">
-<button class="flex items-center gap-xs px-md py-sm bg-ink-dark text-on-tertiary font-label-lg text-label-lg rounded hover:opacity-90 shadow-sm transition-all active:scale-[0.98]" onclick="openCreateNoteModal()">
-<span class="material-symbols-outlined text-[18px]">note_add</span>
-                            Take a note
-                        </button>
-</div>
-</div>
-<!-- Bento Grid Layout for Notes -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg auto-rows-min">
-<!-- Featured Note Card (Wider) -->
-<div class="md:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-md hover:border-secondary transition-colors group relative overflow-hidden" style="transform: translateY(0px); cursor: pointer;">
-<div class="absolute top-0 right-0 p-md">
-<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:text-error transition-colors cursor-pointer">delete</span>
-<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:text-secondary transition-colors cursor-pointer ml-sm">push_pin</span>
-</div>
-<div class="flex items-center gap-sm">
-<span class="font-label-md text-label-md text-on-surface-variant">Modified: 07/06/26, 06:32 PM</span>
-</div>
-<h4 class="font-title-lg text-title-lg text-primary">Precedent Analysis: Property Dispute vs. Rajdhani Unnayan Kartripakkha</h4>
-<p class="font-body-md text-body-md text-on-surface-variant line-clamp-3">
-                            Focused on the recent ruling by the High Court Division regarding the 'Right to Property' under Article 42. Need to cross-reference with the 2012 amendment. Key witness testimony for next Tuesday is critical.
-                        </p>
-<div class="mt-auto pt-md flex items-center justify-between">
-<div class="flex -space-x-2"></div>
+  <!-- Case-screen header: menu, title, search, sync (disabled in Part A). The
+       view toggle is absent here, because this library has no case list to
+       switch; the host simply does not wire it. -->
+  <header class="h-14 bg-surface flex items-center">
+    <button aria-label="Open Navigation Menu" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <h1 class="flex-1 truncate font-title-lg text-title-lg text-primary">Notes</h1>
+    <button aria-label="Search" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    <button aria-label="Sync Requires a Premium Subscription" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+      <span class="material-symbols-outlined">sync</span>
+    </button>
+    <span class="w-1"></span>
+  </header>
 
-</div>
-</div>
-<!-- Regular Card 6 -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-md hover:border-secondary transition-colors group relative overflow-hidden" style="transform: translateY(0px); cursor: pointer;">
-<div class="absolute top-0 right-0 p-md">
-<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:text-error transition-colors cursor-pointer">delete</span>
-<span class="material-symbols-outlined text-on-surface-variant/40 group-hover:text-secondary transition-colors cursor-pointer ml-sm">push_pin</span>
-</div>
-<div class="flex items-center gap-sm">
-<span class="font-label-md text-label-md text-on-surface-variant">Modified: 08/06/26, 10:15 AM</span>
-</div>
-<h4 class="font-title-lg text-title-lg text-primary">Criminal Law - Bail Application Precedents</h4>
-<p class="font-body-md text-body-md text-on-surface-variant line-clamp-3">Reviewing the 2023 Supreme Court ruling on bail conditions for non-violent offenses. Specifically looking at the 'Flight Risk' criteria and how it applies to Case No. 892/2024. Need to draft the application by Friday.</p>
-<div class="mt-auto pt-md flex items-center justify-between">
-<div class="flex -space-x-2"></div>
+  <!-- The note cards. A card is one note: its modified date with the Delete and
+       Pin actions, its title, then its body — a text note's words or a to-do's
+       first three rows and a count of the rest. Tapping the card opens the
+       editor; the two kinds are told apart at a glance. -->
+  <div class="flex-1 p-md flex flex-col gap-md">
 
-</div>
-</div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+      <div class="flex items-center">
+        <span class="flex-1 font-label-md text-label-md text-on-surface-variant">Modified: 26/09/26, 10:45 AM</span>
+        <button aria-label="Delete" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+        <button aria-label="Pin" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined">push_pin</span>
+        </button>
+      </div>
+      <p class="mt-sm font-title-md text-title-md font-bold text-primary">Arguments on Charge</p>
+      <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Frame the charge under Section 265-C and keep the seized alamats list ready for the next hearing.</p>
+    </div>
 
-</div>
-</div>
-<!-- BottomNavBar (Shared Component - Mobile Only) -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+      <div class="flex items-center">
+        <span class="flex-1 font-label-md text-label-md text-on-surface-variant">Modified: 25/09/26, 04:15 PM</span>
+        <button aria-label="Delete" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+        <button aria-label="Pin" class="w-12 h-12 flex items-center justify-center text-secondary active:opacity-70">
+          <span class="material-symbols-outlined">push_pin</span>
+        </button>
+      </div>
+      <p class="mt-sm font-title-md text-title-md font-bold text-primary">Hearing Checklist</p>
+      <div class="mt-sm">
+        <div class="flex items-center pb-xs">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">check_box</span>
+          <span class="ml-sm flex-1 truncate font-body-md text-body-md text-on-surface-variant line-through">Prepare affidavit</span>
+        </div>
+        <div class="flex items-center pb-xs">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">check_box_outline_blank</span>
+          <span class="ml-sm flex-1 truncate font-body-md text-body-md text-on-surface-variant">Collect certified copy</span>
+        </div>
+        <div class="flex items-center pb-xs">
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">check_box_outline_blank</span>
+          <span class="ml-sm flex-1 truncate font-body-md text-body-md text-on-surface-variant">Call the client</span>
+        </div>
+        <p class="font-label-md text-label-md text-on-surface-variant">+2 More</p>
+      </div>
+    </div>
+  </div>
 
+  <!-- Bottom navigation: the four stored tabs, in order. -->
+  <div class="sticky bottom-0 relative">
+    <button aria-label="Add Note" class="absolute right-md bottom-20 w-14 h-14 rounded-2xl bg-secondary text-on-primary flex items-center justify-center shadow-lg active:opacity-80">
+      <span class="material-symbols-outlined text-[28px]">add</span>
+    </button>
+    <nav class="h-16 bg-surface border-t border-outline-variant rounded-t-xl flex">
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">error</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Overdue Dates</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">calendar_today</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Daily Cause List</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">work</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Active Cases</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">event</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Upcoming Cases</span>
+      </button>
+    </nav>
+  </div>
 </main>
+
+<!-- Tapping + asks which kind of note to create. The two rows are the whole
+     sheet: there is no confirm action, and dismissing it creates nothing.
+     Hidden until the FAB is tapped. -->
+<div class="hidden fixed inset-x-0 bottom-0 z-[100]">
+  <div class="max-w-lg mx-auto bg-surface-container-lowest rounded-t-lg py-sm">
+    <button class="w-full flex items-center px-md py-md active:bg-secondary-hover">
+      <span class="material-symbols-outlined text-on-surface-variant">notes</span>
+      <span class="ml-md font-body-lg text-body-lg text-on-surface">Text Note</span>
+    </button>
+    <button class="w-full flex items-center px-md py-md active:bg-secondary-hover">
+      <span class="material-symbols-outlined text-on-surface-variant">checklist</span>
+      <span class="ml-md font-body-lg text-body-lg text-on-surface">To-Do</span>
+    </button>
+  </div>
 </div>
-<!-- View/Edit Note Modal (Google Keep Full Screen Style) -->
-<div class="fixed inset-0 z-[110] flex items-center justify-center transition-all duration-300" id="create-note-modal">
-<!-- Modal Content - Full Screen Container -->
-<div class="relative bg-surface-container-lowest w-full h-full overflow-hidden flex flex-col transition-all duration-300 translate-y-0 scale-100">
-<div class="flex flex-col h-full">
-<!-- Header -->
-<div class="px-md py-sm flex items-center justify-between border-b border-outline-variant/20 sticky top-0 bg-surface-container-lowest z-10">
-<div class="flex items-center gap-md">
-<button class="material-symbols-outlined text-on-surface p-sm hover:bg-surface-container-high rounded-full transition-colors" onclick="closeCreateNoteModal()">arrow_back</button>
-<span class="font-label-md text-label-md text-on-surface-variant hidden md:inline" id="new-note-status">Drafting...</span>
+
+<!-- The note editor, text-note form: the top bar (back, Drafting… while new,
+     Pin, Delete, Save), the untitled title over a hairline rule, the plain
+     body, and the modified date in the bottom toolbar. It is a pushed
+     full-screen route, not a sheet. -->
+<div class="hidden fixed inset-0 z-[100] bg-surface-container-lowest">
+  <div class="h-full flex flex-col">
+    <div class="px-md py-sm border-b border-outline-variant flex items-center">
+      <button aria-label="Close" class="w-12 h-12 flex items-center justify-center text-on-surface active:opacity-70">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="flex-1 font-label-md text-label-md text-on-surface-variant">Drafting...</span>
+      <button aria-label="Pin" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+        <span class="material-symbols-outlined">push_pin</span>
+      </button>
+      <button aria-label="Delete" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+      <button aria-label="Save" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+        <span class="material-symbols-outlined">check</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-lg py-xl">
+      <p class="font-title-lg text-primary" style="font-size:18px; line-height:28px;">Lists to Prepare</p>
+      <div class="my-md border-t border-outline-variant"></div>
+      <p class="font-body-lg text-body-lg text-on-surface">Witness list, documents list and the synopsis for the next date of hearing. Keep the certified copies together in one folder.</p>
+    </div>
+    <div class="px-lg py-md border-t border-outline-variant">
+      <span class="font-label-md text-label-md text-on-surface-variant">Drafting...</span>
+    </div>
+  </div>
 </div>
-<div class="flex items-center gap-xs">
-<button class="material-symbols-outlined text-on-surface-variant p-sm hover:bg-surface-container-high rounded-full transition-colors" title="Pin note">push_pin</button>
 
-<button class="material-symbols-outlined text-on-surface-variant p-sm hover:bg-surface-container-high rounded-full transition-colors" title="Delete">delete</button>
-
-<button class="material-symbols-outlined text-on-surface-variant p-sm hover:bg-surface-container-high rounded-full transition-colors" title="Save and close" onclick="closeCreateNoteModal()">check</button></div>
+<!-- The same editor as a to-do: Google Keep's list body — a tick, an editable
+     item and a remove button per row, with a filled Add Item action beneath
+     them. A ticked row drops below the unticked ones and reads struck
+     through; Enter on a row opens the next one. -->
+<div class="hidden fixed inset-0 z-[100] bg-surface-container-lowest">
+  <div class="h-full flex flex-col">
+    <div class="px-md py-sm border-b border-outline-variant flex items-center">
+      <button aria-label="Close" class="w-12 h-12 flex items-center justify-center text-on-surface active:opacity-70">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="flex-1 font-label-md text-label-md text-on-surface-variant">Drafting...</span>
+      <button aria-label="Pin" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+        <span class="material-symbols-outlined">push_pin</span>
+      </button>
+      <button aria-label="Delete" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+      <button aria-label="Save" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+        <span class="material-symbols-outlined">check</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-lg py-xl">
+      <p class="font-title-lg text-primary" style="font-size:18px; line-height:28px;">Hearing Checklist</p>
+      <div class="my-md border-t border-outline-variant"></div>
+      <div class="flex items-center py-xs">
+        <span class="w-8 material-symbols-outlined text-secondary">check_box</span>
+        <span class="ml-sm flex-1 font-body-lg text-body-lg text-on-surface-variant line-through">Prepare affidavit</span>
+        <button aria-label="Remove Item" class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="flex items-center py-xs">
+        <span class="w-8 material-symbols-outlined text-on-surface-variant">check_box_outline_blank</span>
+        <span class="ml-sm flex-1 font-body-lg text-body-lg text-on-surface">Collect certified copy</span>
+        <button aria-label="Remove Item" class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="flex items-center py-xs">
+        <span class="w-8 material-symbols-outlined text-on-surface-variant">check_box_outline_blank</span>
+        <span class="ml-sm flex-1 font-body-lg text-body-lg text-on-surface">List Item</span>
+        <button aria-label="Remove Item" class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:opacity-70">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="mt-xs">
+        <button class="px-xs py-sm rounded bg-secondary text-on-primary flex items-center gap-xs font-body-lg text-body-lg active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">add</span>Add Item
+        </button>
+      </div>
+    </div>
+    <div class="px-lg py-md border-t border-outline-variant">
+      <span class="font-label-md text-label-md text-on-surface-variant">Drafting...</span>
+    </div>
+  </div>
 </div>
-<!-- Scrollable content area -->
-<div class="flex-1 overflow-y-auto custom-scrollbar">
-<div class="max-w-4xl mx-auto w-full px-lg md:px-xl py-xl flex flex-col gap-lg h-full">
-<!-- Title Field -->
-<textarea class="w-full border-none focus:ring-0 bg-transparent font-headline-lg text-headline-lg text-primary placeholder:text-on-surface-variant/40 p-0 resize-none overflow-hidden" id="new-note-title" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'" placeholder="Note title" rows="1" style="min-height: 40px; height: 77px;"></textarea>
-<!-- Note Field -->
-<textarea class="w-full border-none focus:ring-0 bg-transparent font-body-lg text-body-lg text-on-surface placeholder:text-on-surface-variant/40 p-0 resize-none min-h-[50vh] h-full" id="new-note-content" placeholder="Enter your note here..." rows="10"></textarea>
+
+<!-- The shared delete-confirmation window, reused by the card's Delete action
+     and the editor's. 112 x 48 actions, Cancel muted and Delete red. -->
+<div class="hidden fixed inset-0 z-[100] bg-overlay-54 p-md items-center justify-center" id="confirm-delete-modal">
+  <div class="bg-surface-container-lowest rounded-lg w-full max-w-[384px] p-xl">
+    <h2 class="text-center font-title-lg text-title-lg text-primary">Confirm Delete</h2>
+    <p class="mt-md text-center font-body-md text-body-md text-on-surface-variant">Are you sure you want to delete this item?</p>
+    <div class="mt-lg flex justify-center gap-md">
+      <button class="w-[112px] h-12 rounded bg-surface text-primary font-body-lg text-body-lg active:opacity-70">Cancel</button>
+      <button class="w-[112px] h-12 rounded bg-error text-on-error font-body-lg text-body-lg active:opacity-80">Delete</button>
+    </div>
+  </div>
 </div>
-</div>
-<!-- Bottom toolbar -->
-<div class="px-lg py-md border-t border-outline-variant/20 bg-surface-container-lowest flex items-center justify-between">
-<div class="flex items-center gap-md text-on-surface-variant">
-<span class="font-label-md text-label-md" id="modal-modified-date-bottom">Modified: 08/06/26, 10:15 AM</span>
-<div class="h-4 w-px bg-outline-variant"></div>
-<div class="flex items-center gap-sm">
 
-
-
-</div>
-</div>
-<div class="flex items-center gap-sm">
-
-
-
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Mobile Navigation Drawer Overlay -->
-<div class="fixed inset-0 bg-ink-dark/50 z-[60] hidden transition-opacity duration-300 opacity-0" id="mobile-drawer" onclick="toggleMobileNav()">
-<div class="w-72 bg-surface h-full transform -translate-x-full transition-transform duration-300 ease-in-out p-lg flex flex-col" onclick="event.stopPropagation()">
-<div class="flex justify-between items-center mb-xl">
-<h2 class="font-headline-md text-headline-md font-bold text-primary">Legal Diary</h2>
-<button class="material-symbols-outlined" onclick="toggleMobileNav()">close</button>
-</div>
-<nav class="space-y-md">
-<a class="flex items-center gap-md py-sm text-on-surface-variant" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
-<a class="flex items-center gap-md py-sm text-on-surface-variant" href="#"><span class="material-symbols-outlined">event_note</span>Daily Cause List</a>
-<a class="flex items-center gap-md py-sm text-secondary font-bold" href="#"><span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">description</span>Notes</a>
-<a class="flex items-center gap-md py-sm text-on-surface-variant" href="#"><span class="material-symbols-outlined">settings</span>Settings</a>
-</nav>
-</div>
-</div>
-<script>
-        // Create/Edit Note Modal Logic
-        function openCreateNoteModal(title = '', content = '', date = 'Drafting...') {
-            const modal = document.getElementById('create-note-modal');
-            const container = modal.querySelector('.relative');
-            
-            // Set initial content if editing
-            const titleInput = document.getElementById('new-note-title');
-            const contentInput = document.getElementById('new-note-content');
-            titleInput.value = title;
-            contentInput.value = content;
-            document.getElementById('modal-modified-date-bottom').innerText = date;
-            
-            // Auto-resize title
-            titleInput.style.height = '';
-            titleInput.style.height = titleInput.scrollHeight + 'px';
-
-            modal.classList.remove('hidden', 'pointer-events-none');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                container.classList.remove('translate-y-8', 'scale-95');
-                container.classList.add('translate-y-0', 'scale-100');
-                if(!title) titleInput.focus();
-            }, 10);
-        }
-
-        function closeCreateNoteModal() {
-            const modal = document.getElementById('create-note-modal');
-            const container = modal.querySelector('.relative');
-            
-            modal.classList.add('opacity-0');
-            container.classList.remove('translate-y-0', 'scale-100');
-            container.classList.add('translate-y-8', 'scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('pointer-events-none');
-                document.getElementById('new-note-title').value = '';
-                document.getElementById('new-note-content').value = '';
-            }, 300);
-        }
-
-        function saveNewNote() {
-            const title = document.getElementById('new-note-title').value;
-            const content = document.getElementById('new-note-content').value;
-            console.log('Saving Note:', { title, content });
-            closeCreateNoteModal();
-        }
-
-        function toggleMobileNav() {
-            const drawer = document.getElementById('mobile-drawer');
-            const drawerContent = drawer.querySelector('div');
-            
-            if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-                setTimeout(() => {
-                    drawer.classList.add('opacity-100');
-                    drawerContent.classList.remove('-translate-x-full');
-                }, 10);
-            } else {
-                drawer.classList.remove('opacity-100');
-                drawerContent.classList.add('-translate-x-full');
-                setTimeout(() => {
-                    drawer.classList.add('hidden');
-                }, 300);
-            }
-        }
-
-        // Search bar interaction
-        const searchInput = document.querySelector('input[type="text"]');
-        if (searchInput) {
-            searchInput.addEventListener('focus', () => {
-                searchInput.parentElement.classList.add('md:w-80');
-            });
-            searchInput.addEventListener('blur', () => {
-                searchInput.parentElement.classList.remove('md:w-80');
-            });
-        }
-
-        // Attach click listeners to all note cards to open in full screen edit mode
-        document.querySelectorAll('.bg-surface-container-lowest.border.rounded-xl').forEach(card => {
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', (e) => {
-                // Ignore if clicked on delete/pin icons
-                if (!e.target.closest('.material-symbols-outlined')) {
-                    const title = card.querySelector('h4').innerText;
-                    const content = card.querySelector('p').innerText;
-                    const date = card.querySelector('.font-label-md').innerText;
-                    openCreateNoteModal(title, content, date);
-                }
-            });
-            
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-2px)';
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0)';
-            });
-        });
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-
-</body></html>
+</body>
+</html>

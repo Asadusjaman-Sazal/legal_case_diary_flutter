@@ -626,15 +626,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_title => 'Premium';
 
   @override
-  String get paywall_limitTitle => 'Free plan limit reached';
+  String get paywall_limitTitle => 'Free Plan Limit Reached';
 
   @override
   String paywall_limitBody(String limit) {
-    return 'The free plan holds up to $limit cases. Deleting a case frees a slot, and everything else — Client Management, the Daily Cause List, editing and printing — stays free.';
+    return 'The free plan holds up to $limit cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.';
   }
 
   @override
-  String get paywall_benefitsTitle => 'Premium includes';
+  String get paywall_benefitsTitle => 'Premium Includes';
 
   @override
   String get paywall_benefitUnlimitedCases => 'Unlimited cases';
@@ -669,7 +669,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_comingSoon => 'Coming soon';
+  String get paywall_comingSoon => 'Coming Soon';
 
   @override
   String get paywall_note =>
@@ -2347,7 +2347,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSupport_faqLink => 'Open Guidelines & FAQs';
 
   @override
-  String get settingsSupport_channelsLabel => 'Write to us';
+  String get settingsSupport_channelsLabel => 'Write To Us';
 
   @override
   String get settingsSupport_channelsHint =>
@@ -2360,7 +2360,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSupport_channelEmail => 'Email';
 
   @override
-  String get settingsSupport_previewLabel => 'The message that opens';
+  String get settingsSupport_previewLabel => 'The Message That Opens';
 
   @override
   String get settingsSupport_messageSubject => 'Legal Case Diary support';
@@ -2383,14 +2383,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'What happened, and what I did just before it:';
 
   @override
-  String get settingsSupport_warningTitle => 'Never send these';
+  String get settingsSupport_warningTitle => 'Never Send These';
 
   @override
   String get settingsSupport_warningBody =>
       'Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.';
 
   @override
-  String get settingsSupport_replyTitle => 'When you will hear back';
+  String get settingsSupport_replyTitle => 'When You Will Hear Back';
 
   @override
   String get settingsSupport_replyBody =>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Terms of Service - Legal Case Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-40 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Terms of Service</h1>
+  </div>
+</header>
+
+<!-- The same MarkdownDocumentView the Privacy Policy uses, over the bundled
+     docs/legal/terms_of_service_EN.md — one screen renders both documents, so
+     the two mockups differ only in their title and their text.
+
+     This is the document's opening as a representative excerpt — the real file
+     is thousands of words and the screen scrolls all of it; no block type is
+     omitted from the sample below. -->
+<main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
+
+  <h1 class="font-headline-md text-headline-md font-bold text-primary">Terms of Service — Legal Case Diary</h1>
+
+  <p class="mt-sm font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;"><strong class="text-on-surface">Effective date:</strong> [TO CONFIRM — set on release]</p>
+
+  <p class="mb-md font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;"><strong class="text-on-surface">Applies to:</strong> the Legal Case Diary Android application ("the app")</p>
+
+  <p class="mb-md font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;"><strong class="text-on-surface">Document version:</strong> 1.0 (draft)</p>
+
+  <div class="mb-md p-md bg-surface-container-low border-l-[3px] border-secondary">
+    <p class="font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;"><strong class="text-on-surface">Status:</strong> draft for legal review. Items marked <strong class="text-on-surface">[TO CONFIRM]</strong> are business decisions that must be settled before publication. Sections about paid subscriptions take effect when purchasing opens; the released version is free and offline.</p>
+  </div>
+
+  <div class="my-md border-t border-outline-variant"></div>
+
+  <h2 class="font-title-lg text-title-lg text-primary">1. Agreement</h2>
+
+  <p class="mt-sm font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;">By installing or using Legal Case Diary you agree to these Terms. If you do not agree, do not use the app. If you use the app on behalf of a chamber or firm, you confirm you are authorised to accept these Terms for it.</p>
+
+  <p class="mb-md font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;">The app is published by <strong class="text-on-surface">Asadusjaman Sazal</strong>, an individual developer in Narayanganj, Bangladesh ("we", "us"). Contact: adv.asadusjaman@gmail.com, WhatsApp +880 1835 252721.</p>
+
+  <div class="my-md border-t border-outline-variant"></div>
+
+  <h2 class="font-title-lg text-title-lg text-primary">2. What the app is — and what it is not</h2>
+
+  <p class="mt-sm font-body-md text-body-md text-on-surface-variant" style="line-height:1.6;">Legal Case Diary is a <strong class="text-on-surface">personal record-keeping tool</strong> for legal practitioners. It helps you record cases, hearing dates, steps, notes and references, see a daily cause list, and be reminded of hearings.</p>
+</main>
+
+</body>
+</html>

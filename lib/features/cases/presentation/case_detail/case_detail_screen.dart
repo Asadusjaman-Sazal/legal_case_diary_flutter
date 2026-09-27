@@ -1209,7 +1209,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                l.caseCard_nextDate.toUpperCase(),
+                // Title Case from the ARB, exactly as the mockup draws it.
+                l.caseCard_nextDate,
                 style: AppTypography.labelLg.copyWith(
                   color: white.withValues(alpha: 0.8),
                   letterSpacing: 1.2,

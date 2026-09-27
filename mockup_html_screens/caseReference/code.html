@@ -1,291 +1,292 @@
-<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Case Reference - Digital Case Diary</title>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<!-- Tailwind CSS -->
+<title>Case Reference - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "status-active": "#059669",
-                    "tertiary-fixed-dim": "#b7c8e1",
-                    "on-surface": "#191c1e",
-                    "inverse-primary": "#bec6e0",
-                    "court-notice": "#DC2626",
-                    "on-tertiary": "#ffffff",
-                    "inverse-on-surface": "#eff1f3",
-                    "on-secondary": "#ffffff",
-                    "on-surface-variant": "#45464d",
-                    "on-primary-container": "#7c839b",
-                    "secondary-fixed-dim": "#b4c5ff",
-                    "primary": "#000000",
-                    "surface-container-highest": "#e0e3e5",
-                    "surface-dim": "#d8dadc",
-                    "on-secondary-fixed": "#00174b",
-                    "on-secondary-fixed-variant": "#003ea8",
-                    "primary-fixed": "#dae2fd",
-                    "secondary-fixed": "#dbe1ff",
-                    "surface-tint": "#565e74",
-                    "primary-fixed-dim": "#bec6e0",
-                    "on-primary": "#ffffff",
-                    "ink-dark": "#020617",
-                    "secondary-container": "#316bf3",
-                    "surface-container": "#eceef0",
-                    "tertiary-container": "#0b1c30",
-                    "surface-variant": "#F1F5F9",
-                    "outline": "#76777d",
-                    "surface-container-low": "#f2f4f6",
-                    "on-secondary-container": "#fefcff",
-                    "error": "#ba1a1a",
-                    "surface-container-lowest": "#ffffff",
-                    "on-tertiary-container": "#75859d",
-                    "outline-variant": "#c6c6cd",
-                    "error-container": "#ffdad6",
-                    "tertiary": "#000000",
-                    "on-primary-fixed": "#131b2e",
-                    "inverse-surface": "#2d3133",
-                    "surface-container-high": "#e6e8ea",
-                    "surface-bright": "#f7f9fb",
-                    "on-primary-fixed-variant": "#3f465c",
-                    "surface": "#f7f9fb",
-                    "on-error": "#ffffff",
-                    "on-tertiary-fixed": "#0b1c30",
-                    "on-error-container": "#93000a",
-                    "primary-container": "#131b2e",
-                    "secondary": "#0051d5",
-                    "background": "#f7f9fb",
-                    "on-background": "#191c1e",
-                    "tertiary-fixed": "#d3e4fe",
-                    "on-tertiary-fixed-variant": "#38485d"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.125rem",
-                    "lg": "0.25rem",
-                    "xl": "0.5rem",
-                    "full": "0.75rem"
-            },
-            "spacing": {
-                    "xs": "4px",
-                    "md": "16px",
-                    "lg": "24px",
-                    "edge-margin": "16px",
-                    "xl": "32px",
-                    "unit": "4px",
-                    "sm": "8px",
-                    "gutter": "12px"
-            },
-            "fontFamily": {
-                    "title-md": ["Inter"],
-                    "label-md": ["IBM Plex Sans"],
-                    "body-sm": ["Inter"],
-                    "body-md": ["Inter"],
-                    "body-lg": ["Inter"],
-                    "case-number": ["IBM Plex Sans"],
-                    "label-lg": ["IBM Plex Sans"],
-                    "headline-lg": ["Manrope"],
-                    "headline-md": ["Manrope"],
-                    "title-lg": ["Manrope"]
-            },
-            "fontSize": {
-                    "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
-                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
-                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
-                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
-                    "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
-            }
-          },
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
         },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
+        }
       }
-    </script>
+    }
+  }
+</script>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        .pagination-active {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 10px;
-        }
-        @media (max-width: 768px) {
-            .hide-mobile { display: none; }
-        }
-    </style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
 </head>
-<body class="bg-background text-on-background min-h-screen pb-[80px]">
-<!-- Top AppBar -->
-<header class="bg-surface sticky top-0 z-50 flex justify-between items-center px-edge-margin h-[56px] w-full border-b border-outline-variant">
-<div class="flex items-center gap-md">
-<button aria-label="Menu" class="p-2 hover:bg-surface-container transition-colors rounded-full">
-<span class="material-symbols-outlined text-primary">menu</span>
-</button>
-<h1 class="font-headline-md text-[20px] font-bold text-primary">Case Reference</h1>
-</div>
-<div class="flex items-center gap-xs">
-<button class="p-2 hover:bg-surface-container transition-colors rounded-full">
-<span class="material-symbols-outlined text-primary">search</span>
-</button>
-<button class="p-2 hover:bg-surface-container transition-colors rounded-full" style="transform: scale(1);">
+<body class="bg-background text-on-surface font-body-md">
+<main class="max-w-lg mx-auto min-h-screen flex flex-col bg-background">
 
-</button>
-</div>
-</header>
-<main class="p-edge-margin space-y-md">
-<!-- Action & Search Section -->
-<div class="space-y-md">
-<button class="w-full bg-primary text-on-primary py-3 px-gutter rounded-xl font-title-md flex items-center justify-center gap-sm active:scale-95 transition-all shadow-md" id="open-modal-btn">
-<span class="material-symbols-outlined">add</span>
-                Add Case Reference
-            </button>
-<div class="relative">
+  <!-- Case-screen header: menu, title, search, sync (disabled in Part A). No
+       view toggle, because this library has no case list to switch. -->
+  <header class="h-14 bg-surface flex items-center">
+    <button aria-label="Open Navigation Menu" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <h1 class="flex-1 truncate font-title-lg text-title-lg text-primary">Case Reference</h1>
+    <button aria-label="Search" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    <button aria-label="Sync Requires a Premium Subscription" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+      <span class="material-symbols-outlined">sync</span>
+    </button>
+    <span class="w-1"></span>
+  </header>
 
+  <!-- One card per reference: the citation and statute as grey chips with the
+       3-dot menu on the right, then the section / article, the description, and
+       the comments in the black-bordered note box. Pinned items lead the list;
+       tapping the card opens the same form in edit mode. -->
+  <div class="flex-1 p-md flex flex-col gap-md">
 
-</div>
-</div>
-<!-- Reference Feed / Mobile List -->
-<div class="space-y-gutter">
-<!-- Reference Item 1 -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:border-secondary transition-colors">
-<div class="flex justify-between items-start mb-sm">
-<div class="flex gap-xs items-center"><span class="inline-block px-sm py-1 rounded-lg font-label-md bg-secondary-fixed text-on-secondary-fixed">29 DLR (AD), P-69-73</span><span class="inline-block px-sm py-1 bg-secondary-fixed text-on-secondary-fixed rounded-lg font-label-md">CRPC</span></div><button class="text-outline hover:text-primary transition-colors">
-<span class="material-symbols-outlined">more_vert</span>
-</button>
-</div>
-<h2 class="font-case-number text-primary mb-xs">29 DLR (AD), SEC-54-CRPC</h2>
-<p class="font-body-md text-on-surface-variant mb-md">Principles regarding preventive detention and immediate production of an arrested person before the Magistrate.<br>"Actual Ref from DLR"</p>
-<div class="bg-surface-variant rounded-lg p-sm border-l-4 border-secondary">
-<p class="font-label-md text-on-surface-variant italic">Add comments or private notes here...</p>
-</div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+      <div class="flex items-start">
+        <div class="flex-1 flex flex-wrap gap-sm">
+          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">29 DLR (AD), P-69-73</span>
+          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">CRPC</span>
+        </div>
+        <button aria-label="More Options" class="w-10 h-10 flex items-center justify-center text-outline active:opacity-70">
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </div>
+      <p class="mt-sm font-title-md text-title-md font-semibold text-primary">Section 54 CRPC</p>
+      <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Principles regarding preventive detention and immediate production of an arrested person before the Magistrate.</p>
+      <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
+        <p class="font-label-md text-label-md italic text-on-surface-variant">Add comments or private notes here...</p>
+      </div>
+    </div>
 
-</div>
-<!-- Reference Item 2 -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
-<div class="flex justify-between items-start mb-sm"><span class="inline-block px-sm py-1 rounded-lg font-label-md bg-secondary-fixed text-on-secondary-fixed">32 DLR (AD), P-102</span>
-<span class="inline-block px-sm py-1 rounded-lg font-label-md bg-secondary-fixed text-on-secondary-fixed">Constitution</span>
-<button class="text-outline">
-<span class="material-symbols-outlined">more_vert</span>
-</button>
-</div>
-<h2 class="font-case-number text-primary mb-xs">32 DLR (AD) 201</h2>
-<p class="font-body-md text-on-surface-variant mb-md">Fundamental rights of every citizen to be protected under the law as per Article 31 of the Constitution.</p>
-<div class="bg-surface-variant rounded-lg p-sm border-l-4 border-secondary">
-<p class="font-body-md text-primary">Key cite for writ petitions involving unlawful detention cases.</p>
-</div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+      <div class="flex items-start">
+        <div class="flex-1 flex flex-wrap gap-sm">
+          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">32 DLR (AD), P-102</span>
+          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">Constitution</span>
+        </div>
+        <button aria-label="More Options" class="w-10 h-10 flex items-center justify-center text-outline active:opacity-70">
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </div>
+      <p class="mt-sm font-title-md text-title-md font-semibold text-primary">Article 31</p>
+      <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Fundamental rights of every citizen to be protected under the law as per Article 31 of the Constitution.</p>
+      <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
+        <p class="font-label-md text-label-md italic text-on-surface-variant">Key cite for writ petitions involving unlawful detention cases.</p>
+      </div>
+    </div>
+  </div>
 
-</div>
-<!-- Reference Item 3 -->
-<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
-<div class="flex justify-between items-start mb-sm"><span class="inline-block px-sm py-1 rounded-lg font-label-md bg-secondary-fixed text-on-secondary-fixed">15 MLR (AD), P-22-25</span>
-<span class="inline-block px-sm py-1 bg-secondary-fixed text-on-secondary-fixed rounded-lg font-label-md">CPC</span>
-<button class="text-outline">
-<span class="material-symbols-outlined">more_vert</span>
-</button>
-</div>
-<h2 class="font-case-number text-primary mb-xs">Order 39 Rule 1 &amp; 2 CPC</h2>
-<p class="font-body-md text-on-surface-variant mb-md">Granting of temporary injunction in suits where the property in dispute is in danger of being wasted or damaged.</p>
-<div class="bg-surface-variant rounded-lg p-sm border-l-4 border-secondary">
-<p class="font-label-md text-on-surface-variant italic">Add comments or private notes here...</p>
-</div>
-
-</div>
-<!-- Empty State / Placeholder Image -->
-</div>
-<!-- Pagination -->
-
+  <!-- Bottom navigation: the four stored tabs, in order. -->
+  <div class="sticky bottom-0 relative">
+    <button aria-label="Add Case Reference" class="absolute right-md bottom-20 w-14 h-14 rounded-2xl bg-secondary text-on-primary flex items-center justify-center shadow-lg active:opacity-80">
+      <span class="material-symbols-outlined text-[28px]">add</span>
+    </button>
+    <nav class="h-16 bg-surface border-t border-outline-variant rounded-t-xl flex">
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">error</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Overdue Dates</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">calendar_today</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Daily Cause List</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">work</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Active Cases</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">event</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Upcoming Cases</span>
+      </button>
+    </nav>
+  </div>
 </main>
-<!-- Bottom Navigation Bar -->
 
-<!-- Add Reference Modal -->
-<div class="fixed inset-0 z-[60] hidden" id="add-reference-modal">
-<div class="bg-surface w-full h-full overflow-hidden flex flex-col bg-background">
-<div class="flex items-center justify-between p-md border-b border-outline-variant bg-primary relative">
-<h3 class="font-title-lg text-on-primary flex-1 text-center">Add Case Reference</h3>
-<button class="p-2 hover:bg-white/10 rounded-full transition-colors absolute right-md" id="close-modal-btn"><span class="material-symbols-outlined text-on-primary">close</span></button>
+<!-- The 3-dot menu on a card: Pin (or Unpin), then Delete in the error colour.
+     Hidden until the menu is tapped. -->
+<div class="hidden fixed inset-0 z-[100] bg-overlay-54 p-md items-center justify-center">
+  <div class="bg-surface-container-lowest rounded-lg w-full max-w-[240px] p-sm">
+    <button class="w-full flex items-center px-sm py-md rounded active:bg-secondary-hover">
+      <span class="material-symbols-outlined text-on-surface-variant">push_pin</span>
+      <span class="ml-sm font-body-md text-body-md text-on-surface">Pin</span>
+    </button>
+    <button class="w-full flex items-center px-sm py-md rounded active:bg-secondary-hover">
+      <span class="material-symbols-outlined text-error">delete</span>
+      <span class="ml-sm font-body-md text-body-md text-error">Delete</span>
+    </button>
+  </div>
 </div>
-<form class="p-md space-y-md overflow-y-auto flex-1"><div class="flex flex-col gap-unit"><label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="ref-no">Reference &amp; Page No</label><div class="legal-input bg-surface-container-low border-b border-outline-variant transition-all rounded-t-lg focus-within:bg-surface-container"><input class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 font-case-number text-case-number text-on-surface placeholder:text-outline/50" id="ref-no" name="ref-no" placeholder="e.g. 25 DLR (AD) 142" type="text"></div></div><div class="flex flex-col gap-unit"><label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="statute">Statute</label><div class="legal-input bg-surface-container-low border-b border-outline-variant transition-all rounded-t-lg focus-within:bg-surface-container"><input class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 font-label-lg text-label-lg text-on-surface placeholder:text-outline/50" id="statute" name="statute" placeholder="e.g. Code of Civil Procedure" type="text"></div></div><div class="flex flex-col gap-unit"><label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="section">Section/Article</label><div class="legal-input bg-surface-container-low border-b border-outline-variant transition-all rounded-t-lg focus-within:bg-surface-container"><input class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 font-label-lg text-label-lg text-on-surface placeholder:text-outline/50" id="section" name="section" placeholder="e.g. Section 115" type="text"></div></div><div class="flex flex-col gap-unit"><label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="description">Title &amp; Description</label><div class="legal-input bg-surface-container-low border-b border-outline-variant transition-all rounded-t-lg focus-within:bg-surface-container"><textarea class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-outline/50 resize-none h-[192px]" id="description" name="description" placeholder="Summary of the legal principle or ruling..." rows="3"></textarea></div></div><div class="flex flex-col gap-unit"><label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="notes">Comments/Notes</label><div class="legal-input bg-surface-container-low border-b border-outline-variant transition-all rounded-t-lg focus-within:bg-surface-container"><textarea class="w-full bg-transparent border-none focus:ring-0 px-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-outline/50 resize-none" id="notes" name="notes" placeholder="Personal observations or case-specific nuances..." rows="4"></textarea></div></div></form>
-<div class="p-md border-t border-outline-variant flex gap-sm"><button class="py-3 bg-primary text-on-primary font-title-md rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 relative w-full" id="save-reference-btn">Save Reference</button></div>
+
+<!-- The Add / Edit Case Reference form: a pushed full-screen route with the ink
+     header, the five labelled bottom-border fields, and the Save action pinned
+     to the bottom. The title reads "Edit Case Reference" when a card opened
+     it. -->
+<div class="hidden fixed inset-0 z-[100] bg-surface-container-lowest">
+  <div class="h-full flex flex-col">
+    <div class="bg-primary px-sm py-md flex items-center">
+      <span class="w-lg"></span>
+      <span class="flex-1 text-center font-title-lg text-title-lg text-on-primary">Add Case Reference</span>
+      <button aria-label="Close" class="w-12 h-12 flex items-center justify-center text-on-primary active:opacity-70">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-md">
+      <div class="pb-md">
+        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Reference &amp; Page No</p>
+        <div class="rounded-t-lg bg-surface-container-low border-b border-outline-variant px-md py-sm">
+          <span class="font-case-number text-case-number text-outline">e.g. 25 DLR (AD) 142</span>
+        </div>
+      </div>
+      <div class="pb-md">
+        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Statute</p>
+        <div class="rounded-t-lg bg-surface-container-low border-b border-outline-variant px-md py-sm">
+          <span class="font-label-lg text-label-lg text-outline">e.g. CRPC</span>
+        </div>
+      </div>
+      <div class="pb-md">
+        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Section/Article</p>
+        <div class="rounded-t-lg bg-surface-container-low border-b border-outline-variant px-md py-sm">
+          <span class="font-label-lg text-label-lg text-outline">e.g. Section 54</span>
+        </div>
+      </div>
+      <div class="pb-md">
+        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Title &amp; Description</p>
+        <div class="rounded-t-lg bg-surface-container-low border-b border-outline-variant px-md py-sm h-[96px]">
+          <span class="font-body-md text-body-md text-outline">Title &amp; description</span>
+        </div>
+      </div>
+      <div class="pb-md">
+        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Comments/Notes</p>
+        <div class="rounded-t-lg bg-surface-container-low border-b border-outline-variant px-md py-sm h-[72px]">
+          <span class="font-body-md text-body-md text-outline">Add comments or private notes here...</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-md">
+      <button class="w-full min-h-[56px] rounded bg-secondary text-on-primary flex items-center justify-center font-title-md text-title-md active:opacity-80">Save Reference</button>
+    </div>
+  </div>
 </div>
+
+<!-- The shared delete-confirmation window, opened from the card's menu. -->
+<div class="hidden fixed inset-0 z-[100] bg-overlay-54 p-md items-center justify-center" id="confirm-delete-modal">
+  <div class="bg-surface-container-lowest rounded-lg w-full max-w-[384px] p-xl">
+    <h2 class="text-center font-title-lg text-title-lg text-primary">Confirm Delete</h2>
+    <p class="mt-md text-center font-body-md text-body-md text-on-surface-variant">Are you sure you want to delete this item?</p>
+    <div class="mt-lg flex justify-center gap-md">
+      <button class="w-[112px] h-12 rounded bg-surface text-primary font-body-lg text-body-lg active:opacity-70">Cancel</button>
+      <button class="w-[112px] h-12 rounded bg-error text-on-error font-body-lg text-body-lg active:opacity-80">Delete</button>
+    </div>
+  </div>
 </div>
-<script>
-        // Micro-interactions
-        document.querySelectorAll('.hover\\:bg-surface-container').forEach(button => {
-            button.addEventListener('mousedown', () => {
-                button.style.transform = 'scale(0.96)';
-            });
-            button.addEventListener('mouseup', () => {
-                button.style.transform = 'scale(1)';
-            });
-        });
 
-        // Search highlight effect
-        const searchInput = document.querySelector('input[type="text"]');
-        if (searchInput) {
-            searchInput.addEventListener('focus', () => {
-                searchInput.parentElement.classList.add('ring-2', 'ring-secondary/20');
-            });
-            searchInput.addEventListener('blur', () => {
-                searchInput.parentElement.classList.remove('ring-2', 'ring-secondary/20');
-            });
-        }
-
-        // Modal Logic
-        const openModalBtn = document.getElementById('open-modal-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const addReferenceModal = document.getElementById('add-reference-modal');
-        const saveReferenceBtn = document.getElementById('save-reference-btn');
-
-        if (openModalBtn && addReferenceModal) {
-            openModalBtn.addEventListener('click', () => {
-                addReferenceModal.classList.remove('hidden');
-                addReferenceModal.classList.add('flex');
-            });
-        }
-
-        const hideModal = () => {
-            addReferenceModal.classList.add('hidden');
-            addReferenceModal.classList.remove('flex');
-        };
-
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', hideModal);
-        }
-
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', hideModal);
-        }
-
-        if (saveReferenceBtn) {
-            saveReferenceBtn.addEventListener('click', () => {
-                console.log('Case reference saved successfully');
-                hideModal();
-            });
-        }
-    </script>
-
-
-
-
-
-
-</body></html>
+</body>
+</html>

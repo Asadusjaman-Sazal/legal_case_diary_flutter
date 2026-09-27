@@ -1241,19 +1241,19 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_limitTitle.
   ///
   /// In en, this message translates to:
-  /// **'Free plan limit reached'**
+  /// **'Free Plan Limit Reached'**
   String get paywall_limitTitle;
 
   /// No description provided for @paywall_limitBody.
   ///
   /// In en, this message translates to:
-  /// **'The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Client Management, the Daily Cause List, editing and printing — stays free.'**
+  /// **'The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.'**
   String paywall_limitBody(String limit);
 
   /// No description provided for @paywall_benefitsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Premium includes'**
+  /// **'Premium Includes'**
   String get paywall_benefitsTitle;
 
   /// No description provided for @paywall_benefitUnlimitedCases.
@@ -1313,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_comingSoon.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon'**
+  /// **'Coming Soon'**
   String get paywall_comingSoon;
 
   /// No description provided for @paywall_note.
@@ -4131,7 +4131,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_channelsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Write to us'**
+  /// **'Write To Us'**
   String get settingsSupport_channelsLabel;
 
   /// No description provided for @settingsSupport_channelsHint.
@@ -4155,7 +4155,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_previewLabel.
   ///
   /// In en, this message translates to:
-  /// **'The message that opens'**
+  /// **'The Message That Opens'**
   String get settingsSupport_previewLabel;
 
   /// No description provided for @settingsSupport_messageSubject.
@@ -4197,7 +4197,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_warningTitle.
   ///
   /// In en, this message translates to:
-  /// **'Never send these'**
+  /// **'Never Send These'**
   String get settingsSupport_warningTitle;
 
   /// No description provided for @settingsSupport_warningBody.
@@ -4209,7 +4209,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_replyTitle.
   ///
   /// In en, this message translates to:
-  /// **'When you will hear back'**
+  /// **'When You Will Hear Back'**
   String get settingsSupport_replyTitle;
 
   /// No description provided for @settingsSupport_replyBody.

@@ -589,7 +589,8 @@ class _KpiTile extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                label.toUpperCase(),
+                // Title Case from the ARB, exactly as the mockup draws it.
+                label,
                 style: AppTypography.labelMd.copyWith(
                   fontSize: 14 * 0.6,
                   color: AppColors.onSurfaceVariant,

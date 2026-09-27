@@ -175,8 +175,18 @@ void main() {
 
   /// The rendered font size of every [text] on screen (a dropdown's own value
   /// and its floating label both carry the string).
-  List<double?> renderedFontSizes(WidgetTester tester, String text) => [
-    for (final element in find.text(text).evaluate())
+  ///
+  /// [within] scopes the search to one subtree, for a label that also appears
+  /// elsewhere on screen.
+  List<double?> renderedFontSizes(
+    WidgetTester tester,
+    String text, {
+    Finder? within,
+  }) => [
+    for (final element in (within == null
+            ? find.text(text)
+            : find.descendant(of: within, matching: find.text(text)))
+        .evaluate())
       (element.renderObject as RenderParagraph).text.style?.fontSize,
   ];
 
@@ -231,9 +241,12 @@ void main() {
     await pumpScreen(tester);
 
     final l = AppLocalizations.of(tester.element(find.byType(AllCasesScreen)));
+    // The label is no longer upper-cased for the tile, so it also matches the
+    // bottom bar's "Active Cases" entry — the measurement must stay on the tile.
     final tileTitle = renderedFontSizes(
       tester,
-      l.allCasesScreen_activeCases.toUpperCase(),
+      l.allCasesScreen_activeCases,
+      within: find.byKey(const ValueKey('all-cases-kpi-active')),
     ).single;
     expect(tileTitle, 14 * 0.6);
 

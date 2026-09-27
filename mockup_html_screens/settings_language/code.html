@@ -1,214 +1,183 @@
-<!DOCTYPE html><html lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Language Settings</title>
+<title>Language - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@500;700&amp;family=Tiro+Bangla:wght@400;600&amp;display=swap" rel="stylesheet">
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-container": "#316bf3",
-                        "outline": "#76777d",
-                        "on-primary-container": "#7c839b",
-                        "inverse-surface": "#2d3133",
-                        "surface-tint": "#565e74",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "background": "#f7f9fb",
-                        "surface": "#f7f9fb",
-                        "outline-variant": "#c6c6cd",
-                        "primary-fixed-dim": "#bec6e0",
-                        "on-secondary": "#ffffff",
-                        "inverse-on-surface": "#eff1f3",
-                        "secondary": "#0051d5",
-                        "secondary-fixed": "#dbe1ff",
-                        "primary-container": "#131b2e",
-                        "tertiary-fixed": "#d3e4fe",
-                        "error": "#ba1a1a",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "on-surface-variant": "#45464d",
-                        "surface-container-high": "#e6e8ea",
-                        "surface-variant": "#e0e3e5",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "ink-dark": "#020617",
-                        "on-tertiary-container": "#75859d",
-                        "tertiary": "#000000",
-                        "tertiary-container": "#0b1c30",
-                        "surface-container-low": "#f2f4f6",
-                        "surface-container": "#eceef0",
-                        "on-error-container": "#93000a",
-                        "status-active": "#059669",
-                        "primary": "#000000",
-                        "surface-dim": "#d8dadc",
-                        "error-container": "#ffdad6",
-                        "on-secondary-fixed": "#00174b",
-                        "on-primary": "#ffffff",
-                        "on-background": "#191c1e",
-                        "inverse-primary": "#bec6e0",
-                        "on-secondary-container": "#fefcff",
-                        "surface-bright": "#f7f9fb",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "primary-fixed": "#dae2fd",
-                        "on-surface": "#191c1e",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed": "#131b2e",
-                        "on-error": "#ffffff",
-                        "court-notice": "#DC2626"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "md": "16px",
-                        "xs": "4px",
-                        "xl": "32px",
-                        "gutter": "12px",
-                        "unit": "4px",
-                        "sm": "8px",
-                        "lg": "24px",
-                        "edge-margin": "16px"
-                    },
-                    "fontFamily": {
-                        "label-lg": ["IBM Plex Sans"],
-                        "case-number": ["IBM Plex Sans"],
-                        "title-md": ["Inter"],
-                        "headline-md": ["Manrope"],
-                        "body-sm": ["Inter"],
-                        "body-lg": ["Inter"],
-                        "title-lg": ["Manrope"],
-                        "headline-lg": ["Manrope"],
-                        "label-md": ["IBM Plex Sans"],
-                        "body-md": ["Inter"],
-                        "bengali-title-md": ["Tiro Bangla"]
-                    },
-                    "fontSize": {
-                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
-                        "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
-                        "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
-                        "bengali-title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
-                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
-                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
-                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
-                        "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
-                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
-                    }
-                }
-            }
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .bn { font-family: 'Tiro Bangla', sans-serif; }
+</style>
 </head>
-<body class="bg-surface-dim text-on-surface font-body-md antialiased min-h-screen">
-<!--
-  Language settings (Settings → Language).
-  Two phone canvases side by side: English active (left) and বাংলা active (right).
-  The choice group starts directly under the app bar (no empty space above the
-  badge); the date preview always renders the *active* language, in that
-  language's own font. The two lower cards carry the roomiest padding.
--->
-<div class="flex flex-wrap items-start justify-center gap-xl p-lg">
-<!-- ============================ English active ============================ -->
-<div class="w-[360px] bg-surface shadow-sm">
-<!-- SubPage Header -->
-<header class="bg-surface-container-lowest px-edge-margin pt-md pb-md">
-<div class="flex flex-col gap-sm">
-<h1 class="font-headline-md text-headline-md font-bold text-primary">Language</h1>
-<button class="flex items-center text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors w-fit">
-<span class="material-symbols-outlined mr-sm text-[20px]">arrow_back</span><br></button>
-</div>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Language</h1>
+  </div>
 </header>
-<!-- Main Content Canvas: the group starts directly under the header -->
-<main class="p-edge-margin flex justify-center">
-<div class="w-full max-w-[480px] flex flex-col items-center">
-<!-- Badge -->
-<div class="w-[72px] h-[72px] rounded-full bg-surface-container flex items-center justify-center">
-<span class="material-symbols-outlined text-[32px] text-on-surface-variant">language</span>
-</div>
-<h2 class="mt-lg font-headline-md text-headline-md font-semibold text-primary text-center">Select App Language</h2>
-<p class="mt-sm font-body-md text-body-md text-on-surface-variant text-center">Every label, date and message in the app will use the language you pick here.</p>
-<!-- Option: English (active) -->
-<button class="mt-xl w-full h-16 rounded-lg bg-primary border border-primary flex items-center px-md">
-<span class="flex-1 text-left font-title-md text-title-md font-semibold text-on-primary">English</span>
-<span class="material-symbols-outlined text-[20px] text-on-primary">check</span>
-</button>
-<!-- Option: বাংলা (inactive) -->
-<button class="mt-gutter w-full h-16 rounded-lg bg-surface-container-lowest border border-outline flex items-center px-md">
-<span class="flex-1 text-left font-bengali-title-md text-bengali-title-md font-semibold text-primary">বাংলা</span>
-<span class="w-[20px]"></span>
-</button>
-<!-- Date preview, in the active language -->
-<div class="mt-xl w-full rounded-lg bg-surface-container-low border border-outline-variant p-lg flex items-start gap-gutter">
-<span class="material-symbols-outlined text-[20px] text-on-surface-variant">calendar_today</span>
-<div class="flex flex-col">
-<span class="font-label-md text-label-md text-on-surface-variant">Today's Date in This Language</span>
-<span class="mt-xs font-title-md text-title-md font-semibold text-on-surface">Thursday, September 17, 2026</span>
-</div>
-</div>
-<!-- Note -->
-<div class="mt-md w-full rounded-lg bg-surface-container-low border border-outline-variant p-lg flex items-start gap-gutter">
-<span class="material-symbols-outlined text-[20px] text-on-surface-variant">info</span>
-<span class="font-body-md text-body-md text-on-surface-variant">This changes only the app's interface. Your saved cases and notes stay exactly as they are.</span>
-</div>
-</div>
+
+<main class="max-w-lg mx-auto w-full px-edge-margin py-md">
+  <div class="flex flex-col items-center">
+    <!-- Language badge. -->
+    <div class="w-[72px] h-[72px] rounded-full bg-surface-container flex items-center justify-center">
+      <span class="material-symbols-outlined text-[32px] text-on-surface-variant">language</span>
+    </div>
+    <h2 class="mt-lg font-headline-md text-headline-md text-on-surface text-center">Select App Language</h2>
+    <p class="mt-sm font-body-md text-body-md text-on-surface-variant text-center">Every label, date and message in the app will use the language you pick here.</p>
+
+    <!-- Choices: filled black with a white check while selected. -->
+    <button class="mt-xl w-full h-16 flex items-center px-md bg-secondary border border-secondary rounded">
+      <span class="flex-1 text-left font-title-md text-title-md font-semibold text-on-primary">English</span>
+      <span class="material-symbols-outlined text-[20px] text-white">check</span>
+    </button>
+    <button class="mt-gutter w-full h-16 flex items-center px-md bg-surface-container-lowest border border-outline rounded">
+      <span class="bn flex-1 text-left font-bengali-title-md text-bengali-title-md font-semibold text-secondary">বাংলা</span>
+      <span class="material-symbols-outlined text-[20px] text-transparent">check</span>
+    </button>
+
+    <!-- Preview: today's date written in the active language. -->
+    <div class="mt-xl w-full p-lg bg-surface-container-low border border-outline-variant rounded flex items-start">
+      <span class="material-symbols-outlined text-[20px] text-on-surface-variant">calendar_today</span>
+      <div class="ml-gutter flex-1">
+        <p class="font-label-md text-label-md text-on-surface-variant">Today's Date in This Language</p>
+        <p class="mt-xs font-title-md text-title-md text-on-surface">September 27, 2026</p>
+      </div>
+    </div>
+
+    <!-- Note. -->
+    <div class="mt-md w-full p-lg bg-surface-container-low border border-outline-variant rounded flex items-start">
+      <span class="material-symbols-outlined text-[20px] text-on-surface-variant">info</span>
+      <p class="ml-gutter flex-1 font-body-md text-body-md text-on-surface">This changes only the app's interface. Your saved cases and notes stay exactly as they are.</p>
+    </div>
+  </div>
 </main>
-</div>
-<!-- ============================ বাংলা active ============================ -->
-<div class="w-[360px] bg-surface shadow-sm">
-<header class="bg-surface-container-lowest px-edge-margin pt-md pb-md">
-<div class="flex flex-col gap-sm">
-<h1 class="font-headline-md text-headline-md font-bold text-primary">ভাষা</h1>
-<button class="flex items-center text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-colors w-fit">
-<span class="material-symbols-outlined mr-sm text-[20px]">arrow_back</span><br></button>
-</div>
-</header>
-<main class="p-edge-margin flex justify-center">
-<div class="w-full max-w-[480px] flex flex-col items-center">
-<div class="w-[72px] h-[72px] rounded-full bg-surface-container flex items-center justify-center">
-<span class="material-symbols-outlined text-[32px] text-on-surface-variant">language</span>
-</div>
-<h2 class="mt-lg font-headline-md text-headline-md font-semibold text-primary text-center">অ্যাপের ভাষা নির্বাচন করুন</h2>
-<p class="mt-sm font-body-md text-body-md text-on-surface-variant text-center">অ্যাপের সব লেখা, তারিখ ও বার্তা এখানে বেছে নেওয়া ভাষায় দেখানো হবে।</p>
-<!-- Option: English (inactive) -->
-<button class="mt-xl w-full h-16 rounded-lg bg-surface-container-lowest border border-outline flex items-center px-md">
-<span class="flex-1 text-left font-title-md text-title-md font-semibold text-primary">English</span>
-<span class="w-[20px]"></span>
-</button>
-<!-- Option: বাংলা (active) -->
-<button class="mt-gutter w-full h-16 rounded-lg bg-primary border border-primary flex items-center px-md">
-<span class="flex-1 text-left font-bengali-title-md text-bengali-title-md font-semibold text-on-primary">বাংলা</span>
-<span class="material-symbols-outlined text-[20px] text-on-primary">check</span>
-</button>
-<!-- Date preview, in the active language -->
-<div class="mt-xl w-full rounded-lg bg-surface-container-low border border-outline-variant p-lg flex items-start gap-gutter">
-<span class="material-symbols-outlined text-[20px] text-on-surface-variant">calendar_today</span>
-<div class="flex flex-col">
-<span class="font-label-md text-label-md text-on-surface-variant">এই ভাষায় আজকের তারিখ</span>
-<span class="mt-xs font-bengali-title-md text-bengali-title-md font-semibold text-on-surface">বৃহস্পতিবার, সেপ্টেম্বর ১৭, ২০২৬</span>
-</div>
-</div>
-<!-- Note -->
-<div class="mt-md w-full rounded-lg bg-surface-container-low border border-outline-variant p-lg flex items-start gap-gutter">
-<span class="material-symbols-outlined text-[20px] text-on-surface-variant">info</span>
-<span class="font-body-md text-body-md text-on-surface-variant">এটি শুধু অ্যাপের ইন্টারফেস বদলায়। আপনার সংরক্ষিত মামলা ও নোট আগের মতোই থাকবে।</span>
-</div>
-</div>
-</main>
-</div>
-</div>
-</body></html>
+</body>
+</html>

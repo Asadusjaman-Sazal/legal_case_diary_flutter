@@ -1,272 +1,309 @@
-<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-<title>Disposed Cases - Daily Cause List</title>
-<!-- Tailwind CSS -->
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Disposed Cases - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface": "#f7f9fb",
-                        "on-surface-variant": "#45464d",
-                        "on-surface": "#191c1e",
-                        "inverse-primary": "#bec6e0",
-                        "on-background": "#191c1e",
-                        "on-primary-fixed": "#131b2e",
-                        "surface-container-lowest": "#ffffff",
-                        "on-tertiary-container": "#75859d",
-                        "on-secondary-fixed": "#00174b",
-                        "surface-container": "#eceef0",
-                        "outline-variant": "#c6c6cd",
-                        "on-secondary-container": "#fefcff",
-                        "outline": "#76777d",
-                        "on-tertiary-fixed-variant": "#38485d",
-                        "primary-fixed-dim": "#bec6e0",
-                        "primary": "#000000",
-                        "surface-container-low": "#f2f4f6",
-                        "tertiary-fixed-dim": "#b7c8e1",
-                        "on-primary": "#ffffff",
-                        "surface-variant": "#e0e3e5",
-                        "primary-container": "#131b2e",
-                        "surface-container-highest": "#e0e3e5",
-                        "surface-tint": "#565e74",
-                        "on-primary-container": "#7c839b",
-                        "ink-dark": "#020617",
-                        "on-tertiary-fixed": "#0b1c30",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "surface-dim": "#d8dadc",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "status-active": "#059669",
-                        "on-secondary": "#ffffff",
-                        "on-error": "#ffffff",
-                        "inverse-surface": "#2d3133",
-                        "on-error-container": "#93000a",
-                        "background": "#f7f9fb",
-                        "surface-container-high": "#e6e8ea",
-                        "tertiary": "#000000",
-                        "secondary-container": "#316bf3",
-                        "on-primary-fixed-variant": "#3f465c",
-                        "surface-bright": "#f7f9fb",
-                        "tertiary-fixed": "#d3e4fe",
-                        "on-tertiary": "#ffffff",
-                        "error": "#ba1a1a",
-                        "error-container": "#ffdad6",
-                        "tertiary-container": "#0b1c30",
-                        "secondary": "#0051d5",
-                        "inverse-on-surface": "#eff1f3",
-                        "secondary-fixed": "#dbe1ff",
-                        "primary-fixed": "#dae2fd",
-                        "court-notice": "#DC2626"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "unit": "4px",
-                        "md": "16px",
-                        "xs": "4px",
-                        "lg": "24px",
-                        "gutter": "12px",
-                        "sm": "8px",
-                        "xl": "32px",
-                        "edge-margin": "16px"
-                    },
-                    "fontFamily": {
-                        "label-lg": ["IBM Plex Sans"],
-                        "body-lg": ["Inter"],
-                        "headline-lg": ["Manrope"],
-                        "title-md": ["Inter"],
-                        "body-md": ["Inter"],
-                        "headline-md": ["Manrope"],
-                        "title-lg": ["Manrope"],
-                        "case-number": ["IBM Plex Sans"],
-                        "label-md": ["IBM Plex Sans"],
-                        "body-sm": ["Inter"]
-                    },
-                    "fontSize": {
-                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "case-number": ["14px", {"lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700"}],
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500"}],
-                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
-                    }
-                },
-            },
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }]
         }
-    </script>
+      }
+    }
+  }
+</script>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .active-nav-bg { background-color: #316bf3; border-radius: 9999px; }
-    </style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
 </head>
-<body class="bg-surface text-on-surface font-body-md overflow-x-hidden">
-<!-- TopAppBar -->
-<header class="bg-surface dark:bg-ink-dark border-b border-outline-variant dark:border-outline docked full-width top-0 sticky z-50 flex justify-between items-center px-edge-margin h-[56px] w-full">
-<div class="flex items-center gap-md">
-<button class="p-xs hover:bg-surface-container dark:hover:bg-surface-variant transition-colors rounded-full active:opacity-80 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-primary dark:text-primary-fixed" data-icon="menu">menu</span>
-</button>
-<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Disposed Cases</h1>
-</div>
-<div class="flex items-center gap-xs">
-<button class="p-xs hover:bg-surface-container dark:hover:bg-surface-variant transition-colors rounded-full active:opacity-80 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-primary dark:text-primary-fixed" data-icon="search">search</span>
-</button>
-</div>
-</header>
-<main class="pb-[80px]">
-<!-- Filter Chips Section -->
-<section class="py-md overflow-x-auto no-scrollbar flex gap-sm px-edge-margin">
-<button class="whitespace-nowrap px-md py-sm bg-primary text-on-primary rounded-full font-label-lg text-label-lg transition-all active:scale-95">All Disposed</button>
-<button class="whitespace-nowrap px-md py-sm bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-lg text-label-lg hover:bg-surface-container-high transition-all active:scale-95">Settled</button>
-<button class="whitespace-nowrap px-md py-sm bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-lg text-label-lg hover:bg-surface-container-high transition-all active:scale-95">Dismissed</button>
-<button class="whitespace-nowrap px-md py-sm bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-lg text-label-lg hover:bg-surface-container-high transition-all active:scale-95">Disposed</button>
-</section>
-<!-- Case Records List -->
-<section class="px-edge-margin space-y-md">
-<!-- Card 1 -->
-<article class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-<div class="p-md">
-<!-- Card Header -->
-<div class="flex justify-between items-start mb-sm">
-<div class="space-y-xs">
-<span class="inline-block px-sm py-[2px] bg-status-active/10 text-status-active rounded-lg font-label-md text-label-md tracking-wider">SETTLED</span>
-<h2 class="font-case-number text-case-number text-on-primary-fixed">Civil Lit. No. 452/2022</h2>
-</div>
-<div class="text-right">
-<p class="font-label-md text-label-md text-on-surface-variant">Disposed:</p>
-<p class="font-title-md text-title-md text-primary">12 Oct 2023</p>
-</div>
-</div>
-<!-- Parties -->
-<div class="mb-md">
+<body class="bg-background text-on-surface font-body-md">
+<main class="max-w-lg mx-auto min-h-screen flex flex-col bg-background">
 
-<p class="font-title-md text-title-md leading-tight">Ahmed Hossain vs. Bangladesh &amp; Others</p>
-</div>
-<!-- Final Result Box -->
-<div class="bg-surface-container-low border-l-4 border-secondary rounded-lg p-md mb-md italic">
-<p class="font-body-md text-on-surface-variant">
-                            "Amicably settled through mediation. Rule discharged as non-prosecution with liberty to restore if terms violated."
-                        </p>
-</div>
-<!-- Case History Timeline -->
-<div class="space-y-md">
-<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Case History</p>
-<div class="relative pl-lg border-l-2 border-outline-variant space-y-md ml-xs">
-<!-- Event 1 -->
-<div class="relative">
-<div class="absolute -left-[30px] top-1 w-3 h-3 rounded-full bg-secondary ring-4 ring-surface-container-lowest"></div>
-<p class="font-label-md text-label-md text-secondary font-bold">12 Oct 2023</p>
-<p class="font-body-sm text-body-sm text-on-surface">Final hearing and disposal of the rule. Case closed.</p>
-</div>
-<!-- Event 2 -->
-<div class="relative">
-<div class="absolute -left-[30px] top-1 w-3 h-3 rounded-full bg-outline-variant ring-4 ring-surface-container-lowest"></div>
-<p class="font-label-md text-label-md text-on-surface-variant">15 Jan 2022</p>
-<p class="font-body-sm text-body-sm text-on-surface">Rule Nisi issued by the High Court Division.</p>
-</div>
-</div>
-</div>
-</div>
-</article>
-<!-- Card 2 -->
-<article class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden opacity-90">
-<div class="p-md">
-<div class="flex justify-between items-start mb-sm">
-<div class="space-y-xs">
-<span class="inline-block px-sm py-[2px] bg-on-surface-variant/10 rounded-lg font-label-md text-label-md tracking-wider text-error">DISMISSED</span>
-<h2 class="font-case-number text-case-number text-on-primary-fixed">Civil Lit. No. 109/2021</h2>
-</div>
-<div class="text-right">
-<p class="font-label-md text-label-md text-on-surface-variant">Disposed:</p>
-<p class="font-title-md text-title-md text-primary">05 Sep 2023</p>
-</div>
-</div>
-<div class="mb-md">
+  <!-- Case-screen header: menu, title, search, view toggle, sync (disabled in Part A). -->
+  <header class="h-14 bg-surface flex items-center">
+    <button aria-label="Open Navigation Menu" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <h1 class="flex-1 truncate font-title-lg text-title-lg text-primary">Disposed Cases</h1>
+    <button aria-label="Search" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    <button aria-label="Expanded View" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">grid_view</span>
+    </button>
+    <button aria-label="Sync Requires a Premium Subscription" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+      <span class="material-symbols-outlined">sync</span>
+    </button>
+    <span class="w-1"></span>
+  </header>
 
-<p class="font-title-md text-title-md leading-tight">M/S Sunrise Ltd vs. Customs &amp; VAT</p>
-</div>
-<div class="bg-surface-container-low border-l-4 rounded-lg p-md italic border-secondary"><p class="font-body-md text-on-surface-variant">
-                            "The appeal is dismissed for default as the petitioner failed to appear despite multiple calls."
-                        </p></div><div class="space-y-md mt-md"><p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Case History</p><div class="relative pl-lg border-l-2 border-outline-variant space-y-md ml-xs"><div class="relative"><div class="absolute -left-[30px] top-1 w-3 h-3 rounded-full bg-secondary ring-4 ring-surface-container-lowest"></div><p class="font-label-md text-label-md text-secondary font-bold">05 Sep 2023</p><p class="font-body-sm text-body-sm text-on-surface">Case dismissed for default due to non-appearance.</p></div><div class="relative"><div class="absolute -left-[30px] top-1 w-3 h-3 rounded-full bg-outline-variant ring-4 ring-surface-container-lowest"></div><p class="font-label-md text-label-md text-on-surface-variant">12 Feb 2021</p><p class="font-body-sm text-body-sm text-on-surface">Appeal filed and registered.</p></div></div></div>
-</div>
-</article>
-</section>
+  <!-- Disposed cards: the disposal, the case, the disposal date, the final note
+       in a quotation box, and the call / message / update actions. -->
+  <div class="flex-1 p-md flex flex-col gap-md">
+
+    <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
+      <div class="flex items-start">
+        <span class="px-sm py-xs rounded-sm bg-surface-container-low font-label-md text-label-md text-on-surface">Disposed</span>
+        <span class="flex-1"></span>
+        <div class="flex flex-col items-end">
+          <span class="font-label-md text-label-md text-on-surface">Disposed:</span>
+          <span class="font-label-md text-label-md text-on-surface-variant">12/10/2026</span>
+        </div>
+      </div>
+      <div class="mt-sm">
+        <p class="font-case-number text-case-number text-secondary">Sessions Case- 1/2023</p>
+      </div>
+      <p class="mt-sm font-title-md text-title-md text-on-surface">Ahmed Hossain Vs Bangladesh &amp; Others</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface">Penal Code, Sections 143/341/323</p>
+      <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">District &amp; Sessions Judge Court, Dhaka</p>
+      <div class="mt-sm p-md rounded-sm bg-surface-container-low border-l-4 border-secondary">
+        <p class="font-body-md text-body-md italic text-on-surface-variant">"Compromise reached between the parties; the case is disposed of accordingly."</p>
+      </div>
+      <div class="mt-md flex items-center">
+        <button aria-label="Phone" class="w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">call</span>
+        </button>
+        <button aria-label="Message" class="ml-sm w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">chat</span>
+        </button>
+        <span class="flex-1"></span>
+        <button class="h-10 px-md rounded bg-secondary text-on-primary flex items-center gap-sm font-label-lg text-label-lg active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">edit</span>Update
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
+      <div class="flex items-start">
+        <span class="px-sm py-xs rounded-sm bg-surface-container-low font-label-md text-label-md text-on-surface">Withdrawal under Section 248</span>
+        <span class="flex-1"></span>
+        <div class="flex flex-col items-end">
+          <span class="font-label-md text-label-md text-on-surface">Disposed:</span>
+          <span class="font-label-md text-label-md text-on-surface-variant">05/09/2026</span>
+        </div>
+      </div>
+      <div class="mt-sm">
+        <p class="font-case-number text-case-number text-secondary">Misc Case- 44/2021</p>
+      </div>
+      <p class="mt-sm font-title-md text-title-md text-on-surface">M/S Sunrise Ltd Vs Customs &amp; VAT</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface">Customs Act, Section 156</p>
+      <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">Chief Metropolitan Magistrate Court, Dhaka</p>
+      <div class="mt-md flex items-center">
+        <button aria-label="Phone" class="w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">call</span>
+        </button>
+        <button aria-label="Message" class="ml-sm w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">chat</span>
+        </button>
+        <span class="flex-1"></span>
+        <button class="h-10 px-md rounded bg-secondary text-on-primary flex items-center gap-sm font-label-lg text-label-lg active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">edit</span>Update
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
+      <div class="flex items-start">
+        <span class="px-sm py-xs rounded-sm bg-surface-container-low font-label-md text-label-md text-on-surface">Dismissed</span>
+        <span class="flex-1"></span>
+        <div class="flex flex-col items-end">
+          <span class="font-label-md text-label-md text-on-surface">Disposed:</span>
+          <span class="font-label-md text-label-md text-on-surface-variant">21/08/2026</span>
+        </div>
+      </div>
+      <div class="mt-sm">
+        <p class="font-case-number text-case-number text-secondary">Civil Appeal- 216/2023</p>
+      </div>
+      <p class="mt-sm font-title-md text-title-md text-on-surface">Md. Rafiqul Islam Vs State &amp; Others</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface">Code of Civil Procedure, Order 41 Rule 11</p>
+      <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">Appellate Division, Supreme Court</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Hon'ble Mr. Justice Md. Abdul Wahhab Miah</p>
+      <div class="mt-md flex items-center">
+        <button aria-label="Phone" class="w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">call</span>
+        </button>
+        <button aria-label="Message" class="ml-sm w-12 h-12 rounded-sm bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined">chat</span>
+        </button>
+        <span class="flex-1"></span>
+        <button class="h-10 px-md rounded bg-secondary text-on-primary flex items-center gap-sm font-label-lg text-label-lg active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">edit</span>Update
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom navigation plus the Help FAB: this screen has no Add Case FAB,
+       because a disposed case cannot be re-opened here. -->
+  <div class="sticky bottom-0 relative">
+    <button aria-label="Help" class="absolute right-md bottom-20 w-14 h-14 rounded-2xl bg-secondary text-on-primary flex items-center justify-center shadow-lg active:opacity-80">
+      <span class="material-symbols-outlined text-[28px]">help</span>
+    </button>
+    <nav class="h-16 bg-surface border-t border-outline-variant rounded-t-xl flex">
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">error</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Overdue Dates</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">calendar_today</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Daily Cause List</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">work</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Active Cases</span>
+      </button>
+      <button class="flex-1 flex flex-col items-center justify-center gap-[2px]">
+        <span class="material-symbols-outlined text-[24px] text-on-surface-variant">event</span>
+        <span class="font-label-md text-label-md text-on-surface-variant">Upcoming Cases</span>
+      </button>
+    </nav>
+  </div>
 </main>
-<!-- BottomNavBar -->
 
-<!-- FAB (Suppressed as per rules for Details/Specialized Screens, but adding a generic info action if needed) -->
-<button class="fixed bottom-24 right-6 w-14 h-14 text-on-secondary rounded-full shadow-xl flex items-center justify-center active:scale-95 transition-transform z-40 bg-primary text-on-primary" id="infoBtn">
-<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
-</button>
-<!-- Modal for Help (Simulating the 'Guidelines' button in user image) -->
-<div class="fixed inset-0 bg-black/60 z-[100] items-center justify-center p-md backdrop-blur-sm hidden" id="helpModal">
-<div class="bg-surface-container-lowest rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-<div class="p-xl space-y-md text-center">
-<h3 class="font-title-lg text-title-lg text-primary">How to set a case as disposed?</h3>
-<p class="font-body-md text-on-surface-variant"></p><p style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; transition: font-size 0.2s, padding 0.2s, gap 0.2s; color: rgb(71, 85, 105); font-family: &quot;Tiro Bangla&quot;, &quot;Tiro Bangla&quot;, &quot;Hind Siliguri&quot;, sans-serif; font-size: 15px; text-align: justify;" class="">During updating date, choose an appropriate step from the followings to move a disposed or inactive case from the Active Cases list to this list.</p><p class="font-bold text-slate-800" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; transition: font-size 0.2s, padding 0.2s, gap 0.2s; margin: 14.4px 0px 0px; --tw-text-opacity: 1; color: rgb(30, 41, 59); --tw-space-y-reverse: 0; font-family: &quot;Tiro Bangla&quot;, &quot;Tiro Bangla&quot;, &quot;Hind Siliguri&quot;, sans-serif; font-size: 15px; text-align: justify;">Note: The case will remain available in the All Cases list.</p><p class="font-bold text-slate-800" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; transition: font-size 0.2s, padding 0.2s, gap 0.2s; margin: 14.4px 0px 0px; --tw-text-opacity: 1; color: rgb(30, 41, 59); --tw-space-y-reverse: 0; font-family: &quot;Tiro Bangla&quot;, &quot;Tiro Bangla&quot;, &quot;Hind Siliguri&quot;, sans-serif; font-size: 15px; text-align: justify;"><br></p><p class="font-black text-[11px] uppercase tracking-widest text-slate-400 mb-3" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; transition: font-size 0.2s, padding 0.2s, gap 0.2s; margin: 0px 0px 0.75rem; font-size: 11px; font-weight: 900; --tw-text-opacity: 1; color: rgb(148, 163, 184); font-family: &quot;Tiro Bangla&quot;, &quot;Tiro Bangla&quot;, &quot;Hind Siliguri&quot;, sans-serif; text-align: justify;">Disposed Keywords:</p><div class="flex flex-wrap gap-2" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; flex-wrap: wrap; gap: 0.5rem; color: rgb(71, 85, 105); font-family: &quot;Tiro Bangla&quot;, &quot;Tiro Bangla&quot;, &quot;Hind Siliguri&quot;, sans-serif; font-size: 15px; text-align: justify;"><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">আপোষ মিমাংসা</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">প্রত্যাহার</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">খারিজ</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">নিষ্পত্তি</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">২৪৮ ধারায় প্রত্যাহার</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">সাজা</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">রিমান্ডে প্রেরণ (R)</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">নথিজাত</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">অব্যহতি</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">পদক্ষেপ নেওয়ার প্রয়োজন নেই</span><span class="bg-slate-50 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold border border-slate-100" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; border-color: rgb(241, 245, 249); transition: font-size 0.2s, padding 0.2s, gap 0.2s; border-radius: 0.5rem; --tw-border-opacity: 1; --tw-bg-opacity: 1; background-color: rgb(248, 250, 252); padding: 0.25rem 0.75rem; font-size: 0.75rem; line-height: 1rem; --tw-text-opacity: 1; color: rgb(51, 65, 85);">খালাস</span></div><p class=""></p>
-<div class="pt-md">
-<button class="w-full py-md text-on-secondary rounded-xl font-title-md active:scale-95 transition-transform bg-primary" id="closeModal">
-                        Got it
-                    </button>
+<!-- "How to set a case as disposed?" window: the help body, the disposed steps
+     grouped by court category, and the Got It action. Hidden until the Help FAB
+     is tapped, like the other screens' modals. -->
+<div class="hidden fixed inset-0 z-[100] bg-overlay-54 p-md items-center justify-center" id="disposed-help-modal">
+  <div class="bg-surface-container-lowest rounded-lg w-full max-w-[384px] max-h-[85vh] p-xl flex flex-col">
+    <h2 class="text-center font-title-lg text-title-lg text-primary">How to Set a Case as Disposed?</h2>
+    <div class="mt-md flex-1 overflow-y-auto">
+      <p class="font-body-md text-body-md text-on-surface-variant text-justify">During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate &amp; High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.</p>
+      <p class="mt-lg font-title-md text-title-md text-on-surface">Disposed Steps by Court Category</p>
+      <p class="mt-sm font-label-md text-label-md text-on-surface-variant">District Judge Court (Civil)</p>
+      <div class="mt-xs flex flex-wrap gap-xs">
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Withdrawal (<span class="font-bengali-body-sm">প্রত্যাহার</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Dismissal (<span class="font-bengali-body-sm">খারিজ</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Allowed (<span class="font-bengali-body-sm">মঞ্জুর</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Rejected (<span class="font-bengali-body-sm">নামঞ্জুর</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Disposed (<span class="font-bengali-body-sm">নিষ্পত্তি</span>)</span>
+      </div>
+      <p class="mt-sm font-label-md text-label-md text-on-surface-variant">Sessions Judge Court (Criminal)</p>
+      <div class="mt-xs flex flex-wrap gap-xs">
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Conviction (<span class="font-bengali-body-sm">সাজা</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Acquittal (<span class="font-bengali-body-sm">খালাস</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Disposed (<span class="font-bengali-body-sm">নিষ্পত্তি</span>)</span>
+      </div>
+      <p class="mt-sm font-label-md text-label-md text-on-surface-variant">Appellate Division &amp; High Court Division</p>
+      <div class="mt-xs flex flex-wrap gap-xs">
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Dismissed (<span class="font-bengali-body-sm">খারিজ</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Disposed (<span class="font-bengali-body-sm">নিষ্পত্তি</span>)</span>
+        <span class="px-sm py-xs rounded-full bg-surface-container-low font-label-md text-label-md text-on-surface">Discharged (<span class="font-bengali-body-sm">অব্যহতি</span>)</span>
+      </div>
+    </div>
+    <button class="mt-lg w-full py-md rounded-sm bg-primary text-on-primary font-label-lg text-label-lg active:opacity-80">Got It</button>
+  </div>
 </div>
-</div>
-</div>
-</div>
-<script>
-        const infoBtn = document.getElementById('infoBtn');
-        const helpModal = document.getElementById('helpModal');
-        const closeModal = document.getElementById('closeModal');
-
-        infoBtn.addEventListener('click', () => {
-            helpModal.classList.remove('hidden');
-            helpModal.classList.add('flex');
-        });
-
-        closeModal.addEventListener('click', () => {
-            helpModal.classList.add('hidden');
-            helpModal.classList.remove('flex');
-        });
-
-        // Simple touch interaction for cards
-        document.querySelectorAll('article').forEach(card => {
-            card.addEventListener('touchstart', () => {
-                card.style.transform = 'scale(0.98)';
-                card.style.transition = 'transform 0.1s';
-            });
-            card.addEventListener('touchend', () => {
-                card.style.transform = 'scale(1)';
-            });
-        });
-    </script>
-
-
-
-
-
-
-
-
-
-
-</body></html>
+</body>
+</html>

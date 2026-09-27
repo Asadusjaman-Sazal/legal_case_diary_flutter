@@ -1,429 +1,216 @@
-<!DOCTYPE html><html class="light" lang="en" style="width: 390px; height: 1108px; overflow: hidden; position: relative;"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Sync Status | Digital Case Diary</title>
+<title>Online Sync - Legal Case Diary</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .animate-sync {
-            animation: spin 2s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script id="tailwind-config">
   tailwind.config = {
     darkMode: "class",
     theme: {
       extend: {
-        "colors": {
-                "surface-container-low": "#f2f4f6",
-                "surface-container": "#eceef0",
-                "primary": "#0f172a",
-                "outline-variant": "#c6c6cd",
-                "primary-container": "#131b2e",
-                "court-notice": "#DC2626",
-                "surface-dim": "#d8dadc",
-                "inverse-surface": "#2d3133",
-                "on-tertiary-fixed": "#0b1c30",
-                "on-tertiary-container": "#75859d",
-                "tertiary-fixed-dim": "#b7c8e1",
-                "on-tertiary-fixed-variant": "#38485d",
-                "tertiary-container": "#0b1c30",
-                "primary-fixed-dim": "#bec6e0",
-                "surface-variant": "#e0e3e5",
-                "inverse-on-surface": "#eff1f3",
-                "surface-bright": "#f7f9fb",
-                "on-tertiary": "#ffffff",
-                "on-secondary-fixed": "#00174b",
-                "secondary": "#0051d5",
-                "error-container": "#ffdad6",
-                "primary-fixed": "#dae2fd",
-                "error": "#ba1a1a",
-                "ink-dark": "#020617",
-                "secondary-container": "#316bf3",
-                "surface-container-lowest": "#ffffff",
-                "on-background": "#191c1e",
-                "surface-container-highest": "#e0e3e5",
-                "on-secondary-container": "#fefcff",
-                "tertiary-fixed": "#d3e4fe",
-                "secondary-fixed": "#dbe1ff",
-                "on-secondary": "#ffffff",
-                "on-secondary-fixed-variant": "#003ea8",
-                "secondary-fixed-dim": "#b4c5ff",
-                "inverse-primary": "#bec6e0",
-                "status-active": "#059669",
-                "outline": "#76777d",
-                "on-primary-fixed": "#131b2e",
-                "surface-tint": "#565e74",
-                "on-error": "#ffffff",
-                "on-error-container": "#93000a",
-                "surface": "#f7f9fb",
-                "background": "#f7f9fb",
-                "on-primary-fixed-variant": "#3f465c",
-                "on-surface": "#191c1e",
-                "tertiary": "#000000",
-                "on-surface-variant": "#45464d",
-                "on-primary-container": "#7c839b",
-                "surface-container-high": "#e6e8ea",
-                "on-primary": "#ffffff"
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
         },
-        "borderRadius": {
-                "DEFAULT": "0.125rem",
-                "lg": "0.25rem",
-                "xl": "0.5rem",
-                "full": "0.75rem"
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
         },
-        "spacing": {
-                "edge-margin": "16px",
-                "lg": "24px",
-                "xs": "4px",
-                "md": "16px",
-                "xl": "32px",
-                "unit": "4px",
-                "sm": "8px",
-                "gutter": "12px"
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
         },
-        "fontFamily": {
-                "headline-md": [
-                        "Manrope"
-                ],
-                "body-md": [
-                        "Inter"
-                ],
-                "title-md": [
-                        "Inter"
-                ],
-                "label-md": [
-                        "IBM Plex Sans"
-                ],
-                "label-lg": [
-                        "IBM Plex Sans"
-                ],
-                "headline-lg": [
-                        "Manrope"
-                ],
-                "body-lg": [
-                        "Inter"
-                ],
-                "case-number": [
-                        "IBM Plex Sans"
-                ],
-                "body-sm": [
-                        "Inter"
-                ],
-                "title-lg": [
-                        "Manrope"
-                ]
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
         },
-        "fontSize": {
-                "headline-md": [
-                        "24px",
-                        {
-                                "lineHeight": "32px",
-                                "fontWeight": "600"
-                        }
-                ],
-                "body-md": [
-                        "14px",
-                        {
-                                "lineHeight": "20px",
-                                "fontWeight": "400"
-                        }
-                ],
-                "title-md": [
-                        "16px",
-                        {
-                                "lineHeight": "24px",
-                                "fontWeight": "600"
-                        }
-                ],
-                "label-md": [
-                        "12px",
-                        {
-                                "lineHeight": "16px",
-                                "letterSpacing": "0.5px",
-                                "fontWeight": "500"
-                        }
-                ],
-                "label-lg": [
-                        "14px",
-                        {
-                                "lineHeight": "20px",
-                                "letterSpacing": "0.1px",
-                                "fontWeight": "500"
-                        }
-                ],
-                "headline-lg": [
-                        "30px",
-                        {
-                                "lineHeight": "38px",
-                                "letterSpacing": "-0.02em",
-                                "fontWeight": "700"
-                        }
-                ],
-                "body-lg": [
-                        "16px",
-                        {
-                                "lineHeight": "24px",
-                                "fontWeight": "400"
-                        }
-                ],
-                "case-number": [
-                        "14px",
-                        {
-                                "lineHeight": "20px",
-                                "letterSpacing": "0.2px",
-                                "fontWeight": "700"
-                        }
-                ],
-                "body-sm": [
-                        "12px",
-                        {
-                                "lineHeight": "16px",
-                                "fontWeight": "400"
-                        }
-                ],
-                "title-lg": [
-                        "20px",
-                        {
-                                "lineHeight": "28px",
-                                "fontWeight": "600"
-                        }
-                ]
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
         }
-},
-    },
+      }
+    }
   }
 </script>
 <style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+  body { background-color: #f8fafc; }
+</style>
 </head>
-<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
-<!-- TopAppBar -->
-<header class="bg-surface dark:bg-ink-dark flex justify-between items-center px-edge-margin h-[56px] w-full docked full-width top-0 sticky z-50 border-b border-outline-variant dark:border-outline flat no shadows">
-<div class="flex items-center gap-md">
-<button class="material-symbols-outlined text-primary dark:text-primary-fixed hover:bg-surface-container dark:hover:bg-surface-variant transition-colors p-2 rounded-full" data-icon="menu">menu</button>
-<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Online Sync</h1>
-</div>
-<div class="flex items-center gap-sm relative">
-<button class="flex items-center gap-xs p-1 pr-3 rounded-full border border-outline-variant hover:bg-surface-container transition-all" id="profile-btn" onclick="toggleProfile(event)"><div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
-<span class="material-symbols-outlined text-on-surface-variant text-[20px]">account_circle</span>
-</div>
-<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="expand_more">expand_more</span></button>
-<div class="hidden absolute right-0 top-full mt-2 w-48 bg-surface-container-lowest rounded-xl shadow-lg overflow-hidden z-50 border border-outline-variant" id="profile-dropdown">
-<a class="flex items-center gap-sm px-md py-3 text-on-surface hover:bg-surface-container-high transition-colors font-title-md text-title-md" href="#"><span class="material-symbols-outlined text-[20px]">manage_accounts</span>Manage Account</a>
-<a class="flex items-center gap-sm px-md py-3 text-error hover:bg-error-container hover:text-error transition-colors font-title-md text-title-md border-t border-outline-variant" href="#"><span class="material-symbols-outlined text-[20px]">logout</span>Logout</a>
-</div>
-</div>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Sub-page app bar: back chevron then the title, left-aligned. -->
+<header class="sticky top-0 z-50 bg-surface border-b border-outline-variant">
+  <div class="flex items-center h-16 px-edge-margin max-w-lg mx-auto w-full">
+    <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Online Sync</h1>
+  </div>
 </header>
-<div class="flex min-h-[calc(100vh-56px)]">
-<!-- NavigationDrawer (Desktop Only) -->
-<aside class="hidden lg:flex flex-col h-[calc(100vh-56px)] w-[280px] bg-surface-container-lowest dark:bg-surface-container border-r border-outline-variant dark:border-outline sticky top-[56px] overflow-y-auto py-lg">
-<div class="px-md mb-lg">
-<div class="flex items-center gap-md px-4 py-2">
-<img alt="Lawyer's Profile Avatar" class="w-12 h-12 rounded-full border-2 border-primary" data-alt="A close-up portrait of a distinguished lawyer against a neutral, high-contrast background. The lighting is dramatic yet professional, reflecting an authoritative and modern digital legal diary brand. The image uses deep ink-blues and clean whites, aligning with a corporate stationery aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFZjGcyyYMGLpjAAJ26i01B4kTVc8K5Dp4EmwObfdGGKLp_-blFu7z0u66iirer9OauAdfU8QDez7YOIhrXtztp_zBxZAY1lzMOsKRzXoExsErwpF-M6m3MDoovyU5Qm5LGEunPra8LRvpvr6crZIDXi-Op1GoBAoxwDK3NxZNu6bRHzFyGbBMY4jMLhsaNZCRIQYcUDYdlPdHt0MhQ7daIxLYaEWsR9x6FtFRaeOth5PsmGz5ONyFlJhYjo6E0IqSZhrln6jqf0A">
-<div>
-<p class="font-title-lg text-title-lg text-primary">Asadusjaman</p>
-<p class="font-label-md text-label-md text-on-surface-variant">Advocate</p>
-</div>
-</div>
-</div>
-<nav class="flex-1 space-y-1">
-<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-full" href="#">
-<span class="material-symbols-outlined" data-icon="event">event</span>
-<span class="font-label-lg text-label-lg">Upcoming Cases</span>
-</a>
-<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-full" href="#">
-<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
-<span class="font-label-lg text-label-lg">All Cases</span>
-</a>
-<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-full" href="#">
-<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
-<span class="font-label-lg text-label-lg">Disposed Cases</span>
-</a>
-<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-full" href="#">
-<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
-<span class="font-label-lg text-label-lg">Case Reference</span>
-</a>
-<!-- Active Sync Page -->
-<a class="flex items-center gap-md bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full mx-2 px-4 py-2 scale-98 duration-100" href="#">
-<span class="material-symbols-outlined" data-icon="sync" style="font-variation-settings: &quot;FILL&quot; 1;">sync</span>
-<span class="font-label-lg text-label-lg">Sync Status</span>
-</a>
-<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant mx-2 px-4 py-2 hover:bg-surface-container-high dark:hover:bg-surface-dim transition-all rounded-full" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="font-label-lg text-label-lg">Settings</span>
-</a>
-</nav>
-</aside>
-<!-- Main Content Canvas -->
-<main class="flex-1 p-edge-margin lg:p-xl bg-background max-w-[1200px] mx-auto w-full">
-<div class="mb-md">
-<p class="font-body-md text-body-md text-on-surface-variant">Manage your real-time data sync across all your devices.</p>
-</div>
-<!-- Bento Grid Layout for Sync Status -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter pb-24">
-<!-- Main Status Card -->
-<div class="md:col-span-4 bg-primary text-on-primary rounded-xl p-lg flex flex-col shadow-sm relative overflow-hidden">
-<div class="relative z-10 mb-md">
-<p class="font-body-sm text-body-sm text-on-primary opacity-80">Subscription active until Dec 2026</p>
-</div>
-<div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none">
-<span class="material-symbols-outlined text-[160px]" data-icon="verified_user">verified_user</span>
-</div>
-</div><div class="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col justify-between shadow-sm">
-<div class="flex justify-between items-start mb-lg">
-<div>
-<span class="inline-flex items-center gap-xs px-sm py-xs bg-error-container text-error rounded-md font-label-md text-label-md mb-md">
-<span class="material-symbols-outlined text-[16px]" data-icon="error_outline">error_outline</span>
-                                Action Required
-                            </span>
-<h3 class="font-title-lg text-title-lg text-primary mb-xs">Last Sync Failed</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Connection interrupted on May 24, 2024 at 10:42 AM</p>
-</div>
-<div class="w-12 h-12 rounded-lg bg-error-container flex items-center justify-center text-error">
-<span class="material-symbols-outlined text-[24px]" data-icon="sync_problem">sync_problem</span>
-</div>
-</div>
-<div>
-<button class="w-full md:w-auto bg-primary text-on-primary font-title-md text-title-md px-xl py-sm rounded-lg hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-sm" id="syncBtn" onclick="startSync()">
-<span class="material-symbols-outlined" data-icon="sync" id="syncIcon">sync</span>
-                            Sync Now
-                        </button>
-</div>
-</div>
-<!-- Profile Management Card -->
-<!-- Sync Item: Cases -->
-<div class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" data-icon="work">work</span>
-</div>
-<div>
-<p class="font-label-lg text-label-lg text-primary">Cases</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant">124 Items</p>
-</div>
-</div>
-<div class="text-status-active flex items-center">
-<span class="material-symbols-outlined text-[20px]" data-icon="check_circle" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
-</div>
-</div>
-<!-- Sync Item: Notes -->
-<div class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" data-icon="sticky_note_2">sticky_note_2</span>
-</div>
-<div>
-<p class="font-label-lg text-label-lg text-primary">Notes</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant">48 Items</p>
-</div>
-</div>
-<div class="text-error flex items-center">
-<span class="material-symbols-outlined text-[20px]" data-icon="warning" style="font-variation-settings: &quot;FILL&quot; 1;">warning</span>
-</div>
-</div>
-<!-- Sync Item: References -->
-<div class="md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
-</div>
-<div>
-<p class="font-label-lg text-label-lg text-primary">References</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant">12 Items</p>
-</div>
-</div>
-<div class="text-status-active flex items-center">
-<span class="material-symbols-outlined text-[20px]" data-icon="check_circle" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
-</div>
-</div>
-<!-- Details/Analytics Section -->
-<div class="md:col-span-12 bg-surface border border-outline-variant rounded-xl p-lg mt-sm shadow-sm">
-<div class="flex flex-col md:flex-row justify-between md:items-start gap-md">
-<div class="flex-1">
-<h4 class="font-title-md text-title-md text-primary mb-xs">Data Security</h4>
-<p class="font-body-md text-body-md text-on-surface-variant">All legal data is AES-256 encrypted before transmission to the cloud server.</p>
-</div>
-<div class="flex gap-sm shrink-0">
-<div class="flex items-center gap-xs px-md py-sm bg-surface-container rounded-md">
-<span class="material-symbols-outlined text-[18px] text-primary" data-icon="lock">lock</span>
-<span class="font-label-md text-label-md font-bold text-primary">End-to-End</span>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+<main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
+  <p class="font-body-md text-body-md text-on-surface-variant">Manage your real-time data sync across all your devices.</p>
+
+  <!-- Account status card: Part A has no account, so it shows the sign-in state. -->
+  <div class="mt-md bg-primary rounded-lg p-lg relative overflow-hidden">
+    <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[160px] pointer-events-none" style="color: rgba(255,255,255,0.05);">verified_user</span>
+    <div class="relative">
+      <p class="font-body-sm text-body-sm" style="color: rgba(255,255,255,0.8);">Not signed in</p>
+      <p class="mt-sm font-title-md text-title-md text-on-primary">Sign in to sync your data across all your devices</p>
+    </div>
+  </div>
+
+  <!-- Sync status card: the offline placeholder state. -->
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+    <div class="flex items-start justify-between gap-md">
+      <div class="flex-1">
+        <span class="inline-flex items-center gap-xs px-sm py-xs bg-error-container rounded-md">
+          <span class="material-symbols-outlined text-[16px] text-error">error_outline</span>
+          <span class="font-label-md text-label-md text-error">Action Required</span>
+        </span>
+        <p class="mt-md font-title-lg text-title-lg text-primary">Last Sync: Never</p>
+        <p class="mt-xs font-body-sm text-body-sm">Your data stays on this device until you sign in.</p>
+      </div>
+      <div class="w-12 h-12 rounded bg-error-container flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[24px] text-error">sync_problem</span>
+      </div>
+    </div>
+    <button class="mt-lg w-full h-14 flex items-center justify-center gap-sm bg-primary text-on-primary rounded font-title-md text-title-md hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-[20px]">sync</span>
+      Sync Now
+    </button>
+  </div>
+
+  <!-- Per-entity rows: local counts, each showing it is not synced in Part A. -->
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex items-center">
+    <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">
+      <span class="material-symbols-outlined">work</span>
+    </div>
+    <div class="ml-md flex-1">
+      <p class="font-label-lg text-label-lg text-primary">Cases</p>
+      <p class="font-body-sm text-body-sm">124 Items</p>
+    </div>
+    <span class="material-symbols-outlined text-[18px] text-tertiary">cloud_off</span>
+    <span class="ml-xs font-body-sm text-body-sm text-tertiary">Not synced</span>
+  </div>
+
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex items-center">
+    <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">
+      <span class="material-symbols-outlined">sticky_note_2</span>
+    </div>
+    <div class="ml-md flex-1">
+      <p class="font-label-lg text-label-lg text-primary">Notes</p>
+      <p class="font-body-sm text-body-sm">48 Items</p>
+    </div>
+    <span class="material-symbols-outlined text-[18px] text-tertiary">cloud_off</span>
+    <span class="ml-xs font-body-sm text-body-sm text-tertiary">Not synced</span>
+  </div>
+
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex items-center">
+    <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">
+      <span class="material-symbols-outlined">menu_book</span>
+    </div>
+    <div class="ml-md flex-1">
+      <p class="font-label-lg text-label-lg text-primary">References</p>
+      <p class="font-body-sm text-body-sm">12 Items</p>
+    </div>
+    <span class="material-symbols-outlined text-[18px] text-tertiary">cloud_off</span>
+    <span class="ml-xs font-body-sm text-body-sm text-tertiary">Not synced</span>
+  </div>
 </main>
-</div>
-<!-- BottomNavBar (Mobile Only) -->
-<script>
-        function startSync() {
-            const btn = document.getElementById('syncBtn');
-            const icon = document.getElementById('syncIcon');
-            
-            // Animation state
-            btn.disabled = true;
-            btn.classList.add('opacity-70');
-            btn.innerHTML = `
-                <span class="material-symbols-outlined animate-sync">sync</span>
-                Synchronizing...
-            `;
-
-            // Simulate sync completion
-            setTimeout(() => {
-                btn.innerHTML = `
-                    <span class="material-symbols-outlined">check_circle</span>
-                    Sync Complete
-                `;
-                btn.classList.remove('bg-primary', 'opacity-70');
-                btn.classList.add('bg-status-active');
-                
-                // Refresh data status visualization would happen here
-                console.log("Data sync successful");
-                
-                setTimeout(() => {
-                    // Reset back to normal after success display
-                    btn.disabled = false;
-                    btn.classList.remove('bg-status-active');
-                    btn.classList.add('bg-primary');
-                    btn.innerHTML = `
-                        <span class="material-symbols-outlined">sync</span>
-                        Sync Now
-                    `;
-                }, 3000);
-            }, 2500);
-        }
-
-        function toggleProfile(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById('profile-dropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('profile-dropdown');
-            const profileBtn = document.getElementById('profile-btn');
-            
-            if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-    </script>
-</body></html>
+</body>
+</html>

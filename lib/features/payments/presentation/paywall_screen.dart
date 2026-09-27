@@ -153,7 +153,8 @@ class _LimitCard extends StatelessWidget {
   }
 }
 
-/// Uppercase section heading, matching the Settings sub-pages' style.
+/// Section heading, matching the Settings sub-pages' style. The ARB supplies
+/// Title Case, so nothing is uppercased at render time.
 class _SectionHeader extends StatelessWidget {
   final String text;
 

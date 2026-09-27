@@ -4,10 +4,16 @@
 /// Task 10 Phase 1. Opened from any case card via `/case-detail/:caseId`.
 /// Loads the case, its court and on-behalf role, and its history through the
 /// local repositories/DAOs and reloads after every returning dialog.
+///
+/// A hearing notification opens this screen too, but as the stack's **only**
+/// route (the router's initial location on a cold launch, a `go` on a warm
+/// tap). Closing it there has nothing to pop back to, so the close actions
+/// fall back to the configured landing page — see [_CaseDetailScreenState._close].
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -21,12 +27,14 @@ import '../../../../core/print/print_flow.dart';
 import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/print_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/on_behalf_side.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/cases/data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
+import '../../../../features/settings/presentation/settings_viewmodel.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
@@ -141,7 +149,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       final repository = await ref.read(caseRepositoryProvider.future);
       await repository.deleteCase(current);
       if (!mounted) return;
-      Navigator.of(context).pop();
+      _close();
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -234,6 +242,36 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         ),
       );
     }
+  }
+
+  /// Leaves the detail view, landing on the user's chosen landing page when
+  /// there is nothing to pop back to.
+  ///
+  /// A notification tap opens this screen as the only route on the stack, so
+  /// `pop` would empty the navigator and strand the app on a black screen. The
+  /// navigator is asked first: with history the screen pops as usual (the case
+  /// cards push it on top of their list), and at the root it goes through the
+  /// router to the stored default landing page instead. Used by both Close
+  /// controls, the delete flow and the system back gesture, so every way out
+  /// behaves the same.
+  void _close() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+    // `maybeOf`, not `of`: a test harness can mount this screen under a plain
+    // Navigator with no GoRouter above it, and there is nothing to navigate to
+    // there either way.
+    final landingKey = ref
+        .read(settingsViewModelProvider)
+        .value
+        ?.defaultLandingPage;
+    GoRouter.maybeOf(context)?.go(
+      landingKey == null
+          ? AppRoutes.allCases
+          : AppRoutes.landingPageRoute(landingKey),
+    );
   }
 
   /// Opens the shared Phone/Message chooser for the represented party.
@@ -462,9 +500,20 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(child: _buildBody(context, l)),
+    // Intercepting the pop gives the system back gesture the same care as the
+    // Close button: a notification-opened detail must fall back to the landing
+    // page rather than empty the navigator. The same pattern as the shell's
+    // exit confirmation (AppShellRoot).
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _close();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(child: _buildBody(context, l)),
+      ),
     );
   }
 
@@ -496,7 +545,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               key: const ValueKey('case-detail-close'),
               icon: Icons.close,
               label: l.caseDetailsScreen_close,
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: _close,
             ),
           ],
         ),
@@ -628,7 +677,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               key: const ValueKey('case-detail-close'),
               icon: Icons.close,
               label: l.caseDetailsScreen_close,
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: _close,
             ),
           ],
         ),

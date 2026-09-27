@@ -1,3 +1,15 @@
+### 2026-09-27 — Closing a notification-opened case detail lands on the landing page, not a black screen — COMPLETE
+
+- **The report:** the app is closed; a hearing notification is tapped and opens that case's detail view; closing the detail leaves the app on a black screen. It should return to the user's configured default landing page.
+- **The root cause was the stack, not the close button.** A notification opens the detail as the stack's **only** route: `appRouterProvider` sets it as `initialLocation` on a cold launch, and `NotificationTapListener._openCase` uses `router.go(...)` on a warm tap (a `go` replaces the whole stack). The Close buttons and the delete flow called `Navigator.of(context).pop()` unconditionally, so at the root they emptied the navigator and GoRouter threw ("nothing to pop") leaving a blank surface. Popping was only ever correct for the normal path, where a case card `push`es the detail on top of its list.
+- **The fix — one `_close()` helper on the screen.** It asks the navigator first: `canPop()` true pops exactly as before, and at the root it goes through the router to `AppRoutes.landingPageRoute(settingsViewModelProvider.defaultLandingPage)` — the screen the user chose in View Settings — so the app always lands somewhere real. Both Close controls (the normal header and the case-not-found body) and the post-delete pop now call it.
+- **The back gesture gets the same treatment.** The Scaffold is wrapped in a `PopScope(canPop: false)` that delegates to `_close()`, the same pattern `AppShellRoot` uses for its exit confirmation, so the Android back gesture cannot blank the app either. Dialogs and sheets are unaffected — they sit on top of the screen's route.
+- **`maybeOf`, not `of`.** `GoRouter.of(context)` asserts when no router is above the screen, which broke the plain-`Navigator` harness in `case_detail_test.dart`'s delete test; `GoRouter.maybeOf(context)?.go(...)` keeps that harness working while the app always has a router.
+- **Verified as a real regression, not a coincidence.** The new test was run against the old unconditional pop first and failed with three exceptions from the emptied navigator, then passed once `_close()` was restored.
+- **Tests:** `flutter analyze` clean; new test *"closing a notification-opened detail returns to the landing page"* in `test/core/notification_tap_test.dart` (now 4 tests there); full `flutter test` **740 passed, 2 skipped**.
+- **Version `0.0.280`** (recorded by `tool/record_version.py`).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16. Worth a device check: cold-launch from a hearing notification, then Close and the back gesture, and confirm both land on the configured default landing page.
+
 ### 2026-09-27 — The nudge window is a little wider, so its action fits one line — COMPLETE
 
 - **The request:** widen the nudge window a bit so "Back up to Local Storage" sits on a single line.

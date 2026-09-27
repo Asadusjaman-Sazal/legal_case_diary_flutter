@@ -82,6 +82,25 @@ void main() {
     await _unmount(tester);
   });
 
+  testWidgets('closing a notification-opened detail returns to the landing page', (
+    tester,
+  ) async {
+    final scheduler = FakeNotificationScheduler()..launchCaseIdValue = 'case-9';
+    final db = await _pumpApp(tester, scheduler);
+    addTearDown(() async => db.close());
+
+    // The tap made the detail the stack's only route, so Close has nothing to
+    // pop back to and must go to the stored landing page instead of leaving an
+    // empty navigator (the black screen).
+    await tester.tap(find.byKey(const ValueKey('case-detail-close')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CaseDetailScreen), findsNothing);
+    expect(find.byType(AllCasesScreen), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
   testWidgets('a tap while the app is running opens that case detail view', (
     tester,
   ) async {

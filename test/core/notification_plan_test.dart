@@ -59,7 +59,7 @@ void main() {
     test('alerts a case whose hearing is the configured days away', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
         preferences: const {},
@@ -78,7 +78,7 @@ void main() {
     test('leaves cases outside the configured offsets alone', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1, 3],
         cases: [
           _candidate(nextDateEpochMs: _hearingAt(todayStart, 2)),
@@ -94,7 +94,7 @@ void main() {
     test('a case alerts on the same day when the offset list says so', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [0],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 0))],
         preferences: const {},
@@ -108,7 +108,7 @@ void main() {
     test('a case\'s own offsets override the user defaults', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           // Defaults would alert this one tomorrow…
@@ -130,7 +130,7 @@ void main() {
     test('a case switched off never alerts, whatever the offsets are', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
         preferences: const {'case-1': HearingPreference(enabled: false)},
@@ -140,10 +140,10 @@ void main() {
       expect(plan.isEmpty, isTrue);
     });
 
-    test('the master switch off produces an empty plan', () {
+    test('the Settings default off leaves a case with no choice silent', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: false,
+        defaultEnabled: false,
         defaultOffsets: const [1],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
         preferences: const {},
@@ -151,6 +151,21 @@ void main() {
       );
 
       expect(plan.isEmpty, isTrue);
+    });
+
+    test('a case switched on individually alerts while the default is off', () {
+      // The Settings switch is the default a case starts from, not a veto over
+      // one the user switched on itself.
+      final plan = buildNotificationPlan(
+        todayStartEpochMs: todayStart,
+        defaultEnabled: false,
+        defaultOffsets: const [1],
+        cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
+        preferences: const {'case-1': HearingPreference()},
+        translations: _translations('en'),
+      );
+
+      expect(plan.alerts.single.caseId, 'case-1');
     });
 
     test('days are counted by Bangladesh civil date, not by instant', () {
@@ -175,7 +190,7 @@ void main() {
     test('alerts are ordered by hearing date', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1, 2],
         cases: [
           _candidate(nextDateEpochMs: _hearingAt(todayStart, 2), caseId: 'later'),
@@ -197,7 +212,7 @@ void main() {
 
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -225,7 +240,7 @@ void main() {
     test('a case with no step keeps its three lines', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
         preferences: const {},
@@ -242,7 +257,7 @@ void main() {
       // field, and without the fallback the alert would drop the line entirely.
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -260,7 +275,7 @@ void main() {
     test('the result follows the language and keeps the typed text', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -279,7 +294,7 @@ void main() {
     test('a case with both keeps the step, like the case card', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -318,7 +333,7 @@ void main() {
 
       String stepLineFor(String? courtCategoryId) => buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -344,7 +359,7 @@ void main() {
     test('a step the user typed themselves is kept as it was stored', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -365,7 +380,7 @@ void main() {
     test('a case with no case type keeps the bare number on the first line', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseType: ''),
@@ -385,7 +400,7 @@ void main() {
 
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 1))],
         preferences: const {},
@@ -418,7 +433,7 @@ void main() {
 
       String firstLineFor(String? courtCategoryId) => buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -443,7 +458,7 @@ void main() {
     test('a user-added court keeps the name the user typed', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           HearingCandidate(
@@ -467,7 +482,7 @@ void main() {
     test('the title and digits follow Bengali', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [3],
         cases: [_candidate(nextDateEpochMs: _hearingAt(todayStart, 3))],
         preferences: const {},
@@ -482,7 +497,7 @@ void main() {
     test('a missing party is dropped from the party line', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -506,7 +521,7 @@ void main() {
     test('one party alone is shown without "vs"', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(
@@ -647,6 +662,38 @@ void main() {
       );
     });
 
+    test('the Settings default decides which cases alert, not arming', () {
+      // Default on: every case may alert, so the default slot is always armed.
+      expect(
+        alertTimesFor(
+          defaultEnabled: true,
+          defaultMinutes: defaultTime,
+          caseTimes: const [],
+        ),
+        [defaultTime],
+      );
+      // Default off: only the cases switched on individually alert, so exactly
+      // the moments they need are armed…
+      expect(
+        alertTimesFor(
+          defaultEnabled: false,
+          defaultMinutes: defaultTime,
+          caseTimes: const [null, 9 * 60],
+        ),
+        [9 * 60, defaultTime],
+      );
+      // …and nothing is armed when none of them is on, which is what lets the
+      // caller cancel the schedule rather than leave slots that post nothing.
+      expect(
+        alertTimesFor(
+          defaultEnabled: false,
+          defaultMinutes: defaultTime,
+          caseTimes: const [],
+        ),
+        isEmpty,
+      );
+    });
+
     test('a slot run posts only that slot\'s cases', () {
       final cases = [
         _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'early'),
@@ -658,7 +705,7 @@ void main() {
 
       final morning = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: cases,
         preferences: preferences,
@@ -668,7 +715,7 @@ void main() {
       );
       final evening = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: cases,
         preferences: preferences,
@@ -684,7 +731,7 @@ void main() {
     test('with no slot given every due case is alerted, as before', () {
       final plan = buildNotificationPlan(
         todayStartEpochMs: todayStart,
-        enabled: true,
+        defaultEnabled: true,
         defaultOffsets: const [1],
         cases: [
           _candidate(nextDateEpochMs: _hearingAt(todayStart, 1), caseId: 'early'),

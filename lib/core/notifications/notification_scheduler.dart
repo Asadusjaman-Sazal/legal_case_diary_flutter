@@ -90,7 +90,10 @@ abstract class NotificationScheduler {
   Future<bool> batteryOptimizationIgnored();
 
   /// (Re-)arms the daily hearing job from the stored settings. Idempotent: it
-  /// cancels the previous alarm first and does nothing when alerts are off.
+  /// cancels the previous alarm first, and arms nothing once no case may alert —
+  /// that is, when the Settings default is off and no case has been switched on
+  /// individually. The default itself does not stop the arming: a case switched
+  /// on individually alerts while that default is off.
   Future<void> syncSchedule();
 
   /// Cancels the daily alarm and clears any posted hearing notifications.

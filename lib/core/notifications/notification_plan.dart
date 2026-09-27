@@ -10,6 +10,11 @@
 /// (0 = hearing day, 1 = the day before, …). The offsets come from the per-user
 /// defaults, overridden by the case's own `case_notification_preferences` row —
 /// both per-user preference values.
+///
+/// Whether a case alerts at all is decided the same way: its own
+/// `case_notification_preferences.enabled` if it has a row, otherwise the
+/// Settings → Notifications default. That default never vetoes a case the user
+/// switched on individually.
 library;
 
 import 'dart:convert';
@@ -154,6 +159,31 @@ List<int> distinctNotificationTimes(
   return times.toList()..sort();
 }
 
+/// The alarm slots to arm, given the Settings default and the times of the
+/// cases that may alert (`null` = that case follows [defaultMinutes]).
+///
+/// The default decides *which cases may alert*, never whether anything is armed:
+/// with it on every case may alert, so [defaultMinutes] is always one of the
+/// slots; with it off only the cases switched on individually alert, so the
+/// result holds exactly the moments they need — their own time, or
+/// [defaultMinutes] when they follow it — and is **empty** when no such case
+/// exists, which is what lets the caller cancel the schedule outright. A corrupt
+/// per-case time falls back to [defaultMinutes], as it does everywhere else.
+List<int> alertTimesFor({
+  required bool defaultEnabled,
+  required int defaultMinutes,
+  required Iterable<int?> caseTimes,
+}) {
+  if (defaultEnabled) {
+    return distinctNotificationTimes(defaultMinutes, caseTimes);
+  }
+  final times = <int>{
+    for (final own in caseTimes)
+      if (own == null || !isValidTimeOfDay(own)) defaultMinutes else own,
+  };
+  return times.toList()..sort();
+}
+
 /// One day of work for the job.
 class NotificationPlan {
   /// Alerts to post, ordered by hearing date.
@@ -248,10 +278,17 @@ int notificationIdFor(String caseId) {
 }
 
 /// Builds the day's alerts from the stored configuration and the candidate
-/// cases. Returns an empty plan when alerts are switched off.
+/// cases.
+///
+/// [defaultEnabled] is the **Default Notification Status** switch from
+/// Settings → Notifications, and it is only ever a *default*: a case follows its
+/// own `case_notification_preferences` row when it has one and this value when
+/// it does not. It is deliberately not a veto — a case the user switched on
+/// individually still alerts while that default is off, because the switch is
+/// what a case starts from, not a decision about which cases may alert.
 NotificationPlan buildNotificationPlan({
   required int todayStartEpochMs,
-  required bool enabled,
+  required bool defaultEnabled,
   required List<int> defaultOffsets,
   required List<HearingCandidate> cases,
   required Map<String, HearingPreference> preferences,
@@ -259,13 +296,12 @@ NotificationPlan buildNotificationPlan({
   int defaultTimeMinutes = defaultNotificationMinutes,
   int? onlyTimeMinutes,
 }) {
-  if (!enabled) return const NotificationPlan(<HearingAlert>[]);
-
   final alerts = <HearingAlert>[];
   for (final candidate in cases) {
     final preference = preferences[candidate.caseId];
-    // A case the user switched off never alerts, whatever the global offsets are.
-    if (preference != null && !preference.enabled) continue;
+    // The case's own choice if it has one, else the Settings default. A case
+    // switched off never alerts, whatever the global offsets are.
+    if (!(preference?.enabled ?? defaultEnabled)) continue;
 
     final offsetDays = dayOffsetFor(
       todayStartEpochMs: todayStartEpochMs,

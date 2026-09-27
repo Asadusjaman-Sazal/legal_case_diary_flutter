@@ -30,7 +30,13 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
       final rows = await CaseNotificationPreferencesDao(
         db,
       ).getByUserId(identity.getId());
-      return [for (final row in rows) row.timeMinutes];
+      // Only the cases that may alert: a case the user switched off never does,
+      // whatever Settings → Notifications' default is, so its slot — its own
+      // time, or the default when it follows that — must not be armed.
+      return [
+        for (final row in rows)
+          if (row.enabled) row.timeMinutes,
+      ];
     },
   );
 });

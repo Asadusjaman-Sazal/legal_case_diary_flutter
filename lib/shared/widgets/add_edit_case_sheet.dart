@@ -460,8 +460,12 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         _permissionResolved = true;
         _canAdd = permissions.canAdd;
         _canEdit = permissions.canEdit;
+        // The case's own choice if it has one, else the Settings default — the
+        // same rule that decides whether it alerts, so what this toggle shows is
+        // what will actually happen. A case whose toggle reads On always alerts.
+        _isNotificationEnabled =
+            casePreference?.enabled ?? settings.notificationEnabled;
         if (casePreference != null) {
-          _isNotificationEnabled = casePreference.enabled;
           _notificationTimeMinutes = casePreference.timeMinutes;
           _selectedNotificationOffsets = _decodeOffsets(
             casePreference.offsets,
@@ -1887,7 +1891,10 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
           preference?.offsets,
           fallback: settings.notificationDayOffset,
         );
-        _isNotificationEnabled = preference?.enabled ?? true;
+        // The case's own choice if it has one, else the Settings default (the
+        // same rule the alert planner applies).
+        _isNotificationEnabled =
+            preference?.enabled ?? settings.notificationEnabled;
         _notificationTimeMinutes = preference?.timeMinutes;
         _defaultNotificationTime =
             settings.notificationTime ?? defaultNotificationMinutes;

@@ -83,9 +83,10 @@ Future<List<HearingAlert>> runHearingNotificationJob({
     final settings = UserSettings.fromRow(
       await UserPreferencesDao(db).getByUserId(userId),
     );
-    // Alerts switched off: post nothing and let the next launch or settings
-    // change decide the schedule, so a disabled preference cannot self-rearm.
-    if (!settings.notificationEnabled) return const <HearingAlert>[];
+    // No gate on the Settings switch here: it is only the default for cases
+    // that never made a choice of their own, so a case switched on individually
+    // must still alert while that default is off. Those cases' slots stop being
+    // armed by `syncSchedule` once none of them is on any more.
 
     final reference = nowEpochMs ?? DateTime.now().millisecondsSinceEpoch;
     final todayStart = AppDateUtils.bangladeshTodayStartOfDay(
@@ -146,9 +147,13 @@ Future<List<HearingAlert>> runHearingNotificationJob({
     final translations = AppTranslations(
       lookupAppLocalizations(Locale(settings.language)),
     );
+    // The plan follows each case's own choice first; the Settings switch is only
+    // the default for cases that never made one. So a case switched on
+    // individually still alerts while that default is off — the job keeps
+    // running for it until the schedule itself is cancelled.
     final plan = buildNotificationPlan(
       todayStartEpochMs: todayStart,
-      enabled: settings.notificationEnabled,
+      defaultEnabled: settings.notificationEnabled,
       defaultOffsets: settings.notificationDefaultOffsets,
       cases: candidates,
       preferences: preferences,

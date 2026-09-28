@@ -63,6 +63,10 @@ const double _flatSqueeze = 1;
 
 /// The Month | Year pair: two straight lists side by side, whose current values
 /// are confirmed together by a tap on either column.
+///
+/// The pair is also reported while it spins, through [onChanged], so a caller
+/// that shows something *about* the month (the badge calendar's header) can
+/// follow the wheel instead of waiting for the confirming tap.
 class MonthYearPickerColumns extends StatefulWidget {
   /// First year the year column offers.
   final int firstYear;
@@ -79,6 +83,12 @@ class MonthYearPickerColumns extends StatefulWidget {
   /// Called with the confirmed month and year when a row is tapped.
   final void Function(int month, int year) onPicked;
 
+  /// Called as the columns spin, with the pair they are pointing at right now.
+  ///
+  /// Optional: a caller that only cares about the tapped value (the forms'
+  /// date pickers) leaves it out.
+  final void Function(int month, int year)? onChanged;
+
   const MonthYearPickerColumns({
     super.key,
     required this.firstYear,
@@ -86,6 +96,7 @@ class MonthYearPickerColumns extends StatefulWidget {
     required this.month,
     required this.year,
     required this.onPicked,
+    this.onChanged,
   });
 
   @override
@@ -94,9 +105,13 @@ class MonthYearPickerColumns extends StatefulWidget {
 
 class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
   /// Live positions — what the two columns point at right now. They reach the
-  /// calendar only when a row is tapped.
+  /// calendar on the confirming tap, and are reported as they move too so a
+  /// caller can follow the wheel.
   late int _month = widget.month;
   late int _year = widget.year;
+
+  /// Tells an interested caller the pair the columns are showing now.
+  void _reportLivePicks() => widget.onChanged?.call(_month, _year);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +132,10 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                     ).format(DateTime(2023, m, 1)),
                 ],
                 selectedIndex: _month - 1,
-                onChanged: (index) => setState(() => _month = index + 1),
+                onChanged: (index) {
+                  setState(() => _month = index + 1);
+                  _reportLivePicks();
+                },
                 onRowTapped: (index) => widget.onPicked(index + 1, _year),
                 labelAlignment: Alignment.center,
               ),
@@ -133,8 +151,10 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                   0,
                   widget.lastYear - widget.firstYear,
                 ),
-                onChanged: (index) =>
-                    setState(() => _year = widget.firstYear + index),
+                onChanged: (index) {
+                  setState(() => _year = widget.firstYear + index);
+                  _reportLivePicks();
+                },
                 onRowTapped: (index) =>
                     widget.onPicked(_month, widget.firstYear + index),
                 labelAlignment: Alignment.centerLeft,

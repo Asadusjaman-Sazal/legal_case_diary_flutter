@@ -4,9 +4,11 @@
 /// hearing-count badge: a gray badge when the date has hearings, no badge when
 /// it does not. "Today" is highlighted with a black cell and a white badge
 /// (white badge only when it has hearings). The month title is paired with a
-/// "Total Hearings:" count for the visible month only (summed from the per-date
-/// hearing counts). Used only on the Daily Cause List screen (per the design
-/// plan).
+/// "Total Hearings:" count, and both describe the month the picker is showing:
+/// the day grid's month, or — while the Month/Year columns are open — the month
+/// the wheel is pointing at, so the header follows the spin before any tap. The
+/// total is summed from the per-date hearing counts. Used only on the Daily
+/// Cause List screen (per the design plan).
 library;
 
 import 'package:flutter/material.dart';
@@ -98,6 +100,12 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
   /// Which selection view is showing: the day grid or the month/year columns.
   _PickerMode _mode = _PickerMode.day;
 
+  /// While the Month/Year columns are open, the month they currently point at
+  /// (day pinned to 1), so the header's title and Total Hearings follow the
+  /// wheel. Null whenever the day grid is showing, which is what makes reopening
+  /// the columns start from the month the grid is on.
+  DateTime? _previewMonth;
+
   @override
   void initState() {
     super.initState();
@@ -115,16 +123,22 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
   /// Applies the month and year confirmed by a tap and returns to the day grid.
   void _pickMonthYear(int month, int year) => setState(() {
         _focusedMonth = DateTime(year, month, 1);
+        _previewMonth = null;
         _mode = _PickerMode.day;
       });
 
   /// Opens the month/year columns, or closes them back to the day grid. Both
   /// columns appear together, whichever header opened them.
-  void _toggleMonthYear() => setState(
-        () => _mode = _mode == _PickerMode.monthYear
-            ? _PickerMode.day
-            : _PickerMode.monthYear,
-      );
+  void _toggleMonthYear() => setState(() {
+        if (_mode == _PickerMode.monthYear) {
+          _mode = _PickerMode.day;
+          // Closing without confirming drops the spin's month, so the header goes
+          // back to the day grid's own month.
+          _previewMonth = null;
+        } else {
+          _mode = _PickerMode.monthYear;
+        }
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -132,18 +146,26 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     final locale = l.localeName;
     final year = _focusedMonth.year;
     final month = _focusedMonth.month;
+    // The month the header describes: the wheel's own month while the columns
+    // are open, otherwise the month the day grid is on.
+    final titleMonth = _mode == _PickerMode.monthYear
+        ? (_previewMonth ?? _focusedMonth)
+        : _focusedMonth;
     final firstWeekday = DateTime(year, month, 1).weekday; // Mon=1 .. Sun=7
     final leadingBlanks = firstWeekday % 7; // Sunday-first offset.
     final daysInMonth = DateTime(year, month + 1, 0).day;
 
-    // Total Hearings reflects the visible month only: sum the hearing counts
-    // across that month's civil-day epochs in the all-dates map.
+    // Total Hearings reflects the month the header is showing — the wheel's
+    // month while the columns are open — summed across that month's civil-day
+    // epochs in the all-dates map.
+    final titleDaysInMonth =
+        DateTime(titleMonth.year, titleMonth.month + 1, 0).day;
     var totalHearings = 0;
-    for (var day = 1; day <= daysInMonth; day++) {
+    for (var day = 1; day <= titleDaysInMonth; day++) {
       totalHearings +=
           widget.hearingCounts[AppDateUtils.bangladeshCivilDateEpoch(
-        year,
-        month,
+        titleMonth.year,
+        titleMonth.month,
         day,
       )] ??
               0;
@@ -186,7 +208,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                               children: [
                                 Text(
                                   DateFormat('MMMM', locale)
-                                      .format(_focusedMonth),
+                                      .format(titleMonth),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium,
@@ -216,7 +238,7 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                               children: [
                                 Text(
                                   AppDateUtils.formatDigits(
-                                    _focusedMonth.year,
+                                    titleMonth.year,
                                     locale,
                                     grouping: false,
                                   ),
@@ -266,6 +288,11 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                   month: month,
                   year: year,
                   onPicked: _pickMonthYear,
+                  // The header follows the wheel as it spins, so the title and
+                  // the total already describe the month a tap will confirm.
+                  onChanged: (wheelMonth, wheelYear) => setState(
+                    () => _previewMonth = DateTime(wheelYear, wheelMonth, 1),
+                  ),
                 )
               : _DayGridView(
                   year: year,

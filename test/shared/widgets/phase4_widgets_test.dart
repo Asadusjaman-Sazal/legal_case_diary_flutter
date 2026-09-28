@@ -69,6 +69,18 @@ void main() {
   });
 
   group('CalendarPickerDialog', () {
+    /// The scroll view behind one month/year column, so a test can spin it.
+    FixedExtentScrollController columnOf(WidgetTester tester, Key key) =>
+        tester
+                .widget<ListWheelScrollView>(
+                  find.descendant(
+                    of: find.byKey(key),
+                    matching: find.byType(ListWheelScrollView),
+                  ),
+                )
+                .controller!
+            as FixedExtentScrollController;
+
     testWidgets('renders a dialog with a close button', (
       WidgetTester tester,
     ) async {
@@ -118,6 +130,70 @@ void main() {
 
       // Total must reflect only this month's 2, not 2 + 3 = 5 across all dates.
       expect(find.text('Total Hearings: 2'), findsOneWidget);
+    });
+
+    testWidgets('the header follows the month/year wheel before a tap', (
+      WidgetTester tester,
+    ) async {
+      // Two hearings today, seven on a March a year out. Spinning the columns to
+      // that month must move the header straight away — nothing is tapped.
+      final today = AppDateUtils.bangladeshTodayStartOfDay();
+      final todayCivil = AppDateUtils.bangladeshDateTime(today);
+      final nextYear = todayCivil.year + 1;
+      final marchEpoch = AppDateUtils.bangladeshCivilDateEpoch(nextYear, 3, 15);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CalendarPickerDialog(
+              initialDate: today,
+              hearingCounts: <int, int>{today: 2, marchEpoch: 7},
+              onDateSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Total Hearings: 2'), findsOneWidget);
+
+      // The header month opens both columns; spin the year and then the month.
+      await tester.tap(
+        find.text(
+          intl.DateFormat('MMMM')
+              .format(DateTime(todayCivil.year, todayCivil.month, 1)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      columnOf(tester, monthYearPickerYearColumnKey).jumpToItem(nextYear - 1900);
+      await tester.pumpAndSettle();
+      columnOf(tester, monthYearPickerMonthColumnKey).jumpToItem(2);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Total Hearings: 7'), findsOneWidget);
+
+      // The title moved with the total: the header's own column now reads March
+      // of the spun year, while the day grid has not moved off today's month.
+      final header = find
+          .ancestor(
+            of: find.text('Total Hearings: 7'),
+            matching: find.byType(Column),
+          )
+          .first;
+      expect(
+        find.descendant(of: header, matching: find.text('March')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: header,
+          matching: find.text(
+            AppDateUtils.formatDigits(nextYear, 'en', grouping: false),
+          ),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('dates, years and hearing counts use Bengali digits', (
@@ -238,27 +314,16 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        FixedExtentScrollController controllerOf(Key key) =>
-            tester
-                    .widget<ListWheelScrollView>(
-                      find.descendant(
-                        of: find.byKey(key),
-                        matching: find.byType(ListWheelScrollView),
-                      ),
-                    )
-                    .controller!
-                as FixedExtentScrollController;
-
         // The header's month opens both columns at once; the year column spans
         // 1900-2100 and opens on the focused year rather than at 1900.
         await tester.tap(find.text(monthLabel));
         await tester.pumpAndSettle();
         expect(
-          controllerOf(monthYearPickerMonthColumnKey).selectedItem,
+          columnOf(tester, monthYearPickerMonthColumnKey).selectedItem,
           todayCivil.month - 1,
         );
         expect(
-          controllerOf(monthYearPickerYearColumnKey).selectedItem,
+          columnOf(tester, monthYearPickerYearColumnKey).selectedItem,
           todayCivil.year - 1900,
         );
         expect(
@@ -276,7 +341,7 @@ void main() {
 
         // Spinning the year column moves only that column; tapping the centred
         // month row then confirms both columns and returns to the day grid.
-        controllerOf(monthYearPickerYearColumnKey).jumpToItem(2100 - 1900);
+        columnOf(tester, monthYearPickerYearColumnKey).jumpToItem(2100 - 1900);
         await tester.pumpAndSettle();
         await tester.tap(
           find.descendant(

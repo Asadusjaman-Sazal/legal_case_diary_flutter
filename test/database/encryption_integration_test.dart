@@ -1,6 +1,13 @@
 /// Integration tests for SQLite3MultipleCiphers database encryption and key
-/// management. Encryption-specific checks only run on platforms where
-/// SQLite3MultipleCiphers is bundled.
+/// management.
+///
+/// The encryption-specific checks run wherever the loaded sqlite3 library
+/// actually speaks the cipher. That is decided by asking the library, not by
+/// naming platforms: the cipher is bundled *with* the library (the `sqlite3`
+/// build hook builds it from `source: sqlite3mc`), so the desktop host that runs
+/// `flutter test` has it too — a platform list would skip checks that could have
+/// run, and would run them where the library is plain SQLite, where `PRAGMA key`
+/// is a silent no-op that writes the data in the clear.
 library;
 
 import 'dart:io';
@@ -10,6 +17,23 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:legal_case_diary/database/database_factory.dart';
 import 'package:legal_case_diary/database/encryption_key_manager.dart';
+
+/// Whether the sqlite3 library this process loaded is SQLite3MultipleCiphers,
+/// and so understands `PRAGMA key`.
+///
+/// The same question the app itself asks (`DatabaseFactory._hasCipher`), put to
+/// a throwaway in-memory database: the cipher knows the pragma and answers it,
+/// while plain SQLite does not know it at all and returns no rows.
+bool _librarySupportsEncryption() {
+  final probe = sqlite3.openInMemory();
+  try {
+    return probe.select('PRAGMA cipher;').isNotEmpty;
+  } on Exception {
+    return false;
+  } finally {
+    probe.close();
+  }
+}
 
 void main() {
   late Directory tempDir;
@@ -75,9 +99,9 @@ void main() {
     });
   });
 
-  group('SQLite3MultipleCiphers encryption (mobile only)', () {
-    final isCipherPlatform =
-        Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+  group('SQLite3MultipleCiphers encryption (where the cipher is bundled)', () {
+    // Asked once for the whole group; a library either has the cipher or not.
+    final hasCipherSupport = _librarySupportsEncryption();
 
     const plaintext = 'Legal Case Diary secret fixture';
 
@@ -104,7 +128,7 @@ void main() {
         final fileContent = String.fromCharCodes(bytes);
         expect(fileContent.contains(plaintext), false);
       },
-      skip: !isCipherPlatform,
+      skip: !hasCipherSupport,
     );
 
     test(
@@ -150,7 +174,7 @@ void main() {
           reDb.close();
         }
       },
-      skip: !isCipherPlatform,
+      skip: !hasCipherSupport,
     );
   });
 }

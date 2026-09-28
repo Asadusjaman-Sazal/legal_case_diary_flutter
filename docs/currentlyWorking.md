@@ -1,3 +1,14 @@
+### 2026-09-28 — The two skipped encryption tests were skipping on a host that has the cipher — COMPLETE
+
+- **The report:** the suite always ends *2 skipped*. Which two, and can they be fixed?
+- **They were the SQLite3MultipleCiphers checks in `test/database/encryption_integration_test.dart`** — *raw database bytes do not contain known plaintext* and *database rejects a wrong key without replacing data* — skipped by a hard-coded platform list: `Platform.isAndroid || Platform.isIOS || Platform.isMacOS`. The list was stale, not protective.
+- **The cipher is not a platform property here, it is a property of the loaded library.** `pubspec.yaml` builds the native sqlite3 through the build hook with `source: sqlite3mc`, so `sqlite3mc.dll` is what the test VM loads (`build/native_assets/windows/sqlite3mc.dll`) — the same library the app runs against. Forcing the gate open proved it: both tests pass unchanged on this Windows host, including the check that no plaintext reaches the file.
+- **The skip condition is now a capability probe instead of a platform name.** `_librarySupportsEncryption()` asks a throwaway in-memory database `PRAGMA cipher;` and treats a non-empty answer as support — the exact question the app's own `DatabaseFactory._hasCipher` already asks before it applies `PRAGMA key`. The cipher knows the pragma; plain SQLite does not know it and returns no rows. So the checks now run wherever the capability is real (this host, macOS, the phones) and still skip gracefully on a host whose library is plain SQLite, where `PRAGMA key` is a silent no-op that would write the data in the clear and make the tests fail for the wrong reason.
+- **First probe pragma was wrong, and the run showed it.** `PRAGMA cipher_version` — the obvious choice — returns no rows in this sqlite3mc build (it answers `PRAGMA cipher;` with `[{chacha20: chacha20}]` but has no `cipher_version` and no `pragma_cipher_version` table function), so the group skipped itself again until the probe was aligned with the factory's. Found with a scratch probe test, since deleted.
+- **Tests:** the file is **7 tests, none skipped**; `flutter analyze` clean; full `flutter test` **748 passed, 0 skipped** — the *2 skipped* is gone from the suite's summary for the first time. `docs/part_a_manual_test_pass.md`'s status line was corrected to *748 passed, none skipped* (it had said 739 passed, 2 skipped).
+- **Version `0.0.288`** (recorded by `tool/record_version.py`; `--check` clean).
+- **Resume point:** unchanged — run `docs/part_a_manual_test_pass.md` on the device before Task 16.
+
 ### 2026-09-28 — The calendar's month title and Total Hearings follow the Month/Year wheel — COMPLETE
 
 - **The request (Daily Cause List > the calendar dialog only):** when the user clicks the Month/Year selector, the **Total Hearing count** should update according to the month selected in the scroll wheel.

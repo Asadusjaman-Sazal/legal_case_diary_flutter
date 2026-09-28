@@ -2,7 +2,7 @@
 
 > **Why this exists.** Task 15 Phase 6 closes with: *“PART A is now complete — run the full offline manual test pass before starting Task 16.”* Part A is the whole offline app (Tasks 01–15). This document is that pass.
 >
-> **What it is not.** It is not a re-run of the automated suite. `flutter analyze` is clean and `flutter test` is **739 passed, 2 skipped**; the 50-case boundary, the encryption round-trip, tamper rejection, the restore rollback, the nudge rule and the month boundary are all pinned by tests. Every item below exists because **only a device can prove it** — a platform channel, an OS dialog, a real status bar, an aggressive OEM, or a physical print/share target.
+> **What it is not.** It is not a re-run of the automated suite. `flutter analyze` is clean and `flutter test` is **748 passed, none skipped**; the 50-case boundary, the encryption round-trip, tamper rejection, the restore rollback, the nudge rule and the month boundary are all pinned by tests. Every item below exists because **only a device can prove it** — a platform channel, an OS dialog, a real status bar, an aggressive OEM, or a physical print/share target.
 >
 > **Ends with:** a recorded pass/fail per item. Any failure is fixed through the normal phase protocol (a new `docs/version_history.md` entry + `docs/currentlyWorking.md` note) before Task 16 begins.
 >

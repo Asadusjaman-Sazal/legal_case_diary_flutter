@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
+import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/case_reference/data/local/case_references_dao.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
@@ -88,6 +89,9 @@ void main() {
           ),
         ],
         child: MaterialApp.router(
+          // The app's own theme, so `titleMedium` resolves to the semibold face
+          // the empty state is expected to borrow from the case lists.
+          theme: AppTheme.lightTheme(const Locale('en')),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           routerConfig: router,
@@ -162,12 +166,23 @@ void main() {
         findsNothing,
         reason: '$name keeps the bar inside the list',
       );
+      // The bar sits above the body: the scrolled rows when the library has
+      // any, the centred "nothing yet" message when it has none — the empty
+      // state has no list at all, exactly like the case lists'.
+      final listFinder = find.byType(ListView);
+      final body = listFinder.evaluate().isNotEmpty
+          ? listFinder.first
+          : find
+                .descendant(
+                  of: find.byType(Expanded),
+                  matching: find.byType(Center),
+                )
+                .first;
       final bar = tester.getRect(find.byType(ScopedSearchBar));
-      final list = tester.getRect(find.byType(ListView).first);
       expect(
         bar.bottom,
-        lessThanOrEqualTo(list.top + 0.01),
-        reason: '$name does not sit the bar above the list',
+        lessThanOrEqualTo(tester.getRect(body).top + 0.01),
+        reason: '$name does not sit the bar above the body',
       );
 
       // The (x) closes the search, as on the case lists.
@@ -178,6 +193,50 @@ void main() {
       await unmount(tester);
     }
   });
+
+  testWidgets(
+    'an empty library centres its message, semibold, like the case lists',
+    (tester) async {
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      final screens = <(Widget, String)>[
+        (const NotesScreen(), l.notesScreen_empty),
+        (const CaseReferenceScreen(), l.caseReferenceScreen_empty),
+      ];
+
+      for (final (screen, message) in screens) {
+        final name = screen.runtimeType.toString();
+        await pumpLibrary(tester, screen);
+
+        final messageRect = tester.getRect(find.text(message));
+        final bodyRect = tester.getRect(
+          find
+              .descendant(
+                of: find.byType(Expanded),
+                matching: find.byType(Center),
+              )
+              .first,
+        );
+        // Middle of the body, not the top of a list.
+        expect(
+          (messageRect.center.dy - bodyRect.center.dy).abs(),
+          lessThan(1.0),
+          reason: '$name does not centre its message vertically',
+        );
+        expect(
+          (messageRect.center.dx - bodyRect.center.dx).abs(),
+          lessThan(1.0),
+          reason: '$name does not centre its message horizontally',
+        );
+
+        // The Active Cases weight and size: titleMedium.
+        final style = tester.widget<Text>(find.text(message)).style;
+        expect(style?.fontWeight, FontWeight.w600, reason: name);
+        expect(style?.fontSize, 16.0, reason: name);
+
+        await unmount(tester);
+      }
+    },
+  );
 
   testWidgets('the Notes query filters the library and can be cleared', (
     tester,

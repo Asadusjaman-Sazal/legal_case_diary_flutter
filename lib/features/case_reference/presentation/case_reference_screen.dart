@@ -174,20 +174,16 @@ class _ReferenceList extends StatelessWidget {
     final children = <Widget>[];
 
     if (references.isEmpty) {
-      return ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          Center(
-            child: Text(
-              isSearching && totalCount > 0
-                  ? l.sharedDialogs_noResults
-                  : l.caseReferenceScreen_empty,
-              style: AppTypography.bodyMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ],
+      // Nothing to list: one semibold message centred in the screen, exactly
+      // like the case-list empty state on Active Cases. The body sits in the
+      // shell's `Expanded`, so the bare `Center` owns the whole area.
+      return Center(
+        child: Text(
+          isSearching && totalCount > 0
+              ? l.sharedDialogs_noResults
+              : l.caseReferenceScreen_empty,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
       );
     }
 

@@ -37,10 +37,11 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All fourteen migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All sixteen migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
-that no amount of reading had caught, all fixed and re-applied:
+that no amount of reading had caught, all fixed and re-applied; Task 17 Phase 5's
+`ensure_firm` added a fifth the same way (see below):
 
 1. **`approve_payment` would not compile** — an unparenthesized `CASE` in an `IF`
    condition, which plpgsql ends at the CASE's own `then` (`syntax error at end
@@ -55,6 +56,12 @@ that no amount of reading had caught, all fixed and re-applied:
    (`profiles.full_name`, `firms.name`, none on `payment_submissions`).
 4. **`anon` could execute both RPCs** — its own default-privilege EXECUTE grant
    outlives `REVOKE ALL ... FROM PUBLIC`, so `anon` is now named in the revoke.
+5. **`ensure_firm` wrote a bigint into a `timestamptz`** (Task 17 Phase 5) —
+   `firms.created_at` is a server instant while `firm_members.synced_at` is
+   client-facing epoch ms, and the function used one `v_now` for both. Caught by
+   executing the function for the first time, not by reading it: the fix lets
+   `firms.created_at` take its column default and keeps the bigint for the
+   member stamps.
 
 What is verified now:
 
@@ -63,23 +70,32 @@ What is verified now:
 - `supabase/tests/rpc_smoke_test.sql` — **passes** against the project:
   `approve_payment`, `join_firm`, the rate limits, the free-tier ceiling and the
   ledger's immutability.
-- Live state: 23 tables all with RLS on, 57 policies, 21 functions, 15 recorded
+- `public.ensure_firm(text)` (Task 17 Phase 5) — **verified by running it**
+  against the project inside a rolled-back transaction: signed out it answers
+  `{"status":"unauthenticated"}`, an empty name raises without creating
+  anything, a real call returns `ready` and relinks `profiles.firm_id`/`role`,
+  creates the firm with the caller as owner and upserts the owner's
+  `firm_members` row with all three permission flags, and a second call is
+  idempotent — one firm, one member row, rename respected. `anon` and `public`
+  are refused the EXECUTE grant.
+- Live state: 23 tables all with RLS on, 57 policies, 22 functions, 16 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
 - `flutter analyze` clean; `dart run tool/generate_supabase_seed.dart --check` and
   `dart run tool/generate_all_supabase_sql.dart --check` clean;
-  `flutter test test/supabase/` green (62 tests, structural invariants plus the
+  `flutter test test/supabase/` green (63 tests, structural invariants plus the
   ledger contracts).
 
 ## Known gaps (found by the first apply, not yet closed)
 
 - **`anon` can execute 17 SECURITY DEFINER functions**, `purge_tombstones()`
   among them, because Supabase's default privileges grant EXECUTE on every new
-  `public` function directly to `anon`. The two RPCs are locked; the rest need a
-  closing migration (`revoke execute on all functions in schema public from anon`
-  plus an `alter default privileges` so future ones stay closed).
+  `public` function directly to `anon`. The three RPCs (`approve_payment`,
+  `join_firm`, `ensure_firm`) are locked; the rest need a closing migration
+  (`revoke execute on all functions in schema public from anon` plus an
+  `alter default privileges` so future ones stay closed).
 - **Every RLS policy calls `auth.uid()` per row** (`auth_rls_initplan`, 50
   policies). Wrapping the calls as `(select auth.uid())` is the documented fix and
   is mechanical.

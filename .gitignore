@@ -61,3 +61,10 @@ supabase/.branches/
 # Local, never-committed connection string for psql apply/verify runs.
 # Holds the `lsthasywrdrhuuxnykau` session-pooler URI; see supabase/README.md.
 supabase/.env.local
+
+# Build secrets for the app itself, read by
+# `flutter run --dart-define-from-file=env.json` (Task 17). Holds the project
+# URL, its publishable/anon key and the Google Web client ID. Neither key is
+# secret — every build ships them — but a build must never inherit one project's
+# key by accident, so they stay out of the repository.
+env.json

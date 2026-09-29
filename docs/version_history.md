@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.300 - Added profiles.last_successful_sync_at as an analytics-only server column with no app mirror, and corrected the plan so the AD/HCD fields live on cases, closing the Task 16 audit's last two schema findings.
+Version: 0.0.305 - Task 17 Phase 5 complete: owner-side invite primitives (50-bit Crockford codes, hash-only storage, revoke, ensure_firm, online-only guard) covered by 15 tests, and the ensure_firm migration applied and verified live.
 --------------------------------------
 
 ## Version History Log:
@@ -314,3 +314,8 @@ Version: 0.0.297 - Added a read-only checker for every seeded table and pinned t
 Version: 0.0.298 - Audited Task 16 item by item against the task file and the plan's schema: recorded the one failing Addendum item and the four column-level deviations in docs/task16_audit.md.
 Version: 0.0.299 - Withdrew Revision 2.4's petitioner_phone/respondent_phone split in the plan so the app's single cases.party_phone is the recorded final model, closed the Task 16 Addendum 3 phone finding, and re-applied the corrected cases table comment.
 Version: 0.0.300 - Added profiles.last_successful_sync_at as an analytics-only server column with no app mirror, and corrected the plan so the AD/HCD fields live on cases, closing the Task 16 audit's last two schema findings.
+Version: 0.0.301 - Task 17 Phase 1: Supabase client initialized from a git-ignored --dart-define env.json, the session kept in secure storage, and a typed AuthRepository that leaves an unconfigured build fully offline.
+Version: 0.0.302 - Task 17 Phase 2 complete: Login, Sign Up (Individual or Join Existing Firm with invite code), Google sign-in, emailed-code password reset, atomic identity adoption and the first-run gate, all built to the mockups with 46 new tests.
+Version: 0.0.303 - Task 17 Phase 3 complete: ProfileRepository caches full_name/role/firm_id/subscription_expiry as epoch ms, one provider decides firm mode and its permissions, Manage Account shows real data with a Subscription Details sheet, and the caches empty on logout.
+Version: 0.0.304 - Task 17 Phase 4 complete: the real connectivity monitor, a session state distinguishing an offline stale token from an online rejection, a sign-in notice that never touches local data, and a reconnect refresh.
+Version: 0.0.305 - Task 17 Phase 5 complete: owner-side invite primitives (50-bit Crockford codes, hash-only storage, revoke, ensure_firm, online-only guard) covered by 15 tests, and the ensure_firm migration applied and verified live.

@@ -114,6 +114,21 @@ unaffected. Keep an offline backup of the keystore and its password in separate 
 certificate fingerprints (`keytool -list -v -keystore <keystore>`) because Google Play and any future
 API-key restriction need them.
 
+## Running With A Backend
+
+The app talks to Supabase only when the build carries the connection settings, so a plain
+`flutter run` starts the fully offline diary. To run against the project, copy the values into a local,
+git-ignored `env.json` (`SUPABASE_URL`, `SUPABASE_ANON_KEY` — the publishable/anon key, never the
+service key — and `GOOGLE_WEB_CLIENT_ID`) and pass it to the build:
+
+```bash
+flutter run --dart-define-from-file=env.json
+```
+
+The URL must name the one writable project (`lsthasywrdrhuuxnykau`); any other project, the off-limits
+one included, is treated as *not configured* and the app runs offline rather than reaching the wrong
+backend.
+
 ## Documentation
 
 - [Authoritative implementation plan](docs/implementation_plan.md)

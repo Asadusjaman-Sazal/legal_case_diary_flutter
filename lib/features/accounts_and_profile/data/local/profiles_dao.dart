@@ -39,6 +39,15 @@ class ProfilesDao {
       ..where((row) => row.id.equals(id)))
       .getSingleOrNull();
 
+  /// Reactive stream of one profile, or null while it is not cached.
+  ///
+  /// This is what the account/firm-mode providers watch: the cache is the only
+  /// source the UI reads, and a refresh that writes the row notifies every
+  /// screen at once.
+  Stream<Profile?> watchById(String id) => (db.select(db.profiles)
+        ..where((row) => row.id.equals(id)))
+      .watchSingleOrNull();
+
   /// Returns cached profiles for a specific firm.
   Future<List<Profile>> getByFirmId(String firmId, {int? limit, int? offset}) async {
     final query = db.select(db.profiles)

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/app.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +15,13 @@ void main() {
   testWidgets('App root smoke test — router lands on Daily Cause List', (
     WidgetTester tester,
   ) async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
+    // Task 17's sign-in gate is satisfied, so this smoke test keeps testing what
+    // it is about: a device that has passed the gate opens on its configured
+    // landing page. What a *fresh* install opens on (the Login screen) is pinned
+    // by the auth gate suite.
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      authGateSatisfiedKey: true,
+    });
     final prefs = await SharedPreferences.getInstance();
     late AppDatabase db;
 

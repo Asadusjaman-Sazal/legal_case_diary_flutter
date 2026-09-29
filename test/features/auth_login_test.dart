@@ -1,0 +1,254 @@
+/// Task 17 Phase 2 — the unified Login screen.
+///
+/// The screen is built to `mockup_html_screens/settings_onlineSync_login`: one
+/// Email + Password form for everyone, the show/hide password control, the
+/// "Forgot Password?" link, the Google button and the Sign Up line. These tests
+/// pin the behaviour behind that body: every failure the user can hit has its
+/// own message, the form is validated before anything is sent, and a success
+/// stores the identity the rest of the app then reads.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_widgets.dart';
+import 'package:legal_case_diary/features/auth/presentation/login_screen.dart';
+
+import 'auth_test_support.dart';
+
+void main() {
+  late AuthTestHarness harness;
+  late AppLocalizations l;
+
+  /// Pumps the login screen inside the harness.
+  Future<void> pumpLogin(WidgetTester tester) async {
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpAuthScreen(tester, const LoginScreen(), overrides: overrides);
+    l = await AppLocalizations.delegate.load(const Locale('en'));
+  }
+
+  /// Types [email] and [password] and taps Login.
+  Future<void> submitLogin(
+    WidgetTester tester, {
+    String email = 'counsel@example.com',
+    String password = 'secret123',
+  }) async {
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      email,
+    );
+    await tester.enterText(find.byType(TextFormField).last, password);
+    await tester.tap(find.text(l.auth_loginButton));
+    await tester.pumpAndSettle();
+  }
+
+  setUp(() => harness = AuthTestHarness());
+  tearDown(() async {
+    await harness.tearDown();
+    await harness.auth.dispose();
+  });
+
+  testWidgets('renders the mockup card, its fields and its links', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    expect(find.text(l.appName), findsOneWidget);
+    expect(find.text(l.auth_loginSubtitle), findsOneWidget);
+    expect(find.text(l.auth_emailLabel), findsOneWidget);
+    expect(find.text(l.auth_passwordLabel), findsOneWidget);
+    expect(find.text(l.auth_forgotPassword), findsOneWidget);
+    expect(find.text(l.auth_loginButton), findsOneWidget);
+    expect(find.text(l.auth_orContinueWith), findsOneWidget);
+    expect(find.text(l.auth_googleLogin), findsOneWidget);
+    expect(find.byType(GoogleMark), findsOneWidget);
+    expect(find.text(l.auth_noAccount), findsOneWidget);
+    expect(find.text(l.auth_signUpLink), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('validates the form before sending anything', (tester) async {
+    await pumpLogin(tester);
+
+    await tester.tap(find.text(l.auth_loginButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.auth_validationEmailRequired), findsOneWidget);
+    expect(find.text(l.auth_validationPasswordRequired), findsOneWidget);
+    expect(harness.auth.signInEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('rejects something that is not an email address', (tester) async {
+    await pumpLogin(tester);
+
+    await submitLogin(tester, email: 'not-an-email');
+
+    expect(find.text(l.auth_validationEmailInvalid), findsOneWidget);
+    expect(harness.auth.signInEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('wrong credentials are reported in their own words', (
+    tester,
+  ) async {
+    harness.auth.signInError = const AuthFailure(
+      AuthFailureKind.invalidCredentials,
+    );
+    await pumpLogin(tester);
+
+    await submitLogin(tester, password: 'wrong-one');
+
+    expect(harness.auth.signInPasswords, ['wrong-one']);
+    expect(find.text(l.auth_errorInvalidCredentials), findsOneWidget);
+    // The screen stays put so the user can correct the password.
+    expect(find.byType(LoginScreen), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an unconfirmed email is told apart from a wrong password', (
+    tester,
+  ) async {
+    harness.auth.signInError = const AuthFailure(
+      AuthFailureKind.emailNotConfirmed,
+    );
+    await pumpLogin(tester);
+
+    await submitLogin(tester);
+
+    expect(find.text(l.auth_errorEmailNotConfirmed), findsOneWidget);
+    expect(find.text(l.auth_errorInvalidCredentials), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a network failure says so and keeps the form for a retry', (
+    tester,
+  ) async {
+    harness.auth.signInError = const AuthFailure(AuthFailureKind.network);
+    await pumpLogin(tester);
+
+    await submitLogin(tester);
+
+    expect(find.text(l.auth_errorNetwork), findsOneWidget);
+
+    // Retry: the second attempt succeeds and clears the message.
+    harness.auth.signInError = null;
+    await tester.tap(find.text(l.auth_loginButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.auth_errorNetwork), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a successful sign-in remembers the account locally', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    await submitLogin(tester);
+
+    final local = LocalAuthService(harness.prefs);
+    expect(local.cachedUserId, 'user-1');
+    expect(local.cachedEmail, 'counsel@example.com');
+    expect(local.gateSatisfied, isTrue);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Google button signs in and a dismissal is not an error', (
+    tester,
+  ) async {
+    harness.auth.googleError = const AuthFailure(AuthFailureKind.cancelled);
+    await pumpLogin(tester);
+
+    await tester.tap(find.text(l.auth_googleLogin));
+    await tester.pumpAndSettle();
+
+    expect(harness.auth.googleCalls, 1);
+    // A dismissed sheet leaves no red banner behind.
+    expect(
+      tester
+          .widgetList<AuthErrorBanner>(find.byType(AuthErrorBanner))
+          .every((banner) => banner.text == null),
+      isTrue,
+    );
+
+    harness.auth.googleError = null;
+    await tester.tap(find.text(l.auth_googleLogin));
+    await tester.pumpAndSettle();
+
+    expect(
+      LocalAuthService(harness.prefs).cachedUserId,
+      'google-1',
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the password toggle switches between hidden and shown', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    // The field's own state lives in the EditableText it builds.
+    bool obscured() =>
+        tester.widget<EditableText>(find.byType(EditableText).last).obscureText;
+
+    expect(obscured(), isTrue);
+
+    await tester.tap(find.byIcon(Icons.visibility_off_outlined));
+    await tester.pumpAndSettle();
+
+    expect(obscured(), isFalse);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a pending invite code from an interrupted sign-up is finished', (
+    tester,
+  ) async {
+    // The project had e-mail confirmation on, so the code could not be redeemed
+    // at sign-up; the next sign-in redeems it.
+    harness = AuthTestHarness(
+      preferences: <String, Object>{pendingInviteCodeKey: 'abcde12345'},
+    );
+    await pumpLogin(tester);
+
+    await submitLogin(tester);
+
+    expect(harness.firm.redeemedCodes, ['abcde12345']);
+    expect(pendingInviteCode(harness.prefs), isNull);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a failed pending redemption keeps the code and says why', (
+    tester,
+  ) async {
+    harness = AuthTestHarness(
+      preferences: <String, Object>{pendingInviteCodeKey: 'abcde12345'},
+    );
+    harness.firm.redeemError = const AuthFailure(AuthFailureKind.invalidCode);
+    await pumpLogin(tester);
+
+    await submitLogin(tester);
+
+    // The sign-in itself worked, and the code is still there to retry.
+    expect(LocalAuthService(harness.prefs).cachedUserId, 'user-1');
+    expect(pendingInviteCode(harness.prefs), 'abcde12345');
+    expect(find.text(l.auth_errorInvalidCode), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+}

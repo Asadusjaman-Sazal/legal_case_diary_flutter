@@ -56,6 +56,14 @@ class FirmMembersDao {
     return query.get();
   }
 
+  /// Reactive stream of one user's membership, or null while it is not cached.
+  ///
+  /// A user belongs to one firm, so the first row is the membership the
+  /// permission providers read.
+  Stream<FirmMember?> watchByUserId(String userId) => (db.select(db.firmMembers)
+        ..where((row) => row.userId.equals(userId)))
+      .watchSingleOrNull();
+
   /// Returns a firm member by id, or null if not found.
   Future<FirmMember?> getById(String id) async => (db.select(db.firmMembers)
       ..where((row) => row.id.equals(id)))

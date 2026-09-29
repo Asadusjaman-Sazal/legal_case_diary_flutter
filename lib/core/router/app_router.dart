@@ -15,6 +15,9 @@ import '../../features/accounts_and_profile/presentation/accounts_profile_menu_s
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
+import '../../features/auth/presentation/auth_gate.dart';
+import '../../features/auth/presentation/auth_viewmodel.dart';
+import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/case_reference/presentation/case_reference_screen.dart';
@@ -115,6 +118,7 @@ class AppRoutes {
   static const String caseDetail = '/case-detail/:caseId';
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String forgotPassword = '/forgot-password';
   static const String paywall = '/paywall';
   static const String checkout = '/checkout';
 
@@ -136,20 +140,62 @@ class AppRoutes {
 // Router provider
 // ---------------------------------------------------------------------------
 
-/// Provides the configured [GoRouter] instance.
+/// The route the app opens on, resolved from the user's configured default
+/// landing page.
 ///
-/// Awaits [settingsRepositoryProvider] to resolve the correct initial landing
-/// page before constructing the router, so the preference is always honoured.
-/// Falls back to Daily Cause List if settings are unavailable.
-final appRouterProvider = FutureProvider<GoRouter>((ref) async {
-  String initialLocation = AppRoutes.dailyCauseList;
+/// Shared by the router (which starts there) and by the auth screens (which
+/// return there after a successful sign-in), so the preference is honoured in
+/// both directions. Falls back to Daily Cause List when settings are
+/// unavailable.
+final defaultLandingRouteProvider = FutureProvider<String>((ref) async {
   try {
     final repo = await ref.watch(settingsRepositoryProvider.future);
     final s = await repo.getSettings();
-    initialLocation = AppRoutes.landingPageRoute(s.defaultLandingPage);
+    return AppRoutes.landingPageRoute(s.defaultLandingPage);
   } catch (_) {
-    // Settings unavailable — keep default.
+    // Settings unavailable — keep the built-in default.
+    return AppRoutes.dailyCauseList;
   }
+});
+
+/// Whether [location] is one of the auth screens.
+bool _isAuthRoute(String location) =>
+    location == AppRoutes.login ||
+    location == AppRoutes.signup ||
+    location == AppRoutes.forgotPassword;
+
+/// Bridges Riverpod's auth state into a [Listenable] GoRouter can refresh on.
+///
+/// The router re-evaluates its redirect whenever the identity changes — signing
+/// in, signing out, or the server rejecting a session — and never for a token
+/// refresh, because the auth state only changes when the identity does.
+class AuthRouterRefresh extends ChangeNotifier {
+  /// Subscribes to the auth state for as long as the router lives.
+  AuthRouterRefresh(Ref ref) {
+    _subscription = ref.listen<AsyncValue<AuthState>>(
+      authViewModelProvider,
+      (_, _) => notifyListeners(),
+    );
+  }
+
+  late final ProviderSubscription<AsyncValue<AuthState>> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.close();
+    super.dispose();
+  }
+}
+
+/// Provides the configured [GoRouter] instance.
+///
+/// Awaits the configured landing page and the sign-in gate before constructing
+/// the router, so the first frame is already the right screen: a device with
+/// nothing on it opens Login, and a device that already holds the user's own
+/// diary opens its usual landing page and is asked to sign in rather than
+/// forced to (see `auth_gate.dart`).
+final appRouterProvider = FutureProvider<GoRouter>((ref) async {
+  var initialLocation = await ref.watch(defaultLandingRouteProvider.future);
 
   // A hearing tap that launched the app opens that case directly, overriding
   // the configured landing page for this one launch (Task 13 Phase 1, item 5).
@@ -162,9 +208,33 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
     // No notification launched the app (or the platform has no plugin).
   }
 
+  // Decided once per launch from facts already on the device. A later sign-out
+  // clears the gate flag, which the logout flow (Task 19) handles by navigating
+  // explicitly; nothing here re-gates a running app.
+  final requiresSignIn = await ref.watch(authGateRequiredProvider.future);
+  if (requiresSignIn) initialLocation = AppRoutes.login;
+
+  final refresh = AuthRouterRefresh(ref);
+  ref.onDispose(refresh.dispose);
+
   return GoRouter(
     initialLocation: initialLocation,
     debugLogDiagnostics: false,
+    refreshListenable: refresh,
+    redirect: (context, state) {
+      final signedIn = ref.read(authIdentityProvider) != null;
+      final atAuthRoute = _isAuthRoute(state.matchedLocation);
+
+      // A device that must sign in cannot reach the diary without an account.
+      if (requiresSignIn && !signedIn && !atAuthRoute) return AppRoutes.login;
+
+      // Somebody who is signed in has no business on the auth screens.
+      if (signedIn && atAuthRoute) {
+        return ref.read(defaultLandingRouteProvider).value ??
+            AppRoutes.dailyCauseList;
+      }
+      return null;
+    },
     routes: [
       // ------------------------------------------------------------------
       // Shell route — wraps all main screens with AppShellRoot + DatabaseGuard.
@@ -191,6 +261,10 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       GoRoute(
         path: AppRoutes.signup,
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.paywall,

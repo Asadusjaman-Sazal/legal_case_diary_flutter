@@ -733,8 +733,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sharedMessages_signInRequired =>
-      'Available after sign-in (Task 17)';
+  String get sharedMessages_signInRequired => 'Sign In To Continue';
 
   @override
   String get appShell_exitTitle => 'Exit App?';
@@ -1070,6 +1069,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsManageAccount_deleteCannotBeUndone =>
       'This action cannot be undone';
+
+  @override
+  String get settingsManageAccount_loggedOut => 'You Have Been Logged Out.';
+
+  @override
+  String get settingsManageAccount_role => 'Role';
+
+  @override
+  String get settingsManageAccount_roleIndividual => 'Individual';
+
+  @override
+  String get settingsManageAccount_roleOwner => 'Owner';
+
+  @override
+  String get settingsManageAccount_roleAssociate => 'Associate';
+
+  @override
+  String get settingsManageAccount_roleViewer => 'Viewer';
+
+  @override
+  String get settingsManageAccount_firm => 'Firm';
+
+  @override
+  String get settingsManageAccount_subscription => 'Subscription';
+
+  @override
+  String get settingsManageAccount_planFree => 'Free';
+
+  @override
+  String get settingsManageAccount_planPremium => 'Premium';
+
+  @override
+  String settingsManageAccount_premiumUntil(String date) {
+    return 'Premium Until $date';
+  }
 
   @override
   String get settingsOnlineSync_title => 'Online Sync';
@@ -2500,4 +2534,246 @@ class AppLocalizationsEn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'Current language: $language';
   }
+
+  @override
+  String get auth_loginSubtitle => 'Sign in to your legal workspace';
+
+  @override
+  String get auth_emailLabel => 'Email';
+
+  @override
+  String get auth_emailHint => 'counsel@example.com';
+
+  @override
+  String get auth_passwordLabel => 'Password';
+
+  @override
+  String get auth_passwordHint => '••••••••';
+
+  @override
+  String get auth_forgotPassword => 'Forgot Password?';
+
+  @override
+  String get auth_loginButton => 'Login';
+
+  @override
+  String get auth_orContinueWith => 'Or Continue With';
+
+  @override
+  String get auth_googleLogin => 'Login With Google';
+
+  @override
+  String get auth_googleSignup => 'Sign Up With Google';
+
+  @override
+  String get auth_noAccount => 'Don\'t have an account?';
+
+  @override
+  String get auth_signUpLink => 'Sign Up';
+
+  @override
+  String get auth_haveAccount => 'Already have an account?';
+
+  @override
+  String get auth_loginLink => 'Login';
+
+  @override
+  String get auth_signupTitle => 'Create Account';
+
+  @override
+  String get auth_signupSubtitle =>
+      'Join the secure ledger for legal professionals.';
+
+  @override
+  String get auth_fullNameLabel => 'Full Name';
+
+  @override
+  String get auth_fullNameHint => 'Adv. John Doe';
+
+  @override
+  String get auth_barAssociationLabel => 'Bar Association';
+
+  @override
+  String get auth_barAssociationHint => 'Dhaka Bar';
+
+  @override
+  String get auth_emailAddressLabel => 'Email Address';
+
+  @override
+  String get auth_emailAddressHint => 'john.doe@chambers.com';
+
+  @override
+  String get auth_passwordHelper => 'Must be at least 8 characters long.';
+
+  @override
+  String get auth_accountTypeLabel => 'Account Type';
+
+  @override
+  String get auth_accountTypeIndividual => 'Individual';
+
+  @override
+  String get auth_accountTypeJoinFirm => 'Join Existing Firm';
+
+  @override
+  String get auth_inviteCodeLabel => 'Invite Code';
+
+  @override
+  String get auth_inviteCodeHint => 'ABCDE12345';
+
+  @override
+  String get auth_inviteCodeHelper =>
+      'Ask your firm owner for a single-use code.';
+
+  @override
+  String get auth_termsAgreePrefix => 'I agree to the';
+
+  @override
+  String get auth_termsOfService => 'Terms of Service';
+
+  @override
+  String get auth_termsAgreeJoin => 'and';
+
+  @override
+  String get auth_privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get auth_signUpButton => 'Sign Up';
+
+  @override
+  String get auth_showPassword => 'Show Password';
+
+  @override
+  String get auth_hidePassword => 'Hide Password';
+
+  @override
+  String get auth_continueWithoutAccount => 'Continue Without An Account';
+
+  @override
+  String get auth_continueWithoutAccountNote =>
+      'Your cases stay on this device.';
+
+  @override
+  String get auth_checkEmailTitle => 'Check Your Email';
+
+  @override
+  String auth_checkEmailMessage(String email) {
+    return 'We sent a confirmation link to $email. Open it, then log in.';
+  }
+
+  @override
+  String get auth_backToLogin => 'Back To Login';
+
+  @override
+  String get auth_forgotTitle => 'Reset Password';
+
+  @override
+  String get auth_forgotSubtitle =>
+      'Enter your email and we will send a recovery code.';
+
+  @override
+  String get auth_sendCodeButton => 'Send Code';
+
+  @override
+  String get auth_recoveryCodeLabel => 'Recovery Code';
+
+  @override
+  String get auth_recoveryCodeHelper =>
+      'Open the code we emailed you, then choose a new password.';
+
+  @override
+  String get auth_recoverySent => 'Code Sent';
+
+  @override
+  String get auth_newPasswordLabel => 'New Password';
+
+  @override
+  String get auth_setPasswordButton => 'Set New Password';
+
+  @override
+  String get auth_passwordUpdated => 'Your password has been updated.';
+
+  @override
+  String get auth_errorInvalidCredentials =>
+      'Wrong email or password. Please try again.';
+
+  @override
+  String get auth_errorEmailNotConfirmed =>
+      'Confirm your email address first — open the link we sent you.';
+
+  @override
+  String get auth_errorEmailInUse =>
+      'That email already has an account. Log in instead.';
+
+  @override
+  String get auth_errorWeakPassword =>
+      'Choose a password with at least 8 characters.';
+
+  @override
+  String get auth_errorRateLimited =>
+      'Too many attempts. Please wait a few minutes and try again.';
+
+  @override
+  String get auth_errorInvalidCode =>
+      'That invite code is not valid. Check it with your firm owner.';
+
+  @override
+  String get auth_errorTooManyAttempts =>
+      'Too many attempts. Please try again later.';
+
+  @override
+  String get auth_errorFirmAdminOffline =>
+      'Connect to the internet to manage your firm.';
+
+  @override
+  String get auth_errorAlreadyMember =>
+      'You are already a member of this firm.';
+
+  @override
+  String get auth_joinedFirm => 'You Have Joined The Firm.';
+
+  @override
+  String get auth_errorNetwork =>
+      'No connection. Check your internet and try again.';
+
+  @override
+  String get auth_errorUnavailable => 'Sign-in is not available in this build.';
+
+  @override
+  String get auth_errorAccountMismatch =>
+      'This device belongs to another account. Log in with that account, or restore a backup.';
+
+  @override
+  String get auth_errorUnknown => 'Something went wrong. Please try again.';
+
+  @override
+  String get auth_validationEmailRequired => 'Enter your email address.';
+
+  @override
+  String get auth_validationEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get auth_validationPasswordRequired => 'Enter your password.';
+
+  @override
+  String get auth_validationPasswordTooShort => 'Use at least 8 characters.';
+
+  @override
+  String get auth_validationFullNameRequired => 'Enter your full name.';
+
+  @override
+  String get auth_validationBarAssociationRequired =>
+      'Enter your bar association.';
+
+  @override
+  String get auth_validationInviteCodeRequired => 'Enter your invite code.';
+
+  @override
+  String get auth_validationTermsRequired =>
+      'Accept the Terms of Service and Privacy Policy to continue.';
+
+  @override
+  String get auth_sessionExpired => 'Your Session Expired. Sign In Again.';
+
+  @override
+  String get auth_sessionExpiredAction => 'Sign In';
 }

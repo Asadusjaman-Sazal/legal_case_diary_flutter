@@ -1433,7 +1433,7 @@ abstract class AppLocalizations {
   /// No description provided for @sharedMessages_signInRequired.
   ///
   /// In en, this message translates to:
-  /// **'Available after sign-in (Task 17)'**
+  /// **'Sign In To Continue'**
   String get sharedMessages_signInRequired;
 
   /// No description provided for @appShell_exitTitle.
@@ -2053,6 +2053,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This action cannot be undone'**
   String get settingsManageAccount_deleteCannotBeUndone;
+
+  /// No description provided for @settingsManageAccount_loggedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Been Logged Out.'**
+  String get settingsManageAccount_loggedOut;
+
+  /// No description provided for @settingsManageAccount_role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get settingsManageAccount_role;
+
+  /// No description provided for @settingsManageAccount_roleIndividual.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual'**
+  String get settingsManageAccount_roleIndividual;
+
+  /// No description provided for @settingsManageAccount_roleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get settingsManageAccount_roleOwner;
+
+  /// No description provided for @settingsManageAccount_roleAssociate.
+  ///
+  /// In en, this message translates to:
+  /// **'Associate'**
+  String get settingsManageAccount_roleAssociate;
+
+  /// No description provided for @settingsManageAccount_roleViewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewer'**
+  String get settingsManageAccount_roleViewer;
+
+  /// No description provided for @settingsManageAccount_firm.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm'**
+  String get settingsManageAccount_firm;
+
+  /// No description provided for @settingsManageAccount_subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get settingsManageAccount_subscription;
+
+  /// No description provided for @settingsManageAccount_planFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get settingsManageAccount_planFree;
+
+  /// No description provided for @settingsManageAccount_planPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get settingsManageAccount_planPremium;
+
+  /// No description provided for @settingsManageAccount_premiumUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Until {date}'**
+  String settingsManageAccount_premiumUntil(String date);
 
   /// No description provided for @settingsOnlineSync_title.
   ///
@@ -4385,6 +4451,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current language: {language}'**
   String localeScratch_currentLanguage(String language);
+
+  /// No description provided for @auth_loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your legal workspace'**
+  String get auth_loginSubtitle;
+
+  /// No description provided for @auth_emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get auth_emailLabel;
+
+  /// No description provided for @auth_emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'counsel@example.com'**
+  String get auth_emailHint;
+
+  /// No description provided for @auth_passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get auth_passwordLabel;
+
+  /// No description provided for @auth_passwordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'••••••••'**
+  String get auth_passwordHint;
+
+  /// No description provided for @auth_forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get auth_forgotPassword;
+
+  /// No description provided for @auth_loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get auth_loginButton;
+
+  /// No description provided for @auth_orContinueWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Or Continue With'**
+  String get auth_orContinueWith;
+
+  /// No description provided for @auth_googleLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login With Google'**
+  String get auth_googleLogin;
+
+  /// No description provided for @auth_googleSignup.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up With Google'**
+  String get auth_googleSignup;
+
+  /// No description provided for @auth_noAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get auth_noAccount;
+
+  /// No description provided for @auth_signUpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get auth_signUpLink;
+
+  /// No description provided for @auth_haveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get auth_haveAccount;
+
+  /// No description provided for @auth_loginLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get auth_loginLink;
+
+  /// No description provided for @auth_signupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get auth_signupTitle;
+
+  /// No description provided for @auth_signupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the secure ledger for legal professionals.'**
+  String get auth_signupSubtitle;
+
+  /// No description provided for @auth_fullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get auth_fullNameLabel;
+
+  /// No description provided for @auth_fullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Adv. John Doe'**
+  String get auth_fullNameHint;
+
+  /// No description provided for @auth_barAssociationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Association'**
+  String get auth_barAssociationLabel;
+
+  /// No description provided for @auth_barAssociationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhaka Bar'**
+  String get auth_barAssociationHint;
+
+  /// No description provided for @auth_emailAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get auth_emailAddressLabel;
+
+  /// No description provided for @auth_emailAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'john.doe@chambers.com'**
+  String get auth_emailAddressHint;
+
+  /// No description provided for @auth_passwordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be at least 8 characters long.'**
+  String get auth_passwordHelper;
+
+  /// No description provided for @auth_accountTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get auth_accountTypeLabel;
+
+  /// No description provided for @auth_accountTypeIndividual.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual'**
+  String get auth_accountTypeIndividual;
+
+  /// No description provided for @auth_accountTypeJoinFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Join Existing Firm'**
+  String get auth_accountTypeJoinFirm;
+
+  /// No description provided for @auth_inviteCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Code'**
+  String get auth_inviteCodeLabel;
+
+  /// No description provided for @auth_inviteCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ABCDE12345'**
+  String get auth_inviteCodeHint;
+
+  /// No description provided for @auth_inviteCodeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your firm owner for a single-use code.'**
+  String get auth_inviteCodeHelper;
+
+  /// No description provided for @auth_termsAgreePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the'**
+  String get auth_termsAgreePrefix;
+
+  /// No description provided for @auth_termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get auth_termsOfService;
+
+  /// No description provided for @auth_termsAgreeJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'and'**
+  String get auth_termsAgreeJoin;
+
+  /// No description provided for @auth_privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get auth_privacyPolicy;
+
+  /// No description provided for @auth_signUpButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get auth_signUpButton;
+
+  /// No description provided for @auth_showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Password'**
+  String get auth_showPassword;
+
+  /// No description provided for @auth_hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Password'**
+  String get auth_hidePassword;
+
+  /// No description provided for @auth_continueWithoutAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Without An Account'**
+  String get auth_continueWithoutAccount;
+
+  /// No description provided for @auth_continueWithoutAccountNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cases stay on this device.'**
+  String get auth_continueWithoutAccountNote;
+
+  /// No description provided for @auth_checkEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Your Email'**
+  String get auth_checkEmailTitle;
+
+  /// AUTH
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a confirmation link to {email}. Open it, then log in.'**
+  String auth_checkEmailMessage(String email);
+
+  /// No description provided for @auth_backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back To Login'**
+  String get auth_backToLogin;
+
+  /// No description provided for @auth_forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get auth_forgotTitle;
+
+  /// No description provided for @auth_forgotSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we will send a recovery code.'**
+  String get auth_forgotSubtitle;
+
+  /// No description provided for @auth_sendCodeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Code'**
+  String get auth_sendCodeButton;
+
+  /// No description provided for @auth_recoveryCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery Code'**
+  String get auth_recoveryCodeLabel;
+
+  /// No description provided for @auth_recoveryCodeHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the code we emailed you, then choose a new password.'**
+  String get auth_recoveryCodeHelper;
+
+  /// No description provided for @auth_recoverySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code Sent'**
+  String get auth_recoverySent;
+
+  /// No description provided for @auth_newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get auth_newPasswordLabel;
+
+  /// No description provided for @auth_setPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Set New Password'**
+  String get auth_setPasswordButton;
+
+  /// No description provided for @auth_passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password has been updated.'**
+  String get auth_passwordUpdated;
+
+  /// No description provided for @auth_errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email or password. Please try again.'**
+  String get auth_errorInvalidCredentials;
+
+  /// No description provided for @auth_errorEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email address first — open the link we sent you.'**
+  String get auth_errorEmailNotConfirmed;
+
+  /// No description provided for @auth_errorEmailInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'That email already has an account. Log in instead.'**
+  String get auth_errorEmailInUse;
+
+  /// No description provided for @auth_errorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password with at least 8 characters.'**
+  String get auth_errorWeakPassword;
+
+  /// No description provided for @auth_errorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a few minutes and try again.'**
+  String get auth_errorRateLimited;
+
+  /// No description provided for @auth_errorInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That invite code is not valid. Check it with your firm owner.'**
+  String get auth_errorInvalidCode;
+
+  /// No description provided for @auth_errorTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please try again later.'**
+  String get auth_errorTooManyAttempts;
+
+  /// No description provided for @auth_errorFirmAdminOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to manage your firm.'**
+  String get auth_errorFirmAdminOffline;
+
+  /// No description provided for @auth_errorAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already a member of this firm.'**
+  String get auth_errorAlreadyMember;
+
+  /// No description provided for @auth_joinedFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Joined The Firm.'**
+  String get auth_joinedFirm;
+
+  /// No description provided for @auth_errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Check your internet and try again.'**
+  String get auth_errorNetwork;
+
+  /// No description provided for @auth_errorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in is not available in this build.'**
+  String get auth_errorUnavailable;
+
+  /// No description provided for @auth_errorAccountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This device belongs to another account. Log in with that account, or restore a backup.'**
+  String get auth_errorAccountMismatch;
+
+  /// No description provided for @auth_errorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get auth_errorUnknown;
+
+  /// No description provided for @auth_validationEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address.'**
+  String get auth_validationEmailRequired;
+
+  /// No description provided for @auth_validationEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get auth_validationEmailInvalid;
+
+  /// No description provided for @auth_validationPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password.'**
+  String get auth_validationPasswordRequired;
+
+  /// No description provided for @auth_validationPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters.'**
+  String get auth_validationPasswordTooShort;
+
+  /// No description provided for @auth_validationFullNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name.'**
+  String get auth_validationFullNameRequired;
+
+  /// No description provided for @auth_validationBarAssociationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your bar association.'**
+  String get auth_validationBarAssociationRequired;
+
+  /// No description provided for @auth_validationInviteCodeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your invite code.'**
+  String get auth_validationInviteCodeRequired;
+
+  /// No description provided for @auth_validationTermsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the Terms of Service and Privacy Policy to continue.'**
+  String get auth_validationTermsRequired;
+
+  /// No description provided for @auth_sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Session Expired. Sign In Again.'**
+  String get auth_sessionExpired;
+
+  /// No description provided for @auth_sessionExpiredAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get auth_sessionExpiredAction;
 }
 
 class _AppLocalizationsDelegate

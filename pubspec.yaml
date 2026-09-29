@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.300
+version: 0.0.305
 
 environment:
   sdk: ^3.12.2
@@ -75,6 +75,18 @@ dependencies:
   # so the two can never coexist in this project.
   archive: ^4.0.9
   xml: ^7.0.1
+  # Supabase Auth + PostgREST/RPC client (Task 17). Part A shipped without any
+  # networking package on purpose; this is the task that turns it on.
+  supabase_flutter: ^2.17.2
+
+  # Connectivity stream for the auth state machine's offline/online split
+  # (deferred from Task 01; first used by Task 17 Phase 4).
+  connectivity_plus: ^7.3.1
+
+  # Native Google sign-in. The ID token goes to Supabase Auth via
+  # `signInWithIdToken`, so no browser redirect or custom URL scheme is needed;
+  # the Google provider and its OAuth client are dashboard/console settings.
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

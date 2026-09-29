@@ -25,6 +25,7 @@ import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/notifications/oem_setup_guide.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -370,7 +371,11 @@ void main() {
     ) async {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(() async => db.close());
-      SharedPreferences.setMockInitialValues(<String, Object>{});
+      // The sign-in gate (Task 17) is satisfied: these tests are about the OEM
+      // setup guide, and they pump the whole app.
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        authGateSatisfiedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       scheduler.device = const DeviceIdentity(
         manufacturer: 'Xiaomi',
@@ -391,7 +396,11 @@ void main() {
     testWidgets('a phone that needs nothing is not interrupted', (tester) async {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(() async => db.close());
-      SharedPreferences.setMockInitialValues(<String, Object>{});
+      // The sign-in gate (Task 17) is satisfied: these tests are about the OEM
+      // setup guide, and they pump the whole app.
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        authGateSatisfiedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       scheduler.device = const DeviceIdentity(
         manufacturer: 'Google',
@@ -409,7 +418,11 @@ void main() {
     ) async {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(() async => db.close());
-      SharedPreferences.setMockInitialValues(<String, Object>{});
+      // The sign-in gate (Task 17) is satisfied: these tests are about the OEM
+      // setup guide, and they pump the whole app.
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        authGateSatisfiedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       scheduler
         ..device = const DeviceIdentity(manufacturer: 'Xiaomi')

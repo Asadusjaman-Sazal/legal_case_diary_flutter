@@ -54,8 +54,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        15,
-        reason: 'Task 16 shipped fourteen migrations; the audit closure added one',
+        16,
+        reason: 'Task 16 shipped fourteen; the audit closure added one and '
+            'Task 17 Phase 5 added the owner-side ensure_firm conversion',
       );
     });
 

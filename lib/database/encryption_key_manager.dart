@@ -40,10 +40,14 @@ abstract class KeyStorage {
 
 /// Secure storage backed by `flutter_secure_storage` (Android Keystore / iOS
 /// Keychain / Windows DPAPI, etc.).
-class _FlutterSecureKeyStorage implements KeyStorage {
+///
+/// Public because it is the app's one secure key/value store: Task 17's Supabase
+/// session lives in the same place, behind its own key, rather than adding a
+/// second adapter for the same plugin.
+class FlutterSecureKeyStorage implements KeyStorage {
   final FlutterSecureStorage _storage;
 
-  const _FlutterSecureKeyStorage() : _storage = const FlutterSecureStorage();
+  const FlutterSecureKeyStorage() : _storage = const FlutterSecureStorage();
 
   @override
   Future<String?> read({required String key}) => _storage.read(key: key);
@@ -57,7 +61,7 @@ class _FlutterSecureKeyStorage implements KeyStorage {
 }
 
 /// In-memory key storage for testing.
-class _InMemoryKeyStorage implements KeyStorage {
+class InMemoryKeyStorage implements KeyStorage {
   final _map = <String, String>{};
 
   @override
@@ -86,13 +90,13 @@ class EncryptionKeyManager {
 
   /// Creates a manager using secure storage by default.
   EncryptionKeyManager({
-    this.storage = const _FlutterSecureKeyStorage(),
+    this.storage = const FlutterSecureKeyStorage(),
     this.keyName = _defaultKeyName,
   });
 
   /// Creates a manager backed by in-memory storage for tests.
   factory EncryptionKeyManager.inMemory() =>
-      EncryptionKeyManager(storage: _InMemoryKeyStorage());
+      EncryptionKeyManager(storage: InMemoryKeyStorage());
 
   /// Returns the existing key or creates, stores, and returns a new one.
   Future<String> getOrCreateKey() async {

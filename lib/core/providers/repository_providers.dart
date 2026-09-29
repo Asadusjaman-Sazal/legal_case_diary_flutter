@@ -5,6 +5,9 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../features/auth/data/auth_repository.dart';
+import '../../features/auth/data/supabase_auth_repository.dart';
 import '../../features/case_reference/data/local/case_references_dao.dart';
 import '../../features/case_reference/data/reference_repository.dart';
 import '../../features/cases/data/case_history_repository.dart';
@@ -32,6 +35,27 @@ import '../../sync/sync_write_helper.dart';
 import '../../shared/providers/database_provider.dart';
 import '../backup/backup_cipher.dart';
 import '../services/local_identity_service.dart';
+
+/// The Supabase client `main.dart` initialized, or null.
+///
+/// Null means this build carries no backend configuration — a plain
+/// `flutter run` without the dart-defines, and every test. The app is then
+/// exactly as usable as it was in Part A; only the auth features report that
+/// there is no backend instead of failing oddly.
+final activeSupabaseClientProvider = Provider<SupabaseClient?>(
+  (ref) => activeSupabaseClient,
+);
+
+/// Provider for the authentication boundary.
+///
+/// Screens depend on [AuthRepository], never on the Supabase SDK, so a test can
+/// override this one provider and drive every auth state without a server.
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  return client == null
+      ? const UnavailableAuthRepository()
+      : SupabaseAuthRepository(client);
+});
 
 /// Provider for the public case repository interface.
 final caseRepositoryProvider = FutureProvider<CaseRepository>((ref) async {

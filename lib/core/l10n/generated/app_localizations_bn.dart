@@ -734,8 +734,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get sharedMessages_signInRequired =>
-      'সাইন ইন করার পর উপলব্ধ (Task 17)';
+  String get sharedMessages_signInRequired => 'চালিয়ে যেতে সাইন ইন করুন';
 
   @override
   String get appShell_exitTitle => 'অ্যাপ থেকে প্রস্থান?';
@@ -1072,6 +1071,41 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsManageAccount_deleteCannotBeUndone =>
       'এই কাজটি ফিরিয়ে আনা যাবে না';
+
+  @override
+  String get settingsManageAccount_loggedOut => 'আপনি লগ আউট হয়েছেন।';
+
+  @override
+  String get settingsManageAccount_role => 'ভূমিকা';
+
+  @override
+  String get settingsManageAccount_roleIndividual => 'ব্যক্তিগত';
+
+  @override
+  String get settingsManageAccount_roleOwner => 'মালিক';
+
+  @override
+  String get settingsManageAccount_roleAssociate => 'সহযোগী';
+
+  @override
+  String get settingsManageAccount_roleViewer => 'পর্যবেক্ষক';
+
+  @override
+  String get settingsManageAccount_firm => 'ফার্ম';
+
+  @override
+  String get settingsManageAccount_subscription => 'সাবস্ক্রিপশন';
+
+  @override
+  String get settingsManageAccount_planFree => 'ফ্রি';
+
+  @override
+  String get settingsManageAccount_planPremium => 'প্রিমিয়াম';
+
+  @override
+  String settingsManageAccount_premiumUntil(String date) {
+    return '$date পর্যন্ত প্রিমিয়াম';
+  }
 
   @override
   String get settingsOnlineSync_title => 'অনলাইন সিঙ্ক';
@@ -2516,4 +2550,243 @@ class AppLocalizationsBn extends AppLocalizations {
   String localeScratch_currentLanguage(String language) {
     return 'বর্তমান ভাষা: $language';
   }
+
+  @override
+  String get auth_loginSubtitle => 'আপনার আইনি কর্মক্ষেত্রে সাইন ইন করুন';
+
+  @override
+  String get auth_emailLabel => 'ইমেইল';
+
+  @override
+  String get auth_emailHint => 'counsel@example.com';
+
+  @override
+  String get auth_passwordLabel => 'পাসওয়ার্ড';
+
+  @override
+  String get auth_passwordHint => '••••••••';
+
+  @override
+  String get auth_forgotPassword => 'পাসওয়ার্ড ভুলে গেছেন?';
+
+  @override
+  String get auth_loginButton => 'লগইন';
+
+  @override
+  String get auth_orContinueWith => 'অথবা চালিয়ে যান';
+
+  @override
+  String get auth_googleLogin => 'গুগল দিয়ে লগইন';
+
+  @override
+  String get auth_googleSignup => 'গুগল দিয়ে সাইন আপ';
+
+  @override
+  String get auth_noAccount => 'অ্যাকাউন্ট নেই?';
+
+  @override
+  String get auth_signUpLink => 'সাইন আপ';
+
+  @override
+  String get auth_haveAccount => 'আগে থেকেই অ্যাকাউন্ট আছে?';
+
+  @override
+  String get auth_loginLink => 'লগইন';
+
+  @override
+  String get auth_signupTitle => 'অ্যাকাউন্ট তৈরি করুন';
+
+  @override
+  String get auth_signupSubtitle =>
+      'আইন পেশাজীবীদের জন্য নিরাপদ লেজারে যোগ দিন।';
+
+  @override
+  String get auth_fullNameLabel => 'পূর্ণ নাম';
+
+  @override
+  String get auth_fullNameHint => 'অ্যাড. জন ডো';
+
+  @override
+  String get auth_barAssociationLabel => 'বার অ্যাসোসিয়েশন';
+
+  @override
+  String get auth_barAssociationHint => 'ঢাকা বার';
+
+  @override
+  String get auth_emailAddressLabel => 'ইমেইল ঠিকানা';
+
+  @override
+  String get auth_emailAddressHint => 'john.doe@chambers.com';
+
+  @override
+  String get auth_passwordHelper => 'কমপক্ষে ৮ অক্ষরের হতে হবে।';
+
+  @override
+  String get auth_accountTypeLabel => 'অ্যাকাউন্টের ধরন';
+
+  @override
+  String get auth_accountTypeIndividual => 'ব্যক্তিগত';
+
+  @override
+  String get auth_accountTypeJoinFirm => 'বিদ্যমান ফার্মে যোগ দিন';
+
+  @override
+  String get auth_inviteCodeLabel => 'ইনভাইট কোড';
+
+  @override
+  String get auth_inviteCodeHint => 'ABCDE12345';
+
+  @override
+  String get auth_inviteCodeHelper =>
+      'আপনার ফার্ম মালিকের কাছ থেকে একবার ব্যবহারযোগ্য কোড নিন।';
+
+  @override
+  String get auth_termsAgreePrefix => 'আমি সম্মত আছি';
+
+  @override
+  String get auth_termsOfService => 'সেবার শর্তাবলি';
+
+  @override
+  String get auth_termsAgreeJoin => 'এবং';
+
+  @override
+  String get auth_privacyPolicy => 'গোপনীয়তা নীতি';
+
+  @override
+  String get auth_signUpButton => 'সাইন আপ';
+
+  @override
+  String get auth_showPassword => 'পাসওয়ার্ড দেখান';
+
+  @override
+  String get auth_hidePassword => 'পাসওয়ার্ড লুকান';
+
+  @override
+  String get auth_continueWithoutAccount => 'অ্যাকাউন্ট ছাড়া চালিয়ে যান';
+
+  @override
+  String get auth_continueWithoutAccountNote =>
+      'আপনার মামলাগুলো এই ডিভাইসেই থাকবে।';
+
+  @override
+  String get auth_checkEmailTitle => 'আপনার ইমেইল দেখুন';
+
+  @override
+  String auth_checkEmailMessage(String email) {
+    return '$email ঠিকানায় একটি নিশ্চিতকরণ লিংক পাঠানো হয়েছে। লিংকটি খুলে তারপর লগইন করুন।';
+  }
+
+  @override
+  String get auth_backToLogin => 'লগইনে ফিরে যান';
+
+  @override
+  String get auth_forgotTitle => 'পাসওয়ার্ড রিসেট';
+
+  @override
+  String get auth_forgotSubtitle =>
+      'আপনার ইমেইল দিন, আমরা একটি রিকভারি কোড পাঠাব।';
+
+  @override
+  String get auth_sendCodeButton => 'কোড পাঠান';
+
+  @override
+  String get auth_recoveryCodeLabel => 'রিকভারি কোড';
+
+  @override
+  String get auth_recoveryCodeHelper =>
+      'আমাদের পাঠানো কোডটি খুলে নতুন পাসওয়ার্ড দিন।';
+
+  @override
+  String get auth_recoverySent => 'কোড পাঠানো হয়েছে';
+
+  @override
+  String get auth_newPasswordLabel => 'নতুন পাসওয়ার্ড';
+
+  @override
+  String get auth_setPasswordButton => 'নতুন পাসওয়ার্ড সেট করুন';
+
+  @override
+  String get auth_passwordUpdated => 'আপনার পাসওয়ার্ড হালনাগাদ হয়েছে।';
+
+  @override
+  String get auth_errorInvalidCredentials =>
+      'ইমেইল বা পাসওয়ার্ড ভুল। আবার চেষ্টা করুন।';
+
+  @override
+  String get auth_errorEmailNotConfirmed =>
+      'আগে আপনার ইমেইল নিশ্চিত করুন — পাঠানো লিঙ্কটি খুলুন।';
+
+  @override
+  String get auth_errorEmailInUse =>
+      'এই ইমেইলে আগেই একটি অ্যাকাউন্ট আছে। লগইন করুন।';
+
+  @override
+  String get auth_errorWeakPassword => 'কমপক্ষে ৮ অক্ষরের পাসওয়ার্ড দিন।';
+
+  @override
+  String get auth_errorRateLimited =>
+      'অনেকবার চেষ্টা করা হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get auth_errorInvalidCode =>
+      'ইনভাইট কোডটি সঠিক নয়। ফার্ম মালিকের সাথে যাচাই করুন।';
+
+  @override
+  String get auth_errorTooManyAttempts =>
+      'অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get auth_errorFirmAdminOffline =>
+      'ফার্ম পরিচালনা করতে ইন্টারনেটে সংযুক্ত হোন।';
+
+  @override
+  String get auth_errorAlreadyMember => 'আপনি ইতিমধ্যেই এই ফার্মের সদস্য।';
+
+  @override
+  String get auth_joinedFirm => 'আপনি ফার্মে যোগ দিয়েছেন।';
+
+  @override
+  String get auth_errorNetwork => 'সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get auth_errorUnavailable => 'এই বিল্ডে সাইন-ইন সুবিধা নেই।';
+
+  @override
+  String get auth_errorAccountMismatch =>
+      'এই ডিভাইসটি অন্য একটি অ্যাকাউন্টের। সেই অ্যাকাউন্টে লগইন করুন, অথবা ব্যাকআপ থেকে পুনরুদ্ধার করুন।';
+
+  @override
+  String get auth_errorUnknown => 'কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String get auth_validationEmailRequired => 'আপনার ইমেইল লিখুন।';
+
+  @override
+  String get auth_validationEmailInvalid => 'সঠিক ইমেইল ঠিকানা লিখুন।';
+
+  @override
+  String get auth_validationPasswordRequired => 'আপনার পাসওয়ার্ড লিখুন।';
+
+  @override
+  String get auth_validationPasswordTooShort => 'কমপক্ষে ৮ অক্ষর ব্যবহার করুন।';
+
+  @override
+  String get auth_validationFullNameRequired => 'আপনার পূর্ণ নাম লিখুন।';
+
+  @override
+  String get auth_validationBarAssociationRequired =>
+      'আপনার বার অ্যাসোসিয়েশনের নাম লিখুন।';
+
+  @override
+  String get auth_validationInviteCodeRequired => 'আপনার ইনভাইট কোড লিখুন।';
+
+  @override
+  String get auth_validationTermsRequired =>
+      'চালিয়ে যেতে সেবার শর্তাবলি ও গোপনীয়তা নীতিতে সম্মতি দিন।';
+
+  @override
+  String get auth_sessionExpired => 'আপনার সেশন শেষ হয়েছে। আবার সাইন ইন করুন।';
+
+  @override
+  String get auth_sessionExpiredAction => 'সাইন ইন';
 }

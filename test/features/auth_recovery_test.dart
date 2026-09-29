@@ -1,0 +1,206 @@
+/// Task 17 Phase 2 — the Password Reset screen.
+///
+/// The Login mockup's "Forgot Password?" link leads here, and no mockup exists
+/// for the screen itself, so it is checked against the language the other two
+/// auth screens use and against the flow's own promises: the recovery **code**
+/// (not a deep link) is what brings the user back, a wrong code never loses the
+/// address they typed, and nothing is submitted until it validates.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
+
+import 'auth_test_support.dart';
+
+void main() {
+  late AuthTestHarness harness;
+  late AppLocalizations l;
+
+  /// Pumps the reset screen inside the harness and a minimal router.
+  Future<void> pumpReset(WidgetTester tester) async {
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpAuthRouter(tester, const ForgotPasswordScreen(), overrides: overrides);
+    l = await AppLocalizations.delegate.load(const Locale('en'));
+  }
+
+  /// Scrolls [finder] into view, taps it, and settles.
+  Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  }
+
+  /// Requests a code for [email], leaving the screen on its code step.
+  Future<void> requestCode(
+    WidgetTester tester, {
+    String email = 'counsel@example.com',
+  }) async {
+    await tester.enterText(find.byType(TextFormField).first, email);
+    await tapVisible(tester, find.text(l.auth_sendCodeButton));
+  }
+
+  setUp(() => harness = AuthTestHarness());
+  tearDown(() async {
+    await harness.tearDown();
+    await harness.auth.dispose();
+  });
+
+  testWidgets('asks for the email address first', (tester) async {
+    await pumpReset(tester);
+
+    expect(find.text(l.auth_forgotTitle), findsOneWidget);
+    expect(find.text(l.auth_forgotSubtitle), findsOneWidget);
+    expect(find.text(l.auth_emailLabel), findsOneWidget);
+    expect(find.text(l.auth_sendCodeButton), findsOneWidget);
+    expect(find.text(l.auth_backToLogin), findsOneWidget);
+    // The code and the new password are the second step, not this one.
+    expect(find.text(l.auth_recoveryCodeLabel), findsNothing);
+    expect(find.text(l.auth_newPasswordLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a missing or malformed address never reaches the network', (
+    tester,
+  ) async {
+    await pumpReset(tester);
+
+    await tapVisible(tester, find.text(l.auth_sendCodeButton));
+    expect(find.text(l.auth_validationEmailRequired), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, 'not-an-email');
+    await tapVisible(tester, find.text(l.auth_sendCodeButton));
+    expect(find.text(l.auth_validationEmailInvalid), findsOneWidget);
+
+    expect(harness.auth.recoveryEmails, isEmpty);
+    expect(find.text(l.auth_recoveryCodeLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a sent code moves on to the code step', (tester) async {
+    await pumpReset(tester);
+
+    await requestCode(tester);
+
+    expect(harness.auth.recoveryEmails, ['counsel@example.com']);
+    expect(find.text(l.auth_recoverySent), findsOneWidget);
+    expect(find.text(l.auth_recoveryCodeLabel), findsOneWidget);
+    expect(find.text(l.auth_recoveryCodeHelper), findsOneWidget);
+    expect(find.text(l.auth_newPasswordLabel), findsOneWidget);
+    expect(find.text(l.auth_setPasswordButton), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a failing send is explained and the form is kept', (
+    tester,
+  ) async {
+    harness.auth.recoveryError = const AuthFailure(AuthFailureKind.network);
+    await pumpReset(tester);
+
+    await requestCode(tester);
+
+    expect(find.text(l.auth_errorNetwork), findsOneWidget);
+    // Still step one, so the address can be retried.
+    expect(find.text(l.auth_sendCodeButton), findsOneWidget);
+    expect(find.text(l.auth_recoveryCodeLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a correct code sets the new password and returns to Login', (
+    tester,
+  ) async {
+    await pumpReset(tester);
+    await requestCode(tester);
+
+    // "Code Sent" is still on screen. A real user opens their mail before
+    // typing anything, so let the toast live out its four seconds first —
+    // ScaffoldMessenger queues messages behind each other.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, '123456');
+    await tester.enterText(find.byType(TextFormField).last, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(harness.auth.verifiedCodes, ['123456']);
+    expect(harness.auth.updatedPasswords, ['newsecret123']);
+    expect(find.text(l.auth_passwordUpdated), findsOneWidget);
+    expect(find.text('auth-route'), findsOneWidget, reason: 'back to Login');
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a rejected code is explained and the password is not set', (
+    tester,
+  ) async {
+    harness.auth.verifyError = const AuthFailure(AuthFailureKind.unknown);
+    await pumpReset(tester);
+    await requestCode(tester);
+
+    await tester.enterText(find.byType(TextFormField).first, '000000');
+    await tester.enterText(find.byType(TextFormField).last, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(find.text(l.auth_errorUnknown), findsOneWidget);
+    expect(harness.auth.updatedPasswords, isEmpty);
+    // Still on the code step, so a fresh code can be used.
+    expect(find.text(l.auth_setPasswordButton), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a short new password is refused before the code is sent', (
+    tester,
+  ) async {
+    await pumpReset(tester);
+    await requestCode(tester);
+
+    await tester.enterText(find.byType(TextFormField).first, '123456');
+    await tester.enterText(find.byType(TextFormField).last, 'short');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(find.text(l.auth_validationPasswordTooShort), findsOneWidget);
+    expect(harness.auth.verifiedCodes, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the code itself is required', (tester) async {
+    await pumpReset(tester);
+    await requestCode(tester);
+
+    await tester.enterText(find.byType(TextFormField).last, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(find.text(l.auth_validationPasswordRequired), findsOneWidget);
+    expect(harness.auth.verifiedCodes, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the new password can be revealed and hidden again', (
+    tester,
+  ) async {
+    await pumpReset(tester);
+    await requestCode(tester);
+
+    bool obscured() =>
+        tester.widget<EditableText>(find.byType(EditableText).last).obscureText;
+
+    expect(obscured(), isTrue);
+    await tapVisible(tester, find.byIcon(Icons.visibility_off_outlined));
+    expect(obscured(), isFalse);
+
+    await unmountApp(tester);
+  });
+}

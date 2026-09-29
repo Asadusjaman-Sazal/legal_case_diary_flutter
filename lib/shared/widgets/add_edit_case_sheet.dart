@@ -25,6 +25,7 @@ import '../../core/providers/notification_providers.dart';
 import '../../core/providers/repository_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/services/local_identity_service.dart';
+import '../../features/accounts_and_profile/data/account_mode.dart';
 import '../../core/utils/date_utils.dart';
 import '../../database/app_database.dart';
 import '../../features/settings/presentation/settings_notifications/notification_time_picker.dart';
@@ -65,13 +66,16 @@ final caseWritePermissionsProvider = FutureProvider<CaseWritePermissions>((
   ref,
 ) async {
   final db = await ref.read(databaseProvider.future);
-  final identity = ref.read(localIdentityServiceProvider);
-  final profile = await ProfilesDao(db).getById(identity.getId());
+  // Keyed by the signed-in account when there is one (Task 17), the local
+  // placeholder otherwise, so the caches are read under the id they were
+  // written with.
+  final userId = ref.read(accountCacheUserIdProvider);
+  final profile = await ProfilesDao(db).getById(userId);
   if (profile?.firmId == null || profile?.role == 'owner') {
     return const CaseWritePermissions(canAdd: true, canEdit: true);
   }
 
-  final members = await FirmMembersDao(db).getByUserId(identity.getId());
+  final members = await FirmMembersDao(db).getByUserId(userId);
   final member = members
       .where((item) => item.firmId == profile!.firmId)
       .firstOrNull;

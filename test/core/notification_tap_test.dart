@@ -16,6 +16,7 @@ import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/presentation/case_detail/case_detail_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
@@ -26,7 +27,11 @@ Future<AppDatabase> _pumpApp(
   WidgetTester tester,
   FakeNotificationScheduler scheduler,
 ) async {
-  SharedPreferences.setMockInitialValues(<String, Object>{});
+  // The sign-in gate (Task 17) is satisfied: these tests are about notification
+  // routing, and a device that has passed the gate is the shape they describe.
+  SharedPreferences.setMockInitialValues(<String, Object>{
+    authGateSatisfiedKey: true,
+  });
   final prefs = await SharedPreferences.getInstance();
   late AppDatabase db;
 

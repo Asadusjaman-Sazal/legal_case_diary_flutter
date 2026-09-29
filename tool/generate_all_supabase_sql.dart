@@ -165,6 +165,15 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'comment stating that the extended-offline reset stays per-device in '
         'the local `sync_metadata`.',
   ),
+  LedgerSection(
+    file: '20260929110000_phase5_owner_firm_establishment.sql',
+    version: '0.0.305',
+    label: 'ensure_firm(name) — the idempotent owner-side conversion from '
+        'individual to firm: creates the owner\'s firm, relinks '
+        '`profiles.firm_id`/`role` (both server-owned by the column privileges) '
+        'and upserts the owner\'s `firm_members` row, so the invite generator '
+        'has a firm to invite into.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -177,6 +186,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.292': 'Task 16 Phase 4 — Row Level Security',
   '0.0.293': 'Task 16 Phase 5 — Indexes And The Tombstone Purge',
   '0.0.300': 'Task 16 Audit Closure — The Analytics Column',
+  '0.0.305': 'Task 17 Phase 5 — Owner Firm Establishment',
 };
 
 const String _header = '''<!--

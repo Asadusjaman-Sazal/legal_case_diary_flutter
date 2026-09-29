@@ -1,22 +1,38 @@
 /// Manage Account screen: account settings per the
 /// `settings_manageProfileAccount` mockup.
 ///
-/// Task 12 Phase 2 (Part A): UI shell with offline placeholder data; actions
-/// show an offline notice. The avatar reuses the locally saved profile picture
-/// (see [profilePictureProvider]) so it matches the Profile screen. Real
-/// account/auth wiring lands in Part B (Task 17).
+/// **Task 17 Phase 3.** The mockup's body is unchanged — avatar, name, email,
+/// Logout, then the Account Settings list — but every value in it is now the
+/// real one: the name from the user's profile record (falling back to the name
+/// the server holds for this account), the email from the signed-in identity,
+/// and a Logout that really ends the session and empties the pull-only account
+/// caches. The avatar reuses the locally saved profile picture (see
+/// [profilePictureProvider]) so it matches the Profile screen.
+///
+/// The task also asks for role and subscription state to be *displayed*. Neither
+/// mockup has a row for them, and the mockup wins, so they live where the pencil
+/// on Profile lives: behind a row. Tapping **Subscription Details** opens a sheet
+/// showing the role, the firm, and the subscription state — the same single
+/// `subscription_expiry + 48h grace` derivation the premium gates use.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../auth/presentation/auth_viewmodel.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../data/account_mode.dart';
+import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
+import '../data/profile_repository.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
 class ManageAccountScreen extends ConsumerWidget {
@@ -24,27 +40,34 @@ class ManageAccountScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const name = 'Asadusjaman';
-    const email = 'advocate.asad@law.com';
     final l = AppLocalizations.of(context);
     // Same locally saved picture the Profile screen manages.
     final avatarFile = ref.watch(profilePictureProvider);
+    // The user's own profile record first, the server's name for this account
+    // second, and a dash when neither exists — never the mockup's sample name.
+    final localName = ref.watch(profileFieldsProvider).fullName.trim();
+    final cachedName =
+        ref.watch(accountProfileProvider).value?.fullName.trim() ?? '';
+    final name = localName.isNotEmpty ? localName : cachedName;
+    final email = ref.watch(authIdentityProvider)?.email ?? '';
 
     final accountItems = [
       _AccountItem(
         icon: Icons.lock_outline,
         title: l.settingsManageAccount_changePassword,
-        onTap: () => _offlineNotice(context),
+        // One password-reset path for the whole app: the emailed-code flow the
+        // Login screen's "Forgot Password?" already uses.
+        onTap: () => context.push(AppRoutes.forgotPassword),
       ),
       _AccountItem(
         icon: Icons.star_outline,
         title: l.settingsManageAccount_subscriptionDetails,
-        onTap: () => _offlineNotice(context),
+        onTap: () => _showSubscriptionDetails(context),
       ),
       _AccountItem(
         icon: Icons.add_shopping_cart_outlined,
         title: l.settingsManageAccount_purchaseNewSubscription,
-        onTap: () => _offlineNotice(context),
+        onTap: () => context.push(AppRoutes.paywall),
       ),
     ];
 
@@ -89,6 +112,7 @@ class ManageAccountScreen extends ConsumerWidget {
                         : Center(
                             child: Text(
                               name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              // Initials of the real name; '?' until there is one.
                               style: AppTypography.headlineMd.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -97,7 +121,7 @@ class ManageAccountScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: AppSpacing.md),
                   Text(
-                    name,
+                    name.isNotEmpty ? name : '—',
                     style: AppTypography.titleLg.copyWith(
                       color: AppColors.primary,
                     ),
@@ -105,7 +129,7 @@ class ManageAccountScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: AppSpacing.xs),
                   Text(
-                    email,
+                    email.isNotEmpty ? email : '—',
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
@@ -113,7 +137,7 @@ class ManageAccountScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: AppSpacing.sm),
                   TextButton.icon(
-                    onPressed: () => _offlineNotice(context),
+                    onPressed: () => _signOut(context, ref),
                     icon: const Icon(Icons.logout, size: 20),
                     label: Text(l.settingsManageAccount_logout),
                     style: TextButton.styleFrom(
@@ -225,8 +249,39 @@ class ManageAccountScreen extends ConsumerWidget {
     );
   }
 
+  /// Ends the session on this device, then returns to Settings.
+  ///
+  /// The branched flow around it — sync first, auto-export on the way out, then
+  /// wipe — belongs to the logout task; this ends the session and empties the
+  /// pull-only account caches, and deliberately never touches the local diary,
+  /// so an offline lawyer's cases stay readable after a logout.
+  ///
+  /// ponytail: ceiling is "sign out here"; Task 19 replaces this call with the
+  /// branched logout and decides where the user lands.
+  Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    await ref.read(authViewModelProvider.notifier).signOut();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.settingsManageAccount_loggedOut)));
+    Navigator.of(context).maybePop();
+  }
+
+  /// Shows the role, firm and subscription state behind the row the mockup draws.
+  void _showSubscriptionDetails(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => const _SubscriptionDetailsSheet(),
+    );
+  }
+
+  /// Kept for the actions this task does not own (Delete Account).
   void _offlineNotice(BuildContext context) {
-    // Part A: offline placeholder. Task 17 wires real auth actions.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -235,6 +290,120 @@ class ManageAccountScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The Subscription Details sheet: role, firm and the derived plan state.
+class _SubscriptionDetailsSheet extends ConsumerWidget {
+  const _SubscriptionDetailsSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final profile = ref.watch(accountProfileProvider).value;
+    final firm = ref.watch(accountFirmProvider).value;
+    final premium = ref.watch(premiumAccessProvider);
+
+    // The firm's expiry is the source of truth for a member; an individual's is
+    // their own. Exactly the split `resolvePremiumAccess` uses.
+    final expiry = profile?.firmId == null
+        ? profile?.subscriptionExpiry
+        : firm?.subscriptionExpiry;
+
+    final String subscription;
+    if (premium.isLoading) {
+      subscription = '—';
+    } else if (premium.value ?? false) {
+      subscription = expiry == null
+          ? l.settingsManageAccount_planPremium
+          : l.settingsManageAccount_premiumUntil(
+              AppDateUtils.formatDateDDMMYYYY(
+                expiry,
+                locale: Localizations.localeOf(context).languageCode,
+              ),
+            );
+    } else {
+      subscription = l.settingsManageAccount_planFree;
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.settingsManageAccount_subscriptionDetails,
+            style: AppTypography.titleLg,
+          ),
+          SizedBox(height: AppSpacing.lg),
+          _DetailRow(
+            label: l.settingsManageAccount_role,
+            value: _roleLabel(
+              l,
+              ref.watch(accountRoleProvider),
+            ),
+          ),
+          if (ref.watch(firmModeProvider)) ...[
+            SizedBox(height: AppSpacing.md),
+            _DetailRow(
+              label: l.settingsManageAccount_firm,
+              value: (firm?.name ?? '').isNotEmpty ? firm!.name : '—',
+            ),
+          ],
+          SizedBox(height: AppSpacing.md),
+          _DetailRow(
+            label: l.settingsManageAccount_subscription,
+            value: subscription,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The localized name of a role; an unknown server role is shown as it came.
+String _roleLabel(AppLocalizations l, String role) => switch (role) {
+  AccountRole.individual => l.settingsManageAccount_roleIndividual,
+  AccountRole.owner => l.settingsManageAccount_roleOwner,
+  AccountRole.associate => l.settingsManageAccount_roleAssociate,
+  AccountRole.viewer => l.settingsManageAccount_roleViewer,
+  _ => role,
+};
+
+/// A labelled value row in the subscription sheet.
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: Text(
+          label,
+          style: AppTypography.labelMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+      ),
+      SizedBox(width: AppSpacing.md),
+      Flexible(
+        child: Text(
+          value,
+          textAlign: TextAlign.right,
+          style: AppTypography.bodyLg.copyWith(color: AppColors.onSurface),
+        ),
+      ),
+    ],
+  );
 }
 
 /// A single row in the "Account Settings" list.

@@ -188,19 +188,18 @@ class IdentityAdoptionService {
   ///
   /// Throws [AuthFailure] with [AuthFailureKind.accountMismatch] when the device
   /// is already bound to a different account, having written nothing.
-  Future<AdoptionOutcome> adopt(AuthIdentity identity, {String? firmId}) {
-    return _db.transaction(() async {
+  Future<AdoptionOutcome> adopt(AuthIdentity identity, {String? firmId}) async {
+    final outcome = await _db.transaction(() async {
       final userId = identity.userId;
       final bound = await _metadata.getValue(boundUserIdKey);
 
-      if (bound == userId) {
-        return AdoptionOutcome(userId: userId, alreadyBound: true);
-      }
       if (bound != null && bound != userId) {
         // Fail closed: never expose one account's diary to another. The
         // branched logout flow (premium/offline/free) owns wiping or exporting.
         throw const AuthFailure(AuthFailureKind.accountMismatch);
       }
+
+      final alreadyBound = bound == userId;
 
       // `peekId` never mints an identity: an install that has not written
       // anything yet has no placeholder row to adopt, and creating one here
@@ -212,7 +211,11 @@ class IdentityAdoptionService {
       var preferenceRows = 0;
       final perTable = <String, int>{};
 
-      if (placeholder != null && placeholder != userId) {
+      // A device-local id still in use means rows (and queue entries) written
+      // before this account was known. A fresh adoption rewrites all of them.
+      final strayKeys = placeholder != null && placeholder != userId;
+
+      if (strayKeys && !alreadyBound) {
         for (final target in _targets) {
           final changed = await _adoptTable(
             target,
@@ -231,43 +234,68 @@ class IdentityAdoptionService {
           userId: userId,
           firmId: firmId,
         );
+      }
+
+      // The preference merge runs even on an already-bound device: a settings or
+      // notification write that happened before the device id followed the
+      // account leaves a second key for the same person, and one person must not
+      // own two preference rows.
+      if (strayKeys) {
         preferenceRows = await _rekeyPreferences(
           placeholder: placeholder,
           userId: userId,
         );
       }
 
-      // The pull-only caches belong to whoever was signed in when they were
-      // pulled. A cached profile or firm name from an earlier session must never
-      // be shown to the account signing in now; they are refilled from the
-      // server by the profile refresh.
-      await _db.delete(_db.profiles).go();
-      await _db.delete(_db.firms).go();
-      await _db.delete(_db.firmMembers).go();
+      if (!alreadyBound) {
+        // The pull-only caches belong to whoever was signed in when they were
+        // pulled. A cached profile or firm name from an earlier session must
+        // never be shown to the account signing in now; they are refilled from
+        // the server by the profile refresh.
+        await _db.delete(_db.profiles).go();
+        await _db.delete(_db.firms).go();
+        await _db.delete(_db.firmMembers).go();
 
-      await _metadata.setValue(boundUserIdKey, userId, updatedAt: now);
-      await _metadata.setValue(
-        adoptionProvenanceKey,
-        jsonEncode(<String, dynamic>{
-          'placeholderUserId': placeholder,
-          'adoptedUserId': userId,
-          'firmId': firmId,
-          'adoptedAt': now,
-          'rows': perTable,
-          'queueEntries': queueEntries,
-          'preferenceRows': preferenceRows,
-        }),
-        updatedAt: now,
-      );
+        await _metadata.setValue(boundUserIdKey, userId, updatedAt: now);
+        await _metadata.setValue(
+          adoptionProvenanceKey,
+          jsonEncode(<String, dynamic>{
+            'placeholderUserId': placeholder,
+            'adoptedUserId': userId,
+            'firmId': firmId,
+            'adoptedAt': now,
+            'rows': perTable,
+            'queueEntries': queueEntries,
+            'preferenceRows': preferenceRows,
+          }),
+          updatedAt: now,
+        );
+
+        return AdoptionOutcome(
+          userId: userId,
+          placeholderUserId: placeholder,
+          rowsChanged: rowsChanged,
+          queueEntriesChanged: queueEntries,
+          preferenceRowsChanged: preferenceRows,
+        );
+      }
 
       return AdoptionOutcome(
         userId: userId,
+        alreadyBound: true,
         placeholderUserId: placeholder,
-        rowsChanged: rowsChanged,
-        queueEntriesChanged: queueEntries,
         preferenceRowsChanged: preferenceRows,
       );
     });
+
+    // The device id now follows the account, so every later local write — and the
+    // `sync_queue` payload that carries it — names the same UUID the server shows
+    // in `Authentication > Users`. Bound only once the transaction has
+    // committed, and never on a refusal: a failed switch has to leave the device
+    // exactly as it was.
+    await _identity.bindAccount(identity.userId);
+
+    return outcome;
   }
 
   /// Rewrites one table's owner, firm scope and attribution columns.
@@ -365,26 +393,74 @@ class IdentityAdoptionService {
     return changed;
   }
 
-  /// Re-keys the per-user preference rows.
+  /// Re-keys the per-user preference rows onto the account, **merging** any the
+  /// account already owns.
   ///
   /// Preferences follow the *person*, never the firm: a lawyer who joins a firm
   /// keeps their language, view, navigation and notification settings, and no
   /// preference is ever merged into firm-shared reference data.
+  ///
+  /// The merge step exists because both keys can be present at once — one
+  /// adoption moved a row, and a write that happened before the device id
+  /// followed the account created another — and `user_preferences.user_id` is a
+  /// primary key, so a plain UPDATE would abort the whole adoption instead of
+  /// fixing it. Where both rows exist the **newer** one wins, because it holds
+  /// the user's most recent choice.
   Future<int> _rekeyPreferences({
     required String placeholder,
     required String userId,
   }) async {
+    final ids = <Variable>[Variable<String>(placeholder), Variable<String>(userId)];
     var changed = 0;
 
-    final prefs = await (_db.update(_db.userPreferences)
-          ..where((t) => t.userId.equals(placeholder)))
-        .write(UserPreferencesCompanion(userId: Value(userId)));
-    changed += prefs;
+    // One row per user: the **older** of the two is dropped, whichever side it is
+    // on, so the surviving row can be moved without colliding with the key.
+    changed += await _db.customUpdate(
+      'delete from user_preferences as p '
+      'where p.user_id = ?1 and exists ('
+      '  select 1 from user_preferences as a '
+      '  where a.user_id = ?2 and a.updated_at >= p.updated_at)',
+      variables: ids,
+      updateKind: UpdateKind.delete,
+    );
+    changed += await _db.customUpdate(
+      'delete from user_preferences as a '
+      'where a.user_id = ?2 and exists ('
+      '  select 1 from user_preferences as p '
+      '  where p.user_id = ?1 and p.updated_at > a.updated_at)',
+      variables: ids,
+      updateKind: UpdateKind.delete,
+    );
+    changed += await (_db.update(
+      _db.userPreferences,
+    )..where((t) => t.userId.equals(placeholder))).write(
+      UserPreferencesCompanion(userId: Value(userId)),
+    );
 
-    final notifications = await (_db.update(_db.caseNotificationPreferences)
-          ..where((t) => t.userId.equals(placeholder)))
-        .write(CaseNotificationPreferencesCompanion(userId: Value(userId)));
-    changed += notifications;
+    // One row per case per user: the same rule, matched on the case.
+    changed += await _db.customUpdate(
+      'delete from case_notification_preferences as p '
+      'where p.user_id = ?1 and exists ('
+      '  select 1 from case_notification_preferences as a '
+      '  where a.user_id = ?2 and a.case_id = p.case_id '
+      '    and a.updated_at >= p.updated_at)',
+      variables: ids,
+      updateKind: UpdateKind.delete,
+    );
+    changed += await _db.customUpdate(
+      'delete from case_notification_preferences as a '
+      'where a.user_id = ?2 and exists ('
+      '  select 1 from case_notification_preferences as p '
+      '  where p.user_id = ?1 and p.case_id = a.case_id '
+      '    and p.updated_at > a.updated_at)',
+      variables: ids,
+      updateKind: UpdateKind.delete,
+    );
+    changed += await (_db.update(
+      _db.caseNotificationPreferences,
+    )..where((t) => t.userId.equals(placeholder))).write(
+      CaseNotificationPreferencesCompanion(userId: Value(userId)),
+    );
 
     return changed;
   }

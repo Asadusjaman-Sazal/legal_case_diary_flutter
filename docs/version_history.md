@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.308 - Login, Reset Password and Sign-up links are plain bold text instead of black buttons (Forgot Password? moved under the password box), and Sign-up gained a required Confirm Password field.
+Version: 0.0.309 - Bind the device id to the signed-in account on adoption so every later local write, queue payload and preference key carries the real auth.uid(), and merge and re-key preference rows left under the old id.
 --------------------------------------
 
 ## Version History Log:
@@ -322,3 +322,4 @@ Version: 0.0.305 - Task 17 Phase 5 complete: owner-side invite primitives (50-bi
 Version: 0.0.306 - Task 17 audited phase by phase: all 21 phase items and three of the four Addendum items pass; the open item is Addendum 3's abandoned-onboarding server cleanup, which no migration implements.
 Version: 0.0.307 - Closed Task 17's last open Addendum item: abandon_provisional_account() removes a provably provisional account on an abandoned onboarding, guarded, applied, verified live against ten fixtures and covered by five new tests.
 Version: 0.0.308 - Login, Reset Password and Sign-up links are plain bold text instead of black buttons (Forgot Password? moved under the password box), and Sign-up gained a required Confirm Password field.
+Version: 0.0.309 - Bind the device id to the signed-in account on adoption so every later local write, queue payload and preference key carries the real auth.uid(), and merge and re-key preference rows left under the old id.

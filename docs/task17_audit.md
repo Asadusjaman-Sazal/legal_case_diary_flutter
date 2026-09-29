@@ -162,19 +162,27 @@ by **user ruling**, not by the code.
    whether the Reset Password template carries `{{ .Token }}` (the in-app code flow
    needs it), and Task 16's Realtime Authorization toggle. All three are
    dashboard-side. **Owed by the user.**
-9. **The domain write path still stamps the Part A placeholder.**
-   `user_id`/`last_modified_by` on new rows come from `local_identity_service`
-   while adoption re-points existing rows to `auth.uid()`. Cache reads are already
-   keyed correctly (`accountCacheUserIdProvider`), and it changes nothing in tests,
-   but the sweep belongs with the sync service (Task 18/19) and is recorded here so
-   it is not rediscovered as a defect.
+9. ~~**The domain write path still stamps the Part A placeholder.**~~ **Closed**
+   in `0.0.309`, ahead of the sync service rather than inside it, because every
+   write this app makes is already stamped through one seam. `adopt` now ends by
+   calling the new `LocalIdentityService.bindAccount(identity.userId)` — after the
+   transaction commits, never on a refusal — so `getId()`, and with it
+   `BaseLocalRepository.currentUserId`, `SyncWriteHelper.currentUserId`,
+   `accountCacheUserIdProvider` and the two writers that reach for the service
+   directly (`LocalSettingsRepository._userId`, the Add/Edit Case sheet's
+   `case_notification_preferences` write) all return the account id from the
+   moment an account is bound. Reads were already keyed correctly. `_rekeyPreferences`
+   now also **merges** the two keys newest-first on every launch, whichever direction
+   the newer row is on, so a preference row a stale-id write left behind is repaired
+   rather than stranded.
 
 ## Ranked follow-ups
 
 1. ~~**Addendum 3's protected cleanup**~~ — done: `20260929120000_abandon_provisional_account.sql`,
    applied and verified live (see *Deviations* 1).
-2. **The domain write path's identity sweep** — stamp `user_id`/`last_modified_by`
-   from the authenticated id across the ~10 repositories, keeping every test green.
+2. ~~**The domain write path's identity sweep**~~ — done in `0.0.309`: binding the
+   device id on adoption covers all ~10 repositories plus both direct writers, and
+   `test/features/write_identity_test.dart` (12 tests) pins the invariant.
 3. **Commit the three verification runs** (`ensure_firm`, the invite lifecycle and
    `abandon_provisional_account`) as rolling-back `supabase/tests/*.sql` scripts,
    so the owner-side and cleanup paths stay covered by the repository rather than by

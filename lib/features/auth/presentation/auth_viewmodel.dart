@@ -258,6 +258,10 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   }
 
   /// Runs adoption, turning a cross-account refusal into a flag.
+  ///
+  /// Adoption also binds the device id to the account (see
+  /// [IdentityAdoptionService.adopt]), which is what makes every later local
+  /// write carry the same UUID the server shows in `Authentication > Users`.
   Future<bool> _adopt(AuthIdentity identity, {String? firmId}) async {
     final database = await ref.read(databaseProvider.future);
     final service = IdentityAdoptionService(

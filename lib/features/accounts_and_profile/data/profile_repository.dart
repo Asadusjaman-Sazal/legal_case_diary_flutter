@@ -21,6 +21,15 @@
 ///
 /// Pushing a locally edited name back to `profiles` is the profile-sync half of
 /// the task and is not part of this repository.
+///
+/// **The one self-service exception.** `profiles` also holds the account
+/// holder's own four details — bar association, membership number, office
+/// address and mobile number — which the migration
+/// `20260929130000_profiles_personal_details.sql` made client-writable
+/// column-wise for the caller's own row, exactly as `full_name` already was.
+/// Those four are the only thing here that ever travels device → server, and they
+/// never go through `sync_queue`: they are one small PATCH of the account's own
+/// row, not a domain mutation.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -33,6 +42,7 @@ import '../../../shared/providers/database_provider.dart';
 import 'local/firms_dao.dart';
 import 'local/firm_members_dao.dart';
 import 'local/profiles_dao.dart';
+import 'profile_name_store.dart';
 
 /// The roles the server writes into `profiles.role` and `firm_members.role`.
 ///
@@ -84,6 +94,70 @@ abstract class ProfileRepository {
 
   /// Empties the pull-only caches (logout, account switch).
   Future<void> invalidate();
+
+  /// Mirrors the account holder's own details onto their `profiles` row.
+  ///
+  /// Returns true when the server accepted the write, false when a signed-in
+  /// save could not reach it. The caller owns what a false means: the local
+  /// record is already saved either way, and a failed push is retried on the
+  /// next launch, resume or reconnect.
+  Future<bool> savePersonalDetails(ProfileFields fields);
+
+  /// The account's stored copy of those four details, or null when there is no
+  /// account, no backend, or no connection.
+  Future<ProfileFields?> pullPersonalDetails();
+}
+
+/// The `profiles` UPDATE body for the account holder's own details.
+///
+/// The only place the local record's field names meet the server's snake_case
+/// columns (AGENTS.md rule 5), so a renamed column is a one-line change here
+/// rather than a search across the app. `email` is deliberately absent: the
+/// account's address is owned by `auth.users`.
+Map<String, Object?> profileDetailsUpdate(ProfileFields fields) => <String, Object?>{
+  'bar_association': fields.barAssociation,
+  'membership_no': fields.membershipNo,
+  'office_address': fields.officeAddress,
+  'mobile_no': fields.mobile,
+};
+
+/// The four account-held details out of a `profiles` row.
+///
+/// The name is left blank on purpose: it travels through the pull-only cache's
+/// own hydration, not through this pair, so a reader never has two answers for
+/// it.
+ProfileFields profileDetailsFromRow(Map<String, Object?> row) {
+  String text(String key) {
+    final value = row[key];
+    return value is String ? value : '';
+  }
+
+  return ProfileFields(
+    barAssociation: text('bar_association'),
+    membershipNo: text('membership_no'),
+    officeAddress: text('office_address'),
+    mobile: text('mobile_no'),
+  );
+}
+
+/// [local] with the details it has left blank taken from [server].
+///
+/// The rule the user chose: the account fills the gaps a fresh install has, and
+/// a detail typed on this device is never overwritten by a pull. The name is
+/// untouched — see [profileDetailsFromRow].
+ProfileFields fillBlankDetails({
+  required ProfileFields local,
+  required ProfileFields server,
+}) {
+  String? fill(String mine, String theirs) =>
+      mine.isEmpty && theirs.isNotEmpty ? theirs : null;
+
+  return local.copyWith(
+    barAssociation: fill(local.barAssociation, server.barAssociation),
+    membershipNo: fill(local.membershipNo, server.membershipNo),
+    officeAddress: fill(local.officeAddress, server.officeAddress),
+    mobile: fill(local.mobile, server.mobile),
+  );
 }
 
 /// The repository used when this build has no backend configured.
@@ -98,6 +172,12 @@ class UnavailableProfileRepository implements ProfileRepository {
 
   @override
   Future<bool> refresh() async => false;
+
+  @override
+  Future<bool> savePersonalDetails(ProfileFields fields) async => false;
+
+  @override
+  Future<ProfileFields?> pullPersonalDetails() async => null;
 
   @override
   Future<void> invalidate() async {
@@ -172,6 +252,57 @@ class SupabaseProfileRepository implements ProfileRepository {
   @override
   Future<void> invalidate() =>
       UnavailableProfileRepository(_db).invalidate();
+
+  /// Writes the caller's four own details onto their own profile row.
+  ///
+  /// The Phase 4 policy (`profiles_update_self`) already restricts the UPDATE to
+  /// `id = auth.uid()`, and the Phase 3 column privileges let a client move only
+  /// its own display fields — so this is a plain PATCH and needs no function.
+  @override
+  Future<bool> savePersonalDetails(ProfileFields fields) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return false;
+
+    try {
+      await _client
+          .from('profiles')
+          .update(profileDetailsUpdate(fields))
+          .eq('id', userId);
+      return true;
+    } on PostgrestException {
+      // A rejected policy or a transient server error: the local record stands
+      // and the caller keeps the push owed.
+      return false;
+    } on AuthException {
+      return false;
+    } on Exception {
+      // No connection — the normal offline case, not an error to surface.
+      return false;
+    }
+  }
+
+  /// Reads the caller's four own details from the server.
+  @override
+  Future<ProfileFields?> pullPersonalDetails() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return null;
+
+    try {
+      final row = await _client
+          .from('profiles')
+          .select('bar_association, membership_no, office_address, mobile_no')
+          .eq('id', userId)
+          .maybeSingle();
+      if (row == null) return null;
+      return profileDetailsFromRow(row);
+    } on PostgrestException {
+      return null;
+    } on AuthException {
+      return null;
+    } on Exception {
+      return null;
+    }
+  }
 
   /// Caches the firm row, whose expiry is the source of truth for a member.
   Future<void> _cacheFirm(String firmId) async {

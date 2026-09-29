@@ -24,6 +24,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../data/account_mode.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
 
@@ -109,6 +110,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             SnackBar(
               content: Text(AppLocalizations.of(context).settingsProfile_saved),
             ),
+          );
+          // The account keeps its own copy of the four details, so a re-install
+          // or a second phone does not ask the user for them again. Best-effort
+          // and after the sheet is gone: the record is already saved on the
+          // device, and a push that cannot reach the server is retried on the
+          // next launch, resume or reconnect. With nobody signed in this does
+          // nothing at all.
+          await ref.read(pushProfileDetailsProvider)(
+            ref.read(profileFieldsProvider),
           );
         },
       ),

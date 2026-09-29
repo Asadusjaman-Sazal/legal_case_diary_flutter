@@ -19,6 +19,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/providers/shared_preferences_provider.dart';
+import '../../auth/data/auth_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../settings/data/premium_access.dart';
 import 'local/firm_members_dao.dart';
@@ -165,6 +167,48 @@ final canManageFirmProvider = Provider<bool>(
 ///
 /// The launch/resume scope calls it now, and Phase 4's reconnect hook calls the
 /// same function, so there is exactly one code path that pulls this data.
+/// Mirrors the account holder's own profile details onto their `profiles` row.
+///
+/// Best-effort by design. With no account signed in there is nothing to mirror
+/// to and nothing is owed — a Part A install keeps its record locally, and the
+/// four columns did not exist before the account did. When a signed-in save
+/// cannot reach the server the record stays on the device and the push is
+/// **owed**, which is what makes [accountRefreshProvider] retry it on the next
+/// launch, resume or reconnect: a profile edited in airplane mode is never
+/// silently left behind on the device that typed it.
+///
+/// Returns true only when the server accepted the write.
+final pushProfileDetailsProvider =
+    Provider<Future<bool> Function(ProfileFields)>((ref) {
+      return (fields) async {
+        // Awaited, not the synchronous selector: the session is restored
+        // asynchronously at startup, and a read taken while that is still in
+        // flight would answer "nobody signed in" for a device that has an
+        // account — dropping the push and leaving the record on the device.
+        AuthIdentity? identity;
+        try {
+          identity = (await ref.read(authViewModelProvider.future)).identity;
+        } on Object {
+          return false;
+        }
+        if (identity == null) return false;
+
+        final store = ProfileStore(ref.read(sharedPreferencesProvider));
+        final repository = await ref.read(profileRepositoryProvider.future);
+        final saved = await repository.savePersonalDetails(fields);
+        await store.setDetailsPushPending(!saved);
+        return saved;
+      };
+    });
+
+/// Refreshes the account's cached profile, firm and permissions.
+///
+/// It also settles the account holder's own four details: a push an earlier save
+/// could not land is retried first, and otherwise the account's copy fills the
+/// fields this device has left blank. It never overwrites a detail the user
+/// typed here, and it hands the account a record this device already held when
+/// the account has none of its own — the two halves of "so the user does not
+/// have to fill them in again".
 final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
   return () async {
     // The session may still be restoring on the very first frame, so await the
@@ -188,6 +232,30 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
       await ref
           .read(profileFieldsProvider.notifier)
           .save(local.copyWith(fullName: serverName));
+    }
+
+    // The account's copy of the four details, and then one of two writes.
+    //
+    // The pull comes first on purpose, and the merge fills **blanks only**, so
+    // it can neither overwrite what the user typed here nor throw away a value
+    // the account holds — which matters because a push sends the whole record:
+    // merging first is what stops a blank field on this device from clearing a
+    // filled one on the account.
+    final details = await repository.pullPersonalDetails();
+    if (details == null) return true;
+
+    final mine = ref.read(profileFieldsProvider);
+    final merged = fillBlankDetails(local: mine, server: details);
+    if (merged != mine) {
+      await ref.read(profileFieldsProvider.notifier).save(merged);
+    }
+
+    final store = ProfileStore(ref.read(sharedPreferencesProvider));
+    if (merged.hasDetails && (store.detailsPushPending || !details.hasDetails)) {
+      // Either a save the account never saw (it is newer, and it is owed) or a
+      // record this device holds and the account has never had. The account's
+      // own values are already merged in, so nothing is lost by sending it.
+      await ref.read(pushProfileDetailsProvider)(merged);
     }
     return true;
   };

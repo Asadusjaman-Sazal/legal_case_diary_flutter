@@ -11,7 +11,10 @@
 /// sample data: seeded, they would show one user's details to every other user.
 /// The editor's hints come from the ARB, and empty values render as `—`.
 ///
-/// Part A: local-only. Task 17 (Part B) binds the synced profile record.
+/// This record is what the screen edits and what every reader shows; the
+/// account's copy of the same four details (`profiles`, through
+/// `ProfileRepository`) fills the fields this device has left blank, and never
+/// overwrites one the user typed here.
 library;
 
 import 'dart:convert';
@@ -23,6 +26,12 @@ import '../../../shared/providers/shared_preferences_provider.dart';
 
 /// Preference key holding the saved profile record as JSON.
 const String profileFieldsKey = 'profile_fields';
+
+/// Preference key recording that a detail save could not reach the account yet.
+///
+/// A local operational value, kept on the device only: the account's copy lives
+/// on `profiles`, which is never queued through `sync_queue`.
+const String profileDetailsPendingKey = 'profile_details_pending';
 
 /// Legacy key that held only the full name (installs before this record).
 const String profileFullNameKey = 'profile_full_name';
@@ -65,6 +74,21 @@ class ProfileFields {
 
   /// The user's mobile number, without the `+880` prefix.
   final String mobile;
+
+  /// Whether any of the four details the account also holds is filled in.
+  bool get hasDetails =>
+      barAssociation.isNotEmpty ||
+      membershipNo.isNotEmpty ||
+      officeAddress.isNotEmpty ||
+      mobile.isNotEmpty;
+
+  /// Whether any of those four is still blank — the only state a pull from the
+  /// account can improve.
+  bool get hasBlankDetails =>
+      barAssociation.isEmpty ||
+      membershipNo.isEmpty ||
+      officeAddress.isEmpty ||
+      mobile.isEmpty;
 
   /// This record with the given fields replaced.
   ProfileFields copyWith({
@@ -119,6 +143,10 @@ class ProfileFields {
 }
 
 /// Reads and writes the saved profile record locally.
+///
+/// It also owns the one flag the account mirror needs: whether a saved record is
+/// still owed to the server (set when a push could not reach it, cleared when
+/// one lands).
 class ProfileStore {
   /// Creates a store backed by [prefs].
   ProfileStore(this._prefs);
@@ -149,6 +177,19 @@ class ProfileStore {
   Future<void> write(ProfileFields fields) async {
     await _prefs.setString(profileFieldsKey, jsonEncode(fields.toJson()));
     await _prefs.remove(profileFullNameKey);
+  }
+
+  /// Whether a saved record has not reached the account yet.
+  bool get detailsPushPending =>
+      _prefs.getBool(profileDetailsPendingKey) ?? false;
+
+  /// Records whether the account is still owed the saved record.
+  Future<void> setDetailsPushPending(bool pending) async {
+    if (pending) {
+      await _prefs.setBool(profileDetailsPendingKey, true);
+    } else {
+      await _prefs.remove(profileDetailsPendingKey);
+    }
   }
 }
 

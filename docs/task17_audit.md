@@ -112,7 +112,7 @@ by **user ruling**, not by the code.
 | 4 | `flutter analyze` clean; **offline auth manual test on a device**; version entry | **PASS on the code gate** (`0.0.304`); device test **OWED** |
 | 5 | `flutter analyze` clean; invite tests pass; version entry | **PASS** — `0.0.305` |
 | all | `python tool/record_version.py --check`; `dart run tool/generate_all_supabase_sql.dart --check`; full `flutter test` | **PASS** — version log clean, ledger clean (16 migrations), seed clean, **922 passed** |
-| all | Supabase write path | **PASS** — 17 versions recorded on `lsthasywrdrhuuxnykau`; `ensure_firm` and `abandon_provisional_account` verified functionally |
+| all | Supabase write path | **PASS** — 17 versions recorded on `lsthasywrdrhuuxnykau` when this audit closed (18 after the follow-up below); `ensure_firm`, `abandon_provisional_account` and the `profiles` own-detail columns verified functionally |
 
 ---
 
@@ -175,6 +175,25 @@ by **user ruling**, not by the code.
    now also **merges** the two keys newest-first on every launch, whichever direction
    the newer row is on, so a preference row a stale-id write left behind is repaired
    rather than stranded.
+
+10. ~~**The Profile screen's record never left the device.**~~ **Closed in `0.0.310`**,
+    on the user's request: the four details the account can hold existed only in
+    `SharedPreferences`, so a re-install or a second phone showed five dashes.
+    `profiles` now carries `bar_association`, `membership_no`, `office_address` and
+    `mobile_no` (plus `email`, a **server-owned mirror** of `auth.users.email`),
+    granted column-wise for the holder's **own** row exactly as `full_name` already
+    was — `profiles_update_self` restricts the row, so this needed no new function
+    and puts nothing into `sync_queue`. Two rules, both the user's: the account
+    fills the device's **blanks only** (a detail typed on this device is never
+    overwritten), and a save that cannot reach the server is retried on the next
+    launch, resume or reconnect instead of being silently left behind. Verified in
+    two rolled-back live runs: the sign-up trigger writes the e-mail and the Bar
+    Association from the sign-up metadata (the screen's Bar Association is now
+    genuinely sent — its old comment claimed it was while sending nothing), an
+    e-mail change follows onto the profile, the holder can update those four
+    columns on their own row, another account's row is invisible under RLS, and
+    `email`, `role`, `firm_id` and `subscription_expiry` still refuse the client —
+    for `authenticated` and `anon` alike.
 
 ## Ranked follow-ups
 

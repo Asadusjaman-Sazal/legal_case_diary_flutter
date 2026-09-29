@@ -106,12 +106,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         fullName: _fullName.text,
         email: _email.text,
         password: _password.text,
+        barAssociation: _barAssociation.text.trim(),
         inviteCode: wantsFirm ? code : null,
       );
 
       // The name doubles as the display name everywhere else in the app (the
       // drawer header, the printed case sheets), so it is saved into the local
-      // profile record as well as sent to the server.
+      // profile record as well as sent to the server. The Bar Association was
+      // sent as sign-up metadata, which the trigger wrote onto the new
+      // `profiles` row; it is kept here too because a confirmation-mail sign-up
+      // has no session to read that row back with.
       await ref
           .read(profileFieldsProvider.notifier)
           .save(

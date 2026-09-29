@@ -139,6 +139,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     required String fullName,
     required String email,
     required String password,
+    String barAssociation = '',
     String? inviteCode,
   }) async {
     final code = inviteCode?.trim();
@@ -150,6 +151,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       fullName: fullName,
       email: email,
       password: password,
+      barAssociation: barAssociation,
     );
     if (outcome is SignUpSignedIn) {
       await _completeSignIn(outcome.identity);

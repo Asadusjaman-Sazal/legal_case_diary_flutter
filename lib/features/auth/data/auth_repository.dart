@@ -235,12 +235,15 @@ abstract class AuthRepository {
 
   /// Creates an individual account (the plan's "starts as an Individual").
   ///
-  /// [fullName] is passed as `full_name` metadata because the Task 16 sign-up
-  /// trigger copies it into the new `profiles` row.
+  /// [fullName] and [barAssociation] are passed as `full_name` and
+  /// `bar_association` metadata because the sign-up trigger copies both into the
+  /// new `profiles` row — the only moment a confirmation-mail sign-up can put
+  /// anything there, since it has no session yet.
   Future<SignUpOutcome> signUpIndividual({
     required String fullName,
     required String email,
     required String password,
+    String barAssociation = '',
   });
 
   /// Signs in with a native Google ID token.
@@ -296,6 +299,7 @@ class UnavailableAuthRepository implements AuthRepository {
     required String fullName,
     required String email,
     required String password,
+    String barAssociation = '',
   }) async => throw const AuthFailure(AuthFailureKind.unavailable);
 
   @override

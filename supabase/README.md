@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All seventeen migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All eighteen migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; Task 17 Phase 5's
@@ -87,7 +87,15 @@ What is verified now:
   firm membership, cases, notes, custom courts, administrator rights, a payment,
   a subscription. Nine of ten fixtures survived the run, and `anon`/`public` are
   refused the EXECUTE grant.
-- Live state: 23 tables all with RLS on, 57 policies, 23 functions, 17 recorded
+- `profiles`' own-detail columns (Task 17 follow-up) — **verified by running
+  them**: the sign-up trigger now fills `email` and the Bar Association from the
+  sign-up metadata (and leaves the other three blank), an e-mail change on
+  `auth.users` follows onto `profiles.email`, the account holder can UPDATE
+  `bar_association`/`membership_no`/`office_address`/`mobile_no` on their **own**
+  row and nothing else — another account's row is invisible to RLS, `email` is
+  refused by the column grant, and `role`, `firm_id` and `subscription_expiry`
+  keep the Phase 3 revoke, for `authenticated` and for `anon` alike.
+- Live state: 23 tables all with RLS on, 57 policies, 23 functions, 18 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see

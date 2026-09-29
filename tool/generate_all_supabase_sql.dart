@@ -184,6 +184,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and refuses with the reason otherwise, so an unfinished sign-up is '
         'treated as never created.',
   ),
+  LedgerSection(
+    file: '20260929130000_profiles_personal_details.sql',
+    version: '0.0.310',
+    label: 'The account holder\'s own details on the profile row: '
+        '`email` (mirrored from `auth.users` by the sign-up and e-mail-change '
+        'triggers) plus `bar_association`, `membership_no`, `office_address` and '
+        '`mobile_no`, granted column-wise for the caller\'s own row so the '
+        'Profile screen writes them through PostgREST and a re-install never '
+        'asks for them again.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -198,6 +208,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.300': 'Task 16 Audit Closure — The Analytics Column',
   '0.0.305': 'Task 17 Phase 5 — Owner Firm Establishment',
   '0.0.307': 'Task 17 Audit Follow-Up — Abandoned Onboarding Cleanup',
+  '0.0.310': 'Task 17 Follow-Up — The Account Holder\'s Own Details',
 };
 
 const String _header = '''<!--

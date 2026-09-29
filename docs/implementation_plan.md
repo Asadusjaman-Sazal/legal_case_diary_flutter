@@ -72,6 +72,7 @@ This plan is organized into six parts so it can be divided into small, bite-size
 ## Resolved Design Clarifications (User Approved)
 
 The following design decisions have been resolved based on user feedback:
+- **The Lawyer's Own Details Live on the Account (`profiles`).** The five fields edited at Settings > Accounts & Profile > Profile — full name, bar association, membership number, office address and mobile number — are the account holder's own record, not device state, so a re-install or a second phone must not ask for them again. `profiles` stays a **pull-only cache** for everything else, and the shape of the one exception is deliberate: the client writes the holder's **own row only** (`profiles_update_self`, Phase 4) and **only those columns** (column-wise grants, Phase 3 + `20260929130000_profiles_personal_details.sql`), through a plain PostgREST PATCH — no queue, no RPC, no generic sync behavior. `email` is a **server-owned mirror** of `auth.users.email` (sign-up and e-mail-change triggers) and is never client-writable. Two rules govern the two copies: the account's values **fill the device's blanks only** — a detail the user typed on this device is never overwritten by a pull — and a save that could not reach the server is **retried** on the next launch, resume or reconnect rather than silently left behind.
 - **App Name:** Official names are **Legal Case Diary** in English and **লিগ্যাল কেস ডায়েরি** in Bengali.
 - **Justice Ledger:** This is the main theme and instruction file from the Google Stitch front-end design, not a financial ledger. All theming and styles must align with it. Reference: legal_case_diary_flutter\mockup_html_screens\justiceLedger\DESIGN.md
 - **English Typography:** **Manrope** for headlines, **Inter** for body text, and **IBM Plex Sans** for labels and data (like case numbers).
@@ -580,7 +581,12 @@ lib/
 | Column | Type | Notes |
 |---|---|---|
 | `id` | UUID PK | References `auth.users` |
-| `full_name` | TEXT | |
+| `full_name` | TEXT | The account holder's display name — the one self-service column since Phase 3 |
+| `email` | TEXT | The account's login e-mail, mirrored from `auth.users.email` by the sign-up and e-mail-change triggers. **Server-owned:** never client-writable |
+| `bar_association` | TEXT | The bar association the holder is enrolled in. Self-service on the holder's own row (see Resolved Design Clarifications, "The Lawyer's Own Details") |
+| `membership_no` | TEXT | The holder's bar membership/registration number. Self-service on the holder's own row |
+| `office_address` | TEXT | The holder's chamber/office address. Self-service on the holder's own row |
+| `mobile_no` | TEXT | The holder's mobile number without the `+880` prefix (the editor's fixed prefix box). Self-service on the holder's own row |
 | `firm_id` | UUID FK → `firms` | null for individual lawyers |
 | `role` | TEXT | `owner`, `associate`, `viewer`, `individual` |
 | `subscription_status` | TEXT | `free` or `premium` — **display/analytics only.** Premium entitlement is always *derived* as `subscription_expiry (+ 48h grace) > now()` on the client, in RLS, and in the `push_changes` RPC. A stored status can go stale — nothing fires at the expiry instant to flip it. |
@@ -1019,7 +1025,7 @@ All Supabase tables have RLS **enabled**. Core policies:
 | `on_behalfs` | All authenticated (pre-seeded); `user_id = auth.uid()` OR `firm_id = user's firm_id` for custom | `user_id = auth.uid()` | Creator OR firm member with `can_edit` | Soft delete only |
 | `notes` | `user_id = auth.uid()` OR firm member | Same | Same | Soft delete only |
 | `case_references` | `user_id = auth.uid()` OR firm member | Same | Same | Soft delete only |
-| `profiles` | `id = auth.uid()` OR **same-firm members** (`firm_id` matches — required so the owner can list associates in Manage Associates, and so "edited by [Name]" / the conflict banner's "[User]" can render) | Supabase trigger on sign-up | `id = auth.uid()` | Not allowed |
+| `profiles` | `id = auth.uid()` OR **same-firm members** (`firm_id` matches — required so the owner can list associates in Manage Associates, and so "edited by [Name]" / the conflict banner's "[User]" can render) | Supabase trigger on sign-up | `id = auth.uid()` — column-wise only for the holder's own display and detail fields (`full_name`, `bar_association`, `membership_no`, `office_address`, `mobile_no`). `role`, `firm_id`, the entitlement pair and `email` are server-owned and refuse a client UPDATE | Not allowed |
 | `firms` | `owner_id = auth.uid()` OR firm member | `owner_id = auth.uid()` | `owner_id = auth.uid()` | Not allowed |
 | `firm_members` | Firm members only | Firm owner only | Firm owner only | Firm owner only |
 | `firm_invites` | Firm owner only | Firm owner only | Firm owner only (revoke). Redemption happens exclusively via the `SECURITY DEFINER` `join_firm(code)` RPC — associates never touch this table directly. | Not allowed |
@@ -1361,7 +1367,7 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 - **Pull-only local caches:** authenticated `profiles`, `firms`, and `firm_members`. They are refreshed from the server and are never uploaded by the generic domain queue.
 - **Per-user preferences:** language, theme/view configuration, navigation configuration, notification enabled/time/default offsets, backup-nudge metadata, and related settings. They are never firm-shared. They persist in a local `user_preferences` table keyed by user identity; premium accounts may sync them through a dedicated user-scoped server preference row protected by self-only RLS.
 - **Local operational state:** `sync_queue`, per-table pull cursors, `seed_migrations`, and `sync_metadata`. `sync_metadata` stores device `last_successful_sync_at`, clock offset, recovery-required flag, archive path/checksum/completion state, and atomic recovery checkpoints. These are not generic domain-synced tables.
-- **Server-managed/account/payment tables:** auth users, `profiles`, `firms`, `firm_members`, `firm_invites`, `payment_submissions`, `payment_approval_events`, `mutation_receipts`, `invite_attempts`, and `app_admins`. Global domain sync columns do not automatically apply to them.
+- **Server-managed/account/payment tables:** auth users, `profiles`, `firms`, `firm_members`, `firm_invites`, `payment_submissions`, `payment_approval_events`, `mutation_receipts`, `invite_attempts`, and `app_admins`. Global domain sync columns do not automatically apply to them, and they are never queued. **One documented exception:** a `profiles` row's own display and detail columns are writable by their holder (see Resolved Design Clarifications, "The Lawyer's Own Details Live on the Account") — the server still owns `email`, `role`, `firm_id` and the entitlement pair.
 
 ### 2. Schema corrections
 

@@ -64,6 +64,7 @@ class FakeAuthRepository implements AuthRepository {
   /// Sign-up arguments the repository received.
   final List<String> signUpNames = <String>[];
   final List<String> signUpEmails = <String>[];
+  final List<String> signUpBarAssociations = <String>[];
 
   /// Recovery addresses and codes the repository received.
   final List<String> recoveryEmails = <String>[];
@@ -113,9 +114,11 @@ class FakeAuthRepository implements AuthRepository {
     required String fullName,
     required String email,
     required String password,
+    String barAssociation = '',
   }) async {
     signUpNames.add(fullName);
     signUpEmails.add(email);
+    signUpBarAssociations.add(barAssociation);
     final failure = signUpError;
     if (failure != null) throw failure;
     final configured = signUpOutcome;

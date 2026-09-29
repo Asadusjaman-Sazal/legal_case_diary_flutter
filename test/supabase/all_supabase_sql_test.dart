@@ -54,10 +54,11 @@ void main() {
       );
       expect(
         onDisk.length,
-        17,
+        18,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
-            'Task 17 Phase 5 added the owner-side ensure_firm conversion, and '
-            'Task 17\'s audit added the abandoned-onboarding cleanup',
+            'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
+            'Task 17\'s audit added the abandoned-onboarding cleanup, and the '
+            'Profile details follow-up added the self-service profile columns',
       );
     });
 

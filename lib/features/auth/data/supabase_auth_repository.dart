@@ -195,16 +195,21 @@ class SupabaseAuthRepository implements AuthRepository {
     required String fullName,
     required String email,
     required String password,
+    String barAssociation = '',
   }) async {
     final address = email.trim();
     try {
       final response = await _client.auth.signUp(
         email: address,
         password: password,
-        // The Task 16 sign-up trigger copies `full_name` from the user metadata
-        // into the new `profiles` row, so this is the only place the name has to
-        // be sent.
-        data: {'full_name': fullName.trim()},
+        // The sign-up trigger copies `full_name` and `bar_association` from the
+        // user metadata into the new `profiles` row, so this is the only place
+        // either has to be sent — and for a sign-up that has to confirm its
+        // address first, the only moment at all.
+        data: {
+          'full_name': fullName.trim(),
+          'bar_association': barAssociation.trim(),
+        },
       );
 
       final session = response.session;

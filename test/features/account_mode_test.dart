@@ -50,6 +50,15 @@ class FakeProfileRepository implements ProfileRepository {
   /// The database a successful refresh writes into.
   AppDatabase? database;
 
+  /// The records [savePersonalDetails] was handed.
+  final List<ProfileFields> savedDetails = <ProfileFields>[];
+
+  /// What [savePersonalDetails] answers; false stands for an unreachable server.
+  bool saveDetailsResult = true;
+
+  /// What [pullPersonalDetails] answers; null stands for an unreachable server.
+  ProfileFields? detailsToPull;
+
   @override
   Future<bool> refresh() async {
     refreshCalls++;
@@ -64,6 +73,15 @@ class FakeProfileRepository implements ProfileRepository {
     if (member != null) await FirmMembersDao(db).upsert(member);
     return true;
   }
+
+  @override
+  Future<bool> savePersonalDetails(ProfileFields fields) async {
+    savedDetails.add(fields);
+    return saveDetailsResult;
+  }
+
+  @override
+  Future<ProfileFields?> pullPersonalDetails() async => detailsToPull;
 
   @override
   Future<void> invalidate() async {

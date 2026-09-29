@@ -225,6 +225,10 @@ void main() {
 
     expect(harness.auth.signUpNames, ['Adv. Jane Doe']);
     expect(harness.auth.signUpEmails, ['jane@example.com']);
+    // The Bar Association rides along as sign-up metadata, which is the trigger's
+    // only chance to write it for a sign-up that still has to confirm its
+    // address.
+    expect(harness.auth.signUpBarAssociations, ['Dhaka Bar']);
 
     // The name and bar association are the ones the rest of the app displays.
     final saved = ProfileStore(harness.prefs).read();

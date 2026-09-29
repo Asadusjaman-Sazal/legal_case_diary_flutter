@@ -4590,6 +4590,12 @@ abstract class AppLocalizations {
   /// **'Must be at least 8 characters long.'**
   String get auth_passwordHelper;
 
+  /// No description provided for @auth_confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get auth_confirmPasswordLabel;
+
   /// No description provided for @auth_accountTypeLabel.
   ///
   /// In en, this message translates to:
@@ -4859,6 +4865,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use at least 8 characters.'**
   String get auth_validationPasswordTooShort;
+
+  /// No description provided for @auth_validationPasswordConfirmRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password.'**
+  String get auth_validationPasswordConfirmRequired;
+
+  /// No description provided for @auth_validationPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Both passwords must match.'**
+  String get auth_validationPasswordMismatch;
 
   /// No description provided for @auth_validationFullNameRequired.
   ///

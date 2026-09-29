@@ -57,6 +57,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _barAssociation = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   final _inviteCode = TextEditingController();
 
   SignupPath _path = SignupPath.individual;
@@ -77,6 +78,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _barAssociation.dispose();
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     _inviteCode.dispose();
     super.dispose();
   }
@@ -303,6 +305,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                               ),
                             ),
                             validator: (value) => authPasswordLengthError(l, value),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          // The confirmation field carries no visibility toggle of
+                          // its own: the password field above already reveals
+                          // both, and two toggles for one state would be noise.
+                          AuthTextField(
+                            controller: _confirmPassword,
+                            label: l.auth_confirmPasswordLabel,
+                            hint: l.auth_passwordHint,
+                            obscureText: _hidePassword,
+                            textInputAction: _path == SignupPath.joinFirm
+                                ? TextInputAction.next
+                                : TextInputAction.done,
+                            autofillHints: const [AutofillHints.newPassword],
+                            validator: (value) => authConfirmPasswordError(
+                              l,
+                              _password.text,
+                              value,
+                            ),
                           ),
                           if (_path == SignupPath.joinFirm) ...[
                             const SizedBox(height: AppSpacing.md),

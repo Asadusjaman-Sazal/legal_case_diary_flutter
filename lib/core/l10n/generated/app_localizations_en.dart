@@ -2606,6 +2606,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_passwordHelper => 'Must be at least 8 characters long.';
 
   @override
+  String get auth_confirmPasswordLabel => 'Confirm Password';
+
+  @override
   String get auth_accountTypeLabel => 'Account Type';
 
   @override
@@ -2756,6 +2759,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_validationPasswordTooShort => 'Use at least 8 characters.';
+
+  @override
+  String get auth_validationPasswordConfirmRequired => 'Confirm your password.';
+
+  @override
+  String get auth_validationPasswordMismatch => 'Both passwords must match.';
 
   @override
   String get auth_validationFullNameRequired => 'Enter your full name.';

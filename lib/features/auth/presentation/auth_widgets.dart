@@ -425,6 +425,55 @@ class AuthDivider extends StatelessWidget {
   );
 }
 
+/// A text action inside an auth card: bold, underlined when asked for, and
+/// deliberately **without a background**.
+///
+/// The shared theme paints every `TextButton` black with a white label, which is
+/// right for the Settings surface but wrong here: both auth mockups draw these
+/// actions as plain text links (`font-title-md text-secondary`), so the style is
+/// overridden at the call sites that mean "link" rather than in the theme every
+/// other screen depends on.
+class AuthTextLink extends StatelessWidget {
+  /// Creates a link reading [label].
+  const AuthTextLink({
+    required this.label,
+    required this.onPressed,
+    this.underline = false,
+    super.key,
+  });
+
+  /// Link text.
+  final String label;
+
+  /// Action.
+  final VoidCallback onPressed;
+
+  /// Whether the text is underlined. The switch lines are (the mockups underline
+  /// them on hover, and the underline is kept permanently here); the inline
+  /// "Forgot Password?" action is not.
+  final bool underline;
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+    onPressed: onPressed,
+    style: TextButton.styleFrom(
+      backgroundColor: Colors.transparent,
+      foregroundColor: AppColors.secondary,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      minimumSize: const Size(0, 40),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    ),
+    child: Text(
+      label,
+      style: AppTypography.titleMd.copyWith(
+        color: AppColors.secondary,
+        decoration: underline ? TextDecoration.underline : null,
+        decorationColor: AppColors.secondary,
+      ),
+    ),
+  );
+}
+
 /// The "Don't have an account? Sign Up" line under the card.
 class AuthSwitchLine extends StatelessWidget {
   /// Creates the line.
@@ -458,18 +507,7 @@ class AuthSwitchLine extends StatelessWidget {
         ),
       ),
       const SizedBox(width: AppSpacing.xs),
-      TextButton(
-        onPressed: onTap,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-          minimumSize: const Size(0, 40),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        child: Text(
-          action,
-          style: AppTypography.titleMd.copyWith(color: AppColors.secondary),
-        ),
-      ),
+      AuthTextLink(label: action, onPressed: onTap, underline: true),
     ],
   );
 }
@@ -691,6 +729,20 @@ String? authPasswordLengthError(AppLocalizations l, String? value) {
   final text = value ?? '';
   if (text.isEmpty) return l.auth_validationPasswordRequired;
   return text.length < 8 ? l.auth_validationPasswordTooShort : null;
+}
+
+/// Validates the confirmation field against the password it repeats.
+///
+/// The two are compared as typed, with no trimming: a password may legitimately
+/// end in a space, and "they match" has to mean exactly that.
+String? authConfirmPasswordError(
+  AppLocalizations l,
+  String password,
+  String? value,
+) {
+  final text = value ?? '';
+  if (text.isEmpty) return l.auth_validationPasswordConfirmRequired;
+  return text == password ? null : l.auth_validationPasswordMismatch;
 }
 
 /// Validates a required free-text field with [message].

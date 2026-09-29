@@ -2622,6 +2622,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_passwordHelper => 'কমপক্ষে ৮ অক্ষরের হতে হবে।';
 
   @override
+  String get auth_confirmPasswordLabel => 'পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
   String get auth_accountTypeLabel => 'অ্যাকাউন্টের ধরন';
 
   @override
@@ -2769,6 +2772,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get auth_validationPasswordTooShort => 'কমপক্ষে ৮ অক্ষর ব্যবহার করুন।';
+
+  @override
+  String get auth_validationPasswordConfirmRequired =>
+      'আপনার পাসওয়ার্ড নিশ্চিত করুন।';
+
+  @override
+  String get auth_validationPasswordMismatch => 'দুটি পাসওয়ার্ড মিলতে হবে।';
 
   @override
   String get auth_validationFullNameRequired => 'আপনার পূর্ণ নাম লিখুন।';

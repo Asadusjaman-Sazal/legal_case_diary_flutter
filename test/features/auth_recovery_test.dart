@@ -188,6 +188,31 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the way back to Login is plain underlined text, not a button', (
+    tester,
+  ) async {
+    await pumpReset(tester);
+
+    final back = tester.widget<Text>(find.text(l.auth_backToLogin));
+    expect(back.style?.decoration, TextDecoration.underline);
+    expect(back.style?.fontWeight, FontWeight.w600);
+    expect(
+      tester
+          .widget<TextButton>(
+            find.ancestor(
+              of: find.text(l.auth_backToLogin),
+              matching: find.byType(TextButton),
+            ),
+          )
+          .style
+          ?.backgroundColor
+          ?.resolve(<WidgetState>{}),
+      Colors.transparent,
+    );
+
+    await unmountApp(tester);
+  });
+
   testWidgets('the new password can be revealed and hidden again', (
     tester,
   ) async {

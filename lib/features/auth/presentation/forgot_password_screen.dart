@@ -212,10 +212,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
-            AuthSwitchLine(
-              prompt: '',
-              action: l.auth_backToLogin,
-              onTap: () => context.go(AppRoutes.login),
+            // Plain bold underlined text, not the black button the shared theme
+            // would draw: this is a way back, not the screen's primary action.
+            Center(
+              child: AuthTextLink(
+                label: l.auth_backToLogin,
+                underline: true,
+                onPressed: () => context.go(AppRoutes.login),
+              ),
             ),
           ],
         ),

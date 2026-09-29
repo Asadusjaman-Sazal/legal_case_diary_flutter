@@ -48,6 +48,7 @@ void main() {
     String barAssociation = 'Dhaka Bar',
     String email = 'jane@example.com',
     String password = 'secret123',
+    String? confirmPassword,
     String? inviteCode,
   }) async {
     final fields = find.byType(TextFormField);
@@ -55,8 +56,9 @@ void main() {
     await tester.enterText(fields.at(1), barAssociation);
     await tester.enterText(fields.at(2), email);
     await tester.enterText(fields.at(3), password);
+    await tester.enterText(fields.at(4), confirmPassword ?? password);
     if (inviteCode != null) {
-      await tester.enterText(fields.at(4), inviteCode);
+      await tester.enterText(fields.at(5), inviteCode);
     }
     await tester.pumpAndSettle();
   }
@@ -87,6 +89,7 @@ void main() {
     expect(find.text(l.auth_emailAddressLabel), findsOneWidget);
     expect(find.text(l.auth_passwordLabel), findsOneWidget);
     expect(find.text(l.auth_passwordHelper), findsOneWidget);
+    expect(find.text(l.auth_confirmPasswordLabel), findsOneWidget);
     // The consent sentence is one rich line naming both documents.
     expect(find.textContaining(l.auth_termsAgreePrefix), findsOneWidget);
     expect(find.text(l.auth_termsOfService), findsOneWidget);
@@ -150,6 +153,63 @@ void main() {
 
     expect(find.text(l.auth_validationPasswordTooShort), findsOneWidget);
     expect(harness.auth.signUpEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a confirmation that does not match is refused before the round trip', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await fillForm(tester, confirmPassword: 'secret456');
+    await tapVisible(tester, find.byType(Checkbox));
+
+    await tapVisible(tester, find.text(l.auth_signUpButton));
+
+    // Caught in the form, not by the server: the account is never created with a
+    // password the user did not mean to type.
+    expect(find.text(l.auth_validationPasswordMismatch), findsOneWidget);
+    expect(harness.auth.signUpEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an empty confirmation is required even when the password is fine', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await fillForm(tester, confirmPassword: '');
+    await tapVisible(tester, find.byType(Checkbox));
+
+    await tapVisible(tester, find.text(l.auth_signUpButton));
+
+    expect(find.text(l.auth_validationPasswordConfirmRequired), findsOneWidget);
+    expect(harness.auth.signUpEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the switch line is plain bold underlined text, not a button', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+
+    final action = tester.widget<Text>(find.text(l.auth_loginLink));
+    expect(action.style?.decoration, TextDecoration.underline);
+    expect(action.style?.fontWeight, FontWeight.w600);
+    expect(
+      tester
+          .widget<TextButton>(
+            find.ancestor(
+              of: find.text(l.auth_loginLink),
+              matching: find.byType(TextButton),
+            ),
+          )
+          .style
+          ?.backgroundColor
+          ?.resolve(<WidgetState>{}),
+      Colors.transparent,
+    );
 
     await unmountApp(tester);
   });

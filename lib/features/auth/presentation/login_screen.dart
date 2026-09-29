@@ -19,7 +19,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
-import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../data/auth_repository.dart';
@@ -168,22 +167,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
-                  labelTrailing: TextButton(
-                    onPressed: () => context.push(AppRoutes.forgotPassword),
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(0, 0),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      l.auth_forgotPassword,
-                      style: AppTypography.labelMd.copyWith(
-                        color: AppColors.secondary,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                   validator: (value) => authPasswordRequiredError(l, value),
+                ),
+                // The recovery action sits under the password box rather than in
+                // the label row, as bold plain text: no background, no underline.
+                const SizedBox(height: AppSpacing.xs),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: AuthTextLink(
+                    label: l.auth_forgotPassword,
+                    onPressed: () => context.push(AppRoutes.forgotPassword),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AuthErrorBanner(text: authErrorText(l, _error)),

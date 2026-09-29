@@ -73,6 +73,22 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the recovery link opens the reset screen', (tester) async {
+    // The moved link still routes, so it is checked inside a router rather than
+    // through `pumpLogin`'s bare `home:` tree.
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpAuthRouter(tester, const LoginScreen(), overrides: overrides);
+
+    await tester.tap(find.text(l.auth_forgotPassword));
+    await tester.pumpAndSettle();
+
+    expect(find.text('auth-route'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
   testWidgets('validates the form before sending anything', (tester) async {
     await pumpLogin(tester);
 
@@ -251,4 +267,53 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('the recovery action sits under the password box, as plain bold text', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    // Under the field, not beside the Password label.
+    final field = tester.getRect(find.byType(TextFormField).last);
+    final forgot = tester.getRect(find.text(l.auth_forgotPassword));
+    expect(forgot.top, greaterThanOrEqualTo(field.bottom));
+
+    final style = tester.widget<Text>(find.text(l.auth_forgotPassword)).style;
+    expect(style?.fontWeight, FontWeight.w600);
+    // No underline and no filled background: the theme paints every TextButton
+    // black unless the link overrides it.
+    expect(style?.decoration, isNot(TextDecoration.underline));
+    expect(forgotButtonStyle(tester, l.auth_forgotPassword)?.backgroundColor
+        ?.resolve(<WidgetState>{}), Colors.transparent);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the switch line is plain bold underlined text, not a black button', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    final style = tester.widget<Text>(find.text(l.auth_signUpLink)).style;
+    expect(style?.decoration, TextDecoration.underline);
+    expect(style?.fontWeight, FontWeight.w600);
+    expect(
+      forgotButtonStyle(tester, l.auth_signUpLink)?.backgroundColor?.resolve(
+        <WidgetState>{},
+      ),
+      Colors.transparent,
+    );
+
+    await unmountApp(tester);
+  });
 }
+
+/// The style of the [TextButton] wrapping [label].
+ButtonStyle? forgotButtonStyle(WidgetTester tester, String label) => tester
+    .widget<TextButton>(
+      find.ancestor(
+        of: find.text(label),
+        matching: find.byType(TextButton),
+      ),
+    )
+    .style;

@@ -157,6 +157,14 @@ const List<LedgerSection> _sections = <LedgerSection>[
     label: 'Delta-pull and payment indexes for every scoped cursor read, plus '
         'purge_tombstones(180 days) scheduled daily through pg_cron.',
   ),
+  LedgerSection(
+    file: '20260929105000_profiles_last_successful_sync_at.sql',
+    version: '0.0.300',
+    label: 'Closes the audit\'s last column-level gap: adds the plan\'s '
+        '`profiles.last_successful_sync_at`, admin analytics only, with a '
+        'comment stating that the extended-offline reset stays per-device in '
+        'the local `sync_metadata`.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -168,6 +176,7 @@ const Map<String, String> _groupTitles = <String, String>{
       'Privileges',
   '0.0.292': 'Task 16 Phase 4 — Row Level Security',
   '0.0.293': 'Task 16 Phase 5 — Indexes And The Tombstone Purge',
+  '0.0.300': 'Task 16 Audit Closure — The Analytics Column',
 };
 
 const String _header = '''<!--

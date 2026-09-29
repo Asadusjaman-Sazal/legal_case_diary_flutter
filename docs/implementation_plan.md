@@ -92,6 +92,7 @@ The following design decisions have been resolved based on user feedback:
 - **Form changes:** Petitioner and Respondent input boxes include a line worth of extra space for a "Lead Counsel:" text field.
 - **Client Representation & Role (`on_behalf_id`):** The `on_behalf_id` field in the database stores the representation role selected from the `on_behalfs` table (e.g., Plaintiff, Defendant, Accused, Appellant). The client's actual name is not stored in a separate column; it is extracted at runtime: if we represent the Plaintiff/Petitioner, the client name is the value of the `petitioner` field. If we represent the Defendant/Respondent/Accused, the client name is the value of the `respondent` field.
 - **Party Phone — one column only, final (`cases.party_phone`):** A case stores exactly **one** nullable phone number, `party_phone`, and it is the **represented client's** number (resolved at runtime from `on_behalf_id`). Revision 2.4's separate nullable `petitioner_phone`/`respondent_phone` columns were never shipped and are **withdrawn**: they must not be added to Drift, Supabase, migrations, seed logic, sync payloads, backups or tests, and their absence must not be reported as a gap. Part A already implements the single column (the Drift v2→v3 migration added `party_phone`, carried the legacy values over and dropped the two old columns) and the server mirrors it in `supabase/migrations/20260929100000_phase1_core_schema.sql`. Every other mention of the two-column split — the `cases` schema table below, §12.1's search fields, the Case Detail party card and the Revision 2.4 "Schema corrections" bullet — is superseded by this one, as is the two-column wording in task files 03, 05, 10, 14 and 16's Alignment Addendum 3.
+- **AD/HCD Fields Belong to the Case, Not the Hearing (`cases`):** `case_category_id`, `honorable_judges`, `tender_number`, `previous_court_case`, `district_of_origin` and `result` are **case** columns — captured once when the case is filed and edited with it, exactly as the shipped Drift `Cases` row stores them. Revision 2.4's earlier placement of the five AD/HCD fields on `case_history` is **withdrawn**: they must not be added to `case_history` in Drift, Supabase, migrations, sync payloads, backups or tests, and their absence from `case_history` must not be reported as a gap. `case_history` keeps its own `result` as a per-hearing snapshot of `cases.result`. The `cases` and `case_history` schema tables in this document, and the server schema in `supabase/migrations/20260929100000_phase1_core_schema.sql`, already carry the corrected placement.
 - **Overdue Indicator:** The red left border strip is applied *only* on overdue case cards.
 - **Backdrop Blur (No BackdropFilter):** Flutter's `BackdropFilter` is a GPU-heavy operation that causes severe frame drops (jank) and device heating on 2GB RAM Android devices, which are common in the target Bangladeshi market. **Do not use real-time `BackdropFilter` anywhere in the app.** Instead, simulate blur effects using performance-safe alternatives: use a semi-transparent dark overlay (`Colors.black54`), a frosted-glass appearance via a blurred pre-rendered static asset, or a `Container` with `BoxDecoration` using colors/gradients. The visual result should be indistinguishable to the user while being completely jank-free.
 - **Subscription Model**: Freemium model. Free tier supports up to 50 **non-deleted** cases (`is_deleted = false` only). Soft-deleted cases do **not** count against this limit. Client Management (Detailed profiles & Case history) and Daily Cause List are core free features. Document storage and Automated SMS are removed from the app roadmap. Premium tier unlocks unlimited cases, secure cloud sync/backup to Supabase, and multi-device synchronization. **The free tier is strictly individual and strictly local:** cloud sync is never active on the free plan, free accounts are single-device, and Firm mode (adding any associate) requires an active premium subscription. The app is nonetheless architected so that the moment a user goes premium, it is 100% ready to sync (see Sync Plan §2 and §6).
@@ -655,7 +656,12 @@ lib/
 | `firm_id` | UUID FK → `firms` | null for individuals |
 | `court_id` | UUID FK → `courts` | |
 | `case_type` | TEXT | |
+| `case_category_id` | TEXT NULL FK → `case_categories` | AD/HCD Case Category scope; null for lower courts |
 | `case_number` | TEXT | Single text entity (e.g., "110/2021") |
+| `honorable_judges` | TEXT NULL | AD/HCD judge or bench names |
+| `tender_number` | TEXT NULL | AD/HCD tender number; text storage preserves leading zeroes |
+| `previous_court_case` | TEXT NULL | AD/HCD previous court case |
+| `district_of_origin` | TEXT NULL | AD/HCD originating district |
 | `petitioner` | TEXT | Legal party label |
 | `petitioner_lead_counsel` | TEXT | Lawyer name for Petitioner |
 | `respondent` | TEXT | Legal party label |
@@ -667,11 +673,14 @@ lib/
 | `next_date` | INTEGER | Epoch ms — next hearing date |
 | `last_step` | TEXT | Most recent court step (denormalized for fast list display) |
 | `notes_results` | TEXT | Any particular notes or result of the last date |
+| `result` | TEXT NULL | AD/HCD result; a configured disposal term marks the case disposed. `case_history.result` snapshots this value per hearing. |
 | `created_at` | INTEGER | Epoch ms |
 | `updated_at` | INTEGER | Epoch ms |
 | `is_deleted` | BOOLEAN | Soft delete flag |
 | `synced_at` | INTEGER | Epoch ms — null if unsynced |
 | `last_modified_by` | TEXT | UUID of last editing user |
+
+> **The five AD/HCD fields live on the case, not on the hearing.** `case_category_id`, `honorable_judges`, `tender_number`, `previous_court_case`, `district_of_origin` and `result` describe the case itself — they are captured once when the case is filed and edited with it, exactly as the shipped Drift `Cases` row stores them. `case_history` keeps its own `result` as a per-hearing snapshot (see that table below).
 
 ---
 
@@ -686,12 +695,7 @@ lib/
 | `last_step` | TEXT | Court procedure step at this hearing |
 | `next_date` | INTEGER | Epoch ms — the next date set at this hearing |
 | `note_result` | TEXT | What happened at the hearing (UI: "Note/Result") |
-| `case_category_id` | TEXT NULL FK → `case_categories` | AD/HCD Case Category scope |
-| `honorable_judges` | TEXT NULL | AD/HCD judge or bench names |
-| `tender_number` | TEXT NULL | AD/HCD tender number; text storage preserves leading zeroes |
-| `previous_court_case` | TEXT NULL | AD/HCD previous court case |
-| `district_of_origin` | TEXT NULL | AD/HCD originating district |
-| `result` | TEXT NULL | AD/HCD result; matching configured disposal terms marks the case disposed |
+| `result` | TEXT NULL | Snapshot of the case's AD/HCD `result` at the moment this hearing was frozen; null for lower courts, which use steps |
 | `created_by` | TEXT | UUID of the user who logged this entry |
 | `source_mutation_id` | UUID | Unique ID of the accepted case mutation that created this immutable history event; UNIQUE on the server for idempotency. |
 | `base_case_version` | INTEGER | Case version the accepted mutation was based on. |

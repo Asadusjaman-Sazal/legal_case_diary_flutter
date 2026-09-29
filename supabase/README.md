@@ -63,7 +63,7 @@ What is verified now:
 - `supabase/tests/rpc_smoke_test.sql` — **passes** against the project:
   `approve_payment`, `join_firm`, the rate limits, the free-tier ceiling and the
   ledger's immutability.
-- Live state: 23 tables all with RLS on, 57 policies, 21 functions, 14 recorded
+- Live state: 23 tables all with RLS on, 57 policies, 21 functions, 15 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
@@ -122,7 +122,7 @@ npx supabase migration list                     # what is applied on the project
 ```
 
 Applying by hand with a plain loop also works, but then `supabase_migrations`
-stays empty and `db push` would consider all fourteen files unapplied:
+stays empty and `db push` would consider all fifteen files unapplied:
 
 ```bash
 for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.299 - Withdrew Revision 2.4's petitioner_phone/respondent_phone split in the plan so the app's single cases.party_phone is the recorded final model, closed the Task 16 Addendum 3 phone finding, and re-applied the corrected cases table comment.
+Version: 0.0.300 - Added profiles.last_successful_sync_at as an analytics-only server column with no app mirror, and corrected the plan so the AD/HCD fields live on cases, closing the Task 16 audit's last two schema findings.
 --------------------------------------
 
 ## Version History Log:
@@ -313,3 +313,4 @@ Version: 0.0.296 - Task 16 applied to lsthasywrdrhuuxnykau by the new psql appli
 Version: 0.0.297 - Added a read-only checker for every seeded table and pinned the six seed sizes, after a by-eye dashboard count made courts and case types look short.
 Version: 0.0.298 - Audited Task 16 item by item against the task file and the plan's schema: recorded the one failing Addendum item and the four column-level deviations in docs/task16_audit.md.
 Version: 0.0.299 - Withdrew Revision 2.4's petitioner_phone/respondent_phone split in the plan so the app's single cases.party_phone is the recorded final model, closed the Task 16 Addendum 3 phone finding, and re-applied the corrected cases table comment.
+Version: 0.0.300 - Added profiles.last_successful_sync_at as an analytics-only server column with no app mirror, and corrected the plan so the AD/HCD fields live on cases, closing the Task 16 audit's last two schema findings.

@@ -52,7 +52,11 @@ void main() {
         _sorted(ledgerMigrationFiles()),
         reason: 'the ledger must stay in creation (filename) order',
       );
-      expect(onDisk.length, 14, reason: 'Task 16 shipped fourteen migrations');
+      expect(
+        onDisk.length,
+        15,
+        reason: 'Task 16 shipped fourteen migrations; the audit closure added one',
+      );
     });
 
     test('every section carries its SQL verbatim under a labelled heading', () {

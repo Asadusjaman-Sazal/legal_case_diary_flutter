@@ -12,6 +12,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 
+import '../../tool/check_supabase_seed.dart';
 import '../../tool/generate_supabase_seed.dart';
 
 void main() {
@@ -80,6 +81,27 @@ void main() {
 
     test('the generator is deterministic', () {
       expect(buildReferenceSeedSql(), buildReferenceSeedSql());
+    });
+
+    test('the reference data is the size the server was seeded with', () {
+      // Pins the size of the built-in data. Trimming the constants without
+      // regenerating the migration (or the reverse) fails here, and the live
+      // comparison for every table is `dart run tool/check_supabase_seed.dart`.
+      expect(
+        <String, int>{
+          for (final seeded in expectedSeedCounts())
+            seeded.table: seeded.appCount,
+        },
+        <String, int>{
+          'court_categories': 8,
+          'case_categories': 9,
+          'courts': 1016,
+          'steps': 209,
+          'case_types': 160,
+          'on_behalfs': 40,
+        },
+        reason: 'the six editable reference tables, as seeded',
+      );
     });
   });
 }

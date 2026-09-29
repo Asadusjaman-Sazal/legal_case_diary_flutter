@@ -189,3 +189,18 @@ dart run tool/generate_supabase_seed.dart --check  # CI guard
 
 Never hand-edit that file, and never change an existing ID: seeded rows are
 referenced by `cases.court_id`, `cases.on_behalf_id` and friends on every device.
+
+## Checking that the server holds the whole seeded list
+
+```bash
+dart run tool/check_supabase_seed.dart     # read-only, whole-table counts
+```
+
+Prints the app-side count and the Supabase count for each of the six seeded
+tables — `court_categories`, `case_categories`, `courts`, `steps`, `case_types`,
+`on_behalfs` — and exits non-zero if any pair disagrees. **Counting by eye in the
+dashboard misleads**: the Table Editor shows 100 rows per page, and a single
+PostgREST response stops at the project's `max_rows` (1000 by default), so the two
+biggest tables — 1,016 courts and 160 case types — are exactly the two that look
+truncated. As of the first apply all six match, and the ids match one for one, not
+just the totals; `test/supabase/seed_parity_test.dart` pins the six sizes.

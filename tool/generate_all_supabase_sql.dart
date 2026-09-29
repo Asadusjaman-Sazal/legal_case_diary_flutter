@@ -179,11 +179,14 @@ Guard:    dart run tool/generate_all_supabase_sql.dart --check
 
 # All Supabase SQL
 
-Every SQL statement this project has ever run against Supabase, in the order it
-was created. One section per file in `supabase/migrations/`, grouped by the app
-version that was current when the phase landed; the text under each label is that
-migration file **verbatim**. The file opens with the one section that is not a
-migration: the applier's own bootstrap statements, which run first.
+Every SQL statement this project **ships** to Supabase, in the order it was
+created: the versioned migration set, plus the applier's own bootstrap. One
+section per file in `supabase/migrations/`, grouped by the app version that was
+current when the phase landed; the text under each label is that migration file
+**verbatim**. Two things are deliberately not here, and neither changes the
+server: the assertions in `supabase/tests/*.sql` (runnable checks that roll back)
+and the read-only counts `tool/check_supabase_seed.dart` and
+`tool/apply_supabase_migrations.dart` issue.
 
 - Only one project is ever in scope: `lsthasywrdrhuuxnykau` ("Legal Case Diary").
   AGENTS.md rule 12 names the live project that must never be touched.

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.296 - Task 16 applied to lsthasywrdrhuuxnykau by the new psql applier that records CLI-visible versions; four real-server defects fixed, incl. table-level grants defeating column revokes and anon-executable RPCs.
+Version: 0.0.297 - Added a read-only checker for every seeded table and pinned the six seed sizes, after a by-eye dashboard count made courts and case types look short.
 --------------------------------------
 
 ## Version History Log:
@@ -310,3 +310,4 @@ Version: 0.0.293 - Task 16 complete: Supabase delta-pull and payment indexes, th
 Version: 0.0.294 - Supabase scope is now bound to lsthasywrdrhuuxnykau and supabase/AllSupabaseSql.md records every SQL statement, generated from the migrations with a drift test.
 Version: 0.0.295 - Task 16 applied to lsthasywrdrhuuxnykau through the new psql applier that records CLI-visible versions; three real-server bugs fixed (CASE in IF, ambiguous parameter, table grants defeating column revokes).
 Version: 0.0.296 - Task 16 applied to lsthasywrdrhuuxnykau by the new psql applier that records CLI-visible versions; four real-server defects fixed, incl. table-level grants defeating column revokes and anon-executable RPCs.
+Version: 0.0.297 - Added a read-only checker for every seeded table and pinned the six seed sizes, after a by-eye dashboard count made courts and case types look short.

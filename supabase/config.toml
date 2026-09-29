@@ -1,0 +1,52 @@
+# Supabase CLI project configuration for Legal Case Diary (Part B, Task 16).
+#
+# The only workflow this file exists for is applying versioned migrations:
+#
+#   npx supabase link --project-ref <project-ref>
+#   npx supabase db push
+#
+# `supabase start` (a local stack) additionally needs Docker, which this
+# development host does not have, so the local-service blocks below are the CLI
+# defaults and are not used by the push workflow.
+#
+# `db.major_version` must match the Postgres major version of the linked
+# project (the dashboard shows it under Project Settings > Infrastructure).
+
+project_id = "legal_case_diary"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.pooler]
+enabled = false
+
+[realtime]
+enabled = true
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"

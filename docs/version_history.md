@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.288 - The two database-encryption integration tests no longer skip on the desktop host: they ask the loaded library for its cipher instead of naming platforms.
+Version: 0.0.296 - Task 16 applied to lsthasywrdrhuuxnykau by the new psql applier that records CLI-visible versions; four real-server defects fixed, incl. table-level grants defeating column revokes and anon-executable RPCs.
 --------------------------------------
 
 ## Version History Log:
@@ -302,3 +302,11 @@ Version: 0.0.285 - Settings' navigation drawer now wires the shared Share action
 Version: 0.0.286 - Notes and Case Reference empty states now sit centred mid-screen in the Active Cases semibold style instead of top-aligned body text.
 Version: 0.0.287 - The Daily Cause List calendar's month title and Total Hearings now follow the Month/Year wheel as it spins, before any row is tapped.
 Version: 0.0.288 - The two database-encryption integration tests no longer skip on the desktop host: they ask the loaded library for its cipher instead of naming platforms.
+Version: 0.0.289 - Task 16 Phase 1 complete: Supabase core schema, sign-up profile trigger and the generated built-in reference-data seed migration.
+Version: 0.0.290 - Task 16 Phase 2 complete: the four server-internal ledgers added with deny-all RLS, immutability triggers and the invite_attempts index.
+Version: 0.0.291 - Task 16 Phase 3 complete: sync and guard triggers, the two RPCs, Realtime broadcast with topic authorization, and server-only column revokes.
+Version: 0.0.292 - Task 16 Phase 4 complete: RLS enabled on every table and the full policy matrix applied across case, reference, account and payment tables.
+Version: 0.0.293 - Task 16 complete: Supabase delta-pull and payment indexes, the 180-day tombstone purge with its pg_cron schedule, and the acceptance pass.
+Version: 0.0.294 - Supabase scope is now bound to lsthasywrdrhuuxnykau and supabase/AllSupabaseSql.md records every SQL statement, generated from the migrations with a drift test.
+Version: 0.0.295 - Task 16 applied to lsthasywrdrhuuxnykau through the new psql applier that records CLI-visible versions; three real-server bugs fixed (CASE in IF, ambiguous parameter, table grants defeating column revokes).
+Version: 0.0.296 - Task 16 applied to lsthasywrdrhuuxnykau by the new psql applier that records CLI-visible versions; four real-server defects fixed, incl. table-level grants defeating column revokes and anon-executable RPCs.

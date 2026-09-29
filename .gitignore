@@ -53,3 +53,11 @@ app.*.map.json
 .freebuff/
 /.freebuff
 /.workbuddy-ai
+
+# Supabase CLI scratch state (migrations and config.toml are committed)
+supabase/.temp/
+supabase/.branches/
+
+# Local, never-committed connection string for psql apply/verify runs.
+# Holds the `lsthasywrdrhuuxnykau` session-pooler URI; see supabase/README.md.
+supabase/.env.local

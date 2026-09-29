@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All sixteen migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All seventeen migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; Task 17 Phase 5's
@@ -78,7 +78,16 @@ What is verified now:
   `firm_members` row with all three permission flags, and a second call is
   idempotent — one firm, one member row, rename respected. `anon` and `public`
   are refused the EXECUTE grant.
-- Live state: 23 tables all with RLS on, 57 policies, 22 functions, 16 recorded
+- `public.abandon_provisional_account()` (Task 17's audit closure) — **verified
+  by running it**: signed out it answers `{"status":"unauthenticated"}`; a fresh
+  account with no firm, no authored rows and no activity is **removed** (the
+  `auth.users` row and, by cascade, its profile, per-user preferences and
+  `invite_attempts` ledger); and every account that has been used for anything is
+  refused with the reason it was refused — firm ownership, a firm on the profile,
+  firm membership, cases, notes, custom courts, administrator rights, a payment,
+  a subscription. Nine of ten fixtures survived the run, and `anon`/`public` are
+  refused the EXECUTE grant.
+- Live state: 23 tables all with RLS on, 57 policies, 23 functions, 17 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
@@ -86,16 +95,16 @@ What is verified now:
 - `flutter analyze` clean; `dart run tool/generate_supabase_seed.dart --check` and
   `dart run tool/generate_all_supabase_sql.dart --check` clean;
   `flutter test test/supabase/` green (63 tests, structural invariants plus the
-  ledger contracts).
+  ledger contracts); `flutter test` green overall (927 tests).
 
 ## Known gaps (found by the first apply, not yet closed)
 
 - **`anon` can execute 17 SECURITY DEFINER functions**, `purge_tombstones()`
   among them, because Supabase's default privileges grant EXECUTE on every new
-  `public` function directly to `anon`. The three RPCs (`approve_payment`,
-  `join_firm`, `ensure_firm`) are locked; the rest need a closing migration
-  (`revoke execute on all functions in schema public from anon` plus an
-  `alter default privileges` so future ones stay closed).
+  `public` function directly to `anon`. The four RPCs (`approve_payment`,
+  `join_firm`, `ensure_firm`, `abandon_provisional_account`) are locked; the rest
+  need a closing migration (`revoke execute on all functions in schema public
+  from anon` plus an `alter default privileges` so future ones stay closed).
 - **Every RLS policy calls `auth.uid()` per row** (`auth_rls_initplan`, 50
   policies). Wrapping the calls as `(select auth.uid())` is the documented fix and
   is mechanical.

@@ -207,6 +207,15 @@ class FakeFirmRepository implements FirmRepository {
   /// Number of [createInvite] calls.
   int createInviteCalls = 0;
 
+  /// Error to throw from [abandonOnboarding]; null to succeed.
+  Object? abandonError;
+
+  /// What [abandonOnboarding] returns.
+  bool abandonRemoved = true;
+
+  /// Number of [abandonOnboarding] calls.
+  int abandonCalls = 0;
+
   @override
   Future<InviteRedemption> redeemInvite(String code) async {
     redeemedCodes.add(code);
@@ -236,6 +245,14 @@ class FakeFirmRepository implements FirmRepository {
     final failure = adminError;
     if (failure != null) throw failure;
     return invite.firmId;
+  }
+
+  @override
+  Future<bool> abandonOnboarding() async {
+    abandonCalls++;
+    final failure = abandonError;
+    if (failure != null) throw failure;
+    return abandonRemoved;
   }
 }
 

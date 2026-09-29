@@ -217,6 +217,16 @@ abstract class FirmRepository {
   /// server-owned, so an owner who needs a firm to invite into cannot create one
   /// from the client. Idempotent — calling it again returns the same firm.
   Future<String> ensureFirm(String name);
+
+  /// Removes the caller's own **provisional** account after an abandoned
+  /// onboarding — the plan's rule that an unfinished sign-up is treated as never
+  /// created.
+  ///
+  /// Returns true when the server removed it and false when it refused because
+  /// the account is not provably provisional. A refusal is the normal, safe
+  /// answer for every account that has actually been used, so it is a value and
+  /// not a failure; only a transport problem or an unconfigured build throws.
+  Future<bool> abandonOnboarding();
 }
 
 /// The repository used when this build has no backend configured.
@@ -238,6 +248,10 @@ class UnavailableFirmRepository implements FirmRepository {
 
   @override
   Future<String> ensureFirm(String name) async =>
+      throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<bool> abandonOnboarding() async =>
       throw const AuthFailure(AuthFailureKind.unavailable);
 }
 
@@ -362,6 +376,22 @@ class SupabaseFirmRepository implements FirmRepository {
           .from('firm_invites')
           .update(<String, dynamic>{'revoked': true})
           .eq('id', inviteId);
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<bool> abandonOnboarding() async {
+    await _requireOnline();
+
+    try {
+      final result = decodeRpcMap(
+        await _client.rpc<dynamic>('abandon_provisional_account'),
+      );
+      // `not_provisional` is an answer, not an error: the account has been used
+      // for something, so it is not the abandoned shell this call is for.
+      return result['status'] == 'removed';
     } catch (error) {
       throw mapAuthFailure(error);
     }

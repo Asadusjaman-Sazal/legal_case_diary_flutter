@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.305 - Task 17 Phase 5 complete: owner-side invite primitives (50-bit Crockford codes, hash-only storage, revoke, ensure_firm, online-only guard) covered by 15 tests, and the ensure_firm migration applied and verified live.
+Version: 0.0.307 - Closed Task 17's last open Addendum item: abandon_provisional_account() removes a provably provisional account on an abandoned onboarding, guarded, applied, verified live against ten fixtures and covered by five new tests.
 --------------------------------------
 
 ## Version History Log:
@@ -319,3 +319,5 @@ Version: 0.0.302 - Task 17 Phase 2 complete: Login, Sign Up (Individual or Join 
 Version: 0.0.303 - Task 17 Phase 3 complete: ProfileRepository caches full_name/role/firm_id/subscription_expiry as epoch ms, one provider decides firm mode and its permissions, Manage Account shows real data with a Subscription Details sheet, and the caches empty on logout.
 Version: 0.0.304 - Task 17 Phase 4 complete: the real connectivity monitor, a session state distinguishing an offline stale token from an online rejection, a sign-in notice that never touches local data, and a reconnect refresh.
 Version: 0.0.305 - Task 17 Phase 5 complete: owner-side invite primitives (50-bit Crockford codes, hash-only storage, revoke, ensure_firm, online-only guard) covered by 15 tests, and the ensure_firm migration applied and verified live.
+Version: 0.0.306 - Task 17 audited phase by phase: all 21 phase items and three of the four Addendum items pass; the open item is Addendum 3's abandoned-onboarding server cleanup, which no migration implements.
+Version: 0.0.307 - Closed Task 17's last open Addendum item: abandon_provisional_account() removes a provably provisional account on an abandoned onboarding, guarded, applied, verified live against ten fixtures and covered by five new tests.

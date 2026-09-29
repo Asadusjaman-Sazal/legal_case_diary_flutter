@@ -174,6 +174,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and upserts the owner\'s `firm_members` row, so the invite generator '
         'has a firm to invite into.',
   ),
+  LedgerSection(
+    file: '20260929120000_abandon_provisional_account.sql',
+    version: '0.0.307',
+    label: 'abandon_provisional_account() — the protected cleanup for an '
+        'abandoned join-firm onboarding: removes the caller\'s own Auth account '
+        'when it is provably provisional (no firm, individual role, no '
+        'subscription, no authored rows, no firm/payment/admin/sync activity) '
+        'and refuses with the reason otherwise, so an unfinished sign-up is '
+        'treated as never created.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -187,6 +197,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.293': 'Task 16 Phase 5 — Indexes And The Tombstone Purge',
   '0.0.300': 'Task 16 Audit Closure — The Analytics Column',
   '0.0.305': 'Task 17 Phase 5 — Owner Firm Establishment',
+  '0.0.307': 'Task 17 Audit Follow-Up — Abandoned Onboarding Cleanup',
 };
 
 const String _header = '''<!--

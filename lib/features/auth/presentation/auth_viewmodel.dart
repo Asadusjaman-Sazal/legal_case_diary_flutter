@@ -210,7 +210,12 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// The branched flow around it — sync first, auto-export, then wipe — is the
   /// logout task's; this only ends the session and forgets the cached account,
   /// and it never touches local data.
+  ///
+  /// One thing it does clean up is the *server's* copy of an unfinished
+  /// onboarding (see [_abandonProvisionalOnboarding]), which has to happen while
+  /// the session still exists.
   Future<void> signOut() async {
+    await _abandonProvisionalOnboarding();
     await _repository.signOut();
     // The pull-only caches belong to the account that pulled them: they are
     // emptied rather than left behind for whoever signs in next (Revision 2.4
@@ -218,6 +223,28 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     await (await ref.read(profileRepositoryProvider.future)).invalidate();
     await _local.clear();
     state = const AsyncData(AuthState());
+  }
+
+  /// Removes the server-side provisional account an abandoned onboarding left
+  /// behind, if this device has one.
+  ///
+  /// The signal is the **unredeemed invite code**: it exists only after a
+  /// join-firm sign-up created an account and its redemption has not succeeded,
+  /// and prefer signing out is where that attempt ends — the code is discarded
+  /// in the same breath. Anything less than that state calls nothing, and the
+  /// server refuses on its own unless the account is provably empty, so a
+  /// signed-in lawyer with a real diary can never be affected by this path.
+  Future<void> _abandonProvisionalOnboarding() async {
+    if (_local.pendingInviteCode == null) return;
+    try {
+      await ref.read(firmRepositoryProvider).abandonOnboarding();
+    } catch (_) {
+      // ponytail: best-effort, because a sign-out must always succeed — it is
+      // the one action a user may need precisely when the network is gone. The
+      // ceiling is that an offline sign-out leaves an empty provisional account
+      // behind; the upgrade path is to retry the call on the next launch while
+      // the account is known to be unprovisioned.
+    }
   }
 
   /// Records the identity, adopts offline data, and marks the gate satisfied.

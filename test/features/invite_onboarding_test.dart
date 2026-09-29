@@ -27,8 +27,13 @@ import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_widgets.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
+
+import 'auth_test_support.dart';
 
 void main() {
   group('invite codes', () {
@@ -229,6 +234,100 @@ void main() {
       // The rule adds nothing to the working state: this is still the Task 20
       // placeholder, not an offline notice.
       expect(find.text(l.auth_errorFirmAdminOffline), findsNothing);
+    });
+  });
+
+  group('abandoned onboarding', () {
+    test('removing the provisional account is refused offline', () async {
+      final repository = SupabaseFirmRepository(
+        SupabaseClient('http://127.0.0.1:1', 'test-anon-key'),
+        isOnline: () async => false,
+      );
+
+      // The cleanup is one server decision, like every other firm operation, so
+      // it asks for a connection rather than failing a request.
+      await expectLater(
+        repository.abandonOnboarding(),
+        throwsA(
+          isA<AuthFailure>().having(
+            (failure) => failure.kind,
+            'kind',
+            AuthFailureKind.firmAdminOffline,
+          ),
+        ),
+      );
+    });
+
+    /// A container over the harness fakes, with an unredeemed invite code on the
+    /// device when [pendingCode] says so — the state a failed join-firm sign-up
+    /// leaves behind.
+    Future<ProviderContainer> container({required bool pendingCode}) async {
+      final harness = AuthTestHarness(
+        preferences: pendingCode
+            ? const <String, Object>{pendingInviteCodeKey: 'abcde12345'}
+            : const <String, Object>{},
+      );
+      final container = ProviderContainer(overrides: await harness.setUp());
+      addTearDown(() async {
+        container.dispose();
+        await harness.tearDown();
+        await harness.auth.dispose();
+      });
+      await container.read(authViewModelProvider.future);
+      return container;
+    }
+
+    testWidgets('signing out asks the server to remove it, then discards the code', (
+      tester,
+    ) async {
+      final c = await container(pendingCode: true);
+      final harnessFirm = c.read(firmRepositoryProvider) as FakeFirmRepository;
+
+      await c.read(authViewModelProvider.notifier).signOut();
+
+      // The order matters: the call needs the session that sign-out ends.
+      expect(harnessFirm.abandonCalls, 1);
+      expect(c.read(authViewModelProvider).value?.identity, isNull);
+      // The code goes with the account it was created for.
+      expect(pendingInviteCode(c.read(sharedPreferencesProvider)), isNull);
+    });
+
+    testWidgets('a sign-out with no unfinished onboarding calls nothing', (
+      tester,
+    ) async {
+      final c = await container(pendingCode: false);
+      final harnessFirm = c.read(firmRepositoryProvider) as FakeFirmRepository;
+
+      await c.read(authViewModelProvider.notifier).signOut();
+
+      // No unredeemed code means no provisional account to remove; the server
+      // guard would refuse anyway, so the request is not worth making.
+      expect(harnessFirm.abandonCalls, 0);
+    });
+
+    testWidgets('a server refusal leaves sign-out intact', (tester) async {
+      final c = await container(pendingCode: true);
+      final harnessFirm = c.read(firmRepositoryProvider) as FakeFirmRepository;
+      // The safe answer for an account that has actually been used.
+      harnessFirm.abandonRemoved = false;
+
+      await c.read(authViewModelProvider.notifier).signOut();
+
+      expect(harnessFirm.abandonCalls, 1);
+      expect(c.read(authViewModelProvider).value?.identity, isNull);
+    });
+
+    testWidgets('an unreachable server leaves sign-out intact', (tester) async {
+      final c = await container(pendingCode: true);
+      final harnessFirm = c.read(firmRepositoryProvider) as FakeFirmRepository;
+      // A sign-out is the one action a user may need precisely when the network
+      // is gone, so the cleanup can never be allowed to fail it.
+      harnessFirm.abandonError = const AuthFailure(AuthFailureKind.network);
+
+      await c.read(authViewModelProvider.notifier).signOut();
+
+      expect(harnessFirm.abandonCalls, 1);
+      expect(c.read(authViewModelProvider).value?.identity, isNull);
     });
   });
 }

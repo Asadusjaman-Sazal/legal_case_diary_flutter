@@ -91,6 +91,7 @@ The following design decisions have been resolved based on user feedback:
 - **FAB (Add New Case):** Floating action button appears on all main case screens except the Disposed Cases screen.
 - **Form changes:** Petitioner and Respondent input boxes include a line worth of extra space for a "Lead Counsel:" text field.
 - **Client Representation & Role (`on_behalf_id`):** The `on_behalf_id` field in the database stores the representation role selected from the `on_behalfs` table (e.g., Plaintiff, Defendant, Accused, Appellant). The client's actual name is not stored in a separate column; it is extracted at runtime: if we represent the Plaintiff/Petitioner, the client name is the value of the `petitioner` field. If we represent the Defendant/Respondent/Accused, the client name is the value of the `respondent` field.
+- **Party Phone — one column only, final (`cases.party_phone`):** A case stores exactly **one** nullable phone number, `party_phone`, and it is the **represented client's** number (resolved at runtime from `on_behalf_id`). Revision 2.4's separate nullable `petitioner_phone`/`respondent_phone` columns were never shipped and are **withdrawn**: they must not be added to Drift, Supabase, migrations, seed logic, sync payloads, backups or tests, and their absence must not be reported as a gap. Part A already implements the single column (the Drift v2→v3 migration added `party_phone`, carried the legacy values over and dropped the two old columns) and the server mirrors it in `supabase/migrations/20260929100000_phase1_core_schema.sql`. Every other mention of the two-column split — the `cases` schema table below, §12.1's search fields, the Case Detail party card and the Revision 2.4 "Schema corrections" bullet — is superseded by this one, as is the two-column wording in task files 03, 05, 10, 14 and 16's Alignment Addendum 3.
 - **Overdue Indicator:** The red left border strip is applied *only* on overdue case cards.
 - **Backdrop Blur (No BackdropFilter):** Flutter's `BackdropFilter` is a GPU-heavy operation that causes severe frame drops (jank) and device heating on 2GB RAM Android devices, which are common in the target Bangladeshi market. **Do not use real-time `BackdropFilter` anywhere in the app.** Instead, simulate blur effects using performance-safe alternatives: use a semi-transparent dark overlay (`Colors.black54`), a frosted-glass appearance via a blurred pre-rendered static asset, or a `Container` with `BoxDecoration` using colors/gradients. The visual result should be indistinguishable to the user while being completely jank-free.
 - **Subscription Model**: Freemium model. Free tier supports up to 50 **non-deleted** cases (`is_deleted = false` only). Soft-deleted cases do **not** count against this limit. Client Management (Detailed profiles & Case history) and Daily Cause List are core free features. Document storage and Automated SMS are removed from the app roadmap. Premium tier unlocks unlimited cases, secure cloud sync/backup to Supabase, and multi-device synchronization. **The free tier is strictly individual and strictly local:** cloud sync is never active on the free plan, free accounts are single-device, and Firm mode (adding any associate) requires an active premium subscription. The app is nonetheless architected so that the moment a user goes premium, it is 100% ready to sync (see Sync Plan §2 and §6).
@@ -251,8 +252,9 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Line 3:** Action buttons — **Delete** (red, soft-deletes the case with confirmation dialog), **Edit Case** (opens `add_edit_case_sheet.dart` in edit mode), and **Close** (pops the screen).
   - **Line 4 — Parties KanBan Card:**
     - **On Behalf Of:** (from `on_behalf_id`)
-    - **Petitioner** (title), Name of the Petitioner, Lead Counsel of Petitioner (from `petitioner_lead_counsel`), Phone Number with Phone & Message buttons (if `petitioner_phone` is present)
-    - **Respondent** (title), Name of the Respondent, Lead Counsel of Respondent (from `respondent_lead_counsel`), Phone Number with Phone & Message buttons (if respondent phone is present)
+    - **Petitioner** (title), Name of the Petitioner, Lead Counsel of Petitioner (from `petitioner_lead_counsel`)
+    - **Respondent** (title), Name of the Respondent, Lead Counsel of Respondent (from `respondent_lead_counsel`)
+    - **Phone & Message buttons** sit on the represented side only, using the case's single `party_phone` (see Resolved Design Clarifications); the opponent side is shown disabled with the reason
   - **Line 5 — Case Description KanBan Card:**
     - **Case Title & Remark** (title)
     - Two text boxes: `case_title_and_section` (Sections or Case Title) and `case_remarks` (Remarks or Case Summary)
@@ -659,8 +661,7 @@ lib/
 | `respondent` | TEXT | Legal party label |
 | `respondent_lead_counsel` | TEXT | Lawyer name for Respondent |
 | `on_behalf_id` | UUID FK → `on_behalfs` | Client's representation role (e.g. Plaintiff, Defendant, Accused). The client's actual name is extracted at runtime from `petitioner` or `respondent` based on this role. |
-| `petitioner_phone` | TEXT | Nullable petitioner mobile number |
-| `respondent_phone` | TEXT | Nullable respondent mobile number |
+| `party_phone` | TEXT | Nullable mobile number of the represented client — the **only** phone column (`petitioner_phone`/`respondent_phone` are withdrawn; see Resolved Design Clarifications) |
 | `case_title_and_section` | TEXT | Case description or specific legal sections |
 | `case_remarks` | TEXT | Case summary/remarks |
 | `next_date` | INTEGER | Epoch ms — next hearing date |
@@ -1208,7 +1209,7 @@ Alerts and display parameters are configured via `Settings > View Settings` and 
 ### 12.1. Unified Search Strategy (Global & Contextual)
 - **Case, Notes & References Search:** Every case listing (Active, Upcoming, Disposed, Overdue), Notes listing, and Case Reference page includes a prominent search bar.
   - Search runs Drift database queries using case-insensitive `LIKE` patterns or Full-Text Search (FTS) indices.
-  - Cases are searchable by: Case Number (e.g., "110/2021"), Petitioner, Respondent, Lead Counsel (Petitioner/Respondent), represented Client Name (resolved from Petitioner/Respondent through `on_behalf_id`), `petitioner_phone`, `respondent_phone`, Remarks, and Case Title. Each case screen applies its own dataset filter before text search.
+  - Cases are searchable by: Case Number (e.g., "110/2021"), Petitioner, Respondent, Lead Counsel (Petitioner/Respondent), represented Client Name (resolved from Petitioner/Respondent through `on_behalf_id`), `party_phone`, Remarks, and Case Title. Each case screen applies its own dataset filter before text search.
   - Notes are searchable by: Title and Body.
   - Case References are searchable by: `reference_and_page_no`, `statute`, `section_or_article`, `title_and_description`, and `comments_notes` (matching the `case_references` schema — there is no separate citation-title/body or URL field).
 - **Settings Search:** The main Settings screen (`settings_main_screen.dart`) features a search input that dynamically filters settings submenu items (e.g., typing "profile" hides unrelated submenus and only displays "Profile Settings" and "Manage Account").
@@ -1360,7 +1361,7 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 
 ### 2. Schema corrections
 
-- Replace the single `client_phone` field everywhere with nullable `petitioner_phone` and `respondent_phone`. The represented client's phone is selected at runtime from `on_behalf_id`; detail views may display both explicitly stored party phones.
+- ~~Replace the single `client_phone` field everywhere with nullable `petitioner_phone` and `respondent_phone`. The represented client's phone is selected at runtime from `on_behalf_id`; detail views may display both explicitly stored party phones.~~ **Withdrawn (see Resolved Design Clarifications, "Party Phone"):** the shipped model is a single nullable `cases.party_phone` holding the represented client's number. There is no two-column split, and none is pending.
 - Add `is_user_modified` to `court_categories`, `case_categories`, `courts`, `steps`, `case_types`, and `on_behalfs` in Drift and Supabase, migrations, seed-preservation logic, sync payloads, backups, and tests.
 - Add `last_attempt_at INTEGER NULL` to local `sync_queue`; write it immediately before each attempt and expose it in diagnostics.
 - The local profile cache stores `full_name`, `role`, `firm_id`, and `subscription_expiry`; server `TIMESTAMPTZ` values convert to local epoch milliseconds and invalidate on logout/account switch.
@@ -1372,7 +1373,7 @@ The following decisions are authoritative wherever an earlier section is ambiguo
 - Ordinary Add/Edit Case saves do not create history merely because step or note changed. Only the repository transaction handling the Update Case popup creates one provisional history row when `next_date` changes, preserving the previous date/step/note. The server creates/reconciles the authoritative history event for an accepted date-changing mutation. UI code never calls the history DAO directly for this operation.
 - In Part A, Overdue “Last Updated” displays a clear local/offline state. In Part B it displays the latest successful server update for firm data and explicit pending/error states; it never invents a local associate-sync timestamp.
 - The real manual Sync button lives at the top-right of shared `cases_screen_modal.dart`, is accessible from every case screen, and exposes idle/syncing/success/paused/error states. It is disabled with a localized entitlement explanation when unavailable; no placeholder behavior remains.
-- Phone actions select the relevant explicit party phone. Support dialer, SMS, and WhatsApp message through validated launch capabilities. Offer WhatsApp call only if the installed platform exposes a documented supported capability; otherwise safely fall back to WhatsApp contact/chat or the standard phone dialer. Never use an undocumented URL scheme.
+- Phone actions use the case's single nullable `party_phone` (the represented client's number, resolved from `on_behalf_id`) and are offered on the represented side only. Support dialer, SMS, and WhatsApp message through validated launch capabilities. Offer WhatsApp call only if the installed platform exposes a documented supported capability; otherwise safely fall back to WhatsApp contact/chat or the standard phone dialer. Never use an undocumented URL scheme.
 - Search remains contextual: each case screen searches only its current filtered dataset; Notes only notes; Case Reference only references; Settings only settings/sub-settings. DAOs own query primitives, feature tasks own UI wiring, and the shared search task owns consistent UX and integration verification.
 
 ### 4. Backup, identity, recovery, and membership

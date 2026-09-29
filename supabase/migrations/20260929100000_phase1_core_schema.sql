@@ -243,7 +243,7 @@ create table if not exists public.cases (
   last_modified_by text
 );
 comment on table public.cases is
-  'Mirrors the shipped client model, including its single party_phone column (Rev 2.4''s separate petitioner_phone/respondent_phone land with a Part A change).';
+  'Mirrors the shipped client model, whose only phone column is party_phone: the represented client''s number (Rev 2.4''s separate petitioner_phone/respondent_phone split was withdrawn by user decision on 2026-09-29, not deferred - do not add those columns).';
 
 -- Immutable hearing timeline. source_mutation_id is the idempotency key of the
 -- accepted mutation that created the row; retries cannot duplicate it.

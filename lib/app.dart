@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'features/accounts_and_profile/presentation/account_refresh_scope.dart';
 import 'features/auth/presentation/session_state.dart';
+import 'sync/sync_trigger_scope.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/notifications/notification_setup_gate.dart';
 import 'core/notifications/notification_tap_listener.dart';
@@ -71,7 +72,11 @@ class App extends ConsumerWidget {
                     // its child untouched and refreshes the profile and firm
                     // permissions on launch, on resume and on reconnect.
                     child: AccountRefreshScope(
-                      child: child ?? const SizedBox.shrink(),
+                      // Drives the push/pull engine on launch, resume,
+                      // reconnect and new local writes.
+                      child: SyncTriggerScope(
+                        child: child ?? const SizedBox.shrink(),
+                      ),
                     ),
                   ),
                 ),

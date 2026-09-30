@@ -767,4 +767,165 @@ void main() {
       expect(function, contains('on conflict (id) do nothing'));
     });
   });
+
+  group('push_changes', () {
+    test('is a hardened SECURITY DEFINER granted to authenticated only', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains('security definer'));
+      expect(block, contains('set search_path = pg_catalog, public'));
+      expect(
+        sql,
+        contains(
+            'revoke all on function public.push_changes(jsonb) from public, anon'),
+      );
+      expect(
+        sql,
+        contains(
+            'grant execute on function public.push_changes(jsonb) to authenticated'),
+      );
+      // Its SECURITY DEFINER helpers stay unreachable to every client role.
+      expect(
+        sql,
+        contains('revoke all on function public.sync_can_write(text, jsonb, text)'),
+      );
+      expect(
+        sql,
+        contains('revoke all on function public.has_sync_entitlement(uuid)'),
+      );
+    });
+
+    test('rejects a non-array batch and requires the row contract keys', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains("jsonb_typeof(rows) <> 'array'"));
+      for (final key in <String>[
+        'mutation_id',
+        'entity_type',
+        'entity_id',
+        'operation',
+      ]) {
+        expect(block, contains(key), reason: key);
+      }
+      // One result per submitted row, returned in input order.
+      expect(block, contains('array_fill(null::jsonb'));
+      expect(block, contains('jsonb_agg(v_results[k] order by k)'));
+    });
+
+    test('maps exactly the twelve domain tables and orders them FK-safely', () {
+      final map = functionBlock(sql, 'sync_entity_table')!;
+      for (final table in domainTables) {
+        expect(map, contains("'$table'"), reason: '$table is missing');
+      }
+      // Nothing outside the class may be reachable through the pipeline.
+      for (final table in <String>[
+        ...pullOnlyTables,
+        ...preferenceTables,
+        'payment_submissions',
+        'firm_invites',
+        'payment_approval_events',
+      ]) {
+        expect(map, isNot(contains("'$table'")), reason: '$table is out of class');
+      }
+
+      final rank = functionBlock(sql, 'sync_dependency_rank')!;
+      // Config tables rank 0, cases rank 1, everything dependent rank 2 — so a
+      // batch applies its foreign keys in the only order that can succeed.
+      for (final table in <String>[
+        'court_categories',
+        'case_categories',
+        'courts',
+        'steps',
+        'case_types',
+        'on_behalfs',
+      ]) {
+        expect(rank, contains("'$table' then 0"), reason: '$table must rank 0');
+      }
+      expect(rank, contains("'cases' then 1"));
+      for (final table in <String>['case_history', 'notes', 'case_references']) {
+        expect(rank, contains("'$table' then 2"), reason: '$table must rank 2');
+      }
+    });
+
+    test('derives firm-aware entitlement, never from a stored status', () {
+      final block = functionBlock(sql, 'has_sync_entitlement')!;
+      expect(block, contains("interval '48 hours' > now()"));
+      expect(block, contains('p.firm_id is not null'));
+      expect(block, contains('from public.firms f'));
+      expect(block, isNot(contains('subscription_status')));
+    });
+
+    test('re-checks writes against the RLS rules explicitly', () {
+      final block = functionBlock(sql, 'sync_can_write')!;
+      expect(block, contains('public.current_firm_id()'));
+      expect(block, contains('public.can_edit_firm'));
+      expect(block, contains('public.can_delete_firm'));
+      // A built-in reference row is not client-writable.
+      expect(block, contains("p_row ->> 'is_custom'"));
+    });
+
+    test('accepts an update only on an exact base_version match', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains('for update'));
+      expect(block, contains("v_base_version <> (v_existing ->> 'version')::int"));
+      expect(block, contains("'version_conflict'"));
+      // The server assigns the next version and the editor; the client cannot.
+      expect(block, contains("'version', v_old_version + 1"));
+      expect(block, contains("'version', 1"));
+      expect(block, contains("'last_modified_by', v_actor::text"));
+      expect(block, contains("- 'version'"));
+    });
+
+    test('is idempotent through mutation_receipts', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains('public.mutation_receipts'));
+      expect(block, contains("'mutation_id_reused'"));
+      expect(block, contains('insert into public.mutation_receipts'));
+      expect(block, contains('on conflict (mutation_id) do nothing'));
+      expect(block, contains('v_receipt.request_hash = v_hash'));
+    });
+
+    test('returns tombstones and already_resolved instead of applying them', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains("'tombstone'"));
+      expect(block, contains("'already_resolved'"));
+      expect(block, contains("'not_found'"));
+      // The tombstone decision reads the authoritative is_deleted, not a clock.
+      expect(block, contains("(v_existing ->> 'is_deleted')::boolean = true"));
+    });
+
+    test('creates authoritative history only for a changed next_date', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains("(v_final ->> 'next_date') is distinct from"));
+      expect(block, contains("v_row -> 'provisional_history'"));
+      expect(block, contains('insert into public.case_history select * from'));
+      expect(block, contains("'source_mutation_id'"));
+      expect(block, contains("'result_case_version'"));
+      // Only an accepted case update reaches it; a rejection creates nothing.
+      expect(block, contains("v_status = 'accepted' and v_table = 'cases'"));
+    });
+
+    test('cascade-deletes case_history on an accepted case delete', () {
+      final block = functionBlock(sql, 'push_changes')!;
+      expect(block, contains('update public.case_history t'));
+      expect(block, contains(r'where t.case_id = $3 and t.is_deleted = false'));
+      expect(block, contains("'children'"));
+    });
+  });
+
+  group('sync_server_time', () {
+    test('is a plain stable clock read, granted to authenticated only', () {
+      final block = functionBlock(sql, 'sync_server_time')!;
+      expect(block, contains('select now()'));
+      expect(block, contains('stable'));
+      expect(block, isNot(contains('security definer')));
+      expect(
+        sql,
+        contains(
+            'revoke all on function public.sync_server_time() from public, anon'),
+      );
+      expect(
+        sql,
+        contains('grant execute on function public.sync_server_time() to authenticated'),
+      );
+    });
+  });
 }

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.310 - Task 17 follow-up: profiles now holds the lawyer's own e-mail, bar association, membership number, office address and mobile number, written on the holder's own row and pulled to fill blanks, so a re-install never asks for them again.
+Version: 0.0.315 - Task 18 audit fixes: a provisional history preview is never pushed alone, every drain compacts pending rows first, and a push-only drain stamps last_successful_sync_at.
 --------------------------------------
 
 ## Version History Log:
@@ -324,3 +324,8 @@ Version: 0.0.307 - Closed Task 17's last open Addendum item: abandon_provisional
 Version: 0.0.308 - Login, Reset Password and Sign-up links are plain bold text instead of black buttons (Forgot Password? moved under the password box), and Sign-up gained a required Confirm Password field.
 Version: 0.0.309 - Bind the device id to the signed-in account on adoption so every later local write, queue payload and preference key carries the real auth.uid(), and merge and re-key preference rows left under the old id.
 Version: 0.0.310 - Task 17 follow-up: profiles now holds the lawyer's own e-mail, bar association, membership number, office address and mobile number, written on the holder's own row and pulled to fill blanks, so a re-install never asks for them again.
+Version: 0.0.311 - Task 18 Phase 1 complete: push_changes(jsonb) applied and verified live — one atomic pipeline with per-mutation savepoints, optimistic concurrency, idempotent receipts, authoritative case history and cascade soft-deletes.
+Version: 0.0.312 - Task 18 Phase 2 complete: the serialized FIFO push worker sends one micro-batched push_changes call per window, applies every result path, and syncs on launch/resume/reconnect/new writes.
+Version: 0.0.313 - Task 18 Phase 3 complete: a drain now delta-pulls every synced table behind crash-safe per-table (server_updated_at, id) cursors, never overwriting queued local work, and records device clock skew.
+Version: 0.0.314 - Task 18 Phase 4 complete: a free to premium upgrade now compacts the accumulated pending queue, pushes it in FK-safe micro-batches while preserving conflicted and blocked rows, then full-pulls every table from the sentinel.
+Version: 0.0.315 - Task 18 audit fixes: a provisional history preview is never pushed alone, every drain compacts pending rows first, and a push-only drain stamps last_successful_sync_at.

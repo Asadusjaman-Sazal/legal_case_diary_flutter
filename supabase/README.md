@@ -37,11 +37,11 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All eighteen migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All nineteen migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
-that no amount of reading had caught, all fixed and re-applied; Task 17 Phase 5's
-`ensure_firm` added a fifth the same way (see below):
+that no amount of reading had caught, all fixed and re-applied; later phases
+added more the same way (see below):
 
 1. **`approve_payment` would not compile** — an unparenthesized `CASE` in an `IF`
    condition, which plpgsql ends at the CASE's own `then` (`syntax error at end
@@ -62,6 +62,14 @@ that no amount of reading had caught, all fixed and re-applied; Task 17 Phase 5'
    executing the function for the first time, not by reading it: the fix lets
    `firms.created_at` take its column default and keeps the bigint for the
    member stamps.
+6. **`push_changes` defaulted nothing on an insert** (Task 18 Phase 1) — the
+   first version inserted `select *` from `jsonb_populate_record`, so a column
+   the payload omitted became NULL instead of taking its column default; and its
+   `created_at` fallback was added to the six reference tables, which have no
+   such column. Both were caught by running
+   `supabase/tests/push_changes_smoke_test.sql`, not by reading it: the insert
+   now names only the columns the snapshot carries, and the fallback is guarded
+   by a real column check.
 
 What is verified now:
 
@@ -95,15 +103,33 @@ What is verified now:
   row and nothing else — another account's row is invisible to RLS, `email` is
   refused by the column grant, and `role`, `firm_id` and `subscription_expiry`
   keep the Phase 3 revoke, for `authenticated` and for `anon` alike.
-- Live state: 23 tables all with RLS on, 57 policies, 23 functions, 18 recorded
+- `public.push_changes(rows jsonb)` (Task 18 Phase 1) — **passes** against the
+  project in `supabase/tests/push_changes_smoke_test.sql`, a self-contained
+  rolled-back run: a free account is refused `entitlement_required` and writes
+  nothing; a batch listing a case before its court is accepted in dependency
+  order; an accepted date-changing update writes the authoritative
+  `case_history` under the client's provisional id and a retry changes nothing
+  while a reused `mutation_id` with a different payload is refused; a stale
+  `base_version` returns `conflict` with the authoritative row; an associate
+  without `can_edit` is refused `permission_denied`; a case delete
+  cascade-soft-deletes its history and returns the changed child, then a later
+  update returns `tombstone` and a later delete `already_resolved`; and the
+  response carries exactly one result per `mutation_id`, in input order, each
+  with a `mutation_receipts` row. `anon` is refused EXECUTE.
+- `public.sync_server_time()` (Task 18 Phase 3) — **passes**, re-checked against
+  the project: the call returns an instant, `has_function_privilege` is true for
+  `authenticated` and false for `anon`, and it touches no table, so it is not
+  SECURITY DEFINER (the client compares it with its own clock on every successful
+  pull to record `clock_offset_ms`).
+- Live state: 23 tables all with RLS on, 57 policies, 30 functions, 20 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
 - `flutter analyze` clean; `dart run tool/generate_supabase_seed.dart --check` and
   `dart run tool/generate_all_supabase_sql.dart --check` clean;
-  `flutter test test/supabase/` green (63 tests, structural invariants plus the
-  ledger contracts); `flutter test` green overall (927 tests).
+  `flutter test test/supabase/` green (74 tests, structural invariants plus the
+  ledger contracts); `flutter test` green overall (1,027 tests).
 
 ## Known gaps (found by the first apply, not yet closed)
 
@@ -166,6 +192,7 @@ for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_matrix_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rpc_smoke_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/push_changes_smoke_test.sql
 ```
 
 ## Project settings this repo cannot set
@@ -195,6 +222,7 @@ insert into public.app_admins (user_id, granted_by) values ('<auth-user-uuid>', 
 
 | Object | Purpose |
 |---|---|
+| `public.push_changes(rows jsonb)` | The single atomic push pipeline (Task 18): optimistic concurrency, per-mutation savepoints, idempotent `mutation_receipts`, authoritative `case_history` on a changed `next_date`, and cascade soft-deletes. |
 | `public.approve_payment(submission uuid)` | Admin-only, atomic MFS approval: lock, validate, extend `subscription_expiry`, mirror to the firm, write one audit event. |
 | `public.join_firm(code text)` | Redeems a single-use invite: rate limit, hash, membership + profile update, invite consumed. |
 | `public.purge_tombstones()` | Deletes soft-deleted rows older than 180 days, in FK-safe order. |

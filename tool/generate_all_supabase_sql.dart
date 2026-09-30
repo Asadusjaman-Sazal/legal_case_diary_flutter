@@ -194,6 +194,23 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'Profile screen writes them through PostgREST and a re-install never '
         'asks for them again.',
   ),
+  LedgerSection(
+    file: '20260930140000_push_changes.sql',
+    version: '0.0.311',
+    label: '`push_changes(rows jsonb)` — the single atomic push pipeline: '
+        'entity-type/dependency-rank helpers, the firm-aware entitlement '
+        'derivation and the write re-check, then one transaction with a '
+        'savepoint per mutation, optimistic concurrency, idempotent '
+        '`mutation_receipts`, authoritative `case_history` on a changed '
+        '`next_date`, cascade soft-deletes and one result per mutation_id.',
+  ),
+  LedgerSection(
+    file: '20260930150000_sync_server_time.sql',
+    version: '0.0.313',
+    label: '`sync_server_time()` — the server clock as a plain stable SQL '
+        'function, granted to `authenticated` only, so a successful sync can '
+        'compare device and server time and record the offset past two minutes.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -209,6 +226,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.305': 'Task 17 Phase 5 — Owner Firm Establishment',
   '0.0.307': 'Task 17 Audit Follow-Up — Abandoned Onboarding Cleanup',
   '0.0.310': 'Task 17 Follow-Up — The Account Holder\'s Own Details',
+  '0.0.311': 'Task 18 Phase 1 — The Atomic Push Pipeline',
+  '0.0.313': 'Task 18 Phase 3 — Server Clock For Skew Detection',
 };
 
 const String _header = '''<!--

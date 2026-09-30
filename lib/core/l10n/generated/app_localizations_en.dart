@@ -623,6 +623,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sync_unavailable => 'Sync requires a premium subscription';
 
   @override
+  String get sync_permissionsChanged =>
+      'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
+
+  @override
+  String get sync_clockSkewWarning =>
+      'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.';
+
+  @override
   String get paywall_title => 'Premium';
 
   @override

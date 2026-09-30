@@ -624,6 +624,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
 
   @override
+  String get sync_permissionsChanged =>
+      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
+
+  @override
+  String get sync_clockSkewWarning =>
+      'আপনার ডিভাইসের ঘড়ি ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য এটি ঠিক করুন।';
+
+  @override
   String get paywall_title => 'প্রিমিয়াম';
 
   @override

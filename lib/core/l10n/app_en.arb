@@ -278,6 +278,8 @@
   "sync_paused": "Sync paused",
   "sync_error": "Sync error",
   "sync_unavailable": "Sync requires a premium subscription",
+  "sync_permissionsChanged": "Your Firm Permissions Changed; This Pending Action Was Not Applied.",
+  "sync_clockSkewWarning": "Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.",
   "paywall_title": "Premium",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",

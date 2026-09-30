@@ -1232,6 +1232,18 @@ abstract class AppLocalizations {
   /// **'Sync requires a premium subscription'**
   String get sync_unavailable;
 
+  /// No description provided for @sync_permissionsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Firm Permissions Changed; This Pending Action Was Not Applied.'**
+  String get sync_permissionsChanged;
+
+  /// No description provided for @sync_clockSkewWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.'**
+  String get sync_clockSkewWarning;
+
   /// No description provided for @paywall_title.
   ///
   /// In en, this message translates to:

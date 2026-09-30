@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.315 - Task 18 audit fixes: a provisional history preview is never pushed alone, every drain compacts pending rows first, and a push-only drain stamps last_successful_sync_at.
+Version: 0.0.323 - Task 19 audit fixes: the logout safety copy now lands where Restore can open it, per-user caches are cleared on logout, and the forced re-login leaves only once the data is handled.
 --------------------------------------
 
 ## Version History Log:
@@ -329,3 +329,11 @@ Version: 0.0.312 - Task 18 Phase 2 complete: the serialized FIFO push worker sen
 Version: 0.0.313 - Task 18 Phase 3 complete: a drain now delta-pulls every synced table behind crash-safe per-table (server_updated_at, id) cursors, never overwriting queued local work, and records device clock skew.
 Version: 0.0.314 - Task 18 Phase 4 complete: a free to premium upgrade now compacts the accumulated pending queue, pushes it in FK-safe micro-batches while preserving conflicted and blocked rows, then full-pulls every table from the sentinel.
 Version: 0.0.315 - Task 18 audit fixes: a provisional history preview is never pushed alone, every drain compacts pending rows first, and a push-only drain stamps last_successful_sync_at.
+Version: 0.0.316 - Task 19 Phase 1 complete: one private Realtime channel sends {table, id} pings into a micro delta pull through the same merge path as a full pull, open only while the app is in the foreground.
+Version: 0.0.317 - Task 19 Phase 2 complete: a dropped channel retries on the 1-32s ladder and pauses the header after three failures with a tap that resets it, while a resume pull is skipped only when the same Realtime generation is still subscribed inside 60 seconds.
+Version: 0.0.318 - Task 19 Phase 3 complete: one resolver answers every conflict — disjoint edits rebase automatically, overlap and tombstones wait for the Review Conflict screen — plus an app-wide banner and a mirrored mergeable_conflict verdict.
+Version: 0.0.319 - Task 19 Phase 4: Sync Status now lists every unfinished queue entry with filters, retry, discard and an encrypted metadata-only diagnostic bundle, reachable from a header badge and Online Sync.
+Version: 0.0.320 - Task 19 Phase 5: a firm device offline past 150 days now locks, writes an encrypted safety copy, and rebuilds from the server behind a blocking screen; individual mode is exempt.
+Version: 0.0.321 - Recorded the approved firm-mode-only scope of Task 19's extended-offline recovery lock as a Resolved Design Clarification and corrected the plan's premium/Firm wording.
+Version: 0.0.322 - Task 19 Phase 6: logout now branches on plan/connectivity, syncing or forcing a safety export before it wipes local data and the sync queue.
+Version: 0.0.323 - Task 19 audit fixes: the logout safety copy now lands where Restore can open it, per-user caches are cleared on logout, and the forced re-login leaves only once the data is handled.

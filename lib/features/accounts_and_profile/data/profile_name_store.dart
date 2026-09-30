@@ -191,6 +191,14 @@ class ProfileStore {
       await _prefs.remove(profileDetailsPendingKey);
     }
   }
+
+  /// Forgets the saved record (logout/account switch), so the next account on
+  /// this device never reads the previous holder's personal details.
+  Future<void> clear() async {
+    await _prefs.remove(profileFieldsKey);
+    await _prefs.remove(profileFullNameKey);
+    await _prefs.remove(profileDetailsPendingKey);
+  }
 }
 
 /// Riverpod state for the saved profile record.
@@ -213,6 +221,13 @@ class ProfileFieldsNotifier extends Notifier<ProfileFields> {
     if (value == state) return;
     await _store.write(value);
     state = value;
+  }
+
+  /// Forgets the saved record and resets the in-memory value (logout/account
+  /// switch).
+  Future<void> clear() async {
+    await _store.clear();
+    state = const ProfileFields();
   }
 }
 

@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All nineteen migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All twenty-two migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases
@@ -70,6 +70,17 @@ added more the same way (see below):
    `supabase/tests/push_changes_smoke_test.sql`, not by reading it: the insert
    now names only the columns the snapshot carries, and the fallback is guarded
    by a real column check.
+7. **`push_changes` cast epoch milliseconds into `conflict_log.created_at`**
+   (Task 19 Phase 3) — the insert branch strips the client's `created_at` for
+   `conflict_log` (the column is a server `timestamptz` defaulted to `now()`),
+   and the generic fallback then put the client's milliseconds straight back
+   whenever the table had a `created_at` column at all, raising `22007`. The
+   per-mutation handler turned that into a permanent `rejected` result, so **no
+   conflict mirror could ever land** — a conflict raised on one device was never
+   reviewable on another. Caught by adding a `conflict_log` row to
+   `supabase/tests/push_changes_smoke_test.sql` and running it, not by reading
+   the function; the fallback now also requires the column's **type** to be an
+   epoch-ms integer (`20260930170000_push_changes_created_at_guard.sql`).
 
 What is verified now:
 
@@ -115,21 +126,25 @@ What is verified now:
   cascade-soft-deletes its history and returns the changed child, then a later
   update returns `tombstone` and a later delete `already_resolved`; and the
   response carries exactly one result per `mutation_id`, in input order, each
-  with a `mutation_receipts` row. `anon` is refused EXECUTE.
+  with a `mutation_receipts` row; and a `conflict_log` row pushes like any
+  other entity — the insert carries `mergeable_conflict` to the mirrored row and
+  a later update by `id` lands the resolution, which is what makes a conflict
+  raised on one device readable on another (Task 19 Phase 3). `anon` is refused
+  EXECUTE.
 - `public.sync_server_time()` (Task 18 Phase 3) — **passes**, re-checked against
   the project: the call returns an instant, `has_function_privilege` is true for
   `authenticated` and false for `anon`, and it touches no table, so it is not
   SECURITY DEFINER (the client compares it with its own clock on every successful
   pull to record `clock_offset_ms`).
-- Live state: 23 tables all with RLS on, 57 policies, 30 functions, 20 recorded
+- Live state: 23 tables all with RLS on, 57 policies, 30 functions, 22 recorded
   versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
 - `flutter analyze` clean; `dart run tool/generate_supabase_seed.dart --check` and
   `dart run tool/generate_all_supabase_sql.dart --check` clean;
-  `flutter test test/supabase/` green (74 tests, structural invariants plus the
-  ledger contracts); `flutter test` green overall (1,027 tests).
+  `flutter test test/supabase/` green (75 tests, structural invariants plus the
+  ledger contracts); `flutter test` green overall (1,084 tests).
 
 ## Known gaps (found by the first apply, not yet closed)
 

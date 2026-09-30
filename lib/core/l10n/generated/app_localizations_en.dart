@@ -631,6 +631,362 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.';
 
   @override
+  String syncConflict_bannerMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Conflicts Need Review',
+      one: 'A Conflict Needs Review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncConflict_bannerAction => 'Review';
+
+  @override
+  String get syncConflict_title => 'Review Conflict';
+
+  @override
+  String get syncConflict_subtitle => 'Another Device Changed This Record';
+
+  @override
+  String syncConflict_editedBy(String name) {
+    return 'Edited By $name';
+  }
+
+  @override
+  String get syncConflict_unknownEditor => 'Another Device';
+
+  @override
+  String get syncConflict_intro =>
+      'You and another device changed the same fields. Choose the value to keep for each one.';
+
+  @override
+  String get syncConflict_keepServer => 'Server';
+
+  @override
+  String get syncConflict_keepMine => 'Mine';
+
+  @override
+  String get syncConflict_tombstoneTitle => 'Deleted On The Server';
+
+  @override
+  String get syncConflict_tombstoneBody =>
+      'This record was deleted on another device. Your saved changes are still here — choose what happens to them.';
+
+  @override
+  String get syncConflict_rebaseOntoNewRecord => 'Keep As A New Record';
+
+  @override
+  String get syncConflict_discard => 'Discard My Changes';
+
+  @override
+  String get syncConflict_discardConfirmTitle => 'Discard Your Changes?';
+
+  @override
+  String get syncConflict_discardConfirmBody =>
+      'The server version will replace your unsynced changes. This cannot be undone.';
+
+  @override
+  String get syncConflict_laterEditsTitle => 'Later Saved Changes';
+
+  @override
+  String get syncConflict_laterEditsBody =>
+      'These edits are preserved until this conflict is answered.';
+
+  @override
+  String get syncConflict_resolvedNotice =>
+      'This Conflict Is Already Resolved.';
+
+  @override
+  String get syncConflict_missingNotice =>
+      'This Conflict Is No Longer Available.';
+
+  @override
+  String get syncStatus_title => 'Sync Status';
+
+  @override
+  String get syncStatus_subtitle => 'Every Change Waiting To Be Sent';
+
+  @override
+  String get syncStatus_lastSyncedNever => 'Never Synced';
+
+  @override
+  String syncStatus_lastSynced(String time) {
+    return 'Last Synced $time';
+  }
+
+  @override
+  String get syncStatus_filterAll => 'All';
+
+  @override
+  String get syncStatus_filterPending => 'Pending';
+
+  @override
+  String get syncStatus_filterConflicted => 'Conflicted';
+
+  @override
+  String get syncStatus_filterBlocked => 'Blocked';
+
+  @override
+  String get syncStatus_statePending => 'Pending';
+
+  @override
+  String get syncStatus_statePushing => 'Sending';
+
+  @override
+  String get syncStatus_stateConflicted => 'Conflicted';
+
+  @override
+  String get syncStatus_stateBlocked => 'Blocked';
+
+  @override
+  String get syncStatus_stateUnknown => 'Unknown';
+
+  @override
+  String get syncStatus_retry => 'Retry';
+
+  @override
+  String get syncStatus_discard => 'Discard';
+
+  @override
+  String get syncStatus_reviewConflict => 'Review Conflict';
+
+  @override
+  String get syncStatus_moreActions => 'More Actions';
+
+  @override
+  String syncStatus_queued(String time) {
+    return 'Queued $time';
+  }
+
+  @override
+  String syncStatus_attempted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Attempted $count Times',
+      one: 'Attempted Once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_lastAttempt(String time) {
+    return 'Last Attempt $time';
+  }
+
+  @override
+  String syncStatus_lastError(String message) {
+    return 'Last Error: $message';
+  }
+
+  @override
+  String get syncStatus_timeJustNow => 'Just Now';
+
+  @override
+  String syncStatus_timeMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Minutes Ago',
+      one: '1 Minute Ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_timeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Hours Ago',
+      one: '1 Hour Ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_timeDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Days Ago',
+      one: '1 Day Ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStatus_emptyTitle => 'Nothing Is Waiting To Sync';
+
+  @override
+  String get syncStatus_emptyBody =>
+      'Every Change On This Device Has Been Sent.';
+
+  @override
+  String get syncStatus_retried => 'The Change Will Be Sent Again.';
+
+  @override
+  String get syncStatus_discardTitle => 'Discard This Change?';
+
+  @override
+  String get syncStatus_discardBody =>
+      'The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.';
+
+  @override
+  String get syncStatus_discardConfirm => 'Discard';
+
+  @override
+  String get syncStatus_discarded => 'The Queued Change Was Discarded.';
+
+  @override
+  String get syncStatus_discardRestoredLocally =>
+      'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.';
+
+  @override
+  String get syncStatus_export => 'Export Diagnostic Bundle';
+
+  @override
+  String get syncStatus_exportShort => 'Export';
+
+  @override
+  String get syncStatus_exportTitle => 'Export Diagnostic Bundle';
+
+  @override
+  String get syncStatus_exportMetadataOnly => 'Metadata Only';
+
+  @override
+  String get syncStatus_exportMetadataOnlyBody =>
+      'Types, States, Retry Counts And Error Messages. No Case Content Is Included.';
+
+  @override
+  String get syncStatus_exportIncludePayloads => 'Include Payloads';
+
+  @override
+  String get syncStatus_exportIncludePayloadsBody =>
+      'Adds The Queued Changes Themselves, Which Can Include Case Details.';
+
+  @override
+  String get syncStatus_exportConsentTitle => 'Include Case Content?';
+
+  @override
+  String get syncStatus_exportConsentBody =>
+      'The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.';
+
+  @override
+  String get syncStatus_exportConsentConfirm => 'Include';
+
+  @override
+  String get syncStatus_exportReminder =>
+      'Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.';
+
+  @override
+  String syncStatus_exportSaved(String path) {
+    return 'Diagnostic Bundle Saved To $path';
+  }
+
+  @override
+  String get syncStatus_exportFailed =>
+      'The Diagnostic Bundle Could Not Be Saved.';
+
+  @override
+  String get logout_connectToSync =>
+      'Connect To The Internet To Sync Your Changes First.';
+
+  @override
+  String get logout_logOutAnyway => 'Log Out Anyway';
+
+  @override
+  String get logout_unsyncedWarningTitle => 'Some Changes Have Not Synced Yet';
+
+  @override
+  String get logout_unsyncedWarningBody =>
+      'Some data haven\'t finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.';
+
+  @override
+  String get logout_proceed => 'Log Out';
+
+  @override
+  String logout_backedUpTo(String path) {
+    return 'Your Data Has Been Backed Up To $path. You Can Restore It After Logging Back In.';
+  }
+
+  @override
+  String get logout_exportCancelled =>
+      'Logging Out Was Cancelled; Nothing Was Deleted.';
+
+  @override
+  String get logout_exportFailed =>
+      'The Safety Copy Could Not Be Saved, So Nothing Was Deleted.';
+
+  @override
+  String get logout_syncFailed => 'Your Changes Could Not Be Synced.';
+
+  @override
+  String get recoveryLock_title => 'Offline For Too Long';
+
+  @override
+  String recoveryLock_message(int days, String path) {
+    return 'You Have Been Offline For $days Days. Your Local Changes Have Been Saved To $path. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.';
+  }
+
+  @override
+  String recoveryLock_messageNoCopy(int days) {
+    return 'You Have Been Offline For $days Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.';
+  }
+
+  @override
+  String get recoveryLock_saveTitle => 'Save A Safety Copy';
+
+  @override
+  String get recoveryLock_saveBody =>
+      'Everything On This Device — Your Cases, Notes And Unsynced Changes — Is Sealed Into One Encrypted File First. Set A Passphrase You Will Remember; It Is Not Stored Anywhere.';
+
+  @override
+  String get recoveryLock_saveAction => 'Save The Safety Copy';
+
+  @override
+  String recoveryLock_savedTo(String path) {
+    return 'Safety Copy Saved To $path';
+  }
+
+  @override
+  String get recoveryLock_saveFailed =>
+      'The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.';
+
+  @override
+  String get recoveryLock_proceed => 'Load Fresh Data';
+
+  @override
+  String get recoveryLock_proceedConfirmTitle =>
+      'Replace This Device With The Server\'s Copy?';
+
+  @override
+  String get recoveryLock_proceedConfirmBody =>
+      'Your Local Changes Will Be Replaced By The Server\'s Data. The Safety Copy You Saved Is The Only Way Back To Them.';
+
+  @override
+  String get recoveryLock_close => 'Close';
+
+  @override
+  String get recoveryLock_closeBody =>
+      'The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.';
+
+  @override
+  String get recoveryLock_working => 'Loading Fresh Data…';
+
+  @override
+  String get recoveryLock_failed =>
+      'Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.';
+
+  @override
+  String syncStatus_entryTitle(String entity, String operation) {
+    return '$entity $operation';
+  }
+
+  @override
   String get paywall_title => 'Premium';
 
   @override

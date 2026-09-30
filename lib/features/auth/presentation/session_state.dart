@@ -31,6 +31,7 @@ import '../../../core/router/app_router.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../data/local_auth_service.dart';
 import 'auth_viewmodel.dart';
+import 'logout_dialogs.dart';
 
 /// The session's state, in the terms the app acts on.
 enum SessionStatus {
@@ -117,7 +118,36 @@ class SessionExpiryNotice extends ConsumerWidget {
                 clipBehavior: Clip.antiAlias,
                 elevation: 4,
                 child: InkWell(
-                  onTap: () => router.go(AppRoutes.login),
+                  // The forced re-login runs through the same logout branches every
+                  // other sign-out uses, because the data has to be dealt with
+                  // either way — but only when the user acts, never on detection:
+                  // the diary stays readable until this tap.
+                  //
+                  // `cannotSync` is honest here: the session the server rejected
+                  // cannot authenticate a push, so the online branch must not
+                  // pretend a sync is possible. The dialogs open on the app's own
+                  // navigator, because this notice wraps the whole app and sits
+                  // above it.
+                  onTap: () async {
+                    final completed = await runBranchedLogout(
+                      context,
+                      ref,
+                      cannotSync: true,
+                      dialogContext: router
+                          .routerDelegate
+                          .navigatorKey
+                          .currentState
+                          ?.overlay
+                          ?.context,
+                    );
+                    // Only leave for the login screen once the data has actually
+                    // been dealt with. If the user cancelled the branch, nothing
+                    // was wiped, so forcing them onto Login would strand the
+                    // previous account's data behind a new sign-in — the exact
+                    // cross-contamination §5 exists to prevent. The notice stays
+                    // until they finish.
+                    if (completed) router.go(AppRoutes.login);
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Row(

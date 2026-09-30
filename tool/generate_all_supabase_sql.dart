@@ -211,6 +211,25 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'function, granted to `authenticated` only, so a successful sync can '
         'compare device and server time and record the offset past two minutes.',
   ),
+  LedgerSection(
+    file: '20260930160000_conflict_mergeable_column.sql',
+    version: '0.0.318',
+    label: '`conflict_log.mergeable_conflict` — the detecting client\'s '
+        'three-way verdict on the conflict, carried on the mirrored row so a '
+        'second device reads the same answer instead of recomputing one from '
+        'its own copy. `not null default false` reads an old or absent value as '
+        '"needs a person".',
+  ),
+  LedgerSection(
+    file: '20260930170000_push_changes_created_at_guard.sql',
+    version: '0.0.318',
+    label: '`push_changes` again, with one corrected guard: the insert-time '
+        '`created_at` fallback now fills only an epoch-ms **integer** column, '
+        'so `conflict_log`\'s server-owned `timestamptz` keeps its own default '
+        'instead of receiving the client\'s milliseconds (which raised `22007` '
+        'and made every conflict mirror a permanent rejection — found by '
+        'running the smoke test with a `conflict_log` row in it).',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -228,6 +247,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.310': 'Task 17 Follow-Up — The Account Holder\'s Own Details',
   '0.0.311': 'Task 18 Phase 1 — The Atomic Push Pipeline',
   '0.0.313': 'Task 18 Phase 3 — Server Clock For Skew Detection',
+  '0.0.318': 'Task 19 Phase 3 — The Conflict Verdict On The Mirrored Row',
 };
 
 const String _header = '''<!--

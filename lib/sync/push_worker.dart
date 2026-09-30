@@ -8,11 +8,9 @@
 /// and a permission rejection is rolled back from `pre_mutation_payload`.
 library;
 
-import 'dart:convert';
-
 import '../database/app_database.dart';
+import 'conflict_resolution.dart';
 import 'entity_tables.dart';
-import 'sync_conflict_log.dart';
 import 'sync_queue_dao.dart';
 import 'sync_table_bindings.dart';
 import 'sync_transport.dart';
@@ -287,8 +285,9 @@ class PushWorker {
           applied++;
         case 'conflict':
         case 'tombstone':
-          await _applyConflict(item, result);
-          conflicts++;
+          // A disjoint conflict is rebased and already answered, so it is not a
+          // conflict anyone still has to look at; only a frozen one counts.
+          if (await _applyConflict(item, result)) conflicts++;
         case 'already_resolved':
           await _applyAlreadyResolved(item, result);
           applied++;
@@ -352,18 +351,32 @@ class PushWorker {
     await queue.resolve(item.row.id);
   }
 
-  Future<void> _applyConflict(_Prepared item, Map<String, dynamic> result) async {
+  /// Answers a rejected mutation through the one resolver.
+  ///
+  /// When the local edit and the server's change touch disjoint fields, the
+  /// resolver rebases it into a new mutation against the server's version and
+  /// nothing is frozen, so the next pass of the same drain sends the merged edit.
+  /// Otherwise the entity is frozen for review and the conflict is preserved.
+  ///
+  /// A tombstone hides the record locally; a version conflict must not overwrite
+  /// the queued edit, so its row is attached to the conflict log instead.
+  /// Returns whether a person is now needed for this conflict.
+  Future<bool> _applyConflict(_Prepared item, Map<String, dynamic> result) async {
     final serverRow = result['row'];
-    await _logConflict(item, result);
-    await queue.freezeEntity(item.row.entityType, item.row.entityId,
-        error: result['message'] as String? ?? 'Conflict with the server.');
-    // A tombstone hides the record locally; a version conflict must not
-    // overwrite the queued edit, so its row is attached to the conflict log
-    // instead.
-    if (result['status'] == 'tombstone' && serverRow is Map) {
+    final server = serverRow is Map
+        ? serverRow.cast<String, dynamic>()
+        : const <String, dynamic>{};
+    final needsReview = await ConflictResolver(
+      db: db,
+      queue: queue,
+      currentUserId: currentUserId,
+    ).reconcile(row: item.row, serverRow: server);
+
+    if (needsReview && result['status'] == 'tombstone' && serverRow is Map) {
       await syncBindingFor(item.row.entityType)!
           .applyServerRow(db, serverRow.cast<String, dynamic>());
     }
+    return needsReview;
   }
 
   Future<void> _applyAlreadyResolved(
@@ -399,30 +412,6 @@ class PushWorker {
     return _RejectedAction.blocked;
   }
 
-  /// Writes a local `conflict_log` row — and queues it for the server mirror —
-  /// for a rejected mutation. The record itself is written by the shared
-  /// [writeConflictLog], which the delta pull uses too.
-  Future<void> _logConflict(_Prepared item, Map<String, dynamic> result) async {
-    final serverRow = result['row'];
-    await writeConflictLog(
-      db: db,
-      queue: queue,
-      currentUserId: currentUserId,
-      entityType: item.row.entityType,
-      entityId: item.row.entityId,
-      mutationId: item.row.mutationId,
-      baseVersion: item.row.baseVersion ?? 0,
-      basePayload: item.row.basePayload,
-      submittedPayload: _encode(item.json['payload']),
-      changedFields: item.row.changedFields,
-      serverVersion: _int(result['version']) ?? 0,
-      serverPayload: serverRow is Map ? _encode(serverRow) : '{}',
-      conflictAt: DateTime.now().toUtc().millisecondsSinceEpoch,
-    );
-  }
-
-  static String _encode(Object? value) => jsonEncode(value);
-
   static int? _int(Object? value) {
     if (value is int) return value;
     if (value is num) return value.toInt();
@@ -432,5 +421,3 @@ class PushWorker {
 }
 
 enum _RejectedAction { permission, blocked, rolledBack }
-
-// `JsonEncoder` lives in dart:convert.

@@ -54,13 +54,14 @@ void main() {
       );
       expect(
         onDisk.length,
-        20,
+        22,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
             'Profile details follow-up added the self-service profile columns, '
-            'Task 18 Phase 1 added push_changes, and Task 18 Phase 3 added '
-            'sync_server_time',
+            'Task 18 Phase 1 added push_changes, Task 18 Phase 3 added '
+            'sync_server_time, and Task 19 Phase 3 added the conflict verdict '
+            'column and the created_at fallback guard',
       );
     });
 

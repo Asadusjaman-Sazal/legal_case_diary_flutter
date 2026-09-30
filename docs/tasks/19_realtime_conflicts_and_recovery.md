@@ -48,6 +48,8 @@
 
 ## Phase 5 — Extended-Offline Recovery (150-Day, Per-Device)
 
+> **Clarification (user approved; recorded in `docs/implementation_plan.md` → Resolved Design Clarifications, "Extended-Offline Recovery Lock Applies to Firm Mode Only").** This phase applies in **firm (multi-user) mode only** — `firmModeProvider` true. An account in **individual mode is never locked** and performs no recovery work and no network work for it. The lock exists to stop a device resurrecting rows that **another writer** deleted while it was away; a single-author diary has no other writer, so it cannot have anything deleted behind it, and locking it out of its own edits would be pure harm. This sharpens the plan's earlier "premium/Firm mode" wording: the gate is **firm mode alone**, never entitlement, so a premium individual is exempt too.
+
 1. The check is **per-device**: compare the device-local `last_successful_sync_at` (Task 18 Phase 3) on reconnect. Threshold **150 days** (30-day buffer under the 180-day server tombstone retention). Never use `profiles.last_successful_sync_at` (another device would mask the gap).
 2. When triggered, in one durable local transaction set persistent `extended_offline_recovery_required = true` **before** any export or network work; pause push/pull workers; wait for in-flight local writes. While set, repositories reject every mutation and the UI disables editing/FAB with a recovery-required message. The lock **survives process termination**.
 3. **Automatic safety export under the lock:** export the complete local Drift DB plus all pending/blocked/conflicted `sync_queue` rows and metadata to the versioned encrypted Backup & Restore format (Task 15). Record archive path, checksum, completion state. No post-export mutation is possible.

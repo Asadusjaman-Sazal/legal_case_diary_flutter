@@ -280,6 +280,218 @@
   "sync_unavailable": "Sync requires a premium subscription",
   "sync_permissionsChanged": "Your Firm Permissions Changed; This Pending Action Was Not Applied.",
   "sync_clockSkewWarning": "Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.",
+  "@@_section_syncConflict": "SYNC CONFLICTS  |  lib/features/sync/presentation - conflict banner and review screen",
+  "syncConflict_bannerMessage": "{count, plural, =1{A Conflict Needs Review} other{{count} Conflicts Need Review}}",
+  "@syncConflict_bannerMessage": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncConflict_bannerAction": "Review",
+  "syncConflict_title": "Review Conflict",
+  "syncConflict_subtitle": "Another Device Changed This Record",
+  "syncConflict_editedBy": "Edited By {name}",
+  "@syncConflict_editedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "syncConflict_unknownEditor": "Another Device",
+  "syncConflict_intro": "You and another device changed the same fields. Choose the value to keep for each one.",
+  "syncConflict_keepServer": "Server",
+  "syncConflict_keepMine": "Mine",
+  "syncConflict_tombstoneTitle": "Deleted On The Server",
+  "syncConflict_tombstoneBody": "This record was deleted on another device. Your saved changes are still here — choose what happens to them.",
+  "syncConflict_rebaseOntoNewRecord": "Keep As A New Record",
+  "syncConflict_discard": "Discard My Changes",
+  "syncConflict_discardConfirmTitle": "Discard Your Changes?",
+  "syncConflict_discardConfirmBody": "The server version will replace your unsynced changes. This cannot be undone.",
+  "syncConflict_laterEditsTitle": "Later Saved Changes",
+  "syncConflict_laterEditsBody": "These edits are preserved until this conflict is answered.",
+  "syncConflict_resolvedNotice": "This Conflict Is Already Resolved.",
+  "syncConflict_missingNotice": "This Conflict Is No Longer Available.",
+  "@@_section_syncStatus": "SYNC STATUS  |  lib/features/sync/presentation - Sync Status and diagnostic bundle",
+  "syncStatus_title": "Sync Status",
+  "syncStatus_subtitle": "Every Change Waiting To Be Sent",
+  "syncStatus_lastSyncedNever": "Never Synced",
+  "syncStatus_lastSynced": "Last Synced {time}",
+  "@syncStatus_lastSynced": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_filterAll": "All",
+  "syncStatus_filterPending": "Pending",
+  "syncStatus_filterConflicted": "Conflicted",
+  "syncStatus_filterBlocked": "Blocked",
+  "syncStatus_statePending": "Pending",
+  "syncStatus_statePushing": "Sending",
+  "syncStatus_stateConflicted": "Conflicted",
+  "syncStatus_stateBlocked": "Blocked",
+  "syncStatus_stateUnknown": "Unknown",
+  "syncStatus_retry": "Retry",
+  "syncStatus_discard": "Discard",
+  "syncStatus_reviewConflict": "Review Conflict",
+  "syncStatus_moreActions": "More Actions",
+  "syncStatus_queued": "Queued {time}",
+  "@syncStatus_queued": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_attempted": "{count, plural, =1{Attempted Once} other{Attempted {count} Times}}",
+  "@syncStatus_attempted": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_lastAttempt": "Last Attempt {time}",
+  "@syncStatus_lastAttempt": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_lastError": "Last Error: {message}",
+  "@syncStatus_lastError": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_timeJustNow": "Just Now",
+  "syncStatus_timeMinutesAgo": "{count, plural, =1{1 Minute Ago} other{{count} Minutes Ago}}",
+  "@syncStatus_timeMinutesAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_timeHoursAgo": "{count, plural, =1{1 Hour Ago} other{{count} Hours Ago}}",
+  "@syncStatus_timeHoursAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_timeDaysAgo": "{count, plural, =1{1 Day Ago} other{{count} Days Ago}}",
+  "@syncStatus_timeDaysAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_emptyTitle": "Nothing Is Waiting To Sync",
+  "syncStatus_emptyBody": "Every Change On This Device Has Been Sent.",
+  "syncStatus_retried": "The Change Will Be Sent Again.",
+  "syncStatus_discardTitle": "Discard This Change?",
+  "syncStatus_discardBody": "The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.",
+  "syncStatus_discardConfirm": "Discard",
+  "syncStatus_discarded": "The Queued Change Was Discarded.",
+  "syncStatus_discardRestoredLocally": "The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.",
+  "syncStatus_export": "Export Diagnostic Bundle",
+  "syncStatus_exportShort": "Export",
+  "syncStatus_exportTitle": "Export Diagnostic Bundle",
+  "syncStatus_exportMetadataOnly": "Metadata Only",
+  "syncStatus_exportMetadataOnlyBody": "Types, States, Retry Counts And Error Messages. No Case Content Is Included.",
+  "syncStatus_exportIncludePayloads": "Include Payloads",
+  "syncStatus_exportIncludePayloadsBody": "Adds The Queued Changes Themselves, Which Can Include Case Details.",
+  "syncStatus_exportConsentTitle": "Include Case Content?",
+  "syncStatus_exportConsentBody": "The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.",
+  "syncStatus_exportConsentConfirm": "Include",
+  "syncStatus_exportReminder": "Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.",
+  "syncStatus_exportSaved": "Diagnostic Bundle Saved To {path}",
+  "@syncStatus_exportSaved": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_exportFailed": "The Diagnostic Bundle Could Not Be Saved.",
+  "@@_section_logoutBranches": "BRANCHED LOGOUT  |  lib/features/auth - logout windows and messages",
+  "logout_connectToSync": "Connect To The Internet To Sync Your Changes First.",
+  "logout_logOutAnyway": "Log Out Anyway",
+  "logout_unsyncedWarningTitle": "Some Changes Have Not Synced Yet",
+  "logout_unsyncedWarningBody": "Some data haven't finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.",
+  "logout_proceed": "Log Out",
+  "logout_backedUpTo": "Your Data Has Been Backed Up To {path}. You Can Restore It After Logging Back In.",
+  "@logout_backedUpTo": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "logout_exportCancelled": "Logging Out Was Cancelled; Nothing Was Deleted.",
+  "logout_exportFailed": "The Safety Copy Could Not Be Saved, So Nothing Was Deleted.",
+  "logout_syncFailed": "Your Changes Could Not Be Synced.",
+  "@@_section_recoveryLock": "EXTENDED-OFFLINE RECOVERY  |  lib/features/sync/presentation - blocking recovery screen",
+  "recoveryLock_title": "Offline For Too Long",
+  "recoveryLock_message": "You Have Been Offline For {days} Days. Your Local Changes Have Been Saved To {path}. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.",
+  "@recoveryLock_message": {
+      "placeholders": {
+          "days": {
+              "type": "int"
+          },
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "recoveryLock_messageNoCopy": "You Have Been Offline For {days} Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.",
+  "@recoveryLock_messageNoCopy": {
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "recoveryLock_saveTitle": "Save A Safety Copy",
+  "recoveryLock_saveBody": "Everything On This Device — Your Cases, Notes And Unsynced Changes — Is Sealed Into One Encrypted File First. Set A Passphrase You Will Remember; It Is Not Stored Anywhere.",
+  "recoveryLock_saveAction": "Save The Safety Copy",
+  "recoveryLock_savedTo": "Safety Copy Saved To {path}",
+  "@recoveryLock_savedTo": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "recoveryLock_saveFailed": "The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.",
+  "recoveryLock_proceed": "Load Fresh Data",
+  "recoveryLock_proceedConfirmTitle": "Replace This Device With The Server's Copy?",
+  "recoveryLock_proceedConfirmBody": "Your Local Changes Will Be Replaced By The Server's Data. The Safety Copy You Saved Is The Only Way Back To Them.",
+  "recoveryLock_close": "Close",
+  "recoveryLock_closeBody": "The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.",
+  "recoveryLock_working": "Loading Fresh Data…",
+  "recoveryLock_failed": "Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.",
+  "syncStatus_entryTitle": "{entity} {operation}",
+  "@syncStatus_entryTitle": {
+      "placeholders": {
+          "entity": {
+              "type": "String"
+          },
+          "operation": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_title": "Premium",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",

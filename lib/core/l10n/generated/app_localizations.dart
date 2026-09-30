@@ -1244,6 +1244,546 @@ abstract class AppLocalizations {
   /// **'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.'**
   String get sync_clockSkewWarning;
 
+  /// No description provided for @syncConflict_bannerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{A Conflict Needs Review} other{{count} Conflicts Need Review}}'**
+  String syncConflict_bannerMessage(int count);
+
+  /// No description provided for @syncConflict_bannerAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get syncConflict_bannerAction;
+
+  /// No description provided for @syncConflict_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Conflict'**
+  String get syncConflict_title;
+
+  /// No description provided for @syncConflict_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Another Device Changed This Record'**
+  String get syncConflict_subtitle;
+
+  /// No description provided for @syncConflict_editedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited By {name}'**
+  String syncConflict_editedBy(String name);
+
+  /// No description provided for @syncConflict_unknownEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Another Device'**
+  String get syncConflict_unknownEditor;
+
+  /// No description provided for @syncConflict_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'You and another device changed the same fields. Choose the value to keep for each one.'**
+  String get syncConflict_intro;
+
+  /// No description provided for @syncConflict_keepServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get syncConflict_keepServer;
+
+  /// No description provided for @syncConflict_keepMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get syncConflict_keepMine;
+
+  /// No description provided for @syncConflict_tombstoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted On The Server'**
+  String get syncConflict_tombstoneTitle;
+
+  /// No description provided for @syncConflict_tombstoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This record was deleted on another device. Your saved changes are still here — choose what happens to them.'**
+  String get syncConflict_tombstoneBody;
+
+  /// No description provided for @syncConflict_rebaseOntoNewRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep As A New Record'**
+  String get syncConflict_rebaseOntoNewRecord;
+
+  /// No description provided for @syncConflict_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard My Changes'**
+  String get syncConflict_discard;
+
+  /// No description provided for @syncConflict_discardConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Your Changes?'**
+  String get syncConflict_discardConfirmTitle;
+
+  /// No description provided for @syncConflict_discardConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The server version will replace your unsynced changes. This cannot be undone.'**
+  String get syncConflict_discardConfirmBody;
+
+  /// No description provided for @syncConflict_laterEditsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Later Saved Changes'**
+  String get syncConflict_laterEditsTitle;
+
+  /// No description provided for @syncConflict_laterEditsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These edits are preserved until this conflict is answered.'**
+  String get syncConflict_laterEditsBody;
+
+  /// No description provided for @syncConflict_resolvedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This Conflict Is Already Resolved.'**
+  String get syncConflict_resolvedNotice;
+
+  /// No description provided for @syncConflict_missingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This Conflict Is No Longer Available.'**
+  String get syncConflict_missingNotice;
+
+  /// No description provided for @syncStatus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Status'**
+  String get syncStatus_title;
+
+  /// No description provided for @syncStatus_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Change Waiting To Be Sent'**
+  String get syncStatus_subtitle;
+
+  /// No description provided for @syncStatus_lastSyncedNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never Synced'**
+  String get syncStatus_lastSyncedNever;
+
+  /// No description provided for @syncStatus_lastSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Synced {time}'**
+  String syncStatus_lastSynced(String time);
+
+  /// No description provided for @syncStatus_filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get syncStatus_filterAll;
+
+  /// No description provided for @syncStatus_filterPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get syncStatus_filterPending;
+
+  /// No description provided for @syncStatus_filterConflicted.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicted'**
+  String get syncStatus_filterConflicted;
+
+  /// No description provided for @syncStatus_filterBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get syncStatus_filterBlocked;
+
+  /// No description provided for @syncStatus_statePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get syncStatus_statePending;
+
+  /// No description provided for @syncStatus_statePushing.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get syncStatus_statePushing;
+
+  /// No description provided for @syncStatus_stateConflicted.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicted'**
+  String get syncStatus_stateConflicted;
+
+  /// No description provided for @syncStatus_stateBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get syncStatus_stateBlocked;
+
+  /// No description provided for @syncStatus_stateUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get syncStatus_stateUnknown;
+
+  /// No description provided for @syncStatus_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get syncStatus_retry;
+
+  /// No description provided for @syncStatus_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get syncStatus_discard;
+
+  /// No description provided for @syncStatus_reviewConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Conflict'**
+  String get syncStatus_reviewConflict;
+
+  /// No description provided for @syncStatus_moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More Actions'**
+  String get syncStatus_moreActions;
+
+  /// No description provided for @syncStatus_queued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued {time}'**
+  String syncStatus_queued(String time);
+
+  /// No description provided for @syncStatus_attempted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Attempted Once} other{Attempted {count} Times}}'**
+  String syncStatus_attempted(int count);
+
+  /// No description provided for @syncStatus_lastAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Attempt {time}'**
+  String syncStatus_lastAttempt(String time);
+
+  /// No description provided for @syncStatus_lastError.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Error: {message}'**
+  String syncStatus_lastError(String message);
+
+  /// No description provided for @syncStatus_timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just Now'**
+  String get syncStatus_timeJustNow;
+
+  /// No description provided for @syncStatus_timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Minute Ago} other{{count} Minutes Ago}}'**
+  String syncStatus_timeMinutesAgo(int count);
+
+  /// No description provided for @syncStatus_timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Hour Ago} other{{count} Hours Ago}}'**
+  String syncStatus_timeHoursAgo(int count);
+
+  /// No description provided for @syncStatus_timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Day Ago} other{{count} Days Ago}}'**
+  String syncStatus_timeDaysAgo(int count);
+
+  /// No description provided for @syncStatus_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing Is Waiting To Sync'**
+  String get syncStatus_emptyTitle;
+
+  /// No description provided for @syncStatus_emptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Change On This Device Has Been Sent.'**
+  String get syncStatus_emptyBody;
+
+  /// No description provided for @syncStatus_retried.
+  ///
+  /// In en, this message translates to:
+  /// **'The Change Will Be Sent Again.'**
+  String get syncStatus_retried;
+
+  /// No description provided for @syncStatus_discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard This Change?'**
+  String get syncStatus_discardTitle;
+
+  /// No description provided for @syncStatus_discardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.'**
+  String get syncStatus_discardBody;
+
+  /// No description provided for @syncStatus_discardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get syncStatus_discardConfirm;
+
+  /// No description provided for @syncStatus_discarded.
+  ///
+  /// In en, this message translates to:
+  /// **'The Queued Change Was Discarded.'**
+  String get syncStatus_discarded;
+
+  /// No description provided for @syncStatus_discardRestoredLocally.
+  ///
+  /// In en, this message translates to:
+  /// **'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.'**
+  String get syncStatus_discardRestoredLocally;
+
+  /// No description provided for @syncStatus_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Diagnostic Bundle'**
+  String get syncStatus_export;
+
+  /// No description provided for @syncStatus_exportShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get syncStatus_exportShort;
+
+  /// No description provided for @syncStatus_exportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Diagnostic Bundle'**
+  String get syncStatus_exportTitle;
+
+  /// No description provided for @syncStatus_exportMetadataOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata Only'**
+  String get syncStatus_exportMetadataOnly;
+
+  /// No description provided for @syncStatus_exportMetadataOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Types, States, Retry Counts And Error Messages. No Case Content Is Included.'**
+  String get syncStatus_exportMetadataOnlyBody;
+
+  /// No description provided for @syncStatus_exportIncludePayloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Payloads'**
+  String get syncStatus_exportIncludePayloads;
+
+  /// No description provided for @syncStatus_exportIncludePayloadsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds The Queued Changes Themselves, Which Can Include Case Details.'**
+  String get syncStatus_exportIncludePayloadsBody;
+
+  /// No description provided for @syncStatus_exportConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Case Content?'**
+  String get syncStatus_exportConsentTitle;
+
+  /// No description provided for @syncStatus_exportConsentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.'**
+  String get syncStatus_exportConsentBody;
+
+  /// No description provided for @syncStatus_exportConsentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Include'**
+  String get syncStatus_exportConsentConfirm;
+
+  /// No description provided for @syncStatus_exportReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.'**
+  String get syncStatus_exportReminder;
+
+  /// No description provided for @syncStatus_exportSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostic Bundle Saved To {path}'**
+  String syncStatus_exportSaved(String path);
+
+  /// No description provided for @syncStatus_exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The Diagnostic Bundle Could Not Be Saved.'**
+  String get syncStatus_exportFailed;
+
+  /// No description provided for @logout_connectToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect To The Internet To Sync Your Changes First.'**
+  String get logout_connectToSync;
+
+  /// No description provided for @logout_logOutAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out Anyway'**
+  String get logout_logOutAnyway;
+
+  /// No description provided for @logout_unsyncedWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Some Changes Have Not Synced Yet'**
+  String get logout_unsyncedWarningTitle;
+
+  /// No description provided for @logout_unsyncedWarningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some data haven\'t finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.'**
+  String get logout_unsyncedWarningBody;
+
+  /// No description provided for @logout_proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logout_proceed;
+
+  /// No description provided for @logout_backedUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Data Has Been Backed Up To {path}. You Can Restore It After Logging Back In.'**
+  String logout_backedUpTo(String path);
+
+  /// No description provided for @logout_exportCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging Out Was Cancelled; Nothing Was Deleted.'**
+  String get logout_exportCancelled;
+
+  /// No description provided for @logout_exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The Safety Copy Could Not Be Saved, So Nothing Was Deleted.'**
+  String get logout_exportFailed;
+
+  /// No description provided for @logout_syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Changes Could Not Be Synced.'**
+  String get logout_syncFailed;
+
+  /// No description provided for @recoveryLock_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline For Too Long'**
+  String get recoveryLock_title;
+
+  /// No description provided for @recoveryLock_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Been Offline For {days} Days. Your Local Changes Have Been Saved To {path}. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.'**
+  String recoveryLock_message(int days, String path);
+
+  /// No description provided for @recoveryLock_messageNoCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Been Offline For {days} Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.'**
+  String recoveryLock_messageNoCopy(int days);
+
+  /// No description provided for @recoveryLock_saveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save A Safety Copy'**
+  String get recoveryLock_saveTitle;
+
+  /// No description provided for @recoveryLock_saveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything On This Device — Your Cases, Notes And Unsynced Changes — Is Sealed Into One Encrypted File First. Set A Passphrase You Will Remember; It Is Not Stored Anywhere.'**
+  String get recoveryLock_saveBody;
+
+  /// No description provided for @recoveryLock_saveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save The Safety Copy'**
+  String get recoveryLock_saveAction;
+
+  /// No description provided for @recoveryLock_savedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Copy Saved To {path}'**
+  String recoveryLock_savedTo(String path);
+
+  /// No description provided for @recoveryLock_saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.'**
+  String get recoveryLock_saveFailed;
+
+  /// No description provided for @recoveryLock_proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Fresh Data'**
+  String get recoveryLock_proceed;
+
+  /// No description provided for @recoveryLock_proceedConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace This Device With The Server\'s Copy?'**
+  String get recoveryLock_proceedConfirmTitle;
+
+  /// No description provided for @recoveryLock_proceedConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Local Changes Will Be Replaced By The Server\'s Data. The Safety Copy You Saved Is The Only Way Back To Them.'**
+  String get recoveryLock_proceedConfirmBody;
+
+  /// No description provided for @recoveryLock_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get recoveryLock_close;
+
+  /// No description provided for @recoveryLock_closeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.'**
+  String get recoveryLock_closeBody;
+
+  /// No description provided for @recoveryLock_working.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Fresh Data…'**
+  String get recoveryLock_working;
+
+  /// No description provided for @recoveryLock_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.'**
+  String get recoveryLock_failed;
+
+  /// No description provided for @syncStatus_entryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{entity} {operation}'**
+  String syncStatus_entryTitle(String entity, String operation);
+
   /// No description provided for @paywall_title.
   ///
   /// In en, this message translates to:

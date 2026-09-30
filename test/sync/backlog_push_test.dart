@@ -80,6 +80,14 @@ class _BacklogServer implements SyncTransport {
   }
 
   @override
+  Future<Map<String, dynamic>?> fetchRow(String table, String id) async {
+    for (final row in rows[table] ?? const <Map<String, dynamic>>[]) {
+      if (row['id'] == id) return row;
+    }
+    return null;
+  }
+
+  @override
   Future<DateTime?> serverTime() async => DateTime.now().toUtc();
 
   /// Every mutation sent, across every batch.

@@ -579,6 +579,99 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- The conflict mirror: a conflict_log row pushes like any other entity, and the
+-- detecting client's verdict travels with it (Task 19 Phase 3)
+-- ---------------------------------------------------------------------------
+
+do $$
+declare
+  v_owner uuid := current_setting('test.owner')::uuid;
+  v_id text := 'smoke-conflict-1';
+  v_out jsonb;
+  v_version integer;
+begin
+  perform pg_temp.as_user(v_owner);
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-conflict-log',
+    'entity_type', 'conflict_log',
+    'entity_id', v_id,
+    'operation', 'insert',
+    'payload', jsonb_build_object(
+      'id', v_id,
+      'user_id', v_owner,
+      'mutation_id', 'smoke-mut-rejected',
+      'entity_type', 'note',
+      'entity_id', 'smoke-note-a',
+      'base_version', 1,
+      'base_payload', '{}',
+      'submitted_payload', '{}',
+      'changed_fields', '["title"]',
+      'server_version', 2,
+      'server_payload', '{}',
+      'resolution_state', 'unresolved',
+      'mergeable_conflict', true,
+      'conflict_at', 0,
+      'is_dismissed', false,
+      'is_deleted', false,
+      'updated_at', 0,
+      'last_modified_by', v_owner
+    )
+  )));
+
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted',
+    'a conflict_log mirror insert was not accepted'
+  );
+  v_version := (v_out #>> '{results,0,version}')::integer;
+
+  perform pg_temp.assert_true(
+    (select mergeable_conflict from public.conflict_log where id = v_id) is true
+      and (select resolution_state from public.conflict_log where id = v_id)
+          = 'unresolved',
+    'the mergeable_conflict verdict did not reach the mirrored row'
+  );
+
+  -- The answer travels the same way: one update on the same id, so a second
+  -- device reads the conflict as answered instead of recomputing a verdict.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-conflict-log-resolve',
+    'entity_type', 'conflict_log',
+    'entity_id', v_id,
+    'operation', 'update',
+    'base_version', v_version,
+    'payload', jsonb_build_object(
+      'id', v_id,
+      'user_id', v_owner,
+      'mutation_id', 'smoke-mut-rejected',
+      'entity_type', 'note',
+      'entity_id', 'smoke-note-a',
+      'base_version', 1,
+      'base_payload', '{}',
+      'submitted_payload', '{}',
+      'changed_fields', '["title"]',
+      'server_version', 2,
+      'server_payload', '{}',
+      'resolution_state', 'user_resolved',
+      'resolved_at', 1,
+      'mergeable_conflict', true,
+      'conflict_at', 0,
+      'is_dismissed', false,
+      'is_deleted', false,
+      'updated_at', 1,
+      'last_modified_by', v_owner
+    )
+  )));
+
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (select resolution_state from public.conflict_log where id = v_id)
+          = 'user_resolved',
+    'the conflict resolution did not reach the mirrored row'
+  );
+end;
+$$;
+
 -- Nothing above is kept: no account, firm, case, history or receipt survives.
 rollback;
 

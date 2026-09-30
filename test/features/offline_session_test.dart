@@ -293,6 +293,7 @@ void main() {
       WidgetTester tester, {
       required bool online,
       AuthSessionEvent? event,
+      List<Override> overrides = const <Override>[],
     }) async {
       if (event != null) {
         harness = AuthTestHarness(
@@ -319,7 +320,11 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [...await harness.setUp(), onlineOverride(online)],
+          overrides: [
+            ...await harness.setUp(),
+            onlineOverride(online),
+            ...overrides,
+          ],
           child: MaterialApp.router(
             routerConfig: router,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -342,10 +347,15 @@ void main() {
     }
 
     testWidgets('a rejected online session offers the sign-in', (tester) async {
+      // The tap runs the same branched logout every other sign-out uses, so this
+      // free account really is asked for a passphrase before its data goes. The
+      // copy stays in memory: the branch, not the file, is what is under test.
+      final sink = RecordingArchiveSink();
       await pumpNotice(
         tester,
         online: true,
         event: const AuthSessionEvent(sessionExpired: true),
+        overrides: [logoutFlowOverride(premium: false, sink: sink)],
       );
       final l = await AppLocalizations.delegate.load(const Locale('en'));
 
@@ -357,6 +367,12 @@ void main() {
       await tester.tap(find.text(l.auth_sessionExpiredAction));
       await tester.pumpAndSettle();
 
+      // Nothing is deleted on the mere detection of the rejection, and the notice
+      // is only the way in.
+      await completeLogoutPassphrase(tester, l, 'correct-horse');
+
+      expect(sink.writes, 1);
+      expect(harness.auth.signOutCalls, 1);
       expect(find.text('Login Route'), findsOneWidget);
 
       await unmountApp(tester);

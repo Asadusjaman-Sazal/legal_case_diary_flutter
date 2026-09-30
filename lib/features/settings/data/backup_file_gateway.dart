@@ -100,6 +100,39 @@ class FilePickerBackupGateway implements BackupFileGateway {
   }
 }
 
+/// A [BackupArchiveSink] that writes into the app's own documents directory.
+///
+/// **No dialog, so it can be used without a user.** That is what the two
+/// automatic exports need — the extended-offline safety copy (Task 19 Phase 5)
+/// and the logout export (Task 19 Phase 6) both run while the app is locked or
+/// being wiped, when there is nobody to answer a Save-to window. The file is the
+/// same encrypted container the manual export writes, and its path is returned
+/// so the caller can record it and show it to the user.
+class LocalArchiveSink implements BackupArchiveSink {
+  /// Creates the sink, optionally over a directory a test controls.
+  const LocalArchiveSink({this.directoryProvider});
+
+  /// The directory the file is written into; documents by default.
+  final Future<Directory> Function()? directoryProvider;
+
+  /// Writes [bytes] into `<documents>/backups/<fileName>` and returns its path.
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    final base =
+        await (directoryProvider?.call() ?? getApplicationDocumentsDirectory());
+    final directory = Directory(
+      '${base.path}${Platform.pathSeparator}backups',
+    );
+    if (!await directory.exists()) await directory.create(recursive: true);
+    final file = File('${directory.path}${Platform.pathSeparator}$fileName');
+    await file.writeAsBytes(bytes, flush: true);
+    return file.path;
+  }
+}
+
 /// Provider for the backup file dialogs; tests override it with a fake.
 final backupFileGatewayProvider = Provider<BackupFileGateway>(
   (ref) => const FilePickerBackupGateway(),

@@ -24,8 +24,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/providers/locale_provider.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
+import '../../accounts_and_profile/data/profile_name_store.dart';
+import '../../accounts_and_profile/data/profile_picture_store.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
+import '../../settings/data/backup_metadata_store.dart';
 import '../data/auth_repository.dart';
 import '../data/identity_adoption_service.dart';
 import '../data/local_auth_service.dart';
@@ -224,7 +228,22 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     // Addendum: the profile cache is invalidated on logout and account switch).
     await (await ref.read(profileRepositoryProvider.future)).invalidate();
     await _local.clear();
+    // The per-user caches that live in SharedPreferences are emptied too, so a
+    // next account on this device cannot read the previous holder's personal
+    // details, picture, language or backup history (Revision 2.4 Addendum: the
+    // profile and preference caches are invalidated on logout and account
+    // switch). The database wipe the branched logout runs first already clears
+    // the per-user rows; these are the values that live outside it.
+    await _clearPerUserCaches();
     state = const AsyncData(AuthState());
+  }
+
+  /// Empties the SharedPreferences-backed per-user caches.
+  Future<void> _clearPerUserCaches() async {
+    await ref.read(profileFieldsProvider.notifier).clear();
+    await ref.read(profilePictureProvider.notifier).clear();
+    await ref.read(backupMetadataProvider.notifier).reset();
+    ref.read(localeProvider.notifier).reset();
   }
 
   /// Removes the server-side provisional account an abandoned onboarding left

@@ -14,14 +14,11 @@ import 'package:uuid/uuid.dart';
 import '../core/services/local_identity_service.dart';
 import '../database/app_database.dart';
 import '../shared/providers/database_provider.dart';
+import 'recovery_lock.dart';
 import 'sync_queue_dao.dart';
 
 /// The sync-able operation being recorded.
-enum SyncOperation {
-  insert,
-  update,
-  delete,
-}
+enum SyncOperation { insert, update, delete }
 
 /// Convenience holder for the sync columns that every push-domain repository
 /// must set on a row before (or while) calling [SyncWriteHelper].
@@ -60,15 +57,14 @@ class SyncWriteHelper {
   String get currentUserId => _identity.getId();
 
   /// Current epoch timestamp in milliseconds (UTC).
-  static int get nowMillis =>
-      DateTime.now().toUtc().millisecondsSinceEpoch;
+  static int get nowMillis => DateTime.now().toUtc().millisecondsSinceEpoch;
 
   /// Sync column values repositories must apply to every push-domain write.
   SyncColumns syncColumns({bool isDeleted = false}) => SyncColumns(
-        updatedAt: nowMillis,
-        lastModifiedBy: currentUserId,
-        isDeleted: isDeleted,
-      );
+    updatedAt: nowMillis,
+    lastModifiedBy: currentUserId,
+    isDeleted: isDeleted,
+  );
 
   /// Records an insert into `sync_queue` (with compaction).
   Future<void> recordInsert({
@@ -80,15 +76,15 @@ class SyncWriteHelper {
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
   }) => _record(
-        operation: SyncOperation.insert,
-        entityType: entityType,
-        entityId: entityId,
-        payload: payload,
-        changedFields: changedFields,
-        basePayload: basePayload,
-        baseVersion: baseVersion,
-        preMutationPayload: preMutationPayload,
-      );
+    operation: SyncOperation.insert,
+    entityType: entityType,
+    entityId: entityId,
+    payload: payload,
+    changedFields: changedFields,
+    basePayload: basePayload,
+    baseVersion: baseVersion,
+    preMutationPayload: preMutationPayload,
+  );
 
   /// Records an update into `sync_queue` (with compaction).
   Future<void> recordUpdate({
@@ -100,15 +96,15 @@ class SyncWriteHelper {
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
   }) => _record(
-        operation: SyncOperation.update,
-        entityType: entityType,
-        entityId: entityId,
-        payload: payload,
-        changedFields: changedFields,
-        basePayload: basePayload,
-        baseVersion: baseVersion,
-        preMutationPayload: preMutationPayload,
-      );
+    operation: SyncOperation.update,
+    entityType: entityType,
+    entityId: entityId,
+    payload: payload,
+    changedFields: changedFields,
+    basePayload: basePayload,
+    baseVersion: baseVersion,
+    preMutationPayload: preMutationPayload,
+  );
 
   /// Records a soft-delete into `sync_queue` (with compaction).
   Future<void> recordDelete({
@@ -120,15 +116,15 @@ class SyncWriteHelper {
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
   }) => _record(
-        operation: SyncOperation.delete,
-        entityType: entityType,
-        entityId: entityId,
-        payload: payload,
-        changedFields: changedFields,
-        basePayload: basePayload,
-        baseVersion: baseVersion,
-        preMutationPayload: preMutationPayload,
-      );
+    operation: SyncOperation.delete,
+    entityType: entityType,
+    entityId: entityId,
+    payload: payload,
+    changedFields: changedFields,
+    basePayload: basePayload,
+    baseVersion: baseVersion,
+    preMutationPayload: preMutationPayload,
+  );
 
   Future<void> _record({
     required SyncOperation operation,
@@ -140,6 +136,22 @@ class SyncWriteHelper {
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
   }) async {
+    // Repositories reject every mutation while the extended-offline lock is set
+    // (Task 19 Phase 5). This is the guard behind the blocking screen: a path
+    // that never reaches the UI still cannot queue work that the coming
+    // reconstruction would discard.
+    //
+    // `ponytail:` the check lives at the queue write rather than at the top of
+    // each repository method, because the queue write is the one place every
+    // mutation passes through. A repository that has already written its row
+    // leaves an unsynced row behind when this throws — which recovery discards
+    // along with everything else, so nothing survives it. Upgrade by hoisting a
+    // guard to the repository entry points if a local write ever needs to be
+    // prevented before it happens.
+    if (await RecoveryLock(_queue.db).isRequired()) {
+      throw const RecoveryRequiredException();
+    }
+
     final existing = await _queue.getByEntity(entityType, entityId);
 
     // Inserts are always enqueued as a new pending row (a second insert for the
@@ -147,9 +159,7 @@ class SyncWriteHelper {
     // skip compaction whenever there is a conflict pending row or no prior
     // pending row for this entity.
     final hasConflict = existing.any((row) => row.state == 'conflict_pending');
-    if (hasConflict ||
-        operation == SyncOperation.insert ||
-        existing.isEmpty) {
+    if (hasConflict || operation == SyncOperation.insert || existing.isEmpty) {
       await _insertPending(
         operation: operation,
         entityType: entityType,
@@ -169,7 +179,9 @@ class SyncWriteHelper {
       case SyncOperation.insert:
         // Unreachable because of the early return above; inserts are always
         // enqueued directly before reaching the switch.
-        throw StateError('Unexpected insert compaction attempt for $entityType:$entityId');
+        throw StateError(
+          'Unexpected insert compaction attempt for $entityType:$entityId',
+        );
 
       case SyncOperation.update:
         if (first.operation == 'insert') {
@@ -282,8 +294,9 @@ class SyncWriteHelper {
       entityId: Value(entityId),
       operation: Value(operation.name),
       mutationId: Value(mutationId ?? const Uuid().v4()),
-      baseVersion:
-          baseVersion == null ? const Value.absent() : Value(baseVersion),
+      baseVersion: baseVersion == null
+          ? const Value.absent()
+          : Value(baseVersion),
       basePayload: Value(jsonEncode(effectiveBasePayload)),
       changedFields: Value(jsonEncode(changedFields)),
       payload: Value(jsonEncode(payload)),

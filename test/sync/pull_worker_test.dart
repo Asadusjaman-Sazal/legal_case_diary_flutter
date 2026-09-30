@@ -64,6 +64,14 @@ class _Server implements SyncTransport {
   }
 
   @override
+  Future<Map<String, dynamic>?> fetchRow(String table, String id) async {
+    for (final row in rows[table] ?? const <Map<String, dynamic>>[]) {
+      if (row['id'] == id) return row;
+    }
+    return null;
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> pushChanges(
     List<Map<String, dynamic>> changes,
   ) async => const <Map<String, dynamic>>[];
@@ -464,7 +472,11 @@ void main() {
     });
 
     test('a frozen entity is not re-logged on the next pull', () async {
-      await enqueue(entityType: 'note', entityId: 'n1', payload: {'id': 'n1'});
+      await enqueue(
+        entityType: 'note',
+        entityId: 'n1',
+        payload: {'id': 'n1', 'title': 'Mine'},
+      );
       server.rows['notes'] = <Map<String, dynamic>>[
         noteRow('n1', '2026-09-30T10:00:00.000000+00:00'),
       ];

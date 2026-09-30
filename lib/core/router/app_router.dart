@@ -43,6 +43,9 @@ import '../../features/settings/presentation/edit_court_steps/edit_court_steps_m
 import '../../features/settings/presentation/edit_court_steps/lower_court_category_list_screen.dart';
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
+import '../../features/sync/presentation/sync_status_screen.dart';
+import '../../features/sync/presentation/review_conflict_screen.dart';
+import '../../features/sync/presentation/sync_conflict_banner.dart';
 import '../../features/settings/presentation/legal/legal_document_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
@@ -80,6 +83,14 @@ class AppRoutes {
   static const String settingsManageAccount = '/settings/manage-account';
   static const String settingsManageAssociates = '/settings/manage-associates';
   static const String settingsOnlineSync = '/settings/online-sync';
+
+  /// The queue, its filters, and the diagnostic-bundle export
+  /// (Task 19 Phase 4). Opened by the header badge and by Online Sync.
+  static const String settingsSyncStatus = '/settings/online-sync/status';
+
+  /// One conflict, opened by the app-wide banner and by Sync Status.
+  static const String settingsReviewConflict =
+      '/settings/online-sync/conflict/:conflictId';
   static const String settingsBackupRestore = '/settings/backup-restore';
   static const String settingsEditCourtSteps = '/settings/edit-court-steps';
   static const String settingsEditCourtNamesCategory =
@@ -134,6 +145,10 @@ class AppRoutes {
 
   /// Builds the concrete route path for the case detail screen.
   static String caseDetailPath(String caseId) => '/case-detail/$caseId';
+
+  /// Builds the concrete route path for the Review Conflict screen.
+  static String reviewConflictPath(String conflictId) =>
+      '/settings/online-sync/conflict/$conflictId';
 }
 
 // ---------------------------------------------------------------------------
@@ -241,8 +256,13 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       // AppShellRoot owns the PopScope exit-confirmation (Dev Workflow §6).
       // ------------------------------------------------------------------
       ShellRoute(
-        builder: (context, state, child) =>
-            AppShellRoot(child: DatabaseGuard(child: child)),
+        builder: (context, state, child) => AppShellRoot(
+          // A bottom-nav screen renders its own banner directly above its nav
+          // bar; every other shell screen gets the one the shell owns, so no
+          // screen shows it twice and none shows none.
+          showConflictBanner: !_bottomNavRoutes.contains(state.matchedLocation),
+          child: DatabaseGuard(child: child),
+        ),
         routes: _shellRoutes,
       ),
 
@@ -288,6 +308,22 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
 /// transition. Note that GoRouter picks the transition from the route, not from
 /// what was tapped, so a route declared here is also instant when the drawer (or
 /// a case-list summary card) opens the same screen.
+/// The shell routes whose screen draws the bottom navigation bar itself.
+///
+/// Exactly the screens built on `CasesScreenModal`, which is where the nav bar
+/// lives. They render the conflict banner inside that shell, above the nav bar;
+/// `AppShellRoot` renders it for every other shell screen instead.
+const Set<String> _bottomNavRoutes = <String>{
+  AppRoutes.dailyCauseList,
+  AppRoutes.allCases,
+  AppRoutes.activeCases,
+  AppRoutes.upcomingCases,
+  AppRoutes.overdueDates,
+  AppRoutes.disposedCases,
+  AppRoutes.notes,
+  AppRoutes.caseReference,
+};
+
 final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.dailyCauseList,
@@ -357,6 +393,16 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsOnlineSync,
     builder: (context, state) => const OnlineSyncScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsSyncStatus,
+    builder: (context, state) => const SyncStatusScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsReviewConflict,
+    builder: (context, state) => ReviewConflictScreen(
+      conflictId: state.pathParameters['conflictId'] ?? '',
+    ),
   ),
   GoRoute(
     path: AppRoutes.settingsBackupRestore,
@@ -478,7 +524,17 @@ final ButtonStyle _exitButtonStyle = TextButton.styleFrom(
 /// screens by never allowing an accidental pop of the root navigator.
 class AppShellRoot extends StatelessWidget {
   final Widget child;
-  const AppShellRoot({required this.child, super.key});
+
+  /// Whether this shell draws the app-wide conflict banner itself.
+  ///
+  /// False for the bottom-nav screens, which put it above their own nav bar.
+  final bool showConflictBanner;
+
+  const AppShellRoot({
+    required this.child,
+    this.showConflictBanner = true,
+    super.key,
+  });
 
   /// Shows the exit-confirmation dialog and, on confirm, closes the app.
   /// Used by screens that have no in-router history to fall back to the same
@@ -535,7 +591,19 @@ class AppShellRoot extends StatelessWidget {
       },
       // Shell screens own the app's status-bar inset. Keep this outside the
       // modal navigator so full-height sheets can use their own safe area.
-      child: SafeArea(top: true, bottom: false, child: child),
+      child: SafeArea(
+        top: true,
+        bottom: false,
+        child: showConflictBanner
+            ? Column(
+                children: [
+                  Expanded(child: child),
+                  // Sits at the foot of the shell, so it never covers content.
+                  const SyncConflictBanner(),
+                ],
+              )
+            : child,
+      ),
     );
   }
 }

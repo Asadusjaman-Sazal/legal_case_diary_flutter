@@ -122,6 +122,16 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastNudgedAt: at,
     );
   }
+
+  /// Forgets the stored backup history and schedule (logout/account switch), so
+  /// the next account does not inherit the previous holder's backup metadata.
+  Future<void> reset() async {
+    await _prefs.remove(lastSuccessfulBackupAtKey);
+    await _prefs.remove(lastBackupPathKey);
+    await _prefs.remove(backupScheduleDaysKey);
+    await _prefs.remove(lastBackupNudgeAtKey);
+    state = const BackupMetadata();
+  }
 }
 
 /// Public provider for the last-backup metadata and the schedule.

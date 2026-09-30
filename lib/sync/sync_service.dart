@@ -21,8 +21,18 @@ import '../database/app_database.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
 import '../shared/providers/database_provider.dart';
 import 'connectivity_monitor.dart';
+import 'entity_tables.dart';
 import 'pull_worker.dart';
 import 'push_worker.dart';
+import 'realtime_listener.dart';
+import 'recovery_lock.dart';
+// The service and the provider file reference each other: the providers wire
+// the listener to the service, and the service records its health and reads the
+// listener's generation. Dart resolves the cycle, and neither side builds the
+// other during construction — the listener's ping callback and the service's
+// health reads are all lazy.
+import 'sync_health.dart';
+import 'sync_providers.dart';
 import 'sync_metadata_dao.dart';
 import 'sync_queue_dao.dart';
 import 'sync_transport.dart';
@@ -120,9 +130,18 @@ class SyncService {
   /// coalesces with a resume still pulls once at the end.
   bool _pullWanted = false;
 
+  /// When the last full pull succeeded, and which Realtime generation was open
+  /// then — the pair [canSkipResumePull] reads.
+  DateTime? _lastSuccessfulPullAt;
+  int? _lastSuccessfulPullGeneration;
+
   Timer? _debounce;
   Timer? _retryTimer;
+  Timer? _pingTimer;
   DateTime _nextAttemptAt = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Rows a Realtime ping asked for, waiting for the in-flight slot.
+  final Set<SyncPing> _pendingPings = <SyncPing>{};
 
   /// The last thing the user must be told, resolved to ARB copy by the UI.
   final ValueNotifier<SyncNotice?> notice = ValueNotifier<SyncNotice?>(null);
@@ -167,11 +186,140 @@ class SyncService {
       if (!await _isEntitled()) return;
       await _drain(transport, pull: wantsPull);
     } finally {
-      _inFlight = false;
-      if (_queued && _ref.mounted) {
-        _queued = false;
-        unawaited(syncNow(force: true));
+      _release();
+    }
+  }
+
+  /// A Realtime ping asks for a micro pull of exactly the rows it names.
+  ///
+  /// The listener already coalesces one burst; this window catches two bursts
+  /// arriving back to back, and the run itself takes the same single in-flight
+  /// slot a drain does, so a notification can never race a push.
+  void requestRealtimePull(List<SyncPing> pings) {
+    if (pings.isEmpty || !_ref.mounted) return;
+    _pendingPings.addAll(pings);
+    _pingTimer?.cancel();
+    _pingTimer = Timer(
+      syncRealtimePingWindow,
+      () => unawaited(_drainRealtimePings()),
+    );
+  }
+
+  /// Applies the collected pings as one micro pull.
+  ///
+  /// A failure here is deliberately quiet: Broadcast is an ephemeral
+  /// notification, not a durable event log, so the next delta pull (resume,
+  /// reconnect, or the backoff retry) is what repairs the gap — and nothing is
+  /// frozen, blocked or retried on its account.
+  Future<void> _drainRealtimePings() async {
+    if (!_ref.mounted || _pendingPings.isEmpty) return;
+    // A drain owns the slot; its `_release` starts this run when it finishes.
+    if (_inFlight) return;
+
+    _inFlight = true;
+    final pings = _pendingPings.toList(growable: false);
+    _pendingPings.clear();
+    try {
+      final transport = _transport();
+      if (transport == null) return;
+      if (!_isOnline()) return;
+      if (!await _isEntitled()) return;
+      final db = await _ref.read(databaseProvider.future);
+      if (!_ref.mounted) return;
+
+      final puller = PullWorker(
+        db: db,
+        metadata: SyncMetadataDao(db),
+        queue: SyncQueueDao(db),
+        transport: transport,
+        currentUserId: _userId(),
+      );
+      var applied = 0;
+      for (final ping in pings) {
+        final entityType = syncEntityForTable(ping.table);
+        if (entityType == null) continue;
+        if (await puller.pullRow(entityType, ping.id)) applied++;
       }
+      if (applied > 0 && _ref.mounted) {
+        // A notification that landed a row is a successful sync of its own; the
+        // clock probe stays with the full pull that follows soon after.
+        await _recordSyncHealth(transport, db, probeClock: false);
+        _health()?.recordSuccess();
+      }
+    } on SyncFailure {
+      // Swallowed on purpose: see the method comment. It is still a failed
+      // attempt, so the header's paused indicator counts it.
+      _health()?.recordFailure();
+    } finally {
+      _release();
+    }
+  }
+
+  /// Whether a resume pull may be skipped right now.
+  ///
+  /// Only when **all** of these hold: a full pull has succeeded before, the
+  /// same Realtime subscription has stayed open since (the listener's generation
+  /// is unchanged, so no disconnect, re-join, channel error or fresh join has
+  /// happened in between), and that pull is inside [syncResumeThrottle]. Elapsed
+  /// time alone never skips a pull — Broadcast is an ephemeral notification, so
+  /// uncertain continuity must always be repaired through REST.
+  bool canSkipResumePull() {
+    final lastPull = _lastSuccessfulPullAt;
+    final generation = _lastSuccessfulPullGeneration;
+    if (lastPull == null || generation == null) return false;
+    final listener = _ref.read(realtimeListenerProvider);
+    if (!listener.isSubscribed || listener.generation != generation) {
+      return false;
+    }
+    return DateTime.now().difference(lastPull) < syncResumeThrottle;
+  }
+
+  /// The resume entry point: pull, unless continuity has been proven.
+  ///
+  /// A skipped pull still asks for a push-only run, so anything a local write
+  /// queued while the app was away leaves immediately; with an empty queue that
+  /// run makes no request at all.
+  void requestResumeSync() {
+    if (canSkipResumePull()) {
+      requestSync();
+      return;
+    }
+    requestSync(pull: true);
+  }
+
+  /// The pause indicator's tap: reset the backoff and retry now.
+  ///
+  /// It clears the service's own retry window as well as the channel's ladder,
+  /// so a tap is never swallowed by the backoff the user is trying to escape.
+  Future<void> retryNow() async {
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _nextAttemptAt = DateTime.fromMillisecondsSinceEpoch(0);
+    final health = _health();
+    if (health != null) await health.retryNow();
+    await syncNow(force: true, pull: true);
+  }
+
+  /// The health controller, or null before the app provides one (tests).
+  SyncHealthController? _health() {
+    if (!_ref.mounted) return null;
+    return _ref.read(syncHealthControllerProvider);
+  }
+
+  /// Frees the single in-flight slot and starts whatever was waiting on it.
+  ///
+  /// A Realtime micro pull goes first: it is the smaller job, and the drain it
+  /// was queued behind is usually the one that triggered the ping anyway.
+  void _release() {
+    _inFlight = false;
+    if (!_ref.mounted) return;
+    if (_pendingPings.isNotEmpty) {
+      unawaited(_drainRealtimePings());
+      return;
+    }
+    if (_queued) {
+      _queued = false;
+      unawaited(syncNow(force: true));
     }
   }
 
@@ -181,6 +329,7 @@ class SyncService {
     final db = await _ref.read(databaseProvider.future);
     if (!_ref.mounted) return;
     final queue = SyncQueueDao(db);
+    _health()?.recordRunStarted();
     // The Offline Compaction Matrix runs before every push, not just in the
     // backlog pass: a run of `pending` rows for one entity would otherwise go in
     // one batch, and the second mutation would conflict against the version the
@@ -209,6 +358,7 @@ class SyncService {
       if (failure != null) {
         // The link is down; pulling would fail on the same socket. The retry
         // asks for the pull again, so nothing is lost by stopping here.
+        _health()?.recordFailure();
         _scheduleBackoff(failure, outcome.maxRetryCount);
         return;
       }
@@ -219,6 +369,7 @@ class SyncService {
       // 150-day offline check reads, without paying for a server-clock round
       // trip the pull path makes anyway.
       await _recordSyncHealth(transport, db, probeClock: false);
+      _health()?.recordSuccess();
       return;
     }
 
@@ -232,11 +383,21 @@ class SyncService {
     try {
       await puller.pullAll();
     } on SyncFailure catch (failure) {
+      // A failed pull is a failed attempt for the header, and the retry asks
+      // for the pull again, so the gap is repaired at the next window.
+      _health()?.recordFailure();
       _scheduleBackoff(failure, 1);
       return;
     }
     if (!_ref.mounted) return;
     await _recordSyncHealth(transport, db);
+    // The two facts the resume throttle reads, recorded together and only after
+    // the pull actually committed.
+    _lastSuccessfulPullAt = DateTime.now();
+    _lastSuccessfulPullGeneration = _ref
+        .read(realtimeListenerProvider)
+        .generation;
+    _health()?.recordSuccess();
   }
 
   /// Pushes the backlog an account accumulated while it was free, then performs
@@ -271,11 +432,7 @@ class SyncService {
       if (!_ref.mounted) return null;
       return await _runBacklog(db, transport);
     } finally {
-      _inFlight = false;
-      if (_queued && _ref.mounted) {
-        _queued = false;
-        unawaited(syncNow(force: true));
-      }
+      _release();
     }
   }
 
@@ -338,8 +495,9 @@ class SyncService {
       pushed: pushed,
       conflicts: conflicts,
       pulled: pulled,
-      conflictPending:
-          remaining.where((row) => row.state == 'conflict_pending').length,
+      conflictPending: remaining
+          .where((row) => row.state == 'conflict_pending')
+          .length,
       blocked: remaining.where((row) => row.state == 'blocked').length,
       failure: failure,
     );
@@ -397,6 +555,14 @@ class SyncService {
   bool _isOnline() => _ref.read(isOnlineProvider).value ?? true;
 
   Future<bool> _isEntitled() async {
+    // The extended-offline lock pauses both workers (Task 19 Phase 5): a device
+    // waiting to be reconstructed must not push its stale work or pull a delta
+    // over it, so every run path asks this before it starts.
+    if (await RecoveryLock(
+      await _ref.read(databaseProvider.future),
+    ).isRequired()) {
+      return false;
+    }
     try {
       return await _ref.read(premiumAccessProvider.future);
     } on Object {
@@ -412,6 +578,8 @@ class SyncService {
   void _dispose() {
     _debounce?.cancel();
     _retryTimer?.cancel();
+    _pingTimer?.cancel();
+    _pendingPings.clear();
     notice.dispose();
   }
 }

@@ -16,6 +16,8 @@ import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
+import 'package:legal_case_diary/sync/realtime_listener.dart';
+import 'package:legal_case_diary/sync/sync_providers.dart';
 import 'package:legal_case_diary/sync/sync_metadata_dao.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
@@ -24,6 +26,13 @@ import 'package:legal_case_diary/sync/sync_transport.dart';
 class _FakeTransport implements SyncTransport {
   final List<List<Map<String, dynamic>>> calls = <List<Map<String, dynamic>>>[];
   final List<String> pulledTables = <String>[];
+
+  /// Rows a micro pull can fetch, keyed `table\u0000id`.
+  final Map<String, Map<String, dynamic>> rowsById =
+      <String, Map<String, dynamic>>{};
+
+  /// Every single-row fetch, as `table\u0000id`.
+  final List<String> fetchedRows = <String>[];
   final Map<String, List<Map<String, dynamic>>> pages =
       <String, List<Map<String, dynamic>>>{};
   Object? error;
@@ -59,17 +68,43 @@ class _FakeTransport implements SyncTransport {
   }
 
   @override
+  Future<Map<String, dynamic>?> fetchRow(String table, String id) async {
+    fetchedRows.add('$table\u0000$id');
+    return rowsById['$table\u0000$id'];
+  }
+
+  @override
   Future<DateTime?> serverTime() async => server;
+}
+
+/// A socket the tests can start and stop without a server.
+class _FakeSocket implements RealtimeSocket {
+  bool authorized = true;
+
+  @override
+  Future<bool> subscribe(
+    String topic, {
+    required void Function(SyncPing ping) onPing,
+    required void Function(RealtimeStatus status) onStatus,
+  }) async {
+    onStatus(authorized ? RealtimeStatus.subscribed : RealtimeStatus.failed);
+    return authorized;
+  }
+
+  @override
+  Future<void> unsubscribe() async {}
 }
 
 void main() {
   late AppDatabase db;
   late _FakeTransport transport;
+  late _FakeSocket socket;
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
     await db.customSelect('select 1').get();
     transport = _FakeTransport();
+    socket = _FakeSocket();
   });
 
   tearDown(() => db.close());
@@ -84,6 +119,13 @@ void main() {
         isOnlineProvider.overrideWith((ref) => Stream.value(online)),
         syncServiceProvider.overrideWith(
           (ref) => SyncService(ref, transportOverride: () => transport),
+        ),
+        realtimeListenerProvider.overrideWith(
+          (ref) => RealtimeListener(
+            socket: socket,
+            topic: () => 'user:user-1',
+            onPings: (_) {},
+          ),
         ),
       ],
     );
@@ -254,6 +296,65 @@ void main() {
     );
   });
 
+  test('a Realtime ping micro-pulls exactly the row it names', () async {
+    await db.into(db.courtCategories).insert(
+          CourtCategoriesCompanion.insert(
+            id: 'cat-1',
+            nameKey: 'cat',
+            courtLevel: 'lower',
+            orderIndex: 0,
+            updatedAt: 0,
+          ),
+        );
+    transport.rowsById['courts\u0000c9'] = <String, dynamic>{
+      'id': 'c9',
+      'court_name': 'Pinged Court',
+      'higher_lower_courts': 'Lower Court',
+      'court_category_id': 'cat-1',
+      'order_index': 0,
+      'is_custom': true,
+      'is_user_modified': false,
+      'updated_at': 5,
+      'version': 1,
+      'is_deleted': false,
+      'server_updated_at': '2026-09-30T10:00:00.000001+00:00',
+    };
+    final value = container(entitled: true, online: true);
+    final service = value.read(syncServiceProvider);
+
+    service.requestRealtimePull(const <SyncPing>[SyncPing('courts', 'c9')]);
+    await Future<void>.delayed(
+      syncRealtimePingWindow + const Duration(milliseconds: 50),
+    );
+
+    expect(transport.fetchedRows, <String>['courts\u0000c9']);
+    expect(transport.pulledTables, isEmpty,
+        reason: 'a notification is not a full pull');
+    final court = await (db.select(db.courts)..where((r) => r.id.equals('c9')))
+        .getSingle();
+    expect(court.courtName, 'Pinged Court');
+    expect(
+      await SyncMetadataDao(db).getIntValue(lastSuccessfulSyncAtKey),
+      isNotNull,
+      reason: 'a landed notification is a successful sync too',
+    );
+  });
+
+  test('a ping outside the synced class is ignored', () async {
+    final value = container(entitled: true, online: true);
+    final service = value.read(syncServiceProvider);
+
+    service.requestRealtimePull(const <SyncPing>[
+      SyncPing('profiles', 'user-1'),
+      SyncPing('user_preferences', 'user-1'),
+    ]);
+    await Future<void>.delayed(
+      syncRealtimePingWindow + const Duration(milliseconds: 50),
+    );
+
+    expect(transport.fetchedRows, isEmpty);
+  });
+
   test('a pulled page is applied and its cursor stored', () async {
     await db.into(db.courtCategories).insert(
           CourtCategoriesCompanion.insert(
@@ -290,6 +391,41 @@ void main() {
     final cursor = await SyncMetadataDao(db).getCursor('courts');
     expect(cursor?.id, 'c9');
     expect(cursor?.time, '2026-09-30T10:00:00.000001+00:00');
+  });
+
+  test('a resume pull is skipped only with proven continuity', () async {
+    final value = container(entitled: true, online: true);
+    final service = value.read(syncServiceProvider);
+    final listener = value.read(realtimeListenerProvider);
+
+    // Nothing has pulled yet, and no channel is open: never skippable.
+    expect(service.canSkipResumePull(), isFalse);
+
+    await listener.start();
+    await service.syncNow(pull: true);
+    expect(service.canSkipResumePull(), isTrue,
+        reason: 'same generation, inside the window');
+
+    transport.pulledTables.clear();
+    service.requestResumeSync();
+    await Future<void>.delayed(
+      syncCoalescingWindow + const Duration(milliseconds: 50),
+    );
+    expect(transport.pulledTables, isEmpty,
+        reason: 'the resume pull was skipped');
+
+    // A re-join is a new generation, so continuity is gone and the next resume
+    // must repair the gap through REST.
+    await listener.stop();
+    await listener.start();
+    expect(service.canSkipResumePull(), isFalse);
+
+    service.requestResumeSync();
+    await Future<void>.delayed(
+      syncCoalescingWindow + const Duration(milliseconds: 50),
+    );
+    expect(transport.pulledTables, hasLength(12),
+        reason: 'a resume after a re-join pulls every table');
   });
 
   test('a device clock more than two minutes off records the offset and warns',

@@ -51,27 +51,29 @@ void main() {
       }
     });
 
-    test('the real folder lists twenty migrations in version order', () {
+    test('the real folder lists its migrations in version order', () {
       final migrations = listMigrations();
       final versions = migrations.map((m) => m.version).toList();
 
       expect(
         versions,
-        hasLength(20),
+        hasLength(22),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
             'the self-service profile columns, Task 18 Phase 1 added '
-            'push_changes, and Task 18 Phase 3 added sync_server_time',
+            'push_changes, Task 18 Phase 3 added sync_server_time, Task 19 '
+            'Phase 3 added the conflict verdict column and the created_at '
+            'fallback guard',
       );
-      expect(versions.toSet(), hasLength(20), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(22), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20260930150000');
+      expect(versions.last, '20260930170000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

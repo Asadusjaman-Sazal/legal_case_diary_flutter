@@ -14,11 +14,23 @@ import 'entity_tables.dart';
 
 /// Mark a local row as confirmed by the server.
 typedef MarkSynced =
-    Future<void> Function(AppDatabase db, String id, int? version, int syncedAt);
+    Future<void> Function(
+      AppDatabase db,
+      String id,
+      int? version,
+      int syncedAt,
+    );
 
 /// Upsert an authoritative server row (snake_case keys) into the local table.
 typedef ApplyServerRow =
     Future<void> Function(AppDatabase db, Map<String, dynamic> serverRow);
+
+/// Remove a local row by id.
+///
+/// Used by Sync Status Discard for the one case where a record should genuinely
+/// disappear locally: the server has been asked and has no such row, so the
+/// local copy was provisional and never existed anywhere else (Task 19 Phase 4).
+typedef DeleteLocalRow = Future<void> Function(AppDatabase db, String id);
 
 /// The local read/write pair for one entity type.
 class SyncTableBinding {
@@ -28,6 +40,7 @@ class SyncTableBinding {
     required this.tableName,
     required this.markSynced,
     required this.applyServerRow,
+    required this.deleteLocal,
   });
 
   /// The queue's singular entity type.
@@ -41,16 +54,23 @@ class SyncTableBinding {
 
   /// Upserts a pulled/returned authoritative row into the local table.
   final ApplyServerRow applyServerRow;
+
+  /// Deletes a local row by id (Sync Status Discard of a provisional record).
+  final DeleteLocalRow deleteLocal;
 }
 
 /// Every binding, keyed by entity type.
-final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBinding>{
+final Map<String, SyncTableBinding>
+syncTableBindings = <String, SyncTableBinding>{
   'case': SyncTableBinding(
     entityType: 'case',
     tableName: 'cases',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.cases)
-          ..where((row) => row.id.equals(id)))
-        .write(CasesCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.cases)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.cases)..where((row) => row.id.equals(id))).write(
+          CasesCompanion(version: Value(version), syncedAt: Value(syncedAt)),
+        ),
     applyServerRow: (db, row) => db
         .into(db.cases)
         .insertOnConflictUpdate(Case.fromJson(_camel(row)).toCompanion(false)),
@@ -58,12 +78,15 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'case_history': SyncTableBinding(
     entityType: 'case_history',
     tableName: 'case_history',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.caseHistory)
-          ..where((row) => row.id.equals(id)))
-        .write(CaseHistoryCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.caseHistory)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.caseHistory)..where((row) => row.id.equals(id))).write(
+          CaseHistoryCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.caseHistory)
         .insertOnConflictUpdate(
@@ -73,9 +96,12 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'note': SyncTableBinding(
     entityType: 'note',
     tableName: 'notes',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.notes)
-          ..where((row) => row.id.equals(id)))
-        .write(NotesCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.notes)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.notes)..where((row) => row.id.equals(id))).write(
+          NotesCompanion(version: Value(version), syncedAt: Value(syncedAt)),
+        ),
     applyServerRow: (db, row) => db
         .into(db.notes)
         .insertOnConflictUpdate(Note.fromJson(_camel(row)).toCompanion(false)),
@@ -83,12 +109,15 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'reference': SyncTableBinding(
     entityType: 'reference',
     tableName: 'case_references',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.caseReferences)
-          ..where((row) => row.id.equals(id)))
-        .write(CaseReferencesCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.caseReferences)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.caseReferences)..where((row) => row.id.equals(id))).write(
+          CaseReferencesCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.caseReferences)
         .insertOnConflictUpdate(
@@ -98,12 +127,17 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'court_category': SyncTableBinding(
     entityType: 'court_category',
     tableName: 'court_categories',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.courtCategories)
-          ..where((row) => row.id.equals(id)))
-        .write(CourtCategoriesCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.courtCategories)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(
+          db.courtCategories,
+        )..where((row) => row.id.equals(id))).write(
+          CourtCategoriesCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.courtCategories)
         .insertOnConflictUpdate(
@@ -113,12 +147,15 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'case_category': SyncTableBinding(
     entityType: 'case_category',
     tableName: 'case_categories',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.caseCategories)
-          ..where((row) => row.id.equals(id)))
-        .write(CaseCategoriesCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.caseCategories)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.caseCategories)..where((row) => row.id.equals(id))).write(
+          CaseCategoriesCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.caseCategories)
         .insertOnConflictUpdate(
@@ -128,9 +165,12 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'court': SyncTableBinding(
     entityType: 'court',
     tableName: 'courts',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.courts)
-          ..where((row) => row.id.equals(id)))
-        .write(CourtsCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.courts)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.courts)..where((row) => row.id.equals(id))).write(
+          CourtsCompanion(version: Value(version), syncedAt: Value(syncedAt)),
+        ),
     applyServerRow: (db, row) => db
         .into(db.courts)
         .insertOnConflictUpdate(Court.fromJson(_camel(row)).toCompanion(false)),
@@ -138,9 +178,12 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'step': SyncTableBinding(
     entityType: 'step',
     tableName: 'steps',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.steps)
-          ..where((row) => row.id.equals(id)))
-        .write(StepsCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.steps)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.steps)..where((row) => row.id.equals(id))).write(
+          StepsCompanion(version: Value(version), syncedAt: Value(syncedAt)),
+        ),
     applyServerRow: (db, row) => db
         .into(db.steps)
         .insertOnConflictUpdate(Step.fromJson(_camel(row)).toCompanion(false)),
@@ -148,32 +191,51 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'case_type': SyncTableBinding(
     entityType: 'case_type',
     tableName: 'case_types',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.caseTypes)
-          ..where((row) => row.id.equals(id)))
-        .write(CaseTypesCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.caseTypes)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.caseTypes)..where((row) => row.id.equals(id))).write(
+          CaseTypesCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.caseTypes)
-        .insertOnConflictUpdate(CaseType.fromJson(_camel(row)).toCompanion(false)),
+        .insertOnConflictUpdate(
+          CaseType.fromJson(_camel(row)).toCompanion(false),
+        ),
   ),
   'on_behalf': SyncTableBinding(
     entityType: 'on_behalf',
     tableName: 'on_behalfs',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.onBehalfs)
-          ..where((row) => row.id.equals(id)))
-        .write(OnBehalfsCompanion(version: Value(version), syncedAt: Value(syncedAt))),
+    deleteLocal: (db, id) =>
+        (db.delete(db.onBehalfs)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.onBehalfs)..where((row) => row.id.equals(id))).write(
+          OnBehalfsCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.onBehalfs)
-        .insertOnConflictUpdate(OnBehalf.fromJson(_camel(row)).toCompanion(false)),
+        .insertOnConflictUpdate(
+          OnBehalf.fromJson(_camel(row)).toCompanion(false),
+        ),
   ),
   'delete_request': SyncTableBinding(
     entityType: 'delete_request',
     tableName: 'delete_requests',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.deleteRequests)
-          ..where((row) => row.id.equals(id)))
-        .write(DeleteRequestsCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.deleteRequests)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.deleteRequests)..where((row) => row.id.equals(id))).write(
+          DeleteRequestsCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.deleteRequests)
         .insertOnConflictUpdate(
@@ -183,12 +245,15 @@ final Map<String, SyncTableBinding> syncTableBindings = <String, SyncTableBindin
   'conflict_log': SyncTableBinding(
     entityType: 'conflict_log',
     tableName: 'conflict_log',
-    markSynced: (db, id, version, syncedAt) => (db.update(db.conflictLog)
-          ..where((row) => row.id.equals(id)))
-        .write(ConflictLogCompanion(
-          version: Value(version),
-          syncedAt: Value(syncedAt),
-        )),
+    deleteLocal: (db, id) =>
+        (db.delete(db.conflictLog)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.conflictLog)..where((row) => row.id.equals(id))).write(
+          ConflictLogCompanion(
+            version: Value(version),
+            syncedAt: Value(syncedAt),
+          ),
+        ),
     applyServerRow: (db, row) => db
         .into(db.conflictLog)
         .insertOnConflictUpdate(

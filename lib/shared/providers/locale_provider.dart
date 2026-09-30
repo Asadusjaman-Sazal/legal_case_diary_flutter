@@ -47,6 +47,14 @@ class LocaleNotifier extends Notifier<Locale> {
     state = normalized;
   }
 
+  /// Forgets the stored language and returns to the default (logout/account
+  /// switch): language is a per-user preference, so the next account must not
+  /// inherit the previous holder's choice.
+  void reset() {
+    _prefs.remove(_localeKey);
+    state = defaultLocale;
+  }
+
   static Locale _parseLocale(String code) {
     return AppLocalizations.supportedLocales.firstWhere(
       (locale) => locale.languageCode == code,

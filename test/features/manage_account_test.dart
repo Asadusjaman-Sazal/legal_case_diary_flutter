@@ -10,6 +10,7 @@ library;
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -58,6 +59,7 @@ void main() {
   Future<void> pumpManageAccount(
     WidgetTester tester, {
     Future<void> Function(AppDatabase db)? seed,
+    List<Override> overrides = const <Override>[],
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -65,7 +67,7 @@ void main() {
     await pumpSettingsRouter(
       tester,
       location: AppRoutes.settingsManageAccount,
-      overrides: await harness.setUp(),
+      overrides: await harness.setUp(extra: overrides),
       routes: [
         GoRoute(
           path: AppRoutes.settingsManageAccount,
@@ -216,8 +218,13 @@ void main() {
   testWidgets('Logout ends the session, empties the caches and returns', (
     tester,
   ) async {
+    // A free account has no cloud copy of anything it holds, so its logout is the
+    // export-then-wipe branch (Task 19 Phase 6): the encrypted safety copy is
+    // written first, and the wipe and the sign-out happen only after it lands.
+    final sink = RecordingArchiveSink();
     await pumpManageAccount(
       tester,
+      overrides: [logoutFlowOverride(premium: false, sink: sink)],
       seed: (db) => ProfilesDao(db).upsert(
         const ProfilesCompanion(
           id: Value('user-1'),
@@ -231,12 +238,81 @@ void main() {
     await harness.prefs.setString(authUserIdKey, 'user-1');
 
     await tapVisible(tester, find.text(l.settingsManageAccount_logout));
+    await completeLogoutPassphrase(tester, l, 'correct-horse');
 
+    expect(sink.writes, 1, reason: 'the copy is written before the wipe');
     expect(harness.auth.signOutCalls, 1);
     // The pull-only cache is emptied and the cached account is forgotten, but
     // the local diary is never touched.
     expect(await ProfilesDao(harness.db).getAll(), isEmpty);
     expect(LocalAuthService(harness.prefs).cachedUserId, isNull);
+    expect(find.text(l.logout_backedUpTo(sink.lastPath!)), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Logout cancelling the backup keeps the session and the data', (
+    tester,
+  ) async {
+    // The copy is the wipe's precondition, so declining to set a passphrase
+    // cancels the logout rather than the export: nothing is deleted and the
+    // account stays signed in.
+    final sink = RecordingArchiveSink();
+    await pumpManageAccount(
+      tester,
+      overrides: [logoutFlowOverride(premium: false, sink: sink)],
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    await tapVisible(tester, find.text(l.settingsManageAccount_logout));
+    await tester.tap(find.text(l.sharedActions_cancel));
+    await tester.pumpAndSettle();
+
+    expect(sink.writes, 0);
+    expect(harness.auth.signOutCalls, 0);
+    expect(await ProfilesDao(harness.db).getAll(), hasLength(1));
+    expect(find.text(l.logout_exportCancelled), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a synced account logs out at once, asking nothing', (
+    tester,
+  ) async {
+    // Premium with an empty queue: the server already holds everything, so the
+    // wipe destroys no unique copy and there is nothing to ask about.
+    await pumpManageAccount(
+      tester,
+      overrides: [logoutFlowOverride(premium: true)],
+      seed: (db) => ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-1'),
+          fullName: const Value('Adv. Rahim Uddin'),
+          role: const Value(AccountRole.individual),
+          subscriptionStatus: const Value('active'),
+          subscriptionExpiry: Value(
+            DateTime.now()
+                .toUtc()
+                .add(const Duration(days: 30))
+                .millisecondsSinceEpoch,
+          ),
+          createdAt: const Value(1),
+        ),
+      ),
+    );
+
+    await tapVisible(tester, find.text(l.settingsManageAccount_logout));
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(harness.auth.signOutCalls, 1);
     expect(find.text(l.settingsManageAccount_loggedOut), findsOneWidget);
 
     await unmountApp(tester);

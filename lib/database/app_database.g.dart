@@ -10618,6 +10618,21 @@ class $ConflictLogTable extends ConflictLog
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _mergeableConflictMeta = const VerificationMeta(
+    'mergeableConflict',
+  );
+  @override
+  late final GeneratedColumn<bool> mergeableConflict = GeneratedColumn<bool>(
+    'mergeable_conflict',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("mergeable_conflict" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -10693,6 +10708,7 @@ class $ConflictLogTable extends ConflictLog
     conflictAt,
     resolvedAt,
     isDismissed,
+    mergeableConflict,
     updatedAt,
     version,
     syncedAt,
@@ -10840,6 +10856,15 @@ class $ConflictLogTable extends ConflictLog
         ),
       );
     }
+    if (data.containsKey('mergeable_conflict')) {
+      context.handle(
+        _mergeableConflictMeta,
+        mergeableConflict.isAcceptableOrUnknown(
+          data['mergeable_conflict']!,
+          _mergeableConflictMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -10940,6 +10965,10 @@ class $ConflictLogTable extends ConflictLog
         DriftSqlType.bool,
         data['${effectivePrefix}is_dismissed'],
       )!,
+      mergeableConflict: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}mergeable_conflict'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}updated_at'],
@@ -11011,6 +11040,16 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
 
   /// UI acknowledgement only.
   final bool isDismissed;
+
+  /// Whether the three-way comparison could merge this conflict automatically.
+  ///
+  /// True when the local and server changes touch disjoint fields, so the local
+  /// edits can be rebased onto the authoritative row without a person deciding;
+  /// false when they overlap, are semantically coupled, or involve a tombstone —
+  /// the three cases the Review Conflict screen exists for. It is recorded at
+  /// detection time (Task 19 Phase 3) and mirrored, so another device sees the
+  /// same verdict instead of recomputing it from its own copy.
+  final bool mergeableConflict;
   final int updatedAt;
   final int? version;
   final int? syncedAt;
@@ -11031,6 +11070,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
     required this.conflictAt,
     this.resolvedAt,
     required this.isDismissed,
+    required this.mergeableConflict,
     required this.updatedAt,
     this.version,
     this.syncedAt,
@@ -11056,6 +11096,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
       map['resolved_at'] = Variable<int>(resolvedAt);
     }
     map['is_dismissed'] = Variable<bool>(isDismissed);
+    map['mergeable_conflict'] = Variable<bool>(mergeableConflict);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || version != null) {
       map['version'] = Variable<int>(version);
@@ -11088,6 +11129,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
           ? const Value.absent()
           : Value(resolvedAt),
       isDismissed: Value(isDismissed),
+      mergeableConflict: Value(mergeableConflict),
       updatedAt: Value(updatedAt),
       version: version == null && nullToAbsent
           ? const Value.absent()
@@ -11122,6 +11164,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
       conflictAt: serializer.fromJson<int>(json['conflictAt']),
       resolvedAt: serializer.fromJson<int?>(json['resolvedAt']),
       isDismissed: serializer.fromJson<bool>(json['isDismissed']),
+      mergeableConflict: serializer.fromJson<bool>(json['mergeableConflict']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       version: serializer.fromJson<int?>(json['version']),
       syncedAt: serializer.fromJson<int?>(json['syncedAt']),
@@ -11147,6 +11190,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
       'conflictAt': serializer.toJson<int>(conflictAt),
       'resolvedAt': serializer.toJson<int?>(resolvedAt),
       'isDismissed': serializer.toJson<bool>(isDismissed),
+      'mergeableConflict': serializer.toJson<bool>(mergeableConflict),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'version': serializer.toJson<int?>(version),
       'syncedAt': serializer.toJson<int?>(syncedAt),
@@ -11170,6 +11214,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
     int? conflictAt,
     Value<int?> resolvedAt = const Value.absent(),
     bool? isDismissed,
+    bool? mergeableConflict,
     int? updatedAt,
     Value<int?> version = const Value.absent(),
     Value<int?> syncedAt = const Value.absent(),
@@ -11190,6 +11235,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
     conflictAt: conflictAt ?? this.conflictAt,
     resolvedAt: resolvedAt.present ? resolvedAt.value : this.resolvedAt,
     isDismissed: isDismissed ?? this.isDismissed,
+    mergeableConflict: mergeableConflict ?? this.mergeableConflict,
     updatedAt: updatedAt ?? this.updatedAt,
     version: version.present ? version.value : this.version,
     syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
@@ -11238,6 +11284,9 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
       isDismissed: data.isDismissed.present
           ? data.isDismissed.value
           : this.isDismissed,
+      mergeableConflict: data.mergeableConflict.present
+          ? data.mergeableConflict.value
+          : this.mergeableConflict,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       version: data.version.present ? data.version.value : this.version,
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
@@ -11265,6 +11314,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
           ..write('conflictAt: $conflictAt, ')
           ..write('resolvedAt: $resolvedAt, ')
           ..write('isDismissed: $isDismissed, ')
+          ..write('mergeableConflict: $mergeableConflict, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('version: $version, ')
           ..write('syncedAt: $syncedAt, ')
@@ -11290,6 +11340,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
     conflictAt,
     resolvedAt,
     isDismissed,
+    mergeableConflict,
     updatedAt,
     version,
     syncedAt,
@@ -11314,6 +11365,7 @@ class ConflictLogRow extends DataClass implements Insertable<ConflictLogRow> {
           other.conflictAt == this.conflictAt &&
           other.resolvedAt == this.resolvedAt &&
           other.isDismissed == this.isDismissed &&
+          other.mergeableConflict == this.mergeableConflict &&
           other.updatedAt == this.updatedAt &&
           other.version == this.version &&
           other.syncedAt == this.syncedAt &&
@@ -11336,6 +11388,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
   final Value<int> conflictAt;
   final Value<int?> resolvedAt;
   final Value<bool> isDismissed;
+  final Value<bool> mergeableConflict;
   final Value<int> updatedAt;
   final Value<int?> version;
   final Value<int?> syncedAt;
@@ -11357,6 +11410,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
     this.conflictAt = const Value.absent(),
     this.resolvedAt = const Value.absent(),
     this.isDismissed = const Value.absent(),
+    this.mergeableConflict = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.version = const Value.absent(),
     this.syncedAt = const Value.absent(),
@@ -11379,6 +11433,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
     required int conflictAt,
     this.resolvedAt = const Value.absent(),
     this.isDismissed = const Value.absent(),
+    this.mergeableConflict = const Value.absent(),
     required int updatedAt,
     this.version = const Value.absent(),
     this.syncedAt = const Value.absent(),
@@ -11413,6 +11468,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
     Expression<int>? conflictAt,
     Expression<int>? resolvedAt,
     Expression<bool>? isDismissed,
+    Expression<bool>? mergeableConflict,
     Expression<int>? updatedAt,
     Expression<int>? version,
     Expression<int>? syncedAt,
@@ -11435,6 +11491,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
       if (conflictAt != null) 'conflict_at': conflictAt,
       if (resolvedAt != null) 'resolved_at': resolvedAt,
       if (isDismissed != null) 'is_dismissed': isDismissed,
+      if (mergeableConflict != null) 'mergeable_conflict': mergeableConflict,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (version != null) 'version': version,
       if (syncedAt != null) 'synced_at': syncedAt,
@@ -11459,6 +11516,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
     Value<int>? conflictAt,
     Value<int?>? resolvedAt,
     Value<bool>? isDismissed,
+    Value<bool>? mergeableConflict,
     Value<int>? updatedAt,
     Value<int?>? version,
     Value<int?>? syncedAt,
@@ -11481,6 +11539,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
       conflictAt: conflictAt ?? this.conflictAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       isDismissed: isDismissed ?? this.isDismissed,
+      mergeableConflict: mergeableConflict ?? this.mergeableConflict,
       updatedAt: updatedAt ?? this.updatedAt,
       version: version ?? this.version,
       syncedAt: syncedAt ?? this.syncedAt,
@@ -11535,6 +11594,9 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
     if (isDismissed.present) {
       map['is_dismissed'] = Variable<bool>(isDismissed.value);
     }
+    if (mergeableConflict.present) {
+      map['mergeable_conflict'] = Variable<bool>(mergeableConflict.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
@@ -11573,6 +11635,7 @@ class ConflictLogCompanion extends UpdateCompanion<ConflictLogRow> {
           ..write('conflictAt: $conflictAt, ')
           ..write('resolvedAt: $resolvedAt, ')
           ..write('isDismissed: $isDismissed, ')
+          ..write('mergeableConflict: $mergeableConflict, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('version: $version, ')
           ..write('syncedAt: $syncedAt, ')
@@ -22273,6 +22336,7 @@ typedef $$ConflictLogTableCreateCompanionBuilder =
       required int conflictAt,
       Value<int?> resolvedAt,
       Value<bool> isDismissed,
+      Value<bool> mergeableConflict,
       required int updatedAt,
       Value<int?> version,
       Value<int?> syncedAt,
@@ -22296,6 +22360,7 @@ typedef $$ConflictLogTableUpdateCompanionBuilder =
       Value<int> conflictAt,
       Value<int?> resolvedAt,
       Value<bool> isDismissed,
+      Value<bool> mergeableConflict,
       Value<int> updatedAt,
       Value<int?> version,
       Value<int?> syncedAt,
@@ -22380,6 +22445,11 @@ class $$ConflictLogTableFilterComposer
 
   ColumnFilters<bool> get isDismissed => $composableBuilder(
     column: $table.isDismissed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get mergeableConflict => $composableBuilder(
+    column: $table.mergeableConflict,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22488,6 +22558,11 @@ class $$ConflictLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get mergeableConflict => $composableBuilder(
+    column: $table.mergeableConflict,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -22589,6 +22664,11 @@ class $$ConflictLogTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get mergeableConflict => $composableBuilder(
+    column: $table.mergeableConflict,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -22652,6 +22732,7 @@ class $$ConflictLogTableTableManager
                 Value<int> conflictAt = const Value.absent(),
                 Value<int?> resolvedAt = const Value.absent(),
                 Value<bool> isDismissed = const Value.absent(),
+                Value<bool> mergeableConflict = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> version = const Value.absent(),
                 Value<int?> syncedAt = const Value.absent(),
@@ -22673,6 +22754,7 @@ class $$ConflictLogTableTableManager
                 conflictAt: conflictAt,
                 resolvedAt: resolvedAt,
                 isDismissed: isDismissed,
+                mergeableConflict: mergeableConflict,
                 updatedAt: updatedAt,
                 version: version,
                 syncedAt: syncedAt,
@@ -22696,6 +22778,7 @@ class $$ConflictLogTableTableManager
                 required int conflictAt,
                 Value<int?> resolvedAt = const Value.absent(),
                 Value<bool> isDismissed = const Value.absent(),
+                Value<bool> mergeableConflict = const Value.absent(),
                 required int updatedAt,
                 Value<int?> version = const Value.absent(),
                 Value<int?> syncedAt = const Value.absent(),
@@ -22717,6 +22800,7 @@ class $$ConflictLogTableTableManager
                 conflictAt: conflictAt,
                 resolvedAt: resolvedAt,
                 isDismissed: isDismissed,
+                mergeableConflict: mergeableConflict,
                 updatedAt: updatedAt,
                 version: version,
                 syncedAt: syncedAt,

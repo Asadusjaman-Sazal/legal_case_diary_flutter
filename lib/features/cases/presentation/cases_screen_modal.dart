@@ -24,9 +24,16 @@ import '../../../core/print/print_document.dart';
 import '../../../core/print/print_flow.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
+import '../../sync/presentation/sync_conflict_banner.dart';
+import '../../../sync/sync_health.dart';
+import '../../../sync/sync_providers.dart';
+import '../../../sync/sync_service.dart';
+import '../../../sync/sync_status_providers.dart';
 
 // ---------------------------------------------------------------------------
 // Sync state
@@ -198,9 +205,9 @@ class CasesScreenModal extends ConsumerWidget {
         children: [
           _CasesHeader(
             title: title,
-            syncState: syncState,
-            isPremium: isPremium,
-            onSync: onSync,
+            syncState: _liveSyncState(ref),
+            isPremium: _livePremium(ref),
+            onSync: () => _onSyncTap(ref),
             onSearch: onSearch,
             onViewToggle: onViewToggle,
             isCompactView: isCompactView,
@@ -215,13 +222,58 @@ class CasesScreenModal extends ConsumerWidget {
           Expanded(child: body),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentRoute: currentRoute,
-        tabKeys: tabKeys,
-        onTabSelected: (route) => context.go(route),
+      // The app-wide conflict banner sits directly above the nav bar on every
+      // case-list screen, so an unresolved conflict is never out of sight.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SyncConflictBanner(),
+          BottomNavBar(
+            currentRoute: currentRoute,
+            tabKeys: tabKeys,
+            onTabSelected: (route) => context.go(route),
+          ),
+        ],
       ),
       floatingActionButton: _buildFabStack(l),
     );
+  }
+
+  /// The sync button's state: the live sync health, or a host's override.
+  ///
+  /// A host screen that passes its own [syncState] keeps it — the parameter is
+  /// the seam a future screen with a different sync story can use — but every
+  /// case-list screen today passes nothing, so the header reports the real engine
+  /// through the same three states the shell always had: running, done, and the
+  /// "Sync paused" indicator the plan asks for after three consecutive failures.
+  SyncState _liveSyncState(WidgetRef ref) {
+    if (syncState != SyncState.idle) return syncState;
+    final health = ref.watch(syncHealthProvider).value;
+    return switch (health?.status) {
+      SyncHealthStatus.syncing => SyncState.syncing,
+      SyncHealthStatus.healthy => SyncState.success,
+      SyncHealthStatus.paused => SyncState.paused,
+      _ => SyncState.idle,
+    };
+  }
+
+  /// Whether sync is available: the single entitlement derivation, or a host's
+  /// explicit answer. A free account sees the disabled button and its tooltip.
+  bool _livePremium(WidgetRef ref) =>
+      isPremium || ref.watch(premiumAccessProvider).value == true;
+
+  /// Tapping the sync button.
+  ///
+  /// A paused indicator must actually do something: it resets the backoff and
+  /// retries both the channel and the queue immediately, rather than waiting for
+  /// the next window. The same entry point serves the plain manual sync.
+  Future<void> _onSyncTap(WidgetRef ref) async {
+    final override = onSync;
+    if (override != null) {
+      override();
+      return;
+    }
+    await ref.read(syncServiceProvider).retryNow();
   }
 
   /// Stacks the Add Case FAB and (optionally) the Help FAB at the same
@@ -330,7 +382,7 @@ class ScopedSearchBar extends StatelessWidget {
 // Header
 // ---------------------------------------------------------------------------
 
-class _CasesHeader extends StatelessWidget {
+class _CasesHeader extends ConsumerWidget {
   final String title;
   final SyncState syncState;
   final bool isPremium;
@@ -352,7 +404,10 @@ class _CasesHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // The blocked/conflicted badge: entries the user must act on, and nothing
+    // else. Ordinary pending work is not news, so the badge stays away for it.
+    final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
     return Container(
       height: 56,
       color: AppColors.surface,
@@ -394,6 +449,18 @@ class _CasesHeader extends StatelessWidget {
                   ? l.casesModal_viewExpanded
                   : l.casesModal_viewCompact,
               onPressed: () => onViewToggle!(!isCompactView),
+            ),
+          // Sync Status badge — shown only when something is held for a
+          // person, and it opens the screen that explains it (Phase 4.4).
+          if (attention > 0)
+            IconButton(
+              key: const ValueKey('cases-modal-sync-status'),
+              icon: Badge.count(
+                count: attention,
+                child: const Icon(Icons.sync_problem, color: AppColors.error),
+              ),
+              tooltip: l.syncStatus_title,
+              onPressed: () => context.push(AppRoutes.settingsSyncStatus),
             ),
           // Sync button — top-right per Addendum 2.4
           _SyncButton(

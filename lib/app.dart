@@ -10,6 +10,7 @@ import 'core/l10n/generated/app_localizations.dart';
 import 'core/notifications/notification_setup_gate.dart';
 import 'core/notifications/notification_tap_listener.dart';
 import 'features/settings/presentation/backup_nudge_banner.dart';
+import 'features/sync/presentation/recovery_required_screen.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/font_size_scope.dart';
@@ -75,7 +76,13 @@ class App extends ConsumerWidget {
                       // Drives the push/pull engine on launch, resume,
                       // reconnect and new local writes.
                       child: SyncTriggerScope(
-                        child: child ?? const SizedBox.shrink(),
+                        // Innermost, so the extended-offline lock covers every
+                        // screen and route: while it is set the app has no
+                        // editable surface at all, and the blocking screen
+                        // returns on every launch until recovery succeeds.
+                        child: RecoveryRequiredScope(
+                          child: child ?? const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   ),

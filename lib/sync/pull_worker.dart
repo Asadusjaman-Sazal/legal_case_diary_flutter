@@ -14,11 +14,9 @@
 /// applies, because hiding a deleted record is the whole point of it.
 library;
 
-import 'dart:convert';
-
 import '../database/app_database.dart';
+import 'conflict_resolution.dart';
 import 'entity_tables.dart';
-import 'sync_conflict_log.dart';
 import 'sync_metadata_dao.dart';
 import 'sync_queue_dao.dart';
 import 'sync_table_bindings.dart';
@@ -88,6 +86,27 @@ class PullWorker {
       rows: rows,
       conflicts: conflicts,
     );
+  }
+
+  /// Applies exactly one row by id — the Realtime micro pull.
+  ///
+  /// Returns true when the row was applied without a conflict. The cursor is
+  /// deliberately **not** advanced: the next delta pull sees this row again and
+  /// re-applies it (an upsert by id, so it is idempotent), and leaving the cursor
+  /// alone is what guarantees a notification can never make a later pull skip a
+  /// row. The merge itself is [_applyRow], the same one a paged pull uses, so a
+  /// notification and a delta pull cannot disagree about a conflict.
+  Future<bool> pullRow(String entityType, String id) async {
+    final table = syncTableForEntity(entityType);
+    final binding = syncBindingFor(entityType);
+    if (table == null || binding == null) return false;
+
+    final row = await transport.fetchRow(table, id);
+    if (row == null) return false;
+
+    final unresolved = await _unresolvedSnapshot();
+    final conflict = await _applyRow(entityType, binding, row, unresolved);
+    return !conflict;
   }
 
   /// Pages one table until a short page completes it.
@@ -171,26 +190,17 @@ class PullWorker {
         return false;
     }
 
-    await writeConflictLog(
+    // The same reconciliation the push worker uses: a disjoint change is rebased
+    // into the queued mutation and nothing is frozen; a collision or a tombstone
+    // is preserved for the Review Conflict screen. A rebased row is not a
+    // conflict anyone has to look at, so it does not count as one.
+    final needsReview = await ConflictResolver(
       db: db,
       queue: queue,
       currentUserId: currentUserId,
-      entityType: entityType,
-      entityId: id,
-      mutationId: pending.mutationId,
-      baseVersion: pending.baseVersion ?? 0,
-      basePayload: pending.basePayload,
-      submittedPayload: pending.payload,
-      changedFields: pending.changedFields,
-      serverVersion: _int(row['version']) ?? 0,
-      serverPayload: jsonEncode(row),
-      conflictAt: DateTime.now().toUtc().millisecondsSinceEpoch,
-    );
-    await queue.freezeEntity(
-      entityType,
-      id,
-      error: 'The server has a newer version of this record.',
-    );
+    ).reconcile(row: pending, serverRow: row);
+    if (!needsReview) return false;
+
     if (isDeleted) await binding.applyServerRow(db, row);
     return true;
   }
@@ -218,10 +228,4 @@ class PullWorker {
     return null;
   }
 
-  static int? _int(Object? value) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value);
-    return null;
-  }
 }

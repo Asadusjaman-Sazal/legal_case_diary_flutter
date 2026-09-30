@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +26,12 @@ import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
+import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+import 'package:legal_case_diary/sync/sync_service.dart';
 
 /// An [AuthRepository] whose every outcome the test decides.
 class FakeAuthRepository implements AuthRepository {
@@ -283,7 +288,12 @@ class AuthTestHarness {
   late final SharedPreferences prefs;
 
   /// Creates the database and preferences, and returns the provider overrides.
-  Future<List<Override>> setUp() async {
+  ///
+  /// [extra] appends the seams a particular test needs — the branched logout,
+  /// for instance, which a screen test states its own branch for.
+  Future<List<Override>> setUp({
+    List<Override> extra = const <Override>[],
+  }) async {
     SharedPreferences.setMockInitialValues(preferences);
     prefs = await SharedPreferences.getInstance();
     db = AppDatabase(NativeDatabase.memory());
@@ -292,6 +302,7 @@ class AuthTestHarness {
       databaseProvider.overrideWith((_) async => db),
       authRepositoryProvider.overrideWithValue(auth),
       firmRepositoryProvider.overrideWithValue(firm),
+      ...extra,
     ];
   }
 
@@ -395,3 +406,91 @@ Future<void> unmountApp(WidgetTester tester) async {
 /// The persisted invite code, read straight from the local auth cache.
 String? pendingInviteCode(SharedPreferences prefs) =>
     LocalAuthService(prefs).pendingInviteCode;
+
+/// A [BackupArchiveSink] that keeps the archive in memory.
+///
+/// The automatic exports (the logout safety copy, the extended-offline recovery
+/// copy) deliberately write without a dialog — they may run when there is nobody
+/// to answer a Save-to window — so a widget test stands in for the file system
+/// here, never for a dialog.
+class RecordingArchiveSink implements BackupArchiveSink {
+  /// How many times [write] was called.
+  int writes = 0;
+
+  /// The file names the writes used, in order.
+  final List<String> fileNames = <String>[];
+
+  /// The bytes of the most recent successful write.
+  Uint8List? bytes;
+
+  /// The location the most recent write reported; null while none succeeded.
+  String? lastPath;
+
+  /// Refuses every write, as a full disk or a denied permission would.
+  bool fail = false;
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    writes++;
+    fileNames.add(fileName);
+    if (fail) throw Exception('the sink refused the write');
+    this.bytes = bytes;
+    return lastPath = 'C:/tmp/$fileName';
+  }
+}
+
+/// Overrides the branched logout so a screen test states its own branch, keeps
+/// the safety copy in memory, and never pays the production PBKDF2 stretch.
+///
+/// Everything else mirrors `logoutFlowProvider`: the session is really ended
+/// through [AuthViewModel.signOut], so "the logout ended the session and emptied
+/// the account caches" is still asserted against the real thing.
+Override logoutFlowOverride({
+  required bool premium,
+  bool online = true,
+  RecordingArchiveSink? sink,
+}) => logoutFlowProvider.overrideWith((ref) async {
+  final db = await ref.watch(databaseProvider.future);
+  return LogoutFlow(
+    db: db,
+    premium: premium,
+    online: online,
+    runBacklogPush: () => ref.read(syncServiceProvider).runBacklogPush(),
+    endSession: () => ref.read(authViewModelProvider.notifier).signOut(),
+    sink: sink ?? RecordingArchiveSink(),
+    kdfIterations: 1,
+  );
+});
+
+/// Answers the passphrase window every export-before-wipe logout branch opens.
+///
+/// The window is part of those branches rather than an interruption, so the test
+/// asserts it appeared before it fills it in.
+Future<void> completeLogoutPassphrase(
+  WidgetTester tester,
+  AppLocalizations l,
+  String passphrase,
+) async {
+  expect(
+    find.text(l.settingsBackupRestore_passphraseTitle),
+    findsOneWidget,
+    reason: 'the safety copy is written before anything is deleted',
+  );
+  await tester.enterText(
+    find.widgetWithText(TextFormField, l.settingsBackupRestore_passphraseLabel),
+    passphrase,
+  );
+  await tester.enterText(
+    find.widgetWithText(
+      TextFormField,
+      l.settingsBackupRestore_passphraseConfirmLabel,
+    ),
+    passphrase,
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l.settingsBackupRestore_encryptAndSave));
+  await tester.pumpAndSettle();
+}

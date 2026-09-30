@@ -4,9 +4,107 @@
 /// reactive facts the trigger scope needs without leaking Drift into widgets.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/providers/repository_providers.dart';
+import '../database/app_database.dart';
+import '../features/accounts_and_profile/data/account_mode.dart';
+import '../features/auth/presentation/auth_viewmodel.dart';
 import '../shared/providers/database_provider.dart';
+import 'conflict_log_dao.dart';
+import 'conflict_resolution.dart';
+import 'realtime_listener.dart';
+import 'sync_health.dart';
+import 'sync_queue_dao.dart';
+import 'sync_service.dart';
+
+/// The app's single Realtime listener.
+///
+/// One channel for the whole app, on this account's private topic:
+/// `firm:{firm_id}` for a firm member, `user:{user_id}` for an individual. The
+/// topic is resolved at each start from the cached profile and the signed-in
+/// identity, so joining or leaving a firm — or signing out — changes the topic
+/// without a second subscription. **Nobody signed in means no channel**, and a
+/// build with no backend gets the inert socket rather than an error.
+final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  final listener = RealtimeListener(
+    socket: client == null
+        ? const NoRealtimeSocket()
+        : SupabaseRealtimeSocket(client),
+    topic: () {
+      final identity = ref.read(authIdentityProvider);
+      if (identity == null) return null;
+      final firmId = ref.read(accountProfileProvider).value?.firmId;
+      if (firmId != null && firmId.isNotEmpty) return 'firm:$firmId';
+      return 'user:${identity.userId}';
+    },
+    onPings: (pings) => ref.read(syncServiceProvider).requestRealtimePull(pings),
+  );
+  ref.onDispose(listener.dispose);
+  return listener;
+});
+
+/// The app's sync health, and the channel's reconnect ladder.
+///
+/// It watches [realtimeListenerProvider] and is read lazily by the service, so
+/// neither owns the other: the service reports outcomes in, the header renders
+/// the state out.
+final syncHealthControllerProvider = Provider<SyncHealthController>((ref) {
+  final controller = SyncHealthController(
+    listener: ref.watch(realtimeListenerProvider),
+  )..attach();
+  ref.onDispose(controller.dispose);
+  return controller;
+});
+
+/// The health state as a stream, so a widget can `watch` it like any provider.
+final syncHealthProvider = StreamProvider<SyncHealth>((ref) {
+  final notifier = ref.watch(syncHealthControllerProvider).health;
+  final changes = StreamController<SyncHealth>();
+  void push() => changes.add(notifier.value);
+  notifier.addListener(push);
+  ref.onDispose(() {
+    notifier.removeListener(push);
+    changes.close();
+  });
+  push();
+  return changes.stream;
+});
+
+/// The conflicts still waiting for a person, newest first.
+///
+/// The app-wide banner watches this. The list shrinks only when a resolution is
+/// written — `resolution_state` leaves `unresolved` — so a dismissal or the
+/// passage of time never makes a conflict look answered (Task 19 Phase 3).
+final unresolvedConflictsProvider =
+    StreamProvider<List<ConflictLogRow>>((ref) async* {
+  final db = await ref.watch(databaseProvider.future);
+  yield* ConflictLogDao(db).watchUnresolved();
+});
+
+/// One conflict by id, live, for the Review Conflict screen.
+final conflictByIdProvider =
+    StreamProvider.family<ConflictLogRow?, String>((ref, id) async* {
+  final db = await ref.watch(databaseProvider.future);
+  yield* (db.select(db.conflictLog)..where((row) => row.id.equals(id)))
+      .watchSingleOrNull();
+});
+
+/// The one resolver the UI answers conflicts through.
+///
+/// It is the same class the push and pull workers use, so a choice made on the
+/// Review screen takes exactly the path an automatic rebase would.
+final conflictResolverProvider = FutureProvider<ConflictResolver>((ref) async {
+  final db = await ref.watch(databaseProvider.future);
+  return ConflictResolver(
+    db: db,
+    queue: SyncQueueDao(db),
+    currentUserId: ref.watch(accountCacheUserIdProvider),
+  );
+});
 
 /// The number of queue entries still waiting to be pushed.
 ///

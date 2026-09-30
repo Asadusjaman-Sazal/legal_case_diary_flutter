@@ -60,6 +60,9 @@ class FakeTransport implements SyncTransport {
   }) async => const <Map<String, dynamic>>[];
 
   @override
+  Future<Map<String, dynamic>?> fetchRow(String table, String id) async => null;
+
+  @override
   Future<DateTime?> serverTime() async => null;
 }
 
@@ -431,13 +434,14 @@ void main() {
     expect(transport.last.single['operation'], 'update');
   });
 
-  test('a conflict writes conflict_log and freezes the entity', () async {
+  test('an overlapping conflict writes conflict_log and freezes the entity',
+      () async {
     await enqueue(
       entityType: 'court',
       entityId: 'c1',
       operation: 'update',
       baseVersion: 1,
-      basePayload: {'id': 'c1'},
+      basePayload: {'id': 'c1', 'court_name': 'Old'},
       payload: {'id': 'c1', 'court_name': 'Mine'},
       mutationId: 'mut-1',
     );
@@ -446,7 +450,12 @@ void main() {
         'mutation_id': 'mut-1',
         'status': 'conflict',
         'version': 3,
-        'row': {'id': 'c1', 'version': 3, 'is_deleted': false},
+        'row': {
+          'id': 'c1',
+          'court_name': 'Theirs',
+          'version': 3,
+          'is_deleted': false,
+        },
         'message': 'changed',
       },
     ];
@@ -458,6 +467,7 @@ void main() {
     expect(conflicts, hasLength(1));
     expect(conflicts.single.entityId, 'c1');
     expect(conflicts.single.resolutionState, 'unresolved');
+    expect(conflicts.single.mergeableConflict, isFalse);
     final rows = await queue.getAll();
     // The rejected entry is now conflict_pending; a mirror entry is queued.
     expect(
@@ -465,6 +475,60 @@ void main() {
       hasLength(1),
     );
     expect(rows.where((r) => r.entityType == 'conflict_log'), hasLength(1));
+  });
+
+  test('a disjoint conflict rebases itself and needs no person', () async {
+    await db.into(db.courts).insert(
+          CourtsCompanion.insert(
+            id: 'c1',
+            courtName: 'Old',
+            higherLowerCourts: 'Lower Court',
+            courtCategoryId: 'cat-1',
+            updatedAt: 0,
+          ),
+        );
+    final court =
+        await (db.select(db.courts)..where((r) => r.id.equals('c1'))).getSingle();
+    await enqueue(
+      entityType: 'court',
+      entityId: 'c1',
+      operation: 'update',
+      baseVersion: 1,
+      basePayload: {'id': 'c1', 'court_name': 'Old', 'order_index': 0},
+      payload: {'id': 'c1', 'court_name': 'Old', 'order_index': 5},
+      mutationId: 'mut-1',
+    );
+    transport.results = <Map<String, dynamic>>[
+      {
+        'mutation_id': 'mut-1',
+        'status': 'conflict',
+        'version': 3,
+        'row': toSnake(court.toJson())
+          ..['court_name'] = 'Theirs'
+          ..['version'] = 3,
+        'message': 'changed',
+      },
+    ];
+
+    final outcome = await worker().flushBatch();
+
+    // A rebase is already an answer, so it freezes nothing and asks nobody.
+    expect(outcome.conflicts, 0);
+    final logged = (await queue.db.select(queue.db.conflictLog).get()).single;
+    expect(logged.entityId, 'c1');
+    expect(logged.mergeableConflict, isTrue);
+    expect(logged.resolutionState, 'rebased');
+    expect(logged.resolvedAt, isNotNull);
+
+    final row = (await queue.getAll())
+        .firstWhere((r) => r.entityType == 'court' && r.entityId == 'c1');
+    expect(row.state, 'pending', reason: 'the merged edit is sent again');
+    expect(row.baseVersion, 3, reason: 'rebased onto the server version');
+    expect(row.mutationId, isNot('mut-1'), reason: 'a fresh mutation id');
+    expect(jsonDecode(row.payload)['order_index'], 5,
+        reason: 'the local edit is preserved');
+    expect(jsonDecode(row.payload)['court_name'], 'Theirs',
+        reason: 'the server value is kept where the local side did not change it');
   });
 
   test('a tombstone applies the server row and hides the record', () async {

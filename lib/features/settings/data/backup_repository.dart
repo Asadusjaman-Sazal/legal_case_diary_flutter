@@ -82,6 +82,18 @@ const List<String> backupTableOrder = <String>[
   'seed_migrations',
 ];
 
+/// The `sync_metadata` keys that describe the last archive.
+///
+/// They are a *receipt for a file outside the database*, so the two full wipes
+/// named in the plan treat them specially: extended-offline recovery keeps them
+/// (Proceed verifies the safety copy against them, and a failed recovery must be
+/// retryable), while a logout keeps nothing at all.
+const Set<String> archiveMetadataKeys = <String>{
+  archivePathKey,
+  archiveChecksumKey,
+  archiveStateKey,
+};
+
 /// `sync_metadata` key holding the last archive's path.
 const String archivePathKey = 'archive.path';
 
@@ -241,6 +253,39 @@ class BackupRepository {
     await _metadata.setValue(archivePathKey, path);
     await _metadata.setValue(archiveChecksumKey, checksum);
     await _metadata.setValue(archiveStateKey, state);
+  });
+
+  /// Erases every app-state table, in one durable transaction.
+  ///
+  /// **This is the complete wipe scope the plan fixes** for extended-offline
+  /// recovery (Task 19 Phase 5) and for logout/account switching (Task 19
+  /// Phase 6, Addendum): every domain row and its tombstones, the `sync_queue`,
+  /// the pull-only caches (`firms`, `firm_members`, `profiles`), the per-user
+  /// preferences and case-notification configuration, the cursors, the seeded
+  /// reference data and its ledger, and the rest of the sync/recovery metadata.
+  /// Children go first, because the FK-safe export order is walked backwards.
+  ///
+  /// [keepMetadataKeys] are `sync_metadata` keys that survive the wipe; the two
+  /// callers pass [archiveMetadataKeys] or nothing at all. No session material
+  /// lives in the database, so nothing has to be carried across for the
+  /// authenticated pull that follows a recovery or a fresh login.
+  Future<void> wipeAllTables({
+    Set<String> keepMetadataKeys = const <String>{},
+  }) => db.transaction(() async {
+    for (final name in backupTableOrder.reversed) {
+      if (name == 'sync_metadata' && keepMetadataKeys.isNotEmpty) {
+        final placeholders = List.filled(
+          keepMetadataKeys.length,
+          '?',
+        ).join(', ');
+        await db.customStatement(
+          'DELETE FROM sync_metadata WHERE key NOT IN ($placeholders)',
+          keepMetadataKeys.toList(growable: false),
+        );
+        continue;
+      }
+      await db.customStatement('DELETE FROM "$name"');
+    }
   });
 
   /// Reads the last recorded archive state.

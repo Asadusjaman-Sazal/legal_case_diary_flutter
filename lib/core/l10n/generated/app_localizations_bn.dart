@@ -632,6 +632,362 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার ডিভাইসের ঘড়ি ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য এটি ঠিক করুন।';
 
   @override
+  String syncConflict_bannerMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি দ্বন্দ্ব পর্যালোচনা প্রয়োজন',
+      one: 'একটি দ্বন্দ্ব পর্যালোচনা প্রয়োজন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncConflict_bannerAction => 'পর্যালোচনা করুন';
+
+  @override
+  String get syncConflict_title => 'দ্বন্দ্ব পর্যালোচনা';
+
+  @override
+  String get syncConflict_subtitle =>
+      'অন্য একটি ডিভাইস এই রেকর্ডটি পরিবর্তন করেছে';
+
+  @override
+  String syncConflict_editedBy(String name) {
+    return '$name সম্পাদনা করেছেন';
+  }
+
+  @override
+  String get syncConflict_unknownEditor => 'অন্য ডিভাইস';
+
+  @override
+  String get syncConflict_intro =>
+      'আপনি এবং অন্য একটি ডিভাইস একই ঘর পরিবর্তন করেছেন। প্রতিটির জন্য যে মান রাখতে চান সেটি বাছুন।';
+
+  @override
+  String get syncConflict_keepServer => 'সার্ভার';
+
+  @override
+  String get syncConflict_keepMine => 'আমার';
+
+  @override
+  String get syncConflict_tombstoneTitle => 'সার্ভারে মুছে ফেলা হয়েছে';
+
+  @override
+  String get syncConflict_tombstoneBody =>
+      'অন্য একটি ডিভাইসে এই রেকর্ডটি মুছে ফেলা হয়েছে। আপনার সংরক্ষিত পরিবর্তন এখনও আছে — সেগুলোর কী হবে তা বেছে নিন।';
+
+  @override
+  String get syncConflict_rebaseOntoNewRecord => 'নতুন রেকর্ড হিসেবে রাখুন';
+
+  @override
+  String get syncConflict_discard => 'আমার পরিবর্তন বাদ দিন';
+
+  @override
+  String get syncConflict_discardConfirmTitle => 'আপনার পরিবর্তন বাদ দেবেন?';
+
+  @override
+  String get syncConflict_discardConfirmBody =>
+      'সার্ভারের সংস্করণ আপনার অসিঙ্ক করা পরিবর্তন প্রতিস্থাপন করবে। এটি ফেরানো যাবে না।';
+
+  @override
+  String get syncConflict_laterEditsTitle => 'পরে সংরক্ষিত পরিবর্তন';
+
+  @override
+  String get syncConflict_laterEditsBody =>
+      'এই দ্বন্দ্বের সমাধান না হওয়া পর্যন্ত এই পরিবর্তনগুলো সংরক্ষিত থাকবে।';
+
+  @override
+  String get syncConflict_resolvedNotice =>
+      'এই দ্বন্দ্বটি ইতিমধ্যে সমাধান হয়েছে।';
+
+  @override
+  String get syncConflict_missingNotice => 'এই দ্বন্দ্বটি আর পাওয়া যাচ্ছে না।';
+
+  @override
+  String get syncStatus_title => 'সিঙ্ক স্ট্যাটাস';
+
+  @override
+  String get syncStatus_subtitle => 'যে সব পরিবর্তন পাঠানোর অপেক্ষায় আছে';
+
+  @override
+  String get syncStatus_lastSyncedNever => 'কখনও সিঙ্ক হয়নি';
+
+  @override
+  String syncStatus_lastSynced(String time) {
+    return 'শেষ সিঙ্ক $time';
+  }
+
+  @override
+  String get syncStatus_filterAll => 'সব';
+
+  @override
+  String get syncStatus_filterPending => 'অপেক্ষমাণ';
+
+  @override
+  String get syncStatus_filterConflicted => 'দ্বন্দ্বপূর্ণ';
+
+  @override
+  String get syncStatus_filterBlocked => 'আটকে আছে';
+
+  @override
+  String get syncStatus_statePending => 'অপেক্ষমাণ';
+
+  @override
+  String get syncStatus_statePushing => 'পাঠানো হচ্ছে';
+
+  @override
+  String get syncStatus_stateConflicted => 'দ্বন্দ্বপূর্ণ';
+
+  @override
+  String get syncStatus_stateBlocked => 'আটকে আছে';
+
+  @override
+  String get syncStatus_stateUnknown => 'অজানা';
+
+  @override
+  String get syncStatus_retry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get syncStatus_discard => 'বাতিল করুন';
+
+  @override
+  String get syncStatus_reviewConflict => 'দ্বন্দ্ব দেখুন';
+
+  @override
+  String get syncStatus_moreActions => 'আরও কাজ';
+
+  @override
+  String syncStatus_queued(String time) {
+    return 'সারিতে যোগ হয়েছে $time';
+  }
+
+  @override
+  String syncStatus_attempted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count বার চেষ্টা হয়েছে',
+      one: 'একবার চেষ্টা হয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_lastAttempt(String time) {
+    return 'শেষ চেষ্টা $time';
+  }
+
+  @override
+  String syncStatus_lastError(String message) {
+    return 'শেষ ত্রুটি: $message';
+  }
+
+  @override
+  String get syncStatus_timeJustNow => 'এইমাত্র';
+
+  @override
+  String syncStatus_timeMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মিনিট আগে',
+      one: '১ মিনিট আগে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_timeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ঘণ্টা আগে',
+      one: '১ ঘণ্টা আগে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncStatus_timeDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিন আগে',
+      one: '১ দিন আগে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStatus_emptyTitle => 'সিঙ্ক করার মতো কিছু নেই';
+
+  @override
+  String get syncStatus_emptyBody =>
+      'এই ডিভাইসের প্রতিটি পরিবর্তন পাঠানো হয়েছে।';
+
+  @override
+  String get syncStatus_retried => 'পরিবর্তনটি আবার পাঠানো হবে।';
+
+  @override
+  String get syncStatus_discardTitle => 'এই পরিবর্তনটি বাতিল করবেন?';
+
+  @override
+  String get syncStatus_discardBody =>
+      'সারিতে থাকা পরিবর্তনটি মুছে যাবে এবং রেকর্ডটি সার্ভারে সংরক্ষিত সংস্করণে ফিরে যাবে। এটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get syncStatus_discardConfirm => 'বাতিল করুন';
+
+  @override
+  String get syncStatus_discarded => 'সারিতে থাকা পরিবর্তনটি বাতিল করা হয়েছে।';
+
+  @override
+  String get syncStatus_discardRestoredLocally =>
+      'পরিবর্তনটি বাতিল করা হয়েছে। রেকর্ডটি এই ডিভাইসে সর্বশেষ সংরক্ষিত কপি থেকে ফিরিয়ে আনা হয়েছে।';
+
+  @override
+  String get syncStatus_export => 'ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন';
+
+  @override
+  String get syncStatus_exportShort => 'এক্সপোর্ট';
+
+  @override
+  String get syncStatus_exportTitle => 'ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন';
+
+  @override
+  String get syncStatus_exportMetadataOnly => 'শুধু মেটাডেটা';
+
+  @override
+  String get syncStatus_exportMetadataOnlyBody =>
+      'ধরন, অবস্থা, পুনঃচেষ্টার সংখ্যা ও ত্রুটির বার্তা। কোনো মামলার তথ্য থাকবে না।';
+
+  @override
+  String get syncStatus_exportIncludePayloads => 'পেলোডসহ';
+
+  @override
+  String get syncStatus_exportIncludePayloadsBody =>
+      'সারিতে থাকা পরিবর্তনগুলোও যোগ হবে, যেখানে মামলার বিবরণ থাকতে পারে।';
+
+  @override
+  String get syncStatus_exportConsentTitle => 'মামলার তথ্য যোগ করবেন?';
+
+  @override
+  String get syncStatus_exportConsentBody =>
+      'বান্ডেলে সারিতে থাকা পরিবর্তনগুলো থাকবে, যেখানে মামলার নম্বর, নাম ও নোট থাকতে পারে। শুধু বিশ্বস্ত কারও সঙ্গে শেয়ার করুন।';
+
+  @override
+  String get syncStatus_exportConsentConfirm => 'যোগ করুন';
+
+  @override
+  String get syncStatus_exportReminder =>
+      'সাত দিন পর, বা সাপোর্টের আর প্রয়োজন না হলে সঙ্গে সঙ্গে এই ফাইলটি মুছে ফেলুন।';
+
+  @override
+  String syncStatus_exportSaved(String path) {
+    return 'ডায়াগনস্টিক বান্ডেল $path-এ সংরক্ষিত হয়েছে';
+  }
+
+  @override
+  String get syncStatus_exportFailed =>
+      'ডায়াগনস্টিক বান্ডেল সংরক্ষণ করা যায়নি।';
+
+  @override
+  String get logout_connectToSync =>
+      'আগে আপনার পরিবর্তনগুলো সিঙ্ক করতে ইন্টারনেটে যুক্ত হন।';
+
+  @override
+  String get logout_logOutAnyway => 'তবুও লগ আউট করুন';
+
+  @override
+  String get logout_unsyncedWarningTitle => 'কিছু পরিবর্তন এখনও সিঙ্ক হয়নি';
+
+  @override
+  String get logout_unsyncedWarningBody =>
+      'কিছু তথ্য এখনও ক্লাউডে সিঙ্ক হয়নি। এখন লগ আউট করলে সেই সিঙ্ক না হওয়া তথ্য মুছে যাবে।';
+
+  @override
+  String get logout_proceed => 'লগ আউট করুন';
+
+  @override
+  String logout_backedUpTo(String path) {
+    return 'আপনার তথ্য $path-এ ব্যাকআপ করা হয়েছে। লগ ইন করার পর আপনি এটি পুনরুদ্ধার করতে পারবেন।';
+  }
+
+  @override
+  String get logout_exportCancelled =>
+      'লগ আউট বাতিল হয়েছে; কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get logout_exportFailed =>
+      'নিরাপত্তা কপি সংরক্ষণ করা যায়নি, তাই কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get logout_syncFailed => 'আপনার পরিবর্তনগুলো সিঙ্ক করা যায়নি।';
+
+  @override
+  String get recoveryLock_title => 'অনেক দিন অফলাইনে আছেন';
+
+  @override
+  String recoveryLock_message(int days, String path) {
+    return 'আপনি $days দিন অফলাইনে আছেন। আপনার স্থানীয় পরিবর্তনগুলো $path-এ সংরক্ষণ করা হয়েছে। সম্পাদনা চালু করার আগে সার্ভার থেকে নতুন ডেটা আনতে হবে।';
+  }
+
+  @override
+  String recoveryLock_messageNoCopy(int days) {
+    return 'আপনি $days দিন অফলাইনে আছেন। সার্ভার থেকে নতুন ডেটা আনার আগে একটি নিরাপত্তা কপি সংরক্ষণ করতে হবে।';
+  }
+
+  @override
+  String get recoveryLock_saveTitle => 'নিরাপত্তা কপি সংরক্ষণ করুন';
+
+  @override
+  String get recoveryLock_saveBody =>
+      'এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — একটি এনক্রিপ্টেড ফাইলে সিল করা হবে। নিজে মনে রাখতে পারবেন এমন একটি পাসফ্রেজ দিন; এটি কোথাও সংরক্ষিত হয় না।';
+
+  @override
+  String get recoveryLock_saveAction => 'নিরাপত্তা কপি সংরক্ষণ করুন';
+
+  @override
+  String recoveryLock_savedTo(String path) {
+    return 'নিরাপত্তা কপি $path-এ সংরক্ষিত হয়েছে';
+  }
+
+  @override
+  String get recoveryLock_saveFailed =>
+      'নিরাপত্তা কপি সংরক্ষণ করা যায়নি। আপনার ডেটা এখনও এই ডিভাইসেই আছে — আবার চেষ্টা করুন।';
+
+  @override
+  String get recoveryLock_proceed => 'নতুন ডেটা আনুন';
+
+  @override
+  String get recoveryLock_proceedConfirmTitle =>
+      'এই ডিভাইসটি সার্ভারের কপি দিয়ে বদলে ফেলবেন?';
+
+  @override
+  String get recoveryLock_proceedConfirmBody =>
+      'আপনার স্থানীয় পরিবর্তনগুলো সার্ভারের ডেটা দিয়ে প্রতিস্থাপিত হবে। আপনি যে নিরাপত্তা কপিটি সংরক্ষণ করেছেন, সেটিই তাদের ফিরে পাওয়ার একমাত্র উপায়।';
+
+  @override
+  String get recoveryLock_close => 'বন্ধ করুন';
+
+  @override
+  String get recoveryLock_closeBody =>
+      'পুনরুদ্ধার সফল না হওয়া পর্যন্ত অ্যাপটি লক থাকে এবং ক্লাউডে কিছু লেখা হয় না।';
+
+  @override
+  String get recoveryLock_working => 'নতুন ডেটা আনা হচ্ছে…';
+
+  @override
+  String get recoveryLock_failed =>
+      'পুনরুদ্ধার সম্পন্ন করা যায়নি। আপনার ডেটা এখনও এই ডিভাইসে আছে এবং অ্যাপটি লক থাকবে; আবার চেষ্টা করুন।';
+
+  @override
+  String syncStatus_entryTitle(String entity, String operation) {
+    return '$entity $operation';
+  }
+
+  @override
   String get paywall_title => 'প্রিমিয়াম';
 
   @override

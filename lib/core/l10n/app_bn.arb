@@ -280,6 +280,218 @@
   "sync_unavailable": "সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন",
   "sync_permissionsChanged": "আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।",
   "sync_clockSkewWarning": "আপনার ডিভাইসের ঘড়ি ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য এটি ঠিক করুন।",
+  "@@_section_syncConflict": "SYNC CONFLICTS  |  lib/features/sync/presentation - conflict banner and review screen",
+  "syncConflict_bannerMessage": "{count, plural, =1{একটি দ্বন্দ্ব পর্যালোচনা প্রয়োজন} other{{count}টি দ্বন্দ্ব পর্যালোচনা প্রয়োজন}}",
+  "@syncConflict_bannerMessage": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncConflict_bannerAction": "পর্যালোচনা করুন",
+  "syncConflict_title": "দ্বন্দ্ব পর্যালোচনা",
+  "syncConflict_subtitle": "অন্য একটি ডিভাইস এই রেকর্ডটি পরিবর্তন করেছে",
+  "syncConflict_editedBy": "{name} সম্পাদনা করেছেন",
+  "@syncConflict_editedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "syncConflict_unknownEditor": "অন্য ডিভাইস",
+  "syncConflict_intro": "আপনি এবং অন্য একটি ডিভাইস একই ঘর পরিবর্তন করেছেন। প্রতিটির জন্য যে মান রাখতে চান সেটি বাছুন।",
+  "syncConflict_keepServer": "সার্ভার",
+  "syncConflict_keepMine": "আমার",
+  "syncConflict_tombstoneTitle": "সার্ভারে মুছে ফেলা হয়েছে",
+  "syncConflict_tombstoneBody": "অন্য একটি ডিভাইসে এই রেকর্ডটি মুছে ফেলা হয়েছে। আপনার সংরক্ষিত পরিবর্তন এখনও আছে — সেগুলোর কী হবে তা বেছে নিন।",
+  "syncConflict_rebaseOntoNewRecord": "নতুন রেকর্ড হিসেবে রাখুন",
+  "syncConflict_discard": "আমার পরিবর্তন বাদ দিন",
+  "syncConflict_discardConfirmTitle": "আপনার পরিবর্তন বাদ দেবেন?",
+  "syncConflict_discardConfirmBody": "সার্ভারের সংস্করণ আপনার অসিঙ্ক করা পরিবর্তন প্রতিস্থাপন করবে। এটি ফেরানো যাবে না।",
+  "syncConflict_laterEditsTitle": "পরে সংরক্ষিত পরিবর্তন",
+  "syncConflict_laterEditsBody": "এই দ্বন্দ্বের সমাধান না হওয়া পর্যন্ত এই পরিবর্তনগুলো সংরক্ষিত থাকবে।",
+  "syncConflict_resolvedNotice": "এই দ্বন্দ্বটি ইতিমধ্যে সমাধান হয়েছে।",
+  "syncConflict_missingNotice": "এই দ্বন্দ্বটি আর পাওয়া যাচ্ছে না।",
+  "@@_section_syncStatus": "SYNC STATUS  |  lib/features/sync/presentation - Sync Status and diagnostic bundle",
+  "syncStatus_title": "সিঙ্ক স্ট্যাটাস",
+  "syncStatus_subtitle": "যে সব পরিবর্তন পাঠানোর অপেক্ষায় আছে",
+  "syncStatus_lastSyncedNever": "কখনও সিঙ্ক হয়নি",
+  "syncStatus_lastSynced": "শেষ সিঙ্ক {time}",
+  "@syncStatus_lastSynced": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_filterAll": "সব",
+  "syncStatus_filterPending": "অপেক্ষমাণ",
+  "syncStatus_filterConflicted": "দ্বন্দ্বপূর্ণ",
+  "syncStatus_filterBlocked": "আটকে আছে",
+  "syncStatus_statePending": "অপেক্ষমাণ",
+  "syncStatus_statePushing": "পাঠানো হচ্ছে",
+  "syncStatus_stateConflicted": "দ্বন্দ্বপূর্ণ",
+  "syncStatus_stateBlocked": "আটকে আছে",
+  "syncStatus_stateUnknown": "অজানা",
+  "syncStatus_retry": "আবার চেষ্টা করুন",
+  "syncStatus_discard": "বাতিল করুন",
+  "syncStatus_reviewConflict": "দ্বন্দ্ব দেখুন",
+  "syncStatus_moreActions": "আরও কাজ",
+  "syncStatus_queued": "সারিতে যোগ হয়েছে {time}",
+  "@syncStatus_queued": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_attempted": "{count, plural, =1{একবার চেষ্টা হয়েছে} other{{count} বার চেষ্টা হয়েছে}}",
+  "@syncStatus_attempted": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_lastAttempt": "শেষ চেষ্টা {time}",
+  "@syncStatus_lastAttempt": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_lastError": "শেষ ত্রুটি: {message}",
+  "@syncStatus_lastError": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_timeJustNow": "এইমাত্র",
+  "syncStatus_timeMinutesAgo": "{count, plural, =1{১ মিনিট আগে} other{{count} মিনিট আগে}}",
+  "@syncStatus_timeMinutesAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_timeHoursAgo": "{count, plural, =1{১ ঘণ্টা আগে} other{{count} ঘণ্টা আগে}}",
+  "@syncStatus_timeHoursAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_timeDaysAgo": "{count, plural, =1{১ দিন আগে} other{{count} দিন আগে}}",
+  "@syncStatus_timeDaysAgo": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "syncStatus_emptyTitle": "সিঙ্ক করার মতো কিছু নেই",
+  "syncStatus_emptyBody": "এই ডিভাইসের প্রতিটি পরিবর্তন পাঠানো হয়েছে।",
+  "syncStatus_retried": "পরিবর্তনটি আবার পাঠানো হবে।",
+  "syncStatus_discardTitle": "এই পরিবর্তনটি বাতিল করবেন?",
+  "syncStatus_discardBody": "সারিতে থাকা পরিবর্তনটি মুছে যাবে এবং রেকর্ডটি সার্ভারে সংরক্ষিত সংস্করণে ফিরে যাবে। এটি ফিরিয়ে আনা যাবে না।",
+  "syncStatus_discardConfirm": "বাতিল করুন",
+  "syncStatus_discarded": "সারিতে থাকা পরিবর্তনটি বাতিল করা হয়েছে।",
+  "syncStatus_discardRestoredLocally": "পরিবর্তনটি বাতিল করা হয়েছে। রেকর্ডটি এই ডিভাইসে সর্বশেষ সংরক্ষিত কপি থেকে ফিরিয়ে আনা হয়েছে।",
+  "syncStatus_export": "ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন",
+  "syncStatus_exportShort": "এক্সপোর্ট",
+  "syncStatus_exportTitle": "ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন",
+  "syncStatus_exportMetadataOnly": "শুধু মেটাডেটা",
+  "syncStatus_exportMetadataOnlyBody": "ধরন, অবস্থা, পুনঃচেষ্টার সংখ্যা ও ত্রুটির বার্তা। কোনো মামলার তথ্য থাকবে না।",
+  "syncStatus_exportIncludePayloads": "পেলোডসহ",
+  "syncStatus_exportIncludePayloadsBody": "সারিতে থাকা পরিবর্তনগুলোও যোগ হবে, যেখানে মামলার বিবরণ থাকতে পারে।",
+  "syncStatus_exportConsentTitle": "মামলার তথ্য যোগ করবেন?",
+  "syncStatus_exportConsentBody": "বান্ডেলে সারিতে থাকা পরিবর্তনগুলো থাকবে, যেখানে মামলার নম্বর, নাম ও নোট থাকতে পারে। শুধু বিশ্বস্ত কারও সঙ্গে শেয়ার করুন।",
+  "syncStatus_exportConsentConfirm": "যোগ করুন",
+  "syncStatus_exportReminder": "সাত দিন পর, বা সাপোর্টের আর প্রয়োজন না হলে সঙ্গে সঙ্গে এই ফাইলটি মুছে ফেলুন।",
+  "syncStatus_exportSaved": "ডায়াগনস্টিক বান্ডেল {path}-এ সংরক্ষিত হয়েছে",
+  "@syncStatus_exportSaved": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "syncStatus_exportFailed": "ডায়াগনস্টিক বান্ডেল সংরক্ষণ করা যায়নি।",
+  "@@_section_logoutBranches": "BRANCHED LOGOUT  |  lib/features/auth - logout windows and messages",
+  "logout_connectToSync": "আগে আপনার পরিবর্তনগুলো সিঙ্ক করতে ইন্টারনেটে যুক্ত হন।",
+  "logout_logOutAnyway": "তবুও লগ আউট করুন",
+  "logout_unsyncedWarningTitle": "কিছু পরিবর্তন এখনও সিঙ্ক হয়নি",
+  "logout_unsyncedWarningBody": "কিছু তথ্য এখনও ক্লাউডে সিঙ্ক হয়নি। এখন লগ আউট করলে সেই সিঙ্ক না হওয়া তথ্য মুছে যাবে।",
+  "logout_proceed": "লগ আউট করুন",
+  "logout_backedUpTo": "আপনার তথ্য {path}-এ ব্যাকআপ করা হয়েছে। লগ ইন করার পর আপনি এটি পুনরুদ্ধার করতে পারবেন।",
+  "@logout_backedUpTo": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "logout_exportCancelled": "লগ আউট বাতিল হয়েছে; কিছুই মুছে ফেলা হয়নি।",
+  "logout_exportFailed": "নিরাপত্তা কপি সংরক্ষণ করা যায়নি, তাই কিছুই মুছে ফেলা হয়নি।",
+  "logout_syncFailed": "আপনার পরিবর্তনগুলো সিঙ্ক করা যায়নি।",
+  "@@_section_recoveryLock": "EXTENDED-OFFLINE RECOVERY  |  lib/features/sync/presentation - blocking recovery screen",
+  "recoveryLock_title": "অনেক দিন অফলাইনে আছেন",
+  "recoveryLock_message": "আপনি {days} দিন অফলাইনে আছেন। আপনার স্থানীয় পরিবর্তনগুলো {path}-এ সংরক্ষণ করা হয়েছে। সম্পাদনা চালু করার আগে সার্ভার থেকে নতুন ডেটা আনতে হবে।",
+  "@recoveryLock_message": {
+      "placeholders": {
+          "days": {
+              "type": "int"
+          },
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "recoveryLock_messageNoCopy": "আপনি {days} দিন অফলাইনে আছেন। সার্ভার থেকে নতুন ডেটা আনার আগে একটি নিরাপত্তা কপি সংরক্ষণ করতে হবে।",
+  "@recoveryLock_messageNoCopy": {
+      "placeholders": {
+          "days": {
+              "type": "int"
+          }
+      }
+  },
+  "recoveryLock_saveTitle": "নিরাপত্তা কপি সংরক্ষণ করুন",
+  "recoveryLock_saveBody": "এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — একটি এনক্রিপ্টেড ফাইলে সিল করা হবে। নিজে মনে রাখতে পারবেন এমন একটি পাসফ্রেজ দিন; এটি কোথাও সংরক্ষিত হয় না।",
+  "recoveryLock_saveAction": "নিরাপত্তা কপি সংরক্ষণ করুন",
+  "recoveryLock_savedTo": "নিরাপত্তা কপি {path}-এ সংরক্ষিত হয়েছে",
+  "@recoveryLock_savedTo": {
+      "placeholders": {
+          "path": {
+              "type": "String"
+          }
+      }
+  },
+  "recoveryLock_saveFailed": "নিরাপত্তা কপি সংরক্ষণ করা যায়নি। আপনার ডেটা এখনও এই ডিভাইসেই আছে — আবার চেষ্টা করুন।",
+  "recoveryLock_proceed": "নতুন ডেটা আনুন",
+  "recoveryLock_proceedConfirmTitle": "এই ডিভাইসটি সার্ভারের কপি দিয়ে বদলে ফেলবেন?",
+  "recoveryLock_proceedConfirmBody": "আপনার স্থানীয় পরিবর্তনগুলো সার্ভারের ডেটা দিয়ে প্রতিস্থাপিত হবে। আপনি যে নিরাপত্তা কপিটি সংরক্ষণ করেছেন, সেটিই তাদের ফিরে পাওয়ার একমাত্র উপায়।",
+  "recoveryLock_close": "বন্ধ করুন",
+  "recoveryLock_closeBody": "পুনরুদ্ধার সফল না হওয়া পর্যন্ত অ্যাপটি লক থাকে এবং ক্লাউডে কিছু লেখা হয় না।",
+  "recoveryLock_working": "নতুন ডেটা আনা হচ্ছে…",
+  "recoveryLock_failed": "পুনরুদ্ধার সম্পন্ন করা যায়নি। আপনার ডেটা এখনও এই ডিভাইসে আছে এবং অ্যাপটি লক থাকবে; আবার চেষ্টা করুন।",
+  "syncStatus_entryTitle": "{entity} {operation}",
+  "@syncStatus_entryTitle": {
+      "placeholders": {
+          "entity": {
+              "type": "String"
+          },
+          "operation": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_title": "প্রিমিয়াম",
   "paywall_limitTitle": "ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে",
   "paywall_limitBody": "ফ্রি প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকবে।",

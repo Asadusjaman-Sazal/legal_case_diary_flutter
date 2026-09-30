@@ -27,6 +27,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
+import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
@@ -252,19 +253,19 @@ class ManageAccountScreen extends ConsumerWidget {
   /// Ends the session on this device, then returns to Settings.
   ///
   /// The branched flow around it — sync first, auto-export on the way out, then
-  /// wipe — belongs to the logout task; this ends the session and empties the
-  /// pull-only account caches, and deliberately never touches the local diary,
-  /// so an offline lawyer's cases stay readable after a logout.
+  /// Log out, through the branch this account and device state call for
+  /// (Task 19 Phase 6).
   ///
-  /// ponytail: ceiling is "sign out here"; Task 19 replaces this call with the
-  /// branched logout and decides where the user lands.
+  /// The branched flow owns everything that happens next: the mandatory sync for
+  /// a premium account that is online, the offline block with its explicit way
+  /// past, the safety export for a free account or for work that cannot be sent,
+  /// and then the complete wipe and the sign-out. This screen only starts it and
+  /// closes when it is done.
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    await ref.read(authViewModelProvider.notifier).signOut();
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.settingsManageAccount_loggedOut)));
+    // The screen closes only when the logout actually completed; a cancellation
+    // leaves the account signed in, so there is nothing to pop away from.
+    final completed = await runBranchedLogout(context, ref);
+    if (!context.mounted || !completed) return;
     Navigator.of(context).maybePop();
   }
 

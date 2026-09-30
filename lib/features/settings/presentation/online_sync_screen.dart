@@ -8,14 +8,17 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
 import '../../cases/presentation/case_viewmodel.dart';
 import '../../notes/presentation/notes_viewmodel.dart';
+import '../../../sync/sync_status_providers.dart';
 import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 
@@ -75,6 +78,8 @@ class OnlineSyncScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.gutter),
           const _SyncStatusCard(),
           const SizedBox(height: AppSpacing.gutter),
+          const _SyncStatusEntry(),
+          const SizedBox(height: AppSpacing.gutter),
           _SyncRow(
             icon: Icons.work_outline,
             label: l.settingsOnlineSync_cases,
@@ -94,6 +99,32 @@ class OnlineSyncScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Entry card for the Sync Status / Diagnostics screen (Task 19 Phase 4).
+///
+/// The plan's second route into that screen: the header badge is the shortcut
+/// while something is held, and this is where a user looks for it deliberately.
+/// It reads the attention count so the card itself carries the same news.
+class _SyncStatusEntry extends ConsumerWidget {
+  const _SyncStatusEntry();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
+    return SettingsMenuCard(
+      icon: Icons.fact_check_outlined,
+      title: l.syncStatus_title,
+      subtitle: attention == 0
+          ? l.syncStatus_subtitle
+          : l.syncStatus_entryTitle(
+              l.syncStatus_filterBlocked,
+              l.syncStatus_filterConflicted,
+            ),
+      onTap: () => context.push(AppRoutes.settingsSyncStatus),
     );
   }
 }

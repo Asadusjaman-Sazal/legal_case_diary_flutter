@@ -83,6 +83,14 @@ abstract class SyncTransport {
     int limit,
   });
 
+  /// One row by id, for the Realtime micro pull.
+  ///
+  /// Returns null when the row is not visible to this account (deleted by
+  /// another device's purge, or outside its scope), which the caller treats as
+  /// "nothing to apply" rather than as an error: the delta pull is what decides
+  /// a row's absence, never a notification.
+  Future<Map<String, dynamic>?> fetchRow(String table, String id);
+
   /// The server's current instant, or null when it cannot be read.
   Future<DateTime?> serverTime();
 }
@@ -123,6 +131,15 @@ class SupabaseSyncTransport implements SyncTransport {
           .order('id', ascending: true)
           .limit(limit);
       return rows.map((row) => row).toList(growable: false);
+    } on Object catch (error) {
+      throw mapSyncFailure(error);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>?> fetchRow(String table, String id) async {
+    try {
+      return await _client.from(table).select().eq('id', id).maybeSingle();
     } on Object catch (error) {
       throw mapSyncFailure(error);
     }

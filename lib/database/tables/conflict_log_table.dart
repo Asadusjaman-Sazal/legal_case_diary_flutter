@@ -50,6 +50,17 @@ class ConflictLog extends Table {
   /// UI acknowledgement only.
   BoolColumn get isDismissed => boolean().withDefault(const Constant(false))();
 
+  /// Whether the three-way comparison could merge this conflict automatically.
+  ///
+  /// True when the local and server changes touch disjoint fields, so the local
+  /// edits can be rebased onto the authoritative row without a person deciding;
+  /// false when they overlap, are semantically coupled, or involve a tombstone —
+  /// the three cases the Review Conflict screen exists for. It is recorded at
+  /// detection time (Task 19 Phase 3) and mirrored, so another device sees the
+  /// same verdict instead of recomputing it from its own copy.
+  BoolColumn get mergeableConflict =>
+      boolean().withDefault(const Constant(false))();
+
   // Global sync columns.
   IntColumn get updatedAt => integer()();
   IntColumn get version => integer().nullable()();

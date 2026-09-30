@@ -673,6 +673,23 @@ void main() {
     });
   });
 
+  group('conflict mirror', () {
+    test('the mergeable verdict is a column whose default needs a person', () {
+      expect(
+        sql,
+        contains(
+          'add column if not exists mergeable_conflict boolean not null default false',
+        ),
+        reason: 'the verdict the detecting client reached travels with the row',
+      );
+      expect(
+        sql,
+        contains('mergeable_conflict is'),
+        reason: 'the column says what it means',
+      );
+    });
+  });
+
   group('indexes', () {
     test('every domain table is index-backed for the composite cursor', () {
       // Created from one loop over the class, so the table array must name

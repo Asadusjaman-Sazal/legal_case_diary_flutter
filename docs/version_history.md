@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.337 - Task 21 Phase 1-4 audit: verified every plan item against the shipped code and tests, and corrected two stale header comments still describing the paywall and checkout as disabled stubs.
+Version: 0.0.338 - Added AGENTS.md rule 14: changes the plan and task files already document are not re-recorded, while deviations or unmentioned changes are recorded in both.
 --------------------------------------
 
 ## Version History Log:
@@ -351,3 +351,4 @@ Version: 0.0.334 - Task 21 Phase 2: checkout submits a real payment_submissions 
 Version: 0.0.335 - Task 21 Phase 3: the derived entitlement stays the single source for every gate and now applies the recorded clock-skew offset so a device clock ahead cannot falsely expire a subscription inside grace.
 Version: 0.0.336 - Task 21 Phase 4: the grace and post-grace subscription banners are mounted app-wide, activation detection runs the backlog push once on a detected upgrade, and Manage Account shows plan and DD/MM/YYYY expiry.
 Version: 0.0.337 - Task 21 Phase 1-4 audit: verified every plan item against the shipped code and tests, and corrected two stale header comments still describing the paywall and checkout as disabled stubs.
+Version: 0.0.338 - Added AGENTS.md rule 14: changes the plan and task files already document are not re-recorded, while deviations or unmentioned changes are recorded in both.

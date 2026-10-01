@@ -1,3 +1,11 @@
+### 2026-10-01 — AGENTS.md rule 14: no duplicate change records — COMPLETE
+
+- **Request.** Add a binding rule to `AGENTS.md` stating that a change already documented in `docs/implementation_plan.md` and the relevant task files must not be re-recorded, while a change that deviates from the plan or is unmentioned must be recorded in **both**.
+- **What changed.** One new hard rule (line 27, rule 14, "Change records — no duplicates") added to `AGENTS.md`. Wording: check the plan and task file first; if they already describe the change, implement it and record nothing new; if the change deviates from or is absent from the plan, record it in both the plan and the relevant task file; never add a duplicate record. This is a process/rule change, not an app or plan change, so by its own terms nothing is recorded in the plan or a task file.
+- **Verification.** `AGENTS.md` remains CRLF, 88 lines, the new rule on its own line after rule 13 (rule 13's trailing text intact); `git diff --stat AGENTS.md` shows a single insertion — the only file changed this turn, uncommitted. `flutter analyze` clean.
+- **Version:** `0.0.338`.
+- **Resume point:** no feature work open. Task 21 remains feature-complete and audited. Standing limitation unchanged: a single live account prevents a live two-account MFS approval run (covered by the rolled-back `supabase/tests/rpc_smoke_test.sql` plus the unit/widget suite).
+
 ### 2026-10-01 — Task 21 Phases 1–4 audit — COMPLETE
 
 - **Scope.** Re-verified every Phase 1–4 item in `docs/tasks/21_payments_and_subscription.md` (and its Rev 2.4 Addendum) against the shipped code and tests, item by item, rather than trusting the acceptance file's prior PASS claims. Result: **all items PASS**, one real gap found and fixed (below).

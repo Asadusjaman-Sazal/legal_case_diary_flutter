@@ -3387,7 +3387,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCourtNamesSteps_catDistrictSessions.
   ///
   /// In en, this message translates to:
-  /// **'Sessions (Criminal)'**
+  /// **'Sessions Courts (Criminal)'**
   String get settingsCourtNamesSteps_catDistrictSessions;
 
   /// No description provided for @settingsCourtNamesSteps_catDistrictCivil.
@@ -5417,6 +5417,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign-in is not available in this build.'**
   String get auth_errorUnavailable;
+
+  /// No description provided for @auth_errorGoogleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Sign-In Could Not Complete. Please Try Again.'**
+  String get auth_errorGoogleFailed;
 
   /// No description provided for @auth_errorAccountMismatch.
   ///

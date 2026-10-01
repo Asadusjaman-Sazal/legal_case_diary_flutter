@@ -197,6 +197,32 @@ void main() {
       );
     });
 
+    test('a Google-side failure wearing a cancellation is not silent', () {
+      // Android's Credential Manager reports a broken Google setup (a wrong
+      // signing SHA, package name or serverClientId) as a cancellation. This is
+      // the exact string an instrumented build produced, and it must reach the
+      // screen as a real failure — the whole point is that the user is told
+      // instead of watching the sheet close and nothing happen.
+      final failure = mapAuthFailure(
+        const GoogleSignInException(
+          code: GoogleSignInExceptionCode.canceled,
+          description: '[16] Account reauth failed.',
+        ),
+      );
+      expect(failure.kind, AuthFailureKind.googleSignInFailed);
+    });
+
+    test('a Google client configuration error is a Google failure', () {
+      expect(
+        mapAuthFailure(
+          const GoogleSignInException(
+            code: GoogleSignInExceptionCode.clientConfigurationError,
+          ),
+        ).kind,
+        AuthFailureKind.googleSignInFailed,
+      );
+    });
+
     test('an already-typed failure passes through unchanged', () {
       const failure = AuthFailure(AuthFailureKind.invalidCredentials);
       expect(identical(mapAuthFailure(failure), failure), isTrue);

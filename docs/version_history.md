@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.340 - Added tool/flutter_with_env.dart, a wrapper that injects env.json's Supabase credentials into debug and release builds and fails loudly when the file is missing.
+Version: 0.0.347 - Google OAuth runbook: Authorized domain corrected to the full project host, since supabase.co is a public suffix and is rejected as not a top private domain.
 --------------------------------------
 
 ## Version History Log:
@@ -354,3 +354,10 @@ Version: 0.0.337 - Task 21 Phase 1-4 audit: verified every plan item against the
 Version: 0.0.338 - Added AGENTS.md rule 14: changes the plan and task files already document are not re-recorded, while deviations or unmentioned changes are recorded in both.
 Version: 0.0.339 - Premium now sells four plans — 1 Month ৳100, 3 Months ৳285, 6 Months ৳550, 1 Year ৳1,000 — with a four-plan approve_payment RPC and the real seeded MFS receiving number 01835252721.
 Version: 0.0.340 - Added tool/flutter_with_env.dart, a wrapper that injects env.json's Supabase credentials into debug and release builds and fails loudly when the file is missing.
+Version: 0.0.341 - Google sign-in now reports a Credential-Manager configuration failure (GMS [16]) as its own visible error instead of a silent cancellation, and the Sessions category label is restored to match its mockup.
+Version: 0.0.342 - The Sessions Courts (Criminal) category label the user chose is now carried through the ARB, mockup, widget test and Task 12 list, and localizations were regenerated to match.
+Version: 0.0.343 - Added docs/google_oauth_setup.md, a novice step-by-step runbook for every Google OAuth client type plus the Supabase Google provider, linked from the README.
+Version: 0.0.344 - Google OAuth runbook: Branding page fully documented — App domain, Authorized domains and developer contact fields now covered for Testing.
+Version: 0.0.345 - Google OAuth runbook: Authorized domains corrected to the required supabase.co, since the console refuses to save the Branding page with the field empty.
+Version: 0.0.346 - Google OAuth runbook: Google Sites URLs excluded from the Branding App domain fields, with the custom-domain upgrade path documented.
+Version: 0.0.347 - Google OAuth runbook: Authorized domain corrected to the full project host, since supabase.co is a public suffix and is rejected as not a top private domain.

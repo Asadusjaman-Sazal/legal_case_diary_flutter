@@ -21,7 +21,7 @@ const _labels = <String>[
   'Appellate Division',
   'High Court Division',
   'District Courts (Civil)',
-  'District & Sessions (Criminal)',
+  'Sessions Courts (Criminal)',
   'Metropolitan Sessions (Criminal)',
   'Chief Judicial Magistrate',
   'Chief Metropolitan Magistrate',

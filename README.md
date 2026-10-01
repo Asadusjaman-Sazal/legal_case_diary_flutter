@@ -140,6 +140,51 @@ The URL must name the one writable project (`lsthasywrdrhuuxnykau`); any other p
 one included, is treated as *not configured* and the app runs offline rather than reaching the wrong
 backend.
 
+## Google Sign-In Setup and Troubleshooting
+
+Native Google sign-in needs two Android OAuth clients in the **same Google Cloud project as the web
+client** the build passes as `GOOGLE_WEB_CLIENT_ID`, one per signing certificate, all with the package
+name `com.legalcasediary.app`.
+
+| Build | Keystore | SHA-1 | SHA-256 |
+| --- | --- | --- | --- |
+| Debug | `~/.android/debug.keystore`, alias `androiddebugkey` | `9D:8B:8E:D1:6A:52:C0:4B:B9:67:7B:C1:A2:71:3C:81:11:FD:B2:9D` | `25:21:A6:F8:81:A9:AD:52:A3:01:29:69:60:01:40:D9:78:14:0F:7A:38:FC:9D:A0:29:02:A0:A7:03:6D:04:8B` |
+| Release | the project release keystore, alias `upload` | `EB:7A:81:19:03:5C:EF:B0:D4:A3:2E:86:43:FB:09:F1:8A:25:9D:6B` | `E9:8A:92:4B:F0:98:74:06:60:10:83:28:BC:E2:DE:C5:85:61:2D:53:D9:D3:7E:4E:FA:15:1B:9E:1C:9E:03:B8` |
+
+Re-read them at any time; the release keystore path and password live in `android/key.properties`:
+
+```bash
+keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android
+keytool -list -v -keystore <release-keystore> -alias upload
+```
+
+**If sign-in fails after the account picker closes**, Android's Credential Manager reports the Google-side
+configuration failure as a *cancellation*, so the sheet appears to close and nothing happens. An
+instrumented run prints the tell-tale pair — a plugin line, then a `[16]` GMS code:
+
+```text
+I/PlayServicesImpl: No cancellationSignal found
+I/flutter: Google sign-in failed: GoogleSignInException(code GoogleSignInExceptionCode.canceled, [16] Account reauth failed., null)
+```
+
+The app now turns that code into a visible *Google Sign-In Could Not Complete* message, so a real failure
+no longer looks like a dismissal — but the cause is still server-side configuration:
+
+- **Register the signing certificate.** Add an Android OAuth client for the SHA-1 of the build being run
+  (debug, release, *and* the Google Play **App signing key certificate** from Play Console → App integrity,
+  because Play re-signs uploads with its own key). A certificate mismatch is the usual cause of `[16]`.
+- **Check the package name** on each Android client: `com.legalcasediary.app`, with no typo or variant.
+- **Check `GOOGLE_WEB_CLIENT_ID`** — it must be the *Web* client from that same project, and the value
+  Supabase Auth is configured to trust; a Web client from another project fails the same way.
+- **Publish or allowlist the consent screen.** While the OAuth consent screen is in *Testing*, every
+  account that signs in must be listed under **Audience → Test users**.
+- **Reproduce with the wrapper**, so the credentials are actually compiled in:
+  `dart run tool/flutter_with_env.dart run -d <device>`.
+
+For the full console walkthrough — every client type (Web, Android debug/release/Play app-signing, iOS),
+who does what, and the pass/fail checks — see
+[Google Sign-In Setup — Every Client Type, Step by Step](docs/google_oauth_setup.md).
+
 ## Documentation
 
 - [Authoritative implementation plan](docs/implementation_plan.md)

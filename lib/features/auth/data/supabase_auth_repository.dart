@@ -24,6 +24,10 @@ import 'auth_repository.dart';
 /// never trips the SDK's "you must initialize first" assertion.
 SupabaseClient? activeSupabaseClient;
 
+/// The Google error string a real (non-dismissal) failure carries, e.g.
+/// "[16] Account reauth failed.". A dismissal has no such code.
+final RegExp _googleErrorCode = RegExp(r'^\[\d+\]');
+
 /// Classifies any error an auth call can produce into an [AuthFailure].
 ///
 /// Pure and public so the classification is unit-tested directly, without a
@@ -111,13 +115,25 @@ AuthFailure mapAuthFailure(Object error) {
   }
 
   if (error is GoogleSignInException) {
-    return AuthFailure(
-      error.code == GoogleSignInExceptionCode.canceled
-          ? AuthFailureKind.cancelled
-          : AuthFailureKind.unavailable,
-      serverMessage: error.description,
-      cause: error,
-    );
+    // Android's Credential Manager reports a Google-side configuration failure
+    // — a wrong signing SHA, package name or `serverClientId` — as a
+    // *cancellation*, and the plugin itself says it cannot tell that case apart
+    // from the user closing the sheet. One signal survives the collapse: the
+    // configuration failure still carries a GMS error string of the shape
+    // "[16] Account reauth failed.", which a plain dismissal does not. Folding
+    // it into `cancelled` is what made a broken Google setup look like the
+    // sheet quietly closing.
+    final kind = switch (error.code) {
+      GoogleSignInExceptionCode.canceled =>
+        _googleErrorCode.hasMatch(error.description ?? '')
+            ? AuthFailureKind.googleSignInFailed
+            : AuthFailureKind.cancelled,
+      GoogleSignInExceptionCode.clientConfigurationError ||
+      GoogleSignInExceptionCode.providerConfigurationError =>
+        AuthFailureKind.googleSignInFailed,
+      _ => AuthFailureKind.unavailable,
+    };
+    return AuthFailure(kind, serverMessage: error.description, cause: error);
   }
 
   if (error is TimeoutException) {

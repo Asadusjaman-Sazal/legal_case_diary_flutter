@@ -1912,7 +1912,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCourtNamesSteps_catDistrictSessions =>
-      'Sessions (Criminal)';
+      'Sessions Courts (Criminal)';
 
   @override
   String get settingsCourtNamesSteps_catDistrictCivil =>
@@ -3127,6 +3127,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_errorUnavailable => 'Sign-in is not available in this build.';
+
+  @override
+  String get auth_errorGoogleFailed =>
+      'Google Sign-In Could Not Complete. Please Try Again.';
 
   @override
   String get auth_errorAccountMismatch =>

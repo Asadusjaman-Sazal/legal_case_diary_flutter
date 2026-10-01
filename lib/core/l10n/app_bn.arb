@@ -1411,6 +1411,7 @@
   "auth_joinedFirm": "আপনি ফার্মে যোগ দিয়েছেন।",
   "auth_errorNetwork": "সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "auth_errorUnavailable": "এই বিল্ডে সাইন-ইন সুবিধা নেই।",
+  "auth_errorGoogleFailed": "Google সাইন-ইন সম্পন্ন হয়নি। আবার চেষ্টা করুন।",
   "auth_errorAccountMismatch": "এই ডিভাইসটি অন্য একটি অ্যাকাউন্টের। সেই অ্যাকাউন্টে লগইন করুন, অথবা ব্যাকআপ থেকে পুনরুদ্ধার করুন।",
   "auth_errorUnknown": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
   "auth_validationEmailRequired": "আপনার ইমেইল লিখুন।",

@@ -119,6 +119,15 @@ enum AuthFailureKind {
   /// The user dismissed the Google sign-in sheet. Not an error to show.
   cancelled,
 
+  /// Google itself refused the sign-in.
+  ///
+  /// Android's Credential Manager reports a Google-side configuration failure —
+  /// a wrong signing SHA, package name or `serverClientId` — as a *cancellation*,
+  /// which would otherwise vanish into [cancelled] and leave the user staring at
+  /// an unchanged screen. The failure is real and worth a sentence, so it gets
+  /// its own kind instead of the dismissal's silence.
+  googleSignInFailed,
+
   /// The request never reached the server.
   network,
 

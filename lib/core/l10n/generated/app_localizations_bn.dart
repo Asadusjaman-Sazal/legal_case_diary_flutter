@@ -3142,6 +3142,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_errorUnavailable => 'এই বিল্ডে সাইন-ইন সুবিধা নেই।';
 
   @override
+  String get auth_errorGoogleFailed =>
+      'Google সাইন-ইন সম্পন্ন হয়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get auth_errorAccountMismatch =>
       'এই ডিভাইসটি অন্য একটি অ্যাকাউন্টের। সেই অ্যাকাউন্টে লগইন করুন, অথবা ব্যাকআপ থেকে পুনরুদ্ধার করুন।';
 

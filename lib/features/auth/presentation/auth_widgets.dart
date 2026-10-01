@@ -695,6 +695,7 @@ class _GoogleMarkPainter extends CustomPainter {
 String? authErrorText(AppLocalizations l, AuthFailureKind? kind) => switch (kind) {
   null => null,
   AuthFailureKind.cancelled => null,
+  AuthFailureKind.googleSignInFailed => l.auth_errorGoogleFailed,
   AuthFailureKind.invalidCredentials => l.auth_errorInvalidCredentials,
   AuthFailureKind.emailNotConfirmed => l.auth_errorEmailNotConfirmed,
   AuthFailureKind.emailInUse => l.auth_errorEmailInUse,

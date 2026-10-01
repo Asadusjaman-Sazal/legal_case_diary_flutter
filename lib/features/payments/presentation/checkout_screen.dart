@@ -14,9 +14,9 @@
 ///     (remote configuration first, validated build defaults otherwise) and
 ///     copyable to the clipboard — never hardcoded in this widget;
 ///   * the payment details form: method, sender phone and TrxID;
-///   * a Submit action that Phase 2 wires to the payment view model. Until then
-///     the button validates the form and does nothing, because Phase 1 is the
-///     screen and the next phase is the submission.
+///   * a Submit action wired to `payment_viewmodel.dart` (Phase 2): it validates
+///     the form, applies the best-effort local limit, submits through the
+///     repository, and only on a confirmed success clears the draft.
 library;
 
 import 'package:flutter/material.dart';

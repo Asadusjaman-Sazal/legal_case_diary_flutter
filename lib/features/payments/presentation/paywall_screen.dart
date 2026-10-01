@@ -1,21 +1,19 @@
 /// Paywall screen: premium benefits display & plan selection.
 ///
-/// Task 15 Phase 5 asks for a **stub** here — the real screen (payment
-/// submission, TrxID entry, plan activation and the 48-hour grace wording)
-/// arrives in Task 21. So this screen is deliberately complete about the parts
-/// it can be honest about and silent about the parts it cannot:
+/// Task 15 Phase 5 left a **stub** here; Task 21 Phase 1 replaced it with the
+/// real screen. Every plan action is now **enabled** and opens the checkout for
+/// that plan — the TrxID entry and submission live in `checkout_screen.dart`.
 ///
 /// * it says **why** it opened — the 50-case free limit — and what the user can
 ///   still do about it, instead of blocking a save with no explanation;
 /// * it lists what premium includes and what each plan costs, from the plan's
 ///   pricing (৳100 per month, ৳1,000 per year — there is no lifetime plan);
-/// * every plan action is **disabled**, so nothing looks broken or tappable
-///   before Task 21 wires payments, and the screen says so in one line.
+/// * selecting a plan pushes the checkout with the plan key as a query
+///   parameter, so it never names a second source of plans or prices.
 ///
 /// No entitlement logic lives here: the gate that opens this screen reads
 /// `resolvePremiumAccess`, which derives premium from the subscription expiry
-/// plus the 48-hour grace window (see `add_edit_case_sheet.dart`), so Task 21
-/// only has to replace the copy and enable the buttons.
+/// plus the 48-hour grace window (see `add_edit_case_sheet.dart`).
 library;
 
 import 'package:flutter/material.dart';

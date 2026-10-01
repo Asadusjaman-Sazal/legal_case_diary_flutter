@@ -703,6 +703,7 @@ String? authErrorText(AppLocalizations l, AuthFailureKind? kind) => switch (kind
   AuthFailureKind.invalidCode => l.auth_errorInvalidCode,
   AuthFailureKind.tooManyAttempts => l.auth_errorTooManyAttempts,
   AuthFailureKind.firmAdminOffline => l.auth_errorFirmAdminOffline,
+  AuthFailureKind.premiumRequired => l.auth_errorPremiumRequired,
   AuthFailureKind.alreadyMember => l.auth_errorAlreadyMember,
   AuthFailureKind.accountMismatch => l.auth_errorAccountMismatch,
   AuthFailureKind.network => l.auth_errorNetwork,

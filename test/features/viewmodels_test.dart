@@ -167,12 +167,14 @@ void main() {
         entityId: 'case-123',
         entitySnapshot: const <String, dynamic>{'id': 'case-123'},
         targetBaseVersion: 1,
+        firmId: 'firm-1',
       );
 
       final state = await container.read(deleteRequestsViewModelProvider.future);
       expect(state.items, hasLength(1));
       expect(state.items.first.entityType, 'case');
       expect(state.items.first.status, 'pending');
+      expect(state.items.first.firmId, 'firm-1');
     });
   });
 

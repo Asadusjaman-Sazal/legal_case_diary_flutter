@@ -682,6 +682,182 @@ void main() {
     expect((await queue.getAll()).single.state, 'blocked');
   });
 
+  test('an approved delete request tombstones the target it names', () async {
+    await db.into(db.notes).insert(
+          NotesCompanion.insert(
+            id: 'n1',
+            userId: 'user-1',
+            title: 'Doomed',
+            body: 'Body',
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+    await db.into(db.deleteRequests).insert(
+          DeleteRequestsCompanion.insert(
+            id: 'r1',
+            entityType: 'note',
+            entityId: 'n1',
+            entitySnapshot: '{}',
+            targetBaseVersion: 1,
+            requestedBy: 'user-1',
+            status: 'approved',
+            createdAt: 0,
+            updatedAt: 0,
+            firmId: const Value('firm-1'),
+          ),
+        );
+    await enqueue(
+      entityType: 'delete_request',
+      entityId: 'r1',
+      operation: 'update',
+      baseVersion: 1,
+      payload: {'id': 'r1', 'status': 'approved'},
+      mutationId: 'mut-review',
+    );
+
+    final targetNote =
+        await (db.select(db.notes)..where((r) => r.id.equals('n1'))).getSingle();
+    transport.results = <Map<String, dynamic>>[
+      {
+        'mutation_id': 'mut-review',
+        'entity_type': 'delete_request',
+        'entity_id': 'r1',
+        'status': 'accepted',
+        'version': 2,
+        'row': <String, dynamic>{
+          'id': 'r1',
+          'firm_id': 'firm-1',
+          'entity_type': 'note',
+          'entity_id': 'n1',
+          'entity_snapshot': '{}',
+          'target_base_version': 1,
+          'requested_by': 'user-1',
+          'status': 'approved',
+          'reviewed_by': 'user-1',
+          'created_at': 0,
+          'updated_at': 9,
+          'version': 2,
+          'is_deleted': false,
+        },
+        'children': <Map<String, dynamic>>[],
+        // The tombstone the server wrote, which the worker must apply without
+        // waiting for the next pull.
+        'target': toSnake(targetNote.toJson())
+          ..['is_deleted'] = true
+          ..['version'] = 3,
+        'target_entity_type': 'note',
+      },
+    ];
+
+    final outcome = await worker().flushBatch();
+
+    expect(outcome.applied, 1);
+    expect(outcome.conflicts, 0);
+    final note = await (db.select(db.notes)..where((r) => r.id.equals('n1')))
+        .getSingle();
+    expect(note.isDeleted, isTrue, reason: 'the target tombstone was applied');
+    expect(note.version, 3);
+    final request =
+        await (db.select(db.deleteRequests)..where((r) => r.id.equals('r1')))
+            .getSingle();
+    expect(request.status, 'approved');
+    expect((await queue.getAll()).single.state, 'resolved');
+  });
+
+  test('a stale review is parked on the request, not frozen as a conflict',
+      () async {
+    await db.into(db.notes).insert(
+          NotesCompanion.insert(
+            id: 'n1',
+            userId: 'user-1',
+            title: 'Mine',
+            body: 'Body',
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+    await db.into(db.deleteRequests).insert(
+          DeleteRequestsCompanion.insert(
+            id: 'r1',
+            entityType: 'note',
+            entityId: 'n1',
+            entitySnapshot: '{}',
+            targetBaseVersion: 1,
+            requestedBy: 'user-1',
+            status: 'pending',
+            createdAt: 0,
+            updatedAt: 0,
+            firmId: const Value('firm-1'),
+          ),
+        );
+    await enqueue(
+      entityType: 'delete_request',
+      entityId: 'r1',
+      operation: 'update',
+      baseVersion: 1,
+      payload: {'id': 'r1', 'status': 'approved'},
+      mutationId: 'mut-review',
+    );
+
+    final targetNote =
+        await (db.select(db.notes)..where((r) => r.id.equals('n1'))).getSingle();
+    transport.results = <Map<String, dynamic>>[
+      {
+        'mutation_id': 'mut-review',
+        'entity_type': 'delete_request',
+        'entity_id': 'r1',
+        'status': 'target_conflict',
+        'version': 2,
+        'row': <String, dynamic>{
+          'id': 'r1',
+          'firm_id': 'firm-1',
+          'entity_type': 'note',
+          'entity_id': 'n1',
+          'entity_snapshot': '{}',
+          'target_base_version': 2,
+          'requested_by': 'user-1',
+          'status': 'stale_review_required',
+          'created_at': 0,
+          'updated_at': 9,
+          'version': 2,
+          'is_deleted': false,
+        },
+        'target': toSnake(targetNote.toJson())
+          ..['title'] = 'Theirs'
+          ..['version'] = 2,
+        'target_entity_type': 'note',
+        'target_version': 2,
+        'message': 'changed',
+      },
+    ];
+
+    final outcome = await worker().flushBatch();
+
+    expect(outcome.applied, 1);
+    expect(
+      outcome.conflicts,
+      0,
+      reason: 'a stale review is a recorded outcome, not a data conflict',
+    );
+    expect(
+      await queue.db.select(queue.db.conflictLog).get(),
+      isEmpty,
+      reason: 'nothing is frozen for a person to resolve',
+    );
+    final request =
+        await (db.select(db.deleteRequests)..where((r) => r.id.equals('r1')))
+            .getSingle();
+    expect(request.status, 'stale_review_required');
+    expect(request.version, 2);
+    expect(request.targetBaseVersion, 2);
+    final note = await (db.select(db.notes)..where((r) => r.id.equals('n1')))
+        .getSingle();
+    expect(note.title, 'Theirs', reason: 'the current target row was applied');
+    expect(note.version, 2);
+    expect((await queue.getAll()).single.state, 'resolved');
+  });
+
   group('decodePushResults', () {
     test('reads the results array from a decoded map', () {
       final results = decodePushResults(<String, dynamic>{

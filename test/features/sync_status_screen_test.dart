@@ -86,6 +86,7 @@ void main() {
     String entityType = 'note',
     String entityId = 'n1',
     String mutationId = 'mut-1',
+    String operation = 'update',
     int retryCount = 0,
     String? lastError,
   }) => db
@@ -94,7 +95,7 @@ void main() {
         SyncQueueCompanion.insert(
           entityType: entityType,
           entityId: entityId,
-          operation: 'update',
+          operation: operation,
           mutationId: mutationId,
           basePayload: jsonEncode(_note()),
           changedFields: jsonEncode(const <String>['title']),
@@ -154,6 +155,34 @@ void main() {
       // The chips are still there, at zero, so the screen reads as empty.
       expect(find.text('All 0'), findsOneWidget);
       expect(find.text('Blocked 0'), findsOneWidget);
+    });
+  });
+
+  testWidgets('a queued deletion is visibly marked pending', (tester) async {
+    await insertQueue(state: 'pending', operation: 'delete');
+
+    await withApp(tester, () async {
+      await pumpApp(tester);
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // The state pill says `pending`, which is true of every queued edit; the
+      // extra pill is what makes a *destructive* provisional action visible as
+      // one (Task 20 Phase 2 item 4, plan §1).
+      expect(find.text(l.syncStatus_pendingDeletion), findsOneWidget);
+      expect(find.text(l.syncStatus_statePending), findsOneWidget);
+    });
+  });
+
+  testWidgets('an ordinary queued edit carries no deletion marker', (
+    tester,
+  ) async {
+    await insertQueue(state: 'pending');
+
+    await withApp(tester, () async {
+      await pumpApp(tester);
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.syncStatus_pendingDeletion), findsNothing);
     });
   });
 

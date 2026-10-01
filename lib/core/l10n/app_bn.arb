@@ -404,6 +404,7 @@
   "syncStatus_discardConfirm": "বাতিল করুন",
   "syncStatus_discarded": "সারিতে থাকা পরিবর্তনটি বাতিল করা হয়েছে।",
   "syncStatus_discardRestoredLocally": "পরিবর্তনটি বাতিল করা হয়েছে। রেকর্ডটি এই ডিভাইসে সর্বশেষ সংরক্ষিত কপি থেকে ফিরিয়ে আনা হয়েছে।",
+  "syncStatus_pendingDeletion": "মুছে ফেলা অপেক্ষমাণ",
   "syncStatus_export": "ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন",
   "syncStatus_exportShort": "এক্সপোর্ট",
   "syncStatus_exportTitle": "ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন",
@@ -682,6 +683,7 @@
   "@@_section_settingsAccountProfile": "SETTINGS - ACCOUNT & PROFILE MENU  |  lib/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart",
   "settingsAccountProfile_profileSubtitle": "আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য",
   "settingsAccountProfile_manageAccountSubtitle": "পাসওয়ার্ড, সাবস্ক্রিপশন ও অ্যাকাউন্ট সেটিংস",
+  "settingsAccountProfile_manageAssociatesSubtitle": "সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন",
   "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
   "settingsProfile_title": "প্রোফাইল",
   "settingsProfile_editTooltip": "প্রোফাইল সম্পাদনা",
@@ -1387,6 +1389,7 @@
   "auth_errorInvalidCode": "ইনভাইট কোডটি সঠিক নয়। ফার্ম মালিকের সাথে যাচাই করুন।",
   "auth_errorTooManyAttempts": "অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করুন।",
   "auth_errorFirmAdminOffline": "ফার্ম পরিচালনা করতে ইন্টারনেটে সংযুক্ত হোন।",
+  "auth_errorPremiumRequired": "ফার্ম মোডের জন্য সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন।",
   "auth_errorAlreadyMember": "আপনি ইতিমধ্যেই এই ফার্মের সদস্য।",
   "auth_joinedFirm": "আপনি ফার্মে যোগ দিয়েছেন।",
   "auth_errorNetwork": "সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
@@ -1412,5 +1415,131 @@
               "type": "String"
           }
       }
-  }
+  },
+  "@@_section_settingsManageAssociates": "SETTINGS - MANAGE ASSOCIATES  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
+  "manageAssociates_title": "সহকারী ব্যবস্থাপনা",
+  "manageAssociates_ownerOnly": "শুধু ফার্মের মালিক সহকারী ব্যবস্থাপনা করতে পারেন।",
+  "manageAssociates_sectionMembers": "সহকারীরা",
+  "manageAssociates_addAssociate": "সহকারী যোগ করুন",
+  "manageAssociates_noMembers": "এখনো কোনো সহকারী নেই।",
+  "manageAssociates_unnamedMember": "নামহীন সদস্য",
+  "manageAssociates_createFirmIntro": "ফার্ম তৈরি করে একসাথে কাজ করতে আপনার প্রথম সহকারীকে যোগ করুন।",
+  "manageAssociates_firmNameLabel": "ফার্মের নাম",
+  "manageAssociates_firmNameHint": "আপনার চেম্বার বা ফার্মের নাম লিখুন",
+  "manageAssociates_createFirm": "ফার্ম তৈরি করুন",
+  "manageAssociates_goPremium": "প্রিমিয়াম নিন",
+  "manageAssociates_inviteTitle": "আমন্ত্রণ কোড",
+  "manageAssociates_inviteIntro": "এই কোডটি আপনার সহকারীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।",
+  "manageAssociates_copyCode": "কোড কপি করুন",
+  "manageAssociates_codeCopied": "কোড কপি হয়েছে।",
+  "manageAssociates_shareCode": "শেয়ার করুন",
+  "manageAssociates_shareFailed": "কোড শেয়ার করা যায়নি",
+  "manageAssociates_inviteMessage": "লিগ্যাল কেস ডায়েরিতে আমার ফার্মে যোগ দিন। আমন্ত্রণ কোড: {code}",
+  "@manageAssociates_inviteMessage": {
+      "placeholders": {
+          "code": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_manageAssociatesPermissions": "MANAGE ASSOCIATES - INVITES AND PERMISSIONS  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
+  "manageAssociates_sectionInvites": "অব্যবহৃত আমন্ত্রণ",
+  "manageAssociates_noInvites": "কোনো অব্যবহৃত আমন্ত্রণ নেই।",
+  "manageAssociates_inviteCreated": "তৈরি {date}",
+  "@manageAssociates_inviteCreated": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "manageAssociates_revokeInvite": "বাতিল করুন",
+  "manageAssociates_revokeInviteTitle": "এই আমন্ত্রণটি বাতিল করবেন?",
+  "manageAssociates_revokeInviteBody": "কোডটি সঙ্গে সঙ্গে কাজ করা বন্ধ করে দেবে।",
+  "manageAssociates_inviteRevoked": "আমন্ত্রণ বাতিল করা হয়েছে।",
+  "manageAssociates_permissionsTitle": "অনুমতি",
+  "manageAssociates_roleLabel": "ভূমিকা",
+  "manageAssociates_permissionAdd": "মামলা যোগ",
+  "manageAssociates_permissionEdit": "মামলা সম্পাদনা",
+  "manageAssociates_permissionDelete": "মামলা মুছে ফেলা",
+  "manageAssociates_savePermissions": "অনুমতি সংরক্ষণ করুন",
+  "manageAssociates_permissionsUpdated": "অনুমতি হালনাগাদ করা হয়েছে।",
+  "manageAssociates_removeAssociate": "ফার্ম থেকে সরান",
+  "manageAssociates_removeAssociateTitle": "এই সহকারীকে সরিয়ে দেবেন?",
+  "manageAssociates_removeAssociateBody": "তিনি সঙ্গে সঙ্গে ফার্মের মামলাগুলোতে প্রবেশাধিকার হারাবেন। তিনি তৈরি করা রেকর্ড ফার্মেই থাকবে।",
+  "manageAssociates_associateRemoved": "সহকারীকে সরানো হয়েছে।",
+  "@@_section_syncNotice": "SYNC NOTICE  |  lib/features/sync/presentation/sync_notice_banner.dart",
+  "syncNotice_permissionsChanged": "আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।",
+  "syncNotice_clockSkew": "আপনার ডিভাইসের ঘড়ি সার্ভার থেকে দুই মিনিটের বেশি পিছিয়ে বা এগিয়ে আছে। সিঙ্ক করা সময় ভুল হতে পারে।",
+  "@@_section_membershipRevoked": "MEMBERSHIP REVOKED  |  lib/features/accounts_and_profile/presentation/membership_revoked_scope.dart",
+  "membershipRevoked_title": "আপনাকে ফার্ম থেকে সরিয়ে দেওয়া হয়েছে",
+  "membershipRevoked_body": "আপনার ফার্মের মালিক এই অ্যাকাউন্টটি সরিয়ে দিয়েছেন। আপনি আর ফার্মের মামলা দেখতে বা সম্পাদনা করতে পারবেন না, এবং সিঙ্ক করার অপেক্ষায় থাকা সবকিছু বাতিল করা হয়েছে। ব্যক্তিগত ডায়েরি দিয়ে চালিয়ে যেতে লগ আউট করুন।",
+  "membershipRevoked_action": "লগ আউট",
+  "membershipRevoked_logoutFailed": "লগ আউট করা যায়নি। আবার চেষ্টা করুন।",
+  "@@_section_deleteRequest": "DELETE REQUEST  |  lib/features/settings/presentation/delete_request_flow.dart",
+  "deleteRequest_confirmTitle": "মুছে ফেলার অনুরোধ পাঠাবেন?",
+  "deleteRequest_confirmBody": "রেকর্ডটি মুছে ফেলার আগে ডিলিট অনুমতি আছে এমন একজন ফার্ম সদস্যকে এটি অনুমোদন করতে হবে।",
+  "deleteRequest_confirmSend": "অনুরোধ পাঠান",
+  "deleteRequest_sent": "ডিলিট অনুরোধ অ্যাডমিন/মালিকের কাছে পাঠানো হয়েছে।",
+  "deleteRequest_failed": "ডিলিট অনুরোধ পাঠানো যায়নি।",
+  "@@_section_deleteRequests": "DELETE REQUESTS (REVIEWER)  |  lib/features/settings/presentation/delete_requests_screen.dart",
+  "deleteRequests_title": "ডিলিট অনুরোধ",
+  "deleteRequests_firmOnly": "ডিলিট অনুরোধ শুধু ফার্ম সদস্যদের জন্য উপলব্ধ।",
+  "deleteRequests_toReview": "আপনার পর্যালোচনার অপেক্ষায়",
+  "deleteRequests_noneToReview": "পর্যালোচনার অপেক্ষায় কোনো ডিলিট অনুরোধ নেই।",
+  "deleteRequests_mine": "আমার অনুরোধ",
+  "deleteRequests_noneMine": "আপনি কোনো ডিলিট অনুরোধ পাঠাননি।",
+  "deleteRequests_statusPending": "অপেক্ষমাণ",
+  "deleteRequests_statusApproved": "অনুমোদিত",
+  "deleteRequests_statusRejected": "প্রত্যাখ্যাত",
+  "deleteRequests_statusStale": "পুনরায় নিশ্চিতকরণ প্রয়োজন",
+  "deleteRequests_requestedBy": "অনুরোধ করেছেন {name}",
+  "@deleteRequests_requestedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "deleteRequests_requestedOn": "অনুরোধের তারিখ {date}",
+  "@deleteRequests_requestedOn": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "deleteRequests_unnamed": "একটি রেকর্ড",
+  "deleteRequests_entityCase": "মামলা",
+  "deleteRequests_entityCaseHistory": "মামলার ইতিহাস",
+  "deleteRequests_entityNote": "নোট",
+  "deleteRequests_entityReference": "রেফারেন্স",
+  "deleteRequests_entityUnknown": "রেকর্ড",
+  "deleteRequests_reviewTitle": "ডিলিট অনুরোধ পর্যালোচনা",
+  "deleteRequests_snapshot": "অনুরোধকৃত রেকর্ড",
+  "deleteRequests_noteLabel": "পর্যালোচনা নোট (ঐচ্ছিক)",
+  "deleteRequests_noteHint": "একটি কারণ যোগ করুন",
+  "deleteRequests_approve": "অনুমোদন",
+  "deleteRequests_reconfirm": "পুনরায় নিশ্চিত করুন",
+  "deleteRequests_reject": "প্রত্যাখ্যান",
+  "deleteRequests_approveTitle": "মুছে ফেলা অনুমোদন করবেন?",
+  "deleteRequests_approveBody": "রেকর্ডটি ফার্মের সবার জন্য মুছে ফেলা হবে।",
+  "deleteRequests_rejectTitle": "ডিলিট অনুরোধ প্রত্যাখ্যান করবেন?",
+  "deleteRequests_rejectBody": "রেকর্ডটি থাকবে। অনুরোধকারীকে আপনার সিদ্ধান্ত জানানো হবে।",
+  "deleteRequests_approved": "মুছে ফেলা অনুমোদিত হয়েছে।",
+  "deleteRequests_rejected": "ডিলিট অনুরোধ প্রত্যাখ্যান করা হয়েছে।",
+  "deleteRequests_failed": "পর্যালোচনা সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।",
+  "deleteRequests_staleTitle": "এই রেকর্ডটি পরিবর্তিত হয়েছে",
+  "deleteRequests_staleBody": "অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। নিচের বিবরণ এখন যা আছে তা দেখায়; এই বর্তমান সংস্করণটি মুছতে পুনরায় নিশ্চিত করুন।",
+  "deleteRequests_fieldCaseNumber": "মামলা নম্বর",
+  "deleteRequests_fieldCaseType": "মামলার ধরন",
+  "deleteRequests_fieldPetitioner": "বাদী",
+  "deleteRequests_fieldRespondent": "বিবাদী",
+  "deleteRequests_fieldStep": "ধাপ",
+  "deleteRequests_fieldResult": "ফলাফল",
+  "deleteRequests_fieldTitle": "শিরোনাম",
+  "deleteRequests_fieldBody": "নোট",
+  "deleteRequests_fieldReference": "রেফারেন্স ও পৃষ্ঠা নম্বর",
+  "deleteRequests_fieldDescription": "শিরোনাম ও বিবরণ",
+  "deleteRequests_unknownRequester": "একজন ফার্ম সদস্য"
 }

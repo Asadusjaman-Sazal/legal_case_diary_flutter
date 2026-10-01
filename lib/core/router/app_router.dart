@@ -32,6 +32,8 @@ import '../../features/notes/presentation/notes_screen.dart';
 import '../../features/payments/presentation/checkout_screen.dart';
 import '../../features/payments/presentation/paywall_screen.dart';
 import '../../features/settings/presentation/backup_restore_screen.dart';
+import '../../features/settings/presentation/delete_request_review_screen.dart';
+import '../../features/settings/presentation/delete_requests_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/court_names_steps_screen.dart';
@@ -46,6 +48,7 @@ import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/sync/presentation/sync_status_screen.dart';
 import '../../features/sync/presentation/review_conflict_screen.dart';
 import '../../features/sync/presentation/sync_conflict_banner.dart';
+import '../../features/sync/presentation/sync_notice_banner.dart';
 import '../../features/settings/presentation/legal/legal_document_screen.dart';
 import '../../features/settings/presentation/settings_about/guidelines_screen.dart';
 import '../../features/settings/presentation/settings_about/more_about_app_screen.dart';
@@ -82,6 +85,14 @@ class AppRoutes {
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
   static const String settingsManageAssociates = '/settings/manage-associates';
+
+  /// The delete-request queue (Task 20 Phase 4): a reviewer's pending list, or
+  /// the requester's own requests. Opened by the Settings dashboard entry.
+  static const String settingsDeleteRequests = '/settings/delete-requests';
+
+  /// One delete request's review screen, opened from the queue above.
+  static const String settingsReviewDeleteRequest =
+      '/settings/delete-requests/review/:requestId';
   static const String settingsOnlineSync = '/settings/online-sync';
 
   /// The queue, its filters, and the diagnostic-bundle export
@@ -149,6 +160,10 @@ class AppRoutes {
   /// Builds the concrete route path for the Review Conflict screen.
   static String reviewConflictPath(String conflictId) =>
       '/settings/online-sync/conflict/$conflictId';
+
+  /// Builds the concrete route path for the delete-request review screen.
+  static String deleteRequestReviewPath(String requestId) =>
+      '/settings/delete-requests/review/$requestId';
 }
 
 // ---------------------------------------------------------------------------
@@ -391,6 +406,16 @@ final List<RouteBase> _shellRoutes = [
     builder: (context, state) => const ManageAssociatesScreen(),
   ),
   GoRoute(
+    path: AppRoutes.settingsDeleteRequests,
+    builder: (context, state) => const DeleteRequestsScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsReviewDeleteRequest,
+    builder: (context, state) => DeleteRequestReviewScreen(
+      requestId: state.pathParameters['requestId'] ?? '',
+    ),
+  ),
+  GoRoute(
     path: AppRoutes.settingsOnlineSync,
     builder: (context, state) => const OnlineSyncScreen(),
   ),
@@ -598,7 +623,10 @@ class AppShellRoot extends StatelessWidget {
             ? Column(
                 children: [
                   Expanded(child: child),
-                  // Sits at the foot of the shell, so it never covers content.
+                  // Both sit at the foot of the shell, so neither covers content.
+                  // The notice is the dismissible one and goes above the
+                  // conflict banner, which is frozen work and never hidden.
+                  const SyncNoticeBanner(),
                   const SyncConflictBanner(),
                 ],
               )

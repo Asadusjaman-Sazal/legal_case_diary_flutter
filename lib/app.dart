@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_colors.dart';
 import 'features/accounts_and_profile/presentation/account_refresh_scope.dart';
+import 'features/accounts_and_profile/presentation/membership_revoked_scope.dart';
 import 'features/auth/presentation/session_state.dart';
 import 'sync/sync_trigger_scope.dart';
 import 'core/l10n/generated/app_localizations.dart';
@@ -73,15 +74,25 @@ class App extends ConsumerWidget {
                     // its child untouched and refreshes the profile and firm
                     // permissions on launch, on resume and on reconnect.
                     child: AccountRefreshScope(
-                      // Drives the push/pull engine on launch, resume,
-                      // reconnect and new local writes.
-                      child: SyncTriggerScope(
-                        // Innermost, so the extended-offline lock covers every
-                        // screen and route: while it is set the app has no
-                        // editable surface at all, and the blocking screen
-                        // returns on every launch until recovery succeeds.
-                        child: RecoveryRequiredScope(
-                          child: child ?? const SizedBox.shrink(),
+                      // Wraps everything below the refresh: a device the firm has
+                      // removed replaces the app with the removal screen, and
+                      // nothing is erased until the user acts there. It sits
+                      // inside the refresh scope because the removal **is** a
+                      // refresh result — the profile loses its firm id — and
+                      // outside the sync trigger so no edit can be started on a
+                      // membership that no longer exists.
+                      child: MembershipRevokedScope(
+                        router: router,
+                        // Drives the push/pull engine on launch, resume,
+                        // reconnect and new local writes.
+                        child: SyncTriggerScope(
+                          // Innermost, so the extended-offline lock covers every
+                          // screen and route: while it is set the app has no
+                          // editable surface at all, and the blocking screen
+                          // returns on every launch until recovery succeeds.
+                          child: RecoveryRequiredScope(
+                            child: child ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                     ),

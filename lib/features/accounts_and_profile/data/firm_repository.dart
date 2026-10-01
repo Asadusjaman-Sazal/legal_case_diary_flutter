@@ -34,6 +34,7 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/data/supabase_auth_repository.dart' show mapAuthFailure;
+import 'profile_repository.dart' show AccountRole;
 
 /// Crockford Base32: 32 symbols, and deliberately without `I`, `L`, `O` and `U`
 /// — the four characters a hand-written or phone-read code confuses with `1`,
@@ -185,6 +186,58 @@ InviteRedemption parseInviteRedemption(Object? response) {
   };
 }
 
+/// One member of the caller's firm, as the owner's roster shows them.
+///
+/// Read live and never cached: `firm_members` and `profiles` are pull-only
+/// caches that hold this account's own row (AGENTS.md rule 4), and Manage
+/// Associates is an online-only screen, so its roster is a read rather than a
+/// second copy of the membership state.
+class FirmMemberSummary {
+  /// Creates a roster row.
+  const FirmMemberSummary({
+    required this.userId,
+    required this.role,
+    required this.fullName,
+    required this.canAdd,
+    required this.canEdit,
+    required this.canDelete,
+  });
+
+  /// The member's `auth.users.id`.
+  final String userId;
+
+  /// `owner`, `associate` or `viewer`.
+  final String role;
+
+  /// The member's display name, blank when the account has none yet.
+  final String fullName;
+
+  /// Whether the member may add cases.
+  final bool canAdd;
+
+  /// Whether the member may edit cases.
+  final bool canEdit;
+
+  /// Whether the member may delete cases directly instead of raising a request.
+  final bool canDelete;
+}
+
+/// An invite that is still outstanding: unused and unrevoked.
+///
+/// The plaintext code is deliberately **not** here and cannot be: only its
+/// SHA-256 hash is stored server-side, so an outstanding invite identifies
+/// itself by when it was created and by nothing else (Task 20 Phase 2 item 1).
+class FirmInviteSummary {
+  /// Creates an outstanding-invite row.
+  const FirmInviteSummary({required this.id, required this.createdAt});
+
+  /// The `firm_invites.id`, used to revoke it.
+  final String id;
+
+  /// When the code was created, in epoch milliseconds.
+  final int createdAt;
+}
+
 /// Firm membership operations the app performs.
 abstract class FirmRepository {
   /// Redeems [code] for the signed-in account.
@@ -218,6 +271,47 @@ abstract class FirmRepository {
   /// from the client. Idempotent — calling it again returns the same firm.
   Future<String> ensureFirm(String name);
 
+  /// The caller's firm roster, read live from the server.
+  ///
+  /// Owner-side: RLS (`firm_members_select_firm`) scopes the read to the
+  /// caller's own firm, so an associate cannot ask for another firm's roster and
+  /// an individual gets an empty list. Names come from `profiles`, whose select
+  /// policy is self-or-same-firm. Throws [AuthFailure] with
+  /// [AuthFailureKind.firmAdminOffline] when the device has no connection.
+  Future<List<FirmMemberSummary>> listMembers();
+
+  /// The firm's outstanding invites: unused and unrevoked, newest first.
+  ///
+  /// Owner-side, and a live read like [listMembers]: `firm_invites` is a
+  /// server-managed table the client never caches. Throws [AuthFailure] with
+  /// [AuthFailureKind.firmAdminOffline] when the device has no connection.
+  Future<List<FirmInviteSummary>> listInvites();
+
+  /// Writes one member's role and their three permission flags.
+  ///
+  /// Owner-side and online-only: the `firm_members_update_owner` policy requires
+  /// the caller to own the firm, and the write is what the member's own device
+  /// will pull next. The owner's own row is refused by the screen rather than
+  /// here — the owner's permissions are structural (`firms.owner_id`), so their
+  /// flags are never what grants them access.
+  Future<void> updateMemberPermissions({
+    required String userId,
+    required String role,
+    required bool canAdd,
+    required bool canEdit,
+    required bool canDelete,
+  });
+
+  /// Removes [userId] from the caller's firm.
+  ///
+  /// The `remove_firm_member` RPC is the only path: it deletes the membership
+  /// row, relinks the member's profile to individual mode (which is what revokes
+  /// their RLS access, Realtime topic and queued writes) and announces the
+  /// removal. Authored records are preserved and never reassigned. Throws
+  /// [AuthFailure] when the server refused — a non-owner, the owner themselves,
+  /// or a member who is already gone.
+  Future<void> removeMember(String userId);
+
   /// Removes the caller's own **provisional** account after an abandoned
   /// onboarding — the plan's rule that an unfinished sign-up is treated as never
   /// created.
@@ -248,6 +342,27 @@ class UnavailableFirmRepository implements FirmRepository {
 
   @override
   Future<String> ensureFirm(String name) async =>
+      throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<List<FirmMemberSummary>> listMembers() async =>
+      throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<List<FirmInviteSummary>> listInvites() async =>
+      throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<void> updateMemberPermissions({
+    required String userId,
+    required String role,
+    required bool canAdd,
+    required bool canEdit,
+    required bool canDelete,
+  }) async => throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<void> removeMember(String userId) async =>
       throw const AuthFailure(AuthFailureKind.unavailable);
 
   @override
@@ -418,16 +533,200 @@ class SupabaseFirmRepository implements FirmRepository {
           params: <String, dynamic>{'p_name': trimmed},
         ),
       );
+      final status = result['status'] as String?;
       final firmId = result['firm_id'] as String?;
-      if (result['status'] == 'ready' && firmId != null) return firmId;
+      if (status == 'ready' && firmId != null) return firmId;
+      // The free-entitlement refusal is the one the screen must word for itself
+      // (Task 20 Phase 1 item 2): it names the Paywall, not a failure. Every
+      // other status — including the member-of-another-firm guard — has no copy
+      // of its own, because the client gate hides this path first and the server
+      // check is the authoritative one behind it.
       throw AuthFailure(
-        AuthFailureKind.unknown,
-        serverMessage: result['status'] as String?,
+        status == 'premium_required'
+            ? AuthFailureKind.premiumRequired
+            : AuthFailureKind.unknown,
+        serverMessage: status,
       );
     } catch (error) {
       throw mapAuthFailure(error);
     }
   }
+
+  @override
+  Future<List<FirmMemberSummary>> listMembers() async {
+    await _requireOnline();
+
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
+      // Owner-side calls only ever happen behind a session, so this is a bug
+      // state rather than something to explain: it deliberately gets no copy of
+      // its own.
+      throw const AuthFailure(
+        AuthFailureKind.unknown,
+        serverMessage: 'listMembers: no session',
+      );
+    }
+
+    try {
+      // Filtered by RLS rather than by a parameter, so the query cannot ask for a
+      // firm that is not the caller's own.
+      final rows = await _client
+          .from('firm_members')
+          .select('user_id, role, can_add, can_edit, can_delete');
+      if (rows.isEmpty) return const <FirmMemberSummary>[];
+
+      final ids = <String>[
+        for (final row in rows)
+          if (row['user_id'] is String) row['user_id'] as String,
+      ];
+      final names = <String, String>{};
+      if (ids.isNotEmpty) {
+        final profiles = await _client
+            .from('profiles')
+            .select('id, full_name')
+            .inFilter('id', ids);
+        for (final profile in profiles) {
+          final id = profile['id'];
+          if (id is String) {
+            names[id] = profile['full_name'] as String? ?? '';
+          }
+        }
+      }
+
+      return <FirmMemberSummary>[
+        for (final row in rows)
+          if (row['user_id'] is String)
+            FirmMemberSummary(
+              userId: row['user_id'] as String,
+              role: row['role'] as String? ?? AccountRole.associate,
+              fullName: names[row['user_id'] as String] ?? '',
+              canAdd: row['can_add'] as bool? ?? false,
+              canEdit: row['can_edit'] as bool? ?? false,
+              canDelete: row['can_delete'] as bool? ?? false,
+            ),
+      ];
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<List<FirmInviteSummary>> listInvites() async {
+    await _requireOnline();
+
+    try {
+      // `revoked` and `used_by` are the two ways an invite stops being
+      // outstanding; the hash is never selected, because nothing on this screen
+      // could do anything with it and the code itself is unrecoverable by
+      // design. RLS (`firm_invites_select_owner`) scopes the read to the
+      // caller's own firm, so no firm id is passed.
+      final rows = await _client
+          .from('firm_invites')
+          .select('id, created_at')
+          .eq('revoked', false)
+          .isFilter('used_by', null)
+          .order('created_at', ascending: false);
+
+      return <FirmInviteSummary>[
+        for (final row in rows)
+          if (row['id'] is String)
+            FirmInviteSummary(
+              id: row['id'] as String,
+              createdAt: _epochMs(row['created_at']),
+            ),
+      ];
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<void> updateMemberPermissions({
+    required String userId,
+    required String role,
+    required bool canAdd,
+    required bool canEdit,
+    required bool canDelete,
+  }) async {
+    await _requireOnline();
+
+    final firmId = await _ownFirmId();
+    if (firmId == null) {
+      throw const AuthFailure(
+        AuthFailureKind.unknown,
+        serverMessage: 'updateMemberPermissions: no firm',
+      );
+    }
+
+    try {
+      // Scoped by firm **and** user, so the statement can only ever touch one
+      // row of the caller's own firm; the owner-only policy checks the rest.
+      // `permissions_synced_at` is deliberately not written here: it is the
+      // member's own device's stamp of when *it* last read these flags.
+      await _client
+          .from('firm_members')
+          .update(<String, dynamic>{
+            'role': role,
+            'can_add': canAdd,
+            'can_edit': canEdit,
+            'can_delete': canDelete,
+          })
+          .eq('firm_id', firmId)
+          .eq('user_id', userId);
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<void> removeMember(String userId) async {
+    await _requireOnline();
+
+    try {
+      final result = decodeRpcMap(
+        await _client.rpc<dynamic>(
+          'remove_firm_member',
+          params: <String, dynamic>{'p_user_id': userId},
+        ),
+      );
+      final status = result['status'] as String?;
+      if (status == 'removed') return;
+      // Every other answer is a refusal with a name the screen words for
+      // itself; the server resolved the firm from the caller, so a wrong firm
+      // is not one of the possibilities.
+      throw AuthFailure(AuthFailureKind.unknown, serverMessage: status);
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  /// The caller's own firm id from their profile row, or null.
+  ///
+  /// Read rather than passed: every owner-side statement is scoped by the
+  /// caller's own firm, never by a parameter, so a client cannot aim one at a
+  /// firm that is not theirs.
+  Future<String?> _ownFirmId() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return null;
+    final profile = await _client
+        .from('profiles')
+        .select('firm_id')
+        .eq('id', userId)
+        .maybeSingle();
+    return profile?['firm_id'] as String?;
+  }
+}
+
+/// Epoch milliseconds from a server value, or 0 when it cannot be read.
+///
+/// The `firm_invites.created_at` column is a bigint of milliseconds, but the
+/// same tolerance every other date reader here has is kept: an unreadable value
+/// must not throw a roster read away.
+int _epochMs(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
 }
 
 /// Provider for the firm repository.
@@ -441,4 +740,22 @@ final firmRepositoryProvider = Provider<FirmRepository>((ref) {
           // otherwise freeze the connectivity answer it was created with.
           isOnline: () => ref.read(connectivityMonitorProvider).isOnline(),
         );
+});
+
+/// The owner's live firm roster for Manage Associates (Task 20 Phase 1).
+///
+/// A read, not a cache: Manage Associates is an online-only screen, so this
+/// provider is invalidated after a membership change rather than written into
+/// `firm_members`, which stays the pull-only cache of this account's own row.
+final firmMembersListProvider = FutureProvider<List<FirmMemberSummary>>((ref) {
+  return ref.watch(firmRepositoryProvider).listMembers();
+});
+
+/// The owner's outstanding invites for Manage Associates (Task 20 Phase 2).
+///
+/// The same live-read shape as [firmMembersListProvider], and for the same
+/// reason: `firm_invites` is server-managed and the screen is online-only. It is
+/// invalidated after a code is created or revoked rather than cached.
+final firmInvitesListProvider = FutureProvider<List<FirmInviteSummary>>((ref) {
+  return ref.watch(firmRepositoryProvider).listInvites();
 });

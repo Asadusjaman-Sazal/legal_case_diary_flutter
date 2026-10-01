@@ -480,6 +480,14 @@ class _QueueEntryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
+              // A destructive provisional action is named as one: the state pill
+              // says `pending`, which is true of every queued edit, so without
+              // this a queued deletion is not visibly different from a queued
+              // rename (Task 20 Phase 2 item 4, plan §1).
+              if (isDestructiveQueueOperation(row.operation)) ...[
+                _PendingDeletionPill(label: l.syncStatus_pendingDeletion),
+                const SizedBox(width: AppSpacing.xs),
+              ],
               _StatePill(state: row.state, l: l),
             ],
           ),
@@ -685,6 +693,40 @@ String syncStatusRelativeTime(AppLocalizations l, int at) {
   if (delta < hour) return l.syncStatus_timeMinutesAgo(delta ~/ minute);
   if (delta < day) return l.syncStatus_timeHoursAgo(delta ~/ hour);
   return l.syncStatus_timeDaysAgo(delta ~/ day);
+}
+
+/// Whether an operation destroys the record it names.
+///
+/// The one place the app decides what counts as destructive, so the pending
+/// marker cannot drift from the delete paths that produce these entries. A
+/// `delete_request` insert is destructive in intent but travels as an `insert`
+/// of the request row, which Task 20 Phase 3/4 surface on their own review and
+/// "my requests" screens for the reason that matters there: its *status* is the
+/// pending fact, not its operation.
+bool isDestructiveQueueOperation(String operation) => operation == 'delete';
+
+/// The red "deletion pending" pill.
+class _PendingDeletionPill extends StatelessWidget {
+  const _PendingDeletionPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('sync-status-pending-deletion'),
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.xs,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.errorContainer,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelMd.copyWith(color: AppColors.error),
+    ),
+  );
 }
 
 /// A readable label for an entity type or an operation.

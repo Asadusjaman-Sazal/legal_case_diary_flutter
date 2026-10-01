@@ -230,6 +230,48 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and made every conflict mirror a permanent rejection — found by '
         'running the smoke test with a `conflict_log` row in it).',
   ),
+  LedgerSection(
+    file: '20260930180000_ensure_firm_premium_gate.sql',
+    version: '0.0.324',
+    label: '`ensure_firm` again, with Task 20 Phase 1\'s two refusals: the '
+        'individual -> firm-owner transition now requires a derived premium '
+        'entitlement (plan §6 — the free plan is strictly individual and '
+        'single-device; lapsed owners keep the firm they already have), and a '
+        'member of somebody else\'s firm can no longer create a second one and '
+        'relink their profile away from the rows they authored.',
+  ),
+  LedgerSection(
+    file: '20260930190000_remove_firm_member.sql',
+    version: '0.0.325',
+    label: 'Task 20 Phase 2\'s `remove_firm_member(uuid)`: owner-only, '
+        '`SECURITY DEFINER`, it deletes the membership row and relinks the '
+        'member\'s `profiles.firm_id` / `role` to individual — which is what '
+        'revokes RLS access, Realtime topic authorization and every queued '
+        'write at once, without touching the auth session (this project has no '
+        'service-role key). Authored records keep their attribution and are '
+        'never reassigned; the removal is announced to the removed account\'s '
+        'own topic and to the firm\'s. The same migration attaches the '
+        'existing broadcast trigger to `firm_members`, so a permission toggle '
+        'reaches the member it affects.',
+  ),
+  LedgerSection(
+    file: '20260930200000_push_changes_delete_review.sql',
+    version: '0.0.327',
+    label: 'Task 20 Phase 4\'s delete-review branch: `push_changes` replaces '
+        'whole to teach an approval (a `delete_requests` update setting '
+        '`status = \'approved\'`) what it means server-side. The request is '
+        'locked (already) and the target is locked next, always in that order '
+        'so concurrent approvals cannot deadlock; only a member with '
+        '`can_delete` may review; a target at a different version than the '
+        'request\'s `target_base_version` becomes `target_conflict`, parking the '
+        'request as `stale_review_required` with the version the reviewer just '
+        'saw so a reconfirm re-decides against the row that exists; an already '
+        'soft-deleted target becomes `already_resolved` with its tombstone and '
+        'records no decision; and an unchanged target is tombstoned atomically '
+        'with its `case_history` cascade and the request resolved beside it, '
+        'all inside the per-mutation savepoint that already produces idempotent '
+        'receipts.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -248,6 +290,9 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.311': 'Task 18 Phase 1 — The Atomic Push Pipeline',
   '0.0.313': 'Task 18 Phase 3 — Server Clock For Skew Detection',
   '0.0.318': 'Task 19 Phase 3 — The Conflict Verdict On The Mirrored Row',
+  '0.0.324': 'Task 20 Phase 1 — The Premium Gate On Firm Establishment',
+  '0.0.325': 'Task 20 Phase 2 — Removing An Associate',
+  '0.0.327': 'Task 20 Phase 4 — Delete Requests: Review',
 };
 
 const String _header = '''<!--

@@ -21,7 +21,7 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
-import '../../../shared/widgets/confirm_dialogs.dart';
+import '../../settings/presentation/delete_request_flow.dart';
 import 'reference_viewmodel.dart';
 
 /// Case reference library screen.
@@ -83,9 +83,20 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 
   Future<void> _confirmDelete(CaseReference reference) async {
-    final confirmed = await confirmDeleteDialog(context);
-    if (!confirmed || !mounted) return;
-    await ref.read(referenceViewModelProvider.notifier).deleteReference(reference);
+    // A member without delete permission raises a request instead of deleting
+    // (plan §1, Associate Deletion Policy).
+    final outcome = await deleteThroughFirmRules(
+      context,
+      ref,
+      entityType: 'reference',
+      entityId: reference.id,
+      entitySnapshot: deleteRequestSnapshot(reference.toJson()),
+      targetBaseVersion: deletionBaseVersion(reference.version),
+      deleteDirectly: () async => await ref
+          .read(referenceViewModelProvider.notifier)
+          .deleteReference(reference),
+    );
+    if (!mounted || outcome != DeleteOutcome.deleted) return;
     _showUndoSnackBar(reference);
   }
 
@@ -455,11 +466,22 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     final notifier = ref.read(referenceViewModelProvider.notifier);
 
     if (deleting && !_isNew) {
-      await notifier.deleteReference(widget.reference!);
-      if (mounted) {
+      final reference = widget.reference!;
+      // The same decision point the list uses, so the delete button inside the
+      // editor raises a request exactly as the swipe action does.
+      final outcome = await deleteThroughFirmRules(
+        context,
+        ref,
+        entityType: 'reference',
+        entityId: reference.id,
+        entitySnapshot: deleteRequestSnapshot(reference.toJson()),
+        targetBaseVersion: deletionBaseVersion(reference.version),
+        deleteDirectly: () async => await notifier.deleteReference(reference),
+      );
+      if (mounted && outcome == DeleteOutcome.deleted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_deleted)));
-        Navigator.of(context).pop(widget.reference);
+        Navigator.of(context).pop(reference);
       }
       return;
     }

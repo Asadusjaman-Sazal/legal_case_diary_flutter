@@ -672,6 +672,350 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- Delete review: approval locks the target and decides against its current
+-- version — a changed target becomes target_conflict/stale_review_required, an
+-- already-deleted one already_resolved, and only an unchanged one is tombstoned
+-- atomically with its case-history cascade (Task 20 Phase 4)
+-- ---------------------------------------------------------------------------
+
+do $$
+declare
+  v_owner uuid := current_setting('test.owner')::uuid;
+  v_assoc uuid := current_setting('test.assoc')::uuid;
+  v_firm uuid := current_setting('test.firm')::uuid;
+  v_out jsonb;
+  v_approved jsonb;
+begin
+  -- A live case with one history child: the target the cascade must reach.
+  perform pg_temp.as_user(v_owner);
+  v_out := public.push_changes(jsonb_build_array(
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-review-case-insert',
+      'entity_type', 'case',
+      'entity_id', 'smoke-review-case',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-review-case',
+        'user_id', v_owner,
+        'firm_id', v_firm,
+        'court_id', 'smoke-court-new',
+        'case_type', 'Civil',
+        'case_number', 'SMOKE-REV',
+        'petitioner', 'Petitioner',
+        'respondent', 'Respondent',
+        'on_behalf_id', current_setting('test.on_behalf'),
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false
+      )
+    ),
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-review-hist-insert',
+      'entity_type', 'case_history',
+      'entity_id', 'smoke-review-hist',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-review-hist',
+        'case_id', 'smoke-review-case',
+        'user_id', v_owner,
+        'firm_id', v_firm,
+        'hearing_date', 0,
+        'created_by', v_owner,
+        'source_mutation_id', 'smoke-mut-review-hist-src',
+        'base_case_version', 1,
+        'result_case_version', 1,
+        'updated_at', 0,
+        'is_deleted', false
+      )
+    )
+  ));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and v_out #>> '{results,1,status}' = 'accepted',
+    'the review fixtures (case + history child) were not created'
+  );
+
+  -- The associate, who has no delete permission, raises three requests: one for
+  -- a note that will change, one for the case that will not, and one for a case
+  -- that is already a tombstone.
+  perform pg_temp.as_user(v_assoc);
+  v_out := public.push_changes(jsonb_build_array(
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-req-insert-note',
+      'entity_type', 'delete_request',
+      'entity_id', 'smoke-req-note',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-req-note',
+        'firm_id', v_firm,
+        'entity_type', 'note',
+        'entity_id', 'smoke-note-a',
+        'entity_snapshot', '{}',
+        'target_base_version', 1,
+        'requested_by', v_assoc,
+        'status', 'pending',
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false,
+        'last_modified_by', v_assoc
+      )
+    ),
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-req-insert-case',
+      'entity_type', 'delete_request',
+      'entity_id', 'smoke-req-case',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-req-case',
+        'firm_id', v_firm,
+        'entity_type', 'case',
+        'entity_id', 'smoke-review-case',
+        'entity_snapshot', '{}',
+        'target_base_version', 1,
+        'requested_by', v_assoc,
+        'status', 'pending',
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false,
+        'last_modified_by', v_assoc
+      )
+    ),
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-req-insert-gone',
+      'entity_type', 'delete_request',
+      'entity_id', 'smoke-req-gone',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-req-gone',
+        'firm_id', v_firm,
+        'entity_type', 'case',
+        'entity_id', 'smoke-case-1',
+        'entity_snapshot', '{}',
+        'target_base_version', 4,
+        'requested_by', v_assoc,
+        'status', 'pending',
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false,
+        'last_modified_by', v_assoc
+      )
+    )
+  ));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and v_out #>> '{results,1,status}' = 'accepted'
+      and v_out #>> '{results,2,status}' = 'accepted',
+    'the associate could not raise the three delete requests'
+  );
+
+  -- The requester may not approve their own request: only can_delete may.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-self-approve',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-note',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-note', 'status', 'approved', 'updated_at', 1
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'rejected'
+      and v_out #>> '{results,0,error_code}' = 'permission_denied',
+    'the requester approved their own request'
+  );
+  perform pg_temp.assert_true(
+    (select status from public.delete_requests where id = 'smoke-req-note') = 'pending'
+      and (select is_deleted from public.notes where id = 'smoke-note-a') = false,
+    'a refused self-approval changed the request or the target'
+  );
+
+  -- The record moves under the request: the note is edited to version 2.
+  perform pg_temp.as_user(v_owner);
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-note-edit',
+    'entity_type', 'note',
+    'entity_id', 'smoke-note-a',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-note-a', 'firm_id', v_firm,
+      'title', 'Note A v2', 'updated_at', 2
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (v_out #>> '{results,0,version}')::int = 2,
+    'the note edit to version 2 did not apply'
+  );
+
+  -- Approving against the stale target is refused, and the request is parked as
+  -- stale_review_required with the version the reviewer just saw.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-approve-stale',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-note',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-note', 'status', 'approved', 'updated_at', 3
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'target_conflict'
+      and (v_out #>> '{results,0,target_version}')::int = 2
+      and v_out #>> '{results,0,target,id}' = 'smoke-note-a',
+    'a changed target was not reported as target_conflict with its current row'
+  );
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,row,status}' = 'stale_review_required'
+      and (v_out #>> '{results,0,row,target_base_version}')::int = 2
+      and (v_out #>> '{results,0,row,version}')::int = 2,
+    'the stale request was not parked with the version the reviewer saw'
+  );
+  perform pg_temp.assert_true(
+    (select status from public.delete_requests where id = 'smoke-req-note')
+        = 'stale_review_required'
+      and (select target_base_version from public.delete_requests
+            where id = 'smoke-req-note') = 2,
+    'the parked request was not persisted'
+  );
+  perform pg_temp.assert_true(
+    (select is_deleted from public.notes where id = 'smoke-note-a') = false,
+    'a target_conflict tombstoned the record anyway'
+  );
+
+  -- ReconFIRMED at the version that exists now: one atomic tombstone.
+  v_approved := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-approve',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-note',
+    'operation', 'update',
+    'base_version', 2,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-note', 'status', 'approved',
+      'review_note', 'Approved after reconfirmation.', 'updated_at', 4
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_approved #>> '{results,0,status}' = 'accepted',
+    'the reconfirmed approval was not accepted'
+  );
+  perform pg_temp.assert_true(
+    (select is_deleted from public.notes where id = 'smoke-note-a') = true
+      and (select version from public.notes where id = 'smoke-note-a') = 3,
+    'the approved request did not tombstone the note at version 3'
+  );
+  perform pg_temp.assert_true(
+    v_approved #>> '{results,0,target,is_deleted}' = 'true'
+      and v_approved #>> '{results,0,target_entity_type}' = 'note',
+    'the accepted approval did not return the tombstoned target'
+  );
+  perform pg_temp.assert_true(
+    (select status from public.delete_requests where id = 'smoke-req-note') = 'approved'
+      and (select reviewed_by from public.delete_requests where id = 'smoke-req-note')
+          = v_owner
+      and (select review_note from public.delete_requests where id = 'smoke-req-note')
+          = 'Approved after reconfirmation.',
+    'the approval did not resolve the request with reviewer and note'
+  );
+
+  -- A duplicate submission of the same mutation returns the stored receipt and
+  -- tombstones nothing a second time.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-approve',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-note',
+    'operation', 'update',
+    'base_version', 2,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-note', 'status', 'approved',
+      'review_note', 'Approved after reconfirmation.', 'updated_at', 4
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out = v_approved,
+    'duplicate approval did not return the same terminal receipt'
+  );
+  perform pg_temp.assert_true(
+    (select version from public.notes where id = 'smoke-note-a') = 3,
+    'duplicate approval extended the tombstone twice'
+  );
+
+  -- Approving the case request tombstones the case and cascades to its children.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-approve-case',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-case',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-case', 'status', 'approved', 'updated_at', 5
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (select is_deleted from public.cases where id = 'smoke-review-case') = true,
+    'approving the case request did not tombstone the case'
+  );
+  perform pg_temp.assert_true(
+    jsonb_array_length(v_out #> '{results,0,children}') = 1
+      and v_out #>> '{results,0,children,0,id}' = 'smoke-review-hist'
+      and (select is_deleted from public.case_history
+            where id = 'smoke-review-hist') = true,
+    'the approved case delete did not cascade to its history child'
+  );
+
+  -- A target that is already a tombstone: already_resolved, request untouched.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-approve-gone',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-gone',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-gone', 'status', 'approved', 'updated_at', 6
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'already_resolved'
+      and v_out #>> '{results,0,target,is_deleted}' = 'true',
+    'an already-deleted target did not report already_resolved with its tombstone'
+  );
+  perform pg_temp.assert_true(
+    (select status from public.delete_requests where id = 'smoke-req-gone') = 'pending'
+      and (select reviewed_by from public.delete_requests where id = 'smoke-req-gone') is null
+      and (select version from public.delete_requests where id = 'smoke-req-gone') = 1,
+    'already_resolved recorded a decision that never happened'
+  );
+
+  -- Reject needs no special branch: it is an ordinary update that keeps the
+  -- record and leaves the target alone.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-req-reject',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-req-gone',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-req-gone', 'status', 'rejected',
+      'review_note', 'The record is gone.', 'updated_at', 7
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (select status from public.delete_requests where id = 'smoke-req-gone')
+          = 'rejected',
+    'a rejection did not resolve the request'
+  );
+  perform pg_temp.assert_true(
+    (select is_deleted from public.cases where id = 'smoke-case-1') = true,
+    'a rejection deleted the record'
+  );
+end;
+$$;
+
 -- Nothing above is kept: no account, firm, case, history or receipt survives.
 rollback;
 

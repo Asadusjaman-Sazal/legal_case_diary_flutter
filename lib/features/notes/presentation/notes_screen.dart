@@ -20,7 +20,7 @@ import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
-import '../../../shared/widgets/confirm_dialogs.dart';
+import '../../settings/presentation/delete_request_flow.dart';
 import '../data/note_items.dart';
 import 'note_detail_screen.dart';
 import 'notes_viewmodel.dart';
@@ -136,9 +136,22 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   Future<void> _confirmDelete(Note note) async {
-    final confirmed = await confirmDeleteDialog(context);
-    if (!confirmed || !mounted) return;
-    await ref.read(notesViewModelProvider.notifier).deleteNote(note);
+    // A member without delete permission raises a request instead of deleting
+    // (plan §1, Associate Deletion Policy); the decision point also refreshes the
+    // permissions and asks the right question first.
+    final outcome = await deleteThroughFirmRules(
+      context,
+      ref,
+      entityType: 'note',
+      entityId: note.id,
+      entitySnapshot: deleteRequestSnapshot(note.toJson()),
+      targetBaseVersion: deletionBaseVersion(note.version),
+      deleteDirectly: () async =>
+          await ref.read(notesViewModelProvider.notifier).deleteNote(note),
+    );
+    // Undo restores a locally deleted note; there is nothing to restore when the
+    // record was never touched and a request was sent instead.
+    if (!mounted || outcome != DeleteOutcome.deleted) return;
     _showUndoSnackBar(note);
   }
 

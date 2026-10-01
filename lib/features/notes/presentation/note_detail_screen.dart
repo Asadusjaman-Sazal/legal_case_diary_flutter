@@ -23,7 +23,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
-import '../../../shared/widgets/confirm_dialogs.dart';
+import '../../settings/presentation/delete_request_flow.dart';
 import '../data/note_items.dart';
 import 'notes_viewmodel.dart';
 
@@ -185,10 +185,22 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   }
 
   Future<void> _delete() async {
-    final confirmed = await confirmDeleteDialog(context);
-    if (!confirmed || !mounted) return;
-    await ref.read(notesViewModelProvider.notifier).deleteNote(widget.note!);
-    if (mounted) Navigator.of(context).pop(widget.note);
+    final note = widget.note!;
+    final outcome = await deleteThroughFirmRules(
+      context,
+      ref,
+      entityType: 'note',
+      entityId: note.id,
+      entitySnapshot: deleteRequestSnapshot(note.toJson()),
+      targetBaseVersion: deletionBaseVersion(note.version),
+      deleteDirectly: () async =>
+          await ref.read(notesViewModelProvider.notifier).deleteNote(note),
+    );
+    // Closing the screen returns the note to the list for its undo snackbar; a
+    // request deletes nothing, so the note stays open and only the toast shows.
+    if (mounted && outcome == DeleteOutcome.deleted) {
+      Navigator.of(context).pop(note);
+    }
   }
 
   /// Creates a row with the next [order] in line.

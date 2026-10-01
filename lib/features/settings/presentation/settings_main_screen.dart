@@ -16,6 +16,8 @@ import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
+import 'delete_requests_viewmodel.dart';
 
 /// A single navigable settings entry within a section.
 class _SettingsItem {
@@ -28,10 +30,17 @@ class _SettingsItem {
   /// Route the item navigates to on tap.
   final String route;
 
+  /// How many things this entry is waiting on, shown as a pill when non-zero.
+  ///
+  /// Only the Delete Requests entry uses it today (Task 20 Phase 4's
+  /// notification), and zero renders nothing at all rather than a "0" badge.
+  final int badgeCount;
+
   const _SettingsItem({
     required this.title,
     required this.icon,
     required this.route,
+    this.badgeCount = 0,
   });
 }
 
@@ -81,6 +90,12 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
   final FocusNode _searchFocus = FocusNode();
 
   /// All settings sections in display order, localized for the active locale.
+  ///
+  /// Delete Requests is a firm-only entry: an individual owns their own diary,
+  /// so there is nobody to ask and nothing to review, and showing them a queue
+  /// that can never have anything in it would be worse than not showing it. The
+  /// count is read here rather than inside the tile so the whole list rebuilds
+  /// once when it changes, which is what a badge is.
   List<_SettingsSection> _buildSections(AppLocalizations l) => [
     _SettingsSection(l.settingsScreen_sectionGeneral, [
       _SettingsItem(
@@ -88,6 +103,13 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.person_outline,
         route: AppRoutes.settingsAccountProfile,
       ),
+      if (ref.watch(firmModeProvider))
+        _SettingsItem(
+          title: l.deleteRequests_title,
+          icon: Icons.delete_outline,
+          route: AppRoutes.settingsDeleteRequests,
+          badgeCount: ref.watch(deleteRequestsBadgeCountProvider),
+        ),
       _SettingsItem(
         title: l.settingsScreen_onlineSync,
         icon: Icons.sync_outlined,
@@ -463,7 +485,39 @@ class _SettingsListTile extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
     leading: Icon(item.icon, color: AppColors.primary),
     title: Text(item.title, style: AppTypography.bodyLg),
-    trailing: const Icon(Icons.chevron_right, color: AppColors.tertiary),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (item.badgeCount > 0) ...[
+          _CountPill(count: item.badgeCount),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+        const Icon(Icons.chevron_right, color: AppColors.tertiary),
+      ],
+    ),
     onTap: () => context.push(item.route),
+  );
+}
+
+/// The count pill on a settings entry that is waiting for the user.
+class _CountPill extends StatelessWidget {
+  const _CountPill({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.xs,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.error,
+      borderRadius: BorderRadius.circular(AppSpacing.md),
+    ),
+    child: Text(
+      '$count',
+      style: AppTypography.labelMd.copyWith(color: AppColors.onError),
+    ),
   );
 }

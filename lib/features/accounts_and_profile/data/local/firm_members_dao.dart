@@ -64,6 +64,17 @@ class FirmMembersDao {
         ..where((row) => row.userId.equals(userId)))
       .watchSingleOrNull();
 
+  /// Whether a membership row for [userId] is cached at all.
+  ///
+  /// The evidence Task 20 Phase 2's revocation check reads: `profiles.firm_id`
+  /// is the server's current answer about firm mode, while a cached
+  /// `firm_members` row is what this device last knew. The two disagreeing —
+  /// no firm on the profile, a membership row still here — is exactly the
+  /// transition a removal produces, and it survives the restart that a
+  /// remove-while-offline causes.
+  Stream<bool> watchHasMembership(String userId) =>
+      watchByUserId(userId).map((row) => row != null);
+
   /// Returns a firm member by id, or null if not found.
   Future<FirmMember?> getById(String id) async => (db.select(db.firmMembers)
       ..where((row) => row.id.equals(id)))

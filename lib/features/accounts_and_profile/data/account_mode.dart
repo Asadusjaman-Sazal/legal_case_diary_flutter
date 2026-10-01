@@ -20,6 +20,7 @@ import '../../../core/services/local_identity_service.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../../shared/providers/shared_preferences_provider.dart';
+import '../../../sync/connectivity_monitor.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../settings/data/premium_access.dart';
@@ -74,8 +75,18 @@ final accountFirmProvider = StreamProvider<Firm?>((ref) async* {
 /// The same single derivation every gate uses — `subscription_expiry + 48h grace`,
 /// never the display-only status flag — read against the cached profile (or, for
 /// a firm member, the firm's expiry) under the account's own id.
+///
+/// The cached profile is **watched** so the answer is recomputed when the row
+/// behind it changes: a renewal or a lapse arrives by pull, and a one-shot read
+/// would keep answering with the first value it saw — which is precisely how a
+/// premium account would be wrongly sent to the Paywall, or a lapsed one wrongly
+/// allowed to sync. The firm's expiry can move without the profile moving (the
+/// server mirrors the owner's subscription onto `firms`), so
+/// [accountRefreshProvider] invalidates this provider after every successful
+/// refresh as well.
 final premiumAccessProvider = FutureProvider<bool>((ref) async {
   final db = await ref.watch(databaseProvider.future);
+  ref.watch(accountProfileProvider);
   return resolvePremiumAccess(db, ref.watch(accountCacheUserIdProvider));
 });
 
@@ -163,6 +174,86 @@ final canManageFirmProvider = Provider<bool>(
       ref.watch(accountRoleProvider) == AccountRole.owner,
 );
 
+/// Whether Manage Associates is reachable for this account at all.
+///
+/// Deliberately wider than [canManageFirmProvider]: an **individual** has to be
+/// able to open the screen, because adding the first associate is what creates
+/// the firm (plan §1, Account Mode Detection). The one account that cannot is a
+/// firm member who is not the owner — the roster, the invites and the permission
+/// toggles are owner-only server-side, so the entry would only produce a refused
+/// request.
+///
+/// A profile that has not been pulled yet counts as an individual, which is the
+/// same rule [accountRoleProvider] already follows; the server's own guards in
+/// `ensure_firm` are what make that safe rather than merely convenient.
+final canOpenManageAssociatesProvider = Provider<bool>((ref) {
+  if (ref.watch(authIdentityProvider) == null) return false;
+  if (!ref.watch(firmModeProvider)) return true;
+  return ref.watch(accountRoleProvider) == AccountRole.owner;
+});
+
+/// Whether the cached membership row still says this account belongs to a firm
+/// while the server says it does not.
+///
+/// The two halves are read from different places on purpose:
+///
+/// * `profiles.firm_id == null` is the **server's** current answer, refreshed
+///   with every pull;
+/// * a cached `firm_members` row is what this device last knew.
+///
+/// They can only disagree one way, and by one cause: the account was in a firm
+/// and is not any more. The check is durable rather than in-memory, so a device
+/// that was offline when it was removed still sees it on the next successful
+/// refresh, on the next launch, and after a restart — which is what makes the
+/// forced logout below reliable. (A voluntary exit from a firm does not exist in
+/// this task; if one is ever added it must clear the cache the same way a
+/// sign-out does, and then this reading stays correct.)
+final membershipRevokedProvider = Provider<bool>((ref) {
+  final profile = ref.watch(accountProfileProvider).value;
+  if (profile == null || profile.firmId != null) return false;
+  return ref.watch(_cachedMembershipExistsProvider).value ?? false;
+});
+
+/// Whether any `firm_members` row for the signed-in account is cached.
+final _cachedMembershipExistsProvider = StreamProvider<bool>((ref) async* {
+  final identity = ref.watch(authIdentityProvider);
+  if (identity == null) {
+    yield false;
+    return;
+  }
+  final db = await ref.watch(databaseProvider.future);
+  yield* FirmMembersDao(db).watchHasMembership(identity.userId);
+});
+
+/// Refreshes this account's cached permissions before a permission-sensitive
+/// action, when there is a link.
+///
+/// The plan's freshness rule has two halves. The scheduled half is already
+/// wired — launch, resume and reconnect all run [accountRefreshProvider] — and
+/// this is the third moment it names: *before every online permission-sensitive
+/// action*. It runs through the same single entry point, so there is still one
+/// code path that pulls this data.
+///
+/// Offline it does nothing at all, deliberately: there is nothing to refresh, and
+/// the cached flags are advisory by design — `push_changes` is authoritative and
+/// rolls a refused action back from its `pre_mutation_payload`. Blocking the
+/// action instead would take away the provisional offline workflow the plan
+/// requires.
+final permissionFreshnessProvider = Provider<Future<void> Function()>((ref) {
+  return () async {
+    // Only a firm member's flags can move under them; an individual owns their
+    // own diary, so this is free for the Part A shape it grew out of.
+    if (!ref.read(firmModeProvider)) return;
+    if (ref.read(isOnlineProvider).value == false) return;
+    try {
+      await ref.read(accountRefreshProvider)();
+    } on Object {
+      // A refresh that cannot run leaves the last known flags in place, and
+      // `permissions_synced_at` records how old they are.
+    }
+  };
+});
+
 /// The one entry point that refreshes the profile and firm permissions.
 ///
 /// The launch/resume scope calls it now, and Phase 4's reconnect hook calls the
@@ -219,6 +310,12 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
 
     final repository = await ref.read(profileRepositoryProvider.future);
     if (!await repository.refresh()) return false;
+
+    // Entitlement is derived from the rows this refresh just replaced, and the
+    // firm's expiry can change without the profile's (the server mirrors the
+    // owner's subscription onto `firms`), so the derivation is recomputed here
+    // rather than left on the value it saw before the pull.
+    ref.invalidate(premiumAccessProvider);
 
     // The server's name fills a blank local record — a device that signed up
     // elsewhere, or an associate whose name came from the firm's invite. A name

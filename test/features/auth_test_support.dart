@@ -181,6 +181,30 @@ class FakeAuthRepository implements AuthRepository {
   }
 }
 
+/// One `updateMemberPermissions` call, recorded so a test can assert both that
+/// it happened and what it wrote.
+class MemberPermissionWrite {
+  /// Creates a recorded write.
+  const MemberPermissionWrite({
+    required this.userId,
+    required this.role,
+    required this.canAdd,
+    required this.canEdit,
+    required this.canDelete,
+  });
+
+  /// The member the write targeted.
+  final String userId;
+
+  /// The role it wrote.
+  final String role;
+
+  /// The three flags it wrote.
+  final bool canAdd;
+  final bool canEdit;
+  final bool canDelete;
+}
+
 /// A [FirmRepository] whose redemption and owner-side primitives the test
 /// decides.
 class FakeFirmRepository implements FirmRepository {
@@ -224,6 +248,65 @@ class FakeFirmRepository implements FirmRepository {
   /// Number of [abandonOnboarding] calls.
   int abandonCalls = 0;
 
+  /// The roster [listMembers] returns.
+  List<FirmMemberSummary> members = const <FirmMemberSummary>[];
+
+  /// Error to throw from [listMembers]; null to succeed.
+  Object? membersError;
+
+  /// The outstanding invites [listInvites] returns.
+  List<FirmInviteSummary> invites = const <FirmInviteSummary>[];
+
+  /// Error to throw from [listInvites]; null to succeed.
+  Object? invitesError;
+
+  /// Every permission write [updateMemberPermissions] made, in call order.
+  final List<MemberPermissionWrite> permissionWrites = <MemberPermissionWrite>[];
+
+  /// Error to throw from [updateMemberPermissions]; null to succeed.
+  Object? permissionsError;
+
+  /// User ids handed to [removeMember].
+  final List<String> removedMemberIds = <String>[];
+
+  /// Error to throw from [removeMember]; null to succeed.
+  Object? removeMemberError;
+
+  @override
+  Future<List<FirmInviteSummary>> listInvites() async {
+    final failure = invitesError;
+    if (failure != null) throw failure;
+    return invites;
+  }
+
+  @override
+  Future<void> updateMemberPermissions({
+    required String userId,
+    required String role,
+    required bool canAdd,
+    required bool canEdit,
+    required bool canDelete,
+  }) async {
+    permissionWrites.add(
+      MemberPermissionWrite(
+        userId: userId,
+        role: role,
+        canAdd: canAdd,
+        canEdit: canEdit,
+        canDelete: canDelete,
+      ),
+    );
+    final failure = permissionsError;
+    if (failure != null) throw failure;
+  }
+
+  @override
+  Future<void> removeMember(String userId) async {
+    removedMemberIds.add(userId);
+    final failure = removeMemberError;
+    if (failure != null) throw failure;
+  }
+
   @override
   Future<InviteRedemption> redeemInvite(String code) async {
     redeemedCodes.add(code);
@@ -261,6 +344,13 @@ class FakeFirmRepository implements FirmRepository {
     final failure = abandonError;
     if (failure != null) throw failure;
     return abandonRemoved;
+  }
+
+  @override
+  Future<List<FirmMemberSummary>> listMembers() async {
+    final failure = membersError;
+    if (failure != null) throw failure;
+    return members;
   }
 }
 

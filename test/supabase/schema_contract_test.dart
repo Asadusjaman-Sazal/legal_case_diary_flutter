@@ -926,6 +926,33 @@ void main() {
       expect(block, contains(r'where t.case_id = $3 and t.is_deleted = false'));
       expect(block, contains("'children'"));
     });
+
+    // `functionBlock` finds the *first* definition, and this branch only exists
+    // in the newest one, so the assertions read the whole ledger.
+    test('reviews a delete request against the locked target it names', () {
+      // The branch is keyed on the approval status, not on a client flag.
+      expect(sql, contains("(v_payload ->> 'status') = 'approved'"));
+      // Only a member with delete permission may review one.
+      expect(sql, contains('not public.can_delete_firm('));
+      // The target is read FOR UPDATE after the request, then compared.
+      expect(
+        sql,
+        contains(
+            r"'select to_jsonb(t) from public.%I t where t.id = $1 for update'"),
+      );
+      expect(sql, contains("v_expected <> (v_target ->> 'version')::int"));
+      // A changed target parks the request as stale and reports the conflict.
+      expect(sql, contains("'stale_review_required'"));
+      expect(sql, contains("'target_conflict'"));
+      // An already-deleted target records no decision.
+      expect(sql, contains('The record was already deleted.'));
+      // The approved record is tombstoned with the case cascade, and the target
+      // rides back so the reviewer's client can apply it in the same pass.
+      expect(sql, contains("if v_target_table = 'cases' then"));
+      expect(sql, contains("'target_entity_type'"));
+      // An unreachable target is named rather than silently skipped.
+      expect(sql, contains("'unsupported_target'"));
+    });
   });
 
   group('sync_server_time', () {

@@ -847,6 +847,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'পরিবর্তনটি বাতিল করা হয়েছে। রেকর্ডটি এই ডিভাইসে সর্বশেষ সংরক্ষিত কপি থেকে ফিরিয়ে আনা হয়েছে।';
 
   @override
+  String get syncStatus_pendingDeletion => 'মুছে ফেলা অপেক্ষমাণ';
+
+  @override
   String get syncStatus_export => 'ডায়াগনস্টিক বান্ডেল এক্সপোর্ট করুন';
 
   @override
@@ -1358,6 +1361,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
       'পাসওয়ার্ড, সাবস্ক্রিপশন ও অ্যাকাউন্ট সেটিংস';
+
+  @override
+  String get settingsAccountProfile_manageAssociatesSubtitle =>
+      'সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন';
 
   @override
   String get settingsProfile_title => 'প্রোফাইল';
@@ -3107,6 +3114,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্ম পরিচালনা করতে ইন্টারনেটে সংযুক্ত হোন।';
 
   @override
+  String get auth_errorPremiumRequired =>
+      'ফার্ম মোডের জন্য সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন।';
+
+  @override
   String get auth_errorAlreadyMember => 'আপনি ইতিমধ্যেই এই ফার্মের সদস্য।';
 
   @override
@@ -3163,4 +3174,309 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get auth_sessionExpiredAction => 'সাইন ইন';
+
+  @override
+  String get manageAssociates_title => 'সহকারী ব্যবস্থাপনা';
+
+  @override
+  String get manageAssociates_ownerOnly =>
+      'শুধু ফার্মের মালিক সহকারী ব্যবস্থাপনা করতে পারেন।';
+
+  @override
+  String get manageAssociates_sectionMembers => 'সহকারীরা';
+
+  @override
+  String get manageAssociates_addAssociate => 'সহকারী যোগ করুন';
+
+  @override
+  String get manageAssociates_noMembers => 'এখনো কোনো সহকারী নেই।';
+
+  @override
+  String get manageAssociates_unnamedMember => 'নামহীন সদস্য';
+
+  @override
+  String get manageAssociates_createFirmIntro =>
+      'ফার্ম তৈরি করে একসাথে কাজ করতে আপনার প্রথম সহকারীকে যোগ করুন।';
+
+  @override
+  String get manageAssociates_firmNameLabel => 'ফার্মের নাম';
+
+  @override
+  String get manageAssociates_firmNameHint =>
+      'আপনার চেম্বার বা ফার্মের নাম লিখুন';
+
+  @override
+  String get manageAssociates_createFirm => 'ফার্ম তৈরি করুন';
+
+  @override
+  String get manageAssociates_goPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get manageAssociates_inviteTitle => 'আমন্ত্রণ কোড';
+
+  @override
+  String get manageAssociates_inviteIntro =>
+      'এই কোডটি আপনার সহকারীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।';
+
+  @override
+  String get manageAssociates_copyCode => 'কোড কপি করুন';
+
+  @override
+  String get manageAssociates_codeCopied => 'কোড কপি হয়েছে।';
+
+  @override
+  String get manageAssociates_shareCode => 'শেয়ার করুন';
+
+  @override
+  String get manageAssociates_shareFailed => 'কোড শেয়ার করা যায়নি';
+
+  @override
+  String manageAssociates_inviteMessage(String code) {
+    return 'লিগ্যাল কেস ডায়েরিতে আমার ফার্মে যোগ দিন। আমন্ত্রণ কোড: $code';
+  }
+
+  @override
+  String get manageAssociates_sectionInvites => 'অব্যবহৃত আমন্ত্রণ';
+
+  @override
+  String get manageAssociates_noInvites => 'কোনো অব্যবহৃত আমন্ত্রণ নেই।';
+
+  @override
+  String manageAssociates_inviteCreated(String date) {
+    return 'তৈরি $date';
+  }
+
+  @override
+  String get manageAssociates_revokeInvite => 'বাতিল করুন';
+
+  @override
+  String get manageAssociates_revokeInviteTitle => 'এই আমন্ত্রণটি বাতিল করবেন?';
+
+  @override
+  String get manageAssociates_revokeInviteBody =>
+      'কোডটি সঙ্গে সঙ্গে কাজ করা বন্ধ করে দেবে।';
+
+  @override
+  String get manageAssociates_inviteRevoked => 'আমন্ত্রণ বাতিল করা হয়েছে।';
+
+  @override
+  String get manageAssociates_permissionsTitle => 'অনুমতি';
+
+  @override
+  String get manageAssociates_roleLabel => 'ভূমিকা';
+
+  @override
+  String get manageAssociates_permissionAdd => 'মামলা যোগ';
+
+  @override
+  String get manageAssociates_permissionEdit => 'মামলা সম্পাদনা';
+
+  @override
+  String get manageAssociates_permissionDelete => 'মামলা মুছে ফেলা';
+
+  @override
+  String get manageAssociates_savePermissions => 'অনুমতি সংরক্ষণ করুন';
+
+  @override
+  String get manageAssociates_permissionsUpdated =>
+      'অনুমতি হালনাগাদ করা হয়েছে।';
+
+  @override
+  String get manageAssociates_removeAssociate => 'ফার্ম থেকে সরান';
+
+  @override
+  String get manageAssociates_removeAssociateTitle =>
+      'এই সহকারীকে সরিয়ে দেবেন?';
+
+  @override
+  String get manageAssociates_removeAssociateBody =>
+      'তিনি সঙ্গে সঙ্গে ফার্মের মামলাগুলোতে প্রবেশাধিকার হারাবেন। তিনি তৈরি করা রেকর্ড ফার্মেই থাকবে।';
+
+  @override
+  String get manageAssociates_associateRemoved => 'সহকারীকে সরানো হয়েছে।';
+
+  @override
+  String get syncNotice_permissionsChanged =>
+      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
+
+  @override
+  String get syncNotice_clockSkew =>
+      'আপনার ডিভাইসের ঘড়ি সার্ভার থেকে দুই মিনিটের বেশি পিছিয়ে বা এগিয়ে আছে। সিঙ্ক করা সময় ভুল হতে পারে।';
+
+  @override
+  String get membershipRevoked_title =>
+      'আপনাকে ফার্ম থেকে সরিয়ে দেওয়া হয়েছে';
+
+  @override
+  String get membershipRevoked_body =>
+      'আপনার ফার্মের মালিক এই অ্যাকাউন্টটি সরিয়ে দিয়েছেন। আপনি আর ফার্মের মামলা দেখতে বা সম্পাদনা করতে পারবেন না, এবং সিঙ্ক করার অপেক্ষায় থাকা সবকিছু বাতিল করা হয়েছে। ব্যক্তিগত ডায়েরি দিয়ে চালিয়ে যেতে লগ আউট করুন।';
+
+  @override
+  String get membershipRevoked_action => 'লগ আউট';
+
+  @override
+  String get membershipRevoked_logoutFailed =>
+      'লগ আউট করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get deleteRequest_confirmTitle => 'মুছে ফেলার অনুরোধ পাঠাবেন?';
+
+  @override
+  String get deleteRequest_confirmBody =>
+      'রেকর্ডটি মুছে ফেলার আগে ডিলিট অনুমতি আছে এমন একজন ফার্ম সদস্যকে এটি অনুমোদন করতে হবে।';
+
+  @override
+  String get deleteRequest_confirmSend => 'অনুরোধ পাঠান';
+
+  @override
+  String get deleteRequest_sent =>
+      'ডিলিট অনুরোধ অ্যাডমিন/মালিকের কাছে পাঠানো হয়েছে।';
+
+  @override
+  String get deleteRequest_failed => 'ডিলিট অনুরোধ পাঠানো যায়নি।';
+
+  @override
+  String get deleteRequests_title => 'ডিলিট অনুরোধ';
+
+  @override
+  String get deleteRequests_firmOnly =>
+      'ডিলিট অনুরোধ শুধু ফার্ম সদস্যদের জন্য উপলব্ধ।';
+
+  @override
+  String get deleteRequests_toReview => 'আপনার পর্যালোচনার অপেক্ষায়';
+
+  @override
+  String get deleteRequests_noneToReview =>
+      'পর্যালোচনার অপেক্ষায় কোনো ডিলিট অনুরোধ নেই।';
+
+  @override
+  String get deleteRequests_mine => 'আমার অনুরোধ';
+
+  @override
+  String get deleteRequests_noneMine => 'আপনি কোনো ডিলিট অনুরোধ পাঠাননি।';
+
+  @override
+  String get deleteRequests_statusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get deleteRequests_statusApproved => 'অনুমোদিত';
+
+  @override
+  String get deleteRequests_statusRejected => 'প্রত্যাখ্যাত';
+
+  @override
+  String get deleteRequests_statusStale => 'পুনরায় নিশ্চিতকরণ প্রয়োজন';
+
+  @override
+  String deleteRequests_requestedBy(String name) {
+    return 'অনুরোধ করেছেন $name';
+  }
+
+  @override
+  String deleteRequests_requestedOn(String date) {
+    return 'অনুরোধের তারিখ $date';
+  }
+
+  @override
+  String get deleteRequests_unnamed => 'একটি রেকর্ড';
+
+  @override
+  String get deleteRequests_entityCase => 'মামলা';
+
+  @override
+  String get deleteRequests_entityCaseHistory => 'মামলার ইতিহাস';
+
+  @override
+  String get deleteRequests_entityNote => 'নোট';
+
+  @override
+  String get deleteRequests_entityReference => 'রেফারেন্স';
+
+  @override
+  String get deleteRequests_entityUnknown => 'রেকর্ড';
+
+  @override
+  String get deleteRequests_reviewTitle => 'ডিলিট অনুরোধ পর্যালোচনা';
+
+  @override
+  String get deleteRequests_snapshot => 'অনুরোধকৃত রেকর্ড';
+
+  @override
+  String get deleteRequests_noteLabel => 'পর্যালোচনা নোট (ঐচ্ছিক)';
+
+  @override
+  String get deleteRequests_noteHint => 'একটি কারণ যোগ করুন';
+
+  @override
+  String get deleteRequests_approve => 'অনুমোদন';
+
+  @override
+  String get deleteRequests_reconfirm => 'পুনরায় নিশ্চিত করুন';
+
+  @override
+  String get deleteRequests_reject => 'প্রত্যাখ্যান';
+
+  @override
+  String get deleteRequests_approveTitle => 'মুছে ফেলা অনুমোদন করবেন?';
+
+  @override
+  String get deleteRequests_approveBody =>
+      'রেকর্ডটি ফার্মের সবার জন্য মুছে ফেলা হবে।';
+
+  @override
+  String get deleteRequests_rejectTitle => 'ডিলিট অনুরোধ প্রত্যাখ্যান করবেন?';
+
+  @override
+  String get deleteRequests_rejectBody =>
+      'রেকর্ডটি থাকবে। অনুরোধকারীকে আপনার সিদ্ধান্ত জানানো হবে।';
+
+  @override
+  String get deleteRequests_approved => 'মুছে ফেলা অনুমোদিত হয়েছে।';
+
+  @override
+  String get deleteRequests_rejected => 'ডিলিট অনুরোধ প্রত্যাখ্যান করা হয়েছে।';
+
+  @override
+  String get deleteRequests_failed =>
+      'পর্যালোচনা সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get deleteRequests_staleTitle => 'এই রেকর্ডটি পরিবর্তিত হয়েছে';
+
+  @override
+  String get deleteRequests_staleBody =>
+      'অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। নিচের বিবরণ এখন যা আছে তা দেখায়; এই বর্তমান সংস্করণটি মুছতে পুনরায় নিশ্চিত করুন।';
+
+  @override
+  String get deleteRequests_fieldCaseNumber => 'মামলা নম্বর';
+
+  @override
+  String get deleteRequests_fieldCaseType => 'মামলার ধরন';
+
+  @override
+  String get deleteRequests_fieldPetitioner => 'বাদী';
+
+  @override
+  String get deleteRequests_fieldRespondent => 'বিবাদী';
+
+  @override
+  String get deleteRequests_fieldStep => 'ধাপ';
+
+  @override
+  String get deleteRequests_fieldResult => 'ফলাফল';
+
+  @override
+  String get deleteRequests_fieldTitle => 'শিরোনাম';
+
+  @override
+  String get deleteRequests_fieldBody => 'নোট';
+
+  @override
+  String get deleteRequests_fieldReference => 'রেফারেন্স ও পৃষ্ঠা নম্বর';
+
+  @override
+  String get deleteRequests_fieldDescription => 'শিরোনাম ও বিবরণ';
+
+  @override
+  String get deleteRequests_unknownRequester => 'একজন ফার্ম সদস্য';
 }

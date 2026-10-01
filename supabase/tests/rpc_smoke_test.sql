@@ -1,4 +1,5 @@
--- RPC smoke test — approve_payment() and join_firm().
+-- RPC smoke test — approve_payment(), join_firm(), ensure_firm() and
+-- remove_firm_member().
 --
 -- Usage (needs two real auth users; their profiles exist because of the
 -- sign-up trigger):
@@ -506,7 +507,346 @@ values (
   'Respondent', current_setting('test.on_behalf_id'), 0, 0
 );
 
--- `anon` may not execute either RPC.
+-- ---------------------------------------------------------------------------
+-- ensure_firm (Task 20 Phase 1 — the premium gate and the membership guard)
+-- ---------------------------------------------------------------------------
+
+-- The caller's own row is what decides, so the test edits it inside the
+-- transaction: a free individual first, then a premium one, then a premium one
+-- who already belongs to somebody else's firm.
+do $$
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.user_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+  update public.profiles
+     set subscription_status = 'free',
+         subscription_expiry = null,
+         firm_id = null,
+         role = 'individual'
+   where id = current_setting('test.user_id')::uuid;
+end;
+$$;
+set local role authenticated;
+
+-- Phase 1 item 2: becoming a firm owner requires a derived premium entitlement.
+select pg_temp.assert_true(
+  pg_temp.scalar('select public.ensure_firm(''Smoke Free Firm'')')
+    like '%"premium_required"%',
+  'a free account was allowed to become a firm owner'
+);
+reset role;
+select pg_temp.assert_true(
+  (select count(*) from public.firms
+    where owner_id = current_setting('test.user_id')::uuid) = 0,
+  'the premium refusal created a firm anyway'
+);
+
+-- The same account, now premium: the transition succeeds exactly once.
+do $$
+begin
+  update public.profiles
+     set subscription_status = 'premium',
+         subscription_expiry = now() + interval '30 days'
+   where id = current_setting('test.user_id')::uuid;
+end;
+$$;
+set local role authenticated;
+select pg_temp.assert_true(
+  pg_temp.scalar('select public.ensure_firm(''Smoke Premium Firm'')')
+    like '%"ready"%',
+  'a premium individual was not allowed to create a firm'
+);
+reset role;
+do $$
+declare
+  v_firm_id uuid;
+begin
+  select id into v_firm_id
+    from public.firms
+   where owner_id = current_setting('test.user_id')::uuid;
+
+  perform pg_temp.assert_true(
+    v_firm_id is not null,
+    'the premium transition created no firm'
+  );
+  perform pg_temp.assert_true(
+    (select firm_id from public.profiles
+      where id = current_setting('test.user_id')::uuid) = v_firm_id,
+    'the transition did not relink profiles.firm_id'
+  );
+  perform pg_temp.assert_true(
+    (select role from public.profiles
+      where id = current_setting('test.user_id')::uuid) = 'owner',
+    'the transition did not set the owner role'
+  );
+  perform pg_temp.assert_true(
+    exists (
+      select 1 from public.firm_members m
+       where m.firm_id = v_firm_id
+         and m.user_id = current_setting('test.user_id')::uuid
+         and m.role = 'owner'
+         and m.can_add and m.can_edit and m.can_delete
+    ),
+    'the transition did not give the owner every permission'
+  );
+end;
+$$;
+
+-- Idempotent: a second call returns the same firm and creates no second one.
+set local role authenticated;
+do $$
+declare
+  v_again text;
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.user_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+  v_again := pg_temp.scalar('select public.ensure_firm(''Smoke Premium Firm'')');
+  perform pg_temp.assert_true(
+    v_again like '%"ready"%',
+    'the second call did not report ready'
+  );
+end;
+$$;
+reset role;
+select pg_temp.assert_true(
+  (select count(*) from public.firms
+    where owner_id = current_setting('test.user_id')::uuid) = 1,
+  'the second call created a second firm'
+);
+
+-- The membership guard: a member of somebody else's firm cannot create one of
+-- their own and relink their profile away from the rows they authored.
+do $$
+begin
+  update public.profiles
+     set firm_id = current_setting('test.firm_id')::uuid,
+         role = 'associate'
+   where id = current_setting('test.user_id')::uuid;
+end;
+$$;
+set local role authenticated;
+select pg_temp.assert_true(
+  pg_temp.scalar('select public.ensure_firm(''Smoke Second Firm'')')
+    like '%"member_of_another_firm"%',
+  'a member of another firm was allowed to create a second firm'
+);
+reset role;
+select pg_temp.assert_true(
+  (select firm_id from public.profiles
+    where id = current_setting('test.user_id')::uuid)
+      = current_setting('test.firm_id')::uuid,
+  'the refusal relinked the profile anyway'
+);
+
+-- ---------------------------------------------------------------------------
+-- remove_firm_member (Task 20 Phase 2 — removing an associate)
+-- ---------------------------------------------------------------------------
+
+-- Fixtures: `test.user_id` belongs to the firm `test.admin_id` owns, and has
+-- authored one row in it. The removal must end the membership and the access
+-- without touching the authored record.
+do $$
+begin
+  update public.profiles
+     set firm_id = current_setting('test.invite_firm_id')::uuid,
+         role = 'associate'
+   where id = current_setting('test.user_id')::uuid;
+
+  insert into public.firm_members (firm_id, user_id, role, can_add, can_edit,
+                                   can_delete)
+  values (
+    current_setting('test.invite_firm_id')::uuid,
+    current_setting('test.user_id')::uuid,
+    'associate', true, true, false
+  );
+
+  insert into public.cases (
+    id, user_id, firm_id, court_id, case_type, case_number, petitioner,
+    respondent, on_behalf_id, created_at, updated_at
+  )
+  values
+    (
+      'smoke-removal-case',
+      current_setting('test.user_id')::uuid,
+      current_setting('test.invite_firm_id')::uuid,
+      current_setting('test.court_id'), 'Smoke Type', 'SMOKE-RM', 'Petitioner',
+      'Respondent', current_setting('test.on_behalf_id'), 0, 0
+    ),
+    -- A second row in the same firm, authored by the owner: the one the
+    -- removed member must no longer be able to see.
+    (
+      'smoke-owner-case',
+      current_setting('test.admin_id')::uuid,
+      current_setting('test.invite_firm_id')::uuid,
+      current_setting('test.court_id'), 'Smoke Type', 'SMOKE-OW', 'Petitioner',
+      'Respondent', current_setting('test.on_behalf_id'), 0, 0
+    );
+end;
+$$;
+
+-- A member cannot remove anybody: only the firm's owner administers membership,
+-- and the function resolves the firm from the caller rather than a parameter.
+do $$
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.user_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+end;
+$$;
+set local role authenticated;
+select pg_temp.assert_true(
+  pg_temp.scalar(
+    'select public.remove_firm_member(''' || current_setting('test.admin_id')
+    || '''::uuid)'
+  ) like '%"not_owner"%',
+  'an associate was allowed to remove a member'
+);
+reset role;
+
+-- The owner cannot remove themselves: the firm would be left with an owner who
+-- is not a member.
+do $$
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.admin_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+end;
+$$;
+set local role authenticated;
+select pg_temp.assert_true(
+  pg_temp.scalar(
+    'select public.remove_firm_member(''' || current_setting('test.admin_id')
+    || '''::uuid)'
+  ) like '%"cannot_remove_self"%',
+  'the owner was allowed to remove themselves'
+);
+reset role;
+select pg_temp.assert_true(
+  (select count(*) from public.firm_members
+    where firm_id = current_setting('test.invite_firm_id')::uuid
+      and user_id = current_setting('test.user_id')::uuid) = 1,
+  'a refused removal deleted the membership anyway'
+);
+
+-- The removal itself: membership gone, profile relinked to individual mode.
+do $$
+declare
+  v_result text;
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.admin_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+  v_result := pg_temp.scalar(
+    'select public.remove_firm_member(''' || current_setting('test.user_id')
+    || '''::uuid)'
+  );
+  perform pg_temp.assert_true(
+    v_result like '%"removed"%',
+    'the owner could not remove an associate'
+  );
+  perform pg_temp.assert_true(
+    (select count(*) from public.firm_members
+      where firm_id = current_setting('test.invite_firm_id')::uuid
+        and user_id = current_setting('test.user_id')::uuid) = 0,
+    'the membership row survived the removal'
+  );
+  perform pg_temp.assert_true(
+    (select firm_id from public.profiles
+      where id = current_setting('test.user_id')::uuid) is null,
+    'the removed member\'s profile was not relinked to individual mode'
+  );
+  perform pg_temp.assert_true(
+    (select role from public.profiles
+      where id = current_setting('test.user_id')::uuid) = 'individual',
+    'the removed member\'s role was left as associate with no firm'
+  );
+  -- Authored records are preserved and never reassigned: the audit attribution
+  -- and the firm the row belongs to both stay exactly as they were.
+  perform pg_temp.assert_true(
+    (select user_id from public.cases where id = 'smoke-removal-case')
+      = current_setting('test.user_id')::uuid,
+    'the removal reassigned an authored record'
+  );
+  perform pg_temp.assert_true(
+    (select firm_id from public.cases where id = 'smoke-removal-case')
+      = current_setting('test.invite_firm_id')::uuid,
+    'the removal took the firm\'s record away from the firm'
+  );
+end;
+$$;
+reset role;
+
+-- The access really is gone for the firm's other rows — and the rows the member
+-- authored are still theirs to see, which is what "preserve authored records"
+-- means against an RLS shape of `user_id = auth.uid() or firm_id =
+-- current_firm_id()`. Nulling `firm_id` is what revokes both RLS and the
+-- Realtime topic authorization.
+do $$
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.user_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+end;
+$$;
+set local role authenticated;
+select pg_temp.assert_true(
+  (select count(*) from public.cases where id = 'smoke-owner-case') = 0,
+  'a removed member can still read the firm''s other cases'
+);
+select pg_temp.assert_true(
+  (select count(*) from public.cases where id = 'smoke-removal-case') = 1,
+  'a removed member lost sight of their own authored record'
+);
+select pg_temp.assert_true(
+  not public.can_read_topic('firm:' || current_setting('test.invite_firm_id')),
+  'a removed member can still subscribe to the firm''s topic'
+);
+reset role;
+
+-- Removing again reports that there is nothing to remove, rather than deleting
+-- anything else.
+do $$
+declare
+  v_again text;
+begin
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', current_setting('test.admin_id'), 'role',
+    'authenticated')::text,
+    true
+  );
+  v_again := pg_temp.scalar(
+    'select public.remove_firm_member(''' || current_setting('test.user_id')
+    || '''::uuid)'
+  );
+  perform pg_temp.assert_true(
+    v_again like '%"not_found"%',
+    'a second removal did not report not_found'
+  );
+end;
+$$;
+
+-- `anon` may not execute any of the four RPCs.
 set local role anon;
 select pg_temp.assert_raises(
   'select public.approve_payment(gen_random_uuid())',
@@ -516,9 +856,18 @@ select pg_temp.assert_raises(
   'select public.join_firm(''ANY'')',
   'permission denied'
 );
+select pg_temp.assert_raises(
+  'select public.ensure_firm(''ANY'')',
+  'permission denied'
+);
+select pg_temp.assert_raises(
+  'select public.remove_firm_member(gen_random_uuid())',
+  'permission denied'
+);
 reset role;
 
--- Nothing above is kept: no money was approved and no invite was spent.
+-- Nothing above is kept: no money was approved, no invite was spent and no firm
+-- survived the rollback.
 rollback;
 
-\echo 'SMOKE OK: approve_payment and join_firm behave as specified.'
+\echo 'SMOKE OK: approve_payment, join_firm, ensure_firm and remove_firm_member behave as specified.'

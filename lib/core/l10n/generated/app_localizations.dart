@@ -1556,6 +1556,12 @@ abstract class AppLocalizations {
   /// **'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.'**
   String get syncStatus_discardRestoredLocally;
 
+  /// No description provided for @syncStatus_pendingDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion Pending'**
+  String get syncStatus_pendingDeletion;
+
   /// No description provided for @syncStatus_export.
   ///
   /// In en, this message translates to:
@@ -2461,6 +2467,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password, subscription, and account settings'**
   String get settingsAccountProfile_manageAccountSubtitle;
+
+  /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Associates, Invites, And Firm Permissions'**
+  String get settingsAccountProfile_manageAssociatesSubtitle;
 
   /// No description provided for @settingsProfile_title.
   ///
@@ -5358,6 +5370,12 @@ abstract class AppLocalizations {
   /// **'Connect to the internet to manage your firm.'**
   String get auth_errorFirmAdminOffline;
 
+  /// No description provided for @auth_errorPremiumRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Mode Requires An Active Premium Subscription.'**
+  String get auth_errorPremiumRequired;
+
   /// No description provided for @auth_errorAlreadyMember.
   ///
   /// In en, this message translates to:
@@ -5465,6 +5483,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign In'**
   String get auth_sessionExpiredAction;
+
+  /// No description provided for @manageAssociates_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Associates'**
+  String get manageAssociates_title;
+
+  /// No description provided for @manageAssociates_ownerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only The Firm Owner Can Manage Associates.'**
+  String get manageAssociates_ownerOnly;
+
+  /// No description provided for @manageAssociates_sectionMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Associates'**
+  String get manageAssociates_sectionMembers;
+
+  /// No description provided for @manageAssociates_addAssociate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Associate'**
+  String get manageAssociates_addAssociate;
+
+  /// No description provided for @manageAssociates_noMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'No Associates Yet.'**
+  String get manageAssociates_noMembers;
+
+  /// No description provided for @manageAssociates_unnamedMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed Member'**
+  String get manageAssociates_unnamedMember;
+
+  /// No description provided for @manageAssociates_createFirmIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Your First Associate To Create Your Firm And Work Together.'**
+  String get manageAssociates_createFirmIntro;
+
+  /// No description provided for @manageAssociates_firmNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Name'**
+  String get manageAssociates_firmNameLabel;
+
+  /// No description provided for @manageAssociates_firmNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your Chamber Or Firm Name'**
+  String get manageAssociates_firmNameHint;
+
+  /// No description provided for @manageAssociates_createFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Firm'**
+  String get manageAssociates_createFirm;
+
+  /// No description provided for @manageAssociates_goPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get manageAssociates_goPremium;
+
+  /// No description provided for @manageAssociates_inviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Code'**
+  String get manageAssociates_inviteTitle;
+
+  /// No description provided for @manageAssociates_inviteIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Share This Code With Your Associate. It Works Once, And This Is The Only Time It Is Shown.'**
+  String get manageAssociates_inviteIntro;
+
+  /// No description provided for @manageAssociates_copyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Code'**
+  String get manageAssociates_copyCode;
+
+  /// No description provided for @manageAssociates_codeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code Copied.'**
+  String get manageAssociates_codeCopied;
+
+  /// No description provided for @manageAssociates_shareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get manageAssociates_shareCode;
+
+  /// No description provided for @manageAssociates_shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Share The Code'**
+  String get manageAssociates_shareFailed;
+
+  /// No description provided for @manageAssociates_inviteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join My Firm On Legal Case Diary. Invite Code: {code}'**
+  String manageAssociates_inviteMessage(String code);
+
+  /// No description provided for @manageAssociates_sectionInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding Invites'**
+  String get manageAssociates_sectionInvites;
+
+  /// No description provided for @manageAssociates_noInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'No Unused Invites.'**
+  String get manageAssociates_noInvites;
+
+  /// No description provided for @manageAssociates_inviteCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {date}'**
+  String manageAssociates_inviteCreated(String date);
+
+  /// No description provided for @manageAssociates_revokeInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get manageAssociates_revokeInvite;
+
+  /// No description provided for @manageAssociates_revokeInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke This Invite?'**
+  String get manageAssociates_revokeInviteTitle;
+
+  /// No description provided for @manageAssociates_revokeInviteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Code Will Stop Working Immediately.'**
+  String get manageAssociates_revokeInviteBody;
+
+  /// No description provided for @manageAssociates_inviteRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Revoked.'**
+  String get manageAssociates_inviteRevoked;
+
+  /// No description provided for @manageAssociates_permissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get manageAssociates_permissionsTitle;
+
+  /// No description provided for @manageAssociates_roleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get manageAssociates_roleLabel;
+
+  /// No description provided for @manageAssociates_permissionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Cases'**
+  String get manageAssociates_permissionAdd;
+
+  /// No description provided for @manageAssociates_permissionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Cases'**
+  String get manageAssociates_permissionEdit;
+
+  /// No description provided for @manageAssociates_permissionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Cases'**
+  String get manageAssociates_permissionDelete;
+
+  /// No description provided for @manageAssociates_savePermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Permissions'**
+  String get manageAssociates_savePermissions;
+
+  /// No description provided for @manageAssociates_permissionsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions Updated.'**
+  String get manageAssociates_permissionsUpdated;
+
+  /// No description provided for @manageAssociates_removeAssociate.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove From Firm'**
+  String get manageAssociates_removeAssociate;
+
+  /// No description provided for @manageAssociates_removeAssociateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove This Associate?'**
+  String get manageAssociates_removeAssociateTitle;
+
+  /// No description provided for @manageAssociates_removeAssociateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They Lose Access To The Firm\'s Cases Immediately. The Records They Authored Stay In The Firm.'**
+  String get manageAssociates_removeAssociateBody;
+
+  /// No description provided for @manageAssociates_associateRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Associate Removed.'**
+  String get manageAssociates_associateRemoved;
+
+  /// No description provided for @syncNotice_permissionsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Firm Permissions Changed; This Pending Action Was Not Applied.'**
+  String get syncNotice_permissionsChanged;
+
+  /// No description provided for @syncNotice_clockSkew.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.'**
+  String get syncNotice_clockSkew;
+
+  /// No description provided for @membershipRevoked_title.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Been Removed From The Firm'**
+  String get membershipRevoked_title;
+
+  /// No description provided for @membershipRevoked_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Firm Owner Removed This Account. You Can No Longer See Or Edit The Firm\'s Cases, And Anything Still Waiting To Sync Has Been Discarded. Log Out To Continue With An Individual Diary.'**
+  String get membershipRevoked_body;
+
+  /// No description provided for @membershipRevoked_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get membershipRevoked_action;
+
+  /// No description provided for @membershipRevoked_logoutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Log Out. Try Again.'**
+  String get membershipRevoked_logoutFailed;
+
+  /// No description provided for @deleteRequest_confirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send A Deletion Request?'**
+  String get deleteRequest_confirmTitle;
+
+  /// No description provided for @deleteRequest_confirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A Firm Member With Delete Permission Has To Approve It Before The Record Is Removed.'**
+  String get deleteRequest_confirmBody;
+
+  /// No description provided for @deleteRequest_confirmSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Request'**
+  String get deleteRequest_confirmSend;
+
+  /// No description provided for @deleteRequest_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion Request Sent To Admin/Owner.'**
+  String get deleteRequest_sent;
+
+  /// No description provided for @deleteRequest_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Send The Deletion Request.'**
+  String get deleteRequest_failed;
+
+  /// No description provided for @deleteRequests_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Requests'**
+  String get deleteRequests_title;
+
+  /// No description provided for @deleteRequests_firmOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Requests Are Only Available To Firm Members.'**
+  String get deleteRequests_firmOnly;
+
+  /// No description provided for @deleteRequests_toReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting Your Review'**
+  String get deleteRequests_toReview;
+
+  /// No description provided for @deleteRequests_noneToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'No Deletion Requests Awaiting Review.'**
+  String get deleteRequests_noneToReview;
+
+  /// No description provided for @deleteRequests_mine.
+  ///
+  /// In en, this message translates to:
+  /// **'My Requests'**
+  String get deleteRequests_mine;
+
+  /// No description provided for @deleteRequests_noneMine.
+  ///
+  /// In en, this message translates to:
+  /// **'You Have Not Sent Any Deletion Requests.'**
+  String get deleteRequests_noneMine;
+
+  /// No description provided for @deleteRequests_statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get deleteRequests_statusPending;
+
+  /// No description provided for @deleteRequests_statusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get deleteRequests_statusApproved;
+
+  /// No description provided for @deleteRequests_statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get deleteRequests_statusRejected;
+
+  /// No description provided for @deleteRequests_statusStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Reconfirmation'**
+  String get deleteRequests_statusStale;
+
+  /// No description provided for @deleteRequests_requestedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested By {name}'**
+  String deleteRequests_requestedBy(String name);
+
+  /// No description provided for @deleteRequests_requestedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested On {date}'**
+  String deleteRequests_requestedOn(String date);
+
+  /// No description provided for @deleteRequests_unnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'A Record'**
+  String get deleteRequests_unnamed;
+
+  /// No description provided for @deleteRequests_entityCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Case'**
+  String get deleteRequests_entityCase;
+
+  /// No description provided for @deleteRequests_entityCaseHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Case History'**
+  String get deleteRequests_entityCaseHistory;
+
+  /// No description provided for @deleteRequests_entityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deleteRequests_entityNote;
+
+  /// No description provided for @deleteRequests_entityReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get deleteRequests_entityReference;
+
+  /// No description provided for @deleteRequests_entityUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get deleteRequests_entityUnknown;
+
+  /// No description provided for @deleteRequests_reviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Deletion Request'**
+  String get deleteRequests_reviewTitle;
+
+  /// No description provided for @deleteRequests_snapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested Record'**
+  String get deleteRequests_snapshot;
+
+  /// No description provided for @deleteRequests_noteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Note (Optional)'**
+  String get deleteRequests_noteLabel;
+
+  /// No description provided for @deleteRequests_noteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add A Reason'**
+  String get deleteRequests_noteHint;
+
+  /// No description provided for @deleteRequests_approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get deleteRequests_approve;
+
+  /// No description provided for @deleteRequests_reconfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconfirm'**
+  String get deleteRequests_reconfirm;
+
+  /// No description provided for @deleteRequests_reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get deleteRequests_reject;
+
+  /// No description provided for @deleteRequests_approveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Deletion?'**
+  String get deleteRequests_approveTitle;
+
+  /// No description provided for @deleteRequests_approveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Record Will Be Deleted For Everyone In The Firm.'**
+  String get deleteRequests_approveBody;
+
+  /// No description provided for @deleteRequests_rejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Deletion Request?'**
+  String get deleteRequests_rejectTitle;
+
+  /// No description provided for @deleteRequests_rejectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Record Stays. The Requester Is Told Your Decision.'**
+  String get deleteRequests_rejectBody;
+
+  /// No description provided for @deleteRequests_approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion Approved.'**
+  String get deleteRequests_approved;
+
+  /// No description provided for @deleteRequests_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion Request Rejected.'**
+  String get deleteRequests_rejected;
+
+  /// No description provided for @deleteRequests_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Complete The Review. Try Again.'**
+  String get deleteRequests_failed;
+
+  /// No description provided for @deleteRequests_staleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Record Changed'**
+  String get deleteRequests_staleTitle;
+
+  /// No description provided for @deleteRequests_staleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.'**
+  String get deleteRequests_staleBody;
+
+  /// No description provided for @deleteRequests_fieldCaseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Number'**
+  String get deleteRequests_fieldCaseNumber;
+
+  /// No description provided for @deleteRequests_fieldCaseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Type'**
+  String get deleteRequests_fieldCaseType;
+
+  /// No description provided for @deleteRequests_fieldPetitioner.
+  ///
+  /// In en, this message translates to:
+  /// **'Petitioner'**
+  String get deleteRequests_fieldPetitioner;
+
+  /// No description provided for @deleteRequests_fieldRespondent.
+  ///
+  /// In en, this message translates to:
+  /// **'Respondent'**
+  String get deleteRequests_fieldRespondent;
+
+  /// No description provided for @deleteRequests_fieldStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get deleteRequests_fieldStep;
+
+  /// No description provided for @deleteRequests_fieldResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get deleteRequests_fieldResult;
+
+  /// No description provided for @deleteRequests_fieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get deleteRequests_fieldTitle;
+
+  /// No description provided for @deleteRequests_fieldBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deleteRequests_fieldBody;
+
+  /// No description provided for @deleteRequests_fieldReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference And Page No'**
+  String get deleteRequests_fieldReference;
+
+  /// No description provided for @deleteRequests_fieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Title And Description'**
+  String get deleteRequests_fieldDescription;
+
+  /// No description provided for @deleteRequests_unknownRequester.
+  ///
+  /// In en, this message translates to:
+  /// **'A Firm Member'**
+  String get deleteRequests_unknownRequester;
 }
 
 class _AppLocalizationsDelegate

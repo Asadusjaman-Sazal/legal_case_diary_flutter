@@ -30,6 +30,7 @@ import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../sync/presentation/sync_conflict_banner.dart';
+import '../../sync/presentation/sync_notice_banner.dart';
 import '../../../sync/sync_health.dart';
 import '../../../sync/sync_providers.dart';
 import '../../../sync/sync_service.dart';
@@ -227,6 +228,8 @@ class CasesScreenModal extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // The dismissible notice above the non-dismissible conflict strip.
+          const SyncNoticeBanner(),
           const SyncConflictBanner(),
           BottomNavBar(
             currentRoute: currentRoute,

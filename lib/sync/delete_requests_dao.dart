@@ -47,6 +47,24 @@ class DeleteRequestsDao {
     return query.get();
   }
 
+  /// Reactive stream of one requester's own non-deleted requests, newest first.
+  ///
+  /// The requester's view of the queue (Task 20 Phase 3 item 3): RLS lets them
+  /// edit or cancel a request only while it is their own and still `pending`, so
+  /// the list they act from is the list this returns.
+  Stream<List<DeleteRequest>> watchMine(String requestedBy) => (db.select(db.deleteRequests)
+        ..where(
+          (row) =>
+              row.isDeleted.equals(false) & row.requestedBy.equals(requestedBy),
+        )
+        ..orderBy([
+          (row) => OrderingTerm(
+            expression: row.createdAt,
+            mode: OrderingMode.desc,
+          ),
+        ]))
+      .watch();
+
   /// Returns a delete request by id, or null if not found or deleted.
   Future<DeleteRequest?> getById(String id) async => (db.select(db.deleteRequests)
       ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))

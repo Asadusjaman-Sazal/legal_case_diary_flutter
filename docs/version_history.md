@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.323 - Task 19 audit fixes: the logout safety copy now lands where Restore can open it, per-user caches are cleared on logout, and the forced re-login leaves only once the data is handled.
+Version: 0.0.328 - Task 20 Phase 4 reviewer UI: approve/reject writers on the delete-requests repository, the queue and review screens with Reconfirm for stale reviews, the Settings pending badge, and the requester's decision badge.
 --------------------------------------
 
 ## Version History Log:
@@ -337,3 +337,8 @@ Version: 0.0.320 - Task 19 Phase 5: a firm device offline past 150 days now lock
 Version: 0.0.321 - Recorded the approved firm-mode-only scope of Task 19's extended-offline recovery lock as a Resolved Design Clarification and corrected the plan's premium/Firm wording.
 Version: 0.0.322 - Task 19 Phase 6: logout now branches on plan/connectivity, syncing or forcing a safety export before it wipes local data and the sync queue.
 Version: 0.0.323 - Task 19 audit fixes: the logout safety copy now lands where Restore can open it, per-user caches are cleared on logout, and the forced re-login leaves only once the data is handled.
+Version: 0.0.324 - Task 20 Phase 1 complete: Manage Associates creates the firm through the premium-gated ensure_firm, lists the live roster, and never offers a create-firm form to an associate.
+Version: 0.0.325 - Task 20 Phase 2 complete: owners list and revoke invites, set a member's role and permission flags, and remove an associate through an owner-only RPC that relinks them to individual mode and announces the removal; the removed device wipes itself and logs out.
+Version: 0.0.326 - Task 20 Phase 3 complete: deletes route through one decision point that raises a firm-scoped delete request for members without delete permission, and a resolved-row bug in the sync queue helper is fixed.
+Version: 0.0.327 - Task 20 Phase 4 server side: push_changes gains the hardened delete-review approval branch (locking, target_conflict/stale_review_required, already_resolved, atomic tombstone with case_history cascade), and the push worker applies review targets and target_conflict.
+Version: 0.0.328 - Task 20 Phase 4 reviewer UI: approve/reject writers on the delete-requests repository, the queue and review screens with Reconfirm for stale reviews, the Settings pending badge, and the requester's decision badge.

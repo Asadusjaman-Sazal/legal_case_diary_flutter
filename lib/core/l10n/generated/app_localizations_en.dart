@@ -846,6 +846,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.';
 
   @override
+  String get syncStatus_pendingDeletion => 'Deletion Pending';
+
+  @override
   String get syncStatus_export => 'Export Diagnostic Bundle';
 
   @override
@@ -1356,6 +1359,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
       'Password, subscription, and account settings';
+
+  @override
+  String get settingsAccountProfile_manageAssociatesSubtitle =>
+      'Manage Associates, Invites, And Firm Permissions';
 
   @override
   String get settingsProfile_title => 'Profile';
@@ -3092,6 +3099,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect to the internet to manage your firm.';
 
   @override
+  String get auth_errorPremiumRequired =>
+      'Firm Mode Requires An Active Premium Subscription.';
+
+  @override
   String get auth_errorAlreadyMember =>
       'You are already a member of this firm.';
 
@@ -3149,4 +3160,304 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_sessionExpiredAction => 'Sign In';
+
+  @override
+  String get manageAssociates_title => 'Manage Associates';
+
+  @override
+  String get manageAssociates_ownerOnly =>
+      'Only The Firm Owner Can Manage Associates.';
+
+  @override
+  String get manageAssociates_sectionMembers => 'Associates';
+
+  @override
+  String get manageAssociates_addAssociate => 'Add Associate';
+
+  @override
+  String get manageAssociates_noMembers => 'No Associates Yet.';
+
+  @override
+  String get manageAssociates_unnamedMember => 'Unnamed Member';
+
+  @override
+  String get manageAssociates_createFirmIntro =>
+      'Add Your First Associate To Create Your Firm And Work Together.';
+
+  @override
+  String get manageAssociates_firmNameLabel => 'Firm Name';
+
+  @override
+  String get manageAssociates_firmNameHint => 'Enter Your Chamber Or Firm Name';
+
+  @override
+  String get manageAssociates_createFirm => 'Create Firm';
+
+  @override
+  String get manageAssociates_goPremium => 'Go Premium';
+
+  @override
+  String get manageAssociates_inviteTitle => 'Invite Code';
+
+  @override
+  String get manageAssociates_inviteIntro =>
+      'Share This Code With Your Associate. It Works Once, And This Is The Only Time It Is Shown.';
+
+  @override
+  String get manageAssociates_copyCode => 'Copy Code';
+
+  @override
+  String get manageAssociates_codeCopied => 'Code Copied.';
+
+  @override
+  String get manageAssociates_shareCode => 'Share';
+
+  @override
+  String get manageAssociates_shareFailed => 'Could Not Share The Code';
+
+  @override
+  String manageAssociates_inviteMessage(String code) {
+    return 'Join My Firm On Legal Case Diary. Invite Code: $code';
+  }
+
+  @override
+  String get manageAssociates_sectionInvites => 'Outstanding Invites';
+
+  @override
+  String get manageAssociates_noInvites => 'No Unused Invites.';
+
+  @override
+  String manageAssociates_inviteCreated(String date) {
+    return 'Created $date';
+  }
+
+  @override
+  String get manageAssociates_revokeInvite => 'Revoke';
+
+  @override
+  String get manageAssociates_revokeInviteTitle => 'Revoke This Invite?';
+
+  @override
+  String get manageAssociates_revokeInviteBody =>
+      'The Code Will Stop Working Immediately.';
+
+  @override
+  String get manageAssociates_inviteRevoked => 'Invite Revoked.';
+
+  @override
+  String get manageAssociates_permissionsTitle => 'Permissions';
+
+  @override
+  String get manageAssociates_roleLabel => 'Role';
+
+  @override
+  String get manageAssociates_permissionAdd => 'Add Cases';
+
+  @override
+  String get manageAssociates_permissionEdit => 'Edit Cases';
+
+  @override
+  String get manageAssociates_permissionDelete => 'Delete Cases';
+
+  @override
+  String get manageAssociates_savePermissions => 'Save Permissions';
+
+  @override
+  String get manageAssociates_permissionsUpdated => 'Permissions Updated.';
+
+  @override
+  String get manageAssociates_removeAssociate => 'Remove From Firm';
+
+  @override
+  String get manageAssociates_removeAssociateTitle => 'Remove This Associate?';
+
+  @override
+  String get manageAssociates_removeAssociateBody =>
+      'They Lose Access To The Firm\'s Cases Immediately. The Records They Authored Stay In The Firm.';
+
+  @override
+  String get manageAssociates_associateRemoved => 'Associate Removed.';
+
+  @override
+  String get syncNotice_permissionsChanged =>
+      'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
+
+  @override
+  String get syncNotice_clockSkew =>
+      'Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.';
+
+  @override
+  String get membershipRevoked_title => 'You Have Been Removed From The Firm';
+
+  @override
+  String get membershipRevoked_body =>
+      'Your Firm Owner Removed This Account. You Can No Longer See Or Edit The Firm\'s Cases, And Anything Still Waiting To Sync Has Been Discarded. Log Out To Continue With An Individual Diary.';
+
+  @override
+  String get membershipRevoked_action => 'Log Out';
+
+  @override
+  String get membershipRevoked_logoutFailed => 'Could Not Log Out. Try Again.';
+
+  @override
+  String get deleteRequest_confirmTitle => 'Send A Deletion Request?';
+
+  @override
+  String get deleteRequest_confirmBody =>
+      'A Firm Member With Delete Permission Has To Approve It Before The Record Is Removed.';
+
+  @override
+  String get deleteRequest_confirmSend => 'Send Request';
+
+  @override
+  String get deleteRequest_sent => 'Deletion Request Sent To Admin/Owner.';
+
+  @override
+  String get deleteRequest_failed => 'Could Not Send The Deletion Request.';
+
+  @override
+  String get deleteRequests_title => 'Delete Requests';
+
+  @override
+  String get deleteRequests_firmOnly =>
+      'Delete Requests Are Only Available To Firm Members.';
+
+  @override
+  String get deleteRequests_toReview => 'Awaiting Your Review';
+
+  @override
+  String get deleteRequests_noneToReview =>
+      'No Deletion Requests Awaiting Review.';
+
+  @override
+  String get deleteRequests_mine => 'My Requests';
+
+  @override
+  String get deleteRequests_noneMine =>
+      'You Have Not Sent Any Deletion Requests.';
+
+  @override
+  String get deleteRequests_statusPending => 'Pending';
+
+  @override
+  String get deleteRequests_statusApproved => 'Approved';
+
+  @override
+  String get deleteRequests_statusRejected => 'Rejected';
+
+  @override
+  String get deleteRequests_statusStale => 'Needs Reconfirmation';
+
+  @override
+  String deleteRequests_requestedBy(String name) {
+    return 'Requested By $name';
+  }
+
+  @override
+  String deleteRequests_requestedOn(String date) {
+    return 'Requested On $date';
+  }
+
+  @override
+  String get deleteRequests_unnamed => 'A Record';
+
+  @override
+  String get deleteRequests_entityCase => 'Case';
+
+  @override
+  String get deleteRequests_entityCaseHistory => 'Case History';
+
+  @override
+  String get deleteRequests_entityNote => 'Note';
+
+  @override
+  String get deleteRequests_entityReference => 'Reference';
+
+  @override
+  String get deleteRequests_entityUnknown => 'Record';
+
+  @override
+  String get deleteRequests_reviewTitle => 'Review Deletion Request';
+
+  @override
+  String get deleteRequests_snapshot => 'Requested Record';
+
+  @override
+  String get deleteRequests_noteLabel => 'Review Note (Optional)';
+
+  @override
+  String get deleteRequests_noteHint => 'Add A Reason';
+
+  @override
+  String get deleteRequests_approve => 'Approve';
+
+  @override
+  String get deleteRequests_reconfirm => 'Reconfirm';
+
+  @override
+  String get deleteRequests_reject => 'Reject';
+
+  @override
+  String get deleteRequests_approveTitle => 'Approve Deletion?';
+
+  @override
+  String get deleteRequests_approveBody =>
+      'The Record Will Be Deleted For Everyone In The Firm.';
+
+  @override
+  String get deleteRequests_rejectTitle => 'Reject Deletion Request?';
+
+  @override
+  String get deleteRequests_rejectBody =>
+      'The Record Stays. The Requester Is Told Your Decision.';
+
+  @override
+  String get deleteRequests_approved => 'Deletion Approved.';
+
+  @override
+  String get deleteRequests_rejected => 'Deletion Request Rejected.';
+
+  @override
+  String get deleteRequests_failed =>
+      'Could Not Complete The Review. Try Again.';
+
+  @override
+  String get deleteRequests_staleTitle => 'This Record Changed';
+
+  @override
+  String get deleteRequests_staleBody =>
+      'It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.';
+
+  @override
+  String get deleteRequests_fieldCaseNumber => 'Case Number';
+
+  @override
+  String get deleteRequests_fieldCaseType => 'Case Type';
+
+  @override
+  String get deleteRequests_fieldPetitioner => 'Petitioner';
+
+  @override
+  String get deleteRequests_fieldRespondent => 'Respondent';
+
+  @override
+  String get deleteRequests_fieldStep => 'Step';
+
+  @override
+  String get deleteRequests_fieldResult => 'Result';
+
+  @override
+  String get deleteRequests_fieldTitle => 'Title';
+
+  @override
+  String get deleteRequests_fieldBody => 'Note';
+
+  @override
+  String get deleteRequests_fieldReference => 'Reference And Page No';
+
+  @override
+  String get deleteRequests_fieldDescription => 'Title And Description';
+
+  @override
+  String get deleteRequests_unknownRequester => 'A Firm Member';
 }

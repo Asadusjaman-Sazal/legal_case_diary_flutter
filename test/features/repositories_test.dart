@@ -449,11 +449,198 @@ void main() {
         entityId: 'case-123',
         entitySnapshot: <String, dynamic>{'id': 'case-123'},
         targetBaseVersion: 1,
+        firmId: 'firm-1',
       );
 
       final request = await deleteRequestsRepo.getById(id);
       expect(request, isNotNull);
       expect(request!.status, 'pending');
+      // The request is firm-scoped by the RLS insert policy, so a null here is
+      // a refused insert rather than "no firm" (Task 20 Phase 3).
+      expect(request.firmId, 'firm-1');
+      expect(request.requestedBy, isNotEmpty);
+      expect(request.entitySnapshot, '{"id":"case-123"}');
+    });
+
+    test(
+      'a pending request re-snapshots into its single queued insert',
+      () async {
+        final id = await deleteRequestsRepo.createRequest(
+          entityType: 'note',
+          entityId: 'note-1',
+          entitySnapshot: <String, dynamic>{'id': 'note-1', 'title': 'Old'},
+          targetBaseVersion: 3,
+          firmId: 'firm-1',
+        );
+
+        await deleteRequestsRepo.refreshSnapshot(
+          id: id,
+          entitySnapshot: <String, dynamic>{'id': 'note-1', 'title': 'New'},
+          targetBaseVersion: 9,
+        );
+
+        final request = await deleteRequestsRepo.getById(id);
+        expect(request!.targetBaseVersion, 9);
+        expect(
+          request.entitySnapshot,
+          contains('New'),
+          reason: 'the reviewer must read what is being deleted now',
+        );
+
+        final queue = await SyncQueueDao(db).getByEntity('delete_request', id);
+        // Nothing was pushed, so the refresh compacts into the one queued insert
+        // rather than an update to a row the server has never seen.
+        expect(queue.single.operation, 'insert');
+        expect(
+          jsonDecode(queue.single.changedFields),
+          contains('entity_snapshot'),
+        );
+      },
+    );
+
+    test('a request that was never pushed cancels away to nothing', () async {
+      final id = await deleteRequestsRepo.createRequest(
+        entityType: 'note',
+        entityId: 'note-1',
+        entitySnapshot: <String, dynamic>{'id': 'note-1'},
+        targetBaseVersion: 1,
+        firmId: 'firm-1',
+      );
+
+      await deleteRequestsRepo.cancel(id);
+
+      expect(await deleteRequestsRepo.getById(id), isNull);
+      // insert + delete is a row the server never needed to know about, so the
+      // compaction matrix drops both rather than sending a create and a tombstone
+      // for a request that never existed there.
+      expect(await SyncQueueDao(db).getByEntity('delete_request', id), isEmpty);
+    });
+
+    test(
+      'a synced request cancels as a tombstone, never a hard delete',
+      () async {
+        final id = await deleteRequestsRepo.createRequest(
+          entityType: 'note',
+          entityId: 'note-1',
+          entitySnapshot: <String, dynamic>{'id': 'note-1'},
+          targetBaseVersion: 1,
+          firmId: 'firm-1',
+        );
+        // The server has seen it: the row is now a fact that must be withdrawn
+        // rather than an unsent intention.
+        await SyncQueueDao(db).resolve(
+          (await SyncQueueDao(db).getByEntity('delete_request', id)).single.id,
+        );
+
+        await deleteRequestsRepo.cancel(id);
+
+        // The resolved insert stays in the table as history, so the cancel is read
+        // back from the still-open row it added rather than from the pair.
+        final queue = (await SyncQueueDao(db).getByEntity(
+          'delete_request',
+          id,
+        )).where((row) => row.state != 'resolved').toList(growable: false);
+        expect(queue.single.operation, 'delete');
+        final payload =
+            jsonDecode(queue.single.payload) as Map<String, dynamic>;
+        expect(payload['is_deleted'], isTrue);
+      },
+    );
+
+    test('watchMine shows only the requester\'s own requests', () async {
+      await deleteRequestsRepo.createRequest(
+        entityType: 'note',
+        entityId: 'note-mine',
+        entitySnapshot: <String, dynamic>{'id': 'note-mine'},
+        targetBaseVersion: 1,
+        firmId: 'firm-1',
+      );
+      await DeleteRequestsDao(db).insert(
+        DeleteRequestsCompanion(
+          id: const Value('someone-elses'),
+          firmId: const Value('firm-1'),
+          entityType: const Value('note'),
+          entityId: const Value('note-theirs'),
+          entitySnapshot: const Value('{}'),
+          targetBaseVersion: const Value(1),
+          requestedBy: const Value('user-2'),
+          status: const Value('pending'),
+          createdAt: const Value(1),
+          updatedAt: const Value(1),
+        ),
+      );
+
+      final mine = await deleteRequestsRepo
+          .watchMine(deleteRequestsRepo.currentUserId)
+          .first;
+
+      expect(mine, hasLength(1));
+      expect(mine.single.entityId, 'note-mine');
+    });
+
+    test('approving a synced request queues one update', () async {
+      final id = await deleteRequestsRepo.createRequest(
+        entityType: 'note',
+        entityId: 'note-1',
+        entitySnapshot: <String, dynamic>{'id': 'note-1'},
+        targetBaseVersion: 1,
+        firmId: 'firm-1',
+      );
+      // The server has seen the request, so the decision is an update against
+      // the version it holds rather than a rewrite of an unsent intention.
+      await SyncQueueDao(db).resolve(
+        (await SyncQueueDao(db).getByEntity('delete_request', id)).single.id,
+      );
+
+      await deleteRequestsRepo.approve(id, reviewNote: 'Verified the record.');
+
+      final request = await deleteRequestsRepo.getById(id);
+      expect(request!.status, 'approved');
+      expect(request.reviewNote, 'Verified the record.');
+      expect(request.reviewedBy, deleteRequestsRepo.currentUserId);
+
+      final queue = (await SyncQueueDao(db).getByEntity(
+        'delete_request',
+        id,
+      )).where((row) => row.state != 'resolved').toList(growable: false);
+      expect(queue, hasLength(1));
+      expect(queue.single.operation, 'update');
+      expect(queue.single.baseVersion, request.version);
+      final payload =
+          jsonDecode(queue.single.payload) as Map<String, dynamic>;
+      // The one field `push_changes` reads to know a decision was made.
+      expect(payload['status'], 'approved');
+      expect(payload['review_note'], 'Verified the record.');
+    });
+
+    test('a request that was already decided is left alone', () async {
+      final id = await deleteRequestsRepo.createRequest(
+        entityType: 'note',
+        entityId: 'note-1',
+        entitySnapshot: <String, dynamic>{'id': 'note-1'},
+        targetBaseVersion: 1,
+        firmId: 'firm-1',
+      );
+
+      await deleteRequestsRepo.approve(id);
+      final queueAfterApprove = (await SyncQueueDao(db).getByEntity(
+        'delete_request',
+        id,
+      )).length;
+
+      await deleteRequestsRepo.reject(id, reviewNote: 'Changed my mind.');
+
+      final request = await deleteRequestsRepo.getById(id);
+      expect(
+        request!.status,
+        'approved',
+        reason: 'a decision is audit history, not something to overwrite',
+      );
+      expect(request.reviewNote, isNull);
+      expect(
+        (await SyncQueueDao(db).getByEntity('delete_request', id)),
+        hasLength(queueAfterApprove),
+      );
     });
 
     test('sync payload and changed_fields are snake_case', () async {

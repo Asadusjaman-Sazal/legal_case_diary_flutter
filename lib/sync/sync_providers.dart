@@ -42,6 +42,12 @@ final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
       return 'user:${identity.userId}';
     },
     onPings: (pings) => ref.read(syncServiceProvider).requestRealtimePull(pings),
+    // A membership or permission change is not a row to pull: it changes what
+    // this account *is* and what it may do. The one refresh entry point re-reads
+    // the profile, the firm and the membership together — which is also how a
+    // removal is noticed (the profile's `firm_id` goes null while the cached
+    // membership row is still there).
+    onMembershipChange: () => unawaited(ref.read(accountRefreshProvider)()),
   );
   ref.onDispose(listener.dispose);
   return listener;
@@ -68,6 +74,25 @@ final syncHealthProvider = StreamProvider<SyncHealth>((ref) {
   notifier.addListener(push);
   ref.onDispose(() {
     notifier.removeListener(push);
+    changes.close();
+  });
+  push();
+  return changes.stream;
+});
+
+/// The last thing the user must be told about sync, live.
+///
+/// `SyncService.notice` is a plain `ValueNotifier` so the engine can raise it
+/// without knowing about widgets; this is the widget-facing stream. It has no
+/// consumer in `lib/` until Task 20 Phase 2, which is why the banner that reads
+/// it lives beside the conflict banner and is mounted in the same two places.
+final syncNoticeProvider = StreamProvider<SyncNotice?>((ref) {
+  final notice = ref.watch(syncServiceProvider).notice;
+  final changes = StreamController<SyncNotice?>();
+  void push() => changes.add(notice.value);
+  notice.addListener(push);
+  ref.onDispose(() {
+    notice.removeListener(push);
     changes.close();
   });
   push();

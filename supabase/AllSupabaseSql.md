@@ -56,6 +56,9 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.313 | 2026-09-30 | `20260930150000_sync_server_time.sql` | `sync_server_time()` — the server clock as a plain stable SQL function, granted to `authenticated` only, so a successful sync can compare device and server time and record the offset past two minutes. |
 | 0.0.318 | 2026-09-30 | `20260930160000_conflict_mergeable_column.sql` | `conflict_log.mergeable_conflict` — the detecting client's three-way verdict on the conflict, carried on the mirrored row so a second device reads the same answer instead of recomputing one from its own copy. `not null default false` reads an old or absent value as "needs a person". |
 | 0.0.318 | 2026-09-30 | `20260930170000_push_changes_created_at_guard.sql` | `push_changes` again, with one corrected guard: the insert-time `created_at` fallback now fills only an epoch-ms **integer** column, so `conflict_log`'s server-owned `timestamptz` keeps its own default instead of receiving the client's milliseconds (which raised `22007` and made every conflict mirror a permanent rejection — found by running the smoke test with a `conflict_log` row in it). |
+| 0.0.324 | 2026-09-30 | `20260930180000_ensure_firm_premium_gate.sql` | `ensure_firm` again, with Task 20 Phase 1's two refusals: the individual -> firm-owner transition now requires a derived premium entitlement (plan §6 — the free plan is strictly individual and single-device; lapsed owners keep the firm they already have), and a member of somebody else's firm can no longer create a second one and relink their profile away from the rows they authored. |
+| 0.0.325 | 2026-09-30 | `20260930190000_remove_firm_member.sql` | Task 20 Phase 2's `remove_firm_member(uuid)`: owner-only, `SECURITY DEFINER`, it deletes the membership row and relinks the member's `profiles.firm_id` / `role` to individual — which is what revokes RLS access, Realtime topic authorization and every queued write at once, without touching the auth session (this project has no service-role key). Authored records keep their attribution and are never reassigned; the removal is announced to the removed account's own topic and to the firm's. The same migration attaches the existing broadcast trigger to `firm_members`, so a permission toggle reaches the member it affects. |
+| 0.0.327 | 2026-09-30 | `20260930200000_push_changes_delete_review.sql` | Task 20 Phase 4's delete-review branch: `push_changes` replaces whole to teach an approval (a `delete_requests` update setting `status = 'approved'`) what it means server-side. The request is locked (already) and the target is locked next, always in that order so concurrent approvals cannot deadlock; only a member with `can_delete` may review; a target at a different version than the request's `target_base_version` becomes `target_conflict`, parking the request as `stale_review_required` with the version the reviewer just saw so a reconfirm re-decides against the row that exists; an already soft-deleted target becomes `already_resolved` with its tombstone and records no decision; and an unchanged target is tombstoned atomically with its `case_history` cascade and the request resolved beside it, all inside the per-mutation savepoint that already produces idempotent receipts. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -5531,6 +5534,1062 @@ comment on function public.push_changes(jsonb) is
   'Single atomic push pipeline: optimistic concurrency, per-mutation savepoints, idempotent receipts, authoritative case history and cascade soft-deletes. The insert-time `created_at` fallback is limited to epoch-ms integer columns, so a server-owned timestamptz (conflict_log) keeps its own default.';
 
 -- Same surface as the original: `anon` and `public` stay refused.
+revoke all on function public.push_changes(jsonb) from public, anon;
+grant execute on function public.push_changes(jsonb) to authenticated;
+```
+
+## App Version 0.0.324 — Task 20 Phase 1 — The Premium Gate On Firm Establishment
+
+### 0.0.324 · `20260930180000_ensure_firm_premium_gate.sql`
+
+> **Created 2026-09-30.** `ensure_firm` again, with Task 20 Phase 1's two refusals: the individual -> firm-owner transition now requires a derived premium entitlement (plan §6 — the free plan is strictly individual and single-device; lapsed owners keep the firm they already have), and a member of somebody else's firm can no longer create a second one and relink their profile away from the rows they authored.
+
+```sql
+-- Task 20 Phase 1 — `ensure_firm(name)` gains the premium gate the task requires.
+--
+-- Phase 1 item 2: "Firm mode requires an active premium subscription … Block
+-- adding the first associate on a free entitlement." The client blocks it and
+-- routes to the Paywall (Task 20's Manage Associates screen); this is the same
+-- rule enforced where it cannot be bypassed, because the client also cannot be
+-- trusted with it — `ensure_firm` is the only path from individual to owner, and
+-- it runs as SECURITY DEFINER.
+--
+-- Entitlement is DERIVED, never read from `subscription_status` (plan §6): the
+-- same `subscription_expiry + 48h grace > now()` rule that `is_premium()` and
+-- `push_changes` already use, so the gate here cannot disagree with the one the
+-- sync engine applies a moment later.
+--
+-- The gate sits at the **creation** moment only. Plan §6's "Lapsed-Premium Users
+-- Keep Everything" promises that an owner whose subscription expires keeps the
+-- firm and every case in it, so this function's idempotent paths — returning the
+-- existing firm, renaming it, repairing the owner's `firm_members` row — must
+-- keep working for a lapsed owner rather than locking them out of their own
+-- firm. A free account therefore cannot *become* a firm; it does not lose one it
+-- already has.
+--
+-- The second guard is a correctness one, and it is why the client never has to
+-- be trusted about who may call this: a member of somebody else's firm is not an
+-- individual who can become an owner. Without this check an associate calling
+-- the RPC would create a second firm, relink their `profiles.firm_id` to it and
+-- leave every row they authored pointing at the firm they just left — invisible
+-- to them, because every firm-scoped policy reads `current_firm_id()`.
+--
+-- Nothing else in `ensure_firm` changes; the function is replaced whole because
+-- that is the only write path a plpgsql body has.
+
+create or replace function public.ensure_firm(p_name text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_now bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  v_name text := pg_catalog.btrim(coalesce(p_name, ''));
+  v_firm public.firms%rowtype;
+  v_has_firm boolean;
+begin
+  if v_user_id is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  select * into v_firm
+    from public.firms f
+   where f.owner_id = v_user_id
+   order by f.created_at
+   limit 1;
+  -- Captured immediately: `FOUND` belongs to the most recent SQL statement, and
+  -- the membership guard below runs one of its own.
+  v_has_firm := found;
+
+  -- Membership guard: refuse to become the owner of a new firm while the
+  -- caller's profile points at a firm they do not own. Returned rather than
+  -- raised so the answer is a value the client can report; nothing is written.
+  if exists (
+    select 1
+      from public.profiles p
+     where p.id = v_user_id
+       and p.firm_id is not null
+       and (not v_has_firm or p.firm_id is distinct from v_firm.id)
+  ) then
+    return jsonb_build_object('status', 'member_of_another_firm');
+  end if;
+
+  if not v_has_firm then
+    -- The transition to firm mode is the premium-gated step (Phase 1 item 2).
+    if not public.is_premium(v_user_id) then
+      return jsonb_build_object('status', 'premium_required');
+    end if;
+
+    -- `created_at` is a server instant (`timestamptz`) and takes the column
+    -- default: the bigint `v_now` below is epoch ms for the client-facing
+    -- `firm_members` stamps only.
+    insert into public.firms (
+      name, owner_id, subscription_status, subscription_expiry
+    )
+    select
+      v_name,
+      v_user_id,
+      p.subscription_status,
+      p.subscription_expiry
+      from public.profiles p
+     where p.id = v_user_id
+    returning * into v_firm;
+
+    if not found then
+      -- No profile row: the sign-up trigger creates one, so this is a bug state,
+      -- never something to explain to a user. Raising here rolls the firm back.
+      raise exception 'ensure_firm: no profiles row for the caller'
+        using errcode = 'P0001';
+    end if;
+  elsif v_name is distinct from v_firm.name then
+    update public.firms f
+       set name = v_name
+     where f.id = v_firm.id
+    returning * into v_firm;
+  end if;
+
+  -- The conversion itself: firm scope for every policy, owner role for the app.
+  update public.profiles p
+     set firm_id = v_firm.id,
+         role = 'owner'
+   where p.id = v_user_id;
+
+  -- The owner holds every permission explicitly, so `can_edit_firm` /
+  -- `can_delete_firm` and the client's cached flags agree with the role.
+  insert into public.firm_members (
+    firm_id, user_id, role, can_add, can_edit, can_delete,
+    synced_at, permissions_synced_at
+  )
+  values (
+    v_firm.id, v_user_id, 'owner', true, true, true, v_now, v_now
+  )
+  on conflict (firm_id, user_id) do update
+    set role = 'owner',
+        can_add = true,
+        can_edit = true,
+        can_delete = true,
+        synced_at = excluded.synced_at,
+        permissions_synced_at = excluded.permissions_synced_at;
+
+  return jsonb_build_object(
+    'status', 'ready',
+    'firm_id', v_firm.id,
+    'name', v_firm.name
+  );
+end;
+$$;
+
+comment on function public.ensure_firm(text) is
+  'Idempotent owner-side firm establishment: creates the caller''s firm (premium-gated at the creation moment), relinks profiles.firm_id/role and upserts the owner''s firm_members row. Refuses a member of another firm. The invite generator (and therefore the app) has no other way to reach firm scope.';
+
+-- A direct EXECUTE grant from Supabase's default privileges outlives a revoke of
+-- PUBLIC, so `anon` is named explicitly — the same reason join_firm and
+-- approve_payment do it.
+revoke all on function public.ensure_firm(text) from public, anon;
+grant execute on function public.ensure_firm(text) to authenticated;
+```
+
+## App Version 0.0.325 — Task 20 Phase 2 — Removing An Associate
+
+### 0.0.325 · `20260930190000_remove_firm_member.sql`
+
+> **Created 2026-09-30.** Task 20 Phase 2's `remove_firm_member(uuid)`: owner-only, `SECURITY DEFINER`, it deletes the membership row and relinks the member's `profiles.firm_id` / `role` to individual — which is what revokes RLS access, Realtime topic authorization and every queued write at once, without touching the auth session (this project has no service-role key). Authored records keep their attribution and are never reassigned; the removal is announced to the removed account's own topic and to the firm's. The same migration attaches the existing broadcast trigger to `firm_members`, so a permission toggle reaches the member it affects.
+
+```sql
+-- Task 20 Phase 2 — removing an associate, and telling the firm about it.
+--
+-- Three things have to happen together and they are all server-side, which is
+-- why this is one `SECURITY DEFINER` function rather than three client calls:
+--
+--   * the `firm_members` row goes (the membership itself);
+--   * `profiles.firm_id` / `profiles.role` are relinked to individual mode —
+--     and that single statement is what actually revokes access, because every
+--     guard in the schema reads `firm_id`: `current_firm_id()` scopes every RLS
+--     policy, `can_edit_firm()` / `can_delete_firm()` gate `sync_can_write()`,
+--     and `can_read_topic()` authorizes the `firm:{id}` Realtime topic. A
+--     removed member can therefore write nothing, see nothing and subscribe to
+--     nothing from the moment this commits, with **no** session revocation
+--     needed (this project has no service-role key, so the auth session itself
+--     is left alone on purpose — see the task file's Phase 2 item 5);
+--   * the removal is announced, so a connected device enforces it immediately
+--     rather than at its next launch.
+--
+-- Authored records are deliberately untouched: `cases`, `notes` and
+-- `case_references` keep their `user_id` (immutable audit attribution) and their
+-- `firm_id` (they belong to the firm), and nothing is reassigned to the owner.
+-- That is the Addendum's rule verbatim.
+--
+-- Owner-only: `firms.owner_id` is the single source of truth, and the client
+-- cannot even ask for another firm's member because the function resolves the
+-- firm from the caller rather than from a parameter.
+
+create or replace function public.remove_firm_member(p_user_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_actor uuid := auth.uid();
+  v_firm_id uuid;
+  v_locked boolean;
+begin
+  if v_actor is null then
+    raise exception 'unauthenticated' using errcode = '42501';
+  end if;
+
+  if p_user_id is null then
+    return jsonb_build_object('status', 'invalid_request');
+  end if;
+
+  -- The caller's own firm, and only if they own it. A non-owner gets an answer
+  -- rather than an error: it is a state the UI can word, not a bug.
+  select f.id into v_firm_id
+    from public.firms f
+   where f.owner_id = v_actor;
+
+  if v_firm_id is null then
+    return jsonb_build_object('status', 'not_owner');
+  end if;
+
+  if p_user_id = v_actor then
+    -- A firm is not transferable in this task, so removing the owner would
+    -- leave `firms.owner_id` pointing at a non-member and the firm with nobody
+    -- who may administer it.
+    return jsonb_build_object('status', 'cannot_remove_self');
+  end if;
+
+  -- Locked, so two concurrent removals cannot both claim the same row and one
+  -- of them cannot report `removed` for a membership it did not delete.
+  select true into v_locked
+    from public.firm_members m
+   where m.firm_id = v_firm_id
+     and m.user_id = p_user_id
+   for update;
+
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  delete from public.firm_members m
+   where m.firm_id = v_firm_id
+     and m.user_id = p_user_id;
+
+  -- The revocation, in one statement: `firm_id` is what every access helper
+  -- reads, so nulling it ends RLS access, Realtime topic authorization and
+  -- every queued `push_changes` write at once. `role` follows it back to the
+  -- individual default rather than being left as `associate` with no firm.
+  update public.profiles p
+     set firm_id = null,
+         role = 'individual'
+   where p.id = p_user_id;
+
+  -- Two audiences, two topics — both as the trigger's own `row_change` event,
+  -- so the client needs no second decoder:
+  --
+  --   * `user:{removed}` reaches the removed account's own devices at once,
+  --     whatever topic they were joined to (`can_read_topic` always allows a
+  --     caller their own user topic, including after the relink above);
+  --   * `firm:{firm}` refreshes every remaining member's roster view.
+  --
+  -- The DELETE above fires no row trigger — the broadcast trigger is
+  -- INSERT/UPDATE only — so this announcement is explicit rather than implied.
+  perform realtime.send(
+    jsonb_build_object('table', 'firm_members', 'id', p_user_id),
+    'row_change',
+    'user:' || p_user_id::text,
+    true
+  );
+  perform realtime.send(
+    jsonb_build_object('table', 'firm_members', 'id', p_user_id),
+    'row_change',
+    'firm:' || v_firm_id::text,
+    true
+  );
+
+  return jsonb_build_object(
+    'status', 'removed',
+    'user_id', p_user_id,
+    'firm_id', v_firm_id
+  );
+end;
+$$;
+
+comment on function public.remove_firm_member(uuid) is
+  'Owner-only: ends a membership, relinks the member to individual mode and announces the removal. Never reassigns authored records.';
+
+revoke all on function public.remove_firm_member(uuid) from public, anon;
+grant execute on function public.remove_firm_member(uuid) to authenticated;
+
+-- `firm_members` joins the broadcast list, for the half of this phase that is
+-- not a removal: a permission toggle or a new membership must reach the member
+-- it affects. The trigger reuses `broadcast_row_change()` unchanged, so the
+-- ping goes to `firm:{firm_id}` (the payload's first scoping column), which is
+-- the topic every member of that firm is already authorized for.
+drop trigger if exists trg_firm_members_broadcast on public.firm_members;
+create trigger trg_firm_members_broadcast
+  after insert or update on public.firm_members
+  for each row execute function public.broadcast_row_change();
+```
+
+## App Version 0.0.327 — Task 20 Phase 4 — Delete Requests: Review
+
+### 0.0.327 · `20260930200000_push_changes_delete_review.sql`
+
+> **Created 2026-09-30.** Task 20 Phase 4's delete-review branch: `push_changes` replaces whole to teach an approval (a `delete_requests` update setting `status = 'approved'`) what it means server-side. The request is locked (already) and the target is locked next, always in that order so concurrent approvals cannot deadlock; only a member with `can_delete` may review; a target at a different version than the request's `target_base_version` becomes `target_conflict`, parking the request as `stale_review_required` with the version the reviewer just saw so a reconfirm re-decides against the row that exists; an already soft-deleted target becomes `already_resolved` with its tombstone and records no decision; and an unchanged target is tombstoned atomically with its `case_history` cascade and the request resolved beside it, all inside the per-mutation savepoint that already produces idempotent receipts.
+
+```sql
+-- Task 20 Phase 4 — push_changes: the delete-review branch.
+--
+-- The reviewer side of the Associate Deletion Policy (Sync Plan §1, and the
+-- `delete_requests` schema note). An approval is an ordinary queued update on
+-- `entity_type = 'delete_request'` whose payload sets `status = 'approved'`;
+-- this migration teaches `push_changes` what that update *means*, so the whole
+-- decision is made server-side, in one savepoint, against rows the server locks.
+--
+-- What the branch guarantees, and why each rule exists:
+--
+--   * **Locking.** The request row is already locked `for update` by the generic
+--     update path; the branch then locks the *target* the same way. The order is
+--     always request-then-target, so two concurrent approvals for different
+--     requests can never deadlock, and a decision cannot be made against a row
+--     that moves underneath it.
+--
+--   * **`target_conflict` / `stale_review_required`.** The request records the
+--     version its author saw (`target_base_version`). If the target now sits at a
+--     different version, the approval is refused: an old snapshot must never
+--     authorize deletion of materially changed data. The request is parked as
+--     `stale_review_required` **and** adopts the version the reviewer just saw,
+--     so a reconfirm re-decides against the row that actually exists.
+--
+--   * **`already_resolved`.** A target that is missing or already soft-deleted
+--     yields the tombstone, not a generic error, and the request is left exactly
+--     as it was — it is audit history, and nothing that never happened should be
+--     recorded as a decision.
+--
+--   * **Atomic success.** Only an unchanged target is tombstoned: the target
+--     update, the `case_history` cascade a case delete always performs, and the
+--     request's resolution (`status = 'approved'`, reviewer, server time) all
+--     happen in this mutation's own savepoint, and the affected rows ride back
+--     for the client to apply.
+--
+--   * **Idempotency.** Unchanged from Task 18: a duplicate submission of the
+--     same mutation id returns the stored receipt verbatim, so a retried
+--     approval can never tombstone twice or extend anything twice.
+--
+-- Authorization is the reviewer's `can_delete_firm(request.firm_id)`, checked
+-- explicitly because `push_changes` is `security definer` and RLS does not run
+-- inside it. A request whose target belongs to a different firm is refused as
+-- well: a delete request is firm-scoped, so a cross-firm target is tampering.
+--
+-- Reject is deliberately **not** special-cased: `status = 'rejected'` is an
+-- ordinary update that keeps the record and notifies the requester, and the
+-- existing `sync_can_write` rule already permits a `can_delete` member to write
+-- it. Nothing else in `push_changes` changes; the function is replaced whole
+-- because that is the only write path a plpgsql body has.
+
+create or replace function public.push_changes(rows jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_actor uuid := auth.uid();
+  v_entitled boolean;
+  v_n integer;
+  v_results jsonb[];
+  v_order integer[];
+  v_idx integer;
+  v_row jsonb;
+  v_mutation_id text;
+  v_entity_type text;
+  v_entity_id text;
+  v_operation text;
+  v_table text;
+  v_payload jsonb;
+  v_base_version integer;
+  v_existing jsonb;
+  v_final jsonb;
+  v_new_row jsonb;
+  v_old_version integer;
+  v_ms bigint;
+  v_hash text;
+  v_receipt public.mutation_receipts%rowtype;
+  v_status text;
+  v_error_code text;
+  v_message text;
+  v_result jsonb;
+  v_cols text;
+  v_vals text;
+  v_bad integer;
+  v_has_created_at boolean;
+  v_prov jsonb;
+  v_hist jsonb;
+  v_hist_row jsonb;
+  v_child jsonb;
+  v_children jsonb;
+  v_state text;
+  v_msg text;
+  -- Delete-review accumulators (Task 20 Phase 4).
+  v_target jsonb;
+  v_target_type text;
+  v_target_table text;
+  v_expected integer;
+  v_req_status text;
+begin
+  if v_actor is null then
+    raise exception 'unauthenticated' using errcode = '42501';
+  end if;
+
+  -- Batch invariant: the Flutter client always sends one JSON array.
+  if rows is null or jsonb_typeof(rows) <> 'array' then
+    raise exception 'push_changes: rows must be a JSON array'
+      using errcode = '22023';
+  end if;
+
+  v_n := jsonb_array_length(rows);
+  if v_n = 0 then
+    return jsonb_build_object('results', '[]'::jsonb);
+  end if;
+
+  v_entitled := public.has_sync_entitlement(v_actor);
+  v_ms := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+
+  -- One slot per submitted row, so the response is exactly one result per
+  -- mutation_id in input order even though processing follows dependency order.
+  v_results := array_fill(null::jsonb, array[v_n]);
+
+  select array_agg(i order by r, i)
+    into v_order
+    from (
+      select i,
+             public.sync_dependency_rank(
+               coalesce(rows -> (i - 1) ->> 'entity_type', '')
+             ) as r
+        from generate_series(1, v_n) as i
+    ) s;
+
+  foreach v_idx in array v_order loop
+    v_row := rows -> (v_idx - 1);
+
+    -- Reset every per-mutation accumulator so nothing from the previous
+    -- iteration can leak into this one's result.
+    v_status := null;
+    v_error_code := null;
+    v_message := null;
+    v_existing := null;
+    v_final := null;
+    v_new_row := null;
+    v_children := null;
+    v_hist_row := null;
+    v_target := null;
+    v_target_type := null;
+    v_target_table := null;
+    v_expected := null;
+    v_req_status := null;
+
+    v_mutation_id := nullif(v_row ->> 'mutation_id', '');
+    v_entity_type := nullif(v_row ->> 'entity_type', '');
+    v_entity_id := nullif(v_row ->> 'entity_id', '');
+    v_operation := nullif(v_row ->> 'operation', '');
+
+    if v_mutation_id is null or v_entity_type is null
+       or v_entity_id is null or v_operation is null then
+      raise exception
+        'push_changes: every row needs mutation_id, entity_type, entity_id and operation'
+        using errcode = '22023';
+    end if;
+
+    v_table := public.sync_entity_table(v_entity_type);
+    v_hash := public.sha256_hex(v_row::text);
+
+    -- Idempotency: a known mutation_id with the same canonical hash returns the
+    -- original result and applies nothing; a different hash is refused.
+    select * into v_receipt
+      from public.mutation_receipts r
+     where r.mutation_id = v_mutation_id;
+    if found then
+      if v_receipt.request_hash = v_hash then
+        v_results[v_idx] := v_receipt.result_payload;
+      else
+        v_results[v_idx] := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', 'rejected',
+          'error_code', 'mutation_id_reused',
+          'message', 'This mutation id was already used with a different payload.'
+        );
+      end if;
+      continue;
+    end if;
+
+    -- The implicit savepoint for this logical mutation: a permanent failure
+    -- rolls back only this block, while a receipt (written after the block) and
+    -- every other mutation survive.
+    begin
+      if not v_entitled then
+        v_status := 'rejected';
+        v_error_code := 'entitlement_required';
+        v_message := 'Online sync requires an active subscription.';
+      elsif v_table is null then
+        v_status := 'rejected';
+        v_error_code := 'unknown_entity';
+        v_message := format('Unknown entity type %s.', v_entity_type);
+      else
+        v_payload := coalesce(v_row -> 'payload', '{}'::jsonb);
+
+        -- A payload key that is not a real column is a client validation error,
+        -- never a silent no-op.
+        select count(*) into v_bad
+          from jsonb_object_keys(v_payload) k
+         where not exists (
+           select 1
+             from pg_catalog.pg_attribute a
+             join pg_catalog.pg_class c on c.oid = a.attrelid
+             join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = 'public'
+              and c.relname = v_table
+              and a.attname = k
+              and a.attnum > 0
+              and a.attisdropped = false
+         );
+        if v_bad > 0 then
+          raise exception 'unknown_column'
+            using errcode = '42703',
+                  hint = 'The payload names a column that does not exist on the server table.';
+        end if;
+
+        v_base_version := nullif(v_row ->> 'base_version', '')::int;
+
+        if v_operation = 'insert' then
+          -- Inserts require no existing row.
+          execute format(
+            'select to_jsonb(t) from public.%I t where t.id = $1',
+            v_table
+          ) into v_existing using v_entity_id;
+
+          if v_existing is not null then
+            v_status := 'conflict';
+            v_error_code := 'version_conflict';
+            v_message := 'A row with this id already exists.';
+            v_new_row := v_existing;
+          else
+            -- Server-owned columns are never taken from the client; the
+            -- server_updated_at trigger stamps its own column.
+            v_final := v_payload
+              - 'server_updated_at' - 'version' - 'last_modified_by';
+            if v_table = 'conflict_log' then
+              -- The server column is a timestamptz defaulted to server now();
+              -- the client's epoch-ms value must not be cast into it.
+              v_final := v_final - 'created_at';
+            end if;
+            v_final := v_final || jsonb_build_object(
+              'version', 1,
+              'last_modified_by', v_actor::text
+            );
+            -- Only a table whose `created_at` is an epoch-ms *integer* column may
+            -- receive the fallback: the six reference tables have none, and
+            -- `conflict_log.created_at` is a server-owned timestamptz that must
+            -- take its own default rather than the client's milliseconds.
+            select exists (
+              select 1
+                from pg_catalog.pg_attribute a
+                join pg_catalog.pg_class c on c.oid = a.attrelid
+                join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+               where n.nspname = 'public'
+                 and c.relname = v_table
+                 and a.attname = 'created_at'
+                 and a.attnum > 0
+                 and a.atttypid in ('int8'::regtype, 'int4'::regtype)
+            ) into v_has_created_at;
+            if v_has_created_at and v_final ->> 'created_at' is null then
+              v_final := v_final || jsonb_build_object('created_at', v_ms);
+            end if;
+            if v_final ->> 'updated_at' is null then
+              v_final := v_final || jsonb_build_object('updated_at', v_ms);
+            end if;
+            -- `insert ... select *` reads NULL for an absent key rather than
+            -- the column default, so a soft-delete flag must be explicit.
+            if v_final ->> 'is_deleted' is null then
+              v_final := v_final || jsonb_build_object('is_deleted', false);
+            end if;
+
+            if not public.sync_can_write(v_table, v_final, 'insert') then
+              v_status := 'rejected';
+              v_error_code := 'permission_denied';
+              v_message := 'The caller may not create this row.';
+            else
+              -- Only the columns the snapshot carries are named, so a column
+              -- the payload omitted still gets its own default rather than
+              -- NULL (jsonb_populate_record does not apply defaults).
+              select string_agg(quote_ident(k), ', ' order by k),
+                     string_agg('v.' || quote_ident(k), ', ' order by k)
+                into v_cols, v_vals
+                from jsonb_object_keys(v_final) k;
+
+              execute format(
+                'insert into public.%I (%s) select %s from '
+                'jsonb_populate_record(null::public.%I, $1) v',
+                v_table, v_cols, v_vals, v_table
+              ) using v_final;
+              execute format(
+                'select to_jsonb(t) from public.%I t where t.id = $1',
+                v_table
+              ) into v_new_row using v_entity_id;
+              v_status := 'accepted';
+            end if;
+          end if;
+        else
+          -- Lock the target row first, then decide.
+          execute format(
+            'select to_jsonb(t) from public.%I t where t.id = $1 for update',
+            v_table
+          ) into v_existing using v_entity_id;
+
+          if v_existing is null then
+            v_status := 'rejected';
+            v_error_code := 'not_found';
+            v_message := 'The row no longer exists on the server.';
+          elsif (v_existing ->> 'is_deleted')::boolean = true
+                and v_operation = 'update' then
+            v_status := 'tombstone';
+            v_error_code := 'tombstone';
+            v_message := 'The row was deleted on the server.';
+            v_new_row := v_existing;
+          elsif (v_existing ->> 'is_deleted')::boolean = true
+                and v_operation = 'delete' then
+            v_status := 'already_resolved';
+            v_error_code := 'already_resolved';
+            v_message := 'The row was already deleted.';
+            v_new_row := v_existing;
+
+          -- -----------------------------------------------------------------
+          -- Delete-review approval (Task 20 Phase 4). The request row is the
+          -- one locked above; the target is locked next.
+          -- -----------------------------------------------------------------
+          elsif v_table = 'delete_requests'
+                and (v_payload ->> 'status') = 'approved' then
+            v_req_status := coalesce(v_existing ->> 'status', '');
+
+            if v_req_status in ('approved', 'rejected') then
+              -- Already decided: nothing to do, and no second tombstone.
+              v_status := 'already_resolved';
+              v_error_code := 'already_resolved';
+              v_message := 'This request was already reviewed.';
+              v_new_row := v_existing;
+            elsif not public.can_delete_firm(
+                    nullif(v_existing ->> 'firm_id', '')::uuid) then
+              -- The requester cannot approve their own request: only a member
+              -- with delete permission may review one.
+              v_status := 'rejected';
+              v_error_code := 'permission_denied';
+              v_message :=
+                'Only a member with delete permission may review this request.';
+            elsif v_base_version is null
+                  or v_base_version <> (v_existing ->> 'version')::int then
+              v_status := 'conflict';
+              v_error_code := 'version_conflict';
+              v_message := 'The request changed since this decision was made.';
+              v_new_row := v_existing;
+            else
+              v_target_type := nullif(v_existing ->> 'entity_type', '');
+              v_target_table := public.sync_entity_table(v_target_type);
+              v_expected := nullif(v_existing ->> 'target_base_version', '')::int;
+
+              if v_target_table is null or v_target_table not in (
+                'cases', 'case_history', 'notes', 'case_references'
+              ) then
+                v_status := 'rejected';
+                v_error_code := 'unsupported_target';
+                v_message :=
+                  'This request names a record that cannot be deleted here.';
+              else
+                execute format(
+                  'select to_jsonb(t) from public.%I t where t.id = $1 for update',
+                  v_target_table
+                ) into v_target using (v_existing ->> 'entity_id');
+
+                if v_target is null
+                   or coalesce((v_target ->> 'is_deleted')::boolean, false) then
+                  -- Nothing left to approve. The request is untouched audit
+                  -- history; the tombstone rides back for the reviewer.
+                  v_status := 'already_resolved';
+                  v_error_code := 'already_resolved';
+                  v_message := 'The record was already deleted.';
+                  v_new_row := v_existing;
+                elsif coalesce(v_target ->> 'firm_id', '')
+                      is distinct from coalesce(v_existing ->> 'firm_id', '') then
+                  v_status := 'rejected';
+                  v_error_code := 'permission_denied';
+                  v_message := 'The record is not in this request''s firm.';
+                elsif v_expected is null
+                      or v_expected <> (v_target ->> 'version')::int then
+                  -- The record moved under the request: park the request as
+                  -- stale and adopt the version the reviewer just saw, so a
+                  -- reconfirm re-decides against the row that exists now.
+                  v_final := (v_existing || jsonb_build_object(
+                      'status', 'stale_review_required',
+                      'target_base_version', (v_target ->> 'version')::int,
+                      'updated_at', v_ms,
+                      'version', (v_existing ->> 'version')::int + 1,
+                      'last_modified_by', v_actor::text
+                    )) - 'server_updated_at';
+
+                  if not public.sync_can_write(v_table, v_final, 'update') then
+                    v_status := 'rejected';
+                    v_error_code := 'permission_denied';
+                    v_message := 'The caller may not write this row.';
+                  else
+                    select string_agg(quote_ident(k), ', ' order by k),
+                           string_agg('v.' || quote_ident(k), ', ' order by k)
+                      into v_cols, v_vals
+                      from jsonb_object_keys(v_final) k
+                     where k <> 'server_updated_at';
+
+                    execute format(
+                      'update public.%I t set (%s) = (%s) '
+                      'from jsonb_populate_record(null::public.%I, $1) v '
+                      'where t.id = $2',
+                      v_table, v_cols, v_vals, v_table
+                    ) using v_final, v_entity_id;
+
+                    execute format(
+                      'select to_jsonb(t) from public.%I t where t.id = $1',
+                      v_table
+                    ) into v_new_row using v_entity_id;
+                    v_status := 'target_conflict';
+                    v_error_code := 'target_conflict';
+                    v_message :=
+                      'The record changed since this request was made.';
+                  end if;
+                else
+                  -- Reconfirmed against the row that exists now: tombstone the
+                  -- target in this same savepoint.
+                  execute format(
+                    'update public.%I t set is_deleted = true, '
+                    '  version = coalesce(t.version, 1) + 1, '
+                    '  last_modified_by = $1, updated_at = $2 '
+                    'where t.id = $3 returning to_jsonb(t)',
+                    v_target_table
+                  ) using v_actor::text, v_ms, (v_existing ->> 'entity_id')
+                  into v_target;
+
+                  -- The same cascade an ordinary case delete performs, so an
+                  -- approved request cannot leave live children behind. The
+                  -- request stores the singular `entity_type` ('case'), so the
+                  -- test is against the resolved *table* ('cases').
+                  if v_target_table = 'cases' then
+                    v_children := '[]'::jsonb;
+                    for v_child in execute format(
+                      'update public.case_history t '
+                      'set is_deleted = true, '
+                      '    version = coalesce(t.version, 1) + 1, '
+                      '    last_modified_by = $1, '
+                      '    updated_at = $2 '
+                      'where t.case_id = $3 and t.is_deleted = false '
+                      'returning to_jsonb(t)'
+                    ) using v_actor::text, v_ms, (v_existing ->> 'entity_id')
+                    loop
+                      v_children := v_children || jsonb_build_array(v_child);
+                    end loop;
+                  end if;
+
+                  -- Resolve the request beside the tombstone.
+                  v_final := (v_existing || jsonb_build_object(
+                      'status', 'approved',
+                      'reviewed_by', v_actor::text,
+                      'review_note', coalesce(
+                        v_payload ->> 'review_note',
+                        v_existing ->> 'review_note'),
+                      'updated_at', v_ms,
+                      'version', (v_existing ->> 'version')::int + 1,
+                      'last_modified_by', v_actor::text
+                    )) - 'server_updated_at';
+
+                  if not public.sync_can_write(v_table, v_final, 'update') then
+                    v_status := 'rejected';
+                    v_error_code := 'permission_denied';
+                    v_message := 'The caller may not write this row.';
+                  else
+                    select string_agg(quote_ident(k), ', ' order by k),
+                           string_agg('v.' || quote_ident(k), ', ' order by k)
+                      into v_cols, v_vals
+                      from jsonb_object_keys(v_final) k
+                     where k <> 'server_updated_at';
+
+                    execute format(
+                      'update public.%I t set (%s) = (%s) '
+                      'from jsonb_populate_record(null::public.%I, $1) v '
+                      'where t.id = $2',
+                      v_table, v_cols, v_vals, v_table
+                    ) using v_final, v_entity_id;
+
+                    execute format(
+                      'select to_jsonb(t) from public.%I t where t.id = $1',
+                      v_table
+                    ) into v_new_row using v_entity_id;
+                    v_status := 'accepted';
+                  end if;
+                end if;
+              end if;
+            end if;
+          elsif v_base_version is null
+                or v_base_version <> (v_existing ->> 'version')::int then
+            v_status := 'conflict';
+            v_error_code := 'version_conflict';
+            v_message := 'The server version changed since this edit was made.';
+            v_new_row := v_existing;
+          else
+            v_old_version := (v_existing ->> 'version')::int;
+            v_final := (v_existing || v_payload)
+              - 'server_updated_at' - 'version' - 'last_modified_by';
+            if v_table = 'conflict_log' then
+              v_final := v_final - 'created_at';
+            end if;
+            v_final := v_final || jsonb_build_object(
+              'version', v_old_version + 1,
+              'last_modified_by', v_actor::text
+            );
+            if v_operation = 'delete' then
+              v_final := v_final || jsonb_build_object('is_deleted', true);
+            end if;
+            if v_final ->> 'updated_at' is null then
+              v_final := v_final || jsonb_build_object('updated_at', v_ms);
+            end if;
+
+            if not public.sync_can_write(v_table, v_final, v_operation) then
+              v_status := 'rejected';
+              v_error_code := 'permission_denied';
+              v_message := 'The caller may not write this row.';
+            else
+              -- Update every column the final snapshot carries, except
+              -- server_updated_at, which the trigger owns.
+              -- Both lists are ordered by the same key, so the columns and
+              -- their values can never fall out of step.
+              select string_agg(quote_ident(k), ', ' order by k),
+                     string_agg('v.' || quote_ident(k), ', ' order by k)
+                into v_cols, v_vals
+                from jsonb_object_keys(v_final) k
+               where k <> 'server_updated_at';
+
+              execute format(
+                'update public.%I t set (%s) = (%s) '
+                'from jsonb_populate_record(null::public.%I, $1) v '
+                'where t.id = $2',
+                v_table, v_cols, v_vals, v_table
+              ) using v_final, v_entity_id;
+
+              execute format(
+                'select to_jsonb(t) from public.%I t where t.id = $1',
+                v_table
+              ) into v_new_row using v_entity_id;
+              v_status := 'accepted';
+            end if;
+          end if;
+        end if;
+
+        -- Atomic history and cascade soft-delete, only on an accepted case
+        -- mutation. A delete-request approval whose target is a case performs
+        -- its own cascade inside the branch above, so this stays case-only.
+        if v_status = 'accepted' and v_table = 'cases' then
+          if v_operation = 'delete' then
+            -- One accepted case delete soft-deletes its children in this same
+            -- savepoint; the changed children ride back to the caller.
+            v_children := '[]'::jsonb;
+            for v_child in execute format(
+              'update public.case_history t '
+              'set is_deleted = true, '
+              '    version = coalesce(t.version, 1) + 1, '
+              '    last_modified_by = $1, '
+              '    updated_at = $2 '
+              'where t.case_id = $3 and t.is_deleted = false '
+              'returning to_jsonb(t)'
+            ) using v_actor::text, v_ms, v_entity_id
+            loop
+              v_children := v_children || jsonb_build_array(v_child);
+            end loop;
+          elsif v_operation = 'update'
+                and (v_final ->> 'next_date') is distinct from
+                    (v_existing ->> 'next_date') then
+            -- The client's provisional preview supplies its identity so the
+            -- authoritative event replaces it one-for-one.
+            v_prov := v_row -> 'provisional_history';
+            if v_prov is null or jsonb_typeof(v_prov) <> 'object' then
+              v_prov := '{}'::jsonb;
+            end if;
+
+            v_hist := v_prov || jsonb_build_object(
+              'id', coalesce(v_prov ->> 'id', gen_random_uuid()::text),
+              'case_id', v_entity_id,
+              'user_id', v_new_row -> 'user_id',
+              'firm_id', v_new_row -> 'firm_id',
+              'source_mutation_id',
+                coalesce(v_prov ->> 'source_mutation_id', v_mutation_id),
+              'created_by', v_actor,
+              'base_case_version',
+                coalesce(nullif(v_prov ->> 'base_case_version', '')::int,
+                         v_old_version),
+              'result_case_version', (v_new_row ->> 'version')::int,
+              'version', 1,
+              'last_modified_by', v_actor::text,
+              'is_deleted', false,
+              'updated_at', v_ms
+            );
+            -- Nothing the client omitted is invented: the previous values come
+            -- from the authoritative base row.
+            if v_hist ->> 'hearing_date' is null then
+              v_hist := v_hist || jsonb_build_object(
+                'hearing_date',
+                coalesce(nullif(v_existing ->> 'next_date', '')::bigint, v_ms)
+              );
+            end if;
+            if v_hist ->> 'last_step' is null then
+              v_hist := v_hist || jsonb_build_object(
+                'last_step', v_existing -> 'last_step'
+              );
+            end if;
+            if v_hist ->> 'note_result' is null then
+              v_hist := v_hist || jsonb_build_object(
+                'note_result', v_existing -> 'notes_results'
+              );
+            end if;
+            if v_hist ->> 'result' is null then
+              v_hist := v_hist || jsonb_build_object(
+                'result', v_existing -> 'result'
+              );
+            end if;
+
+            execute format(
+              'insert into public.case_history select * from '
+              'jsonb_populate_record(null::public.case_history, $1)'
+            ) using v_hist;
+
+            -- Hand the authoritative row back so the client can reconcile its
+            -- provisional preview (same id) in one write.
+            execute format(
+              'select to_jsonb(t) from public.case_history t where t.id = $1'
+            ) into v_hist_row using v_hist ->> 'id';
+          end if;
+        end if;
+      end if;
+
+      -- Terminal result for this mutation.
+      if v_status = 'accepted' then
+        v_result := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', 'accepted',
+          'version', (v_new_row ->> 'version')::int,
+          'row', v_new_row,
+          'children', coalesce(v_children, '[]'::jsonb),
+          'history', v_hist_row,
+          -- A delete-request approval carries the target it tombstoned, so the
+          -- reviewer's client can apply the record's disappearance in one pass.
+          'target', v_target,
+          'target_entity_type', v_target_type
+        );
+      elsif v_status = 'target_conflict' then
+        -- The request was parked as stale_review_required; hand back both rows
+        -- so the reviewer can inspect the record that exists now.
+        v_result := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', 'target_conflict',
+          'version', nullif(v_new_row ->> 'version', '')::int,
+          'row', v_new_row,
+          'target', v_target,
+          'target_entity_type', v_target_type,
+          'target_version', nullif(v_target ->> 'version', '')::int,
+          'error_code', v_error_code,
+          'message', v_message
+        );
+      elsif v_status in ('conflict', 'tombstone', 'already_resolved') then
+        v_result := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', v_status,
+          'version', nullif(v_new_row ->> 'version', '')::int,
+          'row', v_new_row,
+          'target', v_target,
+          'target_entity_type', v_target_type,
+          'error_code', v_error_code,
+          'message', v_message
+        );
+      else
+        v_result := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', 'rejected',
+          'error_code', coalesce(v_error_code, 'validation_failed'),
+          'message', coalesce(v_message, 'The mutation was refused.')
+        );
+      end if;
+    exception
+      when others then
+        get stacked diagnostics
+          v_state = returned_sqlstate,
+          v_msg = message_text;
+        -- A permanent, per-mutation failure is caught and reported; anything
+        -- else is infrastructure and aborts the whole RPC.
+        if v_state not in (
+          '42501', 'P0001', '23502', '23503', '23505', '23514',
+          '22P02', '22007', '22003', '42804', '42703'
+        ) then
+          raise;
+        end if;
+        v_result := jsonb_build_object(
+          'mutation_id', v_mutation_id,
+          'entity_type', v_entity_type,
+          'entity_id', v_entity_id,
+          'operation', v_operation,
+          'status', 'rejected',
+          'error_code', case v_state
+            when '42501' then 'permission_denied'
+            when 'P0001' then 'entitlement_required'
+            else 'validation_failed'
+          end,
+          'message', v_msg
+        );
+    end;
+
+    -- Receipt for every terminal result, in the same transaction. It is written
+    -- after the savepoint block so a per-mutation rejection still records one.
+    insert into public.mutation_receipts (
+      mutation_id, actor_id, entity_type, entity_id, request_hash,
+      terminal_status, result_payload
+    ) values (
+      v_mutation_id, v_actor, v_entity_type, v_entity_id, v_hash,
+      v_result ->> 'status', v_result
+    )
+    on conflict (mutation_id) do nothing;
+
+    v_results[v_idx] := v_result;
+  end loop;
+
+  return jsonb_build_object('results', (
+    select coalesce(jsonb_agg(v_results[k] order by k), '[]'::jsonb)
+      from generate_subscripts(v_results, 1) as k
+  ));
+end;
+$$;
+
+comment on function public.push_changes(jsonb) is
+  'Single atomic push pipeline: optimistic concurrency, per-mutation savepoints, idempotent receipts, authoritative case history and cascade soft-deletes, and the delete-review approval branch (locking, target_conflict/stale_review_required, already_resolved, atomic tombstone).';
+
+-- Same surface as before: `anon` and `public` stay refused.
 revoke all on function public.push_changes(jsonb) from public, anon;
 grant execute on function public.push_changes(jsonb) to authenticated;
 ```

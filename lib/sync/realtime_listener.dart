@@ -41,6 +41,19 @@ const Duration syncRealtimePingWindow = Duration(milliseconds: 400);
 /// How long a join is given before it counts as failed.
 const Duration syncRealtimeJoinTimeout = Duration(seconds: 10);
 
+/// The one table a ping is never a micro pull for.
+///
+/// `firm_members` is a **pull-only cache** (AGENTS.md rule 4): it is not in the
+/// twelve synced domain tables, so `syncEntityForTable` returns null for it and
+/// the ordinary ping path would drop it. Its rows are, however, exactly the fact
+/// this account's permissions and membership are derived from — so a ping for it
+/// is routed to the account refresh instead, which re-reads the profile, the firm
+/// and the membership in one call. That is the client half of "broadcast
+/// membership revocation so connected devices enforce removal immediately"; the
+/// server half is Task 20 Phase 2's `remove_firm_member` and the trigger this
+/// migration attaches to `firm_members`.
+const String syncRealtimeMembershipTable = 'firm_members';
+
 /// One `{table, id}` notification.
 @immutable
 class SyncPing {
@@ -217,10 +230,16 @@ class RealtimeListener {
   /// nobody is signed in (nothing to subscribe to). [onPings] receives the
   /// coalesced batch; it is not awaited, so a slow pull can never block the
   /// socket.
+  ///
+  /// [onMembershipChange] fires at most once per window when a ping for
+  /// [syncRealtimeMembershipTable] arrives, however many of them there were: the
+  /// reaction to a membership or permission change is one account refresh, not
+  /// one per frame.
   RealtimeListener({
     required this.socket,
     required this.topic,
     required this.onPings,
+    this.onMembershipChange,
     this.pingWindow = syncRealtimePingWindow,
   });
 
@@ -233,6 +252,10 @@ class RealtimeListener {
   /// Receives each coalesced batch of pings.
   final void Function(List<SyncPing> pings) onPings;
 
+  /// Fires when a membership/permission ping arrived; null in builds that
+  /// handle only the domain tables.
+  final void Function()? onMembershipChange;
+
   /// How long pings are collected before they are handed over.
   final Duration pingWindow;
 
@@ -241,6 +264,9 @@ class RealtimeListener {
       ValueNotifier<RealtimeStatus>(RealtimeStatus.stopped);
 
   final Set<SyncPing> _pending = <SyncPing>{};
+
+  /// Set by a membership ping, cleared when it is handed over.
+  bool _membershipPending = false;
 
   Timer? _flushTimer;
   bool _starting = false;
@@ -308,6 +334,7 @@ class RealtimeListener {
     _flushTimer?.cancel();
     _flushTimer = null;
     _pending.clear();
+    _membershipPending = false;
     _subscribed = false;
     try {
       await socket.unsubscribe();
@@ -346,10 +373,22 @@ class RealtimeListener {
   }
 
   void _accept(SyncPing ping) {
+    // The membership ping is the one table that is routed rather than pulled:
+    // it is what the account's own permissions and firm mode are derived from.
+    if (ping.table == syncRealtimeMembershipTable) {
+      if (onMembershipChange == null) return;
+      _membershipPending = true;
+      _armFlush();
+      return;
+    }
     // A table outside the twelve synced ones (a pull-only cache, a preference, a
     // server-managed row) is never pulled on a notification.
     if (syncEntityForTable(ping.table) == null) return;
     _pending.add(ping);
+    _armFlush();
+  }
+
+  void _armFlush() {
     _flushTimer ??= Timer(pingWindow, () {
       _flushTimer = null;
       _handOver();
@@ -357,10 +396,14 @@ class RealtimeListener {
   }
 
   void _handOver() {
-    if (_pending.isEmpty) return;
-    final pings = _pending.toList(growable: false);
+    final pings = _pending.isEmpty
+        ? const <SyncPing>[]
+        : _pending.toList(growable: false);
+    final membership = _membershipPending;
     _pending.clear();
-    onPings(pings);
+    _membershipPending = false;
+    if (membership) onMembershipChange?.call();
+    if (pings.isNotEmpty) onPings(pings);
   }
 
   void _setStatus(RealtimeStatus next) {

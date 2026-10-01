@@ -54,15 +54,18 @@ void main() {
 
   late FakeSocket socket;
   late List<List<SyncPing>> batches;
+  late int membershipEvents;
   late RealtimeListener listener;
 
   setUp(() {
     socket = FakeSocket();
     batches = <List<SyncPing>>[];
+    membershipEvents = 0;
     listener = RealtimeListener(
       socket: socket,
       topic: () => 'firm:f1',
       onPings: batches.add,
+      onMembershipChange: () => membershipEvents++,
       pingWindow: shortWindow,
     );
   });
@@ -114,6 +117,58 @@ void main() {
     await settle();
 
     expect(batches, isEmpty);
+    expect(membershipEvents, 0, reason: 'a pull-only cache is not membership');
+  });
+
+  test('a membership ping is routed, never handed over as a pull', () async {
+    await listener.start();
+
+    socket.emit(const SyncPing('firm_members', 'user-2'));
+    await settle();
+
+    expect(membershipEvents, 1);
+    expect(
+      batches,
+      isEmpty,
+      reason: 'firm_members is not in the twelve synced tables; a pull for it '
+          'would be dropped anyway',
+    );
+  });
+
+  test('a burst of membership pings is one refresh', () async {
+    await listener.start();
+
+    socket
+      ..emit(const SyncPing('firm_members', 'user-2'))
+      ..emit(const SyncPing('firm_members', 'user-3'))
+      ..emit(const SyncPing('firm_members', 'user-2'));
+    await settle();
+
+    expect(membershipEvents, 1);
+  });
+
+  test('a membership ping and a row ping both travel', () async {
+    await listener.start();
+
+    socket
+      ..emit(const SyncPing('firm_members', 'user-2'))
+      ..emit(const SyncPing('cases', 'k1'));
+    await settle();
+
+    expect(membershipEvents, 1);
+    expect(batches.single.single.table, 'cases');
+  });
+
+  test('a membership ping is still coalescing when the channel closes', () async {
+    await listener.start();
+
+    socket.emit(const SyncPing('firm_members', 'user-2'));
+    // stop() clears whatever the window was still holding, the membership ping
+    // included: nothing is acted on after the channel is gone.
+    await listener.stop();
+    await settle();
+
+    expect(membershipEvents, 0);
   });
 
   test('stop leaves the channel, drops pending pings and forgets the join',

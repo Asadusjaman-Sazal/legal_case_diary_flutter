@@ -105,6 +105,14 @@ enum AuthFailureKind {
   /// user has to know that managing a firm is simply not an offline feature.
   firmAdminOffline,
 
+  /// Firm mode was attempted without an active premium subscription.
+  ///
+  /// The plan's rule is that the free plan is strictly individual and
+  /// single-device, so becoming a firm owner is a premium step. The screen
+  /// checks entitlement first and routes to the Paywall; this kind exists for
+  /// the server's own refusal, which is the authoritative one.
+  premiumRequired,
+
   /// The account is already a member of that firm.
   alreadyMember,
 

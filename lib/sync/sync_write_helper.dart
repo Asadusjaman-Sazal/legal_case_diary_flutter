@@ -152,7 +152,18 @@ class SyncWriteHelper {
       throw const RecoveryRequiredException();
     }
 
-    final existing = await _queue.getByEntity(entityType, entityId);
+    // Only **open** entries are prior mutations. `getByEntity` returns every
+    // entry the entity has ever had, `resolved` ones included, and a resolved
+    // entry is finished work the server already holds — not something to compact
+    // against. Counting it made an entity whose first insert had been pushed and
+    // resolved swallow every later mutation: a delete compacted to nothing at all
+    // (so the server was never told), and an edit rewrote itself into a fresh
+    // insert the server would refuse as a duplicate id. Found by Task 20 Phase 3,
+    // whose cancel-after-sync depends on the delete being queued; it applied to
+    // every push-domain table.
+    final existing = (await _queue.getByEntity(entityType, entityId))
+        .where((row) => row.state != 'resolved')
+        .toList(growable: false);
 
     // Inserts are always enqueued as a new pending row (a second insert for the
     // same entity is an caller error, but preserving it is safest). We also

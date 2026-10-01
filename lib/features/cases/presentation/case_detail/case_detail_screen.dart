@@ -34,11 +34,11 @@ import '../../../../database/app_database.dart';
 import '../../../../features/cases/data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
+import '../../../../features/settings/presentation/delete_request_flow.dart';
 import '../../../../features/settings/presentation/settings_viewmodel.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
-import '../../../../shared/widgets/confirm_dialogs.dart';
 import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
 
@@ -160,12 +160,23 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Future<void> _confirmDeleteCase() async {
     final current = _current;
     if (current == null || !_canEdit) return;
-    final confirmed = await confirmDeleteDialog(context);
-    if (!confirmed || !mounted) return;
     try {
-      final repository = await ref.read(caseRepositoryProvider.future);
-      await repository.deleteCase(current);
-      if (!mounted) return;
+      // The decision — delete now, or ask somebody who can — lives in one place
+      // (plan §1, Associate Deletion Policy), and so does the permission refresh
+      // and the confirmation that precedes it.
+      final outcome = await deleteThroughFirmRules(
+        context,
+        ref,
+        entityType: 'case',
+        entityId: current.id,
+        entitySnapshot: deleteRequestSnapshot(current.toJson()),
+        targetBaseVersion: deletionBaseVersion(current.version),
+        deleteDirectly: () async {
+          final repository = await ref.read(caseRepositoryProvider.future);
+          await repository.deleteCase(current);
+        },
+      );
+      if (!mounted || outcome != DeleteOutcome.deleted) return;
       _close();
     } catch (error) {
       if (!mounted) return;
@@ -241,12 +252,22 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   }
 
   Future<void> _confirmDeleteHistory(CaseHistoryRow entry) async {
-    final confirmed = await confirmDeleteDialog(context);
-    if (!confirmed || !mounted) return;
     try {
-      final repository = await ref.read(caseHistoryRepositoryProvider.future);
-      await repository.deleteHistory(entry);
-      if (mounted) await _load();
+      final outcome = await deleteThroughFirmRules(
+        context,
+        ref,
+        entityType: 'case_history',
+        entityId: entry.id,
+        entitySnapshot: deleteRequestSnapshot(entry.toJson()),
+        targetBaseVersion: deletionBaseVersion(entry.version),
+        deleteDirectly: () async {
+          final repository = await ref.read(
+            caseHistoryRepositoryProvider.future,
+          );
+          await repository.deleteHistory(entry);
+        },
+      );
+      if (mounted && outcome == DeleteOutcome.deleted) await _load();
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

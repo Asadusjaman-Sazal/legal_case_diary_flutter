@@ -6,6 +6,14 @@
 /// result is applied to the local database: an accepted row is marked synced,
 /// a conflict or tombstone is logged in `conflict_log` and freezes its entity,
 /// and a permission rejection is rolled back from `pre_mutation_payload`.
+///
+/// A delete-request review is a mutation like any other: an approval that the
+/// server applied (`accepted`) or refused as stale (`target_conflict`, having
+/// parked the request as `stale_review_required`) both hand back the *target*
+/// row — the tombstone it wrote, or the current row that made the decision
+/// stale — and the reviewer's device applies it in the same pass. That is the
+/// whole reason the target travels in the result: an approval must not wait for
+/// the next pull to show the record gone.
 library;
 
 import '../database/app_database.dart';
@@ -289,6 +297,10 @@ class PushWorker {
           // conflict anyone still has to look at; only a frozen one counts.
           if (await _applyConflict(item, result)) conflicts++;
         case 'already_resolved':
+        case 'target_conflict':
+          // `target_conflict` is not a data conflict: the server accepted the
+          // submission and recorded the staleness on the request, so the
+          // reviewer sees it and reconfirms rather than resolving a conflict.
           await _applyAlreadyResolved(item, result);
           applied++;
         case 'rejected':
@@ -332,6 +344,9 @@ class PushWorker {
           .applyServerRow(db, history.cast<String, dynamic>());
       await queue.resolve(item.pairedHistoryQueueId!);
     }
+
+    // A delete-request approval carries the target it tombstoned.
+    await _applyReviewTarget(result);
 
     final children = result['children'];
     if (children is List) {
@@ -388,7 +403,26 @@ class PushWorker {
       await syncBindingFor(item.row.entityType)!
           .applyServerRow(db, serverRow.cast<String, dynamic>());
     }
+    // For a review this is the record the decision was about: the tombstone of
+    // an already-deleted target, or the current row of a stale one.
+    await _applyReviewTarget(result);
     await queue.resolve(item.row.id);
+  }
+
+  /// Applies the record a delete-review result hands back, when there is one.
+  ///
+  /// Every non-review result leaves both fields null, so this is a no-op for
+  /// them. The target's own queued mutations are deliberately left alone: a
+  /// completed review never resolves another queue entry (the task's rule), and
+  /// the server remains the one that decides what becomes of them.
+  Future<void> _applyReviewTarget(Map<String, dynamic> result) async {
+    final target = result['target'];
+    final entityType = result['target_entity_type'];
+    if (target is Map && entityType is String &&
+        syncTableForEntity(entityType) != null) {
+      await syncBindingFor(entityType)!
+          .applyServerRow(db, target.cast<String, dynamic>());
+    }
   }
 
   Future<_RejectedAction> _applyRejected(

@@ -404,6 +404,7 @@
   "syncStatus_discardConfirm": "Discard",
   "syncStatus_discarded": "The Queued Change Was Discarded.",
   "syncStatus_discardRestoredLocally": "The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.",
+  "syncStatus_pendingDeletion": "Deletion Pending",
   "syncStatus_export": "Export Diagnostic Bundle",
   "syncStatus_exportShort": "Export",
   "syncStatus_exportTitle": "Export Diagnostic Bundle",
@@ -682,6 +683,7 @@
   "@@_section_settingsAccountProfile": "SETTINGS - ACCOUNT & PROFILE MENU  |  lib/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart",
   "settingsAccountProfile_profileSubtitle": "Your name, bar association, and membership details",
   "settingsAccountProfile_manageAccountSubtitle": "Password, subscription, and account settings",
+  "settingsAccountProfile_manageAssociatesSubtitle": "Manage Associates, Invites, And Firm Permissions",
   "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
   "settingsProfile_title": "Profile",
   "settingsProfile_editTooltip": "Edit profile",
@@ -1471,6 +1473,7 @@
   "auth_errorInvalidCode": "That invite code is not valid. Check it with your firm owner.",
   "auth_errorTooManyAttempts": "Too many attempts. Please try again later.",
   "auth_errorFirmAdminOffline": "Connect to the internet to manage your firm.",
+  "auth_errorPremiumRequired": "Firm Mode Requires An Active Premium Subscription.",
   "auth_errorAlreadyMember": "You are already a member of this firm.",
   "auth_joinedFirm": "You Have Joined The Firm.",
   "auth_errorNetwork": "No connection. Check your internet and try again.",
@@ -1496,5 +1499,131 @@
               "type": "String"
           }
       }
-  }
+  },
+  "@@_section_settingsManageAssociates": "SETTINGS - MANAGE ASSOCIATES  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
+  "manageAssociates_title": "Manage Associates",
+  "manageAssociates_ownerOnly": "Only The Firm Owner Can Manage Associates.",
+  "manageAssociates_sectionMembers": "Associates",
+  "manageAssociates_addAssociate": "Add Associate",
+  "manageAssociates_noMembers": "No Associates Yet.",
+  "manageAssociates_unnamedMember": "Unnamed Member",
+  "manageAssociates_createFirmIntro": "Add Your First Associate To Create Your Firm And Work Together.",
+  "manageAssociates_firmNameLabel": "Firm Name",
+  "manageAssociates_firmNameHint": "Enter Your Chamber Or Firm Name",
+  "manageAssociates_createFirm": "Create Firm",
+  "manageAssociates_goPremium": "Go Premium",
+  "manageAssociates_inviteTitle": "Invite Code",
+  "manageAssociates_inviteIntro": "Share This Code With Your Associate. It Works Once, And This Is The Only Time It Is Shown.",
+  "manageAssociates_copyCode": "Copy Code",
+  "manageAssociates_codeCopied": "Code Copied.",
+  "manageAssociates_shareCode": "Share",
+  "manageAssociates_shareFailed": "Could Not Share The Code",
+  "manageAssociates_inviteMessage": "Join My Firm On Legal Case Diary. Invite Code: {code}",
+  "@manageAssociates_inviteMessage": {
+      "placeholders": {
+          "code": {
+              "type": "String"
+          }
+      }
+  },
+  "@@_section_manageAssociatesPermissions": "MANAGE ASSOCIATES - INVITES AND PERMISSIONS  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
+  "manageAssociates_sectionInvites": "Outstanding Invites",
+  "manageAssociates_noInvites": "No Unused Invites.",
+  "manageAssociates_inviteCreated": "Created {date}",
+  "@manageAssociates_inviteCreated": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "manageAssociates_revokeInvite": "Revoke",
+  "manageAssociates_revokeInviteTitle": "Revoke This Invite?",
+  "manageAssociates_revokeInviteBody": "The Code Will Stop Working Immediately.",
+  "manageAssociates_inviteRevoked": "Invite Revoked.",
+  "manageAssociates_permissionsTitle": "Permissions",
+  "manageAssociates_roleLabel": "Role",
+  "manageAssociates_permissionAdd": "Add Cases",
+  "manageAssociates_permissionEdit": "Edit Cases",
+  "manageAssociates_permissionDelete": "Delete Cases",
+  "manageAssociates_savePermissions": "Save Permissions",
+  "manageAssociates_permissionsUpdated": "Permissions Updated.",
+  "manageAssociates_removeAssociate": "Remove From Firm",
+  "manageAssociates_removeAssociateTitle": "Remove This Associate?",
+  "manageAssociates_removeAssociateBody": "They Lose Access To The Firm's Cases Immediately. The Records They Authored Stay In The Firm.",
+  "manageAssociates_associateRemoved": "Associate Removed.",
+  "@@_section_syncNotice": "SYNC NOTICE  |  lib/features/sync/presentation/sync_notice_banner.dart",
+  "syncNotice_permissionsChanged": "Your Firm Permissions Changed; This Pending Action Was Not Applied.",
+  "syncNotice_clockSkew": "Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.",
+  "@@_section_membershipRevoked": "MEMBERSHIP REVOKED  |  lib/features/accounts_and_profile/presentation/membership_revoked_scope.dart",
+  "membershipRevoked_title": "You Have Been Removed From The Firm",
+  "membershipRevoked_body": "Your Firm Owner Removed This Account. You Can No Longer See Or Edit The Firm's Cases, And Anything Still Waiting To Sync Has Been Discarded. Log Out To Continue With An Individual Diary.",
+  "membershipRevoked_action": "Log Out",
+  "membershipRevoked_logoutFailed": "Could Not Log Out. Try Again.",
+  "@@_section_deleteRequest": "DELETE REQUEST  |  lib/features/settings/presentation/delete_request_flow.dart",
+  "deleteRequest_confirmTitle": "Send A Deletion Request?",
+  "deleteRequest_confirmBody": "A Firm Member With Delete Permission Has To Approve It Before The Record Is Removed.",
+  "deleteRequest_confirmSend": "Send Request",
+  "deleteRequest_sent": "Deletion Request Sent To Admin/Owner.",
+  "deleteRequest_failed": "Could Not Send The Deletion Request.",
+  "@@_section_deleteRequests": "DELETE REQUESTS (REVIEWER)  |  lib/features/settings/presentation/delete_requests_screen.dart",
+  "deleteRequests_title": "Delete Requests",
+  "deleteRequests_firmOnly": "Delete Requests Are Only Available To Firm Members.",
+  "deleteRequests_toReview": "Awaiting Your Review",
+  "deleteRequests_noneToReview": "No Deletion Requests Awaiting Review.",
+  "deleteRequests_mine": "My Requests",
+  "deleteRequests_noneMine": "You Have Not Sent Any Deletion Requests.",
+  "deleteRequests_statusPending": "Pending",
+  "deleteRequests_statusApproved": "Approved",
+  "deleteRequests_statusRejected": "Rejected",
+  "deleteRequests_statusStale": "Needs Reconfirmation",
+  "deleteRequests_requestedBy": "Requested By {name}",
+  "@deleteRequests_requestedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "deleteRequests_requestedOn": "Requested On {date}",
+  "@deleteRequests_requestedOn": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "deleteRequests_unnamed": "A Record",
+  "deleteRequests_entityCase": "Case",
+  "deleteRequests_entityCaseHistory": "Case History",
+  "deleteRequests_entityNote": "Note",
+  "deleteRequests_entityReference": "Reference",
+  "deleteRequests_entityUnknown": "Record",
+  "deleteRequests_reviewTitle": "Review Deletion Request",
+  "deleteRequests_snapshot": "Requested Record",
+  "deleteRequests_noteLabel": "Review Note (Optional)",
+  "deleteRequests_noteHint": "Add A Reason",
+  "deleteRequests_approve": "Approve",
+  "deleteRequests_reconfirm": "Reconfirm",
+  "deleteRequests_reject": "Reject",
+  "deleteRequests_approveTitle": "Approve Deletion?",
+  "deleteRequests_approveBody": "The Record Will Be Deleted For Everyone In The Firm.",
+  "deleteRequests_rejectTitle": "Reject Deletion Request?",
+  "deleteRequests_rejectBody": "The Record Stays. The Requester Is Told Your Decision.",
+  "deleteRequests_approved": "Deletion Approved.",
+  "deleteRequests_rejected": "Deletion Request Rejected.",
+  "deleteRequests_failed": "Could Not Complete The Review. Try Again.",
+  "deleteRequests_staleTitle": "This Record Changed",
+  "deleteRequests_staleBody": "It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.",
+  "deleteRequests_fieldCaseNumber": "Case Number",
+  "deleteRequests_fieldCaseType": "Case Type",
+  "deleteRequests_fieldPetitioner": "Petitioner",
+  "deleteRequests_fieldRespondent": "Respondent",
+  "deleteRequests_fieldStep": "Step",
+  "deleteRequests_fieldResult": "Result",
+  "deleteRequests_fieldTitle": "Title",
+  "deleteRequests_fieldBody": "Note",
+  "deleteRequests_fieldReference": "Reference And Page No",
+  "deleteRequests_fieldDescription": "Title And Description",
+  "deleteRequests_unknownRequester": "A Firm Member"
 }

@@ -1847,7 +1847,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_planMonthly.
   ///
   /// In en, this message translates to:
-  /// **'Monthly'**
+  /// **'1 Month'**
   String get paywall_planMonthly;
 
   /// No description provided for @paywall_planMonthlyPrice.
@@ -1856,10 +1856,34 @@ abstract class AppLocalizations {
   /// **'৳{price} per month'**
   String paywall_planMonthlyPrice(String price);
 
+  /// No description provided for @paywall_planQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'3 Months'**
+  String get paywall_planQuarterly;
+
+  /// No description provided for @paywall_planQuarterlyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{price} for 3 months'**
+  String paywall_planQuarterlyPrice(String price);
+
+  /// No description provided for @paywall_planHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'6 Months'**
+  String get paywall_planHalfYearly;
+
+  /// No description provided for @paywall_planHalfYearlyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{price} for 6 months'**
+  String paywall_planHalfYearlyPrice(String price);
+
   /// No description provided for @paywall_planAnnual.
   ///
   /// In en, this message translates to:
-  /// **'Annual'**
+  /// **'1 Year'**
   String get paywall_planAnnual;
 
   /// No description provided for @paywall_planAnnualPrice.
@@ -3363,7 +3387,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCourtNamesSteps_catDistrictSessions.
   ///
   /// In en, this message translates to:
-  /// **'District & Sessions (Criminal)'**
+  /// **'Sessions (Criminal)'**
   String get settingsCourtNamesSteps_catDistrictSessions;
 
   /// No description provided for @settingsCourtNamesSteps_catDistrictCivil.

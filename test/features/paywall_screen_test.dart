@@ -1,9 +1,9 @@
 /// Tests for the paywall (Task 15 Phase 5 stub, enabled in Task 21 Phase 1).
 ///
 /// These pin what the screen promises now that a plan can be bought: it says why
-/// it opened, it prices both plans from the shared constants, each plan action
-/// is **enabled** and opens its checkout, and it can always be left with the
-/// system back gesture. They also pin the Bengali rendering with Bengali digits.
+/// it opened, it prices each plan from the shared constants, each plan action is
+/// **enabled** and opens its checkout, and it can always be left with the system
+/// back gesture. They also pin the Bengali rendering with Bengali digits.
 library;
 
 import 'package:flutter/material.dart';
@@ -76,21 +76,24 @@ void main() {
     }
 
     expect(find.text('Plans'), findsOneWidget);
-    expect(find.text('Monthly'), findsOneWidget);
-    expect(find.text('Annual'), findsOneWidget);
+    for (final plan in <String>['1 Month', '3 Months', '6 Months', '1 Year']) {
+      expect(find.text(plan), findsOneWidget);
+    }
     expect(find.text('৳$paywallMonthlyPrice per month'), findsOneWidget);
+    expect(find.text('৳$paywallQuarterlyPrice for 3 months'), findsOneWidget);
+    expect(find.text('৳$paywallHalfYearlyPrice for 6 months'), findsOneWidget);
     expect(find.text('৳1,000 per year'), findsOneWidget);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
   });
 
-  testWidgets('both plan actions are enabled', (tester) async {
+  testWidgets('every plan action is enabled', (tester) async {
     await pumpPaywall(tester);
 
     final actions = tester.widgetList<FilledButton>(
       find.widgetWithText(FilledButton, 'Subscribe'),
     );
-    expect(actions, hasLength(2));
+    expect(actions, hasLength(subscriptionPlans.length));
     for (final action in actions) {
       expect(action.onPressed, isNotNull);
     }
@@ -115,18 +118,38 @@ void main() {
 
     expect(find.text('প্রিমিয়াম'), findsOneWidget);
     expect(find.textContaining('৫০টি মামলা'), findsOneWidget);
+    expect(find.text('১ মাস'), findsOneWidget);
+    expect(find.text('৩ মাস'), findsOneWidget);
+    expect(find.text('৬ মাস'), findsOneWidget);
+    expect(find.text('১ বছর'), findsOneWidget);
     expect(find.text('৳১০০ / মাস'), findsOneWidget);
+    expect(find.text('৳২৮৫ / ৩ মাস'), findsOneWidget);
+    expect(find.text('৳৫৫০ / ৬ মাস'), findsOneWidget);
     expect(find.text('৳১,০০০ / বছর'), findsOneWidget);
-    expect(find.text('সাবস্ক্রাইব'), findsNWidgets(2));
+    expect(find.text('সাবস্ক্রাইব'), findsNWidgets(subscriptionPlans.length));
   });
 
   test('the plan prices and benefits are the plan’s own', () {
-    // ৳100 per month, ৳1,000 per year, and no lifetime plan (plan §Pricing).
+    // ৳100 / ৳285 / ৳550 / ৳1,000, and no lifetime plan.
     expect(paywallMonthlyPrice, 100);
+    expect(paywallQuarterlyPrice, 285);
+    expect(paywallHalfYearlyPrice, 550);
     expect(paywallAnnualPrice, 1000);
     expect(paymentPlanAmount(paymentPlanMonthly), 100);
+    expect(paymentPlanAmount(paymentPlanQuarterly), 285);
+    expect(paymentPlanAmount(paymentPlanHalfYearly), 550);
     expect(paymentPlanAmount(paymentPlanAnnual), 1000);
     expect(paymentPlanAmount('lifetime'), isNull);
+    // The four plans, in the order the paywall lists them.
+    expect(
+      subscriptionPlans.map((p) => p.key),
+      <String>[
+        paymentPlanMonthly,
+        paymentPlanQuarterly,
+        paymentPlanHalfYearly,
+        paymentPlanAnnual,
+      ],
+    );
     expect(paywallBenefits, hasLength(4));
     // Unlimited cases, cloud backup, multi-device, firm mode — the four the
     // plan's Subscription Model lists for premium.

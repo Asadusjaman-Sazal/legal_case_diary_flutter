@@ -509,7 +509,7 @@
   "paywall_benefitMultiDevice": "Your diary on every device you sign in on",
   "paywall_benefitFirmMode": "Firm mode for your associates",
   "paywall_plansTitle": "Plans",
-  "paywall_planMonthly": "Monthly",
+  "paywall_planMonthly": "1 Month",
   "paywall_planMonthlyPrice": "৳{price} per month",
   "@paywall_planMonthlyPrice": {
       "placeholders": {
@@ -518,7 +518,25 @@
           }
       }
   },
-  "paywall_planAnnual": "Annual",
+  "paywall_planQuarterly": "3 Months",
+  "paywall_planQuarterlyPrice": "৳{price} for 3 months",
+  "@paywall_planQuarterlyPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planHalfYearly": "6 Months",
+  "paywall_planHalfYearlyPrice": "৳{price} for 6 months",
+  "@paywall_planHalfYearlyPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planAnnual": "1 Year",
   "paywall_planAnnualPrice": "৳{price} per year",
   "@paywall_planAnnualPrice": {
       "placeholders": {
@@ -955,7 +973,7 @@
   "settingsCourtNamesSteps_title": "Court Names, Steps etc",
   "settingsCourtNamesSteps_catAppellateDivision": "Appellate Division",
   "settingsCourtNamesSteps_catHighCourtDivision": "High Court Division",
-  "settingsCourtNamesSteps_catDistrictSessions": "District & Sessions (Criminal)",
+  "settingsCourtNamesSteps_catDistrictSessions": "Sessions (Criminal)",
   "settingsCourtNamesSteps_catDistrictCivil": "District Courts (Civil)",
   "settingsCourtNamesSteps_catCjm": "Chief Judicial Magistrate",
   "settingsCourtNamesSteps_catCmm": "Chief Metropolitan Magistrate",

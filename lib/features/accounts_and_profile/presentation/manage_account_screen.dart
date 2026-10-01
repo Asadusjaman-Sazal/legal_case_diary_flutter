@@ -27,8 +27,8 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
-import '../../payments/data/payment_plans.dart';
 import '../../payments/data/payment_repository.dart';
+import '../../payments/presentation/payment_plan_labels.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
@@ -322,9 +322,7 @@ class _SubscriptionDetailsSheet extends ConsumerWidget {
         .toList(growable: false);
     final planValue = approved.isEmpty
         ? '—'
-        : (approved.first.planType == paymentPlanAnnual
-              ? l.paywall_planAnnual
-              : l.paywall_planMonthly);
+        : paymentPlanLabel(l, approved.first.planType);
 
     final String subscription;
     if (premium.isLoading) {
@@ -458,9 +456,7 @@ class _PaymentHistoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
-    final plan = submission.planType == paymentPlanAnnual
-        ? l.paywall_planAnnual
-        : l.paywall_planMonthly;
+    final plan = paymentPlanLabel(l, submission.planType);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

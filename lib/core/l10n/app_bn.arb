@@ -509,7 +509,7 @@
   "paywall_benefitMultiDevice": "যে ডিভাইসেই সাইন ইন করুন, ডায়েরি সেখানেই",
   "paywall_benefitFirmMode": "সহকারীদের জন্য ফার্ম মোড",
   "paywall_plansTitle": "প্ল্যান",
-  "paywall_planMonthly": "মাসিক",
+  "paywall_planMonthly": "১ মাস",
   "paywall_planMonthlyPrice": "৳{price} / মাস",
   "@paywall_planMonthlyPrice": {
       "placeholders": {
@@ -518,7 +518,25 @@
           }
       }
   },
-  "paywall_planAnnual": "বার্ষিক",
+  "paywall_planQuarterly": "৩ মাস",
+  "paywall_planQuarterlyPrice": "৳{price} / ৩ মাস",
+  "@paywall_planQuarterlyPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planHalfYearly": "৬ মাস",
+  "paywall_planHalfYearlyPrice": "৳{price} / ৬ মাস",
+  "@paywall_planHalfYearlyPrice": {
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planAnnual": "১ বছর",
   "paywall_planAnnualPrice": "৳{price} / বছর",
   "@paywall_planAnnualPrice": {
       "placeholders": {

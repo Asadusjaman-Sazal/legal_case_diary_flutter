@@ -62,3 +62,4 @@
 - ProfileRepository caches full_name, role, firm_id, and subscription_expiry in the Task 03 pull-only cache, converting TIMESTAMPTZ to epoch ms; invalidate it on logout/account switch.
 - A failed join_firm redemption keeps onboarding retryable. If the user abandons onboarding before success, invoke a protected server cleanup that removes the provisional profile/Auth account so it is treated as never created.
 - Preferences remain per-user during individual-to-firm transitions and are never merged into firm-shared reference data.
+- **Build-time credential injection (follow-up):** Phase 1 item 2's non-committed config is `--dart-define-from-file=env.json` (git-ignored). To stop a build silently shipping offline, `tool/flutter_with_env.dart` wraps `flutter` so debug (`run`) and release (`build`) both inject the flag and a missing `env.json` fails the build. Recorded in `docs/implementation_plan.md` and `README.md`.

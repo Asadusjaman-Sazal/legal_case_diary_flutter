@@ -1020,7 +1020,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_plansTitle => 'Plans';
 
   @override
-  String get paywall_planMonthly => 'Monthly';
+  String get paywall_planMonthly => '1 Month';
 
   @override
   String paywall_planMonthlyPrice(String price) {
@@ -1028,7 +1028,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_planAnnual => 'Annual';
+  String get paywall_planQuarterly => '3 Months';
+
+  @override
+  String paywall_planQuarterlyPrice(String price) {
+    return '৳$price for 3 months';
+  }
+
+  @override
+  String get paywall_planHalfYearly => '6 Months';
+
+  @override
+  String paywall_planHalfYearlyPrice(String price) {
+    return '৳$price for 6 months';
+  }
+
+  @override
+  String get paywall_planAnnual => '1 Year';
 
   @override
   String paywall_planAnnualPrice(String price) {
@@ -1896,7 +1912,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCourtNamesSteps_catDistrictSessions =>
-      'District & Sessions (Criminal)';
+      'Sessions (Criminal)';
 
   @override
   String get settingsCourtNamesSteps_catDistrictCivil =>

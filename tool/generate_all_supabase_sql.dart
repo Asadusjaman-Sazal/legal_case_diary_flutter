@@ -312,6 +312,24 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'without a release (Rev 2.4 §5); it is not seeded, and the client falls '
         'back to validated build defaults until an admin inserts a row.',
   ),
+  LedgerSection(
+    file: '20261001010000_payment_plans_four.sql',
+    version: '0.0.339',
+    label: 'Task 21 follow-up\'s four-plan approval: replaces `approve_payment` '
+        'so the subscription knows `monthly`, `quarterly`, `half_yearly` and '
+        '`annual`, validates ৳100/৳285/৳550/৳1,000 and extends by 1/3/6/12 '
+        'months — the admin gate, lock, idempotency, firm mirror and audit '
+        'event are unchanged.',
+  ),
+  LedgerSection(
+    file: '20261001020000_seed_payment_configuration.sql',
+    version: '0.0.339',
+    label: 'Task 21 follow-up\'s seeded receiving numbers: one idempotent row '
+        'per provider (`bkash`, `nagad`, `rocket`) in `payment_configuration` '
+        'with the firm\'s single MFS account in local 11-digit form, so the '
+        'checkout shows a real number instead of falling back to build '
+        'defaults.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -337,6 +355,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.332':
       'Task 20 Audit Follow-Up — The Policies Refuse The Same Write As The RPC',
   '0.0.333': 'Task 21 Phase 1 — The MFS Configuration Table',
+  '0.0.339': 'Task 21 Follow-Up — Four Plans And The Receiving Number',
 };
 
 const String _header = '''<!--

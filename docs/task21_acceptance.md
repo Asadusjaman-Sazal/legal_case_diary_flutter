@@ -1,13 +1,14 @@
 # Task 21 — Payments & Subscription: Acceptance Run
 
-Run against `0.0.336`. Every item below is the task file's own wording, checked
-against the code and tests that shipped.
+Run against `0.0.336`; the paywall pricing row was re-verified against `0.0.339`
+after the four-plan change (see the task file's Addendum). Every item below is
+the task file's own wording, checked against the code and tests that shipped.
 
 ## Phase 1 — Paywall & Checkout Screens
 
 | # | Item | Result | Evidence |
 |---|---|---|---|
-| 1 | `PaywallScreen` replaces the Task 15 stub; premium benefits; Monthly ৳100 / Annual ৳1,000; no lifetime plan | **PASS** | `paywall_screen.dart` keeps the mockup layout (user ruling) with the plan actions enabled and `paywall_subscribe`; prices are aliases of `payment_plans.dart` (`paymentMonthlyPrice` 100, `paymentAnnualPrice` 1000, no lifetime); the mockup HTML was updated to the enabled design so AGENTS rule 9 still holds. |
+| 1 | `PaywallScreen` replaces the Task 15 stub; premium benefits; 1 Month ৳100 / 3 Months ৳285 / 6 Months ৳550 / 1 Year ৳1,000; no lifetime plan | **PASS** | `paywall_screen.dart` keeps the mockup layout (user ruling) with the plan actions enabled and `paywall_subscribe`; prices are aliases of `payment_plans.dart` (`paymentMonthlyPrice` 100, `paymentQuarterlyPrice` 285, `paymentHalfYearlyPrice` 550, `paymentAnnualPrice` 1000, no lifetime); the mockup HTML was updated to four rows so AGENTS rule 9 still holds. |
 | 2 | Entry points: the 50-case limit and a "Go Premium" action in Settings | **PASS** | The 50-case gate already opens `AppRoutes.paywall`; Manage Account → *Purchase New Subscription* (mockup row) and a new Settings → General *Go Premium* row (hidden once premium) open it too. |
 | 3 | `CheckoutScreen`: transfer instructions with copy-to-clipboard; `PaymentsConfigurationService` (validated build defaults bootstrap, authenticated remote authoritative, rotatable, display-only, reject missing/malformed/unsupported, retain last validated on transient failure, no hardcoding); form with method dropdown, sender phone, TrxID | **PASS** | `checkout_screen.dart` + `payments_configuration_service.dart`; remote is the new read-only `payment_configuration` table; 7 service tests cover missing/invalid/unsupported/rotation/empty/retention. |
 | 4 | All strings localized (Bengali default) | **PASS** | New keys in `app_en.arb` + `app_bn.arb`, key-for-key, `flutter gen-l10n`; `test/l10n/arb_keys_test.dart` green. |

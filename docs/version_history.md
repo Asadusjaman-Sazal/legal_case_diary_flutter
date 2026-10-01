@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.338 - Added AGENTS.md rule 14: changes the plan and task files already document are not re-recorded, while deviations or unmentioned changes are recorded in both.
+Version: 0.0.340 - Added tool/flutter_with_env.dart, a wrapper that injects env.json's Supabase credentials into debug and release builds and fails loudly when the file is missing.
 --------------------------------------
 
 ## Version History Log:
@@ -352,3 +352,5 @@ Version: 0.0.335 - Task 21 Phase 3: the derived entitlement stays the single sou
 Version: 0.0.336 - Task 21 Phase 4: the grace and post-grace subscription banners are mounted app-wide, activation detection runs the backlog push once on a detected upgrade, and Manage Account shows plan and DD/MM/YYYY expiry.
 Version: 0.0.337 - Task 21 Phase 1-4 audit: verified every plan item against the shipped code and tests, and corrected two stale header comments still describing the paywall and checkout as disabled stubs.
 Version: 0.0.338 - Added AGENTS.md rule 14: changes the plan and task files already document are not re-recorded, while deviations or unmentioned changes are recorded in both.
+Version: 0.0.339 - Premium now sells four plans — 1 Month ৳100, 3 Months ৳285, 6 Months ৳550, 1 Year ৳1,000 — with a four-plan approve_payment RPC and the real seeded MFS receiving number 01835252721.
+Version: 0.0.340 - Added tool/flutter_with_env.dart, a wrapper that injects env.json's Supabase credentials into debug and release builds and fails loudly when the file is missing.

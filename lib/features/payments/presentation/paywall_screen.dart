@@ -7,7 +7,8 @@
 /// * it says **why** it opened — the 50-case free limit — and what the user can
 ///   still do about it, instead of blocking a save with no explanation;
 /// * it lists what premium includes and what each plan costs, from the plan's
-///   pricing (৳100 per month, ৳1,000 per year — there is no lifetime plan);
+///   pricing (৳100 for one month, ৳285 for three, ৳550 for six and ৳1,000 for a
+///   year — there is no lifetime plan);
 /// * selecting a plan pushes the checkout with the plan key as a query
 ///   parameter, so it never names a second source of plans or prices.
 ///
@@ -27,14 +28,17 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
 import '../data/payment_plans.dart';
+import 'payment_plan_labels.dart';
 
 /// Prices shown by the paywall, in taka.
 ///
-/// Aliases of the shared plan constants ([paymentMonthlyPrice] /
-/// [paymentAnnualPrice]) rather than second literals, so the price on the
-/// paywall, the amount in the checkout instructions and the amount submitted can
-/// never drift apart.
+/// Aliases of the shared plan constants ([paymentMonthlyPrice],
+/// [paymentQuarterlyPrice], [paymentHalfYearlyPrice] and [paymentAnnualPrice])
+/// rather than second literals, so the price on the paywall, the amount in the
+/// checkout instructions and the amount submitted can never drift apart.
 const int paywallMonthlyPrice = paymentMonthlyPrice;
+const int paywallQuarterlyPrice = paymentQuarterlyPrice;
+const int paywallHalfYearlyPrice = paymentHalfYearlyPrice;
 const int paywallAnnualPrice = paymentAnnualPrice;
 
 /// Premium benefits shown by the stub, in display order.
@@ -229,7 +233,7 @@ class _BenefitsCard extends StatelessWidget {
   }
 }
 
-/// The two plans, with prices and an action each.
+/// Every plan, with its price and an action each.
 class _PlansCard extends StatelessWidget {
   /// Called with the selected plan key (`monthly`/`annual`).
   final void Function(String plan) onPlanSelected;
@@ -248,29 +252,28 @@ class _PlansCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
       child: Column(
         children: [
-          _PlanRow(
-            key: const ValueKey('paywall-plan-monthly'),
-            name: l.paywall_planMonthly,
-            price: l.paywall_planMonthlyPrice(
-              AppDateUtils.formatDigits(
-                paywallMonthlyPrice,
-                l.localeName,
-                grouping: false,
+          for (var i = 0; i < subscriptionPlans.length; i++) ...[
+            if (i > 0)
+              const Divider(
+                height: AppSpacing.lg,
+                color: AppColors.outlineVariant,
               ),
+            _PlanRow(
+              key: ValueKey('paywall-plan-${subscriptionPlans[i].key}'),
+              name: paymentPlanLabel(l, subscriptionPlans[i].key),
+              price: paymentPlanPriceLabel(
+                l,
+                subscriptionPlans[i],
+                AppDateUtils.formatDigits(
+                  subscriptionPlans[i].amount,
+                  l.localeName,
+                  grouping: subscriptionPlans[i].amount >= 1000,
+                ),
+              ),
+              actionLabel: l.paywall_subscribe,
+              onPressed: () => onPlanSelected(subscriptionPlans[i].key),
             ),
-            actionLabel: l.paywall_subscribe,
-            onPressed: () => onPlanSelected(paymentPlanMonthly),
-          ),
-          const Divider(height: AppSpacing.lg, color: AppColors.outlineVariant),
-          _PlanRow(
-            key: const ValueKey('paywall-plan-annual'),
-            name: l.paywall_planAnnual,
-            price: l.paywall_planAnnualPrice(
-              AppDateUtils.formatDigits(paywallAnnualPrice, l.localeName),
-            ),
-            actionLabel: l.paywall_subscribe,
-            onPressed: () => onPlanSelected(paymentPlanAnnual),
-          ),
+          ],
         ],
       ),
     );

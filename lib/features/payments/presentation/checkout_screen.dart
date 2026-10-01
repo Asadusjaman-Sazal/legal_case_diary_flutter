@@ -32,6 +32,7 @@ import '../data/payment_local_store.dart';
 import '../data/payment_plans.dart';
 import '../data/payment_repository.dart';
 import '../data/payments_configuration_service.dart';
+import 'payment_plan_labels.dart';
 import 'payment_viewmodel.dart';
 
 /// Checkout: pay one plan by MFS transfer and report the transaction.
@@ -251,9 +252,7 @@ class _PlanSummaryCard extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                planKey == paymentPlanAnnual
-                    ? l.paywall_planAnnual
-                    : l.paywall_planMonthly,
+                paymentPlanLabel(l, planKey),
                 style: AppTypography.titleMd,
               ),
             ),

@@ -123,6 +123,17 @@ service key — and `GOOGLE_WEB_CLIENT_ID`) and pass it to the build:
 
 ```bash
 flutter run --dart-define-from-file=env.json
+flutter build apk --release --dart-define-from-file=env.json
+```
+
+Because the values are compile-time constants, forgetting the flag is silent — the build simply starts
+in its offline shape. `tool/flutter_with_env.dart` is a thin wrapper that always appends the flag, for
+debug and release alike, and refuses to build when `env.json` is missing so a release cannot ship
+offline by accident:
+
+```bash
+dart run tool/flutter_with_env.dart run -d <device>
+dart run tool/flutter_with_env.dart build apk --release
 ```
 
 The URL must name the one writable project (`lsthasywrdrhuuxnykau`); any other project, the off-limits

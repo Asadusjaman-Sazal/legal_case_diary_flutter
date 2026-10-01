@@ -16,6 +16,7 @@ import '../../features/cases/data/local/case_history_dao.dart';
 import '../../features/cases/data/local/cases_dao.dart';
 import '../../features/notes/data/local/notes_dao.dart';
 import '../../features/notes/data/notes_repository.dart';
+import '../../features/payments/data/payment_repository.dart';
 import '../../features/settings/data/backup_repository.dart';
 import '../../features/settings/data/case_types_repository.dart';
 import '../../features/settings/data/court_categories_repository.dart';
@@ -183,3 +184,21 @@ final onBehalfsRepositoryProvider = FutureProvider<OnBehalfsRepository>((
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalOnBehalfsRepository(OnBehalfsDao(db), sync);
 });
+
+/// Provider for [PaymentRepository].
+///
+/// No client means no backend, and an inert repository that reports every
+/// submission as a network failure rather than pretending it was queued —
+/// `payment_submissions` is server-managed and is never queued locally.
+final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  return client == null
+      ? const UnavailablePaymentRepository()
+      : SupabasePaymentRepository(client);
+});
+
+/// This account's own payment submissions, newest first (own rows under RLS).
+final myPaymentSubmissionsProvider =
+    FutureProvider<List<PaymentSubmission>>((ref) async {
+      return ref.watch(paymentRepositoryProvider).fetchMySubmissions();
+    });

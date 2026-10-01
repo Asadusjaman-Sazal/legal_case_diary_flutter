@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.332 - Tightened the RLS policies so a removed firm member's authored firm rows are no longer writable directly, matching sync_can_write.
+Version: 0.0.336 - Task 21 Phase 4: the grace and post-grace subscription banners are mounted app-wide, activation detection runs the backlog push once on a detected upgrade, and Manage Account shows plan and DD/MM/YYYY expiry.
 --------------------------------------
 
 ## Version History Log:
@@ -346,3 +346,7 @@ Version: 0.0.329 - Reworked the requester's delete-request badge and My Delete R
 Version: 0.0.330 - Hardened sync_can_write so a removed firm member can no longer merge a queued insert or update to a firm row, proven by a live smoke assertion.
 Version: 0.0.331 - Added the requester's Edit and Withdraw actions to the Delete Requests screen, refreshing a pending request's snapshot or cancelling it through the existing queued writers.
 Version: 0.0.332 - Tightened the RLS policies so a removed firm member's authored firm rows are no longer writable directly, matching sync_can_write.
+Version: 0.0.333 - Task 21 Phase 1: the paywall plans now open a real checkout, backed by a validated PaymentsConfigurationService over the new read-only payment_configuration table.
+Version: 0.0.334 - Task 21 Phase 2: checkout submits a real payment_submissions row with a per-user draft that survives failures and clears on success, a best-effort 3-per-24h local limit, and own-row payment history in Manage Account.
+Version: 0.0.335 - Task 21 Phase 3: the derived entitlement stays the single source for every gate and now applies the recorded clock-skew offset so a device clock ahead cannot falsely expire a subscription inside grace.
+Version: 0.0.336 - Task 21 Phase 4: the grace and post-grace subscription banners are mounted app-wide, activation detection runs the backlog push once on a detected upgrade, and Manage Account shows plan and DD/MM/YYYY expiry.

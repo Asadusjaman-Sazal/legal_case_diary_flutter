@@ -23,6 +23,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/accounts_and_profile/data/account_mode.dart';
+import '../features/payments/data/subscription_activation.dart';
 import 'connectivity_monitor.dart';
 import 'recovery_flow.dart';
 import 'sync_providers.dart';
@@ -165,6 +166,15 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
         unawaited(listener.start());
       } else {
         unawaited(listener.stop());
+      }
+      // Activation detection (Task 21 Phase 4): when entitlement rises from a
+      // stored false to true — including across a restart, which is how an
+      // approval lands — run the free → premium backlog pass exactly once.
+      final premium = next.value;
+      if (premium != null) {
+        unawaited(
+          ref.read(subscriptionActivationProvider).observe(premium),
+        );
       }
     });
 

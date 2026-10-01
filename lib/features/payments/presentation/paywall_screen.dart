@@ -19,21 +19,25 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/free_tier.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../data/payment_plans.dart';
 
-/// Prices shown by the stub, in taka.
+/// Prices shown by the paywall, in taka.
 ///
-/// Named constants rather than inline literals so the one place to change them
-/// is here (the plan fixes ৳100 monthly and ৳1,000 annually, and there is no
-/// lifetime plan).
-const int paywallMonthlyPrice = 100;
-const int paywallAnnualPrice = 1000;
+/// Aliases of the shared plan constants ([paymentMonthlyPrice] /
+/// [paymentAnnualPrice]) rather than second literals, so the price on the
+/// paywall, the amount in the checkout instructions and the amount submitted can
+/// never drift apart.
+const int paywallMonthlyPrice = paymentMonthlyPrice;
+const int paywallAnnualPrice = paymentAnnualPrice;
 
 /// Premium benefits shown by the stub, in display order.
 const List<PaywallBenefit> paywallBenefits = <PaywallBenefit>[
@@ -88,14 +92,12 @@ class PaywallScreen extends StatelessWidget {
           const _BenefitsCard(),
           const SizedBox(height: AppSpacing.xl),
           _SectionHeader(l.paywall_plansTitle),
-          const _PlansCard(),
-          const SizedBox(height: AppSpacing.md),
-          // The honest note: this build cannot take money yet.
-          Text(
-            l.paywall_note,
-            style: AppTypography.bodySm.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+          _PlansCard(
+            // Selecting a plan opens the checkout for that plan. The plan is
+            // carried as a query parameter so the checkout route needs no
+            // second path and a restored deep link still names its plan.
+            onPlanSelected: (plan) =>
+                context.push('${AppRoutes.checkout}?plan=$plan'),
           ),
         ],
       ),
@@ -229,9 +231,12 @@ class _BenefitsCard extends StatelessWidget {
   }
 }
 
-/// The two plans, with prices and a disabled action each.
+/// The two plans, with prices and an action each.
 class _PlansCard extends StatelessWidget {
-  const _PlansCard();
+  /// Called with the selected plan key (`monthly`/`annual`).
+  final void Function(String plan) onPlanSelected;
+
+  const _PlansCard({required this.onPlanSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +260,8 @@ class _PlansCard extends StatelessWidget {
                 grouping: false,
               ),
             ),
-            actionLabel: l.paywall_comingSoon,
+            actionLabel: l.paywall_subscribe,
+            onPressed: () => onPlanSelected(paymentPlanMonthly),
           ),
           const Divider(height: AppSpacing.lg, color: AppColors.outlineVariant),
           _PlanRow(
@@ -264,7 +270,8 @@ class _PlansCard extends StatelessWidget {
             price: l.paywall_planAnnualPrice(
               AppDateUtils.formatDigits(paywallAnnualPrice, l.localeName),
             ),
-            actionLabel: l.paywall_comingSoon,
+            actionLabel: l.paywall_subscribe,
+            onPressed: () => onPlanSelected(paymentPlanAnnual),
           ),
         ],
       ),
@@ -272,16 +279,18 @@ class _PlansCard extends StatelessWidget {
   }
 }
 
-/// One plan: name, price, and the (disabled) action that Task 21 enables.
+/// One plan: name, price, and the action that opens its checkout.
 class _PlanRow extends StatelessWidget {
   final String name;
   final String price;
   final String actionLabel;
+  final VoidCallback onPressed;
 
   const _PlanRow({
     required this.name,
     required this.price,
     required this.actionLabel,
+    required this.onPressed,
     super.key,
   });
 
@@ -304,9 +313,8 @@ class _PlanRow extends StatelessWidget {
         ),
       ),
       const SizedBox(width: AppSpacing.md),
-      // Disabled on purpose: a stub must not pretend a payment can start.
       FilledButton(
-        onPressed: null,
+        onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.onPrimary,

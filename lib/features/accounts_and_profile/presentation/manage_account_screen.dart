@@ -24,8 +24,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../payments/data/payment_plans.dart';
+import '../../payments/data/payment_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
@@ -310,6 +313,19 @@ class _SubscriptionDetailsSheet extends ConsumerWidget {
         ? profile?.subscriptionExpiry
         : firm?.subscriptionExpiry;
 
+    // The active paid plan is named by the latest approved submission. With no
+    // approval there is no paid plan to name — the Subscription row already says
+    // Free/Premium — so a dash is the honest value, not a repeated tier word.
+    final approved = (ref.watch(myPaymentSubmissionsProvider).value ??
+            const <PaymentSubmission>[])
+        .where((s) => s.status == 'approved')
+        .toList(growable: false);
+    final planValue = approved.isEmpty
+        ? '—'
+        : (approved.first.planType == paymentPlanAnnual
+              ? l.paywall_planAnnual
+              : l.paywall_planMonthly);
+
     final String subscription;
     if (premium.isLoading) {
       subscription = '—';
@@ -333,35 +349,176 @@ class _SubscriptionDetailsSheet extends ConsumerWidget {
         AppSpacing.lg,
         AppSpacing.xl,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l.settingsManageAccount_subscriptionDetails,
-            style: AppTypography.titleLg,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _DetailRow(
-            label: l.settingsManageAccount_role,
-            value: _roleLabel(
-              l,
-              ref.watch(accountRoleProvider),
+      // Scrollable because the payment history below can be arbitrarily long;
+      // the sheet itself is content-sized, so without this it could overflow.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.settingsManageAccount_subscriptionDetails,
+              style: AppTypography.titleLg,
             ),
-          ),
-          if (ref.watch(firmModeProvider)) ...[
+            SizedBox(height: AppSpacing.lg),
+            _DetailRow(
+              label: l.settingsManageAccount_role,
+              value: _roleLabel(
+                l,
+                ref.watch(accountRoleProvider),
+              ),
+            ),
+            if (ref.watch(firmModeProvider)) ...[
+              SizedBox(height: AppSpacing.md),
+              _DetailRow(
+                label: l.settingsManageAccount_firm,
+                value: (firm?.name ?? '').isNotEmpty ? firm!.name : '—',
+              ),
+            ],
             SizedBox(height: AppSpacing.md),
             _DetailRow(
-              label: l.settingsManageAccount_firm,
-              value: (firm?.name ?? '').isNotEmpty ? firm!.name : '—',
+              label: l.settingsManageAccount_subscription,
+              value: subscription,
             ),
+            // Phase 4 item 4: the plan and the expiry date, in DD/MM/YYYY.
+            SizedBox(height: AppSpacing.md),
+            _DetailRow(
+              label: l.settingsManageAccount_plan,
+              value: planValue,
+            ),
+            SizedBox(height: AppSpacing.md),
+            _DetailRow(
+              label: l.settingsManageAccount_expiry,
+              value: expiry == null
+                  ? '—'
+                  : AppDateUtils.formatDateDDMMYYYY(
+                      expiry,
+                      locale: Localizations.localeOf(context).languageCode,
+                    ),
+            ),
+            // Task 21 Phase 2 item 4: this account's own submissions, own rows
+            // only under RLS. Placed here (behind Subscription Details) so the
+            // mockup-bound Manage Account list needs no new row.
+            SizedBox(height: AppSpacing.lg),
+            Text(l.payments_historyTitle, style: AppTypography.titleMd),
+            SizedBox(height: AppSpacing.sm),
+            const _PaymentHistory(),
           ],
-          SizedBox(height: AppSpacing.md),
-          _DetailRow(
-            label: l.settingsManageAccount_subscription,
-            value: subscription,
+        ),
+      ),
+    );
+  }
+}
+
+/// This account's payment submissions, newest first.
+class _PaymentHistory extends ConsumerWidget {
+  const _PaymentHistory();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final async = ref.watch(myPaymentSubmissionsProvider);
+    final muted = AppTypography.bodySm.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
+    return async.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        child: Center(
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
-        ],
+        ),
+      ),
+      error: (_, _) => Text(l.payments_noSubmissions, style: muted),
+      data: (items) {
+        if (items.isEmpty) return Text(l.payments_noSubmissions, style: muted);
+        return Column(
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0) const Divider(height: AppSpacing.lg, color: AppColors.outlineVariant),
+              _PaymentHistoryRow(submission: items[i]),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// One submission: plan, amount, status, and the reviewer's note.
+class _PaymentHistoryRow extends StatelessWidget {
+  const _PaymentHistoryRow({required this.submission});
+
+  final PaymentSubmission submission;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final plan = submission.planType == paymentPlanAnnual
+        ? l.paywall_planAnnual
+        : l.paywall_planMonthly;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$plan · ${l.payments_amountValue(
+                  AppDateUtils.formatDigits(submission.amount, locale),
+                )}',
+                style: AppTypography.bodyMd,
+              ),
+              if ((submission.adminNotes ?? '').isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '${l.payments_notesLabel}: ${submission.adminNotes}',
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        _PaymentStatusPill(status: submission.status),
+      ],
+    );
+  }
+}
+
+/// The status pill for one submission.
+class _PaymentStatusPill extends StatelessWidget {
+  const _PaymentStatusPill({required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final (label, color) = switch (status) {
+      'approved' => (l.payments_statusApproved, AppColors.success),
+      'rejected' => (l.payments_statusRejected, AppColors.error),
+      _ => (l.payments_statusPending, AppColors.secondary),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.labelMd.copyWith(color: color),
       ),
     );
   }

@@ -1868,17 +1868,11 @@ abstract class AppLocalizations {
   /// **'৳{price} per year'**
   String paywall_planAnnualPrice(String price);
 
-  /// No description provided for @paywall_comingSoon.
+  /// No description provided for @paywall_subscribe.
   ///
   /// In en, this message translates to:
-  /// **'Coming Soon'**
-  String get paywall_comingSoon;
-
-  /// No description provided for @paywall_note.
-  ///
-  /// In en, this message translates to:
-  /// **'Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.'**
-  String get paywall_note;
+  /// **'Subscribe'**
+  String get paywall_subscribe;
 
   /// No description provided for @general_tomorrow.
   ///
@@ -6083,6 +6077,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could Not Withdraw The Request.'**
   String get deleteRequests_withdrawFailed;
+
+  /// No description provided for @payments_goPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get payments_goPremium;
+
+  /// No description provided for @payments_checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get payments_checkoutTitle;
+
+  /// No description provided for @payments_planSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get payments_planSummaryTitle;
+
+  /// No description provided for @payments_amountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{amount}'**
+  String payments_amountValue(String amount);
+
+  /// No description provided for @payments_transferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer Instructions'**
+  String get payments_transferTitle;
+
+  /// No description provided for @payments_transferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Send ৳{amount} to one of the numbers below, then enter your payment details.'**
+  String payments_transferBody(String amount);
+
+  /// No description provided for @payments_copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get payments_copy;
+
+  /// No description provided for @payments_copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Number Copied.'**
+  String get payments_copied;
+
+  /// No description provided for @payments_formTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Details'**
+  String get payments_formTitle;
+
+  /// No description provided for @payments_methodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get payments_methodLabel;
+
+  /// No description provided for @payments_methodBkash.
+  ///
+  /// In en, this message translates to:
+  /// **'bKash'**
+  String get payments_methodBkash;
+
+  /// No description provided for @payments_methodNagad.
+  ///
+  /// In en, this message translates to:
+  /// **'Nagad'**
+  String get payments_methodNagad;
+
+  /// No description provided for @payments_methodRocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Rocket'**
+  String get payments_methodRocket;
+
+  /// No description provided for @payments_phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender Phone Number'**
+  String get payments_phoneLabel;
+
+  /// No description provided for @payments_phoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'01XXXXXXXXX'**
+  String get payments_phoneHint;
+
+  /// No description provided for @payments_trxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID (TrxID)'**
+  String get payments_trxLabel;
+
+  /// No description provided for @payments_trxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter The TrxID'**
+  String get payments_trxHint;
+
+  /// No description provided for @payments_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Payment'**
+  String get payments_submit;
+
+  /// No description provided for @payments_numberUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment numbers are unavailable right now. Please try again later.'**
+  String get payments_numberUnavailable;
+
+  /// No description provided for @payments_errorPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter A Valid Mobile Number.'**
+  String get payments_errorPhone;
+
+  /// No description provided for @payments_errorTrx.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter The Transaction ID.'**
+  String get payments_errorTrx;
+
+  /// No description provided for @payments_submitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Submission failed. Tap Retry.'**
+  String get payments_submitFailed;
+
+  /// No description provided for @payments_limitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached today\'s submission limit. Please try again tomorrow.'**
+  String get payments_limitReached;
+
+  /// No description provided for @payments_duplicateTrx.
+  ///
+  /// In en, this message translates to:
+  /// **'This Transaction ID Has Already Been Submitted.'**
+  String get payments_duplicateTrx;
+
+  /// No description provided for @payments_submitSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Submission Received. We Will Verify It Shortly.'**
+  String get payments_submitSuccess;
+
+  /// No description provided for @payments_historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment History'**
+  String get payments_historyTitle;
+
+  /// No description provided for @payments_noSubmissions.
+  ///
+  /// In en, this message translates to:
+  /// **'No Payments Submitted Yet.'**
+  String get payments_noSubmissions;
+
+  /// No description provided for @payments_statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get payments_statusPending;
+
+  /// No description provided for @payments_statusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get payments_statusApproved;
+
+  /// No description provided for @payments_statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get payments_statusRejected;
+
+  /// No description provided for @payments_notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get payments_notesLabel;
+
+  /// No description provided for @subscription_bannerGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription expired. Renew to avoid losing sync access.'**
+  String get subscription_bannerGrace;
+
+  /// No description provided for @subscription_bannerExpiredOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your premium subscription has ended. Renew your subscription to restore sync.'**
+  String get subscription_bannerExpiredOwner;
+
+  /// No description provided for @subscription_bannerExpiredAssociate.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s premium subscription has ended. Contact your firm owner to renew.'**
+  String get subscription_bannerExpiredAssociate;
+
+  /// No description provided for @settingsManageAccount_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get settingsManageAccount_plan;
+
+  /// No description provided for @settingsManageAccount_expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry'**
+  String get settingsManageAccount_expiry;
 }
 
 class _AppLocalizationsDelegate

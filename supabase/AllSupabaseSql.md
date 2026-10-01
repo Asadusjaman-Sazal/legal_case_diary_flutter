@@ -61,6 +61,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.327 | 2026-09-30 | `20260930200000_push_changes_delete_review.sql` | Task 20 Phase 4's delete-review branch: `push_changes` replaces whole to teach an approval (a `delete_requests` update setting `status = 'approved'`) what it means server-side. The request is locked (already) and the target is locked next, always in that order so concurrent approvals cannot deadlock; only a member with `can_delete` may review; a target at a different version than the request's `target_base_version` becomes `target_conflict`, parking the request as `stale_review_required` with the version the reviewer just saw so a reconfirm re-decides against the row that exists; an already soft-deleted target becomes `already_resolved` with its tombstone and records no decision; and an unchanged target is tombstoned atomically with its `case_history` cascade and the request resolved beside it, all inside the per-mutation savepoint that already produces idempotent receipts. |
 | 0.0.330 | 2026-09-30 | `20260930210000_sync_can_write_firm_membership.sql` | Task 20 audit closure: `sync_can_write` again, so authorship of a firm-scoped row only counts while the row's firm is still the caller's firm (`firm_id = current_firm_id()`). Removing an associate relinks `profiles.firm_id` to NULL, but the author clause checked `user_id = auth.uid()` before any firm helper, so a removed member could still merge a queued **update** to a firm record they happened to author. The narrowing is applied to the same three places that trusted authorship: ordinary rows, custom references, and a requester's own pending delete request. A `firm_id`-less personal row is unaffected, and `can_edit_firm` / `can_delete_firm` still cover teammates and reviewers. |
 | 0.0.332 | 2026-09-30 | `20260930220000_rls_firm_membership.sql` | Task 20 audit follow-up: the same membership rule, applied to RLS. `sync_can_write` closed the *app* path in 0.0.330, but the table policies still said `user_id = auth.uid()` on a firm-scoped row, so a removed associate could still write their authored firm rows through PostgREST directly — rewriting one, or detaching it from the firm by nulling `firm_id`. Every INSERT and UPDATE policy that trusts authorship now requires the row to be personal (`firm_id is null`) or still the caller's firm (`is not distinct from current_firm_id()`), across the ten tables that share one shape plus `conflict_log` and the requester's own pending `delete_requests` row. SELECT policies and table privileges are deliberately untouched. |
+| 0.0.333 | 2026-10-01 | `20261001000000_payment_configuration.sql` | Task 21 Phase 1's payments configuration: a read-only server table (`provider`, `receiving_number`, `is_active`, `updated_at`) that holds the MFS receiving numbers, authenticated SELECT only and no client write policy at all. It exists so a receiving number can rotate without a release (Rev 2.4 §5); it is not seeded, and the client falls back to validated build defaults until an admin inserts a row. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -6926,5 +6927,67 @@ create policy delete_requests_update_scoped on public.delete_requests
     )
     or public.can_delete_firm(firm_id)
   );
+```
+
+## App Version 0.0.333 — Task 21 Phase 1 — The MFS Configuration Table
+
+### 0.0.333 · `20261001000000_payment_configuration.sql`
+
+> **Created 2026-10-01.** Task 21 Phase 1's payments configuration: a read-only server table (`provider`, `receiving_number`, `is_active`, `updated_at`) that holds the MFS receiving numbers, authenticated SELECT only and no client write policy at all. It exists so a receiving number can rotate without a release (Rev 2.4 §5); it is not seeded, and the client falls back to validated build defaults until an admin inserts a row.
+
+```sql
+-- Task 21 Phase 1 — the MFS receiving numbers are server configuration, not
+-- build constants.
+--
+-- Task 16 shipped `payment_submissions` and the admin `approve_payment` RPC, but
+-- nothing that holds *where* a user sends money. The Addendum (Rev 2.4 §5)
+-- requires the payments configuration service to take its numbers from
+-- "validated build environment or authenticated remote configuration" so a
+-- number can rotate without a release. Build-time defaults can bootstrap a
+-- build, but a release is the wrong unit of change for a receiving number: the
+-- number belongs to the firm's MFS account and can change at any moment.
+--
+-- This migration is the remote half. It stores one row per supported provider
+-- (`bkash`, `nagad`, `rocket`), readable by any authenticated client and
+-- writable by no client at all:
+--
+--   * SELECT policy for `authenticated`: the numbers are meant to be shown to
+--     the user, so they are readable; they are not secret.
+--   * No INSERT/UPDATE/DELETE policy: a receiving number is set by an admin
+--     (a controlled migration or a service-role/Studio operation), never by the
+--     app. `anon` reads nothing: RLS is on and only `authenticated` has a policy,
+--     so the default table grant is not a read path.
+--   * `receiving_number <> ''` and the provider allow-list keep a malformed row
+--     from ever being created, so the client's validation only has to defend
+--     against a genuinely old/absent row, not against a bad one.
+--
+-- The table is intentionally **not seeded**: the real bKash/Nagad/Rocket numbers
+-- are not invented here. An empty table is a valid state and the service falls
+-- back to its validated build defaults (`--dart-define`); once an admin inserts
+-- or updates a row, the remote value is authoritative and rotates the number
+-- without a release.
+
+create table if not exists public.payment_configuration (
+  provider text primary key
+    check (provider in ('bkash', 'nagad', 'rocket')),
+  receiving_number text not null
+    check (receiving_number <> ''),
+  is_active boolean not null default true,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.payment_configuration enable row level security;
+
+-- Read-only to authenticated clients: display-only data that rotates centrally.
+drop policy if exists payment_configuration_select_authenticated
+  on public.payment_configuration;
+create policy payment_configuration_select_authenticated
+  on public.payment_configuration
+  for select to authenticated
+  using (true);
+
+-- No write policies on purpose: this is server-managed configuration. The
+-- absence of a policy is the rule, not an omission — the same shape as the
+-- server-internal ledgers.
 ```
 

@@ -1010,6 +1010,16 @@ lib/
 >
 > RLS denies every direct client INSERT/UPDATE/DELETE on this ledger; authenticated owners may read only their own events if the product exposes receipts, while admins may read all. No update/delete policy or mutable audit RPC is provided.
 
+> ### `payment_configuration` (MFS receiving numbers — server-managed configuration)
+> | Column | Type | Notes |
+> |---|---|---|
+> | `provider` | TEXT PK | `bkash`, `nagad`, or `rocket` (checked) |
+> | `receiving_number` | TEXT | The number users send money to; `<> ''`. Display-only, never an authorization input |
+> | `is_active` | BOOLEAN | Only active rows are served to clients |
+> | `updated_at` | TIMESTAMPTZ | Server set; `NOT NULL DEFAULT now()` |
+>
+> RLS: authenticated SELECT only, and **no client INSERT/UPDATE/DELETE policy** — a receiving number is server-managed configuration. It is not seeded: the client falls back to validated build defaults (`--dart-define`) until an admin inserts a row, so a number rotates centrally without a release (Rev 2.4 §5). Added by Task 21 Phase 1.
+
 ---
 
 ## Row-Level Security (RLS) Strategy
@@ -1155,6 +1165,7 @@ This guarantees that local data is tightly bound to the current Supabase `auth.u
   4. App submits to `payment_submissions` on Supabase. Status starts as `pending`. If the network call fails, the user sees: *"Submission failed. Tap Retry."* The draft remains saved.
 - **Rate Limiting (Abuse Prevention):** Each user is restricted to a maximum of **3 payment submissions per 24-hour period**. **Enforcement is a `BEFORE INSERT` trigger on `payment_submissions`** — RLS policies cannot reliably count rows per time window, so the trigger is the authoritative gate: it overwrites/rejects client `submitted_at`, counts the caller's rows where `user_id = auth.uid() AND submitted_at > now() - interval '24 hours'`, and raises an exception (surfaced to the app as a friendly *"You've reached today's submission limit. Please try again tomorrow."* message) if the count is already 3. The client performs a best-effort local check purely as UX; it is never the security boundary. This prevents spam abuse while still allowing legitimate retries.
 - **48-Hour Grace Period (Expiry Buffer):** When a subscription expires, sync is **not** cut off immediately. A **48-hour grace period** is applied during which sync remains fully active but a persistent, non-intrusive warning banner is displayed (e.g., *"Your subscription expired. Renew to avoid losing sync access."*). If the admin approves a payment submission within this window, the expiry is extended seamlessly and the banner disappears. This prevents legitimate users from losing access during normal admin verification delays.
+- **Receiving Numbers (configuration, not code):** the numbers a user sends money to come from `payment_configuration` (authenticated read-only) through the client's payments configuration service, with validated `--dart-define` build defaults as a bootstrap; a row can be inserted or updated by an admin so a number rotates without a release, and a missing/malformed/unsupported entry is rejected rather than shown. Values are display-only — the server's `approve_payment` and the RLS policies remain the boundary.
 - **Admin Verification:** Admin checks the incoming MFS payment and invokes the admin-only `approve_payment(payment_submission_id)` RPC from the protected admin surface; neither Supabase Studio row edits nor direct client updates are an approval path. The RPC performs the lock, validation, idempotent expiry extension, owner-firm mirror, submission metadata update, and immutable audit insertion atomically as defined in the schema section. `subscription_expiry` remains the only entitlement authority; `subscription_status` is display-only. The app detects the committed change via a Broadcast ping or profile refresh on next launch.
 
 ### 8. Print (PDF Export)

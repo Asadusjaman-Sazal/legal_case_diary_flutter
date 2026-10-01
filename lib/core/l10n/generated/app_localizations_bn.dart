@@ -1037,11 +1037,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_comingSoon => 'শীঘ্রই আসছে';
-
-  @override
-  String get paywall_note =>
-      'সাবস্ক্রিপশন এখনো চালু হয়নি। এই স্ক্রিনে দেখা যাচ্ছে প্রিমিয়ামে কী থাকবে এবং কোন প্ল্যানের দাম কত।';
+  String get paywall_subscribe => 'সাবস্ক্রাইব';
 
   @override
   String get general_tomorrow => 'আগামীকাল';
@@ -3505,4 +3501,122 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_withdrawFailed => 'অনুরোধ প্রত্যাহার করা যায়নি।';
+
+  @override
+  String get payments_goPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get payments_checkoutTitle => 'চেকআউট';
+
+  @override
+  String get payments_planSummaryTitle => 'প্ল্যান';
+
+  @override
+  String payments_amountValue(String amount) {
+    return '৳$amount';
+  }
+
+  @override
+  String get payments_transferTitle => 'ট্রান্সফার নির্দেশনা';
+
+  @override
+  String payments_transferBody(String amount) {
+    return 'নিচের যেকোনো একটি নম্বরে ৳$amount পাঠান, তারপর আপনার পেমেন্টের তথ্য দিন।';
+  }
+
+  @override
+  String get payments_copy => 'কপি';
+
+  @override
+  String get payments_copied => 'নম্বর কপি হয়েছে।';
+
+  @override
+  String get payments_formTitle => 'পেমেন্টের তথ্য';
+
+  @override
+  String get payments_methodLabel => 'পেমেন্ট পদ্ধতি';
+
+  @override
+  String get payments_methodBkash => 'বিকাশ';
+
+  @override
+  String get payments_methodNagad => 'নগদ';
+
+  @override
+  String get payments_methodRocket => 'রকেট';
+
+  @override
+  String get payments_phoneLabel => 'প্রেরকের ফোন নম্বর';
+
+  @override
+  String get payments_phoneHint => '01XXXXXXXXX';
+
+  @override
+  String get payments_trxLabel => 'ট্রানজেকশন আইডি (TrxID)';
+
+  @override
+  String get payments_trxHint => 'TrxID লিখুন';
+
+  @override
+  String get payments_submit => 'পেমেন্ট জমা দিন';
+
+  @override
+  String get payments_numberUnavailable =>
+      'এই মুহূর্তে পেমেন্ট নম্বর পাওয়া যাচ্ছে না। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get payments_errorPhone => 'একটি সঠিক মোবাইল নম্বর লিখুন।';
+
+  @override
+  String get payments_errorTrx => 'ট্রানজেকশন আইডি লিখুন।';
+
+  @override
+  String get payments_submitFailed => 'জমা দেওয়া যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get payments_limitReached =>
+      'আজকের জমা দেওয়ার সীমায় পৌঁছে গেছেন। আগামীকাল আবার চেষ্টা করুন।';
+
+  @override
+  String get payments_duplicateTrx =>
+      'এই ট্রানজেকশন আইডি ইতিমধ্যে জমা দেওয়া হয়েছে।';
+
+  @override
+  String get payments_submitSuccess => 'জমা পাওয়া গেছে। আমরা শীঘ্রই যাচাই করব।';
+
+  @override
+  String get payments_historyTitle => 'পেমেন্টের ইতিহাস';
+
+  @override
+  String get payments_noSubmissions => 'এখনো কোনো পেমেন্ট জমা দেওয়া হয়নি।';
+
+  @override
+  String get payments_statusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get payments_statusApproved => 'অনুমোদিত';
+
+  @override
+  String get payments_statusRejected => 'প্রত্যাখ্যাত';
+
+  @override
+  String get payments_notesLabel => 'মন্তব্য';
+
+  @override
+  String get subscription_bannerGrace =>
+      'আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
+
+  @override
+  String get subscription_bannerExpiredOwner =>
+      'আপনার প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক ফিরে পেতে সাবস্ক্রিপশন নবায়ন করুন।';
+
+  @override
+  String get subscription_bannerExpiredAssociate =>
+      'আপনার ফার্মের প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। নবায়নের জন্য ফার্মের মালিকের সাথে যোগাযোগ করুন।';
+
+  @override
+  String get settingsManageAccount_plan => 'প্ল্যান';
+
+  @override
+  String get settingsManageAccount_expiry => 'মেয়াদ শেষ';
 }

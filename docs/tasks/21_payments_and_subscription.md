@@ -53,3 +53,6 @@
 - A payments configuration service owns MFS receiving numbers. Load and validate them from build environment or authenticated remote configuration; never hardcode them. Remote values must be safely rotatable without a release, display-only, and covered by missing/invalid/rotation tests.
 - Checkout drafts and payment UI preferences are per-user local state, never firm-shared.
 - Premium preference synchronization remains self-scoped even when entitlement is inherited from a firm owner.
+- **Server configuration table (0.0.333):** the MFS receiving numbers live in a new read-only `payment_configuration` table (authenticated SELECT only; no client write policy). Build-time defaults bootstrap a build; a remote row is authoritative and rotates a number without a release. Applied live and recorded in `docs/implementation_plan.md` and `supabase/AllSupabaseSql.md`.
+- **Recorded mockup departures (approved):** the Settings main list gains a `Go Premium` entry (mockup-bound body had no slot); the paywall's mockup HTML was updated to the enabled design as its layout was kept.
+- **Recorded rule (no change):** a user who holds delete permission deletes directly and never raises a delete request — that is Task 20 Phase 3's `canDeleteDirectlyProvider`, implemented and unchanged; noted here so the rule is not re-litigated.

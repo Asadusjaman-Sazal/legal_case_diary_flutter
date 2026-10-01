@@ -527,8 +527,7 @@
           }
       }
   },
-  "paywall_comingSoon": "Coming Soon",
-  "paywall_note": "Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.",
+  "paywall_subscribe": "Subscribe",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "Tomorrow",
   "sharedActions_save": "Save",
@@ -1633,5 +1632,56 @@
   "deleteRequests_withdrawn": "Request Withdrawn.",
   "deleteRequests_updated": "Request Updated.",
   "deleteRequests_updateFailed": "Could Not Update The Request.",
-  "deleteRequests_withdrawFailed": "Could Not Withdraw The Request."
+  "deleteRequests_withdrawFailed": "Could Not Withdraw The Request.",
+  "@@_section_payments": "PAYMENTS  |  lib/features/payments/presentation/{paywall_screen,checkout_screen}.dart",
+  "payments_goPremium": "Go Premium",
+  "payments_checkoutTitle": "Checkout",
+  "payments_planSummaryTitle": "Plan",
+  "payments_amountValue": "৳{amount}",
+  "@payments_amountValue": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "payments_transferTitle": "Transfer Instructions",
+  "payments_transferBody": "Send ৳{amount} to one of the numbers below, then enter your payment details.",
+  "@payments_transferBody": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "payments_copy": "Copy",
+  "payments_copied": "Number Copied.",
+  "payments_formTitle": "Payment Details",
+  "payments_methodLabel": "Payment Method",
+  "payments_methodBkash": "bKash",
+  "payments_methodNagad": "Nagad",
+  "payments_methodRocket": "Rocket",
+  "payments_phoneLabel": "Sender Phone Number",
+  "payments_phoneHint": "01XXXXXXXXX",
+  "payments_trxLabel": "Transaction ID (TrxID)",
+  "payments_trxHint": "Enter The TrxID",
+  "payments_submit": "Submit Payment",
+  "payments_numberUnavailable": "Payment numbers are unavailable right now. Please try again later.",
+  "payments_errorPhone": "Enter A Valid Mobile Number.",
+  "payments_errorTrx": "Enter The Transaction ID.",
+  "payments_submitFailed": "Submission failed. Tap Retry.",
+  "payments_limitReached": "You've reached today's submission limit. Please try again tomorrow.",
+  "payments_duplicateTrx": "This Transaction ID Has Already Been Submitted.",
+  "payments_submitSuccess": "Submission Received. We Will Verify It Shortly.",
+  "payments_historyTitle": "Payment History",
+  "payments_noSubmissions": "No Payments Submitted Yet.",
+  "payments_statusPending": "Pending",
+  "payments_statusApproved": "Approved",
+  "payments_statusRejected": "Rejected",
+  "payments_notesLabel": "Note",
+  "subscription_bannerGrace": "Your subscription expired. Renew to avoid losing sync access.",
+  "subscription_bannerExpiredOwner": "Your premium subscription has ended. Renew your subscription to restore sync.",
+  "subscription_bannerExpiredAssociate": "Your firm's premium subscription has ended. Contact your firm owner to renew.",
+  "settingsManageAccount_plan": "Plan",
+  "settingsManageAccount_expiry": "Expiry"
 }

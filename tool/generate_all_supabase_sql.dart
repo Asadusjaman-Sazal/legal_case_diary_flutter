@@ -302,6 +302,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'requester\'s own pending `delete_requests` row. SELECT policies and '
         'table privileges are deliberately untouched.',
   ),
+  LedgerSection(
+    file: '20261001000000_payment_configuration.sql',
+    version: '0.0.333',
+    label: 'Task 21 Phase 1\'s payments configuration: a read-only server '
+        'table (`provider`, `receiving_number`, `is_active`, `updated_at`) that '
+        'holds the MFS receiving numbers, authenticated SELECT only and no '
+        'client write policy at all. It exists so a receiving number can rotate '
+        'without a release (Rev 2.4 §5); it is not seeded, and the client falls '
+        'back to validated build defaults until an admin inserts a row.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -326,6 +336,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.330': 'Task 20 Audit Closure — A Removed Member Cannot Merge A Write',
   '0.0.332':
       'Task 20 Audit Follow-Up — The Policies Refuse The Same Write As The RPC',
+  '0.0.333': 'Task 21 Phase 1 — The MFS Configuration Table',
 };
 
 const String _header = '''<!--

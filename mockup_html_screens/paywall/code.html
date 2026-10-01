@@ -122,9 +122,8 @@
 <style>
   body { background-color: #f8fafc; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  /* A disabled FilledButton keeps the theme's own disabled paint (onSurface at
-     12% with a 38% label), not the ink its enabled state would use. */
-  .btn-disabled { background-color: rgba(25, 28, 30, 0.12); color: rgba(25, 28, 30, 0.38); }
+  /* The plan action, an enabled FilledButton in the app's primary ink. */
+  .btn-primary { background-color: #0f172a; color: #ffffff; }
 </style>
 </head>
 <body class="bg-background text-on-surface font-body-md">
@@ -177,9 +176,8 @@
 
   <div class="h-xl"></div>
 
-  <!-- The plans and their prices. Both actions are disabled on purpose: this
-       stub must not look like it can take money before Task 21 wires payments.
-       There is no lifetime plan, which is why only two rows are drawn. -->
+  <!-- The plans and their prices. Selecting a plan opens the checkout for it;
+       there is no lifetime plan, which is why only two rows are drawn. -->
   <p class="px-xs pb-md font-label-lg text-label-lg text-on-surface-variant" style="letter-spacing:0.7px;">Plans</p>
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-center">
@@ -187,7 +185,7 @@
         <p class="font-title-md text-title-md text-on-surface">Monthly</p>
         <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳100 per month</p>
       </div>
-      <div class="ml-md"><span class="btn-disabled inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Coming Soon</span></div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Subscribe</button></div>
     </div>
     <div class="my-lg border-t border-outline-variant"></div>
     <div class="flex items-center">
@@ -195,11 +193,9 @@
         <p class="font-title-md text-title-md text-on-surface">Annual</p>
         <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳1,000 per year</p>
       </div>
-      <div class="ml-md"><span class="btn-disabled inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Coming Soon</span></div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-md h-10 rounded-lg font-label-lg text-label-lg">Subscribe</button></div>
     </div>
   </div>
-
-  <p class="mt-md font-body-sm text-body-sm text-on-surface-variant">Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.</p>
 </main>
 
 </body>

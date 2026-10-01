@@ -31,6 +31,7 @@ import '../../features/cases/presentation/upcoming_cases/upcoming_cases_screen.d
 import '../../features/notes/presentation/notes_screen.dart';
 import '../../features/payments/presentation/checkout_screen.dart';
 import '../../features/payments/presentation/paywall_screen.dart';
+import '../../features/payments/presentation/subscription_banner.dart';
 import '../../features/settings/presentation/backup_restore_screen.dart';
 import '../../features/settings/presentation/delete_request_review_screen.dart';
 import '../../features/settings/presentation/delete_requests_screen.dart';
@@ -307,7 +308,12 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       ),
       GoRoute(
         path: AppRoutes.checkout,
-        builder: (context, state) => const CheckoutScreen(),
+        // The plan travels as a query parameter (`?plan=monthly|annual`) so the
+        // paywall's plan tap needs no second route and a restored deep link
+        // still names the plan it was opened for.
+        builder: (context, state) => CheckoutScreen(
+          planKey: state.uri.queryParameters['plan'],
+        ),
       ),
     ],
   );
@@ -623,9 +629,11 @@ class AppShellRoot extends StatelessWidget {
             ? Column(
                 children: [
                   Expanded(child: child),
-                  // Both sit at the foot of the shell, so neither covers content.
-                  // The notice is the dismissible one and goes above the
-                  // conflict banner, which is frozen work and never hidden.
+                  // All sit at the foot of the shell, so none covers content.
+                  // The subscription bar is first because it explains why sync
+                  // is about to stop; the notice is the dismissible one; the
+                  // conflict banner is frozen work and never hidden.
+                  const SubscriptionBanner(),
                   const SyncNoticeBanner(),
                   const SyncConflictBanner(),
                 ],

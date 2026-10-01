@@ -1036,11 +1036,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_comingSoon => 'Coming Soon';
-
-  @override
-  String get paywall_note =>
-      'Subscriptions are not available yet. This screen shows what premium will include and what each plan will cost.';
+  String get paywall_subscribe => 'Subscribe';
 
   @override
   String get general_tomorrow => 'Tomorrow';
@@ -3485,4 +3481,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_withdrawFailed => 'Could Not Withdraw The Request.';
+
+  @override
+  String get payments_goPremium => 'Go Premium';
+
+  @override
+  String get payments_checkoutTitle => 'Checkout';
+
+  @override
+  String get payments_planSummaryTitle => 'Plan';
+
+  @override
+  String payments_amountValue(String amount) {
+    return '৳$amount';
+  }
+
+  @override
+  String get payments_transferTitle => 'Transfer Instructions';
+
+  @override
+  String payments_transferBody(String amount) {
+    return 'Send ৳$amount to one of the numbers below, then enter your payment details.';
+  }
+
+  @override
+  String get payments_copy => 'Copy';
+
+  @override
+  String get payments_copied => 'Number Copied.';
+
+  @override
+  String get payments_formTitle => 'Payment Details';
+
+  @override
+  String get payments_methodLabel => 'Payment Method';
+
+  @override
+  String get payments_methodBkash => 'bKash';
+
+  @override
+  String get payments_methodNagad => 'Nagad';
+
+  @override
+  String get payments_methodRocket => 'Rocket';
+
+  @override
+  String get payments_phoneLabel => 'Sender Phone Number';
+
+  @override
+  String get payments_phoneHint => '01XXXXXXXXX';
+
+  @override
+  String get payments_trxLabel => 'Transaction ID (TrxID)';
+
+  @override
+  String get payments_trxHint => 'Enter The TrxID';
+
+  @override
+  String get payments_submit => 'Submit Payment';
+
+  @override
+  String get payments_numberUnavailable =>
+      'Payment numbers are unavailable right now. Please try again later.';
+
+  @override
+  String get payments_errorPhone => 'Enter A Valid Mobile Number.';
+
+  @override
+  String get payments_errorTrx => 'Enter The Transaction ID.';
+
+  @override
+  String get payments_submitFailed => 'Submission failed. Tap Retry.';
+
+  @override
+  String get payments_limitReached =>
+      'You\'ve reached today\'s submission limit. Please try again tomorrow.';
+
+  @override
+  String get payments_duplicateTrx =>
+      'This Transaction ID Has Already Been Submitted.';
+
+  @override
+  String get payments_submitSuccess =>
+      'Submission Received. We Will Verify It Shortly.';
+
+  @override
+  String get payments_historyTitle => 'Payment History';
+
+  @override
+  String get payments_noSubmissions => 'No Payments Submitted Yet.';
+
+  @override
+  String get payments_statusPending => 'Pending';
+
+  @override
+  String get payments_statusApproved => 'Approved';
+
+  @override
+  String get payments_statusRejected => 'Rejected';
+
+  @override
+  String get payments_notesLabel => 'Note';
+
+  @override
+  String get subscription_bannerGrace =>
+      'Your subscription expired. Renew to avoid losing sync access.';
+
+  @override
+  String get subscription_bannerExpiredOwner =>
+      'Your premium subscription has ended. Renew your subscription to restore sync.';
+
+  @override
+  String get subscription_bannerExpiredAssociate =>
+      'Your firm\'s premium subscription has ended. Contact your firm owner to renew.';
+
+  @override
+  String get settingsManageAccount_plan => 'Plan';
+
+  @override
+  String get settingsManageAccount_expiry => 'Expiry';
 }

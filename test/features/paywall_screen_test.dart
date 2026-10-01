@@ -1,11 +1,9 @@
-/// Tests for the paywall stub (Task 15 Phase 5).
+/// Tests for the paywall (Task 15 Phase 5 stub, enabled in Task 21 Phase 1).
 ///
-/// The stub has no mockup — the real screen arrives in Task 21 — so these tests
-/// pin what it promises today: it says why it opened, it prices both plans, no
-/// plan action can start a payment, and it can always be left with the system
-/// back gesture. They also pin the two things that must never drift apart: the
-/// limit in the sentence and the constant the gate enforces, and the Bengali
-/// rendering with Bengali digits.
+/// These pin what the screen promises now that a plan can be bought: it says why
+/// it opened, it prices both plans from the shared constants, each plan action
+/// is **enabled** and opens its checkout, and it can always be left with the
+/// system back gesture. They also pin the Bengali rendering with Bengali digits.
 library;
 
 import 'package:flutter/material.dart';
@@ -13,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
 
 void main() {
@@ -22,8 +21,8 @@ void main() {
     WidgetTester tester, {
     Locale locale = const Locale('en'),
   }) async {
-    // Tall viewport: the whole stub is on one screen, so no assertion fails for
-    // the wrong reason (a lazy ListView never builds an off-screen row).
+    // Tall viewport: the whole screen is on one screen, so no assertion fails
+    // for the wrong reason (a lazy ListView never builds an off-screen row).
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -81,28 +80,20 @@ void main() {
     expect(find.text('Annual'), findsOneWidget);
     expect(find.text('৳$paywallMonthlyPrice per month'), findsOneWidget);
     expect(find.text('৳1,000 per year'), findsOneWidget);
-    // The stub says outright that it cannot take money yet.
-    expect(
-      find.textContaining('Subscriptions are not available yet'),
-      findsOneWidget,
-    );
+    // The stub's "not available yet" note is gone.
+    expect(find.textContaining('not available yet'), findsNothing);
   });
 
-  testWidgets('no plan action can start a payment', (tester) async {
+  testWidgets('both plan actions are enabled', (tester) async {
     await pumpPaywall(tester);
 
     final actions = tester.widgetList<FilledButton>(
-      find.widgetWithText(FilledButton, 'Coming Soon'),
+      find.widgetWithText(FilledButton, 'Subscribe'),
     );
     expect(actions, hasLength(2));
     for (final action in actions) {
-      expect(action.onPressed, isNull);
+      expect(action.onPressed, isNotNull);
     }
-
-    // Tapping one changes nothing: no route, no message, no crash.
-    await tester.tap(find.text('Coming Soon').first);
-    await tester.pumpAndSettle();
-    expect(find.byType(PaywallScreen), findsOneWidget);
   });
 
   testWidgets('the back arrow returns the user where they were', (
@@ -126,13 +117,16 @@ void main() {
     expect(find.textContaining('৫০টি মামলা'), findsOneWidget);
     expect(find.text('৳১০০ / মাস'), findsOneWidget);
     expect(find.text('৳১,০০০ / বছর'), findsOneWidget);
-    expect(find.text('শীঘ্রই আসছে'), findsNWidgets(2));
+    expect(find.text('সাবস্ক্রাইব'), findsNWidgets(2));
   });
 
-  test('the stub carries the plan’s own prices and benefits', () {
+  test('the plan prices and benefits are the plan’s own', () {
     // ৳100 per month, ৳1,000 per year, and no lifetime plan (plan §Pricing).
     expect(paywallMonthlyPrice, 100);
     expect(paywallAnnualPrice, 1000);
+    expect(paymentPlanAmount(paymentPlanMonthly), 100);
+    expect(paymentPlanAmount(paymentPlanAnnual), 1000);
+    expect(paymentPlanAmount('lifetime'), isNull);
     expect(paywallBenefits, hasLength(4));
     // Unlimited cases, cloud backup, multi-device, firm mode — the four the
     // plan's Subscription Model lists for premium.

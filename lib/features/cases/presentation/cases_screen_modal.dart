@@ -29,6 +29,7 @@ import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../payments/presentation/subscription_banner.dart';
 import '../../sync/presentation/sync_conflict_banner.dart';
 import '../../sync/presentation/sync_notice_banner.dart';
 import '../../../sync/sync_health.dart';
@@ -228,7 +229,9 @@ class CasesScreenModal extends ConsumerWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // The dismissible notice above the non-dismissible conflict strip.
+          // The persistent subscription bar, then the dismissible notice, then
+          // the non-dismissible conflict strip.
+          const SubscriptionBanner(),
           const SyncNoticeBanner(),
           const SyncConflictBanner(),
           BottomNavBar(

@@ -33,6 +33,24 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- supabase_flutter hands incoming auth e-mail redirects to the
+                 app itself, so the engine's own deep-link handler has to be
+                 off (Flutter 3.24+) or it consumes the URI first and the
+                 session in it is never exchanged. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
+            <!-- Auth e-mail redirect: the custom scheme Supabase sends the
+                 user back to after confirming an address or starting a
+                 password reset (SupabaseConfig.authRedirectUrl). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="com.legalcasediary.app"
+                    android:host="login-callback" />
+            </intent-filter>
         </activity>
         <!-- android_alarm_manager_plus: the service runs the Dart callback in
              its own isolate when an alarm fires, and RebootBroadcastReceiver

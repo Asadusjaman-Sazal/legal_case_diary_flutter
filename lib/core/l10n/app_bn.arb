@@ -1391,6 +1391,7 @@
   "auth_backToLogin": "লগইনে ফিরে যান",
   "auth_forgotTitle": "পাসওয়ার্ড রিসেট",
   "auth_forgotSubtitle": "আপনার ইমেইল দিন, আমরা একটি রিকভারি কোড পাঠাব।",
+  "auth_recoveryLinkSubtitle": "আপনার অ্যাকাউন্টের জন্য একটি নতুন পাসওয়ার্ড দিন।",
   "auth_sendCodeButton": "কোড পাঠান",
   "auth_recoveryCodeLabel": "রিকভারি কোড",
   "auth_recoveryCodeHelper": "আমাদের পাঠানো কোডটি খুলে নতুন পাসওয়ার্ড দিন।",

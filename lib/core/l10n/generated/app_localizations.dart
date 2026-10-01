@@ -5298,6 +5298,12 @@ abstract class AppLocalizations {
   /// **'Enter your email and we will send a recovery code.'**
   String get auth_forgotSubtitle;
 
+  /// No description provided for @auth_recoveryLinkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose A New Password For Your Account.'**
+  String get auth_recoveryLinkSubtitle;
+
   /// No description provided for @auth_sendCodeButton.
   ///
   /// In en, this message translates to:

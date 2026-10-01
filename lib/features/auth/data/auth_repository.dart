@@ -173,7 +173,11 @@ class AuthFailure implements Exception {
 /// (revoked session, changed password: re-sign-in is required).
 class AuthSessionEvent {
   /// Creates an event.
-  const AuthSessionEvent({this.identity, this.sessionExpired = false});
+  const AuthSessionEvent({
+    this.identity,
+    this.sessionExpired = false,
+    this.passwordRecovery = false,
+  });
 
   /// The identity after the change; null when signed out.
   final AuthIdentity? identity;
@@ -181,18 +185,28 @@ class AuthSessionEvent {
   /// True when the server rejected the stored session.
   final bool sessionExpired;
 
+  /// True when the change came from opening a password-recovery link.
+  ///
+  /// Such a link signs the user in as a side effect of being verified, so the
+  /// session exists but is not for using the app: the user must set a new
+  /// password first, which is why the state machine treats this as its own kind
+  /// of change rather than as an ordinary sign-in.
+  final bool passwordRecovery;
+
   @override
   bool operator ==(Object other) =>
       other is AuthSessionEvent &&
       other.identity == identity &&
-      other.sessionExpired == sessionExpired;
+      other.sessionExpired == sessionExpired &&
+      other.passwordRecovery == passwordRecovery;
 
   @override
-  int get hashCode => Object.hash(identity, sessionExpired);
+  int get hashCode => Object.hash(identity, sessionExpired, passwordRecovery);
 
   @override
   String toString() =>
-      'AuthSessionEvent($identity, sessionExpired: $sessionExpired)';
+      'AuthSessionEvent($identity, sessionExpired: $sessionExpired, '
+      'passwordRecovery: $passwordRecovery)';
 }
 
 /// What a sign-up attempt produced.

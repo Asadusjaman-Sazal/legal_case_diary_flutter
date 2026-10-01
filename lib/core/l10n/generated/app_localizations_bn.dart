@@ -3073,6 +3073,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার ইমেইল দিন, আমরা একটি রিকভারি কোড পাঠাব।';
 
   @override
+  String get auth_recoveryLinkSubtitle =>
+      'আপনার অ্যাকাউন্টের জন্য একটি নতুন পাসওয়ার্ড দিন।';
+
+  @override
   String get auth_sendCodeButton => 'কোড পাঠান';
 
   @override

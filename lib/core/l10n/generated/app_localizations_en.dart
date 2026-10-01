@@ -3057,6 +3057,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter your email and we will send a recovery code.';
 
   @override
+  String get auth_recoveryLinkSubtitle =>
+      'Choose A New Password For Your Account.';
+
+  @override
   String get auth_sendCodeButton => 'Send Code';
 
   @override

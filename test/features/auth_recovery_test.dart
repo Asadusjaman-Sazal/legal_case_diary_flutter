@@ -228,4 +228,37 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('a recovery link asks only for the new password', (tester) async {
+    await pumpReset(tester);
+
+    // What the SDK reports after verifying the link in the user's mail: a real
+    // session, but one whose only purpose is changing the password.
+    harness.auth.emit(
+      const AuthSessionEvent(
+        identity: AuthIdentity(userId: 'user-9', email: 'counsel@example.com'),
+        passwordRecovery: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.auth_recoveryLinkSubtitle), findsOneWidget);
+    expect(find.text(l.auth_newPasswordLabel), findsOneWidget);
+    // The link already proved the address and the identity, so neither the
+    // email nor a recovery code is asked for again.
+    expect(find.text(l.auth_forgotSubtitle), findsNothing);
+    expect(find.text(l.auth_emailLabel), findsNothing);
+    expect(find.text(l.auth_recoveryCodeLabel), findsNothing);
+    expect(find.text(l.auth_sendCodeButton), findsNothing);
+    // And nothing to go back to: this device is signed in as the link's owner.
+    expect(find.text(l.auth_backToLogin), findsNothing);
+
+    await tester.enterText(find.byType(TextFormField).first, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(harness.auth.updatedPasswords, ['newsecret123']);
+    expect(harness.auth.verifiedCodes, isEmpty, reason: 'no code was needed');
+
+    await unmountApp(tester);
+  });
 }

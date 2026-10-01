@@ -1475,6 +1475,7 @@
   "auth_backToLogin": "Back To Login",
   "auth_forgotTitle": "Reset Password",
   "auth_forgotSubtitle": "Enter your email and we will send a recovery code.",
+  "auth_recoveryLinkSubtitle": "Choose A New Password For Your Account.",
   "auth_sendCodeButton": "Send Code",
   "auth_recoveryCodeLabel": "Recovery Code",
   "auth_recoveryCodeHelper": "Open the code we emailed you, then choose a new password.",

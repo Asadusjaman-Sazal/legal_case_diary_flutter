@@ -259,6 +259,14 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       // A device that must sign in cannot reach the diary without an account.
       if (requiresSignIn && !signedIn && !atAuthRoute) return AppRoutes.login;
 
+      // A recovery link signs the user in as a side effect of being verified,
+      // but that session exists only to change the password. Hold them on the
+      // reset screen until they have, and send them there from anywhere else —
+      // the flag clears the moment the new password is set.
+      if (ref.read(passwordRecoveryPendingProvider)) {
+        return atAuthRoute ? null : AppRoutes.forgotPassword;
+      }
+
       // Somebody who is signed in has no business on the auth screens.
       if (signedIn && atAuthRoute) {
         return ref.read(defaultLandingRouteProvider).value ??

@@ -344,10 +344,58 @@ In the Supabase dashboard for the **`lsthasywrdrhuuxnykau`** project only
    addressed to the Web client's audience.
 3. **Client Secret**: paste the Web client's secret.
 4. Save.
-5. While you are there, check **URL Configuration → Redirect URLs** includes the callback used above.
+5. **Authentication → URL Configuration** — two values matter, and both are dashboard-only:
+   - **Site URL.** The fallback destination for *every* e-mail link that does not name its own redirect.
+     The dashboard default is `http://localhost:3000`, which is a dead page the moment a link is opened
+     on a phone — and the usual reason a link "goes to `localhost:3000` instead of the app". Point it at
+     a real page you control (see §10.1).
+   - **Redirect URLs.** An allow-list. Add `com.legalcasediary.app://login-callback` (see §10.1);
+     without it Supabase silently discards the redirect the app asks for and falls back to the Site URL.
+6. Confirm the Web client's **Authorized redirect URI** is the callback used in §9 — a different list
+   from the one above, and the one that raises `redirect_uri_mismatch` when it is wrong.
 
 The app side needs nothing new here: `GOOGLE_WEB_CLIENT_ID` in the git-ignored `env.json` already holds
 the Web client ID, and `tool/flutter_with_env.dart` is what injects it into a build.
+
+---
+
+### 10.1 Email links — Sign-Up Confirmation and Password Reset
+
+Supabase writes the destination into every link it mails. The app now names its own destination, so the
+link opens the app instead of a browser page that is not there.
+
+What the app does (`SupabaseConfig.authRedirectUrl`, `signUpIndividual`, `sendPasswordRecoveryCode`):
+passes `emailRedirectTo` / `redirectTo` = `com.legalcasediary.app://login-callback`. The matching
+`<intent-filter>` is already in `android/app/src/main/AndroidManifest.xml`, together with
+`flutter_deeplinking_enabled = false`, which is what lets the app (not the Flutter engine) receive the
+URI. **Nothing in the app needs editing for this to work** — only the dashboard values below.
+
+Two things you must set in the Supabase dashboard for `lsthasywrdrhuuxnykau`:
+
+1. **Redirect URLs** → add the exact string `com.legalcasediary.app://login-callback`.
+   Scheme, host, no trailing slash, no path. Supabase matches it as a URL pattern; a typo means the
+   redirect is dropped and the Site URL is used instead — the original symptom.
+2. **Site URL** → a real page (not `http://localhost:3000`). It is still used for any link that carries no
+   redirect of its own, so leaving it as the development default keeps a dead page in the chain.
+
+What each link then does:
+
+- **Sign-up confirmation.** Opening it verifies the address on Supabase's own URL, then hands the app a
+  session through the custom scheme. The user lands signed in — there is no second step to explain.
+- **Password reset.** The app's *primary* path is the **code**, not the link: the Reset Password template
+  must contain `{{ .Token }}` and the user types that code into the app. If they tap the link instead,
+  they now land on a screen that asks only for the new password, because the link already proved who they
+  are. Both paths end in the same place, so neither has to be explained away.
+
+Testing the deep link without waiting for a mail:
+
+```bash
+adb shell am start -a android.intent.action.VIEW \
+  -d "com.legalcasediary.app://login-callback#error_code=otp_expired&error_description=test"
+```
+
+That is a *deliberately invalid* link: it opens the app and shows the failure path, which proves the
+intent-filter and the handler are wired. A real mail is the only way to prove the success path.
 
 ---
 
@@ -388,6 +436,9 @@ Work down this list; each step has a clear pass/fail.
 | `redirect_uri_mismatch` | Only relevant to web/browser flows; the Web client's authorized redirect URI does not match. |
 | Error says the package name and fingerprint are already in use | Duplicate client — find it in this project's Clients list and delete it, or you are in the wrong project. |
 | It fails, then works an hour later with no change | Propagation delay, §11 step 2. |
+| An e-mail link opens a browser page (`localhost:3000`) instead of the app | Supabase **Site URL** is still the development default, or `com.legalcasediary.app://login-callback` is missing from **Redirect URLs**. §10.1. |
+| Sheet closes with *"No Connection. Check Your Internet And Try Again."* | The new pre-flight probe could not reach the project. The phone's Wi-Fi has no uplink (the link is up, the internet is not) — switch to mobile data. `ConnectivityMonitor` reports the *link*, so only this probe can see it. |
+| Sheet closes, no message, phone on a Wi-Fi network with no internet | A build without the pre-flight probe (older than 0.0.348) reported this as a dismissal and said nothing at all. Rebuild with the wrapper. |
 
 ---
 
@@ -421,5 +472,9 @@ Work down this list; each step has a clear pass/fail.
 - [ ] Android client for the **release** SHA-1 + `com.legalcasediary.app`
 - [ ] Android client for the **Play app-signing** SHA-1 (when publishing via Play)
 - [ ] Supabase Google provider enabled on `lsthasywrdrhuuxnykau` with the Web client ID + secret
+- [ ] Supabase **Site URL** is a real page, not `http://localhost:3000`
+- [ ] `com.legalcasediary.app://login-callback` is in Supabase **Redirect URLs**
+- [ ] Reset Password e-mail template contains `{{ .Token }}` (the in-app code flow needs it)
+- [ ] A sign-up confirmation mail opens the app when tapped on the device
 - [ ] `dart run tool/flutter_with_env.dart run -d <device>` signs in successfully
 - [ ] An `id_token` grant appears in the project's Auth logs

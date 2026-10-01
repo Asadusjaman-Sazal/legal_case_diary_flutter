@@ -53,6 +53,19 @@ abstract final class SupabaseConfig {
   /// The configured Google Web client ID, trimmed.
   static String get googleWebClientId => _googleWebClientId.trim();
 
+  /// The custom-scheme URL every auth e-mail sends the user back to.
+  ///
+  /// Supabase falls back to the project's Site URL when a call passes no
+  /// redirect, and that default is `http://localhost:3000` — a dead page in a
+  /// mail app on a phone. The sign-up and password-recovery calls pass this
+  /// instead, and the matching intent-filter in `AndroidManifest.xml` routes it
+  /// back into this app. Being a reverse domain of the application id, it is
+  /// fixed by the build rather than by configuration; it must also be listed
+  /// under the project's *Redirect URLs*, or Supabase ignores it and falls back
+  /// to the Site URL again.
+  static const String authRedirectUrl =
+      'com.legalcasediary.app://login-callback';
+
   /// True when this build can reach the backend.
   ///
   /// A URL naming any other project — including the off-limits one — is treated

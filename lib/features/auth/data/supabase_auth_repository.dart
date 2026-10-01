@@ -9,6 +9,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,6 +28,47 @@ SupabaseClient? activeSupabaseClient;
 /// The Google error string a real (non-dismissal) failure carries, e.g.
 /// "[16] Account reauth failed.". A dismissal has no such code.
 final RegExp _googleErrorCode = RegExp(r'^\[\d+\]');
+
+/// How long the pre-flight probe waits before calling the network unusable.
+///
+/// Short on purpose: it runs in front of a user action, and a wrong "not
+/// reachable" costs one retry, while a long wait costs the user's patience.
+const Duration _probeTimeout = Duration(seconds: 4);
+
+/// Whether the project's server answers at all right now.
+///
+/// [ConnectivityMonitor] answers a different question on purpose: it reports the
+/// *link*, not the internet, so a Wi-Fi network with no uplink still counts as
+/// "connected". That is exactly the case a sign-in has to catch, and the one the
+/// Google SDK cannot report, because it raises the same generic reauth error
+/// whether the network is missing or the certificate is unregistered. A short
+/// request to the project URL is the only answer that reflects what the call
+/// itself is about to do.
+///
+/// Fails closed and cheaply: an empty configuration, any error, a timeout or a
+/// dropped connection all mean "not reachable", and the caller turns that into
+/// the ordinary network failure whose message already tells the user to check
+/// their internet. Nothing here ever gates the diary — only sign-in.
+/// [base] overrides the project URL, which is what lets a test point the probe
+/// at a host that certainly cannot answer instead of the real one.
+Future<bool> probeSupabaseReachable({String? base}) async {
+  final target = (base ?? SupabaseConfig.url).trim();
+  if (target.isEmpty) return false;
+  final client = HttpClient()..connectionTimeout = _probeTimeout;
+  try {
+    final request = await client
+        .getUrl(Uri.parse(target))
+        .timeout(_probeTimeout);
+    final response = await request.close().timeout(_probeTimeout);
+    // Any answer at all — even a 401 or a 404 — proves the request got there.
+    await response.drain<void>().timeout(_probeTimeout);
+    return true;
+  } catch (_) {
+    return false;
+  } finally {
+    client.close(force: true);
+  }
+}
 
 /// Classifies any error an auth call can produce into an [AuthFailure].
 ///
@@ -146,9 +188,16 @@ AuthFailure mapAuthFailure(Object error) {
 /// [AuthRepository] implemented on Supabase Auth.
 class SupabaseAuthRepository implements AuthRepository {
   /// Creates a repository over [client].
-  SupabaseAuthRepository(this._client);
+  ///
+  /// [reachable] is the pre-flight network probe; inject a stub to keep a unit
+  /// test off the socket.
+  SupabaseAuthRepository(this._client, {Future<bool> Function()? reachable})
+    : _reachable = reachable ?? probeSupabaseReachable;
 
   final SupabaseClient _client;
+
+  /// Answers whether the network can carry the sign-in request right now.
+  final Future<bool> Function() _reachable;
 
   /// Google sign-in may only be initialized once per process; the SDK says so
   /// explicitly, and calling `initialize` twice is undefined behaviour.
@@ -174,6 +223,9 @@ class SupabaseAuthRepository implements AuthRepository {
           // and clears it, with this reason, when the server rejects it — which
           // is exactly the offline/online split the state machine needs.
           sessionExpired: state.signOutReason == SignOutReason.sessionExpired,
+          // A verified recovery link arrives as its own event, because the
+          // session it creates exists only to change the password.
+          passwordRecovery: state.event == AuthChangeEvent.passwordRecovery,
         ),
       );
 
@@ -218,6 +270,9 @@ class SupabaseAuthRepository implements AuthRepository {
       final response = await _client.auth.signUp(
         email: address,
         password: password,
+        // The confirmation mail returns the user to the app instead of the
+        // project's Site URL, which is still the development `localhost:3000`.
+        emailRedirectTo: SupabaseConfig.authRedirectUrl,
         // The sign-up trigger copies `full_name` and `bar_association` from the
         // user metadata into the new `profiles` row, so this is the only place
         // either has to be sent — and for a sign-up that has to confirm its
@@ -255,6 +310,13 @@ class SupabaseAuthRepository implements AuthRepository {
       throw const AuthFailure(AuthFailureKind.unavailable);
     }
     try {
+      // The Google sheet itself fails on a network that cannot reach Google,
+      // and reports it as the same opaque reauth error a broken client setup
+      // produces. One short request first turns that into the one message that
+      // is certainly true: there is no connection.
+      if (!await _reachable()) {
+        throw const AuthFailure(AuthFailureKind.network);
+      }
       await _ensureGoogleInitialized();
       final account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
@@ -279,8 +341,13 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<void> sendPasswordRecoveryCode(String email) async {
     try {
       // The recovery mail must carry the code (`{{ .Token }}` in the template),
-      // which is what lets the reset finish inside the app with no deep link.
-      await _client.auth.resetPasswordForEmail(email.trim());
+      // which is what lets the reset finish inside the app without the link at
+      // all. The redirect is passed as well, so a user who taps the link anyway
+      // opens this app rather than the project's `localhost:3000` Site URL.
+      await _client.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: SupabaseConfig.authRedirectUrl,
+      );
     } catch (error) {
       throw mapAuthFailure(error);
     }

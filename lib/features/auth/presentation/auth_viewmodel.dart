@@ -41,6 +41,7 @@ class AuthState {
     this.identity,
     this.sessionExpired = false,
     this.adoptionBlocked = false,
+    this.passwordRecovery = false,
   });
 
   /// The signed-in identity, or null when nobody is signed in.
@@ -56,6 +57,12 @@ class AuthState {
   /// adoption refused and no ownership was rewritten.
   final bool adoptionBlocked;
 
+  /// True while the user is in the middle of setting a new password, having
+  /// arrived through an emailed recovery link. The session is real but not yet
+  /// usable for anything else, so the router keeps the user on the reset screen
+  /// until the new password is set.
+  final bool passwordRecovery;
+
   /// Whether somebody is signed in.
   bool get isSignedIn => identity != null;
 
@@ -64,11 +71,13 @@ class AuthState {
     AuthIdentity? identity,
     bool? sessionExpired,
     bool? adoptionBlocked,
+    bool? passwordRecovery,
     bool clearIdentity = false,
   }) => AuthState(
     identity: clearIdentity ? null : (identity ?? this.identity),
     sessionExpired: sessionExpired ?? this.sessionExpired,
     adoptionBlocked: adoptionBlocked ?? this.adoptionBlocked,
+    passwordRecovery: passwordRecovery ?? this.passwordRecovery,
   );
 
   @override
@@ -206,9 +215,17 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   }) => _repository.verifyRecoveryCode(email: email, code: code);
 
   /// Sets a new password for the recovered (or signed-in) user.
+  ///
+  /// Clearing the recovery flag is what lets the router release the user: once
+  /// the password is set, the session the recovery link created becomes an
+  /// ordinary one and the app opens as usual.
   Future<void> updatePassword(String newPassword) async {
     await _repository.updatePassword(newPassword);
     await _local.markGateSatisfied();
+    final current = state.value;
+    if (current != null && current.passwordRecovery) {
+      state = AsyncData(current.copyWith(passwordRecovery: false));
+    }
   }
 
   /// Signs out of this device.
@@ -308,9 +325,25 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       );
       return;
     }
+    // A verified recovery link: adopt the identity like any other sign-in, then
+    // raise the flag that holds the user on the reset screen. Checked before the
+    // identity-equality guard below, because the flag is the change.
+    if (event.passwordRecovery) {
+      unawaited(_beginPasswordRecovery(event.identity!));
+      return;
+    }
     // A token refresh carries the same identity; only real changes matter.
     if (current.identity == event.identity) return;
     unawaited(_completeSignIn(event.identity!));
+  }
+
+  /// Completes the sign-in a recovery link implies, then flags the password
+  /// step so the router keeps the user on the reset screen.
+  Future<void> _beginPasswordRecovery(AuthIdentity identity) async {
+    await _completeSignIn(identity);
+    final completed = state.value;
+    if (completed == null) return;
+    state = AsyncData(completed.copyWith(passwordRecovery: true));
   }
 }
 
@@ -333,6 +366,16 @@ final authIdentityProvider = Provider<AuthIdentity?>(
 /// a local read — no network, so it never delays the diary.
 final authSessionProvider = FutureProvider<AuthIdentity?>(
   (ref) async => (await ref.watch(authViewModelProvider.future)).identity,
+);
+
+/// Whether the user is setting a new password after opening a recovery link.
+///
+/// A narrow selector: the router and the reset screen both need it, and neither
+/// should rebuild on an unrelated auth change.
+final passwordRecoveryPendingProvider = Provider<bool>(
+  (ref) => ref.watch(
+    authViewModelProvider.select((s) => s.value?.passwordRecovery ?? false),
+  ),
 );
 
 /// Whether this device's local data belongs to another account.

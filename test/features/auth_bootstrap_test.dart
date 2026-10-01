@@ -235,6 +235,23 @@ void main() {
     });
   });
 
+  group('Google sign-in network pre-flight', () {
+    test('an unreachable host is reported unreachable', () async {
+      // A loopback port nothing listens on refuses the connection at once —
+      // the same answer a phone gets on a Wi-Fi network with no uplink, which
+      // is the case `ConnectivityMonitor` cannot see (it reports the link).
+      expect(
+        await probeSupabaseReachable(base: 'http://127.0.0.1:1/'),
+        isFalse,
+      );
+    });
+
+    test('a build with no project URL is never probed', () async {
+      expect(SupabaseConfig.url, isEmpty);
+      expect(await probeSupabaseReachable(), isFalse);
+    });
+  });
+
   group('Cached identity', () {
     test('remembers an identity across restarts and forgets it on sign-out', () async {
       SharedPreferences.setMockInitialValues({});

@@ -170,9 +170,14 @@ I/flutter: Google sign-in failed: GoogleSignInException(code GoogleSignInExcepti
 The app now turns that code into a visible *Google Sign-In Could Not Complete* message, so a real failure
 no longer looks like a dismissal — but the cause is still server-side configuration:
 
+- **Check the network first.** The same `[16]` appears when the request never reached Google — a Wi-Fi
+  network with no uplink produces it exactly as a certificate mismatch does, and `ConnectivityMonitor`
+  cannot see that case because it reports the *link*, not the internet. Google sign-in now makes a short
+  request to the project before opening the sheet and reports *"No Connection. Check Your Internet And
+  Try Again."* instead, so switching to mobile data is an obvious first thing to try.
 - **Register the signing certificate.** Add an Android OAuth client for the SHA-1 of the build being run
   (debug, release, *and* the Google Play **App signing key certificate** from Play Console → App integrity,
-  because Play re-signs uploads with its own key). A certificate mismatch is the usual cause of `[16]`.
+  because Play re-signs uploads with its own key). A certificate mismatch is the other usual cause of `[16]`.
 - **Check the package name** on each Android client: `com.legalcasediary.app`, with no typo or variant.
 - **Check `GOOGLE_WEB_CLIENT_ID`** — it must be the *Web* client from that same project, and the value
   Supabase Auth is configured to trust; a Web client from another project fails the same way.
@@ -181,9 +186,29 @@ no longer looks like a dismissal — but the cause is still server-side configur
 - **Reproduce with the wrapper**, so the credentials are actually compiled in:
   `dart run tool/flutter_with_env.dart run -d <device>`.
 
-For the full console walkthrough — every client type (Web, Android debug/release/Play app-signing, iOS),
-who does what, and the pass/fail checks — see
-[Google Sign-In Setup — Every Client Type, Step by Step](docs/google_oauth_setup.md).
+## Auth E-mail Links (Confirmation and Password Reset)
+
+The mails Supabase sends send the user back to the app through one custom scheme:
+
+```text
+com.legalcasediary.app://login-callback
+```
+
+The build passes it as `emailRedirectTo`/`redirectTo` on sign-up and password recovery, and
+`android/app/src/main/AndroidManifest.xml` claims it with an `<intent-filter>`. Without it Supabase
+falls back to the project's **Site URL**, which is why a link can land on a `localhost:3000` page that
+is not there:
+
+- **Authentication → URL Configuration → Redirect URLs** must contain the scheme above, exactly. The
+  allow-list is what makes Supabase honour the app's redirect at all.
+- **Authentication → URL Configuration → Site URL** must be a real page — it is the fallback for any
+  link that carries no redirect of its own.
+- The **Reset Password e-mail template** must keep `{{ .Token }}`, because the app's own reset flow uses
+  the code the user types in; the link is a second, optional way in.
+
+For the deep-link test command and the full walkthrough, see
+[Google Sign-In Setup — Every Client Type, Step by Step](docs/google_oauth_setup.md). That runbook also
+covers every Google client type (Web, Android debug/release/Play app-signing, iOS).
 
 ## Documentation
 

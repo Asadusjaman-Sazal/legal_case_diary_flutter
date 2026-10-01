@@ -4,11 +4,14 @@
 /// for the screen itself, so it reuses the same card language as the other two
 /// auth screens (see [auth_widgets.dart]) rather than inventing a third style.
 ///
-/// The recovery code — not a deep link — is what brings the user back: the
-/// emailed link would need a custom URL scheme, a browser round trip and
-/// per-platform configuration, while a code works on every device the app runs
-/// on. It requires the project's Reset Password e-mail template to include the
-/// token.
+/// Two ways in, one screen:
+///
+/// * **The recovery code** is the default path, and the one that works on every
+///   device without any deep-link setup. It requires the project's Reset
+///   Password e-mail template to include the token.
+/// * **The emailed link** is the other: opening it lands here with a session
+///   already verified (see [passwordRecoveryPendingProvider]), so the email and
+///   the code are skipped and only the new password is asked for.
 library;
 
 import 'package:flutter/material.dart';
@@ -93,10 +96,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     });
     try {
       final viewModel = ref.read(authViewModelProvider.notifier);
-      await viewModel.verifyRecoveryCode(
-        email: _email.text,
-        code: _code.text,
-      );
+      // A recovery link came with its own verified session, so there is no code
+      // to exchange — only the e-mailed-code path redeems one.
+      if (!ref.read(passwordRecoveryPendingProvider)) {
+        await viewModel.verifyRecoveryCode(
+          email: _email.text,
+          code: _code.text,
+        );
+      }
       await viewModel.updatePassword(_password.text);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -116,6 +123,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // Arrived through the emailed link: the session it carried is proof enough,
+    // so there is nothing to request and no code to type.
+    final viaLink = ref.watch(passwordRecoveryPendingProvider);
 
     return AuthScaffold(
       child: AuthCard(
@@ -129,14 +139,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              l.auth_forgotSubtitle,
+              viaLink ? l.auth_recoveryLinkSubtitle : l.auth_forgotSubtitle,
               textAlign: TextAlign.center,
               style: AppTypography.bodyMd.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            if (_step == _ResetStep.requestCode)
+            if (_step == _ResetStep.requestCode && !viaLink)
               Form(
                 key: _emailForm,
                 child: Column(
@@ -167,18 +177,22 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AuthTextField(
-                      controller: _code,
-                      label: l.auth_recoveryCodeLabel,
-                      helper: l.auth_recoveryCodeHelper,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) => authRequiredError(
-                        value,
-                        l.auth_validationPasswordRequired,
+                    // The code field is the signed-out path's own step; a
+                    // recovery link already carries the verified session.
+                    if (!viaLink) ...[
+                      AuthTextField(
+                        controller: _code,
+                        label: l.auth_recoveryCodeLabel,
+                        helper: l.auth_recoveryCodeHelper,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) => authRequiredError(
+                          value,
+                          l.auth_validationPasswordRequired,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
                     AuthTextField(
                       controller: _password,
                       label: l.auth_newPasswordLabel,
@@ -214,13 +228,17 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             const SizedBox(height: AppSpacing.md),
             // Plain bold underlined text, not the black button the shared theme
             // would draw: this is a way back, not the screen's primary action.
-            Center(
-              child: AuthTextLink(
-                label: l.auth_backToLogin,
-                underline: true,
-                onPressed: () => context.go(AppRoutes.login),
+            // Hidden while a recovery link is in play, because the user is
+            // already signed in — leaving for Login would strand them on a
+            // screen with nothing left to do.
+            if (!viaLink)
+              Center(
+                child: AuthTextLink(
+                  label: l.auth_backToLogin,
+                  underline: true,
+                  onPressed: () => context.go(AppRoutes.login),
+                ),
               ),
-            ),
           ],
         ),
       ),

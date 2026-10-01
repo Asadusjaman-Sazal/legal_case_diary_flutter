@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.347 - Google OAuth runbook: Authorized domain corrected to the full project host, since supabase.co is a public suffix and is rejected as not a top private domain.
+Version: 0.0.348 - Auth e-mail links now open the app through a custom-scheme deep link instead of the localhost:3000 Site URL, the reset screen asks only for the new password, and Google sign-in probes the network first so an offline attempt says No Connection.
 --------------------------------------
 
 ## Version History Log:
@@ -361,3 +361,4 @@ Version: 0.0.344 - Google OAuth runbook: Branding page fully documented — App 
 Version: 0.0.345 - Google OAuth runbook: Authorized domains corrected to the required supabase.co, since the console refuses to save the Branding page with the field empty.
 Version: 0.0.346 - Google OAuth runbook: Google Sites URLs excluded from the Branding App domain fields, with the custom-domain upgrade path documented.
 Version: 0.0.347 - Google OAuth runbook: Authorized domain corrected to the full project host, since supabase.co is a public suffix and is rejected as not a top private domain.
+Version: 0.0.348 - Auth e-mail links now open the app through a custom-scheme deep link instead of the localhost:3000 Site URL, the reset screen asks only for the new password, and Google sign-in probes the network first so an offline attempt says No Connection.

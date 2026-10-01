@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        26,
+        27,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -64,8 +64,9 @@ void main() {
             'column and the created_at fallback guard, Task 20 Phase 1 '
             'added the ensure_firm premium gate, Task 20 Phase 2 added '
             'remove_firm_member, Task 20 Phase 4 added the push_changes '
-            'delete-review branch, and the Task 20 audit closure added the '
-            'sync_can_write firm membership guard',
+            'delete-review branch, the Task 20 audit closure added the '
+            'sync_can_write firm membership guard, and its RLS follow-up added '
+            'the firm-membership policies',
       );
     });
 

@@ -1236,6 +1236,101 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- RLS: the policy refuses the write the RPC already refuses
+-- ---------------------------------------------------------------------------
+-- The section above proves `push_changes` refuses a removed member. The app is
+-- not the only way to reach these tables, though: PostgREST exposes them
+-- directly, and a table policy is the only thing standing there. Before this
+-- check, `cases_update_scoped` asked merely that the NEW row keep `user_id =
+-- auth.uid()`, so the same removed member could PATCH their authored firm row
+-- straight through — rewriting it, or detaching it from the firm by nulling
+-- `firm_id` — with the RPC, its version check and its receipts never involved.
+--
+-- So this section stops using the RPC and acts as the `authenticated` role
+-- instead, so that RLS is evaluated rather than the owner's privileges. The row
+-- 'smoke-removed-case' carries 'owner edit' from the section above.
+
+-- The removed member again: no firm, still the author of the row.
+select pg_temp.as_user(current_setting('test.assoc')::uuid);
+set local role authenticated;
+
+-- A direct PATCH of the firm row they authored matches no row: RLS filters it
+-- silently rather than erroring, so the count is what has to be asserted.
+with patched as (
+  update public.cases
+     set case_remarks = 'direct patch after removal'
+   where id = 'smoke-removed-case'
+  returning 1
+)
+select pg_temp.assert_true(
+  (select count(*) from patched) = 0,
+  'a removed member''s direct PATCH updated a firm row'
+);
+
+-- A direct INSERT into the firm fails the WITH CHECK, which is an error rather
+-- than an empty result — the same rule, stated so both shapes are pinned.
+select pg_temp.assert_raises(
+  'insert into public.cases (id, user_id, firm_id, court_id, case_type, '
+  'case_number, petitioner, respondent, on_behalf_id, next_date, created_at, '
+  'updated_at, is_deleted) values ('
+  '''smoke-direct-insert'', ''' || current_setting('test.assoc') || ''', '''
+  || current_setting('test.firm') || ''', ''smoke-court-new'', ''Civil'', '
+  '''SMOKE-DIRECT'', ''Petitioner'', ''Respondent'', '''
+  || current_setting('test.on_behalf') || ''', 1000, 0, 0, false)',
+  'row-level security policy'
+);
+
+-- The request they raised in the firm they left is out of reach the same way.
+with patched_request as (
+  update public.delete_requests
+     set entity_snapshot = '{\"direct\":true}'
+   where id = 'smoke-removed-req'
+  returning 1
+)
+select pg_temp.assert_true(
+  (select count(*) from patched_request) = 0,
+  'a removed member''s direct PATCH changed their pending firm request'
+);
+
+reset role;
+
+-- Control, so a policy that refuses everything cannot pass this section: a
+-- current member with edit rights still writes directly, and does so as the
+-- `authenticated` role too.
+select pg_temp.as_user(current_setting('test.owner')::uuid);
+set local role authenticated;
+with patched as (
+  update public.cases
+     set case_remarks = 'direct patch by the owner'
+   where id = 'smoke-removed-case'
+  returning 1
+)
+select pg_temp.assert_true(
+  (select count(*) from patched) = 1,
+  'the tightened policy also blocked a current member''s direct edit'
+);
+reset role;
+
+do $$
+begin
+  perform pg_temp.assert_true(
+    (select case_remarks from public.cases where id = 'smoke-removed-case')
+        = 'direct patch by the owner',
+    'the owner''s direct edit did not land'
+  );
+  perform pg_temp.assert_true(
+    (select count(*) from public.cases where id = 'smoke-direct-insert') = 0,
+    'a refused direct insert still wrote a row'
+  );
+  perform pg_temp.assert_true(
+    (select entity_snapshot from public.delete_requests
+      where id = 'smoke-removed-req') = '{}',
+    'a refused direct request patch still changed the row'
+  );
+end;
+$$;
+
 -- Nothing above is kept: no account, firm, case, history or receipt survives.
 rollback;
 

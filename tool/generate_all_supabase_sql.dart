@@ -287,6 +287,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'is unaffected, and `can_edit_firm` / `can_delete_firm` still cover '
         'teammates and reviewers.',
   ),
+  LedgerSection(
+    file: '20260930220000_rls_firm_membership.sql',
+    version: '0.0.332',
+    label: 'Task 20 audit follow-up: the same membership rule, applied to RLS. '
+        '`sync_can_write` closed the *app* path in 0.0.330, but the table '
+        'policies still said `user_id = auth.uid()` on a firm-scoped row, so a '
+        'removed associate could still write their authored firm rows through '
+        'PostgREST directly — rewriting one, or detaching it from the firm by '
+        'nulling `firm_id`. Every INSERT and UPDATE policy that trusts '
+        'authorship now requires the row to be personal (`firm_id is null`) or '
+        'still the caller\'s firm (`is not distinct from current_firm_id()`), '
+        'across the ten tables that share one shape plus `conflict_log` and the '
+        'requester\'s own pending `delete_requests` row. SELECT policies and '
+        'table privileges are deliberately untouched.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -309,6 +324,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.325': 'Task 20 Phase 2 — Removing An Associate',
   '0.0.327': 'Task 20 Phase 4 — Delete Requests: Review',
   '0.0.330': 'Task 20 Audit Closure — A Removed Member Cannot Merge A Write',
+  '0.0.332':
+      'Task 20 Audit Follow-Up — The Policies Refuse The Same Write As The RPC',
 };
 
 const String _header = '''<!--

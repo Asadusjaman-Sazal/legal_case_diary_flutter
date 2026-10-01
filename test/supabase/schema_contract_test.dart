@@ -904,6 +904,59 @@ void main() {
       expect(block, contains("p_row ->> 'is_custom'"));
     });
 
+    test('refuses a direct write by a removed author, in the policies too', () {
+      // The RLS half of the membership rule, and like the closure above it lives
+      // in its own migration: a removed associate holds no write privilege that
+      // `sync_can_write` could revoke, so the policy itself is the only thing
+      // standing between them and a direct PostgREST write.
+      final policies = migrationFiles().firstWhere(
+        (file) =>
+            file.path.endsWith('20260930220000_rls_firm_membership.sql'),
+      );
+      final block = normalizeSql(policies.readAsStringSync());
+
+      // The same NULL trap the closure migration closes — a plain equality can
+      // be NULL, and a NULL `with check` does not branch.
+      expect(block, contains('is not distinct from public.current_firm_id()'));
+      expect(
+        block,
+        isNot(contains('= public.current_firm_id()')),
+        reason: 'a plain equality can be NULL and silently allow the write',
+      );
+      // One loop carries the ten tables that share an author clause, so their
+      // policy spellings cannot drift apart.
+      for (final table in <String>[
+        'cases',
+        'case_history',
+        'notes',
+        'case_references',
+        'court_categories',
+        'case_categories',
+        'courts',
+        'steps',
+        'case_types',
+        'on_behalfs',
+      ]) {
+        expect(block, contains("'$table'"), reason: '$table must be covered');
+      }
+      expect(block, contains(r'create policy %1$s_insert_own on public.%1$I'));
+      expect(
+        block,
+        contains(r'create policy %1$s_update_scoped on public.%1$I'),
+      );
+      // The two tables whose shape differs are written out by hand.
+      expect(block, contains('conflict_log_update_own'));
+      expect(block, contains('delete_requests_update_scoped'));
+      expect(block, contains('requested_by = auth.uid()'));
+      // A personal row stays its author's, and teammates and reviewers keep
+      // their disjunct: the narrowing must not be a ban.
+      expect(block, contains('public.can_edit_firm(firm_id)'));
+      expect(block, contains('public.can_delete_firm(firm_id)'));
+      // Reads are deliberately untouched: a NULL comparison already hides a
+      // firm row from a caller with no firm.
+      expect(block, isNot(contains('for select')));
+    });
+
     test('accepts an update only on an exact base_version match', () {
       final block = functionBlock(sql, 'push_changes')!;
       expect(block, contains('for update'));

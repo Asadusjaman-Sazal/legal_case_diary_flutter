@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.331 - Added the requester's Edit and Withdraw actions to the Delete Requests screen, refreshing a pending request's snapshot or cancelling it through the existing queued writers.
+Version: 0.0.332 - Tightened the RLS policies so a removed firm member's authored firm rows are no longer writable directly, matching sync_can_write.
 --------------------------------------
 
 ## Version History Log:
@@ -345,3 +345,4 @@ Version: 0.0.328 - Task 20 Phase 4 reviewer UI: approve/reject writers on the de
 Version: 0.0.329 - Reworked the requester's delete-request badge and My Delete Requests list onto the scoped watchMine query, leaving the reviewer queue and badge on watchAll.
 Version: 0.0.330 - Hardened sync_can_write so a removed firm member can no longer merge a queued insert or update to a firm row, proven by a live smoke assertion.
 Version: 0.0.331 - Added the requester's Edit and Withdraw actions to the Delete Requests screen, refreshing a pending request's snapshot or cancelling it through the existing queued writers.
+Version: 0.0.332 - Tightened the RLS policies so a removed firm member's authored firm rows are no longer writable directly, matching sync_can_write.

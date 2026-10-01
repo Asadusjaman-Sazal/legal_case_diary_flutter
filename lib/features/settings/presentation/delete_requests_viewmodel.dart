@@ -8,13 +8,17 @@
 /// the two writers a reviewer uses ([approve] and [reject]). UI code should use
 /// `.select()` to subscribe only to the fields it needs.
 ///
-/// Everything the Phase 4 screens render comes out of **one** local stream
-/// ([deleteRequestsStreamProvider]) and is then sliced by the providers below,
-/// rather than from a set of per-screen queries: the queue, the requester's own
-/// list and the Settings badge are then guaranteed to be looking at the same
-/// rows. The badge for a requester is the one piece of state that is not a row —
-/// *which decisions have I already seen* — and that is a per-user preference,
-/// so it lives in `SharedPreferences` under the account's own id.
+/// The Phase 4 screens read from **two** local streams, split on the one thing
+/// that decides what a person may see. The **reviewer's** queue and the review
+/// screen need the whole firm's requests, so they come off
+/// [deleteRequestsStreamProvider] (`watchAll`). The **requester's** own list and
+/// their badge are their own rows and nothing else, so they come off
+/// [myDeleteRequestsStreamProvider] (`watchMine`) — the scoped query rather than
+/// a client-side filter of the firm-wide stream, which is both cheaper and the
+/// same scope the server grants that account. The badge for a requester is the
+/// one piece of state that is not a row — *which decisions have I already seen* —
+/// and that is a per-user preference, so it lives in `SharedPreferences` under
+/// the account's own id.
 library;
 
 import 'dart:async';
@@ -99,6 +103,20 @@ final deleteRequestsStreamProvider =
       yield* repo.watchAll();
     });
 
+/// This account's own delete requests, live, straight from the scoped query.
+///
+/// `watchMine(requested_by)` is the requester's own view and the exact scope RLS
+/// grants them (their own rows, while non-deleted), so the list the requester
+/// reads and the badge that counts their unread decisions are the same rows the
+/// server would let them act on — read from the query rather than sliced out of
+/// the firm-wide stream, which every reviewer in the firm shares.
+final myDeleteRequestsStreamProvider =
+    StreamProvider<List<DeleteRequest>>((ref) async* {
+      final userId = ref.watch(accountCacheUserIdProvider);
+      final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
+      yield* repo.watchMine(userId);
+    });
+
 /// Whether [request] is one a reviewer still has something to do about.
 ///
 /// `stale_review_required` counts: the server parked it precisely because the
@@ -114,15 +132,16 @@ final deleteReviewQueueProvider = Provider<List<DeleteRequest>>((ref) {
   return all.where(deleteRequestNeedsReview).toList(growable: false);
 });
 
-/// This account's own requests, newest first.
-final myDeleteRequestsProvider = Provider<List<DeleteRequest>>((ref) {
-  final userId = ref.watch(accountCacheUserIdProvider);
-  final all = ref.watch(deleteRequestsStreamProvider).value;
-  if (all == null) return const <DeleteRequest>[];
-  return all
-      .where((request) => request.requestedBy == userId)
-      .toList(growable: false);
-});
+/// This account's own requests, newest first (the current value of the stream).
+///
+/// A plain value alias over [myDeleteRequestsStreamProvider] so a screen or a
+/// badge can read it synchronously; `watchMine` already scopes it to this
+/// account, so no further filtering happens here.
+final myDeleteRequestsProvider = Provider<List<DeleteRequest>>(
+  (ref) =>
+      ref.watch(myDeleteRequestsStreamProvider).value ??
+      const <DeleteRequest>[],
+);
 
 /// Preference key holding when this account last looked at its own requests.
 ///
@@ -165,16 +184,13 @@ final deleteRequestsSeenProvider =
 /// is what tells the requester there is something new to read — a pending
 /// request of their own is not news, so it is not counted.
 final deleteRequestsUnseenProvider = Provider<List<DeleteRequest>>((ref) {
-  final userId = ref.watch(accountCacheUserIdProvider);
   final seen = ref.watch(deleteRequestsSeenProvider);
-  final all = ref.watch(deleteRequestsStreamProvider).value;
-  if (all == null) return const <DeleteRequest>[];
-  return all
+  // Scoped to this account already by `watchMine`, so only the *decision* and
+  // the *unread* half need filtering here.
+  return ref
+      .watch(myDeleteRequestsProvider)
       .where(
-        (request) =>
-            request.requestedBy == userId &&
-            request.status != 'pending' &&
-            request.updatedAt > seen,
+        (request) => request.status != 'pending' && request.updatedAt > seen,
       )
       .toList(growable: false);
 });

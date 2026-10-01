@@ -59,6 +59,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.324 | 2026-09-30 | `20260930180000_ensure_firm_premium_gate.sql` | `ensure_firm` again, with Task 20 Phase 1's two refusals: the individual -> firm-owner transition now requires a derived premium entitlement (plan §6 — the free plan is strictly individual and single-device; lapsed owners keep the firm they already have), and a member of somebody else's firm can no longer create a second one and relink their profile away from the rows they authored. |
 | 0.0.325 | 2026-09-30 | `20260930190000_remove_firm_member.sql` | Task 20 Phase 2's `remove_firm_member(uuid)`: owner-only, `SECURITY DEFINER`, it deletes the membership row and relinks the member's `profiles.firm_id` / `role` to individual — which is what revokes RLS access, Realtime topic authorization and every queued write at once, without touching the auth session (this project has no service-role key). Authored records keep their attribution and are never reassigned; the removal is announced to the removed account's own topic and to the firm's. The same migration attaches the existing broadcast trigger to `firm_members`, so a permission toggle reaches the member it affects. |
 | 0.0.327 | 2026-09-30 | `20260930200000_push_changes_delete_review.sql` | Task 20 Phase 4's delete-review branch: `push_changes` replaces whole to teach an approval (a `delete_requests` update setting `status = 'approved'`) what it means server-side. The request is locked (already) and the target is locked next, always in that order so concurrent approvals cannot deadlock; only a member with `can_delete` may review; a target at a different version than the request's `target_base_version` becomes `target_conflict`, parking the request as `stale_review_required` with the version the reviewer just saw so a reconfirm re-decides against the row that exists; an already soft-deleted target becomes `already_resolved` with its tombstone and records no decision; and an unchanged target is tombstoned atomically with its `case_history` cascade and the request resolved beside it, all inside the per-mutation savepoint that already produces idempotent receipts. |
+| 0.0.330 | 2026-09-30 | `20260930210000_sync_can_write_firm_membership.sql` | Task 20 audit closure: `sync_can_write` again, so authorship of a firm-scoped row only counts while the row's firm is still the caller's firm (`firm_id = current_firm_id()`). Removing an associate relinks `profiles.firm_id` to NULL, but the author clause checked `user_id = auth.uid()` before any firm helper, so a removed member could still merge a queued **update** to a firm record they happened to author. The narrowing is applied to the same three places that trusted authorship: ordinary rows, custom references, and a requester's own pending delete request. A `firm_id`-less personal row is unaffected, and `can_edit_firm` / `can_delete_firm` still cover teammates and reviewers. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -6592,5 +6593,158 @@ comment on function public.push_changes(jsonb) is
 -- Same surface as before: `anon` and `public` stay refused.
 revoke all on function public.push_changes(jsonb) from public, anon;
 grant execute on function public.push_changes(jsonb) to authenticated;
+```
+
+## App Version 0.0.330 — Task 20 Audit Closure — A Removed Member Cannot Merge A Write
+
+### 0.0.330 · `20260930210000_sync_can_write_firm_membership.sql`
+
+> **Created 2026-09-30.** Task 20 audit closure: `sync_can_write` again, so authorship of a firm-scoped row only counts while the row's firm is still the caller's firm (`firm_id = current_firm_id()`). Removing an associate relinks `profiles.firm_id` to NULL, but the author clause checked `user_id = auth.uid()` before any firm helper, so a removed member could still merge a queued **update** to a firm record they happened to author. The narrowing is applied to the same three places that trusted authorship: ordinary rows, custom references, and a requester's own pending delete request. A `firm_id`-less personal row is unaffected, and `can_edit_firm` / `can_delete_firm` still cover teammates and reviewers.
+
+```sql
+-- Task 20 audit closure — `sync_can_write` now requires firm membership for a
+-- firm-scoped write, not authorship alone.
+--
+-- Phase 2 item 5 says removing an associate must "reject and never merge that
+-- member's queued mutations". `remove_firm_member` relinks `profiles.firm_id` to
+-- NULL, and EVERY guard in the schema was assumed to read `firm_id` afterwards.
+-- They do — except one: `sync_can_write`'s author clause, `user_id = auth.uid()`,
+-- which is checked *before* any firm helper. `cases`, `notes` and
+-- `case_references` rows keep their author's `user_id` (that is the "preserve
+-- immutable audit attribution" rule), so a removed member could still push an
+-- **update** to a firm record they happened to author.
+--
+-- There were really **two** defects, and the second is why the first went
+-- unnoticed. The author clause was only half the problem; the firm comparison
+-- itself was written `firm_id = current_firm_id()`. Once removal makes
+-- `current_firm_id()` NULL, that comparison evaluates to NULL, not false — and
+-- `if not (<NULL>) then return false` does not fire in PL/pgSQL, because
+-- `NOT NULL` is NULL and a NULL condition is treated as "do not branch". So the
+-- guard was permissive in exactly the case it existed for: a caller with no firm
+-- writing a row that has one. Both INSERT and UPDATE paths shared it.
+--
+-- The fix is therefore twofold, applied together:
+--
+--   * **`is not distinct from`** replaces `=` for every firm comparison. A row's
+--     firm must be *the same non-null firm* as the caller's; a NULL on either side
+--     is now a definite "no" rather than a slipped-through NULL. The
+--     `firm_id is null` disjunct that follows still lets a personal row through.
+--   * **authorship no longer outlives membership.** A firm-scoped row may be
+--     written by its author only while that firm is still their firm
+--     (`firm_id is not distinct from current_firm_id()`). The rule RLS has always
+--     expressed — an author may edit their own row, even without `can_edit` —
+--     is kept for current members; what changes is that it stops at removal. A
+--     `firm_id`-less (personal) row is unaffected, so a removed member keeps
+--     their own diary. `can_edit_firm(firm_id)` still covers a teammate editing
+--     rows they did not author.
+--
+-- The same two corrections apply to the other places that trusted authorship:
+-- a custom **reference** in a firm, and a requester's own **pending delete
+-- request**, were both writable on `user_id` / `requested_by` alone. Reviews
+-- (`can_delete`) are untouched.
+--
+-- Only `sync_can_write` changes; `push_changes` already calls it, so no RPC is
+-- replaced. The function stays `stable security definer`.
+
+create or replace function public.sync_can_write(
+  p_table text,
+  p_row jsonb,
+  p_operation text
+)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_actor uuid := auth.uid();
+  v_is_reference boolean := p_table in (
+    'court_categories', 'case_categories', 'courts', 'steps', 'case_types',
+    'on_behalfs'
+  );
+begin
+  if v_actor is null then
+    return false;
+  end if;
+
+  if p_operation = 'insert' then
+    if p_table = 'delete_requests' then
+      return coalesce((p_row ->> 'requested_by')::uuid, null) = v_actor
+         and coalesce((p_row ->> 'firm_id')::uuid, null)
+             is not distinct from public.current_firm_id();
+    elsif v_is_reference then
+      return coalesce((p_row ->> 'is_custom')::boolean, false)
+         and coalesce((p_row ->> 'user_id')::uuid, null) = v_actor
+         and (
+           p_row ->> 'firm_id' is null
+           or coalesce((p_row ->> 'firm_id')::uuid, null)
+                is not distinct from public.current_firm_id()
+         );
+    else
+      return coalesce((p_row ->> 'user_id')::uuid, null) = v_actor
+         and (
+           p_row ->> 'firm_id' is null
+           or coalesce((p_row ->> 'firm_id')::uuid, null)
+                is not distinct from public.current_firm_id()
+         );
+    end if;
+  end if;
+
+  -- update / delete
+  if p_table = 'delete_requests' then
+    -- The requester may edit or withdraw their own request while it is pending,
+    -- but only while the request's firm is still theirs: a removed requester must
+    -- not be able to touch it. A member with delete permission may still review.
+    return (
+      coalesce((p_row ->> 'requested_by')::uuid, null) = v_actor
+      and (p_row ->> 'status') = 'pending'
+      and coalesce((p_row ->> 'firm_id')::uuid, null)
+            is not distinct from public.current_firm_id()
+    ) or public.can_delete_firm(coalesce((p_row ->> 'firm_id')::uuid, null));
+  elsif v_is_reference then
+    -- A built-in row has no creator and no firm; only a custom row is writable.
+    if not coalesce((p_row ->> 'is_custom')::boolean, false) then
+      return false;
+    end if;
+    return (
+        coalesce((p_row ->> 'user_id')::uuid, null) = v_actor
+        and (
+          p_row ->> 'firm_id' is null
+          or coalesce((p_row ->> 'firm_id')::uuid, null)
+               is not distinct from public.current_firm_id()
+        )
+      )
+      or public.can_edit_firm(coalesce((p_row ->> 'firm_id')::uuid, null));
+  elsif p_table = 'conflict_log' then
+    return coalesce((p_row ->> 'user_id')::uuid, null) = v_actor;
+  else
+    -- Authorship only counts while the row's firm is still the caller's firm: a
+    -- removed member keeps their own personal rows but not the firm's.
+    if not (
+      (
+        coalesce((p_row ->> 'user_id')::uuid, null) = v_actor
+        and (
+          p_row ->> 'firm_id' is null
+          or coalesce((p_row ->> 'firm_id')::uuid, null)
+               is not distinct from public.current_firm_id()
+        )
+      )
+      or public.can_edit_firm(coalesce((p_row ->> 'firm_id')::uuid, null))
+    ) then
+      return false;
+    end if;
+    -- The delete transition additionally needs can_delete, mirroring
+    -- enforce_delete_transition().
+    if p_operation = 'delete' and (p_row ->> 'firm_id') is not null then
+      return public.can_delete_firm(coalesce((p_row ->> 'firm_id')::uuid, null));
+    end if;
+    return true;
+  end if;
+end;
+$$;
+
+comment on function public.sync_can_write(text, jsonb, text) is
+  'Explicit write re-check for push_changes: same rules as the Phase 4 RLS policies, evaluated on the row that would be written. A firm comparison uses `is not distinct from`, because `=` against a NULL current_firm_id would yield NULL and slip past an `if not`. Authorship of a firm-scoped row is honoured only while the row''s firm is still the caller''s firm, so a removed member cannot merge a queued write.';
 ```
 

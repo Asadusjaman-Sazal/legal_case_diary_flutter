@@ -272,6 +272,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'all inside the per-mutation savepoint that already produces idempotent '
         'receipts.',
   ),
+  LedgerSection(
+    file: '20260930210000_sync_can_write_firm_membership.sql',
+    version: '0.0.330',
+    label: 'Task 20 audit closure: `sync_can_write` again, so authorship of a '
+        'firm-scoped row only counts while the row\'s firm is still the '
+        'caller\'s firm (`firm_id = current_firm_id()`). Removing an associate '
+        'relinks `profiles.firm_id` to NULL, but the author clause checked '
+        '`user_id = auth.uid()` before any firm helper, so a removed member '
+        'could still merge a queued **update** to a firm record they happened '
+        'to author. The narrowing is applied to the same three places that '
+        'trusted authorship: ordinary rows, custom references, and a '
+        'requester\'s own pending delete request. A `firm_id`-less personal row '
+        'is unaffected, and `can_edit_firm` / `can_delete_firm` still cover '
+        'teammates and reviewers.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -293,6 +308,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.324': 'Task 20 Phase 1 — The Premium Gate On Firm Establishment',
   '0.0.325': 'Task 20 Phase 2 — Removing An Associate',
   '0.0.327': 'Task 20 Phase 4 — Delete Requests: Review',
+  '0.0.330': 'Task 20 Audit Closure — A Removed Member Cannot Merge A Write',
 };
 
 const String _header = '''<!--

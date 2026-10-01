@@ -1016,6 +1016,226 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- Removal: a removed member cannot merge a queued write to a firm row
+-- ---------------------------------------------------------------------------
+-- Phase 2 item 5: removing an associate must reject and never merge that
+-- member's queued mutations. Their inserts and deletes were already refused
+-- (firm_id = current_firm_id() / can_delete_firm); a queued **update** to a firm
+-- row they happened to author slipped through, because sync_can_write's author
+-- clause (user_id = auth.uid()) was checked before any firm helper. This section
+-- pins the fix.
+do $$
+declare
+  v_owner uuid := current_setting('test.owner')::uuid;
+  v_assoc uuid := current_setting('test.assoc')::uuid;
+  v_firm uuid := current_setting('test.firm')::uuid;
+  v_out jsonb;
+begin
+  -- The associate gets their own premium entitlement, so that after removal the
+  -- refusal below proves the write-permission rule and can never be mistaken
+  -- for the entitlement gate.
+  update public.profiles
+     set subscription_expiry = now() + interval '30 days',
+         subscription_status = 'premium'
+   where id = v_assoc;
+
+  -- While still a member, the associate authors a case and raises a request in
+  -- the firm. Both are firm-scoped rows.
+  perform pg_temp.as_user(v_assoc);
+  v_out := public.push_changes(jsonb_build_array(
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-removed-case-insert',
+      'entity_type', 'case',
+      'entity_id', 'smoke-removed-case',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-removed-case',
+        'user_id', v_assoc,
+        'firm_id', v_firm,
+        'court_id', 'smoke-court-new',
+        'case_type', 'Civil',
+        'case_number', 'SMOKE-REMOVED',
+        'petitioner', 'Petitioner',
+        'respondent', 'Respondent',
+        'on_behalf_id', current_setting('test.on_behalf'),
+        'next_date', 1000,
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false
+      )
+    ),
+    jsonb_build_object(
+      'mutation_id', 'smoke-mut-removed-req-insert',
+      'entity_type', 'delete_request',
+      'entity_id', 'smoke-removed-req',
+      'operation', 'insert',
+      'payload', jsonb_build_object(
+        'id', 'smoke-removed-req',
+        'firm_id', v_firm,
+        'entity_type', 'case',
+        'entity_id', 'smoke-removed-case',
+        'entity_snapshot', '{}',
+        'target_base_version', 1,
+        'requested_by', v_assoc,
+        'status', 'pending',
+        'created_at', 0,
+        'updated_at', 0,
+        'is_deleted', false,
+        'last_modified_by', v_assoc
+      )
+    )
+  ));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and v_out #>> '{results,1,status}' = 'accepted',
+    'the associate could not author a case and a request in their own firm'
+  );
+
+  -- Control: authorship still lets a current member edit their own row, even
+  -- without can_edit — the rule the narrowing keeps.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-removed-case-author-edit',
+    'entity_type', 'case',
+    'entity_id', 'smoke-removed-case',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-removed-case', 'case_remarks', 'author edit', 'updated_at', 1
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (select case_remarks from public.cases where id = 'smoke-removed-case')
+          = 'author edit',
+    'authoring a row no longer let a current member edit it'
+  );
+
+  -- The owner removes the associate.
+  perform pg_temp.as_user(v_owner);
+  v_out := public.remove_firm_member(v_assoc);
+  perform pg_temp.assert_true(
+    v_out ->> 'status' = 'removed',
+    'the owner could not remove the associate'
+  );
+  perform pg_temp.assert_true(
+    public.has_sync_entitlement(v_assoc),
+    'the removed member lost their own entitlement, so the refusal below would be about entitlement'
+  );
+
+  -- The removed member pushes an update to the firm row they authored. Before
+  -- the fix this was accepted on user_id alone; it must now be refused.
+  perform pg_temp.as_user(v_assoc);
+  -- The refusal below must be the write-permission rule and nothing else: the
+  -- removed member is scoped to no firm and may not edit the one they left.
+  perform pg_temp.assert_true(
+    public.current_firm_id() is null,
+    'removal did not relink the member to individual mode'
+  );
+  perform pg_temp.assert_true(
+    public.can_edit_firm(v_firm) = false,
+    'a removed member still holds edit permission on the firm'
+  );
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-removed-case-update',
+    'entity_type', 'case',
+    'entity_id', 'smoke-removed-case',
+    'operation', 'update',
+    'base_version', 2,
+    'payload', jsonb_build_object(
+      'id', 'smoke-removed-case', 'case_remarks', 'after removal', 'updated_at', 2
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'rejected'
+      and v_out #>> '{results,0,error_code}' = 'permission_denied',
+    'a removed member merged a queued update to a firm row they authored'
+  );
+  perform pg_temp.assert_true(
+    (select case_remarks from public.cases where id = 'smoke-removed-case')
+        = 'author edit',
+    'a refused removed-member update still changed the row'
+  );
+
+  -- A fresh insert into the firm is refused too.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-removed-case-insert-2',
+    'entity_type', 'case',
+    'entity_id', 'smoke-removed-case-2',
+    'operation', 'insert',
+    'payload', jsonb_build_object(
+      'id', 'smoke-removed-case-2',
+      'user_id', v_assoc,
+      'firm_id', v_firm,
+      'court_id', 'smoke-court-new',
+      'case_type', 'Civil',
+      'case_number', 'SMOKE-REMOVED-2',
+      'petitioner', 'Petitioner',
+      'respondent', 'Respondent',
+      'on_behalf_id', current_setting('test.on_behalf'),
+      'next_date', 1000,
+      'created_at', 0,
+      'updated_at', 0,
+      'is_deleted', false
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'rejected'
+      and v_out #>> '{results,0,error_code}' = 'permission_denied',
+    'a removed member merged a queued insert into the firm'
+  );
+  perform pg_temp.assert_true(
+    (select count(*) from public.cases where id = 'smoke-removed-case-2') = 0,
+    'a refused removed-member insert still wrote a row'
+  );
+
+  -- ...and they cannot refresh the pending request they raised either.
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-removed-req-update',
+    'entity_type', 'delete_request',
+    'entity_id', 'smoke-removed-req',
+    'operation', 'update',
+    'base_version', 1,
+    'payload', jsonb_build_object(
+      'id', 'smoke-removed-req',
+      'entity_snapshot', '{"edited":true}',
+      'target_base_version', 2,
+      'updated_at', 2
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'rejected'
+      and v_out #>> '{results,0,error_code}' = 'permission_denied',
+    'a removed member edited their own pending firm request'
+  );
+  perform pg_temp.assert_true(
+    (select entity_snapshot from public.delete_requests
+      where id = 'smoke-removed-req') = '{}',
+    'a refused removed-member request edit still changed the row'
+  );
+
+  -- The firm still holds and may edit the record it kept: the narrowing must not
+  -- have blocked a current member.
+  perform pg_temp.as_user(v_owner);
+  v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
+    'mutation_id', 'smoke-mut-removed-case-owner-edit',
+    'entity_type', 'case',
+    'entity_id', 'smoke-removed-case',
+    'operation', 'update',
+    'base_version', 2,
+    'payload', jsonb_build_object(
+      'id', 'smoke-removed-case', 'case_remarks', 'owner edit', 'updated_at', 3
+    )
+  )));
+  perform pg_temp.assert_true(
+    v_out #>> '{results,0,status}' = 'accepted'
+      and (select case_remarks from public.cases where id = 'smoke-removed-case')
+          = 'owner edit',
+    'the narrowing also blocked the firm from editing its own row'
+  );
+end;
+$$;
+
 -- Nothing above is kept: no account, firm, case, history or receipt survives.
 rollback;
 

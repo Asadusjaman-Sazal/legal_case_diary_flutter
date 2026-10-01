@@ -879,6 +879,31 @@ void main() {
       expect(block, contains("p_row ->> 'is_custom'"));
     });
 
+    test('requires firm membership for a firm-scoped write, not authorship', () {
+      // The renamed closure lives in its own migration, which `functionBlock`
+      // (first match wins) does not reach; read that file directly.
+      final closure = migrationFiles().firstWhere(
+        (file) => file.path.endsWith(
+          '20260930210000_sync_can_write_firm_membership.sql',
+        ),
+      );
+      final block = normalizeSql(closure.readAsStringSync());
+
+      // `=` against a NULL current_firm_id yields NULL, and `if not NULL` does
+      // not branch — so a plain equality silently allowed the write. Every firm
+      // comparison must use `is not distinct from`.
+      expect(block, contains('is not distinct from public.current_firm_id()'));
+      expect(
+        block,
+        isNot(contains('= public.current_firm_id()')),
+        reason: 'a plain equality can be NULL and silently allow the write',
+      );
+      // The narrowing reaches everyone that trusted authorship: rows, custom
+      // references, and a requester's own pending delete request.
+      expect(block, contains("p_row ->> 'requested_by'"));
+      expect(block, contains("p_row ->> 'is_custom'"));
+    });
+
     test('accepts an update only on an exact base_version match', () {
       final block = functionBlock(sql, 'push_changes')!;
       expect(block, contains('for update'));

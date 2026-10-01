@@ -168,6 +168,7 @@ void main() {
     await firstStreamValue(container, accountProfileProvider);
     await firstStreamValue(container, firmMembershipProvider);
     await firstStreamValue(container, deleteRequestsStreamProvider);
+    await firstStreamValue(container, myDeleteRequestsStreamProvider);
   }
 
   /// Pumps [screen] inside a router that can reach the review route.
@@ -251,7 +252,15 @@ void main() {
       await primePermissions(container);
 
       expect(container.read(canDeleteDirectlyProvider), isFalse);
+      // The requester's list and badge read `watchMine`, so another member's
+      // request is not merely filtered out of the count — it is never fetched.
       expect(container.read(myDeleteRequestsProvider), hasLength(2));
+      expect(
+        container
+            .read(myDeleteRequestsProvider)
+            .every((request) => request.requestedBy == 'user-1'),
+        isTrue,
+      );
       expect(container.read(deleteRequestsUnseenProvider), hasLength(1));
       expect(container.read(deleteRequestsBadgeCountProvider), 1);
 

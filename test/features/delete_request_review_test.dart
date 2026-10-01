@@ -14,7 +14,11 @@
 ///  * reconfirm — a request the server parked as `stale_review_required` is
 ///    re-decided rather than recreated, and says so on the button;
 ///  * the requester's notification — the decision reads off their list, and the
-///    badge that announced it clears once the screen has been opened.
+///    badge that announced it clears once the screen has been opened;
+///  * the requester's own writers (Phase 3 item 3) — a pending row offers edit
+///    and withdraw and a decided one offers neither, an edit re-takes the
+///    snapshot from the record as it stands on this device, and a withdrawal is
+///    confirmed before it writes.
 ///
 /// The network boundary is absent on purpose: every write here is the local,
 /// queued half that makes reviews offline-capable, and the server half is pinned
@@ -41,6 +45,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/profil
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
+import 'package:legal_case_diary/features/notes/data/local/notes_dao.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_request_review_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_viewmodel.dart';
@@ -423,6 +428,189 @@ void main() {
   });
 
   group("The requester's list", () {
+    testWidgets('a pending request offers edit and withdraw', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-1',
+        title: 'Land Dispute Note',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.deleteRequests_edit), findsOneWidget);
+      expect(find.text(l.deleteRequests_withdraw), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a decided request offers neither action', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-1',
+        title: 'Land Dispute Note',
+        status: 'approved',
+        updatedAt: 5000,
+        reviewedBy: 'user-3',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      // Nothing to tap into: the row is audit history, so it is not even a
+      // gesture target (the row's key belongs to the tappable form).
+      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+      await tester.tap(find.text('Land Dispute Note'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delete-request-action-edit')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('delete-request-action-withdraw')),
+        findsNothing,
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('editing re-takes the snapshot from the record', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      // The record as it stands now: renamed and one version further on than the
+      // snapshot the request was raised with.
+      await NotesDao(db).insert(
+        NotesCompanion(
+          id: const Value('note-1'),
+          userId: const Value('user-1'),
+          firmId: const Value('firm-1'),
+          title: const Value('Renamed Note'),
+          body: const Value('Body'),
+          createdAt: const Value(1000),
+          updatedAt: const Value(1500),
+          version: const Value(7),
+          lastModifiedBy: const Value('user-1'),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-1',
+        entityType: 'note',
+        entityId: 'note-1',
+        title: 'Old Title',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-request-action-edit')));
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.deleteRequests_updated), findsOneWidget);
+
+      final request = await DeleteRequestsDao(db).getById('r1');
+      final snapshot =
+          jsonDecode(request!.entitySnapshot) as Map<String, dynamic>;
+      expect(snapshot['title'], 'Renamed Note');
+      expect(request.targetBaseVersion, 7);
+      // Still the requester's own pending request — an edit refreshes it, it
+      // does not decide it.
+      expect(request.status, 'pending');
+
+      final queue = (await SyncQueueDao(db).getByEntity('delete_request', 'r1'))
+          .where((row) => row.state != 'resolved')
+          .toList(growable: false);
+      expect(queue, hasLength(1));
+      expect(queue.single.operation, 'update');
+      expect(
+        jsonDecode(queue.single.changedFields),
+        containsAll(<String>[
+          'entity_snapshot',
+          'target_base_version',
+          'updated_at',
+        ]),
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('withdrawing cancels the request once confirmed', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(id: 'r1', requestedBy: 'user-1');
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-action-withdraw')),
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // Confirmed before it writes: the sheet's tap only opens the window.
+      expect(find.text(l.deleteRequests_withdrawTitle), findsOneWidget);
+      expect(await DeleteRequestsDao(db).getById('r1'), isNotNull);
+
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-withdraw-confirm')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.deleteRequests_withdrawn), findsOneWidget);
+      // Soft-deleted, never hard-deleted (the row is audit history), and gone
+      // from the requester's own list.
+      expect(await DeleteRequestsDao(db).getById('r1'), isNull);
+      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+
+      final queue = (await SyncQueueDao(db).getByEntity('delete_request', 'r1'))
+          .where((row) => row.state != 'resolved')
+          .toList(growable: false);
+      expect(queue, hasLength(1));
+      expect(queue.single.operation, 'delete');
+      final payload = jsonDecode(queue.single.payload) as Map<String, dynamic>;
+      expect(payload['is_deleted'], isTrue);
+
+      await unmountApp(tester);
+    });
+
     testWidgets('reads the decision, and opening it clears the badge', (
       tester,
     ) async {

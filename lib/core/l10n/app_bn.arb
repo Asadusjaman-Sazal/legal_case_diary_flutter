@@ -1541,5 +1541,13 @@
   "deleteRequests_fieldBody": "নোট",
   "deleteRequests_fieldReference": "রেফারেন্স ও পৃষ্ঠা নম্বর",
   "deleteRequests_fieldDescription": "শিরোনাম ও বিবরণ",
-  "deleteRequests_unknownRequester": "একজন ফার্ম সদস্য"
+  "deleteRequests_unknownRequester": "একজন ফার্ম সদস্য",
+  "deleteRequests_edit": "অনুরোধ সম্পাদনা করুন",
+  "deleteRequests_withdraw": "অনুরোধ প্রত্যাহার করুন",
+  "deleteRequests_withdrawTitle": "এই ডিলিট অনুরোধ প্রত্যাহার করবেন?",
+  "deleteRequests_withdrawBody": "রেকর্ডটি মুছে ফেলা হবে না, এবং অনুরোধটি পর্যালোচকদের তালিকা থেকে সরে যাবে।",
+  "deleteRequests_withdrawn": "ডিলিট অনুরোধ প্রত্যাহার করা হয়েছে।",
+  "deleteRequests_updated": "অনুরোধ হালনাগাদ করা হয়েছে।",
+  "deleteRequests_updateFailed": "অনুরোধ হালনাগাদ করা যায়নি।",
+  "deleteRequests_withdrawFailed": "অনুরোধ প্রত্যাহার করা যায়নি।"
 }

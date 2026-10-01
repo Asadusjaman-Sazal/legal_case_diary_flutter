@@ -3479,4 +3479,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_unknownRequester => 'একজন ফার্ম সদস্য';
+
+  @override
+  String get deleteRequests_edit => 'অনুরোধ সম্পাদনা করুন';
+
+  @override
+  String get deleteRequests_withdraw => 'অনুরোধ প্রত্যাহার করুন';
+
+  @override
+  String get deleteRequests_withdrawTitle =>
+      'এই ডিলিট অনুরোধ প্রত্যাহার করবেন?';
+
+  @override
+  String get deleteRequests_withdrawBody =>
+      'রেকর্ডটি মুছে ফেলা হবে না, এবং অনুরোধটি পর্যালোচকদের তালিকা থেকে সরে যাবে।';
+
+  @override
+  String get deleteRequests_withdrawn => 'ডিলিট অনুরোধ প্রত্যাহার করা হয়েছে।';
+
+  @override
+  String get deleteRequests_updated => 'অনুরোধ হালনাগাদ করা হয়েছে।';
+
+  @override
+  String get deleteRequests_updateFailed => 'অনুরোধ হালনাগাদ করা যায়নি।';
+
+  @override
+  String get deleteRequests_withdrawFailed => 'অনুরোধ প্রত্যাহার করা যায়নি।';
 }

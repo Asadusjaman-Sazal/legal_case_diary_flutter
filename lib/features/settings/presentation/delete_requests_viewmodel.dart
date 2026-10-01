@@ -8,6 +8,12 @@
 /// the two writers a reviewer uses ([approve] and [reject]). UI code should use
 /// `.select()` to subscribe only to the fields it needs.
 ///
+/// A requester's own pending request is also editable here (Phase 3 item 3):
+/// [refreshSnapshot] re-takes the snapshot from the record as it stands now, and
+/// [cancel] withdraws it. Both are ordinary queued writes on the request row, and
+/// both read the target back through the owning feature's repository, so the
+/// screen never has to know how a case or a note is loaded.
+///
 /// The Phase 4 screens read from **two** local streams, split on the one thing
 /// that decides what a person may see. The **reviewer's** queue and the review
 /// screen need the whole firm's requests, so they come off
@@ -34,6 +40,7 @@ import '../../../shared/providers/shared_preferences_provider.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/local/profiles_dao.dart';
 import '../data/delete_requests_repository.dart';
+import 'delete_request_flow.dart';
 
 /// AsyncNotifier for the delete requests feature.
 class DeleteRequestsViewModel
@@ -80,6 +87,49 @@ class DeleteRequestsViewModel
     );
   }
 
+  /// Re-takes the snapshot and the observed version of one of this account's
+  /// own pending requests.
+  ///
+  /// The requester's own edit: the record moved on after the request was raised,
+  /// so the request is refreshed to the version that exists now — the one a
+  /// reviewer would otherwise see as stale. Returns false when nothing was
+  /// refreshed, which happens when the request is no longer pending (a reviewer
+  /// decided it elsewhere) or the record is not on this device; the screen says
+  /// so rather than claiming an update that never happened.
+  Future<bool> refreshSnapshot(String id) async {
+    var refreshed = false;
+    await withRepo((repo) async {
+      final request = await repo.getById(id);
+      if (request == null || request.status != 'pending') return;
+      final json = await _targetJson(request);
+      if (json == null) return;
+      final version = json['version'];
+      await repo.refreshSnapshot(
+        id: id,
+        entitySnapshot: deleteRequestSnapshot(json),
+        targetBaseVersion: deletionBaseVersion(version is int ? version : null),
+      );
+      refreshed = true;
+    });
+    return refreshed;
+  }
+
+  /// Withdraws one of this account's own pending requests.
+  ///
+  /// Returns false when there is nothing to withdraw — the request is already
+  /// decided (audit history is never rewritten) or gone — so the screen can say
+  /// that nothing changed rather than that something failed.
+  Future<bool> cancel(String id) async {
+    var withdrawn = false;
+    await withRepo((repo) async {
+      final request = await repo.getById(id);
+      if (request == null || request.status != 'pending') return;
+      await repo.cancel(id);
+      withdrawn = true;
+    });
+    return withdrawn;
+  }
+
   /// Approves a request, or reconfirms one the server parked as stale.
   Future<void> approve(String id, {String? reviewNote}) async {
     await withRepo((repo) async => repo.approve(id, reviewNote: reviewNote));
@@ -88,6 +138,40 @@ class DeleteRequestsViewModel
   /// Rejects a request, keeping the record it names.
   Future<void> reject(String id, {String? reviewNote}) async {
     await withRepo((repo) async => repo.reject(id, reviewNote: reviewNote));
+  }
+
+  /// The record a request names, as it stands on this device right now.
+  ///
+  /// Read through the owning feature's own repository — the same row the
+  /// original snapshot was taken from — rather than off whichever screen the
+  /// requester last had open, which may hold stale state. Null when this device
+  /// does not hold the record: already deleted, authored elsewhere and never
+  /// pulled here, or a kind a request cannot name. That is an answer the caller
+  /// has to handle, not a silent no-op.
+  Future<Map<String, dynamic>?> _targetJson(DeleteRequest request) async {
+    switch (request.entityType) {
+      case 'case':
+        final row = await (await ref.read(
+          caseRepositoryProvider.future,
+        )).getById(request.entityId);
+        return row?.toJson();
+      case 'case_history':
+        final row = await (await ref.read(
+          caseHistoryRepositoryProvider.future,
+        )).getById(request.entityId);
+        return row?.toJson();
+      case 'note':
+        final row = await (await ref.read(
+          notesRepositoryProvider.future,
+        )).getById(request.entityId);
+        return row?.toJson();
+      case 'reference':
+        final row = await (await ref.read(
+          referenceRepositoryProvider.future,
+        )).getById(request.entityId);
+        return row?.toJson();
+    }
+    return null;
   }
 }
 

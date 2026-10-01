@@ -9,8 +9,10 @@
 /// voices rather than two screens nobody can both reach.
 ///
 /// Both lists come from the same live local stream, and the reviewer's row opens
-/// [DeleteRequestReviewScreen] where the decision is actually made. Nothing here
-/// writes anything.
+/// [DeleteRequestReviewScreen] where the decision is actually made. The one thing
+/// this screen writes is the requester's own pending request: its row opens an
+/// actions sheet — **Edit Request** re-takes the snapshot, **Withdraw Request**
+/// cancels — and both go through [DeleteRequestsViewModel].
 library;
 
 import 'package:flutter/material.dart';
@@ -31,6 +33,9 @@ import 'delete_request_review_screen.dart';
 import 'delete_requests_viewmodel.dart';
 import 'settings_controls.dart';
 import 'settings_sub_page_modal.dart';
+
+/// The two things a requester may do with their own still-pending request.
+enum _RequestAction { edit, withdraw }
 
 /// The Delete Requests list: a reviewer's queue or a requester's own requests.
 class DeleteRequestsScreen extends ConsumerStatefulWidget {
@@ -117,6 +122,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               request: request,
               l: l,
               locale: locale,
+              showStatusChip: false,
               onTap: () => context.push(
                 AppRoutes.deleteRequestReviewPath(request.id),
               ),
@@ -128,6 +134,10 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   }
 
   /// The requester's list: their own requests and what the reviewer decided.
+  ///
+  /// A **pending** request is still the requester's own to change (Phase 3 item
+  /// 3), so its row opens the actions sheet; a decided one is audit history and
+  /// stays a plain row that only shows the outcome.
   Widget _mineBody(AppLocalizations l) {
     final mine = ref.watch(myDeleteRequestsProvider);
     final locale = Localizations.localeOf(context).toString();
@@ -150,15 +160,117 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               request: request,
               l: l,
               locale: locale,
-              // The requester cannot act on their own request from here; RLS
-              // lets them only while it is pending and this screen is not where
-              // it is withdrawn, so the row simply shows the outcome.
-              onTap: null,
+              // The requester's own list names the state of every row, because
+              // both kinds sit in it; the reviewer's queue does not need to.
+              showStatusChip: true,
+              onTap: request.status == 'pending'
+                  ? () => _showRequestActions(request)
+                  : null,
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
       ],
     );
+  }
+
+  /// Offers the two actions a pending request allows, then runs the one chosen.
+  Future<void> _showRequestActions(DeleteRequest request) async {
+    final l = AppLocalizations.of(context);
+    final action = await showModalBottomSheet<_RequestAction>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const ValueKey('delete-request-action-edit'),
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(l.deleteRequests_edit),
+              onTap: () => Navigator.of(sheetContext).pop(_RequestAction.edit),
+            ),
+            ListTile(
+              key: const ValueKey('delete-request-action-withdraw'),
+              // The error colour, because withdrawing is the destructive one of
+              // the two: it throws away an action the requester already took.
+              leading: const Icon(Icons.close, color: AppColors.error),
+              title: Text(
+                l.deleteRequests_withdraw,
+                style: AppTypography.titleMd.copyWith(color: AppColors.error),
+              ),
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_RequestAction.withdraw),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case _RequestAction.edit:
+        await _editRequest(request);
+      case _RequestAction.withdraw:
+        await _withdrawRequest(request);
+    }
+  }
+
+  /// Re-takes the request's snapshot from the record it names.
+  ///
+  /// Nothing is confirmed first: a refresh deletes nothing, and the requester is
+  /// saying "this is what I am asking to delete now" about a request they can
+  /// refresh again at any time.
+  Future<void> _editRequest(DeleteRequest request) async {
+    final l = AppLocalizations.of(context);
+    // Captured before the write: the snackbar outlives the frame that reported
+    // it, and a rebuilt list no longer holds the context that was captured.
+    final messenger = ScaffoldMessenger.of(context);
+    final refreshed = await _write(
+      () => ref
+          .read(deleteRequestsViewModelProvider.notifier)
+          .refreshSnapshot(request.id),
+    );
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          refreshed ? l.deleteRequests_updated : l.deleteRequests_updateFailed,
+        ),
+      ),
+    );
+  }
+
+  /// Withdraws the request, after confirming it.
+  Future<void> _withdrawRequest(DeleteRequest request) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await _confirmWithdraw(context, l);
+    if (!confirmed || !mounted) return;
+    final withdrawn = await _write(
+      () => ref
+          .read(deleteRequestsViewModelProvider.notifier)
+          .cancel(request.id),
+    );
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          withdrawn
+              ? l.deleteRequests_withdrawn
+              : l.deleteRequests_withdrawFailed,
+        ),
+      ),
+    );
+  }
+
+  /// Runs one action and reports whether it changed anything.
+  ///
+  /// A refused write (the request was decided on another device) and a failed
+  /// one (the record is gone, or the queue refused the mutation) both leave the
+  /// list exactly as it was; the caller words them as "nothing happened" rather
+  /// than inventing an error surface for a screen that has no room for one.
+  Future<bool> _write(Future<bool> Function() action) async {
+    try {
+      return await action();
+    } on Object {
+      return false;
+    }
   }
 }
 
@@ -169,14 +281,21 @@ class _RequestRow extends StatelessWidget {
     required this.l,
     required this.locale,
     required this.onTap,
+    required this.showStatusChip,
   });
 
   final DeleteRequest request;
   final AppLocalizations l;
   final String locale;
 
-  /// Opens the review screen; null on the requester's own list.
+  /// Opens the row's destination: a review, or the requester's own actions.
+  /// Null on a row that has nothing left to do.
   final VoidCallback? onTap;
+
+  /// Whether the row carries its state as a pill. The requester's own list does,
+  /// because pending and decided rows sit in it side by side; the reviewer's
+  /// queue does not — everything in it is pending by definition.
+  final bool showStatusChip;
 
   @override
   Widget build(BuildContext context) {
@@ -220,9 +339,9 @@ class _RequestRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          if (onTap == null)
-            _StatusChip(label: _statusLabel(l, request.status))
-          else
+          if (showStatusChip) _StatusChip(label: _statusLabel(l, request.status)),
+          // A tappable row says so; a static one has nothing more to add.
+          if (onTap != null)
             const Icon(Icons.chevron_right, color: AppColors.outline),
         ],
       ),
@@ -245,6 +364,35 @@ class _RequestRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The withdrawal window.
+///
+/// A confirmation rather than a plain tap because the two actions on the sheet
+/// are not equally reversible: an edit can be repeated, a withdrawal cannot —
+/// the requester would have to raise the request again and the reviewer would
+/// see a new one.
+Future<bool> _confirmWithdraw(BuildContext context, AppLocalizations l) async {
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.deleteRequests_withdrawTitle),
+      content: Text(l.deleteRequests_withdrawBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          key: const ValueKey('delete-request-withdraw-confirm'),
+          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.deleteRequests_withdraw),
+        ),
+      ],
+    ),
+  );
+  return answer ?? false;
 }
 
 /// The status word for [status]; unknown values fall back to pending so a row

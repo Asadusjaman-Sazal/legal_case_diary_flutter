@@ -3460,4 +3460,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_unknownRequester => 'A Firm Member';
+
+  @override
+  String get deleteRequests_edit => 'Edit Request';
+
+  @override
+  String get deleteRequests_withdraw => 'Withdraw Request';
+
+  @override
+  String get deleteRequests_withdrawTitle => 'Withdraw This Deletion Request?';
+
+  @override
+  String get deleteRequests_withdrawBody =>
+      'The Record Will Not Be Deleted, And The Request Leaves The Reviewers\' Queue.';
+
+  @override
+  String get deleteRequests_withdrawn => 'Request Withdrawn.';
+
+  @override
+  String get deleteRequests_updated => 'Request Updated.';
+
+  @override
+  String get deleteRequests_updateFailed => 'Could Not Update The Request.';
+
+  @override
+  String get deleteRequests_withdrawFailed => 'Could Not Withdraw The Request.';
 }

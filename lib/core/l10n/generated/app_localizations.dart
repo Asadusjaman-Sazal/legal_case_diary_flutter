@@ -6035,6 +6035,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A Firm Member'**
   String get deleteRequests_unknownRequester;
+
+  /// No description provided for @deleteRequests_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Request'**
+  String get deleteRequests_edit;
+
+  /// No description provided for @deleteRequests_withdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw Request'**
+  String get deleteRequests_withdraw;
+
+  /// No description provided for @deleteRequests_withdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw This Deletion Request?'**
+  String get deleteRequests_withdrawTitle;
+
+  /// No description provided for @deleteRequests_withdrawBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Record Will Not Be Deleted, And The Request Leaves The Reviewers\' Queue.'**
+  String get deleteRequests_withdrawBody;
+
+  /// No description provided for @deleteRequests_withdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Withdrawn.'**
+  String get deleteRequests_withdrawn;
+
+  /// No description provided for @deleteRequests_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Updated.'**
+  String get deleteRequests_updated;
+
+  /// No description provided for @deleteRequests_updateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Update The Request.'**
+  String get deleteRequests_updateFailed;
+
+  /// No description provided for @deleteRequests_withdrawFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Withdraw The Request.'**
+  String get deleteRequests_withdrawFailed;
 }
 
 class _AppLocalizationsDelegate

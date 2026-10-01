@@ -1625,5 +1625,13 @@
   "deleteRequests_fieldBody": "Note",
   "deleteRequests_fieldReference": "Reference And Page No",
   "deleteRequests_fieldDescription": "Title And Description",
-  "deleteRequests_unknownRequester": "A Firm Member"
+  "deleteRequests_unknownRequester": "A Firm Member",
+  "deleteRequests_edit": "Edit Request",
+  "deleteRequests_withdraw": "Withdraw Request",
+  "deleteRequests_withdrawTitle": "Withdraw This Deletion Request?",
+  "deleteRequests_withdrawBody": "The Record Will Not Be Deleted, And The Request Leaves The Reviewers' Queue.",
+  "deleteRequests_withdrawn": "Request Withdrawn.",
+  "deleteRequests_updated": "Request Updated.",
+  "deleteRequests_updateFailed": "Could Not Update The Request.",
+  "deleteRequests_withdrawFailed": "Could Not Withdraw The Request."
 }

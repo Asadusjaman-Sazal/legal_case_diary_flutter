@@ -143,7 +143,10 @@
      Status badge is not drawn because it appears only while blocked or
      conflicted work is held, and the ordinary state is nothing held.
 
-     The two sections are the shared Settings sub-menu button — the same
+     The sync button is drawn in its ordinary enabled state — primary ink and
+     the "Sync" tooltip — because the panel is reached only by a signed-in
+     admin with sync available, not the grey free-plan variant the case screens
+     show. The two sections are the shared Settings sub-menu button — the same
      control Backup & Restore's sections use — so the two screens are the same
      size by construction. Pending is open and Resolved is closed, because a
      resolved request cannot be acted on and the admin opening this screen has
@@ -157,7 +160,7 @@
       <span class="material-symbols-outlined">menu</span>
     </button>
     <h1 class="flex-1 truncate font-title-lg text-title-lg text-primary">Admin Panel</h1>
-    <button aria-label="Sync Requires a Premium Subscription" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+    <button aria-label="Sync" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
       <span class="material-symbols-outlined">sync</span>
     </button>
     <span class="w-1"></span>

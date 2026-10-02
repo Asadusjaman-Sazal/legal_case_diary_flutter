@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Admin Panel - Legal Case Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "background": "#f8fafc",
+          "on-background": "#191c1e",
+          "surface": "#ffffff",
+          "on-surface": "#191c1e",
+          "on-surface-variant": "#45464d",
+          "surface-dim": "#d8dadc",
+          "surface-bright": "#f7f9fb",
+          "surface-variant": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#f2f4f6",
+          "surface-container": "#eceef0",
+          "surface-container-high": "#e6e8ea",
+          "surface-container-highest": "#e0e3e5",
+          "inverse-surface": "#2d3133",
+          "inverse-on-surface": "#eff1f3",
+          "surface-tint": "transparent",
+          "outline": "#76777d",
+          "outline-variant": "#c6c6cd",
+          "card-border": "#e2e8f0",
+          "primary": "#0f172a",
+          "on-primary": "#ffffff",
+          "primary-container": "#131b2e",
+          "on-primary-container": "#7c839b",
+          "inverse-primary": "#c6c6cd",
+          "secondary": "#000000",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#000000",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#64748b",
+          "on-tertiary": "#ffffff",
+          "tertiary-container": "#0b1c30",
+          "on-tertiary-container": "#75859d",
+          "error": "#dc2626",
+          "on-error": "#ffffff",
+          "error-container": "#ffdad6",
+          "on-error-container": "#93000a",
+          "success": "#059669",
+          "court-notice": "#dc2626",
+          "status-active": "#059669",
+          "ink-dark": "#020617",
+          "primary-fixed": "#e6e8ea",
+          "primary-fixed-dim": "#c6c6cd",
+          "on-primary-fixed": "#131b2e",
+          "on-primary-fixed-variant": "#45464d",
+          "secondary-fixed": "#e6e8ea",
+          "secondary-fixed-dim": "#c6c6cd",
+          "on-secondary-fixed": "#131b2e",
+          "on-secondary-fixed-variant": "#45464d",
+          "tertiary-fixed": "#eceef0",
+          "tertiary-fixed-dim": "#c6c6cd",
+          "on-tertiary-fixed": "#131b2e",
+          "on-tertiary-fixed-variant": "#45464d",
+          "overlay-54": "rgba(0, 0, 0, 0.54)",
+          "secondary-hover": "rgba(0, 0, 0, 0.05)"
+        },
+        borderRadius: {
+          "sm": "2px",
+          "DEFAULT": "4px",
+          "md": "6px",
+          "lg": "8px",
+          "xl": "12px",
+          "2xl": "16px",
+          "full": "9999px"
+        },
+        spacing: {
+          "unit": "4px",
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "xxl": "48px",
+          "xxxl": "64px",
+          "edge-margin": "16px",
+          "gutter": "12px",
+          "list-item": "12px",
+          "card-padding": "16px"
+        },
+        fontFamily: {
+          "headline-lg": ["Manrope"],
+          "headline-md": ["Manrope"],
+          "title-lg": ["Manrope"],
+          "title-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "body-sm": ["Inter"],
+          "label-lg": ["IBM Plex Sans"],
+          "label-md": ["IBM Plex Sans"],
+          "case-number": ["IBM Plex Sans"],
+          "bengali-title-md": ["Tiro Bangla"],
+          "bengali-body-lg": ["Tiro Bangla"],
+          "bengali-body-md": ["Tiro Bangla"],
+          "bengali-body-sm": ["Tiro Bangla"]
+        },
+        fontSize: {
+          "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+          "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+          "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "case-number": ["14px", { "lineHeight": "20px", "letterSpacing": "0.2px", "fontWeight": "700" }],
+          "bengali-title-md": ["16px", { "lineHeight": "1.5", "fontWeight": "600" }],
+          "bengali-body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+          "bengali-body-sm": ["12px", { "lineHeight": "1.5", "fontWeight": "400" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f8fafc; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+<!-- Task 23's Admin Panel. This is the reference for
+     lib/features/admin/presentation/admin_panel_screen.dart.
+
+     The frame is the signed-in admin's own: the case screens' header with the
+     side menu, the title and the shared sync button, but no back arrow (the
+     drawer and the system back gesture are the two ways out), no search and no
+     view toggle (both act on a case list and this screen has none). The Sync
+     Status badge is not drawn because it appears only while blocked or
+     conflicted work is held, and the ordinary state is nothing held.
+
+     The two sections are the shared Settings sub-menu button — the same
+     control Backup & Restore's sections use — so the two screens are the same
+     size by construction. Pending is open and Resolved is closed, because a
+     resolved request cannot be acted on and the admin opening this screen has
+     work to do. Each carries a distinct leading icon and no trailing arrow;
+     the count sits where the chevron would. -->
+<main class="max-w-lg mx-auto min-h-screen flex flex-col bg-background">
+
+  <!-- App header: the case screens' own, minus what has nothing to act on. -->
+  <header class="h-14 bg-surface flex items-center">
+    <button aria-label="Open Navigation Menu" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <h1 class="flex-1 truncate font-title-lg text-title-lg text-primary">Admin Panel</h1>
+    <button aria-label="Sync Requires a Premium Subscription" class="w-12 h-12 flex items-center justify-center text-on-surface-variant">
+      <span class="material-symbols-outlined">sync</span>
+    </button>
+    <span class="w-1"></span>
+  </header>
+
+  <!-- Body. Payment Requests is the panel's only section today; more arrive as
+       they are needed rather than being scaffolded empty. -->
+  <div class="flex-1 px-edge-margin pt-md pb-xl">
+
+    <!-- Section heading: label-lg, one step larger than the Settings label-md,
+         so it reads as this screen's own heading rather than a menu label. -->
+    <h2 class="px-xs font-label-lg text-label-lg text-on-surface-variant" style="letter-spacing:0.6px;">Payment Requests</h2>
+
+    <!-- Pending: open, because it is the section that needs attention. -->
+    <div class="mt-md flex flex-col">
+
+      <!-- Section button: lead icon, body-lg title, the count, no chevron. -->
+      <div class="bg-surface border border-surface-container rounded-xl p-md flex items-center">
+        <span class="material-symbols-outlined text-primary text-[28px]">pending_actions</span>
+        <span class="ml-md flex-1 font-body-lg text-body-lg text-on-surface">Pending</span>
+        <span class="font-body-sm text-body-sm text-on-surface-variant">1</span>
+      </div>
+
+      <!-- The revealed requests: one bordered surface with the same radius as
+           the button above and a hairline between rows. -->
+      <div class="mt-sm bg-surface-container-lowest border border-outline-variant rounded-xl px-md flex flex-col">
+
+        <!-- One pending request: who paid, what they paid for, and the two
+             decisions an admin may take. -->
+        <div class="py-md flex flex-col">
+          <div class="flex items-center gap-sm">
+            <span class="flex-1 truncate font-title-md text-title-md text-on-surface">Adv. Sarah Islam</span>
+            <span class="px-sm font-label-md text-label-md rounded-full" style="padding-top:2px;padding-bottom:2px;background-color:rgba(69,70,77,0.12);color:#45464d;">Pending</span>
+          </div>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface" style="font-weight:600;">1 Year &middot; ৳960</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">01712345678</p>
+          <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">TrxID: TRX8F2K91</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Method: bKash</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Name: Adv. Sarah Islam</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Email: sarah.islam@example.com</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Bar Association: Dhaka Bar Council</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Membership No: DBC-4471</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Mobile: 01712345678</p>
+          <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Submitted: 01/10/2026</p>
+          <div class="mt-md flex gap-sm">
+            <button class="flex-1 h-12 rounded-lg border border-error text-error font-label-lg text-label-lg flex items-center justify-center active:opacity-80">Reject</button>
+            <button class="flex-1 h-12 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center active:opacity-80">Approve</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Resolved: closed, because a resolved request cannot be acted on. Its
+         icon differs from Pending's so the two are told apart at a glance. -->
+    <div class="mt-lg bg-surface border border-surface-container rounded-xl p-md flex items-center">
+      <span class="material-symbols-outlined text-primary text-[28px]">task_alt</span>
+      <span class="ml-md flex-1 font-body-lg text-body-lg text-on-surface">Resolved</span>
+      <span class="font-body-sm text-body-sm text-on-surface-variant">3</span>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

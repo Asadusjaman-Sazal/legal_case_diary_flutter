@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.362 - Admin Panel: Pending/Resolved sections now use the shared Settings sub-menu button (same size as Backup & Restore), distinct Pending/Resolved icons, and a larger Payment Requests heading.
+Version: 0.0.364 - Admin Panel: fixed the two targets the new mockup exposed - the sender's number no longer takes the taka prefix, and the method shows the brand (bKash) instead of the stored key.
 --------------------------------------
 
 ## Version History Log:
@@ -376,3 +376,5 @@ Version: 0.0.359 - App header: a successful sync icon is now ordinary black, and
 Version: 0.0.360 - Admin Panel: carries the shared sync button and pulls down to sync, with the header button extracted so both headers stay one control.
 Version: 0.0.361 - Cases, Notes and Case Reference can now be pulled down to sync even when empty, so an empty screen still syncs.
 Version: 0.0.362 - Admin Panel: Pending/Resolved sections now use the shared Settings sub-menu button (same size as Backup & Restore), distinct Pending/Resolved icons, and a larger Payment Requests heading.
+Version: 0.0.363 - Admin Panel mockup written from the shipped screen (mockup_html_screens/admin_panel/code.html + screen.png), with Task 23's no-mockup departure resolved and two screen/mockup mismatches flagged.
+Version: 0.0.364 - Admin Panel: fixed the two targets the new mockup exposed - the sender's number no longer takes the taka prefix, and the method shows the brand (bKash) instead of the stored key.

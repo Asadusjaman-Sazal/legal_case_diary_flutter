@@ -155,6 +155,11 @@ void main() {
 
     expect(find.text('Adv. Sarah Islam'), findsOneWidget);
     expect(find.text('1 Year · ৳960'), findsOneWidget);
+    // The sender's number is a number, not an amount: no ৳ prefix.
+    expect(find.text('01712345678'), findsOneWidget);
+    expect(find.text('৳01712345678'), findsNothing);
+    // The method is the brand the payer chose, not the stored key.
+    expect(find.text('Method: bKash'), findsOneWidget);
     expect(find.text('TrxID: TRX1'), findsOneWidget);
     expect(find.text('Email: sarah@example.com'), findsOneWidget);
     expect(find.text('Bar Association: Dhaka Bar Council'), findsOneWidget);

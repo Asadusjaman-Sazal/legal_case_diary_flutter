@@ -25,10 +25,10 @@ import '../../../core/print/print_flow.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/utils/date_utils.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../shared/widgets/sync_button.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
 import '../../payments/presentation/subscription_banner.dart';
@@ -480,7 +480,7 @@ class _CasesHeader extends ConsumerWidget {
               onPressed: () => context.push(AppRoutes.settingsSyncStatus),
             ),
           // Sync button — top-right per Addendum 2.4
-          _SyncButton(
+          SyncButton(
             syncState: syncState,
             isPremium: isPremium,
             onSync: onSync,
@@ -490,140 +490,6 @@ class _CasesHeader extends ConsumerWidget {
           ),
           const SizedBox(width: 4),
         ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Sync button
-// ---------------------------------------------------------------------------
-
-class _SyncButton extends StatelessWidget {
-  final SyncState syncState;
-  final bool isPremium;
-  final VoidCallback? onSync;
-  final AppLocalizations l;
-
-  /// Changes still waiting to be sent, shown as a red count on the button.
-  ///
-  /// The existing `sync_problem` badge beside this button only fires for
-  /// *blocked* or conflicted work — the things nothing will move on its own.
-  /// Ordinary pending work is normal and silent there, which is right for a
-  /// badge but wrong for the sync button: a user who has two unsent edits and
-  /// taps sync has no way to see that from the header.
-  final int pending;
-
-  /// Whether the device currently has a connection.
-  ///
-  /// Defaults to true, so a caller that does not care keeps the ordinary sync
-  /// icon; only the case screens, which already watch connectivity, pass it.
-  final bool isOnline;
-
-  const _SyncButton({
-    required this.syncState,
-    required this.isPremium,
-    required this.onSync,
-    required this.l,
-    this.pending = 0,
-    this.isOnline = true,
-  });
-
-  Color get _iconColor {
-    if (!isPremium) return AppColors.onSurfaceVariant;
-    return switch (syncState) {
-      SyncState.idle => AppColors.primary,
-      SyncState.syncing => AppColors.secondary,
-      // A successful sync is the ordinary case, so it wears the ordinary ink.
-      // Green here said "something good happened" on every launch, which trains
-      // the eye to stop reading the icon at all.
-      SyncState.success => AppColors.primary,
-      SyncState.paused => AppColors.onSurfaceVariant,
-      SyncState.error => AppColors.error,
-    };
-  }
-
-  String _tooltip() {
-    if (pending > 0) return l.sync_pendingBadge(pending);
-    if (!isOnline) return l.sync_offline;
-    if (!isPremium) return l.sync_unavailable;
-    return switch (syncState) {
-      SyncState.idle => l.sync_idle,
-      SyncState.syncing => l.sync_syncing,
-      SyncState.success => l.sync_success,
-      SyncState.paused => l.sync_paused,
-      SyncState.error => l.sync_error,
-    };
-  }
-
-  /// Whether there is genuinely nothing to show, which is the only state the
-  /// offline icon replaces the sync arrows in.
-  ///
-  /// Once a change is queued the red count takes over — an offline user still
-  /// needs to see that an edit is waiting, and the count says how many.
-  bool get _showOfflineIcon => !isOnline && pending == 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final canTap = isPremium && syncState != SyncState.syncing;
-
-    final Widget icon;
-    if (syncState == SyncState.syncing && isPremium) {
-      icon = const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.secondary,
-        ),
-      );
-    } else {
-      icon = Icon(
-        // Offline with nothing queued shows the cloud-off icon in place of the
-        // sync arrows, bare: there is no work to report, so there is no count.
-        _showOfflineIcon
-            ? Icons.cloud_off_outlined
-            : switch (syncState) {
-                SyncState.success => Icons.cloud_done_outlined,
-                SyncState.paused => Icons.cloud_off_outlined,
-                SyncState.error => Icons.sync_problem_outlined,
-                _ => Icons.sync,
-              },
-        color: _showOfflineIcon ? AppColors.onSurfaceVariant : _iconColor,
-        size: 22,
-      );
-    }
-
-    // A red count on the sync icon: the ordinary pending work the separate
-    // `sync_problem` badge deliberately does not show, because here it answers
-    // "why did my edit not appear on the other device yet?".
-    //
-    // While a sync is actually running the spinner is left bare — a count
-    // beside a spinner would suggest work is stuck when it is draining.
-    final Widget child = pending > 0 && syncState != SyncState.syncing
-        ? Badge(
-            // Localized digits like every other count in the app: a Latin "2"
-            // beside Bengali text is the exact defect this guards against.
-            label: Text(
-              AppDateUtils.formatDigits(pending, l.localeName, grouping: false),
-            ),
-            backgroundColor: AppColors.error,
-            textColor: AppColors.onError,
-            child: icon,
-          )
-        : icon;
-
-    return Tooltip(
-      message: _tooltip(),
-      child: IconButton(
-        key: const ValueKey('cases-modal-sync-button'),
-        icon: child,
-        // Tapping still syncs, exactly as before: one control must do one
-        // thing. The count is information, and where it can be acted on is the
-        // separate Pending Sync entry on the Online Sync screen — which is
-        // already reachable, and already where held work is explained.
-        onPressed: canTap ? onSync : null,
-        tooltip: _tooltip(),
       ),
     );
   }

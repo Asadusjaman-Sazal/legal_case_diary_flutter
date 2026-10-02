@@ -1,3 +1,12 @@
+### 2026-10-02 — Admin Panel: the shared sync button and pull-down to sync — COMPLETE
+
+- **Request (the user's, panel only).** Add the same sync icon the case screens have, and add pull-down-to-sync here too.
+- **The button was extracted, not copied.** `_SyncButton` was private to `cases_screen_modal.dart`; a second copy in the panel would have had to be kept in step by hand, and it already carries five behaviours (the icon per state, the red pending count, localized digits, the offline substitution, the per-state tooltip). It is now **`lib/shared/widgets/sync_button.dart`**, owned by neither screen, and both headers use it — so a change to one header's sync button is a change to both. The panel's is the same widget with the same providers and the same tap: `syncServiceProvider.retryNow()`, which clears the backoff and runs a forced drain with the delta pull.
+- **Pull-to-refresh does the same work and then re-reads.** `RefreshIndicator` wraps the panel's list, matching the case screens' pattern. Its `onRefresh` awaits `retryNow()` and then **invalidates and awaits `adminPaymentRequestsProvider`**, so a payment that landed while the screen was open actually appears — a refresh that only synced and did not re-read would spin, release, and show the same list.
+- **The panel's header now reads four more providers** (`syncQueuePendingCountProvider`, `isOnlineProvider`, `syncHealthProvider`, `premiumAccessProvider`) purely to feed the button. That is the honest cost of sharing the control: its inputs are its inputs, wherever the control sits.
+- **Verification.** `flutter analyze` clean; full `flutter test` **1282 passed** (15 in the panel suite, 2 new pinning the shared button and the refresh). The extraction touched a file every case screen renders through, so the whole suite was run rather than the panel's alone. Version `0.0.360`.
+- **Resume point:** no feature work open. The panel still has **no mockup** — unchanged by this work, and the header now draws a fourth control it does not depict.
+
 ### 2026-10-02 — App header: honest ink, and an honest offline icon — COMPLETE
 
 - **Request (the user's, header only).** (1) The Sync Status icon is green after a successful sync; make it black. (2) Offline with sync off, the app draws two circling arrows; show the offline icon instead, without a count.

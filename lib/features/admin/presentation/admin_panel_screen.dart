@@ -25,7 +25,14 @@ import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
+import '../../../shared/widgets/sync_button.dart';
+import '../../../sync/connectivity_monitor.dart';
+import '../../../sync/sync_providers.dart';
+import '../../../sync/sync_health.dart';
+import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
+import '../../cases/presentation/cases_screen_modal.dart' show SyncState;
 import '../../payments/data/payment_plans.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
 import '../../settings/presentation/settings_controls.dart';
@@ -89,57 +96,69 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
           final resolved = all
               .where((r) => r.isResolved)
               .toList(growable: false);
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.edgeMargin,
-              AppSpacing.md,
-              AppSpacing.edgeMargin,
-              AppSpacing.xl,
-            ),
-            children: [
-              SettingsSectionLabel(l.adminPanel_paymentRequests),
-              if (action.phase != AdminActionPhase.idle)
-                _ActionBanner(
-                  action: action,
-                  onDismiss: () =>
-                      ref.read(AdminActionViewModel.provider.notifier).clear(),
+          // Pull to refresh does what the header button does — a forced drain with the
+          // delta pull — and then re-reads the submissions, so a payment that
+          // landed while the screen was open appears without a second trip to
+          // Settings.
+          return RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(syncServiceProvider).retryNow();
+              ref.invalidate(adminPaymentRequestsProvider);
+              await ref.read(adminPaymentRequestsProvider.future);
+            },
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.edgeMargin,
+                AppSpacing.md,
+                AppSpacing.edgeMargin,
+                AppSpacing.xl,
+              ),
+              children: [
+                SettingsSectionLabel(l.adminPanel_paymentRequests),
+                if (action.phase != AdminActionPhase.idle)
+                  _ActionBanner(
+                    action: action,
+                    onDismiss: () => ref
+                        .read(AdminActionViewModel.provider.notifier)
+                        .clear(),
+                  ),
+                const SizedBox(height: AppSpacing.md),
+                _RequestSection(
+                  title: l.adminPanel_pending,
+                  count: pending.length,
+                  initiallyOpen: _pendingOpen,
+                  emptyText: l.adminPanel_emptyPending,
+                  children: [
+                    for (final request in pending)
+                      _RequestCard(
+                        key: ValueKey('admin-request-${request.id}'),
+                        request: request,
+                      ),
+                  ],
+                  onExpansionChanged: (open) =>
+                      setState(() => _pendingOpen = open),
                 ),
-              const SizedBox(height: AppSpacing.md),
-              _RequestSection(
-                title: l.adminPanel_pending,
-                count: pending.length,
-                initiallyOpen: _pendingOpen,
-                emptyText: l.adminPanel_emptyPending,
-                children: [
-                  for (final request in pending)
-                    _RequestCard(
-                      key: ValueKey('admin-request-${request.id}'),
-                      request: request,
-                    ),
-                ],
-                onExpansionChanged: (open) =>
-                    setState(() => _pendingOpen = open),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _RequestSection(
-                title: l.adminPanel_resolved,
-                count: resolved.length,
-                initiallyOpen: _resolvedOpen,
-                emptyText: l.adminPanel_emptyResolved,
-                // Newest decision first: the admin wants the latest history,
-                // not the oldest, and the server's own order is by submission
-                // time rather than by when it was decided.
-                children: [
-                  for (final request in _byDecisionTime(resolved))
-                    _RequestCard(
-                      key: ValueKey('admin-request-${request.id}'),
-                      request: request,
-                    ),
-                ],
-                onExpansionChanged: (open) =>
-                    setState(() => _resolvedOpen = open),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.lg),
+                _RequestSection(
+                  title: l.adminPanel_resolved,
+                  count: resolved.length,
+                  initiallyOpen: _resolvedOpen,
+                  emptyText: l.adminPanel_emptyResolved,
+                  // Newest decision first: the admin wants the latest history,
+                  // not the oldest, and the server's own order is by submission
+                  // time rather than by when it was decided.
+                  children: [
+                    for (final request in _byDecisionTime(resolved))
+                      _RequestCard(
+                        key: ValueKey('admin-request-${request.id}'),
+                        request: request,
+                      ),
+                  ],
+                  onExpansionChanged: (open) =>
+                      setState(() => _resolvedOpen = open),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -181,6 +200,16 @@ class _AdminHeader extends ConsumerWidget {
     // Read from the same provider the case screens read, so the badge appears
     // on exactly the same condition here as on a case screen.
     final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
+    final pending = ref.watch(syncQueuePendingCountProvider).value ?? 0;
+    final online = ref.watch(isOnlineProvider).value ?? true;
+    final health = ref.watch(syncHealthProvider).value;
+    final syncState = switch (health?.status) {
+      SyncHealthStatus.syncing => SyncState.syncing,
+      SyncHealthStatus.healthy => SyncState.success,
+      SyncHealthStatus.paused => SyncState.paused,
+      _ => SyncState.idle,
+    };
+    final premium = ref.watch(premiumAccessProvider).value == true;
 
     return Container(
       height: 56,
@@ -209,6 +238,18 @@ class _AdminHeader extends ConsumerWidget {
               tooltip: l.syncStatus_title,
               onPressed: () => context.push(AppRoutes.settingsSyncStatus),
             ),
+          // The same shared sync button the case screens carry, so an admin
+          // pulls a sync from wherever they are. It reads the same providers
+          // and does the same work — `retryNow`, which clears the backoff and
+          // runs a forced drain with the delta pull.
+          SyncButton(
+            syncState: syncState,
+            isPremium: premium,
+            onSync: () => ref.read(syncServiceProvider).retryNow(),
+            l: l,
+            pending: pending,
+            isOnline: online,
+          ),
           const SizedBox(width: 4),
         ],
       ),

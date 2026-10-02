@@ -545,6 +545,8 @@
           }
       }
   },
+  "paywall_planWasPrice": "৳{price}",
+  "paywall_planDiscount": "{percent}% ছাড়",
   "paywall_subscribe": "সাবস্ক্রাইব",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "আগামীকাল",

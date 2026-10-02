@@ -1892,6 +1892,18 @@ abstract class AppLocalizations {
   /// **'৳{price} per year'**
   String paywall_planAnnualPrice(String price);
 
+  /// The full price of a discounted plan, rendered struck through before the discounted price.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{price}'**
+  String paywall_planWasPrice(String price);
+
+  /// Badge on a discounted plan, e.g. 20% Off. The percentage is computed from the plan's own prices, so it always describes the saving actually offered.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% Off'**
+  String paywall_planDiscount(String percent);
+
   /// No description provided for @paywall_subscribe.
   ///
   /// In en, this message translates to:

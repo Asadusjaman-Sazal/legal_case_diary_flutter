@@ -4,7 +4,7 @@
 /// in the checkout route's `plan` query parameter, the amount shown in the
 /// transfer instructions and the amount submitted with the payment must be the
 /// same three facts. The prices are the configured plan prices (৳100 for a
-/// month, ৳285 for three, ৳550 for six, ৳1,000 for a year — there is no
+/// month, ৳285 for three, ৳540 for six, ৳960 for a year — there is no
 /// lifetime plan) and the server's `approve_payment` validates the exact amount
 /// and the plan key, so a drift here would be a rejected payment, not a wrong
 /// price.
@@ -29,10 +29,10 @@ const int paymentMonthlyPrice = 100;
 const int paymentQuarterlyPrice = 285;
 
 /// 6 Months price in BDT.
-const int paymentHalfYearlyPrice = 550;
+const int paymentHalfYearlyPrice = 540;
 
 /// 1 Year price in BDT.
-const int paymentAnnualPrice = 1000;
+const int paymentAnnualPrice = 960;
 
 /// One sellable plan: its server key, its price and how long it lasts.
 ///
@@ -55,6 +55,19 @@ class SubscriptionPlan {
 
   /// How many months the plan extends the subscription by.
   final int months;
+
+  /// The same plan bought month by month, which is the price the discounted
+  /// plans are shown against.
+  ///
+  /// Derived from [paymentMonthlyPrice] rather than stored, so "20% Off" can
+  /// only ever describe a real saving over the plan's own per-month rate.
+  int get undiscountedAmount => paymentMonthlyPrice * months;
+
+  /// The saving as a whole percentage, 0 when the plan has no discount.
+  int get discountPercent {
+    final full = undiscountedAmount;
+    return full == 0 ? 0 : ((full - amount) * 100) ~/ full;
+  }
 }
 
 /// Every plan, in the order the paywall lists them.

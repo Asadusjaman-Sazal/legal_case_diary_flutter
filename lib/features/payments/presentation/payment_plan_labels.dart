@@ -7,6 +7,7 @@
 library;
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/utils/date_utils.dart';
 import '../data/payment_plans.dart';
 
 /// The localized display name of [planKey], defaulting to the 1 Month plan for
@@ -32,3 +33,15 @@ String paymentPlanPriceLabel(
   paymentPlanHalfYearly => l.paywall_planHalfYearlyPrice(price),
   _ => l.paywall_planAnnualPrice(price),
 };
+
+/// The localized "10% Off" badge for [plan], or null when it has no discount.
+///
+/// The percentage is derived from the plan's own amounts, so a badge can never
+/// claim a saving the paywall is not actually offering.
+String? paymentPlanDiscountLabel(AppLocalizations l, SubscriptionPlan plan) {
+  final percent = plan.discountPercent;
+  if (percent == 0) return null;
+  return l.paywall_planDiscount(
+    AppDateUtils.formatDigits(percent, l.localeName, grouping: false),
+  );
+}

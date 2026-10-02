@@ -1053,6 +1053,16 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String paywall_planWasPrice(String price) {
+    return '৳$price';
+  }
+
+  @override
+  String paywall_planDiscount(String percent) {
+    return '$percent% ছাড়';
+  }
+
+  @override
   String get paywall_subscribe => 'সাবস্ক্রাইব';
 
   @override

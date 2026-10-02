@@ -23,6 +23,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -52,6 +53,7 @@ import 'package:legal_case_diary/shared/providers/shared_preferences_provider.da
 import 'package:legal_case_diary/shared/widgets/add_edit_case_sheet.dart';
 import 'package:legal_case_diary/shared/widgets/case_card.dart';
 import 'package:legal_case_diary/shared/widgets/case_table_row.dart';
+import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
 
@@ -203,6 +205,7 @@ void main() {
     WidgetTester tester,
     Widget screen, {
     Locale locale = const Locale('en'),
+    bool online = true,
   }) async {
     final router = GoRouter(
       routes: [GoRoute(path: '/', builder: (_, _) => screen)],
@@ -221,6 +224,12 @@ void main() {
             (_) async =>
                 const CaseWritePermissions(canAdd: true, canEdit: true),
           ),
+          // The header's sync button reads connectivity to decide between the
+          // sync arrows and the offline icon.
+          isOnlineProvider.overrideWith((ref) => Stream<bool>.value(online)),
+          // Premium, so the sync button draws its enabled states rather than the
+          // greyed free-plan one.
+          premiumAccessProvider.overrideWith((ref) async => true),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1128,11 +1137,9 @@ void main() {
     );
     // The same court, folded on two screens on two different days: Daily Cause
     // List was folded today, Overdue Dates yesterday.
-    await seedFolds(
-      CaseListScreenId.dailyCauseList,
-      <String>[courtId],
-      dayStart: today,
-    );
+    await seedFolds(CaseListScreenId.dailyCauseList, <String>[
+      courtId,
+    ], dayStart: today);
     await seedFolds('overdue', <String>[courtId], dayStart: today - 86400000);
 
     // The day stamp belongs to the screen, so today's fold still holds on Daily
@@ -1693,11 +1700,54 @@ void main() {
     // A Latin "1" beside Bengali text is the defect the Daily Cause List
     // already guards against for its own counts; the badge must match.
     await enqueuePending();
-    await pumpScreen(tester, const AllCasesScreen(), locale: const Locale('bn'));
+    await pumpScreen(
+      tester,
+      const AllCasesScreen(),
+      locale: const Locale('bn'),
+    );
 
-    expect(find.text(AppDateUtils.formatDigits(1, 'bn', grouping: false)),
-        findsOneWidget);
+    expect(
+      find.text(AppDateUtils.formatDigits(1, 'bn', grouping: false)),
+      findsOneWidget,
+    );
     expect(find.text('1'), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('a successful sync wears ordinary ink, not green', (
+    tester,
+  ) async {
+    // Regression: green said "something good happened" on every launch, which
+    // trains the eye to stop reading the icon at all. Success is the ordinary
+    // case and now looks like the ordinary case.
+    await pumpScreen(tester, const AllCasesScreen());
+
+    final icon = tester.widget<Icon>(find.byIcon(Icons.sync));
+    expect(icon.color, AppColors.primary);
+    expect(icon.color, isNot(AppColors.success));
+    await unmount(tester);
+  });
+
+  testWidgets('offline with nothing queued shows the cloud-off icon bare', (
+    tester,
+  ) async {
+    await pumpScreen(tester, const AllCasesScreen(), online: false);
+
+    // No sync arrows, and no count — there is no work to report.
+    expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.sync), findsNothing);
+    expect(pendingBadgeCount(tester), 0);
+    await unmount(tester);
+  });
+
+  testWidgets('offline with work queued keeps the red count', (tester) async {
+    // The count is how an offline user learns an edit is waiting, so the
+    // offline icon only takes over when there is nothing queued.
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen(), online: false);
+
+    expect(pendingBadgeCount(tester), 1);
+    expect(find.byIcon(Icons.cloud_off_outlined), findsNothing);
     await unmount(tester);
   });
 }

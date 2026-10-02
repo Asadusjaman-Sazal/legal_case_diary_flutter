@@ -632,6 +632,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get sync_offline => 'কোনো সংযোগ নেই';
+
+  @override
   String get sync_permissionsChanged =>
       'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
 

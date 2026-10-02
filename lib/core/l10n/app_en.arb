@@ -280,6 +280,7 @@
   "sync_error": "Sync error",
   "sync_unavailable": "Sync requires a premium subscription",
   "sync_pendingBadge": "{count} waiting to sync",
+  "sync_offline": "No Connection",
   "@sync_pendingBadge": {
       "placeholders": {
           "count": {

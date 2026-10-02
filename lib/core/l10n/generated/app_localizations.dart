@@ -1850,23 +1850,11 @@ abstract class AppLocalizations {
   /// **'1 Month'**
   String get paywall_planMonthly;
 
-  /// No description provided for @paywall_planMonthlyPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'৳{price} per month'**
-  String paywall_planMonthlyPrice(String price);
-
   /// No description provided for @paywall_planQuarterly.
   ///
   /// In en, this message translates to:
   /// **'3 Months'**
   String get paywall_planQuarterly;
-
-  /// No description provided for @paywall_planQuarterlyPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'৳{price} for 3 months'**
-  String paywall_planQuarterlyPrice(String price);
 
   /// No description provided for @paywall_planHalfYearly.
   ///
@@ -1874,23 +1862,11 @@ abstract class AppLocalizations {
   /// **'6 Months'**
   String get paywall_planHalfYearly;
 
-  /// No description provided for @paywall_planHalfYearlyPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'৳{price} for 6 months'**
-  String paywall_planHalfYearlyPrice(String price);
-
   /// No description provided for @paywall_planAnnual.
   ///
   /// In en, this message translates to:
   /// **'1 Year'**
   String get paywall_planAnnual;
-
-  /// No description provided for @paywall_planAnnualPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'৳{price} per year'**
-  String paywall_planAnnualPrice(String price);
 
   /// The full price of a discounted plan, rendered struck through before the discounted price.
   ///

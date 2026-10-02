@@ -510,41 +510,9 @@
   "paywall_benefitFirmMode": "Firm mode for your associates",
   "paywall_plansTitle": "Plans",
   "paywall_planMonthly": "1 Month",
-  "paywall_planMonthlyPrice": "৳{price} per month",
-  "@paywall_planMonthlyPrice": {
-      "placeholders": {
-          "price": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_planQuarterly": "3 Months",
-  "paywall_planQuarterlyPrice": "৳{price} for 3 months",
-  "@paywall_planQuarterlyPrice": {
-      "placeholders": {
-          "price": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_planHalfYearly": "6 Months",
-  "paywall_planHalfYearlyPrice": "৳{price} for 6 months",
-  "@paywall_planHalfYearlyPrice": {
-      "placeholders": {
-          "price": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_planAnnual": "1 Year",
-  "paywall_planAnnualPrice": "৳{price} per year",
-  "@paywall_planAnnualPrice": {
-      "placeholders": {
-          "price": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_planWasPrice": "৳{price}",
   "@paywall_planWasPrice": {
       "description": "The full price of a discounted plan, rendered struck through before the discounted price.",

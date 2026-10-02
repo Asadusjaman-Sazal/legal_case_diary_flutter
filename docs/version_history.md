@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.350 - Premium discounts applied live: approve_payment on the project now validates 100/285/540/960, verified in prosrc with EXECUTE still refused to anon.
+Version: 0.0.352 - Premium: the struck-through full price is now red, so the saving reads at a glance.
 --------------------------------------
 
 ## Version History Log:
@@ -364,3 +364,5 @@ Version: 0.0.347 - Google OAuth runbook: Authorized domain corrected to the full
 Version: 0.0.348 - Auth e-mail links now open the app through a custom-scheme deep link instead of the localhost:3000 Site URL, the reset screen asks only for the new password, and Google sign-in probes the network first so an offline attempt says No Connection.
 Version: 0.0.349 - Premium: 6 Months is now ৳540 (10% off) and 1 Year ৳960 (20% off), each showing its full price struck through with a savings badge, and approve_payment validates the new amounts.
 Version: 0.0.350 - Premium discounts applied live: approve_payment on the project now validates 100/285/540/960, verified in prosrc with EXECUTE still refused to anon.
+Version: 0.0.351 - Premium: each plan's price is now the bare amount, since the plan title above it already states the duration.
+Version: 0.0.352 - Premium: the struck-through full price is now red, so the saving reads at a glance.

@@ -19,21 +19,6 @@ String paymentPlanLabel(AppLocalizations l, String? planKey) => switch (planKey)
   _ => l.paywall_planMonthly,
 };
 
-/// The localized price line for [plan], e.g. ৳285 for 3 months.
-///
-/// The plan carries its own amount, so this is the only place the price is
-/// worded; the caller localizes the digits before calling this.
-String paymentPlanPriceLabel(
-  AppLocalizations l,
-  SubscriptionPlan plan,
-  String price,
-) => switch (plan.key) {
-  paymentPlanMonthly => l.paywall_planMonthlyPrice(price),
-  paymentPlanQuarterly => l.paywall_planQuarterlyPrice(price),
-  paymentPlanHalfYearly => l.paywall_planHalfYearlyPrice(price),
-  _ => l.paywall_planAnnualPrice(price),
-};
-
 /// The localized "10% Off" badge for [plan], or null when it has no discount.
 ///
 /// The percentage is derived from the plan's own amounts, so a badge can never

@@ -48,6 +48,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get nav_overdueDates => 'বিলম্বিত তারিখ';
 
   @override
+  String get nav_adminPanel => 'অ্যাডমিন প্যানেল';
+
+  @override
   String get drawerOf => 'এর';
 
   @override
@@ -1044,6 +1047,132 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_subscribe => 'সাবস্ক্রাইব';
+
+  @override
+  String get adminPanel_title => 'অ্যাডমিন প্যানেল';
+
+  @override
+  String get adminPanel_paymentRequests => 'পেমেন্ট অনুরোধ';
+
+  @override
+  String get adminPanel_pending => 'অপেক্ষমাণ';
+
+  @override
+  String get adminPanel_resolved => 'সমাধানকৃত';
+
+  @override
+  String adminPanel_sectionCount(String count) {
+    return '$count';
+  }
+
+  @override
+  String get adminPanel_emptyPending =>
+      'সিদ্ধান্তের অপেক্ষায় কোনো পেমেন্ট নেই।';
+
+  @override
+  String get adminPanel_emptyResolved =>
+      'এখনও কোনো পেমেন্ট অনুমোদন বা বাতিল করা হয়নি।';
+
+  @override
+  String get adminPanel_approve => 'অনুমোদন';
+
+  @override
+  String get adminPanel_reject => 'বাতিল';
+
+  @override
+  String get adminPanel_rejectTitle => 'এই পেমেন্ট বাতিল করুন';
+
+  @override
+  String get adminPanel_rejectNoteLabel => 'গ্রাহকের জন্য নোট (ঐচ্ছিক)';
+
+  @override
+  String get adminPanel_rejectNoteHint => 'এই পেমেন্ট কেন গ্রহণ করা হয়নি';
+
+  @override
+  String get adminPanel_rejectConfirm => 'পেমেন্ট বাতিল করুন';
+
+  @override
+  String adminPanel_detailLabel(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String get adminPanel_detailLabelTrx => 'ট্রানজেকশন আইডি';
+
+  @override
+  String get adminPanel_detailLabelMfs => 'মাধ্যম';
+
+  @override
+  String get adminPanel_detailLabelName => 'নাম';
+
+  @override
+  String get adminPanel_detailLabelEmail => 'ইমেইল';
+
+  @override
+  String get adminPanel_detailLabelBar => 'বার অ্যাসোসিয়েশন';
+
+  @override
+  String get adminPanel_detailLabelMembership => 'সদস্য নম্বর';
+
+  @override
+  String get adminPanel_detailLabelMobile => 'মোবাইল';
+
+  @override
+  String get adminPanel_detailLabelSubmitted => 'জমা';
+
+  @override
+  String get adminPanel_detailLabelNote => 'নোট';
+
+  @override
+  String get adminPanel_noValue => '—';
+
+  @override
+  String get adminPanel_statusApproved => 'অনুমোদিত';
+
+  @override
+  String get adminPanel_statusRejected => 'বাতিল';
+
+  @override
+  String get adminPanel_statusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get adminPanel_approvedExpiry => 'প্রিমিয়ামের মেয়াদ';
+
+  @override
+  String get adminPanel_approvedBy => 'অনুমোদনকারী';
+
+  @override
+  String get adminPanel_rejectedBy => 'বাতিলকারী';
+
+  @override
+  String get adminPanel_loading => 'পেমেন্ট অনুরোধ লোড হচ্ছে…';
+
+  @override
+  String get adminPanel_loadFailed => 'পেমেন্ট অনুরোধ লোড করা যায়নি।';
+
+  @override
+  String get adminPanel_retry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get adminPanel_approved =>
+      'পেমেন্ট অনুমোদিত হয়েছে। গ্রাহক এখন প্রিমিয়াম।';
+
+  @override
+  String get adminPanel_rejected => 'পেমেন্ট বাতিল করা হয়েছে।';
+
+  @override
+  String get adminPanel_failedNotAdmin =>
+      'শুধুমাত্র একজন প্রশাসক এটি করতে পারবেন।';
+
+  @override
+  String get adminPanel_failedNotFound => 'এই পেমেন্টটি আর নেই।';
+
+  @override
+  String get adminPanel_failedAlreadyResolved =>
+      'এই পেমেন্টের সিদ্ধান্ত আগেই হয়ে গেছে।';
+
+  @override
+  String get adminPanel_failedUnexpected => 'এটি কাজ করেনি। আবার চেষ্টা করুন।';
 
   @override
   String get general_tomorrow => 'আগামীকাল';

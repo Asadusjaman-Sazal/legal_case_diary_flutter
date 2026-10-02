@@ -15,6 +15,7 @@
   "nav_share": "Share",
   "nav_activeCases": "Active Cases",
   "nav_overdueDates": "Overdue Dates",
+  "nav_adminPanel": "Admin Panel",
   "drawerOf": "of",
   "@@_section_allCasesScreen": "ALL CASES SCREEN  |  lib/features/cases/presentation/all_cases/all_cases_screen.dart",
   "allCasesScreen_title": "All Cases",
@@ -533,6 +534,66 @@
       }
   },
   "paywall_subscribe": "Subscribe",
+  "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
+  "adminPanel_title": "Admin Panel",
+  "adminPanel_paymentRequests": "Payment Requests",
+  "adminPanel_pending": "Pending",
+  "adminPanel_resolved": "Resolved",
+  "@adminPanel_sectionCount": {
+      "description": "A collapsible section heading with the number of requests in it.",
+      "placeholders": {
+          "count": {
+              "type": "String",
+              "description": "Whole-number count, in the language's own digits."
+          }
+      }
+  },
+  "adminPanel_sectionCount": "{count}",
+  "adminPanel_emptyPending": "No payment is waiting for a decision.",
+  "adminPanel_emptyResolved": "Nothing has been approved or rejected yet.",
+  "adminPanel_approve": "Approve",
+  "adminPanel_reject": "Reject",
+  "adminPanel_rejectTitle": "Reject This Payment",
+  "adminPanel_rejectNoteLabel": "Note For The Payer (Optional)",
+  "adminPanel_rejectNoteHint": "Why this payment was not accepted",
+  "adminPanel_rejectConfirm": "Reject Payment",
+  "@adminPanel_detailLabel": {
+      "description": "One payer detail on a payment request, e.g. Bar Association.",
+      "placeholders": {
+          "label": {
+              "type": "String"
+          },
+          "value": {
+              "type": "String"
+          }
+      }
+  },
+  "adminPanel_detailLabel": "{label}: {value}",
+  "adminPanel_detailLabelTrx": "TrxID",
+  "adminPanel_detailLabelMfs": "Method",
+  "adminPanel_detailLabelName": "Name",
+  "adminPanel_detailLabelEmail": "Email",
+  "adminPanel_detailLabelBar": "Bar Association",
+  "adminPanel_detailLabelMembership": "Membership No",
+  "adminPanel_detailLabelMobile": "Mobile",
+  "adminPanel_detailLabelSubmitted": "Submitted",
+  "adminPanel_detailLabelNote": "Note",
+  "adminPanel_noValue": "—",
+  "adminPanel_statusApproved": "Approved",
+  "adminPanel_statusRejected": "Rejected",
+  "adminPanel_statusPending": "Pending",
+  "adminPanel_approvedExpiry": "Premium Extended To",
+  "adminPanel_approvedBy": "Approved By",
+  "adminPanel_rejectedBy": "Rejected By",
+  "adminPanel_loading": "Loading payment requests…",
+  "adminPanel_loadFailed": "Payment requests could not be loaded.",
+  "adminPanel_retry": "Try Again",
+  "adminPanel_approved": "Payment approved. The payer is now premium.",
+  "adminPanel_rejected": "Payment rejected.",
+  "adminPanel_failedNotAdmin": "Only an administrator can do that.",
+  "adminPanel_failedNotFound": "That payment no longer exists.",
+  "adminPanel_failedAlreadyResolved": "That payment was already decided.",
+  "adminPanel_failedUnexpected": "That did not work. Please try again.",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "Tomorrow",
   "sharedActions_save": "Save",

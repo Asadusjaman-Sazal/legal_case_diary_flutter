@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_overdueDates => 'Overdue Dates';
 
   @override
+  String get nav_adminPanel => 'Admin Panel';
+
+  @override
   String get drawerOf => 'of';
 
   @override
@@ -1043,6 +1046,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_subscribe => 'Subscribe';
+
+  @override
+  String get adminPanel_title => 'Admin Panel';
+
+  @override
+  String get adminPanel_paymentRequests => 'Payment Requests';
+
+  @override
+  String get adminPanel_pending => 'Pending';
+
+  @override
+  String get adminPanel_resolved => 'Resolved';
+
+  @override
+  String adminPanel_sectionCount(String count) {
+    return '$count';
+  }
+
+  @override
+  String get adminPanel_emptyPending => 'No payment is waiting for a decision.';
+
+  @override
+  String get adminPanel_emptyResolved =>
+      'Nothing has been approved or rejected yet.';
+
+  @override
+  String get adminPanel_approve => 'Approve';
+
+  @override
+  String get adminPanel_reject => 'Reject';
+
+  @override
+  String get adminPanel_rejectTitle => 'Reject This Payment';
+
+  @override
+  String get adminPanel_rejectNoteLabel => 'Note For The Payer (Optional)';
+
+  @override
+  String get adminPanel_rejectNoteHint => 'Why this payment was not accepted';
+
+  @override
+  String get adminPanel_rejectConfirm => 'Reject Payment';
+
+  @override
+  String adminPanel_detailLabel(String label, String value) {
+    return '$label: $value';
+  }
+
+  @override
+  String get adminPanel_detailLabelTrx => 'TrxID';
+
+  @override
+  String get adminPanel_detailLabelMfs => 'Method';
+
+  @override
+  String get adminPanel_detailLabelName => 'Name';
+
+  @override
+  String get adminPanel_detailLabelEmail => 'Email';
+
+  @override
+  String get adminPanel_detailLabelBar => 'Bar Association';
+
+  @override
+  String get adminPanel_detailLabelMembership => 'Membership No';
+
+  @override
+  String get adminPanel_detailLabelMobile => 'Mobile';
+
+  @override
+  String get adminPanel_detailLabelSubmitted => 'Submitted';
+
+  @override
+  String get adminPanel_detailLabelNote => 'Note';
+
+  @override
+  String get adminPanel_noValue => '—';
+
+  @override
+  String get adminPanel_statusApproved => 'Approved';
+
+  @override
+  String get adminPanel_statusRejected => 'Rejected';
+
+  @override
+  String get adminPanel_statusPending => 'Pending';
+
+  @override
+  String get adminPanel_approvedExpiry => 'Premium Extended To';
+
+  @override
+  String get adminPanel_approvedBy => 'Approved By';
+
+  @override
+  String get adminPanel_rejectedBy => 'Rejected By';
+
+  @override
+  String get adminPanel_loading => 'Loading payment requests…';
+
+  @override
+  String get adminPanel_loadFailed => 'Payment requests could not be loaded.';
+
+  @override
+  String get adminPanel_retry => 'Try Again';
+
+  @override
+  String get adminPanel_approved =>
+      'Payment approved. The payer is now premium.';
+
+  @override
+  String get adminPanel_rejected => 'Payment rejected.';
+
+  @override
+  String get adminPanel_failedNotAdmin => 'Only an administrator can do that.';
+
+  @override
+  String get adminPanel_failedNotFound => 'That payment no longer exists.';
+
+  @override
+  String get adminPanel_failedAlreadyResolved =>
+      'That payment was already decided.';
+
+  @override
+  String get adminPanel_failedUnexpected =>
+      'That did not work. Please try again.';
 
   @override
   String get general_tomorrow => 'Tomorrow';

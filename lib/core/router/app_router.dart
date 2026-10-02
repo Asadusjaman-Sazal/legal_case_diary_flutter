@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
@@ -80,6 +81,14 @@ class AppRoutes {
   static const String disposedCases = '/disposed-cases';
   static const String notes = '/notes';
   static const String caseReference = '/case-reference';
+
+  /// The Admin Panel (Task 22).
+  ///
+  /// A shell route, so an admin can place it in the bottom bar or the drawer
+  /// through Settings > View Settings like any other screen. The route itself
+  /// is **not** the gate: `adminStatusProvider` is, and the panel renders
+  /// nothing to an account the server has not confirmed as an admin.
+  static const String adminPanel = '/admin-panel';
   static const String settings = '/settings';
   static const String settingsLanguage = '/settings/language';
   static const String settingsAccountProfile = '/settings/account-profile';
@@ -393,6 +402,14 @@ final List<RouteBase> _shellRoutes = [
     path: AppRoutes.caseReference,
     pageBuilder: (context, state) =>
         const NoTransitionPage(child: CaseReferenceScreen()),
+  ),
+  GoRoute(
+    path: AppRoutes.adminPanel,
+    // A NoTransitionPage like every other bottom-nav screen: an admin can place
+    // the panel in the bar, and the no-motion rule that guards the bar is about
+    // how it feels to switch, not about which screen it is.
+    pageBuilder: (context, state) =>
+        const NoTransitionPage(child: AdminPanelScreen()),
   ),
   // Settings tree
   GoRoute(

@@ -32,12 +32,21 @@ class BottomNavTabDef {
   /// Route the tab navigates to.
   final String route;
 
+  /// Whether only an administrator may be offered this screen.
+  ///
+  /// Task 22. A gated tab is hidden from the bottom bar, the drawer and the
+  /// Settings > View Settings pickers for everyone else — but a stored key from
+  /// a session that *was* an admin must not leave a dead route behind, so
+  /// [BottomNavBar] drops it rather than rendering an entry that cannot open.
+  final bool adminOnly;
+
   const BottomNavTabDef({
     required this.key,
     required this.icon,
     required this.activeIcon,
     required this.label,
     required this.route,
+    this.adminOnly = false,
   });
 }
 
@@ -101,6 +110,16 @@ const List<BottomNavTabDef> bottomNavTabDefs = [
     label: _labelNotes,
     route: AppRoutes.notes,
   ),
+  // Task 22. The last entry, so an admin who enables it appends it to the end
+  // of whatever order they already have rather than displacing a case screen.
+  BottomNavTabDef(
+    key: 'admin_panel',
+    icon: Icons.admin_panel_settings_outlined,
+    activeIcon: Icons.admin_panel_settings,
+    label: _labelAdminPanel,
+    route: AppRoutes.adminPanel,
+    adminOnly: true,
+  ),
 ];
 
 String _labelAllCases(AppLocalizations l) => l.nav_allCases;
@@ -111,6 +130,7 @@ String _labelUpcoming(AppLocalizations l) => l.nav_upcomingCases;
 String _labelDisposed(AppLocalizations l) => l.nav_disposedCases;
 String _labelCaseReference(AppLocalizations l) => l.nav_caseReference;
 String _labelNotes(AppLocalizations l) => l.nav_notes;
+String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 
 /// Bottom navigation bar driven by [tabKeys] from [UserSettings.bottomNavTabs].
 ///
@@ -119,15 +139,21 @@ String _labelNotes(AppLocalizations l) => l.nav_notes;
 ///   the bar scrolls horizontally once more than four are chosen (the plan's
 ///   default selection is four, which still lays out evenly).
 /// [onTabSelected] — called with the route path when a tab is tapped.
+/// [isAdmin] — whether the signed-in account is an admin. Defaults to false, so
+///   a bar built before that answer arrives shows only ordinary screens, and a
+///   tab key stored during an earlier admin session is dropped rather than left
+///   as an entry that leads nowhere (see [BottomNavTabDef.adminOnly]).
 class BottomNavBar extends StatelessWidget {
   final String currentRoute;
   final List<String> tabKeys;
   final void Function(String route) onTabSelected;
+  final bool isAdmin;
 
   const BottomNavBar({
     required this.currentRoute,
     required this.tabKeys,
     required this.onTabSelected,
+    this.isAdmin = false,
     super.key,
   });
 
@@ -138,6 +164,7 @@ class BottomNavBar extends StatelessWidget {
     final tabs = tabKeys
         .map((k) => keyMap[k])
         .whereType<BottomNavTabDef>()
+        .where((t) => !t.adminOnly || isAdmin)
         .toList();
 
     // Five or six tabs would squeeze the labels to nothing on a phone, so a

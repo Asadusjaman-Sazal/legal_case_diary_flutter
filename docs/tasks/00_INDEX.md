@@ -42,6 +42,7 @@ The build is split into two parts:
 | 20 | `20_firm_management_and_delete_requests.md` | Manage Associates, permissions, delete-request workflow |
 | 21 | `21_payments_and_subscription.md` | Paywall/Checkout screens, `payment_submissions`, `approve_payment` RPC, entitlement derivation, grace period |
 | 22 | `22_verification_plan.md` | Full automated + manual verification suite from the implementation plan |
+| 23 | `23_admin_panel.md` | Admin Panel: admin-gated payment queue, approve/reject, admin-only navigation |
 
 ---
 

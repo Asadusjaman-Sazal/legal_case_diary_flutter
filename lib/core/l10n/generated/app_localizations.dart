@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Overdue Dates'**
   String get nav_overdueDates;
 
+  /// No description provided for @nav_adminPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Panel'**
+  String get nav_adminPanel;
+
   /// No description provided for @drawerOf.
   ///
   /// In en, this message translates to:
@@ -1885,6 +1891,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subscribe'**
   String get paywall_subscribe;
+
+  /// No description provided for @adminPanel_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Panel'**
+  String get adminPanel_title;
+
+  /// No description provided for @adminPanel_paymentRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Requests'**
+  String get adminPanel_paymentRequests;
+
+  /// No description provided for @adminPanel_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminPanel_pending;
+
+  /// No description provided for @adminPanel_resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get adminPanel_resolved;
+
+  /// A collapsible section heading with the number of requests in it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}'**
+  String adminPanel_sectionCount(String count);
+
+  /// No description provided for @adminPanel_emptyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment is waiting for a decision.'**
+  String get adminPanel_emptyPending;
+
+  /// No description provided for @adminPanel_emptyResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been approved or rejected yet.'**
+  String get adminPanel_emptyResolved;
+
+  /// No description provided for @adminPanel_approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminPanel_approve;
+
+  /// No description provided for @adminPanel_reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminPanel_reject;
+
+  /// No description provided for @adminPanel_rejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject This Payment'**
+  String get adminPanel_rejectTitle;
+
+  /// No description provided for @adminPanel_rejectNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note For The Payer (Optional)'**
+  String get adminPanel_rejectNoteLabel;
+
+  /// No description provided for @adminPanel_rejectNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Why this payment was not accepted'**
+  String get adminPanel_rejectNoteHint;
+
+  /// No description provided for @adminPanel_rejectConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Payment'**
+  String get adminPanel_rejectConfirm;
+
+  /// One payer detail on a payment request, e.g. Bar Association.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {value}'**
+  String adminPanel_detailLabel(String label, String value);
+
+  /// No description provided for @adminPanel_detailLabelTrx.
+  ///
+  /// In en, this message translates to:
+  /// **'TrxID'**
+  String get adminPanel_detailLabelTrx;
+
+  /// No description provided for @adminPanel_detailLabelMfs.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get adminPanel_detailLabelMfs;
+
+  /// No description provided for @adminPanel_detailLabelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get adminPanel_detailLabelName;
+
+  /// No description provided for @adminPanel_detailLabelEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get adminPanel_detailLabelEmail;
+
+  /// No description provided for @adminPanel_detailLabelBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Association'**
+  String get adminPanel_detailLabelBar;
+
+  /// No description provided for @adminPanel_detailLabelMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership No'**
+  String get adminPanel_detailLabelMembership;
+
+  /// No description provided for @adminPanel_detailLabelMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile'**
+  String get adminPanel_detailLabelMobile;
+
+  /// No description provided for @adminPanel_detailLabelSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get adminPanel_detailLabelSubmitted;
+
+  /// No description provided for @adminPanel_detailLabelNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get adminPanel_detailLabelNote;
+
+  /// No description provided for @adminPanel_noValue.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get adminPanel_noValue;
+
+  /// No description provided for @adminPanel_statusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminPanel_statusApproved;
+
+  /// No description provided for @adminPanel_statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminPanel_statusRejected;
+
+  /// No description provided for @adminPanel_statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminPanel_statusPending;
+
+  /// No description provided for @adminPanel_approvedExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Extended To'**
+  String get adminPanel_approvedExpiry;
+
+  /// No description provided for @adminPanel_approvedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved By'**
+  String get adminPanel_approvedBy;
+
+  /// No description provided for @adminPanel_rejectedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected By'**
+  String get adminPanel_rejectedBy;
+
+  /// No description provided for @adminPanel_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading payment requests…'**
+  String get adminPanel_loading;
+
+  /// No description provided for @adminPanel_loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment requests could not be loaded.'**
+  String get adminPanel_loadFailed;
+
+  /// No description provided for @adminPanel_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get adminPanel_retry;
+
+  /// No description provided for @adminPanel_approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment approved. The payer is now premium.'**
+  String get adminPanel_approved;
+
+  /// No description provided for @adminPanel_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment rejected.'**
+  String get adminPanel_rejected;
+
+  /// No description provided for @adminPanel_failedNotAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only an administrator can do that.'**
+  String get adminPanel_failedNotAdmin;
+
+  /// No description provided for @adminPanel_failedNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That payment no longer exists.'**
+  String get adminPanel_failedNotFound;
+
+  /// No description provided for @adminPanel_failedAlreadyResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'That payment was already decided.'**
+  String get adminPanel_failedAlreadyResolved;
+
+  /// No description provided for @adminPanel_failedUnexpected.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not work. Please try again.'**
+  String get adminPanel_failedUnexpected;
 
   /// No description provided for @general_tomorrow.
   ///

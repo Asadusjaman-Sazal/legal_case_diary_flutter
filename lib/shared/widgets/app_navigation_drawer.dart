@@ -13,6 +13,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
+import '../../features/admin/presentation/admin_viewmodel.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
 
@@ -28,12 +29,20 @@ class _NavItem {
   /// not removable, so a stale `false` for it in [sideNavOptions] is ignored.
   final bool removable;
 
+  /// Whether only an administrator may be shown this item (Task 22).
+  ///
+  /// Separate from [removable]: a non-admin cannot hide the Admin Panel, they
+  /// simply never see it, and a stale `false` or a leftover `sideNavOptions`
+  /// entry cannot conjure it into view either.
+  final bool adminOnly;
+
   const _NavItem({
     required this.visibilityKey,
     required this.icon,
     required this.label,
     required this.route,
     this.removable = true,
+    this.adminOnly = false,
   });
 }
 
@@ -132,6 +141,16 @@ class AppNavigationDrawer extends ConsumerWidget {
     ),
   ];
 
+  /// Task 22: shown only to an admin, and after Settings so it never
+  /// displaces an ordinary entry in a drawer an admin already arranged.
+  static const _NavItem _adminItem = _NavItem(
+    visibilityKey: AppRoutes.adminPanel,
+    icon: Icons.admin_panel_settings_outlined,
+    label: _labelAdminPanel,
+    route: AppRoutes.adminPanel,
+    adminOnly: true,
+  );
+
   static String _labelUpcoming(AppLocalizations l) => l.nav_upcomingCases;
   static String _labelDailyCauseList(AppLocalizations l) =>
       l.nav_dailyCauseList;
@@ -142,14 +161,25 @@ class AppNavigationDrawer extends ConsumerWidget {
   static String _labelCaseReference(AppLocalizations l) => l.nav_caseReference;
   static String _labelNotes(AppLocalizations l) => l.nav_notes;
   static String _labelSettings(AppLocalizations l) => l.nav_settings;
+  static String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 
-  bool _isVisible(_NavItem item) =>
-      !item.removable || sideNavOptions[item.visibilityKey] != false;
+  bool _isVisible(_NavItem item, {required bool isAdmin}) {
+    // A gated item is never merely hidden by a preference — a non-admin does
+    // not get a way to bring it back, and a leftover `sideNavOptions` entry
+    // from an earlier admin session cannot reveal it.
+    if (item.adminOnly && !isAdmin) return false;
+    return !item.removable || sideNavOptions[item.visibilityKey] != false;
+  }
 
   bool _isActive(String route) => currentRoute == route;
 
-  Widget _buildItem(BuildContext context, AppLocalizations l, _NavItem item) {
-    if (!_isVisible(item)) return const SizedBox.shrink();
+  Widget _buildItem(
+    BuildContext context,
+    AppLocalizations l,
+    _NavItem item, {
+    required bool isAdmin,
+  }) {
+    if (!_isVisible(item, isAdmin: isAdmin)) return const SizedBox.shrink();
     final active = _isActive(item.route);
     return _DrawerNavTile(
       icon: item.icon,
@@ -175,6 +205,9 @@ class AppNavigationDrawer extends ConsumerWidget {
     // vs "<name> এর লিগ্যাল কেস ডায়েরি").
     final isBengali = l.localeName.startsWith('bn');
     final nameLine = headerName.isNotEmpty ? headerName : '—';
+    // Task 22: the Admin Panel row exists only for an account the server has
+    // confirmed as an admin, and false while that answer is still loading.
+    final isAdmin = ref.watch(adminStatusProvider).value ?? false;
     return Drawer(
       backgroundColor: AppColors.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(),
@@ -241,9 +274,17 @@ class AppNavigationDrawer extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 children: [
-                  ..._caseItems.map((item) => _buildItem(context, l, item)),
+                  ..._caseItems.map(
+                    (item) => _buildItem(context, l, item, isAdmin: isAdmin),
+                  ),
                   const _DrawerDivider(),
-                  ..._toolItems.map((item) => _buildItem(context, l, item)),
+                  ..._toolItems.map(
+                    (item) => _buildItem(context, l, item, isAdmin: isAdmin),
+                  ),
+                  if (isAdmin) ...[
+                    const _DrawerDivider(),
+                    _buildItem(context, l, _adminItem, isAdmin: true),
+                  ],
                   const _DrawerDivider(),
                   _DrawerNavTile(
                     icon: Icons.print_outlined,

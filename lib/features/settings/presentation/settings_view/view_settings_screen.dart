@@ -42,6 +42,7 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../admin/presentation/admin_viewmodel.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
 import '../settings_viewmodel.dart';
@@ -76,8 +77,16 @@ String _screenLabel(AppLocalizations l, String key) =>
 /// screens it names, then any screen it does not name in canonical order — a
 /// screen added in a later release, or every screen on an install that has
 /// never rearranged a row, since an empty serial means canonical.
-List<String> _bottomTabSerial(UserSettings settings) {
-  final canonical = <String>[for (final def in bottomNavTabDefs) def.key];
+///
+/// [available] is the canonical list this screen may offer, which is
+/// [bottomNavTabDefs] minus any `adminOnly` entry the signed-in account is not
+/// entitled to (Task 22). A stored key outside it is dropped rather than shown,
+/// so an admin session that ended cannot leave a row behind.
+List<String> _bottomTabSerial(
+  UserSettings settings,
+  List<BottomNavTabDef> available,
+) {
+  final canonical = <String>[for (final def in available) def.key];
   final known = canonical.toSet();
   final stored = <String>[
     for (final key in settings.bottomNavOrder)
@@ -99,7 +108,15 @@ class ViewSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final settings =
         ref.watch(settingsViewModelProvider).value ?? const UserSettings();
-    final shownSections = bottomNavTabDefs
+    // Task 22: the Admin Panel is offered only to an account the server has
+    // confirmed as an admin, and false while that answer is still loading — so
+    // the pickers below never list a screen this person cannot open.
+    final isAdmin = ref.watch(adminStatusProvider).value ?? false;
+    final available = <BottomNavTabDef>[
+      for (final def in bottomNavTabDefs)
+        if (!def.adminOnly || isAdmin) def,
+    ];
+    final shownSections = available
         .where((def) => _isSideNavVisible(settings, def))
         .length;
 
@@ -170,7 +187,8 @@ class ViewSettingsScreen extends ConsumerWidget {
                   settings.bottomNavTabs.length,
                 ),
                 icon: Icons.expand_more,
-                onTap: () => _pickBottomTabs(context, ref, settings),
+                onTap: () =>
+                    _pickBottomTabs(context, ref, settings, available),
               ),
               const SizedBox(height: AppSpacing.xl),
               // Side navigation options: which drawer sections stay visible.
@@ -179,10 +197,10 @@ class ViewSettingsScreen extends ConsumerWidget {
               SettingsPickerRow(
                 text: l.settingsViewSettings_sideNavCount(
                   shownSections,
-                  bottomNavTabDefs.length,
+                  available.length,
                 ),
                 icon: Icons.expand_more,
-                onTap: () => _pickSideNav(context, ref, settings),
+                onTap: () => _pickSideNav(context, ref, settings, available),
               ),
             ],
           ),
@@ -221,14 +239,17 @@ class ViewSettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     UserSettings settings,
+    List<BottomNavTabDef> available,
   ) async {
     final l = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (_) => SettingsMultiSelectDialog<String>(
         title: l.settingsViewSettings_bottomTabs,
-        order: _bottomTabSerial(settings),
-        selected: settings.bottomNavTabs.toSet(),
+        order: _bottomTabSerial(settings, available),
+        selected: settings.bottomNavTabs
+            .where((k) => available.any((def) => def.key == k))
+            .toSet(),
         labelOf: (key) => _screenLabel(l, key),
         reorderable: true,
         minSelected: 1,
@@ -252,15 +273,16 @@ class ViewSettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     UserSettings settings,
+    List<BottomNavTabDef> available,
   ) async {
     final l = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (_) => SettingsMultiSelectDialog<String>(
         title: l.settingsViewSettings_sideNav,
-        order: <String>[for (final def in bottomNavTabDefs) def.route],
+        order: <String>[for (final def in available) def.route],
         selected: <String>{
-          for (final def in bottomNavTabDefs)
+          for (final def in available)
             if (_isSideNavVisible(settings, def)) def.route,
         },
         labelOf: (route) => _screenLabel(l, route),

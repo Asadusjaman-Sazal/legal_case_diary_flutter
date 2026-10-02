@@ -29,6 +29,7 @@ import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../admin/presentation/admin_viewmodel.dart';
 import '../../payments/presentation/subscription_banner.dart';
 import '../../sync/presentation/sync_conflict_banner.dart';
 import '../../sync/presentation/sync_notice_banner.dart';
@@ -238,6 +239,11 @@ class CasesScreenModal extends ConsumerWidget {
             currentRoute: currentRoute,
             tabKeys: tabKeys,
             onTabSelected: (route) => context.go(route),
+            // Task 22: the Admin Panel tab is only ever offered to an account
+            // the server has confirmed as an admin. False while that answer is
+            // still loading, so the tab appears once the answer arrives and
+            // never before.
+            isAdmin: ref.watch(adminStatusProvider).value ?? false,
           ),
         ],
       ),

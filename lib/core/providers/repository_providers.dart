@@ -7,6 +7,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/admin/data/admin_repository.dart';
 import '../../features/auth/data/supabase_auth_repository.dart';
 import '../../features/case_reference/data/local/case_references_dao.dart';
 import '../../features/case_reference/data/reference_repository.dart';
@@ -195,6 +196,18 @@ final paymentRepositoryProvider = Provider<PaymentRepository>((ref) {
   return client == null
       ? const UnavailablePaymentRepository()
       : SupabasePaymentRepository(client);
+});
+
+/// Provider for [AdminRepository] (Task 22).
+///
+/// The inert repository reports "not an admin", which is the panel's truthful
+/// answer when there is no backend — the same choice `paymentRepositoryProvider`
+/// makes for submissions.
+final adminRepositoryProvider = Provider<AdminRepository>((ref) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  return client == null
+      ? const UnavailableAdminRepository()
+      : SupabaseAdminRepository(client);
 });
 
 /// This account's own payment submissions, newest first (own rows under RLS).

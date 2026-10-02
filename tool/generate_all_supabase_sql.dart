@@ -64,7 +64,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260929100000_phase1_core_schema.sql',
     version: '0.0.289',
-    label: 'Creates every Supabase table at once — 12 push/pull domain, 3 '
+    label:
+        'Creates every Supabase table at once — 12 push/pull domain, 3 '
         'pull-only cache, 2 per-user preference and 2 server-managed — mirroring '
         'the shipped Drift columns. RLS is switched on in the same statement that '
         'creates each table.',
@@ -72,95 +73,109 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260929100100_phase1_signup_profile_trigger.sql',
     version: '0.0.289',
-    label: 'handle_new_user() and its on_auth_user_created trigger: each new '
+    label:
+        'handle_new_user() and its on_auth_user_created trigger: each new '
         'auth user gets an individual, free, firm-less profiles row. The only '
         'INSERT path for profiles.',
   ),
   LedgerSection(
     file: '20260929100200_phase1_seed_reference_data.sql',
     version: '0.0.289',
-    label: 'Generated built-in reference data — 1,442 rows over six editable '
+    label:
+        'Generated built-in reference data — 1,442 rows over six editable '
         'tables, under the same stable IDs the client seeds — upserted so a '
         'customized row is never overwritten.',
   ),
   LedgerSection(
     file: '20260929101000_phase2_server_internal_tables.sql',
     version: '0.0.290',
-    label: 'The four server-internal ledgers (invite_attempts, '
+    label:
+        'The four server-internal ledgers (invite_attempts, '
         'mutation_receipts, app_admins, payment_approval_events) with deny-all '
         'RLS, two immutability triggers and the rate-limit index.',
   ),
   LedgerSection(
     file: '20260929102000_phase3_access_helpers.sql',
     version: '0.0.291',
-    label: 'Access helpers (1/6): current_firm_id, is_firm_owner, can_edit_firm, '
+    label:
+        'Access helpers (1/6): current_firm_id, is_firm_owner, can_edit_firm, '
         'can_delete_firm, is_premium, is_admin, can_read_topic and sha256_hex, '
         'all SECURITY DEFINER so policies cannot recurse.',
   ),
   LedgerSection(
     file: '20260929102100_phase3_sync_and_guard_triggers.sql',
     version: '0.0.291',
-    label: 'Sync and write guards (2/6): server_updated_at stamping, the delete '
+    label:
+        'Sync and write guards (2/6): server_updated_at stamping, the delete '
         'transition and resurrection rules, the free-tier 50-case ceiling and the '
         'payment submission rate limit, on the domain tables only.',
   ),
   LedgerSection(
     file: '20260929102200_phase3_payment_approval.sql',
     version: '0.0.291',
-    label: 'approve_payment(uuid) (3/6): admin-only, atomic lock-validate-extend-'
+    label:
+        'approve_payment(uuid) (3/6): admin-only, atomic lock-validate-extend-'
         'mirror-audit path, plus mirror_owner_subscription_to_firm().',
   ),
   LedgerSection(
     file: '20260929102300_phase3_join_firm.sql',
     version: '0.0.291',
-    label: 'join_firm(code) (4/6): rate-limited, sha256-normalized invite '
+    label:
+        'join_firm(code) (4/6): rate-limited, sha256-normalized invite '
         'redemption that creates the membership, relinks the profile and consumes '
         'the invite.',
   ),
   LedgerSection(
     file: '20260929102400_phase3_realtime_broadcast.sql',
     version: '0.0.291',
-    label: 'Realtime notification (5/6): one {table, id} Broadcast ping per '
+    label:
+        'Realtime notification (5/6): one {table, id} Broadcast ping per '
         'change to the firm or user topic, with the can_read_topic policy on '
         'realtime.messages.',
   ),
   LedgerSection(
     file: '20260929102500_phase3_column_privileges.sql',
     version: '0.0.291',
-    label: 'Column privileges (6/6): REVOKEs so the fields only the server may '
+    label:
+        'Column privileges (6/6): REVOKEs so the fields only the server may '
         'write — approval state, entitlement, firm ownership — cannot be set by '
         'a client even inside a permitted UPDATE.',
   ),
   LedgerSection(
     file: '20260929103000_phase4_rls_core_tables.sql',
     version: '0.0.292',
-    label: 'RLS for the case-data half (1/3): cases, case_history, notes, '
+    label:
+        'RLS for the case-data half (1/3): cases, case_history, notes, '
         'case_references, delete_requests and conflict_log scoped to self or '
         'same-firm, with no DELETE policy anywhere.',
   ),
   LedgerSection(
     file: '20260929103100_phase4_rls_reference_tables.sql',
     version: '0.0.292',
-    label: 'RLS for the six editable reference tables (2/3): built-in rows '
+    label:
+        'RLS for the six editable reference tables (2/3): built-in rows '
         'readable by every authenticated user, custom rows scoped to creator or '
         'firm, soft delete only.',
   ),
   LedgerSection(
     file: '20260929103200_phase4_rls_account_payment_tables.sql',
     version: '0.0.292',
-    label: 'RLS for account, firm, preference and payment tables (3/3), and the '
+    label:
+        'RLS for account, firm, preference and payment tables (3/3), and the '
         'closing statement that RLS is enabled on every table in the schema.',
   ),
   LedgerSection(
     file: '20260929104000_phase5_indexes_and_tombstone_purge.sql',
     version: '0.0.293',
-    label: 'Delta-pull and payment indexes for every scoped cursor read, plus '
+    label:
+        'Delta-pull and payment indexes for every scoped cursor read, plus '
         'purge_tombstones(180 days) scheduled daily through pg_cron.',
   ),
   LedgerSection(
     file: '20260929105000_profiles_last_successful_sync_at.sql',
     version: '0.0.300',
-    label: 'Closes the audit\'s last column-level gap: adds the plan\'s '
+    label:
+        'Closes the audit\'s last column-level gap: adds the plan\'s '
         '`profiles.last_successful_sync_at`, admin analytics only, with a '
         'comment stating that the extended-offline reset stays per-device in '
         'the local `sync_metadata`.',
@@ -168,7 +183,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260929110000_phase5_owner_firm_establishment.sql',
     version: '0.0.305',
-    label: 'ensure_firm(name) — the idempotent owner-side conversion from '
+    label:
+        'ensure_firm(name) — the idempotent owner-side conversion from '
         'individual to firm: creates the owner\'s firm, relinks '
         '`profiles.firm_id`/`role` (both server-owned by the column privileges) '
         'and upserts the owner\'s `firm_members` row, so the invite generator '
@@ -177,7 +193,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260929120000_abandon_provisional_account.sql',
     version: '0.0.307',
-    label: 'abandon_provisional_account() — the protected cleanup for an '
+    label:
+        'abandon_provisional_account() — the protected cleanup for an '
         'abandoned join-firm onboarding: removes the caller\'s own Auth account '
         'when it is provably provisional (no firm, individual role, no '
         'subscription, no authored rows, no firm/payment/admin/sync activity) '
@@ -187,7 +204,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260929130000_profiles_personal_details.sql',
     version: '0.0.310',
-    label: 'The account holder\'s own details on the profile row: '
+    label:
+        'The account holder\'s own details on the profile row: '
         '`email` (mirrored from `auth.users` by the sign-up and e-mail-change '
         'triggers) plus `bar_association`, `membership_no`, `office_address` and '
         '`mobile_no`, granted column-wise for the caller\'s own row so the '
@@ -197,7 +215,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930140000_push_changes.sql',
     version: '0.0.311',
-    label: '`push_changes(rows jsonb)` — the single atomic push pipeline: '
+    label:
+        '`push_changes(rows jsonb)` — the single atomic push pipeline: '
         'entity-type/dependency-rank helpers, the firm-aware entitlement '
         'derivation and the write re-check, then one transaction with a '
         'savepoint per mutation, optimistic concurrency, idempotent '
@@ -207,14 +226,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930150000_sync_server_time.sql',
     version: '0.0.313',
-    label: '`sync_server_time()` — the server clock as a plain stable SQL '
+    label:
+        '`sync_server_time()` — the server clock as a plain stable SQL '
         'function, granted to `authenticated` only, so a successful sync can '
         'compare device and server time and record the offset past two minutes.',
   ),
   LedgerSection(
     file: '20260930160000_conflict_mergeable_column.sql',
     version: '0.0.318',
-    label: '`conflict_log.mergeable_conflict` — the detecting client\'s '
+    label:
+        '`conflict_log.mergeable_conflict` — the detecting client\'s '
         'three-way verdict on the conflict, carried on the mirrored row so a '
         'second device reads the same answer instead of recomputing one from '
         'its own copy. `not null default false` reads an old or absent value as '
@@ -223,7 +244,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930170000_push_changes_created_at_guard.sql',
     version: '0.0.318',
-    label: '`push_changes` again, with one corrected guard: the insert-time '
+    label:
+        '`push_changes` again, with one corrected guard: the insert-time '
         '`created_at` fallback now fills only an epoch-ms **integer** column, '
         'so `conflict_log`\'s server-owned `timestamptz` keeps its own default '
         'instead of receiving the client\'s milliseconds (which raised `22007` '
@@ -233,7 +255,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930180000_ensure_firm_premium_gate.sql',
     version: '0.0.324',
-    label: '`ensure_firm` again, with Task 20 Phase 1\'s two refusals: the '
+    label:
+        '`ensure_firm` again, with Task 20 Phase 1\'s two refusals: the '
         'individual -> firm-owner transition now requires a derived premium '
         'entitlement (plan §6 — the free plan is strictly individual and '
         'single-device; lapsed owners keep the firm they already have), and a '
@@ -243,7 +266,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930190000_remove_firm_member.sql',
     version: '0.0.325',
-    label: 'Task 20 Phase 2\'s `remove_firm_member(uuid)`: owner-only, '
+    label:
+        'Task 20 Phase 2\'s `remove_firm_member(uuid)`: owner-only, '
         '`SECURITY DEFINER`, it deletes the membership row and relinks the '
         'member\'s `profiles.firm_id` / `role` to individual — which is what '
         'revokes RLS access, Realtime topic authorization and every queued '
@@ -257,7 +281,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930200000_push_changes_delete_review.sql',
     version: '0.0.327',
-    label: 'Task 20 Phase 4\'s delete-review branch: `push_changes` replaces '
+    label:
+        'Task 20 Phase 4\'s delete-review branch: `push_changes` replaces '
         'whole to teach an approval (a `delete_requests` update setting '
         '`status = \'approved\'`) what it means server-side. The request is '
         'locked (already) and the target is locked next, always in that order '
@@ -275,7 +300,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930210000_sync_can_write_firm_membership.sql',
     version: '0.0.330',
-    label: 'Task 20 audit closure: `sync_can_write` again, so authorship of a '
+    label:
+        'Task 20 audit closure: `sync_can_write` again, so authorship of a '
         'firm-scoped row only counts while the row\'s firm is still the '
         'caller\'s firm (`firm_id = current_firm_id()`). Removing an associate '
         'relinks `profiles.firm_id` to NULL, but the author clause checked '
@@ -290,7 +316,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20260930220000_rls_firm_membership.sql',
     version: '0.0.332',
-    label: 'Task 20 audit follow-up: the same membership rule, applied to RLS. '
+    label:
+        'Task 20 audit follow-up: the same membership rule, applied to RLS. '
         '`sync_can_write` closed the *app* path in 0.0.330, but the table '
         'policies still said `user_id = auth.uid()` on a firm-scoped row, so a '
         'removed associate could still write their authored firm rows through '
@@ -305,7 +332,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20261001000000_payment_configuration.sql',
     version: '0.0.333',
-    label: 'Task 21 Phase 1\'s payments configuration: a read-only server '
+    label:
+        'Task 21 Phase 1\'s payments configuration: a read-only server '
         'table (`provider`, `receiving_number`, `is_active`, `updated_at`) that '
         'holds the MFS receiving numbers, authenticated SELECT only and no '
         'client write policy at all. It exists so a receiving number can rotate '
@@ -315,7 +343,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20261001010000_payment_plans_four.sql',
     version: '0.0.339',
-    label: 'Task 21 follow-up\'s four-plan approval: replaces `approve_payment` '
+    label:
+        'Task 21 follow-up\'s four-plan approval: replaces `approve_payment` '
         'so the subscription knows `monthly`, `quarterly`, `half_yearly` and '
         '`annual`, validates ৳100/৳285/৳550/৳1,000 and extends by 1/3/6/12 '
         'months — the admin gate, lock, idempotency, firm mirror and audit '
@@ -324,7 +353,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20261001020000_seed_payment_configuration.sql',
     version: '0.0.339',
-    label: 'Task 21 follow-up\'s seeded receiving numbers: one idempotent row '
+    label:
+        'Task 21 follow-up\'s seeded receiving numbers: one idempotent row '
         'per provider (`bkash`, `nagad`, `rocket`) in `payment_configuration` '
         'with the firm\'s single MFS account in local 11-digit form, so the '
         'checkout shows a real number instead of falling back to build '
@@ -333,20 +363,34 @@ const List<LedgerSection> _sections = <LedgerSection>[
   LedgerSection(
     file: '20261002100000_payment_prices_discounted.sql',
     version: '0.0.349',
-    label: 'Discounted 6 Months and 1 Year plans: replaces `approve_payment` '
+    label:
+        'Discounted 6 Months and 1 Year plans: replaces `approve_payment` '
         'so it validates ৳100/৳285/৳540/৳960 — the two longer plans priced '
         'against the ৳100 monthly rate (10% and 20% off) instead of ৳550 and '
         '৳1,000. Only the four price constants move; the gate, lock, '
         'idempotency, intervals, firm mirror and audit event are unchanged.',
+  ),
+  LedgerSection(
+    file: '20261002110000_admin_panel.sql',
+    version: '0.0.354',
+    label:
+        'Task 23 Admin Panel: `app_admins` gains hand-filled `full_name` and '
+        '`email`, `payment_submissions` gains `rejected_by`/`rejected_at`, and '
+        'three admin-gated RPCs arrive — `is_app_admin()` (the only way a client '
+        'learns its own status), `admin_list_payment_submissions()` (every '
+        'submission joined to the payer profile) and `admin_reject_payment()`. '
+        'Approval needs no new code; `profiles` stays self-or-firm.',
   ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
-  '0.0.289': 'Task 16 Phase 1 — Core Schema, Sign-Up Trigger And Reference Seed',
+  '0.0.289':
+      'Task 16 Phase 1 — Core Schema, Sign-Up Trigger And Reference Seed',
   '0.0.290': 'Task 16 Phase 2 — Server-Internal Ledgers',
-  '0.0.291': 'Task 16 Phase 3 — Helpers, Guards, RPCs, Realtime And Column '
+  '0.0.291':
+      'Task 16 Phase 3 — Helpers, Guards, RPCs, Realtime And Column '
       'Privileges',
   '0.0.292': 'Task 16 Phase 4 — Row Level Security',
   '0.0.293': 'Task 16 Phase 5 — Indexes And The Tombstone Purge',
@@ -366,6 +410,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.333': 'Task 21 Phase 1 — The MFS Configuration Table',
   '0.0.339': 'Task 21 Follow-Up — Four Plans And The Receiving Number',
   '0.0.349': 'Task 21 Follow-Up — Discounted Six-Month And Annual Plans',
+  '0.0.354': 'Task 23 Phase 1 — The Admin Panel On The Server',
 };
 
 const String _header = '''<!--
@@ -431,7 +476,9 @@ String buildBootstrapSection() {
 
   buffer
     ..writeln()
-    ..writeln('-- Run once per migration file, inside that file\'s transaction,')
+    ..writeln(
+      '-- Run once per migration file, inside that file\'s transaction,',
+    )
     ..writeln('-- so a file is either fully applied and recorded, or neither.')
     ..writeln('${upsertVersionRowSql(version: '<version>', name: '<name>')};')
     ..writeln('```')
@@ -508,7 +555,8 @@ List<String> ledgerMigrationFiles() =>
     _sections.map((section) => section.file).toList();
 
 /// The ledger's sections, in creation order, for tests that verify the output.
-List<LedgerSection> ledgerSections() => List<LedgerSection>.unmodifiable(_sections);
+List<LedgerSection> ledgerSections() =>
+    List<LedgerSection>.unmodifiable(_sections);
 
 void main(List<String> args) {
   final check = args.contains('--check');

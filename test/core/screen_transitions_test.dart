@@ -27,6 +27,9 @@ const Map<String, String> _routeConstants = <String, String>{
   AppRoutes.disposedCases: 'disposedCases',
   AppRoutes.notes: 'notes',
   AppRoutes.caseReference: 'caseReference',
+  // Task 22: the Admin Panel is offered in the bottom bar, so the same
+  // no-motion rule guards it as any other tab.
+  AppRoutes.adminPanel: 'adminPanel',
 };
 
 /// One route's own declaration: from its `path:` up to the next `GoRoute(`.

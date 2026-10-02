@@ -1052,6 +1052,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String paywall_planWasPrice(String price) {
+    return '৳$price';
+  }
+
+  @override
+  String paywall_planDiscount(String percent) {
+    return '$percent% Off';
+  }
+
+  @override
   String get paywall_subscribe => 'Subscribe';
 
   @override

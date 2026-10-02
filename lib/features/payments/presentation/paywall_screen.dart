@@ -7,8 +7,9 @@
 /// * it says **why** it opened — the 50-case free limit — and what the user can
 ///   still do about it, instead of blocking a save with no explanation;
 /// * it lists what premium includes and what each plan costs, from the plan's
-///   pricing (৳100 for one month, ৳285 for three, ৳550 for six and ৳1,000 for a
-///   year — there is no lifetime plan);
+///   pricing (৳100 for one month, ৳285 for three, ৳540 for six and ৳960 for a
+///   year — there is no lifetime plan), showing the full per-month price struck
+///   through and the saving beside any plan that is discounted;
 /// * selecting a plan pushes the checkout with the plan key as a query
 ///   parameter, so it never names a second source of plans or prices.
 ///
@@ -29,6 +30,14 @@ import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
 import '../data/payment_plans.dart';
 import 'payment_plan_labels.dart';
+
+/// One plan's amount as the paywall writes it, grouped only once it is long
+/// enough for the grouping to help (৳1,200 reads better than ৳1200).
+String _amountText(AppLocalizations l, int amount) => AppDateUtils.formatDigits(
+  amount,
+  l.localeName,
+  grouping: amount >= 1000,
+);
 
 /// Prices shown by the paywall, in taka.
 ///
@@ -264,12 +273,16 @@ class _PlansCard extends StatelessWidget {
               price: paymentPlanPriceLabel(
                 l,
                 subscriptionPlans[i],
-                AppDateUtils.formatDigits(
-                  subscriptionPlans[i].amount,
-                  l.localeName,
-                  grouping: subscriptionPlans[i].amount >= 1000,
-                ),
+                _amountText(l, subscriptionPlans[i].amount),
               ),
+              // The full price is the plan bought month by month, shown struck
+              // through so the saving is visible rather than asserted.
+              wasPrice: subscriptionPlans[i].discountPercent == 0
+                  ? null
+                  : l.paywall_planWasPrice(
+                      _amountText(l, subscriptionPlans[i].undiscountedAmount),
+                    ),
+              discountLabel: paymentPlanDiscountLabel(l, subscriptionPlans[i]),
               actionLabel: l.paywall_subscribe,
               onPressed: () => onPlanSelected(subscriptionPlans[i].key),
             ),
@@ -284,6 +297,13 @@ class _PlansCard extends StatelessWidget {
 class _PlanRow extends StatelessWidget {
   final String name;
   final String price;
+
+  /// The full price, struck through, or null when the plan has no discount.
+  final String? wasPrice;
+
+  /// The "20% Off" badge, or null when the plan has no discount.
+  final String? discountLabel;
+
   final String actionLabel;
   final VoidCallback onPressed;
 
@@ -292,40 +312,90 @@ class _PlanRow extends StatelessWidget {
     required this.price,
     required this.actionLabel,
     required this.onPressed,
+    this.wasPrice,
+    this.discountLabel,
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: AppTypography.titleMd),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              price,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(width: AppSpacing.md),
-      FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
-          textStyle: AppTypography.labelLg,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+  Widget build(BuildContext context) {
+    final bodyStyle = AppTypography.bodySm.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: AppTypography.titleMd),
+              const SizedBox(height: AppSpacing.xs),
+              // The discount and the new price share one line so the eye reads
+              // "was, now, saving" left to right instead of across two rows.
+              if (wasPrice == null)
+                Text(price, style: bodyStyle)
+              else
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: AppSpacing.sm,
+                  children: [
+                    Text(
+                      wasPrice!,
+                      style: bodyStyle.copyWith(
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      price,
+                      style: bodyStyle.copyWith(
+                        color: AppColors.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    _DiscountBadge(label: discountLabel!),
+                  ],
+                ),
+            ],
           ),
         ),
-        child: Text(actionLabel),
-      ),
-    ],
+        const SizedBox(width: AppSpacing.md),
+        FilledButton(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            textStyle: AppTypography.labelLg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+            ),
+          ),
+          child: Text(actionLabel),
+        ),
+      ],
+    );
+  }
+}
+
+/// The savings badge, sized to sit inline with the price.
+class _DiscountBadge extends StatelessWidget {
+  final String label;
+
+  const _DiscountBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.radiusSm,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.success.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelMd.copyWith(color: AppColors.success),
+    ),
   );
 }

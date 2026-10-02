@@ -330,6 +330,15 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'checkout shows a real number instead of falling back to build '
         'defaults.',
   ),
+  LedgerSection(
+    file: '20261002100000_payment_prices_discounted.sql',
+    version: '0.0.349',
+    label: 'Discounted 6 Months and 1 Year plans: replaces `approve_payment` '
+        'so it validates ৳100/৳285/৳540/৳960 — the two longer plans priced '
+        'against the ৳100 monthly rate (10% and 20% off) instead of ৳550 and '
+        '৳1,000. Only the four price constants move; the gate, lock, '
+        'idempotency, intervals, firm mirror and audit event are unchanged.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -356,6 +365,7 @@ const Map<String, String> _groupTitles = <String, String>{
       'Task 20 Audit Follow-Up — The Policies Refuse The Same Write As The RPC',
   '0.0.333': 'Task 21 Phase 1 — The MFS Configuration Table',
   '0.0.339': 'Task 21 Follow-Up — Four Plans And The Receiving Number',
+  '0.0.349': 'Task 21 Follow-Up — Discounted Six-Month And Annual Plans',
 };
 
 const String _header = '''<!--

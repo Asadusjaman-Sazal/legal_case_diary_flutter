@@ -82,7 +82,13 @@ void main() {
     expect(find.text('৳$paywallMonthlyPrice per month'), findsOneWidget);
     expect(find.text('৳$paywallQuarterlyPrice for 3 months'), findsOneWidget);
     expect(find.text('৳$paywallHalfYearlyPrice for 6 months'), findsOneWidget);
-    expect(find.text('৳1,000 per year'), findsOneWidget);
+    expect(find.text('৳960 per year'), findsOneWidget);
+    // The full per-month price is struck through beside each discounted plan,
+    // and the badge names the saving the plan actually offers.
+    expect(find.text('৳600'), findsOneWidget);
+    expect(find.text('৳1,200'), findsOneWidget);
+    expect(find.text('10% Off'), findsOneWidget);
+    expect(find.text('20% Off'), findsOneWidget);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
   });
@@ -124,21 +130,26 @@ void main() {
     expect(find.text('১ বছর'), findsOneWidget);
     expect(find.text('৳১০০ / মাস'), findsOneWidget);
     expect(find.text('৳২৮৫ / ৩ মাস'), findsOneWidget);
-    expect(find.text('৳৫৫০ / ৬ মাস'), findsOneWidget);
-    expect(find.text('৳১,০০০ / বছর'), findsOneWidget);
+    expect(find.text('৳৫৪০ / ৬ মাস'), findsOneWidget);
+    expect(find.text('৳৯৬০ / বছর'), findsOneWidget);
+    // The struck-through full price and the savings, in Bengali digits.
+    expect(find.text('৳৬০০'), findsOneWidget);
+    expect(find.text('৳১,২০০'), findsOneWidget);
+    expect(find.text('১০% ছাড়'), findsOneWidget);
+    expect(find.text('২০% ছাড়'), findsOneWidget);
     expect(find.text('সাবস্ক্রাইব'), findsNWidgets(subscriptionPlans.length));
   });
 
   test('the plan prices and benefits are the plan’s own', () {
-    // ৳100 / ৳285 / ৳550 / ৳1,000, and no lifetime plan.
+    // ৳100 / ৳285 / ৳540 / ৳960, and no lifetime plan.
     expect(paywallMonthlyPrice, 100);
     expect(paywallQuarterlyPrice, 285);
-    expect(paywallHalfYearlyPrice, 550);
-    expect(paywallAnnualPrice, 1000);
+    expect(paywallHalfYearlyPrice, 540);
+    expect(paywallAnnualPrice, 960);
     expect(paymentPlanAmount(paymentPlanMonthly), 100);
     expect(paymentPlanAmount(paymentPlanQuarterly), 285);
-    expect(paymentPlanAmount(paymentPlanHalfYearly), 550);
-    expect(paymentPlanAmount(paymentPlanAnnual), 1000);
+    expect(paymentPlanAmount(paymentPlanHalfYearly), 540);
+    expect(paymentPlanAmount(paymentPlanAnnual), 960);
     expect(paymentPlanAmount('lifetime'), isNull);
     // The four plans, in the order the paywall lists them.
     expect(
@@ -149,6 +160,16 @@ void main() {
         paymentPlanHalfYearly,
         paymentPlanAnnual,
       ],
+    );
+    // Every saving is measured against the plan's own per-month rate, so a
+    // badge can only claim a discount the amounts actually carry.
+    expect(
+      subscriptionPlans.map((p) => p.discountPercent),
+      <int>[0, 5, 10, 20],
+    );
+    expect(
+      subscriptionPlans.map((p) => p.undiscountedAmount),
+      <int>[100, 300, 600, 1200],
     );
     expect(paywallBenefits, hasLength(4));
     // Unlimited cases, cloud backup, multi-device, firm mode — the four the

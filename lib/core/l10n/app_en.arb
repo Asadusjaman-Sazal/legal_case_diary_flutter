@@ -545,6 +545,25 @@
           }
       }
   },
+  "paywall_planWasPrice": "৳{price}",
+  "@paywall_planWasPrice": {
+      "description": "The full price of a discounted plan, rendered struck through before the discounted price.",
+      "placeholders": {
+          "price": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_planDiscount": "{percent}% Off",
+  "@paywall_planDiscount": {
+      "description": "Badge on a discounted plan, e.g. 20% Off. The percentage is computed from the plan's own prices, so it always describes the saving actually offered.",
+      "placeholders": {
+          "percent": {
+              "type": "String",
+              "description": "Whole-number saving, in the language's own digits."
+          }
+      }
+  },
   "paywall_subscribe": "Subscribe",
   "@@_section_shared": "SHARED BUTTONS / DIALOGS  |  lib/shared/widgets/confirm_dialogs.dart and other shared widgets",
   "general_tomorrow": "Tomorrow",

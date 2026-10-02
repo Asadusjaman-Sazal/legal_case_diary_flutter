@@ -2939,7 +2939,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage your real-time data sync across all your devices.'**
+  /// **'Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium.'**
   String get settingsOnlineSync_subtitle;
 
   /// No description provided for @settingsOnlineSync_cases.
@@ -3001,6 +3001,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not synced'**
   String get settingsOnlineSync_notSynced;
+
+  /// No description provided for @settingsOnlineSync_synced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get settingsOnlineSync_synced;
+
+  /// No description provided for @settingsOnlineSync_notSyncedSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to sync'**
+  String get settingsOnlineSync_notSyncedSignedOut;
+
+  /// No description provided for @settingsOnlineSync_pendingSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Sync'**
+  String get settingsOnlineSync_pendingSyncTitle;
+
+  /// No description provided for @settingsOnlineSync_pendingSyncSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Change Waiting To Be Sent'**
+  String get settingsOnlineSync_pendingSyncSubtitle;
 
   /// No description provided for @settingsOnlineSync_signedIn.
   ///

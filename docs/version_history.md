@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.355 - Online Sync now reads the real account, plan and sync engine instead of a hard-coded signed-out stub, and Sync Now runs a real drain.
+Version: 0.0.356 - Online Sync: dropped the redundant account card, corrected the entity markers to say Synced in green or Not synced in red, and moved Sync Status to the bottom as Pending Sync.
 --------------------------------------
 
 ## Version History Log:
@@ -369,3 +369,4 @@ Version: 0.0.352 - Premium: the struck-through full price is now red, so the sav
 Version: 0.0.353 - Premium: the paywall now insets its own status bar like every shell screen, so the phone's clock and icons are visible above the app bar.
 Version: 0.0.354 - Task 23: the Admin Panel, where a registered admin approves or rejects a payment request from the phone instead of the Supabase SQL editor.
 Version: 0.0.355 - Online Sync now reads the real account, plan and sync engine instead of a hard-coded signed-out stub, and Sync Now runs a real drain.
+Version: 0.0.356 - Online Sync: dropped the redundant account card, corrected the entity markers to say Synced in green or Not synced in red, and moved Sync Status to the bottom as Pending Sync.

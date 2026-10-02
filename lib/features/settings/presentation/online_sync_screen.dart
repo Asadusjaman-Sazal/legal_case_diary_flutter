@@ -24,7 +24,6 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../database/app_database.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
-import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
 import '../../cases/presentation/case_viewmodel.dart';
@@ -89,32 +88,18 @@ class OnlineSyncScreen extends ConsumerWidget {
     // The account, the entitlement and the engine — each read from the provider
     // that already owns it rather than from a local guess, so what the screen
     // shows cannot disagree with what the rest of the app believes.
-    final identity = ref.watch(authIdentityProvider);
-    // Same three-source fallback Manage Account uses: what this device has
-    // saved, then what the session carries, then the server's cached profile.
-    final localName = ref.watch(profileFieldsProvider).fullName.trim();
-    final sessionName = identity?.fullName?.trim() ?? '';
-    final cachedName =
-        ref.watch(accountProfileProvider).value?.fullName.trim() ?? '';
-    final name = <String>[localName, sessionName, cachedName].firstWhere(
-      (candidate) => candidate.isNotEmpty,
-      orElse: () => identity?.email ?? '',
-    );
-
-    final premium = ref.watch(premiumAccessProvider).value ?? false;
+    //
+    // The account itself is not drawn here: who is signed in and which plan
+    // they hold are already stated in Settings > Manage Account, so this screen
+    // is about the state of the sync rather than a second copy of the account.
+    // What it still needs from the session is *whether there is one*, because
+    // that decides whether sync can run at all.
     final health = ref.watch(syncHealthProvider).value;
     final lastSuccess = ref.watch(syncLastSuccessProvider).value;
     final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
     final pending = ref.watch(syncQueuePendingCountProvider).value ?? 0;
-    final online = ref.watch(isOnlineProvider).value ?? true;
 
-    final blocker = identity == null
-        ? _SyncBlocker.signedOut
-        : !premium
-        ? _SyncBlocker.needsPremium
-        : !online
-        ? _SyncBlocker.offline
-        : _SyncBlocker.none;
+    final blocker = _syncBlockerOf(ref);
 
     return SettingsSubPageModal(
       title: l.settingsOnlineSync_title,
@@ -133,12 +118,6 @@ class OnlineSyncScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          _AccountStatusCard(
-            name: name,
-            isSignedIn: identity != null,
-            premium: premium,
-          ),
-          const SizedBox(height: AppSpacing.gutter),
           _SyncStatusCard(
             health: health,
             lastSuccess: lastSuccess,
@@ -146,8 +125,6 @@ class OnlineSyncScreen extends ConsumerWidget {
             pending: pending,
             blocker: blocker,
           ),
-          const SizedBox(height: AppSpacing.gutter),
-          const _SyncStatusEntry(),
           const SizedBox(height: AppSpacing.gutter),
           _SyncRow(
             icon: Icons.work_outline,
@@ -169,19 +146,24 @@ class OnlineSyncScreen extends ConsumerWidget {
             count: references,
             entityTypes: const <String>['reference'],
           ),
+          const SizedBox(height: AppSpacing.gutter),
+          const _PendingSyncEntry(),
         ],
       ),
     );
   }
 }
 
-/// Entry card for the Sync Status / Diagnostics screen (Task 19 Phase 4).
+/// Entry card for the Sync Status / Diagnostics screen (Task 19 Phase 4),
+/// titled *Pending Sync* and placed last, after the three entity rows.
 ///
 /// The plan's second route into that screen: the header badge is the shortcut
 /// while something is held, and this is where a user looks for it deliberately.
-/// It reads the attention count so the card itself carries the same news.
-class _SyncStatusEntry extends ConsumerWidget {
-  const _SyncStatusEntry();
+/// It reads the attention count so the card itself carries the same news. Its
+/// own title is used rather than `syncStatus_title`, which names the screen it
+/// opens — renaming that would have changed that screen's own header too.
+class _PendingSyncEntry extends ConsumerWidget {
+  const _PendingSyncEntry();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -189,92 +171,14 @@ class _SyncStatusEntry extends ConsumerWidget {
     final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
     return SettingsMenuCard(
       icon: Icons.fact_check_outlined,
-      title: l.syncStatus_title,
+      title: l.settingsOnlineSync_pendingSyncTitle,
       subtitle: attention == 0
-          ? l.syncStatus_subtitle
+          ? l.settingsOnlineSync_pendingSyncSubtitle
           : l.syncStatus_entryTitle(
               l.syncStatus_filterBlocked,
               l.syncStatus_filterConflicted,
             ),
       onTap: () => context.push(AppRoutes.settingsSyncStatus),
-    );
-  }
-}
-
-/// Dark account card at the top of the mockup's bento grid.
-///
-/// It states who is signed in and whether their plan can sync at all, which is
-/// the fact every other line on the screen depends on.
-class _AccountStatusCard extends StatelessWidget {
-  final String name;
-  final bool isSignedIn;
-  final bool premium;
-
-  const _AccountStatusCard({
-    required this.name,
-    required this.isSignedIn,
-    required this.premium,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final onPrimary = AppColors.onPrimary;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      child: Container(
-        width: double.infinity,
-        color: AppColors.primary,
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Stack(
-          children: [
-            // Faded brand watermark bleeding out of the bottom-right corner.
-            Positioned(
-              right: -AppSpacing.md,
-              bottom: -AppSpacing.md,
-              child: Icon(
-                Icons.verified_user,
-                size: 160,
-                color: onPrimary.withValues(alpha: 0.05),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isSignedIn
-                      ? (name.isEmpty
-                            ? l.settingsOnlineSync_signedIn
-                            : l.settingsOnlineSync_signedInAs(name))
-                      : l.settingsOnlineSync_notSignedIn,
-                  style: AppTypography.bodySm.copyWith(
-                    color: onPrimary.withValues(alpha: 0.8),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  isSignedIn
-                      ? (premium
-                            ? l.settingsOnlineSync_premiumActive
-                            : l.settingsOnlineSync_freePlan)
-                      : l.settingsOnlineSync_signInPrompt,
-                  style: AppTypography.titleMd.copyWith(color: onPrimary),
-                ),
-                if (isSignedIn && !premium) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    l.settingsOnlineSync_freePlanHint,
-                    style: AppTypography.bodySm.copyWith(
-                      color: onPrimary.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -353,10 +257,7 @@ class _SyncStatusCard extends ConsumerWidget {
                       style: AppTypography.titleLg,
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      _body(l),
-                      style: AppTypography.bodySm,
-                    ),
+                    Text(_body(l), style: AppTypography.bodySm),
                   ],
                 ),
               ),
@@ -368,11 +269,7 @@ class _SyncStatusCard extends ConsumerWidget {
                   color: tint.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
                 ),
-                child: Icon(
-                  _icon(l),
-                  size: 24,
-                  color: tint,
-                ),
+                child: Icon(_icon(l), size: 24, color: tint),
               ),
             ],
           ),
@@ -445,9 +342,10 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.none => switch (health?.status) {
       SyncHealthStatus.syncing => l.settingsOnlineSync_syncing,
       SyncHealthStatus.paused => l.settingsOnlineSync_paused,
-      _ => attention > 0
-          ? l.settingsOnlineSync_actionRequired
-          : l.settingsOnlineSync_upToDate,
+      _ =>
+        attention > 0
+            ? l.settingsOnlineSync_actionRequired
+            : l.settingsOnlineSync_upToDate,
     },
   };
 
@@ -455,11 +353,12 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.signedOut => l.settingsOnlineSync_dataStaysOnDevice,
     _SyncBlocker.needsPremium => l.settingsOnlineSync_freePlanHint,
     _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
-    _SyncBlocker.none => attention > 0
-        ? l.settingsOnlineSync_actionRequiredBody
-        : pending > 0
-        ? l.settingsOnlineSync_pendingUploads(pending)
-        : l.settingsOnlineSync_pendingNone,
+    _SyncBlocker.none =>
+      attention > 0
+          ? l.settingsOnlineSync_actionRequiredBody
+          : pending > 0
+          ? l.settingsOnlineSync_pendingUploads(pending)
+          : l.settingsOnlineSync_pendingNone,
   };
 
   String _blockerMessage(AppLocalizations l) => switch (blocker) {
@@ -516,10 +415,17 @@ class _SyncRow extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     // Local alias so the null check promotes below.
     final itemCount = count;
-    final queued =
+    // How many of this entity's changes are still waiting to be sent.
+    final waiting =
         (ref.watch(syncQueueEntriesProvider).value ?? const <SyncQueueRow>[])
             .where((row) => entityTypes.contains(row.entityType))
             .length;
+    // Whether sync can reach the account at all — the fact that decides what
+    // the marker *means*. Without it, "nothing waiting" would read as
+    // "Synced" on a free plan where nothing was ever sent.
+    final blocker = _syncBlockerOf(ref);
+    final canSync = blocker == _SyncBlocker.none;
+    final hasWork = waiting > 0;
 
     return Container(
       decoration: _cardDecoration(),
@@ -561,18 +467,20 @@ class _SyncRow extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
+            // One marker per real state, never a green "nothing waiting" beside
+            // a red "Sync Now is disabled": a row says Synced only when this
+            // entity really is on the account, and says so in red when it is
+            // not and cannot be.
             Icon(
-              queued > 0 ? Icons.cloud_upload_outlined : Icons.cloud_done_outlined,
+              _markerIcon(canSync, hasWork),
               size: 18,
-              color: queued > 0 ? AppColors.tertiary : AppColors.success,
+              color: _markerColor(canSync, hasWork),
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              queued > 0
-                  ? l.settingsOnlineSync_pendingCount(queued)
-                  : l.settingsOnlineSync_notSynced,
+              _markerLabel(l, waiting, blocker),
               style: AppTypography.bodySm.copyWith(
-                color: queued > 0 ? AppColors.tertiary : AppColors.success,
+                color: _markerColor(canSync, hasWork),
               ),
             ),
           ],
@@ -580,4 +488,44 @@ class _SyncRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The three states one entity row can be in, as an icon.
+IconData _markerIcon(bool canSync, bool hasWork) {
+  if (!canSync) return Icons.cloud_off_outlined;
+  return hasWork ? Icons.cloud_upload_outlined : Icons.cloud_done_outlined;
+}
+
+/// Green only when the entity really is on the account; red when it is not and
+/// cannot be. A muted grey here would read as "in progress" for a free plan
+/// that will never send anything.
+Color _markerColor(bool canSync, bool hasWork) {
+  if (!canSync) return AppColors.error;
+  return hasWork ? AppColors.tertiary : AppColors.success;
+}
+
+/// What the marker says — the two blockers get their own wording, because
+/// "Sign in to sync" tells the user what to do and "Not synced" does not.
+String _markerLabel(AppLocalizations l, int waiting, _SyncBlocker blocker) {
+  if (blocker != _SyncBlocker.none) {
+    return blocker == _SyncBlocker.signedOut
+        ? l.settingsOnlineSync_notSyncedSignedOut
+        : l.settingsOnlineSync_notSynced;
+  }
+  return waiting > 0
+      ? l.settingsOnlineSync_pendingCount(waiting)
+      : l.settingsOnlineSync_synced;
+}
+
+/// The single blocker rule, so the status card and the three entity rows cannot
+/// disagree about why sync is unavailable.
+_SyncBlocker _syncBlockerOf(WidgetRef ref) {
+  if (ref.watch(authIdentityProvider) == null) return _SyncBlocker.signedOut;
+  if (!(ref.watch(premiumAccessProvider).value ?? false)) {
+    return _SyncBlocker.needsPremium;
+  }
+  if (!(ref.watch(isOnlineProvider).value ?? true)) {
+    return _SyncBlocker.offline;
+  }
+  return _SyncBlocker.none;
 }

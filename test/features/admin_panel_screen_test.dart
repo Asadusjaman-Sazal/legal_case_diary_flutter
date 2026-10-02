@@ -14,16 +14,24 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_panel_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
+import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
 
 /// A repository that answers from memory, so the panel can be driven without a
 /// server and every call it makes is recorded.
 class _FakeAdminRepository implements AdminRepository {
-  _FakeAdminRepository({this.admin = true, List<AdminPaymentRequest>? rows})
-    : rows = rows ?? <AdminPaymentRequest>[];
+  _FakeAdminRepository({
+    this.admin = true,
+    List<AdminPaymentRequest>? rows,
+    this.attention = 0,
+  }) : rows = rows ?? <AdminPaymentRequest>[];
 
   final bool admin;
   final List<AdminPaymentRequest> rows;
+
+  /// Blocked/conflicted work the header badge counts.
+  final int attention;
 
   /// Calls the screen made, in order.
   final List<String> calls = <String>[];
@@ -49,7 +57,10 @@ class _FakeAdminRepository implements AdminRepository {
   }
 
   @override
-  Future<AdminActionFailure?> reject(String submissionId, {String? note}) async {
+  Future<AdminActionFailure?> reject(
+    String submissionId, {
+    String? note,
+  }) async {
     calls.add('reject:$submissionId:${note ?? ''}');
     return failure;
   }
@@ -93,7 +104,15 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [adminRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          adminRepositoryProvider.overrideWithValue(repo),
+          // The header's Sync Status badge reads the real provider, as the
+          // case screens do, so the suite pins its value rather than the
+          // header's behaviour around it.
+          syncStatusAttentionProvider.overrideWith(
+            (ref) => Stream<int>.value(repo.attention),
+          ),
+        ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -158,7 +177,9 @@ void main() {
     expect(find.textContaining('approved'), findsOneWidget);
   });
 
-  testWidgets('rejecting asks for a note and passes it through', (tester) async {
+  testWidgets('rejecting asks for a note and passes it through', (
+    tester,
+  ) async {
     final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
     await pump(tester, repo);
 
@@ -207,7 +228,10 @@ void main() {
       tester,
       _FakeAdminRepository(
         admin: false,
-        rows: [_request(id: '1'), _request(id: '2', status: 'approved')],
+        rows: [
+          _request(id: '1'),
+          _request(id: '2', status: 'approved'),
+        ],
       ),
     );
 
@@ -238,5 +262,70 @@ void main() {
     // Last in the canonical order, so enabling it never displaces a case
     // screen an admin already arranged.
     expect(bottomNavTabDefs.last.key, 'admin_panel');
+  });
+
+  testWidgets('the header is the case screens\', without their own controls', (
+    tester,
+  ) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+
+    // The drawer menu is present and there is no back arrow beside it — the
+    // drawer and the back gesture are already two ways out.
+    expect(find.byIcon(Icons.menu), findsOneWidget);
+    expect(find.byType(BackButton), findsNothing);
+
+    // Search and the view toggle belong to a case list; neither has anything
+    // to act on here.
+    expect(find.byIcon(Icons.search), findsNothing);
+    expect(find.byKey(const ValueKey('cases-modal-view-toggle')), findsNothing);
+  });
+
+  testWidgets('no Sync Status badge when nothing is held', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+    expect(find.byKey(const ValueKey('admin-panel-sync-status')), findsNothing);
+  });
+
+  testWidgets('the Sync Status badge appears when work is held', (
+    tester,
+  ) async {
+    // Its own pump, not a second one after another: the header reads a Stream
+    // provider, and re-pumping into the same container would leave the first
+    // stream in place.
+    await pump(
+      tester,
+      _FakeAdminRepository(rows: [_request(id: '1')], attention: 2),
+    );
+    expect(
+      find.byKey(const ValueKey('admin-panel-sync-status')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Pending and Resolved use the Settings sub-menu row shape', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        rows: [
+          _request(id: '1'),
+          _request(id: '2', status: 'approved'),
+        ],
+      ),
+    );
+
+    // Each section is one Settings-shaped tile: a leading icon and a chevron,
+    // rather than a Material ExpansionTile's arrow.
+    expect(find.byIcon(Icons.receipt_long_outlined), findsNWidgets(2));
+    expect(find.byIcon(Icons.chevron_right), findsNWidgets(2));
+    // "Pending" is both a section title and the status chip on the open row, so
+    // the section titles are read off the tiles themselves.
+    final titles = tester
+        .widgetList<ExpansionTile>(find.byType(ExpansionTile))
+        .map((tile) => (tile.title as Text).data)
+        .toList();
+    expect(titles, <String>['Pending', 'Resolved']);
+    // The section label matches the Settings surface's own label style.
+    expect(find.byType(SettingsSectionLabel), findsOneWidget);
   });
 }

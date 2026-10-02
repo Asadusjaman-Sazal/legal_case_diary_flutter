@@ -15,14 +15,21 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
+import '../../../core/services/app_share_flow.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_navigation_drawer.dart';
+import '../../../sync/sync_status_providers.dart';
 import '../../payments/data/payment_plans.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
+import '../../settings/presentation/settings_controls.dart';
+import '../../settings/presentation/settings_viewmodel.dart';
 import '../data/admin_repository.dart';
 import 'admin_viewmodel.dart';
 
@@ -50,11 +57,27 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
     // A shell route, so `AppShellRoot`'s SafeArea already insets the status bar
     // above this screen — unlike the paywall, which sits outside the shell. A
     // second SafeArea here would double the inset.
+    //
+    // The header is the case screens' own: a hamburger that opens the drawer
+    // and the Sync Status badge, with no back button (the drawer and the back
+    // gesture both leave, so a back arrow beside the menu is a second answer to
+    // the same question). Search and the view toggle are the case screens'
+    // controls and have nothing to act on here.
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(l.adminPanel_title, style: AppTypography.titleLg),
-        backgroundColor: AppColors.surfaceContainerLowest,
+      drawer: AppNavigationDrawer(
+        currentRoute: AppRoutes.adminPanel,
+        sideNavOptions:
+            ref.watch(settingsViewModelProvider).value?.sideNavOptions ??
+            const {},
+        // Print is left unbound: there is nothing here to print, and the
+        // drawer hides the action rather than offering one that only reports
+        // that it cannot help.
+        onShare: () => shareAppInvite(context, ref),
+      ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: _AdminHeader(title: l.adminPanel_title),
       ),
       body: requests.when(
         loading: () => Center(child: CircularProgressIndicator()),
@@ -74,14 +97,14 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
               AppSpacing.xl,
             ),
             children: [
-              _SectionHeader(l.adminPanel_paymentRequests),
+              SettingsSectionLabel(l.adminPanel_paymentRequests),
               if (action.phase != AdminActionPhase.idle)
                 _ActionBanner(
                   action: action,
                   onDismiss: () =>
                       ref.read(AdminActionViewModel.provider.notifier).clear(),
                 ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
               _RequestSection(
                 title: l.adminPanel_pending,
                 count: pending.length,
@@ -140,6 +163,59 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
       r.approvedAt ?? r.rejectedAt ?? r.submittedAt ?? DateTime(1970);
 }
 
+/// The case screens' header, minus the controls that have nothing to act on.
+///
+/// A hamburger that opens the drawer and the Sync Status badge, exactly as
+/// `CasesScreenModal` draws them — no back arrow (the drawer and the system back
+/// gesture are already two ways out, and a third button answering the same
+/// question is noise), no search and no view toggle (both belong to a case
+/// list, and an admin panel has none to search or restyle).
+class _AdminHeader extends ConsumerWidget {
+  final String title;
+
+  const _AdminHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    // Read from the same provider the case screens read, so the badge appears
+    // on exactly the same condition here as on a case screen.
+    final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
+
+    return Container(
+      height: 56,
+      color: AppColors.surface,
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.menu, color: AppColors.primary),
+            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTypography.titleLg,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (attention > 0)
+            IconButton(
+              key: const ValueKey('admin-panel-sync-status'),
+              icon: Badge.count(
+                count: attention,
+                child: const Icon(Icons.sync_problem, color: AppColors.error),
+              ),
+              tooltip: l.syncStatus_title,
+              onPressed: () => context.push(AppRoutes.settingsSyncStatus),
+            ),
+          const SizedBox(width: 4),
+        ],
+      ),
+    );
+  }
+}
+
 /// The rejection window: an optional note for the payer, and a Cancel that does
 /// nothing at all.
 class _RejectNoteDialog extends StatefulWidget {
@@ -189,25 +265,6 @@ class _RejectNoteDialogState extends State<_RejectNoteDialog> {
       ],
     );
   }
-}
-
-/// Section heading, matching the paywall's.
-class _SectionHeader extends StatelessWidget {
-  final String text;
-
-  const _SectionHeader(this.text);
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-    child: Text(
-      text,
-      style: AppTypography.labelLg.copyWith(
-        color: AppColors.onSurfaceVariant,
-        letterSpacing: 0.7,
-      ),
-    ),
-  );
 }
 
 /// The one-line outcome of the last approve/reject, or why it failed.
@@ -277,7 +334,12 @@ class _ActionBanner extends StatelessWidget {
   }
 }
 
-/// A collapsible section with a count and its requests.
+/// A collapsible Pending / Resolved section, drawn as a Settings sub-menu row.
+///
+/// The header is the Settings menu's own shape — leading icon, `bodyLg` title,
+/// a trailing count and chevron — inside the same bordered surface the Settings
+/// main screen groups its rows in, so the panel reads as part of that surface
+/// rather than as a second design language.
 class _RequestSection extends StatelessWidget {
   final String title;
   final int count;
@@ -298,28 +360,27 @@ class _RequestSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Material(
-      color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    return Container(
+      // The Settings main screen's group surface: matching header background
+      // with a hairline top and bottom, per the settings_main mockup.
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(
+          top: BorderSide(color: AppColors.outlineVariant),
+          bottom: BorderSide(color: AppColors.outlineVariant),
+        ),
+      ),
       child: Theme(
-        // The Material default paints a transparent tile; this section's own
-        // surface is the card, so the divider and ink come from here.
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyOpen,
           onExpansionChanged: onExpansionChanged,
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.cardPadding,
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(
-            AppSpacing.cardPadding,
-            0,
-            AppSpacing.cardPadding,
-            AppSpacing.cardPadding,
-          ),
+          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          childrenPadding: const EdgeInsets.only(bottom: AppSpacing.md),
           shape: const Border(),
           collapsedShape: const Border(),
-          title: Text(title, style: AppTypography.titleMd),
+          leading: Icon(Icons.receipt_long_outlined, color: AppColors.primary),
+          title: Text(title, style: AppTypography.bodyLg),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -327,29 +388,29 @@ class _RequestSection extends StatelessWidget {
                 l.adminPanel_sectionCount(
                   AppDateUtils.formatDigits(count, l.localeName),
                 ),
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+                style: AppTypography.bodySm,
               ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(Icons.expand_more),
+              const Icon(Icons.chevron_right, color: AppColors.tertiary),
             ],
           ),
           children: [
             if (children.isEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: Text(
-                  emptyText,
-                  style: AppTypography.bodySm.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(emptyText, style: AppTypography.bodySm),
               )
             else
-              for (final child in children) ...[
-                const Divider(color: AppColors.outlineVariant),
-                child,
+              // Hairline between rows, exactly as the Settings main screen
+              // separates its list tiles.
+              for (var i = 0; i < children.length; i++) ...[
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  indent: AppSpacing.md,
+                  endIndent: AppSpacing.md,
+                  color: AppColors.outlineVariant,
+                ),
+                children[i],
               ],
           ],
         ),

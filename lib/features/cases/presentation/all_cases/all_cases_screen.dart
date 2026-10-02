@@ -319,6 +319,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
                   placeholder: l.allCasesScreen_title,
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
+                  onRefresh: () => pullCaseListToSync(ref, _loadCases),
                 )
               : (extended
                     ? CaseTableView(

@@ -338,6 +338,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         placeholder: l.dailyCauseListScreen_noHearings,
         isSearching: _isSearching,
         hasAnyCase: _cases.isNotEmpty,
+        onRefresh: () => pullCaseListToSync(ref, _loadCases),
       );
     }
     // 1-based position of every case in the order this screen shows them, so

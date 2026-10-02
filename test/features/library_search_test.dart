@@ -70,9 +70,7 @@ void main() {
   /// Pumps one library with the app's providers, router and localizations.
   Future<void> pumpLibrary(WidgetTester tester, Widget screen) async {
     final router = GoRouter(
-      routes: [
-        GoRoute(path: '/', builder: (_, _) => screen),
-      ],
+      routes: [GoRoute(path: '/', builder: (_, _) => screen)],
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
@@ -85,7 +83,8 @@ void main() {
           notesRepositoryProvider.overrideWith((_) async => notes),
           referenceRepositoryProvider.overrideWith((_) async => references),
           caseWritePermissionsProvider.overrideWith(
-            (_) async => const CaseWritePermissions(canAdd: true, canEdit: true),
+            (_) async =>
+                const CaseWritePermissions(canAdd: true, canEdit: true),
           ),
         ],
         child: MaterialApp.router(
@@ -257,7 +256,10 @@ void main() {
     await settle(tester);
     expect(find.text('Property dispute'), findsOneWidget);
     await openSearch(tester);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, '');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      '',
+    );
 
     await unmount(tester);
   });
@@ -275,5 +277,27 @@ void main() {
     expect(find.textContaining('12 BLC'), findsNothing);
 
     await unmount(tester);
+  });
+
+  testWidgets('Notes and Case Reference can be pulled down to sync', (
+    tester,
+  ) async {
+    // Neither screen had any pull gesture at all: the populated list was a plain
+    // ListView and the empty state a bare `Center`. Both are now scrollables
+    // under a RefreshIndicator, so the gesture exists whether or not there is
+    // anything to show.
+    for (final screen in <Widget>[
+      const NotesScreen(),
+      const CaseReferenceScreen(),
+    ]) {
+      await pumpLibrary(tester, screen);
+
+      expect(
+        find.byType(RefreshIndicator),
+        findsOneWidget,
+        reason: '${screen.runtimeType} offered no pull-to-sync',
+      );
+      await unmount(tester);
+    }
   });
 }

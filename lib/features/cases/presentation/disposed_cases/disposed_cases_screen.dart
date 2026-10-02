@@ -246,6 +246,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
         placeholder: l.disposedCasesScreen_title,
         isSearching: _isSearching,
         hasAnyCase: _cases.isNotEmpty,
+        onRefresh: () => pullCaseListToSync(ref, _loadCases),
       );
     }
 

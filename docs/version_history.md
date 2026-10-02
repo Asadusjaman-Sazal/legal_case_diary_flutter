@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.360 - Admin Panel: carries the shared sync button and pulls down to sync, with the header button extracted so both headers stay one control.
+Version: 0.0.361 - Cases, Notes and Case Reference can now be pulled down to sync even when empty, so an empty screen still syncs.
 --------------------------------------
 
 ## Version History Log:
@@ -374,3 +374,4 @@ Version: 0.0.357 - Online Sync rows now report queued work ahead of the plan blo
 Version: 0.0.358 - Admin Panel: the case screens' header with drawer and Sync Status but no back arrow, and the Pending/Resolved sections restyled as Settings sub-menu rows.
 Version: 0.0.359 - App header: a successful sync icon is now ordinary black, and an offline device with nothing queued shows the cloud-off icon bare instead of the sync arrows.
 Version: 0.0.360 - Admin Panel: carries the shared sync button and pulls down to sync, with the header button extracted so both headers stay one control.
+Version: 0.0.361 - Cases, Notes and Case Reference can now be pulled down to sync even when empty, so an empty screen still syncs.

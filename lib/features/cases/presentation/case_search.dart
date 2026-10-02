@@ -8,10 +8,27 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
+import '../../../sync/sync_service.dart';
+
+/// Pull-down-to-sync for a case-list screen's [CaseListEmptyState].
+///
+/// It runs the same forced drain the header sync button runs
+/// (`retryNow`, which clears the backoff and pulls the delta), then reloads the
+/// screen's own rows so anything that arrived appears. The reload is what makes
+/// an *empty* screen useful to pull on: a sync alone would change nothing the
+/// user can see, because the list they are pulling has nothing in it yet.
+Future<void> pullCaseListToSync(
+  WidgetRef ref,
+  Future<void> Function() reload,
+) async {
+  await ref.read(syncServiceProvider).retryNow();
+  await reload();
+}
 
 /// The runner a case-list screen's search bar uses: one [ScopedSearch] over
 /// [Case] rows, filled by `CaseRepository.searchScoped`.
@@ -32,24 +49,46 @@ class CaseListEmptyState extends StatelessWidget {
   /// Whether the screen had any case before the query was applied.
   final bool hasAnyCase;
 
+  /// Refresh handler, so an empty list can still be pulled to sync.
+  ///
+  /// Nullable because not every caller has one; when it is null the empty state
+  /// is not scrollable and pull-to-refresh simply does not exist there.
+  final Future<void> Function()? onRefresh;
+
   /// Creates the shared case-list empty state.
   const CaseListEmptyState({
     required this.placeholder,
     required this.isSearching,
     required this.hasAnyCase,
+    this.onRefresh,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Center(
-      child: Text(
-        isSearching && hasAnyCase
-            ? l.sharedDialogs_noResults
-            : placeholder,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
+    final text = Text(
+      isSearching && hasAnyCase ? l.sharedDialogs_noResults : placeholder,
+      style: Theme.of(context).textTheme.titleMedium,
     );
+
+    // A `RefreshIndicator` only responds to a drag on a scrollable, and a bare
+    // `Center` is not one — so an empty screen had nothing to pull. The message
+    // now sits in a scrollable that always overscrolls, which is what makes
+    // pull-to-sync available whether or not there is anything to show.
+    final scrollable = ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.6,
+          child: Center(child: text),
+        ),
+      ],
+    );
+
+    final refresh = onRefresh;
+    return refresh == null
+        ? Center(child: text)
+        : RefreshIndicator(onRefresh: refresh, child: scrollable);
   }
 }

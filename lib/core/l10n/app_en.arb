@@ -814,6 +814,54 @@
   "settingsOnlineSync_dataStaysOnDevice": "Your data stays on this device until you sign in.",
   "settingsOnlineSync_syncNow": "Sync Now",
   "settingsOnlineSync_notSynced": "Not synced",
+  "settingsOnlineSync_signedIn": "Signed In",
+  "settingsOnlineSync_signedInAs": "Signed In As {name}",
+  "@settingsOnlineSync_signedInAs": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsOnlineSync_premiumActive": "Premium Sync Is Active Across Your Devices",
+  "settingsOnlineSync_freePlan": "Free Plan — Your Diary Stays On This Device",
+  "settingsOnlineSync_freePlanPill": "Free Plan",
+  "settingsOnlineSync_freePlanHint": "Premium is required to sync across devices.",
+  "settingsOnlineSync_upToDate": "Up To Date",
+  "settingsOnlineSync_syncing": "Syncing…",
+  "settingsOnlineSync_paused": "Sync Paused",
+  "settingsOnlineSync_offline": "No Connection",
+  "settingsOnlineSync_actionRequiredBody": "Some changes could not be sent. Open Sync Status to review them.",
+  "settingsOnlineSync_lastSyncAt": "Last Sync: {when}",
+  "@settingsOnlineSync_lastSyncAt": {
+      "placeholders": {
+          "when": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsOnlineSync_pendingUploads": "{count} Waiting To Send",
+  "settingsOnlineSync_pendingNone": "Everything is backed up to your account.",
+  "settingsOnlineSync_pendingCount": "{count} Waiting",
+  "@settingsOnlineSync_pendingCount": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsOnlineSync_syncFailed": "Sync did not complete. Your changes are safe on this device.",
+  "@settingsOnlineSync_pendingUploads": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "settingsOnlineSync_syncFinished": "Sync Finished.",
+  "settingsOnlineSync_needPremiumToSync": "Premium Is Required To Sync Across Devices.",
+  "settingsOnlineSync_needSignInToSync": "Sign In To Sync Across Devices.",
+  "settingsOnlineSync_needConnectionToSync": "No Connection. Your Changes Are Saved On This Device.",
   "settingsOnlineSync_itemsUnknown": "— Items",
   "settingsOnlineSync_itemsCount": "{count} Items",
   "@settingsOnlineSync_itemsCount": {

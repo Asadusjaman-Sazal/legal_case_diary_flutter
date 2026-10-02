@@ -3002,6 +3002,126 @@ abstract class AppLocalizations {
   /// **'Not synced'**
   String get settingsOnlineSync_notSynced;
 
+  /// No description provided for @settingsOnlineSync_signedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed In'**
+  String get settingsOnlineSync_signedIn;
+
+  /// No description provided for @settingsOnlineSync_signedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed In As {name}'**
+  String settingsOnlineSync_signedInAs(String name);
+
+  /// No description provided for @settingsOnlineSync_premiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Sync Is Active Across Your Devices'**
+  String get settingsOnlineSync_premiumActive;
+
+  /// No description provided for @settingsOnlineSync_freePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Plan — Your Diary Stays On This Device'**
+  String get settingsOnlineSync_freePlan;
+
+  /// No description provided for @settingsOnlineSync_freePlanPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Plan'**
+  String get settingsOnlineSync_freePlanPill;
+
+  /// No description provided for @settingsOnlineSync_freePlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is required to sync across devices.'**
+  String get settingsOnlineSync_freePlanHint;
+
+  /// No description provided for @settingsOnlineSync_upToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Up To Date'**
+  String get settingsOnlineSync_upToDate;
+
+  /// No description provided for @settingsOnlineSync_syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get settingsOnlineSync_syncing;
+
+  /// No description provided for @settingsOnlineSync_paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Paused'**
+  String get settingsOnlineSync_paused;
+
+  /// No description provided for @settingsOnlineSync_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'No Connection'**
+  String get settingsOnlineSync_offline;
+
+  /// No description provided for @settingsOnlineSync_actionRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some changes could not be sent. Open Sync Status to review them.'**
+  String get settingsOnlineSync_actionRequiredBody;
+
+  /// No description provided for @settingsOnlineSync_lastSyncAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Sync: {when}'**
+  String settingsOnlineSync_lastSyncAt(String when);
+
+  /// No description provided for @settingsOnlineSync_pendingUploads.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Waiting To Send'**
+  String settingsOnlineSync_pendingUploads(int count);
+
+  /// No description provided for @settingsOnlineSync_pendingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is backed up to your account.'**
+  String get settingsOnlineSync_pendingNone;
+
+  /// No description provided for @settingsOnlineSync_pendingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Waiting'**
+  String settingsOnlineSync_pendingCount(int count);
+
+  /// No description provided for @settingsOnlineSync_syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync did not complete. Your changes are safe on this device.'**
+  String get settingsOnlineSync_syncFailed;
+
+  /// No description provided for @settingsOnlineSync_syncFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Finished.'**
+  String get settingsOnlineSync_syncFinished;
+
+  /// No description provided for @settingsOnlineSync_needPremiumToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Is Required To Sync Across Devices.'**
+  String get settingsOnlineSync_needPremiumToSync;
+
+  /// No description provided for @settingsOnlineSync_needSignInToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In To Sync Across Devices.'**
+  String get settingsOnlineSync_needSignInToSync;
+
+  /// No description provided for @settingsOnlineSync_needConnectionToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'No Connection. Your Changes Are Saved On This Device.'**
+  String get settingsOnlineSync_needConnectionToSync;
+
   /// No description provided for @settingsOnlineSync_itemsUnknown.
   ///
   /// In en, this message translates to:

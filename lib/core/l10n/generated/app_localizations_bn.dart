@@ -1649,6 +1649,83 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsOnlineSync_notSynced => 'সিঙ্ক হয়নি';
 
   @override
+  String get settingsOnlineSync_signedIn => 'সাইন ইন করা আছে';
+
+  @override
+  String settingsOnlineSync_signedInAs(String name) {
+    return '$name হিসেবে সাইন ইন করা';
+  }
+
+  @override
+  String get settingsOnlineSync_premiumActive =>
+      'আপনার সব ডিভাইসে প্রিমিয়াম সিঙ্ক চালু আছে';
+
+  @override
+  String get settingsOnlineSync_freePlan =>
+      'ফ্রি প্ল্যান — আপনার ডায়েরি এই ডিভাইসেই থাকবে';
+
+  @override
+  String get settingsOnlineSync_freePlanPill => 'ফ্রি প্ল্যান';
+
+  @override
+  String get settingsOnlineSync_freePlanHint =>
+      'ডিভাইসের মধ্যে সিঙ্ক করতে প্রিমিয়াম প্রয়োজন।';
+
+  @override
+  String get settingsOnlineSync_upToDate => 'হালনাগাদ';
+
+  @override
+  String get settingsOnlineSync_syncing => 'সিঙ্ক হচ্ছে…';
+
+  @override
+  String get settingsOnlineSync_paused => 'সিঙ্ক বিরতি';
+
+  @override
+  String get settingsOnlineSync_offline => 'কোনো সংযোগ নেই';
+
+  @override
+  String get settingsOnlineSync_actionRequiredBody =>
+      'কিছু পরিবর্তন পাঠানো যায়নি। দেখতে সিঙ্ক স্ট্যাটাস খুলুন।';
+
+  @override
+  String settingsOnlineSync_lastSyncAt(String when) {
+    return 'সর্বশেষ সিঙ্ক: $when';
+  }
+
+  @override
+  String settingsOnlineSync_pendingUploads(int count) {
+    return '$count পাঠানোর অপেক্ষায়';
+  }
+
+  @override
+  String get settingsOnlineSync_pendingNone =>
+      'সবকিছু আপনার অ্যাকাউন্টে সংরক্ষিত আছে।';
+
+  @override
+  String settingsOnlineSync_pendingCount(int count) {
+    return '$count অপেক্ষমাণ';
+  }
+
+  @override
+  String get settingsOnlineSync_syncFailed =>
+      'সিঙ্ক সম্পন্ন হয়নি। আপনার পরিবর্তন এই ডিভাইসেই নিরাপদে আছে।';
+
+  @override
+  String get settingsOnlineSync_syncFinished => 'সিঙ্ক সম্পন্ন হয়েছে।';
+
+  @override
+  String get settingsOnlineSync_needPremiumToSync =>
+      'ডিভাইসের মধ্যে সিঙ্ক করতে প্রিমিয়াম প্রয়োজন।';
+
+  @override
+  String get settingsOnlineSync_needSignInToSync =>
+      'ডিভাইসের মধ্যে সিঙ্ক করতে সাইন ইন করুন।';
+
+  @override
+  String get settingsOnlineSync_needConnectionToSync =>
+      'কোনো সংযোগ নেই। আপনার পরিবর্তন এই ডিভাইসেই সংরক্ষিত আছে।';
+
+  @override
   String get settingsOnlineSync_itemsUnknown => '— আইটেম';
 
   @override

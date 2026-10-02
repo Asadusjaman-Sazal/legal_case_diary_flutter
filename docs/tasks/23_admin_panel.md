@@ -53,6 +53,10 @@ Migration `20261002110000_admin_panel.sql`, applied to `lsthasywrdrhuuxnykau` an
 
 Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the schema/RPC section) and in `docs/tasks/21_payments_and_subscription.md`'s Addendum, since the approval flow it completes is Task 21's.
 
+## Recorded mockup departure (approved)
+
+**There is no mockup for this screen, by the user's decision.** CLAUDE.md rule 9 binds a screen body to a referenced file under `mockup_html_screens/`, and `mockup_html_screens/admin_panel/` does not exist. The user reviewed that gap and chose to **build the mockup later, as the screen needs some touch** — so the panel ships on the Justice Ledger patterns it copied (the paywall's collapsible cards and typography), and the mockup is a follow-up that will be written from the screen rather than before it. This is the same shape as the paywall's own recorded departure: the layout is kept and the HTML is written to match afterwards.
+
 ## Acceptance checklist
 
 - [x] `app_admins` has `full_name`/`email`; `full_name` is writable, the grant is not.
@@ -63,6 +67,7 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 - [x] Approve and reject reach the server, are followed by a reload, and a refusal is reported without clearing the row.
 - [x] Both languages render, with Bengali digits.
 - [x] `flutter analyze` clean; full `flutter test` green.
+- [ ] **Follow-up:** write `mockup_html_screens/admin_panel/code.html` from the shipped screen, and refresh `screen.png` at the same time (the user's decision — see the recorded departure above).
 
 ## Not in this version
 

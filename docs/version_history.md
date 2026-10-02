@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.358 - Admin Panel: the case screens' header with drawer and Sync Status but no back arrow, and the Pending/Resolved sections restyled as Settings sub-menu rows.
+Version: 0.0.359 - App header: a successful sync icon is now ordinary black, and an offline device with nothing queued shows the cloud-off icon bare instead of the sync arrows.
 --------------------------------------
 
 ## Version History Log:
@@ -372,3 +372,4 @@ Version: 0.0.355 - Online Sync now reads the real account, plan and sync engine 
 Version: 0.0.356 - Online Sync: dropped the redundant account card, corrected the entity markers to say Synced in green or Not synced in red, and moved Sync Status to the bottom as Pending Sync.
 Version: 0.0.357 - Online Sync rows now report queued work ahead of the plan blocker, and the header sync button shows a red count of changes still waiting to send.
 Version: 0.0.358 - Admin Panel: the case screens' header with drawer and Sync Status but no back arrow, and the Pending/Resolved sections restyled as Settings sub-menu rows.
+Version: 0.0.359 - App header: a successful sync icon is now ordinary black, and an offline device with nothing queued shows the cloud-off icon bare instead of the sync arrows.

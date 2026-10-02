@@ -1244,6 +1244,12 @@ abstract class AppLocalizations {
   /// **'{count} waiting to sync'**
   String sync_pendingBadge(int count);
 
+  /// No description provided for @sync_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'No Connection'**
+  String get sync_offline;
+
   /// No description provided for @sync_permissionsChanged.
   ///
   /// In en, this message translates to:

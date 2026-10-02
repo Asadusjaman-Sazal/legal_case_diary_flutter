@@ -631,6 +631,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sync_offline => 'No Connection';
+
+  @override
   String get sync_permissionsChanged =>
       'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
 

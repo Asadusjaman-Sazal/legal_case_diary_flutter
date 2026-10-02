@@ -33,6 +33,7 @@ import '../../accounts_and_profile/data/account_mode.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
 import '../../payments/presentation/subscription_banner.dart';
 import '../../sync/presentation/sync_conflict_banner.dart';
+import '../../../sync/connectivity_monitor.dart';
 import '../../sync/presentation/sync_notice_banner.dart';
 import '../../../sync/sync_health.dart';
 import '../../../sync/sync_providers.dart';
@@ -423,6 +424,7 @@ class _CasesHeader extends ConsumerWidget {
     // for the sync button's count — the two read different providers on purpose.
     final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
     final pending = ref.watch(syncQueuePendingCountProvider).value ?? 0;
+    final online = ref.watch(isOnlineProvider).value ?? true;
     return Container(
       height: 56,
       color: AppColors.surface,
@@ -484,6 +486,7 @@ class _CasesHeader extends ConsumerWidget {
             onSync: onSync,
             l: l,
             pending: pending,
+            isOnline: online,
           ),
           const SizedBox(width: 4),
         ],
@@ -511,12 +514,19 @@ class _SyncButton extends StatelessWidget {
   /// taps sync has no way to see that from the header.
   final int pending;
 
+  /// Whether the device currently has a connection.
+  ///
+  /// Defaults to true, so a caller that does not care keeps the ordinary sync
+  /// icon; only the case screens, which already watch connectivity, pass it.
+  final bool isOnline;
+
   const _SyncButton({
     required this.syncState,
     required this.isPremium,
     required this.onSync,
     required this.l,
     this.pending = 0,
+    this.isOnline = true,
   });
 
   Color get _iconColor {
@@ -524,7 +534,10 @@ class _SyncButton extends StatelessWidget {
     return switch (syncState) {
       SyncState.idle => AppColors.primary,
       SyncState.syncing => AppColors.secondary,
-      SyncState.success => AppColors.success,
+      // A successful sync is the ordinary case, so it wears the ordinary ink.
+      // Green here said "something good happened" on every launch, which trains
+      // the eye to stop reading the icon at all.
+      SyncState.success => AppColors.primary,
       SyncState.paused => AppColors.onSurfaceVariant,
       SyncState.error => AppColors.error,
     };
@@ -532,6 +545,7 @@ class _SyncButton extends StatelessWidget {
 
   String _tooltip() {
     if (pending > 0) return l.sync_pendingBadge(pending);
+    if (!isOnline) return l.sync_offline;
     if (!isPremium) return l.sync_unavailable;
     return switch (syncState) {
       SyncState.idle => l.sync_idle,
@@ -541,6 +555,13 @@ class _SyncButton extends StatelessWidget {
       SyncState.error => l.sync_error,
     };
   }
+
+  /// Whether there is genuinely nothing to show, which is the only state the
+  /// offline icon replaces the sync arrows in.
+  ///
+  /// Once a change is queued the red count takes over — an offline user still
+  /// needs to see that an edit is waiting, and the count says how many.
+  bool get _showOfflineIcon => !isOnline && pending == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -558,13 +579,17 @@ class _SyncButton extends StatelessWidget {
       );
     } else {
       icon = Icon(
-        switch (syncState) {
-          SyncState.success => Icons.cloud_done_outlined,
-          SyncState.paused => Icons.cloud_off_outlined,
-          SyncState.error => Icons.sync_problem_outlined,
-          _ => Icons.sync,
-        },
-        color: _iconColor,
+        // Offline with nothing queued shows the cloud-off icon in place of the
+        // sync arrows, bare: there is no work to report, so there is no count.
+        _showOfflineIcon
+            ? Icons.cloud_off_outlined
+            : switch (syncState) {
+                SyncState.success => Icons.cloud_done_outlined,
+                SyncState.paused => Icons.cloud_off_outlined,
+                SyncState.error => Icons.sync_problem_outlined,
+                _ => Icons.sync,
+              },
+        color: _showOfflineIcon ? AppColors.onSurfaceVariant : _iconColor,
         size: 22,
       );
     }
@@ -575,8 +600,7 @@ class _SyncButton extends StatelessWidget {
     //
     // While a sync is actually running the spinner is left bare — a count
     // beside a spinner would suggest work is stuck when it is draining.
-    final Widget child =
-        pending > 0 && syncState != SyncState.syncing
+    final Widget child = pending > 0 && syncState != SyncState.syncing
         ? Badge(
             // Localized digits like every other count in the app: a Latin "2"
             // beside Bengali text is the exact defect this guards against.

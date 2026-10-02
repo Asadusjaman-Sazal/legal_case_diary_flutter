@@ -279,6 +279,7 @@
   "sync_paused": "সিঙ্ক বিরতি",
   "sync_error": "সিঙ্ক ত্রুটি",
   "sync_unavailable": "সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন",
+  "sync_pendingBadge": "সিঙ্কের অপেক্ষায় {count}",
   "sync_permissionsChanged": "আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।",
   "sync_clockSkewWarning": "আপনার ডিভাইসের ঘড়ি ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য এটি ঠিক করুন।",
   "@@_section_syncConflict": "SYNC CONFLICTS  |  lib/features/sync/presentation - conflict banner and review screen",

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.356 - Online Sync: dropped the redundant account card, corrected the entity markers to say Synced in green or Not synced in red, and moved Sync Status to the bottom as Pending Sync.
+Version: 0.0.357 - Online Sync rows now report queued work ahead of the plan blocker, and the header sync button shows a red count of changes still waiting to send.
 --------------------------------------
 
 ## Version History Log:
@@ -370,3 +370,4 @@ Version: 0.0.353 - Premium: the paywall now insets its own status bar like every
 Version: 0.0.354 - Task 23: the Admin Panel, where a registered admin approves or rejects a payment request from the phone instead of the Supabase SQL editor.
 Version: 0.0.355 - Online Sync now reads the real account, plan and sync engine instead of a hard-coded signed-out stub, and Sync Now runs a real drain.
 Version: 0.0.356 - Online Sync: dropped the redundant account card, corrected the entity markers to say Synced in green or Not synced in red, and moved Sync Status to the bottom as Pending Sync.
+Version: 0.0.357 - Online Sync rows now report queued work ahead of the plan blocker, and the header sync button shows a red count of changes still waiting to send.

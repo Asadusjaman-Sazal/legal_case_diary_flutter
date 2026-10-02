@@ -1238,6 +1238,12 @@ abstract class AppLocalizations {
   /// **'Sync requires a premium subscription'**
   String get sync_unavailable;
 
+  /// No description provided for @sync_pendingBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting to sync'**
+  String sync_pendingBadge(int count);
+
   /// No description provided for @sync_permissionsChanged.
   ///
   /// In en, this message translates to:

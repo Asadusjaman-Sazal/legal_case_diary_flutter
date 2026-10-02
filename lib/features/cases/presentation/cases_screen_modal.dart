@@ -25,6 +25,7 @@ import '../../../core/print/print_flow.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
@@ -418,8 +419,10 @@ class _CasesHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // The blocked/conflicted badge: entries the user must act on, and nothing
-    // else. Ordinary pending work is not news, so the badge stays away for it.
+    // else. Ordinary pending work is not news for *that* badge, but it is news
+    // for the sync button's count — the two read different providers on purpose.
     final attention = ref.watch(syncStatusAttentionProvider).value ?? 0;
+    final pending = ref.watch(syncQueuePendingCountProvider).value ?? 0;
     return Container(
       height: 56,
       color: AppColors.surface,
@@ -480,6 +483,7 @@ class _CasesHeader extends ConsumerWidget {
             isPremium: isPremium,
             onSync: onSync,
             l: l,
+            pending: pending,
           ),
           const SizedBox(width: 4),
         ],
@@ -498,11 +502,21 @@ class _SyncButton extends StatelessWidget {
   final VoidCallback? onSync;
   final AppLocalizations l;
 
+  /// Changes still waiting to be sent, shown as a red count on the button.
+  ///
+  /// The existing `sync_problem` badge beside this button only fires for
+  /// *blocked* or conflicted work — the things nothing will move on its own.
+  /// Ordinary pending work is normal and silent there, which is right for a
+  /// badge but wrong for the sync button: a user who has two unsent edits and
+  /// taps sync has no way to see that from the header.
+  final int pending;
+
   const _SyncButton({
     required this.syncState,
     required this.isPremium,
     required this.onSync,
     required this.l,
+    this.pending = 0,
   });
 
   Color get _iconColor {
@@ -517,6 +531,7 @@ class _SyncButton extends StatelessWidget {
   }
 
   String _tooltip() {
+    if (pending > 0) return l.sync_pendingBadge(pending);
     if (!isPremium) return l.sync_unavailable;
     return switch (syncState) {
       SyncState.idle => l.sync_idle,
@@ -554,10 +569,35 @@ class _SyncButton extends StatelessWidget {
       );
     }
 
+    // A red count on the sync icon: the ordinary pending work the separate
+    // `sync_problem` badge deliberately does not show, because here it answers
+    // "why did my edit not appear on the other device yet?".
+    //
+    // While a sync is actually running the spinner is left bare — a count
+    // beside a spinner would suggest work is stuck when it is draining.
+    final Widget child =
+        pending > 0 && syncState != SyncState.syncing
+        ? Badge(
+            // Localized digits like every other count in the app: a Latin "2"
+            // beside Bengali text is the exact defect this guards against.
+            label: Text(
+              AppDateUtils.formatDigits(pending, l.localeName, grouping: false),
+            ),
+            backgroundColor: AppColors.error,
+            textColor: AppColors.onError,
+            child: icon,
+          )
+        : icon;
+
     return Tooltip(
       message: _tooltip(),
       child: IconButton(
-        icon: icon,
+        key: const ValueKey('cases-modal-sync-button'),
+        icon: child,
+        // Tapping still syncs, exactly as before: one control must do one
+        // thing. The count is information, and where it can be acted on is the
+        // separate Pending Sync entry on the Online Sync screen — which is
+        // already reachable, and already where held work is explained.
         onPressed: canTap ? onSync : null,
         tooltip: _tooltip(),
       ),

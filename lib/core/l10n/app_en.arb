@@ -279,6 +279,14 @@
   "sync_paused": "Sync paused",
   "sync_error": "Sync error",
   "sync_unavailable": "Sync requires a premium subscription",
+  "sync_pendingBadge": "{count} waiting to sync",
+  "@sync_pendingBadge": {
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
   "sync_permissionsChanged": "Your Firm Permissions Changed; This Pending Action Was Not Applied.",
   "sync_clockSkewWarning": "Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.",
   "@@_section_syncConflict": "SYNC CONFLICTS  |  lib/features/sync/presentation - conflict banner and review screen",

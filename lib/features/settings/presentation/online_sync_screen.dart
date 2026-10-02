@@ -424,8 +424,6 @@ class _SyncRow extends ConsumerWidget {
     // the marker *means*. Without it, "nothing waiting" would read as
     // "Synced" on a free plan where nothing was ever sent.
     final blocker = _syncBlockerOf(ref);
-    final canSync = blocker == _SyncBlocker.none;
-    final hasWork = waiting > 0;
 
     return Container(
       decoration: _cardDecoration(),
@@ -472,15 +470,15 @@ class _SyncRow extends ConsumerWidget {
             // entity really is on the account, and says so in red when it is
             // not and cannot be.
             Icon(
-              _markerIcon(canSync, hasWork),
+              _markerIcon(waiting, blocker),
               size: 18,
-              color: _markerColor(canSync, hasWork),
+              color: _markerColor(waiting, blocker),
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
               _markerLabel(l, waiting, blocker),
               style: AppTypography.bodySm.copyWith(
-                color: _markerColor(canSync, hasWork),
+                color: _markerColor(waiting, blocker),
               ),
             ),
           ],
@@ -490,31 +488,39 @@ class _SyncRow extends ConsumerWidget {
   }
 }
 
-/// The three states one entity row can be in, as an icon.
-IconData _markerIcon(bool canSync, bool hasWork) {
-  if (!canSync) return Icons.cloud_off_outlined;
-  return hasWork ? Icons.cloud_upload_outlined : Icons.cloud_done_outlined;
+/// The marker icon for one entity row.
+///
+/// **Waiting work outranks the blocker.** A queued change is a fact regardless
+/// of the plan or the connection, so it is reported as work in every case;
+/// otherwise two pending edits on a free plan read as "Not synced", which tells
+/// the user nothing is queued when two things are.
+IconData _markerIcon(int waiting, _SyncBlocker blocker) {
+  if (waiting > 0) return Icons.cloud_upload_outlined;
+  return blocker == _SyncBlocker.none
+      ? Icons.cloud_done_outlined
+      : Icons.cloud_off_outlined;
 }
 
-/// Green only when the entity really is on the account; red when it is not and
-/// cannot be. A muted grey here would read as "in progress" for a free plan
-/// that will never send anything.
-Color _markerColor(bool canSync, bool hasWork) {
-  if (!canSync) return AppColors.error;
-  return hasWork ? AppColors.tertiary : AppColors.success;
+/// Amber while work waits, green only when the entity really is on the
+/// account, red when it is not and cannot be.
+Color _markerColor(int waiting, _SyncBlocker blocker) {
+  if (waiting > 0) return AppColors.tertiary;
+  return blocker == _SyncBlocker.none
+      ? AppColors.success
+      : AppColors.error;
 }
 
-/// What the marker says — the two blockers get their own wording, because
-/// "Sign in to sync" tells the user what to do and "Not synced" does not.
+/// What the marker says. The blockers get their own wording because "Sign in
+/// to sync" tells the user what to do and "Not synced" does not — but only once
+/// there is nothing waiting, which is the state that wording actually describes.
 String _markerLabel(AppLocalizations l, int waiting, _SyncBlocker blocker) {
+  if (waiting > 0) return l.settingsOnlineSync_pendingCount(waiting);
   if (blocker != _SyncBlocker.none) {
     return blocker == _SyncBlocker.signedOut
         ? l.settingsOnlineSync_notSyncedSignedOut
         : l.settingsOnlineSync_notSynced;
   }
-  return waiting > 0
-      ? l.settingsOnlineSync_pendingCount(waiting)
-      : l.settingsOnlineSync_synced;
+  return l.settingsOnlineSync_synced;
 }
 
 /// The single blocker rule, so the status card and the three entity rows cannot

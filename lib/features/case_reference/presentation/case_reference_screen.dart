@@ -20,6 +20,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
+import '../../../sync/sync_service.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../settings/presentation/delete_request_flow.dart';
 import 'reference_viewmodel.dart';
@@ -29,7 +30,8 @@ class CaseReferenceScreen extends ConsumerStatefulWidget {
   const CaseReferenceScreen({super.key});
 
   @override
-  ConsumerState<CaseReferenceScreen> createState() => _CaseReferenceScreenState();
+  ConsumerState<CaseReferenceScreen> createState() =>
+      _CaseReferenceScreenState();
 }
 
 class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
@@ -156,8 +158,19 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         onEdit: (reference) => _openSheet(reference: reference),
         onDelete: _confirmDelete,
         onTogglePin: _togglePin,
+        onRefresh: _onRefresh,
       ),
     );
+  }
+
+  /// Pull-down-to-sync: the same forced drain the header button runs, then a
+  /// reload so anything that arrived appears.
+  ///
+  /// Without the reload an empty Case Reference screen would spin and change
+  /// nothing the user can see, which is the one case where pulling matters most.
+  Future<void> _onRefresh() async {
+    await ref.read(syncServiceProvider).retryNow();
+    ref.invalidate(referenceViewModelProvider);
   }
 }
 
@@ -170,6 +183,7 @@ class _ReferenceList extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
+    required this.onRefresh,
   });
 
   final bool isSearching;
@@ -179,6 +193,9 @@ class _ReferenceList extends StatelessWidget {
   final ValueChanged<CaseReference> onDelete;
   final ValueChanged<CaseReference> onTogglePin;
 
+  /// Pull-down-to-sync, so an empty list is still syncable.
+  final Future<void> Function() onRefresh;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -186,14 +203,26 @@ class _ReferenceList extends StatelessWidget {
 
     if (references.isEmpty) {
       // Nothing to list: one semibold message centred in the screen, exactly
-      // like the case-list empty state on Active Cases. The body sits in the
-      // shell's `Expanded`, so the bare `Center` owns the whole area.
-      return Center(
-        child: Text(
-          isSearching && totalCount > 0
-              ? l.sharedDialogs_noResults
-              : l.caseReferenceScreen_empty,
-          style: Theme.of(context).textTheme.titleMedium,
+      // like the case-list empty state on Active Cases. It sits in a scrollable
+      // that always overscrolls, so an empty screen can still be pulled to
+      // sync — a bare `Center` has nothing to drag.
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.6,
+              child: Center(
+                child: Text(
+                  isSearching && totalCount > 0
+                      ? l.sharedDialogs_noResults
+                      : l.caseReferenceScreen_empty,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -212,9 +241,12 @@ class _ReferenceList extends StatelessWidget {
     }
     children.add(const SizedBox(height: AppSpacing.lg));
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      children: children,
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        children: children,
+      ),
     );
   }
 }
@@ -243,8 +275,9 @@ class _ReferenceCardState extends State<_ReferenceCard> {
   @override
   Widget build(BuildContext context) {
     final reference = widget.reference;
-    final borderColor =
-        _hovered ? AppColors.secondary : AppColors.outlineVariant;
+    final borderColor = _hovered
+        ? AppColors.secondary
+        : AppColors.outlineVariant;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -307,10 +340,12 @@ class _ReferenceCardState extends State<_ReferenceCard> {
                               const SizedBox(width: AppSpacing.sm),
                               Text(
                                 reference.isPinned
-                                    ? AppLocalizations.of(context)
-                                        .caseReferenceScreen_unpin
-                                    : AppLocalizations.of(context)
-                                        .caseReferenceScreen_pin,
+                                    ? AppLocalizations.of(
+                                        context,
+                                      ).caseReferenceScreen_unpin
+                                    : AppLocalizations.of(
+                                        context,
+                                      ).caseReferenceScreen_pin,
                               ),
                             ],
                           ),
@@ -327,7 +362,9 @@ class _ReferenceCardState extends State<_ReferenceCard> {
                               ),
                               const SizedBox(width: AppSpacing.sm),
                               Text(
-                                AppLocalizations.of(context).sharedActions_delete,
+                                AppLocalizations.of(
+                                  context,
+                                ).sharedActions_delete,
                                 style: TextStyle(color: AppColors.error),
                               ),
                             ],
@@ -370,10 +407,7 @@ class _ReferenceCardState extends State<_ReferenceCard> {
                       color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(8),
                       border: Border(
-                        left: BorderSide(
-                          color: AppColors.secondary,
-                          width: 4,
-                        ),
+                        left: BorderSide(color: AppColors.secondary, width: 4),
                       ),
                     ),
                     child: Text(
@@ -402,21 +436,19 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.secondaryFixed,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          label,
-          style: AppTypography.labelMd.copyWith(
-            color: AppColors.primary,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.xs,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.secondaryFixed,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelMd.copyWith(color: AppColors.primary),
+    ),
+  );
 }
 
 /// Slide-up sheet for adding or editing a case reference.
@@ -426,7 +458,8 @@ class _ReferenceEditSheet extends ConsumerStatefulWidget {
   final CaseReference? reference;
 
   @override
-  ConsumerState<_ReferenceEditSheet> createState() => _ReferenceEditSheetState();
+  ConsumerState<_ReferenceEditSheet> createState() =>
+      _ReferenceEditSheetState();
 }
 
 class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
@@ -444,7 +477,9 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     _refNoController = TextEditingController(text: r?.referenceAndPageNo ?? '');
     _statuteController = TextEditingController(text: r?.statute ?? '');
     _sectionController = TextEditingController(text: r?.sectionOrArticle ?? '');
-    _titleController = TextEditingController(text: r?.titleAndDescription ?? '');
+    _titleController = TextEditingController(
+      text: r?.titleAndDescription ?? '',
+    );
     _commentsController = TextEditingController(text: r?.commentsNotes ?? '');
     _isPinned = r?.isPinned ?? false;
   }
@@ -479,8 +514,9 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
         deleteDirectly: () async => await notifier.deleteReference(reference),
       );
       if (mounted && outcome == DeleteOutcome.deleted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_deleted)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_deleted)));
         Navigator.of(context).pop(reference);
       }
       return;
@@ -499,7 +535,9 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
             : _sectionController.text.trim(),
       ),
       titleAndDescription: Value(
-        _titleController.text.trim().isEmpty ? null : _titleController.text.trim(),
+        _titleController.text.trim().isEmpty
+            ? null
+            : _titleController.text.trim(),
       ),
       commentsNotes: Value(
         _commentsController.text.trim().isEmpty
@@ -518,8 +556,9 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
       );
     }
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_saved)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_saved)));
       Navigator.of(context).pop();
     }
   }
@@ -615,14 +654,14 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
                 minimumSize: const Size.fromHeight(56),
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               ),
-                onPressed: () => _save(),
-                child: Text(
-                  l.sharedActions_save,
-                  style: AppTypography.titleMd.copyWith(
-                    color: AppColors.onPrimary,
-                  ),
+              onPressed: () => _save(),
+              child: Text(
+                l.sharedActions_save,
+                style: AppTypography.titleMd.copyWith(
+                  color: AppColors.onPrimary,
                 ),
               ),
+            ),
           ),
         ],
       ),
@@ -646,59 +685,58 @@ class _Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.sm,
-                AppSpacing.xs,
-                AppSpacing.sm,
-                0,
-              ),
-              child: Text(
-                label,
-                style: AppTypography.labelLg.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
+    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.sm,
+            AppSpacing.xs,
+            AppSpacing.sm,
+            0,
+          ),
+          child: Text(
+            label,
+            style: AppTypography.labelLg.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLow,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
-                border: Border(
-                  bottom: BorderSide(color: AppColors.outlineVariant),
-                ),
-              ),
-              child: TextField(
-                controller: controller,
-                maxLines: maxLines,
-                textAlign: TextAlign.start,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  hintText: placeholder,
-                  hintStyle:
-                      TextStyle(color: AppColors.outline.withValues(alpha: 0.5)),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  focusedErrorBorder: InputBorder.none,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      );
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+            border: Border(bottom: BorderSide(color: AppColors.outlineVariant)),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.top,
+            decoration: InputDecoration(
+              hintText: placeholder,
+              hintStyle: TextStyle(
+                color: AppColors.outline.withValues(alpha: 0.5),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              isCollapsed: true,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

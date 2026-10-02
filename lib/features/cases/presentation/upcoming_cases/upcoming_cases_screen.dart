@@ -342,6 +342,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         placeholder: l.upcomingCasesScreen_title,
         isSearching: _isSearching,
         hasAnyCase: _cases.isNotEmpty,
+        onRefresh: () => pullCaseListToSync(ref, _loadCases),
       );
     }
 

@@ -424,6 +424,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                   placeholder: l.overdueDatesScreen_title,
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
+                  onRefresh: () => pullCaseListToSync(ref, _loadCases),
                 )
               : (extended
                     ? CaseTableView(

@@ -19,6 +19,7 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
+import '../../../sync/sync_service.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../settings/presentation/delete_request_flow.dart';
 import '../data/note_items.dart';
@@ -74,6 +75,16 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   Future<void> _onSearchChanged(String query) async {
     await _search.run(query);
     if (mounted) setState(() {});
+  }
+
+  /// Pull-down-to-sync: the same forced drain the header button runs, then a
+  /// reload so anything that arrived appears.
+  ///
+  /// Without the reload an empty Notes screen would spin and change nothing the
+  /// user can see, which is the one case where pulling matters most.
+  Future<void> _onRefresh() async {
+    await ref.read(syncServiceProvider).retryNow();
+    ref.invalidate(notesViewModelProvider);
   }
 
   /// Opens the full-screen detail editor. [note] is null when creating new, and
@@ -211,6 +222,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         onEdit: (note) => _openDetail(note: note),
         onDelete: _confirmDelete,
         onTogglePin: _togglePin,
+        onRefresh: _onRefresh,
       ),
     );
   }
@@ -226,6 +238,7 @@ class _NotesList extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
+    required this.onRefresh,
   });
 
   final bool isSearching;
@@ -236,6 +249,9 @@ class _NotesList extends StatelessWidget {
   final ValueChanged<Note> onDelete;
   final ValueChanged<Note> onTogglePin;
 
+  /// Pull-down-to-sync, so an empty list is still syncable.
+  final Future<void> Function() onRefresh;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -243,14 +259,26 @@ class _NotesList extends StatelessWidget {
 
     if (notes.isEmpty) {
       // Nothing to list: one semibold message centred in the screen, exactly
-      // like the case-list empty state on Active Cases. The body sits in the
-      // shell's `Expanded`, so the bare `Center` owns the whole area.
-      return Center(
-        child: Text(
-          isSearching && totalCount > 0
-              ? l.sharedDialogs_noResults
-              : l.notesScreen_empty,
-          style: Theme.of(context).textTheme.titleMedium,
+      // like the case-list empty state on Active Cases. It sits in a scrollable
+      // that always overscrolls, so an empty screen can still be pulled to
+      // sync — a bare `Center` has nothing to drag.
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.6,
+              child: Center(
+                child: Text(
+                  isSearching && totalCount > 0
+                      ? l.sharedDialogs_noResults
+                      : l.notesScreen_empty,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -270,7 +298,13 @@ class _NotesList extends StatelessWidget {
     }
     children.add(const SizedBox(height: AppSpacing.lg));
 
-    return ListView(padding: const EdgeInsets.all(AppSpacing.md), children: children);
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        children: children,
+      ),
+    );
   }
 }
 
@@ -295,9 +329,7 @@ class _TodoCardPreview extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  item.done
-                      ? Icons.check_box
-                      : Icons.check_box_outline_blank,
+                  item.done ? Icons.check_box : Icons.check_box_outline_blank,
                   size: 16,
                   color: AppColors.onSurfaceVariant,
                 ),
@@ -307,9 +339,7 @@ class _TodoCardPreview extends StatelessWidget {
                     item.text,
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
-                      decoration: item.done
-                          ? TextDecoration.lineThrough
-                          : null,
+                      decoration: item.done ? TextDecoration.lineThrough : null,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -361,8 +391,9 @@ class _NoteCardState extends State<_NoteCard> {
       note.updatedAt,
       locale: widget.locale,
     );
-    final borderColor =
-        _hovered ? AppColors.secondary : AppColors.outlineVariant;
+    final borderColor = _hovered
+        ? AppColors.secondary
+        : AppColors.outlineVariant;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -403,7 +434,9 @@ class _NoteCardState extends State<_NoteCard> {
                     IconButton(
                       key: const ValueKey('note-pin'),
                       icon: Icon(
-                        note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        note.isPinned
+                            ? Icons.push_pin
+                            : Icons.push_pin_outlined,
                       ),
                       color: note.isPinned
                           ? AppColors.secondary

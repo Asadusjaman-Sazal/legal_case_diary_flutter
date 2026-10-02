@@ -372,9 +372,7 @@ void main() {
       expect(
         await dao.searchScoped(
           'matter',
-          scope: const CaseSearchScope(
-            disposal: CaseSearchDisposal.activeOnly,
-          ),
+          scope: const CaseSearchScope(disposal: CaseSearchDisposal.activeOnly),
         ),
         hasLength(2),
       );
@@ -426,7 +424,9 @@ void main() {
           ),
         );
       }
-      await caseRepository.deleteCase((await caseRepository.getById(ids.first))!);
+      await caseRepository.deleteCase(
+        (await caseRepository.getById(ids.first))!,
+      );
 
       expect(await dao.searchScoped('paged'), hasLength(2));
       expect(await dao.searchScoped('paged', limit: 1), hasLength(1));
@@ -510,34 +510,35 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('a touch outside the open bar hides the keyboard, keeping it open', (
-    tester,
-  ) async {
-    final ids = await seedDatasets();
-    await pumpScreen(tester, AllCasesScreen.new);
+  testWidgets(
+    'a touch outside the open bar hides the keyboard, keeping it open',
+    (tester) async {
+      final ids = await seedDatasets();
+      await pumpScreen(tester, AllCasesScreen.new);
 
-    final l = stringsOf(tester, find.byType(AllCasesScreen));
-    await tester.tap(find.byTooltip(l.casesModal_search));
-    await tester.pumpAndSettle();
-    await search(tester, 'rahim');
+      final l = stringsOf(tester, find.byType(AllCasesScreen));
+      await tester.tap(find.byTooltip(l.casesModal_search));
+      await tester.pumpAndSettle();
+      await search(tester, 'rahim');
 
-    // A touch on mobile does not drop focus by itself, so the field has to do
-    // it: without the screen's own handler the keyboard would stay up.
-    final field = tester.widget<EditableText>(find.byType(EditableText));
-    expect(field.focusNode.hasFocus, isTrue);
+      // A touch on mobile does not drop focus by itself, so the field has to do
+      // it: without the screen's own handler the keyboard would stay up.
+      final field = tester.widget<EditableText>(find.byType(EditableText));
+      expect(field.focusNode.hasFocus, isTrue);
 
-    // Touch the header title — anything but the field itself.
-    await tester.tapAt(const Offset(200, 28));
-    await tester.pumpAndSettle();
+      // Touch the header title — anything but the field itself.
+      await tester.tapAt(const Offset(200, 28));
+      await tester.pumpAndSettle();
 
-    expect(field.focusNode.hasFocus, isFalse);
-    // The search is still open and still filtering.
-    expect(find.byType(TextField), findsOneWidget);
-    expect(find.byKey(ValueKey('case-card-${ids['Rahim']}')), findsOneWidget);
-    expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsNothing);
+      expect(field.focusNode.hasFocus, isFalse);
+      // The search is still open and still filtering.
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byKey(ValueKey('case-card-${ids['Rahim']}')), findsOneWidget);
+      expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsNothing);
 
-    await unmount(tester);
-  });
+      await unmount(tester);
+    },
+  );
 
   testWidgets('a query that matches nothing says so instead of looking empty', (
     tester,
@@ -561,21 +562,50 @@ void main() {
 
     // (screen, screen type, query, the case it must still list, a case it must
     // hide because it belongs to another screen's dataset.)
-    final datasets =
-        <(Widget Function(), Type, String, String?, String?)>[
-          (AllCasesScreen.new, AllCasesScreen, 'rahim', ids['Rahim'], ids['Karim']),
-          (ActiveCasesScreen.new, ActiveCasesScreen, 'karim', ids['Karim'], ids['Rahim']),
-          (UpcomingCasesScreen.new, UpcomingCasesScreen, 'rahim', ids['Rahim'], ids['Karim']),
-          // Both are past-dated and active: the disposed past cases are kept
-          // off this screen by the date-range query, so they cannot be the
-          // case the query hides.
-          (OverdueDatesScreen.new, OverdueDatesScreen, 'stale', ids['Stale'], ids['OldPending']),
-          // SRH-3 and SRH-6 are both disposed; SRH-5 is not, so it cannot be
-          // the case this query hides.
-          (DisposedCasesScreen.new, DisposedCasesScreen, 'disposed party', ids['Disposed'], ids['Closed']),
-          // Only SRH-4 and SRH-7 have a hearing today.
-          (DailyCauseListScreen.new, DailyCauseListScreen, 'today', ids['Today'], ids['TodayToo']),
-        ];
+    final datasets = <(Widget Function(), Type, String, String?, String?)>[
+      (AllCasesScreen.new, AllCasesScreen, 'rahim', ids['Rahim'], ids['Karim']),
+      (
+        ActiveCasesScreen.new,
+        ActiveCasesScreen,
+        'karim',
+        ids['Karim'],
+        ids['Rahim'],
+      ),
+      (
+        UpcomingCasesScreen.new,
+        UpcomingCasesScreen,
+        'rahim',
+        ids['Rahim'],
+        ids['Karim'],
+      ),
+      // Both are past-dated and active: the disposed past cases are kept
+      // off this screen by the date-range query, so they cannot be the
+      // case the query hides.
+      (
+        OverdueDatesScreen.new,
+        OverdueDatesScreen,
+        'stale',
+        ids['Stale'],
+        ids['OldPending'],
+      ),
+      // SRH-3 and SRH-6 are both disposed; SRH-5 is not, so it cannot be
+      // the case this query hides.
+      (
+        DisposedCasesScreen.new,
+        DisposedCasesScreen,
+        'disposed party',
+        ids['Disposed'],
+        ids['Closed'],
+      ),
+      // Only SRH-4 and SRH-7 have a hearing today.
+      (
+        DailyCauseListScreen.new,
+        DailyCauseListScreen,
+        'today',
+        ids['Today'],
+        ids['TodayToo'],
+      ),
+    ];
 
     for (final (build, screenType, query, visibleId, hiddenId) in datasets) {
       await pumpScreen(tester, build);
@@ -610,5 +640,29 @@ void main() {
     }
 
     await unmount(tester);
+  });
+
+  testWidgets('an empty case list can still be pulled down to sync', (
+    tester,
+  ) async {
+    // No cases seeded, so every one of these screens renders its empty state.
+    // The empty state used to be a bare `Center`, which is not a scrollable, so
+    // there was nothing to drag and pull-to-sync silently did not exist.
+    for (final screen in <Widget Function()>[
+      AllCasesScreen.new,
+      ActiveCasesScreen.new,
+      UpcomingCasesScreen.new,
+      OverdueDatesScreen.new,
+      DisposedCasesScreen.new,
+      DailyCauseListScreen.new,
+    ]) {
+      await pumpScreen(tester, screen);
+      expect(
+        find.byType(RefreshIndicator),
+        findsOneWidget,
+        reason: '$screen offered no pull-to-sync while empty',
+      );
+      await unmount(tester);
+    }
   });
 }

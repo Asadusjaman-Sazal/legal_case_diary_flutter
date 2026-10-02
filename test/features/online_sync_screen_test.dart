@@ -34,6 +34,22 @@ class _BlankProfileFields extends ProfileFieldsNotifier {
   ProfileFields build() => const ProfileFields();
 }
 
+/// One queued sync entry, so a test can name the entity whose work is waiting.
+SyncQueueRow _queueRow({required String entityType}) => SyncQueueRow(
+  id: 1,
+  entityType: entityType,
+  entityId: 'e1',
+  operation: 'update',
+  mutationId: 'm1',
+  basePayload: '{}',
+  changedFields: '[]',
+  payload: '{}',
+  preMutationPayload: '{}',
+  createdAt: 1,
+  retryCount: 0,
+  state: 'pending',
+);
+
 void main() {
   // The card reads the saved profile name, which lives in SharedPreferences.
   setUp(() => SharedPreferences.setMockInitialValues(<String, Object>{}));
@@ -229,6 +245,29 @@ void main() {
     for (final label in labels) {
       expect(label.style?.color, AppColors.success);
     }
+  });
+
+  testWidgets('queued work outranks the blocker on every row', (tester) async {
+    // Regression: the blocker was checked first, so two pending case edits on a
+    // free plan read "Not synced" — telling the user nothing was queued when
+    // two things were. Queued work is a fact regardless of plan or connection.
+    await pump(
+      tester,
+      premium: false,
+      queued: [_queueRow(entityType: 'case')],
+    );
+
+    // The Cases row shows the count; the untouched rows still report red.
+    expect(find.text('1 Waiting'), findsOneWidget);
+    expect(find.text('Not synced'), findsNWidgets(2));
+    expect(find.text('Synced'), findsNothing);
+  });
+
+  testWidgets('a queued row is amber, never red', (tester) async {
+    await pump(tester, queued: [_queueRow(entityType: 'case')]);
+
+    final label = tester.widget<Text>(find.text('1 Waiting'));
+    expect(label.style?.color, AppColors.tertiary);
   });
 
   testWidgets('Pending Sync is the last thing on the screen', (tester) async {

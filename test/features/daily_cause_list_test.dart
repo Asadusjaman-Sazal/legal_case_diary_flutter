@@ -236,7 +236,14 @@ void main() {
 
     // The per-court KPI beside the court name is a plain count, so it has to be
     // formatted rather than interpolated.
-    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsOneWidget);
+    //
+    // Two Bengali ২s are correct and both are wanted: the court's hearing
+    // count, and the header sync button's pending count — seeding each case
+    // went through `insertCase`, which queues a sync row per case, so the two
+    // seeded hearings really are two pending changes. What this guards is that
+    // no count is interpolated in Latin digits, which is why the second
+    // assertion is the strict one.
+    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(2));
     expect(find.text('2'), findsNothing);
 
     await unmount(tester);

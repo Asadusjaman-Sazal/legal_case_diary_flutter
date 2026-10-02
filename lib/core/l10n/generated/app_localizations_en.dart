@@ -626,6 +626,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sync_unavailable => 'Sync requires a premium subscription';
 
   @override
+  String sync_pendingBadge(int count) {
+    return '$count waiting to sync';
+  }
+
+  @override
   String get sync_permissionsChanged =>
       'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
 

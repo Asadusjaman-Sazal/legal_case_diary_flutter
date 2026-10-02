@@ -281,8 +281,10 @@ void main() {
     // The stored English name is never printed.
     expect(find.text(firstCourt.courtNameEn), findsNothing);
 
-    // The case count beside it uses the active language's digits.
-    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsOneWidget);
+    // The case count beside it uses the active language's digits. Two Bengali ২s
+    // are expected: this heading's count, and the header sync button's pending
+    // count — seeding each case queued a sync row, so both are genuinely 2.
+    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(2));
 
     await unmount(tester);
   });

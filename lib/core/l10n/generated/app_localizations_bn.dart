@@ -627,6 +627,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন';
 
   @override
+  String sync_pendingBadge(int count) {
+    return 'সিঙ্কের অপেক্ষায় $count';
+  }
+
+  @override
   String get sync_permissionsChanged =>
       'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
 

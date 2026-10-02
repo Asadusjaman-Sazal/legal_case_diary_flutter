@@ -1620,4 +1620,84 @@ void main() {
     expect(find.byKey(toggleKey), findsNothing);
     await unmount(tester);
   });
+
+  // ---------------------------------------------------------------------------
+  // The header sync button's pending count (Task 23 follow-up).
+  //
+  // The separate `sync_problem` badge deliberately stays silent for ordinary
+  // pending work — it is for entries nothing will move on its own. The sync
+  // button's count is the opposite: it answers "why has my edit not appeared
+  // on the other device yet?", which is exactly a pending queue row.
+  // ---------------------------------------------------------------------------
+
+  /// Inserts one pending queue row, so the header has work to count.
+  Future<void> enqueuePending() async {
+    await SyncQueueDao(db).insert(
+      SyncQueueCompanion.insert(
+        entityType: 'case',
+        entityId: 'queued-case',
+        operation: 'update',
+        mutationId: 'mut-queued-1',
+        basePayload: '{}',
+        changedFields: '[]',
+        payload: '{}',
+        preMutationPayload: '{}',
+        createdAt: 1,
+        state: 'pending',
+      ),
+    );
+  }
+
+  /// The number painted on the sync button's badge, or 0 when there is none.
+  int pendingBadgeCount(WidgetTester tester) {
+    final badges = tester.widgetList<Badge>(find.byType(Badge));
+    for (final badge in badges) {
+      final label = badge.label;
+      if (label is Text && label.data != null) {
+        final value = int.tryParse(label.data!);
+        if (value != null) return value;
+      }
+    }
+    return 0;
+  }
+
+  testWidgets('the header sync button counts pending work in red', (
+    tester,
+  ) async {
+    await pumpScreen(tester, const AllCasesScreen());
+    // Nothing queued: no count at all, rather than a reassuring "0".
+    expect(pendingBadgeCount(tester), 0);
+    await unmount(tester);
+
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen());
+    expect(pendingBadgeCount(tester), 1);
+
+    final badge = tester.widget<Badge>(find.byType(Badge).first);
+    expect(badge.backgroundColor, AppColors.error);
+    await unmount(tester);
+  });
+
+  testWidgets('the badge tooltip says how much is waiting', (tester) async {
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen());
+
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+    );
+    expect(button.tooltip, isNot(contains('premium')));
+    await unmount(tester);
+  });
+
+  testWidgets('the badge count uses the locale\'s digits', (tester) async {
+    // A Latin "1" beside Bengali text is the defect the Daily Cause List
+    // already guards against for its own counts; the badge must match.
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen(), locale: const Locale('bn'));
+
+    expect(find.text(AppDateUtils.formatDigits(1, 'bn', grouping: false)),
+        findsOneWidget);
+    expect(find.text('1'), findsNothing);
+    await unmount(tester);
+  });
 }

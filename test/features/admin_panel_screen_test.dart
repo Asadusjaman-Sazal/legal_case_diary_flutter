@@ -15,6 +15,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_panel_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
+import 'package:legal_case_diary/shared/widgets/sync_button.dart';
 import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
 
@@ -327,5 +328,21 @@ void main() {
     expect(titles, <String>['Pending', 'Resolved']);
     // The section label matches the Settings surface's own label style.
     expect(find.byType(SettingsSectionLabel), findsOneWidget);
+  });
+
+  testWidgets('the header carries the shared sync button', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+
+    // The same widget the case screens use, so one change fixes both headers.
+    expect(find.byType(SyncButton), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the panel can be pulled down to sync', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+    expect(find.byType(RefreshIndicator), findsOneWidget);
   });
 }

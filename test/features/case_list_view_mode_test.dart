@@ -1722,7 +1722,7 @@ void main() {
     // case and now looks like the ordinary case.
     await pumpScreen(tester, const AllCasesScreen());
 
-    final icon = tester.widget<Icon>(find.byIcon(Icons.sync));
+    final icon = tester.widget<Icon>(find.byIcon(Icons.cloud_done_outlined));
     expect(icon.color, AppColors.primary);
     expect(icon.color, isNot(AppColors.success));
     await unmount(tester);
@@ -1733,21 +1733,24 @@ void main() {
   ) async {
     await pumpScreen(tester, const AllCasesScreen(), online: false);
 
-    // No sync arrows, and no count — there is no work to report.
+    // The off cloud, and no count — there is no work to report.
     expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.sync), findsNothing);
+    expect(find.byIcon(Icons.cloud_done_outlined), findsNothing);
     expect(pendingBadgeCount(tester), 0);
     await unmount(tester);
   });
 
-  testWidgets('offline with work queued keeps the red count', (tester) async {
-    // The count is how an offline user learns an edit is waiting, so the
-    // offline icon only takes over when there is nothing queued.
+  testWidgets('offline with work queued keeps the red count on the off cloud', (
+    tester,
+  ) async {
+    // The count is how an offline user learns an edit is waiting, so it stays;
+    // the cloud under it is the off one, because the button never claims a sync
+    // is possible when it is not. The two facts are separate.
     await enqueuePending();
     await pumpScreen(tester, const AllCasesScreen(), online: false);
 
     expect(pendingBadgeCount(tester), 1);
-    expect(find.byIcon(Icons.cloud_off_outlined), findsNothing);
+    expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
     await unmount(tester);
   });
 }

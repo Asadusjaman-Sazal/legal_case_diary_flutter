@@ -1646,6 +1646,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsOnlineSync_notSynced => 'Not synced';
 
   @override
+  String get settingsOnlineSync_signedIn => 'Signed In';
+
+  @override
+  String settingsOnlineSync_signedInAs(String name) {
+    return 'Signed In As $name';
+  }
+
+  @override
+  String get settingsOnlineSync_premiumActive =>
+      'Premium Sync Is Active Across Your Devices';
+
+  @override
+  String get settingsOnlineSync_freePlan =>
+      'Free Plan — Your Diary Stays On This Device';
+
+  @override
+  String get settingsOnlineSync_freePlanPill => 'Free Plan';
+
+  @override
+  String get settingsOnlineSync_freePlanHint =>
+      'Premium is required to sync across devices.';
+
+  @override
+  String get settingsOnlineSync_upToDate => 'Up To Date';
+
+  @override
+  String get settingsOnlineSync_syncing => 'Syncing…';
+
+  @override
+  String get settingsOnlineSync_paused => 'Sync Paused';
+
+  @override
+  String get settingsOnlineSync_offline => 'No Connection';
+
+  @override
+  String get settingsOnlineSync_actionRequiredBody =>
+      'Some changes could not be sent. Open Sync Status to review them.';
+
+  @override
+  String settingsOnlineSync_lastSyncAt(String when) {
+    return 'Last Sync: $when';
+  }
+
+  @override
+  String settingsOnlineSync_pendingUploads(int count) {
+    return '$count Waiting To Send';
+  }
+
+  @override
+  String get settingsOnlineSync_pendingNone =>
+      'Everything is backed up to your account.';
+
+  @override
+  String settingsOnlineSync_pendingCount(int count) {
+    return '$count Waiting';
+  }
+
+  @override
+  String get settingsOnlineSync_syncFailed =>
+      'Sync did not complete. Your changes are safe on this device.';
+
+  @override
+  String get settingsOnlineSync_syncFinished => 'Sync Finished.';
+
+  @override
+  String get settingsOnlineSync_needPremiumToSync =>
+      'Premium Is Required To Sync Across Devices.';
+
+  @override
+  String get settingsOnlineSync_needSignInToSync =>
+      'Sign In To Sync Across Devices.';
+
+  @override
+  String get settingsOnlineSync_needConnectionToSync =>
+      'No Connection. Your Changes Are Saved On This Device.';
+
+  @override
   String get settingsOnlineSync_itemsUnknown => '— Items';
 
   @override

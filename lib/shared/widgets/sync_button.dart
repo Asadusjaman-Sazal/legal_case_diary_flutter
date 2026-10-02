@@ -41,9 +41,9 @@ class SyncButton extends StatelessWidget {
 
   /// Whether the device currently has a connection.
   ///
-  /// Defaults to true, so a caller that does not care keeps the ordinary sync
-  /// icon. Offline with nothing queued, the cloud-off icon replaces the sync
-  /// arrows bare — there is no work to report, so there is no count.
+  /// Defaults to true. Offline, the button always wears the cloud-off icon —
+  /// the red count still sits on top when work is queued, but the cloud itself
+  /// never claims a sync is possible when it is not.
   final bool isOnline;
 
   const SyncButton({
@@ -83,12 +83,12 @@ class SyncButton extends StatelessWidget {
     };
   }
 
-  /// Whether there is genuinely nothing to show, which is the only state the
-  /// offline icon replaces the sync arrows in.
+  /// Whether the button wears the network-off cloud.
   ///
-  /// Once a change is queued the red count takes over — an offline user still
-  /// needs to see that an edit is waiting, and the count says how many.
-  bool get _showOfflineIcon => !isOnline && pending == 0;
+  /// Offline or paused, it does — even with work queued, because the count is
+  /// information about a queue and the cloud is a claim about the connection.
+  /// The two are separate, and only the cloud is about syncing being possible.
+  bool get _showsOffCloud => !isOnline || syncState == SyncState.paused;
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +106,19 @@ class SyncButton extends StatelessWidget {
       );
     } else {
       icon = Icon(
-        // Offline with nothing queued shows the cloud-off icon in place of the
-        // sync arrows, bare: there is no work to report, so there is no count.
-        _showOfflineIcon
+        // `Icons.sync` is gone: the ordinary (idle) state now wears the same
+        // success cloud a completed sync wears, and offline or paused wears the
+        // off cloud. A real error keeps its own mark, because "something went
+        // wrong" is not the same claim as "you are offline".
+        _showsOffCloud
             ? Icons.cloud_off_outlined
             : switch (syncState) {
-                SyncState.success => Icons.cloud_done_outlined,
-                SyncState.paused => Icons.cloud_off_outlined,
                 SyncState.error => Icons.sync_problem_outlined,
-                _ => Icons.sync,
+                _ => Icons.cloud_done_outlined,
               },
-        color: _showOfflineIcon ? AppColors.onSurfaceVariant : _iconColor,
+        // Offline is informational, not an alarm, so it wears muted ink; every
+        // other state keeps its own colour.
+        color: !isOnline ? AppColors.onSurfaceVariant : _iconColor,
         size: 22,
       );
     }

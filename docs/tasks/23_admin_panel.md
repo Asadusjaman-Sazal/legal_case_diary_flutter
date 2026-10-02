@@ -36,6 +36,7 @@ Migration `20261002110000_admin_panel.sql`, applied to `lsthasywrdrhuuxnykau` an
 
 `lib/features/admin/presentation/admin_panel_screen.dart`.
 
+- **Design reference:** `legal_case_diary_flutter\mockup_html_screens\admin_panel\code.html` (with `screen.png` beside it), written from the shipped screen after the fact — see the recorded departure below.
 - Payment Requests, with two collapsible sections: **Pending open** and **Resolved closed** by default, because a resolved submission cannot be acted on and the admin opening the screen has work to do.
 - Resolved is sorted by decision time, newest first (the server's own order is by submission time).
 - Each row: payer name, status chip, plan and amount worded by the same helpers the paywall uses, the sender's number, the TrxID, the five personal fields, and the submitted date. A resolved row also shows the resulting expiry and any note.
@@ -53,9 +54,13 @@ Migration `20261002110000_admin_panel.sql`, applied to `lsthasywrdrhuuxnykau` an
 
 Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the schema/RPC section) and in `docs/tasks/21_payments_and_subscription.md`'s Addendum, since the approval flow it completes is Task 21's.
 
-## Recorded mockup departure (approved)
+## Recorded mockup departure (resolved)
 
-**There is no mockup for this screen, by the user's decision.** CLAUDE.md rule 9 binds a screen body to a referenced file under `mockup_html_screens/`, and `mockup_html_screens/admin_panel/` does not exist. The user reviewed that gap and chose to **build the mockup later, as the screen needs some touch** — so the panel ships on the Justice Ledger patterns it copied (the paywall's collapsible cards and typography), and the mockup is a follow-up that will be written from the screen rather than before it. This is the same shape as the paywall's own recorded departure: the layout is kept and the HTML is written to match afterwards.
+**The screen shipped before its mockup, by the user's decision, and the mockup was then written from the shipped screen.** CLAUDE.md rule 9 binds a screen body to a referenced file under `mockup_html_screens/`, and no such file existed when Task 23 was built. The user reviewed that gap and chose to **build the mockup later, as the screen needs some touch** — so the panel shipped on the Justice Ledger patterns it copied (the paywall's collapsible cards and typography), and the mockup was a follow-up from the screen rather than before it, the same shape as the paywall's own recorded departure.
+
+**The follow-up is now done.** `mockup_html_screens/admin_panel/code.html` draws the panel as it ships: the case screens' header without the back arrow, search or view toggle, the *Payment Requests* heading one step above the shared Settings label, and the two sections as the shared Settings sub-menu button — Pending open with its request and the two decisions, Resolved closed — each with its own leading icon and a count where a chevron would sit. `screen.png` sits beside it at 390 px wide, like every other mockup.
+
+**Drawing the mockup surfaced two values the screen got wrong, and the user chose the mockup as the target.** Recorded here because rule 9 made them a conflict the moment the HTML existed: (1) the sender's number was being wrapped in the amount formatter, so a phone number rendered as `৳01712345678`; (2) the method printed the stored `bkash` rather than the brand the payer chose, even though the checkout already maps the three providers to branded labels. **Both are now fixed on the screen** — the number renders plainly (and falls back to the shared em-dash when absent, like the fields around it), and the method goes through a local `_methodLabel` mapping. The checkout keeps its own copy of that mapping; a third screen needing it is the point at which the two should become one.
 
 ## Acceptance checklist
 
@@ -67,7 +72,7 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 - [x] Approve and reject reach the server, are followed by a reload, and a refusal is reported without clearing the row.
 - [x] Both languages render, with Bengali digits.
 - [x] `flutter analyze` clean; full `flutter test` green.
-- [ ] **Follow-up:** write `mockup_html_screens/admin_panel/code.html` from the shipped screen, and refresh `screen.png` at the same time (the user's decision — see the recorded departure above).
+- [x] **Follow-up:** `mockup_html_screens/admin_panel/code.html` was written from the shipped screen, with `screen.png` beside it (the user's decision — see the recorded departure above), and the two mismatches it exposed were fixed on the screen.
 
 ## Not in this version
 

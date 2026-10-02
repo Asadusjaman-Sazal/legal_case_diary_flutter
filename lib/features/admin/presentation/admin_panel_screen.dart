@@ -539,8 +539,12 @@ class _RequestCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
+          // The sender's number is a number, not an amount, so it carries no
+          // `৳` — the plan line above is the only place an amount appears.
           Text(
-            l.payments_amountValue(request.senderNumber),
+            request.senderNumber.isEmpty
+                ? l.adminPanel_noValue
+                : request.senderNumber,
             style: AppTypography.bodySm.copyWith(
               color: AppColors.onSurfaceVariant,
             ),
@@ -552,7 +556,7 @@ class _RequestCard extends ConsumerWidget {
           ),
           _DetailLine(
             label: l.adminPanel_detailLabelMfs,
-            value: request.mfsProvider,
+            value: _methodLabel(l, request.mfsProvider),
           ),
           _DetailLine(
             label: l.adminPanel_detailLabelName,
@@ -640,6 +644,19 @@ class _RequestCard extends ConsumerWidget {
       ),
     );
   }
+
+  /// The localized brand of one MFS provider, so the admin reads "bKash"
+  /// rather than the stored `bkash` key.
+  ///
+  /// The checkout keeps its own copy of this mapping; two screens are below the
+  /// point where a third one would make the two worth unifying.
+  static String _methodLabel(AppLocalizations l, String provider) =>
+      switch (provider) {
+        'bkash' => l.payments_methodBkash,
+        'nagad' => l.payments_methodNagad,
+        'rocket' => l.payments_methodRocket,
+        _ => provider,
+      };
 
   /// "৳960 per year" — the plan's own name plus its bare amount, worded by the
   /// same helpers the paywall uses so the two never disagree.

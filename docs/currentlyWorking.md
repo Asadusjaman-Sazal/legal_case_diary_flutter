@@ -1,3 +1,12 @@
+### 2026-10-02 — Admin Panel: sections sized as Settings buttons, distinct icons, larger heading — COMPLETE
+
+- **Request (the user's, Admin Panel only).** (1) Make the Pending and Resolved buttons the same size as the Settings > Backup & Restore screen's buttons. (2) Make the "Payment Requests" text a bit bigger. (3) Pending and Resolved carry the same icon; give Resolved a different, appropriate one.
+- **(1) is the shared widget, not a copied measurement.** The two section headers are now the app's own `SettingsMenuCard` — the exact control the Backup & Restore screen's collapsible sections draw — instead of the hand-built `ExpansionTile` inside a group surface. Size now comes from `settingsMenuCardRowHeight`/the card's own padding, so the two surfaces are the same size by construction and stay so if the shared card changes. The reveal is an `AnimatedSize` over a bordered surface (matching the card's 12 px radius) holding the request rows and their hairlines; the group-surface container and its `ExpansionTile` are gone. Open/closed is now driven by the screen's existing `_pendingOpen`/`_resolvedOpen` through `open`/`onToggle`, because a stateless card has no expansion of its own. The count and `chevron_right` stay in the card's trailing slot. **No `SettingsSectionLabel` remains**, so the `settings_controls.dart` import went with it.
+- **(2) one step up, and local.** `SettingsSectionLabel` is shared, so resizing it would have moved other screens. The heading is now an inline `Text` at `labelLg` (14 px, from `labelMd`'s 12 px) with the same `onSurfaceVariant` ink and tracking, so it is bigger without a second design language.
+- **(3) `pending_actions` for Pending, `task_alt` for Resolved.** Both are receipt-adjacent but distinct: a clock-with-check for work awaiting a decision, a check for the decided history.
+- **Tests updated, all green.** `ExpansionTile`/`SettingsSectionLabel` assertions became `SettingsMenuCard` ones, the leading-icon assertions now expect the two distinct icons, and the card's `title` is read directly. `flutter analyze` clean; the panel suite passes **15/15**. Version `0.0.362`.
+- **Resume point:** no feature work open. The panel still has **no mockup** — unchanged, and this change makes it a little further from the signed-out frame that doesn't draw it.
+
 ### 2026-10-02 — Admin Panel: the shared sync button and pull-down to sync — COMPLETE
 
 - **Request (the user's, panel only).** Add the same sync icon the case screens have, and add pull-down-to-sync here too.

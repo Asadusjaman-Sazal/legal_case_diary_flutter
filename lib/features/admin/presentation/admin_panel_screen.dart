@@ -35,7 +35,7 @@ import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart' show SyncState;
 import '../../payments/data/payment_plans.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
-import '../../settings/presentation/settings_controls.dart';
+import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
 import '../data/admin_repository.dart';
 import 'admin_viewmodel.dart';
@@ -114,7 +114,21 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
                 AppSpacing.xl,
               ),
               children: [
-                SettingsSectionLabel(l.adminPanel_paymentRequests),
+                // One step larger than the shared SettingsSectionLabel, so
+                // "Payment Requests" reads as this screen's own heading rather
+                // than as one more menu label.
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
+                  child: Text(
+                    l.adminPanel_paymentRequests,
+                    style: AppTypography.labelLg.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                ),
                 if (action.phase != AdminActionPhase.idle)
                   _ActionBanner(
                     action: action,
@@ -124,9 +138,10 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
                   ),
                 const SizedBox(height: AppSpacing.md),
                 _RequestSection(
+                  icon: Icons.pending_actions,
                   title: l.adminPanel_pending,
                   count: pending.length,
-                  initiallyOpen: _pendingOpen,
+                  open: _pendingOpen,
                   emptyText: l.adminPanel_emptyPending,
                   children: [
                     for (final request in pending)
@@ -135,14 +150,15 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
                         request: request,
                       ),
                   ],
-                  onExpansionChanged: (open) =>
-                      setState(() => _pendingOpen = open),
+                  onToggle: () =>
+                      setState(() => _pendingOpen = !_pendingOpen),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _RequestSection(
+                  icon: Icons.task_alt,
                   title: l.adminPanel_resolved,
                   count: resolved.length,
-                  initiallyOpen: _resolvedOpen,
+                  open: _resolvedOpen,
                   emptyText: l.adminPanel_emptyResolved,
                   // Newest decision first: the admin wants the latest history,
                   // not the oldest, and the server's own order is by submission
@@ -154,8 +170,8 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
                         request: request,
                       ),
                   ],
-                  onExpansionChanged: (open) =>
-                      setState(() => _resolvedOpen = open),
+                  onToggle: () =>
+                      setState(() => _resolvedOpen = !_resolvedOpen),
                 ),
               ],
             ),
@@ -375,53 +391,50 @@ class _ActionBanner extends StatelessWidget {
   }
 }
 
-/// A collapsible Pending / Resolved section, drawn as a Settings sub-menu row.
+/// A collapsible Pending / Resolved section, headed by a Settings sub-menu
+/// button.
 ///
-/// The header is the Settings menu's own shape — leading icon, `bodyLg` title,
-/// a trailing count and chevron — inside the same bordered surface the Settings
-/// main screen groups its rows in, so the panel reads as part of that surface
-/// rather than as a second design language.
+/// The header is the app's shared [SettingsMenuCard] — the very control the
+/// Backup & Restore screen's sections draw — so the two sections are the same
+/// size as those buttons by construction rather than by a copied measurement,
+/// and stay that size if the shared card ever changes. Pending and Resolved
+/// carry different icons so the two are told apart at a glance, and the
+/// revealed requests sit in a bordered surface that matches the card's radius.
 class _RequestSection extends StatelessWidget {
+  /// Leading icon of the header button.
+  final IconData icon;
   final String title;
   final int count;
-  final bool initiallyOpen;
+
+  /// Whether the section is expanded; driven by the screen so the card is the
+  /// single control that toggles it.
+  final bool open;
   final String emptyText;
   final List<Widget> children;
-  final ValueChanged<bool> onExpansionChanged;
+
+  /// Called when the header button is tapped.
+  final VoidCallback onToggle;
 
   const _RequestSection({
+    required this.icon,
     required this.title,
     required this.count,
-    required this.initiallyOpen,
+    required this.open,
     required this.emptyText,
     required this.children,
-    required this.onExpansionChanged,
+    required this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Container(
-      // The Settings main screen's group surface: matching header background
-      // with a hairline top and bottom, per the settings_main mockup.
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: AppColors.outlineVariant),
-          bottom: BorderSide(color: AppColors.outlineVariant),
-        ),
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: initiallyOpen,
-          onExpansionChanged: onExpansionChanged,
-          tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          childrenPadding: const EdgeInsets.only(bottom: AppSpacing.md),
-          shape: const Border(),
-          collapsedShape: const Border(),
-          leading: Icon(Icons.receipt_long_outlined, color: AppColors.primary),
-          title: Text(title, style: AppTypography.bodyLg),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SettingsMenuCard(
+          icon: icon,
+          title: title,
+          onTap: onToggle,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -431,33 +444,57 @@ class _RequestSection extends StatelessWidget {
                 ),
                 style: AppTypography.bodySm,
               ),
-              const Icon(Icons.chevron_right, color: AppColors.tertiary),
             ],
           ),
-          children: [
-            if (children.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: Text(emptyText, style: AppTypography.bodySm),
-              )
-            else
+        ),
+        // The reveal animates so the list below does not jump when a section
+        // opens under the reader's thumb.
+        AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: open
+              ? Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: _body(l),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
+  }
+
+  /// The revealed list: the empty note, or the requests separated by the same
+  /// hairline the Settings lists use, inside a bordered surface that matches the
+  /// header card's radius.
+  Widget _body(AppLocalizations l) => Container(
+    decoration: BoxDecoration(
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(settingsMenuCardRadius),
+      border: Border.all(color: AppColors.outlineVariant),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    child: children.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: Text(emptyText, style: AppTypography.bodySm),
+          )
+        : Column(
+            children: [
               // Hairline between rows, exactly as the Settings main screen
               // separates its list tiles.
               for (var i = 0; i < children.length; i++) ...[
-                const Divider(
-                  height: 1,
-                  thickness: 1,
-                  indent: AppSpacing.md,
-                  endIndent: AppSpacing.md,
-                  color: AppColors.outlineVariant,
-                ),
+                if (i > 0)
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: AppColors.outlineVariant,
+                  ),
                 children[i],
               ],
-          ],
-        ),
-      ),
-    );
-  }
+            ],
+          ),
+  );
 }
 
 /// One payment request: who paid, what they paid for, and — while it is pending

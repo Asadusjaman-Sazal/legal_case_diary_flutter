@@ -14,7 +14,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_panel_screen.dart';
-import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/shared/widgets/sync_button.dart';
 import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
@@ -138,7 +138,7 @@ void main() {
 
     expect(find.text('Payment Requests'), findsOneWidget);
     // The work needs doing, so it is what the screen opens on.
-    expect(find.byType(ExpansionTile), findsNWidgets(2));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(2));
     expect(find.text('TrxID: TRX1'), findsOneWidget);
     // The history is a record, not a to-do, and stays folded away.
     expect(find.text('TrxID: TRX2'), findsNothing);
@@ -302,7 +302,7 @@ void main() {
     );
   });
 
-  testWidgets('Pending and Resolved use the Settings sub-menu row shape', (
+  testWidgets('Pending and Resolved use the Settings sub-menu button shape', (
     tester,
   ) async {
     await pump(
@@ -315,19 +315,21 @@ void main() {
       ),
     );
 
-    // Each section is one Settings-shaped tile: a leading icon and a chevron,
-    // rather than a Material ExpansionTile's arrow.
-    expect(find.byIcon(Icons.receipt_long_outlined), findsNWidgets(2));
-    expect(find.byIcon(Icons.chevron_right), findsNWidgets(2));
+    // Each section is the shared Settings sub-menu card — the same control the
+    // Backup & Restore sections draw — so the two are the same size.
+    expect(find.byType(SettingsMenuCard), findsNWidgets(2));
+    // Neither header draws a trailing arrow.
+    expect(find.byIcon(Icons.chevron_right), findsNothing);
+    // The two sections are told apart by different leading icons.
+    expect(find.byIcon(Icons.pending_actions), findsOneWidget);
+    expect(find.byIcon(Icons.task_alt), findsOneWidget);
     // "Pending" is both a section title and the status chip on the open row, so
-    // the section titles are read off the tiles themselves.
+    // the section titles are read off the cards themselves.
     final titles = tester
-        .widgetList<ExpansionTile>(find.byType(ExpansionTile))
-        .map((tile) => (tile.title as Text).data)
+        .widgetList<SettingsMenuCard>(find.byType(SettingsMenuCard))
+        .map((card) => card.title)
         .toList();
     expect(titles, <String>['Pending', 'Resolved']);
-    // The section label matches the Settings surface's own label style.
-    expect(find.byType(SettingsSectionLabel), findsOneWidget);
   });
 
   testWidgets('the header carries the shared sync button', (tester) async {

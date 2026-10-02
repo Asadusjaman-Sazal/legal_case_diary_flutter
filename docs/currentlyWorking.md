@@ -1,3 +1,13 @@
+### 2026-10-02 — Premium: the paywall insets its own status bar — COMPLETE
+
+- **Request (the user's).** The Premium screen does not show the phone's status bar the way other screens do.
+- **Cause.** The paywall is a **top-level route** (`app_router.dart`, outside `ShellRoute`), so the shell's `SafeArea(top: true, bottom: false)` never reaches it. Without that inset the `Scaffold` paints its app bar from y=0, so the clock and status icons land on the app bar's white instead of on the app's own black status-bar band — the one screen where they disappear.
+- **The fix is the shell's own pattern, not a new one.** `SafeArea(top: true, bottom: false)` wrapping the whole `Scaffold`, exactly as `AppShellRoot` does. Verified by measurement, not by eye: with a simulated 90 px status bar the app bar now starts at `top = 90` and keeps its own 56 px height, matching `SettingsSubPageModal` and the shell screens. A first attempt that wrapped only the `body` was wrong — the app bar sits outside the body, so it changed nothing and the probe numbers were identical; the `SafeArea` has to be an ancestor of the `Scaffold`.
+- **Pinned by test.** New `leaves the phone status bar visible above its app bar` asserts the app bar's `top` equals the injected status-bar height and its height is below it. `pumpPaywall` gained a `statusBarHeight` parameter defaulting to 0, so the existing assertions are unaffected.
+- **Not changed:** `checkout_screen.dart` has the same structure and the same latent problem, but it was out of scope. Flagged below.
+- **Verification.** `flutter analyze` clean; full `flutter test` **1246 passed**. Version `0.0.353`.
+- **Resume point:** no feature work open. Two loose ends: `checkout_screen.dart` needs the same status-bar inset when the user next asks; `paywall_planWasPrice` is still misnamed now that it supplies both the struck-through and the live price.
+
 ### 2026-10-02 — Premium: the struck-through price is red — COMPLETE
 
 - **Request (the user's).** Show the strikethrough price in red.

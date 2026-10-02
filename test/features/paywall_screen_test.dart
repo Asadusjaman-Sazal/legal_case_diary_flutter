@@ -21,11 +21,16 @@ void main() {
   Future<void> pumpPaywall(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    double statusBarHeight = 0,
   }) async {
     // Tall viewport: the whole screen is on one screen, so no assertion fails
     // for the wrong reason (a lazy ListView never builds an off-screen row).
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
+    // A status bar to inset against. Zero is the test default so the other
+    // assertions are not made to reason about an inset they do not care about.
+    tester.view.padding = FakeViewPadding(top: statusBarHeight);
+    tester.view.viewPadding = FakeViewPadding(top: statusBarHeight);
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
@@ -110,6 +115,21 @@ void main() {
       expect(style.color, AppColors.error);
       expect(style.decorationColor, AppColors.error);
     }
+  });
+
+  testWidgets('leaves the phone status bar visible above its app bar', (
+    tester,
+  ) async {
+    // The paywall is a top-level route, so the shell's SafeArea never reaches
+    // it. Without its own inset the Scaffold paints its app bar up behind the
+    // status bar and the clock and icons land on white instead of on black.
+    await pumpPaywall(tester, statusBarHeight: 90);
+
+    // The Scaffold starts below the inset, and its app bar keeps its own
+    // height rather than growing to absorb the status bar.
+    final appBar = tester.getRect(find.byType(AppBar));
+    expect(appBar.top, 90);
+    expect(appBar.height, lessThan(90));
   });
 
   testWidgets('every plan action is enabled', (tester) async {

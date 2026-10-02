@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.352 - Premium: the struck-through full price is now red, so the saving reads at a glance.
+Version: 0.0.353 - Premium: the paywall now insets its own status bar like every shell screen, so the phone's clock and icons are visible above the app bar.
 --------------------------------------
 
 ## Version History Log:
@@ -366,3 +366,4 @@ Version: 0.0.349 - Premium: 6 Months is now ৳540 (10% off) and 1 Year ৳960 (
 Version: 0.0.350 - Premium discounts applied live: approve_payment on the project now validates 100/285/540/960, verified in prosrc with EXECUTE still refused to anon.
 Version: 0.0.351 - Premium: each plan's price is now the bare amount, since the plan title above it already states the duration.
 Version: 0.0.352 - Premium: the struck-through full price is now red, so the saving reads at a glance.
+Version: 0.0.353 - Premium: the paywall now insets its own status bar like every shell screen, so the phone's clock and icons are visible above the app bar.

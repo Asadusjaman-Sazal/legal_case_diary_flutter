@@ -31,12 +31,10 @@ import '../../../core/utils/date_utils.dart';
 import '../data/payment_plans.dart';
 import 'payment_plan_labels.dart';
 
-/// One plan's amount as the paywall writes it, grouped only once it is long
+/// One amount as the paywall writes it — "৳285" — grouped only once it is long
 /// enough for the grouping to help (৳1,200 reads better than ৳1200).
-String _amountText(AppLocalizations l, int amount) => AppDateUtils.formatDigits(
-  amount,
-  l.localeName,
-  grouping: amount >= 1000,
+String _amountText(AppLocalizations l, int amount) => l.payments_amountValue(
+  AppDateUtils.formatDigits(amount, l.localeName, grouping: amount >= 1000),
 );
 
 /// Prices shown by the paywall, in taka.
@@ -270,18 +268,12 @@ class _PlansCard extends StatelessWidget {
             _PlanRow(
               key: ValueKey('paywall-plan-${subscriptionPlans[i].key}'),
               name: paymentPlanLabel(l, subscriptionPlans[i].key),
-              price: paymentPlanPriceLabel(
-                l,
-                subscriptionPlans[i],
-                _amountText(l, subscriptionPlans[i].amount),
-              ),
+              price: _amountText(l, subscriptionPlans[i].amount),
               // The full price is the plan bought month by month, shown struck
               // through so the saving is visible rather than asserted.
               wasPrice: subscriptionPlans[i].discountPercent == 0
                   ? null
-                  : l.paywall_planWasPrice(
-                      _amountText(l, subscriptionPlans[i].undiscountedAmount),
-                    ),
+                  : _amountText(l, subscriptionPlans[i].undiscountedAmount),
               discountLabel: paymentPlanDiscountLabel(l, subscriptionPlans[i]),
               actionLabel: l.paywall_subscribe,
               onPressed: () => onPlanSelected(subscriptionPlans[i].key),
@@ -342,8 +334,9 @@ class _PlanRow extends StatelessWidget {
                     Text(
                       wasPrice!,
                       style: bodyStyle.copyWith(
+                        color: AppColors.error,
                         decoration: TextDecoration.lineThrough,
-                        decorationColor: AppColors.onSurfaceVariant,
+                        decorationColor: AppColors.error,
                       ),
                     ),
                     Text(

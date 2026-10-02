@@ -1,3 +1,19 @@
+### 2026-10-02 — Premium: the struck-through price is red — COMPLETE
+
+- **Request (the user's).** Show the strikethrough price in red.
+- **One style change, pinned by a test.** `_PlanRow`'s struck-through `wasPrice` now uses `AppColors.error` (#DC2626, the project's existing red — the same value the mockup's `error` token holds) for both the glyphs and the line itself; `decorationColor` had been `onSurfaceVariant`, so without it the strike would have stayed grey against red text. A new `the struck-through price is red` test reads the three rendered `Text` styles and asserts `decoration`, `color` and `decorationColor` on each, so the colour cannot revert silently. Mockup `code.html` gained `text-error` on the same three prices.
+- **Verification.** `flutter analyze` clean; full `flutter test` **1245 passed**. Version `0.0.352`.
+- **Resume point:** no feature work open. Unchanged from the entry below: `paywall_planWasPrice` is still misnamed now that it supplies both the struck-through and the live price — worth renaming when this file is next opened.
+
+### 2026-10-02 — Premium: the plan price is the bare amount — COMPLETE
+
+- **Request (the user's).** Drop "for 3 months"/"per year" etc. from each plan's price line, because the plan title above it already says how long the plan runs.
+- **Four strings deleted, not reworded.** `paywall_planMonthlyPrice`, `paywall_planQuarterlyPrice`, `paywall_planHalfYearlyPrice` and `paywall_planAnnualPrice` existed only to bolt a duration onto a price ("৳285 for 3 months"). With the duration gone they had nothing left to vary on, so they are removed from both ARBs rather than collapsed into one near-empty template. The rows now read `1 Month / ৳100`, `3 Months / ৳300 ৳285 5% Off`, `6 Months / ৳600 ৳540 10% Off`, `1 Year / ৳1,200 ৳960 20% Off`.
+- **`paymentPlanPriceLabel` deleted too.** Once the four ARB strings were gone it had no switch left — it was a one-line wrapper around a single getter. The paywall builds the amount through the checkout's existing `payments_amountValue` ("৳{amount}") via a local `_amountText`, so the paywall and the checkout now word a taka amount the same way instead of each having a template.
+- **`paywall_planWasPrice` is now the only bare-amount template left** and is misnamed — it describes the struck-through full price but now also supplies the discounted one. Left in place rather than renamed here; flagged below.
+- **Verification.** `flutter analyze` clean; full `flutter test` **1244 passed**. The paywall test now asserts the four bare amounts *and* that `per month` / `for 3 months` / `for 6 months` / `per year` (and the Bengali `/ মাস`, `/ বছর`) appear nowhere on the screen, so the duration cannot creep back in silently. Mockup `paywall/code.html` updated to match. Version `0.0.351`.
+- **Resume point:** no feature work open. One loose end worth renaming next time this file is opened: `paywall_planWasPrice` is now used for both the struck-through price and the live one.
+
 ### 2026-10-02 — Premium: 6 Months and 1 Year are discounted — COMPLETE
 
 - **Request (the user's).** Re-price the Premium screen: ৳100 a month unchanged, ৳285 for 3 months (5% off), ৳540 for 6 months (10% off), ৳960 for a year (20% off), and show the old price struck through.

@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
@@ -79,10 +80,16 @@ void main() {
     for (final plan in <String>['1 Month', '3 Months', '6 Months', '1 Year']) {
       expect(find.text(plan), findsOneWidget);
     }
-    expect(find.text('৳$paywallMonthlyPrice per month'), findsOneWidget);
-    expect(find.text('৳$paywallQuarterlyPrice for 3 months'), findsOneWidget);
-    expect(find.text('৳$paywallHalfYearlyPrice for 6 months'), findsOneWidget);
-    expect(find.text('৳960 per year'), findsOneWidget);
+    // The price carries no duration of its own — the plan's name above it says
+    // how long the plan runs.
+    expect(find.text('৳$paywallMonthlyPrice'), findsOneWidget);
+    expect(find.text('৳$paywallQuarterlyPrice'), findsOneWidget);
+    expect(find.text('৳$paywallHalfYearlyPrice'), findsOneWidget);
+    expect(find.text('৳960'), findsOneWidget);
+    expect(find.textContaining('per month'), findsNothing);
+    expect(find.textContaining('for 3 months'), findsNothing);
+    expect(find.textContaining('for 6 months'), findsNothing);
+    expect(find.textContaining('per year'), findsNothing);
     // The full per-month price is struck through beside each discounted plan,
     // and the badge names the saving the plan actually offers.
     expect(find.text('৳600'), findsOneWidget);
@@ -91,6 +98,18 @@ void main() {
     expect(find.text('20% Off'), findsOneWidget);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
+  });
+
+  testWidgets('the struck-through price is red', (tester) async {
+    await pumpPaywall(tester);
+
+    for (final wasPrice in <String>['৳300', '৳600', '৳1,200']) {
+      final text = tester.widget<Text>(find.text(wasPrice));
+      final style = text.style!;
+      expect(style.decoration, TextDecoration.lineThrough);
+      expect(style.color, AppColors.error);
+      expect(style.decorationColor, AppColors.error);
+    }
   });
 
   testWidgets('every plan action is enabled', (tester) async {
@@ -128,10 +147,12 @@ void main() {
     expect(find.text('৩ মাস'), findsOneWidget);
     expect(find.text('৬ মাস'), findsOneWidget);
     expect(find.text('১ বছর'), findsOneWidget);
-    expect(find.text('৳১০০ / মাস'), findsOneWidget);
-    expect(find.text('৳২৮৫ / ৩ মাস'), findsOneWidget);
-    expect(find.text('৳৫৪০ / ৬ মাস'), findsOneWidget);
-    expect(find.text('৳৯৬০ / বছর'), findsOneWidget);
+    expect(find.text('৳১০০'), findsOneWidget);
+    expect(find.text('৳২৮৫'), findsOneWidget);
+    expect(find.text('৳৫৪০'), findsOneWidget);
+    expect(find.text('৳৯৬০'), findsOneWidget);
+    expect(find.textContaining('/ মাস'), findsNothing);
+    expect(find.textContaining('/ বছর'), findsNothing);
     // The struck-through full price and the savings, in Bengali digits.
     expect(find.text('৳৬০০'), findsOneWidget);
     expect(find.text('৳১,২০০'), findsOneWidget);

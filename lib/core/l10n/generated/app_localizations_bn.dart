@@ -1024,33 +1024,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_planMonthly => '১ মাস';
 
   @override
-  String paywall_planMonthlyPrice(String price) {
-    return '৳$price / মাস';
-  }
-
-  @override
   String get paywall_planQuarterly => '৩ মাস';
-
-  @override
-  String paywall_planQuarterlyPrice(String price) {
-    return '৳$price / ৩ মাস';
-  }
 
   @override
   String get paywall_planHalfYearly => '৬ মাস';
 
   @override
-  String paywall_planHalfYearlyPrice(String price) {
-    return '৳$price / ৬ মাস';
-  }
-
-  @override
   String get paywall_planAnnual => '১ বছর';
-
-  @override
-  String paywall_planAnnualPrice(String price) {
-    return '৳$price / বছর';
-  }
 
   @override
   String paywall_planWasPrice(String price) {

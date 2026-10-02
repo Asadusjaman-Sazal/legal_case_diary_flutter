@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
@@ -52,6 +53,7 @@ void main() {
     bool online = true,
     int? lastSuccessEpochMs,
     int attention = 0,
+    List<SyncQueueRow> queued = const <SyncQueueRow>[],
   }) async {
     // Tall viewport: a lazy ListView never builds an off-screen row, so the
     // entity-row assertions would otherwise fail for the wrong reason.
@@ -82,7 +84,7 @@ void main() {
           (ref) => Stream<int>.value(attention),
         ),
         syncQueueEntriesProvider.overrideWith(
-          (ref) => Stream<List<SyncQueueRow>>.value(const <SyncQueueRow>[]),
+          (ref) => Stream<List<SyncQueueRow>>.value(queued),
         ),
         syncQueuePendingCountProvider.overrideWith(
           (ref) => Stream<int>.value(0),
@@ -94,17 +96,19 @@ void main() {
     );
   }
 
-  testWidgets('a signed-in premium account is never told it is signed out', (
+  testWidgets('a signed-in premium account reports every entity synced', (
     tester,
   ) async {
     await pump(tester);
 
     expect(find.text('Not signed in'), findsNothing);
-    expect(find.text('Signed In As advocate.asad@law.com'), findsOneWidget);
-    expect(
-      find.text('Premium Sync Is Active Across Your Devices'),
-      findsOneWidget,
-    );
+    // The account card was removed: who is signed in and which plan they hold
+    // are already stated in Settings > Manage Account, so this screen says it
+    // once through the entity rows instead.
+    expect(find.text('Signed In As advocate.asad@law.com'), findsNothing);
+    // Nothing is queued and premium is active, so each row reads Synced.
+    expect(find.text('Synced'), findsNWidgets(3));
+    expect(find.text('Not synced'), findsNothing);
   });
 
   testWidgets('a signed-out account is told so, and cannot sync', (
@@ -112,13 +116,11 @@ void main() {
   ) async {
     await pump(tester, identity: null);
 
-    // The account card and the status pill both say so — that is deliberate,
-    // because the account answers "who" and the pill answers "what state".
-    expect(find.text('Not signed in'), findsNWidgets(2));
-    expect(
-      find.text('Sign in to sync your data across all your devices'),
-      findsOneWidget,
-    );
+    // The status pill says so, and every entity row agrees — a row must never
+    // claim Synced on an account that cannot reach the server.
+    expect(find.text('Not signed in'), findsOneWidget);
+    expect(find.text('Synced'), findsNothing);
+    expect(find.text('Sign in to sync'), findsNWidgets(3));
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
   });
@@ -200,5 +202,45 @@ void main() {
     expect(find.text('Cases'), findsOneWidget);
     expect(find.text('Notes'), findsOneWidget);
     expect(find.text('References'), findsOneWidget);
+  });
+
+  testWidgets('a row that cannot sync is red, never green', (tester) async {
+    // Regression: a free account with nothing queued used to render "Not
+    // synced" in the success green, which read as if it were already sent.
+    await pump(tester, premium: false);
+
+    final labels = tester
+        .widgetList<Text>(find.text('Not synced'))
+        .toList(growable: false);
+    expect(labels, hasLength(3));
+    for (final label in labels) {
+      expect(label.style?.color, AppColors.error);
+    }
+    expect(find.text('Synced'), findsNothing);
+  });
+
+  testWidgets('a synced row is green', (tester) async {
+    await pump(tester);
+
+    final labels = tester
+        .widgetList<Text>(find.text('Synced'))
+        .toList(growable: false);
+    expect(labels, hasLength(3));
+    for (final label in labels) {
+      expect(label.style?.color, AppColors.success);
+    }
+  });
+
+  testWidgets('Pending Sync is the last thing on the screen', (tester) async {
+    await pump(tester);
+
+    expect(find.text('Pending Sync'), findsOneWidget);
+    // It sits after References, not above the entity rows: it is where held
+    // work is reviewed, so it belongs below what it is work *about*.
+    final pendingEntry = tester.getTopLeft(find.text('Pending Sync'));
+    final references = tester.getTopLeft(find.text('References'));
+    expect(pendingEntry.dy, greaterThan(references.dy));
+    // And it still opens the Sync Status screen.
+    expect(find.text('Every Change Waiting To Be Sent'), findsOneWidget);
   });
 }

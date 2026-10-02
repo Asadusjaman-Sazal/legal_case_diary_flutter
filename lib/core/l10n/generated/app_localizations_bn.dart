@@ -1614,7 +1614,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_subtitle =>
-      'আপনার সব ডিভাইসে রিয়েল-টাইম ডেটা সিঙ্ক পরিচালনা করুন।';
+      'আপনার মামলা, নোট ও রেফারেন্স এই ডিভাইসে হালনাগাদ থাকে, এবং প্রিমিয়াম থাকলে আপনার অ্যাকাউন্টে পাঠানো হয়।';
 
   @override
   String get settingsOnlineSync_cases => 'মামলা';
@@ -1647,6 +1647,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_notSynced => 'সিঙ্ক হয়নি';
+
+  @override
+  String get settingsOnlineSync_synced => 'সিঙ্ক হয়েছে';
+
+  @override
+  String get settingsOnlineSync_notSyncedSignedOut => 'সিঙ্ক করতে সাইন ইন করুন';
+
+  @override
+  String get settingsOnlineSync_pendingSyncTitle => 'অপেক্ষমাণ সিঙ্ক';
+
+  @override
+  String get settingsOnlineSync_pendingSyncSubtitle =>
+      'পাঠানোর অপেক্ষায় থাকা প্রতিটি পরিবর্তন';
 
   @override
   String get settingsOnlineSync_signedIn => 'সাইন ইন করা আছে';

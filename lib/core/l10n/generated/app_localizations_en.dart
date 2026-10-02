@@ -1611,7 +1611,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_subtitle =>
-      'Manage your real-time data sync across all your devices.';
+      'Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium.';
 
   @override
   String get settingsOnlineSync_cases => 'Cases';
@@ -1644,6 +1644,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_notSynced => 'Not synced';
+
+  @override
+  String get settingsOnlineSync_synced => 'Synced';
+
+  @override
+  String get settingsOnlineSync_notSyncedSignedOut => 'Sign in to sync';
+
+  @override
+  String get settingsOnlineSync_pendingSyncTitle => 'Pending Sync';
+
+  @override
+  String get settingsOnlineSync_pendingSyncSubtitle =>
+      'Every Change Waiting To Be Sent';
 
   @override
   String get settingsOnlineSync_signedIn => 'Signed In';

@@ -79,36 +79,46 @@ class PaywallScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      // The default leading is a back arrow on a pushed route, which is the way
-      // out of the gate: Cancel means "keep my cases as they are".
-      appBar: AppBar(
-        title: Text(l.paywall_title, style: AppTypography.titleLg),
-        backgroundColor: AppColors.surfaceContainerLowest,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.edgeMargin,
-          AppSpacing.md,
-          AppSpacing.edgeMargin,
-          AppSpacing.xl,
+    // The status bar is the user's own, and every shell screen leaves it
+    // visible by insetting the whole Scaffold (`SafeArea` top, bottom false) —
+    // the shell's own SafeArea does not reach this route, which sits outside it.
+    // Without this the Scaffold paints its app bar up behind the status bar and
+    // the phone's clock and icons sit on that white instead of on the app's own
+    // black, so the paywall is the one screen that loses them.
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        // The default leading is a back arrow on a pushed route, which is the
+        // way out of the gate: Cancel means "keep my cases as they are".
+        appBar: AppBar(
+          title: Text(l.paywall_title, style: AppTypography.titleLg),
+          backgroundColor: AppColors.surfaceContainerLowest,
         ),
-        children: [
-          const _LimitCard(),
-          const SizedBox(height: AppSpacing.xl),
-          _SectionHeader(l.paywall_benefitsTitle),
-          const _BenefitsCard(),
-          const SizedBox(height: AppSpacing.xl),
-          _SectionHeader(l.paywall_plansTitle),
-          _PlansCard(
-            // Selecting a plan opens the checkout for that plan. The plan is
-            // carried as a query parameter so the checkout route needs no
-            // second path and a restored deep link still names its plan.
-            onPlanSelected: (plan) =>
-                context.push('${AppRoutes.checkout}?plan=$plan'),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.edgeMargin,
+            AppSpacing.md,
+            AppSpacing.edgeMargin,
+            AppSpacing.xl,
           ),
-        ],
+          children: [
+            const _LimitCard(),
+            const SizedBox(height: AppSpacing.xl),
+            _SectionHeader(l.paywall_benefitsTitle),
+            const _BenefitsCard(),
+            const SizedBox(height: AppSpacing.xl),
+            _SectionHeader(l.paywall_plansTitle),
+            _PlansCard(
+              // Selecting a plan opens the checkout for that plan. The plan is
+              // carried as a query parameter so the checkout route needs no
+              // second path and a restored deep link still names its plan.
+              onPlanSelected: (plan) =>
+                  context.push('${AppRoutes.checkout}?plan=$plan'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -178,10 +178,30 @@ void main() {
     expect(button.onPressed, isNull);
   });
 
-  testWidgets('an offline account cannot sync and is told why', (tester) async {
+  testWidgets('an offline account cannot sync, is told why, and is red', (
+    tester,
+  ) async {
+    // Regression: the tint came from attention alone, so this card was green —
+    // a green "No Connection" and a green Wi-Fi-off icon above a Sync Now that
+    // cannot run, which is the screen contradicting itself.
     await pump(tester, online: false);
 
-    expect(find.text('No Connection'), findsWidgets);
+    final labels = tester
+        .widgetList<Text>(find.text('No Connection'))
+        .toList(growable: false);
+    expect(labels, isNotEmpty);
+    for (final label in labels) {
+      expect(label.style?.color, AppColors.error);
+    }
+
+    final icons = tester
+        .widgetList<Icon>(find.byIcon(Icons.wifi_off_outlined))
+        .toList(growable: false);
+    expect(icons, isNotEmpty);
+    for (final icon in icons) {
+      expect(icon.color, AppColors.error);
+    }
+
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
   });

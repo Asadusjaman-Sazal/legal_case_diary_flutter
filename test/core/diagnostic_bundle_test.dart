@@ -34,6 +34,36 @@ Map<String, dynamic> _entry({required bool includePayloads}) =>
     );
 
 void main() {
+  test('errors the queue never saw travel with the bundle, redacted', () {
+    final bundle = buildDiagnosticBundle(
+      entries: const [],
+      metadata: const {},
+      includePayloads: false,
+      generatedAt: 5000,
+      errors: const [
+        {'at': 4000, 'area': 'auth.recover', 'label': 'AuthFailure(network)'},
+      ],
+    );
+
+    // The failures that never reached the queue — a refused sign-in, a failed
+    // payment — are the ones a support reader cannot get anywhere else.
+    expect(bundle['errors'], [
+      {'at': 4000, 'area': 'auth.recover', 'label': 'AuthFailure(network)'},
+    ]);
+    expect(bundle['format_version'], 2, reason: 'the errors section is new');
+  });
+
+  test('a bundle with no errors still states the section exists', () {
+    final bundle = buildDiagnosticBundle(
+      entries: const [],
+      metadata: const {},
+      includePayloads: false,
+      generatedAt: 5000,
+    );
+
+    expect(bundle['errors'], isEmpty);
+  });
+
   test('a metadata-only bundle carries no payload column at all', () {
     final bundle = buildDiagnosticBundle(
       entries: [_entry(includePayloads: false)],

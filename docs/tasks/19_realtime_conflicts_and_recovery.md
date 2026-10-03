@@ -1,5 +1,7 @@
 # Task 19 — Realtime, Conflict Resolution & Recovery Flows
 
+> **The bundle carries the app's errors.** `buildDiagnosticBundle` gained an `errors` section (bundle format version 2), filled from `ErrorLog`, so an export answers the questions the sync queue cannot: a refused sign-in, a failed payment, a framework assertion. It is metadata by construction — an `ErrorLogEntry` holds a time, an area and a redacted label, never a case field and never a raw server message — so the metadata-unless-payloads-are-consented rule is unaffected.
+>
 > **Plan references:** Sync Plan §1 (Broadcast from Database, WebSocket reconnection, resume throttle, conflict resolution), §3 "Preventing Deleted Data Resurrection" (incl. Extended Offline Period Reset), §5 "Local Database Security & Account Switching" (logout branches), `sync_queue` schema note (Sync Status/Diagnostics screen), `conflict_log` schema notes, §12.3 "Power & Sync Efficiency" in `docs/implementation_plan.md`.
 > **Goal:** Foreground Realtime notifications, connectivity handling, the full conflict-resolution experience, the Sync Status/Diagnostics screen, extended-offline recovery, and the branched logout flows.
 > **Rules:** Follow the Universal Working Rules in `00_INDEX.md`. Ask, don't guess.

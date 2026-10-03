@@ -1816,5 +1816,10 @@
   "subscription_bannerExpiredOwner": "Your premium subscription has ended. Renew your subscription to restore sync.",
   "subscription_bannerExpiredAssociate": "Your firm's premium subscription has ended. Contact your firm owner to renew.",
   "settingsManageAccount_plan": "Plan",
-  "settingsManageAccount_expiry": "Expiry"
+  "settingsManageAccount_expiry": "Expiry",
+  "settingsDiagnostics_title": "Diagnostics",
+  "settingsDiagnostics_hint": "Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.",
+  "settingsDiagnostics_empty": "No Errors Have Been Recorded.",
+  "settingsDiagnostics_clear": "Clear Log",
+  "settingsDiagnostics_cleared": "Error Log Cleared."
 }

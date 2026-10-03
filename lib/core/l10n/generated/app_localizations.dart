@@ -6737,6 +6737,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expiry'**
   String get settingsManageAccount_expiry;
+
+  /// No description provided for @settingsDiagnostics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get settingsDiagnostics_title;
+
+  /// No description provided for @settingsDiagnostics_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.'**
+  String get settingsDiagnostics_hint;
+
+  /// No description provided for @settingsDiagnostics_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No Errors Have Been Recorded.'**
+  String get settingsDiagnostics_empty;
+
+  /// No description provided for @settingsDiagnostics_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Log'**
+  String get settingsDiagnostics_clear;
+
+  /// No description provided for @settingsDiagnostics_cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Error Log Cleared.'**
+  String get settingsDiagnostics_cleared;
 }
 
 class _AppLocalizationsDelegate

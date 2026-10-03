@@ -3854,4 +3854,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_expiry => 'Expiry';
+
+  @override
+  String get settingsDiagnostics_title => 'Diagnostics';
+
+  @override
+  String get settingsDiagnostics_hint =>
+      'Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.';
+
+  @override
+  String get settingsDiagnostics_empty => 'No Errors Have Been Recorded.';
+
+  @override
+  String get settingsDiagnostics_clear => 'Clear Log';
+
+  @override
+  String get settingsDiagnostics_cleared => 'Error Log Cleared.';
 }

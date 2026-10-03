@@ -6,6 +6,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/constants/supabase_config.dart';
+import 'core/errors/error_capture.dart';
+import 'core/errors/error_log.dart';
+import 'core/errors/error_log_provider.dart';
+import 'core/errors/error_log_store.dart';
 import 'features/auth/data/session_store.dart';
 import 'features/auth/data/supabase_auth_repository.dart';
 import 'shared/providers/shared_preferences_provider.dart';
@@ -24,18 +28,27 @@ import 'shared/providers/shared_preferences_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // The error log comes first, before anything that can fail. It is what keeps
+  // a failure during startup — Supabase initialization included — instead of
+  // losing it, and the global capture is installed before the first frame so
+  // nothing uncaught escapes it.
+  final errorLog = ErrorLog(store: await FileErrorLogStore.inSupportDirectory());
+  await errorLog.load();
+  installErrorCapture(errorLog);
+
   // Load intl locale data for date formatting in English and Bengali before
   // the first frame. Date formatting helpers in [AppDateUtils] rely on this.
   await initializeDateFormatting();
 
   final prefs = await SharedPreferences.getInstance();
 
-  await _initializeSupabase();
+  await _initializeSupabase(errorLog);
 
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
+        errorLogProvider.overrideWithValue(errorLog),
       ],
       child: const App(),
     ),
@@ -48,7 +61,7 @@ Future<void> main() async {
 /// with a local read only, and kicks off a token refresh in the background — so
 /// this call never waits on the network, and a failure here leaves the app fully
 /// usable offline rather than stopping it.
-Future<void> _initializeSupabase() async {
+Future<void> _initializeSupabase(ErrorLog log) async {
   if (!SupabaseConfig.isConfigured) {
     // No backend in this build: `activeSupabaseClient` stays null and the auth
     // providers fall back to the unavailable repository.
@@ -70,7 +83,9 @@ Future<void> _initializeSupabase() async {
     activeSupabaseClient = client.client;
   } catch (error) {
     // Never fatal: a session that cannot be restored is a sign-in problem, not
-    // a diary problem.
+    // a diary problem. Recorded all the same, because "signed in yesterday,
+    // signed out today" is exactly the report this log exists to answer.
+    await log.record('auth.initialize', error);
     debugPrint('Supabase initialization failed: ${error.runtimeType}');
   }
 }

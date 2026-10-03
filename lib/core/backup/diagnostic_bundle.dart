@@ -22,7 +22,9 @@ import 'backup_format.dart';
 const String kDiagnosticBundleFormat = 'legal-case-diary-diagnostics';
 
 /// The bundle layout version. Bump when a section's shape changes.
-const int kDiagnosticBundleFormatVersion = 1;
+///
+/// Version 2 added the app's own error log under `errors`.
+const int kDiagnosticBundleFormatVersion = 2;
 
 /// How long a bundle is expected to be kept: seven days.
 ///
@@ -54,11 +56,17 @@ typedef DiagnosticEntry = Map<String, dynamic>;
 /// [includePayloads] is false the payload columns are **omitted entirely**
 /// rather than blanked, so a metadata-only bundle carries no case content at
 /// all.
+///
+/// [errors] is the app's own error log: the failures that never reached the
+/// queue — a refused sign-in, a failed payment, a framework assertion. It is
+/// metadata by construction, because an `ErrorLogEntry` holds a time, an area
+/// and a redacted label, never a case field and never a raw server message.
 Map<String, dynamic> buildDiagnosticBundle({
   required List<DiagnosticEntry> entries,
   required Map<String, String?> metadata,
   required bool includePayloads,
   required int generatedAt,
+  List<DiagnosticEntry> errors = const <DiagnosticEntry>[],
 }) => <String, dynamic>{
   'format': kDiagnosticBundleFormat,
   'format_version': kDiagnosticBundleFormatVersion,
@@ -69,6 +77,7 @@ Map<String, dynamic> buildDiagnosticBundle({
   'counts': _stateCounts(entries),
   'metadata': metadata,
   'entries': entries,
+  'errors': errors,
 };
 
 /// Describes one queue row for the bundle.

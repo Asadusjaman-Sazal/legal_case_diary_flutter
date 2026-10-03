@@ -164,6 +164,12 @@ class FakeAuthRepository implements AuthRepository {
     verifiedCodes.add(code);
     final failure = verifyError;
     if (failure != null) throw failure;
+    // The real SDK signs the user in and reports the recovery event for a typed
+    // code exactly as it does for an opened link — `verifyOTP` branches on
+    // `OtpType.recovery`, not on how the token arrived — so the fake has to as
+    // well. Without it, no test can see what the ViewModel does with the event.
+    identity = AuthIdentity(userId: 'user-9', email: email.trim());
+    _events.add(AuthSessionEvent(identity: identity!, passwordRecovery: true));
   }
 
   @override

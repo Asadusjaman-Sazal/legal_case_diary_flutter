@@ -186,7 +186,12 @@ class AuthSessionEvent {
   /// The identity after the change; null when signed out.
   final AuthIdentity? identity;
 
-  /// True when the server rejected the stored session.
+  /// True when the stored session can no longer be used and a sign-in is owed.
+  ///
+  /// The server rejecting the refresh token is the usual cause but not the only
+  /// one: a persisted session that cannot be parsed back at all (the SDK's
+  /// `SignOutReason.sessionMissing`) needs the same sign-in, so it is carried
+  /// here too and decided in one place, `authSessionNeedsSignIn`.
   final bool sessionExpired;
 
   /// True when the change came from opening a password-recovery link.

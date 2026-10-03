@@ -8,12 +8,14 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
 
 import 'auth_test_support.dart';
@@ -158,7 +160,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a correct code sets the new password and returns to Login', (
+  testWidgets('a correct code sets the new password and opens the app', (
     tester,
   ) async {
     await pumpReset(tester);
@@ -177,7 +179,46 @@ void main() {
     expect(harness.auth.verifiedCodes, ['123456']);
     expect(harness.auth.updatedPasswords, ['newsecret123']);
     expect(find.text(l.auth_passwordUpdated), findsOneWidget);
-    expect(find.text('auth-route'), findsOneWidget, reason: 'back to Login');
+    expect(
+      find.text(authLandingMarker),
+      findsOneWidget,
+      reason: 'the reset ends with the user signed in',
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a typed code never claims a recovery link arrived', (
+    tester,
+  ) async {
+    // The SDK raises the same `passwordRecovery` event for a typed code as for
+    // an opened link. Taking that at face value is what dragged an in-app
+    // Change Password off the Settings sub-page and left the user parked on the
+    // reset screen, so the event must never raise the flag the router reads.
+    await pumpReset(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(ForgotPasswordScreen)),
+    );
+    await requestCode(tester);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    expect(
+      container.read(passwordRecoveryPendingProvider),
+      isFalse,
+      reason: 'nothing has verified a session yet',
+    );
+
+    await tester.enterText(find.byType(TextFormField).first, '123456');
+    await tester.enterText(find.byType(TextFormField).last, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(
+      container.read(passwordRecoveryPendingProvider),
+      isFalse,
+      reason: 'a typed code is not a link, whatever the event says',
+    );
+    expect(find.text(l.auth_recoveryLinkSubtitle), findsNothing);
 
     await unmountApp(tester);
   });

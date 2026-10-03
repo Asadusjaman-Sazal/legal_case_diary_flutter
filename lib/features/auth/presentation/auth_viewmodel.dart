@@ -99,6 +99,16 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// The local identity cache (last account, first-run gate).
   LocalAuthService get _local => ref.read(localAuthServiceProvider);
 
+  /// Whether an arriving recovery session is the echo of this device's own
+  /// [verifyRecoveryCode] call rather than an e-mail link the user opened.
+  ///
+  /// The SDK reports a typed code as the same `passwordRecovery` event a link
+  /// produces, and that event is the only signal either way. Only a link may
+  /// raise the flag that sends the app to the reset screen: a typed code was
+  /// entered *on* that screen, so raising it would drag the user there — and
+  /// off the Settings sub-page a Change Password was started from.
+  bool _typedRecoveryInFlight = false;
+
   @override
   Future<AuthState> build() async {
     final repository = ref.watch(authRepositoryProvider);
@@ -209,10 +219,25 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       _repository.sendPasswordRecoveryCode(email);
 
   /// Verifies the recovery code, leaving the user able to set a password.
+  ///
+  /// The session this creates is the one a link creates, and the SDK reports
+  /// both as a single `passwordRecovery` event — so the call is latched here
+  /// and the event it produces is spent on this rather than taken for a link.
   Future<void> verifyRecoveryCode({
     required String email,
     required String code,
-  }) => _repository.verifyRecoveryCode(email: email, code: code);
+  }) async {
+    _typedRecoveryInFlight = true;
+    try {
+      await _repository.verifyRecoveryCode(email: email, code: code);
+    } catch (_) {
+      // A refused code creates no session, so no event is coming to spend the
+      // latch. Releasing it here is what keeps a link the user opens later
+      // from being swallowed as this call's echo.
+      _typedRecoveryInFlight = false;
+      rethrow;
+    }
+  }
 
   /// Sets a new password for the recovered (or signed-in) user.
   ///
@@ -325,11 +350,14 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       );
       return;
     }
-    // A verified recovery link: adopt the identity like any other sign-in, then
-    // raise the flag that holds the user on the reset screen. Checked before the
-    // identity-equality guard below, because the flag is the change.
+    // A recovery session: adopt the identity like any other sign-in. Whether it
+    // raises the flag that holds the user on the reset screen depends on where
+    // it came from — an opened link, or a code typed into this device. Checked
+    // before the identity-equality guard below, because the flag is the change.
     if (event.passwordRecovery) {
-      unawaited(_beginPasswordRecovery(event.identity!));
+      final typed = _typedRecoveryInFlight;
+      _typedRecoveryInFlight = false;
+      unawaited(_beginPasswordRecovery(event.identity!, raiseFlag: !typed));
       return;
     }
     // A token refresh carries the same identity; only real changes matter.
@@ -337,10 +365,20 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     unawaited(_completeSignIn(event.identity!));
   }
 
-  /// Completes the sign-in a recovery link implies, then flags the password
-  /// step so the router keeps the user on the reset screen.
-  Future<void> _beginPasswordRecovery(AuthIdentity identity) async {
+  /// Completes the sign-in a recovery session implies.
+  ///
+  /// [raiseFlag] is true only for a link. A link lands the user on the app's
+  /// ordinary route, so the flag is what takes them to the reset screen and
+  /// keeps them there until the new password is set. A typed code was entered
+  /// on that screen already, so it signs in silently: the user is released to
+  /// the app as any other sign-in, and a Change Password started in Settings
+  /// returns to Manage Account instead of being dragged to the auth screen.
+  Future<void> _beginPasswordRecovery(
+    AuthIdentity identity, {
+    required bool raiseFlag,
+  }) async {
     await _completeSignIn(identity);
+    if (!raiseFlag) return;
     final completed = state.value;
     if (completed == null) return;
     state = AsyncData(completed.copyWith(passwordRecovery: true));

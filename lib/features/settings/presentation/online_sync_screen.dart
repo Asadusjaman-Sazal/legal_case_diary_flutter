@@ -215,7 +215,13 @@ class _SyncStatusCard extends ConsumerWidget {
     // Attention outranks everything: a blocked or conflicted change is the one
     // thing on this screen that cannot resolve itself.
     final needsAction = attention > 0;
-    final tint = needsAction
+    // Being offline is the same kind of news and ranks with it. The tint used
+    // to be decided by attention alone, so a signed-in premium user with an
+    // empty queue was shown a green "No Connection" and a green Wi-Fi-off icon
+    // beside a Sync Now that could not run — the screen saying everything was
+    // well at the one moment nothing could sync. The mockup's blocked card is
+    // red for the same reason.
+    final tint = needsAction || blocker == _SyncBlocker.offline
         ? AppColors.error
         : paused
         ? AppColors.onSurfaceVariant

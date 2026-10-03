@@ -1,3 +1,15 @@
+### 2026-10-03 — Profile: the display name now reaches `profiles.full_name` too — COMPLETE
+
+- **Request (the user's).** Changing Full Name on the Profile screen did not update `Supabase > profiles > full_name`; the column kept the previous name.
+- **The cause: `full_name` was not in the PATCH body.** `profileDetailsUpdate()` sent only `bar_association`, `membership_no`, `office_address` and `mobile_no`, so every save wrote those four and left the name on the device. `profiles.full_name` has been client-writable on the holder's own row since Phase 3 (`grant update (full_name)` + `profiles_update_self`), and the plan lists **all five** Profile fields as the account holder's own record — so the push simply never named the fifth column.
+- **The fix.** `profileDetailsUpdate` now sends `full_name` as well, so the Profile screen's Save (and the refresh-time push) mirrors the name exactly like the other four. `email` still stays out — it belongs to `auth.users` and a client that could write it could misrepresent who it is.
+- **One retry gap closed with it.** `accountRefreshProvider` only retried an owed push when the record had one of the four *details*. Since the name now travels in the same PATCH, the gate is `merged.hasDetails || merged.fullName.isNotEmpty`, so a name-only record still has something to send and a name-only offline save is still retried on launch/resume/reconnect. `ProfileFields.hasDetails` itself is unchanged (it is about the four columns, and tests pin that).
+- **Server checked first.** The live project already holds the privileges this needs: `authenticated` has column `UPDATE` on `full_name`, `profiles_update_self` limits it to `id = auth.uid()`, and the only trigger on `profiles` fires on `subscription_expiry` — nothing blocks a name write. No migration was needed.
+- **Files.** `profile_repository.dart` (payload + docs), `account_mode.dart` (retry gate), `profile_name_store.dart` (doc), and `profile_details_test.dart` (payload now pinned as five columns; new test for a name-only record being handed to the account).
+- **Tests.** `flutter analyze` clean; `profile_details_test` + `account_mode_test` + `profile_name_test` **45/45**; full suite **1284 passed**, the one failure pre-existing (`phase4_widgets_test.dart` Bengali calendar digits, fails on HEAD too).
+- **Records (rule 14).** No plan or task-file change: the plan already states the account holder's own five fields are client-writable on their own row, so this change brings the code back to what the plan already described rather than departing from it.
+- **Resume point:** no feature work open.
+
 ### 2026-10-03 — Profile: `+88` mobile prefix, and a save toast that tells the truth — COMPLETE
 
 - **Request (the user's, Profile screen only).** (1) The Edit Profile Mobile No. box's fixed prefix is `+880`; make it `+88` so the user types the number with its leading `0`. (2) Saving the profile does not reach Supabase, and the app always says *Profile saved (offline)*.

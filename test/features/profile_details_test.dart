@@ -32,19 +32,22 @@ const ProfileFields _deviceRecord = ProfileFields(
 
 void main() {
   group('The account payload', () {
-    test('names the four columns, and never the e-mail or the name', () {
+    test('names the five columns, and never the e-mail', () {
       final payload = profileDetailsUpdate(_deviceRecord);
 
       expect(payload, <String, Object?>{
+        'full_name': 'Adv. Rahim Uddin',
         'bar_association': 'Dhaka Bar Association',
         'membership_no': '1557',
         'office_address': 'Chamber 402, High Court Annex',
         'mobile_no': '1812332721',
       });
-      // The account's address and display name have their own owners: the e-mail
-      // comes from auth.users, the name from the pull-only profile cache.
+      // The account's address has its own owner: the e-mail comes from
+      // auth.users and a client that could write it could lie about who it is.
+      // The display name, by contrast, is the holder's own — it is part of the
+      // same PATCH, or an edited name would sit on the device and never reach
+      // the account.
       expect(payload.keys, isNot(contains('email')));
-      expect(payload.keys, isNot(contains('full_name')));
     });
 
     test('reads the four columns back, and leaves the name alone', () {
@@ -304,6 +307,20 @@ void main() {
       await c.read(accountRefreshProvider)();
 
       expect(repository.savedDetails, <ProfileFields>[_deviceRecord]);
+      expect(store().detailsPushPending, isFalse);
+    });
+
+    test('a device that holds only a name still hands it to the account', () async {
+      repository.detailsToPull = ProfileFields.blank;
+      final c = await container();
+      await c
+          .read(profileFieldsProvider.notifier)
+          .save(const ProfileFields(fullName: 'Adv. Rahim Uddin'));
+
+      await c.read(accountRefreshProvider)();
+
+      expect(repository.savedDetails, hasLength(1));
+      expect(repository.savedDetails.single.fullName, 'Adv. Rahim Uddin');
       expect(store().detailsPushPending, isFalse);
     });
 

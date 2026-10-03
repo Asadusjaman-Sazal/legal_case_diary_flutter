@@ -1566,6 +1566,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
 
   @override
+  String get settingsSubscription_currentPlan => 'বর্তমান প্ল্যান';
+
+  @override
+  String get settingsSubscription_paid => 'পরিশোধিত';
+
+  @override
+  String get settingsSubscription_dateTime => 'তারিখ ও সময়';
+
+  @override
+  String get settingsSubscription_status => 'অবস্থা';
+
+  @override
+  String get settingsSubscription_serial => 'ক্রম';
+
+  @override
   String get settingsSubscription_title => 'সাবস্ক্রিপশন';
 
   @override

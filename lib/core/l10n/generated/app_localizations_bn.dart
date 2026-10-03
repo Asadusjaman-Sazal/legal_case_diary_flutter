@@ -1575,12 +1575,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSubscription_dateTime => 'তারিখ ও সময়';
 
   @override
-  String get settingsSubscription_status => 'অবস্থা';
-
-  @override
-  String get settingsSubscription_serial => 'ক্রম';
-
-  @override
   String get settingsSubscription_title => 'সাবস্ক্রিপশন';
 
   @override

@@ -2864,18 +2864,6 @@ abstract class AppLocalizations {
   /// **'Date & Time'**
   String get settingsSubscription_dateTime;
 
-  /// No description provided for @settingsSubscription_status.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get settingsSubscription_status;
-
-  /// No description provided for @settingsSubscription_serial.
-  ///
-  /// In en, this message translates to:
-  /// **'No.'**
-  String get settingsSubscription_serial;
-
   /// No description provided for @settingsSubscription_title.
   ///
   /// In en, this message translates to:

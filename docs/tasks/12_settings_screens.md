@@ -4,9 +4,13 @@
 > behind Manage Account's **Subscription Details** row, and that row is now a sub-page of its own
 > (`subscription_details_screen.dart`) reached from Settings > Subscription: **Role**, the firm where
 > the account is in firm mode, **Current Plan** and **Expiry** (date *and* time), then **Payment
-> History** as a table — No., Plan, Paid, Date & Time, Status — one row per purchase, newest
-> first, scrolling sideways rather than wrapping so the columns stay in their positions. A sheet was
-> the wrong shape for reference material a user reads and reconciles, not a choice they make. Two
+> History** as **one card per purchase**, numbered from the newest, each card carrying the plan, the
+> amount under a **Paid** caption, the moment under **Date & Time**, the verdict as a pill, and the
+> reviewer's note when there is one. Cards replaced a five-column table: on a phone the table either
+> wrapped its dates or pushed the verdict off the edge, and a card gives each purchase its own block.
+> A sheet was the wrong shape for reference material a user reads and reconciles, not a choice they
+> make. The summary card's values right-align at the card's edge, which is pinned by measuring the
+> edge rather than the `textAlign` property — that property is correct in both layouts. Two
 > rules it holds to: an unknown entitlement reads a dash and never *Free*, and every timestamp is
 > Bangladesh civil time with its date and clock taken from the same shifted instant. The rows
 > themselves are unchanged from the move recorded below, and this page is still a recorded mockup

@@ -746,8 +746,6 @@
   "settingsSubscription_currentPlan": "বর্তমান প্ল্যান",
   "settingsSubscription_paid": "পরিশোধিত",
   "settingsSubscription_dateTime": "তারিখ ও সময়",
-  "settingsSubscription_status": "অবস্থা",
-  "settingsSubscription_serial": "ক্রম",
   "settingsSubscription_title": "সাবস্ক্রিপশন",
   "settingsManageAccount_subscriptionDetails": "সাবস্ক্রিপশন বিবরণ",
   "settingsManageAccount_purchaseNewSubscription": "নতুন সাবস্ক্রিপশন ক্রয়",

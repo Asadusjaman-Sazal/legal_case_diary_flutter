@@ -94,6 +94,15 @@ class AppRoutes {
   static const String settingsAccountProfile = '/settings/account-profile';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
+
+  /// Change Password as a Settings sub-page.
+  ///
+  /// It is the same reset flow Login's "Forgot Password?" opens
+  /// ([forgotPassword]), and deliberately a **separate route**: that one is an
+  /// auth route, and the redirect below sends a signed-in user away from every
+  /// auth route — so pushing it from Manage Account only ever landed on the
+  /// default landing page.
+  static const String settingsChangePassword = '/settings/change-password';
   static const String settingsManageAssociates = '/settings/manage-associates';
 
   /// The delete-request queue (Task 20 Phase 4): a reviewer's pending list, or
@@ -431,6 +440,14 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsManageAccount,
     builder: (context, state) => const ManageAccountScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsChangePassword,
+    // The same screen Login opens, in its Settings presentation: the standard
+    // sub-page header with a back button, no line out to Login, and a return to
+    // Manage Account once the password is set.
+    builder: (context, state) =>
+        const ForgotPasswordScreen(asSettingsSubPage: true),
   ),
   GoRoute(
     path: AppRoutes.settingsManageAssociates,

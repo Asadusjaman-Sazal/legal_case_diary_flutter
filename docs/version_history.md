@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.370 - A sign-in now pulls the account row at once, and the entitlement gates say unknown instead of Free, so a premium user no longer waits minutes seeing Subscription: Free, Plan: 1 Month and Last Sync: Never.
+Version: 0.0.372 - A server 5xx is no longer reported to the user as a missing connection: the app says the request failed rather than telling an online device to check its internet.
 --------------------------------------
 
 ## Version History Log:
@@ -384,3 +384,5 @@ Version: 0.0.367 - Profile editor mobile box now prefixes +88 (user types the le
 Version: 0.0.368 - Profile saves now send full_name with the other details, so an edited name reaches profiles.full_name; a name-only saved record is also handed to the account and retried.
 Version: 0.0.369 - Manage Account's Logout now navigates to the Login screen explicitly on a completed logout, instead of popping back to an empty Settings, since the router's sign-in gate is fixed per launch.
 Version: 0.0.370 - A sign-in now pulls the account row at once, and the entitlement gates say unknown instead of Free, so a premium user no longer waits minutes seeing Subscription: Free, Plan: 1 Month and Last Sync: Never.
+Version: 0.0.371 - Manage Account's Change Password now opens the reset flow as its own Settings sub-page with a back button, since Login's auth route bounced a signed-in user to the default landing page.
+Version: 0.0.372 - A server 5xx is no longer reported to the user as a missing connection: the app says the request failed rather than telling an online device to check its internet.

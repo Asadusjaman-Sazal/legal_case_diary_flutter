@@ -24,12 +24,12 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repo
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_account_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
 /// Marker rendered by the stand-in routes the links push.
-const String resetRouteMarker = 'Reset Password Route';
 const String paywallRouteMarker = 'Paywall Route';
 
 /// Marker rendered by the stand-in Login route a completed logout goes to.
@@ -76,9 +76,13 @@ void main() {
           path: AppRoutes.settingsManageAccount,
           builder: (_, _) => const ManageAccountScreen(),
         ),
+        // The real screen, in the presentation this row asks for: asserting on
+        // it rather than on a marker is what pins "a Settings sub-page, not the
+        // auth route".
         GoRoute(
-          path: AppRoutes.forgotPassword,
-          builder: (_, _) => const Scaffold(body: Text(resetRouteMarker)),
+          path: AppRoutes.settingsChangePassword,
+          builder: (_, _) =>
+              const ForgotPasswordScreen(asSettingsSubPage: true),
         ),
         GoRoute(
           path: AppRoutes.paywall,
@@ -237,12 +241,24 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Change Password opens the reset flow', (tester) async {
+  testWidgets('Change Password opens the reset flow as a Settings sub-page', (
+    tester,
+  ) async {
+    // Regression: this row pushed Login's `/forgot-password`, which is an auth
+    // route — and the router sends a signed-in user away from every auth route,
+    // so the tap landed on the default landing page instead of the screen.
     await pumpManageAccount(tester);
 
     await tapVisible(tester, find.text(l.settingsManageAccount_changePassword));
 
-    expect(find.text(resetRouteMarker), findsOneWidget);
+    // The same screen Login's "Forgot Password?" shows...
+    expect(find.text(l.auth_forgotTitle), findsOneWidget);
+    expect(find.text(l.auth_sendCodeButton), findsOneWidget);
+    expect(find.text(l.auth_emailLabel), findsOneWidget);
+    // ...but as a Settings sub-page: the standard header with its back button.
+    expect(find.byType(BackButton), findsWidgets);
+    // And no way out to Login, where a signed-in user may not go.
+    expect(find.text(l.auth_backToLogin), findsNothing);
 
     await unmountApp(tester);
   });

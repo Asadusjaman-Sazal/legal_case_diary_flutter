@@ -59,9 +59,13 @@ class ManageAccountScreen extends ConsumerWidget {
       _AccountItem(
         icon: Icons.lock_outline,
         title: l.settingsManageAccount_changePassword,
-        // One password-reset path for the whole app: the emailed-code flow the
-        // Login screen's "Forgot Password?" already uses.
-        onTap: () => context.push(AppRoutes.forgotPassword),
+        // One password-reset flow for the whole app — the emailed-code flow the
+        // Login screen's "Forgot Password?" already uses — opened in its
+        // Settings presentation. It cannot be Login's own `/forgot-password`:
+        // that is an auth route, and the router sends a signed-in user away
+        // from every auth route, which is why this row used to land on the
+        // default landing page instead of the screen.
+        onTap: () => context.push(AppRoutes.settingsChangePassword),
       ),
       _AccountItem(
         icon: Icons.star_outline,

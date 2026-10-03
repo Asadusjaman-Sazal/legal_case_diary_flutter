@@ -1646,5 +1646,10 @@
   "subscription_bannerExpiredOwner": "আপনার প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক ফিরে পেতে সাবস্ক্রিপশন নবায়ন করুন।",
   "subscription_bannerExpiredAssociate": "আপনার ফার্মের প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। নবায়নের জন্য ফার্মের মালিকের সাথে যোগাযোগ করুন।",
   "settingsManageAccount_plan": "প্ল্যান",
-  "settingsManageAccount_expiry": "মেয়াদ শেষ"
+  "settingsManageAccount_expiry": "মেয়াদ শেষ",
+  "settingsDiagnostics_title": "ডায়াগনস্টিকস",
+  "settingsDiagnostics_hint": "এই অ্যাপে রেকর্ড করা ত্রুটিগুলো। মামলার তথ্য, পাসওয়ার্ড বা টোকেন কখনো এখানে লেখা হয় না।",
+  "settingsDiagnostics_empty": "কোনো ত্রুটি রেকর্ড হয়নি।",
+  "settingsDiagnostics_clear": "লগ মুছুন",
+  "settingsDiagnostics_cleared": "ত্রুটি লগ মুছে ফেলা হয়েছে।"
 }

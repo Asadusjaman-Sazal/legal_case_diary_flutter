@@ -3875,4 +3875,20 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_expiry => 'মেয়াদ শেষ';
+
+  @override
+  String get settingsDiagnostics_title => 'ডায়াগনস্টিকস';
+
+  @override
+  String get settingsDiagnostics_hint =>
+      'এই অ্যাপে রেকর্ড করা ত্রুটিগুলো। মামলার তথ্য, পাসওয়ার্ড বা টোকেন কখনো এখানে লেখা হয় না।';
+
+  @override
+  String get settingsDiagnostics_empty => 'কোনো ত্রুটি রেকর্ড হয়নি।';
+
+  @override
+  String get settingsDiagnostics_clear => 'লগ মুছুন';
+
+  @override
+  String get settingsDiagnostics_cleared => 'ত্রুটি লগ মুছে ফেলা হয়েছে।';
 }

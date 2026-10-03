@@ -1,5 +1,7 @@
 # Task 17 — Auth, Profiles & Firm Onboarding
 
+> **Error log (cross-cutting follow-up).** The app now keeps its own error log: `installErrorCapture` wires `FlutterError.onError` and `PlatformDispatcher.instance.onError` at startup and delegates to the previous handler rather than swallowing, `ErrorLog` holds the last 200 failures (time, area, redacted label) in a file in the app's private support directory, and a Diagnostics Settings sub-page reads it. Supabase initialization fails into `auth.initialize` rather than into a bare `debugPrint` that reached nobody. A typed failure names its kind through `DiagnosableFailure`; a raw `serverMessage` is never written. The third piece — one shared failure taxonomy and copy mapper across the firm, profile, admin and delete-request repositories — is the next phase.
+>
 > **Plan references:** "Resolved Design Clarifications" (Login Flow, Sign Up & Team Onboarding, Firm Mode Detection), Database Schema (`profiles`, `firm_invites`, `firm_members` notes), Sync Plan §5 (Offline Session Expiry), Folder & File Structure (`features/auth/`, `features/accounts_and_profile/`) in `docs/implementation_plan.md`.
 > **Goal:** Supabase Auth wired into the app: unified login, sign-up with "Join Existing Firm" via invite code, runtime firm-mode detection from `profiles`, and offline-session behavior that never blocks local data.
 > **Rules:** Follow the Universal Working Rules in `00_INDEX.md`. Ask, don't guess.

@@ -7,6 +7,8 @@
 /// in signed-in identity and typed failures, and Supabase Auth owns the rest.
 library;
 
+import '../../../core/errors/error_log.dart';
+
 /// The signed-in identity, reduced to what the rest of the app needs.
 ///
 /// Deliberately carries no token: the session lives in secure storage behind
@@ -152,7 +154,7 @@ enum AuthFailureKind {
 ///
 /// [serverMessage] is kept for diagnostics only — screens render their own
 /// localized text from [kind].
-class AuthFailure implements Exception {
+class AuthFailure implements Exception, DiagnosableFailure {
   /// Creates a failure of [kind].
   const AuthFailure(this.kind, {this.serverMessage, this.cause});
 
@@ -164,6 +166,11 @@ class AuthFailure implements Exception {
 
   /// Underlying error, for debugging.
   final Object? cause;
+
+  /// The log's label: the kind, never [serverMessage], which is a raw server
+  /// text and has no business in an exported file.
+  @override
+  String get diagnosticLabel => 'AuthFailure(${kind.name})';
 
   @override
   String toString() => 'AuthFailure(${kind.name})';

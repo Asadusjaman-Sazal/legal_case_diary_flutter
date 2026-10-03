@@ -170,6 +170,13 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             label: l.settingsGuidelines_title,
             onTap: () => context.push(AppRoutes.settingsGuidelines),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          // The log behind this row is what turns a report into something
+          // diagnosable, so it sits with Support rather than behind a gesture.
+          SettingsLinkRow(
+            label: l.settingsDiagnostics_title,
+            onTap: () => context.push(AppRoutes.settingsDiagnostics),
+          ),
           const SizedBox(height: AppSpacing.lg),
           SettingsSectionLabel(l.settingsSupport_channelsLabel),
           const SizedBox(height: AppSpacing.sm),

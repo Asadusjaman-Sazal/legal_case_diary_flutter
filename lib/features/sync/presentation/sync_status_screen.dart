@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/backup/diagnostic_bundle.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -221,6 +222,12 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
             ),
         ],
         metadata: await _diagnosticMetadata(db),
+        // The failures the queue cannot show — sign-in, payments, profile,
+        // anything the app recorded. Already redacted, and never payloads.
+        errors: <Map<String, dynamic>>[
+          for (final entry in ref.read(errorLogProvider).entries)
+            entry.toJson(),
+        ],
         includePayloads: includePayloads,
         generatedAt: generatedAt,
       );

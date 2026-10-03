@@ -10,13 +10,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/errors/error_log.dart';
 
 /// Thrown by a [SyncTransport] when a call could not complete.
 ///
 /// [retryable] is the only thing the retry policy reads: a network or 5xx
 /// failure is retried with backoff, while a permanent rejection stops
 /// immediately.
-class SyncFailure implements Exception {
+class SyncFailure implements Exception, DiagnosableFailure {
   /// Creates a failure with a user-safe [message].
   const SyncFailure(this.message, {required this.kind, required this.retryable});
 
@@ -28,6 +29,11 @@ class SyncFailure implements Exception {
 
   /// Whether the push worker should retry.
   final bool retryable;
+
+  /// The log's label. [message] is already user-safe, but the kind is what a
+  /// support reader needs first and it never varies with the payload.
+  @override
+  String get diagnosticLabel => 'SyncFailure(${kind.name})';
 
   @override
   String toString() => message;

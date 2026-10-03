@@ -13,6 +13,7 @@
 library;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/errors/error_log.dart';
 
 /// Why a submission could not be accepted.
 enum PaymentSubmitFailure {
@@ -30,7 +31,7 @@ enum PaymentSubmitFailure {
 }
 
 /// A typed submission failure, so the view model can word it honestly.
-class PaymentSubmitException implements Exception {
+class PaymentSubmitException implements Exception, DiagnosableFailure {
   /// Creates a failure of [kind].
   const PaymentSubmitException(this.kind, {this.detail});
 
@@ -39,6 +40,10 @@ class PaymentSubmitException implements Exception {
 
   /// Optional server detail, for diagnostics only — never shown raw.
   final String? detail;
+
+  /// The log's label: the kind, never [detail], which is a raw server text.
+  @override
+  String get diagnosticLabel => 'PaymentSubmitException(${kind.name})';
 
   @override
   String toString() => 'PaymentSubmitException($kind)';

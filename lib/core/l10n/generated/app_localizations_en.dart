@@ -1562,6 +1562,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'Change Password';
 
   @override
+  String get settingsSubscription_title => 'Subscription';
+
+  @override
   String get settingsManageAccount_subscriptionDetails =>
       'Subscription Details';
 

@@ -787,6 +787,7 @@
   "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
   "settingsManageAccount_title": "Manage Account",
   "settingsManageAccount_changePassword": "Change Password",
+  "settingsSubscription_title": "Subscription",
   "settingsManageAccount_subscriptionDetails": "Subscription Details",
   "settingsManageAccount_purchaseNewSubscription": "Purchase New Subscription",
   "settingsManageAccount_logout": "Logout",

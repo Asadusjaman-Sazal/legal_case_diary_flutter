@@ -2846,6 +2846,12 @@ abstract class AppLocalizations {
   /// **'Change Password'**
   String get settingsManageAccount_changePassword;
 
+  /// No description provided for @settingsSubscription_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get settingsSubscription_title;
+
   /// No description provided for @settingsManageAccount_subscriptionDetails.
   ///
   /// In en, this message translates to:

@@ -62,6 +62,14 @@ enum _SyncBlocker {
   /// Signed in, but on the free plan — premium is what unlocks sync.
   needsPremium,
 
+  /// Signed in, but the account's plan is not known yet.
+  ///
+  /// Distinct from [needsPremium] on purpose: the entitlement derivation reads
+  /// the cached profile, so before the first pull of a session it answers false
+  /// for a premium account too. Telling that user premium is required is simply
+  /// untrue, and it is the state a fresh sign-in used to sit in.
+  checking,
+
   /// No connection.
   offline,
 }
@@ -327,6 +335,7 @@ class _SyncStatusCard extends ConsumerWidget {
   IconData _icon(AppLocalizations l) => switch (blocker) {
     _SyncBlocker.signedOut => Icons.cloud_off_outlined,
     _SyncBlocker.needsPremium => Icons.workspace_premium_outlined,
+    _SyncBlocker.checking => Icons.cloud_sync_outlined,
     _SyncBlocker.offline => Icons.wifi_off_outlined,
     _SyncBlocker.none => switch (health?.status) {
       SyncHealthStatus.syncing => Icons.sync,
@@ -338,6 +347,7 @@ class _SyncStatusCard extends ConsumerWidget {
   String _pillLabel(AppLocalizations l) => switch (blocker) {
     _SyncBlocker.signedOut => l.settingsOnlineSync_notSignedIn,
     _SyncBlocker.needsPremium => l.settingsOnlineSync_freePlanPill,
+    _SyncBlocker.checking => l.settingsOnlineSync_checkingPlan,
     _SyncBlocker.offline => l.settingsOnlineSync_offline,
     _SyncBlocker.none => switch (health?.status) {
       SyncHealthStatus.syncing => l.settingsOnlineSync_syncing,
@@ -352,6 +362,7 @@ class _SyncStatusCard extends ConsumerWidget {
   String _body(AppLocalizations l) => switch (blocker) {
     _SyncBlocker.signedOut => l.settingsOnlineSync_dataStaysOnDevice,
     _SyncBlocker.needsPremium => l.settingsOnlineSync_freePlanHint,
+    _SyncBlocker.checking => l.settingsOnlineSync_checkingPlanBody,
     _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
     _SyncBlocker.none =>
       attention > 0
@@ -364,6 +375,7 @@ class _SyncStatusCard extends ConsumerWidget {
   String _blockerMessage(AppLocalizations l) => switch (blocker) {
     _SyncBlocker.signedOut => l.settingsOnlineSync_needSignInToSync,
     _SyncBlocker.needsPremium => l.settingsOnlineSync_needPremiumToSync,
+    _SyncBlocker.checking => l.settingsOnlineSync_checkingPlanMessage,
     _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
     _SyncBlocker.none => '',
   };
@@ -527,9 +539,14 @@ String _markerLabel(AppLocalizations l, int waiting, _SyncBlocker blocker) {
 /// disagree about why sync is unavailable.
 _SyncBlocker _syncBlockerOf(WidgetRef ref) {
   if (ref.watch(authIdentityProvider) == null) return _SyncBlocker.signedOut;
-  if (!(ref.watch(premiumAccessProvider).value ?? false)) {
-    return _SyncBlocker.needsPremium;
+  final premium = ref.watch(premiumAccessProvider);
+  // Unknown before free: an account whose profile row has not been pulled yet
+  // has no plan to report, and the same false that means "free" for a known
+  // account means "no answer yet" for this one.
+  if (premium.isLoading || !ref.watch(entitlementKnownProvider)) {
+    return _SyncBlocker.checking;
   }
+  if (!(premium.value ?? false)) return _SyncBlocker.needsPremium;
   if (!(ref.watch(isOnlineProvider).value ?? true)) {
     return _SyncBlocker.offline;
   }

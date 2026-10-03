@@ -3164,6 +3164,24 @@ abstract class AppLocalizations {
   /// **'No Connection. Your Changes Are Saved On This Device.'**
   String get settingsOnlineSync_needConnectionToSync;
 
+  /// No description provided for @settingsOnlineSync_checkingPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking Your Subscription…'**
+  String get settingsOnlineSync_checkingPlan;
+
+  /// No description provided for @settingsOnlineSync_checkingPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your plan before anything is sent.'**
+  String get settingsOnlineSync_checkingPlanBody;
+
+  /// No description provided for @settingsOnlineSync_checkingPlanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Starts As Soon As Your Plan Is Confirmed.'**
+  String get settingsOnlineSync_checkingPlanMessage;
+
   /// No description provided for @settingsOnlineSync_itemsUnknown.
   ///
   /// In en, this message translates to:

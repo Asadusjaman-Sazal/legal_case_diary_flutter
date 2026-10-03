@@ -1750,6 +1750,18 @@ class AppLocalizationsBn extends AppLocalizations {
       'কোনো সংযোগ নেই। আপনার পরিবর্তন এই ডিভাইসেই সংরক্ষিত আছে।';
 
   @override
+  String get settingsOnlineSync_checkingPlan =>
+      'আপনার সাবস্ক্রিপশন যাচাই করা হচ্ছে…';
+
+  @override
+  String get settingsOnlineSync_checkingPlanBody =>
+      'কিছু পাঠানোর আগে আপনার প্ল্যান নিশ্চিত করা হচ্ছে।';
+
+  @override
+  String get settingsOnlineSync_checkingPlanMessage =>
+      'আপনার প্ল্যান নিশ্চিত হলেই সিঙ্ক শুরু হবে।';
+
+  @override
   String get settingsOnlineSync_itemsUnknown => '— আইটেম';
 
   @override

@@ -876,6 +876,9 @@
   "settingsOnlineSync_needPremiumToSync": "Premium Is Required To Sync Across Devices.",
   "settingsOnlineSync_needSignInToSync": "Sign In To Sync Across Devices.",
   "settingsOnlineSync_needConnectionToSync": "No Connection. Your Changes Are Saved On This Device.",
+  "settingsOnlineSync_checkingPlan": "Checking Your Subscription…",
+  "settingsOnlineSync_checkingPlanBody": "Confirming your plan before anything is sent.",
+  "settingsOnlineSync_checkingPlanMessage": "Sync Starts As Soon As Your Plan Is Confirmed.",
   "settingsOnlineSync_itemsUnknown": "— Items",
   "settingsOnlineSync_itemsCount": "{count} Items",
   "@settingsOnlineSync_itemsCount": {

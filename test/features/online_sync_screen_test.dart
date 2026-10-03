@@ -66,6 +66,7 @@ void main() {
       email: 'advocate.asad@law.com',
     ),
     bool premium = true,
+    bool entitlementKnown = true,
     bool online = true,
     int? lastSuccessEpochMs,
     int attention = 0,
@@ -92,6 +93,9 @@ void main() {
         ),
         authIdentityProvider.overrideWithValue(identity),
         premiumAccessProvider.overrideWith((ref) async => premium),
+        // Whether the cached account row has landed. true here is the settled
+        // state every ordinary case is in; only the checking test says false.
+        entitlementKnownProvider.overrideWithValue(entitlementKnown),
         isOnlineProvider.overrideWith((ref) => Stream<bool>.value(online)),
         syncLastSuccessProvider.overrideWith(
           (ref) => Stream<int?>.value(lastSuccessEpochMs),
@@ -150,6 +154,25 @@ void main() {
     expect(
       find.text('Premium Is Required To Sync Across Devices.'),
       findsOneWidget,
+    );
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNull);
+  });
+
+  testWidgets('an account whose plan is not known yet is not called free', (
+    tester,
+  ) async {
+    // Regression: after a sign-in the profile pull has not landed, so the
+    // entitlement derivation answers false for a premium account too. The card
+    // used to print "Free Plan" and "Premium Is Required To Sync Across
+    // Devices" at that moment — a lie about an account that had paid.
+    await pump(tester, premium: false, entitlementKnown: false);
+
+    expect(find.text('Free Plan'), findsNothing);
+    expect(find.text('Checking Your Subscription…'), findsOneWidget);
+    expect(
+      find.text('Premium Is Required To Sync Across Devices.'),
+      findsNothing,
     );
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);

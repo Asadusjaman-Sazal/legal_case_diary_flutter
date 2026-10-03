@@ -186,7 +186,22 @@ void main() {
   });
 
   testWidgets('an individual with no subscription sees Free', (tester) async {
-    await pumpManageAccount(tester);
+    // A pulled profile row that carries no expiry: the account is *known* to be
+    // on the free plan. Without the row the sheet says nothing at all rather
+    // than Free — see the unknown-entitlement test below — so "Free" here is a
+    // fact rather than a gap, which is what makes this assertion meaningful.
+    await pumpManageAccount(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
 
     await tapVisible(
       tester,
@@ -197,6 +212,27 @@ void main() {
     expect(find.text(l.settingsManageAccount_planFree), findsOneWidget);
     // No firm in individual mode, so no Firm row.
     expect(find.text(l.settingsManageAccount_firm), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an account whose row has not landed says nothing, not Free', (
+    tester,
+  ) async {
+    // Regression: the sheet read the entitlement the moment the session existed,
+    // so a premium account that had just signed in was told "Subscription: Free"
+    // while the Plan row beside it already named the month it had paid for.
+    // With no cached row there is no plan to report, and a dash is the honest
+    // value until the pull lands.
+    await pumpManageAccount(tester);
+
+    await tapVisible(
+      tester,
+      find.text(l.settingsManageAccount_subscriptionDetails),
+    );
+
+    expect(find.text(l.settingsManageAccount_planFree), findsNothing);
+    expect(find.text('—'), findsWidgets, reason: 'the entitlement is unknown');
 
     await unmountApp(tester);
   });

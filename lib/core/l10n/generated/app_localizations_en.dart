@@ -1747,6 +1747,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'No Connection. Your Changes Are Saved On This Device.';
 
   @override
+  String get settingsOnlineSync_checkingPlan => 'Checking Your Subscription…';
+
+  @override
+  String get settingsOnlineSync_checkingPlanBody =>
+      'Confirming your plan before anything is sent.';
+
+  @override
+  String get settingsOnlineSync_checkingPlanMessage =>
+      'Sync Starts As Soon As Your Plan Is Confirmed.';
+
+  @override
   String get settingsOnlineSync_itemsUnknown => '— Items';
 
   @override

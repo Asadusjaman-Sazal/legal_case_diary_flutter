@@ -3349,6 +3349,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Firm Mode Requires An Active Premium Subscription.';
 
   @override
+  String get firm_errorServer =>
+      'The server could not complete that request. Please try again.';
+
+  @override
+  String get firm_errorUnauthorized =>
+      'Your account is not allowed to do that.';
+
+  @override
+  String get firm_errorUnavailable =>
+      'Firm management is not available in this build.';
+
+  @override
   String get auth_errorAlreadyMember =>
       'You are already a member of this firm.';
 
@@ -3870,4 +3882,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_cleared => 'Error Log Cleared.';
+
+  @override
+  String get settingsDiagnostics_copy => 'Copy Diagnostics';
+
+  @override
+  String get settingsDiagnostics_copied =>
+      'Diagnostics Copied. Paste Them Into A Message To Us.';
 }

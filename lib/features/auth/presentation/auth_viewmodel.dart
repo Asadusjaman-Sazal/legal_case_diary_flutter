@@ -21,6 +21,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../shared/providers/database_provider.dart';
@@ -109,6 +111,30 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// off the Settings sub-page a Change Password was started from.
   bool _typedRecoveryInFlight = false;
 
+  /// Runs [action] under [area], recording anything it lets out before letting
+  /// it out.
+  ///
+  /// **This is where a failure the user saw is remembered.** Screens catch
+  /// [AuthFailure] to raise their own banner, so nothing here escapes to the
+  /// global capture in `error_capture.dart` — a wrong password, a rate limit or
+  /// a dead network reaches the user as a message and leaves no trace at all.
+  /// The edge of the layer that owns the operation is therefore the one point
+  /// every banner passes through.
+  ///
+  /// A cancelled Google sheet is excluded deliberately: it is the user closing
+  /// a sheet, not a fault, and a log full of their own decisions is a log
+  /// nobody can read.
+  Future<T> _guard<T>(String area, Future<T> Function() action) async {
+    try {
+      return await action();
+    } on Object catch (error) {
+      if (error is! AuthFailure || error.kind != AuthFailureKind.cancelled) {
+        recordFailure(ref.read(errorLogProvider), area, error);
+      }
+      rethrow;
+    }
+  }
+
   @override
   Future<AuthState> build() async {
     final repository = ref.watch(authRepositoryProvider);
@@ -135,21 +161,22 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     required String email,
     required String password,
     String? firmId,
-  }) async {
+  }) => _guard('auth.signIn', () async {
     final identity = await _repository.signInWithPassword(
       email: email,
       password: password,
     );
     await _completeSignIn(identity, firmId: firmId);
     return identity;
-  }
+  });
 
   /// Signs in with Google, adopting any offline data first.
-  Future<AuthIdentity> signInWithGoogle({String? firmId}) async {
-    final identity = await _repository.signInWithGoogle();
-    await _completeSignIn(identity, firmId: firmId);
-    return identity;
-  }
+  Future<AuthIdentity> signInWithGoogle({String? firmId}) =>
+      _guard('auth.signInWithGoogle', () async {
+        final identity = await _repository.signInWithGoogle();
+        await _completeSignIn(identity, firmId: firmId);
+        return identity;
+      });
 
   /// Creates an individual account.
   ///
@@ -164,7 +191,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     required String password,
     String barAssociation = '',
     String? inviteCode,
-  }) async {
+  }) => _guard('auth.signUpIndividual', () async {
     final code = inviteCode?.trim();
     if (code != null && code.isNotEmpty) {
       await _local.setPendingInviteCode(code);
@@ -180,7 +207,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       await _completeSignIn(outcome.identity);
     }
     return outcome;
-  }
+  });
 
   /// The invite code still waiting to be redeemed, or null.
   String? get pendingInviteCode => _local.pendingInviteCode;
@@ -198,25 +225,32 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// Throws [AuthFailure] on an invalid code, the rate limit, or no network.
   /// The code is deliberately kept in every failure case: onboarding stays
   /// retryable, which is what the Addendum requires.
-  Future<InviteRedemption> redeemPendingInvite() async {
-    final code = _local.pendingInviteCode;
-    if (code == null) {
-      throw const AuthFailure(AuthFailureKind.invalidCode);
-    }
+  Future<InviteRedemption> redeemPendingInvite() => _guard(
+    'auth.redeemInvite',
+    () async {
+      final code = _local.pendingInviteCode;
+      if (code == null) {
+        throw const AuthFailure(AuthFailureKind.invalidCode);
+      }
 
-    final redemption = await ref.read(firmRepositoryProvider).redeemInvite(code);
-    await _local.clearPendingInviteCode();
-    // Pull the new membership straight away, so the permission flags and their
-    // freshness stamp are cached before the first case write reads them. A
-    // failed pull leaves the reachable default (fail closed), and the launch /
-    // resume refresh will fill it in.
-    await (await ref.read(profileRepositoryProvider.future)).refresh();
-    return redemption;
-  }
+      final redemption = await ref
+          .read(firmRepositoryProvider)
+          .redeemInvite(code);
+      await _local.clearPendingInviteCode();
+      // Pull the new membership straight away, so the permission flags and their
+      // freshness stamp are cached before the first case write reads them. A
+      // failed pull leaves the reachable default (fail closed), and the launch /
+      // resume refresh will fill it in.
+      await (await ref.read(profileRepositoryProvider.future)).refresh();
+      return redemption;
+    },
+  );
 
   /// Sends the password-recovery code.
   Future<void> sendPasswordRecoveryCode(String email) =>
-      _repository.sendPasswordRecoveryCode(email);
+      _guard('auth.sendRecoveryCode', () async {
+        await _repository.sendPasswordRecoveryCode(email);
+      });
 
   /// Verifies the recovery code, leaving the user able to set a password.
   ///
@@ -226,7 +260,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   Future<void> verifyRecoveryCode({
     required String email,
     required String code,
-  }) async {
+  }) => _guard('auth.verifyRecoveryCode', () async {
     _typedRecoveryInFlight = true;
     try {
       await _repository.verifyRecoveryCode(email: email, code: code);
@@ -237,21 +271,22 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       _typedRecoveryInFlight = false;
       rethrow;
     }
-  }
+  });
 
   /// Sets a new password for the recovered (or signed-in) user.
   ///
   /// Clearing the recovery flag is what lets the router release the user: once
   /// the password is set, the session the recovery link created becomes an
   /// ordinary one and the app opens as usual.
-  Future<void> updatePassword(String newPassword) async {
-    await _repository.updatePassword(newPassword);
-    await _local.markGateSatisfied();
-    final current = state.value;
-    if (current != null && current.passwordRecovery) {
-      state = AsyncData(current.copyWith(passwordRecovery: false));
-    }
-  }
+  Future<void> updatePassword(String newPassword) =>
+      _guard('auth.updatePassword', () async {
+        await _repository.updatePassword(newPassword);
+        await _local.markGateSatisfied();
+        final current = state.value;
+        if (current != null && current.passwordRecovery) {
+          state = AsyncData(current.copyWith(passwordRecovery: false));
+        }
+      });
 
   /// Signs out of this device.
   ///
@@ -301,12 +336,17 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     if (_local.pendingInviteCode == null) return;
     try {
       await ref.read(firmRepositoryProvider).abandonOnboarding();
-    } catch (_) {
+    } catch (error) {
       // ponytail: best-effort, because a sign-out must always succeed — it is
       // the one action a user may need precisely when the network is gone. The
       // ceiling is that an offline sign-out leaves an empty provisional account
       // behind; the upgrade path is to retry the call on the next launch while
       // the account is known to be unprovisioned.
+      //
+      // Swallowed, but not forgotten: this is the one failure in the app that
+      // reaches nobody at all, and "signed out, yet the abandoned account is
+      // still on the server" is exactly what the log exists to explain.
+      recordFailure(ref.read(errorLogProvider), 'auth.abandonOnboarding', error);
     }
   }
 

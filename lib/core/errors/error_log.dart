@@ -63,6 +63,20 @@ class ErrorLogEntry {
   }
 }
 
+/// Records [error] as having happened in [area], without waiting for the write.
+///
+/// **This is the choke point for a failure the user saw.** The global capture in
+/// `error_capture.dart` only sees what escaped; but this app catches almost
+/// everything, turns it into a typed failure and shows a banner, so a user
+/// stuck on a broken screen usually produces *no* uncaught error at all. A
+/// domain ViewModel calls this as it lets a failure out of the layer that owns
+/// it, which is the one point every screen's banner passes through.
+///
+/// Not awaited on purpose: the caller is a failure path already, and making it
+/// wait for a disk write would turn a diagnostics aid into a second failure.
+void recordFailure(ErrorLog log, String area, Object error) =>
+    unawaited(log.record(area, error));
+
 /// A one-line, redacted description of [error] for the log.
 ///
 /// Deliberately narrow. A typed failure answers with its kind; anything else

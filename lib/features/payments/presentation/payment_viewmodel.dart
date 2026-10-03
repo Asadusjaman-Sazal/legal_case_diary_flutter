@@ -16,6 +16,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../data/payment_plans.dart';
@@ -110,6 +112,11 @@ class PaymentViewModel extends AsyncNotifier<PaymentState> {
             transactionId: trx,
           );
     } on PaymentSubmitException catch (error) {
+      // A refused payment is the one failure where the user's money and the
+      // developer's copy of the attempt have to agree, so it is recorded the
+      // moment it is refused rather than only when it reaches the global
+      // capture — which it never would, being shown as a form message.
+      recordFailure(ref.read(errorLogProvider), 'payments.submit', error);
       state = AsyncData(
         PaymentState(phase: PaymentPhase.failure, failure: error.kind),
       );

@@ -26,6 +26,9 @@ class ReferenceViewModel extends BaseListViewModel<CaseReference, ReferenceRepos
       referenceRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'caseReference';
+
+  @override
   Future<List<CaseReference>> loadItems(ReferenceRepository repo) =>
       repo.listAll();
 

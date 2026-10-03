@@ -18,6 +18,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/errors/error_log.dart';
+import 'package:legal_case_diary/core/errors/error_log_provider.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -383,6 +385,10 @@ class AuthTestHarness {
   /// The preferences the app reads.
   late final SharedPreferences prefs;
 
+  /// The error log the app records into; a test reads it to prove a failure it
+  /// provoked was remembered.
+  final ErrorLog log = ErrorLog();
+
   /// Creates the database and preferences, and returns the provider overrides.
   ///
   /// [extra] appends the seams a particular test needs — the branched logout,
@@ -398,6 +404,9 @@ class AuthTestHarness {
       databaseProvider.overrideWith((_) async => db),
       authRepositoryProvider.overrideWithValue(auth),
       firmRepositoryProvider.overrideWithValue(firm),
+      // main.dart always overrides this, and the view models record into it as
+      // they let a failure out; an in-memory log keeps every test file-free.
+      errorLogProvider.overrideWithValue(log),
       ...extra,
     ];
   }

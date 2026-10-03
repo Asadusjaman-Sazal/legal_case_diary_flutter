@@ -21,6 +21,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../accounts_and_profile/data/firm_repository.dart';
 import '../data/auth_repository.dart';
 import '../data/local_auth_service.dart';
 import 'auth_viewmodel.dart';
@@ -90,10 +91,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await viewModel.redeemPendingInvite();
     } on AuthFailure catch (failure) {
       if (!mounted) return;
-      setState(() => _pendingInviteNote = authErrorText(
-        AppLocalizations.of(context),
-        failure.kind,
-      ));
+      setState(
+        () => _pendingInviteNote = authErrorText(
+          AppLocalizations.of(context),
+          failure.kind,
+        ),
+      );
+    } on FirmFailure catch (failure) {
+      // The redemption is a firm operation, so it answers in firm terms; an
+      // uncaught one here would have reached the global capture instead of the
+      // note the user is waiting to read.
+      if (!mounted) return;
+      setState(
+        () => _pendingInviteNote = firmErrorText(
+          AppLocalizations.of(context),
+          failure.kind,
+        ),
+      );
     }
   }
 

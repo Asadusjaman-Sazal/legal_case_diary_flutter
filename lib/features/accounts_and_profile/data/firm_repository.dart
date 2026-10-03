@@ -23,17 +23,19 @@
 /// network methods below are one call each over them.
 library;
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../sync/connectivity_monitor.dart';
-import '../../auth/data/auth_repository.dart';
-import '../../auth/data/supabase_auth_repository.dart' show mapAuthFailure;
 import 'profile_repository.dart' show AccountRole;
 
 /// Crockford Base32: 32 symbols, and deliberately without `I`, `L`, `O` and `U`
@@ -175,14 +177,11 @@ InviteRedemption parseInviteRedemption(Object? response) {
       status: InviteRedemptionStatus.alreadyMember,
       firmId: result['firm_id'] as String?,
     ),
-    'invalid_code' => throw const AuthFailure(AuthFailureKind.invalidCode),
+    'invalid_code' => throw const FirmFailure(FirmFailureKind.invalidInviteCode),
     // The RPC falls back to a status rather than raising when it cannot see a
     // caller; a redemption always happens signed in, so this is a bug state, not
     // something to explain to the user.
-    _ => throw AuthFailure(
-      AuthFailureKind.unknown,
-      serverMessage: result['status'] as String?,
-    ),
+    _ => throw FirmFailure(FirmFailureKind.unknown, cause: result['status'] as String?),
   };
 }
 
@@ -242,10 +241,10 @@ class FirmInviteSummary {
 abstract class FirmRepository {
   /// Redeems [code] for the signed-in account.
   ///
-  /// Throws [AuthFailure] with [AuthFailureKind.invalidCode] when the code
+  /// Throws [FirmFailure] with [FirmFailureKind.invalidInviteCode] when the code
   /// matches no unused, unrevoked invite — a revoked code and an already-used
   /// code both surface that way, because the server will not say which — and
-  /// with [AuthFailureKind.tooManyAttempts] once the rate limit is hit. Both
+  /// with [FirmFailureKind.tooManyAttempts] once the rate limit is hit. Both
   /// leave onboarding retryable.
   Future<InviteRedemption> redeemInvite(String code);
 
@@ -253,8 +252,8 @@ abstract class FirmRepository {
   ///
   /// Owner-side only: the RLS insert policy requires `created_by = auth.uid()`
   /// and a firm the caller owns. The returned [GeneratedInvite.code] is the one
-  /// and only sight of the plaintext. Throws [AuthFailure] with
-  /// [AuthFailureKind.firmAdminOffline] when the device has no connection.
+  /// and only sight of the plaintext. Throws [FirmFailure] with
+  /// [FirmFailureKind.firmAdminOffline] when the device has no connection.
   Future<GeneratedInvite> createInvite();
 
   /// Revokes the unused invite [inviteId].
@@ -276,15 +275,15 @@ abstract class FirmRepository {
   /// Owner-side: RLS (`firm_members_select_firm`) scopes the read to the
   /// caller's own firm, so an associate cannot ask for another firm's roster and
   /// an individual gets an empty list. Names come from `profiles`, whose select
-  /// policy is self-or-same-firm. Throws [AuthFailure] with
-  /// [AuthFailureKind.firmAdminOffline] when the device has no connection.
+  /// policy is self-or-same-firm. Throws [FirmFailure] with
+  /// [FirmFailureKind.firmAdminOffline] when the device has no connection.
   Future<List<FirmMemberSummary>> listMembers();
 
   /// The firm's outstanding invites: unused and unrevoked, newest first.
   ///
   /// Owner-side, and a live read like [listMembers]: `firm_invites` is a
-  /// server-managed table the client never caches. Throws [AuthFailure] with
-  /// [AuthFailureKind.firmAdminOffline] when the device has no connection.
+  /// server-managed table the client never caches. Throws [FirmFailure] with
+  /// [FirmFailureKind.firmAdminOffline] when the device has no connection.
   Future<List<FirmInviteSummary>> listInvites();
 
   /// Writes one member's role and their three permission flags.
@@ -308,7 +307,7 @@ abstract class FirmRepository {
   /// row, relinks the member's profile to individual mode (which is what revokes
   /// their RLS access, Realtime topic and queued writes) and announces the
   /// removal. Authored records are preserved and never reassigned. Throws
-  /// [AuthFailure] when the server refused — a non-owner, the owner themselves,
+  /// [FirmFailure] when the server refused — a non-owner, the owner themselves,
   /// or a member who is already gone.
   Future<void> removeMember(String userId);
 
@@ -323,6 +322,123 @@ abstract class FirmRepository {
   Future<bool> abandonOnboarding();
 }
 
+/// Why a firm operation failed, in the terms the firm screens word for.
+///
+/// A firm failure is not an auth failure, and borrowing `AuthFailureKind` for
+/// it made the diagnostics log lie: a refused invite was recorded as
+/// `AuthFailure(invalidCode)`, so a report named signing-in when the truth was
+/// the firm flow. This enum keeps the four kinds that mean something in their
+/// own right (the invite, the membership, the premium gate, the owner being
+/// offline) and adds the three transport outcomes a firm RPC can actually hit.
+///
+/// The app already gives each domain its own failure vocabulary —
+/// `AuthFailureKind`, `SyncFailureKind`, `AdminActionFailure` — and a firm flow
+/// is no different; what was wrong was the borrowing, not the idea of a shared
+/// taxonomy.
+enum FirmFailureKind {
+  /// The request never reached the server: offline, DNS, a timeout.
+  network,
+
+  /// The server answered with a 5xx, or refused in a way that is its fault.
+  server,
+
+  /// A 401/403 the server issued: the session is no longer valid, or this
+  /// account may not do this.
+  unauthorized,
+
+  /// The RPC's rate limiter answered — too many invite attempts.
+  tooManyAttempts,
+
+  /// No backend is configured in this build.
+  unavailable,
+
+  /// The invite code does not match an unused, unrevoked invite.
+  invalidInviteCode,
+
+  /// The caller already belongs to the firm the code would have joined.
+  alreadyMember,
+
+  /// An owner-side operation was attempted off the network.
+  firmAdminOffline,
+
+  /// Firm Mode needs an active premium subscription.
+  premiumRequired,
+
+  /// Anything else.
+  unknown,
+}
+
+/// A firm operation failed.
+class FirmFailure implements Exception, DiagnosableFailure {
+  /// Creates a failure of [kind].
+  const FirmFailure(this.kind, {this.cause});
+
+  /// What went wrong, in firm-level terms.
+  final FirmFailureKind kind;
+
+  /// Underlying error or server status, kept for debugging and never shown and
+  /// never written to the log.
+  final Object? cause;
+
+  /// The log's label: the kind, never [cause].
+  @override
+  String get diagnosticLabel => 'FirmFailure(${kind.name})';
+
+  @override
+  String toString() => 'FirmFailure(${kind.name})';
+}
+
+/// Classifies a transport error raised by a firm RPC into [FirmFailureKind].
+///
+/// Deliberately narrower than `mapAuthFailure`: that mapper answers for a
+/// sign-in and can return kinds that make no sense here (an unconfirmed e-mail
+/// is not something an invite can be), so reusing it meant a firm failure
+/// could arrive wearing a credential's name.
+FirmFailure mapFirmFailure(Object error) {
+  if (error is FirmFailure) return error;
+
+  if (error is AuthRetryableFetchException) {
+    // The SDK raises this for two situations and only the status tells them
+    // apart: a request that never reached the server carries none, while every
+    // HTTP >= 500 arrives with it set.
+    final status = int.tryParse(error.statusCode ?? '');
+    if (status != null && status >= 500) {
+      return FirmFailure(FirmFailureKind.server, cause: error);
+    }
+    return FirmFailure(FirmFailureKind.network, cause: error);
+  }
+
+  if (error is PostgrestException) {
+    // `code` carries the HTTP status as text, or nothing at all when the
+    // request never completed.
+    final status = int.tryParse(error.code ?? '');
+    if (status == null || status >= 500) {
+      return FirmFailure(FirmFailureKind.server, cause: error);
+    }
+    if (status == 401 || status == 403 || status == 425) {
+      return FirmFailure(FirmFailureKind.unauthorized, cause: error);
+    }
+    return FirmFailure(FirmFailureKind.unknown, cause: error);
+  }
+
+  if (error is AuthException) {
+    final code = error.code ?? '';
+    final message = error.message.toLowerCase();
+    if (error.statusCode == '429' ||
+        code.contains('rate_limit') ||
+        message.contains('rate limit')) {
+      return FirmFailure(FirmFailureKind.tooManyAttempts, cause: error);
+    }
+    return FirmFailure(FirmFailureKind.unknown, cause: error);
+  }
+
+  // A bare socket or timeout failure: the request never reached the server.
+  if (error is SocketException || error is TimeoutException) {
+    return FirmFailure(FirmFailureKind.network, cause: error);
+  }
+  return FirmFailure(FirmFailureKind.unknown, cause: error);
+}
+
 /// The repository used when this build has no backend configured.
 class UnavailableFirmRepository implements FirmRepository {
   /// Creates the unavailable repository.
@@ -330,27 +446,27 @@ class UnavailableFirmRepository implements FirmRepository {
 
   @override
   Future<InviteRedemption> redeemInvite(String code) async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<GeneratedInvite> createInvite() async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<void> revokeInvite(String inviteId) async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<String> ensureFirm(String name) async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<List<FirmMemberSummary>> listMembers() async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<List<FirmInviteSummary>> listInvites() async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<void> updateMemberPermissions({
@@ -359,15 +475,15 @@ class UnavailableFirmRepository implements FirmRepository {
     required bool canAdd,
     required bool canEdit,
     required bool canDelete,
-  }) async => throw const AuthFailure(AuthFailureKind.unavailable);
+  }) async => throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<void> removeMember(String userId) async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
   Future<bool> abandonOnboarding() async =>
-      throw const AuthFailure(AuthFailureKind.unavailable);
+      throw const FirmFailure(FirmFailureKind.unavailable);
 }
 
 /// [FirmRepository] implemented on the `join_firm` and `ensure_firm` RPCs and on
@@ -394,10 +510,10 @@ class SupabaseFirmRepository implements FirmRepository {
   /// connection error. Redemption is deliberately not guarded here: the sign-up
   /// screen's own copy for a failed request ("No connection…") already reads
   /// correctly for a joining associate, and its failure is classified from the
-  /// transport by [mapAuthFailure].
+  /// transport by [mapFirmFailure].
   Future<void> _requireOnline() async {
     if (await _isOnline()) return;
-    throw const AuthFailure(AuthFailureKind.firmAdminOffline);
+    throw const FirmFailure(FirmFailureKind.firmAdminOffline);
   }
 
   @override
@@ -407,7 +523,7 @@ class SupabaseFirmRepository implements FirmRepository {
     // computes is the hash this client would have computed.
     final normalized = normalizeInviteCode(code);
     if (normalized.isEmpty) {
-      throw const AuthFailure(AuthFailureKind.invalidCode);
+      throw const FirmFailure(FirmFailureKind.invalidInviteCode);
     }
 
     try {
@@ -419,7 +535,7 @@ class SupabaseFirmRepository implements FirmRepository {
       );
     } catch (error) {
       // The rate limit is the one outcome the RPC raises instead of returning.
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -432,10 +548,7 @@ class SupabaseFirmRepository implements FirmRepository {
       // Owner-side calls only ever happen behind a session, so this is a bug
       // state rather than something to explain: it deliberately gets no copy of
       // its own.
-      throw const AuthFailure(
-        AuthFailureKind.unknown,
-        serverMessage: 'createInvite: no session',
-      );
+      throw const FirmFailure(FirmFailureKind.unknown, cause: 'createInvite: no session');
     }
 
     try {
@@ -452,10 +565,7 @@ class SupabaseFirmRepository implements FirmRepository {
       if (firmId == null) {
         // Individual mode: `ensureFirm` comes first, so there is nothing to
         // invite into yet.
-        throw const AuthFailure(
-          AuthFailureKind.unknown,
-          serverMessage: 'createInvite: no firm',
-        );
+        throw const FirmFailure(FirmFailureKind.unknown, cause: 'createInvite: no firm');
       }
 
       final code = generateInviteCode();
@@ -478,7 +588,7 @@ class SupabaseFirmRepository implements FirmRepository {
         firmId: firmId,
       );
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -492,7 +602,7 @@ class SupabaseFirmRepository implements FirmRepository {
           .update(<String, dynamic>{'revoked': true})
           .eq('id', inviteId);
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -508,7 +618,7 @@ class SupabaseFirmRepository implements FirmRepository {
       // for something, so it is not the abandoned shell this call is for.
       return result['status'] == 'removed';
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -518,10 +628,7 @@ class SupabaseFirmRepository implements FirmRepository {
     if (trimmed.isEmpty) {
       // The server refuses an empty name on purpose — it will not invent
       // user-facing copy — so the round trip is not worth making.
-      throw const AuthFailure(
-        AuthFailureKind.unknown,
-        serverMessage: 'ensureFirm: empty name',
-      );
+      throw const FirmFailure(FirmFailureKind.unknown, cause: 'ensureFirm: empty name');
     }
 
     await _requireOnline();
@@ -541,14 +648,14 @@ class SupabaseFirmRepository implements FirmRepository {
       // other status — including the member-of-another-firm guard — has no copy
       // of its own, because the client gate hides this path first and the server
       // check is the authoritative one behind it.
-      throw AuthFailure(
+      throw FirmFailure(
         status == 'premium_required'
-            ? AuthFailureKind.premiumRequired
-            : AuthFailureKind.unknown,
-        serverMessage: status,
+            ? FirmFailureKind.premiumRequired
+            : FirmFailureKind.unknown,
+        cause: status,
       );
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -561,10 +668,7 @@ class SupabaseFirmRepository implements FirmRepository {
       // Owner-side calls only ever happen behind a session, so this is a bug
       // state rather than something to explain: it deliberately gets no copy of
       // its own.
-      throw const AuthFailure(
-        AuthFailureKind.unknown,
-        serverMessage: 'listMembers: no session',
-      );
+      throw const FirmFailure(FirmFailureKind.unknown, cause: 'listMembers: no session');
     }
 
     try {
@@ -606,7 +710,7 @@ class SupabaseFirmRepository implements FirmRepository {
             ),
       ];
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -636,7 +740,7 @@ class SupabaseFirmRepository implements FirmRepository {
             ),
       ];
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -652,10 +756,7 @@ class SupabaseFirmRepository implements FirmRepository {
 
     final firmId = await _ownFirmId();
     if (firmId == null) {
-      throw const AuthFailure(
-        AuthFailureKind.unknown,
-        serverMessage: 'updateMemberPermissions: no firm',
-      );
+      throw const FirmFailure(FirmFailureKind.unknown, cause: 'updateMemberPermissions: no firm');
     }
 
     try {
@@ -674,7 +775,7 @@ class SupabaseFirmRepository implements FirmRepository {
           .eq('firm_id', firmId)
           .eq('user_id', userId);
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -694,9 +795,9 @@ class SupabaseFirmRepository implements FirmRepository {
       // Every other answer is a refusal with a name the screen words for
       // itself; the server resolved the firm from the caller, so a wrong firm
       // is not one of the possibilities.
-      throw AuthFailure(AuthFailureKind.unknown, serverMessage: status);
+      throw FirmFailure(FirmFailureKind.unknown, cause: status);
     } catch (error) {
-      throw mapAuthFailure(error);
+      throw mapFirmFailure(error);
     }
   }
 
@@ -748,7 +849,11 @@ final firmRepositoryProvider = Provider<FirmRepository>((ref) {
 /// provider is invalidated after a membership change rather than written into
 /// `firm_members`, which stays the pull-only cache of this account's own row.
 final firmMembersListProvider = FutureProvider<List<FirmMemberSummary>>((ref) {
-  return ref.watch(firmRepositoryProvider).listMembers();
+  return _recordedFirmRead(
+    ref,
+    'firm.members',
+    () => ref.watch(firmRepositoryProvider).listMembers(),
+  );
 });
 
 /// The owner's outstanding invites for Manage Associates (Task 20 Phase 2).
@@ -757,5 +862,41 @@ final firmMembersListProvider = FutureProvider<List<FirmMemberSummary>>((ref) {
 /// reason: `firm_invites` is server-managed and the screen is online-only. It is
 /// invalidated after a code is created or revoked rather than cached.
 final firmInvitesListProvider = FutureProvider<List<FirmInviteSummary>>((ref) {
-  return ref.watch(firmRepositoryProvider).listInvites();
+  return _recordedFirmRead(
+    ref,
+    'firm.invites',
+    () => ref.watch(firmRepositoryProvider).listInvites(),
+  );
 });
+
+/// Runs a live firm read and remembers it in [area] when it fails.
+///
+/// Manage Associates draws a failed read as a banner, so the failure is caught
+/// and shown and nothing else ever sees it: without this the log is empty for
+/// exactly the roster an owner cannot work out for themselves.
+///
+/// Recorded here rather than through a `ref.listen` in the screen's build,
+/// because a build re-registers its listener and one failing read was written
+/// once per frame. It is also not written per attempt, because Riverpod retries
+/// a failed provider on a backoff and the report is about what went wrong, not
+/// about how many times the framework knocked: eleven copies of one fault would
+/// bury every other fault the user hit that session. The same fault again after
+/// a *different* one is a new line, because then the two really did happen.
+Future<T> _recordedFirmRead<T>(
+  Ref ref,
+  String area,
+  Future<T> Function() read,
+) async {
+  try {
+    return await read();
+  } catch (error) {
+    final log = ref.read(errorLogProvider);
+    final newest = log.entries.isEmpty ? null : log.entries.first;
+    if (newest == null ||
+        newest.area != area ||
+        newest.label != describeErrorForLog(error)) {
+      recordFailure(log, area, error);
+    }
+    rethrow;
+  }
+}

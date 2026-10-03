@@ -3366,6 +3366,18 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্ম মোডের জন্য সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন।';
 
   @override
+  String get firm_errorServer =>
+      'সার্ভার অনুরোধটি সম্পন্ন করতে পারেনি। আবার চেষ্টা করুন।';
+
+  @override
+  String get firm_errorUnauthorized =>
+      'আপনার অ্যাকাউন্টের এই কাজটি করার অনুমতি নেই।';
+
+  @override
+  String get firm_errorUnavailable =>
+      'এই বিল্ডে ফার্ম ম্যানেজমেন্ট উপলব্ধ নয়।';
+
+  @override
   String get auth_errorAlreadyMember => 'আপনি ইতিমধ্যেই এই ফার্মের সদস্য।';
 
   @override
@@ -3891,4 +3903,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_cleared => 'ত্রুটি লগ মুছে ফেলা হয়েছে।';
+
+  @override
+  String get settingsDiagnostics_copy => 'ডায়াগনস্টিকস কপি করুন';
+
+  @override
+  String get settingsDiagnostics_copied =>
+      'ডায়াগনস্টিকস কপি করা হয়েছে। আমাদের একটি বার্তায় পেস্ট করুন।';
 }

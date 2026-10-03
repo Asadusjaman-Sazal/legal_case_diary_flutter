@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -281,9 +282,7 @@ void main() {
   testWidgets('a roster read that fails is reported, never swallowed', (
     tester,
   ) async {
-    harness.firm.membersError = const AuthFailure(
-      AuthFailureKind.firmAdminOffline,
-    );
+    harness.firm.membersError = const FirmFailure(FirmFailureKind.firmAdminOffline);
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
@@ -557,7 +556,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a failed permission write is reported, not swallowed', (
+  testWidgets('a failed permission write is reported and recorded', (
     tester,
   ) async {
     harness.firm
@@ -571,7 +570,7 @@ void main() {
           canDelete: false,
         ),
       ]
-      ..permissionsError = const AuthFailure(AuthFailureKind.firmAdminOffline);
+      ..permissionsError = const FirmFailure(FirmFailureKind.firmAdminOffline);
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
@@ -583,6 +582,31 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l.auth_errorFirmAdminOffline), findsOneWidget);
+
+    // The banner above is what the user reads; this is what they hand over. A
+    // firm refusal recorded as anything but a firm refusal sends whoever reads
+    // the report looking in the wrong domain.
+    expect(_lines(harness.log), <String>['firm.action FirmFailure(firmAdminOffline)']);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a roster read that fails is recorded once, not per rebuild', (
+    tester,
+  ) async {
+    harness.firm.membersError = const FirmFailure(FirmFailureKind.server);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.firm_errorServer), findsOneWidget);
+    expect(_lines(harness.log), <String>['firm.members FirmFailure(server)']);
+
+    // Rebuilding the roster must not add a second copy: a screen that
+    // re-recorded on every frame would fill the log with one fault and hide
+    // the twenty that follow it.
+    await tester.pumpAndSettle();
+    expect(_lines(harness.log), hasLength(1));
 
     await unmountApp(tester);
   });
@@ -612,3 +636,8 @@ void main() {
     await unmountApp(tester);
   });
 }
+
+/// Each recorded failure as one `area label` line, so a failed expectation
+/// shows the whole log instead of a "too many elements" that hides it.
+List<String> _lines(ErrorLog log) =>
+    log.entries.map((e) => '${e.area} ${e.label}').toList();

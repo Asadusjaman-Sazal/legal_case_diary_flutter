@@ -65,7 +65,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   bool _acceptedTerms = false;
   bool _termsError = false;
   bool _submitting = false;
-  AuthFailureKind? _error;
+  /// The failure the banner is showing, of whichever domain it came from.
+///
+/// The screen signs an account up **and** redeems an invite, so a failure can
+/// be an auth one or a firm one; holding the failure rather than a kind is what
+/// lets [failureText] word either.
+Object? _error;
 
   /// Set once the account exists but has no session yet: the Check Your Email
   /// state. It replaces the form rather than sitting under it, because there is
@@ -142,7 +147,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _leaveForAuthenticatedApp();
     } on AuthFailure catch (failure) {
       if (!mounted) return;
-      setState(() => _error = failure.kind);
+      setState(() => _error = failure);
+    } on FirmFailure catch (failure) {
+      if (!mounted) return;
+      setState(() => _error = failure);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -176,11 +184,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _leaveForAuthenticatedApp();
     } on AuthFailure catch (failure) {
       if (!mounted) return;
+      // A closed Google sheet is the user declining, not an error to word.
       setState(
         () => _error = failure.kind == AuthFailureKind.cancelled
             ? null
-            : failure.kind,
+            : failure,
       );
+    } on FirmFailure catch (failure) {
+      if (!mounted) return;
+      setState(() => _error = failure);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -354,7 +366,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             }),
                           ),
                           const SizedBox(height: AppSpacing.md),
-                          AuthErrorBanner(text: authErrorText(l, _error)),
+                          AuthErrorBanner(text: failureText(l, _error)),
                           AuthPrimaryButton(
                             label: l.auth_signUpButton,
                             busy: _submitting,

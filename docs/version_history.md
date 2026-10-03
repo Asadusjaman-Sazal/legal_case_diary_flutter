@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.375 - Added the app error log: global uncaught-error capture, a bounded redacted on-device log with a Diagnostics viewer, and the log carried in the diagnostic bundle.
+Version: 0.0.376 - Errors are now reportable: a copyable plain-text report in Diagnostics and the Support message, the caught failures the view models swallow are recorded, and firm calls throw FirmFailure instead of borrowing AuthFailure.
 --------------------------------------
 
 ## Version History Log:
@@ -389,3 +389,4 @@ Version: 0.0.372 - A server 5xx is no longer reported to the user as a missing c
 Version: 0.0.373 - Task 17 follow-up: a typed recovery code is no longer taken for an opened link, so Change Password in Settings returns to Manage Account and a Login reset ends signed in.
 Version: 0.0.374 - Task 17: an unreadable stored session (sessionMissing) now asks for a sign-in like a rejected one, instead of signing out silently with sync dead.
 Version: 0.0.375 - Added the app error log: global uncaught-error capture, a bounded redacted on-device log with a Diagnostics viewer, and the log carried in the diagnostic bundle.
+Version: 0.0.376 - Errors are now reportable: a copyable plain-text report in Diagnostics and the Support message, the caught failures the view models swallow are recorded, and firm calls throw FirmFailure instead of borrowing AuthFailure.

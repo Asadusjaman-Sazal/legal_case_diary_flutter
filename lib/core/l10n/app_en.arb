@@ -1605,6 +1605,9 @@
   "auth_errorTooManyAttempts": "Too many attempts. Please try again later.",
   "auth_errorFirmAdminOffline": "Connect to the internet to manage your firm.",
   "auth_errorPremiumRequired": "Firm Mode Requires An Active Premium Subscription.",
+  "firm_errorServer": "The server could not complete that request. Please try again.",
+  "firm_errorUnauthorized": "Your account is not allowed to do that.",
+  "firm_errorUnavailable": "Firm management is not available in this build.",
   "auth_errorAlreadyMember": "You are already a member of this firm.",
   "auth_joinedFirm": "You Have Joined The Firm.",
   "auth_errorNetwork": "No connection. Check your internet and try again.",
@@ -1821,5 +1824,7 @@
   "settingsDiagnostics_hint": "Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.",
   "settingsDiagnostics_empty": "No Errors Have Been Recorded.",
   "settingsDiagnostics_clear": "Clear Log",
-  "settingsDiagnostics_cleared": "Error Log Cleared."
+  "settingsDiagnostics_cleared": "Error Log Cleared.",
+  "settingsDiagnostics_copy": "Copy Diagnostics",
+  "settingsDiagnostics_copied": "Diagnostics Copied. Paste Them Into A Message To Us."
 }

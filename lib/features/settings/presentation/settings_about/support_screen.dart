@@ -28,10 +28,13 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/app_version.dart';
+import '../../../../core/errors/error_log.dart';
+import '../../../../core/errors/error_log_provider.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/services/contact_launcher.dart';
+import '../../data/diagnostics_report.dart';
 import '../../data/support_diagnostics.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
@@ -53,10 +56,18 @@ enum SupportChannel { whatsApp, email }
 /// what the user reads is exactly what the app writes into WhatsApp or the mail
 /// body. The phone line is left out when the device could not be read, so the
 /// message is never wrong, just shorter.
+///
+/// [report], when given, is the plain-text diagnostics report for the error log
+/// (`buildDiagnosticsReport`). It goes **before** the prompt so the user's own
+/// description is the last thing in the message, and it is omitted entirely
+/// rather than sent empty. The encrypted bundle cannot serve this purpose: it is
+/// sealed with the backup passphrase, which is the one thing a stuck user must
+/// never be asked for.
 String buildSupportMessage({
   required AppLocalizations l,
   required Locale locale,
   required SupportDeviceFacts facts,
+  String? report,
 }) {
   final phone = <String>[
     facts.model ?? '',
@@ -72,6 +83,7 @@ String buildSupportMessage({
     '${l.settingsSupport_messageVersion}: $appVersion',
     if (phone.isNotEmpty) '${l.settingsSupport_messagePhone}: $phone',
     '${l.settingsSupport_messageLanguage}: $language',
+    if (report != null && report.trim().isNotEmpty) ...['', report],
     '',
     l.settingsSupport_messagePrompt,
   ].join('\n');
@@ -103,12 +115,22 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     setState(() => _facts = facts);
   }
 
+  /// The diagnostics report for [log], or null when nothing was recorded.
+  ///
+  /// Null rather than an empty report: a user whose log is clean sends the short
+  /// message they have always sent, and no empty section appears in it.
+  String? _report(ErrorLog log) =>
+      log.isEmpty ? null : buildDiagnosticsReport(entries: log.entries);
+
   /// Opens the chosen channel with the message already written.
   Future<void> _write(AppLocalizations l, SupportChannel channel) async {
     final body = buildSupportMessage(
       l: l,
       locale: Localizations.localeOf(context),
       facts: _facts,
+      // Read here rather than reused from the preview: this is the message that
+      // actually leaves the phone, so it carries the log as it is now.
+      report: _report(ref.read(errorLogProvider)),
     );
     final uri = switch (channel) {
       SupportChannel.whatsApp => whatsAppUri(
@@ -139,11 +161,6 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final message = buildSupportMessage(
-      l: l,
-      locale: Localizations.localeOf(context),
-      facts: _facts,
-    );
 
     return SettingsSubPageModal(
       title: l.settingsSupport_title,
@@ -203,8 +220,22 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             style: AppTypography.bodySm.copyWith(color: AppColors.outline),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // The message the channels open with, shown before it is sent.
-          _MessageCard(label: l.settingsSupport_previewLabel, message: message),
+          // The message the channels open with, shown before it is sent. It
+          // listens to the log, because the preview is a promise that what is
+          // shown is what will be sent — and a failure recorded while the user
+          // reads this still has to reach the message they are about to send.
+          ListenableBuilder(
+            listenable: ref.watch(errorLogProvider),
+            builder: (context, _) => _MessageCard(
+              label: l.settingsSupport_previewLabel,
+              message: buildSupportMessage(
+                l: l,
+                locale: Localizations.localeOf(context),
+                facts: _facts,
+                report: _report(ref.read(errorLogProvider)),
+              ),
+            ),
+          ),
           const SizedBox(height: AppSpacing.lg),
           _NoteCard(
             icon: Icons.gpp_maybe_outlined,

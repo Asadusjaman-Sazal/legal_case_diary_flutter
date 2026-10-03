@@ -1449,6 +1449,9 @@
   "auth_errorTooManyAttempts": "অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করুন।",
   "auth_errorFirmAdminOffline": "ফার্ম পরিচালনা করতে ইন্টারনেটে সংযুক্ত হোন।",
   "auth_errorPremiumRequired": "ফার্ম মোডের জন্য সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন।",
+  "firm_errorServer": "সার্ভার অনুরোধটি সম্পন্ন করতে পারেনি। আবার চেষ্টা করুন।",
+  "firm_errorUnauthorized": "আপনার অ্যাকাউন্টের এই কাজটি করার অনুমতি নেই।",
+  "firm_errorUnavailable": "এই বিল্ডে ফার্ম ম্যানেজমেন্ট উপলব্ধ নয়।",
   "auth_errorAlreadyMember": "আপনি ইতিমধ্যেই এই ফার্মের সদস্য।",
   "auth_joinedFirm": "আপনি ফার্মে যোগ দিয়েছেন।",
   "auth_errorNetwork": "সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
@@ -1651,5 +1654,7 @@
   "settingsDiagnostics_hint": "এই অ্যাপে রেকর্ড করা ত্রুটিগুলো। মামলার তথ্য, পাসওয়ার্ড বা টোকেন কখনো এখানে লেখা হয় না।",
   "settingsDiagnostics_empty": "কোনো ত্রুটি রেকর্ড হয়নি।",
   "settingsDiagnostics_clear": "লগ মুছুন",
-  "settingsDiagnostics_cleared": "ত্রুটি লগ মুছে ফেলা হয়েছে।"
+  "settingsDiagnostics_cleared": "ত্রুটি লগ মুছে ফেলা হয়েছে।",
+  "settingsDiagnostics_copy": "ডায়াগনস্টিকস কপি করুন",
+  "settingsDiagnostics_copied": "ডায়াগনস্টিকস কপি করা হয়েছে। আমাদের একটি বার্তায় পেস্ট করুন।"
 }

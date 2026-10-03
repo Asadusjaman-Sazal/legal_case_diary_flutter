@@ -9,6 +9,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../data/settings_repository.dart';
 
@@ -24,13 +26,13 @@ class SettingsViewModel extends AsyncNotifier<UserSettings> {
   );
 
   @override
-  FutureOr<UserSettings> build() async {
+  FutureOr<UserSettings> build() => _guard('load', () async {
     final repo = await ref.watch(settingsRepositoryProvider.future);
     return repo.getSettings();
-  }
+  });
 
   /// Reloads settings and updates state.
-  Future<void> refresh() async {
+  Future<void> refresh() => _guard('load', () async {
     state = const AsyncValue<UserSettings>.loading();
     try {
       final repo = await ref.read(settingsRepositoryProvider.future);
@@ -38,6 +40,20 @@ class SettingsViewModel extends AsyncNotifier<UserSettings> {
       state = AsyncValue.data(settings);
     } catch (error, stackTrace) {
       state = AsyncValue<UserSettings>.error(error, stackTrace);
+    }
+  });
+
+  /// Runs [action] under [operation], recording anything it lets out.
+  ///
+  /// Settings that fail to load become an error state a screen renders, so
+  /// nothing escapes to the global capture: without this the user sees "your
+  /// settings did not load" and the app has no idea why.
+  Future<T> _guard<T>(String operation, Future<T> Function() action) async {
+    try {
+      return await action();
+    } on Object catch (error) {
+      recordFailure(ref.read(errorLogProvider), 'settings.$operation', error);
+      rethrow;
     }
   }
 

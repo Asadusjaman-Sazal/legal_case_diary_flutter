@@ -5808,6 +5808,24 @@ abstract class AppLocalizations {
   /// **'Firm Mode Requires An Active Premium Subscription.'**
   String get auth_errorPremiumRequired;
 
+  /// No description provided for @firm_errorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not complete that request. Please try again.'**
+  String get firm_errorServer;
+
+  /// No description provided for @firm_errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not allowed to do that.'**
+  String get firm_errorUnauthorized;
+
+  /// No description provided for @firm_errorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm management is not available in this build.'**
+  String get firm_errorUnavailable;
+
   /// No description provided for @auth_errorAlreadyMember.
   ///
   /// In en, this message translates to:
@@ -6767,6 +6785,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error Log Cleared.'**
   String get settingsDiagnostics_cleared;
+
+  /// No description provided for @settingsDiagnostics_copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Diagnostics'**
+  String get settingsDiagnostics_copy;
+
+  /// No description provided for @settingsDiagnostics_copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics Copied. Paste Them Into A Message To Us.'**
+  String get settingsDiagnostics_copied;
 }
 
 class _AppLocalizationsDelegate

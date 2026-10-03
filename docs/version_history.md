@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.377 - An offline Online Sync card is now red, not green: the No Connection pill and the Wi-Fi-off icon no longer read as healthy while Sync Now is disabled.
+Version: 0.0.378 - Billing moved out of Manage Account into a new Settings > Subscription page after Online Sync, and the Go Premium entry was removed from the Settings list.
 --------------------------------------
 
 ## Version History Log:
@@ -391,3 +391,4 @@ Version: 0.0.374 - Task 17: an unreadable stored session (sessionMissing) now as
 Version: 0.0.375 - Added the app error log: global uncaught-error capture, a bounded redacted on-device log with a Diagnostics viewer, and the log carried in the diagnostic bundle.
 Version: 0.0.376 - Errors are now reportable: a copyable plain-text report in Diagnostics and the Support message, the caught failures the view models swallow are recorded, and firm calls throw FirmFailure instead of borrowing AuthFailure.
 Version: 0.0.377 - An offline Online Sync card is now red, not green: the No Connection pill and the Wi-Fi-off icon no longer read as healthy while Sync Now is disabled.
+Version: 0.0.378 - Billing moved out of Manage Account into a new Settings > Subscription page after Online Sync, and the Go Premium entry was removed from the Settings list.

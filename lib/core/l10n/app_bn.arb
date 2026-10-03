@@ -743,6 +743,7 @@
   "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
   "settingsManageAccount_title": "অ্যাকাউন্ট ব্যবস্থাপনা",
   "settingsManageAccount_changePassword": "পাসওয়ার্ড পরিবর্তন",
+  "settingsSubscription_title": "সাবস্ক্রিপশন",
   "settingsManageAccount_subscriptionDetails": "সাবস্ক্রিপশন বিবরণ",
   "settingsManageAccount_purchaseNewSubscription": "নতুন সাবস্ক্রিপশন ক্রয়",
   "settingsManageAccount_logout": "লগআউট",

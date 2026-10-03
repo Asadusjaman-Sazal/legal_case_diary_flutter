@@ -3,9 +3,13 @@
 /// The mockup's body is unchanged, so this suite pins the two things the task
 /// asked for *inside* that body: the name and email are the user's own (never
 /// the mockup's sample values), and the role, firm and subscription state are
-/// reachable — behind the row the mockup draws, as the Subscription Details
-/// sheet. Logout is real here too: it ends the session and empties the account
-/// caches.
+/// reachable. Logout is real here too: it ends the session and empties the
+/// account caches.
+///
+/// The Subscription Details and Purchase New Subscription rows have since moved
+/// to Settings > Subscription, so this screen keeps Change Password only; that
+/// departure from its mockup is asserted here, and the rows' own tests live in
+/// `subscription_screen_test.dart`.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -28,9 +32,6 @@ import 'package:legal_case_diary/features/auth/presentation/forgot_password_scre
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
-
-/// Marker rendered by the stand-in routes the links push.
-const String paywallRouteMarker = 'Paywall Route';
 
 /// Marker rendered by the stand-in Login route a completed logout goes to.
 const String loginRouteMarker = 'Login Route';
@@ -84,10 +85,6 @@ void main() {
           builder: (_, _) =>
               const ForgotPasswordScreen(asSettingsSubPage: true),
         ),
-        GoRoute(
-          path: AppRoutes.paywall,
-          builder: (_, _) => const Scaffold(body: Text(paywallRouteMarker)),
-        ),
         // Where a completed logout lands: Login is a top-level route, so the
         // screen must leave the shell for it rather than pop back to Settings.
         GoRoute(
@@ -137,10 +134,11 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a firm owner sees the firm and a dated premium state', (
+  testWidgets('a firm owner\'s server name fills the blank local record', (
     tester,
   ) async {
-    final expiry = DateTime.now().toUtc().add(const Duration(days: 40));
+    // The name assertion that shared the subscription test: the sheet moved to
+    // Settings > Subscription, but this screen is still what resolves the name.
     await pumpManageAccount(
       tester,
       seed: (db) async {
@@ -160,83 +158,29 @@ void main() {
             name: const Value('Rahman & Associates'),
             ownerId: const Value('user-1'),
             subscriptionStatus: const Value('active'),
-            subscriptionExpiry: Value(expiry.millisecondsSinceEpoch),
             createdAt: const Value(1),
           ),
         );
       },
     );
 
-    // The server's name fills the blank local record.
     expect(find.text('Adv. Rahim Uddin'), findsOneWidget);
 
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
-    );
-
-    expect(find.text(l.settingsManageAccount_role), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_roleOwner), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_firm), findsOneWidget);
-    expect(find.text('Rahman & Associates'), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_subscription), findsOneWidget);
-    expect(
-      find.textContaining(l.settingsManageAccount_planPremium),
-      findsOneWidget,
-      reason: 'premium, with the expiry date',
-    );
-
     await unmountApp(tester);
   });
 
-  testWidgets('an individual with no subscription sees Free', (tester) async {
-    // A pulled profile row that carries no expiry: the account is *known* to be
-    // on the free plan. Without the row the sheet says nothing at all rather
-    // than Free — see the unknown-entitlement test below — so "Free" here is a
-    // fact rather than a gap, which is what makes this assertion meaningful.
-    await pumpManageAccount(
-      tester,
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
-    );
-
-    expect(find.text(l.settingsManageAccount_roleIndividual), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_planFree), findsOneWidget);
-    // No firm in individual mode, so no Firm row.
-    expect(find.text(l.settingsManageAccount_firm), findsNothing);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('an account whose row has not landed says nothing, not Free', (
-    tester,
-  ) async {
-    // Regression: the sheet read the entitlement the moment the session existed,
-    // so a premium account that had just signed in was told "Subscription: Free"
-    // while the Plan row beside it already named the month it had paid for.
-    // With no cached row there is no plan to report, and a dash is the honest
-    // value until the pull lands.
+  testWidgets('the subscription rows are no longer here', (tester) async {
+    // They moved to Settings > Subscription. Their mockup still draws all three
+    // rows on this screen, so this is the assertion that pins the approved
+    // departure: if a row ever came back, the two screens would both offer it.
     await pumpManageAccount(tester);
 
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
+    expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
+    expect(find.text(l.settingsManageAccount_subscriptionDetails), findsNothing);
+    expect(
+      find.text(l.settingsManageAccount_purchaseNewSubscription),
+      findsNothing,
     );
-
-    expect(find.text(l.settingsManageAccount_planFree), findsNothing);
-    expect(find.text('—'), findsWidgets, reason: 'the entitlement is unknown');
 
     await unmountApp(tester);
   });
@@ -259,19 +203,6 @@ void main() {
     expect(find.byType(BackButton), findsWidgets);
     // And no way out to Login, where a signed-in user may not go.
     expect(find.text(l.auth_backToLogin), findsNothing);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('Purchase New Subscription opens the paywall', (tester) async {
-    await pumpManageAccount(tester);
-
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_purchaseNewSubscription),
-    );
-
-    expect(find.text(paywallRouteMarker), findsOneWidget);
 
     await unmountApp(tester);
   });

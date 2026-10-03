@@ -105,3 +105,76 @@ class SettingsMenuCard extends StatelessWidget {
         ),
       );
 }
+
+/// A single row in a Settings sub-menu list: leading icon, title, chevron.
+///
+/// Lived in Manage Account, where it drew that mockup's Account Settings
+/// rows, and moved here because the Subscription rows are the same design;
+/// it sits with the size contract it obeys so the two cannot drift apart.
+class SettingsSubMenuRow extends StatelessWidget {
+  /// Leading icon drawn in the rounded circle the mockup specifies.
+  final IconData icon;
+
+  /// Row title.
+  final String title;
+
+  /// Tap handler.
+  final VoidCallback onTap;
+
+  /// Creates a sub-menu row.
+  const SettingsSubMenuRow({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          // Same 44 px content row as the shared sub-menu cards, so these rows
+          // are the same size as the Account & Profile menu cards.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: settingsMenuCardRowHeight,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surfaceContainer,
+                  ),
+                  child: Center(child: Icon(icon, color: AppColors.primary)),
+                ),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.outlineVariant),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

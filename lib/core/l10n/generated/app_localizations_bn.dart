@@ -1566,6 +1566,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
 
   @override
+  String get settingsSubscription_title => 'সাবস্ক্রিপশন';
+
+  @override
   String get settingsManageAccount_subscriptionDetails => 'সাবস্ক্রিপশন বিবরণ';
 
   @override

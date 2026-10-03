@@ -315,6 +315,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Manage Account** → `legal_case_diary_flutter\mockup_html_screens\settings_manageProfileAccount\code.html`
     - **Change Password** → the Login screen's emailed-code reset flow (`forgot_password_screen.dart`), reached as its **own Settings sub-page** (`/settings/change-password`): the standard `SettingsSubPageModal` header with a back button, and **no "Back To Login" line**, because this user is signed in. It is a separate route from Login's `/forgot-password` on purpose — that is an **auth route**, and the router sends a signed-in user away from every auth route, so pushing it from Manage Account only ever landed on the default landing page. A successful change from Settings returns to Manage Account, and one started from Login ends with the user signed in and the app opening on the Daily Cause List — because a typed code is not a link (see the recovery-event bullet above), and the reset creates a real session that the router will not let a Login screen coexist with.
 - **Online Sync** → `legal_case_diary_flutter\mockup_html_screens\settings_onlineSync\code.html`
+- **Subscription** → `/settings/subscription` (`subscription_screen.dart`). **Two rows, moved here from Manage Account unchanged** — **Subscription Details**, which opens the sheet showing role, firm, plan, expiry and this account's own payment history, and **Purchase New Subscription**, which opens the paywall — same icons, same wording, same destinations. **No `settings_subscription` mockup exists**, so this is a recorded departure: the body is the two rows above moved verbatim, and it is shown to every account because the rows it replaces were unconditional and a premium user still needs to see what they paid for. It takes the icon **Go Premium** occupied, so the entry a free-plan user tapped keeps its look in its new home.
 - **Backup & Restore** → `legal_case_diary_flutter\mockup_html_screens\settings_backupRestore\code.html`
 
 **("Preferences" section)**
@@ -1167,7 +1168,7 @@ This guarantees that local data is tightly bound to the current Supabase `auth.u
 
 ### 7. Manual MFS Payment Flow
 - **User Checkout Flow:**
-  1. User hits the 50-case limit or selects "Go Premium" in Settings.
+  1. User hits the 50-case limit, or reaches the paywall from **Settings > Subscription > Purchase New Subscription**. The old standalone **Go Premium** entry in the Settings list is **removed**: it was an approved departure from the Settings main mockup, so removing it puts that screen back on its mockup, and one entry now does what two did. The Manage Associates screen's own *Go Premium* button and Online Sync's *Free Plan* pill are untouched.
   2. `PaywallScreen` shows benefits and 4 plans: 1 Month (৳100), 3 Months (৳285), 6 Months (৳540) or 1 Year (৳960), each discounted plan showing its full per-month price struck through and its saving.
   3. Clicking a plan opens `CheckoutScreen` with:
      - Transfer instructions (amount, MFS number with copy-to-clipboard).

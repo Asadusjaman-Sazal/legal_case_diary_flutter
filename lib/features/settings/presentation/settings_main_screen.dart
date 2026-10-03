@@ -103,17 +103,6 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.person_outline,
         route: AppRoutes.settingsAccountProfile,
       ),
-      // Task 21 Phase 1's Go Premium entry. A deliberate departure from the
-      // Settings main mockup (recorded in the task file): the task requires a
-      // Settings action that opens the paywall, and this list is where a user
-      // looks for it. Hidden once the account is premium — there is nothing to
-      // sell, and Manage Account still carries the explicit purchase row.
-      if (ref.watch(premiumAccessProvider).value != true)
-        _SettingsItem(
-          title: l.payments_goPremium,
-          icon: Icons.workspace_premium_outlined,
-          route: AppRoutes.paywall,
-        ),
       if (ref.watch(firmModeProvider))
         _SettingsItem(
           title: l.deleteRequests_title,
@@ -125,6 +114,16 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         title: l.settingsScreen_onlineSync,
         icon: Icons.sync_outlined,
         route: AppRoutes.settingsOnlineSync,
+      ),
+      // Billing, moved here from Manage Account so the account's subscription
+      // and the way to buy another sit together. Shown to every account: the
+      // rows it replaced were unconditional, and a premium user still needs to
+      // see what they paid for. Reuses the icon Go Premium occupied, so the
+      // entry a free-plan user tapped keeps its look in its new home.
+      _SettingsItem(
+        title: l.settingsSubscription_title,
+        icon: Icons.workspace_premium_outlined,
+        route: AppRoutes.settingsSubscription,
       ),
       _SettingsItem(
         title: l.settingsScreen_backupAndRestore,

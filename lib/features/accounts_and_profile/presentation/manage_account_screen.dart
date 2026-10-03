@@ -253,7 +253,7 @@ class ManageAccountScreen extends ConsumerWidget {
     );
   }
 
-  /// Ends the session on this device, then returns to Settings.
+  /// Ends the session on this device, then shows the Login screen.
   ///
   /// The branched flow around it — sync first, auto-export on the way out, then
   /// Log out, through the branch this account and device state call for
@@ -262,14 +262,20 @@ class ManageAccountScreen extends ConsumerWidget {
   /// The branched flow owns everything that happens next: the mandatory sync for
   /// a premium account that is online, the offline block with its explicit way
   /// past, the safety export for a free account or for work that cannot be sent,
-  /// and then the complete wipe and the sign-out. This screen only starts it and
-  /// closes when it is done.
+  /// and then the complete wipe and the sign-out. This screen only starts it.
+  ///
+  /// The Login screen is reached **explicitly**, not by the router's gate: that
+  /// gate is decided once per launch (a device already signed in is never
+  /// re-gated mid-session), so without this a signed-out user would fall back to
+  /// the now-empty Settings surface instead of the sign-in screen. It is a `go`,
+  /// not a pop — Login is a top-level route, so the shell is left behind rather
+  /// than uncovered — the same navigation the expired-session notice uses.
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    // The screen closes only when the logout actually completed; a cancellation
-    // leaves the account signed in, so there is nothing to pop away from.
+    // Leaving for Login only when the logout actually completed; a cancellation
+    // leaves the account signed in, so there is nothing to leave behind.
     final completed = await runBranchedLogout(context, ref);
     if (!context.mounted || !completed) return;
-    Navigator.of(context).maybePop();
+    context.go(AppRoutes.login);
   }
 
   /// Shows the role, firm and subscription state behind the row the mockup draws.

@@ -2828,6 +2828,12 @@ abstract class AppLocalizations {
   /// **'Profile saved (offline)'**
   String get settingsProfile_saved;
 
+  /// No description provided for @settingsProfile_savedOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get settingsProfile_savedOnline;
+
   /// No description provided for @settingsManageAccount_title.
   ///
   /// In en, this message translates to:

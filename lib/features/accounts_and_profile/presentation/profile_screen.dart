@@ -103,22 +103,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   mobile: _mobile.text,
                 ),
               );
+          // The account keeps its own copy of the four details, so a re-install
+          // or a second phone does not ask the user for them again. It runs
+          // before the toast so the wording is honest: only a push that did not
+          // reach the server (or a build with nobody signed in) says "offline".
+          // A push that cannot land is owed and retried on the next launch,
+          // resume or reconnect; the record is already saved on the device.
+          final synced = await ref.read(pushProfileDetailsProvider)(
+            ref.read(profileFieldsProvider),
+          );
           if (!sheetContext.mounted) return;
           Navigator.of(sheetContext).pop();
           if (!mounted) return;
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context).settingsProfile_saved),
+              content: Text(
+                synced
+                    ? l10n.settingsProfile_savedOnline
+                    : l10n.settingsProfile_saved,
+              ),
             ),
-          );
-          // The account keeps its own copy of the four details, so a re-install
-          // or a second phone does not ask the user for them again. Best-effort
-          // and after the sheet is gone: the record is already saved on the
-          // device, and a push that cannot reach the server is retried on the
-          // next launch, resume or reconnect. With nobody signed in this does
-          // nothing at all.
-          await ref.read(pushProfileDetailsProvider)(
-            ref.read(profileFieldsProvider),
           );
         },
       ),
@@ -207,7 +212,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       icon: Icons.call_outlined,
                       label: l.settingsProfile_mobileNo,
                       value: profile.mobile.isNotEmpty
-                          ? '+880 ${profile.mobile}'
+                          ? '+88 ${profile.mobile}'
                           : '—',
                     ),
                   ],
@@ -540,7 +545,10 @@ class _Field extends StatelessWidget {
   }
 }
 
-/// Mobile number field with a fixed `+880` prefix box, per the mockup.
+/// Mobile number field with a fixed `+88` country-code prefix box, per the
+/// mockup. The user types the local number with its leading `0`
+/// (`01XXXXXXXXX`), so `+88` plus the typed digits is the full international
+/// number.
 class _MobileField extends StatelessWidget {
   final TextEditingController controller;
 
@@ -585,7 +593,7 @@ class _MobileField extends StatelessWidget {
                   top: Radius.circular(8),
                 ),
               ),
-              child: Center(child: Text('+880', style: AppTypography.bodyMd)),
+              child: Center(child: Text('+88', style: AppTypography.bodyMd)),
             ),
             SizedBox(width: AppSpacing.xs),
             Expanded(
@@ -594,7 +602,7 @@ class _MobileField extends StatelessWidget {
                 keyboardType: TextInputType.phone,
                 cursorColor: AppColors.primary,
                 decoration: InputDecoration(
-                  hintText: '1XXXXXXXXX',
+                  hintText: '01XXXXXXXXX',
                   hintStyle: AppTypography.bodyMd.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),

@@ -739,6 +739,7 @@
   "settingsProfile_officeAddressHint": "আপনার অফিসের ঠিকানা লিখুন",
   "settingsProfile_save": "প্রোফাইল সংরক্ষণ করুন",
   "settingsProfile_saved": "প্রোফাইল সংরক্ষিত হয়েছে (অফলাইন)",
+  "settingsProfile_savedOnline": "প্রোফাইল সংরক্ষিত হয়েছে",
   "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
   "settingsManageAccount_title": "অ্যাকাউন্ট ব্যবস্থাপনা",
   "settingsManageAccount_changePassword": "পাসওয়ার্ড পরিবর্তন",

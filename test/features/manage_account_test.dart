@@ -28,9 +28,12 @@ import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
-/// Marker rendered by the stand-in routes the two links push.
+/// Marker rendered by the stand-in routes the links push.
 const String resetRouteMarker = 'Reset Password Route';
 const String paywallRouteMarker = 'Paywall Route';
+
+/// Marker rendered by the stand-in Login route a completed logout goes to.
+const String loginRouteMarker = 'Login Route';
 
 void main() {
   late AuthTestHarness harness;
@@ -80,6 +83,12 @@ void main() {
         GoRoute(
           path: AppRoutes.paywall,
           builder: (_, _) => const Scaffold(body: Text(paywallRouteMarker)),
+        ),
+        // Where a completed logout lands: Login is a top-level route, so the
+        // screen must leave the shell for it rather than pop back to Settings.
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (_, _) => const Scaffold(body: Text(loginRouteMarker)),
         ),
       ],
     );
@@ -215,7 +224,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Logout ends the session, empties the caches and returns', (
+  testWidgets('Logout ends the session, empties the caches and shows Login', (
     tester,
   ) async {
     // A free account has no cloud copy of anything it holds, so its logout is the
@@ -247,6 +256,8 @@ void main() {
     expect(await ProfilesDao(harness.db).getAll(), isEmpty);
     expect(LocalAuthService(harness.prefs).cachedUserId, isNull);
     expect(find.text(l.logout_backedUpTo(sink.lastPath!)), findsOneWidget);
+    // The user lands on the sign-in screen, not back on an empty Settings list.
+    expect(find.text(loginRouteMarker), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -314,6 +325,8 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
     expect(harness.auth.signOutCalls, 1);
     expect(find.text(l.settingsManageAccount_loggedOut), findsOneWidget);
+    // Every completed branch lands on Login, not only the export one.
+    expect(find.text(loginRouteMarker), findsOneWidget);
 
     await unmountApp(tester);
   });

@@ -1,3 +1,13 @@
+### 2026-10-03 — Logout now lands on the Login screen — COMPLETE
+
+- **Request (the user's).** After logging out from Settings > Account & Profile > Manage Account, the user should be shown the login screen.
+- **What happened before.** `ManageAccountScreen._signOut` called `runBranchedLogout` and, when it completed, `Navigator.of(context).maybePop()` — which only closed Manage Account back onto the Settings list inside the shell. The router could not have helped: `appRouterProvider` reads `authGateRequiredProvider` **once per launch** (its own comment says so), so a device that launched signed in is never re-gated mid-session and its `redirect` leaves a signed-out user wherever they stand once `requiresSignIn` is false.
+- **The fix.** On a completed logout the screen now runs `context.go(AppRoutes.login)` — the same explicit navigation `SessionExpiryNotice` already uses. `go`, not `push`/`pop`: Login is a top-level route, so the shell (and the wiped diary behind it) is left behind rather than uncovered. A cancelled branch (`runBranchedLogout` false — a declined offline block, a closed warning, a dismissed passphrase) still returns early and navigates nowhere, which is the cross-contamination guard Task 19's audit added.
+- **Files.** `manage_account_screen.dart` (the navigation and its doc) and `manage_account_test.dart` (a Login stand-in route plus two assertions).
+- **Tests.** The export branch test now also asserts the Login screen is shown; the "synced account logs out at once" test pins that every branch lands there, not only the export one. `flutter analyze` clean; `manage_account_test` **8/8**; full suite **1284 passed**, the one failure pre-existing (`phase4_widgets_test.dart` Bengali calendar digits, fails on HEAD too).
+- **Records (rule 14 — absent from the plan).** A bullet in the plan's §5 logout flow and item 6 in `docs/tasks/19_realtime_conflicts_and_recovery.md`'s Phase 6.
+- **Resume point:** no feature work open.
+
 ### 2026-10-03 — Profile: the display name now reaches `profiles.full_name` too — COMPLETE
 
 - **Request (the user's).** Changing Full Name on the Profile screen did not update `Supabase > profiles > full_name`; the column kept the previous name.

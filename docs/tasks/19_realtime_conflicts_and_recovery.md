@@ -68,6 +68,7 @@ Implement the three logout branches from Sync Plan §5 (a single "sync before wi
 3. **(c) Free users:** always auto-export (same format/message), then wipe.
 4. Wipe scope: local Drift DB **and** `sync_queue`, plus sensitive in-memory state (§12.3.1 lifecycle hardening). A new login starts with a fresh database and an initial pull (premium) or fresh local DB (free).
 5. Route the forced re-login path (online session invalidation, Task 17 Phase 4) through these same branches.
+6. **A completed logout lands on the Login screen (follow-up, user request).** `runBranchedLogout` returns true only when the session actually ended; Manage Account's `_signOut` then navigates to Login explicitly (`context.go`, not a pop) instead of closing back to Settings. The router's sign-in gate cannot do it: `authGateRequiredProvider` is read once per launch, so a device that launched signed in is never re-gated, and the user would be left on the now-empty Settings surface. A cancelled branch returns false and navigates nowhere.
 
 **Phase 6 completion:** `flutter analyze` clean; all three logout branches manually verified per the Verification Plan. Update `docs/version_history.md`.
 

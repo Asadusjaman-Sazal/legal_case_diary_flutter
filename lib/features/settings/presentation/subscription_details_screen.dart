@@ -13,10 +13,11 @@
 /// flight must never be told they have nothing (plan §6, the entitlement
 /// bullet).
 ///
-/// **Payment History** is a table — number, plan, paid, when, status — rather
-/// than the loose rows the sheet drew, because it is a ledger a user reconciles
-/// against a bank or MFS statement. It scrolls sideways rather than wrapping,
-/// so the columns stay in their positions instead of drifting as a date grows.
+/// **Payment History** is one card per purchase — plan, what was paid, when,
+/// and the reviewer's verdict — because it is a ledger a user reconciles against
+/// a bank or MFS statement, and a five-column grid on a phone either wraps its
+/// dates or pushes the verdict off the edge. A card gives each purchase its own
+/// block, so it can be read, and re-read, without counting columns.
 library;
 
 import 'package:flutter/material.dart';
@@ -33,16 +34,6 @@ import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../payments/data/payment_repository.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
 import 'settings_sub_page_modal.dart';
-
-/// Fixed column widths, in logical pixels.
-///
-/// The table is wider than a narrow phone on purpose: a wrapped date column
-/// would put every row's baseline somewhere different, and a ledger whose
-/// columns do not line up cannot be scanned. Scrolling sideways keeps the grid.
-const double _serialColumnWidth = 34;
-const double _paidColumnWidth = 74;
-const double _dateColumnWidth = 132;
-const double _statusColumnWidth = 92;
 
 /// The Subscription Details sub-page.
 class SubscriptionDetailsScreen extends ConsumerWidget {
@@ -191,15 +182,52 @@ class _PaymentHistorySection extends ConsumerWidget {
       children: [
         Text(l.payments_historyTitle, style: AppTypography.titleMd),
         const SizedBox(height: AppSpacing.sm),
-        _Card(child: _PaymentHistoryTable(l: l, async: async)),
+        _PaymentHistoryCards(l: l, async: async)
       ],
     );
   }
 }
 
-/// The ledger table itself: a header row and one row per purchase.
-class _PaymentHistoryTable extends StatelessWidget {
-  const _PaymentHistoryTable({required this.l, required this.async});
+/// The verdict on one purchase, as a pill.
+///
+/// A pill rather than bare text so a card can be scanned for the one still
+/// waiting, which is the purchase a user actually wants to find.
+class _PaymentStatusPill extends StatelessWidget {
+  const _PaymentStatusPill({required this.status});
+
+  /// `pending`, `approved` or `rejected`.
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final (label, color) = switch (status) {
+      'approved' => (l.payments_statusApproved, AppColors.success),
+      'rejected' => (l.payments_statusRejected, AppColors.error),
+      _ => (l.payments_statusPending, AppColors.secondary),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppSpacing.sm),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.labelMd.copyWith(color: color),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+/// The ledger: one card per purchase, newest first.
+class _PaymentHistoryCards extends StatelessWidget {
+  const _PaymentHistoryCards({required this.l, required this.async});
 
   final AppLocalizations l;
   final AsyncValue<List<PaymentSubmission>> async;
@@ -224,44 +252,16 @@ class _PaymentHistoryTable extends StatelessWidget {
         // do not have to scroll for.
         final rows = [...items]
           ..sort((a, b) => _submittedMillis(b).compareTo(_submittedMillis(a)));
-        return _ScrollableTable(
-          header: _TableRow(
-            header: true,
-            cells: <Widget>[
-              _HeaderCell(l.settingsSubscription_serial, width: _serialColumnWidth),
-              _HeaderCell(l.settingsManageAccount_plan),
-              _HeaderCell(
-                l.settingsSubscription_paid,
-                width: _paidColumnWidth,
-              ),
-              _HeaderCell(
-                l.settingsSubscription_dateTime,
-                width: _dateColumnWidth,
-              ),
-              _HeaderCell(
-                l.settingsSubscription_status,
-                width: _statusColumnWidth,
-              ),
-            ],
-          ),
-          rows: [
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             for (var i = 0; i < rows.length; i++)
-              _TableRow(
-                cells: <Widget>[
-                  _BodyCell('${i + 1}.', width: _serialColumnWidth),
-                  _BodyCell(paymentPlanLabel(l, rows[i].planType)),
-                  _BodyCell(
-                    l.payments_amountValue(
-                      AppDateUtils.formatDigits(rows[i].amount, l.localeName),
-                    ),
-                    width: _paidColumnWidth,
-                  ),
-                  _BodyCell(
-                    _submittedAtLabel(l, rows[i]),
-                    width: _dateColumnWidth,
-                  ),
-                  _StatusCell(status: rows[i].status, width: _statusColumnWidth),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: _PaymentHistoryCard(
+                  number: i + 1,
+                  submission: rows[i],
+                ),
               ),
           ],
         );
@@ -270,162 +270,136 @@ class _PaymentHistoryTable extends StatelessWidget {
   }
 }
 
-/// One table row: a hairline under every row but the last.
-class _TableRow extends StatelessWidget {
-  const _TableRow({required this.cells, this.header = false});
+/// One purchase: its number and plan across the top, the verdict beside them,
+/// and what was paid and when beneath.
+///
+/// The number is part of the data a user reconciles against ("that was my
+/// second one"), so it is kept even though a card makes it obvious which is
+/// which. The reviewer's note is shown when there is one — a rejection always
+/// carries a reason, and a ledger that hid it would leave the user guessing why
+/// money did not become a subscription.
+class _PaymentHistoryCard extends StatelessWidget {
+  const _PaymentHistoryCard({required this.number, required this.submission});
 
-  final List<Widget> cells;
-  final bool header;
+  /// Position in the list, newest first.
+  final int number;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: header
-          ? const BoxDecoration(
-              color: AppColors.surfaceContainerLow,
-              border: Border(
-                bottom: BorderSide(color: AppColors.outlineVariant),
-              ),
-            )
-          : null,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.gutter,
-      ),
-      child: Row(children: cells),
-    );
-  }
-}
-
-/// A header cell.
-class _HeaderCell extends StatelessWidget {
-  const _HeaderCell(this.text, {this.width});
-
-  final String text;
-  final double? width;
-
-  @override
-  Widget build(BuildContext context) => _Cell(
-        width: width,
-        child: Text(
-          text,
-          style: AppTypography.labelMd.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      );
-}
-
-/// A body cell.
-class _BodyCell extends StatelessWidget {
-  const _BodyCell(this.text, {this.width});
-
-  final String text;
-  final double? width;
-
-  @override
-  Widget build(BuildContext context) => _Cell(
-        width: width,
-        child: Text(
-          text,
-          style: AppTypography.bodyMd,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      );
-}
-
-/// The status cell, which is a pill rather than bare text so a row can be
-/// scanned for the one that still needs attention.
-class _StatusCell extends StatelessWidget {
-  const _StatusCell({required this.status, required this.width});
-
-  final String status;
-  final double width;
+  /// The purchase itself.
+  final PaymentSubmission submission;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final (label, color) = switch (status) {
-      'approved' => (l.payments_statusApproved, AppColors.success),
-      'rejected' => (l.payments_statusRejected, AppColors.error),
-      _ => (l.payments_statusPending, AppColors.secondary),
-    };
-    return _Cell(
-      width: width,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(AppSpacing.sm),
-        ),
-        child: Text(
-          label,
-          style: AppTypography.labelMd.copyWith(color: color),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              // The number as a small tinted circle, so a purchase is a thing
+              // rather than a line.
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '$number',
+                  style: AppTypography.labelMd.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.gutter),
+              Expanded(
+                child: Text(
+                  paymentPlanLabel(l, submission.planType),
+                  style: AppTypography.titleMd,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              _PaymentStatusPill(status: submission.status),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.gutter),
+          const Divider(height: 1, color: AppColors.outlineVariant),
+          const SizedBox(height: AppSpacing.gutter),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _LabelledValue(
+                  label: l.settingsSubscription_paid,
+                  value: l.payments_amountValue(
+                    AppDateUtils.formatDigits(
+                      submission.amount,
+                      l.localeName,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _LabelledValue(
+                  label: l.settingsSubscription_dateTime,
+                  value: _submittedAtLabel(l, submission),
+                  trailing: true,
+                ),
+              ),
+            ],
+          ),
+          if ((submission.adminNotes ?? '').isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.gutter),
+            _LabelledValue(
+              label: l.payments_notesLabel,
+              value: submission.adminNotes!,
+            ),
+          ],
+        ],
       ),
     );
   }
 }
 
-/// A table cell: fixed width where the column is fixed, intrinsic where the plan
-/// name is the long one.
-class _Cell extends StatelessWidget {
-  const _Cell({required this.child, this.width});
+/// A small caption over its value, right-aligned where the card's second
+/// column sits.
+class _LabelledValue extends StatelessWidget {
+  const _LabelledValue({
+    required this.label,
+    required this.value,
+    this.trailing = false,
+  });
 
-  final Widget child;
-  final double? width;
+  final String label;
+  final String value;
+
+  /// Whether this sits in the card's right-hand column.
+  final bool trailing;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: width,
-        child: Padding(
-          padding: const EdgeInsets.only(right: AppSpacing.sm),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: child,
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: trailing
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: AppTypography.labelMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
-        ),
-      );
-}
-
-/// A table that keeps its columns and scrolls sideways when a phone is narrower
-/// than the ledger needs.
-class _ScrollableTable extends StatelessWidget {
-  const _ScrollableTable({required this.header, required this.rows});
-
-  final Widget header;
-  final List<Widget> rows;
-
-  @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            header,
-            for (var i = 0; i < rows.length; i++)
-              Container(
-                decoration: BoxDecoration(
-                  border: i == rows.length - 1
-                      ? null
-                      : const Border(
-                          bottom: BorderSide(color: AppColors.outlineVariant),
-                        ),
-                ),
-                child: rows[i],
-              ),
-          ],
-        ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            textAlign: trailing ? TextAlign.right : TextAlign.left,
+            style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
+          ),
+        ],
       );
 }
 
@@ -504,7 +478,10 @@ class _DetailRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            Flexible(
+            // Expanded, not Flexible: a flexible box is only as wide as the
+            // text inside it, so "right" meant "immediately after the label".
+            // The value has to take the rest of the row to sit at the edge.
+            Expanded(
               child: Text(
                 value,
                 textAlign: TextAlign.right,

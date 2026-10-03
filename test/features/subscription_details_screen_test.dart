@@ -2,11 +2,16 @@
 ///
 /// The three facts it used to show in a bottom sheet are pinned here unchanged,
 /// plus the two the sub-page adds: the plan is named as **Current Plan**, and the
-/// history is a **table** with a serial number, the amount, the moment it was
-/// submitted and the reviewer's verdict on each row. The table is the part worth
-/// testing carefully — a ledger that loses a column, renumbers from the wrong
-/// end, or prints a UTC timestamp beside a Bangladesh date is exactly the kind of
-/// wrong a user cannot easily spot.
+/// history is **one card per purchase** carrying the number, the plan, the amount,
+/// the moment it was submitted and the reviewer's verdict. The ledger is the part
+/// worth testing carefully — a purchase that loses its number, renumbers from the
+/// wrong end, drops its verdict, or prints a UTC timestamp beside a Bangladesh date
+/// is exactly the kind of wrong a user cannot easily spot.
+///
+/// The values in the summary card are pinned as **right-aligned** too, because the
+/// bug that fixed was invisible: `Flexible` right-aligns within a box that is
+/// only as wide as the text, so every value sat right beside its label and read as
+/// a left-aligned column.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -16,6 +21,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -227,7 +233,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the history is a table: number, plan, paid, when, status', (
+  testWidgets('the history is a card per purchase, carrying all five facts', (
     tester,
   ) async {
     await pumpDetails(
@@ -263,18 +269,11 @@ void main() {
       ),
     );
 
-    // The header row names the five columns.
-    expect(find.text(l.settingsSubscription_serial), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_plan), findsWidgets);
-    expect(find.text(l.settingsSubscription_paid), findsOneWidget);
-    expect(find.text(l.settingsSubscription_dateTime), findsOneWidget);
-    expect(find.text(l.settingsSubscription_status), findsOneWidget);
+    // Newest first, numbered from 1: the purchase a user came about is first.
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
 
-    // Newest first, so the row a user came about is row 1.
-    expect(find.text('1.'), findsOneWidget);
-    expect(find.text('2.'), findsOneWidget);
-
-    // Both plans, both amounts, both verdicts.
+    // Each card states its plan, what was paid, when, and the verdict.
     expect(find.text(l.paywall_planQuarterly), findsWidgets);
     expect(find.text(l.paywall_planMonthly), findsWidgets);
     expect(find.text(l.payments_amountValue('285')), findsOneWidget);
@@ -282,10 +281,101 @@ void main() {
     expect(find.text(l.payments_statusPending), findsOneWidget);
     expect(find.text(l.payments_statusApproved), findsOneWidget);
 
+    // The captions are the field names, so nothing from the old table's columns
+    // is lost: each card still says which figure is the payment and which is the
+    // moment.
+    expect(find.text(l.settingsSubscription_paid), findsNWidgets(2));
+    expect(find.text(l.settingsSubscription_dateTime), findsNWidgets(2));
+
     // The moment each purchase was submitted, in Bangladesh civil time: 17:30
-    // UTC is 23:30 the same day, so both rows read 11:30 PM on their own date.
+    // UTC is 23:30 the same day, so both cards read 11:30 PM on their own date.
     expect(find.text('02/11/2026, 11:30 PM'), findsOneWidget);
     expect(find.text('02/10/2026, 11:30 PM'), findsOneWidget);
+
+    // A reviewer's note is shown rather than swallowed: a rejection always
+    // carries a reason, and a ledger that hid it leaves the user guessing.
+    expect(find.text(l.payments_notesLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a rejection shows the reviewer\'s note on its card', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => [
+                PaymentSubmission(
+                  id: 'p1',
+                  planType: paymentPlanMonthly,
+                  amount: 100,
+                  mfsProvider: 'bkash',
+                  senderNumber: '01700000000',
+                  transactionId: 'TX1',
+                  status: 'rejected',
+                  adminNotes: 'TrxID not found',
+                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+                ),
+          ],
+        ),
+      ],
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    expect(find.text(l.payments_statusRejected), findsOneWidget);
+    expect(find.text(l.payments_notesLabel), findsOneWidget);
+    expect(find.text('TrxID not found'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the summary values sit at the right edge of the card', (
+    tester,
+  ) async {
+    // Regression: the value was in a `Flexible`, so `TextAlign.right` aligned it
+    // inside a box only as wide as the text — it sat immediately after its
+    // label and the card read as one left-aligned column. Asserting the
+    // `textAlign` property proves nothing here, because the property is correct
+    // in both layouts; what differs is *where the text lands*, so this measures
+    // the edge instead.
+    await pumpDetails(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    // The card's content edge: the screen width less the page margin and the
+    // card's own padding. Every right-aligned value has to finish exactly there.
+    final edge = 420 - AppSpacing.edgeMargin - AppSpacing.md;
+    for (final value in [
+      // Role and Current Plan; the plan also names the card's header, so the
+      // last one is the row's value.
+      l.settingsManageAccount_roleIndividual,
+      l.settingsManageAccount_planFree,
+      // The expiry is a dash here (no premium row), and it is a value like any
+      // other: it must sit at the edge too.
+      '—',
+    ]) {
+      final right = tester.getTopRight(find.text(value).last).dx;
+      expect(right, closeTo(edge, 1.0), reason: value);
+    }
 
     await unmountApp(tester);
   });
@@ -307,8 +397,8 @@ void main() {
     );
 
     expect(find.text(l.payments_noSubmissions), findsOneWidget);
-    expect(find.text(l.settingsSubscription_serial), findsNothing);
-    expect(find.text('1.'), findsNothing);
+    expect(find.text(l.settingsSubscription_paid), findsNothing);
+    expect(find.text('1'), findsNothing);
 
     await unmountApp(tester);
   });

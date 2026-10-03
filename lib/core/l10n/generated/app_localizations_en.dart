@@ -1571,12 +1571,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSubscription_dateTime => 'Date & Time';
 
   @override
-  String get settingsSubscription_status => 'Status';
-
-  @override
-  String get settingsSubscription_serial => 'No.';
-
-  @override
   String get settingsSubscription_title => 'Subscription';
 
   @override

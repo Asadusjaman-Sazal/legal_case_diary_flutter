@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/errors/error_log.dart';
+import 'package:legal_case_diary/core/errors/error_log_provider.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -20,6 +22,7 @@ import 'package:legal_case_diary/core/services/contact_launcher.dart';
 import 'package:legal_case_diary/features/settings/data/support_diagnostics.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/guidelines_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/support_screen.dart';
+import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 
 /// Records every URI the channels try to open.
 class _RecordingLauncher implements ContactLauncher {
@@ -62,6 +65,7 @@ Future<void> _pumpSupport(
   required _RecordingLauncher launcher,
   SupportDeviceFacts facts = _redmi,
   Locale locale = const Locale('en'),
+  ErrorLog? log,
 }) async {
   // The screen is a scrolling list of cards; a phone-sized viewport would leave
   // the lower cards unbuilt and make their absence mean nothing.
@@ -89,6 +93,9 @@ Future<void> _pumpSupport(
       overrides: [
         supportDeviceFactsProvider.overrideWithValue(_FakeFactsReader(facts)),
         contactLauncherProvider.overrideWithValue(launcher),
+        // The message carries the error log, so the screen reads it; main.dart
+        // always overrides this provider, and every test must do the same.
+        errorLogProvider.overrideWithValue(log ?? ErrorLog()),
       ],
       child: MaterialApp.router(
         routerConfig: router,
@@ -227,6 +234,62 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l.settingsSupport_unableToOpenEmail), findsOneWidget);
+  });
+
+  testWidgets('a recorded failure rides along in the message it sends', (
+    tester,
+  ) async {
+    final launcher = _RecordingLauncher();
+    final log = ErrorLog();
+    await log.record('sync.push', const AuthFailure(AuthFailureKind.network));
+    await _pumpSupport(tester, launcher: launcher, log: log);
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    final preview = _previewMessage(tester);
+    expect(preview, contains('| sync.push | AuthFailure(network)'));
+    // Before the prompt, so the user's own description ends the message.
+    expect(
+      preview.indexOf('| sync.push |'),
+      lessThan(preview.indexOf(l.settingsSupport_messagePrompt)),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
+    await tester.pumpAndSettle();
+
+    // What is sent is what was shown, diagnostics included.
+    expect(launcher.opened.single.queryParameters['text'], preview);
+  });
+
+  testWidgets('a clean log sends no diagnostics section at all', (
+    tester,
+  ) async {
+    await _pumpSupport(tester, launcher: _RecordingLauncher());
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // An empty report would be noise in a message that is already complete.
+    expect(_previewMessage(tester), isNot(contains('Errors Recorded:')));
+    expect(_previewMessage(tester), contains(l.settingsSupport_messagePrompt));
+  });
+
+  testWidgets('a failure recorded while the screen is open reaches the message', (
+    tester,
+  ) async {
+    final launcher = _RecordingLauncher();
+    final log = ErrorLog();
+    await _pumpSupport(tester, launcher: launcher, log: log);
+    expect(_previewMessage(tester), isNot(contains('Errors Recorded:')));
+
+    // The preview is a promise that what is shown is what will be sent, so it
+    // has to follow the log rather than freeze at the moment of opening.
+    await log.record('auth.signIn', StateError('boom'));
+    await tester.pump();
+
+    final preview = _previewMessage(tester);
+    expect(preview, contains('| auth.signIn | StateError'));
+
+    await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
+    await tester.pumpAndSettle();
+    expect(launcher.opened.single.queryParameters['text'], preview);
   });
 
   testWidgets('renders the Bengali copy, message included', (tester) async {

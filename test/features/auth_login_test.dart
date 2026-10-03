@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_widgets.dart';
@@ -255,7 +256,7 @@ void main() {
     harness = AuthTestHarness(
       preferences: <String, Object>{pendingInviteCodeKey: 'abcde12345'},
     );
-    harness.firm.redeemError = const AuthFailure(AuthFailureKind.invalidCode);
+    harness.firm.redeemError = const FirmFailure(FirmFailureKind.invalidInviteCode);
     await pumpLogin(tester);
 
     await submitLogin(tester);

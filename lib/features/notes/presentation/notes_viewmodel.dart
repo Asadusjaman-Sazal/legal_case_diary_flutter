@@ -26,6 +26,9 @@ class NotesViewModel extends BaseListViewModel<Note, NotesRepository> {
       notesRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'notes';
+
+  @override
   Future<List<Note>> loadItems(NotesRepository repo) => repo.listAll();
 
   @override

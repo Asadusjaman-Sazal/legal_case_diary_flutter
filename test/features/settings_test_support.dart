@@ -16,6 +16,8 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 
+import '../test_utils.dart';
+
 /// In-memory settings repository holding one [UserSettings] value.
 class FakeSettingsRepository implements SettingsRepository {
   /// Creates the fake, optionally seeded with [settings].
@@ -64,7 +66,7 @@ Future<void> pumpSettingsRouter(
   addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: overrides,
+      overrides: withErrorLog(overrides),
       child: MaterialApp.router(
         routerConfig: router,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -89,10 +91,10 @@ Future<void> pumpSettingsScreen(
 }) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: withErrorLog(<Override>[
         settingsRepositoryProvider.overrideWith((ref) async => repo),
         ...overrides,
-      ],
+      ]),
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

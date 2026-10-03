@@ -36,13 +36,14 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../sync/connectivity_monitor.dart';
-import '../../auth/data/auth_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/auth_widgets.dart';
 import '../../settings/presentation/settings_controls.dart';
@@ -70,7 +71,7 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
   bool _busy = false;
 
   /// The last failure to show; cleared when a new attempt starts.
-  AuthFailure? _failure;
+  Object? _failure;
 
   @override
   void dispose() {
@@ -119,6 +120,11 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     final firmName = ref.watch(accountFirmProvider).value?.name ?? '';
     final members = ref.watch(firmMembersListProvider);
     final invites = ref.watch(firmInvitesListProvider);
+
+    // A read that fails here only becomes an error state the banner draws, so
+    // the providers behind these two watches are what remember it — the
+    // roster is the thing on this screen an owner cannot work out for
+    // themselves, and a listener in this build would write it once per frame.
     final locale = Localizations.localeOf(context).toString();
 
     return ListView(
@@ -171,7 +177,7 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           // A refused or failed read is reported, never swallowed: the roster is
           // the one thing on this screen the owner cannot infer.
           error: (error, _) => AuthErrorBanner(
-            text: authErrorText(l, _failureKindOf(error)) ?? l.auth_errorUnknown,
+            text: failureText(l, error) ?? l.auth_errorUnknown,
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -205,7 +211,7 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
             child: Center(child: CircularProgressIndicator()),
           ),
           error: (error, _) => AuthErrorBanner(
-            text: authErrorText(l, _failureKindOf(error)) ?? l.auth_errorUnknown,
+            text: failureText(l, error) ?? l.auth_errorUnknown,
           ),
         ),
       ],
@@ -367,11 +373,11 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
       await action();
     } on Object catch (error) {
       if (!mounted) return;
-      setState(() {
-        _failure = error is AuthFailure
-            ? error
-            : AuthFailure(AuthFailureKind.unknown, cause: error);
-      });
+      // Remembered here, because this screen shows the failure rather than
+      // rethrowing it: a refused invite is precisely the report this log has to
+      // be able to answer, and without this it would leave no trace at all.
+      recordFailure(ref.read(errorLogProvider), 'firm.action', error);
+      setState(() => _failure = error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -379,7 +385,7 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
 
   /// The message for the last failure, never a raw server string.
   String _failureText(AppLocalizations l) =>
-      authErrorText(l, _failure?.kind) ?? l.auth_errorUnknown;
+      failureText(l, _failure) ?? l.auth_errorUnknown;
 
   Future<void> _showInviteCode(GeneratedInvite invite) => showModalBottomSheet<void>(
     context: context,
@@ -387,10 +393,6 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     builder: (_) => _InviteCodeSheet(invite: invite),
   );
 }
-
-/// The failure kind behind an async error, in the terms the copy knows.
-AuthFailureKind _failureKindOf(Object error) =>
-    error is AuthFailure ? error.kind : AuthFailureKind.unknown;
 
 /// Centred single-message body (offline, or no account).
 class _MessageBody extends StatelessWidget {
@@ -603,7 +605,7 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
   late bool _canDelete = widget.member.canDelete;
 
   bool _busy = false;
-  AuthFailure? _failure;
+  Object? _failure;
 
   @override
   Widget build(BuildContext context) {
@@ -625,8 +627,7 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
             const SizedBox(height: AppSpacing.md),
             if (_failure != null) ...[
               AuthErrorBanner(
-                text:
-                    authErrorText(l, _failure?.kind) ?? l.auth_errorUnknown,
+                text: failureText(l, _failure) ?? l.auth_errorUnknown,
               ),
               const SizedBox(height: AppSpacing.md),
             ],
@@ -753,11 +754,11 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
       await action();
     } on Object catch (error) {
       if (!mounted) return;
-      setState(() {
-        _failure = error is AuthFailure
-            ? error
-            : AuthFailure(AuthFailureKind.unknown, cause: error);
-      });
+      // Remembered here, because this screen shows the failure rather than
+      // rethrowing it: a refused invite is precisely the report this log has to
+      // be able to answer, and without this it would leave no trace at all.
+      recordFailure(ref.read(errorLogProvider), 'firm.action', error);
+      setState(() => _failure = error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

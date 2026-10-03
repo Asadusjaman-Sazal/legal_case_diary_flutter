@@ -12,8 +12,8 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -21,16 +21,17 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/errors/error_log.dart';
 import '../../../../core/errors/error_log_provider.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../data/diagnostics_report.dart';
 import '../settings_sub_page_modal.dart';
 
-/// One recorded failure, as this screen draws it.
+/// Reads, copies and clears the app's error log.
 ///
-/// Deliberately Latin digits and an unambiguous `YYYY-MM-DD HH:MM:SS` stamp: a
-/// diagnostic is compared with a log on another machine, not read as prose, so
-/// the Bengali numeral form the rest of the app uses would work against it.
-final DateFormat _stamp = DateFormat('yyyy-MM-dd HH:mm:ss');
-
-/// Reads and clears the app's error log.
+/// Every entry is stamped in Latin digits with an unambiguous
+/// `yyyy-MM-dd HH:mm:ss` layout: a diagnostic is compared with a log on another
+/// machine, not read as prose, so the Bengali numeral form the rest of the app
+/// uses would work against it. The formatter lives with the report that carries
+/// the same stamps (`diagnosticStamp`), so the screen and the pasted text
+/// cannot drift apart.
 class DiagnosticsScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const DiagnosticsScreen({super.key});
@@ -59,7 +60,22 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     return SettingsSubPageModal(
       title: l.settingsDiagnostics_title,
       actions: [
-        if (entries.isNotEmpty)
+        if (entries.isNotEmpty) ...[
+          // The report is the point of the log: it is the one form of it that
+          // can leave the phone. Nothing to encrypt and no passphrase to ask
+          // for, because an entry is a time, an area and a redacted label.
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(
+                ClipboardData(text: buildDiagnosticsReport(entries: entries)),
+              );
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l.settingsDiagnostics_copied)),
+              );
+            },
+            child: Text(l.settingsDiagnostics_copy),
+          ),
           TextButton(
             onPressed: () async {
               await ref.read(errorLogProvider).clear();
@@ -70,6 +86,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
             },
             child: Text(l.settingsDiagnostics_clear),
           ),
+        ],
       ],
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -124,7 +141,7 @@ class _EntryRow extends StatelessWidget {
         Text(entry.label, style: AppTypography.bodyMd),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          '${entry.area} · ${_stamp.format(DateTime.fromMillisecondsSinceEpoch(entry.at))}',
+          '${entry.area} · ${diagnosticStamp(DateTime.fromMillisecondsSinceEpoch(entry.at))}',
           style: AppTypography.bodySm.copyWith(color: AppColors.outline),
         ),
       ],

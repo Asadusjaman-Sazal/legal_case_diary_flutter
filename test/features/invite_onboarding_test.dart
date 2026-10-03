@@ -145,11 +145,11 @@ void main() {
       expect(
         () => parseInviteRedemption(<String, dynamic>{'status': 'invalid_code'}),
         throwsA(
-          isA<AuthFailure>().having(
+          isA<FirmFailure>().having(
             (failure) => failure.kind,
             'kind',
-            AuthFailureKind.invalidCode,
-          ),
+            FirmFailureKind.invalidInviteCode,
+            ),
         ),
       );
     });
@@ -158,11 +158,11 @@ void main() {
       expect(
         () => parseInviteRedemption(<String, dynamic>{'status': 'unauthenticated'}),
         throwsA(
-          isA<AuthFailure>().having(
+          isA<FirmFailure>().having(
             (failure) => failure.kind,
             'kind',
-            AuthFailureKind.unknown,
-          ),
+            FirmFailureKind.unknown,
+            ),
         ),
       );
     });
@@ -177,11 +177,11 @@ void main() {
     );
 
     Matcher throwsFirmAdminOffline() => throwsA(
-      isA<AuthFailure>().having(
+      isA<FirmFailure>().having(
         (failure) => failure.kind,
         'kind',
-        AuthFailureKind.firmAdminOffline,
-      ),
+        FirmFailureKind.firmAdminOffline,
+        ),
     );
 
     test('creating an invite offline asks for a connection', () async {
@@ -206,12 +206,12 @@ void main() {
       final l = await AppLocalizations.delegate.load(const Locale('en'));
 
       expect(
-        authErrorText(l, AuthFailureKind.firmAdminOffline),
+        firmErrorText(l, FirmFailureKind.firmAdminOffline),
         'Connect to the internet to manage your firm.',
       );
       // And the refusal a used code produces reaches the user in its own words.
       expect(
-        authErrorText(l, AuthFailureKind.invalidCode),
+        firmErrorText(l, FirmFailureKind.invalidInviteCode),
         l.auth_errorInvalidCode,
       );
     });
@@ -249,11 +249,11 @@ void main() {
       await expectLater(
         repository.abandonOnboarding(),
         throwsA(
-          isA<AuthFailure>().having(
+          isA<FirmFailure>().having(
             (failure) => failure.kind,
             'kind',
-            AuthFailureKind.firmAdminOffline,
-          ),
+            FirmFailureKind.firmAdminOffline,
+            ),
         ),
       );
     });

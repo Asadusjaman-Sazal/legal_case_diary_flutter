@@ -35,6 +35,9 @@ class CourtCategoriesViewModel
       courtCategoriesRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'courtCategories';
+
+  @override
   Future<List<CourtCategory>> loadItems(CourtCategoriesRepository repo) =>
       repo.listAll();
 
@@ -81,6 +84,9 @@ class CourtsViewModel extends BaseListViewModel<Court, CourtsRepository> {
       courtsRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'courts';
+
+  @override
   Future<List<Court>> loadItems(CourtsRepository repo) => repo.listAll();
 
   @override
@@ -123,6 +129,9 @@ class StepsViewModel extends BaseListViewModel<Step, StepsRepository> {
   @override
   FutureProvider<StepsRepository> get repositoryProvider =>
       stepsRepositoryProvider;
+
+  @override
+  String get diagnosticArea => 'steps';
 
   @override
   Future<List<Step>> loadItems(StepsRepository repo) => repo.listAll();
@@ -170,6 +179,9 @@ class CaseTypesViewModel
       caseTypesRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'caseTypes';
+
+  @override
   Future<List<CaseType>> loadItems(CaseTypesRepository repo) => repo.listAll();
 
   @override
@@ -214,6 +226,9 @@ class OnBehalfsViewModel
   @override
   FutureProvider<OnBehalfsRepository> get repositoryProvider =>
       onBehalfsRepositoryProvider;
+
+  @override
+  String get diagnosticArea => 'onBehalfs';
 
   @override
   Future<List<OnBehalf>> loadItems(OnBehalfsRepository repo) => repo.listAll();

@@ -9,6 +9,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
 
@@ -63,6 +65,10 @@ class CaseViewModel extends AsyncNotifier<CaseState> {
   }
 
   /// Reloads the case list and counts.
+  ///
+  /// Recorded, not just re-rendered: a case list that fails to load is the
+  /// single most reported symptom there is, and it becomes an error state a
+  /// screen draws rather than an exception that escapes to the global capture.
   Future<void> refresh() async {
     state = const AsyncValue<CaseState>.loading();
     try {
@@ -76,6 +82,7 @@ class CaseViewModel extends AsyncNotifier<CaseState> {
         nonDeletedCount: nonDeleted,
       ));
     } catch (error, stackTrace) {
+      recordFailure(ref.read(errorLogProvider), 'cases.refresh', error);
       state = AsyncValue<CaseState>.error(error, stackTrace);
     }
   }

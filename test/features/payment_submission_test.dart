@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,8 @@ import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
 import 'package:legal_case_diary/features/payments/presentation/payment_viewmodel.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+
+import '../test_utils.dart';
 
 /// A repository that records calls and can refuse on demand.
 class _FakePaymentRepository implements PaymentRepository {
@@ -59,13 +62,13 @@ Future<ProviderContainer> _container(
 }) async {
   final store = prefs ?? await SharedPreferences.getInstance();
   final container = ProviderContainer(
-    overrides: [
+    overrides: withErrorLog(<Override>[
       sharedPreferencesProvider.overrideWithValue(store),
       authIdentityProvider.overrideWithValue(
         const AuthIdentity(userId: _userId),
       ),
       paymentRepositoryProvider.overrideWithValue(repo),
-    ],
+    ]),
   );
   addTearDown(container.dispose);
   return container;

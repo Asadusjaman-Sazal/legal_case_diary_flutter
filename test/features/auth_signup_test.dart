@@ -280,7 +280,7 @@ void main() {
   testWidgets('a rejected invite code is explained and the code is kept', (
     tester,
   ) async {
-    harness.firm.redeemError = const AuthFailure(AuthFailureKind.invalidCode);
+    harness.firm.redeemError = const FirmFailure(FirmFailureKind.invalidInviteCode);
     await pumpSignup(tester);
     await chooseJoinFirm(tester);
     await fillForm(tester, inviteCode: 'abcde12345');
@@ -296,9 +296,7 @@ void main() {
   });
 
   testWidgets('the invite rate limit has its own words', (tester) async {
-    harness.firm.redeemError = const AuthFailure(
-      AuthFailureKind.tooManyAttempts,
-    );
+    harness.firm.redeemError = const FirmFailure(FirmFailureKind.tooManyAttempts);
     await pumpSignup(tester);
     await chooseJoinFirm(tester);
     await fillForm(tester, inviteCode: 'abcde12345');

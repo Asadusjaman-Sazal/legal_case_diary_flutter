@@ -20,6 +20,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../accounts_and_profile/data/firm_repository.dart';
 import '../data/auth_repository.dart';
 
 /// Width the auth card settles on (the mockups' `max-w-[400px]` / `420px`).
@@ -710,6 +711,44 @@ String? authErrorText(AppLocalizations l, AuthFailureKind? kind) => switch (kind
   AuthFailureKind.network => l.auth_errorNetwork,
   AuthFailureKind.unavailable => l.auth_errorUnavailable,
   AuthFailureKind.unknown => l.auth_errorUnknown,
+};
+
+/// The localized message for a firm failure kind, or null when there is nothing
+/// to show.
+///
+/// Shares the sentences that are genuinely shared — no connection, too many
+/// attempts, the premium gate — and has its own where the auth wording would be
+/// a lie: "Sign-in is not available in this build" says nothing useful about a
+/// firm feature being absent from one.
+String? firmErrorText(AppLocalizations l, FirmFailureKind? kind) =>
+    switch (kind) {
+      null => null,
+      FirmFailureKind.network => l.auth_errorNetwork,
+      FirmFailureKind.server => l.firm_errorServer,
+      FirmFailureKind.unauthorized => l.firm_errorUnauthorized,
+      FirmFailureKind.tooManyAttempts => l.auth_errorTooManyAttempts,
+      FirmFailureKind.unavailable => l.firm_errorUnavailable,
+      FirmFailureKind.invalidInviteCode => l.auth_errorInvalidCode,
+      FirmFailureKind.alreadyMember => l.auth_errorAlreadyMember,
+      FirmFailureKind.firmAdminOffline => l.auth_errorFirmAdminOffline,
+      FirmFailureKind.premiumRequired => l.auth_errorPremiumRequired,
+      FirmFailureKind.unknown => l.auth_errorUnknown,
+    };
+
+/// The localized message for a failure of **any** domain, or null when there is
+/// nothing to show.
+///
+/// One entry point on purpose. A sign-up that signs the account in and then
+/// redeems an invite can fail in either domain, and a screen that catches one
+/// type and lets the other past is how a firm refusal escaped into an unhandled
+/// async error. So a screen holds the failure itself rather than a kind and
+/// asks here, which also means a third domain is one line rather than a
+/// migration.
+String? failureText(AppLocalizations l, Object? failure) => switch (failure) {
+  null => null,
+  final AuthFailure f => authErrorText(l, f.kind),
+  final FirmFailure f => firmErrorText(l, f.kind),
+  _ => l.auth_errorUnknown,
 };
 
 /// Validates an email field, or returns null when it is usable.

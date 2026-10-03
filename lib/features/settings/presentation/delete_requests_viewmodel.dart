@@ -56,6 +56,9 @@ class DeleteRequestsViewModel
       deleteRequestsRepositoryProvider;
 
   @override
+  String get diagnosticArea => 'deleteRequests';
+
+  @override
   Future<List<DeleteRequest>> loadItems(DeleteRequestsRepository repo) =>
       repo.listAll();
 

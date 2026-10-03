@@ -37,7 +37,8 @@ const String profileDetailsPendingKey = 'profile_details_pending';
 const String profileFullNameKey = 'profile_full_name';
 
 /// The user's own profile details. Every field is blank until they fill it in;
-/// the mobile number is stored without its `+880` prefix (the form adds it).
+/// the mobile number is stored exactly as typed — local form, with its leading
+/// `0` and no country code (the form's fixed `+88` prefix carries that).
 class ProfileFields {
   /// Creates a record; every field defaults to blank.
   const ProfileFields({
@@ -72,7 +73,7 @@ class ProfileFields {
   /// The user's chamber/office address.
   final String officeAddress;
 
-  /// The user's mobile number, without the `+880` prefix.
+  /// The user's mobile number as typed locally (leading `0`, no country code).
   final String mobile;
 
   /// Whether any of the four details the account also holds is filled in.

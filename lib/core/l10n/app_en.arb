@@ -783,6 +783,7 @@
   "settingsProfile_officeAddressHint": "Enter your office address",
   "settingsProfile_save": "Save Profile",
   "settingsProfile_saved": "Profile saved (offline)",
+  "settingsProfile_savedOnline": "Profile saved",
   "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
   "settingsManageAccount_title": "Manage Account",
   "settingsManageAccount_changePassword": "Change Password",

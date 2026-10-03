@@ -184,7 +184,7 @@ void main() {
         'Chamber 402, High Court Annex',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, '1XXXXXXXXX'),
+        find.widgetWithText(TextFormField, '01XXXXXXXXX'),
         '1812332721',
       );
       await tester.tap(find.text('Save Profile'));
@@ -201,6 +201,12 @@ void main() {
         isFalse,
         reason: 'the account has it: nothing is owed',
       );
+      expect(
+        find.text('Profile saved'),
+        findsOneWidget,
+        reason: 'the push landed, so the toast is not the offline wording',
+      );
+      expect(find.text('Profile saved (offline)'), findsNothing);
     });
 
     testWidgets('a save the account never saw is still saved, and owed', (
@@ -215,6 +221,12 @@ void main() {
       expect(ProfileStore(harness.prefs).read(), _deviceRecord);
       expect(repository.savedDetails, hasLength(1));
       expect(ProfileStore(harness.prefs).detailsPushPending, isTrue);
+      expect(
+        find.text('Profile saved (offline)'),
+        findsOneWidget,
+        reason: 'a push the account has not seen is the one offline case',
+      );
+      expect(find.text('Profile saved'), findsNothing);
     });
   });
 

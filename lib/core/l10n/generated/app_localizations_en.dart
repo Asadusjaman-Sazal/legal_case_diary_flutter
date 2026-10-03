@@ -1553,6 +1553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsProfile_saved => 'Profile saved (offline)';
 
   @override
+  String get settingsProfile_savedOnline => 'Profile saved';
+
+  @override
   String get settingsManageAccount_title => 'Manage Account';
 
   @override

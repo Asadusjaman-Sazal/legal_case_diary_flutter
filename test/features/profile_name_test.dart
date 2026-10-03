@@ -174,8 +174,8 @@ void main() {
       '1557',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, '1XXXXXXXXX'),
-      '1812332721',
+      find.widgetWithText(TextFormField, '01XXXXXXXXX'),
+      '01812332721',
     );
     await tester.tap(find.text('Save Profile'));
     await tester.pumpAndSettle();
@@ -187,10 +187,12 @@ void main() {
     expect(stored.fullName, 'Rahim Uddin');
     expect(stored.barAssociation, 'Dhaka Bar Association');
     expect(stored.membershipNo, '1557');
-    expect(stored.mobile, '1812332721');
+    expect(stored.mobile, '01812332721');
     expect(find.text('Adv. Rahim Uddin'), findsOneWidget);
     expect(find.text('Dhaka Bar Association'), findsOneWidget);
-    expect(find.text('+880 1812332721'), findsOneWidget);
+    // The read view wears the same `+88` country code the editor's fixed box
+    // carries, with the local number (leading 0) the user typed beside it.
+    expect(find.text('+88 01812332721'), findsOneWidget);
 
     // Reopening the editor shows the saved values.
     await tester.tap(find.byTooltip('Edit profile'));

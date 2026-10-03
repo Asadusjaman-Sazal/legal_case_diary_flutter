@@ -1557,6 +1557,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsProfile_saved => 'প্রোফাইল সংরক্ষিত হয়েছে (অফলাইন)';
 
   @override
+  String get settingsProfile_savedOnline => 'প্রোফাইল সংরক্ষিত হয়েছে';
+
+  @override
   String get settingsManageAccount_title => 'অ্যাকাউন্ট ব্যবস্থাপনা';
 
   @override

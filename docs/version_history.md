@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.372 - A server 5xx is no longer reported to the user as a missing connection: the app says the request failed rather than telling an online device to check its internet.
+Version: 0.0.374 - Task 17: an unreadable stored session (sessionMissing) now asks for a sign-in like a rejected one, instead of signing out silently with sync dead.
 --------------------------------------
 
 ## Version History Log:
@@ -386,3 +386,5 @@ Version: 0.0.369 - Manage Account's Logout now navigates to the Login screen exp
 Version: 0.0.370 - A sign-in now pulls the account row at once, and the entitlement gates say unknown instead of Free, so a premium user no longer waits minutes seeing Subscription: Free, Plan: 1 Month and Last Sync: Never.
 Version: 0.0.371 - Manage Account's Change Password now opens the reset flow as its own Settings sub-page with a back button, since Login's auth route bounced a signed-in user to the default landing page.
 Version: 0.0.372 - A server 5xx is no longer reported to the user as a missing connection: the app says the request failed rather than telling an online device to check its internet.
+Version: 0.0.373 - Task 17 follow-up: a typed recovery code is no longer taken for an opened link, so Change Password in Settings returns to Manage Account and a Login reset ends signed in.
+Version: 0.0.374 - Task 17: an unreadable stored session (sessionMissing) now asks for a sign-in like a rejected one, instead of signing out silently with sync dead.

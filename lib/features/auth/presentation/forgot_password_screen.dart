@@ -112,6 +112,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     if (_submitting) return;
     if (!(_codeForm.currentState?.validate() ?? false)) return;
 
+    // Captured before the first await, because the widget may be gone by the
+    // time the reset succeeds: a typed code signs the user in, and the router
+    // moves them off this screen the moment it does. The messenger lives on
+    // [MaterialApp], above the router, so a message raised through it outlives
+    // the widget and is still shown.
+    final messenger = ScaffoldMessenger.of(context);
+    final successMessage = Text(
+      AppLocalizations.of(context).auth_passwordUpdated,
+    );
+
     setState(() {
       _submitting = true;
       _error = null;
@@ -127,20 +137,17 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         );
       }
       await viewModel.updatePassword(_password.text);
+      messenger.showSnackBar(SnackBar(content: successMessage));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).auth_passwordUpdated),
-        ),
-      );
-      // The auth screen returns to Login. The Settings sub-page returns to
-      // where it was opened from — Manage Account — because its user is signed
-      // in and has nowhere to go on the sign-in route: `go(login)` from here
-      // would be redirected straight to the default landing page.
+      // The Settings sub-page returns to where it was opened from — Manage
+      // Account — because its user was already signed in and that is where a
+      // password change belongs. The auth screen's user is now signed in too,
+      // so the app opens on the screen sign-up lands a new account on, rather
+      // than a reset screen the router will not let them stay on.
       if (widget.asSettingsSubPage) {
         Navigator.of(context).maybePop();
       } else {
-        context.go(AppRoutes.login);
+        context.go(AppRoutes.dailyCauseList);
       }
     } on AuthFailure catch (failure) {
       if (!mounted) return;

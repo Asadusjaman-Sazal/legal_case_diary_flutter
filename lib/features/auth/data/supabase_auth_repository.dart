@@ -200,6 +200,24 @@ AuthFailure mapAuthFailure(Object error) {
   return AuthFailure(AuthFailureKind.unknown, cause: error);
 }
 
+/// Whether [reason] leaves the stored session unusable, so the user must sign
+/// in again while every byte of local data stays where it is.
+///
+/// Two SDK reasons mean exactly that, and both have to be read the same way:
+/// [SignOutReason.sessionExpired] (the refresh token was rejected) and
+/// [SignOutReason.sessionMissing] (a persisted session that could not be parsed
+/// back into a session at all — corruption, not rejection, and raised from
+/// `setInitialSession` / `recoverSession` before any request is made). Reading
+/// only the first left a device whose stored session was unreadable signing out
+/// **silently**: no strip, no prompt, and a sync that stays dead for good,
+/// because the user has no reason to ever sign in again.
+///
+/// [SignOutReason.userInitiated] is deliberately not one of them: a user who
+/// signed out themselves does not need to be told to sign in.
+bool authSessionNeedsSignIn(SignOutReason? reason) =>
+    reason == SignOutReason.sessionExpired ||
+    reason == SignOutReason.sessionMissing;
+
 /// [AuthRepository] implemented on Supabase Auth.
 class SupabaseAuthRepository implements AuthRepository {
   /// Creates a repository over [client].
@@ -235,11 +253,14 @@ class SupabaseAuthRepository implements AuthRepository {
               ? null
               : _identityOf(state.session!.user),
           // The SDK keeps the session when a refresh fails for lack of network
-          // and clears it, with this reason, when the server rejects it — which
-          // is exactly the offline/online split the state machine needs.
-          sessionExpired: state.signOutReason == SignOutReason.sessionExpired,
-          // A verified recovery link arrives as its own event, because the
-          // session it creates exists only to change the password.
+          // and clears it, with one of the reasons in [authSessionNeedsSignIn],
+          // when the session can no longer be used — which is exactly the
+          // offline/online split the state machine needs.
+          sessionExpired: authSessionNeedsSignIn(state.signOutReason),
+          // A recovery session arrives as its own event, because the session
+          // it creates exists only to change the password. The SDK raises it
+          // for an opened link *and* for a typed code alike, and only the
+          // ViewModel knows which of the two dialled it in.
           passwordRecovery: state.event == AuthChangeEvent.passwordRecovery,
         ),
       );

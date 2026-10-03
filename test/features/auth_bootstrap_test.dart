@@ -254,6 +254,22 @@ void main() {
     });
   });
 
+  group('Session-end classification', () {
+    test('a rejected session and an unreadable one both need a sign-in', () {
+      expect(authSessionNeedsSignIn(SignOutReason.sessionExpired), isTrue);
+      // Corruption, not rejection: the persisted session never parsed back into
+      // a session, so no request was made and nothing was revoked. Treating it
+      // as anything less than a sign-in means the device signs out silently and
+      // the user is never told why their sync stopped.
+      expect(authSessionNeedsSignIn(SignOutReason.sessionMissing), isTrue);
+    });
+
+    test('a deliberate sign-out is not a reason to ask for one', () {
+      expect(authSessionNeedsSignIn(SignOutReason.userInitiated), isFalse);
+      expect(authSessionNeedsSignIn(null), isFalse);
+    });
+  });
+
   group('Google sign-in network pre-flight', () {
     test('an unreachable host is reported unreachable', () async {
       // A loopback port nothing listens on refuses the connection at once —

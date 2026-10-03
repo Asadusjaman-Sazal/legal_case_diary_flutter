@@ -9,12 +9,20 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
 
 import 'auth_test_support.dart';
+import 'settings_test_support.dart';
+
+/// The stand-in Manage Account route the Settings presentation is opened from,
+/// and the marker that says we are back on it.
+const String manageAccountStandIn = '/manage-account-stand-in';
+const String manageAccountStandInMarker = 'Manage Account Stand-In';
 
 void main() {
   late AuthTestHarness harness;
@@ -27,6 +35,40 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await pumpAuthRouter(tester, const ForgotPasswordScreen(), overrides: overrides);
     l = await AppLocalizations.delegate.load(const Locale('en'));
+  }
+
+  /// Pumps the reset screen in its **Settings** presentation, opened from a
+  /// stand-in Manage Account screen so the return path can be asserted.
+  Future<void> pumpSettingsReset(WidgetTester tester) async {
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpSettingsRouter(
+      tester,
+      location: manageAccountStandIn,
+      overrides: overrides,
+      routes: <RouteBase>[
+        GoRoute(
+          path: manageAccountStandIn,
+          builder: (context, _) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => context.push(AppRoutes.settingsChangePassword),
+                child: const Text(manageAccountStandInMarker),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsChangePassword,
+          builder: (_, _) =>
+              const ForgotPasswordScreen(asSettingsSubPage: true),
+        ),
+      ],
+    );
+    l = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.tap(find.text(manageAccountStandInMarker));
+    await tester.pumpAndSettle();
   }
 
   /// Scrolls [finder] into view, taps it, and settles.
@@ -225,6 +267,42 @@ void main() {
     expect(obscured(), isTrue);
     await tapVisible(tester, find.byIcon(Icons.visibility_off_outlined));
     expect(obscured(), isFalse);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('in Settings it is a sub-page and returns to Manage Account', (
+    tester,
+  ) async {
+    // The Manage Account row cannot use the Login route: `/forgot-password` is
+    // an auth route, so the router bounced the signed-in user to the default
+    // landing page. Same screen, Settings presentation.
+    await pumpSettingsReset(tester);
+
+    // The same flow Login opens...
+    expect(find.text(l.auth_forgotTitle), findsOneWidget);
+    expect(find.text(l.auth_sendCodeButton), findsOneWidget);
+    // ...under the Settings header, with its own back button, and without the
+    // line out to Login — this user is signed in and may not go there.
+    expect(
+      find.text(l.settingsManageAccount_changePassword),
+      findsOneWidget,
+    );
+    expect(find.byType(BackButton), findsOneWidget);
+    expect(find.text(l.auth_backToLogin), findsNothing);
+
+    await requestCode(tester);
+    // Let the "Code Sent" toast live out its four seconds before the next one.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).first, '123456');
+    await tester.enterText(find.byType(TextFormField).last, 'newsecret123');
+    await tapVisible(tester, find.text(l.auth_setPasswordButton));
+
+    expect(harness.auth.updatedPasswords, ['newsecret123']);
+    expect(find.text(l.auth_passwordUpdated), findsOneWidget);
+    // Back where it was opened from, not on the sign-in route.
+    expect(find.text(manageAccountStandInMarker), findsOneWidget);
 
     await unmountApp(tester);
   });

@@ -12,6 +12,16 @@
 /// * **The emailed link** is the other: opening it lands here with a session
 ///   already verified (see [passwordRecoveryPendingProvider]), so the email and
 ///   the code are skipped and only the new password is asked for.
+///
+/// **One flow, two presentations.** From Login this is an auth screen and keeps
+/// the auth shell. From Settings > Accounts & Profile > Manage Account it is
+/// reached as **Change Password**, which is a Settings sub-page: the same card
+/// ([asSettingsSubPage]), under the standard sub-page header with its back
+/// button, and without the "Back To Login" line — the user is already signed in,
+/// so the auth sign-in route is not a place they may go. It is a separate route
+/// from Login's `/forgot-password` for exactly that reason: the router sends a
+/// signed-in user away from the auth routes, which is why pushing that one from
+/// here only ever landed on the default landing page.
 library;
 
 import 'package:flutter/material.dart';
@@ -22,6 +32,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/auth_repository.dart';
 import 'auth_viewmodel.dart';
 import 'auth_widgets.dart';
@@ -29,10 +40,21 @@ import 'auth_widgets.dart';
 /// Which half of the reset the user is in.
 enum _ResetStep { requestCode, enterCode }
 
-/// Reset Password screen.
+/// Reset Password screen (Login) / Change Password sub-page (Settings).
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
-  const ForgotPasswordScreen({super.key});
+  ///
+  /// [asSettingsSubPage] is the Manage Account presentation; it defaults to
+  /// false so the Login screen's route is untouched.
+  const ForgotPasswordScreen({this.asSettingsSubPage = false, super.key});
+
+  /// Whether this is the Settings sub-page (Manage Account > Change Password)
+  /// rather than the auth screen the Login page opens.
+  ///
+  /// It decides three things and nothing else: the shell the card is drawn in,
+  /// whether the "Back To Login" line is offered, and where a successful change
+  /// returns to.
+  final bool asSettingsSubPage;
 
   @override
   ConsumerState<ForgotPasswordScreen> createState() =>
@@ -111,7 +133,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           content: Text(AppLocalizations.of(context).auth_passwordUpdated),
         ),
       );
-      context.go(AppRoutes.login);
+      // The auth screen returns to Login. The Settings sub-page returns to
+      // where it was opened from — Manage Account — because its user is signed
+      // in and has nowhere to go on the sign-in route: `go(login)` from here
+      // would be redirected straight to the default landing page.
+      if (widget.asSettingsSubPage) {
+        Navigator.of(context).maybePop();
+      } else {
+        context.go(AppRoutes.login);
+      }
     } on AuthFailure catch (failure) {
       if (!mounted) return;
       setState(() => _error = failure.kind);
@@ -127,120 +157,138 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     // so there is nothing to request and no code to type.
     final viaLink = ref.watch(passwordRecoveryPendingProvider);
 
-    return AuthScaffold(
-      child: AuthCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l.auth_forgotTitle,
-              textAlign: TextAlign.center,
-              style: AppTypography.headlineMd,
+    final card = AuthCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.auth_forgotTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.headlineMd,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            viaLink ? l.auth_recoveryLinkSubtitle : l.auth_forgotSubtitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMd.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              viaLink ? l.auth_recoveryLinkSubtitle : l.auth_forgotSubtitle,
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMd.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          if (_step == _ResetStep.requestCode && !viaLink)
+            Form(
+              key: _emailForm,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AuthTextField(
+                    controller: _email,
+                    label: l.auth_emailLabel,
+                    hint: l.auth_emailHint,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _sendCode(),
+                    validator: (value) => authEmailError(l, value),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AuthErrorBanner(text: authErrorText(l, _error)),
+                  AuthPrimaryButton(
+                    label: l.auth_sendCodeButton,
+                    busy: _submitting,
+                    onPressed: _sendCode,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (_step == _ResetStep.requestCode && !viaLink)
-              Form(
-                key: _emailForm,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+            )
+          else
+            Form(
+              key: _codeForm,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // The code field is the signed-out path's own step; a
+                  // recovery link already carries the verified session.
+                  if (!viaLink) ...[
                     AuthTextField(
-                      controller: _email,
-                      label: l.auth_emailLabel,
-                      hint: l.auth_emailHint,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _sendCode(),
-                      validator: (value) => authEmailError(l, value),
+                      controller: _code,
+                      label: l.auth_recoveryCodeLabel,
+                      helper: l.auth_recoveryCodeHelper,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) => authRequiredError(
+                        value,
+                        l.auth_validationPasswordRequired,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    AuthErrorBanner(text: authErrorText(l, _error)),
-                    AuthPrimaryButton(
-                      label: l.auth_sendCodeButton,
-                      busy: _submitting,
-                      onPressed: _sendCode,
-                    ),
                   ],
-                ),
-              )
-            else
-              Form(
-                key: _codeForm,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // The code field is the signed-out path's own step; a
-                    // recovery link already carries the verified session.
-                    if (!viaLink) ...[
-                      AuthTextField(
-                        controller: _code,
-                        label: l.auth_recoveryCodeLabel,
-                        helper: l.auth_recoveryCodeHelper,
-                        keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.next,
-                        validator: (value) => authRequiredError(
-                          value,
-                          l.auth_validationPasswordRequired,
-                        ),
+                  AuthTextField(
+                    controller: _password,
+                    label: l.auth_newPasswordLabel,
+                    helper: l.auth_passwordHelper,
+                    obscureText: _hidePassword,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _setPassword(),
+                    trailing: IconButton(
+                      onPressed: () =>
+                          setState(() => _hidePassword = !_hidePassword),
+                      tooltip: _hidePassword
+                          ? l.auth_showPassword
+                          : l.auth_hidePassword,
+                      icon: Icon(
+                        _hidePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 20,
                       ),
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                    AuthTextField(
-                      controller: _password,
-                      label: l.auth_newPasswordLabel,
-                      helper: l.auth_passwordHelper,
-                      obscureText: _hidePassword,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _setPassword(),
-                      trailing: IconButton(
-                        onPressed: () =>
-                            setState(() => _hidePassword = !_hidePassword),
-                        tooltip: _hidePassword
-                            ? l.auth_showPassword
-                            : l.auth_hidePassword,
-                        icon: Icon(
-                          _hidePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
-                        ),
-                      ),
-                      validator: (value) => authPasswordLengthError(l, value),
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    AuthErrorBanner(text: authErrorText(l, _error)),
-                    AuthPrimaryButton(
-                      label: l.auth_setPasswordButton,
-                      busy: _submitting,
-                      onPressed: _setPassword,
-                    ),
-                  ],
-                ),
+                    validator: (value) => authPasswordLengthError(l, value),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AuthErrorBanner(text: authErrorText(l, _error)),
+                  AuthPrimaryButton(
+                    label: l.auth_setPasswordButton,
+                    busy: _submitting,
+                    onPressed: _setPassword,
+                  ),
+                ],
               ),
-            const SizedBox(height: AppSpacing.md),
-            // Plain bold underlined text, not the black button the shared theme
-            // would draw: this is a way back, not the screen's primary action.
-            // Hidden while a recovery link is in play, because the user is
-            // already signed in — leaving for Login would strand them on a
-            // screen with nothing left to do.
-            if (!viaLink)
-              Center(
-                child: AuthTextLink(
-                  label: l.auth_backToLogin,
-                  underline: true,
-                  onPressed: () => context.go(AppRoutes.login),
-                ),
+            ),
+          const SizedBox(height: AppSpacing.md),
+          // Plain bold underlined text, not the black button the shared theme
+          // would draw: this is a way back, not the screen's primary action.
+          // Hidden while a recovery link is in play, because the user is
+          // already signed in — leaving for Login would strand them on a
+          // screen with nothing left to do. Hidden in the Settings sub-page
+          // for the same reason: that user is signed in too, and is backing
+          // out to Manage Account rather than leaving for the sign-in route.
+          if (!viaLink && !widget.asSettingsSubPage)
+            Center(
+              child: AuthTextLink(
+                label: l.auth_backToLogin,
+                underline: true,
+                onPressed: () => context.go(AppRoutes.login),
               ),
-          ],
+            ),
+        ],
+      ),
+    );
+
+    // From Login: an auth screen, in the auth shell the other two use.
+    if (!widget.asSettingsSubPage) return AuthScaffold(child: card);
+
+    // From Settings: the same card as a Settings sub-page, under the header and
+    // back button every other sub-page wears.
+    return SettingsSubPageModal(
+      title: l.settingsManageAccount_changePassword,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.edgeMargin,
+          AppSpacing.md,
+          AppSpacing.edgeMargin,
+          AppSpacing.xl,
         ),
+        child: card,
       ),
     );
   }

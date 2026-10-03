@@ -129,6 +129,10 @@ enum AuthFailureKind {
   googleSignInFailed,
 
   /// The request never reached the server.
+  ///
+  /// Offline, DNS failure, a timeout. A request the server *answered* — even
+  /// with a 5xx — is [unknown] instead, because the connection was demonstrably
+  /// fine and "check your internet" would then be the one thing certainly wrong.
   network,
 
   /// The local database already belongs to a different account.

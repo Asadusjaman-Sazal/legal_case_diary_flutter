@@ -78,8 +78,23 @@ AuthFailure mapAuthFailure(Object error) {
   if (error is AuthFailure) return error;
 
   if (error is AuthRetryableFetchException) {
-    // Supabase wraps every transport-level failure (offline, DNS, timeouts,
-    // 5xx) in this type, so "the request never completed" is one case.
+    // The SDK raises this for two different situations, and the status code is
+    // the only thing that tells them apart: a request that never reached the
+    // server (offline, DNS, timeout) carries none, while every HTTP >= 500
+    // arrives as one with the status set. Telling a user whose server *answered*
+    // to check their internet is how a broken mail relay — a recovery mail that
+    // could not be sent — was reported to a device online the whole time as
+    // "No Connection. Check Your Internet And Try Again."
+    final status = int.tryParse(error.statusCode ?? '');
+    if (status != null && status >= 500) {
+      return AuthFailure(
+        AuthFailureKind.unknown,
+        serverMessage: error.message,
+        cause: error,
+      );
+    }
+    // Supabase wraps every transport-level failure (offline, DNS, timeouts) in
+    // this type, so "the request never completed" is one case.
     return AuthFailure(
       AuthFailureKind.network,
       serverMessage: error.message,

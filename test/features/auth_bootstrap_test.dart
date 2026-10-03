@@ -175,6 +175,25 @@ void main() {
       );
     });
 
+    test('a server error is not reported as a missing connection', () {
+      // Regression: the SDK raises `AuthRetryableFetchException` for any HTTP
+      // 5xx as well as for a dead socket, and the classifier called both
+      // `network`. A recovery mail the server could not send — a mail relay
+      // rejecting its own credentials — was therefore reported to a user on a
+      // perfect connection as "No Connection. Check Your Internet And Try
+      // Again." The status code is the only thing that tells them apart, and the
+      // transport case above (no status) still is one.
+      expect(
+        mapAuthFailure(
+          AuthRetryableFetchException(
+            message: '{"message":"Error sending recovery email"}',
+            statusCode: '500',
+          ),
+        ).kind,
+        AuthFailureKind.unknown,
+      );
+    });
+
     test('an invite rate limit arrives as its own kind', () {
       // `join_firm` raises this message; the associate must see the friendly
       // "try again later" copy, not a generic failure.

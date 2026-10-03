@@ -2846,6 +2846,36 @@ abstract class AppLocalizations {
   /// **'Change Password'**
   String get settingsManageAccount_changePassword;
 
+  /// No description provided for @settingsSubscription_currentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get settingsSubscription_currentPlan;
+
+  /// No description provided for @settingsSubscription_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get settingsSubscription_paid;
+
+  /// No description provided for @settingsSubscription_dateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get settingsSubscription_dateTime;
+
+  /// No description provided for @settingsSubscription_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get settingsSubscription_status;
+
+  /// No description provided for @settingsSubscription_serial.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get settingsSubscription_serial;
+
   /// No description provided for @settingsSubscription_title.
   ///
   /// In en, this message translates to:

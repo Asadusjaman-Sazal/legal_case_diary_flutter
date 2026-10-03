@@ -48,6 +48,7 @@ import '../../features/settings/presentation/edit_court_steps/lower_court_catego
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/subscription_screen.dart';
+import '../../features/settings/presentation/subscription_details_screen.dart';
 import '../../features/sync/presentation/sync_status_screen.dart';
 import '../../features/sync/presentation/review_conflict_screen.dart';
 import '../../features/sync/presentation/sync_conflict_banner.dart';
@@ -115,6 +116,8 @@ class AppRoutes {
   static const String settingsReviewDeleteRequest =
       '/settings/delete-requests/review/:requestId';
   static const String settingsSubscription = '/settings/subscription';
+  static const String settingsSubscriptionDetails =
+      '/settings/subscription/details';
   static const String settingsOnlineSync = '/settings/online-sync';
 
   /// The queue, its filters, and the diagnostic-bundle export
@@ -470,6 +473,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsSubscription,
     builder: (context, state) => const SubscriptionScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsSubscriptionDetails,
+    builder: (context, state) => const SubscriptionDetailsScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsOnlineSync,

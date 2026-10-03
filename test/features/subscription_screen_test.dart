@@ -1,15 +1,15 @@
 /// Subscription screen, and the Settings entry that opens it.
 ///
 /// Both rows were Manage Account's, so this pins that they arrived intact: the
-/// same wording, the same icons, the same details sheet with the same content,
-/// and the same paywall. It also pins the entry point, because "Go Premium" was
+/// same wording, the same icons, and the same paywall. What the details row
+/// opens is pinned in `subscription_details_screen_test.dart`, which owns the
+/// sub-page it now navigates to. It also pins the entry point, because "Go Premium" was
 /// an approved departure from the Settings main mockup and removing it puts that
 /// screen back on its mockup — while the Subscription entry that replaces it is
 /// a fresh departure with no mockup to conform to, which is why the order is
 /// asserted rather than left to a screenshot.
 library;
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,9 +19,6 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
-import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
-import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
-import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_main_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/subscription_screen.dart';
@@ -76,6 +73,12 @@ void main() {
           builder: (_, _) =>
               const Scaffold(body: Text(subscriptionPaywallMarker)),
         ),
+        // The details row is a sub-page now, so the harness has to know where it
+        // goes even though these tests only assert the row is there.
+        GoRoute(
+          path: AppRoutes.settingsSubscriptionDetails,
+          builder: (_, _) => const Scaffold(body: Text('Subscription Details')),
+        ),
       ],
     );
     l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -106,14 +109,6 @@ void main() {
     while (tester.takeException() != null) {}
   }
 
-  /// Taps [finder] after scrolling it into view.
-  Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-    await tester.ensureVisible(finder);
-    await tester.pumpAndSettle();
-    await tester.tap(finder);
-    await tester.pumpAndSettle();
-  }
-
   testWidgets('both rows are here, word for word', (tester) async {
     await pumpSubscription(tester);
 
@@ -131,122 +126,13 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a firm owner sees the firm and a dated premium state', (
-    tester,
-  ) async {
-    final expiry = DateTime.now().toUtc().add(const Duration(days: 40));
-    await pumpSubscription(
-      tester,
-      seed: (db) async {
-        await ProfilesDao(db).upsert(
-          ProfilesCompanion(
-            id: const Value('user-1'),
-            fullName: const Value('Adv. Rahim Uddin'),
-            role: const Value(AccountRole.owner),
-            firmId: const Value('firm-1'),
-            subscriptionStatus: const Value('active'),
-            createdAt: const Value(1),
-          ),
-        );
-        await FirmsDao(db).upsert(
-          FirmsCompanion(
-            id: const Value('firm-1'),
-            name: const Value('Rahman & Associates'),
-            ownerId: const Value('user-1'),
-            subscriptionStatus: const Value('active'),
-            subscriptionExpiry: Value(expiry.millisecondsSinceEpoch),
-            createdAt: const Value(1),
-          ),
-        );
-      },
-    );
-
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
-    );
-
-    expect(find.text(l.settingsManageAccount_role), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_roleOwner), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_firm), findsOneWidget);
-    expect(find.text('Rahman & Associates'), findsOneWidget);
-    // Scoped to the sheet: this page's own title is the word 'Subscription'
-    // too, so an unscoped finder would match the header and the row label.
-    expect(
-      find.descendant(
-        of: find.byType(BottomSheet),
-        matching: find.text(l.settingsManageAccount_subscription),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining(l.settingsManageAccount_planPremium),
-      findsOneWidget,
-      reason: 'premium, with the expiry date',
-    );
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('an individual with no subscription sees Free', (tester) async {
-    // A pulled profile row that carries no expiry: the account is *known* to be
-    // on the free plan. Without the row the sheet says nothing at all rather
-    // than Free — see the unknown-entitlement test below — so "Free" here is a
-    // fact rather than a gap, which is what makes this assertion meaningful.
-    await pumpSubscription(
-      tester,
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
-    );
-
-    expect(find.text(l.settingsManageAccount_roleIndividual), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_planFree), findsOneWidget);
-    // No firm in individual mode, so no Firm row.
-    expect(find.text(l.settingsManageAccount_firm), findsNothing);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('an account whose row has not landed says nothing, not Free', (
-    tester,
-  ) async {
-    // Regression, carried across with the sheet: it read the entitlement the
-    // moment the session existed, so a premium account that had just signed in
-    // was told "Subscription: Free" while the Plan row beside it already named
-    // the month it had paid for. With no cached row there is no plan to report,
-    // and a dash is the honest value until the pull lands.
-    await pumpSubscription(tester);
-
-    await tapVisible(
-      tester,
-      find.text(l.settingsManageAccount_subscriptionDetails),
-    );
-
-    expect(find.text(l.settingsManageAccount_planFree), findsNothing);
-    expect(find.text('\u2014'), findsWidgets, reason: 'the entitlement is unknown');
-
-    await unmountApp(tester);
-  });
-
   testWidgets('Purchase New Subscription opens the paywall', (tester) async {
     await pumpSubscription(tester);
 
-    await tapVisible(
-      tester,
+    await tester.tap(
       find.text(l.settingsManageAccount_purchaseNewSubscription),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text(subscriptionPaywallMarker), findsOneWidget);
 

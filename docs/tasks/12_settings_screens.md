@@ -1,5 +1,18 @@
 # Task 12 — Settings Screens (Main + All Sub-Pages)
 >
+> **Subscription Details is a sub-page, and its history is a table.** It opened as a bottom sheet
+> behind Manage Account's **Subscription Details** row, and that row is now a sub-page of its own
+> (`subscription_details_screen.dart`) reached from Settings > Subscription: **Role**, the firm where
+> the account is in firm mode, **Current Plan** and **Expiry** (date *and* time), then **Payment
+> History** as a table — No., Plan, Paid, Date & Time, Status — one row per purchase, newest
+> first, scrolling sideways rather than wrapping so the columns stay in their positions. A sheet was
+> the wrong shape for reference material a user reads and reconciles, not a choice they make. Two
+> rules it holds to: an unknown entitlement reads a dash and never *Free*, and every timestamp is
+> Bangladesh civil time with its date and clock taken from the same shifted instant. The rows
+> themselves are unchanged from the move recorded below, and this page is still a recorded mockup
+> departure — there is no `settings_subscription` mockup, so its body is the two moved rows plus
+> this page.
+>
 > **Subscription is its own Settings sub-page; Go Premium is gone from the Settings list (approved).** **Subscription Details** and **Purchase New Subscription** moved out of Manage Account to **Settings > Subscription**, placed directly after Online Sync, because an account's billing does not belong under its profile. The rows moved verbatim — same icons, wording and destinations — and the details sheet with them. Two departures are recorded here because no mockup covers either: there is no `settings_subscription` mockup, so that body is the two moved rows; and Manage Account's own binding mockup still draws all three rows, so that screen now keeps **Change Password only**. The former **Go Premium** Settings entry (an approved departure in Task 21) is removed, which restores the Settings main mockup; the new entry reuses its icon. Manage Associates' *Go Premium* button is untouched.
 
 > **Plan references:** §8 "Settings — Main Page & Sub-Menu Pages" (structure + Critical Rules), "Court Hierarchy Flow", §10.1 "View Settings Configuration", §12.1 "Settings Search".

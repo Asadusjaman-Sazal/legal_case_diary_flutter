@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.367 - Profile editor mobile box now prefixes +88 (user types the leading 0), and the save toast says 'Profile saved' only when the Supabase PATCH landed, not always 'offline'.
+Version: 0.0.368 - Profile saves now send full_name with the other details, so an edited name reaches profiles.full_name; a name-only saved record is also handed to the account and retried.
 --------------------------------------
 
 ## Version History Log:
@@ -381,3 +381,4 @@ Version: 0.0.364 - Admin Panel: fixed the two targets the new mockup exposed - t
 Version: 0.0.365 - Admin Panel mockup: the header sync button now draws the panel's real enabled state (sync icon in primary ink, Sync tooltip) instead of the grey free-plan variant copied from the case screens.
 Version: 0.0.366 - The header's sync button no longer shows the idle sync arrows: idle wears the success cloud, and offline or paused always wears the network-off cloud with the count on top; the error icon stays.
 Version: 0.0.367 - Profile editor mobile box now prefixes +88 (user types the leading 0), and the save toast says 'Profile saved' only when the Supabase PATCH landed, not always 'offline'.
+Version: 0.0.368 - Profile saves now send full_name with the other details, so an edited name reaches profiles.full_name; a name-only saved record is also handed to the account and retried.

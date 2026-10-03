@@ -348,7 +348,12 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
     }
 
     final store = ProfileStore(ref.read(sharedPreferencesProvider));
-    if (merged.hasDetails && (store.detailsPushPending || !details.hasDetails)) {
+    // The display name travels in the same PATCH, so a record with only a name
+    // still has something to send — and a name-only save that could not reach
+    // the server is still owed, and still retried here.
+    final hasSomethingToPush = merged.hasDetails || merged.fullName.isNotEmpty;
+    if (hasSomethingToPush &&
+        (store.detailsPushPending || !details.hasDetails)) {
       // Either a save the account never saw (it is newer, and it is owed) or a
       // record this device holds and the account has never had. The account's
       // own values are already merged in, so nothing is lost by sending it.

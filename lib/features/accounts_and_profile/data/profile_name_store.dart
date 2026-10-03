@@ -11,10 +11,11 @@
 /// sample data: seeded, they would show one user's details to every other user.
 /// The editor's hints come from the ARB, and empty values render as `—`.
 ///
-/// This record is what the screen edits and what every reader shows; the
-/// account's copy of the same four details (`profiles`, through
-/// `ProfileRepository`) fills the fields this device has left blank, and never
-/// overwrites one the user typed here.
+/// This record is what the screen edits and what every reader shows. It travels
+/// both ways through `ProfileRepository`: the account's copy (`profiles`) fills
+/// the fields this device has left blank, never overwriting one the user typed
+/// here, and the device's whole record — the name included — is mirrored back
+/// onto the account's own row on save.
 library;
 
 import 'dart:convert';

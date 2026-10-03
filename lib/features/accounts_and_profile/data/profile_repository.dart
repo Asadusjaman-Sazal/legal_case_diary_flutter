@@ -19,17 +19,18 @@
 ///   whatever permissions it last saw. `permissions_synced_at` is the honest
 ///   record of how old that is.
 ///
-/// Pushing a locally edited name back to `profiles` is the profile-sync half of
-/// the task and is not part of this repository.
+/// Pushing a locally edited name back to `profiles` rides the same self-service
+/// PATCH as the other details — see [profileDetailsUpdate] and
+/// [ProfileRepository.savePersonalDetails].
 ///
 /// **The one self-service exception.** `profiles` also holds the account
-/// holder's own four details — bar association, membership number, office
-/// address and mobile number — which the migration
-/// `20260929130000_profiles_personal_details.sql` made client-writable
-/// column-wise for the caller's own row, exactly as `full_name` already was.
-/// Those four are the only thing here that ever travels device → server, and they
-/// never go through `sync_queue`: they are one small PATCH of the account's own
-/// row, not a domain mutation.
+/// holder's own five details — display name, bar association, membership
+/// number, office address and mobile number — the last four of which the
+/// migration `20260929130000_profiles_personal_details.sql` made
+/// client-writable column-wise for the caller's own row, exactly as
+/// `full_name` already was. Those five are the only thing here that ever
+/// travels device → server, and they never go through `sync_queue`: they are
+/// one small PATCH of the account's own row, not a domain mutation.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -112,20 +113,26 @@ abstract class ProfileRepository {
 ///
 /// The only place the local record's field names meet the server's snake_case
 /// columns (AGENTS.md rule 5), so a renamed column is a one-line change here
-/// rather than a search across the app. `email` is deliberately absent: the
-/// account's address is owned by `auth.users`.
+/// rather than a search across the app. The display name travels with the other
+/// four: `full_name` has been client-writable on the holder's own row since
+/// Phase 3, and the plan lists all five Profile fields as the account holder's
+/// own record, so an edit to the name must reach `profiles` like the rest.
+/// `email` is deliberately absent: the account's address is owned by
+/// `auth.users`, and a client that could write it could misrepresent who it is.
 Map<String, Object?> profileDetailsUpdate(ProfileFields fields) => <String, Object?>{
+  'full_name': fields.fullName,
   'bar_association': fields.barAssociation,
   'membership_no': fields.membershipNo,
   'office_address': fields.officeAddress,
   'mobile_no': fields.mobile,
 };
 
-/// The four account-held details out of a `profiles` row.
+/// The account-held details out of a `profiles` row, for the pull half.
 ///
-/// The name is left blank on purpose: it travels through the pull-only cache's
-/// own hydration, not through this pair, so a reader never has two answers for
-/// it.
+/// The name is left blank here on purpose: on the way *down* it travels through
+/// the pull-only cache's own hydration, so a reader never has two answers for
+/// it. On the way *up* it does travel with the rest — see
+/// [profileDetailsUpdate].
 ProfileFields profileDetailsFromRow(Map<String, Object?> row) {
   String text(String key) {
     final value = row[key];
@@ -253,7 +260,7 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<void> invalidate() =>
       UnavailableProfileRepository(_db).invalidate();
 
-  /// Writes the caller's four own details onto their own profile row.
+  /// Writes the caller's five own details onto their own profile row.
   ///
   /// The Phase 4 policy (`profiles_update_self`) already restricts the UPDATE to
   /// `id = auth.uid()`, and the Phase 3 column privileges let a client move only

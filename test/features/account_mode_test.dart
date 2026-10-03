@@ -421,6 +421,62 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
+  testWidgets('a session that arrives after launch is pulled at once', (
+    tester,
+  ) async {
+    // Regression: this scope sits above the router and mounts once per process,
+    // so signing in on a running app re-ran neither the launch nor the resume
+    // hook and nothing pulled the account row. Every entitlement gate reads that
+    // row, which is how a premium account was told "Subscription: Free" beside
+    // "Plan: 1 Month" and refused with "premium is required to sync" until the
+    // next resume.
+    final harness = AuthTestHarness();
+    addTearDown(() async {
+      await harness.tearDown();
+      await harness.auth.dispose();
+    });
+    final repository = FakeProfileRepository()..refreshResult = true;
+    final overrides = await harness.setUp();
+    repository.database = harness.db;
+    repository.rowToCache = const ProfilesCompanion(
+      id: Value('user-1'),
+      fullName: Value('Adv. Rahim'),
+      role: Value(AccountRole.individual),
+      subscriptionStatus: Value('free'),
+      createdAt: Value(1),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          ...overrides,
+          profileRepositoryProvider.overrideWith((_) async => repository),
+        ],
+        child: const AccountRefreshScope(child: SizedBox.shrink()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(repository.refreshCalls, 0, reason: 'nobody is signed in yet');
+
+    // The SDK reports a sign-in on the already-running app.
+    harness.auth.emit(
+      const AuthSessionEvent(
+        identity: AuthIdentity(userId: 'user-1', email: 'advocate.asad@law.com'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(repository.refreshCalls, 1, reason: 'the new session is pulled');
+    expect(
+      (await ProfilesDao(harness.db).getById('user-1'))?.fullName,
+      'Adv. Rahim',
+    );
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   group('Refresh and invalidation', () {
     late AuthTestHarness harness;
     late FakeProfileRepository repository;

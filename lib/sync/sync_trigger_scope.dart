@@ -167,6 +167,17 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
       } else {
         unawaited(listener.stop());
       }
+      // Entitlement turning true is the moment to ask for the pull the engine
+      // has already dropped. The launch request runs before this account's
+      // `profiles` row has been pulled, so `_isEntitled()` answers false and
+      // `syncNow` returns silently — no backoff, no retry, nothing remembered.
+      // Without this, the first sync of a session waits for a resume, a
+      // reconnect or a local write, which is how "Last Sync" stays *Never* long
+      // after the account is plainly premium. A renewal landing mid-session is
+      // the same transition and wants the same pull.
+      if (previous?.value != true && next.value == true) {
+        ref.read(syncServiceProvider).requestSync(pull: true);
+      }
       // Activation detection (Task 21 Phase 4): when entitlement rises from a
       // stored false to true — including across a restart, which is how an
       // approval lands — run the free → premium backlog pass exactly once.

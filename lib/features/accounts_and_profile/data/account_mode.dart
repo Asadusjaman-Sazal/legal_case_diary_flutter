@@ -90,6 +90,23 @@ final premiumAccessProvider = FutureProvider<bool>((ref) async {
   return resolvePremiumAccess(db, ref.watch(accountCacheUserIdProvider));
 });
 
+/// Whether this account's entitlement is known yet.
+///
+/// [premiumAccessProvider] answers `false` for two different situations, and a
+/// screen that prints *Free* for both tells a premium user a lie: the account is
+/// genuinely on the free plan, or — right after a sign-in, before the profile
+/// pull lands — the row the derivation reads is not cached at all.
+/// `resolvePremiumAccess` treats an absent row as "no expiry", which is the safe
+/// answer for a gate and a wrong answer for a label. This is the other half of
+/// the same question, derived once here so no screen has to decide for itself
+/// whether an answer of *free* is a fact or a gap.
+///
+/// Signed out counts as unknown: there is no account to have a plan.
+final entitlementKnownProvider = Provider<bool>((ref) {
+  if (ref.watch(authIdentityProvider) == null) return false;
+  return ref.watch(accountProfileProvider).value != null;
+});
+
 /// This account's cached firm membership, with its permission flags.
 ///
 /// Pull-only: the row is advisory and `push_changes` stays authoritative, which

@@ -312,6 +312,11 @@ class _SubscriptionDetailsSheet extends ConsumerWidget {
     final profile = ref.watch(accountProfileProvider).value;
     final firm = ref.watch(accountFirmProvider).value;
     final premium = ref.watch(premiumAccessProvider);
+    // Whether an answer of "free" is the account's plan or merely the gap left
+    // before the profile pull lands. A premium user who signed in a moment ago
+    // must not be told Free while the Plan row beside it already names the
+    // month they paid for — the contradiction this screen used to show.
+    final entitlementKnown = ref.watch(entitlementKnownProvider);
 
     // The firm's expiry is the source of truth for a member; an individual's is
     // their own. Exactly the split `resolvePremiumAccess` uses.
@@ -331,7 +336,7 @@ class _SubscriptionDetailsSheet extends ConsumerWidget {
         : paymentPlanLabel(l, approved.first.planType);
 
     final String subscription;
-    if (premium.isLoading) {
+    if (premium.isLoading || !entitlementKnown) {
       subscription = '—';
     } else if (premium.value ?? false) {
       subscription = expiry == null

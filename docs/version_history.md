@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.369 - Manage Account's Logout now navigates to the Login screen explicitly on a completed logout, instead of popping back to an empty Settings, since the router's sign-in gate is fixed per launch.
+Version: 0.0.370 - A sign-in now pulls the account row at once, and the entitlement gates say unknown instead of Free, so a premium user no longer waits minutes seeing Subscription: Free, Plan: 1 Month and Last Sync: Never.
 --------------------------------------
 
 ## Version History Log:
@@ -383,3 +383,4 @@ Version: 0.0.366 - The header's sync button no longer shows the idle sync arrows
 Version: 0.0.367 - Profile editor mobile box now prefixes +88 (user types the leading 0), and the save toast says 'Profile saved' only when the Supabase PATCH landed, not always 'offline'.
 Version: 0.0.368 - Profile saves now send full_name with the other details, so an edited name reaches profiles.full_name; a name-only saved record is also handed to the account and retried.
 Version: 0.0.369 - Manage Account's Logout now navigates to the Login screen explicitly on a completed logout, instead of popping back to an empty Settings, since the router's sign-in gate is fixed per launch.
+Version: 0.0.370 - A sign-in now pulls the account row at once, and the entitlement gates say unknown instead of Free, so a premium user no longer waits minutes seeing Subscription: Free, Plan: 1 Month and Last Sync: Never.

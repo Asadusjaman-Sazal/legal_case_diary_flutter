@@ -797,6 +797,9 @@
   "settingsOnlineSync_needPremiumToSync": "ডিভাইসের মধ্যে সিঙ্ক করতে প্রিমিয়াম প্রয়োজন।",
   "settingsOnlineSync_needSignInToSync": "ডিভাইসের মধ্যে সিঙ্ক করতে সাইন ইন করুন।",
   "settingsOnlineSync_needConnectionToSync": "কোনো সংযোগ নেই। আপনার পরিবর্তন এই ডিভাইসেই সংরক্ষিত আছে।",
+  "settingsOnlineSync_checkingPlan": "আপনার সাবস্ক্রিপশন যাচাই করা হচ্ছে…",
+  "settingsOnlineSync_checkingPlanBody": "কিছু পাঠানোর আগে আপনার প্ল্যান নিশ্চিত করা হচ্ছে।",
+  "settingsOnlineSync_checkingPlanMessage": "আপনার প্ল্যান নিশ্চিত হলেই সিঙ্ক শুরু হবে।",
   "settingsOnlineSync_itemsUnknown": "— আইটেম",
   "settingsOnlineSync_itemsCount": "{count} আইটেম",
   "@settingsOnlineSync_itemsCount": {

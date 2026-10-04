@@ -9,6 +9,11 @@
 /// roles; and a firm member who is not the owner never sees a create-firm form —
 /// not even through the deep link that the hidden menu entry would normally be
 /// the only way into.
+///
+/// The entry itself has its own rule (0.0.384): a **free individual** is not
+/// offered it at all — `ensure_firm` would refuse them, so the row could only
+/// advertise the Paywall — while a **lapsed owner** keeps it, because the server
+/// still lets an owner manage the firm they already have.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -99,6 +104,29 @@ void main() {
     }
   }
 
+  /// Pumps the Accounts & Profile menu on its own route.
+  ///
+  /// The menu asks two cache questions — may this account manage associates at
+  /// all, and is the entry worth offering — so each test seeds the profile that
+  /// answers them.
+  Future<void> pumpMenu(WidgetTester tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await pumpSettingsRouter(
+      tester,
+      location: AppRoutes.settingsAccountProfile,
+      overrides: await harness.setUp(),
+      routes: [
+        GoRoute(
+          path: AppRoutes.settingsAccountProfile,
+          builder: (_, _) => const AccountsProfileMenuScreen(),
+        ),
+      ],
+    );
+    l = await AppLocalizations.delegate.load(const Locale('en'));
+  }
+
   /// Writes an individual profile with the given entitlement.
   Future<void> seedIndividual(AppDatabase db, {required bool premium}) =>
       ProfilesDao(db).upsert(
@@ -113,15 +141,22 @@ void main() {
       );
 
   /// Writes an owner profile plus the firm it owns.
-  Future<void> seedOwner(AppDatabase db, {String role = AccountRole.owner}) async {
+  ///
+  /// [premium] false writes a **lapsed** owner: the firm and its roster are
+  /// still theirs (plan §6), only the plan has run out.
+  Future<void> seedOwner(
+    AppDatabase db, {
+    String role = AccountRole.owner,
+    bool premium = true,
+  }) async {
     await ProfilesDao(db).upsert(
       ProfilesCompanion(
         id: const Value('user-1'),
         fullName: const Value('Adv. Rahim Uddin'),
         role: Value(role),
         firmId: const Value('firm-1'),
-        subscriptionStatus: const Value('active'),
-        subscriptionExpiry: Value(_premiumExpiryMs),
+        subscriptionStatus: Value(premium ? 'active' : 'free'),
+        subscriptionExpiry: Value(premium ? _premiumExpiryMs : null),
         createdAt: const Value(1),
       ),
     );
@@ -308,24 +343,10 @@ void main() {
 
   testWidgets('the Accounts & Profile menu hides Manage Associates from an '
       'associate', (tester) async {
-    // The entry is the only intended way in: an individual needs it (adding the
-    // first associate is what creates the firm), an owner has it, and an
-    // associate's taps would only be refused server-side.
-    await tester.binding.setSurfaceSize(const Size(420, 1000));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await pumpSettingsRouter(
-      tester,
-      location: AppRoutes.settingsAccountProfile,
-      overrides: await harness.setUp(),
-      routes: [
-        GoRoute(
-          path: AppRoutes.settingsAccountProfile,
-          builder: (_, _) => const AccountsProfileMenuScreen(),
-        ),
-      ],
-    );
-    l = await AppLocalizations.delegate.load(const Locale('en'));
+    // The entry is the only intended way in, and an associate's taps would only
+    // be refused server-side — the roster, the invites and the permission
+    // toggles are owner-only there.
+    await pumpMenu(tester);
     await seedOwner(harness.db, role: AccountRole.associate);
     await tester.pumpAndSettle();
 
@@ -611,24 +632,40 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu offers Manage Associates to an '
-      'individual', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(420, 1000));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await pumpSettingsRouter(
-      tester,
-      location: AppRoutes.settingsAccountProfile,
-      overrides: await harness.setUp(),
-      routes: [
-        GoRoute(
-          path: AppRoutes.settingsAccountProfile,
-          builder: (_, _) => const AccountsProfileMenuScreen(),
-        ),
-      ],
-    );
-    l = await AppLocalizations.delegate.load(const Locale('en'));
+  testWidgets('the Accounts & Profile menu offers Manage Associates to a '
+      'premium individual', (tester) async {
+    // Adding the first associate is what creates the firm, so an individual must
+    // be able to open the screen — while their plan is active.
+    await pumpMenu(tester);
     await seedIndividual(harness.db, premium: true);
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_title), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Accounts & Profile menu hides Manage Associates from a '
+      'free individual', (tester) async {
+    // Regression: the entry was offered to every individual, so a free account
+    // was shown a door that could only lead to the Paywall — `ensure_firm`
+    // refuses a non-premium caller server-side.
+    await pumpMenu(tester);
+    await seedIndividual(harness.db, premium: false);
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_title), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Accounts & Profile menu keeps Manage Associates for a '
+      'lapsed owner', (tester) async {
+    // Plan §6: a lapsed owner keeps the firm they already have, and the server
+    // still lets an owner manage its roster — only *creating* a firm is
+    // premium-gated — so the entry must not disappear with the subscription.
+    await pumpMenu(tester);
+    await seedOwner(harness.db, premium: false);
     await tester.pumpAndSettle();
 
     expect(find.text(l.manageAssociates_title), findsOneWidget);

@@ -62,6 +62,7 @@ class PaymentSubmission {
     required this.status,
     this.adminNotes,
     this.submittedAt,
+    this.approvedAt,
   });
 
   /// Server id.
@@ -91,9 +92,13 @@ class PaymentSubmission {
   /// The authoritative server submission time.
   final DateTime? submittedAt;
 
+  /// When the admin approved it; null until then.
+  final DateTime? approvedAt;
+
   /// Reads a PostgREST row.
   static PaymentSubmission fromRow(Map<String, dynamic> row) {
     final submitted = row['submitted_at'];
+    final approved = row['approved_at'];
     return PaymentSubmission(
       id: row['id'] as String,
       planType: (row['plan_type'] as String?) ?? '',
@@ -104,6 +109,7 @@ class PaymentSubmission {
       status: (row['status'] as String?) ?? 'pending',
       adminNotes: row['admin_notes'] as String?,
       submittedAt: submitted is String ? DateTime.tryParse(submitted) : null,
+      approvedAt: approved is String ? DateTime.tryParse(approved) : null,
     );
   }
 }

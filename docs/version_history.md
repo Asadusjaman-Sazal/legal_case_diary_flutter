@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.380 - Payment History is now a card per purchase instead of a table, and the Role, Current Plan and Expiry values right-align at the card's edge.
+Version: 0.0.381 - Subscription Details: the expiry timestamp no longer wraps, and a purchase card stamps the approval time (submission time for pending and rejected).
 --------------------------------------
 
 ## Version History Log:
@@ -394,3 +394,4 @@ Version: 0.0.377 - An offline Online Sync card is now red, not green: the No Con
 Version: 0.0.378 - Billing moved out of Manage Account into a new Settings > Subscription page after Online Sync, and the Go Premium entry was removed from the Settings list.
 Version: 0.0.379 - Subscription Details is now a Settings sub-page showing role, current plan, expiry to the minute, and the payment history as a numbered ledger table.
 Version: 0.0.380 - Payment History is now a card per purchase instead of a table, and the Role, Current Plan and Expiry values right-align at the card's edge.
+Version: 0.0.381 - Subscription Details: the expiry timestamp no longer wraps, and a purchase card stamps the approval time (submission time for pending and rejected).

@@ -347,7 +347,7 @@ class _PaymentHistoryCard extends StatelessWidget {
               Expanded(
                 child: _LabelledValue(
                   label: l.settingsSubscription_dateTime,
-                  value: _submittedAtLabel(l, submission),
+                  value: _purchaseAtLabel(l, submission),
                   trailing: true,
                 ),
               ),
@@ -469,12 +469,14 @@ class _DetailRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                label,
-                style: AppTypography.labelMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+            // Natural width, not Expanded: an expanded label takes half the row
+            // even when the label is one word, and a timestamp like
+            // "01/12/2026, 11:30 PM" wrapped in the remaining half. The label
+            // takes what it needs; the value below takes the rest.
+            Text(
+              label,
+              style: AppTypography.labelMd.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -504,11 +506,16 @@ String _roleLabel(AppLocalizations l, String role) => switch (role) {
   _ => role,
 };
 
-/// The moment a submission was made, in Bangladesh civil time.
-String _submittedAtLabel(AppLocalizations l, PaymentSubmission submission) {
-  final at = submission.submittedAt;
+/// The moment a purchase happened: the approval for one that was approved, the
+/// submission otherwise — a pending or rejected purchase never happened, so its
+/// card shows the only moment it has.
+String _purchaseAtLabel(AppLocalizations l, PaymentSubmission submission) {
+  final at = (submission.status == 'approved'
+          ? submission.approvedAt ?? submission.submittedAt
+          : submission.submittedAt)
+      ?.millisecondsSinceEpoch;
   if (at == null) return '—';
-  return _dateAndTime(l, at.millisecondsSinceEpoch);
+  return _dateAndTime(l, at);
 }
 
 /// A purchase's epoch millis, with a submission that carries no time sorted

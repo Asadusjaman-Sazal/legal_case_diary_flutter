@@ -332,14 +332,16 @@ class _PaymentHistoryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _LabelledValue(
-                  label: l.settingsSubscription_paid,
-                  value: l.payments_amountValue(
-                    AppDateUtils.formatDigits(
-                      submission.amount,
-                      l.localeName,
-                    ),
+              // Paid takes its natural width and the timestamp takes everything
+              // that is left: two equal Expanded halves made the timestamp the
+              // card's narrower column, and it wrapped its AM/PM while the
+              // short Paid value sat on unused space.
+              _LabelledValue(
+                label: l.settingsSubscription_paid,
+                value: l.payments_amountValue(
+                  AppDateUtils.formatDigits(
+                    submission.amount,
+                    l.localeName,
                   ),
                 ),
               ),

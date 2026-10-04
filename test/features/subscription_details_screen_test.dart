@@ -111,6 +111,7 @@ void main() {
     required int amount,
     required String status,
     required DateTime submittedAt,
+    DateTime? approvedAt,
   }) => PaymentSubmission(
         id: id,
         planType: planType,
@@ -120,6 +121,7 @@ void main() {
         transactionId: 'TX$id',
         status: status,
         submittedAt: submittedAt,
+        approvedAt: approvedAt,
       );
 
   /// A firm owner's profile and firm row, both expiring at one fixed instant:
@@ -247,6 +249,7 @@ void main() {
                   amount: 100,
                   status: 'approved',
                   submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
+                  approvedAt: DateTime.utc(2026, 10, 2, 18, 45),
                 ),
                 submission(
                   id: 'newer',
@@ -287,14 +290,85 @@ void main() {
     expect(find.text(l.settingsSubscription_paid), findsNWidgets(2));
     expect(find.text(l.settingsSubscription_dateTime), findsNWidgets(2));
 
-    // The moment each purchase was submitted, in Bangladesh civil time: 17:30
-    // UTC is 23:30 the same day, so both cards read 11:30 PM on their own date.
+    // The moment each purchase happened: the approved one stamps its
+    // *approval* (18:45 UTC → 00:45 on 03/10 Bangladesh time — a different
+    // date than its submission, which proves the stamp is not the submission),
+    // and the pending one has no approval, so it falls back to its submission.
+    expect(find.text('03/10/2026, 12:45 AM'), findsOneWidget);
     expect(find.text('02/11/2026, 11:30 PM'), findsOneWidget);
-    expect(find.text('02/10/2026, 11:30 PM'), findsOneWidget);
 
     // A reviewer's note is shown rather than swallowed: a rejection always
     // carries a reason, and a ledger that hid it leaves the user guessing.
     expect(find.text(l.payments_notesLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a rejected purchase stamps its submission, never a phantom approval', (
+    tester,
+  ) async {
+    // The regression this pins: an approved purchase shows the approval, but a
+    // rejected one has no approval to show — falling back to the submission is
+    // the only honest moment it has, and a stale server-approved_at must not
+    // resurrect on a card the verdict says never became a subscription.
+    await pumpDetails(
+      tester,
+      overrides: [
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => [
+                submission(
+                  id: 'p1',
+                  planType: paymentPlanMonthly,
+                  amount: 100,
+                  status: 'rejected',
+                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+                  approvedAt: DateTime.utc(2026, 11, 2, 18, 45),
+                ),
+          ],
+        ),
+      ],
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    expect(find.text('02/11/2026, 11:30 PM'), findsOneWidget);
+    expect(find.text('03/11/2026, 12:45 AM'), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the expiry row gives its value the space it needs', (tester) async {
+    // Regression: the label was `Expanded`, so it took half the row even when
+    // the label is one word, and "01/12/2026, 11:30 PM" wrapped its AM/PM onto
+    // a second line. The test font is wider than Inter, so wrapping cannot be
+    // measured directly here; what the fix changes and this pins is the
+    // *contract*: the value is no longer boxed into half the row. The label is
+    // as wide as its text; the value gets everything else.
+    await pumpDetails(
+      tester,
+      overrides: [
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => const <PaymentSubmission>[],
+        ),
+      ],
+      seed: seedOwner,
+    );
+
+    final label = find.text(l.settingsManageAccount_expiry);
+    final value = find.text('01/12/2026, 11:30 PM');
+    expect(value, findsOneWidget);
+    final row = tester.getRect(label).width + tester.getRect(value).width;
+    final labelWidth = tester.getRect(label).width;
+    // Half the row would be `row / 2`; the label must take strictly less, so
+    // the value owns more than half — the space the wrap used to steal.
+    expect(labelWidth, lessThan(row / 2));
 
     await unmountApp(tester);
   });

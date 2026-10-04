@@ -1,3 +1,11 @@
+### 2026-10-04 — Payment History's Date & Time wrapped too — FIXED
+
+- **Request (the user's).** After the expiry fix, the history card's Date & Time wrapped its AM/PM the same way. Why, when there is space to its left?
+- **The why.** The card's figures sit in a two-column `Row` where **both** cells were `Expanded` — an exact 50/50 split regardless of content. The timestamp needs more than half; the short Paid value wasted its half. The same disease as the expiry row, a different organ: my earlier fix touched only `_DetailRow` in the summary card.
+- **The fix.** Paid leaves `Expanded` and takes its natural width; Date & Time keeps `Expanded` and now takes everything left. Test pins the contract (the timestamp column is wider than Paid — wrapping itself is unmeasurable in the wide test font) and the right-edge/right-aligned checks still pass.
+- **Files.** `subscription_details_screen.dart` (one `Expanded` removed), `subscription_details_screen_test.dart` (+width contract). Analyze clean, suite **1340 passed**, version **0.0.382** by script, guard OK.
+- **Resume point:** nothing owed on this thread; mockup debts still deferred.
+
 ### 2026-10-04 — Expiry wraps, and a purchase card stamps its approval — COMPLETE
 
 - **Request (the user's).** Two changes on Subscription Details only: (1) Expiry showed AM/PM on a second line beneath the date — same line; (2) Payment History's Date & Time should show the **approval** time for approved purchases, falling back to `submitted_at` for pending and rejected ones. Change nothing else.

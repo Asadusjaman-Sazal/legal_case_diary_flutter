@@ -301,6 +301,16 @@ void main() {
     // carries a reason, and a ledger that hid it leaves the user guessing.
     expect(find.text(l.payments_notesLabel), findsNothing);
 
+    // The card's two figures are not an equal split: Paid takes its natural
+    // width and Date & Time takes everything left, because two Expanded halves
+    // boxed the timestamp into the narrower column and it wrapped its AM/PM.
+    // The test font is too wide to measure wrapping itself, so the contract is
+    // what is pinned: the timestamp's column is the wider one.
+    final paidWidth = tester.getSize(find.text(l.payments_amountValue('285'))).width;
+    final stampWidth =
+        tester.getSize(find.text('02/11/2026, 11:30 PM')).width;
+    expect(paidWidth, lessThan(stampWidth));
+
     await unmountApp(tester);
   });
 

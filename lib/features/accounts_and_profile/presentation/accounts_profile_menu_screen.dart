@@ -5,8 +5,10 @@
 /// renders through [SettingsMenuCard], the shared card the other sub-menus use.
 ///
 /// Task 20 Phase 1 adds the third entry, **Manage Associates**, and it is
-/// conditional on purpose: an individual sees it (adding the first associate is
-/// what creates the firm), a firm owner sees it, and an associate or viewer does
+/// conditional on purpose: a **premium** individual sees it (adding the first
+/// associate is what creates the firm, and that transition is premium
+/// server-side), a firm owner sees it whatever their plan (the server still lets
+/// an owner manage the firm they already have), and an associate or viewer does
 /// not — the screen behind it is owner-only server-side.
 library;
 
@@ -28,7 +30,14 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final canManageAssociates = ref.watch(canOpenManageAssociatesProvider);
+    // A free individual is not offered the entry: `ensure_firm` refuses a
+    // non-premium caller, so the row could only advertise something the account
+    // cannot do. A firm owner keeps it after a lapse, because the firm and its
+    // roster are still theirs — only a *new* firm is premium-gated.
+    final showManageAssociates =
+        ref.watch(canOpenManageAssociatesProvider) &&
+        (ref.watch(firmModeProvider) ||
+            ref.watch(premiumAccessProvider).value == true);
 
     return SettingsSubPageModal(
       title: l.settingsScreen_accountAndProfile,
@@ -48,7 +57,7 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
             subtitle: l.settingsAccountProfile_manageAccountSubtitle,
             onTap: () => context.push(AppRoutes.settingsManageAccount),
           ),
-          if (canManageAssociates) ...[
+          if (showManageAssociates) ...[
             const SizedBox(height: AppSpacing.sm),
             SettingsMenuCard(
               icon: Icons.groups_outlined,

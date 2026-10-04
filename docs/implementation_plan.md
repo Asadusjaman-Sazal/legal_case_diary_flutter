@@ -1343,6 +1343,7 @@ Version: 0.0.4 - Task 01 Phase 1 complete: Flutter project initialized with Andr
 ### 6. Navigation Pop & App Exit Confirmation
 - Implement proper back button/back gesture behavior throughout the app to prevent black screens or accidental pops.
 - Intercept the system back gesture on the app's root screen (e.g., Daily Cause List) and show a confirmation dialog/modal before allowing the user to exit the app.
+- **Extended in 0.0.383:** the same exit confirmation answers the back gesture on every bottom-nav screen — the six case lists, Notes and Case Reference — whatever screen they were opened from. Those routes are pushed by the navigation drawer and by the All Cases summary cards, so a pop would return to a screen unrelated to the tab; an open drawer still closes on the first back.
 
 ### 7. Progress Tracker Location (`docs/currentlyWorking.md`)
 - The `currentlyWorking.md` file is maintained in the `docs/` folder. Every development session starts by reading it to resume where work left off, and it is updated incrementally as tasks begin and complete.

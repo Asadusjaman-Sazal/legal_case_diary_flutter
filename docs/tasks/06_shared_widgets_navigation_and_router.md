@@ -11,7 +11,7 @@
 
 1. `core/router/app_router.dart` — GoRouter with routes for every screen in the folder structure (stub screens where not yet built).
 2. Landing page comes from `SettingsRepository.default_landing_page` (default: Daily Cause List).
-3. **Back/exit confirmation** (Dev Workflow §6): intercept the system back gesture on the root screen and show an exit-confirmation dialog; ensure no black screens/accidental pops anywhere.
+3. **Back/exit confirmation** (Dev Workflow §6): intercept the system back gesture on the root screen and show an exit-confirmation dialog; ensure no black screens/accidental pops anywhere. Extended in 0.0.383 from the root screen to every bottom-nav destination — see Phase 2 item 6.
 
 **Phase 1 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
@@ -23,6 +23,7 @@ Per the folder-structure note, this reusable layout provides for every case scre
 3. **Bottom nav bar** (`bottom_nav_bar.dart`): 4 configurable tabs, defaults Overdue Dates / Daily Cause List / Active Cases / Upcoming Cases, customizable via View Settings (`bottom_nav_tabs`).
 4. **FAB (Add New Case)** on all main case screens **except Disposed Cases**.
 5. **Print** and **Share** are separate actions (Share invokes the Android native share utility to share the app; Print is Task 14).
+6. **Back on a destination offers Exit, never a pop (0.0.383).** Every screen built on this shell answers the system back gesture with the `Exit App?` window (`AppShellRoot.requestExit`) rather than returning to the screen the destination was opened from — the drawer and the All Cases summary cards push these routes, so a pop would land somewhere unrelated to the tab. An open drawer still closes on the first back; the window is unchanged, only when it appears. This extends Dev Workflow §6 (Phase 1 item 3) from the root screen to the destinations themselves.
 
 **Phase 2 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 

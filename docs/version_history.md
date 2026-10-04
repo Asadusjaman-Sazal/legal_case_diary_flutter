@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.382 - Payment History Date & Time no longer wraps: Paid takes its natural width and the timestamp takes the rest of the card.
+Version: 0.0.383 - Back on the bottom-nav screens (the six case lists, Notes, Case Reference) now offers the Exit App? window instead of returning to the previous screen; an open drawer still closes first.
 --------------------------------------
 
 ## Version History Log:
@@ -396,3 +396,4 @@ Version: 0.0.379 - Subscription Details is now a Settings sub-page showing role,
 Version: 0.0.380 - Payment History is now a card per purchase instead of a table, and the Role, Current Plan and Expiry values right-align at the card's edge.
 Version: 0.0.381 - Subscription Details: the expiry timestamp no longer wraps, and a purchase card stamps the approval time (submission time for pending and rejected).
 Version: 0.0.382 - Payment History Date & Time no longer wraps: Paid takes its natural width and the timestamp takes the rest of the card.
+Version: 0.0.383 - Back on the bottom-nav screens (the six case lists, Notes, Case Reference) now offers the Exit App? window instead of returning to the previous screen; an open drawer still closes first.

@@ -68,6 +68,10 @@ enum SyncState {
 
 /// Reusable shell for all case list screens.
 ///
+/// The system back gesture always offers the exit window here rather than
+/// returning to whatever screen opened this destination; an open drawer still
+/// closes first.
+///
 /// [title] — screen title shown in the header.
 /// [body] — the scrollable content area (case list, etc.).
 /// [searchQuery] — current scoped search query string provided by the host
@@ -206,26 +210,49 @@ class CasesScreenModal extends ConsumerWidget {
         // so it lives in `core/services/app_share_flow.dart`.
         onShare: onShare ?? () => shareAppInvite(context, ref),
       ),
-      body: Column(
-        children: [
-          _CasesHeader(
-            title: title,
-            syncState: _liveSyncState(ref),
-            isPremium: _livePremium(ref),
-            onSync: () => _onSyncTap(ref),
-            onSearch: onSearch,
-            onViewToggle: onViewToggle,
-            isCompactView: isCompactView,
-            l: l,
+      // The system back gesture on a bottom-nav screen always offers the exit
+      // window: these are destinations, not steps in a flow, so there is no
+      // "previous screen" the gesture should return to (the drawer and the All
+      // Cases summary cards push them). The open drawer is the one exception —
+      // back closes it, exactly as it always has. `AppShellRoot` owns the same
+      // window for the shell's other screens, but it sits above this route's
+      // navigator, so these screens must carry the gesture themselves.
+      body: Builder(
+        builder: (screenContext) => PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final scaffold = Scaffold.maybeOf(screenContext);
+            if (scaffold != null && scaffold.isDrawerOpen) {
+              scaffold.closeDrawer();
+              return;
+            }
+            if (screenContext.mounted) {
+              await AppShellRoot.requestExit(screenContext);
+            }
+          },
+          child: Column(
+            children: [
+              _CasesHeader(
+                title: title,
+                syncState: _liveSyncState(ref),
+                isPremium: _livePremium(ref),
+                onSync: () => _onSyncTap(ref),
+                onSearch: onSearch,
+                onViewToggle: onViewToggle,
+                isCompactView: isCompactView,
+                l: l,
+              ),
+              if (isSearching)
+                ScopedSearchBar(
+                  controller: searchController,
+                  onChanged: onSearchChanged,
+                  onClose: onSearch,
+                ),
+              Expanded(child: body),
+            ],
           ),
-          if (isSearching)
-            ScopedSearchBar(
-              controller: searchController,
-              onChanged: onSearchChanged,
-              onClose: onSearch,
-            ),
-          Expanded(child: body),
-        ],
+        ),
       ),
       // The app-wide conflict banner sits directly above the nav bar on every
       // case-list screen, so an unresolved conflict is never out of sight.

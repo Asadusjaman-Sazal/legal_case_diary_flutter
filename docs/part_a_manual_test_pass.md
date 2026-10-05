@@ -126,7 +126,7 @@ Nothing in the test host can prove any of these.
 ## F. Cross-cutting checks (Task 22 Phase 2 items + general) - Pass
 
 - [ ] **F1 — Low-end device.** On a representative 2 GB device, scroll the case lists and open the modals: no visible frame drops, and no `BackdropFilter`-style blur anywhere (the design avoids it deliberately).
-- [ ] **F2 — Text scaling and overflow.** System font size at its largest: no clipped labels on the case cards, the Backup & Restore card, the paywall or the nudge strip; nothing overflows on a long Bengali string.
+- [ ] **F2 — Text sizing and overflow.** Set the phone's font size to its largest: the app's text does **not** change (the app ignores the phone setting by design). Then set the in-app Font Size (Settings > View Settings) to its largest step: no clipped labels on the case cards, the Backup & Restore card, the paywall or the nudge strip; nothing overflows on a long Bengali string.
 - [ ] **F3 — Keyboard and scrolling.** Open the Add Case form and the restore/passphrase windows with the keyboard up: fields stay reachable and the Save button is not hidden.
 - [ ] **F4 — Empty / loading / error states.** Open each case list and the Backup & Restore screen on a database with no cases: empty states render, and nothing claims a backup that was never made.
 

@@ -9,8 +9,9 @@
 ///
 /// Font Size is the screen's own addition to that list: a − / + stepper whose
 /// step (`font_size_step`) is added to every text size in the app by
-/// [FontSizeScope] at the app root. It is the one control here that changes the
-/// screen you are standing on as you use it.
+/// [FontSizeScope] at the app root. The app deliberately ignores the phone's
+/// own font-size setting, so this is the only control that can change the app's
+/// text — and it changes the screen you are standing on as you use it.
 ///
 /// The two list settings render as dropdowns too — their items live inside the
 /// picker instead of inline on the page, no item shows a per-screen icon, and

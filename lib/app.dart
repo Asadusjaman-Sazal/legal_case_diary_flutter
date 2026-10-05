@@ -54,7 +54,8 @@ class App extends ConsumerWidget {
         // monthly backup nudge so a free user sees it wherever they land.
         builder: (context, child) => _buildSystemUiLayer(
           // The font size step wraps the whole app — every route, dialog, sheet
-          // and overlay — and is added on top of the device's own text scale.
+          // and overlay. The scope also drops the device's own text scale, so
+          // the app always renders at its designed size plus this step.
           FontSizeScope(
             step: fontSizeStep,
             child: NotificationSetupGate(

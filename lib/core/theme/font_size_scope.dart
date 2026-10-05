@@ -1,16 +1,15 @@
 /// The app-wide font size step (Settings > View Settings > Font Size).
 ///
-/// The user chooses a step in whole logical pixels, and that step is added to
-/// every text size in the app. [TextScaler] is Flutter's own seam for this: it
-/// travels down through `MediaQuery` to every `Text`, `TextField` and
-/// `TextPainter`, so one wrap at the app root resizes the whole interface
-/// without a single call site changing, and text the app did not think to
-/// style is included.
+/// Every screen is laid out for one standard text size, and that is what the
+/// app paints: the phone's own font-size setting is **deliberately dropped**, so
+/// a device set to an extreme scale can no longer clip a label, push a button
+/// off its row or break a card. The only thing that may change the app's text is
+/// the user's own Font Size step, chosen in Settings.
 ///
-/// The inherited scaler is *wrapped*, never replaced: the device's own font
-/// size setting still applies and the step is added on top of it, so this
-/// setting can only make text bigger or smaller — it can never switch the
-/// platform's accessibility scaling off.
+/// [TextScaler] is Flutter's own seam for this: it travels down through
+/// `MediaQuery` to every `Text`, `TextField` and `TextPainter`, so one wrap at
+/// the app root fixes the whole interface without a single call site changing,
+/// and text the app did not think to style is included.
 ///
 /// Printed output is deliberately outside this: the print tree is built by the
 /// `printing` package under its own `MediaQuery`, so a PDF keeps the layout its
@@ -31,11 +30,12 @@ import '../constants/app_typography.dart';
 class SteppedTextScaler extends TextScaler {
   /// Wraps [inner], adding [step] logical pixels to everything it scales.
   ///
-  /// A zero [step] is the identity and is never worth constructing; callers
-  /// hand a zero step to [FontSizeScope], which drops the wrapper instead.
+  /// The app hands it [TextScaler.noScaling] as [inner], because the phone's
+  /// own scale is not wanted; a zero [step] is therefore also expressed as
+  /// plain [TextScaler.noScaling], which [FontSizeScope] installs directly.
   const SteppedTextScaler(this.inner, this.step);
 
-  /// The platform's own scaler, applied before the step.
+  /// The base scaler, applied before the step.
   final TextScaler inner;
 
   /// Whole logical pixels added to every font size (positive or negative).
@@ -69,12 +69,12 @@ class SteppedTextScaler extends TextScaler {
   String toString() => 'stepped (${step >= 0 ? '+' : ''}$step px) on $inner';
 }
 
-/// Applies the user's font size step to everything below it.
+/// Fixes the app's text size and applies the user's font size step to it.
 ///
 /// Sits inside `MaterialApp.builder`, so it covers every route, dialog, sheet
-/// and overlay. At the default step it adds no layer at all, which keeps the
-/// tree — and every widget's `MediaQuery.of` dependency — exactly as it was
-/// before this setting existed.
+/// and overlay. It always installs its own scaler — the inherited one is
+/// **replaced**, never wrapped, so the phone's font-size setting cannot reach a
+/// single widget below — and adds [step] on top of that fixed base.
 class FontSizeScope extends StatelessWidget {
   /// Creates the scope for [step] logical pixels, wrapping [child].
   const FontSizeScope({required this.step, required this.child, super.key});
@@ -87,14 +87,18 @@ class FontSizeScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (step == 0) return child;
     // Fall back to the view's own metrics when there is no MediaQuery above
     // (a bare widget test, or this widget reused outside the app shell).
     final media =
         MediaQuery.maybeOf(context) ?? MediaQueryData.fromView(View.of(context));
     return MediaQuery(
+      // The base is [TextScaler.noScaling], not `media.textScaler`: the device's
+      // accessibility scale is dropped on purpose, so every screen renders at
+      // its designed size and only the in-app step can move it.
       data: media.copyWith(
-        textScaler: SteppedTextScaler(media.textScaler, step),
+        textScaler: step == 0
+            ? TextScaler.noScaling
+            : SteppedTextScaler(TextScaler.noScaling, step),
       ),
       child: child,
     );

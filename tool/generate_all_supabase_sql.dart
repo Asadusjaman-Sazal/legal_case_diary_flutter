@@ -381,6 +381,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'submission joined to the payer profile) and `admin_reject_payment()`. '
         'Approval needs no new code; `profiles` stays self-or-firm.',
   ),
+  LedgerSection(
+    file: '20261005120000_payment_plan_name.sql',
+    version: '0.0.385',
+    label:
+        'Readable plan names on both payment ledgers: `plan_type` stays the '
+        'machine key and `payment_submissions` / `payment_approval_events` '
+        'each gain a generated `plan_name` (`1 Month` / `3 Months` / '
+        '`6 Months` / `1 Year`), so the raw tables read plainly without '
+        'touching the approval path or either table\'s write privileges.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -411,6 +421,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.339': 'Task 21 Follow-Up — Four Plans And The Receiving Number',
   '0.0.349': 'Task 21 Follow-Up — Discounted Six-Month And Annual Plans',
   '0.0.354': 'Task 23 Phase 1 — The Admin Panel On The Server',
+  '0.0.385': 'Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers',
 };
 
 const String _header = '''<!--

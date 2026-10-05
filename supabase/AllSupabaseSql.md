@@ -66,6 +66,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.339 | 2026-10-01 | `20261001020000_seed_payment_configuration.sql` | Task 21 follow-up's seeded receiving numbers: one idempotent row per provider (`bkash`, `nagad`, `rocket`) in `payment_configuration` with the firm's single MFS account in local 11-digit form, so the checkout shows a real number instead of falling back to build defaults. |
 | 0.0.349 | 2026-10-02 | `20261002100000_payment_prices_discounted.sql` | Discounted 6 Months and 1 Year plans: replaces `approve_payment` so it validates ৳100/৳285/৳540/৳960 — the two longer plans priced against the ৳100 monthly rate (10% and 20% off) instead of ৳550 and ৳1,000. Only the four price constants move; the gate, lock, idempotency, intervals, firm mirror and audit event are unchanged. |
 | 0.0.354 | 2026-10-02 | `20261002110000_admin_panel.sql` | Task 23 Admin Panel: `app_admins` gains hand-filled `full_name` and `email`, `payment_submissions` gains `rejected_by`/`rejected_at`, and three admin-gated RPCs arrive — `is_app_admin()` (the only way a client learns its own status), `admin_list_payment_submissions()` (every submission joined to the payer profile) and `admin_reject_payment()`. Approval needs no new code; `profiles` stays self-or-firm. |
+| 0.0.385 | 2026-10-05 | `20261005120000_payment_plan_name.sql` | Readable plan names on both payment ledgers: `plan_type` stays the machine key and `payment_submissions` / `payment_approval_events` each gain a generated `plan_name` (`1 Month` / `3 Months` / `6 Months` / `1 Year`), so the raw tables read plainly without touching the approval path or either table's write privileges. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -7629,5 +7630,65 @@ grant execute on function public.admin_list_payment_submissions() to authenticat
 
 revoke all on function public.admin_reject_payment(uuid, text) from public, anon;
 grant execute on function public.admin_reject_payment(uuid, text) to authenticated;
+```
+
+## App Version 0.0.385 — Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers
+
+### 0.0.385 · `20261005120000_payment_plan_name.sql`
+
+> **Created 2026-10-05.** Readable plan names on both payment ledgers: `plan_type` stays the machine key and `payment_submissions` / `payment_approval_events` each gain a generated `plan_name` (`1 Month` / `3 Months` / `6 Months` / `1 Year`), so the raw tables read plainly without touching the approval path or either table's write privileges.
+
+```sql
+-- Readable plan names beside the plan_type key, on both payment ledgers.
+--
+-- `plan_type` on `payment_submissions` and `payment_approval_events` is a
+-- machine key (`monthly`, `quarterly`, `half_yearly`, `annual`): `approve_payment`
+-- validates it against that exact set and uses a CASE over it to choose both the
+-- expected amount and the interval the plan extends by. `plan_name` is its
+-- human-readable counterpart — `1 Month`, `3 Months`, `6 Months`, `1 Year` — so
+-- the raw tables read plainly in the Supabase table editor and in any SQL output
+-- instead of showing a bare key.
+--
+-- A generated column, not a written one: the value derives from `plan_type` on
+-- every read, so it can never drift from the key it names, no data migration is
+-- needed (existing rows are computed on the spot) and neither the approval path
+-- nor either table's write privileges changes. `plan_type` stays the key.
+--
+-- The names are English, matching the app's English ARB labels; the app
+-- localizes its own display text (Bengali included) from the key. A future plan
+-- key this CASE does not yet know shows its raw key rather than a blank.
+--
+-- Table class: `payment_submissions` and `payment_approval_events` remain
+-- server-managed (no client write policy exists for either).
+
+alter table public.payment_submissions
+  add column if not exists plan_name text
+  generated always as (
+    case plan_type
+      when 'monthly' then '1 Month'
+      when 'quarterly' then '3 Months'
+      when 'half_yearly' then '6 Months'
+      when 'annual' then '1 Year'
+      else plan_type
+    end
+  ) stored;
+
+comment on column public.payment_submissions.plan_name is
+  'Readable name of the plan the submission pays for, derived from plan_type (1 Month / 3 Months / 6 Months / 1 Year). Generated, so it cannot disagree with the key; the app localizes its own labels from plan_type.';
+
+alter table public.payment_approval_events
+  add column if not exists plan_name text
+  generated always as (
+    case plan_type
+      when 'monthly' then '1 Month'
+      when 'quarterly' then '3 Months'
+      when 'half_yearly' then '6 Months'
+      when 'annual' then '1 Year'
+      else plan_type
+    end
+  ) stored;
+
+comment on column public.payment_approval_events.plan_name is
+  'Readable name of the plan this approval event recorded, derived from plan_type. Generated, so the immutable ledger carries a name that can never disagree with its key.';
 ```
 

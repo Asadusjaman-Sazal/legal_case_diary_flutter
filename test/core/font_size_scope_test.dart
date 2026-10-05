@@ -30,9 +30,9 @@ void main() {
       expect(const SteppedTextScaler(TextScaler.noScaling, -2).scale(16), 14);
     });
 
-    test('wraps the inherited scaler instead of replacing it', () {
-      // The device asks for 1.5x; the step still adds its own pixels on top, so
-      // the platform accessibility setting is never overridden.
+    test('adds the step to the base scaler it is given', () {
+      // The class is a plain wrapper; the app hands it no-scaling as the base,
+      // but the maths works over any base scaler.
       const scaler = SteppedTextScaler(TextScaler.linear(1.5), 1);
 
       expect(scaler.scale(16), 25);
@@ -73,11 +73,13 @@ void main() {
       ),
     );
 
-    testWidgets('at the default step the tree is untouched', (tester) async {
+    testWidgets('at the default step the app size is exactly the design size', (
+      tester,
+    ) async {
       await tester.pumpWidget(app(step: 0));
 
       final scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
-      expect(scaler, isNot(isA<SteppedTextScaler>()));
+      expect(scaler, TextScaler.noScaling);
       expect(scaler.scale(16), 16);
     });
 
@@ -97,21 +99,29 @@ void main() {
       expect(reduced.width, lessThan(atDefault.width));
     });
 
-    testWidgets('the inherited scale is kept', (tester) async {
-      await tester.pumpWidget(
+    testWidgets('the device\'s own scale is dropped', (tester) async {
+      // The phone asks for 2x; the app ignores it entirely. A zero step gives
+      // the design size, and a step gives the design size plus the step — never
+      // the doubled platform value.
+      Future<void> pump(int step) => tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(2)),
             child: FontSizeScope(
-              step: 2,
+              step: step,
               child: Text(_sample, style: const TextStyle(fontSize: 16)),
             ),
           ),
         ),
       );
 
-      final scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
-      expect(scaler.scale(16), 34);
+      await pump(0);
+      var scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
+      expect(scaler.scale(16), 16);
+
+      await pump(2);
+      scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
+      expect(scaler.scale(16), 18);
     });
   });
 

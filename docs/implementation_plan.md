@@ -979,7 +979,8 @@ lib/
 |---|---|---|
 | `id` | UUID PK | |
 | `user_id` | UUID FK → `auth.users` | |
-| `plan_type` | TEXT | `monthly`, `quarterly`, `half_yearly` or `annual` |
+| `plan_type` | TEXT | `monthly`, `quarterly`, `half_yearly` or `annual` — the machine key, not a label |
+| `plan_name` | TEXT | Readable name beside the key — `1 Month`, `3 Months`, `6 Months` or `1 Year` — **generated** from `plan_type` (`0.0.385`). Read-only and never written, so it cannot drift from the key; it exists so the raw table reads plainly in Studio. |
 | `amount` | INTEGER | Exact BDT amount paid |
 | `mfs_provider` | TEXT | `bkash`, `nagad`, or `rocket` |
 | `sender_number` | TEXT | Mobile number payment was sent from |
@@ -1013,6 +1014,7 @@ lib/
 > | `user_id` | UUID FK → `auth.users` | Subscription owner |
 > | `approved_by` | UUID FK → `auth.users` | Authorized admin actor |
 > | `plan_type` | TEXT | Validated `monthly`, `quarterly`, `half_yearly` or `annual` |
+> | `plan_name` | TEXT | The same **generated** readable name of `plan_type` (`0.0.385`), so the immutable ledger reads plainly in Studio without its key becoming a label. |
 > | `amount` | INTEGER | Validated BDT amount at approval |
 > | `previous_expiry` | TIMESTAMPTZ | Value locked before extension |
 > | `new_expiry` | TIMESTAMPTZ | Authoritative result |
@@ -1179,6 +1181,7 @@ This guarantees that local data is tightly bound to the current Supabase `auth.u
 - **Rate Limiting (Abuse Prevention):** Each user is restricted to a maximum of **3 payment submissions per 24-hour period**. **Enforcement is a `BEFORE INSERT` trigger on `payment_submissions`** — RLS policies cannot reliably count rows per time window, so the trigger is the authoritative gate: it overwrites/rejects client `submitted_at`, counts the caller's rows where `user_id = auth.uid() AND submitted_at > now() - interval '24 hours'`, and raises an exception (surfaced to the app as a friendly *"You've reached today's submission limit. Please try again tomorrow."* message) if the count is already 3. The client performs a best-effort local check purely as UX; it is never the security boundary. This prevents spam abuse while still allowing legitimate retries.
 - **48-Hour Grace Period (Expiry Buffer):** When a subscription expires, sync is **not** cut off immediately. A **48-hour grace period** is applied during which sync remains fully active but a persistent, non-intrusive warning banner is displayed (e.g., *"Your subscription expired. Renew to avoid losing sync access."*). If the admin approves a payment submission within this window, the expiry is extended seamlessly and the banner disappears. This prevents legitimate users from losing access during normal admin verification delays.
 - **Receiving Numbers (configuration, not code):** the numbers a user sends money to come from `payment_configuration` (authenticated read-only) through the client's payments configuration service, with validated `--dart-define` build defaults as a bootstrap; a row can be inserted or updated by an admin so a number rotates without a release, and a missing/malformed/unsupported entry is rejected rather than shown. The table is seeded (`20261001020000`) with the firm's one MFS account — 01835252721 in the local 11-digit form the validator accepts — for `bkash`, `nagad` and `rocket`. Values are display-only — the server's `approve_payment` and the RLS policies remain the boundary.
+- **Readable Plan Names On The Server (0.0.385):** `plan_type` stays the machine key — `approve_payment` validates it against the accepted set and its `CASE` selects the amount and the interval — and both `payment_submissions` and `payment_approval_events` now carry a **generated** `plan_name` (`1 Month` / `3 Months` / `6 Months` / `1 Year`, `20261005120000`) derived from it, so the raw tables and any SQL output read plainly in Studio. Generated, not written: it cannot drift from the key, needed no data migration (existing rows compute on the spot) and neither the approval path nor either table's write privileges changed. The names are English; the app localizes its own display text (Bengali included) from the key, and an unknown future key falls back to its raw value rather than a blank.
 - **Admin Verification:** Admin checks the incoming MFS payment and invokes the admin-only `approve_payment(payment_submission_id)` RPC from the protected admin surface; neither Supabase Studio row edits nor direct client updates are an approval path. The RPC performs the lock, validation, idempotent expiry extension, owner-firm mirror, submission metadata update, and immutable audit insertion atomically as defined in the schema section. `subscription_expiry` remains the only entitlement authority; `subscription_status` is display-only. The app detects the committed change via a Broadcast ping or profile refresh on next launch.
 
 ### 8. Print (PDF Export)
@@ -1232,6 +1235,7 @@ Alerts and display parameters are configured via `Settings > View Settings` and 
 - `bottom_nav_tabs` (List<String>, default: `['overdue', 'daily_cause_list', 'active', 'upcoming']`): Custom selection and ordering of the 4 bottom tabs.
 - `side_nav_options` (Map<String, Boolean>, default: all true): Toggles visibility of side navigation panel options (Case screens, Notes, References, Share, Print, etc.).
 - `default_landing_page` (String, default: `'daily_cause_list'`): Selected default landing page on app launch.
+- `font_size_step` (Integer, default: 0, clamped to −2..+6): the in-app Font Size step added to every text size in the app by `FontSizeScope` at the app root. The app **ignores the phone's own font-size setting**: its base is a fixed standard size, so only this step can change the app's text. This keeps a device set to an extreme scale from breaking the layout.
 
 ### 11. Screen-Organized App Translations (Language & Labels)
 - **Central Translation File:** Instead of scattering text strings, all UI labels are stored in `lib/core/l10n/app_translations.dart`. Along with the UI labels, this file will store translations for pre-seeded items including court related items, steps, case types, on behalfs etc.

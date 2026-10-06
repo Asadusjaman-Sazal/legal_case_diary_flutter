@@ -25,6 +25,7 @@ import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
@@ -63,6 +64,7 @@ void main() {
   /// so the pull-only caches would otherwise be read after the seed.
   Future<void> pumpDetails(
     WidgetTester tester, {
+    Locale locale = const Locale('en'),
     Future<void> Function(AppDatabase db)? seed,
     List<Override> overrides = const <Override>[],
   }) async {
@@ -72,6 +74,7 @@ void main() {
     await pumpSettingsRouter(
       tester,
       location: AppRoutes.settingsSubscriptionDetails,
+      locale: locale,
       overrides: await harness.setUp(
         extra: <Override>[
           // Only when the test does not pin its own: overriding a provider
@@ -91,7 +94,7 @@ void main() {
         ),
       ],
     );
-    l = await AppLocalizations.delegate.load(const Locale('en'));
+    l = await AppLocalizations.delegate.load(locale);
 
     ProviderScope.containerOf(
       tester.element(find.byType(SubscriptionDetailsScreen)),
@@ -273,6 +276,8 @@ void main() {
     );
 
     // Newest first, numbered from 1: the purchase a user came about is first.
+    // English, so the numbers are Latin digits here; the Bengali rendering is
+    // pinned by its own test below.
     expect(find.text('1'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
 
@@ -310,6 +315,60 @@ void main() {
     final stampWidth =
         tester.getSize(find.text('02/11/2026, 11:30 PM')).width;
     expect(paidWidth, lessThan(stampWidth));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the card numbers use the locale\'s digits', (tester) async {
+    // Regression: the number was a raw interpolation (`'$number'`), which is
+    // always ASCII, so বাংলা read "1" and "2" beside Bengali amounts and
+    // dates — the same defect the calendars and the case serials each got a
+    // `formatDigits` call to fix.
+    await pumpDetails(
+      tester,
+      locale: const Locale('bn'),
+      overrides: [
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => [
+                submission(
+                  id: 'older',
+                  planType: paymentPlanMonthly,
+                  amount: 100,
+                  status: 'approved',
+                  submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
+                ),
+                submission(
+                  id: 'newer',
+                  planType: paymentPlanQuarterly,
+                  amount: 285,
+                  status: 'pending',
+                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+                ),
+          ],
+        ),
+      ],
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    // বাংলা reads ১ and ২, through the same helper the amounts already use.
+    expect(
+      find.text(AppDateUtils.formatDigits(1, 'bn', grouping: false)),
+      findsOneWidget,
+    );
+    expect(
+      find.text(AppDateUtils.formatDigits(2, 'bn', grouping: false)),
+      findsOneWidget,
+    );
+    expect(find.text('1'), findsNothing);
+    expect(find.text('2'), findsNothing);
 
     await unmountApp(tester);
   });

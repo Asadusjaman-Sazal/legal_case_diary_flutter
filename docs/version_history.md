@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.390 - The Terms of Service and Privacy Policy are now top-level routes, so opening one from Sign Up returns there on Back instead of leaving the user stranded.
+Version: 0.0.391 - Subscription Details: the Payment History card number now uses the active language's digits, so Bangla reads ১ and ২ instead of 1 and 2.
 --------------------------------------
 
 ## Version History Log:
@@ -404,3 +404,4 @@ Version: 0.0.387 - Backup encryption is now opt-in and off by default: an Encryp
 Version: 0.0.388 - Encryption On Backup paragraph copy now reads in sentence case, with Title Case kept for titles, subtitles and labels, so the notes, state caption and safety-copy bodies match the mockup's own wording.
 Version: 0.0.389 - The Terms of Service and Privacy Policy links on Sign Up now open their documents before signing in: the router's sign-in guard exempts those two routes, which render the same screens Settings > About opens.
 Version: 0.0.390 - The Terms of Service and Privacy Policy are now top-level routes, so opening one from Sign Up returns there on Back instead of leaving the user stranded.
+Version: 0.0.391 - Subscription Details: the Payment History card number now uses the active language's digits, so Bangla reads ১ and ২ instead of 1 and 2.

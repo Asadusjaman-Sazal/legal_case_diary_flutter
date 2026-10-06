@@ -307,7 +307,14 @@ class _PaymentHistoryCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  '$number',
+                  // Bengali reads ১: a card number is a number like the
+                  // amount beside it, so it takes the active language's
+                  // digits.
+                  AppDateUtils.formatDigits(
+                    number,
+                    l.localeName,
+                    grouping: false,
+                  ),
                   style: AppTypography.labelMd.copyWith(
                     color: AppColors.primary,
                   ),

@@ -1,3 +1,15 @@
+### 2026-10-06 — Subscription Details: the payment-card number is localized — COMPLETE
+
+- **Request (the user's, scoped).** "Make changes only in Settings>Subscription>Subscription Details screens: Subscription Details>Payment History card number is not localized for Bangla language." Scope was confined to the Subscription Details screen.
+- **The defect.** Each Payment History card's number — the small tinted circle that marks the purchase — was a raw interpolation, `Text('$number')`. A `'$number'` is always ASCII, so বাংলা read `1` and `2` while the amount and the Date & Time on the very same card were already in Bengali digits and Bengali month/time words. This is the same class of defect the calendars got `formatDigits` for in 0.0.187 and the court case counts in 0.0.201.
+- **The fix, one call.** The number now renders through `AppDateUtils.formatDigits(number, l.localeName, grouping: false)` — the helper the amount beside it already uses — so English reads `1`/`2` and বাংলা reads `১`/`২`. `grouping: false` because a card number is an identifier (a position), not a quantity, so it can never read `১,২`-style grouping. **No ARB key and no new string:** a number needs no translation, only the active language's digits, exactly as the earlier count fixes concluded.
+- **Nothing else touched.** One widget's `Text` on one screen; no layout, wording, icon, colour, route or data change.
+- **Test, verified with teeth.** `test/features/subscription_details_screen_test.dart` gained `the card numbers use the locale's digits`: it pumps the screen under `Locale('bn')` with two purchases and asserts `১` and `২` are shown and the Latin `1`/`2` are **not**. `pumpDetails` gained a `locale` parameter (default English) so a case can pump বাংলা. Run against the old `'$number'` interpolation it **failed**; it passes with the fix. The existing English test still pins the Latin digits under `en`.
+- **Records (rule 14 — absent from the plan).** A sentence appended to the plan's Subscription Details bullet (line 319) and a bullet in `docs/tasks/21_payments_and_subscription.md`'s Alignment Addendum.
+- **Verification.** `flutter analyze` clean; `subscription_details_screen_test.dart` 10/10; full suite **1365 passed** with `--concurrency=2`. Version **0.0.391** recorded by script; `--check` OK.
+- **Gotcha, noted for next time.** `tool/record_version.py` prints its entry with the console's default code page, so a summary containing Bengali digits crashes on Windows (`UnicodeEncodeError: 'charmap'...`). Re-run with `PYTHONIOENCODING=utf-8`; the file itself is UTF-8 and was never written by the failed run.
+- **Resume point:** nothing owed. The unrelated open question still stands whether AGENTS.md rule 11 should be amended so Title Case applies to titles only, project-wide.
+
 ### 2026-10-06 — Sign Up: Back from the Terms of Service and Privacy Policy returns to Sign Up — COMPLETE
 
 - **Request (the user's, follow-up).** Viewing the Terms of Service or Privacy Policy from Sign Up, the back button did not return to Sign Up.

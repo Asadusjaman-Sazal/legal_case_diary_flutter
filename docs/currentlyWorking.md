@@ -1,3 +1,13 @@
+### 2026-10-06 — Subscription Plans: the group headings read as titles — COMPLETE
+
+- **Request (the user's, scoped to the Subscription Plans screen).** Make the **"Subscription Plans Offer"** and **"Plans"** heading text bold and a bit larger so they give a title vibe.
+- **The change, one widget.** `_SectionHeader` (private to `paywall_screen.dart`, used only for those two headings) moved from the muted `labelLg` label style to `titleMd` at weight 700 with the primary ink colour: 14px/medium → 16px/bold, and the `0.7` label tracking dropped. Nothing else on the screen changed — no string, layout, plan row or colour token outside these two headings.
+- **Bold + a bit larger, and one judgement call.** The user asked only for bold and larger; the header also moved to `AppColors.onSurface` from `onSurfaceVariant`, because a bold but muted heading still reads as a label rather than a title. Easy to revert to the muted colour if that overreaches.
+- **Mockup (rule 9).** Both headings in `mockup_html_screens/paywall/code.html` switched from `font-label-lg` to `font-title-md` with `font-bold` and the inline `letter-spacing` removed.
+- **Test.** New `the group headings are bold and larger than a label` asserts `FontWeight.w700` and a font size above `labelLg`'s 14 for both headings; it fails against the old `labelLg` style. `flutter analyze` clean; `paywall_screen_test.dart` 9/9. Version **0.0.393**.
+- **Records (rule 14).** Plan §7 bullet 2 extended; a bullet added to Task 21's Alignment Addendum.
+- **Resume point:** nothing owed. The two long-standing loose ends still stand (`paywall_planWasPrice` is dead, not misnamed; `checkout_screen.dart` still needs the paywall's status-bar inset).
+
 ### 2026-10-06 — Subscription Plans: retitled paywall, new offer section, gate-only limit card — COMPLETE
 
 - **Request (the user's, scoped to Settings > Subscription > Purchase New Subscription).** (1) The paywall's title "Premium" becomes **"Subscription Plans"**. (2) Show the **"Free Plan Limit Reached"** section **only** when the 50-case limit opened the screen; hide it from the Settings entry point. (3) Replace "Premium Includes" with **"Subscription Plans Offer"** — **Disaster Recovery**, **Real-time Backup**, **Multi-device Support** and **Collaboration**, each a heading with a sentence under it. The Plans section stays unchanged.

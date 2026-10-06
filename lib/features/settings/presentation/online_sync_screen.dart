@@ -25,6 +25,7 @@ import '../../../core/router/app_router.dart';
 import '../../../database/app_database.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
+import '../../auth/presentation/auth_widgets.dart';
 import '../../case_reference/presentation/reference_viewmodel.dart';
 import '../../cases/presentation/case_viewmodel.dart';
 import '../../notes/presentation/notes_viewmodel.dart';
@@ -227,6 +228,9 @@ class _SyncStatusCard extends ConsumerWidget {
         ? AppColors.onSurfaceVariant
         : AppColors.success;
 
+    // The second line under the button, for the states that have one.
+    final blockerMessage = _blockerMessage(l);
+
     return Container(
       decoration: _cardDecoration(),
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -271,7 +275,7 @@ class _SyncStatusCard extends ConsumerWidget {
                       style: AppTypography.titleLg,
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(_body(l), style: AppTypography.bodySm),
+                    _body(l),
                   ],
                 ),
               ),
@@ -326,10 +330,10 @@ class _SyncStatusCard extends ConsumerWidget {
               ),
             ),
           ),
-          if (blocker != _SyncBlocker.none) ...[
+          if (blockerMessage != null) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
-              _blockerMessage(l),
+              blockerMessage,
               style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
             ),
           ],
@@ -365,25 +369,38 @@ class _SyncStatusCard extends ConsumerWidget {
     },
   };
 
-  String _body(AppLocalizations l) => switch (blocker) {
-    _SyncBlocker.signedOut => l.settingsOnlineSync_dataStaysOnDevice,
-    _SyncBlocker.needsPremium => l.settingsOnlineSync_freePlanHint,
-    _SyncBlocker.checking => l.settingsOnlineSync_checkingPlanBody,
-    _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
-    _SyncBlocker.none =>
+  /// The card's body line.
+  ///
+  /// The free plan is the one state whose sentence carries the action that
+  /// ends the block, so it is drawn by [_FreePlanPurchaseHint]; every other
+  /// state is one plain sentence.
+  Widget _body(AppLocalizations l) => switch (blocker) {
+    _SyncBlocker.signedOut => _plainBody(l.settingsOnlineSync_dataStaysOnDevice),
+    _SyncBlocker.needsPremium => const _FreePlanPurchaseHint(),
+    _SyncBlocker.checking => _plainBody(l.settingsOnlineSync_checkingPlanBody),
+    _SyncBlocker.offline => _plainBody(
+      l.settingsOnlineSync_needConnectionToSync,
+    ),
+    _SyncBlocker.none => _plainBody(
       attention > 0
           ? l.settingsOnlineSync_actionRequiredBody
           : pending > 0
           ? l.settingsOnlineSync_pendingUploads(pending)
           : l.settingsOnlineSync_pendingNone,
+    ),
   };
 
-  String _blockerMessage(AppLocalizations l) => switch (blocker) {
+  /// The line under the button, or null when this state has nothing to add.
+  ///
+  /// The free plan is the null case: its own body already names the plan that
+  /// unlocks sync and where to buy one, so repeating that under the button
+  /// was the same news twice in a card that has room for one.
+  String? _blockerMessage(AppLocalizations l) => switch (blocker) {
     _SyncBlocker.signedOut => l.settingsOnlineSync_needSignInToSync,
-    _SyncBlocker.needsPremium => l.settingsOnlineSync_needPremiumToSync,
+    _SyncBlocker.needsPremium => null,
     _SyncBlocker.checking => l.settingsOnlineSync_checkingPlanMessage,
     _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
-    _SyncBlocker.none => '',
+    _SyncBlocker.none => null,
   };
 
   /// Runs one forced drain and reports what happened.
@@ -404,6 +421,54 @@ class _SyncStatusCard extends ConsumerWidget {
               ? l.settingsOnlineSync_syncFailed
               : l.settingsOnlineSync_syncFinished,
         ),
+      ),
+    );
+  }
+}
+
+/// The body sentence of every state whose sentence has no link in it.
+Widget _plainBody(String text) => Text(text, style: AppTypography.bodySm);
+
+/// The free-plan body: the sentence naming what unlocks sync, whose closing
+/// words are the way to buy it.
+///
+/// The link is a route push into Subscription Plans rather than a nudge, so
+/// the screen that has just told the user a plan is required is also the one
+/// that lets them act on it. The sentence is three ARB pieces — prefix, link,
+/// closing — because only the words "here"/"এখান থেকে" are styled and
+/// tappable, and no one flat string can carry that.
+class _FreePlanPurchaseHint extends StatelessWidget {
+  const _FreePlanPurchaseHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Text.rich(
+      TextSpan(
+        style: AppTypography.bodySm,
+        children: [
+          // The joining space lives here, not in the ARB, so nothing depends
+          // on a translated string keeping a trailing space.
+          TextSpan(text: '${l.settingsOnlineSync_freePlanHint} '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.baseline,
+            baseline: TextBaseline.alphabetic,
+            child: AuthDocumentLink(
+              label: l.settingsOnlineSync_freePlanHintLink,
+              route: AppRoutes.paywall,
+              // Bold and underlined, in the ink the app already uses for a
+              // link inside a sentence.
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.secondary,
+                fontWeight: FontWeight.w700,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+          // The closing punctuation is the language's own — "." in English,
+          // "।" in Bengali — so it is a key and not a literal.
+          TextSpan(text: l.settingsOnlineSync_freePlanHintSuffix),
+        ],
       ),
     );
   }

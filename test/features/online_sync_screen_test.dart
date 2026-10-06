@@ -11,9 +11,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
@@ -33,6 +36,9 @@ class _BlankProfileFields extends ProfileFieldsNotifier {
   @override
   ProfileFields build() => const ProfileFields();
 }
+
+/// Stands in for the Subscription Plans route the free-plan link pushes.
+const String _paywallMarker = 'Subscription Plans Route';
 
 /// One queued sync entry, so a test can name the entity whose work is waiting.
 SyncQueueRow _queueRow({required String entityType}) => SyncQueueRow(
@@ -54,11 +60,62 @@ void main() {
   // The card reads the saved profile name, which lives in SharedPreferences.
   setUp(() => SharedPreferences.setMockInitialValues(<String, Object>{}));
 
-  /// Pumps the screen with the account and engine facts the test names.
+  /// The account and engine facts a test names, as the providers the screen
+  /// reads.
   ///
   /// Every provider here is the real one the screen reads; only their values
   /// are pinned, so a future refactor that changes which provider feeds the
   /// card fails these tests rather than silently reverting to a stub.
+  List<Override> overridesFor({
+    AuthIdentity? identity = const AuthIdentity(
+      userId: 'user-1',
+      email: 'advocate.asad@law.com',
+    ),
+    bool premium = true,
+    bool entitlementKnown = true,
+    bool online = true,
+    int? lastSuccessEpochMs,
+    int attention = 0,
+    List<SyncQueueRow> queued = const <SyncQueueRow>[],
+  }) {
+    return <Override>[
+      // The saved profile name is the first source the card reads; pinned
+      // blank here so the test states the session's own name, not a device's.
+      profileFieldsProvider.overrideWith(() => _BlankProfileFields()),
+      // The cached server profile is the third name source and reads Drift;
+      // pinned empty so the suite needs no database.
+      accountProfileProvider.overrideWith(
+        (ref) => Stream<Profile?>.value(null),
+      ),
+      authIdentityProvider.overrideWithValue(identity),
+      premiumAccessProvider.overrideWith((ref) async => premium),
+      // Whether the cached account row has landed. true here is the settled
+      // state every ordinary case is in; only the checking test says false.
+      entitlementKnownProvider.overrideWithValue(entitlementKnown),
+      isOnlineProvider.overrideWith((ref) => Stream<bool>.value(online)),
+      syncLastSuccessProvider.overrideWith(
+        (ref) => Stream<int?>.value(lastSuccessEpochMs),
+      ),
+      syncStatusAttentionProvider.overrideWith(
+        (ref) => Stream<int>.value(attention),
+      ),
+      syncQueueEntriesProvider.overrideWith(
+        (ref) => Stream<List<SyncQueueRow>>.value(queued),
+      ),
+      syncQueuePendingCountProvider.overrideWith(
+        (ref) => Stream<int>.value(0),
+      ),
+      syncHealthProvider.overrideWith(
+        (ref) => const Stream<SyncHealth>.empty(),
+      ),
+    ];
+  }
+
+  /// Pumps the screen with the account and engine facts the test names.
+  ///
+  /// [inRouter] mounts it under a real router instead of a bare app, which is
+  /// what a test that taps the free plan's link needs: that link pushes a
+  /// route, and a bare app has nowhere to push it.
   Future<void> pump(
     WidgetTester tester, {
     AuthIdentity? identity = const AuthIdentity(
@@ -71,6 +128,8 @@ void main() {
     int? lastSuccessEpochMs,
     int attention = 0,
     List<SyncQueueRow> queued = const <SyncQueueRow>[],
+    bool inRouter = false,
+    Locale locale = const Locale('en'),
   }) async {
     // Tall viewport: a lazy ListView never builds an off-screen row, so the
     // entity-row assertions would otherwise fail for the wrong reason.
@@ -78,39 +137,45 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await pumpSettingsScreen(
+    final overrides = overridesFor(
+      identity: identity,
+      premium: premium,
+      entitlementKnown: entitlementKnown,
+      online: online,
+      lastSuccessEpochMs: lastSuccessEpochMs,
+      attention: attention,
+      queued: queued,
+    );
+
+    if (!inRouter) {
+      await pumpSettingsScreen(
+        tester,
+        const OnlineSyncScreen(),
+        repo: FakeSettingsRepository(),
+        locale: locale,
+        overrides: overrides,
+      );
+      return;
+    }
+
+    await pumpSettingsRouter(
       tester,
-      const OnlineSyncScreen(),
-      repo: FakeSettingsRepository(),
+      location: AppRoutes.settingsOnlineSync,
+      locale: locale,
       overrides: <Override>[
-        // The saved profile name is the first source the card reads; pinned
-        // blank here so the test states the session's own name, not a device's.
-        profileFieldsProvider.overrideWith(() => _BlankProfileFields()),
-        // The cached server profile is the third name source and reads Drift;
-        // pinned empty so the suite needs no database.
-        accountProfileProvider.overrideWith(
-          (ref) => Stream<Profile?>.value(null),
+        settingsRepositoryProvider.overrideWith(
+          (ref) async => FakeSettingsRepository(),
         ),
-        authIdentityProvider.overrideWithValue(identity),
-        premiumAccessProvider.overrideWith((ref) async => premium),
-        // Whether the cached account row has landed. true here is the settled
-        // state every ordinary case is in; only the checking test says false.
-        entitlementKnownProvider.overrideWithValue(entitlementKnown),
-        isOnlineProvider.overrideWith((ref) => Stream<bool>.value(online)),
-        syncLastSuccessProvider.overrideWith(
-          (ref) => Stream<int?>.value(lastSuccessEpochMs),
+        ...overrides,
+      ],
+      routes: [
+        GoRoute(
+          path: AppRoutes.settingsOnlineSync,
+          builder: (_, _) => const OnlineSyncScreen(),
         ),
-        syncStatusAttentionProvider.overrideWith(
-          (ref) => Stream<int>.value(attention),
-        ),
-        syncQueueEntriesProvider.overrideWith(
-          (ref) => Stream<List<SyncQueueRow>>.value(queued),
-        ),
-        syncQueuePendingCountProvider.overrideWith(
-          (ref) => Stream<int>.value(0),
-        ),
-        syncHealthProvider.overrideWith(
-          (ref) => const Stream<SyncHealth>.empty(),
+        GoRoute(
+          path: AppRoutes.paywall,
+          builder: (_, _) => const Scaffold(body: Text(_paywallMarker)),
         ),
       ],
     );
@@ -145,18 +210,64 @@ void main() {
     expect(button.onPressed, isNull);
   });
 
-  testWidgets('a free account is told premium is what unlocks sync', (
+  testWidgets('a free account is told a plan unlocks sync, and how to buy one', (
     tester,
   ) async {
     await pump(tester, premium: false);
 
     expect(find.text('Free Plan'), findsOneWidget);
+    // Regression: the same news twice in one card — the body sentence said
+    // premium was required and the line under the Sync Now button repeated it.
+    // One card, one telling.
     expect(
-      find.text('Premium Is Required To Sync Across Devices.'),
+      find.textContaining(
+        'A subscription plan is required to sync across devices. '
+        'Purchase a plan from',
+      ),
       findsOneWidget,
     );
+    expect(find.textContaining('Premium is required to sync'), findsNothing);
+    expect(
+      find.text('Premium Is Required To Sync Across Devices.'),
+      findsNothing,
+    );
+
+    // The sentence ends in a word that can be acted on, and looks it.
+    final link = tester.widget<Text>(find.text('here'));
+    expect(link.style?.fontWeight, FontWeight.w700);
+    expect(link.style?.decoration, TextDecoration.underline);
+
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
+  });
+
+  testWidgets('the free plan sentence links to Subscription Plans', (
+    tester,
+  ) async {
+    await pump(tester, premium: false, inRouter: true);
+
+    await tester.tap(find.text('here'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(_paywallMarker), findsOneWidget);
+  });
+
+  testWidgets('the sentence is Bengali, link and all, under বাংলা', (
+    tester,
+  ) async {
+    // Both languages carry this sentence, and only the Bengali one shows that
+    // the link is a translated word rather than the English "here".
+    await pump(tester, premium: false, locale: const Locale('bn'));
+
+    expect(
+      find.textContaining(
+        'ডিভাইসের মধ্যে সিঙ্ক করতে সাবস্ক্রিপশন প্ল্যান প্রয়োজন।',
+      ),
+      findsOneWidget,
+    );
+    final link = tester.widget<Text>(find.text('এখান থেকে'));
+    expect(link.style?.fontWeight, FontWeight.w700);
+    expect(link.style?.decoration, TextDecoration.underline);
   });
 
   testWidgets('an account whose plan is not known yet is not called free', (
@@ -164,14 +275,14 @@ void main() {
   ) async {
     // Regression: after a sign-in the profile pull has not landed, so the
     // entitlement derivation answers false for a premium account too. The card
-    // used to print "Free Plan" and "Premium Is Required To Sync Across
-    // Devices" at that moment — a lie about an account that had paid.
+    // used to print "Free Plan" and "A subscription plan is required to sync
+    // across devices" at that moment — a lie about an account that had paid.
     await pump(tester, premium: false, entitlementKnown: false);
 
     expect(find.text('Free Plan'), findsNothing);
     expect(find.text('Checking Your Subscription…'), findsOneWidget);
     expect(
-      find.text('Premium Is Required To Sync Across Devices.'),
+      find.textContaining('A subscription plan is required'),
       findsNothing,
     );
     final button = tester.widget<FilledButton>(find.byType(FilledButton));

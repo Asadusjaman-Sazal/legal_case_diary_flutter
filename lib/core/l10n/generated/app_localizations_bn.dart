@@ -1724,7 +1724,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_freePlanHint =>
-      'ডিভাইসের মধ্যে সিঙ্ক করতে প্রিমিয়াম প্রয়োজন।';
+      'ডিভাইসের মধ্যে সিঙ্ক করতে সাবস্ক্রিপশন প্ল্যান প্রয়োজন।';
+
+  @override
+  String get settingsOnlineSync_freePlanHintLink => 'এখান থেকে';
+
+  @override
+  String get settingsOnlineSync_freePlanHintSuffix => ' প্ল্যান কিনুন।';
 
   @override
   String get settingsOnlineSync_upToDate => 'হালনাগাদ';
@@ -1767,10 +1773,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_syncFinished => 'সিঙ্ক সম্পন্ন হয়েছে।';
-
-  @override
-  String get settingsOnlineSync_needPremiumToSync =>
-      'ডিভাইসের মধ্যে সিঙ্ক করতে প্রিমিয়াম প্রয়োজন।';
 
   @override
   String get settingsOnlineSync_needSignInToSync =>

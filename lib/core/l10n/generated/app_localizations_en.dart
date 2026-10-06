@@ -1721,7 +1721,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_freePlanHint =>
-      'Premium is required to sync across devices.';
+      'A subscription plan is required to sync across devices. Purchase a plan from';
+
+  @override
+  String get settingsOnlineSync_freePlanHintLink => 'here';
+
+  @override
+  String get settingsOnlineSync_freePlanHintSuffix => '.';
 
   @override
   String get settingsOnlineSync_upToDate => 'Up To Date';
@@ -1764,10 +1770,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_syncFinished => 'Sync Finished.';
-
-  @override
-  String get settingsOnlineSync_needPremiumToSync =>
-      'Premium Is Required To Sync Across Devices.';
 
   @override
   String get settingsOnlineSync_needSignInToSync =>

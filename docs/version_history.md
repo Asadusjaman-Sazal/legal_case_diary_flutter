@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.393 - Subscription Plans screen: the Subscription Plans Offer and Plans group headings are now bold title typography (16px, weight 700) instead of the muted label style.
+Version: 0.0.394 - Fixed the cross-account leak: payment history, the admin panel's status and queue, a firm owner's roster and invites, and the device profile record now leave with the account.
 --------------------------------------
 
 ## Version History Log:
@@ -407,3 +407,4 @@ Version: 0.0.390 - The Terms of Service and Privacy Policy are now top-level rou
 Version: 0.0.391 - Subscription Details: the Payment History card number now uses the active language's digits, so Bangla reads ১ and ২ instead of 1 and 2.
 Version: 0.0.392 - Paywall retitled Subscription Plans with a new Subscription Plans Offer section, its free-limit card now shown only on the 50-case-limit entry; AGENTS.md rule 11 amended so Title Case covers titles while bodies use sentence case.
 Version: 0.0.393 - Subscription Plans screen: the Subscription Plans Offer and Plans group headings are now bold title typography (16px, weight 700) instead of the muted label style.
+Version: 0.0.394 - Fixed the cross-account leak: payment history, the admin panel's status and queue, a firm owner's roster and invites, and the device profile record now leave with the account.

@@ -48,6 +48,12 @@ class FakeAuthRepository implements AuthRepository {
   /// Error to throw from [signInWithPassword]; null to succeed.
   Object? signInError;
 
+  /// The account id [signInWithPassword] signs in as.
+  ///
+  /// `user-1` unless a test is switching accounts on one device, where the
+  /// second sign-in has to arrive as somebody else.
+  String signInUserId = 'user-1';
+
   /// Error to throw from [signUpIndividual]; null to succeed.
   Object? signUpError;
 
@@ -113,7 +119,10 @@ class FakeAuthRepository implements AuthRepository {
     signInPasswords.add(password);
     final failure = signInError;
     if (failure != null) throw failure;
-    return identity = AuthIdentity(userId: 'user-1', email: email.trim());
+    return identity = AuthIdentity(
+      userId: signInUserId,
+      email: email.trim(),
+    );
   }
 
   @override

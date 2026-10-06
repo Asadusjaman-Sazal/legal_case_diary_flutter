@@ -1560,6 +1560,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
           division: division,
           district: district,
         );
+        ref.read(pushPreferencesProvider)();
       } catch (_) {
         // Preference persistence is best-effort and must not block case entry.
       }
@@ -1745,6 +1746,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         notificationTimeMinutes: _notificationTimeMinutes,
         updatedAt: now,
       );
+      // The save wrote this case's notification preference in the same
+      // transaction, so ask for the premium preference push that carries it
+      // to the account.
+      ref.read(pushPreferencesProvider)();
       // Re-arm the alert alarms: this case may add a time slot or move one.
       await ref.read(notificationSchedulerProvider).syncSchedule();
       if (!mounted) return;
@@ -2218,6 +2223,9 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
           ),
         );
       });
+      // The quick update wrote this case's notification preference; ask for
+      // the premium preference push that carries it to the account.
+      ref.read(pushPreferencesProvider)();
       // Re-arm the alert alarms: this update may add a time slot or move one.
       await ref.read(notificationSchedulerProvider).syncSchedule();
       if (mounted) Navigator.of(context).pop();

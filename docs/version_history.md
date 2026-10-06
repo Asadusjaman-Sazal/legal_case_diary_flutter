@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.396 - Settings > Online Sync: the free-plan sentence is sized like the info line above it and now spans the card's full width.
+Version: 0.0.397 - Supabase's user_preferences stayed empty: the premium per-user preference path now pushes this device's settings row and its per-case notification rows to the account and takes back the account's newer ones.
 --------------------------------------
 
 ## Version History Log:
@@ -410,3 +410,4 @@ Version: 0.0.393 - Subscription Plans screen: the Subscription Plans Offer and P
 Version: 0.0.394 - Fixed the cross-account leak: payment history, the admin panel's status and queue, a firm owner's roster and invites, and the device profile record now leave with the account.
 Version: 0.0.395 - Settings > Online Sync: the free-plan sentence is stated once, reworded, and its here link opens Subscription Plans.
 Version: 0.0.396 - Settings > Online Sync: the free-plan sentence is sized like the info line above it and now spans the card's full width.
+Version: 0.0.397 - Supabase's user_preferences stayed empty: the premium per-user preference path now pushes this device's settings row and its per-case notification rows to the account and takes back the account's newer ones.

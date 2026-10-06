@@ -30,6 +30,7 @@ import '../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../features/settings/data/local/steps_dao.dart';
 import '../../features/settings/data/local/user_preferences_dao.dart';
 import '../../features/settings/data/on_behalfs_repository.dart';
+import '../../features/settings/data/preference_sync_service.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/data/steps_repository.dart';
 import '../../sync/delete_requests_dao.dart';
@@ -116,6 +117,25 @@ final settingsRepositoryProvider = FutureProvider<SettingsRepository>((
   final db = await ref.watch(databaseProvider.future);
   final identity = ref.watch(localIdentityServiceProvider);
   return LocalSettingsRepository(UserPreferencesDao(db), identity);
+});
+
+/// Provider for the per-user preference sync.
+///
+/// A service rather than a repository: it moves the two preference tables
+/// and nothing else, addressing only the signed-in account's own rows. With
+/// no backend configured it is built over the inert remote, so a plain
+/// `flutter run` and every test behave exactly as they did before it.
+final preferenceSyncServiceProvider = FutureProvider<PreferenceSyncService>((
+  ref,
+) async {
+  final db = await ref.watch(databaseProvider.future);
+  final client = ref.watch(activeSupabaseClientProvider);
+  return PreferenceSyncService(
+    client == null
+        ? const OfflinePreferenceRemote()
+        : SupabasePreferenceRemote(client),
+    db,
+  );
 });
 
 /// Provider for the local backup export/restore engine.

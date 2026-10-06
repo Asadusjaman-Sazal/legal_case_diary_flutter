@@ -14,8 +14,11 @@
 /// exactly what a Part A install was.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/repository_providers.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
@@ -309,6 +312,44 @@ final pushProfileDetailsProvider =
       };
     });
 
+/// Pushes this device's per-user preferences to the account and takes back
+/// the account's own newer rows.
+///
+/// The same promise [pushProfileDetailsProvider] makes, for the two
+/// preference tables: best-effort, with the retry implied by the data rather
+/// than remembered in a flag. A save that could not reach the server leaves
+/// the local row's `updated_at` ahead of the account's, and the next attempt —
+/// the next save, or the refresh at launch, resume or reconnect — compares the
+/// two and sends it.
+///
+/// **Premium only.** A free account's preferences stay on the device (plan
+/// §6); with no account signed in, or no backend, there is nothing to send
+/// either.
+///
+/// Returns immediately and never throws: the attempt runs detached, so a
+/// Settings save or a case save never waits on the network.
+final pushPreferencesProvider = Provider<void Function()>((ref) {
+  return () {
+    unawaited(() async {
+      try {
+        // Awaited, not the synchronous selector: the session is restored
+        // asynchronously at startup, and a read taken while that is still in
+        // flight would answer "nobody signed in" for a device that has an
+        // account.
+        final identity = (await ref.read(authViewModelProvider.future))
+            .identity;
+        if (identity == null) return;
+        if (await ref.read(premiumAccessProvider.future) != true) return;
+        final service = await ref.read(preferenceSyncServiceProvider.future);
+        await service.synchronize();
+      } on Object {
+        // Signed out mid-flight, offline, or a refused write: the local rows
+        // stay newer than the account's and the next attempt picks them up.
+      }
+    }());
+  };
+});
+
 /// Refreshes the account's cached profile, firm and permissions.
 ///
 /// It also settles the account holder's own four details: a push an earlier save
@@ -333,6 +374,12 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
     // owner's subscription onto `firms`), so the derivation is recomputed here
     // rather than left on the value it saw before the pull.
     ref.invalidate(premiumAccessProvider);
+
+    // The per-user preferences travel the same moment (plan §4): the account's
+    // own rows come back when they are newer, and anything this device has newer
+    // goes up. Detached and entitlement-gated inside the provider, so a free
+    // account, or one with no connection, simply leaves its row alone.
+    ref.read(pushPreferencesProvider)();
 
     // The server's name fills a blank local record — a device that signed up
     // elsewhere, or an associate whose name came from the firm's invite. A name

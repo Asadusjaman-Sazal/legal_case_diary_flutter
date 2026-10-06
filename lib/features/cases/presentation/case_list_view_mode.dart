@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
 
@@ -88,6 +89,9 @@ Future<void> setCaseListViewMode(
       },
     ),
   );
+  // The stored row changed: ask for the premium preference push that carries
+  // it to the account. Detached, so the toggle never waits on the network.
+  ref.read(pushPreferencesProvider)();
   ref.invalidate(settingsViewModelProvider);
 }
 
@@ -104,6 +108,7 @@ Future<void> setCaseTableColumnWidths(
   final repo = await ref.read(settingsRepositoryProvider.future);
   final current = await repo.getSettings();
   await repo.upsertSettings(current.copyWith(caseTableColumnWidths: widths));
+  ref.read(pushPreferencesProvider)();
   ref.invalidate(settingsViewModelProvider);
 }
 
@@ -186,5 +191,6 @@ Future<void> setCaseTableCourtCollapsed(
       caseTableCollapsedDays: days,
     ),
   );
+  ref.read(pushPreferencesProvider)();
   ref.invalidate(settingsViewModelProvider);
 }

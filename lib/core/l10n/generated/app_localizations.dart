@@ -1739,8 +1739,14 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_saveBody.
   ///
   /// In en, this message translates to:
-  /// **'Everything On This Device — Your Cases, Notes And Unsynced Changes — Is Sealed Into One Encrypted File First. Set A Passphrase You Will Remember; It Is Not Stored Anywhere.'**
+  /// **'Everything on this device — your cases, notes and unsynced changes — is sealed into one encrypted file first. Set a passphrase you will remember; it is not stored anywhere.'**
   String get recoveryLock_saveBody;
+
+  /// No description provided for @recoveryLock_saveBodyUnencrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this device — your cases, notes and unsynced changes — is saved into one unencrypted file first.'**
+  String get recoveryLock_saveBodyUnencrypted;
 
   /// No description provided for @recoveryLock_saveAction.
   ///
@@ -3236,6 +3242,54 @@ abstract class AppLocalizations {
   /// **'Back Up Or Restore Your Diary'**
   String get settingsBackupRestore_sectionBackupSubtitle;
 
+  /// No description provided for @settingsBackupRestore_sectionEncryption.
+  ///
+  /// In en, this message translates to:
+  /// **'Encryption On Backup'**
+  String get settingsBackupRestore_sectionEncryption;
+
+  /// No description provided for @settingsBackupRestore_sectionEncryptionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect Backups With A Passphrase'**
+  String get settingsBackupRestore_sectionEncryptionSubtitle;
+
+  /// No description provided for @settingsBackupRestore_encryptionWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypting a backup locks the file behind a passphrase you choose, so anyone who gets it cannot read your case data.'**
+  String get settingsBackupRestore_encryptionWhy;
+
+  /// No description provided for @settingsBackupRestore_encryptionCost.
+  ///
+  /// In en, this message translates to:
+  /// **'The passphrase is never stored. If you forget it, that backup can never be restored, so keep it somewhere safe.'**
+  String get settingsBackupRestore_encryptionCost;
+
+  /// No description provided for @settingsBackupRestore_encryptionStateOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Encryption is currently on'**
+  String get settingsBackupRestore_encryptionStateOn;
+
+  /// No description provided for @settingsBackupRestore_encryptionStateOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Encryption is currently off'**
+  String get settingsBackupRestore_encryptionStateOff;
+
+  /// No description provided for @settingsBackupRestore_encryptionEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get settingsBackupRestore_encryptionEnable;
+
+  /// No description provided for @settingsBackupRestore_encryptionDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable'**
+  String get settingsBackupRestore_encryptionDisable;
+
   /// No description provided for @settingsBackupRestore_sectionAutomaticBackup.
   ///
   /// In en, this message translates to:
@@ -3275,7 +3329,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestore_encryptionNote.
   ///
   /// In en, this message translates to:
-  /// **'Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.'**
+  /// **'Backups are saved to your local storage or cloud provider. Turn on Encryption On Backup to lock them behind a passphrase. Restoration will overwrite current data.'**
   String get settingsBackupRestore_encryptionNote;
 
   /// No description provided for @settingsBackupRestore_offlineNote.

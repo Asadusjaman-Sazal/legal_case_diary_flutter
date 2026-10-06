@@ -280,6 +280,28 @@ void main() {
       );
     });
 
+    test('exportSnapshot without a secret writes the readable envelope', () async {
+      await addCase('110/2021');
+      final sink = _RecordingSink();
+
+      final result = await backup.exportSnapshot(
+        sink: sink,
+        appVersion: '0.0.227',
+        exportedAt: 1700000000000,
+      );
+
+      // No secret means no sealing: the file is the versioned JSON envelope,
+      // which is what the default "encryption off" writes.
+      final file = utf8.decode(sink.written.values.single);
+      final decoded = BackupEnvelope.decode(file);
+      expect(decoded.schemaVersion, kBackupSchemaVersion);
+      expect(decoded.tables['cases'], hasLength(1));
+      // And it is recorded exactly like the sealed export.
+      expect(result.checksum, checksumOfBytes(sink.written.values.single));
+      final archive = await backup.readArchiveState();
+      expect(archive.hasCompletedArchive, isTrue);
+    });
+
     test('a failed write never records a completed archive', () async {
       final sink = _FailingSink();
       await expectLater(

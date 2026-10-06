@@ -83,6 +83,19 @@ Future<void> _expectRefused(
 }
 
 void main() {
+  group('looksLikeEncryptedBackup', () {
+    test('tells the sealed container from a plaintext file and junk', () async {
+      // The restore flow prompts for a passphrase only when this is true.
+      expect(looksLikeEncryptedBackup(await _encryptedBytes()), isTrue);
+      expect(looksLikeEncryptedBackup(_legacyBytes()), isFalse);
+      expect(looksLikeEncryptedBackup(utf8.encode('not json at all')), isFalse);
+      expect(
+        looksLikeEncryptedBackup(Uint8List.fromList(<int>[0xFF, 0xD8, 0xFF])),
+        isFalse,
+      );
+    });
+  });
+
   group('openBackupFile', () {
     test('opens an encrypted backup and reports it as encrypted', () async {
       final opened = await openBackupFile(

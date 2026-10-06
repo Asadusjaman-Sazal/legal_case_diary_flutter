@@ -197,8 +197,14 @@ class LogoutFlow {
   /// could not be written, which is the whole point of the branch. A dismissed
   /// Save-to window is a cancellation, not a failure: nothing was written, so
   /// nothing is deleted and the account stays signed in.
-  Future<LogoutResult> exportThenComplete({required String passphrase}) async {
-    if (passphrase.isEmpty) return LogoutResult.exportCancelled;
+  ///
+  /// [passphrase] is null when encryption is off (the default): the copy is then
+  /// written as readable JSON. When encryption is on it is the user's passphrase,
+  /// and an empty one is treated as a cancelled copy rather than a weak one.
+  Future<LogoutResult> exportThenComplete({String? passphrase}) async {
+    if (passphrase != null && passphrase.isEmpty) {
+      return LogoutResult.exportCancelled;
+    }
     final SafetyCopyResult copy;
     try {
       copy = await _writeSafetyCopy(passphrase);
@@ -217,7 +223,7 @@ class LogoutFlow {
   String? lastArchivePath;
 
   /// Writes the export and records where it went.
-  Future<SafetyCopyResult> _writeSafetyCopy(String passphrase) async {
+  Future<SafetyCopyResult> _writeSafetyCopy(String? passphrase) async {
     final result = await BackupRepository(db).exportSnapshot(
       sink: sink,
       appVersion: appVersion,

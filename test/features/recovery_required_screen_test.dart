@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
 import 'package:legal_case_diary/features/sync/presentation/recovery_required_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
@@ -33,8 +34,11 @@ void main() {
 
   tearDown(() async => db.close());
 
-  Future<void> pumpApp(WidgetTester tester) async {
+  Future<void> pumpApp(WidgetTester tester, {bool encrypt = false}) async {
     final prefs = await SharedPreferences.getInstance();
+    // Encryption is off by default; a test that wants the passphrase fields
+    // turns it on the way the Backup & Restore section does.
+    if (encrypt) await prefs.setBool(backupEncryptionEnabledKey, true);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -85,12 +89,40 @@ void main() {
     });
   });
 
-  testWidgets('a locked device is blocked and cannot proceed without a copy', (
+  testWidgets('with encryption off the safety copy asks for no passphrase', (
     tester,
   ) async {
     await RecoveryLock(db).engage(at: 0);
     await withApp(tester, () async {
       await pumpApp(tester);
+
+      // The copy is still required before Proceed, but nothing is sealed, so no
+      // passphrase field appears.
+      expect(
+        find.byKey(const ValueKey('recovery-lock-save')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('recovery-lock-passphrase')),
+        findsNothing,
+      );
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.byKey(const ValueKey('recovery-lock-proceed')),
+            )
+            .onPressed,
+        isNull,
+      );
+    });
+  });
+
+  testWidgets('a locked device is blocked and cannot proceed without a copy', (
+    tester,
+  ) async {
+    await RecoveryLock(db).engage(at: 0);
+    await withApp(tester, () async {
+      await pumpApp(tester, encrypt: true);
 
       // The app itself is gone: there is no editable surface at all.
       expect(find.text('App content'), findsNothing);
@@ -99,7 +131,8 @@ void main() {
         find.textContaining('A Safety Copy Must Be Saved'),
         findsOneWidget,
       );
-      // The copy step is offered, and Proceed is not yet available.
+      // The copy step is offered, with the passphrase fields when encryption is
+      // on, and Proceed is not yet available.
       expect(
         find.byKey(const ValueKey('recovery-lock-passphrase')),
         findsOneWidget,

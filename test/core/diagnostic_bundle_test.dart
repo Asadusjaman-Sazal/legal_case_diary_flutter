@@ -140,7 +140,7 @@ void main() {
     expect(name, isNot(endsWith('.lcbak')));
   });
 
-  test('an export is sealed, and an empty secret is refused', () async {
+  test('an export is sealed with a secret, and readable without one', () async {
     Uint8List? written;
     String? writtenName;
     Future<String> write({
@@ -186,15 +186,17 @@ void main() {
     expect(opened['format'], kDiagnosticBundleFormat);
     expect((opened['entries'] as List), hasLength(1));
 
-    // An empty secret would be an unprotected export, so it is refused.
-    expect(
-      () => exportDiagnosticBundle(
-        bundle: bundle,
-        recoverySecret: '',
-        write: write,
-        kdfIterations: 1000,
-      ),
-      throwsArgumentError,
+    // With no secret (encryption off, the default) the bundle is written as
+    // readable JSON instead of being sealed.
+    written = null;
+    await exportDiagnosticBundle(
+      bundle: bundle,
+      write: write,
+      generatedAt: 5000,
+      kdfIterations: 1000,
     );
+    final openedPlain = jsonDecode(utf8.decode(written!)) as Map<String, dynamic>;
+    expect(openedPlain['format'], kDiagnosticBundleFormat);
+    expect(openedPlain, contains('entries'));
   });
 }

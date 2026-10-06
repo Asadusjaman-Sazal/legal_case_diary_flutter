@@ -14,21 +14,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 import 'package:legal_case_diary/features/auth/presentation/logout_dialogs.dart';
+import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
 
 import 'auth_test_support.dart';
 
 void main() {
   late AppDatabase db;
+  late SharedPreferences prefs;
   var ended = 0;
 
   setUp(() async {
     ended = 0;
+    // Encryption is off by default; the logout path reads the preference.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    prefs = await SharedPreferences.getInstance();
     db = AppDatabase(NativeDatabase.memory());
     await db.customSelect('select 1').get();
   });
@@ -58,7 +65,10 @@ void main() {
   Future<void> pumpLogout(WidgetTester tester, Override override) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [override],
+        overrides: [
+          override,
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -159,6 +169,7 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final sink = RecordingArchiveSink();
     await seedWork();
+    await prefs.setBool(backupEncryptionEnabledKey, true);
     await pumpLogout(
       tester,
       flowOverride(premium: false, sink: sink),
@@ -178,6 +189,7 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final sink = RecordingArchiveSink();
     await seedWork();
+    await prefs.setBool(backupEncryptionEnabledKey, true);
     await pumpLogout(
       tester,
       flowOverride(premium: false, sink: sink),
@@ -201,6 +213,7 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final sink = RecordingArchiveSink();
     await seedWork();
+    await prefs.setBool(backupEncryptionEnabledKey, true);
     await pumpLogout(
       tester,
       flowOverride(premium: true, online: false, sink: sink),
@@ -253,6 +266,7 @@ void main() {
     await seedWork();
     // A pass that refuses to start (a rejected session, a blocked row): the
     // online branch must not pretend the queue can be sent.
+    await prefs.setBool(backupEncryptionEnabledKey, true);
     await pumpLogout(
       tester,
       flowOverride(premium: true, sink: sink, push: () async => null),

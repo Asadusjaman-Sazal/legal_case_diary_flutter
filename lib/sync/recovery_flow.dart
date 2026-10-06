@@ -129,14 +129,15 @@ class RecoveryFlow {
     );
   }
 
-  /// Writes the automatic safety copy, sealed with [passphrase].
+  /// Writes the automatic safety copy. When [passphrase] is non-null the copy is
+  /// sealed with it; when null (encryption off, the default) it is written
+  /// unencrypted.
   ///
-  /// The passphrase is the app's only protection for this file, so it is never
-  /// generated and never stored: an archive nobody can open would be worse than
-  /// no archive at all. Returns the recorded copy, or null when the write failed
-  /// and nothing was recorded.
+  /// A passphrase is never generated and never stored: an archive nobody can open
+  /// would be worse than no archive at all. Returns the recorded copy, or null
+  /// when the write failed and nothing was recorded.
   Future<SafetyCopyState?> saveSafetyCopy({
-    required String passphrase,
+    String? passphrase,
     int kdfIterations = kBackupKdfIterations,
     BackupArchiveSink sink = const LocalArchiveSink(),
   }) async {

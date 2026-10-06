@@ -35,6 +35,7 @@ import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
 import '../../../sync/sync_providers.dart';
 import '../../settings/data/backup_file_gateway.dart';
+import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 
@@ -191,9 +192,15 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
       final consent = await _confirmPayloadConsent();
       if (consent != true || !mounted) return;
     }
-    // The container is always encrypted, so a passphrase is always required.
-    final secret = await showBackupPassphraseDialog(context);
-    if (secret == null || secret.isEmpty || !mounted) return;
+    // A passphrase is asked for only when encryption is on (off by default):
+    // with it off the bundle is written as readable JSON.
+    final String? secret;
+    if (ref.read(backupMetadataProvider).encryptBackups) {
+      secret = await showBackupPassphraseDialog(context);
+      if (secret == null || secret.isEmpty || !mounted) return;
+    } else {
+      secret = null;
+    }
 
     setState(() => _exporting = true);
     try {

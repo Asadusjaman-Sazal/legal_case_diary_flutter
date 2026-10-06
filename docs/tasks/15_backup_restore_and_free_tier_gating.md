@@ -19,9 +19,9 @@
 
 ## Phase 2 — Authenticated Encrypted Export
 
-> Per §12.3.1: never place plaintext exports in shared storage.
+> Per §12.3.1 (revised): encryption is opt-in and off by default — a backup is sealed only when the user turns it on. Never place a *sealed* export in shared storage against the user's wish.
 
-1. Encrypt every backup with an **authenticated format**: versioned header, KDF parameters, nonce, ciphertext, authentication tag, and checksum.
+1. Seal a backup with an **authenticated format** (versioned header, KDF parameters, nonce, ciphertext, authentication tag, checksum) when encryption is on. See *Encryption is opt-in, off by default* below for the revised behaviour.
 2. The encryption key derives from a **user recovery secret** (passphrase) or a platform-protected key — ask the user which UX they prefer for the manual backup flow (passphrase prompt vs. silent device-key) before implementing; the plan requires one of the two.
 3. Never log or persist the recovery secret; redact all key material from any diagnostics.
 4. Add security tests: round-trip an encrypted backup, verify decryption with the correct secret, and verify tampering with ciphertext/tag/checksum **fails closed** (per Verification Plan).
@@ -77,9 +77,19 @@
 - Use `getNonDeletedCaseCount()` for the free-tier gate; `getActiveCaseCount()` has different semantics and must not be used.
 - Identity adoption and account transitions must preserve the correct per-user preference/notification scope and prevent cross-account leakage.
 
+## Encryption is opt-in, off by default (user-requested)
+
+> **This revises the Phase 2 note above and §12.3.1.** Encryption is no longer automatic; it is a per-user preference that starts **off**. Asked for directly, and the plan's §12.3.1 bullet now says the same.
+
+- **One preference, read everywhere.** `BackupMetadata.encryptBackups` (SharedPreferences key `backup_encryption_enabled`, default `false`) is the single switch. Every export consults it: the manual local/Drive backup, the logout safety copy, the extended-offline recovery archive, and the diagnostic bundle. **Off** writes the readable versioned JSON envelope (`exportSnapshot` with no secret); **on** seals it in the existing authenticated container. The restore path already opens both kinds, and the screen now prompts for a passphrase **only** when the picked file is an encrypted container (`looksLikeEncryptedBackup`) — so a backup sealed while the setting was on still opens with it off.
+- **The passphrase is still asked fresh each time and never stored.** Enable/Disable only turns the gate on or off; it does not set or remember a secret.
+- **The screen gains a section the mockup does not draw.** **Encryption On Backup** sits before Automatic Backup and carries the usefulness/challenges copy plus Enable/Disable on one line, in the screen's own primary-button style. A recorded departure from the mockup's three sections.
+- **The section's copy is sentence case, not Title Case (user-requested, 0.0.388).** The why / cost / state paragraphs and the note under the action card, plus the two safety-copy bodies on the recovery screen (`recoveryLock_saveBody`, `recoveryLock_saveBodyUnencrypted`), are stored in ordinary sentence case in the ARB: Title Case is for titles, headings, subtitles and button labels only. Recorded in the plan's §8 Backup & Restore bullet; the section heading, its subtitle and **Enable** / **Disable** keep Title Case.
+- **The recovery screen's passphrase fields are conditional.** With encryption off the blocking recovery screen asks for no passphrase and writes the safety copy unencrypted; with it on the fields appear as before.
+
 ## Excel Backup & Restore — deliberate deviation (0.0.263, user-requested)
 
-> **This deviates from two things stated above and must be carried into Part B.** The plan's backup format is the versioned **JSON** envelope, and §12.3.1 requires every export to be authenticated-encrypted and never placed in shared storage as plaintext. A workbook the user opens in Excel cannot carry the app's AEAD container, so this feature is **plaintext by design**: an exception the user asked for and approved, not an oversight. The encrypted `.lcbak` JSON remains the canonical, complete backup.
+> **This deviates from two things stated above and must be carried into Part B.** The plan's backup format is the versioned **JSON** envelope, and §12.3.1 as it stood then required every export to be authenticated-encrypted. A workbook the user opens in Excel cannot carry the app's AEAD container, so this feature is **plaintext by design**: an exception the user asked for and approved, not an oversight. The encrypted `.lcbak` JSON remains the canonical, complete backup.
 
 - **Scope is four tables, not all twenty.** The workbook carries `cases`, `case_history`, `notes` and `case_references`, plus an `Info` sheet holding the format marker, `schema_version`, app version and export time. Courts, steps, case types, on-behalfs, court/case categories, preferences, caches, cursors, the queue and metadata are **not** in it, so a workbook is not a complete backup and is restored into a diary that already holds that reference data. The screen's Excel-format section says both of these plainly.
 - **Restore is scoped to the file's own tables.** `BackupRepository.restoreSnapshot` now runs its collision check and its delete-all over **the tables the file carries**, in reverse FK order, instead of every portable table. A JSON backup carries all twenty, so its behaviour is unchanged and the plan's Replace-or-Cancel rule still holds; a workbook replaces only its four tables and leaves everything else untouched — which is what keeps a partial file from emptying a working diary's reference data. The same scoping runs the pre-replace question (`hasDataInTables`), so a workbook never asks about data it would not touch.

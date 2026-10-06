@@ -1666,7 +1666,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
         if (count >= freeTierCaseLimit && !hasPremiumAccess) {
           if (mounted) {
             setState(() => _isSaving = false);
-            context.push(AppRoutes.paywall);
+            context.push(AppRoutes.paywallFromCaseLimit);
           }
           return;
         }

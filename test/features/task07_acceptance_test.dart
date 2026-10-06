@@ -266,7 +266,10 @@ void main() {
         GoRoute(path: '/', builder: (context, state) => host),
         GoRoute(
           path: AppRoutes.paywall,
-          builder: (context, state) => const PaywallScreen(),
+          // Mirror the app router: the limit card shows only when the gate
+          // named its reason (`?reason=limit`).
+          builder: (context, state) =>
+              PaywallScreen(showLimit: PaywallScreen.showLimitFor(state)),
         ),
       ],
     );
@@ -704,7 +707,10 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.paywall,
-          builder: (context, state) => const PaywallScreen(),
+          // Mirror the app router: the limit card shows only when the gate
+          // named its reason (`?reason=limit`).
+          builder: (context, state) =>
+              PaywallScreen(showLimit: PaywallScreen.showLimitFor(state)),
         ),
       ],
     );

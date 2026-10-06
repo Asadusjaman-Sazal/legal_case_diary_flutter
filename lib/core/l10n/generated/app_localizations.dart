@@ -1817,7 +1817,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_title.
   ///
   /// In en, this message translates to:
-  /// **'Premium'**
+  /// **'Subscription Plans'**
   String get paywall_title;
 
   /// No description provided for @paywall_limitTitle.
@@ -1835,32 +1835,56 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_benefitsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Premium Includes'**
+  /// **'Subscription Plans Offer'**
   String get paywall_benefitsTitle;
 
-  /// No description provided for @paywall_benefitUnlimitedCases.
+  /// No description provided for @paywall_featureDisasterRecoveryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Unlimited cases'**
-  String get paywall_benefitUnlimitedCases;
+  /// **'Disaster Recovery'**
+  String get paywall_featureDisasterRecoveryTitle;
 
-  /// No description provided for @paywall_benefitCloudBackup.
+  /// No description provided for @paywall_featureDisasterRecoveryBody.
   ///
   /// In en, this message translates to:
-  /// **'Secure encrypted cloud backup'**
-  String get paywall_benefitCloudBackup;
+  /// **'If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.'**
+  String get paywall_featureDisasterRecoveryBody;
 
-  /// No description provided for @paywall_benefitMultiDevice.
+  /// No description provided for @paywall_featureRealTimeBackupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your diary on every device you sign in on'**
-  String get paywall_benefitMultiDevice;
+  /// **'Real-time Backup'**
+  String get paywall_featureRealTimeBackupTitle;
 
-  /// No description provided for @paywall_benefitFirmMode.
+  /// No description provided for @paywall_featureRealTimeBackupBody.
   ///
   /// In en, this message translates to:
-  /// **'Firm mode for your associates'**
-  String get paywall_benefitFirmMode;
+  /// **'Every change is instantly saved to the cloud.'**
+  String get paywall_featureRealTimeBackupBody;
+
+  /// No description provided for @paywall_featureMultiDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-device Support'**
+  String get paywall_featureMultiDeviceTitle;
+
+  /// No description provided for @paywall_featureMultiDeviceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Access your diary from multiple devices simultaneously.'**
+  String get paywall_featureMultiDeviceBody;
+
+  /// No description provided for @paywall_featureCollaborationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaboration'**
+  String get paywall_featureCollaborationTitle;
+
+  /// No description provided for @paywall_featureCollaborationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Work together with your associates on the same diary.'**
+  String get paywall_featureCollaborationBody;
 
   /// No description provided for @paywall_plansTitle.
   ///

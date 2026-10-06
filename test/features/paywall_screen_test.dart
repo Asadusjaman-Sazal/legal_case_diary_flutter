@@ -1,9 +1,10 @@
 /// Tests for the paywall (Task 15 Phase 5 stub, enabled in Task 21 Phase 1).
 ///
-/// These pin what the screen promises now that a plan can be bought: it says why
-/// it opened, it prices each plan from the shared constants, each plan action is
-/// **enabled** and opens its checkout, and it can always be left with the system
-/// back gesture. They also pin the Bengali rendering with Bengali digits.
+/// These pin what the screen promises now that a plan can be bought: it prices
+/// each plan from the shared constants, each plan action is **enabled** and
+/// opens its checkout, it can always be left with the system back gesture, and
+/// it shows the "Free Plan Limit Reached" card only when the 50-case gate opened
+/// it. They also pin the Bengali rendering with Bengali digits.
 library;
 
 import 'package:flutter/material.dart';
@@ -17,11 +18,13 @@ import 'package:legal_case_diary/features/payments/presentation/paywall_screen.d
 
 void main() {
   /// Opens the paywall on top of a home route, exactly as the gate does (a
-  /// pushed route is also the only one with a back arrow to test).
+  /// pushed route is also the only one with a back arrow to test). [showLimit]
+  /// mirrors the route query — true only for the 50-case gate's entry.
   Future<void> pumpPaywall(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
     double statusBarHeight = 0,
+    bool showLimit = false,
   }) async {
     // Tall viewport: the whole screen is on one screen, so no assertion fails
     // for the wrong reason (a lazy ListView never builds an off-screen row).
@@ -43,7 +46,9 @@ void main() {
             body: ElevatedButton(
               key: const ValueKey('open-paywall'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const PaywallScreen()),
+                MaterialPageRoute<void>(
+                  builder: (_) => PaywallScreen(showLimit: showLimit),
+                ),
               ),
               child: const Text('Open'),
             ),
@@ -55,13 +60,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('says why it opened, what premium adds and what it costs', (
+  testWidgets('says why it opened, what the plans offer and what they cost', (
     tester,
   ) async {
-    await pumpPaywall(tester);
+    // The 50-case gate's entry: the reason card is shown.
+    await pumpPaywall(tester, showLimit: true);
 
     expect(find.byType(PaywallScreen), findsOneWidget);
-    expect(find.text('Premium'), findsOneWidget);
+    expect(find.text('Subscription Plans'), findsOneWidget);
     expect(find.text('Free Plan Limit Reached'), findsOneWidget);
     // The sentence uses the same constant the gate enforces.
     expect(
@@ -71,14 +77,24 @@ void main() {
     // And it tells the user the way back that needs no payment.
     expect(find.textContaining('Deleting a case frees a slot'), findsOneWidget);
 
-    expect(find.text('Premium Includes'), findsOneWidget);
-    for (final benefit in <String>[
-      'Unlimited cases',
-      'Secure encrypted cloud backup',
-      'Your diary on every device you sign in on',
-      'Firm mode for your associates',
+    expect(find.text('Subscription Plans Offer'), findsOneWidget);
+    for (final title in <String>[
+      'Disaster Recovery',
+      'Real-time Backup',
+      'Multi-device Support',
+      'Collaboration',
     ]) {
-      expect(find.text(benefit), findsOneWidget);
+      expect(find.text(title), findsOneWidget);
+    }
+    for (final body in <String>[
+      'If your phone is lost or broken, your data is always safe in the cloud. '
+          'You can login to your new device with your account to get access to '
+          'your old data.',
+      'Every change is instantly saved to the cloud.',
+      'Access your diary from multiple devices simultaneously.',
+      'Work together with your associates on the same diary.',
+    ]) {
+      expect(find.text(body), findsOneWidget);
     }
 
     expect(find.text('Plans'), findsOneWidget);
@@ -103,6 +119,21 @@ void main() {
     expect(find.text('20% Off'), findsOneWidget);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
+  });
+
+  testWidgets('hides the free-limit card unless the 50-case gate opened it', (
+    tester,
+  ) async {
+    // The Settings > Subscription > Purchase New Subscription entry (and every
+    // other non-limit entry) opens the bare route, so the reason card is absent
+    // while the rest of the screen still renders.
+    await pumpPaywall(tester);
+
+    expect(find.byType(PaywallScreen), findsOneWidget);
+    expect(find.text('Free Plan Limit Reached'), findsNothing);
+    expect(find.textContaining('up to $freeTierCaseLimit cases'), findsNothing);
+    expect(find.text('Subscription Plans Offer'), findsOneWidget);
+    expect(find.text('Plans'), findsOneWidget);
   });
 
   testWidgets('the struck-through price is red', (tester) async {
@@ -159,10 +190,19 @@ void main() {
   });
 
   testWidgets('renders in Bengali with Bengali digits', (tester) async {
-    await pumpPaywall(tester, locale: const Locale('bn'));
+    await pumpPaywall(
+      tester,
+      locale: const Locale('bn'),
+      showLimit: true,
+    );
 
-    expect(find.text('প্রিমিয়াম'), findsOneWidget);
+    expect(find.text('সাবস্ক্রিপশন প্ল্যান'), findsOneWidget);
     expect(find.textContaining('৫০টি মামলা'), findsOneWidget);
+    expect(find.text('সাবস্ক্রিপশন প্ল্যানে যা থাকে'), findsOneWidget);
+    expect(find.text('দুর্যোগে ডেটা পুনরুদ্ধার'), findsOneWidget);
+    expect(find.text('রিয়েল-টাইম ব্যাকআপ'), findsOneWidget);
+    expect(find.text('একাধিক ডিভাইসে ব্যবহার'), findsOneWidget);
+    expect(find.text('সহযোগিতা'), findsOneWidget);
     expect(find.text('১ মাস'), findsOneWidget);
     expect(find.text('৩ মাস'), findsOneWidget);
     expect(find.text('৬ মাস'), findsOneWidget);
@@ -181,7 +221,7 @@ void main() {
     expect(find.text('সাবস্ক্রাইব'), findsNWidgets(subscriptionPlans.length));
   });
 
-  test('the plan prices and benefits are the plan’s own', () {
+  test('the plan prices and features are the plan’s own', () {
     // ৳100 / ৳285 / ৳540 / ৳960, and no lifetime plan.
     expect(paywallMonthlyPrice, 100);
     expect(paywallQuarterlyPrice, 285);
@@ -212,10 +252,16 @@ void main() {
       subscriptionPlans.map((p) => p.undiscountedAmount),
       <int>[100, 300, 600, 1200],
     );
-    expect(paywallBenefits, hasLength(4));
-    // Unlimited cases, cloud backup, multi-device, firm mode — the four the
-    // plan's Subscription Model lists for premium.
-    expect(paywallBenefits, contains(PaywallBenefit.unlimitedCases));
-    expect(paywallBenefits, contains(PaywallBenefit.firmMode));
+    expect(paywallFeatures, hasLength(4));
+    // The four the offer section lists, in display order.
+    expect(
+      paywallFeatures,
+      <PaywallFeature>[
+        PaywallFeature.disasterRecovery,
+        PaywallFeature.realTimeBackup,
+        PaywallFeature.multiDevice,
+        PaywallFeature.collaboration,
+      ],
+    );
   });
 }

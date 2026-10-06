@@ -252,6 +252,38 @@ void main() {
     expect(find.text(_paywallMarker), findsOneWidget);
   });
 
+  testWidgets('the sentence is as big as the info line, and spans the card', (
+    tester,
+  ) async {
+    await pump(tester, premium: false);
+
+    final sentence = find.textContaining('A subscription plan is required');
+    expect(sentence, findsOneWidget);
+    final sentenceText = tester.widget<Text>(sentence);
+
+    // Same type size and ink as the info line above the card.
+    final infoLine = tester.widget<Text>(
+      find.text(
+        'Your cases, notes and references are kept up to date on this '
+        'device, and sent to your account when you are on Premium.',
+      ),
+    );
+    expect(sentenceText.textSpan?.style?.fontSize, infoLine.style?.fontSize);
+    expect(sentenceText.textSpan?.style?.color, infoLine.style?.color);
+
+    // And it is laid out in the column the Sync Now button fills rather than
+    // the header row's column. That one was 64px (48 + the 16 gap) narrower
+    // than the card, so a long sentence wrapped early with the space to its
+    // right left empty. The column's own width is measured, not the sentence's:
+    // a Text reports its intrinsic width once it stops wrapping.
+    expect(
+      tester
+          .getSize(find.ancestor(of: sentence, matching: find.byType(Column)).first)
+          .width,
+      tester.getSize(find.byType(FilledButton)).width,
+    );
+  });
+
   testWidgets('the sentence is Bengali, link and all, under বাংলা', (
     tester,
   ) async {

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.395 - Settings > Online Sync: the free-plan sentence is stated once, reworded, and its here link opens Subscription Plans.
+Version: 0.0.396 - Settings > Online Sync: the free-plan sentence is sized like the info line above it and now spans the card's full width.
 --------------------------------------
 
 ## Version History Log:
@@ -409,3 +409,4 @@ Version: 0.0.392 - Paywall retitled Subscription Plans with a new Subscription P
 Version: 0.0.393 - Subscription Plans screen: the Subscription Plans Offer and Plans group headings are now bold title typography (16px, weight 700) instead of the muted label style.
 Version: 0.0.394 - Fixed the cross-account leak: payment history, the admin panel's status and queue, a firm owner's roster and invites, and the device profile record now leave with the account.
 Version: 0.0.395 - Settings > Online Sync: the free-plan sentence is stated once, reworded, and its here link opens Subscription Plans.
+Version: 0.0.396 - Settings > Online Sync: the free-plan sentence is sized like the info line above it and now spans the card's full width.

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
@@ -134,6 +135,18 @@ void main() {
     expect(find.textContaining('up to $freeTierCaseLimit cases'), findsNothing);
     expect(find.text('Subscription Plans Offer'), findsOneWidget);
     expect(find.text('Plans'), findsOneWidget);
+  });
+
+  testWidgets('the group headings are bold and larger than a label', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    for (final heading in <String>['Subscription Plans Offer', 'Plans']) {
+      final style = tester.widget<Text>(find.text(heading)).style!;
+      expect(style.fontWeight, FontWeight.w700);
+      expect(style.fontSize, greaterThan(AppTypography.labelLg.fontSize!));
+    }
   });
 
   testWidgets('the struck-through price is red', (tester) async {

@@ -196,8 +196,10 @@ class _LimitCard extends StatelessWidget {
   }
 }
 
-/// Section heading, matching the Settings sub-pages' style. The ARB supplies
-/// Title Case, so nothing is uppercased at render time.
+/// Group heading for the two titled sections ("Subscription Plans Offer" and
+/// "Plans"). Bold and a step larger than the label style it used to borrow, so
+/// each heading reads as a title. The ARB supplies Title Case, so nothing is
+/// uppercased at render time.
 class _SectionHeader extends StatelessWidget {
   final String text;
 
@@ -212,9 +214,9 @@ class _SectionHeader extends StatelessWidget {
     ),
     child: Text(
       text,
-      style: AppTypography.labelLg.copyWith(
-        color: AppColors.onSurfaceVariant,
-        letterSpacing: 0.7,
+      style: AppTypography.titleMd.copyWith(
+        fontWeight: FontWeight.w700,
+        color: AppColors.onSurface,
       ),
     ),
   );

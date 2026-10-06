@@ -175,6 +175,30 @@
     </button>
   </div>
 
+  <!-- The same status card in its free-plan state: a subscription plan is what
+       unlocks sync, and the sentence's closing word is a link into Subscription
+       Plans. The sentence is the card's whole message — nothing is repeated
+       under the button. -->
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+    <div class="flex items-start justify-between gap-md">
+      <div class="flex-1">
+        <span class="inline-flex items-center gap-xs px-sm py-xs bg-success/10 rounded-md">
+          <span class="material-symbols-outlined text-[16px] text-success">workspace_premium</span>
+          <span class="font-label-md text-label-md text-success">Free Plan</span>
+        </span>
+        <p class="mt-md font-title-lg text-title-lg text-primary">Last Sync: Never</p>
+        <p class="mt-xs font-body-sm text-body-sm">A subscription plan is required to sync across devices. Purchase a plan from <a class="font-bold underline text-secondary" href="#">here</a>.</p>
+      </div>
+      <div class="w-12 h-12 rounded bg-success/10 flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-[24px] text-success">workspace_premium</span>
+      </div>
+    </div>
+    <button class="mt-lg w-full h-14 flex items-center justify-center gap-sm bg-surface-container-high text-on-surface-variant rounded font-title-md text-title-md cursor-not-allowed">
+      <span class="material-symbols-outlined text-[20px]">sync</span>
+      Sync Now
+    </button>
+  </div>
+
   <!-- Per-entity rows: local counts, each showing it is not synced in Part A. -->
   <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex items-center">
     <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">

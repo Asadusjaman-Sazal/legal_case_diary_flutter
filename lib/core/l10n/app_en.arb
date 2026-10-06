@@ -849,7 +849,9 @@
   "settingsOnlineSync_premiumActive": "Premium Sync Is Active Across Your Devices",
   "settingsOnlineSync_freePlan": "Free Plan — Your Diary Stays On This Device",
   "settingsOnlineSync_freePlanPill": "Free Plan",
-  "settingsOnlineSync_freePlanHint": "Premium is required to sync across devices.",
+  "settingsOnlineSync_freePlanHint": "A subscription plan is required to sync across devices. Purchase a plan from",
+  "settingsOnlineSync_freePlanHintLink": "here",
+  "settingsOnlineSync_freePlanHintSuffix": ".",
   "settingsOnlineSync_upToDate": "Up To Date",
   "settingsOnlineSync_syncing": "Syncing…",
   "settingsOnlineSync_paused": "Sync Paused",
@@ -882,7 +884,6 @@
       }
   },
   "settingsOnlineSync_syncFinished": "Sync Finished.",
-  "settingsOnlineSync_needPremiumToSync": "Premium Is Required To Sync Across Devices.",
   "settingsOnlineSync_needSignInToSync": "Sign In To Sync Across Devices.",
   "settingsOnlineSync_needConnectionToSync": "No Connection. Your Changes Are Saved On This Device.",
   "settingsOnlineSync_checkingPlan": "Checking Your Subscription…",

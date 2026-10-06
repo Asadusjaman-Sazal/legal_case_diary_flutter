@@ -3131,8 +3131,20 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_freePlanHint.
   ///
   /// In en, this message translates to:
-  /// **'Premium is required to sync across devices.'**
+  /// **'A subscription plan is required to sync across devices. Purchase a plan from'**
   String get settingsOnlineSync_freePlanHint;
+
+  /// No description provided for @settingsOnlineSync_freePlanHintLink.
+  ///
+  /// In en, this message translates to:
+  /// **'here'**
+  String get settingsOnlineSync_freePlanHintLink;
+
+  /// No description provided for @settingsOnlineSync_freePlanHintSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get settingsOnlineSync_freePlanHintSuffix;
 
   /// No description provided for @settingsOnlineSync_upToDate.
   ///
@@ -3199,12 +3211,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync Finished.'**
   String get settingsOnlineSync_syncFinished;
-
-  /// No description provided for @settingsOnlineSync_needPremiumToSync.
-  ///
-  /// In en, this message translates to:
-  /// **'Premium Is Required To Sync Across Devices.'**
-  String get settingsOnlineSync_needPremiumToSync;
 
   /// No description provided for @settingsOnlineSync_needSignInToSync.
   ///

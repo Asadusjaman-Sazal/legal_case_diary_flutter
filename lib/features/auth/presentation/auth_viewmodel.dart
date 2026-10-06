@@ -31,6 +31,7 @@ import '../../accounts_and_profile/data/firm_repository.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../accounts_and_profile/data/profile_picture_store.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
+import '../../admin/presentation/admin_viewmodel.dart';
 import '../../settings/data/backup_metadata_store.dart';
 import '../data/auth_repository.dart';
 import '../data/identity_adoption_service.dart';
@@ -300,19 +301,38 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   Future<void> signOut() async {
     await _abandonProvisionalOnboarding();
     await _repository.signOut();
-    // The pull-only caches belong to the account that pulled them: they are
-    // emptied rather than left behind for whoever signs in next (Revision 2.4
-    // Addendum: the profile cache is invalidated on logout and account switch).
-    await (await ref.read(profileRepositoryProvider.future)).invalidate();
+    await _forgetAccount();
     await _local.clear();
-    // The per-user caches that live in SharedPreferences are emptied too, so a
-    // next account on this device cannot read the previous holder's personal
-    // details, picture, language or backup history (Revision 2.4 Addendum: the
-    // profile and preference caches are invalidated on logout and account
-    // switch). The database wipe the branched logout runs first already clears
-    // the per-user rows; these are the values that live outside it.
-    await _clearPerUserCaches();
     state = const AsyncData(AuthState());
+  }
+
+  /// Drops everything that belongs to the account that is leaving.
+  ///
+  /// The branched logout's database wipe clears the local rows; every one of
+  /// these lives outside it, and each is read by a screen that must never show
+  /// it to the next person on this device.
+  ///
+  /// * **The pull-only caches** belong to the account that pulled them: they are
+  ///   emptied rather than left behind for whoever signs in next (Revision 2.4
+  ///   Addendum: the profile cache is invalidated on logout and account switch).
+  /// * **The per-user caches that live in SharedPreferences** — personal
+  ///   details, picture, language, backup history — are the same promise for the
+  ///   values that live outside the database (the same Addendum, for the
+  ///   preference caches).
+  /// * **The account-scoped live reads** are the part no wipe can reach: a
+  ///   server read is held in memory by a provider, so this account's payment
+  ///   history, the admin panel's status and its queue, and an owner's firm
+  ///   roster and invite codes would otherwise keep answering with the previous
+  ///   account's rows — an Admin Panel that stayed open to a non-admin, and a
+  ///   *Payment History* that was somebody else's ledger. A provider added later
+  ///   that reads the server on this account's behalf belongs in this list too.
+  Future<void> _forgetAccount() async {
+    await (await ref.read(profileRepositoryProvider.future)).invalidate();
+    await _clearPerUserCaches();
+    ref.invalidate(myPaymentSubmissionsProvider);
+    ref.invalidate(adminStatusProvider);
+    ref.invalidate(firmMembersListProvider);
+    ref.invalidate(firmInvitesListProvider);
   }
 
   /// Empties the SharedPreferences-backed per-user caches.
@@ -352,6 +372,17 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
 
   /// Records the identity, adopts offline data, and marks the gate satisfied.
   Future<void> _completeSignIn(AuthIdentity identity, {String? firmId}) async {
+    // A session can end without the Logout button — the server revokes it, or
+    // it expires, and the SDK reports that by itself — and that path empties
+    // nothing. So a sign-in **as somebody else** is the other moment the
+    // previous account has to go: the remembered account id is exactly what says
+    // this device's record and its in-memory reads belong to another person. A
+    // cold start, or the same account arriving again (a token refresh, a
+    // restored session), is not a switch and drops nothing.
+    final previousUserId = _local.cachedUserId;
+    if (previousUserId != null && previousUserId != identity.userId) {
+      await _forgetAccount();
+    }
     final blocked = await _adopt(identity, firmId: firmId);
     await _local.rememberIdentity(identity);
     await _local.markGateSatisfied();

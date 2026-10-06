@@ -62,13 +62,15 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 
 **Drawing the mockup surfaced two values the screen got wrong, and the user chose the mockup as the target.** Recorded here because rule 9 made them a conflict the moment the HTML existed: (1) the sender's number was being wrapped in the amount formatter, so a phone number rendered as `৳01712345678`; (2) the method printed the stored `bkash` rather than the brand the payer chose, even though the checkout already maps the three providers to branded labels. **Both are now fixed on the screen** — the number renders plainly (and falls back to the shared em-dash when absent, like the fields around it), and the method goes through a local `_methodLabel` mapping. The checkout keeps its own copy of that mapping; a third screen needing it is the point at which the two should become one.
 
+**The panel is an account's, not a device's (0.0.394 — reported).** `adminStatusProvider` and `adminPaymentRequestsProvider` are **live reads** held in memory by providers, not rows in the database, so neither the branched logout's wipe nor `signOut` could reach them: after user A logged out and user B signed in on the same device, **B was shown the Admin Panel even when not an admin**, with A's queue in it. They are now dropped by `AuthViewModel._forgetAccount()` whenever the account changes — on the Logout button, and on a sign-in that arrives as a different account id, which is what a revoked or expired session leads to (that path clears nothing on its own, which is why the panel also survived a session the server had ended). A non-admin therefore has no panel entry and no queue on any path. Pinned by `test/features/account_switch_leak_test.dart`; recorded in `docs/implementation_plan.md` and Task 21.
+
 ## Acceptance checklist
 
 - [x] `app_admins` has `full_name`/`email`; `full_name` is writable, the grant is not.
 - [x] `is_app_admin()`, `admin_list_payment_submissions()` and `admin_reject_payment()` exist, are admin-gated, and refuse `anon`.
 - [x] `payment_submissions` has `rejected_by`/`rejected_at`; no RLS policy was widened.
 - [x] The panel shows Pending open and Resolved closed, and a resolved row is newest-decision-first.
-- [x] A non-admin sees no payment data and no navigation entry anywhere.
+- [x] A non-admin sees no payment data and no navigation entry anywhere — **including** on a device that was used by an admin a moment earlier (0.0.394).
 - [x] Approve and reject reach the server, are followed by a reload, and a refusal is reported without clearing the row.
 - [x] Both languages render, with Bengali digits.
 - [x] `flutter analyze` clean; full `flutter test` green.

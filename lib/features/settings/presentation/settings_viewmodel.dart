@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../data/settings_repository.dart';
 
 /// AsyncNotifier for the settings feature.
@@ -61,6 +62,10 @@ class SettingsViewModel extends AsyncNotifier<UserSettings> {
   Future<void> saveSettings(UserSettings settings) async {
     final repo = await ref.read(settingsRepositoryProvider.future);
     await repo.upsertSettings(settings);
+    // The write changed the per-user preference row; ask for the premium push
+    // that carries it to the account. Detached, so the screen never waits on
+    // the network, and a no-op when signed out, free, or without a backend.
+    ref.read(pushPreferencesProvider)();
     await refresh();
   }
 

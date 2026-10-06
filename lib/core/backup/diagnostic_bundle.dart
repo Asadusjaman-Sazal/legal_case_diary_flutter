@@ -5,10 +5,11 @@
 /// sync metadata values that say when the device last talked to the server. It is
 /// **metadata only by default** — no payloads, so no case content leaves the
 /// device — and including payloads is a separate, explicit consent the screen
-/// asks for. Either way the result is written through Task 15 Phase 2's
-/// authenticated container ([encryptBackup]), never as readable JSON, and the
-/// bundle itself records its own expiry so the file cannot silently outlive its
-/// usefulness (§12.3.1).
+/// asks for. It is written through Task 15 Phase 2's authenticated container
+/// ([encryptBackup]) **when the user has turned encryption on**; with encryption
+/// off (the default) the bundle is written as readable JSON, since it is a file
+/// the user is deliberately handing over. The bundle itself records its own
+/// expiry so the file cannot silently outlive its usefulness (§12.3.1).
 library;
 
 import 'dart:convert';
@@ -137,19 +138,19 @@ class DiagnosticBundleResult {
   /// screen's confirmation text.
   final Map<String, dynamic> bundle;
 
-  /// Size of the encrypted file in bytes.
+  /// Size of the written file in bytes.
   final int byteLength;
 }
 
-/// Seals [bundle] and writes it through [write].
+/// Writes [bundle] through [write], sealed when a secret is given.
 ///
-/// The container is the same authenticated format every other export uses, so a
-/// bundle cannot be produced unencrypted; [recoverySecret] must therefore be
-/// non-empty ([encryptBackup] enforces it). [kdfIterations] is injectable so a
-/// test need not pay a full PBKDF2 stretch.
+/// A non-null [recoverySecret] seals the bundle in the same authenticated
+/// container every other export uses ([encryptBackup] enforces a non-empty one);
+/// with none — encryption off, the default — the readable JSON is written as-is.
+/// [kdfIterations] is injectable so a test need not pay a full PBKDF2 stretch.
 Future<DiagnosticBundleResult> exportDiagnosticBundle({
   required Map<String, dynamic> bundle,
-  required String recoverySecret,
+  String? recoverySecret,
   required Future<String> Function({
     required String fileName,
     required Uint8List bytes,
@@ -160,14 +161,20 @@ Future<DiagnosticBundleResult> exportDiagnosticBundle({
   int kdfIterations = kBackupKdfIterations,
 }) async {
   final stamp = generatedAt ?? DateTime.now().toUtc().millisecondsSinceEpoch;
-  final container = await encryptBackup(
-    plaintext: utf8.encode(jsonEncode(bundle)),
-    recoverySecret: recoverySecret,
-    appVersion: appVersion,
-    createdAt: stamp,
-    iterations: kdfIterations,
+  final plaintext = utf8.encode(jsonEncode(bundle));
+  final bytes = Uint8List.fromList(
+    recoverySecret == null || recoverySecret.isEmpty
+        ? plaintext
+        : utf8.encode(
+            (await encryptBackup(
+              plaintext: plaintext,
+              recoverySecret: recoverySecret,
+              appVersion: appVersion,
+              createdAt: stamp,
+              iterations: kdfIterations,
+            )).encode(),
+          ),
   );
-  final bytes = Uint8List.fromList(utf8.encode(container.encode()));
   final path = await write(
     fileName: fileName ?? defaultDiagnosticBundleFileName(stamp),
     bytes: bytes,

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.386 - The app now ignores the phone's font-size setting: text always renders at its standard size plus the in-app Font Size step, so an extreme device scale can no longer break the layout.
+Version: 0.0.388 - Encryption On Backup paragraph copy now reads in sentence case, with Title Case kept for titles, subtitles and labels, so the notes, state caption and safety-copy bodies match the mockup's own wording.
 --------------------------------------
 
 ## Version History Log:
@@ -400,3 +400,5 @@ Version: 0.0.383 - Back on the bottom-nav screens (the six case lists, Notes, Ca
 Version: 0.0.384 - Manage Associates is no longer offered to a free individual in Accounts & Profile; a firm owner keeps the entry after a lapse because the server still lets them manage their firm.
 Version: 0.0.385 - Added generated readable plan_name columns (1 Month / 3 Months / 6 Months / 1 Year) to both payment ledgers, so the raw tables read plainly without changing the plan_type key or the approval path.
 Version: 0.0.386 - The app now ignores the phone's font-size setting: text always renders at its standard size plus the in-app Font Size step, so an extreme device scale can no longer break the layout.
+Version: 0.0.387 - Backup encryption is now opt-in and off by default: an Encryption On Backup section with Enable/Disable turns it on, and until then every backup and the diagnostic bundle write readable JSON with no passphrase.
+Version: 0.0.388 - Encryption On Backup paragraph copy now reads in sentence case, with Title Case kept for titles, subtitles and labels, so the notes, state caption and safety-copy bodies match the mockup's own wording.

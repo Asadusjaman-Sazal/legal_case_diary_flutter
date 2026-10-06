@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
 import '../data/logout_flow.dart';
 
@@ -47,6 +48,9 @@ Future<bool> runBranchedLogout(
   final flow = await ref.read(logoutFlowProvider.future);
   final plan = await flow.plan();
   final freeAccount = plan.branch == LogoutBranch.freeExportThenWipe;
+  // Encryption is off by default; the copy is only asked for a passphrase when
+  // the user has turned it on in Backup & Restore.
+  final encrypt = ref.read(backupMetadataProvider).encryptBackups;
 
   // 1. Nothing on this device exists nowhere else, so the wipe needs no copy,
   //    no sync and no warning. (A free account never takes this path: every row
@@ -71,7 +75,7 @@ Future<bool> runBranchedLogout(
     if (!dialog.mounted) return false;
     if (!await _confirmUnsyncedWarning(dialog)) return false;
     if (!dialog.mounted) return false;
-    return _exportThenFinish(dialog, flow, messenger, l);
+    return _exportThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
   }
 
   // 3. Premium, with unsynced work and no way to send it: (b) offline blocks
@@ -89,7 +93,7 @@ Future<bool> runBranchedLogout(
 
   // 4. (c) Free, and the way past the offline block: always export, then wipe.
   if (!dialog.mounted) return false;
-  return _exportThenFinish(dialog, flow, messenger, l);
+  return _exportThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
 }
 
 /// The success message, shared by the branches that need no copy.
@@ -144,24 +148,28 @@ Future<bool> _confirmUnsyncedWarning(BuildContext context) async {
   return answer ?? false;
 }
 
-/// Asks for the passphrase, writes the copy, then wipes and signs out.
+/// Asks for the passphrase (only when encryption is on), writes the copy, then
+/// wipes and signs out.
 ///
-/// Cancelling here cancels the **logout**, not just the export: the wipe's
-/// precondition is a copy, so without one nothing is deleted. The passphrase is
-/// required rather than optional because the export is always encrypted
-/// (§12.3.1 forbids a plaintext export), and an empty secret is refused by the
-/// cipher itself — so an empty answer is treated as "no copy", which keeps the
-/// data and the session. Returns whether the logout actually completed.
+/// Cancelling a passphrase window cancels the **logout**, not just the export:
+/// the wipe's precondition is a copy, so without one nothing is deleted. With
+/// [encrypt] false (the default) no window appears at all — the copy is written
+/// unencrypted and the logout continues. Returns whether the logout actually
+/// completed.
 Future<bool> _exportThenFinish(
   BuildContext context,
   LogoutFlow flow,
   ScaffoldMessengerState messenger,
-  AppLocalizations l,
-) async {
-  final secret = await showBackupPassphraseDialog(context);
-  if (secret == null || secret.isEmpty) {
-    messenger.showSnackBar(SnackBar(content: Text(l.logout_exportCancelled)));
-    return false;
+  AppLocalizations l, {
+  required bool encrypt,
+}) async {
+  String? secret;
+  if (encrypt) {
+    secret = await showBackupPassphraseDialog(context);
+    if (secret == null || secret.isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(l.logout_exportCancelled)));
+      return false;
+    }
   }
 
   final result = await flow.exportThenComplete(passphrase: secret);

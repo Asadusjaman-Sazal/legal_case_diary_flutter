@@ -960,6 +960,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — একটি এনক্রিপ্টেড ফাইলে সিল করা হবে। নিজে মনে রাখতে পারবেন এমন একটি পাসফ্রেজ দিন; এটি কোথাও সংরক্ষিত হয় না।';
 
   @override
+  String get recoveryLock_saveBodyUnencrypted =>
+      'এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — প্রথমে একটি এনক্রিপ্ট-না-করা ফাইলে সংরক্ষণ করা হবে।';
+
+  @override
   String get recoveryLock_saveAction => 'নিরাপত্তা কপি সংরক্ষণ করুন';
 
   @override
@@ -1792,6 +1796,33 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার ডায়েরি ব্যাকআপ করুন বা পুনরুদ্ধার করুন';
 
   @override
+  String get settingsBackupRestore_sectionEncryption => 'ব্যাকআপে এনক্রিপশন';
+
+  @override
+  String get settingsBackupRestore_sectionEncryptionSubtitle =>
+      'পাসফ্রেজ দিয়ে ব্যাকআপ সুরক্ষিত করুন';
+
+  @override
+  String get settingsBackupRestore_encryptionWhy =>
+      'ব্যাকআপ এনক্রিপ্ট করলে ফাইলটি আপনার বেছে নেওয়া পাসফ্রেজ দিয়ে লক হয়ে যায়, তাই ফাইলটি যার হাতেই পড়ুক আপনার মামলার তথ্য পড়তে পারবে না।';
+
+  @override
+  String get settingsBackupRestore_encryptionCost =>
+      'পাসফ্রেজ কোথাও সংরক্ষিত হয় না। এটি ভুলে গেলে ওই ব্যাকআপ আর কখনও পুনরুদ্ধার করা যাবে না, তাই এটি নিরাপদে রাখুন।';
+
+  @override
+  String get settingsBackupRestore_encryptionStateOn => 'এনক্রিপশন এখন চালু';
+
+  @override
+  String get settingsBackupRestore_encryptionStateOff => 'এনক্রিপশন এখন বন্ধ';
+
+  @override
+  String get settingsBackupRestore_encryptionEnable => 'চালু করুন';
+
+  @override
+  String get settingsBackupRestore_encryptionDisable => 'বন্ধ করুন';
+
+  @override
   String get settingsBackupRestore_sectionAutomaticBackup =>
       'স্বয়ংক্রিয় ব্যাকআপ';
 
@@ -1813,7 +1844,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_encryptionNote =>
-      'ব্যাকআপ এনক্রিপ্ট করা হয় এবং আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।';
+      'ব্যাকআপ আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পাসফ্রেজ দিয়ে লক করতে ব্যাকআপে এনক্রিপশন চালু করুন। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।';
 
   @override
   String get settingsBackupRestore_offlineNote =>

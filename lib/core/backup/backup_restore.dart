@@ -23,9 +23,10 @@ enum BackupFileKind {
   /// The Phase 2 authenticated-encrypted container (this build's format).
   encrypted,
 
-  /// A plaintext JSON envelope written by a build before encryption existed
-  /// (0.0.227 and earlier). Still restorable — it is a real user's only copy —
-  /// but the caller should say that it was never encrypted.
+  /// A plaintext JSON envelope: either written by a build before encryption
+  /// existed (0.0.227 and earlier), or written with encryption turned off in
+  /// Backup & Restore. Still restorable — it is a real user's only copy — but
+  /// the caller should say that it was never encrypted.
   legacyPlaintext,
 
   /// An Excel workbook from `core/backup/excel_backup.dart`: the four tables a
@@ -45,6 +46,23 @@ bool looksLikeSpreadsheet(List<int> bytes) =>
     bytes[1] == 0x4B &&
     (bytes[2] == 0x03 || bytes[2] == 0x05 || bytes[2] == 0x07) &&
     (bytes[3] == 0x04 || bytes[3] == 0x06 || bytes[3] == 0x08);
+
+/// Whether [bytes] are the app's passphrase-encrypted container.
+///
+/// The restore flow asks for a passphrase only when this is true: an encrypted
+/// container needs one, while a plaintext envelope — a backup written with
+/// encryption off, or one from before encryption existed — needs none. Anything
+/// that is not readable JSON, or that carries no `format` marker, answers
+/// false here; [openBackupFile] then reports the real refusal (`invalidFile`),
+/// so a valid file is never misreported as encrypted.
+bool looksLikeEncryptedBackup(List<int> bytes) {
+  try {
+    final decoded = jsonDecode(utf8.decode(bytes));
+    return decoded is Map && decoded['format'] == kEncryptedBackupFormat;
+  } on FormatException {
+    return false;
+  }
+}
 
 /// Why a backup could not be opened or imported.
 ///

@@ -28,6 +28,7 @@ import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_gate.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/presentation/session_state.dart';
+import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 
 import 'auth_test_support.dart';
@@ -364,6 +365,8 @@ void main() {
       // The screen behind it is untouched and still on display.
       expect(find.text('The Diary'), findsOneWidget);
 
+      // Encryption on, so the free account's copy asks for a passphrase below.
+      await harness.prefs.setBool(backupEncryptionEnabledKey, true);
       await tester.tap(find.text(l.auth_sessionExpiredAction));
       await tester.pumpAndSettle();
 

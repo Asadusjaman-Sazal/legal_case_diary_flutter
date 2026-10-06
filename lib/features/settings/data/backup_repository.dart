@@ -26,11 +26,13 @@
 /// identity/token material held in secure storage) are never part of the
 /// database, so they are excluded by construction and recreated locally.
 ///
-/// Every export is **encrypted** (Task 15 Phase 2, Plan §12.3.1): the envelope's
-/// bytes are sealed into the authenticated container from
-/// `core/backup/backup_cipher.dart` with a key derived from the caller's
-/// recovery secret, so a plaintext snapshot never reaches shared storage. The
-/// secret is passed in per call and never stored, logged or recorded.
+/// Every export is sealed **when the user has turned encryption on** (Task 15
+/// Phase 2, Plan §12.3.1): the envelope's bytes are sealed into the
+/// authenticated container from `core/backup/backup_cipher.dart` with a key
+/// derived from the caller's recovery secret. Encryption is **off by default**,
+/// so with no secret the envelope is written as readable JSON; the caller
+/// decides per call from the stored `encryptBackups` preference. A non-null
+/// secret is used for one export only and is never stored, logged or recorded.
 library;
 
 import 'dart:convert';
@@ -195,21 +197,22 @@ class BackupRepository {
     );
   }
 
-  /// Runs one export: snapshot → serialize → encrypt → write through [sink] →
+  /// Runs one export: snapshot → serialize → (seal) → write through [sink] →
   /// record.
   ///
-  /// This is the single export path every caller shares, and it always writes
-  /// the authenticated-encrypted container (§12.3.1 forbids plaintext exports),
-  /// so the recovery secret is required rather than optional. The archive's
-  /// path, checksum and completion state are recorded only **after** the sink
-  /// reports success, so a failed write can never leave a "complete" archive
-  /// behind.
+  /// This is the single export path every caller shares. A non-null
+  /// [recoverySecret] seals the file in the authenticated-encrypted container;
+  /// with none, the versioned JSON envelope is written as-is, which is what
+  /// "encryption off" means — and it is the default until the user turns
+  /// encryption on in Backup & Restore. The archive's path, checksum and
+  /// completion state are recorded only **after** the sink reports success, so a
+  /// failed write can never leave a "complete" archive behind.
   ///
   /// [kdfIterations] is injectable so tests need not pay a full PBKDF2 stretch.
   Future<BackupExportResult> exportSnapshot({
     required BackupArchiveSink sink,
     required String appVersion,
-    required String recoverySecret,
+    String? recoverySecret,
     int? exportedAt,
     String? fileName,
     int kdfIterations = kBackupKdfIterations,
@@ -219,14 +222,22 @@ class BackupRepository {
       appVersion: appVersion,
       exportedAt: stamp,
     );
-    final container = await encryptBackup(
-      plaintext: utf8.encode(envelope.encode()),
-      recoverySecret: recoverySecret,
-      appVersion: appVersion,
-      createdAt: stamp,
-      iterations: kdfIterations,
+    final plaintext = utf8.encode(envelope.encode());
+    // No secret ⇒ readable JSON. A secret ⇒ the sealed container. Both are
+    // written through the same sink, so the restore path opens either.
+    final bytes = Uint8List.fromList(
+      recoverySecret == null || recoverySecret.isEmpty
+          ? plaintext
+          : utf8.encode(
+              (await encryptBackup(
+                plaintext: plaintext,
+                recoverySecret: recoverySecret,
+                appVersion: appVersion,
+                createdAt: stamp,
+                iterations: kdfIterations,
+              )).encode(),
+            ),
     );
-    final bytes = Uint8List.fromList(utf8.encode(container.encode()));
     final path = await sink.write(
       fileName: fileName ?? defaultBackupFileName(stamp),
       bytes: bytes,

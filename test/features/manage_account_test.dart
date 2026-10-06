@@ -29,6 +29,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/presentation/mana
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
+import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
@@ -228,6 +229,8 @@ void main() {
       ),
     );
     await harness.prefs.setString(authUserIdKey, 'user-1');
+    // Encryption on, so the export asks for a passphrase as this test expects.
+    await harness.prefs.setBool(backupEncryptionEnabledKey, true);
 
     await tapVisible(tester, find.text(l.settingsManageAccount_logout));
     await completeLogoutPassphrase(tester, l, 'correct-horse');
@@ -266,6 +269,7 @@ void main() {
       ),
     );
 
+    await harness.prefs.setBool(backupEncryptionEnabledKey, true);
     await tapVisible(tester, find.text(l.settingsManageAccount_logout));
     await tester.tap(find.text(l.sharedActions_cancel));
     await tester.pumpAndSettle();

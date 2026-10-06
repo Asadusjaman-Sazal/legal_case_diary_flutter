@@ -1,10 +1,15 @@
-/// Last-backup metadata and the automatic-backup schedule (Task 15 Phase 4).
+/// Last-backup metadata, the automatic-backup schedule, and the encryption
+/// preference (Task 15 Phase 4).
 ///
 /// The Backup & Restore screen shows when and where the last successful backup
-/// went, and remembers the schedule the user picked. Both live in
+/// went, remembers the schedule the user picked, and remembers whether backups
+/// should be encrypted ([encryptBackups], off until the user turns it on). All
+/// three live in
 /// [SharedPreferences] (the task's requirement, and the keys Phase 6's monthly
 /// nudge reads), not in the database — the database is exactly what a restore
-/// replaces, so its own record cannot be the thing the screen reports on.
+/// replaces, so its own record cannot be the thing the screen reports on. The
+/// encryption flag is a per-user preference, so it too stays out of the database
+/// and is consulted by every backup/restore path.
 ///
 /// Task 12 left the schedule choice in memory and handed its persistence to
 /// Task 15. Choosing a schedule only *stores* the interval here: nothing runs
@@ -35,6 +40,14 @@ const String backupScheduleDaysKey = 'backup_schedule_days';
 /// as asked (the same rule the OEM setup guide follows).
 const String lastBackupNudgeAtKey = 'last_backup_nudge_at';
 
+/// Preference key holding whether backups are encrypted with a passphrase.
+///
+/// **Off by default**, so a fresh install writes plain backups and asks for no
+/// passphrase until the user turns encryption on in Settings > Backup & Restore.
+/// A per-user preference (it guards this user's own files), so it lives with the
+/// rest of the backup preferences rather than in the database a restore replaces.
+const String backupEncryptionEnabledKey = 'backup_encryption_enabled';
+
 /// Interval the mockup shows selected on a fresh install ("Everyday").
 const int defaultBackupScheduleDays = 1;
 
@@ -49,6 +62,9 @@ class BackupMetadata {
   /// Chosen automatic-backup interval in days; 0 means "Off".
   final int scheduleDays;
 
+  /// Whether a backup is sealed with a passphrase. False until the user opts in.
+  final bool encryptBackups;
+
   /// Epoch-ms of the last monthly backup nudge, or null when never shown.
   final int? lastNudgedAt;
 
@@ -57,6 +73,7 @@ class BackupMetadata {
     this.lastSuccessfulAt,
     this.lastPath,
     this.scheduleDays = defaultBackupScheduleDays,
+    this.encryptBackups = false,
     this.lastNudgedAt,
   });
 
@@ -76,6 +93,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastPath: _prefs.getString(lastBackupPathKey),
       scheduleDays:
           _prefs.getInt(backupScheduleDaysKey) ?? defaultBackupScheduleDays,
+      encryptBackups: _prefs.getBool(backupEncryptionEnabledKey) ?? false,
       lastNudgedAt: _prefs.getInt(lastBackupNudgeAtKey),
     );
   }
@@ -91,6 +109,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastSuccessfulAt: at,
       lastPath: path,
       scheduleDays: state.scheduleDays,
+      encryptBackups: state.encryptBackups,
       lastNudgedAt: state.lastNudgedAt,
     );
   }
@@ -103,6 +122,23 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastSuccessfulAt: state.lastSuccessfulAt,
       lastPath: state.lastPath,
       scheduleDays: days,
+      encryptBackups: state.encryptBackups,
+      lastNudgedAt: state.lastNudgedAt,
+    );
+  }
+
+  /// Turns passphrase encryption of backups on or off.
+  ///
+  /// Only this flag is stored: the passphrase itself is still asked fresh on
+  /// every backup and restore and is never written down.
+  Future<void> setEncryptBackups(bool enabled) async {
+    if (enabled == state.encryptBackups) return;
+    await _prefs.setBool(backupEncryptionEnabledKey, enabled);
+    state = BackupMetadata(
+      lastSuccessfulAt: state.lastSuccessfulAt,
+      lastPath: state.lastPath,
+      scheduleDays: state.scheduleDays,
+      encryptBackups: enabled,
       lastNudgedAt: state.lastNudgedAt,
     );
   }
@@ -119,6 +155,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
       lastSuccessfulAt: state.lastSuccessfulAt,
       lastPath: state.lastPath,
       scheduleDays: state.scheduleDays,
+      encryptBackups: state.encryptBackups,
       lastNudgedAt: at,
     );
   }
@@ -129,6 +166,7 @@ class BackupMetadataNotifier extends Notifier<BackupMetadata> {
     await _prefs.remove(lastSuccessfulBackupAtKey);
     await _prefs.remove(lastBackupPathKey);
     await _prefs.remove(backupScheduleDaysKey);
+    await _prefs.remove(backupEncryptionEnabledKey);
     await _prefs.remove(lastBackupNudgeAtKey);
     state = const BackupMetadata();
   }

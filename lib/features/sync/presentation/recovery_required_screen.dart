@@ -14,7 +14,8 @@
 /// The passphrase fields are inline rather than the Backup screen's shared
 /// dialog, because this widget sits *above* the app's navigator and so has none
 /// to show a dialog on. The labels are the shared ones, so the copy stays the
-/// same.
+/// same. The fields appear **only when encryption is on**: with it off (the
+/// default) the safety copy is written unencrypted and nothing is asked for.
 library;
 
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../../sync/recovery_flow.dart';
 import '../../../sync/sync_metadata_dao.dart';
+import '../../settings/data/backup_metadata_store.dart';
 
 /// How many days this device has been away, for the warning's wording.
 final _offlineDaysProvider = FutureProvider<int>((ref) async {
@@ -91,6 +93,9 @@ class _RecoveryRequiredScreenState
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final days = ref.watch(_offlineDaysProvider).value ?? 0;
+    // Encryption is off by default, so the copy needs no passphrase until the
+    // user turns it on in Backup & Restore.
+    final encrypt = ref.watch(backupMetadataProvider).encryptBackups;
     final copy = ref.watch(recoverySafetyCopyProvider).value;
     final path = copy?.path;
     final saved = copy?.complete ?? false;
@@ -130,7 +135,7 @@ class _RecoveryRequiredScreenState
                 if (saved && path != null)
                   _savedCopy(l, path, copy?.checksum)
                 else
-                  _safetyCopyForm(l),
+                  _safetyCopyForm(l, encrypt),
                 if (_error != null) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Text(
@@ -186,30 +191,40 @@ class _RecoveryRequiredScreenState
       );
 
   /// The one-time step that has to succeed before anything may be erased.
-  Widget _safetyCopyForm(AppLocalizations l) => Column(
+  ///
+  /// [encrypt] controls whether a passphrase is asked for: with it off the copy
+  /// is written unencrypted and the note says so.
+  Widget _safetyCopyForm(AppLocalizations l, bool encrypt) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(l.recoveryLock_saveTitle, style: AppTypography.titleMd),
       const SizedBox(height: AppSpacing.xs),
-      Text(l.recoveryLock_saveBody, style: AppTypography.bodySm),
-      const SizedBox(height: AppSpacing.md),
-      TextField(
-        key: const ValueKey('recovery-lock-passphrase'),
-        controller: _passphrase,
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: l.settingsBackupRestore_passphraseLabel,
-        ),
+      Text(
+        encrypt
+            ? l.recoveryLock_saveBody
+            : l.recoveryLock_saveBodyUnencrypted,
+        style: AppTypography.bodySm,
       ),
-      const SizedBox(height: AppSpacing.sm),
-      TextField(
-        key: const ValueKey('recovery-lock-passphrase-confirm'),
-        controller: _confirm,
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: l.settingsBackupRestore_passphraseConfirmLabel,
+      if (encrypt) ...[
+        const SizedBox(height: AppSpacing.md),
+        TextField(
+          key: const ValueKey('recovery-lock-passphrase'),
+          controller: _passphrase,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: l.settingsBackupRestore_passphraseLabel,
+          ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.sm),
+        TextField(
+          key: const ValueKey('recovery-lock-passphrase-confirm'),
+          controller: _confirm,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: l.settingsBackupRestore_passphraseConfirmLabel,
+          ),
+        ),
+      ],
       const SizedBox(height: AppSpacing.md),
       FilledButton(
         key: const ValueKey('recovery-lock-save'),
@@ -270,17 +285,23 @@ class _RecoveryRequiredScreenState
     );
   }
 
-  /// Writes the automatic safety copy with the passphrase the user chose.
+  /// Writes the automatic safety copy, with the chosen passphrase only when
+  /// encryption is on.
   Future<void> _save() async {
     final l = AppLocalizations.of(context);
-    final passphrase = _passphrase.text;
-    if (passphrase.isEmpty) {
-      setState(() => _error = l.settingsBackupRestore_passphraseRequired);
-      return;
-    }
-    if (passphrase != _confirm.text) {
-      setState(() => _error = l.settingsBackupRestore_passphraseMismatch);
-      return;
+    final String? passphrase;
+    if (ref.read(backupMetadataProvider).encryptBackups) {
+      passphrase = _passphrase.text;
+      if (passphrase.isEmpty) {
+        setState(() => _error = l.settingsBackupRestore_passphraseRequired);
+        return;
+      }
+      if (passphrase != _confirm.text) {
+        setState(() => _error = l.settingsBackupRestore_passphraseMismatch);
+        return;
+      }
+    } else {
+      passphrase = null;
     }
     setState(() {
       _busy = true;

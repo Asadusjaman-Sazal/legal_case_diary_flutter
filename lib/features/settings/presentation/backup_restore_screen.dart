@@ -101,7 +101,7 @@ List<_BackupInterval> _intervals(AppLocalizations l) => [
 ///
 /// Backup Status is deliberately not a member: it is a report the user reads at a
 /// glance, not a set of options, so it is always on screen and never collapses.
-enum _Section { backup, automaticBackup, excelFormat }
+enum _Section { backup, encryption, automaticBackup, excelFormat }
 
 /// Backup & Restore screen per `settings_backupRestore`.
 class BackupRestoreScreen extends ConsumerStatefulWidget {
@@ -139,14 +139,21 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// nothing, because the archive is only recorded once the sink reported
   /// success.
   ///
-  /// Returns the export receipt, or null when nothing was written — a
-  /// cancelled dialog or a failure that has already been reported — so the
-  /// caller stops instead of offering the next step for a file that is not
-  /// there.
+  /// A passphrase is asked for **only when encryption is on** (off by default):
+  /// with it off the backup is written as readable JSON and needs nothing from
+  /// the user. Returns the export receipt, or null when nothing was written — a
+  /// cancelled passphrase window or a failure that has already been reported —
+  /// so the caller stops instead of offering the next step for a file that is
+  /// not there.
   Future<BackupExportResult?> _exportBackup(BackupArchiveSink sink) async {
     final l = AppLocalizations.of(context);
-    final secret = await showBackupPassphraseDialog(context);
-    if (secret == null || !mounted) return null;
+    final String? secret;
+    if (ref.read(backupMetadataProvider).encryptBackups) {
+      secret = await showBackupPassphraseDialog(context);
+      if (secret == null || !mounted) return null;
+    } else {
+      secret = null;
+    }
 
     setState(() => _busy = true);
     try {
@@ -329,12 +336,15 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     final String secret;
     if (isSpreadsheet) {
       secret = '';
-    } else {
-      // Asked before opening: a legacy plaintext backup opens with an empty
-      // passphrase, and an encrypted one reports a wrong passphrase.
+    } else if (looksLikeEncryptedBackup(picked.bytes)) {
+      // Only an encrypted container needs a passphrase. A plaintext backup —
+      // written with encryption off, or from before encryption existed — opens
+      // without one.
       final entered = await showRecoveryPassphraseDialog(context);
       if (entered == null || !mounted) return;
       secret = entered;
+    } else {
+      secret = '';
     }
 
     setState(() => _busy = true);
@@ -498,7 +508,30 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // Section 2: automatic-backup schedule.
+          // Section 2: passphrase encryption of backups. Off until enabled.
+          _CollapsibleSection(
+            id: 'encryption',
+            icon: Icons.lock_outline,
+            title: l.settingsBackupRestore_sectionEncryption,
+            subtitle: l.settingsBackupRestore_sectionEncryptionSubtitle,
+            open: _openSection == _Section.encryption,
+            onToggle: () => _toggleSection(_Section.encryption),
+            child: _EncryptionCard(
+              enabled: metadata.encryptBackups,
+              onEnable: _busy
+                  ? null
+                  : () => ref
+                        .read(backupMetadataProvider.notifier)
+                        .setEncryptBackups(true),
+              onDisable: _busy
+                  ? null
+                  : () => ref
+                        .read(backupMetadataProvider.notifier)
+                        .setEncryptBackups(false),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // Section 3: automatic-backup schedule.
           _CollapsibleSection(
             id: 'automatic',
             icon: Icons.schedule,
@@ -514,7 +547,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // Section 3: the workbook format a restore expects.
+          // Section 4: the workbook format a restore expects.
           _CollapsibleSection(
             id: 'excel',
             icon: Icons.grid_on,
@@ -527,7 +560,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          // Section 4: last successful backup. Always open — the mockup's plain
+          // Section 5: last successful backup. Always open — the mockup's plain
           // heading, never a button.
           _SectionHeading(l.settingsBackupRestore_sectionStatus),
           const SizedBox(height: AppSpacing.sm),
@@ -728,6 +761,10 @@ class _ActionButton extends StatelessWidget {
 }
 
 /// The mockup's note under the action card.
+///
+/// These lines are paragraphs rather than labels, so their strings are written in
+/// **sentence case** in the ARB — Title Case is kept for headings, button labels
+/// and menu entries only.
 class _BackupNote extends StatelessWidget {
   const _BackupNote();
 
@@ -761,6 +798,131 @@ class _BackupNote extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The Encryption on Backup section: why to turn it on, what it costs, and the
+/// Enable / Disable pair that changes the preference.
+///
+/// Encryption is **off until the user enables it**, so the copy states both
+/// halves plainly — the protection a passphrase gives and the risk of forgetting
+/// it — and the two choices sit on one line in the section's own button
+/// geometry. The current state is named in a short caption and the selected
+/// button is filled while the other is outlined, so which way the switch is set
+/// reads at a glance.
+///
+/// The why / cost / state copy is paragraph text, so the ARB holds it in sentence
+/// case; only the section's own heading, subtitle and button labels are Title Case.
+class _EncryptionCard extends StatelessWidget {
+  /// Whether encryption is currently on.
+  final bool enabled;
+
+  /// Turns encryption on; null while another action is running.
+  final VoidCallback? onEnable;
+
+  /// Turns encryption off; null while another action is running.
+  final VoidCallback? onDisable;
+
+  const _EncryptionCard({
+    required this.enabled,
+    required this.onEnable,
+    required this.onDisable,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final hint = AppTypography.bodySm.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
+    return Container(
+      decoration: _cardDecoration(color: AppColors.surfaceBright),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.settingsBackupRestore_encryptionWhy, style: AppTypography.bodyMd),
+          const SizedBox(height: AppSpacing.sm),
+          Text(l.settingsBackupRestore_encryptionCost, style: hint),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            enabled
+                ? l.settingsBackupRestore_encryptionStateOn
+                : l.settingsBackupRestore_encryptionStateOff,
+            key: const ValueKey('backup-encryption-state'),
+            style: AppTypography.bodySm.copyWith(color: AppColors.primary),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: _ChoiceButton(
+                  key: const ValueKey('backup-encryption-enable'),
+                  label: l.settingsBackupRestore_encryptionEnable,
+                  selected: enabled,
+                  onPressed: onEnable,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _ChoiceButton(
+                  key: const ValueKey('backup-encryption-disable'),
+                  label: l.settingsBackupRestore_encryptionDisable,
+                  selected: !enabled,
+                  onPressed: onDisable,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One half of the Enable / Disable pair.
+///
+/// Filled in the section's primary style when it is the current choice, outlined
+/// otherwise, with the same height and corner radius [settingsPrimaryButtonHeight]
+/// and [_ActionButton] use, so the pair reads as part of the same screen.
+class _ChoiceButton extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback? onPressed;
+
+  const _ChoiceButton({
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    );
+    final style = ButtonStyle(
+      minimumSize: const WidgetStatePropertyAll(
+        Size.fromHeight(settingsPrimaryButtonHeight),
+      ),
+      shape: WidgetStatePropertyAll(shape),
+      textStyle: const WidgetStatePropertyAll(AppTypography.labelLg),
+    );
+    return selected
+        ? FilledButton(
+            onPressed: onPressed,
+            style: style.copyWith(
+              backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
+              foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+            ),
+            child: Text(label),
+          )
+        : OutlinedButton(
+            onPressed: onPressed,
+            style: style,
+            child: Text(label),
+          );
   }
 }
 

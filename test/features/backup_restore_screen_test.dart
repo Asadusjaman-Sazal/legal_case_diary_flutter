@@ -256,6 +256,11 @@ void main() {
   );
 
 
+  /// Turns passphrase encryption on in the stored preferences, exactly as the
+  /// Encryption On Backup section's Enable button does.
+  Future<void> enableEncryption() =>
+      prefs.setBool(backupEncryptionEnabledKey, true);
+
   /// A workbook file, written by the real export engine for [db]'s contents.
   Future<PickedBackupFile> excelBackup({String name = 'diary.xlsx'}) async {
     final bytes = await BackupRepository(db).buildExcelWorkbook(
@@ -307,6 +312,7 @@ void main() {
     // The screen title and the section label both read the same words.
     expect(find.text('Backup & Restore'), findsWidgets);
     // Every section heading is on screen whatever is open...
+    expect(find.text('Encryption On Backup'), findsOneWidget);
     expect(find.text('Automatic Backup'), findsOneWidget);
     expect(find.text('Excel Backup Format'), findsOneWidget);
     expect(find.text('Backup Status'), findsOneWidget);
@@ -319,7 +325,7 @@ void main() {
     expect(find.text('Restore from Backup'), findsNothing);
     // Each collapsible heading is the app's standard sub-menu button — the very
     // control the Account & Profile menu uses — with an expand chevron.
-    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
 
     // Nothing inside any section is built while they are closed.
     expect(find.text('Everyday'), findsNothing);
@@ -578,9 +584,69 @@ void main() {
     expect(prefs.getInt(backupScheduleDaysKey), 7);
   });
 
+  testWidgets('the Encryption On Backup section explains and switches the setting', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    // The setting is off to begin with, and the copy names both sides of the
+    // trade-off: what the passphrase protects, and the cost of forgetting it.
+    await openSection(tester, 'encryption');
+    // Paragraph copy reads in sentence case; only headings and labels are
+    // Title Case.
+    expect(find.text('Encryption is currently off'), findsOneWidget);
+    expect(
+      find.textContaining('anyone who gets it cannot read your case data'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('If you forget it, that backup can never be restored'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('backup-encryption-enable')), findsOneWidget);
+    expect(find.byKey(const ValueKey('backup-encryption-disable')), findsOneWidget);
+
+    // Enable stores it; Disable puts it back.
+    await tester.tap(find.byKey(const ValueKey('backup-encryption-enable')));
+    await tester.pumpAndSettle();
+    expect(prefs.getBool(backupEncryptionEnabledKey), isTrue);
+    expect(find.text('Encryption is currently on'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('backup-encryption-disable')));
+    await tester.pumpAndSettle();
+    expect(prefs.getBool(backupEncryptionEnabledKey), isFalse);
+    expect(find.text('Encryption is currently off'), findsOneWidget);
+  });
+
+  testWidgets('with encryption off a backup is written unencrypted, asking nothing', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Backup to Local Storage');
+
+    // No passphrase window: encryption is off by default.
+    expect(find.text('Protect this backup'), findsNothing);
+    final bytes = gateway.savedBytes;
+    expect(bytes, isNotNull);
+    expect(gateway.savedName, endsWith('.lcbak'));
+    // The file is the readable envelope, not the sealed container.
+    final decoded = jsonDecode(utf8.decode(bytes!)) as Map<String, dynamic>;
+    expect(decoded['format'], isNot(kEncryptedBackupFormat));
+    expect(decoded, contains('schema_version'));
+    expect(
+      (decoded['payload'] as Map<String, dynamic>),
+      contains(kBackupTablesSection),
+    );
+    // And it is recorded exactly like an encrypted one.
+    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(find.textContaining('Backup saved to'), findsOneWidget);
+  });
+
   testWidgets('backup asks for the passphrase twice, then saves the file', (
     tester,
   ) async {
+    await enableEncryption();
     await pumpScreen(tester);
 
     await tapAction(tester, 'Backup to Local Storage');
@@ -644,6 +710,7 @@ void main() {
   });
 
   testWidgets('a cancelled passphrase dialog exports nothing', (tester) async {
+    await enableEncryption();
     await pumpScreen(tester);
 
     await tapAction(tester, 'Backup to Local Storage');
@@ -656,6 +723,7 @@ void main() {
   });
 
   testWidgets('a dismissed save dialog records nothing', (tester) async {
+    await enableEncryption();
     gateway.cancelSave = true;
     await pumpScreen(tester);
 
@@ -677,6 +745,7 @@ void main() {
   testWidgets('a failed export is reported and records nothing', (
     tester,
   ) async {
+    await enableEncryption();
     gateway.saveError = StateError('disk full');
     await pumpScreen(tester);
 
@@ -699,12 +768,8 @@ void main() {
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
-    // A legacy plaintext file opens without a passphrase.
-    await enterPassphrase(
-      tester,
-      passphrase: '',
-      confirmLabel: 'Open backup',
-    );
+    // A plaintext file opens without a passphrase window.
+    expect(find.text('Open this backup'), findsNothing);
 
     expect(find.text('Replace all current data?'), findsNothing);
     expect(find.text('Restore complete'), findsOneWidget);
@@ -729,11 +794,6 @@ void main() {
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
-    await enterPassphrase(
-      tester,
-      passphrase: '',
-      confirmLabel: 'Open backup',
-    );
 
     // The window shows what the file holds before anything is replaced.
     expect(find.text('Replace all current data?'), findsOneWidget);
@@ -759,11 +819,6 @@ void main() {
 
     // Choosing Replace does the restore and reports it.
     await tapAction(tester, 'Restore from Backup');
-    await enterPassphrase(
-      tester,
-      passphrase: '',
-      confirmLabel: 'Open backup',
-    );
     await tester.tap(find.text('Replace'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('OK'));
@@ -816,11 +871,6 @@ void main() {
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
-    await enterPassphrase(
-      tester,
-      passphrase: '',
-      confirmLabel: 'Open backup',
-    );
 
     expect(
       find.text('That file is not a backup made by this app.'),
@@ -841,6 +891,7 @@ void main() {
   testWidgets('the Drive action makes a local backup, then offers to send it', (
     tester,
   ) async {
+    await enableEncryption();
     await pumpScreen(tester);
 
     // It asks for the passphrase exactly like the local action, because it is
@@ -889,6 +940,7 @@ void main() {
   testWidgets('a saved file that really exists is shared as it is', (
     tester,
   ) async {
+    await enableEncryption();
     gateway
       ..savePath =
           '${tempDir.path}${Platform.pathSeparator}legal-case-diary.lcbak'
@@ -914,6 +966,7 @@ void main() {
   testWidgets('declining the Drive offer keeps the backup and shares nothing', (
     tester,
   ) async {
+    await enableEncryption();
     await pumpScreen(tester);
 
     await tapAction(tester, 'Backup to Google Drive');
@@ -937,6 +990,7 @@ void main() {
   testWidgets('a cancelled passphrase window writes and shares nothing', (
     tester,
   ) async {
+    await enableEncryption();
     await pumpScreen(tester);
 
     await tapAction(tester, 'Backup to Google Drive');
@@ -949,6 +1003,7 @@ void main() {
   });
 
   testWidgets('a share sheet that cannot open is reported', (tester) async {
+    await enableEncryption();
     shareService.outcome = AppShareOutcome.failed;
     await pumpScreen(tester);
 
@@ -968,6 +1023,7 @@ void main() {
   });
 
   testWidgets('a dismissed save dialog offers no share', (tester) async {
+    await enableEncryption();
     gateway.cancelSave = true;
     await pumpScreen(tester);
 

@@ -956,7 +956,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryLock_saveBody =>
-      'Everything On This Device — Your Cases, Notes And Unsynced Changes — Is Sealed Into One Encrypted File First. Set A Passphrase You Will Remember; It Is Not Stored Anywhere.';
+      'Everything on this device — your cases, notes and unsynced changes — is sealed into one encrypted file first. Set a passphrase you will remember; it is not stored anywhere.';
+
+  @override
+  String get recoveryLock_saveBodyUnencrypted =>
+      'Everything on this device — your cases, notes and unsynced changes — is saved into one unencrypted file first.';
 
   @override
   String get recoveryLock_saveAction => 'Save The Safety Copy';
@@ -1788,6 +1792,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'Back Up Or Restore Your Diary';
 
   @override
+  String get settingsBackupRestore_sectionEncryption => 'Encryption On Backup';
+
+  @override
+  String get settingsBackupRestore_sectionEncryptionSubtitle =>
+      'Protect Backups With A Passphrase';
+
+  @override
+  String get settingsBackupRestore_encryptionWhy =>
+      'Encrypting a backup locks the file behind a passphrase you choose, so anyone who gets it cannot read your case data.';
+
+  @override
+  String get settingsBackupRestore_encryptionCost =>
+      'The passphrase is never stored. If you forget it, that backup can never be restored, so keep it somewhere safe.';
+
+  @override
+  String get settingsBackupRestore_encryptionStateOn =>
+      'Encryption is currently on';
+
+  @override
+  String get settingsBackupRestore_encryptionStateOff =>
+      'Encryption is currently off';
+
+  @override
+  String get settingsBackupRestore_encryptionEnable => 'Enable';
+
+  @override
+  String get settingsBackupRestore_encryptionDisable => 'Disable';
+
+  @override
   String get settingsBackupRestore_sectionAutomaticBackup => 'Automatic Backup';
 
   @override
@@ -1808,7 +1841,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_encryptionNote =>
-      'Backups are encrypted and stored in your local storage or cloud provider. Restoration will overwrite current data.';
+      'Backups are saved to your local storage or cloud provider. Turn on Encryption On Backup to lock them behind a passphrase. Restoration will overwrite current data.';
 
   @override
   String get settingsBackupRestore_offlineNote =>

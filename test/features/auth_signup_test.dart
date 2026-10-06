@@ -378,13 +378,24 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the two legal links open the documents the app ships', (
+  testWidgets('the Terms of Service link opens the document the app ships', (
     tester,
   ) async {
     await pumpSignup(tester);
 
     await tapVisible(tester, find.text(l.auth_termsOfService));
     expect(find.text(authTermsMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Privacy Policy link opens the document the app ships', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+
+    await tapVisible(tester, find.text(l.auth_privacyPolicy));
+    expect(find.text(authPrivacyMarker), findsOneWidget);
 
     await unmountApp(tester);
   });

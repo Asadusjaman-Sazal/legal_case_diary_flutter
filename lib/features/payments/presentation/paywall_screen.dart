@@ -5,11 +5,15 @@
 /// that plan — the TrxID entry and submission live in `checkout_screen.dart`.
 ///
 /// * it says **why** it opened — the 50-case free limit — and what the user can
-///   still do about it, instead of blocking a save with no explanation;
-/// * it lists what premium includes and what each plan costs, from the plan's
-///   pricing (৳100 for one month, ৳285 for three, ৳540 for six and ৳960 for a
-///   year — there is no lifetime plan), showing the full per-month price struck
-///   through and the saving beside any plan that is discounted;
+///   still do about it, instead of blocking a save with no explanation. That
+///   card shows **only** on the gate's entry: the 50-case limit opens
+///   [AppRoutes.paywallFromCaseLimit], while every other entry (Settings >
+///   Subscription > Purchase New Subscription, Manage Associates' Go Premium)
+///   opens the bare [AppRoutes.paywall] and omits it;
+/// * it lists what the subscription plans offer and what each plan costs, from
+///   the plan's pricing (৳100 for one month, ৳285 for three, ৳540 for six and
+///   ৳960 for a year — there is no lifetime plan), showing the full per-month
+///   price struck through and the saving beside any plan that is discounted;
 /// * selecting a plan pushes the checkout with the plan key as a query
 ///   parameter, so it never names a second source of plans or prices.
 ///
@@ -48,33 +52,47 @@ const int paywallQuarterlyPrice = paymentQuarterlyPrice;
 const int paywallHalfYearlyPrice = paymentHalfYearlyPrice;
 const int paywallAnnualPrice = paymentAnnualPrice;
 
-/// Premium benefits shown by the stub, in display order.
-const List<PaywallBenefit> paywallBenefits = <PaywallBenefit>[
-  PaywallBenefit.unlimitedCases,
-  PaywallBenefit.cloudBackup,
-  PaywallBenefit.multiDevice,
-  PaywallBenefit.firmMode,
+/// What the subscription plans offer, in display order.
+const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
+  PaywallFeature.disasterRecovery,
+  PaywallFeature.realTimeBackup,
+  PaywallFeature.multiDevice,
+  PaywallFeature.collaboration,
 ];
 
-/// One premium benefit, as a key the screen localizes.
-enum PaywallBenefit {
-  /// No case limit at all.
-  unlimitedCases,
+/// One premium feature, as a key the screen localizes to a title and a body.
+enum PaywallFeature {
+  /// Your data survives a lost or broken phone.
+  disasterRecovery,
 
-  /// Secure cloud backup and sync.
-  cloudBackup,
+  /// Every change is saved to the cloud as it happens.
+  realTimeBackup,
 
-  /// The same diary on every device.
+  /// The same diary on several devices at once.
   multiDevice,
 
-  /// Firm mode for associates.
-  firmMode,
+  /// Associates working on one shared diary.
+  collaboration,
 }
 
 /// Premium benefits display & plan selection, per the plan's Payment section.
 class PaywallScreen extends StatelessWidget {
-  /// Creates the paywall.
-  const PaywallScreen({super.key});
+  /// Whether to show the "Free Plan Limit Reached" card.
+  ///
+  /// True only when the 50-case gate opened this screen; every other entry
+  /// opens the bare route and hides it (see [showLimitFor]).
+  final bool showLimit;
+
+  /// Creates the paywall, hiding the free-limit card unless [showLimit] is set.
+  const PaywallScreen({super.key, this.showLimit = false});
+
+  /// Whether a paywall opened at this route [state] shows the free-limit card.
+  ///
+  /// Only the 50-case gate names its reason (`?reason=limit`); every other entry
+  /// leaves the query out, so the card belongs to that gate alone.
+  static bool showLimitFor(GoRouterState state) =>
+      state.uri.queryParameters[AppRoutes.paywallReasonParam] ==
+      AppRoutes.paywallReasonLimitReached;
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +122,14 @@ class PaywallScreen extends StatelessWidget {
             AppSpacing.xl,
           ),
           children: [
-            const _LimitCard(),
-            const SizedBox(height: AppSpacing.xl),
+            // The free-limit card belongs to the gate alone: only the 50-case
+            // entry opens `?reason=limit`, every other entry hides it.
+            if (showLimit) ...[
+              const _LimitCard(),
+              const SizedBox(height: AppSpacing.xl),
+            ],
             _SectionHeader(l.paywall_benefitsTitle),
-            const _BenefitsCard(),
+            const _FeaturesCard(),
             const SizedBox(height: AppSpacing.xl),
             _SectionHeader(l.paywall_plansTitle),
             _PlansCard(
@@ -198,17 +220,28 @@ class _SectionHeader extends StatelessWidget {
   );
 }
 
-/// One ticked benefit per row.
-class _BenefitsCard extends StatelessWidget {
-  const _BenefitsCard();
+/// One ticked feature per row: a Title Case heading over its sentence-case body.
+class _FeaturesCard extends StatelessWidget {
+  const _FeaturesCard();
 
-  /// The localized wording for one benefit.
-  static String _label(AppLocalizations l, PaywallBenefit benefit) =>
-      switch (benefit) {
-        PaywallBenefit.unlimitedCases => l.paywall_benefitUnlimitedCases,
-        PaywallBenefit.cloudBackup => l.paywall_benefitCloudBackup,
-        PaywallBenefit.multiDevice => l.paywall_benefitMultiDevice,
-        PaywallBenefit.firmMode => l.paywall_benefitFirmMode,
+  /// The localized title for one feature.
+  static String _title(AppLocalizations l, PaywallFeature feature) =>
+      switch (feature) {
+        PaywallFeature.disasterRecovery =>
+          l.paywall_featureDisasterRecoveryTitle,
+        PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupTitle,
+        PaywallFeature.multiDevice => l.paywall_featureMultiDeviceTitle,
+        PaywallFeature.collaboration => l.paywall_featureCollaborationTitle,
+      };
+
+  /// The localized body sentence for one feature.
+  static String _body(AppLocalizations l, PaywallFeature feature) =>
+      switch (feature) {
+        PaywallFeature.disasterRecovery =>
+          l.paywall_featureDisasterRecoveryBody,
+        PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupBody,
+        PaywallFeature.multiDevice => l.paywall_featureMultiDeviceBody,
+        PaywallFeature.collaboration => l.paywall_featureCollaborationBody,
       };
 
   @override
@@ -224,7 +257,7 @@ class _BenefitsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < paywallBenefits.length; i++) ...[
+          for (var i = 0; i < paywallFeatures.length; i++) ...[
             if (i > 0) const SizedBox(height: AppSpacing.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,9 +269,19 @@ class _BenefitsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Text(
-                    _label(l, paywallBenefits[i]),
-                    style: AppTypography.bodyMd,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _title(l, paywallFeatures[i]),
+                        style: AppTypography.titleMd,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        _body(l, paywallFeatures[i]),
+                        style: AppTypography.bodyMd,
+                      ),
+                    ],
                   ),
                 ),
               ],

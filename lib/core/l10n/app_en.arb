@@ -504,7 +504,7 @@
           }
       }
   },
-  "paywall_title": "Premium",
+  "paywall_title": "Subscription Plans",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",
   "@paywall_limitBody": {
@@ -514,11 +514,15 @@
           }
       }
   },
-  "paywall_benefitsTitle": "Premium Includes",
-  "paywall_benefitUnlimitedCases": "Unlimited cases",
-  "paywall_benefitCloudBackup": "Secure encrypted cloud backup",
-  "paywall_benefitMultiDevice": "Your diary on every device you sign in on",
-  "paywall_benefitFirmMode": "Firm mode for your associates",
+  "paywall_benefitsTitle": "Subscription Plans Offer",
+  "paywall_featureDisasterRecoveryTitle": "Disaster Recovery",
+  "paywall_featureDisasterRecoveryBody": "If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.",
+  "paywall_featureRealTimeBackupTitle": "Real-time Backup",
+  "paywall_featureRealTimeBackupBody": "Every change is instantly saved to the cloud.",
+  "paywall_featureMultiDeviceTitle": "Multi-device Support",
+  "paywall_featureMultiDeviceBody": "Access your diary from multiple devices simultaneously.",
+  "paywall_featureCollaborationTitle": "Collaboration",
+  "paywall_featureCollaborationBody": "Work together with your associates on the same diary.",
   "paywall_plansTitle": "Plans",
   "paywall_planMonthly": "1 Month",
   "paywall_planQuarterly": "3 Months",

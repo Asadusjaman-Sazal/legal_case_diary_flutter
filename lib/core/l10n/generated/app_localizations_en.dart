@@ -1005,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_title => 'Premium';
+  String get paywall_title => 'Subscription Plans';
 
   @override
   String get paywall_limitTitle => 'Free Plan Limit Reached';
@@ -1016,20 +1016,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_benefitsTitle => 'Premium Includes';
+  String get paywall_benefitsTitle => 'Subscription Plans Offer';
 
   @override
-  String get paywall_benefitUnlimitedCases => 'Unlimited cases';
+  String get paywall_featureDisasterRecoveryTitle => 'Disaster Recovery';
 
   @override
-  String get paywall_benefitCloudBackup => 'Secure encrypted cloud backup';
+  String get paywall_featureDisasterRecoveryBody =>
+      'If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.';
 
   @override
-  String get paywall_benefitMultiDevice =>
-      'Your diary on every device you sign in on';
+  String get paywall_featureRealTimeBackupTitle => 'Real-time Backup';
 
   @override
-  String get paywall_benefitFirmMode => 'Firm mode for your associates';
+  String get paywall_featureRealTimeBackupBody =>
+      'Every change is instantly saved to the cloud.';
+
+  @override
+  String get paywall_featureMultiDeviceTitle => 'Multi-device Support';
+
+  @override
+  String get paywall_featureMultiDeviceBody =>
+      'Access your diary from multiple devices simultaneously.';
+
+  @override
+  String get paywall_featureCollaborationTitle => 'Collaboration';
+
+  @override
+  String get paywall_featureCollaborationBody =>
+      'Work together with your associates on the same diary.';
 
   @override
   String get paywall_plansTitle => 'Plans';

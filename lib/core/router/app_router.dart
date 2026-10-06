@@ -168,6 +168,19 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
   static const String paywall = '/paywall';
+
+  /// The paywall query parameter naming why the screen opened. Only the 50-case
+  /// gate sets it, so the "Free Plan Limit Reached" card shows on that entry
+  /// alone and every other one (Settings, Manage Associates) hides it.
+  static const String paywallReasonParam = 'reason';
+
+  /// The [paywallReasonParam] value the 50-case gate sends.
+  static const String paywallReasonLimitReached = 'limit';
+
+  /// The paywall as the 50-case gate opens it — the only entry that shows the
+  /// free-limit card.
+  static const String paywallFromCaseLimit =
+      '$paywall?$paywallReasonParam=$paywallReasonLimitReached';
   static const String checkout = '/checkout';
 
   /// Maps a [defaultLandingPage] preference key to its route path.
@@ -389,7 +402,11 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       ),
       GoRoute(
         path: AppRoutes.paywall,
-        builder: (context, state) => const PaywallScreen(),
+        // Only the 50-case gate names its reason (`?reason=limit`); every other
+        // entry opens the bare route and hides the "Free Plan Limit Reached"
+        // card, which belongs to that gate alone.
+        builder: (context, state) =>
+            PaywallScreen(showLimit: PaywallScreen.showLimitFor(state)),
       ),
       GoRoute(
         path: AppRoutes.checkout,

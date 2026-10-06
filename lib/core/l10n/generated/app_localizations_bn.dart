@@ -1006,7 +1006,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_title => 'প্রিমিয়াম';
+  String get paywall_title => 'সাবস্ক্রিপশন প্ল্যান';
 
   @override
   String get paywall_limitTitle => 'ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে';
@@ -1017,20 +1017,35 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_benefitsTitle => 'প্রিমিয়ামে যা থাকে';
+  String get paywall_benefitsTitle => 'সাবস্ক্রিপশন প্ল্যানে যা থাকে';
 
   @override
-  String get paywall_benefitUnlimitedCases => 'আনলিমিটেড মামলা';
+  String get paywall_featureDisasterRecoveryTitle => 'দুর্যোগে ডেটা পুনরুদ্ধার';
 
   @override
-  String get paywall_benefitCloudBackup => 'নিরাপদ এনক্রিপ্টেড ক্লাউড ব্যাকআপ';
+  String get paywall_featureDisasterRecoveryBody =>
+      'আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।';
 
   @override
-  String get paywall_benefitMultiDevice =>
-      'যে ডিভাইসেই সাইন ইন করুন, ডায়েরি সেখানেই';
+  String get paywall_featureRealTimeBackupTitle => 'রিয়েল-টাইম ব্যাকআপ';
 
   @override
-  String get paywall_benefitFirmMode => 'সহকারীদের জন্য ফার্ম মোড';
+  String get paywall_featureRealTimeBackupBody =>
+      'প্রতিটি পরিবর্তন সঙ্গে সঙ্গে ক্লাউডে সংরক্ষিত হয়।';
+
+  @override
+  String get paywall_featureMultiDeviceTitle => 'একাধিক ডিভাইসে ব্যবহার';
+
+  @override
+  String get paywall_featureMultiDeviceBody =>
+      'একই সময়ে একাধিক ডিভাইস থেকে আপনার ডায়েরি ব্যবহার করুন।';
+
+  @override
+  String get paywall_featureCollaborationTitle => 'সহযোগিতা';
+
+  @override
+  String get paywall_featureCollaborationBody =>
+      'একই ডায়েরিতে আপনার সহযোগীদের সঙ্গে একসঙ্গে কাজ করুন।';
 
   @override
   String get paywall_plansTitle => 'প্ল্যান';

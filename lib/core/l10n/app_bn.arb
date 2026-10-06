@@ -497,7 +497,7 @@
           }
       }
   },
-  "paywall_title": "প্রিমিয়াম",
+  "paywall_title": "সাবস্ক্রিপশন প্ল্যান",
   "paywall_limitTitle": "ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে",
   "paywall_limitBody": "ফ্রি প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকবে।",
   "@paywall_limitBody": {
@@ -507,11 +507,15 @@
           }
       }
   },
-  "paywall_benefitsTitle": "প্রিমিয়ামে যা থাকে",
-  "paywall_benefitUnlimitedCases": "আনলিমিটেড মামলা",
-  "paywall_benefitCloudBackup": "নিরাপদ এনক্রিপ্টেড ক্লাউড ব্যাকআপ",
-  "paywall_benefitMultiDevice": "যে ডিভাইসেই সাইন ইন করুন, ডায়েরি সেখানেই",
-  "paywall_benefitFirmMode": "সহকারীদের জন্য ফার্ম মোড",
+  "paywall_benefitsTitle": "সাবস্ক্রিপশন প্ল্যানে যা থাকে",
+  "paywall_featureDisasterRecoveryTitle": "দুর্যোগে ডেটা পুনরুদ্ধার",
+  "paywall_featureDisasterRecoveryBody": "আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।",
+  "paywall_featureRealTimeBackupTitle": "রিয়েল-টাইম ব্যাকআপ",
+  "paywall_featureRealTimeBackupBody": "প্রতিটি পরিবর্তন সঙ্গে সঙ্গে ক্লাউডে সংরক্ষিত হয়।",
+  "paywall_featureMultiDeviceTitle": "একাধিক ডিভাইসে ব্যবহার",
+  "paywall_featureMultiDeviceBody": "একই সময়ে একাধিক ডিভাইস থেকে আপনার ডায়েরি ব্যবহার করুন।",
+  "paywall_featureCollaborationTitle": "সহযোগিতা",
+  "paywall_featureCollaborationBody": "একই ডায়েরিতে আপনার সহযোগীদের সঙ্গে একসঙ্গে কাজ করুন।",
   "paywall_plansTitle": "প্ল্যান",
   "paywall_planMonthly": "১ মাস",
   "paywall_planQuarterly": "৩ মাস",

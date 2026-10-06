@@ -220,6 +220,54 @@ bool _isAuthRoute(String location) =>
     location == AppRoutes.signup ||
     location == AppRoutes.forgotPassword;
 
+/// Whether [location] is a legal document that needs no account to read.
+///
+/// The sign-up card links to both before the user has an account, and both
+/// stores require the Terms of Service and the Privacy Policy to be reachable
+/// before sign-up, so these two routes are exempt from the sign-in gate. They
+/// render the very screens Settings > About opens — the same routes and the
+/// same [LegalDocumentScreen] — so sign-up sees nothing different.
+bool _isPublicLegalDocument(String location) =>
+    location == AppRoutes.settingsPrivacyPolicy ||
+    location == AppRoutes.settingsTermsOfService;
+
+/// Resolves where a navigation to [location] should be sent, from the session
+/// facts the router already holds; null means "stay where the user asked".
+///
+/// Pure, so `app_router_redirect_test.dart` can pin every rule without building
+/// the router. [resolveRouteRedirect]'s only caller is `appRouterProvider`.
+String? resolveRouteRedirect({
+  required bool requiresSignIn,
+  required bool signedIn,
+  required bool passwordRecoveryPending,
+  required String landingRoute,
+  required String location,
+}) {
+  final atAuthRoute = _isAuthRoute(location);
+
+  // A device that must sign in cannot reach the diary without an account — but
+  // the legal documents stay readable, because sign-up links to them first.
+  if (requiresSignIn &&
+      !signedIn &&
+      !atAuthRoute &&
+      !_isPublicLegalDocument(location)) {
+    return AppRoutes.login;
+  }
+
+  // A recovery link signs the user in as a side effect of being verified, but
+  // that session exists only to change the password. Hold them on the reset
+  // screen until they have, and send them there from anywhere else — the flag
+  // clears the moment the new password is set.
+  if (passwordRecoveryPending) {
+    return atAuthRoute ? null : AppRoutes.forgotPassword;
+  }
+
+  // Somebody who is signed in has no business on the auth screens.
+  if (signedIn && atAuthRoute) return landingRoute;
+
+  return null;
+}
+
 /// Bridges Riverpod's auth state into a [Listenable] GoRouter can refresh on.
 ///
 /// The router re-evaluates its redirect whenever the identity changes — signing
@@ -277,28 +325,17 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
     initialLocation: initialLocation,
     debugLogDiagnostics: false,
     refreshListenable: refresh,
-    redirect: (context, state) {
-      final signedIn = ref.read(authIdentityProvider) != null;
-      final atAuthRoute = _isAuthRoute(state.matchedLocation);
-
-      // A device that must sign in cannot reach the diary without an account.
-      if (requiresSignIn && !signedIn && !atAuthRoute) return AppRoutes.login;
-
-      // A recovery link signs the user in as a side effect of being verified,
-      // but that session exists only to change the password. Hold them on the
-      // reset screen until they have, and send them there from anywhere else —
-      // the flag clears the moment the new password is set.
-      if (ref.read(passwordRecoveryPendingProvider)) {
-        return atAuthRoute ? null : AppRoutes.forgotPassword;
-      }
-
-      // Somebody who is signed in has no business on the auth screens.
-      if (signedIn && atAuthRoute) {
-        return ref.read(defaultLandingRouteProvider).value ??
-            AppRoutes.dailyCauseList;
-      }
-      return null;
-    },
+    // Every rule lives in [resolveRouteRedirect], which is pure so the guard
+    // can be unit-tested without building the router.
+    redirect: (context, state) => resolveRouteRedirect(
+      requiresSignIn: requiresSignIn,
+      signedIn: ref.read(authIdentityProvider) != null,
+      passwordRecoveryPending: ref.read(passwordRecoveryPendingProvider),
+      landingRoute:
+          ref.read(defaultLandingRouteProvider).value ??
+          AppRoutes.dailyCauseList,
+      location: state.matchedLocation,
+    ),
     routes: [
       // ------------------------------------------------------------------
       // Shell route — wraps all main screens with AppShellRoot + DatabaseGuard.
@@ -334,6 +371,21 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      // The legal documents are full-page screens, not Settings sub-pages: they
+      // sit on the root navigator like the paywall and checkout, so their back
+      // button pops GoRouter's history from either entry point. Inside the shell
+      // they lived on the shell's nested navigator, where a document opened
+      // from Sign Up had nothing beneath it and its back button did nothing.
+      GoRoute(
+        path: AppRoutes.settingsPrivacyPolicy,
+        builder: (context, state) =>
+            const LegalDocumentScreen(document: LegalDocument.privacyPolicy),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsTermsOfService,
+        builder: (context, state) =>
+            const LegalDocumentScreen(document: LegalDocument.termsOfService),
       ),
       GoRoute(
         path: AppRoutes.paywall,
@@ -579,16 +631,6 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsMoreAbout,
     builder: (context, state) => const MoreAboutTheAppScreen(),
-  ),
-  GoRoute(
-    path: AppRoutes.settingsPrivacyPolicy,
-    builder: (context, state) =>
-        const LegalDocumentScreen(document: LegalDocument.privacyPolicy),
-  ),
-  GoRoute(
-    path: AppRoutes.settingsTermsOfService,
-    builder: (context, state) =>
-        const LegalDocumentScreen(document: LegalDocument.termsOfService),
   ),
   GoRoute(
     path: AppRoutes.settingsSupport,

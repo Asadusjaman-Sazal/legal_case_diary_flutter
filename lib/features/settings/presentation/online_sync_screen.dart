@@ -274,8 +274,6 @@ class _SyncStatusCard extends ConsumerWidget {
                             ),
                       style: AppTypography.titleLg,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    _body(l),
                   ],
                 ),
               ),
@@ -291,6 +289,12 @@ class _SyncStatusCard extends ConsumerWidget {
               ),
             ],
           ),
+          // The body is drawn outside that row so it can use the card's whole
+          // width. Inside it, the icon column narrowed every line below the
+          // icon as well, so a long sentence wrapped early with the space to
+          // its right left empty.
+          const SizedBox(height: AppSpacing.xs),
+          _body(l),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
             width: double.infinity,
@@ -443,9 +447,15 @@ class _FreePlanPurchaseHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // Set exactly like the info line above the card, so the sentence that asks
+    // for a plan reads with the same weight as the sentence that describes the
+    // screen rather than a size smaller than it.
+    final body = AppTypography.bodyMd.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
     return Text.rich(
       TextSpan(
-        style: AppTypography.bodySm,
+        style: body,
         children: [
           // The joining space lives here, not in the ARB, so nothing depends
           // on a translated string keeping a trailing space.
@@ -458,7 +468,7 @@ class _FreePlanPurchaseHint extends StatelessWidget {
               route: AppRoutes.paywall,
               // Bold and underlined, in the ink the app already uses for a
               // link inside a sentence.
-              style: AppTypography.bodySm.copyWith(
+              style: body.copyWith(
                 color: AppColors.secondary,
                 fontWeight: FontWeight.w700,
                 decoration: TextDecoration.underline,

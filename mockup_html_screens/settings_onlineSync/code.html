@@ -163,12 +163,14 @@
           <span class="font-label-md text-label-md text-error">Action Required</span>
         </span>
         <p class="mt-md font-title-lg text-title-lg text-primary">Last Sync: Never</p>
-        <p class="mt-xs font-body-sm text-body-sm">Your data stays on this device until you sign in.</p>
       </div>
       <div class="w-12 h-12 rounded bg-error-container flex items-center justify-center shrink-0">
         <span class="material-symbols-outlined text-[24px] text-error">sync_problem</span>
       </div>
     </div>
+    <!-- The body is outside the header row so it uses the card's whole width,
+         matching the app. -->
+    <p class="mt-xs font-body-sm text-body-sm">Your data stays on this device until you sign in.</p>
     <button class="mt-lg w-full h-14 flex items-center justify-center gap-sm bg-primary text-on-primary rounded font-title-md text-title-md hover:opacity-90 transition-opacity">
       <span class="material-symbols-outlined text-[20px]">sync</span>
       Sync Now
@@ -187,12 +189,14 @@
           <span class="font-label-md text-label-md text-success">Free Plan</span>
         </span>
         <p class="mt-md font-title-lg text-title-lg text-primary">Last Sync: Never</p>
-        <p class="mt-xs font-body-sm text-body-sm">A subscription plan is required to sync across devices. Purchase a plan from <a class="font-bold underline text-secondary" href="#">here</a>.</p>
       </div>
       <div class="w-12 h-12 rounded bg-success/10 flex items-center justify-center shrink-0">
         <span class="material-symbols-outlined text-[24px] text-success">workspace_premium</span>
       </div>
     </div>
+    <!-- Body-md and muted like the info line above the card, and outside the
+         header row so it spans the card's full width. -->
+    <p class="mt-xs font-body-md text-body-md text-on-surface-variant">A subscription plan is required to sync across devices. Purchase a plan from <a class="font-bold underline text-secondary" href="#">here</a>.</p>
     <button class="mt-lg w-full h-14 flex items-center justify-center gap-sm bg-surface-container-high text-on-surface-variant rounded font-title-md text-title-md cursor-not-allowed">
       <span class="material-symbols-outlined text-[20px]">sync</span>
       Sync Now

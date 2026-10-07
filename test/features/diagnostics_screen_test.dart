@@ -123,6 +123,27 @@ void main() {
     expect(tester.getRect(clear).bottom, lessThan(entryTop));
   });
 
+  testWidgets('a recorded failure shows its own message, not just its type', (
+    tester,
+  ) async {
+    // The label names the type; the line under it is what a reader fixes from —
+    // a `FlutterError` row with no message was the complaint that set this
+    // policy (0.0.406).
+    final log = ErrorLog();
+    await log.record(
+      'auth.recover',
+      StateError('the reset mail could not be sent'),
+    );
+
+    await pump(tester, log);
+
+    expect(find.text('StateError'), findsOneWidget);
+    expect(
+      find.text('Bad state: the reset mail could not be sent'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('copying puts the whole report on the clipboard and says so', (
     tester,
   ) async {

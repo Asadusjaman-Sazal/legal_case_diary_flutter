@@ -2,9 +2,11 @@
 ///
 /// The reader is whoever has the phone in their hand — a user reporting a fault,
 /// or a developer handed one — so it shows the entries newest first with no
-/// filtering and nothing to hunt for. The log is redacted where it is *written*
-/// (see `ErrorLog`), so nothing on this screen can leak a case field, a
-/// password, a token or a raw server message.
+/// filtering and nothing to hunt for, each with the failure's own message under
+/// its label, because a bare `FlutterError` names nothing and cannot be fixed.
+/// The message is recorded with the entry (see `ErrorLog`); it can quote a
+/// server's reply, so it lives here on the user's device and leaves only inside
+/// a report the user copies or sends, which they can read first.
 ///
 /// No mockup exists for this screen, so rule 9 does not bind it: it is a
 /// Settings sub-page like its neighbours, wearing [SettingsSubPageModal] and the
@@ -189,7 +191,7 @@ class _EmptyLog extends StatelessWidget {
   );
 }
 
-/// One line of the log: when, where, and what failed.
+/// One entry: what failed, the failure's own message, and when and where.
 class _EntryRow extends StatelessWidget {
   const _EntryRow({required this.entry});
 
@@ -202,6 +204,18 @@ class _EntryRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(entry.label, style: AppTypography.bodyMd),
+        // The failure's own message, so a bare `FlutterError` or
+        // `AuthFailure(unknown)` row says what actually happened. Full text,
+        // wrapped — this screen is where the reader identifies the fault.
+        if (entry.detail != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            entry.detail!,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.xs),
         Text(
           '${entry.area} · ${diagnosticStamp(DateTime.fromMillisecondsSinceEpoch(entry.at))}',

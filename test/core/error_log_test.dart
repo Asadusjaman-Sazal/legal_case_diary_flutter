@@ -1,9 +1,11 @@
 /// The app's error log: what it keeps, what it must never keep, and that it
 /// outlives the process that wrote it.
 ///
-/// The redaction test is the one that matters most. A diagnostics file leaves
-/// the device and reaches a support conversation, so "no raw server text" is a
-/// promise the log has to keep mechanically, not by convention.
+/// The detail tests matter most. A label alone cannot be fixed from — a
+/// framework error lists as `FlutterError` and nothing else — so an entry keeps
+/// the failure's own message (0.0.406), flattened and bounded, and this file
+/// pins that it is there for a typed failure, for an uncaught error, and on the
+/// way back through the store.
 library;
 
 import 'dart:async';
@@ -47,7 +49,12 @@ void main() {
       );
     });
 
-    test('a typed failure is logged by kind, never by its server text', () async {
+    test('a typed failure logs its kind as the label and its reply as the detail', () async {
+      // The policy changed by the user's own instruction (0.0.406): the log
+      // used to withhold the server's text entirely, and a row like
+      // `AuthFailure(unknown)` was therefore unfixable. The kind still leads —
+      // entries must stay scannable — but the reply is kept, because the report
+      // is plain text the user reads and sends, not a silent export.
       final log = ErrorLog();
 
       await log.record(
@@ -60,20 +67,44 @@ void main() {
 
       expect(log.entries.single.label, 'AuthFailure(invalidCredentials)');
       expect(log.entries.single.area, 'auth.recover');
+      expect(log.entries.single.detail, 'user asad.msnd@gmail.com was not found');
       expect(
         encodeErrorLog(log.entries),
-        isNot(contains('asad.msnd@gmail.com')),
-        reason: 'a raw server message must never reach an exported file',
+        contains('user asad.msnd@gmail.com was not found'),
       );
     });
 
-    test('an unknown error is named by type and nothing else', () async {
+    test('an uncaught error keeps its message, flattened', () async {
       final log = ErrorLog();
 
-      await log.record('cases.save', StateError('a message with data in it'));
+      await log.record(
+        'cases.save',
+        StateError('a message with\n  data in it'),
+      );
 
       expect(log.entries.single.label, 'StateError');
-      expect(encodeErrorLog(log.entries), isNot(contains('a message with')));
+      expect(log.entries.single.detail, 'Bad state: a message with data in it');
+    });
+
+    test('a message longer than the cap is cut with an ellipsis', () async {
+      final log = ErrorLog();
+
+      await log.record('sync.push', StateError('x' * 900));
+
+      final detail = log.entries.single.detail!;
+      expect(detail.length, maxErrorDetailLength + 1, reason: 'cap plus …');
+      expect(detail, endsWith('…'));
+    });
+
+    test('a failure with nothing beyond its kind keeps no detail', () async {
+      final log = ErrorLog();
+
+      await log.record('sync.push', const AuthFailure(AuthFailureKind.network));
+
+      expect(log.entries.single.label, 'AuthFailure(network)');
+      // No server reply and no cause: the kind is the whole story, so the row
+      // must not grow a line that repeats it.
+      expect(log.entries.single.detail, isNull);
     });
 
     test('what was written survives a restart', () async {
@@ -86,6 +117,7 @@ void main() {
 
       expect(restarted.entries.single.area, 'sync.push');
       expect(restarted.entries.single.label, 'StateError');
+      expect(restarted.entries.single.detail, 'Bad state: boom');
     });
 
     test('clearing empties the log on the device and in its store', () async {
@@ -120,6 +152,24 @@ void main() {
       expect(parsed, hasLength(1));
       expect(parsed.single.at, 7);
       expect(parsed.single.label, 'StateError');
+      // Entries written before the detail field existed still load, without one.
+      expect(parsed.single.detail, isNull);
+    });
+
+    test('an entry detail round-trips through the stored shape', () {
+      final parsed = parseErrorLog(
+        '[{"at": 7, "area": "framework", "label": "FlutterError",'
+        ' "detail": "A RenderFlex overflowed by 12 pixels."}]',
+      );
+
+      expect(parsed.single.detail, 'A RenderFlex overflowed by 12 pixels.');
+      // And an empty detail is read as none rather than as an empty line.
+      expect(
+        parseErrorLog('[{"at": 7, "area": "a", "label": "b", "detail": ""}]')
+            .single
+            .detail,
+        isNull,
+      );
     });
   });
 

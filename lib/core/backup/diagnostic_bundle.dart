@@ -59,9 +59,11 @@ typedef DiagnosticEntry = Map<String, dynamic>;
 /// all.
 ///
 /// [errors] is the app's own error log: the failures that never reached the
-/// queue — a refused sign-in, a failed payment, a framework assertion. It is
-/// metadata by construction, because an `ErrorLogEntry` holds a time, an area
-/// and a redacted label, never a case field and never a raw server message.
+/// queue — a refused sign-in, a failed payment, a framework assertion. Each
+/// entry is a time, an area, a label and the failure's own message (0.0.406),
+/// never a case field and never a sync payload — and the whole bundle is sealed
+/// with the backup passphrase, so a message that quotes a server reply travels
+/// only inside the file the user deliberately exports.
 Map<String, dynamic> buildDiagnosticBundle({
   required List<DiagnosticEntry> entries,
   required Map<String, String?> metadata,

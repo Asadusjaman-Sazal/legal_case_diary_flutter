@@ -6,15 +6,15 @@
 /// over nor should ever be asked for. So it cannot be the report that arrives
 /// with a first message, and this is.
 ///
-/// Three properties make it safe to send through an ordinary WhatsApp or email:
+/// Three properties make it work as an ordinary WhatsApp or email message:
 ///
-/// * **It is redacted by construction.** An [ErrorLogEntry] is a time, an area
-///   and a label produced by `describeErrorForLog` — never a case field, never a
-///   token, never a raw `PostgrestException.message`. This function only
-///   formats those three fields; there is nothing here that could leak, and
-///   nothing for it to redact.
-/// * **It is plain text.** No file to attach, no app to install, no passphrase.
-///   It can be read in the preview before it is sent and pasted anywhere.
+/// * **It is plain text the user can read first.** An [ErrorLogEntry] is a time,
+///   an area, a label produced by `describeErrorForLog`, and the failure's own
+///   message. That message can quote a server's reply, which is exactly what
+///   makes an error fixable — so it is part of the report, and the report is
+///   shown, copied and sent by the user, never in the background.
+/// * **It carries no file.** No attachment, no app to install, no passphrase.
+///   It can be pasted anywhere.
 /// * **It is fixed-width and Latin.** One `yyyy-MM-dd HH:mm:ss` stamp per line,
 ///   `area` and `label` in separate columns, so a reader can line entries up
 ///   against a log on another machine. Bengali numerals would work against that.
@@ -47,10 +47,16 @@ final DateFormat _stamp = DateFormat('yyyy-MM-dd HH:mm:ss');
 /// Formats [when] the way every diagnostic record in this app is stamped.
 String diagnosticStamp(DateTime when) => _stamp.format(when);
 
-/// One entry as it appears in the report: when, where, what failed.
-String diagnosticEntryLine(ErrorLogEntry entry) =>
-    '${diagnosticStamp(DateTime.fromMillisecondsSinceEpoch(entry.at))}'
-    ' | ${entry.area} | ${entry.label}';
+/// One entry as it appears in the report: when, where, what failed — and, when
+/// the failure carried a message, that message on an indented line of its own,
+/// so the columns above it stay aligned.
+String diagnosticEntryLine(ErrorLogEntry entry) {
+  final head =
+      '${diagnosticStamp(DateTime.fromMillisecondsSinceEpoch(entry.at))}'
+      ' | ${entry.area} | ${entry.label}';
+  final detail = entry.detail;
+  return detail == null ? head : '$head\n    $detail';
+}
 
 /// Builds the report text for [entries], newest first.
 ///

@@ -376,13 +376,17 @@ class FirmFailure implements Exception, DiagnosableFailure {
   /// What went wrong, in firm-level terms.
   final FirmFailureKind kind;
 
-  /// Underlying error or server status, kept for debugging and never shown and
-  /// never written to the log.
+  /// Underlying error or server status, kept for debugging; screens never show
+  /// it, and the log keeps it only as [diagnosticDetail].
   final Object? cause;
 
-  /// The log's label: the kind, never [cause].
+  /// The log's label: the kind, so entries stay scannable and comparable.
   @override
   String get diagnosticLabel => 'FirmFailure(${kind.name})';
+
+  /// The log's detail: the underlying error, which is what a reader fixes from.
+  @override
+  String? get diagnosticDetail => cause?.toString();
 
   @override
   String toString() => 'FirmFailure(${kind.name})';

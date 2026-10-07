@@ -2,8 +2,10 @@
 /// actually leave the phone.
 ///
 /// It reaches a support conversation through an ordinary WhatsApp message, so
-/// the two things worth pinning are that it is readable and unambiguous, and
-/// that it carries nothing an entry was never allowed to hold.
+/// the three things worth pinning are that it is readable and unambiguous, that
+/// it carries the failure's own message — the reason the report exists (0.0.406)
+/// — and that the user reads it before it is ever sent, because it now can quote
+/// a server's reply.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -96,9 +98,11 @@ void main() {
     expect(report, isNot(contains(' | ')));
   });
 
-  test('carries no server text, because the log never held any', () async {
-    // The chain, not just the formatter: a raw message enters the log only if
-    // ErrorLog chose to write it, so the report is proven safe by the log.
+  test('carries the failure\'s own message, because that is what gets fixed', () async {
+    // The chain, not just the formatter. The policy changed by the user's own
+    // instruction (0.0.406): a report whose lines name only `FlutterError` or
+    // `AuthFailure(unknown)` cannot be acted on, so the message the log kept is
+    // handed over too — on its own indented line, under the aligned columns.
     final log = ErrorLog();
     await log.record(
       'auth.signIn',
@@ -114,7 +118,10 @@ void main() {
     );
 
     expect(report, contains('AuthFailure(invalidCredentials)'));
-    expect(report, isNot(contains('asad.msnd@gmail.com')));
-    expect(report, isNot(contains('not found')));
+    expect(
+      report,
+      contains('\n    user asad.msnd@gmail.com was not found'),
+      reason: 'the message sits under its entry, indented',
+    );
   });
 }

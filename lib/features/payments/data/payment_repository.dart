@@ -38,12 +38,17 @@ class PaymentSubmitException implements Exception, DiagnosableFailure {
   /// The category the checkout renders.
   final PaymentSubmitFailure kind;
 
-  /// Optional server detail, for diagnostics only — never shown raw.
+  /// Optional server detail, for diagnostics only — never shown raw by a
+  /// screen, but kept as the log's detail line.
   final String? detail;
 
   /// The log's label: the kind, never [detail], which is a raw server text.
   @override
   String get diagnosticLabel => 'PaymentSubmitException(${kind.name})';
+
+  /// The log's detail: the server's reply, which is what a reader fixes from.
+  @override
+  String? get diagnosticDetail => detail;
 
   @override
   String toString() => 'PaymentSubmitException($kind)';

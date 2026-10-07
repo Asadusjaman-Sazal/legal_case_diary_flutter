@@ -240,18 +240,20 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
                         for (var s = 0; s < visible.length; s++) ...[
                           if (s > 0) const SizedBox(height: AppSpacing.lg),
                           _SectionHeader(title: visible[s].header),
-                          // Card matching the header background, with a top and
-                          // bottom hairline per the settings_main mockup.
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              border: Border(
-                                top: BorderSide(
-                                  color: AppColors.outlineVariant,
-                                ),
-                                bottom: BorderSide(
-                                  color: AppColors.outlineVariant,
-                                ),
+                          // A shaped Material rather than a decorated Container
+                          // (0.0.407): a ListTile paints its background and ink
+                          // splashes on its nearest Material ancestor, and a
+                          // DecoratedBox with a background colour in between
+                          // hides them — the framework asserts about exactly
+                          // this, once per row per build, which is what had been
+                          // filling the app's error log. Same white card and
+                          // top/bottom hairlines per the settings_main mockup.
+                          Material(
+                            color: AppColors.surface,
+                            shape: Border(
+                              top: BorderSide(color: AppColors.outlineVariant),
+                              bottom: BorderSide(
+                                color: AppColors.outlineVariant,
                               ),
                             ),
                             child: Column(

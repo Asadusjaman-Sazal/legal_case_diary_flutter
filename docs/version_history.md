@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.406 - The error log keeps each failure's own message: shown in Diagnostics and carried in the copied and Support reports, so an error can be identified and fixed.
+Version: 0.0.407 - The Settings list card is a Material, not a decorated Container: the per-row ListTile ink assert that filled the error log is gone, and row splashes paint again.
 --------------------------------------
 
 ## Version History Log:
@@ -420,3 +420,4 @@ Version: 0.0.403 - The error log now tells its listeners after the failing frame
 Version: 0.0.404 - Diagnostics: Copy Diagnostics and Clear Log moved from the header into the screen body, above the error log.
 Version: 0.0.405 - Support: the scope text is now a titled card before Never Send These, and the message preview and its hint are removed.
 Version: 0.0.406 - The error log keeps each failure's own message: shown in Diagnostics and carried in the copied and Support reports, so an error can be identified and fixed.
+Version: 0.0.407 - The Settings list card is a Material, not a decorated Container: the per-row ListTile ink assert that filled the error log is gone, and row splashes paint again.

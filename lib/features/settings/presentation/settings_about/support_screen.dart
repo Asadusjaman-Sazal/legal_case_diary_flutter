@@ -7,11 +7,13 @@
 /// the screen must do is fixed by the About row that opens it and by the app's
 /// own rules:
 ///
-/// * it states its scope before offering any channel, so nobody writes in
-///   expecting a hearing date to be checked (the diary never leaves the phone);
+/// * it states its scope beside the channels — what support does and does not
+///   do, so nobody writes in expecting a hearing date to be checked (the diary
+///   never leaves the phone);
 /// * it answers the common questions first, by linking to Guidelines & FAQs;
-/// * both channels open with the same pre-filled diagnostics message the screen
-///   shows, so the user can read exactly what will be sent before sending it;
+/// * both channels open with the same pre-filled message — the app version, the
+///   phone and the language, and the error log when there is one — so a user
+///   writes a description rather than a diagnosis;
 /// * it says plainly what must never be sent (the passphrase, the database, a
 ///   backup file) and how long a reply really takes.
 ///
@@ -52,10 +54,9 @@ enum SupportChannel { whatsApp, email }
 
 /// The pre-filled message both channels open with.
 ///
-/// The screen renders this same string above the channels, which is the point:
-/// what the user reads is exactly what the app writes into WhatsApp or the mail
-/// body. The phone line is left out when the device could not be read, so the
-/// message is never wrong, just shorter.
+/// The user reads it in WhatsApp or the mail app, before sending, which is why
+/// nothing here is a secret and why the phone line is left out when the device
+/// could not be read: the message is never wrong, just shorter.
 ///
 /// [report], when given, is the plain-text diagnostics report for the error log
 /// (`buildDiagnosticsReport`). It goes **before** the prompt so the user's own
@@ -172,10 +173,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
           AppSpacing.xl,
         ),
         children: [
-          // Scope first: what support can and cannot do, before any channel.
-          _BodyCard(text: l.settingsSupport_scope),
-          const SizedBox(height: AppSpacing.lg),
-          // Most questions are already answered, so the FAQs come next.
+          // Most questions are already answered, so the FAQs come first.
           Text(
             l.settingsSupport_faqLead,
             style: AppTypography.bodyMd.copyWith(
@@ -214,29 +212,16 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             value: supportEmailAddress,
             onTap: () => _write(l, SupportChannel.email),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l.settingsSupport_channelsHint,
-            style: AppTypography.bodySm.copyWith(color: AppColors.outline),
-          ),
           const SizedBox(height: AppSpacing.lg),
-          // The message the channels open with, shown before it is sent. It
-          // listens to the log, because the preview is a promise that what is
-          // shown is what will be sent — and a failure recorded while the user
-          // reads this still has to reach the message they are about to send.
-          ListenableBuilder(
-            listenable: ref.watch(errorLogProvider),
-            builder: (context, _) => _MessageCard(
-              label: l.settingsSupport_previewLabel,
-              message: buildSupportMessage(
-                l: l,
-                locale: Localizations.localeOf(context),
-                facts: _facts,
-                report: _report(ref.read(errorLogProvider)),
-              ),
-            ),
+          // What support can and cannot do, then the two things a user must
+          // know before writing: the same note-card design, read as one set.
+          _NoteCard(
+            icon: Icons.help_outline,
+            color: AppColors.secondary,
+            title: l.settingsSupport_scopeTitle,
+            body: l.settingsSupport_scope,
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           _NoteCard(
             icon: Icons.gpp_maybe_outlined,
             color: AppColors.error,
@@ -258,26 +243,6 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       ),
     );
   }
-}
-
-/// White card holding one paragraph of copy.
-class _BodyCard extends StatelessWidget {
-  final String text;
-
-  const _BodyCard({required this.text});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    decoration: settingsCardDecoration(),
-    padding: const EdgeInsets.all(AppSpacing.md),
-    child: Text(
-      text,
-      style: AppTypography.bodyMd.copyWith(
-        color: AppColors.onSurfaceVariant,
-        height: 1.5,
-      ),
-    ),
-  );
 }
 
 /// One channel: icon chip, Title Case label, the address it writes to, chevron.
@@ -352,42 +317,8 @@ class _ChannelCard extends StatelessWidget {
   );
 }
 
-/// The message both channels open with, in a subdued block.
-class _MessageCard extends StatelessWidget {
-  final String label;
-  final String message;
-
-  const _MessageCard({required this.label, required this.message});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: AppColors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      border: Border.all(color: AppColors.outlineVariant),
-    ),
-    padding: const EdgeInsets.all(AppSpacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SettingsSectionLabel(label),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          message,
-          // The tests read this Text to prove the opened message is the shown one.
-          key: const ValueKey('support-message-preview'),
-          style: AppTypography.bodyMd.copyWith(
-            color: AppColors.onSurface,
-            height: 1.5,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-/// Tinted note card: icon, title, body — the warning and the reply time.
+/// Tinted note card: icon, title, body — what we can do, the warning and the
+/// reply time.
 class _NoteCard extends StatelessWidget {
   final IconData icon;
   final Color color;

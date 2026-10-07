@@ -5280,6 +5280,12 @@ abstract class AppLocalizations {
   /// **'Support'**
   String get settingsSupport_title;
 
+  /// No description provided for @settingsSupport_scopeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before You Write To Us'**
+  String get settingsSupport_scopeTitle;
+
   /// No description provided for @settingsSupport_scope.
   ///
   /// In en, this message translates to:
@@ -5304,12 +5310,6 @@ abstract class AppLocalizations {
   /// **'Write To Us'**
   String get settingsSupport_channelsLabel;
 
-  /// No description provided for @settingsSupport_channelsHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Either channel opens with the message below already written.'**
-  String get settingsSupport_channelsHint;
-
   /// No description provided for @settingsSupport_channelWhatsApp.
   ///
   /// In en, this message translates to:
@@ -5321,12 +5321,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email'**
   String get settingsSupport_channelEmail;
-
-  /// No description provided for @settingsSupport_previewLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'The Message That Opens'**
-  String get settingsSupport_previewLabel;
 
   /// No description provided for @settingsSupport_messageSubject.
   ///

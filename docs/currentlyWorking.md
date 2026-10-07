@@ -1,3 +1,15 @@
+### 2026-10-07 — Support: the scope became a card, and the message preview is gone — COMPLETE
+
+- **Request (the user's, scoped to Settings > About > Support only).** Two changes: (1) the "We can help you..." paragraph — today a plain card at the top — becomes a card *like* **Never Send These** and **When You Will Hear Back**, placed before the *Never Send These* card; (2) the section *"Either channel opens with the message below already written."* and the message body + error logs are removed (up until the *Never Send These* card).
+- **Two UI details were asked, not guessed (rule 1).** A note card is icon + bold title + body, and the paragraph had no title, so the user chose its title — **Before You Write To Us** — and its icon, `help_outline`; the card is white like the reply card, so the red tint stays the warning's alone.
+- **What the screen is now.** FAQs lead + two link rows → **Write To Us** with the WhatsApp and e-mail cards → then three note cards read as one set: **Before You Write To Us** (the scope paragraph), **Never Send These**, **When You Will Hear Back**. The scope no longer leads the screen; it sits with the two things a user must know before writing.
+- **The message is still built and sent — it is simply not mirrored on the screen.** `buildSupportMessage` and its diagnostics report are untouched; the `_MessageCard` preview, its `ListenableBuilder` on the error log, and the *Either Channel Opens…* hint are gone, and the two now-dead ARB strings were deleted from both ARBs (regenerated l10n), as this project does rather than leaving dead keys.
+- **One slip caught by the analyzer, not by eye.** My first edit replaced the warning card instead of inserting before it — the leftover `_NoteCard` optional parameters (`border`, `bodyColor`, `chipColor`) were suddenly "never given", which is what flagged the deletion. Restored, and the test below now pins the order so a future edit cannot silently drop a card.
+- **Tests rewritten to read what is actually sent.** The five cases that read the preview card now tap a channel and assert the URI the launcher was asked to open (`_sentMessage`), which is the stronger check anyway — it is the real thing the phone hands to WhatsApp or the mail app. The email case now taps both channels and asserts identical bodies, and the order test pins scope-above-warning-above-reply by geometry. 10/10 in the suite.
+- **Records (rule 14 — the plan never described the preview).** A **(0.0.405)** sentence appended to the plan's *The App Keeps Its Own Error Log* bullet and to Task 17's matching addendum.
+- **Verification.** `flutter analyze` clean; support suite **10/10**; full suite **1407 passed**. Version **0.0.405** recorded by script; `--check` OK.
+- **Resume point:** nothing owed. Device check: the three note cards render in order and both channels still open with the message written.
+
 ### 2026-10-07 — Diagnostics: the two actions moved into the body — COMPLETE
 
 - **Request (the user's, scoped to the Diagnostics screen only).** "Place Copy Diagnostics, Clear Log buttons in the screen body, above the error logs instead of the header."

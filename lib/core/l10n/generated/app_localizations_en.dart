@@ -3048,6 +3048,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSupport_title => 'Support';
 
   @override
+  String get settingsSupport_scopeTitle => 'Before You Write To Us';
+
+  @override
   String get settingsSupport_scope =>
       'We can help you with the app itself: how a feature works, something that is not behaving as it should, or a backup that will not restore. We cannot see your diary — it stays on your phone — and we cannot check, confirm or look up a hearing date for you.';
 
@@ -3062,17 +3065,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSupport_channelsLabel => 'Write To Us';
 
   @override
-  String get settingsSupport_channelsHint =>
-      'Either channel opens with the message below already written.';
-
-  @override
   String get settingsSupport_channelWhatsApp => 'WhatsApp';
 
   @override
   String get settingsSupport_channelEmail => 'Email';
-
-  @override
-  String get settingsSupport_previewLabel => 'The Message That Opens';
 
   @override
   String get settingsSupport_messageSubject => 'Legal Case Diary support';

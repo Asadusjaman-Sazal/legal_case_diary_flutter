@@ -88,6 +88,41 @@ void main() {
     expect(find.text(l.settingsDiagnostics_clear), findsOneWidget);
   });
 
+  testWidgets('the actions sit in the body, above the log, not in the header', (
+    tester,
+  ) async {
+    final log = ErrorLog();
+    await log.record('sync.push', StateError('boom'));
+
+    await pump(tester, log);
+    // Re-pumped at 360dp, the narrowest target (the test phone is 1080px at
+    // 3x): a layout that overflows or clips there fails here rather than on a
+    // device.
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    await tester.pumpAndSettle();
+
+    final copy = find.text(l.settingsDiagnostics_copy);
+    final clear = find.text(l.settingsDiagnostics_clear);
+    expect(copy, findsOneWidget);
+    expect(clear, findsOneWidget);
+
+    // The header keeps the title and the back button alone.
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: copy),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: clear),
+      findsNothing,
+    );
+
+    // Both sit above the entries they act on: the button's bottom edge is
+    // above the first entry's top edge.
+    final entryTop = tester.getRect(find.text('StateError')).top;
+    expect(tester.getRect(copy).bottom, lessThan(entryTop));
+    expect(tester.getRect(clear).bottom, lessThan(entryTop));
+  });
+
   testWidgets('copying puts the whole report on the clipboard and says so', (
     tester,
   ) async {

@@ -1,3 +1,13 @@
+### 2026-10-07 — Diagnostics: the two actions moved into the body — COMPLETE
+
+- **Request (the user's, scoped to the Diagnostics screen only).** "Place Copy Diagnostics, Clear Log buttons in the screen body, above the error logs instead of the header."
+- **What moved.** The header (`SettingsSubPageModal.actions`) now holds nothing — the title and the back button alone — and the two actions are the first thing under the hint text, above the log they act on. Same rule as before on when they appear: only when the log has entries, because there is nothing to copy or clear otherwise.
+- **Not a restyle — the body CTA is the app's own.** TextButtons floating in a page body are a header control that lost its header, so the pair wears the shared Settings body style (`backup_restore_screen`'s buttons): `settingsPrimaryButtonHeight`, `sheetRadius`, `labelLg`, full width. Copy is the filled primary — the report is the one form of the log that can leave the phone — and Clear is outlined secondary. Both styles are spelled out because this app's theme paints `FilledButton` **and** `OutlinedButton` black, as `more_about_the_app_screen` already documents.
+- **Side by side was measured out, not guessed.** At 360 dp (the test phone's width) a half-row gives each button 124 px inside its padding; measuring the real bundled fonts at labelLg, "Copy Diagnostics" is 109 px but the Bengali "ডায়াগ্রনস্টিকস কপি করুন" is **135 px**, so the Bengali label would wrap to two lines and the pair would misalign. The buttons are therefore stacked full width, like the About screen's pair, where both languages fit with room to spare (~296 px inner). The probe was temporary and was deleted; the reason is recorded in a comment at the layout.
+- **Test, with teeth on the placement.** New case in `diagnostics_screen_test.dart`: both actions must exist, must **not** be descendants of the `AppBar`, and must sit above the first entry (`getRect(...).bottom < entryTop`), re-pumped at 360 dp so a layout that clips there fails the suite. The prior five cases were untouched and still pass — the empty-log case still proves neither action is offered with nothing to act on.
+- **Verification.** `flutter analyze` clean; diagnostics suite **5/5**; full suite **1407 passed**. Version **0.0.404** recorded by script; `--check` OK.
+- **Resume point:** nothing owed. Device check (unchanged from the ANR thread): the screen must open and its actions must hit without hanging.
+
 ### 2026-10-07 — Support: the crash was an ANR, and the app's own error log was causing it — COMPLETE
 
 - **Request (the user's, scoped to Settings > About > Support).** "Pressing the back button or Diagnostic button from the screen crashes the app."

@@ -159,14 +159,32 @@ class ErrorLog extends ChangeNotifier {
     if (_entries.length > maxEntries) {
       _entries.removeRange(maxEntries, _entries.length);
     }
-    notifyListeners();
+    _notifyOutsideThisTurn();
     await _persist();
   }
+
+  /// Tells listeners the log changed — after the turn that changed it, never
+  /// from inside it.
+  ///
+  /// **This is what stops a screen from being rebuilt by the very failure it is
+  /// reporting.** The global capture records an error from inside the frame that
+  /// hit it, so a synchronous notify would call a listening screen's `setState`
+  /// in the middle of that frame: rebuilding the screen re-runs the layout that
+  /// failed, which reports the error again, which notifies again — a loop that
+  /// never yields a frame. On the device this is what ANR'd the app on
+  /// Settings > About > Support (200 `framework` entries logged in three minutes
+  /// and one thread pinned at ~100%), and the two screens in the whole app that
+  /// rebuild from this log are Support and Diagnostics.
+  ///
+  /// A microtask is enough and needs no binding: the frame's build and layout
+  /// phases are one synchronous turn, so the notification lands once the frame
+  /// has finished them and a listener may safely rebuild.
+  void _notifyOutsideThisTurn() => scheduleMicrotask(notifyListeners);
 
   /// Forgets everything, in memory and in the file.
   Future<void> clear() async {
     _entries.clear();
-    notifyListeners();
+    _notifyOutsideThisTurn();
     await store?.clear();
   }
 

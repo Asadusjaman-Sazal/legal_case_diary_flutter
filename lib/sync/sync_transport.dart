@@ -35,6 +35,10 @@ class SyncFailure implements Exception, DiagnosableFailure {
   @override
   String get diagnosticLabel => 'SyncFailure(${kind.name})';
 
+  /// The log's detail: the classified message, which is safe to keep.
+  @override
+  String? get diagnosticDetail => message;
+
   @override
   String toString() => message;
 }

@@ -152,8 +152,8 @@ enum AuthFailureKind {
 
 /// A typed auth failure.
 ///
-/// [serverMessage] is kept for diagnostics only — screens render their own
-/// localized text from [kind].
+/// [serverMessage] is kept for the log's detail line, so a kind like `unknown`
+/// can be acted on — screens render their own localized text from [kind].
 class AuthFailure implements Exception, DiagnosableFailure {
   /// Creates a failure of [kind].
   const AuthFailure(this.kind, {this.serverMessage, this.cause});
@@ -161,16 +161,28 @@ class AuthFailure implements Exception, DiagnosableFailure {
   /// What went wrong, in screen-level terms.
   final AuthFailureKind kind;
 
-  /// The server's own message, when there was one. Never shown verbatim.
+  /// The server's own message, when there was one. Never rendered by a screen;
+  /// it exists for the log's detail line.
   final String? serverMessage;
 
   /// Underlying error, for debugging.
   final Object? cause;
 
-  /// The log's label: the kind, never [serverMessage], which is a raw server
-  /// text and has no business in an exported file.
+  /// The log's label: the kind, so entries stay scannable and comparable.
   @override
   String get diagnosticLabel => 'AuthFailure(${kind.name})';
+
+  /// The log's detail: the server's reply and the underlying cause — what a
+  /// reader fixes from.
+  @override
+  String? get diagnosticDetail {
+    final parts = <String>[
+      if (serverMessage != null && serverMessage!.trim().isNotEmpty)
+        serverMessage!,
+      if (cause != null) cause.toString(),
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
+  }
 
   @override
   String toString() => 'AuthFailure(${kind.name})';

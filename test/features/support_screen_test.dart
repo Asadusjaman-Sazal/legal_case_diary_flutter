@@ -259,7 +259,13 @@ void main() {
   ) async {
     final launcher = _RecordingLauncher();
     final log = ErrorLog();
-    await log.record('sync.push', const AuthFailure(AuthFailureKind.network));
+    await log.record(
+      'sync.push',
+      const AuthFailure(
+        AuthFailureKind.network,
+        serverMessage: 'connection reset by peer',
+      ),
+    );
     await _pumpSupport(tester, launcher: launcher, log: log);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
@@ -268,6 +274,9 @@ void main() {
 
     final message = _sentMessage(launcher.opened.single);
     expect(message, contains('| sync.push | AuthFailure(network)'));
+    // And the failure's own message with it (0.0.406): a report a support
+    // reader cannot act on is a report that has to be asked for twice.
+    expect(message, contains('connection reset by peer'));
     // Before the prompt, so the user's own description ends the message.
     expect(
       message.indexOf('| sync.push |'),

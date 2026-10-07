@@ -6,11 +6,15 @@
 /// dumb — no filtering, no retry, no network — because the machinery that
 /// reports a fault must not be able to fail in the same way the fault did.
 ///
-/// **What is never written.** No case data, no tokens, no passwords, and no raw
-/// server message: `AuthFailure.serverMessage` and `PostgrestException.message`
-/// can carry fragments of a request or of the data in it, and Task 15's rules
-/// already say a diagnostics file is metadata. An entry holds the time, the area
-/// it happened in, a short label for the failure, and the app version.
+/// **What an entry holds (0.0.406).** The time, the area, a short label, and the
+/// failure's own message. The message was once withheld — a `serverMessage` or a
+/// `PostgrestException.message` can quote a request or the data in it — but a
+/// label alone cannot be acted on: a framework error records as the bare word
+/// `FlutterError`, and `AuthFailure(unknown)` is only the start of the story.
+/// The risk is answered where the text can go, not by hiding it: it is shown on
+/// the Diagnostics screen and leaves the device only inside a report the user
+/// copies or sends, which they can read first. No password, token, passphrase or
+/// case payload is ever recorded, because nothing on this path reads one.
 library;
 
 import 'dart:async';
@@ -20,21 +24,30 @@ import 'package:flutter/foundation.dart';
 
 import 'error_log_store.dart';
 
-/// A failure that can describe itself for the log without leaking anything.
+/// A failure that can describe itself for the log.
 ///
 /// Implemented by the app's typed failures, so an entry can name *which* kind
-/// went wrong — `AuthFailure(network)` — while a raw server text stays where it
-/// belongs: in the failure the screen may show, never in an exported file.
+/// went wrong — `AuthFailure(network)` — and, beside it, keep the underlying
+/// text that makes the kind actionable.
 abstract interface class DiagnosableFailure {
-  /// A short, redacted label naming the failure and its kind.
+  /// A short label naming the failure and its kind.
   String get diagnosticLabel;
+
+  /// The failure's own message — the server's reply, the underlying cause — or
+  /// null when [diagnosticLabel] already says everything.
+  String? get diagnosticDetail;
 }
 
 /// One recorded failure.
 class ErrorLogEntry {
   /// Creates an entry. [at] is epoch milliseconds, UTC-agnostic on purpose:
   /// it is a device timestamp and the log says so.
-  const ErrorLogEntry({required this.at, required this.area, required this.label});
+  const ErrorLogEntry({
+    required this.at,
+    required this.area,
+    required this.label,
+    this.detail,
+  });
 
   /// When it happened, epoch milliseconds.
   final int at;
@@ -45,11 +58,18 @@ class ErrorLogEntry {
   /// What failed, as produced by [describeErrorForLog].
   final String label;
 
-  /// The stored shape. Flat on purpose, so a reader can eyeball it.
+  /// The failure's own message, so the error can be identified and fixed — a
+  /// framework error's text, a server's reply — or null when there is none.
+  final String? detail;
+
+  /// The stored shape. Flat on purpose, so a reader can eyeball it. [detail] is
+  /// left out entirely when null, so an entry with nothing to add keeps the
+  /// shape it has always had.
   Map<String, dynamic> toJson() => <String, dynamic>{
     'at': at,
     'area': area,
     'label': label,
+    if (detail != null) 'detail': detail,
   };
 
   /// Reads an entry back, or null when the stored shape is not one.
@@ -59,7 +79,13 @@ class ErrorLogEntry {
     final area = json['area'];
     final label = json['label'];
     if (at is! int || area is! String || label is! String) return null;
-    return ErrorLogEntry(at: at, area: area, label: label);
+    final detail = json['detail'];
+    return ErrorLogEntry(
+      at: at,
+      area: area,
+      label: label,
+      detail: detail is String && detail.isNotEmpty ? detail : null,
+    );
   }
 }
 
@@ -80,11 +106,46 @@ void recordFailure(ErrorLog log, String area, Object error) =>
 /// A one-line, redacted description of [error] for the log.
 ///
 /// Deliberately narrow. A typed failure answers with its kind; anything else
-/// falls back to its runtime type, and **never** to its message.
+/// falls back to its runtime type. The message goes in the entry's
+/// [ErrorLogEntry.detail], not here: a label is what a reader scans, and it
+/// must stay short and comparable across entries.
 String describeErrorForLog(Object error) {
   if (error is DiagnosableFailure) return error.diagnosticLabel;
   if (error is TimeoutException) return 'Timeout';
   return error.runtimeType.toString();
+}
+
+/// The longest detail kept for a single entry.
+///
+/// Long enough for a framework error's text and a server's reply; short enough
+/// that 200 entries and a 25-entry report stay readable blocks rather than dumps
+/// of whole stack-bearing messages.
+const int maxErrorDetailLength = 500;
+
+/// One flat form of [text] for an entry's detail: whitespace collapsed to
+/// single spaces, so a multi-line message stays one block, and long text cut
+/// with an ellipsis.
+String? summarizeErrorDetail(String? text) {
+  if (text == null) return null;
+  final flat = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (flat.isEmpty) return null;
+  if (flat.length <= maxErrorDetailLength) return flat;
+  return '${flat.substring(0, maxErrorDetailLength)}…';
+}
+
+/// The failure's own message, or null when there is nothing beyond the label.
+///
+/// A typed failure answers through [DiagnosableFailure.diagnosticDetail];
+/// anything else falls back to `toString()` — the message, never the stack. An
+/// error whose text is merely its own type name adds nothing to the label and
+/// is left out.
+String? describeErrorDetail(Object error) {
+  final raw = error is DiagnosableFailure
+      ? error.diagnosticDetail
+      : error.toString();
+  if (raw == null || raw.trim().isEmpty) return null;
+  if (raw.trim() == error.runtimeType.toString()) return null;
+  return raw;
 }
 
 /// Encodes [entries] for storage.
@@ -147,13 +208,19 @@ class ErrorLog extends ChangeNotifier {
   }
 
   /// Records [error] as having happened in [area], then persists.
-  Future<void> record(String area, Object error) async {
+  ///
+  /// [detail] overrides the failure's own message — the global capture passes a
+  /// framework error's text with its library and context, which a bare
+  /// `toString()` cannot supply. Whatever the source, it is flattened and
+  /// bounded before it is stored.
+  Future<void> record(String area, Object error, {String? detail}) async {
     _entries.insert(
       0,
       ErrorLogEntry(
         at: DateTime.now().millisecondsSinceEpoch,
         area: area,
         label: describeErrorForLog(error),
+        detail: summarizeErrorDetail(detail ?? describeErrorDetail(error)),
       ),
     );
     if (_entries.length > maxEntries) {

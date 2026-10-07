@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.401 - Every wipe delete now goes through Drift's table API: raw SQL deleted the rows without telling any query stream, so a new account kept seeing the previous one's pending count and queued case.
+Version: 0.0.402 - The Privacy Policy and Terms of Service screens inset the status bar, so it stays the app's black instead of the white app bar they painted behind it after leaving the shell.
 --------------------------------------
 
 ## Version History Log:
@@ -415,3 +415,4 @@ Version: 0.0.398 - Task 19 Phase 6: the logout safety copy is offered, not manda
 Version: 0.0.399 - A free account's header sync button was claiming a sync it cannot do: it now wears the sync-off cloud, shows no pending count, and its tooltip answers the entitlement first.
 Version: 0.0.400 - A logout wipe and an account switch now leave a fresh install's database: the seeded reference data comes back, and a sign-in as somebody else can no longer show the previous account's diary or its pending count.
 Version: 0.0.401 - Every wipe delete now goes through Drift's table API: raw SQL deleted the rows without telling any query stream, so a new account kept seeing the previous one's pending count and queued case.
+Version: 0.0.402 - The Privacy Policy and Terms of Service screens inset the status bar, so it stays the app's black instead of the white app bar they painted behind it after leaving the shell.

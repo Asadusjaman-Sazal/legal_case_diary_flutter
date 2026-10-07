@@ -17,6 +17,12 @@ import '../../features/cases/presentation/cases_screen_modal.dart'
 
 /// A tappable sync button showing the engine's state, with a red count of
 /// changes still waiting to be sent.
+///
+/// A **free** account is a different story and the widget says so in all three
+/// places at once: it wears the network-off cloud rather than the synced
+/// checkmark (sync is not merely unavailable, it is off for the account), it
+/// shows **no count** (the queue a count describes is one it will never drain),
+/// and its tooltip is the entitlement, never a queue or connection fact.
 class SyncButton extends StatelessWidget {
   /// The engine state the icon reads.
   final SyncState syncState;
@@ -37,6 +43,11 @@ class SyncButton extends StatelessWidget {
   /// work is normal and silent there, which is right for a badge but wrong for
   /// the sync button: a user with two unsent edits and taps sync has no way to
   /// see that from the header.
+  ///
+  /// Drawn **only for a premium account**: every write path queues its mutation
+  /// (that is what makes a later upgrade send it), so a free account's queue
+  /// fills up too — but a count over a sync button promises a sync that is
+  /// never going to happen, and reports work as *waiting* when it is not.
   final int pending;
 
   /// Whether the device currently has a connection.
@@ -71,9 +82,12 @@ class SyncButton extends StatelessWidget {
   }
 
   String _tooltip() {
+    // The entitlement comes first, and covers every other state: a free account
+    // must never read a queue count or "No Connection", because both describe a
+    // mechanism it does not have. Offline is incidental; free is permanent.
+    if (!isPremium) return l.sync_unavailable;
     if (pending > 0) return l.sync_pendingBadge(pending);
     if (!isOnline) return l.sync_offline;
-    if (!isPremium) return l.sync_unavailable;
     return switch (syncState) {
       SyncState.idle => l.sync_idle,
       SyncState.syncing => l.sync_syncing,
@@ -88,7 +102,13 @@ class SyncButton extends StatelessWidget {
   /// Offline or paused, it does — even with work queued, because the count is
   /// information about a queue and the cloud is a claim about the connection.
   /// The two are separate, and only the cloud is about syncing being possible.
-  bool get _showsOffCloud => !isOnline || syncState == SyncState.paused;
+  ///
+  /// A **free** account does too, in every state, and takes precedence over a
+  /// real error mark: its engine never runs, so `cloud_done_outlined` — the
+  /// checkmark that says this device's work is safely in the account — would be
+  /// a claim about a sync that cannot have happened.
+  bool get _showsOffCloud =>
+      !isPremium || !isOnline || syncState == SyncState.paused;
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +127,10 @@ class SyncButton extends StatelessWidget {
     } else {
       icon = Icon(
         // `Icons.sync` is gone: the ordinary (idle) state now wears the same
-        // success cloud a completed sync wears, and offline or paused wears the
-        // off cloud. A real error keeps its own mark, because "something went
-        // wrong" is not the same claim as "you are offline".
+        // success cloud a completed sync wears, and offline, paused or free all
+        // wear the off cloud. A real error keeps its own mark, because
+        // "something went wrong" is not the same claim as "you are offline" —
+        // but only for an account that can sync; see `_showsOffCloud`.
         _showsOffCloud
             ? Icons.cloud_off_outlined
             : switch (syncState) {
@@ -129,7 +150,12 @@ class SyncButton extends StatelessWidget {
     //
     // While a sync is actually running the spinner is left bare — a count
     // beside a spinner would suggest work is stuck when it is draining.
-    final Widget child = pending > 0 && syncState != SyncState.syncing
+    //
+    // Premium only: a free account's queue is real but its question — "when will
+    // this reach my account?" — has no answer, so the count would be a promise
+    // rather than information.
+    final Widget child =
+        isPremium && pending > 0 && syncState != SyncState.syncing
         ? Badge(
             // Localized digits like every other count in the app: a Latin "2"
             // beside Bengali text is the exact defect this guards against.

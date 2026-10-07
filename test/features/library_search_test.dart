@@ -20,6 +20,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/case_reference/data/local/case_references_dao.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
 import 'package:legal_case_diary/features/case_reference/presentation/case_reference_screen.dart';
@@ -86,6 +87,9 @@ void main() {
             (_) async =>
                 const CaseWritePermissions(canAdd: true, canEdit: true),
           ),
+          // A free account, stated rather than assumed: these two libraries
+          // carry the same header as the case lists, and sync is off for free.
+          premiumAccessProvider.overrideWith((ref) async => false),
         ],
         child: MaterialApp.router(
           // The app's own theme, so `titleMedium` resolves to the semibold face
@@ -297,6 +301,46 @@ void main() {
         findsOneWidget,
         reason: '${screen.runtimeType} offered no pull-to-sync',
       );
+      await unmount(tester);
+    }
+  });
+
+  testWidgets('a free account sees the sync-off cloud and no count here too', (
+    tester,
+  ) async {
+    // The reported defect on these two screens specifically: saving a note or a
+    // case reference queues a mutation (every write path does, so a later upgrade
+    // can send it), and the header answered with a synced checkmark carrying the
+    // count — for an account that syncs nothing at all.
+    await seedNote('note-1', 'Bail application', 'Filed before the CMM.');
+    await seedReference('ref-1', '45 DLR (AD) 1', 'Bail guidelines.');
+
+    for (final screen in <Widget>[
+      const NotesScreen(),
+      const CaseReferenceScreen(),
+    ]) {
+      final name = screen.runtimeType.toString();
+      await pumpLibrary(tester, screen);
+
+      expect(
+        find.byIcon(Icons.cloud_off_outlined),
+        findsOneWidget,
+        reason: '$name does not wear the sync-off cloud',
+      );
+      expect(
+        find.byIcon(Icons.cloud_done_outlined),
+        findsNothing,
+        reason: '$name wears the synced checkmark for a free account',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('cases-modal-sync-button')),
+          matching: find.byType(Badge),
+        ),
+        findsNothing,
+        reason: '$name puts a pending count on the sync button',
+      );
+
       await unmount(tester);
     }
   });

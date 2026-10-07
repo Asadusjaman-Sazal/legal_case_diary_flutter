@@ -237,14 +237,23 @@ void main() {
     // The per-court KPI beside the court name is a plain count, so it has to be
     // formatted rather than interpolated.
     //
-    // Two Bengali ২s are correct and both are wanted: the court's hearing
-    // count, and the header sync button's pending count — seeding each case
-    // went through `insertCase`, which queues a sync row per case, so the two
-    // seeded hearings really are two pending changes. What this guards is that
-    // no count is interpolated in Latin digits, which is why the second
-    // assertion is the strict one.
-    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(2));
+    // Exactly one Bengali ২ is wanted: the court's hearing count. This harness is
+    // a free account (nothing is cached, so `premiumAccessProvider` answers
+    // false), and a free account syncs nothing — so the header's sync button is
+    // deliberately bare, even though seeding really did queue two sync rows (one
+    // per `insertCase`) and a premium account would be shown them. What this
+    // guards is that no count is interpolated in Latin digits, which is why the
+    // second assertion is the strict one; the third is the free-account rule
+    // itself, on one of the screens that reported it.
+    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(1));
     expect(find.text('2'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('cases-modal-sync-button')),
+        matching: find.byType(Badge),
+      ),
+      findsNothing,
+    );
 
     await unmount(tester);
   });

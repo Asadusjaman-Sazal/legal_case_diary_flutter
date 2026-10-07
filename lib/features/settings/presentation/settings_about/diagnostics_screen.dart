@@ -22,6 +22,7 @@ import '../../../../core/errors/error_log.dart';
 import '../../../../core/errors/error_log_provider.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../data/diagnostics_report.dart';
+import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
 /// Reads, copies and clears the app's error log.
@@ -59,35 +60,6 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
 
     return SettingsSubPageModal(
       title: l.settingsDiagnostics_title,
-      actions: [
-        if (entries.isNotEmpty) ...[
-          // The report is the point of the log: it is the one form of it that
-          // can leave the phone. Nothing to encrypt and no passphrase to ask
-          // for, because an entry is a time, an area and a redacted label.
-          TextButton(
-            onPressed: () async {
-              await Clipboard.setData(
-                ClipboardData(text: buildDiagnosticsReport(entries: entries)),
-              );
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l.settingsDiagnostics_copied)),
-              );
-            },
-            child: Text(l.settingsDiagnostics_copy),
-          ),
-          TextButton(
-            onPressed: () async {
-              await ref.read(errorLogProvider).clear();
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l.settingsDiagnostics_cleared)),
-              );
-            },
-            child: Text(l.settingsDiagnostics_clear),
-          ),
-        ],
-      ],
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.edgeMargin,
@@ -103,12 +75,103 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
+          // The two actions sit in the body, above the log they act on, rather
+          // than in the header: the header keeps the title and the back button
+          // alone. Full width each, stacked, like the About screen's pair — a
+          // side-by-side pair would give each label 124 px inside the button at
+          // 360 dp, and the Bengali "ডায়াগ্রনস্টিকস কপি করুন" measures 135 px
+          // there, so it would wrap to two lines and the pair would misalign.
+          // They are shown only when there is a log to act on.
+          if (entries.isNotEmpty) ...[
+            _ActionButton(
+              // The report is the point of the log: it is the one form of it
+              // that can leave the phone. Nothing to encrypt and no passphrase
+              // to ask for, because an entry is a time, an area and a redacted
+              // label.
+              onPressed: () async {
+                await Clipboard.setData(
+                  ClipboardData(
+                    text: buildDiagnosticsReport(entries: entries),
+                  ),
+                );
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.settingsDiagnostics_copied)),
+                );
+              },
+              label: l.settingsDiagnostics_copy,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _ActionButton(
+              filled: false,
+              onPressed: () async {
+                await ref.read(errorLogProvider).clear();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.settingsDiagnostics_cleared)),
+                );
+              },
+              label: l.settingsDiagnostics_clear,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           if (entries.isEmpty)
             _EmptyLog(text: l.settingsDiagnostics_empty)
           else
             for (final entry in entries) _EntryRow(entry: entry),
         ],
       ),
+    );
+  }
+}
+
+/// One of the screen's two actions, full width at the shared Settings CTA
+/// height so it matches every other Settings button.
+///
+/// Both styles are spelled out because this app's theme paints `FilledButton`
+/// and `OutlinedButton` black; filled is the primary action (copying the
+/// report), outlined the secondary.
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.onPressed,
+    required this.label,
+    this.filled = true,
+  });
+
+  final VoidCallback onPressed;
+  final String label;
+  final bool filled;
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    );
+    return SizedBox(
+      width: double.infinity,
+      height: settingsPrimaryButtonHeight,
+      child: filled
+          ? FilledButton(
+              onPressed: onPressed,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.labelLg,
+                shape: shape,
+              ),
+              child: Text(label),
+            )
+          : OutlinedButton(
+              onPressed: onPressed,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.outlineVariant),
+                textStyle: AppTypography.labelLg,
+                shape: shape,
+              ),
+              child: Text(label),
+            ),
     );
   }
 }

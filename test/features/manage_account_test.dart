@@ -37,6 +37,20 @@ import 'settings_test_support.dart';
 /// Marker rendered by the stand-in Login route a completed logout goes to.
 const String loginRouteMarker = 'Login Route';
 
+/// One note, so a free account *has* work for the logout to offer a copy of.
+Future<void> _seedNote(AppDatabase db) => db
+    .into(db.notes)
+    .insert(
+      NotesCompanion.insert(
+        id: 'n1',
+        userId: 'user-1',
+        title: 'Local',
+        body: 'Body',
+        createdAt: 0,
+        updatedAt: 0,
+      ),
+    );
+
 void main() {
   late AuthTestHarness harness;
   late AppLocalizations l;
@@ -211,22 +225,25 @@ void main() {
   testWidgets('Logout ends the session, empties the caches and shows Login', (
     tester,
   ) async {
-    // A free account has no cloud copy of anything it holds, so its logout is the
-    // export-then-wipe branch (Task 19 Phase 6): the encrypted safety copy is
+    // A free account holding its own work has no cloud copy of it, so its logout
+    // offers the copy (Task 19 Phase 6): on Yes the encrypted safety copy is
     // written first, and the wipe and the sign-out happen only after it lands.
     final sink = RecordingArchiveSink();
     await pumpManageAccount(
       tester,
       overrides: [logoutFlowOverride(premium: false, sink: sink)],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
+      seed: (db) async {
+        await ProfilesDao(db).upsert(
+          const ProfilesCompanion(
+            id: Value('user-1'),
+            fullName: Value('Adv. Rahim Uddin'),
+            role: Value(AccountRole.individual),
+            subscriptionStatus: Value('free'),
+            createdAt: Value(1),
+          ),
+        );
+        await _seedNote(db);
+      },
     );
     await harness.prefs.setString(authUserIdKey, 'user-1');
     // Encryption on, so the export asks for a passphrase as this test expects.
@@ -251,26 +268,30 @@ void main() {
   testWidgets('Logout cancelling the backup keeps the session and the data', (
     tester,
   ) async {
-    // The copy is the wipe's precondition, so declining to set a passphrase
-    // cancels the logout rather than the export: nothing is deleted and the
-    // account stays signed in.
+    // A dismissed passphrase window cancels the logout rather than the export —
+    // the user asked for a copy, so nothing is deleted and the account stays
+    // signed in.
     final sink = RecordingArchiveSink();
     await pumpManageAccount(
       tester,
       overrides: [logoutFlowOverride(premium: false, sink: sink)],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
+      seed: (db) async {
+        await ProfilesDao(db).upsert(
+          const ProfilesCompanion(
+            id: Value('user-1'),
+            fullName: Value('Adv. Rahim Uddin'),
+            role: Value(AccountRole.individual),
+            subscriptionStatus: Value('free'),
+            createdAt: Value(1),
+          ),
+        );
+        await _seedNote(db);
+      },
     );
 
     await harness.prefs.setBool(backupEncryptionEnabledKey, true);
     await tapVisible(tester, find.text(l.settingsManageAccount_logout));
+    await answerLogoutBackup(tester, l);
     await tester.tap(find.text(l.sharedActions_cancel));
     await tester.pumpAndSettle();
 

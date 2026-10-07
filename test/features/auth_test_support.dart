@@ -579,15 +579,40 @@ Override logoutFlowOverride({
   );
 });
 
-/// Answers the passphrase window every export-before-wipe logout branch opens.
+/// Answers the *Backup Data to Local Storage?* window the export-path logout
+/// branches open first. [backup] true taps **Yes**, false taps **No**.
 ///
 /// The window is part of those branches rather than an interruption, so the test
-/// asserts it appeared before it fills it in.
+/// asserts it appeared before it answers it.
+Future<void> answerLogoutBackup(
+  WidgetTester tester,
+  AppLocalizations l, {
+  bool backup = true,
+}) async {
+  expect(
+    find.text(l.logout_backupPromptTitle),
+    findsOneWidget,
+    reason: 'the copy is offered before anything is deleted',
+  );
+  await tester.tap(
+    find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.text(backup ? l.sharedActions_yes : l.sharedActions_no),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+/// Answers the passphrase window every export-before-wipe logout branch opens.
+///
+/// It first answers the backup choice with **Yes**, since the passphrase window
+/// only appears once a copy has been asked for.
 Future<void> completeLogoutPassphrase(
   WidgetTester tester,
   AppLocalizations l,
   String passphrase,
 ) async {
+  await answerLogoutBackup(tester, l);
   expect(
     find.text(l.settingsBackupRestore_passphraseTitle),
     findsOneWidget,

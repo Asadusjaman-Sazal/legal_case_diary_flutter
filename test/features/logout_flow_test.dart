@@ -1,15 +1,18 @@
 /// Tests for the branched logout (Task 19 Phase 6).
 ///
 /// The rule every branch serves is one sentence — *nothing that exists only on
-/// this device may be destroyed without a copy* — so that is what these pin: the
-/// branch is chosen from where the data actually lives, the mandatory sync really
-/// gates the wipe, the export really gates it too (a cancelled or failed copy
-/// deletes nothing and ends no session), and the wipe is the complete scope.
+/// this device is destroyed without the user being offered a copy* — so that is
+/// what these pin: the branch is chosen from where the data actually lives (a
+/// premium account already synced and an empty free account wipe straight away;
+/// everything else is offered the choice), the mandatory sync really gates the
+/// wipe, the copy really gates it when it is asked for (a cancelled or failed
+/// copy deletes nothing and ends no session), and the wipe is the complete scope.
 library;
 
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -106,6 +109,19 @@ void main() {
     await SyncMetadataDao(db).setValue(archiveStateKey, archiveStateComplete);
   }
 
+  /// One pre-seeded court category, the parent every other reference row needs.
+  Future<void> seedCategory() async => db
+      .into(db.courtCategories)
+      .insert(
+        CourtCategoriesCompanion.insert(
+          id: 'cat-1',
+          nameKey: 'k',
+          courtLevel: 'lower',
+          orderIndex: 0,
+          updatedAt: 0,
+        ),
+      );
+
   Future<void> expectEverythingGone() async {
     expect(await db.select(db.notes).get(), isEmpty);
     expect(await db.select(db.syncQueue).get(), isEmpty);
@@ -121,7 +137,7 @@ void main() {
       expect(plan.branch, LogoutBranch.syncedThenWiped);
       expect(plan.unsyncedCount, 1);
       expect(plan.needsSync, isTrue);
-      expect(plan.needsExport, isFalse);
+      expect(plan.needsBackupChoice, isFalse);
     });
 
     test('premium + offline with unsynced work blocks', () async {
@@ -129,23 +145,74 @@ void main() {
       final plan = await flow(online: false).plan();
       expect(plan.branch, LogoutBranch.blockedOffline);
       expect(plan.needsWarning, isTrue);
-      expect(plan.needsExport, isTrue);
+      expect(plan.needsBackupChoice, isTrue);
     });
 
     test('premium + offline with nothing unsynced is a clean wipe', () async {
       final plan = await flow(online: false).plan();
       expect(plan.branch, LogoutBranch.cleanWipe);
-      expect(plan.needsExport, isFalse);
+      expect(plan.needsBackupChoice, isFalse);
       expect(plan.needsWarning, isFalse);
     });
 
-    test('a free account always exports, online or not', () async {
+    test('a free account with authored work offers a copy, online or not', () async {
+      await db
+          .into(db.notes)
+          .insert(
+            NotesCompanion.insert(
+              id: 'n1',
+              userId: 'user-1',
+              title: 'Local',
+              body: 'Body',
+              createdAt: 0,
+              updatedAt: 0,
+            ),
+          );
       for (final online in [true, false]) {
         final plan = await flow(premium: false, online: online).plan();
-        expect(plan.branch, LogoutBranch.freeExportThenWipe);
-        expect(plan.needsExport, isTrue, reason: 'no cloud copy exists');
+        expect(plan.branch, LogoutBranch.freeBackupChoice);
+        expect(plan.needsBackupChoice, isTrue, reason: 'no cloud copy exists');
         expect(plan.needsWarning, isFalse);
       }
+    });
+
+    test('a free account that only edited a default row offers a copy', () async {
+      // No case, note or reference of their own — but a pre-seeded step they
+      // edited is still their work, so the wipe must not be silent.
+      await seedCategory();
+      await db
+          .into(db.steps)
+          .insert(
+            StepsCompanion.insert(
+              id: 's1',
+              courtCategoryId: 'cat-1',
+              stepName: 'Edited',
+              orderIndex: 0,
+              updatedAt: 0,
+              isUserModified: const Value(true),
+            ),
+          );
+      final plan = await flow(premium: false).plan();
+      expect(plan.branch, LogoutBranch.freeBackupChoice);
+    });
+
+    test('a free account with only seeded data wipes straight away', () async {
+      await seedCategory();
+      await db
+          .into(db.courts)
+          .insert(
+            CourtsCompanion.insert(
+              id: 'court-1',
+              courtName: 'Seeded',
+              higherLowerCourts: 'lower_courts',
+              courtCategoryId: 'cat-1',
+              updatedAt: 0,
+            ),
+          );
+      final plan = await flow(premium: false).plan();
+      expect(plan.branch, LogoutBranch.cleanWipe);
+      expect(plan.needsBackupChoice, isFalse);
+      expect(plan.needsWarning, isFalse);
     });
   });
 

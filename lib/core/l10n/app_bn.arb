@@ -434,6 +434,7 @@
   "logout_unsyncedWarningTitle": "কিছু পরিবর্তন এখনও সিঙ্ক হয়নি",
   "logout_unsyncedWarningBody": "কিছু তথ্য এখনও ক্লাউডে সিঙ্ক হয়নি। এখন লগ আউট করলে সেই সিঙ্ক না হওয়া তথ্য মুছে যাবে।",
   "logout_proceed": "লগ আউট করুন",
+  "logout_backupPromptTitle": "লোকাল স্টোরেজে ডেটা ব্যাকআপ করুন",
   "logout_backedUpTo": "আপনার তথ্য {path}-এ ব্যাকআপ করা হয়েছে। লগ ইন করার পর আপনি এটি পুনরুদ্ধার করতে পারবেন।",
   "@logout_backedUpTo": {
       "placeholders": {

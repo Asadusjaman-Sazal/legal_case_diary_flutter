@@ -923,6 +923,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout_proceed => 'Log Out';
 
   @override
+  String get logout_backupPromptTitle => 'Backup Data to Local Storage';
+
+  @override
   String logout_backedUpTo(String path) {
     return 'Your Data Has Been Backed Up To $path. You Can Restore It After Logging Back In.';
   }

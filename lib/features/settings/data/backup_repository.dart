@@ -84,6 +84,21 @@ const List<String> backupTableOrder = <String>[
   'seed_migrations',
 ];
 
+/// The six editable reference tables, in the order [backupTableOrder] lists them.
+///
+/// A row here is the user's own when either `is_custom` (a row they added) or
+/// `is_user_modified` (a pre-seeded row they edited) is set — which is what
+/// makes an edited default court, step or case type "data worth keeping" even
+/// though the seeded baseline itself exists on every install.
+const List<String> userEditableReferenceTables = <String>[
+  'court_categories',
+  'case_categories',
+  'courts',
+  'on_behalfs',
+  'steps',
+  'case_types',
+];
+
 /// The `sync_metadata` keys that describe the last archive.
 ///
 /// They are a *receipt for a file outside the database*, so the two full wipes
@@ -323,6 +338,39 @@ class BackupRepository {
 
   /// Whether any portable table holds a row.
   Future<bool> hasExistingData() => hasDataInTables(backupTableOrder);
+
+  /// Whether the device holds anything the *user* authored.
+  ///
+  /// The question the logout flow asks before deciding it may wipe without
+  /// offering a copy: cases, notes and case references (the same three the
+  /// sign-in gate counts, and the free user's own work), plus any reference row
+  /// the user added or edited in the six editable reference tables. Seeded
+  /// reference data, settings and sync metadata are deliberately **not** data:
+  /// they exist on every install, old or new.
+  ///
+  /// This is a different question from `authLocalDataExistsProvider` — the gate
+  /// asks "is this device already in use?" and ignores reference edits, while
+  /// the logout asks "is there anything here a wipe would destroy?" and counts
+  /// them — so the two do not share one query.
+  Future<bool> hasUserAuthoredData() async {
+    if (await hasDataInTables(const <String>[
+      'cases',
+      'notes',
+      'case_references',
+    ])) {
+      return true;
+    }
+    for (final name in userEditableReferenceTables) {
+      final row = await db
+          .customSelect(
+            'SELECT 1 FROM "$name" '
+            'WHERE is_custom = 1 OR is_user_modified = 1 LIMIT 1',
+          )
+          .getSingleOrNull();
+      if (row != null) return true;
+    }
+    return false;
+  }
 
   // -------------------------------------------------------------------------
   // Excel workbook backup (plan deviation: see the Task 15 note)

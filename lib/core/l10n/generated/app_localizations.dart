@@ -1688,6 +1688,12 @@ abstract class AppLocalizations {
   /// **'Log Out'**
   String get logout_proceed;
 
+  /// No description provided for @logout_backupPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Data to Local Storage'**
+  String get logout_backupPromptTitle;
+
   /// No description provided for @logout_backedUpTo.
   ///
   /// In en, this message translates to:

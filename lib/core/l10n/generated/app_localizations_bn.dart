@@ -924,6 +924,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get logout_proceed => 'লগ আউট করুন';
 
   @override
+  String get logout_backupPromptTitle => 'লোকাল স্টোরেজে ডেটা ব্যাকআপ করুন';
+
+  @override
   String logout_backedUpTo(String path) {
     return 'আপনার তথ্য $path-এ ব্যাকআপ করা হয়েছে। লগ ইন করার পর আপনি এটি পুনরুদ্ধার করতে পারবেন।';
   }

@@ -47,6 +47,7 @@ import '../../../core/backup/backup_format.dart';
 import '../../../core/backup/backup_restore.dart';
 import '../../../core/backup/excel_backup.dart';
 import '../../../database/app_database.dart';
+import '../../../database/seed_migration_runner.dart';
 import '../../../sync/sync_metadata_dao.dart';
 
 /// Portable local tables in FK-safe parent → child order.
@@ -295,24 +296,50 @@ class BackupRepository {
   /// callers pass [archiveMetadataKeys] or nothing at all. No session material
   /// lives in the database, so nothing has to be carried across for the
   /// authenticated pull that follows a recovery or a fresh login.
+  ///
+  /// **Every delete goes through the table API, never `customStatement`.** Raw SQL
+  /// removes the rows from the file but tells Drift nothing, so every live query
+  /// over that table keeps serving the rows that are gone for the rest of the app
+  /// run — which is how a device that had logged out and signed in as somebody
+  /// else still showed the previous account's pending count on its header and its
+  /// queued mutation on Sync Status, while the database behind both was already
+  /// empty (0.0.401). `db.delete(table).go()` invalidates that table's streams, as
+  /// every other writer in the app does.
   Future<void> wipeAllTables({
     Set<String> keepMetadataKeys = const <String>{},
   }) => db.transaction(() async {
     for (final name in backupTableOrder.reversed) {
       if (name == 'sync_metadata' && keepMetadataKeys.isNotEmpty) {
-        final placeholders = List.filled(
-          keepMetadataKeys.length,
-          '?',
-        ).join(', ');
-        await db.customStatement(
-          'DELETE FROM sync_metadata WHERE key NOT IN ($placeholders)',
-          keepMetadataKeys.toList(growable: false),
-        );
+        await (db.delete(db.syncMetadata)..where(
+              (row) => row.key.isNotIn(keepMetadataKeys.toList(growable: false)),
+            ))
+            .go();
         continue;
       }
-      await db.customStatement('DELETE FROM "$name"');
+      await db.delete(_tableInfo(name)).go();
     }
   });
+
+  /// Wipes every app-state table and puts the app's own baseline data back.
+  ///
+  /// **A wipe must leave the device holding what a fresh install holds**, and
+  /// [wipeAllTables] deliberately takes the seeded reference data and its
+  /// `seed_migrations` ledger with everything else. Nothing else would put that
+  /// baseline back: `SeedMigrationRunner` is run when the database is **opened**
+  /// (`database_provider.dart`), so a wipe mid-run leaves the device with no
+  /// court categories at all for the rest of that run — an Add Case form whose
+  /// Court Category, court names, steps, case types and on-behalfs are empty,
+  /// while the static Higher/Lower Court and Division dropdowns still show. That
+  /// is why the two steps are one operation here rather than a rule each caller
+  /// has to remember.
+  ///
+  /// Extended-offline recovery does **not** use this method: it re-seeds between
+  /// its wipe and its authoritative pull, because the checkpoints it keeps and
+  /// the order it works in are its own (see `recovery_flow.dart`).
+  Future<void> wipeToFreshInstall() async {
+    await wipeAllTables();
+    await SeedMigrationRunner(db).runMigrations();
+  }
 
   /// Reads the last recorded archive state.
   Future<BackupArchiveState> readArchiveState() async => BackupArchiveState(

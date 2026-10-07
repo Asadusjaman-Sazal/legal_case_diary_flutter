@@ -33,6 +33,7 @@ import '../../accounts_and_profile/data/profile_picture_store.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
 import '../../settings/data/backup_metadata_store.dart';
+import '../../settings/data/backup_repository.dart';
 import '../data/auth_repository.dart';
 import '../data/identity_adoption_service.dart';
 import '../data/local_auth_service.dart';
@@ -308,9 +309,11 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
 
   /// Drops everything that belongs to the account that is leaving.
   ///
-  /// The branched logout's database wipe clears the local rows; every one of
-  /// these lives outside it, and each is read by a screen that must never show
-  /// it to the next person on this device.
+  /// The database wipe clears the local rows; every one of these lives outside
+  /// it, and each is read by a screen that must never show it to the next person
+  /// on this device. On an account switch the database is cleared too —
+  /// [_wipeLocalDiary] — so the two together leave nothing of the previous
+  /// holder behind.
   ///
   /// * **The pull-only caches** belong to the account that pulled them: they are
   ///   emptied rather than left behind for whoever signs in next (Revision 2.4
@@ -333,6 +336,28 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     ref.invalidate(adminStatusProvider);
     ref.invalidate(firmMembersListProvider);
     ref.invalidate(firmInvitesListProvider);
+  }
+
+  /// Wipes this device's local diary, and puts the baseline data back.
+  ///
+  /// The second half of an account switch, and the one the caches above cannot
+  /// reach. Plan §5 and its Revision 2.4 Addendum require the **account switch**
+  /// to follow the same complete wipe scope as the Logout button, because the
+  /// wipe is what binds the local rows to one account. A switch that began with
+  /// the Logout button has already been wiped by the branched flow; this is the
+  /// other way a switch begins — a session the server revoked, or one that
+  /// expired or could not be parsed back at all, which clears nothing on its own
+  /// and (unlike the logout) is never prompted for a safety copy.
+  ///
+  /// Without it the arriving account opened the diary onto the previous
+  /// holder's cases, notes and reference rows — and onto their `sync_queue`, so
+  /// the header counted work that no longer had an owner on this device while
+  /// `IdentityAdoptionService` refused to hand the rows over. The wipe restores
+  /// the seeded baseline in the same step, so what follows is a fresh install's
+  /// database plus the arriving account's own initial pull.
+  Future<void> _wipeLocalDiary() async {
+    final db = await ref.read(databaseProvider.future);
+    await BackupRepository(db).wipeToFreshInstall();
   }
 
   /// Empties the SharedPreferences-backed per-user caches.
@@ -382,6 +407,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     final previousUserId = _local.cachedUserId;
     if (previousUserId != null && previousUserId != identity.userId) {
       await _forgetAccount();
+      await _wipeLocalDiary();
     }
     final blocked = await _adopt(identity, firmId: firmId);
     await _local.rememberIdentity(identity);

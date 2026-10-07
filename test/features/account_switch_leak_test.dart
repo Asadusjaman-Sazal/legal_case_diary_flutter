@@ -19,10 +19,13 @@
 /// asserted through the real entry points rather than by calling it directly.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
@@ -30,6 +33,8 @@ import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dar
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
+import 'package:legal_case_diary/sync/sync_providers.dart';
+import 'package:legal_case_diary/sync/sync_status_providers.dart';
 
 import 'auth_test_support.dart';
 
@@ -271,6 +276,117 @@ void main() {
       c.read(profileFieldsProvider).fullName,
       isEmpty,
       reason: 'B\'s account must not inherit the details A typed on this device',
+    );
+  });
+
+  test('a switch to another account wipes the leaving diary with its queue', () async {
+    final c = await container();
+    await signInAs(c, 'user-a');
+
+    // A's own work on this device: a local record and the queued mutation the
+    // header counts. Both survive the session ending on its own — nothing wipes
+    // them (by design, so a rejected session never destroys a diary).
+    await harness.db
+        .into(harness.db.notes)
+        .insert(
+          NotesCompanion.insert(
+            id: 'a-note',
+            userId: 'user-a',
+            title: 'A only',
+            body: 'Body',
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+    await harness.db
+        .into(harness.db.syncQueue)
+        .insert(
+          SyncQueueCompanion.insert(
+            entityType: 'cases',
+            entityId: 'a-case',
+            operation: 'insert',
+            mutationId: 'a-mutation',
+            basePayload: '{}',
+            changedFields: '["id"]',
+            payload: '{"id":"a-case"}',
+            preMutationPayload: '{}',
+            createdAt: 0,
+            state: 'pending',
+          ),
+        );
+
+    // The two live facts the reported screens read — the header's count and Sync
+    // Status's entry list — observed from **before** the switch. A wipe that only
+    // deletes rows is not enough: the database behind these was empty while the
+    // header still showed A's count and Sync Status still listed A's queued
+    // mutation, because a raw `DELETE FROM` tells Drift's query streams nothing.
+    final countFell = Completer<int>();
+    final entriesCleared = Completer<int>();
+    final countSubscription = c.listen<AsyncValue<int>>(
+      syncQueuePendingCountProvider,
+      (previous, next) {
+        final value = next.value;
+        if (value == 0 && !countFell.isCompleted) countFell.complete(value);
+      },
+      fireImmediately: true,
+    );
+    final entriesSubscription = c.listen<AsyncValue<List<SyncQueueRow>>>(
+      syncQueueEntriesProvider,
+      (previous, next) {
+        final value = next.value;
+        if (value != null &&
+            value.isEmpty &&
+            !entriesCleared.isCompleted) {
+          entriesCleared.complete(value.length);
+        }
+      },
+      fireImmediately: true,
+    );
+    addTearDown(countSubscription.close);
+    addTearDown(entriesSubscription.close);
+
+    // Both screens really were showing A's work a moment ago.
+    await pumpEventQueue();
+    expect(c.read(syncQueuePendingCountProvider).value, 1);
+    expect(c.read(syncQueueEntriesProvider).value, hasLength(1));
+
+    await sessionLost(c);
+    await signInAs(c, 'user-b');
+
+    // Plan §5 / the Revision 2.4 Addendum: the **account switch** follows the
+    // same complete wipe scope as the Logout button. Without it B opened the
+    // diary onto A's record and A's queue — the reported "B's case in A's
+    // pending sync, and a count on the header".
+    expect(
+      await harness.db.select(harness.db.notes).get(),
+      isEmpty,
+      reason: 'B must not open A\'s diary',
+    );
+    expect(
+      await harness.db.select(harness.db.syncQueue).get(),
+      isEmpty,
+      reason: 'nothing of A\'s may stay queued, counted on B\'s header',
+    );
+    // And the screens are **told**, not merely correct underneath.
+    expect(
+      await countFell.future.timeout(const Duration(seconds: 10)),
+      0,
+      reason: 'the header counts B\'s work only',
+    );
+    expect(
+      await entriesCleared.future.timeout(const Duration(seconds: 10)),
+      0,
+      reason: 'Sync Status must not keep listing A\'s queued case',
+    );
+    expect(
+      c.read(authAdoptionBlockedProvider),
+      isFalse,
+      reason: 'a wiped device adopts the arriving account cleanly',
+    );
+    expect(
+      await harness.db.select(harness.db.courtCategories).get(),
+      isNotEmpty,
+      reason: 'and B still finds the baseline an install starts from',
     );
   });
 

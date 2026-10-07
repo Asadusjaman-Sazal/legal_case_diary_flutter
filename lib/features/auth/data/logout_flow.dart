@@ -28,11 +28,12 @@
 /// would otherwise export first now asks *Backup Data to Local Storage?* with
 /// **Yes** and **No**, and **No** wipes without a copy.
 ///
-/// The wipe itself is [BackupRepository.wipeAllTables], the same complete scope
+/// The wipe itself is [BackupRepository.wipeToFreshInstall] — the complete scope
 /// extended-offline recovery uses (every domain row and tombstone, the queue, the
 /// pull-only caches, the per-user preferences and notification configuration, the
 /// cursors, the seeded reference data and its ledger, and the rest of the
-/// sync/recovery metadata), so a fresh login starts against a fresh database —
+/// sync/recovery metadata) **and then the app's own baseline reference data
+/// again**, so a fresh login starts against the database a fresh install has,
 /// followed by the initial pull for a premium account, as the Addendum requires.
 library;
 
@@ -254,8 +255,13 @@ class LogoutFlow {
   /// data intact — the retryable direction. Nothing is preserved: a logout ends
   /// one account's device, so the archive receipt belongs to the account that is
   /// leaving.
+  ///
+  /// [BackupRepository.wipeToFreshInstall] rather than the bare
+  /// [BackupRepository.wipeAllTables]: the wipe takes the seeded reference data
+  /// and its ledger with it, and the next account on this device must find the
+  /// baseline an install starts from, not an empty court hierarchy (0.0.400).
   Future<void> _wipeAndEnd() async {
-    await BackupRepository(db).wipeAllTables();
+    await BackupRepository(db).wipeToFreshInstall();
     await endSession();
   }
 }

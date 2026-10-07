@@ -122,12 +122,29 @@ void main() {
         ),
       );
 
+  /// What a completed logout leaves: none of the account's own state, **and the
+  /// baseline every install starts from put back**.
+  ///
+  /// The second half is the reported defect (0.0.400): the wipe takes the seeded
+  /// reference data and its ledger with it, and `SeedMigrationRunner` only runs
+  /// when the database is opened, so A logging out left B — signing in on the
+  /// same device, in the same app run — with no Court Category and no case type,
+  /// step, court or on-behalf to choose from.
   Future<void> expectEverythingGone() async {
     expect(await db.select(db.notes).get(), isEmpty);
     expect(await db.select(db.syncQueue).get(), isEmpty);
     expect(await db.select(db.userPreferences).get(), isEmpty);
     expect(await db.select(db.syncMetadata).get(), isEmpty);
-    expect(await db.select(db.seedMigrations).get(), isEmpty);
+    expect(
+      await db.select(db.courtCategories).get(),
+      isNotEmpty,
+      reason: 'the seeded baseline is restored for whoever signs in next',
+    );
+    expect(
+      await db.select(db.seedMigrations).get(),
+      isNotEmpty,
+      reason: 'and the ledger records it, exactly as a fresh open would',
+    );
   }
 
   group('branch selection', () {
@@ -277,6 +294,48 @@ void main() {
       expect(result, LogoutResult.completed);
       expect(ended, 1);
       await expectEverythingGone();
+    });
+  });
+
+  group('the fresh-install baseline', () {
+    test('a wipe leaves the reference data the next account needs', () async {
+      await seedEveryClass();
+      await flow().wipeAndComplete();
+
+      // Every table the Add Case form reads through the database, which is what
+      // the static Higher/Lower Court, Division and District dropdowns masked.
+      expect(await db.select(db.courtCategories).get(), isNotEmpty);
+      expect(await db.select(db.courts).get(), isNotEmpty);
+      expect(await db.select(db.steps).get(), isNotEmpty);
+      expect(await db.select(db.caseTypes).get(), isNotEmpty);
+      expect(await db.select(db.onBehalfs).get(), isNotEmpty);
+      expect(await db.select(db.caseCategories).get(), isNotEmpty);
+      expect(await db.select(db.seedMigrations).get(), isNotEmpty);
+    });
+
+    test('the baseline comes back without the account\'s own work', () async {
+      await seedCategory();
+      await db
+          .into(db.steps)
+          .insert(
+            StepsCompanion.insert(
+              id: 's1',
+              courtCategoryId: 'cat-1',
+              stepName: 'Edited',
+              orderIndex: 0,
+              updatedAt: 0,
+              isUserModified: const Value(true),
+            ),
+          );
+
+      await flow().wipeAndComplete();
+
+      // The user's own category and edit are gone; the seeded ones are not.
+      expect(
+        (await db.select(db.courtCategories).get()).map((c) => c.id),
+        isNot(contains('cat-1')),
+      );
+      expect(await db.select(db.steps).get(), isNotEmpty);
     });
   });
 

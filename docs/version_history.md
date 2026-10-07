@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.399 - A free account's header sync button was claiming a sync it cannot do: it now wears the sync-off cloud, shows no pending count, and its tooltip answers the entitlement first.
+Version: 0.0.401 - Every wipe delete now goes through Drift's table API: raw SQL deleted the rows without telling any query stream, so a new account kept seeing the previous one's pending count and queued case.
 --------------------------------------
 
 ## Version History Log:
@@ -413,3 +413,5 @@ Version: 0.0.396 - Settings > Online Sync: the free-plan sentence is sized like 
 Version: 0.0.397 - Supabase's user_preferences stayed empty: the premium per-user preference path now pushes this device's settings row and its per-case notification rows to the account and takes back the account's newer ones.
 Version: 0.0.398 - Task 19 Phase 6: the logout safety copy is offered, not mandatory — a Backup Data to Local Storage Yes/No window replaces the auto-export, skipped for a premium account already synced or a free account with nothing authored.
 Version: 0.0.399 - A free account's header sync button was claiming a sync it cannot do: it now wears the sync-off cloud, shows no pending count, and its tooltip answers the entitlement first.
+Version: 0.0.400 - A logout wipe and an account switch now leave a fresh install's database: the seeded reference data comes back, and a sign-in as somebody else can no longer show the previous account's diary or its pending count.
+Version: 0.0.401 - Every wipe delete now goes through Drift's table API: raw SQL deleted the rows without telling any query stream, so a new account kept seeing the previous one's pending count and queued case.

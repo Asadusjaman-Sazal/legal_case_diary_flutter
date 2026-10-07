@@ -1,9 +1,9 @@
 /// Support screen tests (Settings > About > Support).
 ///
-/// The screen has no mockup, so these tests are its contract: the scope line
-/// comes before any channel, the link really opens Guidelines & FAQs, and the
-/// two channels open the **same** message the screen shows — the app version,
-/// the phone and the language, with the user's own description left to fill in.
+/// The screen has no mockup, so these tests are its contract: what support can
+/// and cannot do sits beside the channels, the link really opens Guidelines &
+/// FAQs, and the two channels open the **same** message — the app version, the
+/// phone and the language, with the user's own description left to fill in.
 /// The device facts and the launcher are seams, so no test needs a real phone,
 /// WhatsApp or a mail app.
 library;
@@ -108,10 +108,13 @@ Future<void> _pumpSupport(
   await tester.pumpAndSettle();
 }
 
-/// The message text the preview card is showing.
-String _previewMessage(WidgetTester tester) => tester
-    .widget<Text>(find.byKey(const ValueKey('support-message-preview')))
-    .data!;
+/// The message a channel was opened with, as the URI carries it.
+///
+/// The screen no longer previews the message, so what it sends is read off the
+/// URI the launcher was asked to open — the real thing the phone would hand to
+/// WhatsApp or the mail app.
+String _sentMessage(Uri uri) =>
+    (uri.queryParameters['text'] ?? uri.queryParameters['body'])!;
 
 void main() {
   testWidgets('states its scope, links the FAQs and lists both channels', (
@@ -120,7 +123,9 @@ void main() {
     await _pumpSupport(tester, launcher: _RecordingLauncher());
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
-    // Scope first, and it says what support cannot do as well as what it can.
+    // What support can and cannot do, as its own card: the scope says what it
+    // cannot do as well as what it can.
+    expect(find.text(l.settingsSupport_scopeTitle), findsOneWidget);
     expect(find.text(l.settingsSupport_scope), findsOneWidget);
     expect(find.textContaining('cannot check'), findsOneWidget);
 
@@ -133,7 +138,6 @@ void main() {
     expect(find.text(supportWhatsAppNumber), findsOneWidget);
     expect(find.text('Email'), findsOneWidget);
     expect(find.text(supportEmailAddress), findsOneWidget);
-    expect(find.text(l.settingsSupport_channelsHint), findsOneWidget);
 
     // The never-send warning and the honest reply time are both on the screen.
     expect(
@@ -147,6 +151,15 @@ void main() {
     );
     expect(find.text(l.settingsSupport_replyBody), findsOneWidget);
     expect(find.textContaining('one to two working days'), findsOneWidget);
+
+    // The three note cards read as one set, in order: what we can do, what
+    // never to send, when a reply comes.
+    final scopeTop = tester.getRect(find.text(l.settingsSupport_scopeTitle)).top;
+    final warningTop =
+        tester.getRect(find.text(l.settingsSupport_warningTitle)).top;
+    final replyTop = tester.getRect(find.text(l.settingsSupport_replyTitle)).top;
+    expect(scopeTop, lessThan(warningTop));
+    expect(warningTop, lessThan(replyTop));
   });
 
   testWidgets('the Guidelines & FAQs row opens the FAQs screen', (
@@ -171,7 +184,6 @@ void main() {
     final launcher = _RecordingLauncher();
     await _pumpSupport(tester, launcher: launcher);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    final preview = _previewMessage(tester);
 
     await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
     await tester.pumpAndSettle();
@@ -182,13 +194,12 @@ void main() {
     expect(uri.host, 'wa.me');
     // Digits only on the path, as wa.me requires.
     expect(uri.path, '/8801835252721');
-    // What was opened is exactly what the screen showed, with the facts in it.
-    expect(uri.queryParameters['text'], preview);
-    expect(preview, contains('${l.settingsSupport_messageVersion}: '));
-    expect(preview, contains('Redmi Note 10 · Android 13'));
-    expect(preview, contains('${l.settingsSupport_messageLanguage}: English'));
-    expect(preview, contains(l.settingsSupport_messageIntro));
-    expect(preview, contains(l.settingsSupport_messagePrompt));
+    final message = _sentMessage(uri);
+    expect(message, contains('${l.settingsSupport_messageVersion}: '));
+    expect(message, contains('Redmi Note 10 · Android 13'));
+    expect(message, contains('${l.settingsSupport_messageLanguage}: English'));
+    expect(message, contains(l.settingsSupport_messageIntro));
+    expect(message, contains(l.settingsSupport_messagePrompt));
   });
 
   testWidgets('the email channel opens the same message through mailto', (
@@ -198,32 +209,39 @@ void main() {
     await _pumpSupport(tester, launcher: launcher);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
+    await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('support-email')));
     await tester.pumpAndSettle();
 
-    final uri = launcher.opened.single;
-    expect(uri.scheme, 'mailto');
-    expect(uri.path, supportEmailAddress);
-    expect(uri.queryParameters['subject'], l.settingsSupport_messageSubject);
-    // One message, two channels: identical to the WhatsApp body.
-    expect(uri.queryParameters['body'], _previewMessage(tester));
+    final whatsApp = launcher.opened.first;
+    final email = launcher.opened.last;
+    expect(email.scheme, 'mailto');
+    expect(email.path, supportEmailAddress);
+    expect(email.queryParameters['subject'], l.settingsSupport_messageSubject);
+    // One message, two channels: identical bodies.
+    expect(_sentMessage(email), _sentMessage(whatsApp));
   });
 
   testWidgets('leaves the phone line out when the device cannot be read', (
     tester,
   ) async {
+    final launcher = _RecordingLauncher();
     await _pumpSupport(
       tester,
-      launcher: _RecordingLauncher(),
+      launcher: launcher,
       facts: const SupportDeviceFacts(),
     );
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    final preview = _previewMessage(tester);
+
+    await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
+    await tester.pumpAndSettle();
 
     // The message is still written — just without a fact the app does not have.
-    expect(preview, contains(l.settingsSupport_messageIntro));
-    expect(preview, isNot(contains(l.settingsSupport_messagePhone)));
-    expect(preview, contains(l.settingsSupport_messageVersion));
+    final message = _sentMessage(launcher.opened.single);
+    expect(message, contains(l.settingsSupport_messageIntro));
+    expect(message, isNot(contains(l.settingsSupport_messagePhone)));
+    expect(message, contains(l.settingsSupport_messageVersion));
   });
 
   testWidgets('a channel that opens nothing says so', (tester) async {
@@ -245,30 +263,32 @@ void main() {
     await _pumpSupport(tester, launcher: launcher, log: log);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
-    final preview = _previewMessage(tester);
-    expect(preview, contains('| sync.push | AuthFailure(network)'));
-    // Before the prompt, so the user's own description ends the message.
-    expect(
-      preview.indexOf('| sync.push |'),
-      lessThan(preview.indexOf(l.settingsSupport_messagePrompt)),
-    );
-
     await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
     await tester.pumpAndSettle();
 
-    // What is sent is what was shown, diagnostics included.
-    expect(launcher.opened.single.queryParameters['text'], preview);
+    final message = _sentMessage(launcher.opened.single);
+    expect(message, contains('| sync.push | AuthFailure(network)'));
+    // Before the prompt, so the user's own description ends the message.
+    expect(
+      message.indexOf('| sync.push |'),
+      lessThan(message.indexOf(l.settingsSupport_messagePrompt)),
+    );
   });
 
   testWidgets('a clean log sends no diagnostics section at all', (
     tester,
   ) async {
-    await _pumpSupport(tester, launcher: _RecordingLauncher());
+    final launcher = _RecordingLauncher();
+    await _pumpSupport(tester, launcher: launcher);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
+    await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
+    await tester.pumpAndSettle();
+
     // An empty report would be noise in a message that is already complete.
-    expect(_previewMessage(tester), isNot(contains('Errors Recorded:')));
-    expect(_previewMessage(tester), contains(l.settingsSupport_messagePrompt));
+    final message = _sentMessage(launcher.opened.single);
+    expect(message, isNot(contains('Errors Recorded:')));
+    expect(message, contains(l.settingsSupport_messagePrompt));
   });
 
   testWidgets('a failure recorded while the screen is open reaches the message', (
@@ -277,19 +297,19 @@ void main() {
     final launcher = _RecordingLauncher();
     final log = ErrorLog();
     await _pumpSupport(tester, launcher: launcher, log: log);
-    expect(_previewMessage(tester), isNot(contains('Errors Recorded:')));
 
-    // The preview is a promise that what is shown is what will be sent, so it
-    // has to follow the log rather than freeze at the moment of opening.
+    // The message is built when a channel is tapped, so a failure recorded
+    // after the screen was opened — but before the tap — still rides along.
     await log.record('auth.signIn', StateError('boom'));
     await tester.pump();
 
-    final preview = _previewMessage(tester);
-    expect(preview, contains('| auth.signIn | StateError'));
-
     await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
     await tester.pumpAndSettle();
-    expect(launcher.opened.single.queryParameters['text'], preview);
+
+    expect(
+      _sentMessage(launcher.opened.single),
+      contains('| auth.signIn | StateError'),
+    );
   });
 
   testWidgets('renders the Bengali copy, message included', (tester) async {
@@ -298,6 +318,7 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('bn'));
 
     expect(find.text(l.settingsSupport_title), findsOneWidget);
+    expect(find.text(l.settingsSupport_scopeTitle), findsOneWidget);
     expect(find.text(l.settingsSupport_scope), findsOneWidget);
     expect(
       find.text(l.settingsSupport_channelWhatsApp),
@@ -305,11 +326,12 @@ void main() {
     );
     expect(find.text(l.settingsSupport_replyBody), findsOneWidget);
 
-    final preview = _previewMessage(tester);
-    expect(preview, contains('${l.settingsSupport_messageLanguage}: বাংলা'));
-
     await tester.tap(find.byKey(const ValueKey('support-whatsapp')));
     await tester.pumpAndSettle();
-    expect(launcher.opened.single.queryParameters['text'], preview);
+
+    expect(
+      _sentMessage(launcher.opened.single),
+      contains('${l.settingsSupport_messageLanguage}: বাংলা'),
+    );
   });
 }

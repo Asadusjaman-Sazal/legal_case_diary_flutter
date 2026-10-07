@@ -3064,6 +3064,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSupport_title => 'সহায়তা';
 
   @override
+  String get settingsSupport_scopeTitle => 'আমাদের লেখার আগে';
+
+  @override
   String get settingsSupport_scope =>
       'আমরা অ্যাপটি নিয়েই সহায়তা করতে পারি: কোনো সুবিধা কীভাবে কাজ করে, কিছু ঠিকভাবে কাজ করছে না, বা কোনো ব্যাকআপ পুনরুদ্ধার হচ্ছে না। আপনার ডায়েরি আমরা দেখতে পাই না — তা আপনার ফোনেই থাকে — এবং আপনার হয়ে কোনো শুনানির তারিখ যাচাই, নিশ্চিত বা খুঁজে দিতে পারি না।';
 
@@ -3078,17 +3081,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSupport_channelsLabel => 'আমাদের লিখুন';
 
   @override
-  String get settingsSupport_channelsHint =>
-      'যে মাধ্যমেই খুলুন, নিচের বার্তাটি লেখা অবস্থায় থাকবে।';
-
-  @override
   String get settingsSupport_channelWhatsApp => 'হোয়াটসঅ্যাপ';
 
   @override
   String get settingsSupport_channelEmail => 'ইমেইল';
-
-  @override
-  String get settingsSupport_previewLabel => 'যে বার্তাটি খুলবে';
 
   @override
   String get settingsSupport_messageSubject => 'লিগ্যাল কেস ডায়েরি — সহায়তা';

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.402 - The Privacy Policy and Terms of Service screens inset the status bar, so it stays the app's black instead of the white app bar they painted behind it after leaving the shell.
+Version: 0.0.403 - The error log now tells its listeners after the failing frame instead of inside it, so a screen that rebuilds from the log can no longer be re-entered by the error it is reporting — the loop that ANR'd the app on Settings > About > Support.
 --------------------------------------
 
 ## Version History Log:
@@ -416,3 +416,4 @@ Version: 0.0.399 - A free account's header sync button was claiming a sync it ca
 Version: 0.0.400 - A logout wipe and an account switch now leave a fresh install's database: the seeded reference data comes back, and a sign-in as somebody else can no longer show the previous account's diary or its pending count.
 Version: 0.0.401 - Every wipe delete now goes through Drift's table API: raw SQL deleted the rows without telling any query stream, so a new account kept seeing the previous one's pending count and queued case.
 Version: 0.0.402 - The Privacy Policy and Terms of Service screens inset the status bar, so it stays the app's black instead of the white app bar they painted behind it after leaving the shell.
+Version: 0.0.403 - The error log now tells its listeners after the failing frame instead of inside it, so a screen that rebuilds from the log can no longer be re-entered by the error it is reporting — the loop that ANR'd the app on Settings > About > Support.

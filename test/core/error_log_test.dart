@@ -6,6 +6,9 @@
 /// promise the log has to keep mechanically, not by convention.
 library;
 
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/errors/error_log_store.dart';
@@ -119,4 +122,71 @@ void main() {
       expect(parsed.single.label, 'StateError');
     });
   });
+
+  group('a screen that rebuilds from the log', () {
+    testWidgets('is told after the frame, never from inside it', (
+      tester,
+    ) async {
+      // The reported defect this pins: on the device, Settings > About > Support
+      // hung the app (an ANR, one thread pinned at ~100%, 200 `framework`
+      // entries logged in three minutes). Support and Diagnostics are the only
+      // two screens in the app that rebuild from this log, and the global
+      // capture records an error from inside the failing frame — so a
+      // synchronous notify rebuilt the screen that was mid-failure. Rebuilding
+      // it re-ran the layout that failed, which reported the error again, which
+      // notified again: a loop that never yielded a frame. Waiting one turn for
+      // the notification is what breaks it, and this test fails if that wait is
+      // removed — the build throws `setState() called during build` instead.
+      final log = ErrorLog();
+      var builds = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Column(
+            children: [
+              // Stands in for Support's preview card: it rebuilds whenever the
+              // log changes.
+              ListenableBuilder(
+                listenable: log,
+                builder: (context, _) {
+                  builds++;
+                  return const SizedBox.shrink();
+                },
+              ),
+              _RecordsWhileBuilding(log: log),
+            ],
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(log.entries, hasLength(1));
+      // Told afterwards…
+      expect(builds, 2);
+    });
+  });
+}
+
+/// Records one failure from inside its own build — a frame that hits the log
+/// while it is still being built, which is what the capture does.
+class _RecordsWhileBuilding extends StatefulWidget {
+  const _RecordsWhileBuilding({required this.log});
+
+  final ErrorLog log;
+
+  @override
+  State<_RecordsWhileBuilding> createState() => _RecordsWhileBuildingState();
+}
+
+class _RecordsWhileBuildingState extends State<_RecordsWhileBuilding> {
+  var _recorded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_recorded) {
+      _recorded = true;
+      unawaited(widget.log.record('test.area', StateError('during build')));
+    }
+    return const SizedBox.shrink();
+  }
 }

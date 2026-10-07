@@ -281,10 +281,21 @@ void main() {
     // The stored English name is never printed.
     expect(find.text(firstCourt.courtNameEn), findsNothing);
 
-    // The case count beside it uses the active language's digits. Two Bengali ২s
-    // are expected: this heading's count, and the header sync button's pending
-    // count — seeding each case queued a sync row, so both are genuinely 2.
-    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(2));
+    // The case count beside it uses the active language's digits. Exactly one
+    // Bengali ২ is expected: this heading's count. The header's sync button stays
+    // bare because this harness is a free account, and a free account syncs
+    // nothing so is shown no count — seeding did queue two sync rows, but that is
+    // not news a free account is given. The strict guard is the count that must
+    // not be a bare Latin interpolation.
+    expect(find.text(AppDateUtils.formatDigits(2, 'bn')), findsNWidgets(1));
+    expect(find.text('2'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('cases-modal-sync-button')),
+        matching: find.byType(Badge),
+      ),
+      findsNothing,
+    );
 
     await unmount(tester);
   });

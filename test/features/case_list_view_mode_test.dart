@@ -206,6 +206,7 @@ void main() {
     Widget screen, {
     Locale locale = const Locale('en'),
     bool online = true,
+    bool premium = true,
   }) async {
     final router = GoRouter(
       routes: [GoRoute(path: '/', builder: (_, _) => screen)],
@@ -227,9 +228,9 @@ void main() {
           // The header's sync button reads connectivity to decide between the
           // sync arrows and the offline icon.
           isOnlineProvider.overrideWith((ref) => Stream<bool>.value(online)),
-          // Premium, so the sync button draws its enabled states rather than the
-          // greyed free-plan one.
-          premiumAccessProvider.overrideWith((ref) async => true),
+          // Premium by default, so the sync button draws its enabled states
+          // rather than the free-plan one; a free case passes `premium: false`.
+          premiumAccessProvider.overrideWith((ref) async => premium),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1751,6 +1752,75 @@ void main() {
 
     expect(pendingBadgeCount(tester), 1);
     expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('a free account wears the sync-off cloud, not the checkmark', (
+    tester,
+  ) async {
+    // Sync is off for a free account, so the checkmark — "this device's work is
+    // safely in the account" — would claim a sync that cannot have run.
+    await pumpScreen(tester, const AllCasesScreen(), premium: false);
+
+    expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.cloud_done_outlined), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('a free account is shown no count, even with work queued', (
+    tester,
+  ) async {
+    // Every write path queues its mutation, free accounts included, so the queue
+    // is real — but a count over a sync button promises a sync that never comes,
+    // and reports work as *waiting* when for this account it is not.
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen(), premium: false);
+
+    expect(pendingBadgeCount(tester), 0);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('cases-modal-sync-button')),
+        matching: find.byType(Badge),
+      ),
+      findsNothing,
+    );
+    expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+    await unmount(tester);
+  });
+
+  testWidgets('a free account is told the entitlement, not a queue count', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await enqueuePending();
+    await pumpScreen(tester, const AllCasesScreen(), premium: false);
+
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+    );
+    expect(button.tooltip, l.sync_unavailable);
+    await unmount(tester);
+  });
+
+  testWidgets('a free account offline still reads the entitlement', (
+    tester,
+  ) async {
+    // Free is permanent, offline is incidental: the entitlement is the reason
+    // there is no sync at all, so it is the answer whether or not the radio is
+    // up — and it is also the answer for the icon, which stays the off cloud.
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpScreen(
+      tester,
+      const AllCasesScreen(),
+      premium: false,
+      online: false,
+    );
+
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+    );
+    expect(button.tooltip, l.sync_unavailable);
+    expect(button.tooltip, isNot(l.sync_offline));
     await unmount(tester);
   });
 }

@@ -44,7 +44,7 @@ Run each scenario exactly as written in the plan's Manual Verification section:
 
 ## Phase 4 — Manual Verification: Accounts, Subscription & Payments
 
-1. **Logout flows:** verify all three branches — premium+online (sync then wipe), premium+offline ("Log out anyway" warning with Proceed/Close and auto-export), free (auto JSON export before wipe).
+1. **Logout flows:** verify all three branches — premium+online (sync then wipe), premium+offline ("Log out anyway" warning with Proceed/Close), free (the **Backup Data to Local Storage** Yes/No choice, then wipe). The choice is offered, never mandatory, and is skipped for a premium account already synced and for a free account that authored nothing (0.0.398).
 2. **Firm subscription expiry:** expire a firm owner's subscription in Supabase Studio; verify all associates lose sync access on next connection (after the 48h grace), with the correct owner/associate banners.
 3. **Payment submission & approval:** submit a Monthly payment; verify server `submitted_at` and pending status. Approve only through the protected `approve_payment` RPC; verify row locking, exact amount/plan validation, server-calculated expiry, owner-firm mirroring, approval metadata, and one immutable audit event. Retry and concurrently invoke approval to prove expiry extends exactly once; verify ordinary clients and direct row updates cannot approve or alter audit records.
 

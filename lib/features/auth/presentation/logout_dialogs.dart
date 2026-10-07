@@ -5,10 +5,12 @@
 /// takes the same path: Manage Account's Log out and the forced re-login notice
 /// both call it and nothing else decides what happens to the local data.
 ///
-/// The dialogs follow the app's established window style, and the two of them
-/// exist for the two moments the plan names: the **offline block**, which says
-/// the changes must sync first and offers an explicit way past, and the
-/// **unsynced warning**, which names exactly what logging out now costs.
+/// The dialogs follow the app's established window style, and the three of them
+/// exist for the three moments the plan names: the **offline block**, which says
+/// the changes must sync first and offers an explicit way past; the **unsynced
+/// warning**, which names exactly what logging out now costs; and the **backup
+/// choice**, *Backup Data to Local Storage?* with **Yes**/**No**, which lets the
+/// user keep a copy or go without one — never both mandatory.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,6 +20,11 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
 import '../data/logout_flow.dart';
+
+/// Action size shared with the Exit App window (112x48 at 16 pt); repeated here
+/// rather than exported because that style is private to the router.
+const Size _actionSize = Size(112, 48);
+const TextStyle _actionTextStyle = TextStyle(fontSize: 16);
 
 /// Logs out through the branch this account and this device state call for.
 ///
@@ -47,15 +54,17 @@ Future<bool> runBranchedLogout(
   final dialog = dialogContext ?? context;
   final flow = await ref.read(logoutFlowProvider.future);
   final plan = await flow.plan();
-  final freeAccount = plan.branch == LogoutBranch.freeExportThenWipe;
+  // A free account holding the user's own work. A free account with nothing
+  // authored selects `cleanWipe` instead, so it falls through to step 1 below.
+  final freeWithData = plan.branch == LogoutBranch.freeBackupChoice;
   // Encryption is off by default; the copy is only asked for a passphrase when
   // the user has turned it on in Backup & Restore.
   final encrypt = ref.read(backupMetadataProvider).encryptBackups;
 
   // 1. Nothing on this device exists nowhere else, so the wipe needs no copy,
-  //    no sync and no warning. (A free account never takes this path: every row
-  //    it holds is unique to this device.)
-  if (!freeAccount && plan.unsyncedCount == 0) {
+  //    no sync and no warning: a premium account whose work is all on the server,
+  //    or a free account that holds nothing the user authored.
+  if (!freeWithData && plan.unsyncedCount == 0) {
     await flow.wipeAndComplete();
     _sayLoggedOut(messenger, l);
     return true;
@@ -64,8 +73,8 @@ Future<bool> runBranchedLogout(
   // 2. (a) Premium + online: send the queue first, and wipe only once it is
   //    clear. A row the server permanently refused, or one frozen on a conflict,
   //    can never sync — so rather than trapping the account on the device, that
-  //    failure falls through to the warning and the export.
-  if (!freeAccount &&
+  //    failure falls through to the warning and the backup choice.
+  if (!freeWithData &&
       plan.branch == LogoutBranch.syncedThenWiped &&
       !cannotSync) {
     if (await flow.syncThenComplete() == LogoutResult.completed) {
@@ -75,13 +84,13 @@ Future<bool> runBranchedLogout(
     if (!dialog.mounted) return false;
     if (!await _confirmUnsyncedWarning(dialog)) return false;
     if (!dialog.mounted) return false;
-    return _exportThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
+    return _backupThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
   }
 
   // 3. Premium, with unsynced work and no way to send it: (b) offline blocks
   //    first and offers an explicit way past; an unusable session cannot sync
-  //    either, so it warns for the same reason. Both then export.
-  if (!freeAccount) {
+  //    either, so it warns for the same reason. Both then offer the copy.
+  if (!freeWithData) {
     if (!dialog.mounted) return false;
     if (plan.branch == LogoutBranch.blockedOffline) {
       if (!await _confirmLogOutAnyway(dialog)) return false;
@@ -91,9 +100,47 @@ Future<bool> runBranchedLogout(
     if (!dialog.mounted) return false;
   }
 
-  // 4. (c) Free, and the way past the offline block: always export, then wipe.
+  // 4. (c) Free with the user's own work, and the way past the offline block:
+  //    offer a copy, then wipe.
   if (!dialog.mounted) return false;
-  return _exportThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
+  return _backupThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
+}
+
+/// The backup choice: *Backup Data to Local Storage?* with **Yes** and **No**.
+///
+/// The same window as the Exit App confirmation — no body text, the two actions
+/// centred and at the shared 112x48/16 pt size. Returns true for **Yes**, false
+/// for **No**, and null when the window was dismissed (the barrier or system
+/// back), which the caller treats as a cancellation so a tap outside never wipes
+/// anything — exactly as the app's other confirmations do.
+Future<bool?> _confirmBackupChoice(BuildContext context) async {
+  final l = AppLocalizations.of(context);
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.logout_backupPromptTitle),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: _actionSize,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.sharedActions_yes),
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: _actionSize,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_no),
+        ),
+      ],
+    ),
+  );
+  return answer;
 }
 
 /// The success message, shared by the branches that need no copy.
@@ -148,23 +195,36 @@ Future<bool> _confirmUnsyncedWarning(BuildContext context) async {
   return answer ?? false;
 }
 
-/// Asks for the passphrase (only when encryption is on), writes the copy, then
-/// wipes and signs out.
+/// Asks whether to keep a copy, then — for **Yes** — asks for the passphrase
+/// (only when encryption is on), writes the copy, and wipes and signs out.
 ///
-/// Cancelling a passphrase window cancels the **logout**, not just the export:
-/// the wipe's precondition is a copy, so without one nothing is deleted. With
-/// [encrypt] false (the default) no window appears at all — the copy is written
-/// unencrypted and the logout continues. Returns whether the logout actually
-/// completed.
-Future<bool> _exportThenFinish(
+/// **No** is a legitimate answer, not a cancellation: the wipe runs with no copy
+/// and the logout completes. A dismissed passphrase window still cancels the
+/// **logout**, not just the export — the user asked for a copy, so nothing is
+/// deleted without one. With [encrypt] false (the default) that window never
+/// appears — the copy is written unencrypted and the logout continues. Returns
+/// whether the logout actually completed.
+Future<bool> _backupThenFinish(
   BuildContext context,
   LogoutFlow flow,
   ScaffoldMessengerState messenger,
   AppLocalizations l, {
   required bool encrypt,
 }) async {
+  final choice = await _confirmBackupChoice(context);
+  // Dismissed: cancel the logout, delete nothing.
+  if (choice == null) return false;
+  // No: go without a copy. This is the branch the old "always export" rule
+  // forbade, and the user's request is exactly that it is allowed.
+  if (!choice) {
+    await flow.wipeAndComplete();
+    _sayLoggedOut(messenger, l);
+    return true;
+  }
+
   String? secret;
   if (encrypt) {
+    if (!context.mounted) return false;
     secret = await showBackupPassphraseDialog(context);
     if (secret == null || secret.isEmpty) {
       messenger.showSnackBar(SnackBar(content: Text(l.logout_exportCancelled)));

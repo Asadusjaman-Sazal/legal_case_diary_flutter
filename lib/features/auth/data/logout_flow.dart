@@ -6,20 +6,27 @@
 /// premium account, which cannot reach the server at all.
 ///
 /// The rule underneath every branch is one sentence: **nothing that exists only
-/// on this device may be destroyed without a copy.** So the branch depends on
-/// where the user's data actually lives:
+/// on this device is destroyed without the user being offered a copy.** So the
+/// branch depends on where the user's data actually lives:
 ///
 /// * **Premium + online** — the server holds everything that has synced, and the
 ///   queued mutations are the only thing that has not. Those are sent first
-///   (mandatory), and only then is the device wiped. No local export is needed,
-///   because the copy that matters is already on the server.
+///   (mandatory), and only then is the device wiped. No copy is offered, because
+///   the copy that matters is already on the server.
 /// * **Premium + offline with unsynced work** — the work exists nowhere else and
 ///   cannot be sent, so the logout is **blocked** with an explicit way past it.
-///   Taking that way always writes the encrypted safety copy first.
+///   Taking that way offers the encrypted safety copy before the wipe.
 /// * **Free** — the local database *is* the only copy of everything, not just of
-///   the queue, so a free logout **always** exports before wiping.
+///   the queue, so a free logout **offers a copy before wiping** — unless the
+///   device holds nothing the user authored (no cases, notes or case references,
+///   and no added/edited court, step or other reference row), in which case the
+///   wipe trades away nothing and needs no copy at all.
 /// * **Nothing unsynced to lose** (premium, offline, empty queue) — a clean wipe:
 ///   there is no work that exists nowhere else.
+///
+/// The copy is **offered, never mandatory** (user request): every branch that
+/// would otherwise export first now asks *Backup Data to Local Storage?* with
+/// **Yes** and **No**, and **No** wipes without a copy.
 ///
 /// The wipe itself is [BackupRepository.wipeAllTables], the same complete scope
 /// extended-offline recovery uses (every domain row and tombstone, the queue, the
@@ -51,8 +58,8 @@ enum LogoutBranch {
   /// (b) Premium + offline with unsynced work: blocked, with an explicit way past.
   blockedOffline,
 
-  /// (c) Free: export everything, then wipe.
-  freeExportThenWipe,
+  /// (c) Free holding the user's own work: offer a copy, then wipe.
+  freeBackupChoice,
 
   /// Nothing exists only on this device, so the wipe needs no copy.
   cleanWipe,
@@ -69,9 +76,9 @@ class LogoutPlan {
   /// How many queue entries still need the server.
   final int unsyncedCount;
 
-  /// Whether this branch must write a safety copy before the wipe may run.
-  bool get needsExport =>
-      branch == LogoutBranch.freeExportThenWipe ||
+  /// Whether this branch must offer a safety copy before the wipe may run.
+  bool get needsBackupChoice =>
+      branch == LogoutBranch.freeBackupChoice ||
       branch == LogoutBranch.blockedOffline;
 
   /// Whether this branch must warn, because the copies can be lost.
@@ -146,10 +153,15 @@ class LogoutFlow {
     final unsynced = (await _queue.getUnresolved()).length;
 
     // A free account has no cloud copy of anything — not just of the queue — so
-    // it always exports, whatever the link says.
+    // it offers a copy before the wipe, whatever the link says. An empty device
+    // is the exception: with nothing the user authored, the wipe destroys
+    // nothing and the copy is not worth asking for.
     if (!premium) {
+      final authored = await BackupRepository(db).hasUserAuthoredData();
       return LogoutPlan(
-        branch: LogoutBranch.freeExportThenWipe,
+        branch: authored
+            ? LogoutBranch.freeBackupChoice
+            : LogoutBranch.cleanWipe,
         unsyncedCount: unsynced,
       );
     }
@@ -191,12 +203,14 @@ class LogoutFlow {
     return LogoutResult.completed;
   }
 
-  /// Branches (b) and (c): write the safety copy, then wipe.
+  /// Branches (b) and (c): write the safety copy the user asked for, then wipe.
   ///
-  /// The copy is written **before** the wipe and the wipe does not run if it
-  /// could not be written, which is the whole point of the branch. A dismissed
-  /// Save-to window is a cancellation, not a failure: nothing was written, so
-  /// nothing is deleted and the account stays signed in.
+  /// This is the **Yes** path of the *Backup Data to Local Storage?* choice; the
+  /// **No** path wipes through [wipeAndComplete] with no copy. The copy is
+  /// written **before** the wipe and the wipe does not run if it could not be
+  /// written, which is the whole point of the branch. A dismissed Save-to window
+  /// is a cancellation, not a failure: nothing was written, so nothing is deleted
+  /// and the account stays signed in.
   ///
   /// [passphrase] is null when encryption is off (the default): the copy is then
   /// written as readable JSON. When encryption is on it is the user's passphrase,

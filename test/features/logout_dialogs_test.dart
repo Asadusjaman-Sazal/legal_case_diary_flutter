@@ -2,11 +2,13 @@
 ///
 /// The flow itself is pinned by `logout_flow_test.dart`; this suite pins the
 /// **orchestration** — which branch opens which window, in what order, and what
-/// the user is left holding after each answer. The two dialogs exist for the two
-/// moments the plan names: the offline block that names the sync the changes
-/// need, and the warning that names exactly what logging out now discards. Both
-/// stand in front of the one rule every branch serves: *nothing that exists only
-/// on this device may be destroyed without a copy*.
+/// the user is left holding after each answer. The three dialogs exist for the
+/// three moments the plan names: the offline block that names the sync the
+/// changes need, the warning that names exactly what logging out now discards,
+/// and the backup choice — *Backup Data to Local Storage?* with **Yes**/**No** —
+/// which makes the copy offered rather than mandatory, the one rule every branch
+/// serves being *nothing that exists only on this device is destroyed without
+/// the user being offered a copy*.
 library;
 
 import 'package:drift/native.dart';
@@ -196,6 +198,7 @@ void main() {
     );
 
     await tapLogout(tester);
+    await answerLogoutBackup(tester, l);
     expect(find.text(l.settingsBackupRestore_passphraseTitle), findsOneWidget);
     await tester.tap(find.text(l.sharedActions_cancel));
     await tester.pumpAndSettle();
@@ -256,6 +259,75 @@ void main() {
     expect(ended, 0);
     await expectWorkIntact();
     expect(find.byType(TextFormField), findsNothing, reason: 'no export came');
+  });
+
+  testWidgets('a free account that declines the copy wipes without one', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final sink = RecordingArchiveSink();
+    await seedWork();
+    // Encryption on, so a stray Yes would open the passphrase window: No must
+    // skip both the window and the write.
+    await prefs.setBool(backupEncryptionEnabledKey, true);
+    await pumpLogout(
+      tester,
+      flowOverride(premium: false, sink: sink),
+    );
+
+    await tapLogout(tester);
+    await answerLogoutBackup(tester, l, backup: false);
+
+    expect(sink.writes, 0, reason: 'No means no copy');
+    expect(find.byType(TextFormField), findsNothing);
+    expect(ended, 1, reason: 'the logout still completes');
+    await expectNothingLeft();
+    expect(find.text(l.settingsManageAccount_loggedOut), findsOneWidget);
+  });
+
+  testWidgets('dismissing the copy window cancels the logout', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final sink = RecordingArchiveSink();
+    await seedWork();
+    await pumpLogout(
+      tester,
+      flowOverride(premium: false, sink: sink),
+    );
+
+    await tapLogout(tester);
+    expect(find.text(l.logout_backupPromptTitle), findsOneWidget);
+    // Tap the barrier, not either action: a dismissal is a cancellation, so a
+    // stray tap outside can never wipe the device.
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+
+    expect(sink.writes, 0);
+    expect(ended, 0);
+    await expectWorkIntact();
+  });
+
+  testWidgets('the copy window is the Exit App window, centred and sized', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await seedWork();
+    await pumpLogout(tester, flowOverride(premium: false));
+
+    await tapLogout(tester);
+
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    expect(dialog.actionsAlignment, MainAxisAlignment.center);
+    expect(find.text(l.sharedActions_yes), findsOneWidget);
+    expect(find.text(l.sharedActions_no), findsOneWidget);
+    // The shared 112x48 / 16 pt action size the Exit App window uses.
+    final yes = tester.widget<TextButton>(
+      find.ancestor(
+        of: find.text(l.sharedActions_yes),
+        matching: find.byType(TextButton),
+      ),
+    );
+    expect(yes.style?.minimumSize?.resolve(<WidgetState>{}), const Size(112, 48));
+    expect(yes.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
   });
 
   testWidgets('a sync that cannot clear the queue warns, then exports', (

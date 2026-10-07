@@ -349,8 +349,10 @@ void main() {
 
     testWidgets('a rejected online session offers the sign-in', (tester) async {
       // The tap runs the same branched logout every other sign-out uses, so this
-      // free account really is asked for a passphrase before its data goes. The
-      // copy stays in memory: the branch, not the file, is what is under test.
+      // free account really is offered a copy, and its passphrase, before its
+      // data goes. The copy stays in memory: the branch, not the file, is what is
+      // under test. A case is seeded because a free account with nothing authored
+      // would wipe silently instead — which the flow's own suite pins.
       final sink = RecordingArchiveSink();
       await pumpNotice(
         tester,
@@ -358,6 +360,7 @@ void main() {
         event: const AuthSessionEvent(sessionExpired: true),
         overrides: [logoutFlowOverride(premium: false, sink: sink)],
       );
+      await seedCase(harness.db);
       final l = await AppLocalizations.delegate.load(const Locale('en'));
 
       expect(find.text(l.auth_sessionExpired), findsOneWidget);

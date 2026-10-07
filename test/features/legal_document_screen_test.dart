@@ -33,6 +33,7 @@ void main() {
     WidgetTester tester,
     LegalDocument document, {
     Locale locale = const Locale('en'),
+    double statusBarHeight = 0,
   }) async {
     await tester.binding.setSurfaceSize(const Size(500, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -42,7 +43,14 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
-          home: LegalDocumentScreen(document: document),
+          // The OS status bar is not part of a test surface, so it is supplied
+          // as the inset the screen must leave for it.
+          home: MediaQuery(
+            data: MediaQueryData(
+              padding: EdgeInsets.only(top: statusBarHeight),
+            ),
+            child: LegalDocumentScreen(document: document),
+          ),
         ),
       );
       await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -112,6 +120,26 @@ void main() {
           _bengaliCharCount(english),
           lessThan(50),
           reason: '${document.name} English file looks translated',
+        );
+      }
+    });
+  });
+
+  group('the status bar', () {
+    testWidgets('both documents leave the status bar to the app', (
+      tester,
+    ) async {
+      // These are top-level routes, so `AppShellRoot`'s own SafeArea does not
+      // reach them. Measured against a 24px inset: the app bar must start
+      // below it, or it paints its white surface up behind the status bar and
+      // the phone's clock and icons sit on that instead of on the app's black.
+      for (final document in LegalDocument.values) {
+        await pump(tester, document, statusBarHeight: 24);
+
+        expect(
+          tester.getTopLeft(find.byType(AppBar)).dy,
+          24,
+          reason: '${document.name} paints behind the status bar',
         );
       }
     });

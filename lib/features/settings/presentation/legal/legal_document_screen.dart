@@ -76,28 +76,39 @@ class _LegalDocumentScreenState extends State<LegalDocumentScreen> {
       LegalDocument.privacyPolicy => l.settingsAbout_privacyPolicy,
       LegalDocument.termsOfService => l.settingsAbout_termsOfService,
     };
-    return SettingsSubPageModal(
-      title: title,
-      child: FutureBuilder<String>(
-        future: _document,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.edgeMargin),
-              child: Text(
-                l.settingsLegal_loadFailed,
-                style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
+    // The status bar is the user's own. These documents are top-level routes
+    // (they sit outside the shell so Back returns to Sign Up — see the router),
+    // so `AppShellRoot`'s own `SafeArea(top: true)` does not reach them and
+    // nothing else insets the screen. Without this the Scaffold paints its app
+    // bar — white, `AppColors.surface` — up behind the status bar, and the
+    // phone's clock and icons sit on that white instead of on the app's own
+    // black. Same inset, and same reason, as the paywall's own `SafeArea`.
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: SettingsSubPageModal(
+        title: title,
+        child: FutureBuilder<String>(
+          future: _document,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+                child: Text(
+                  l.settingsLegal_loadFailed,
+                  style: AppTypography.bodyMd.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
-              ),
-            );
-          }
-          final markdown = snapshot.data;
-          if (markdown == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return MarkdownDocumentView(markdown: markdown);
-        },
+              );
+            }
+            final markdown = snapshot.data;
+            if (markdown == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return MarkdownDocumentView(markdown: markdown);
+          },
+        ),
       ),
     );
   }

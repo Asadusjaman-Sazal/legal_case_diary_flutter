@@ -44,19 +44,13 @@ void main() {
 
   tearDown(() async => db.close());
 
-  /// Consumes the Flutter assertion the Settings rows carry themselves.
-  ///
-  /// Its `ListTile`s sit inside the settings card's decorated box, so Flutter
-  /// warns that their ink splashes may be invisible — once per layout, and it is
-  /// unrelated to Share and to this file's subject. Draining it here keeps the
-  /// focus on the Share assertions below; a genuine failure of the action still
-  /// fails them, because no invite would be handed over and no message shown.
-  void drainFrameworkNoise(WidgetTester tester) {
-    while (tester.takeException() != null) {}
-  }
-
   /// Pumps the real Settings screen, reached through a router because the screen
   /// reads its route for the drawer's active row.
+  ///
+  /// Nothing here drains framework errors: the Settings rows used to trip
+  /// Flutter's ListTile ink assert once per row per layout (its card was a
+  /// decorated `Container`, fixed in 0.0.407), and a test that swallows
+  /// framework noise cannot report the next one.
   Future<void> pumpSettings(WidgetTester tester) async {
     final router = GoRouter(
       routes: [
@@ -88,14 +82,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    drainFrameworkNoise(tester);
   }
 
   /// Opens the drawer, scrolls to its Share tile and taps it.
   Future<void> tapDrawerShare(WidgetTester tester) async {
     tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
     await tester.pumpAndSettle();
-    drainFrameworkNoise(tester);
 
     final list = find
         .descendant(of: find.byType(Drawer), matching: find.byType(ListView))
@@ -105,7 +97,6 @@ void main() {
     // reaches the bottom of it.
     await tester.drag(list, const Offset(0, -600));
     await tester.pumpAndSettle();
-    drainFrameworkNoise(tester);
 
     final share = find.descendant(
       of: find.byType(Drawer),
@@ -118,7 +109,6 @@ void main() {
     expect(share, findsOneWidget);
     await tester.tap(share);
     await tester.pumpAndSettle();
-    drainFrameworkNoise(tester);
   }
 
   /// Unmounts before the test ends so no screen timer outlives the body.

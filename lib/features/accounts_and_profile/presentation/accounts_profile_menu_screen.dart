@@ -9,9 +9,10 @@
 /// keeps this screen the size reference for the whole Settings surface.
 ///
 /// **Subscription** moved here from the main Settings list, so an account's
-/// billing sits with the account it belongs to. **Security** is new and holds
-/// **Change Password**, moved out of Manage Account; Manage Account itself keeps
-/// the profile summary, Logout and Delete Account.
+/// billing sits with the account it belongs to. Manage Account holds the
+/// account's own actions — Logout, **Change Password** and Delete Account — and
+/// is where Change Password came back to (0.0.411): the Security sub-page that
+/// briefly held it is gone, because a whole screen for one row earned nothing.
 ///
 /// Task 20 Phase 1 adds the final entry, **Manage Associates**, and it is
 /// conditional on purpose: a **premium** individual sees it (adding the first
@@ -84,14 +85,6 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
             onTap: () => context.push(AppRoutes.settingsSubscription),
           ),
           const SizedBox(height: AppSpacing.sm),
-          // Sign-in security, holding Change Password moved out of Manage
-          // Account.
-          SettingsMenuCard(
-            icon: Icons.shield_outlined,
-            title: l.settingsAccountProfile_security,
-            subtitle: l.settingsAccountProfile_securitySubtitle,
-            onTap: () => context.push(AppRoutes.settingsSecurity),
-          ),
           if (showManageAssociates) ...[
             const SizedBox(height: AppSpacing.lg),
             // Firm: only meaningful with the row below it.

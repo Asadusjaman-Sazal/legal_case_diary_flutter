@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.410 - Account & Profile menu grouped into Profile/Account/Firm sections; Subscription moved into it off the Settings list and Change Password moved to a new Security sub-page; mockups now follow the app (rule 9 relaxed).
+Version: 0.0.411 - Manage Account: full-size Logout, Change Password back from the deleted Security page, a red Danger Zone label, and Delete Account wired to delete_my_account() behind a plan-worded warning and a complete local wipe.
 --------------------------------------
 
 ## Version History Log:
@@ -424,3 +424,4 @@ Version: 0.0.407 - The Settings list card is a Material, not a decorated Contain
 Version: 0.0.408 - Side menu now shows the bundled app version as its last line, read from appVersion so it cannot drift from the build.
 Version: 0.0.409 - Side menu version line pinned to the very bottom of the panel and left aligned, per the user's follow-up.
 Version: 0.0.410 - Account & Profile menu grouped into Profile/Account/Firm sections; Subscription moved into it off the Settings list and Change Password moved to a new Security sub-page; mockups now follow the app (rule 9 relaxed).
+Version: 0.0.411 - Manage Account: full-size Logout, Change Password back from the deleted Security page, a red Danger Zone label, and Delete Account wired to delete_my_account() behind a plan-worded warning and a complete local wipe.

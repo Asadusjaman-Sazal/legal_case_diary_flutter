@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../features/accounts_and_profile/data/account_deletion_repository.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/admin/data/admin_repository.dart';
 import '../../features/auth/data/supabase_auth_repository.dart';
@@ -229,6 +230,20 @@ final adminRepositoryProvider = Provider<AdminRepository>((ref) {
       ? const UnavailableAdminRepository()
       : SupabaseAdminRepository(client);
 });
+
+/// Provider for the account's own deletion (Task 12's Manage Account actions).
+///
+/// A backend-only boundary like [adminRepositoryProvider]: with no client there
+/// is no account to remove, and the inert repository says so instead of
+/// pretending a local half exists.
+final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>(
+  (ref) {
+    final client = ref.watch(activeSupabaseClientProvider);
+    return client == null
+        ? const UnavailableAccountDeletionRepository()
+        : SupabaseAccountDeletionRepository(client);
+  },
+);
 
 /// This account's own payment submissions, newest first (own rows under RLS).
 final myPaymentSubmissionsProvider =

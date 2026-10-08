@@ -1535,18 +1535,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
-      'আপনার অ্যাকাউন্টের তথ্য ও সাইন-আউট';
+      'আপনার অ্যাকাউন্টের তথ্য, পাসওয়ার্ড ও সাইন-আউট';
 
   @override
   String get settingsAccountProfile_subscriptionSubtitle =>
       'আপনার প্ল্যান, মেয়াদ ও ক্রয়ের ইতিহাস';
-
-  @override
-  String get settingsAccountProfile_security => 'নিরাপত্তা';
-
-  @override
-  String get settingsAccountProfile_securitySubtitle =>
-      'পাসওয়ার্ড পরিবর্তন করুন';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -1640,6 +1633,41 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsManageAccount_deleteCannotBeUndone =>
       'এই কাজটি ফিরিয়ে আনা যাবে না';
+
+  @override
+  String get settingsManageAccount_dangerZone => 'সতর্কতা';
+
+  @override
+  String get settingsManageAccount_deleted =>
+      'আপনার অ্যাকাউন্ট মুছে ফেলা হয়েছে।';
+
+  @override
+  String get settingsManageAccount_deleteDialogTitle =>
+      'অ্যাকাউন্ট মুছে ফেলবেন?';
+
+  @override
+  String get settingsManageAccount_deleteWarningFree =>
+      'এতে আপনার অ্যাকাউন্ট এবং এই ডিভাইসে থাকা সব মামলা, নোট, কেস রেফারেন্স ও সেটিং স্থায়ীভাবে মুছে যাবে। এরপর কিছুই ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get settingsManageAccount_deleteWarningPremium =>
+      'এতে আপনার অ্যাকাউন্ট এবং এই ডিভাইস ও ক্লাউডে থাকা সব মামলা, নোট, কেস রেফারেন্স ও সেটিং স্থায়ীভাবে মুছে যাবে। এরপর কিছুই ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get settingsManageAccount_deleteNeedsConnection =>
+      'অ্যাকাউন্ট মুছতে ইন্টারনেটে সংযুক্ত হন। কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get settingsManageAccount_deleteFirmRefused =>
+      'আপনি একটি ফার্মের সদস্য, তাই আপনার কিছু তথ্য ফার্মের সঙ্গে যুক্ত। অ্যাকাউন্ট মুছতে আগে ফার্মের মালিককে আপনাকে সরিয়ে দিতে বলুন।';
+
+  @override
+  String get settingsManageAccount_deleteAdminRefused =>
+      'অ্যাডমিনিস্ট্রেটর অ্যাকাউন্ট অ্যাপ থেকে মোছা যায় না।';
+
+  @override
+  String get settingsManageAccount_deleteFailed =>
+      'আপনার অ্যাকাউন্ট মোছা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get settingsManageAccount_loggedOut => 'আপনি লগ আউট হয়েছেন।';

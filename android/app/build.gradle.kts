@@ -94,6 +94,11 @@ kotlin {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // The Theme.AppCompat parents in styles.xml resolve against this library.
+    // They are required because MainActivity is a FlutterFragmentActivity for
+    // local_auth's fingerprint prompt; without them the app can crash on
+    // Android 8 and below (local_auth_android README).
+    implementation("androidx.appcompat:appcompat:1.7.1")
 }
 
 flutter {

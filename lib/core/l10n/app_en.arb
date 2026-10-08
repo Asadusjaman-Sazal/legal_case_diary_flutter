@@ -1894,5 +1894,48 @@
   "settingsDiagnostics_clear": "Clear Log",
   "settingsDiagnostics_cleared": "Error Log Cleared.",
   "settingsDiagnostics_copy": "Copy Diagnostics",
-  "settingsDiagnostics_copied": "Diagnostics Copied. Paste Them Into A Message To Us."
+  "settingsDiagnostics_copied": "Diagnostics Copied. Paste Them Into A Message To Us.",
+  "@@_section_settingsAppLock": "SETTINGS - APP LOCK  |  lib/features/app_lock/presentation/app_lock_screen.dart",
+  "settingsAppLock_title": "App Lock",
+  "settingsAppLock_setup": "Setup App Lock",
+  "settingsAppLock_changePin": "Change App Lock Pin",
+  "settingsAppLock_enableFingerprint": "Enable Fingerprint",
+  "settingsAppLock_disableFingerprint": "Disable Fingerprint",
+  "settingsAppLock_whenToAsk": "When To Ask For The Pin",
+  "settingsAppLock_whenAppOpens": "When The App Opens",
+  "settingsAppLock_whenAppOpensAndReturns": "When The App Opens Or Returns From The Background",
+  "settingsAppLock_setupTitle": "Set Up App Lock",
+  "settingsAppLock_choosePin": "Choose A {digits}-Digit PIN",
+  "@settingsAppLock_choosePin": {
+      "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",
+      "placeholders": {
+          "digits": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAppLock_confirmPin": "Confirm Your PIN",
+  "settingsAppLock_pinMismatch": "The PINs Do Not Match. Start Again.",
+  "settingsAppLock_setupDone": "App Lock Is On.",
+  "settingsAppLock_setupFailed": "The PIN Could Not Be Saved. Try Again.",
+  "settingsAppLock_enterCurrentPin": "Enter Your Current PIN",
+  "settingsAppLock_newPin": "Enter A New PIN",
+  "settingsAppLock_pinChanged": "App Lock PIN Changed.",
+  "settingsAppLock_currentPinWrong": "That PIN Is Not Correct.",
+  "settingsAppLock_unlockTitle": "Enter Your PIN To Unlock",
+  "settingsAppLock_wrongPin": "Wrong PIN. Try Again.",
+  "settingsAppLock_tooManyAttempts": "Too Many Attempts. Try Again In {seconds} Seconds.",
+  "@settingsAppLock_tooManyAttempts": {
+      "description": "Shown while a wrong-pin lockout is still running; seconds is pre-formatted in the active language.",
+      "placeholders": {
+          "seconds": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAppLock_verifyForFingerprint": "Verify Your Identity For App Lock",
+  "settingsAppLock_fingerprintEnabled": "Fingerprint Unlock Enabled.",
+  "settingsAppLock_fingerprintDisabled": "Fingerprint Unlock Disabled.",
+  "settingsAppLock_fingerprintUnavailable": "No Fingerprint Is Available On This Device.",
+  "settingsAppLock_useFingerprint": "Unlock With Fingerprint"
 }

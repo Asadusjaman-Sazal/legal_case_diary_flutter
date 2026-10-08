@@ -8,6 +8,8 @@
          installs; the app checks at runtime and falls back to an inexact
          windowed alarm when the user refuses. -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- App Lock: unlock with the device-stored fingerprint (local_auth). -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"

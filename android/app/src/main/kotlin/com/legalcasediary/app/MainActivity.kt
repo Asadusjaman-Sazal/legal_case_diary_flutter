@@ -2,7 +2,7 @@ package com.legalcasediary.app
 
 import android.content.Context
 import android.os.PowerManager
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -15,7 +15,10 @@ import io.flutter.plugin.common.MethodChannel
  * Dart side ([AndroidNotificationGateway.batteryOptimizationIgnored]) treats a
  * missing channel as "not done" rather than as a failure.
  */
-class MainActivity : FlutterActivity() {
+// FlutterFragmentActivity, not FlutterActivity: local_auth's BiometricPrompt
+// needs a FragmentActivity host, and its theme must be an AppCompat theme
+// (see styles.xml) or older devices crash on launch.
+class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)

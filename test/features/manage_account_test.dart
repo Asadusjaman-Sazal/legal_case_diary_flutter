@@ -216,7 +216,9 @@ void main() {
     // line rather than anything about the Logout button's size.)
     expect(
       tester.getSize(cards.at(0)).height,
-      tester.getSize(find.byType(SettingsSubMenuRow)).height,
+      // Change Password's row: the first one; App Lock joined below it (0.0.420)
+      // and is a second row of the same height.
+      tester.getSize(find.byType(SettingsSubMenuRow).first).height,
     );
 
     // The section heading is the error colour, in bold.
@@ -281,7 +283,9 @@ void main() {
     final cards = find.byType(SettingsActionCard);
     final logoutSurface = splashSurfaceOf(cards.at(0));
     final deleteSurface = splashSurfaceOf(cards.at(1));
-    final passwordSurface = splashSurfaceOf(find.byType(SettingsSubMenuRow));
+    final passwordSurface = splashSurfaceOf(
+      find.byType(SettingsSubMenuRow).first,
+    );
 
     // A shared controller is exactly what the old opaque-Container shape
     // produced: every card's splash resolved to the one screen-level Material

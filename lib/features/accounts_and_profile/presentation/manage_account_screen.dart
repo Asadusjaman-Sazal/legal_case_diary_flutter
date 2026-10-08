@@ -157,6 +157,15 @@ class ManageAccountScreen extends ConsumerWidget {
               // a signed-in user away from every auth route.
               onTap: () => context.push(AppRoutes.settingsChangePassword),
             ),
+            SizedBox(height: AppSpacing.sm),
+            // The app's own lock, set and changed on its own sub-page; it sits
+            // with the account's security actions, above the Danger Zone.
+            SettingsSubMenuRow(
+              key: const ValueKey('manage-account-app-lock'),
+              icon: Icons.key_outlined,
+              title: l.settingsAppLock_title,
+              onTap: () => context.push(AppRoutes.settingsAppLock),
+            ),
             SizedBox(height: AppSpacing.lg),
             // The section heading the user asked for: red and bold, drawing the
             // eye to the one irreversible action on this screen.

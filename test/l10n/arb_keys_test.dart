@@ -66,6 +66,7 @@ void main() {
       'settingsAccountProfile',
       'settingsProfile',
       'settingsManageAccount',
+      'settingsAppLock',
       'settingsOnlineSync',
       'settingsBackupRestore',
       'settingsEditCourtSteps',

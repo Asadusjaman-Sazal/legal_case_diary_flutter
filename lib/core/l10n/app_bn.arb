@@ -1471,6 +1471,7 @@
       }
   },
   "auth_backToLogin": "লগইনে ফিরে যান",
+  "auth_useTheApp": "অ্যাপটি ব্যবহার করুন",
   "auth_openMail": "মেইল খুলুন",
   "auth_unableToOpenMail": "কোনো মেইল অ্যাপ খোলা যায়নি।",
   "auth_resendEmail": "ইমেইল আবার পাঠান",
@@ -1481,7 +1482,7 @@
   "auth_changeEmailAlreadyConfirmed": "এই ঠিকানাটি আগেই নিশ্চিত হয়েছে। বরং লগইন করুন।",
   "auth_changeEmailRefused": "এই অ্যাকাউন্টে ইতিমধ্যে তথ্য আছে। লগইন করে সেটিংস থেকে অ্যাকাউন্টটি মুছে ফেলুন।",
   "auth_emailConfirmedTitle": "ইমেইল নিশ্চিত হয়েছে!",
-  "auth_emailConfirmedMessage": "{email} ঠিকানাটি নিশ্চিত হয়েছে। চালিয়ে যেতে লগইন করুন।",
+  "auth_emailConfirmedMessage": "{email} ঠিকানাটি নিশ্চিত হয়েছে। এখন আপনি অ্যাপটি ব্যবহার করতে পারেন।",
   "@auth_emailConfirmedMessage": {
       "description": "AUTH",
       "placeholders": {

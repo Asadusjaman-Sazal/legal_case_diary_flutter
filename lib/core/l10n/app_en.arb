@@ -1634,6 +1634,7 @@
       }
   },
   "auth_backToLogin": "Back To Login",
+  "auth_useTheApp": "Use The App",
   "auth_openMail": "Open Mail",
   "auth_unableToOpenMail": "No mail app could be opened.",
   "auth_resendEmail": "Resend Email",
@@ -1644,7 +1645,7 @@
   "auth_changeEmailAlreadyConfirmed": "That address is already confirmed. Log in instead.",
   "auth_changeEmailRefused": "That account already has data. Log in and delete it from Settings instead.",
   "auth_emailConfirmedTitle": "Email Confirmed!",
-  "auth_emailConfirmedMessage": "Your email address {email} is confirmed. Log in to continue.",
+  "auth_emailConfirmedMessage": "Your email address {email} is confirmed. You can use the app now.",
   "@auth_emailConfirmedMessage": {
       "description": "AUTH",
       "placeholders": {

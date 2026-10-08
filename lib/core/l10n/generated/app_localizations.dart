@@ -5892,6 +5892,12 @@ abstract class AppLocalizations {
   /// **'Back To Login'**
   String get auth_backToLogin;
 
+  /// No description provided for @auth_useTheApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Use The App'**
+  String get auth_useTheApp;
+
   /// No description provided for @auth_openMail.
   ///
   /// In en, this message translates to:
@@ -5955,7 +5961,7 @@ abstract class AppLocalizations {
   /// AUTH
   ///
   /// In en, this message translates to:
-  /// **'Your email address {email} is confirmed. Log in to continue.'**
+  /// **'Your email address {email} is confirmed. You can use the app now.'**
   String auth_emailConfirmedMessage(String email);
 
   /// No description provided for @auth_forgotTitle.

@@ -4074,9 +4074,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'When The App Opens Or Returns From The Background';
 
   @override
-  String get settingsAppLock_setupTitle => 'Set Up App Lock';
-
-  @override
   String settingsAppLock_choosePin(String digits) {
     return 'Choose A $digits-Digit PIN';
   }

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.420 - App Lock added: a 4-digit PIN (salted digest in secure storage) set from a new Manage Account sub-page, with fingerprint unlock and a choice of when to ask, enforced over the whole app from the root.
+Version: 0.0.421 - App Lock fixes: the lock screen no longer crashes on a tooltip it had no Overlay for (which had also killed the keypad), and the fingerprint stays live during the lockout.
 --------------------------------------
 
 ## Version History Log:
@@ -434,3 +434,4 @@ Version: 0.0.417 - Open Mail now opens the mail app in its own task (FLAG_ACTIVI
 Version: 0.0.418 - The Font Size stepper's +1 is now the app's shipped default: every screen renders one pixel larger at Default, and the bottom navigation bar alone keeps its old size.
 Version: 0.0.419 - Manage Account's three buttons and Subscription's two rows show their tap ripple again: the shared cards are Materials, not opaque Containers over the ink.
 Version: 0.0.420 - App Lock added: a 4-digit PIN (salted digest in secure storage) set from a new Manage Account sub-page, with fingerprint unlock and a choice of when to ask, enforced over the whole app from the root.
+Version: 0.0.421 - App Lock fixes: the lock screen no longer crashes on a tooltip it had no Overlay for (which had also killed the keypad), and the fingerprint stays live during the lockout.

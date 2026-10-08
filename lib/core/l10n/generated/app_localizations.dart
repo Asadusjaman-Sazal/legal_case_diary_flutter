@@ -7116,12 +7116,6 @@ abstract class AppLocalizations {
   /// **'When The App Opens Or Returns From The Background'**
   String get settingsAppLock_whenAppOpensAndReturns;
 
-  /// No description provided for @settingsAppLock_setupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Set Up App Lock'**
-  String get settingsAppLock_setupTitle;
-
   /// Title of the pin-pad dialog's first step; digits is the pin length in the active language.
   ///
   /// In en, this message translates to:

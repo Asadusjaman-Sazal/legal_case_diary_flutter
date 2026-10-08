@@ -36,8 +36,9 @@ class PinPadStage {
   ///
   /// Null means "accept it as captured" — the stage exists only to record the
   /// pin (the first entry of a setup, the new pin of a change). When it is
-  /// given, returning false shows [error] and restarts the stage's entry, and
-  /// the pin is never captured, so a rejected one cannot be reused.
+  /// given, returning false shows [error] and sends the flow to [restartAt]
+  /// (this stage, when none is given), and the pin is never captured, so a
+  /// rejected one cannot be reused.
   final Future<bool> Function(String pin, List<String> captured)? verify;
 
   /// Shown under the dots when [verify] says no.
@@ -84,7 +85,8 @@ class PinPad extends StatefulWidget {
     this.errorMessage = false,
     this.enabled = true,
     this.showBiometrics = false,
-    this.biometricsTooltip = '',
+    this.biometricsEnabled,
+    this.biometricsLabel = '',
     required this.onCompleted,
     this.onBiometrics,
   });
@@ -95,14 +97,22 @@ class PinPad extends StatefulWidget {
   /// Whether [message] is a failure (red) rather than neutral.
   final bool errorMessage;
 
-  /// False while a verification runs or a lockout counts down.
+  /// False while a verification runs or a lockout counts down: governs the
+  /// keypad.
   final bool enabled;
 
   /// Whether the fingerprint glyph is shown.
   final bool showBiometrics;
 
-  /// Its tooltip; may be empty when the glyph is hidden.
-  final String biometricsTooltip;
+  /// Whether the fingerprint glyph may be tapped, independently of [enabled].
+  ///
+  /// Null means "follows [enabled]". The lock screen separates the two on
+  /// purpose: a lockout rests the keypad, never the fingerprint — the rest is
+  /// against guessing, not against the owner.
+  final bool? biometricsEnabled;
+
+  /// The glyph's accessibility label; may be empty when the glyph is hidden.
+  final String biometricsLabel;
 
   /// Called with exactly four digits.
   final ValueChanged<String> onCompleted;
@@ -211,17 +221,25 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
               _digitKey('0', locale),
               Expanded(
                 child: Center(
-                  child: IconButton(
-                    key: const ValueKey('pin-pad-backspace'),
-                    onPressed: widget.enabled && _entered.isNotEmpty
-                        ? _backspace
-                        : null,
-                    tooltip: l.sharedActions_delete,
-                    icon: Icon(
-                      Icons.backspace_outlined,
-                      color: widget.enabled && _entered.isNotEmpty
-                          ? AppColors.onSurface
-                          : AppColors.outlineVariant,
+                  // A Semantics label, not IconButton's tooltip: a Tooltip
+                  // asserts an Overlay ancestor, and the lock screen is drawn
+                  // *outside* the navigator's overlay (it has to cover
+                  // dialogs) — a tooltip in the pad crashed it with "No
+                  // Overlay widget found" and took the whole keypad with it.
+                  child: Semantics(
+                    label: l.sharedActions_delete,
+                    button: true,
+                    child: IconButton(
+                      key: const ValueKey('pin-pad-backspace'),
+                      onPressed: widget.enabled && _entered.isNotEmpty
+                          ? _backspace
+                          : null,
+                      icon: Icon(
+                        Icons.backspace_outlined,
+                        color: widget.enabled && _entered.isNotEmpty
+                            ? AppColors.onSurface
+                            : AppColors.outlineVariant,
+                      ),
                     ),
                   ),
                 ),
@@ -230,16 +248,24 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
           ),
           if (widget.showBiometrics) ...[
             const SizedBox(height: AppSpacing.sm),
-            IconButton(
-              key: const ValueKey('pin-pad-fingerprint'),
-              onPressed: widget.enabled ? widget.onBiometrics : null,
-              tooltip: widget.biometricsTooltip,
-              iconSize: 34,
-              icon: Icon(
-                Icons.fingerprint,
-                color: widget.enabled
-                    ? AppColors.primary
-                    : AppColors.outlineVariant,
+            // No Tooltip here either, and gated by its own flag: a resting
+            // keypad rests the digits only — the fingerprint stays the way
+            // back in while the lockout counts down.
+            Semantics(
+              label: widget.biometricsLabel,
+              button: true,
+              child: IconButton(
+                key: const ValueKey('pin-pad-fingerprint'),
+                onPressed: (widget.biometricsEnabled ?? widget.enabled)
+                    ? widget.onBiometrics
+                    : null,
+                iconSize: 34,
+                icon: Icon(
+                  Icons.fingerprint,
+                  color: (widget.biometricsEnabled ?? widget.enabled)
+                      ? AppColors.primary
+                      : AppColors.outlineVariant,
+                ),
               ),
             ),
           ],
@@ -248,7 +274,7 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// One digit button, 120 × 52 of touch area.
+  /// One digit button, 64 × 52 of touch area.
   Widget _digitKey(String digit, String locale) => Expanded(
     child: Center(
       child: InkWell(
@@ -418,7 +444,7 @@ class _PinFlowDialogState extends State<_PinFlowDialog> {
         errorMessage: _error,
         enabled: !_busy,
         showBiometrics: stage.biometrics != null,
-        biometricsTooltip: l.settingsAppLock_useFingerprint,
+        biometricsLabel: l.settingsAppLock_useFingerprint,
         onCompleted: _onCompleted,
         onBiometrics: stage.biometrics != null ? _onBiometrics : null,
       ),

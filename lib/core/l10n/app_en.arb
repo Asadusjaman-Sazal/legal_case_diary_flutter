@@ -1904,7 +1904,6 @@
   "settingsAppLock_whenToAsk": "When To Ask For The Pin",
   "settingsAppLock_whenAppOpens": "When The App Opens",
   "settingsAppLock_whenAppOpensAndReturns": "When The App Opens Or Returns From The Background",
-  "settingsAppLock_setupTitle": "Set Up App Lock",
   "settingsAppLock_choosePin": "Choose A {digits}-Digit PIN",
   "@settingsAppLock_choosePin": {
       "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",

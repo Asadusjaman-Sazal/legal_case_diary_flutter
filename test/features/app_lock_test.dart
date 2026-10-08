@@ -445,6 +445,99 @@ void main() {
       await tester.pump();
     }
 
+    /// The production shape (app.dart): the gate wraps what `MaterialApp.builder`
+    /// hands back — the navigator itself — so everything the gate draws sits
+    /// *outside* the navigator's Overlay. Pumping the gate under `home:` hides
+    /// exactly that, which is how a Tooltip in the pad shipped crashing the
+    /// lock screen with "No Overlay widget found" while every `home:`-shaped
+    /// test stayed green.
+    Future<void> pumpGateInShell(
+      WidgetTester tester, {
+      required AppLockStore store,
+      FakeBiometrics? biometrics,
+    }) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appLockStoreProvider.overrideWithValue(store),
+            biometricsProvider.overrideWithValue(
+              biometrics ?? FakeBiometrics(),
+            ),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+            builder: (context, child) => AppLockScope(
+              child: child ?? const SizedBox.shrink(),
+            ),
+            home: const Center(child: Text('App is under here', key: marker)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets(
+      'the lock builds beside the navigator without a framework error',
+      (tester) async {
+        await pumpGateInShell(
+          tester,
+          store: await seeded(fingerprint: true),
+          biometrics: FakeBiometrics(),
+        );
+
+        // The reported defect: a Tooltip in the pad asserted "No Overlay widget
+        // found" here — the lock is outside the navigator's overlay — and the
+        // throw took the keypad down with it, fingerprint glyph and all.
+        expect(tester.takeException(), isNull);
+        expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
+        expect(find.byKey(const ValueKey('pin-pad-fingerprint')), findsOneWidget);
+
+        await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.text(l.settingsAppLock_unlockTitle), findsNothing);
+        await unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'five wrong pins rest the keypad but never the fingerprint',
+      (tester) async {
+        await pumpGate(
+          tester,
+          store: await seeded(fingerprint: true),
+          biometrics: FakeBiometrics(),
+        );
+        for (var i = 0; i < 5; i++) {
+          await enterPin(tester, '9999');
+          await tester.pumpAndSettle();
+        }
+        expect(
+          tester.widget<Text>(find.byKey(const ValueKey('pin-pad-message'))).data,
+          contains('Try Again In'),
+        );
+
+        // The digits are resting…
+        await enterPin(tester, '1234');
+        await tester.pump();
+        expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
+
+        // …but the fingerprint is still the way back in: the rest is against
+        // guessing, not against the owner.
+        final glyph = tester.widget<IconButton>(
+          find.byKey(const ValueKey('pin-pad-fingerprint')),
+        );
+        expect(glyph.onPressed, isNotNull);
+        await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
+        await tester.pumpAndSettle();
+        expect(find.text(l.settingsAppLock_unlockTitle), findsNothing);
+        await unmount(tester);
+      },
+    );
+
     testWidgets('a phone with a pin starts covered and opens with the pin', (
       tester,
     ) async {

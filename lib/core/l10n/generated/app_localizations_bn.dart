@@ -1654,6 +1654,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'এতে আপনার অ্যাকাউন্ট এবং এই ডিভাইস ও ক্লাউডে থাকা সব মামলা, নোট, কেস রেফারেন্স ও সেটিং স্থায়ীভাবে মুছে যাবে। এরপর কিছুই ফিরিয়ে আনা যাবে না।';
 
   @override
+  String get settingsManageAccount_deleteConfirmPhrase => 'delete my account';
+
+  @override
+  String settingsManageAccount_deleteConfirmBody(String phrase) {
+    return 'নিশ্চিত করতে নিচে $phrase লিখুন।';
+  }
+
+  @override
   String get settingsManageAccount_deleteNeedsConnection =>
       'অ্যাকাউন্ট মুছতে ইন্টারনেটে সংযুক্ত হন। কিছুই মুছে ফেলা হয়নি।';
 

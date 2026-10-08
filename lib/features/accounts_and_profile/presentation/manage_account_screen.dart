@@ -18,13 +18,15 @@
 ///   straight after Logout;
 /// * a red, bold **Danger Zone** label, then the **Delete Account** card.
 ///
-/// **Delete Account is wired here.** It warns first — what the deletion takes
+/// **Delete Account starts here.** It warns first — what the deletion takes
 /// with it, worded for a free account (whose diary only ever lived on this
 /// device) or a premium one (whose diary is also in the cloud) — and says the
-/// result is permanent. Confirmed, it asks the server to remove the account and
-/// every row of it, then returns the device to a fresh install and signs out.
-/// Offline it refuses rather than half-deleting: the account row lives on the
-/// server, so there is no local-only version of this action.
+/// result is permanent. Confirmed, the warning opens the **typed confirmation
+/// screen** (`DeleteAccountScreen`, 0.0.412), where the user has to type
+/// `delete my account` before anything is destroyed; that screen then asks the
+/// server, returns the device to a fresh install and signs out. Offline it
+/// refuses rather than half-deleting: the account row lives on the server, so
+/// there is no local-only version of this action.
 library;
 
 import 'package:flutter/material.dart';
@@ -35,15 +37,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
-import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
-import '../../../sync/connectivity_monitor.dart';
-import '../../auth/data/logout_flow.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
-import '../data/account_deletion_repository.dart';
 import '../data/account_mode.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
@@ -64,12 +62,11 @@ class ManageAccountScreen extends ConsumerWidget {
         ref.watch(accountProfileProvider).value?.fullName.trim() ?? '';
     final name = localName.isNotEmpty ? localName : cachedName;
     final email = ref.watch(authIdentityProvider)?.email ?? '';
-    // Both are watched from the first frame, not read when the delete card is
-    // tapped: the warning is worded for this account's plan, and the connection
-    // decides whether the action is possible at all, so neither may be the
-    // "unknown" a lazy first read answers with.
+    // Watched from the first frame, not read when the delete card is tapped: the
+    // warning is worded for this account's plan, so the answer may not be the
+    // "unknown" a lazy first read gives. (The connection is the confirmation
+    // screen's business now — it is where the deletion actually runs.)
     final premium = ref.watch(premiumAccessProvider).value;
-    final online = ref.watch(isOnlineProvider).value;
 
     return SettingsSubPageModal(
       title: l.settingsManageAccount_title,
@@ -178,15 +175,10 @@ class ManageAccountScreen extends ConsumerWidget {
               title: l.settingsManageAccount_deleteAccount,
               subtitle: l.settingsManageAccount_deleteCannotBeUndone,
               tone: SettingsActionTone.destructive,
-              onTap: () => _confirmDelete(
-                context,
-                ref,
-                // Unknown counts as premium, and as online. Both are the safe
-                // direction: the stronger warning, and a call that words its own
-                // failure — and either is unresolved only on the first frame.
-                premium: premium != false,
-                online: online != false,
-              ),
+              // Unknown counts as premium, the safer direction for a warning:
+              // telling a premium user their cloud copy is untouched would be
+              // the worse mistake.
+              onTap: () => _warnAndContinue(context, premium: premium != false),
             ),
           ],
         ),
@@ -214,67 +206,22 @@ class ManageAccountScreen extends ConsumerWidget {
     context.go(AppRoutes.login);
   }
 
-  /// Warns, then deletes this account and everything that belongs to it.
+  /// Warns, then opens the typed confirmation that actually deletes.
   ///
-  /// Four things happen in this order, and the order is the point:
-  ///
-  /// 1. **The warning**, with no other way in. A dismissed window (the barrier
-  ///    or system back) is a cancellation, so nothing is deleted by a stray tap.
-  /// 2. **The connection check.** The account row lives on the server, so there
-  ///    is no offline deletion to fall back on; rather than half-delete, the tap
-  ///    is refused with the reason. Nothing local is touched either — the diary
-  ///    stays until the account is really gone, which is the retryable direction.
-  /// 3. **The server's own removal** — `delete_my_account()` clears every row of
-  ///    this account, cloud data included, and then the account itself. A refusal
-  ///    (a firm member, an app admin) or a failure stops here, with the reason.
-  /// 4. **The device** — the same complete wipe-with-baseline the logout runs,
-  ///    then the sign-out, then Login.
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref, {
+  /// Two things happen here, and the order is the point: **the warning**, with
+  /// no other way in (a dismissed window is a cancellation, so nothing is
+  /// deleted by a stray tap), and then **the confirmation screen** — a page of
+  /// its own since 0.0.412, because typing the phrase is the point of no return
+  /// and deserves the whole screen rather than a second dialog stacked on the
+  /// first.
+  Future<void> _warnAndContinue(
+    BuildContext context, {
     required bool premium,
-    required bool online,
   }) async {
     final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    // The warning first, worded for this account's plan: a free account's diary
-    // has never left the device, while a premium account's is in the cloud too —
-    // and that is the part a user must not be surprised by.
     final confirmed = await _confirmDeleteAccount(l, context, premium: premium);
     if (confirmed != true || !context.mounted) return;
-
-    // The account is on the server; without a link there is nothing to delete,
-    // and no queue would be honest about it.
-    if (!online) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l.settingsManageAccount_deleteNeedsConnection)),
-      );
-      return;
-    }
-
-    final outcome = await ref
-        .read(accountDeletionRepositoryProvider)
-        .deleteAccount();
-    if (!context.mounted) return;
-    if (outcome != AccountDeletionOutcome.deleted) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(_deletionFailureText(l, outcome))),
-      );
-      return;
-    }
-
-    // Gone server-side, so this device goes back to what an install starts from
-    // and the session ends: the logout flow's own wipe + sign-out, so the two
-    // ways off an account cannot diverge.
-    final flow = await ref.read(logoutFlowProvider.future);
-    if (!context.mounted) return;
-    await flow.wipeAndComplete();
-    if (!context.mounted) return;
-    messenger.showSnackBar(
-      SnackBar(content: Text(l.settingsManageAccount_deleted)),
-    );
-    context.go(AppRoutes.login);
+    context.push(AppRoutes.settingsDeleteAccount);
   }
 
   /// The one warning before an account is destroyed.
@@ -322,22 +269,5 @@ class ManageAccountScreen extends ConsumerWidget {
     );
   }
 
-  /// One sentence for anything that did not delete the account.
-  ///
-  /// A refusal is the server's own answer — this account holds data that is not
-  /// only its own — and says what has to happen first. Everything else is a
-  /// failure the user can retry.
-  String _deletionFailureText(
-    AppLocalizations l,
-    AccountDeletionOutcome outcome,
-  ) => switch (outcome) {
-    AccountDeletionOutcome.refusedFirm => l.settingsManageAccount_deleteFirmRefused,
-    AccountDeletionOutcome.refusedAdministrator =>
-      l.settingsManageAccount_deleteAdminRefused,
-    // Deleted is handled before this is asked for; a label keeps it total.
-    AccountDeletionOutcome.deleted ||
-    AccountDeletionOutcome.unavailable ||
-    AccountDeletionOutcome.failed => l.settingsManageAccount_deleteFailed,
-  };
 }
 

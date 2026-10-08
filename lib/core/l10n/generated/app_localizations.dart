@@ -2996,6 +2996,18 @@ abstract class AppLocalizations {
   /// **'This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.'**
   String get settingsManageAccount_deleteWarningPremium;
 
+  /// No description provided for @settingsManageAccount_deleteConfirmPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'delete my account'**
+  String get settingsManageAccount_deleteConfirmPhrase;
+
+  /// No description provided for @settingsManageAccount_deleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {phrase} below to confirm.'**
+  String settingsManageAccount_deleteConfirmBody(String phrase);
+
   /// No description provided for @settingsManageAccount_deleteNeedsConnection.
   ///
   /// In en, this message translates to:

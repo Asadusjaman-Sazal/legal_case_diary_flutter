@@ -1,11 +1,18 @@
-/// Delete Account — the warning, the refusals, and the wired deletion (0.0.411).
+/// Delete Account — the warning, the typed confirmation, and the wired deletion
+/// (0.0.411, two gates since 0.0.412).
 ///
 /// The Delete Account card used to warn nothing and do nothing (the last Part A
-/// placeholder on the Settings surface). What it does now is one flow, and each
-/// step of it is pinned here against a faked server:
+/// placeholder on the Settings surface). What it does now is one flow with two
+/// gates, and each step of it is pinned here against a faked server:
 ///
 /// * **nothing is deleted without the warning** — Cancel, and a dismissed
 ///   window, leave the account and its data exactly as they were;
+/// * **nothing is deleted without the typed phrase** — the confirmation screen's
+///   button is disabled until the field holds `delete my account` (trimmed and
+///   case-insensitively), a wrong phrase leaves the account alone, and leaving
+///   the screen deletes nothing either;
+/// * the instruction's **phrase is the only red, bold run** in the sentence, so
+///   the words to type are the ones the eye lands on;
 /// * the warning is **worded for this account's plan**, because a free
 ///   account's diary has never left the device while a premium one's is in the
 ///   cloud as well;
@@ -23,6 +30,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -30,6 +38,7 @@ import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_deletion_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/presentation/delete_account_screen.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_account_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
@@ -100,6 +109,7 @@ void main() {
     required AccountDeletionRepository deletion,
     bool online = true,
     bool premium = false,
+    Locale locale = const Locale('en'),
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -114,10 +124,15 @@ void main() {
       tester,
       location: AppRoutes.settingsManageAccount,
       overrides: await harness.setUp(extra: overrides),
+      locale: locale,
       routes: [
         GoRoute(
           path: AppRoutes.settingsManageAccount,
           builder: (_, _) => const ManageAccountScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsDeleteAccount,
+          builder: (_, _) => const DeleteAccountScreen(),
         ),
         // Where a completed deletion lands: Login is a top-level route, so the
         // screen leaves the shell for it rather than popping back to Settings.
@@ -127,7 +142,7 @@ void main() {
         ),
       ],
     );
-    l = await AppLocalizations.delegate.load(const Locale('en'));
+    l = await AppLocalizations.delegate.load(locale);
     // A device already in use: the remembered account is what the sign-out at
     // the end of a successful deletion must clear.
     await harness.prefs.setString(authUserIdKey, 'user-1');
@@ -164,8 +179,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// Answers the warning: taps **Delete Account** in the window.
-  Future<void> confirmDelete(WidgetTester tester) async {
+  /// Answers the warning, landing on the typed confirmation.
+  ///
+  /// Both gates are asserted where they appear, because each is the only thing
+  /// that stands between a tap and a deleted account: a test that skipped them
+  /// would pass even if the card went straight to deleting.
+  Future<void> answerWarning(WidgetTester tester) async {
     expect(
       find.text(l.settingsManageAccount_deleteDialogTitle),
       findsOneWidget,
@@ -175,6 +194,54 @@ void main() {
       find.widgetWithText(TextButton, l.settingsManageAccount_deleteAccount),
     );
     await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('delete-account-phrase')),
+      findsOneWidget,
+      reason: 'the warning opens the typed confirmation, not the deletion',
+    );
+  }
+
+  /// Types [text] into the confirmation field.
+  Future<void> typePhrase(WidgetTester tester, String text) async {
+    await tester.enterText(
+      find.byKey(const ValueKey('delete-account-phrase')),
+      text,
+    );
+    await tester.pumpAndSettle();
+  }
+
+  /// Whether the confirmation screen's destructive button is enabled.
+  bool confirmEnabled(WidgetTester tester) {
+    final button = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('delete-account-confirm')),
+    );
+    return button.onPressed != null;
+  }
+
+  /// Types the phrase and taps the confirmation screen's button.
+  Future<void> submitConfirmation(WidgetTester tester) async {
+    await typePhrase(tester, l.settingsManageAccount_deleteConfirmPhrase);
+    await tester.tap(find.byKey(const ValueKey('delete-account-confirm')));
+    await tester.pumpAndSettle();
+  }
+
+  /// The runs the confirmation sentence is built from, in order.
+  ///
+  /// The sentence is one ARB string with the phrase as its placeholder, so the
+  /// screen renders it as rich text; these are the pieces it composed. It is
+  /// found by its own text rather than by position, because the card holds other
+  /// text as well.
+  List<TextSpan> confirmSentenceRuns(WidgetTester tester, AppLocalizations l) {
+    final sentence = l.settingsManageAccount_deleteConfirmBody(
+      l.settingsManageAccount_deleteConfirmPhrase,
+    );
+    final instruction = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((text) => text.textSpan)
+        .whereType<TextSpan>()
+        .firstWhere((span) => span.toPlainText() == sentence);
+    return (instruction.children ?? const <InlineSpan>[]).cast<TextSpan>();
   }
 
   /// The account's own work is still on the device.
@@ -238,7 +305,8 @@ void main() {
     await pumpManageAccount(tester, deletion: deletion, online: false);
 
     await tapDeleteCard(tester);
-    await confirmDelete(tester);
+    await answerWarning(tester);
+    await submitConfirmation(tester);
 
     expect(deletion.calls, 0, reason: 'nothing is sent to the server offline');
     await expectNothingDeleted();
@@ -256,7 +324,8 @@ void main() {
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
-    await confirmDelete(tester);
+    await answerWarning(tester);
+    await submitConfirmation(tester);
 
     expect(find.text(l.settingsManageAccount_deleteFirmRefused), findsOneWidget);
     expect(deletion.calls, 1);
@@ -272,7 +341,8 @@ void main() {
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
-    await confirmDelete(tester);
+    await answerWarning(tester);
+    await submitConfirmation(tester);
 
     expect(find.text(l.settingsManageAccount_deleteFailed), findsOneWidget);
     expect(deletion.calls, 1);
@@ -288,7 +358,8 @@ void main() {
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
-    await confirmDelete(tester);
+    await answerWarning(tester);
+    await submitConfirmation(tester);
 
     expect(deletion.calls, 1);
     // The server removed the account, so this device goes back to what an
@@ -300,6 +371,125 @@ void main() {
     expect(find.text(l.settingsManageAccount_deleted), findsOneWidget);
     // And the user lands on the sign-in screen, not on an emptied Settings list.
     expect(find.text(loginRouteMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the destructive button unlocks only on the typed phrase', (
+    tester,
+  ) async {
+    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    await pumpManageAccount(tester, deletion: deletion);
+
+    await tapDeleteCard(tester);
+    await answerWarning(tester);
+
+    // Nothing typed: the action is not available at all.
+    expect(
+      confirmEnabled(tester),
+      isFalse,
+      reason: 'the gate is shut to begin with',
+    );
+
+    await typePhrase(tester, 'delete');
+    expect(
+      confirmEnabled(tester),
+      isFalse,
+      reason: 'a partial phrase is not the phrase',
+    );
+
+    await typePhrase(tester, 'delete my accounts');
+    expect(
+      confirmEnabled(tester),
+      isFalse,
+      reason: 'nearly is not the phrase',
+    );
+
+    // The same intent in another case, with stray whitespace, is accepted: the
+    // gate is there for deliberation, not typing practice.
+    await typePhrase(tester, '  Delete My Account ');
+    expect(confirmEnabled(tester), isTrue);
+
+    // And leaving without pressing it deletes nothing at all.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text(l.settingsManageAccount_deleteDialogTitle), findsNothing);
+    expect(deletion.calls, 0);
+    await expectNothingDeleted();
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('only the phrase in the instruction is red and bold', (
+    tester,
+  ) async {
+    // The words to type are the only part of the sentence the user must notice,
+    // so they carry the app's error ink and weight and the sentence around them
+    // stays ordinary body text.
+    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    await pumpManageAccount(tester, deletion: deletion);
+
+    await tapDeleteCard(tester);
+    await answerWarning(tester);
+
+    final phrase = l.settingsManageAccount_deleteConfirmPhrase;
+    final runs = confirmSentenceRuns(tester, l);
+    expect(
+      runs.map((run) => run.text).join(),
+      l.settingsManageAccount_deleteConfirmBody(phrase),
+      reason: 'the styled runs are still the whole sentence',
+    );
+
+    final styled = runs.singleWhere((run) => run.text == phrase);
+    expect(styled.style?.color, AppColors.error);
+    expect(styled.style?.fontWeight, FontWeight.w700);
+
+    // And nothing else in the sentence is either red or bold.
+    for (final run in runs.where((run) => run.text != phrase)) {
+      expect(run.style?.color, isNot(AppColors.error));
+      expect(run.style?.fontWeight, isNot(FontWeight.w700));
+    }
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the phrase stays English in Bengali', (tester) async {
+    // The user's own instruction: the confirmation words are the same in both
+    // languages, so the Bengali instruction and the string the code compares
+    // cannot drift apart.
+    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    await pumpManageAccount(
+      tester,
+      deletion: deletion,
+      locale: const Locale('bn'),
+    );
+
+    await tapDeleteCard(tester);
+    await answerWarning(tester);
+
+    expect(
+      find.text(
+        l.settingsManageAccount_deleteConfirmBody('delete my account'),
+        findRichText: true,
+      ),
+      findsOneWidget,
+      reason: 'the Bengali sentence carries the English phrase',
+    );
+    expect(
+      l.settingsManageAccount_deleteConfirmPhrase,
+      'delete my account',
+      reason: 'the phrase is not translated',
+    );
+    // Still the styled run in Bengali — the phrase is the one part that does
+    // not follow the language of the sentence around it.
+    final styled = confirmSentenceRuns(
+      tester,
+      l,
+    ).singleWhere((run) => run.style?.color == AppColors.error);
+    expect(styled.text, 'delete my account');
+    expect(styled.style?.fontWeight, FontWeight.w700);
+    await typePhrase(tester, 'delete my account');
+    expect(confirmEnabled(tester), isTrue);
 
     await unmountApp(tester);
   });

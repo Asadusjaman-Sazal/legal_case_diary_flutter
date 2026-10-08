@@ -80,6 +80,15 @@ Uri mailtoUri(String address, String subject, String body) => Uri(
 String _mailtoField(String name, String value) =>
     '${Uri.encodeComponent(name)}=${Uri.encodeComponent(value)}';
 
+/// The bare `mailto:` route, whose whole job is to raise the mail app chooser.
+///
+/// With no recipient the URI names no account, so Android offers every app that
+/// handles mail — Gmail, Proton Mail, the vendor client — and the user picks the
+/// one their confirmation mail arrived in. That is the point: the Check Your
+/// Email screen's **Open Mail** has to land the user in their own mailbox, not
+/// in a compose window addressed to the app's support address.
+Uri mailAppUri() => Uri(scheme: 'mailto');
+
 /// `https://wa.me/<number>` — WhatsApp's documented chat route, with no text.
 ///
 /// The case contact chooser opens this from both its call and message sheets:

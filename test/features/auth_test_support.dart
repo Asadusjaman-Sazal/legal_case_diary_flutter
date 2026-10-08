@@ -86,6 +86,28 @@ class FakeAuthRepository implements AuthRepository {
   /// Passwords set through [updatePassword].
   final List<String> updatedPasswords = <String>[];
 
+  /// What [isEmailConfirmed] answers. The Check Your Email screen's only two
+  /// possibilities are configured here rather than driven through a fake server.
+  bool emailConfirmed = false;
+
+  /// Addresses [isEmailConfirmed] was asked about, in call order.
+  final List<String> confirmationChecks = <String>[];
+
+  /// Passwords [isEmailConfirmed] was asked about, in call order.
+  final List<String> confirmationCheckPasswords = <String>[];
+
+  /// Error to throw from [resendConfirmationEmail]; null to succeed.
+  Object? resendError;
+
+  /// Addresses [resendConfirmationEmail] was asked to resend to.
+  final List<String> resendEmails = <String>[];
+
+  /// What [discardUnconfirmedSignup] returns.
+  DiscardSignupOutcome discardOutcome = DiscardSignupOutcome.removed;
+
+  /// Addresses [discardUnconfirmedSignup] was asked to remove.
+  final List<String> discardedEmails = <String>[];
+
   /// Number of Google sign-in attempts.
   int googleCalls = 0;
 
@@ -149,8 +171,7 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthIdentity> signInWithGoogle() async {
-    googleCalls++;
+  Future<AuthIdentity> signInWithGoogle() async {    googleCalls++;
     final failure = googleError;
     if (failure != null) throw failure;
     return identity = const AuthIdentity(
@@ -158,6 +179,32 @@ class FakeAuthRepository implements AuthRepository {
       email: 'counsel@gmail.com',
       signedInWithGoogle: true,
     );
+  }
+
+  @override
+  Future<bool> isEmailConfirmed({
+    required String email,
+    required String password,
+  }) async {
+    confirmationChecks.add(email);
+    confirmationCheckPasswords.add(password);
+    return emailConfirmed;
+  }
+
+  @override
+  Future<void> resendConfirmationEmail(String email) async {
+    resendEmails.add(email);
+    final failure = resendError;
+    if (failure != null) throw failure;
+  }
+
+  @override
+  Future<DiscardSignupOutcome> discardUnconfirmedSignup({
+    required String email,
+    required String password,
+  }) async {
+    discardedEmails.add(email);
+    return discardOutcome;
   }
 
   @override
@@ -520,6 +567,11 @@ Future<void> unmountApp(WidgetTester tester) async {
 /// The persisted invite code, read straight from the local auth cache.
 String? pendingInviteCode(SharedPreferences prefs) =>
     LocalAuthService(prefs).pendingInviteCode;
+
+/// The address of a sign-up still waiting for its confirmation mail, read
+/// straight from the local auth cache.
+String? pendingConfirmation(SharedPreferences prefs) =>
+    LocalAuthService(prefs).pendingConfirmationEmail;
 
 /// A [BackupArchiveSink] that keeps the archive in memory.
 ///

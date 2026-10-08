@@ -17,6 +17,7 @@ import '../../features/accounts_and_profile/presentation/delete_account_screen.d
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
+import '../../features/auth/data/local_auth_service.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
@@ -337,6 +338,16 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
   // explicitly; nothing here re-gates a running app.
   final requiresSignIn = await ref.watch(authGateRequiredProvider.future);
   if (requiresSignIn) initialLocation = AppRoutes.login;
+
+  // A sign-up still waiting for its confirmation mail owns the first frame: the
+  // user left the app to read that mail, and the screen that says so — with Open
+  // Mail, Resend Email and Change Email Address on it — is where they have to
+  // come back to, not an empty form. It is read *after* the gate above, which
+  // would otherwise send them to Login; Sign Up is an auth route, so the gate
+  // stays satisfied while they are there.
+  if (ref.read(localAuthServiceProvider).pendingConfirmationEmail != null) {
+    initialLocation = AppRoutes.signup;
+  }
 
   final refresh = AuthRouterRefresh(ref);
   ref.onDispose(refresh.dispose);

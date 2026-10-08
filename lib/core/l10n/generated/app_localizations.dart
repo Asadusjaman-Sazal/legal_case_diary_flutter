@@ -5892,6 +5892,72 @@ abstract class AppLocalizations {
   /// **'Back To Login'**
   String get auth_backToLogin;
 
+  /// No description provided for @auth_openMail.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Mail'**
+  String get auth_openMail;
+
+  /// No description provided for @auth_unableToOpenMail.
+  ///
+  /// In en, this message translates to:
+  /// **'No mail app could be opened.'**
+  String get auth_unableToOpenMail;
+
+  /// No description provided for @auth_resendEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Email'**
+  String get auth_resendEmail;
+
+  /// No description provided for @auth_resendSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new confirmation email has been sent.'**
+  String get auth_resendSent;
+
+  /// No description provided for @auth_changeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Email Address'**
+  String get auth_changeEmail;
+
+  /// No description provided for @auth_changeEmailPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Your Password'**
+  String get auth_changeEmailPasswordTitle;
+
+  /// No description provided for @auth_changeEmailPasswordPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter this account\'s password to continue.'**
+  String get auth_changeEmailPasswordPrompt;
+
+  /// No description provided for @auth_changeEmailAlreadyConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'That address is already confirmed. Log in instead.'**
+  String get auth_changeEmailAlreadyConfirmed;
+
+  /// No description provided for @auth_changeEmailRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'That account already has data. Log in and delete it from Settings instead.'**
+  String get auth_changeEmailRefused;
+
+  /// No description provided for @auth_emailConfirmedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Confirmed!'**
+  String get auth_emailConfirmedTitle;
+
+  /// AUTH
+  ///
+  /// In en, this message translates to:
+  /// **'Your email address {email} is confirmed. Log in to continue.'**
+  String auth_emailConfirmedMessage(String email);
+
   /// No description provided for @auth_forgotTitle.
   ///
   /// In en, this message translates to:

@@ -402,6 +402,18 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'remains. Refuses, changing nothing, for a firm account and for an app '
         'administrator, and names the reason.',
   ),
+  LedgerSection(
+    file: '20261008110000_discard_unconfirmed_signup.sql',
+    version: '0.0.413',
+    label:
+        'The Check Your Email screen, extended: discard_unconfirmed_signup(), '
+        'the password-checked removal of a sign-up that never confirmed its '
+        'address — the only way to correct a mistyped one, since an unconfirmed '
+        'account cannot sign in and abandon_provisional_account() needs a '
+        'session it can never have. Rate-limited per address in the new '
+        'server-managed signup_discard_attempts ledger, and granted to anon '
+        'because this caller has no session at all.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -434,6 +446,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.354': 'Task 23 Phase 1 — The Admin Panel On The Server',
   '0.0.385': 'Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers',
   '0.0.411': 'Task 12 — Deleting The Account Itself',
+  '0.0.413': 'Task 17 — Correcting A Mistyped Sign-Up Address',
 };
 
 const String _header = '''<!--

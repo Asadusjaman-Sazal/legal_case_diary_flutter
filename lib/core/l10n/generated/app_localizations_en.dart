@@ -3397,6 +3397,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_backToLogin => 'Back To Login';
 
   @override
+  String get auth_openMail => 'Open Mail';
+
+  @override
+  String get auth_unableToOpenMail => 'No mail app could be opened.';
+
+  @override
+  String get auth_resendEmail => 'Resend Email';
+
+  @override
+  String get auth_resendSent => 'A new confirmation email has been sent.';
+
+  @override
+  String get auth_changeEmail => 'Change Email Address';
+
+  @override
+  String get auth_changeEmailPasswordTitle => 'Confirm Your Password';
+
+  @override
+  String get auth_changeEmailPasswordPrompt =>
+      'Enter this account\'s password to continue.';
+
+  @override
+  String get auth_changeEmailAlreadyConfirmed =>
+      'That address is already confirmed. Log in instead.';
+
+  @override
+  String get auth_changeEmailRefused =>
+      'That account already has data. Log in and delete it from Settings instead.';
+
+  @override
+  String get auth_emailConfirmedTitle => 'Email Confirmed!';
+
+  @override
+  String auth_emailConfirmedMessage(String email) {
+    return 'Your email address $email is confirmed. Log in to continue.';
+  }
+
+  @override
   String get auth_forgotTitle => 'Reset Password';
 
   @override

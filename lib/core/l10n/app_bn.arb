@@ -1471,6 +1471,25 @@
       }
   },
   "auth_backToLogin": "লগইনে ফিরে যান",
+  "auth_openMail": "মেইল খুলুন",
+  "auth_unableToOpenMail": "কোনো মেইল অ্যাপ খোলা যায়নি।",
+  "auth_resendEmail": "ইমেইল আবার পাঠান",
+  "auth_resendSent": "নতুন নিশ্চিতকরণ ইমেইল পাঠানো হয়েছে।",
+  "auth_changeEmail": "ইমেইল ঠিকানা পরিবর্তন করুন",
+  "auth_changeEmailPasswordTitle": "পাসওয়ার্ড নিশ্চিত করুন",
+  "auth_changeEmailPasswordPrompt": "চালিয়ে যেতে এই অ্যাকাউন্টের পাসওয়ার্ডটি লিখুন।",
+  "auth_changeEmailAlreadyConfirmed": "এই ঠিকানাটি আগেই নিশ্চিত হয়েছে। বরং লগইন করুন।",
+  "auth_changeEmailRefused": "এই অ্যাকাউন্টে ইতিমধ্যে তথ্য আছে। লগইন করে সেটিংস থেকে অ্যাকাউন্টটি মুছে ফেলুন।",
+  "auth_emailConfirmedTitle": "ইমেইল নিশ্চিত হয়েছে!",
+  "auth_emailConfirmedMessage": "{email} ঠিকানাটি নিশ্চিত হয়েছে। চালিয়ে যেতে লগইন করুন।",
+  "@auth_emailConfirmedMessage": {
+      "description": "AUTH",
+      "placeholders": {
+          "email": {
+              "type": "String"
+          }
+      }
+  },
   "auth_forgotTitle": "পাসওয়ার্ড রিসেট",
   "auth_forgotSubtitle": "আপনার ইমেইল দিন, আমরা একটি রিকভারি কোড পাঠাব।",
   "auth_recoveryLinkSubtitle": "আপনার অ্যাকাউন্টের জন্য একটি নতুন পাসওয়ার্ড দিন।",

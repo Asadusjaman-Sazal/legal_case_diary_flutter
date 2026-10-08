@@ -207,6 +207,10 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     );
     if (outcome is SignUpSignedIn) {
       await _completeSignIn(outcome.identity);
+    } else if (outcome is SignUpConfirmationRequired) {
+      // The one record that survives the screen: without it a restart while the
+      // user is in their mailbox lands them on an empty sign-up form.
+      await _local.setPendingConfirmationEmail(outcome.email);
     }
     return outcome;
   });
@@ -247,6 +251,70 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       return redemption;
     },
   );
+
+  /// Sends the sign-up confirmation mail for [email] again.
+  ///
+  /// The mail can simply not arrive — a spam folder, a typo in the domain, a
+  /// provider that ate it — and the only other way forward for a pending sign-up
+  /// is the typed cleanup in [discardUnconfirmedSignup]. The server's own limit
+  /// is the limit here, so a refusal arrives as
+  /// [AuthFailureKind.rateLimited] and the screen words it.
+  Future<void> resendConfirmationEmail(String email) =>
+      _guard('auth.resendConfirmationEmail', () async {
+        await _repository.resendConfirmationEmail(email);
+      });
+
+  /// Whether the address of a just-made sign-up is confirmed **now**.
+  ///
+  /// Never throws and never signs the device in: the screen's only reaction to
+  /// "no" is to keep showing the screen it already has, so an unconfirmed
+  /// address, a dead socket and a server refusal are one answer. A "yes" ends
+  /// the wait — the pending record is spent, because the address is confirmed
+  /// and the only thing left for the user is Login.
+  Future<bool> isEmailConfirmed({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final confirmed = await _repository.isEmailConfirmed(
+        email: email,
+        password: password,
+      );
+      if (confirmed) await _local.clearPendingConfirmationEmail();
+      return confirmed;
+    } catch (error) {
+      // Recorded rather than thrown: a failed check is exactly the state the
+      // user is left standing in, and the log is where it can be explained.
+      recordFailure(ref.read(errorLogProvider), 'auth.isEmailConfirmed', error);
+      return false;
+    }
+  }
+
+  /// Removes an unconfirmed sign-up so its (mistyped) address can be used again.
+  ///
+  /// The password is the server's own check that the caller is the person who
+  /// made the account; on success the pending record goes with it, because there
+  /// is no longer a sign-up waiting to be confirmed.
+  Future<DiscardSignupOutcome> discardUnconfirmedSignup({
+    required String email,
+    required String password,
+  }) async {
+    final outcome = await _repository.discardUnconfirmedSignup(
+      email: email,
+      password: password,
+    );
+    if (outcome == DiscardSignupOutcome.removed) {
+      await _local.clearPendingConfirmationEmail();
+    }
+    return outcome;
+  }
+
+  /// Forgets a waiting confirmation the user has finished with.
+  ///
+  /// Called when they go to Login instead: the screen is over either way, and
+  /// the next launch must not open on a sign-up they have left.
+  Future<void> forgetPendingConfirmation() =>
+      _local.clearPendingConfirmationEmail();
 
   /// Sends the password-recovery code.
   Future<void> sendPasswordRecoveryCode(String email) =>
@@ -412,6 +480,9 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     final blocked = await _adopt(identity, firmId: firmId);
     await _local.rememberIdentity(identity);
     await _local.markGateSatisfied();
+    // A session can only exist for a confirmed address, so any sign-up that was
+    // waiting for its confirmation mail is finished.
+    await _local.clearPendingConfirmationEmail();
     state = AsyncData(
       AuthState(identity: identity, adoptionBlocked: blocked),
     );

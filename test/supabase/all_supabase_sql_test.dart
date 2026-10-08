@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        34,
+        35,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -71,8 +71,10 @@ void main() {
             'follow-up added the four-plan approval and the seeded '
             'receiving numbers, the discount follow-up added the '
             'discounted plan prices, Task 23 added the admin panel RPCs, '
-            'the plan-name follow-up added the generated name columns, and '
-            'Task 12\'s account deletion added delete_my_account',
+            'the plan-name follow-up added the generated name columns, '
+            'Task 12\'s account deletion added delete_my_account, and the '
+            'Check Your Email follow-up added the password-checked '
+            'discard_unconfirmed_signup cleanup',
       );
     });
 

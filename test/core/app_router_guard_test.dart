@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
+import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/features/auth/presentation/login_screen.dart';
 import 'package:legal_case_diary/features/auth/presentation/signup_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/legal/legal_document_screen.dart';
@@ -108,5 +109,23 @@ void main() {
 
     expect(find.byType(SignupScreen), findsOneWidget);
     expect(find.byType(LegalDocumentScreen), findsNothing);
+  });
+
+  testWidgets('a sign-up waiting for its confirmation mail reopens on it', (
+    tester,
+  ) async {
+    harness = AuthTestHarness(
+      preferences: <String, Object>{
+        pendingConfirmationEmailKey: 'jane@example.com',
+        pendingConfirmationAtKey: DateTime.now().millisecondsSinceEpoch,
+      },
+    );
+
+    await pumpRealRouter(tester);
+
+    // The user left for their mailbox; the launch has to come back to the screen
+    // that says so, not to an empty form or to Login.
+    expect(find.byType(SignupScreen), findsOneWidget);
+    expect(find.byType(LoginScreen), findsNothing);
   });
 }

@@ -107,6 +107,26 @@ void main() {
         ),
       );
       await expectUnavailable(() => repository.updatePassword('newsecret123'));
+      await expectUnavailable(
+        () => repository.resendConfirmationEmail('counsel@example.com'),
+      );
+      // These two answer instead of throwing: "not confirmed" and "nothing to
+      // remove" are ordinary answers, and on a build with no backend neither
+      // may claim otherwise.
+      expect(
+        await repository.isEmailConfirmed(
+          email: 'counsel@example.com',
+          password: 'secret123',
+        ),
+        isFalse,
+      );
+      expect(
+        await repository.discardUnconfirmedSignup(
+          email: 'counsel@example.com',
+          password: 'secret123',
+        ),
+        DiscardSignupOutcome.unavailable,
+      );
 
       // Sign-out is a no-op, not a failure: nothing is signed in.
       await repository.signOut();
@@ -326,6 +346,94 @@ void main() {
 
       expect(service.cachedUserId, 'user-1');
       expect(service.cachedEmail, isNull);
+    });
+  });
+
+  group('the waiting confirmation record', () {
+    test('survives a restart, and stops being read after a week', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      final prefs = await SharedPreferences.getInstance();
+      final service = LocalAuthService(prefs);
+
+      await service.setPendingConfirmationEmail('jane@example.com');
+
+      // A restarted app is a fresh service over the same preferences — which is
+      // exactly the launch the screen has to come back to.
+      expect(
+        LocalAuthService(prefs).pendingConfirmationEmail,
+        'jane@example.com',
+      );
+
+      // An old record is ignored: Sign Up is not a screen to open a week later.
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        pendingConfirmationEmailKey: 'jane@example.com',
+        pendingConfirmationAtKey: DateTime.now()
+            .subtract(const Duration(days: 8))
+            .millisecondsSinceEpoch,
+      });
+      final stale = LocalAuthService(await SharedPreferences.getInstance());
+      expect(stale.pendingConfirmationEmail, isNull);
+    });
+
+    test('is forgotten with the account it belongs to', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      final prefs = await SharedPreferences.getInstance();
+      final service = LocalAuthService(prefs);
+
+      await service.setPendingConfirmationEmail('jane@example.com');
+      await service.clear();
+
+      expect(service.pendingConfirmationEmail, isNull);
+
+      await service.setPendingConfirmationEmail('jane@example.com');
+      await service.clearPendingConfirmationEmail();
+
+      expect(service.pendingConfirmationEmail, isNull);
+    });
+  });
+
+  group('the discard envelope', () {
+    test('removed is the only success', () {
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{'status': 'removed'}),
+        DiscardSignupOutcome.removed,
+      );
+    });
+
+    test('a refusal names its reason, and an unknown one is a failure', () {
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{
+          'status': 'refused',
+          'reason': 'confirmed',
+        }),
+        DiscardSignupOutcome.refusedConfirmed,
+      );
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{
+          'status': 'refused',
+          'reason': 'not_provisional',
+        }),
+        DiscardSignupOutcome.refusedUsed,
+      );
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{
+          'status': 'refused',
+          'reason': 'something new',
+        }),
+        DiscardSignupOutcome.failed,
+      );
+    });
+
+    test('the rate limit is its own answer, and anything else is a failure', () {
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{'status': 'rate_limited'}),
+        DiscardSignupOutcome.rateLimited,
+      );
+      expect(outcomeFromDiscardResponse(null), DiscardSignupOutcome.failed);
+      expect(
+        outcomeFromDiscardResponse(<String, Object>{'status': 'unexpected'}),
+        DiscardSignupOutcome.failed,
+      );
     });
   });
 }

@@ -136,46 +136,53 @@ class SettingsSubMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    // A shaped Material rather than a decorated Container (0.0.419): the
+    // InkWell's splash paints on the nearest Material ancestor, which an
+    // opaque Container hides — the tap feedback this row owes the user.
+    // The SizedBox keeps the row full-width, which the old Container's own
+    // `width: double.infinity` did and a bare Material would not.
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
+      child: Material(
         color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        border: Border.all(color: AppColors.outlineVariant),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          // Same 44 px content row as the shared sub-menu cards, so these rows
-          // are the same size as the Account & Profile menu cards.
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: settingsMenuCardRowHeight,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainer,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.md),
+          side: BorderSide(color: AppColors.outlineVariant),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            // Same 44 px content row as the shared sub-menu cards, so these rows
+            // are the same size as the Account & Profile menu cards.
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: settingsMenuCardRowHeight,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.surfaceContainer,
+                    ),
+                    child: Center(child: Icon(icon, color: AppColors.primary)),
                   ),
-                  child: Center(child: Icon(icon, color: AppColors.primary)),
-                ),
-                SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.onSurface,
+                  SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppTypography.titleMd.copyWith(
+                        color: AppColors.onSurface,
+                      ),
                     ),
                   ),
-                ),
-                Icon(Icons.chevron_right, color: AppColors.outlineVariant),
-              ],
+                  Icon(Icons.chevron_right, color: AppColors.outlineVariant),
+                ],
+              ),
             ),
           ),
         ),
@@ -232,77 +239,85 @@ class SettingsActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final destructive = tone == SettingsActionTone.destructive;
-    return Container(
+    // A shaped Material rather than a decorated Container (0.0.419): the
+    // InkWell's splash paints on the nearest Material ancestor, which an
+    // opaque Container hides — so neither tone of this card had any tap
+    // feedback until the card itself became the surface. The SizedBox keeps
+    // the card full-width, which the old Container's own
+    // `width: double.infinity` did and a bare Material would not.
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
+      child: Material(
         color: destructive
             ? AppColors.errorContainer
             : AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        border: Border.all(
-          color: destructive
-              ? AppColors.error.withValues(alpha: 0.2)
-              : AppColors.outlineVariant,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.md),
+          side: BorderSide(
+            color: destructive
+                ? AppColors.error.withValues(alpha: 0.2)
+                : AppColors.outlineVariant,
+          ),
         ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.md),
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: settingsMenuCardRowHeight,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: destructive
-                        ? AppColors.surfaceContainerLowest
-                        : AppColors.surfaceContainer,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      icon,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: settingsMenuCardRowHeight,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
                       color: destructive
-                          ? AppColors.error
-                          : AppColors.primary,
+                          ? AppColors.surfaceContainerLowest
+                          : AppColors.surfaceContainer,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        icon,
+                        color: destructive
+                            ? AppColors.error
+                            : AppColors.primary,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: AppTypography.titleMd.copyWith(
-                          color: destructive
-                              ? AppColors.onErrorContainer
-                              : AppColors.onSurface,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        SizedBox(height: AppSpacing.xs),
+                  SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          subtitle!,
-                          style: AppTypography.bodySm.copyWith(
+                          title,
+                          style: AppTypography.titleMd.copyWith(
                             color: destructive
-                                ? AppColors.error.withValues(alpha: 0.8)
-                                : AppColors.onSurfaceVariant,
+                                ? AppColors.onErrorContainer
+                                : AppColors.onSurface,
                           ),
                         ),
+                        if (subtitle != null) ...[
+                          SizedBox(height: AppSpacing.xs),
+                          Text(
+                            subtitle!,
+                            style: AppTypography.bodySm.copyWith(
+                              color: destructive
+                                  ? AppColors.error.withValues(alpha: 0.8)
+                                  : AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

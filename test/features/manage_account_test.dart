@@ -254,6 +254,52 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('every action row paints its ripple on itself (0.0.419)', (
+    tester,
+  ) async {
+    // The defect this pins: the cards were opaque Containers over an InkWell,
+    // so the splash painted on a Material *behind* the card and the tap gave no
+    // feedback at all. The fix makes the card its own Material. What proves it:
+    // the ink controller each InkWell resolves to must be the render object of
+    // the Material *inside its own card* — in the buggy shape there is no
+    // Material in the card, and the controller was one shared with the whole
+    // screen. Covers all three buttons on this screen; the two Subscription
+    // rows are the same two widgets, pinned in their own suite.
+    await pumpManageAccount(tester);
+
+    // Where one InkWell's splash paints, for the card [finder] is inside.
+    MaterialInkController splashSurfaceOf(Finder card) {
+      final ink = find
+          .descendant(of: card, matching: find.byType(InkWell))
+          .evaluate()
+          .single;
+      final material = find.descendant(of: card, matching: find.byType(Material));
+      expect(material, findsOneWidget, reason: 'the card is its own Material');
+      return Material.of(ink);
+    }
+
+    final cards = find.byType(SettingsActionCard);
+    final logoutSurface = splashSurfaceOf(cards.at(0));
+    final deleteSurface = splashSurfaceOf(cards.at(1));
+    final passwordSurface = splashSurfaceOf(find.byType(SettingsSubMenuRow));
+
+    // A shared controller is exactly what the old opaque-Container shape
+    // produced: every card's splash resolved to the one screen-level Material
+    // behind them all. Three distinct controllers is the fixed shape.
+    expect(logoutSurface, isNot(same(deleteSurface)));
+    expect(logoutSurface, isNot(same(passwordSurface)));
+    expect(deleteSurface, isNot(same(passwordSurface)));
+
+    // And each card really is its own Material — the assertion inside
+    // splashSurfaceOf — so the three controllers are the three cards.
+    expect(find.descendant(of: cards.at(0), matching: find.byType(Material)),
+        findsOneWidget);
+    expect(find.descendant(of: cards.at(1), matching: find.byType(Material)),
+        findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
   testWidgets('Logout ends the session, empties the caches and shows Login', (
     tester,
   ) async {

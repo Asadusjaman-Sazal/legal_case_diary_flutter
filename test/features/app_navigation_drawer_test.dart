@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
@@ -83,6 +84,28 @@ void main() {
       lessThan(tester.getTopLeft(drawerText('Rahim Uddin')).dy),
     );
     expect(tester.widget<Text>(drawerText('of')).textAlign, TextAlign.center);
+  });
+
+  testWidgets('the version is the last line, below Print and Share', (
+    tester,
+  ) async {
+    // A tall surface so the whole menu builds and the ordering can be read.
+    await tester.binding.setSurfaceSize(const Size(500, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpDrawer(tester, locale: const Locale('en'));
+
+    final version = drawerText('V$appVersion');
+    expect(version, findsOneWidget);
+    expect(
+      tester.getTopLeft(version).dy,
+      greaterThan(tester.getTopLeft(drawerText('Share')).dy),
+    );
+    // It is left aligned, not centred like the profile header lines.
+    expect(tester.widget<Text>(version).textAlign, TextAlign.left);
+    // Even with a tall surface it sits at the bottom of the drawer, with only
+    // the trailing padding beneath it.
+    final drawerBottom = tester.getBottomLeft(find.byType(Drawer)).dy;
+    expect(drawerBottom - tester.getBottomLeft(version).dy, lessThan(16));
   });
 
   testWidgets('Bengali header reads name, "এর", app down the page', (

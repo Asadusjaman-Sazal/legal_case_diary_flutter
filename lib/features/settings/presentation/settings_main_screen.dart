@@ -115,16 +115,9 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.sync_outlined,
         route: AppRoutes.settingsOnlineSync,
       ),
-      // Billing, moved here from Manage Account so the account's subscription
-      // and the way to buy another sit together. Shown to every account: the
-      // rows it replaced were unconditional, and a premium user still needs to
-      // see what they paid for. Reuses the icon Go Premium occupied, so the
-      // entry a free-plan user tapped keeps its look in its new home.
-      _SettingsItem(
-        title: l.settingsSubscription_title,
-        icon: Icons.workspace_premium_outlined,
-        route: AppRoutes.settingsSubscription,
-      ),
+      // Subscription moved into the Account & Profile menu's Account group, so
+      // the account's billing sits with the account it belongs to rather than
+      // in the General Settings list.
       _SettingsItem(
         title: l.settingsScreen_backupAndRestore,
         icon: Icons.cloud_upload_outlined,

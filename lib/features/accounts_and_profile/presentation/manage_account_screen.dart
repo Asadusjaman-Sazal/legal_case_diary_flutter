@@ -9,11 +9,14 @@
 /// caches. The avatar reuses the locally saved profile picture (see
 /// [profilePictureProvider]) so it matches the Profile screen.
 ///
-/// The task also asks for role and subscription state to be *displayed*. Neither
-/// mockup has a row for them, and the mockup wins, so they live where the pencil
-/// on Profile lives: behind a row. Tapping **Subscription Details** opens a sheet
-/// showing the role, the firm, and the subscription state — the same single
-/// `subscription_expiry + 48h grace` derivation the premium gates use.
+/// The role and subscription state are shown on **Subscription**, reached from
+/// the Account & Profile menu, using the same single `subscription_expiry + 48h
+/// grace` derivation the premium gates use.
+///
+/// **The action rows have moved out.** **Change Password** now lives on the
+/// **Security** sub-page and the subscription rows on **Subscription**; this
+/// screen keeps the profile summary, Logout and Delete Account, so the Account
+/// & Profile menu is where the account-level settings are grouped.
 library;
 
 import 'package:flutter/material.dart';
@@ -49,20 +52,6 @@ class ManageAccountScreen extends ConsumerWidget {
         ref.watch(accountProfileProvider).value?.fullName.trim() ?? '';
     final name = localName.isNotEmpty ? localName : cachedName;
     final email = ref.watch(authIdentityProvider)?.email ?? '';
-
-    final accountItems = [
-      SettingsSubMenuRow(
-        icon: Icons.lock_outline,
-        title: l.settingsManageAccount_changePassword,
-        // One password-reset flow for the whole app — the emailed-code flow the
-        // Login screen's "Forgot Password?" already uses — opened in its
-        // Settings presentation. It cannot be Login's own `/forgot-password`:
-        // that is an auth route, and the router sends a signed-in user away
-        // from every auth route, which is why this row used to land on the
-        // default landing page instead of the screen.
-        onTap: () => context.push(AppRoutes.settingsChangePassword),
-      ),
-    ];
 
     return SettingsSubPageModal(
       title: l.settingsManageAccount_title,
@@ -147,29 +136,6 @@ class ManageAccountScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-            SizedBox(height: AppSpacing.xl),
-            // Account settings list.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: AppSpacing.sm,
-                  bottom: AppSpacing.xs,
-                ),
-                child: Text(
-                  l.settingsManageAccount_accountSettings,
-                  style: AppTypography.labelLg.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-            ...accountItems.map(
-              (item) => Padding(
-                padding: EdgeInsets.only(bottom: AppSpacing.sm),
-                child: item,
               ),
             ),
             SizedBox(height: AppSpacing.xl),

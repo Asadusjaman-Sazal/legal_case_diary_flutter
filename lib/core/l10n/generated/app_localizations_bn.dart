@@ -4095,9 +4095,6 @@ class AppLocalizationsBn extends AppLocalizations {
       'অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়';
 
   @override
-  String get settingsAppLock_setupTitle => 'অ্যাপ লক সেটআপ';
-
-  @override
   String settingsAppLock_choosePin(String digits) {
     return '$digits সংখ্যার একটি পিন চয়ন করুন';
   }

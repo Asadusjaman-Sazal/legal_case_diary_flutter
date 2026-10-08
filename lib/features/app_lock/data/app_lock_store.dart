@@ -60,9 +60,9 @@ const String _timingKey = 'app_lock_timing';
 ///
 /// **Not the secret** — only its existence, so the app can decide *before its
 /// first frame* whether to cover itself without waiting on the Keystore. The
-/// flag is written only after the digest lands, so it can say "set up" over a
-/// store that has nothing to verify against; the digest remains the only thing
-/// a PIN can ever match.
+/// flag is written only after the digest lands, so it can never claim "set up"
+/// over a store that has nothing to verify against; the digest remains the
+/// only thing a PIN can ever match.
 const String _setupKey = 'app_lock_enabled';
 
 /// The stored PIN digest and the preferences beside it.

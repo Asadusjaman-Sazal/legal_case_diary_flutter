@@ -1727,7 +1727,6 @@
   "settingsAppLock_whenToAsk": "কখন পিন চাইতে হবে",
   "settingsAppLock_whenAppOpens": "অ্যাপ খোলার সময়",
   "settingsAppLock_whenAppOpensAndReturns": "অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়",
-  "settingsAppLock_setupTitle": "অ্যাপ লক সেটআপ",
   "settingsAppLock_choosePin": "{digits} সংখ্যার একটি পিন চয়ন করুন",
   "@settingsAppLock_choosePin": {
       "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",

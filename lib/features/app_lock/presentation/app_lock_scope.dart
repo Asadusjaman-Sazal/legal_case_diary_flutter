@@ -296,8 +296,9 @@ class _LockView extends StatelessWidget {
                   // The digits rest during a refusal; the fingerprint never
                   // does — the lockout is against guessing, not the owner.
                   enabled: !refused && !scope._checking,
+                  biometricsEnabled: !scope._checking,
                   showBiometrics: scope._fingerprintAvailable,
-                  biometricsTooltip: l.settingsAppLock_useFingerprint,
+                  biometricsLabel: l.settingsAppLock_useFingerprint,
                   onCompleted: scope._onPin,
                   onBiometrics: scope._onBiometrics,
                 ),

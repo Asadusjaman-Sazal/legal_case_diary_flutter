@@ -193,8 +193,12 @@
        warning: what the deletion takes with it — worded for a free account,
        whose diary only ever lived on this device, or a premium one, whose diary
        is in the cloud too — and that the result is permanent. Confirmed, the
-       server removes the account and all of its data, and the device goes back
-       to a fresh install. Offline it refuses: the account row is on the server. -->
+       warning opens the typed confirmation screen (0.0.412,
+       `/settings/manage-account/delete`), where `delete my account` must be
+       typed before the button will do anything; that screen then asks the
+       server, and the device goes back to a fresh install. Offline it refuses:
+       the account row is on the server. (The confirmation screen has no mockup
+       of its own — per rule 9 it does not need one.) -->
   <div class="mt-sm pb-xl">
     <button class="w-full flex items-center bg-error-container border border-error/20 rounded-2xl p-md hover:opacity-90 transition-opacity text-left">
       <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-error mr-md">

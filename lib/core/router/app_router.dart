@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
+import '../../features/accounts_and_profile/presentation/delete_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
@@ -97,6 +98,11 @@ class AppRoutes {
   static const String settingsAccountProfile = '/settings/account-profile';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
+
+  /// The typed confirmation a deletion must pass through (0.0.412), pushed from
+  /// Manage Account's warning. Nothing is deleted until the phrase matches.
+  static const String settingsDeleteAccount =
+      '/settings/manage-account/delete';
 
   /// Change Password as a Settings sub-page.
   ///
@@ -517,6 +523,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsManageAccount,
     builder: (context, state) => const ManageAccountScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsDeleteAccount,
+    builder: (context, state) => const DeleteAccountScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsChangePassword,

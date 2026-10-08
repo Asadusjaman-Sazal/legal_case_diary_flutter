@@ -820,6 +820,15 @@
   "settingsManageAccount_deleteDialogTitle": "Delete Account?",
   "settingsManageAccount_deleteWarningFree": "This permanently deletes your account and every case, note, case reference and setting on this device. Nothing can be recovered after this.",
   "settingsManageAccount_deleteWarningPremium": "This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.",
+  "settingsManageAccount_deleteConfirmPhrase": "delete my account",
+  "settingsManageAccount_deleteConfirmBody": "Type {phrase} below to confirm.",
+  "@settingsManageAccount_deleteConfirmBody": {
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      }
+    }
+  },
   "settingsManageAccount_deleteNeedsConnection": "Connect to the internet to delete your account. Nothing Has Been Deleted.",
   "settingsManageAccount_deleteFirmRefused": "You are part of a firm, so some of your data is shared with it. Ask the firm owner to remove you before deleting your account.",
   "settingsManageAccount_deleteAdminRefused": "An administrator account cannot be deleted from the app.",

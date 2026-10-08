@@ -1649,6 +1649,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.';
 
   @override
+  String get settingsManageAccount_deleteConfirmPhrase => 'delete my account';
+
+  @override
+  String settingsManageAccount_deleteConfirmBody(String phrase) {
+    return 'Type $phrase below to confirm.';
+  }
+
+  @override
   String get settingsManageAccount_deleteNeedsConnection =>
       'Connect to the internet to delete your account. Nothing Has Been Deleted.';
 

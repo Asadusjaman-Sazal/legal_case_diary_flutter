@@ -132,7 +132,7 @@
 </style>
 </head>
 <body class="bg-background text-on-surface antialiased min-h-screen flex flex-col">
-<main class="flex-grow flex items-center justify-center p-edge-margin w-full">
+<main class="flex-grow flex flex-wrap items-center justify-center gap-lg p-edge-margin w-full">
   <!-- Registration card. The shipped screen is a Part B stub; this mockup is the design. -->
   <div class="w-full max-w-[420px] bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
     <div class="px-lg pt-xl pb-md">
@@ -205,6 +205,39 @@
       <p class="font-body-md text-body-md text-on-surface">
         Already have an account? <a class="text-primary font-semibold hover:text-secondary transition-colors" href="#">Login</a>
       </p>
+    </div>
+  </div>
+
+  <!-- Check Your Email. Shown when the project wants the address confirmed
+       first: the account exists but has no session. Open Mail is the forward
+       action — it raises the device's mail app chooser — and Back To Login is
+       the way out; the two quiet links recover a mail that never arrived or an
+       address that was mistyped. -->
+  <div class="w-full max-w-[420px] bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
+    <div class="px-lg py-xl flex flex-col items-stretch">
+      <span class="material-symbols-outlined text-primary text-[40px] text-center">mark_email_unread</span>
+      <h1 class="font-headline-lg text-headline-lg text-primary text-center mt-md">Check Your Email</h1>
+      <p class="font-body-md text-body-md text-on-surface-variant text-center mt-sm">
+        We sent a confirmation link to jane@example.com. Open it, then log in.
+      </p>
+      <button class="w-full flex justify-center items-center py-md px-lg bg-secondary text-on-secondary rounded font-label-lg text-label-lg hover:opacity-90 transition-opacity mt-lg" type="button">Open Mail</button>
+      <button class="w-full flex justify-center items-center py-md px-lg bg-surface-container-lowest border border-outline-variant text-on-surface rounded font-label-lg text-label-lg hover:bg-secondary-hover transition-colors mt-sm" type="button">Back To Login</button>
+      <button class="font-label-lg text-label-lg text-secondary mt-xs" type="button">Resend Email</button>
+      <button class="font-label-lg text-label-lg text-secondary" type="button">Change Email Address</button>
+    </div>
+  </div>
+
+  <!-- The same card once the address is confirmed: the app asked the server on
+       the way back from the mail app, and the answer turned the card green with
+       a single action — nothing is left to offer but Login. -->
+  <div class="w-full max-w-[420px] bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
+    <div class="px-lg py-xl flex flex-col items-stretch">
+      <span class="material-symbols-outlined text-success text-[40px] text-center">mark_email_read</span>
+      <h1 class="font-headline-lg text-headline-lg text-success text-center mt-md">Email Confirmed!</h1>
+      <p class="font-body-md text-body-md text-on-surface-variant text-center mt-sm">
+        Your email address jane@example.com is confirmed. Log in to continue.
+      </p>
+      <button class="w-full flex justify-center items-center py-md px-lg bg-secondary text-on-secondary rounded font-label-lg text-label-lg hover:opacity-90 transition-opacity mt-lg" type="button">Back To Login</button>
     </div>
   </div>
 </main>

@@ -360,6 +360,67 @@ class AuthPrimaryButton extends StatelessWidget {
   );
 }
 
+/// The bordered, full-width auth button, for an action beside the primary one.
+///
+/// One style, two users: [AuthGoogleButton] is this widget with the brand mark,
+/// and the Check Your Email screen wears it bare for **Back To Login** — so the
+/// card's two actions cannot drift apart, and the outlined look has one
+/// definition rather than one per screen.
+class AuthOutlinedButton extends StatelessWidget {
+  /// Creates the button.
+  const AuthOutlinedButton({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.enabled = true,
+    super.key,
+  });
+
+  /// Button label.
+  final String label;
+
+  /// Action.
+  final VoidCallback onPressed;
+
+  /// Optional leading mark, as the Google button has.
+  final Widget? icon;
+
+  /// Whether the button is tappable.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final mark = icon;
+    return SizedBox(
+      height: authButtonHeight,
+      width: double.infinity,
+      child: mark == null
+          ? OutlinedButton(
+              onPressed: enabled ? onPressed : null,
+              style: _authOutlinedStyle,
+              child: Text(label),
+            )
+          : OutlinedButton.icon(
+              onPressed: enabled ? onPressed : null,
+              icon: mark,
+              label: Text(label),
+              style: _authOutlinedStyle,
+            ),
+    );
+  }
+}
+
+/// The style both outlined auth buttons share.
+final ButtonStyle _authOutlinedStyle = OutlinedButton.styleFrom(
+  foregroundColor: AppColors.onSurface,
+  backgroundColor: AppColors.surfaceContainerLowest,
+  side: const BorderSide(color: AppColors.outlineVariant),
+  textStyle: AppTypography.titleMd,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+  ),
+);
+
 /// The bordered Google button, with the brand mark and its label.
 class AuthGoogleButton extends StatelessWidget {
   /// Creates the button.
@@ -380,23 +441,11 @@ class AuthGoogleButton extends StatelessWidget {
   final bool enabled;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: authButtonHeight,
-    width: double.infinity,
-    child: OutlinedButton.icon(
-      onPressed: enabled ? onPressed : null,
-      icon: const GoogleMark(size: 20),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.onSurface,
-        backgroundColor: AppColors.surfaceContainerLowest,
-        side: const BorderSide(color: AppColors.outlineVariant),
-        textStyle: AppTypography.titleMd,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        ),
-      ),
-    ),
+  Widget build(BuildContext context) => AuthOutlinedButton(
+    label: label,
+    onPressed: onPressed,
+    enabled: enabled,
+    icon: const GoogleMark(size: 20),
   );
 }
 

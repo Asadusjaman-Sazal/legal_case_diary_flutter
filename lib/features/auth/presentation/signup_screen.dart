@@ -16,6 +16,20 @@
 ///   account exists but has no session, so the screen says so instead of
 ///   pretending to be signed in. The typed invite code is kept until the
 ///   confirmation is done.
+///
+/// The confirmation state is four actions and one automatic check:
+///
+/// * **Open Mail** hands the user to the device's mail app — the chooser, when
+///   there is more than one — because that mailbox is where the link is;
+/// * **Resend Email** for a mail that never arrived, **Change Email Address**
+///   for an address that was mistyped (the server removes the unconfirmed
+///   account, which cannot sign in to correct itself, and the form comes back
+///   with everything but the address still filled in), and **Back To Login** to
+///   end the wait;
+/// * coming back to the app asks the server whether the address is confirmed
+///   now, and a "yes" turns the card green with a single **Back To Login**;
+/// * the waiting state is remembered on the device, so a restart in the middle
+///   of the trip to the mailbox returns here instead of to an empty form.
 library;
 
 import 'package:flutter/material.dart';
@@ -26,10 +40,13 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/contact_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/services/contact_launcher.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../data/auth_repository.dart';
+import '../data/local_auth_service.dart';
 import 'auth_viewmodel.dart';
 import 'auth_widgets.dart';
 
@@ -51,7 +68,8 @@ class SignupScreen extends ConsumerStatefulWidget {
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends ConsumerState<SignupScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _fullName = TextEditingController();
   final _barAssociation = TextEditingController();
@@ -77,8 +95,39 @@ Object? _error;
   /// nothing left for the user to do here.
   String? _confirmationEmail;
 
+  /// True once the server has answered that the address is confirmed, which
+  /// swaps the card for its green state.
+  bool _emailConfirmed = false;
+
+  /// Guards the lifecycle check so two returns cannot ask twice at once.
+  bool _checkingConfirmation = false;
+
+  /// Whether the confirmation mail is being sent again.
+  bool _resending = false;
+
+  /// Whether the mistyped sign-up is being removed.
+  bool _discarding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Coming back from the mail app is a lifecycle event, not a navigation one,
+    // so the screen has to be told about it.
+    WidgetsBinding.instance.addObserver(this);
+    // A sign-up still waiting for its confirmation mail when the app was closed
+    // comes back to this screen rather than to an empty form.
+    final pending = ref.read(localAuthServiceProvider).pendingConfirmationEmail;
+    if (pending != null) _confirmationEmail = pending;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkConfirmation();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _fullName.dispose();
     _barAssociation.dispose();
     _email.dispose();
@@ -214,6 +263,139 @@ Object? _error;
     context.go(AppRoutes.dailyCauseList);
   }
 
+  /// Asks the server, on coming back to the app, whether the address is
+  /// confirmed now.
+  ///
+  /// A return from the mail app is exactly this moment: the link was opened
+  /// there, and this screen is what is still standing. Nothing is shown while
+  /// the answer is no — the screen the user is already reading *is* the "not
+  /// yet" state, and it has to stay exactly as it was.
+  Future<void> _checkConfirmation() async {
+    final email = _confirmationEmail;
+    if (email == null || _emailConfirmed || _checkingConfirmation) return;
+    // With no password there is nothing to check with, and an empty one would
+    // only spend the server's sign-in rate limit. The password is held in
+    // memory for the life of the sign-up that typed it and is never stored, so
+    // after a restart this check simply cannot run — the restored screen still
+    // offers Open Mail, Resend Email, Change Email Address and Back To Login.
+    if (_password.text.isEmpty) return;
+
+    _checkingConfirmation = true;
+    try {
+      final confirmed = await ref
+          .read(authViewModelProvider.notifier)
+          .isEmailConfirmed(email: email, password: _password.text);
+      if (!mounted || !confirmed) return;
+      setState(() => _emailConfirmed = true);
+    } finally {
+      _checkingConfirmation = false;
+    }
+  }
+
+  /// Opens the device's mail app, letting the user choose between them.
+  Future<void> _openMail() async {
+    final opened = await ref.read(contactLauncherProvider).open(mailAppUri());
+    if (!mounted || opened) return;
+    _say(AppLocalizations.of(context).auth_unableToOpenMail);
+  }
+
+  /// Sends the confirmation mail again, for the one that never arrived.
+  Future<void> _resendConfirmation() async {
+    final email = _confirmationEmail;
+    if (email == null || _resending) return;
+    final l = AppLocalizations.of(context);
+    setState(() => _resending = true);
+    try {
+      await ref
+          .read(authViewModelProvider.notifier)
+          .resendConfirmationEmail(email);
+      if (!mounted) return;
+      _say(l.auth_resendSent);
+    } on AuthFailure catch (failure) {
+      // The server's own rate limit is the usual refusal and has its own
+      // sentence; every other failure is the mapped text the sign-in banner
+      // shows, so one wording serves both screens.
+      final text = authErrorText(l, failure.kind);
+      if (text != null) _say(text);
+    } finally {
+      if (mounted) setState(() => _resending = false);
+    }
+  }
+
+  /// Removes the mistyped sign-up and brings the form back, so the address can
+  /// be corrected and submitted again.
+  ///
+  /// An unconfirmed account cannot sign in, so nothing on the client can
+  /// correct its address; the server removes it instead, on the strength of the
+  /// password, and refuses unless the account is unconfirmed and has done
+  /// nothing at all.
+  Future<void> _changeEmail() async {
+    final email = _confirmationEmail;
+    if (email == null || _discarding) return;
+    final l = AppLocalizations.of(context);
+    // The server identifies the caller by the account's own password. The
+    // sign-up screen still holds the typed one; a restart does not, and then the
+    // user is asked for it rather than left at a dead end.
+    final password = _password.text.isNotEmpty
+        ? _password.text
+        : await _askForPassword();
+    if (password == null || !mounted) return;
+
+    setState(() => _discarding = true);
+    try {
+      final outcome = await ref
+          .read(authViewModelProvider.notifier)
+          .discardUnconfirmedSignup(email: email, password: password);
+      if (!mounted) return;
+      switch (outcome) {
+        case DiscardSignupOutcome.removed:
+          setState(() {
+            _confirmationEmail = null;
+            _emailConfirmed = false;
+            // Only the address was wrong: every other field keeps what the
+            // user typed, and the address itself is cleared for correcting.
+            _email.clear();
+          });
+        case DiscardSignupOutcome.refusedConfirmed:
+          _say(l.auth_changeEmailAlreadyConfirmed);
+        case DiscardSignupOutcome.refusedUsed:
+          _say(l.auth_changeEmailRefused);
+        case DiscardSignupOutcome.rateLimited:
+          _say(l.auth_errorRateLimited);
+        case DiscardSignupOutcome.unavailable:
+        case DiscardSignupOutcome.failed:
+          _say(l.auth_errorUnknown);
+      }
+    } finally {
+      if (mounted) setState(() => _discarding = false);
+    }
+  }
+
+  /// Asks for the account's password, for a screen that no longer holds one.
+  ///
+  /// Answers null when the user backs out or leaves the field empty, which
+  /// cancels the action — the password is what proves the request is the account
+  /// owner's, so there is no continuing without it.
+  Future<String?> _askForPassword() => showDialog<String>(
+    context: context,
+    builder: (_) => const _PasswordPromptDialog(),
+  );
+
+  /// Leaves for Login, ending the wait for a confirmation mail.
+  Future<void> _backToLogin() async {
+    await ref.read(authViewModelProvider.notifier).forgetPendingConfirmation();
+    if (!mounted) return;
+    context.go(AppRoutes.login);
+  }
+
+  /// Shows [message] at the foot of the screen.
+  void _say(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -223,10 +405,18 @@ Object? _error;
         padding: EdgeInsets.zero,
         clip: true,
         child: _confirmationEmail != null
-            ? _CheckEmailBody(
-                email: _confirmationEmail!,
-                onBack: () => context.go(AppRoutes.login),
-              )
+            ? (_emailConfirmed
+                  ? _ConfirmedEmailBody(
+                      email: _confirmationEmail!,
+                      onBack: _backToLogin,
+                    )
+                  : _CheckEmailBody(
+                      email: _confirmationEmail!,
+                      onOpenMail: _openMail,
+                      onResend: _resendConfirmation,
+                      onChangeAddress: _changeEmail,
+                      onBack: _backToLogin,
+                    ))
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -546,9 +736,26 @@ class _TermsCheckbox extends StatelessWidget {
 
 /// The Check Your Email state, shown when sign-up returns no session.
 class _CheckEmailBody extends StatelessWidget {
-  const _CheckEmailBody({required this.email, required this.onBack});
+  const _CheckEmailBody({
+    required this.email,
+    required this.onOpenMail,
+    required this.onResend,
+    required this.onChangeAddress,
+    required this.onBack,
+  });
 
   final String email;
+
+  /// Opens the device's mail app.
+  final VoidCallback onOpenMail;
+
+  /// Sends the confirmation mail again.
+  final VoidCallback onResend;
+
+  /// Removes the sign-up so a mistyped address can be corrected.
+  final VoidCallback onChangeAddress;
+
+  /// Leaves for Login.
   final VoidCallback onBack;
 
   @override
@@ -573,6 +780,127 @@ class _CheckEmailBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             l.auth_checkEmailMessage(email),
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // The forward action first: reading the mail is what finishes the
+          // sign-up, and Back To Login is the way out of it rather than the way
+          // through it. Two filled buttons stacked would have no hierarchy, so
+          // the way out wears the app's outlined button.
+          AuthPrimaryButton(label: l.auth_openMail, onPressed: onOpenMail),
+          const SizedBox(height: AppSpacing.sm),
+          AuthOutlinedButton(label: l.auth_backToLogin, onPressed: onBack),
+          const SizedBox(height: AppSpacing.xs),
+          // The two recoveries, quiet and last: neither is expected, and one of
+          // them is only for a mistake. Each guards itself, so a second tap
+          // while one is in flight does nothing.
+          AuthTextLink(label: l.auth_resendEmail, onPressed: onResend),
+          AuthTextLink(label: l.auth_changeEmail, onPressed: onChangeAddress),
+        ],
+      ),
+    );
+  }
+}
+
+/// Asks for the account's password.
+///
+/// A widget of its own rather than a controller built where the dialog is
+/// opened: the field outlives `showDialog`'s return by the dialog's exit
+/// animation, and a controller disposed as soon as that future completed was
+/// still being built by the closing route.
+class _PasswordPromptDialog extends StatefulWidget {
+  const _PasswordPromptDialog();
+
+  @override
+  State<_PasswordPromptDialog> createState() => _PasswordPromptDialogState();
+}
+
+class _PasswordPromptDialogState extends State<_PasswordPromptDialog> {
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  /// Returns the typed password, or null for an empty field — the caller treats
+  /// both the same way, as "no password, no action".
+  void _submit() {
+    final entered = _password.text;
+    // Never trimmed: a space can be part of a password.
+    Navigator.of(context).pop(entered.isEmpty ? null : entered);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l.auth_changeEmailPasswordTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.auth_changeEmailPasswordPrompt, style: AppTypography.bodyMd),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            autofocus: true,
+            decoration: InputDecoration(labelText: l.auth_passwordLabel),
+            onSubmitted: (_) => _submit(),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_cancel),
+        ),
+        TextButton(onPressed: _submit, child: Text(l.sharedActions_save)),
+      ],
+    );
+  }
+}
+
+/// The state the screen turns into once the address is confirmed.
+///
+/// One action only, as asked for: the account exists and its address is
+/// verified, so Login is the next step and there is nothing left to offer
+/// here — no Open Mail, no resend, no address to correct.
+class _ConfirmedEmailBody extends StatelessWidget {
+  const _ConfirmedEmailBody({required this.email, required this.onBack});
+
+  final String email;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(
+            Icons.mark_email_read_outlined,
+            size: 40,
+            color: AppColors.success,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l.auth_emailConfirmedTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleLg.copyWith(color: AppColors.success),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l.auth_emailConfirmedMessage(email),
             textAlign: TextAlign.center,
             style: AppTypography.bodyMd.copyWith(
               color: AppColors.onSurfaceVariant,

@@ -9,9 +9,12 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/providers/contact_providers.dart';
+import 'package:legal_case_diary/core/services/contact_launcher.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
@@ -25,8 +28,14 @@ void main() {
   late AppLocalizations l;
 
   /// Pumps the sign-up screen inside the harness and a minimal router.
-  Future<void> pumpSignup(WidgetTester tester) async {
-    final overrides = await harness.setUp();
+  ///
+  /// [extra] appends the seams a particular case needs — the mail-app launcher,
+  /// for instance, which is the only way to see which URI Open Mail would open.
+  Future<void> pumpSignup(
+    WidgetTester tester, {
+    List<Override> extra = const <Override>[],
+  }) async {
+    final overrides = await harness.setUp(extra: extra);
     await tester.binding.setSurfaceSize(const Size(420, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await pumpAuthRouter(tester, const SignupScreen(), overrides: overrides);
@@ -68,6 +77,35 @@ void main() {
     await tapVisible(tester, find.text(l.auth_accountTypeJoinFirm));
     await tapVisible(tester, find.byType(Checkbox));
   }
+
+  /// Signs up and lands on the Check Your Email state.
+  Future<void> reachCheckEmailState(WidgetTester tester) async {
+    harness.auth.signUpOutcome = const SignUpConfirmationRequired(
+      'jane@example.com',
+    );
+    await chooseJoinFirm(tester);
+    await fillForm(tester, inviteCode: 'abcde12345');
+    await tapVisible(tester, find.text(l.auth_signUpButton));
+  }
+
+  /// The user leaves for the mail app and comes back to this screen.
+  ///
+  /// A return is a lifecycle event, not a navigation one — which is exactly the
+  /// moment the confirmation check hangs off.
+  Future<void> leaveAndReturn(WidgetTester tester) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+  }
+
+  /// The text a form field holds, by position in the form.
+  String fieldText(WidgetTester tester, int index) =>
+      tester
+          .widget<TextFormField>(find.byType(TextFormField).at(index))
+          .controller
+          ?.text ??
+      '';
 
   setUp(() => harness = AuthTestHarness());
   tearDown(() async {
@@ -399,4 +437,235 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('Open Mail hands the user to the device mail app', (tester) async {
+    final launcher = _RecordingLauncher();
+    await pumpSignup(
+      tester,
+      extra: [contactLauncherProvider.overrideWithValue(launcher)],
+    );
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_openMail));
+
+    // The bare `mailto:` with no recipient: that is what makes Android offer
+    // every mail app rather than opening one compose window.
+    expect(launcher.opened.map((uri) => uri.toString()), ['mailto:']);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a mail app that cannot be opened says so', (tester) async {
+    final launcher = _RecordingLauncher()..answers = false;
+    await pumpSignup(
+      tester,
+      extra: [contactLauncherProvider.overrideWithValue(launcher)],
+    );
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_openMail));
+
+    expect(find.text(l.auth_unableToOpenMail), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('coming back after confirming turns the card green', (
+    tester,
+  ) async {
+    harness.auth.emailConfirmed = true;
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+    expect(pendingConfirmation(harness.prefs), 'jane@example.com');
+
+    await leaveAndReturn(tester);
+
+    // The check uses the credentials the sign-up screen is still holding, and
+    // signs nothing in: the session belongs to the user, not to this screen.
+    expect(harness.auth.confirmationChecks, ['jane@example.com']);
+    expect(harness.auth.confirmationCheckPasswords, ['secret123']);
+    expect(harness.auth.identity, isNull);
+    expect(find.text(l.auth_emailConfirmedTitle), findsOneWidget);
+    expect(
+      find.text(l.auth_emailConfirmedMessage('jane@example.com')),
+      findsOneWidget,
+    );
+    // One action only, and none of the waiting screen's three, is offered.
+    expect(find.text(l.auth_backToLogin), findsOneWidget);
+    expect(find.text(l.auth_openMail), findsNothing);
+    expect(find.text(l.auth_resendEmail), findsNothing);
+    expect(find.text(l.auth_changeEmail), findsNothing);
+    // The wait is spent, so nothing reopens this screen.
+    expect(pendingConfirmation(harness.prefs), isNull);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('coming back before confirming leaves the screen as it was', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await leaveAndReturn(tester);
+
+    expect(harness.auth.confirmationChecks, ['jane@example.com']);
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+    expect(find.text(l.auth_openMail), findsOneWidget);
+    expect(find.text(l.auth_resendEmail), findsOneWidget);
+    expect(find.text(l.auth_changeEmail), findsOneWidget);
+    expect(find.text(l.auth_emailConfirmedTitle), findsNothing);
+    // Still waiting, so a restart must still find it.
+    expect(pendingConfirmation(harness.prefs), 'jane@example.com');
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a restart comes back to the waiting screen, not the form', (
+    tester,
+  ) async {
+    harness = AuthTestHarness(
+      preferences: <String, Object>{
+        pendingConfirmationEmailKey: 'jane@example.com',
+        pendingConfirmationAtKey: DateTime.now().millisecondsSinceEpoch,
+      },
+    );
+    await pumpSignup(tester);
+
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+    expect(
+      find.text(l.auth_checkEmailMessage('jane@example.com')),
+      findsOneWidget,
+    );
+    expect(find.text(l.auth_openMail), findsOneWidget);
+    expect(find.text(l.auth_signUpButton), findsNothing);
+
+    // The password was never stored, so there is nothing to check with — the
+    // screen is restored, and the other three actions still work.
+    await leaveAndReturn(tester);
+    expect(harness.auth.confirmationChecks, isEmpty);
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Back To Login ends the wait', (tester) async {
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_backToLogin));
+
+    expect(pendingConfirmation(harness.prefs), isNull);
+    expect(find.text('auth-route'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Resend Email asks the server again and says so', (tester) async {
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_resendEmail));
+
+    expect(harness.auth.resendEmails, ['jane@example.com']);
+    expect(find.text(l.auth_resendSent), findsOneWidget);
+    // Nothing about the screen changed: it is still waiting.
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a rate-limited resend keeps the screen and says why', (
+    tester,
+  ) async {
+    harness.auth.resendError = const AuthFailure(AuthFailureKind.rateLimited);
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_resendEmail));
+
+    expect(find.text(l.auth_errorRateLimited), findsOneWidget);
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Change Email Address removes the sign-up and reopens the form', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_changeEmail));
+
+    expect(harness.auth.discardedEmails, ['jane@example.com']);
+    expect(pendingConfirmation(harness.prefs), isNull);
+    expect(find.text(l.auth_checkEmailTitle), findsNothing);
+    expect(find.text(l.auth_signUpButton), findsOneWidget);
+    // Only the address was wrong, so only the address is cleared.
+    expect(fieldText(tester, 0), 'Adv. Jane Doe');
+    expect(fieldText(tester, 2), '');
+    expect(fieldText(tester, 3), 'secret123');
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an already-confirmed address refuses the change', (tester) async {
+    harness.auth.discardOutcome = DiscardSignupOutcome.refusedConfirmed;
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+
+    await tapVisible(tester, find.text(l.auth_changeEmail));
+
+    expect(find.text(l.auth_changeEmailAlreadyConfirmed), findsOneWidget);
+    expect(find.text(l.auth_checkEmailTitle), findsOneWidget);
+    expect(find.text(l.auth_signUpButton), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('after a restart the address change asks for the password', (
+    tester,
+  ) async {
+    harness = AuthTestHarness(
+      preferences: <String, Object>{
+        pendingConfirmationEmailKey: 'jane@example.com',
+        pendingConfirmationAtKey: DateTime.now().millisecondsSinceEpoch,
+      },
+    );
+    await pumpSignup(tester);
+
+    await tapVisible(tester, find.text(l.auth_changeEmail));
+
+    // The password is the server's proof that the caller owns the account, and
+    // a restored screen no longer holds one.
+    expect(find.text(l.auth_changeEmailPasswordTitle), findsOneWidget);
+    expect(harness.auth.discardedEmails, isEmpty);
+
+    await tester.enterText(find.byType(TextField).last, 'secret123');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.sharedActions_save));
+    await tester.pumpAndSettle();
+
+    expect(harness.auth.discardedEmails, ['jane@example.com']);
+    expect(pendingConfirmation(harness.prefs), isNull);
+    expect(find.text(l.auth_signUpButton), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+}
+
+/// A [ContactLauncher] that records the URI of every tap and opens nothing.
+class _RecordingLauncher implements ContactLauncher {
+  /// Every URI the screen asked to open, in order.
+  final List<Uri> opened = <Uri>[];
+
+  /// What [open] answers; false stands in for a device with no mail app.
+  bool answers = true;
+
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return answers;
+  }
 }

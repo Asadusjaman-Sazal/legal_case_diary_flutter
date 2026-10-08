@@ -35,6 +35,28 @@ const String authGateSatisfiedKey = 'auth_gate_satisfied';
 /// only ever sees its hash.
 const String pendingInviteCodeKey = 'auth_pending_invite_code';
 
+/// Preference key holding the address of a sign-up still waiting for its
+/// confirmation mail.
+///
+/// The Check Your Email state lives in a screen, and a screen dies with the
+/// process: without this record a user who kills the app while they walk to
+/// their mailbox comes back to an empty sign-up form and no idea what happened
+/// to the account they just made. Only the address is kept — **never the
+/// password**, which is what the confirmation check needs and is deliberately
+/// held in memory for the life of that one screen.
+const String pendingConfirmationEmailKey = 'auth_pending_confirmation_email';
+
+/// Preference key holding when that sign-up was made, epoch milliseconds.
+const String pendingConfirmationAtKey = 'auth_pending_confirmation_at';
+
+/// How long a waiting confirmation is remembered.
+///
+/// A week is longer than any confirmation mail stays useful and short enough
+/// that the record cannot outlive the mail it refers to: the screen it restores
+/// is a dead end once the user has moved on, and Sign Up is not a screen to
+/// open at a stranger's next launch.
+const Duration pendingConfirmationWindow = Duration(days: 7);
+
 /// Reads and writes the locally cached auth identity.
 class LocalAuthService {
   /// Creates a service backed by [prefs].
@@ -79,12 +101,47 @@ class LocalAuthService {
     await _prefs.remove(authUserEmailKey);
     await _prefs.remove(authGateSatisfiedKey);
     await _prefs.remove(pendingInviteCodeKey);
+    await clearPendingConfirmationEmail();
   }
 
   /// The invite code still waiting to be redeemed, or null.
   String? get pendingInviteCode {
     final code = _prefs.getString(pendingInviteCodeKey);
     return (code == null || code.isEmpty) ? null : code;
+  }
+
+  /// The address of a sign-up still waiting for its confirmation mail, or null.
+  ///
+  /// Null once [pendingConfirmationWindow] has passed: a stale record is
+  /// ignored rather than deleted, so a read never writes (the record is
+  /// overwritten by the next sign-up, and cleared by the paths that end it).
+  /// A record with no timestamp is treated as current — it could only have been
+  /// written by this build.
+  String? get pendingConfirmationEmail {
+    final email = _prefs.getString(pendingConfirmationEmailKey);
+    if (email == null || email.isEmpty) return null;
+    final at = _prefs.getInt(pendingConfirmationAtKey);
+    if (at == null) return email;
+    final age = DateTime.now().difference(
+      DateTime.fromMillisecondsSinceEpoch(at),
+    );
+    return age > pendingConfirmationWindow ? null : email;
+  }
+
+  /// Remembers the address a confirmation mail has just been sent to.
+  Future<void> setPendingConfirmationEmail(String email) async {
+    await _prefs.setString(pendingConfirmationEmailKey, email.trim());
+    await _prefs.setInt(
+      pendingConfirmationAtKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  /// Forgets the waiting confirmation: it was confirmed, corrected, or the user
+  /// has chosen to log in instead.
+  Future<void> clearPendingConfirmationEmail() async {
+    await _prefs.remove(pendingConfirmationEmailKey);
+    await _prefs.remove(pendingConfirmationAtKey);
   }
 
   /// Remembers the invite code the user entered, until it is redeemed.

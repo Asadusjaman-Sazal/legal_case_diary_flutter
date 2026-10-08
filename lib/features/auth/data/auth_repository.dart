@@ -263,6 +263,34 @@ class SignUpConfirmationRequired extends SignUpOutcome {
   final String email;
 }
 
+/// What discarding a mistyped, unconfirmed sign-up produced.
+///
+/// Every value is one the Check Your Email screen can word, because its only
+/// decision after the call is which sentence to show — the same shape as
+/// `AccountDeletionOutcome`.
+enum DiscardSignupOutcome {
+  /// The account was removed; the address can be registered again.
+  removed,
+
+  /// The address is already confirmed, so it is no longer a waiting sign-up.
+  /// The user should log in with it instead.
+  refusedConfirmed,
+
+  /// The account has been used for something (a firm, a payment, a case), so
+  /// removing it is no longer what this call is for.
+  refusedUsed,
+
+  /// Too many attempts from this address inside the server's window.
+  rateLimited,
+
+  /// This build has no backend configured.
+  unavailable,
+
+  /// The call reached nothing, or the server refused for an unknown reason.
+  /// Nothing was removed.
+  failed,
+}
+
 /// The authentication operations the app performs.
 abstract class AuthRepository {
   /// Whether this build can reach a backend at all.
@@ -303,6 +331,45 @@ abstract class AuthRepository {
     required String email,
     required String password,
     String barAssociation = '',
+  });
+
+  /// Whether the address behind [email] and [password] is confirmed **now**.
+  ///
+  /// The Check Your Email screen asks this when the user comes back from the
+  /// mail app, and it must answer *without* signing this device in: a session
+  /// here would hand the whole app the account — adoption, the router's
+  /// signed-in redirect, a profile pull — when all that is wanted is the one
+  /// fact, and the screen ends on **Back To Login** either way. So this is a
+  /// question about an account, not a way into one, and a repository whose
+  /// backend answers with a session for it throws that session away rather
+  /// than storing it. False on any failure: the caller simply keeps showing the
+  /// screen it already had.
+  Future<bool> isEmailConfirmed({
+    required String email,
+    required String password,
+  });
+
+  /// Sends the sign-up confirmation mail for [email] again.
+  ///
+  /// For the user whose mail never arrived (or was deleted), and for whom the
+  /// only other way forward is the typed cleanup in
+  /// [discardUnconfirmedSignup]. The server's own rate limit is the only limit
+  /// applied: a refusal arrives as [AuthFailureKind.rateLimited].
+  Future<void> resendConfirmationEmail(String email);
+
+  /// Removes an unconfirmed sign-up so its address can be used again.
+  ///
+  /// The user who mistyped their address at sign-up has no session — an
+  /// unconfirmed account cannot sign in — so no client call can correct it, and
+  /// `abandon_provisional_account()` cannot either, because it works from
+  /// `auth.uid()`. The server therefore exposes one credential-checked function
+  /// for exactly this case: it verifies [password] against the account's own
+  /// hash, refuses an address that is already confirmed or an account that has
+  /// done anything at all, and only then removes the account. Never throws:
+  /// every outcome is a [DiscardSignupOutcome].
+  Future<DiscardSignupOutcome> discardUnconfirmedSignup({
+    required String email,
+    required String password,
   });
 
   /// Signs in with a native Google ID token.
@@ -360,6 +427,22 @@ class UnavailableAuthRepository implements AuthRepository {
     required String password,
     String barAssociation = '',
   }) async => throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<bool> isEmailConfirmed({
+    required String email,
+    required String password,
+  }) async => false;
+
+  @override
+  Future<void> resendConfirmationEmail(String email) async =>
+      throw const AuthFailure(AuthFailureKind.unavailable);
+
+  @override
+  Future<DiscardSignupOutcome> discardUnconfirmedSignup({
+    required String email,
+    required String password,
+  }) async => DiscardSignupOutcome.unavailable;
 
   @override
   Future<AuthIdentity> signInWithGoogle() async =>

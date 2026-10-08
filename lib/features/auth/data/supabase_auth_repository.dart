@@ -9,6 +9,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:google_sign_in/google_sign_in.dart';
@@ -218,6 +219,31 @@ bool authSessionNeedsSignIn(SignOutReason? reason) =>
     reason == SignOutReason.sessionExpired ||
     reason == SignOutReason.sessionMissing;
 
+/// Reads the server's own answer to `discard_unconfirmed_signup()`.
+///
+/// The envelope is the one the other RPCs use — `{'status': …}`, with a
+/// `reason` when the server refused — and an unknown status is a failure rather
+/// than a silent success, because the caller returns the user to the sign-up
+/// form on the strength of it. Pure, so the mapping is unit-tested without a
+/// server.
+DiscardSignupOutcome outcomeFromDiscardResponse(Object? response) {
+  if (response is! Map) return DiscardSignupOutcome.failed;
+  switch (response['status']) {
+    case 'removed':
+      return DiscardSignupOutcome.removed;
+    case 'rate_limited':
+      return DiscardSignupOutcome.rateLimited;
+    case 'refused':
+      return switch (response['reason']) {
+        'confirmed' => DiscardSignupOutcome.refusedConfirmed,
+        'not_provisional' => DiscardSignupOutcome.refusedUsed,
+        _ => DiscardSignupOutcome.failed,
+      };
+    default:
+      return DiscardSignupOutcome.failed;
+  }
+}
+
 /// [AuthRepository] implemented on Supabase Auth.
 class SupabaseAuthRepository implements AuthRepository {
   /// Creates a repository over [client].
@@ -337,6 +363,85 @@ class SupabaseAuthRepository implements AuthRepository {
       return SignUpConfirmationRequired(address);
     } catch (error) {
       throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<bool> isEmailConfirmed({
+    required String email,
+    required String password,
+  }) async {
+    if (!isAvailable) return false;
+
+    // Deliberately **not** `signInWithPassword`: that creates a session, and a
+    // session is a different question's answer. A confirmed check would also
+    // make the device signed in, which would hand the app the account and turn
+    // the screen's "Back To Login" into a sign-out.
+    //
+    // The password grant does answer the question, and its reply is read and
+    // dropped: 200 means the server accepted the credentials, and an
+    // unconfirmed address is refused (`email_not_confirmed`) exactly as it is at
+    // Login. Every other answer — a wrong password, a 5xx, a dead socket, the
+    // rate limit — is `false`, which leaves the screen as it was.
+    //
+    // ponytail: the successful reply carries a refresh token this build never
+    // stores, so it can never be used from this device; revoking it would cost a
+    // second request for a row nobody reads. If the project ever lists sessions
+    // to users, revoke it here.
+    final client = HttpClient()..connectionTimeout = _probeTimeout;
+    try {
+      final endpoint = Uri.parse(
+        SupabaseConfig.url,
+      ).resolve('/auth/v1/token?grant_type=password');
+      final request = await client.postUrl(endpoint).timeout(_probeTimeout);
+      request.headers.set('apikey', SupabaseConfig.publishableKey);
+      request.headers.contentType = ContentType.json;
+      request.write(jsonEncode({'email': email.trim(), 'password': password}));
+      final response = await request.close().timeout(_probeTimeout);
+      await response.drain<void>().timeout(_probeTimeout);
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  @override
+  Future<void> resendConfirmationEmail(String email) async {
+    try {
+      // The redirect is passed again, so a resent link returns to this app
+      // rather than to the project's Site URL — the same reason the sign-up call
+      // passes it.
+      await _client.auth.resend(
+        type: OtpType.signup,
+        email: email.trim(),
+        emailRedirectTo: SupabaseConfig.authRedirectUrl,
+      );
+    } catch (error) {
+      throw mapAuthFailure(error);
+    }
+  }
+
+  @override
+  Future<DiscardSignupOutcome> discardUnconfirmedSignup({
+    required String email,
+    required String password,
+  }) async {
+    if (!isAvailable) return DiscardSignupOutcome.unavailable;
+    try {
+      // No session is involved on purpose: the account this removes is the one
+      // that cannot sign in yet, and the server verifies the password itself.
+      return outcomeFromDiscardResponse(
+        await _client.rpc<dynamic>(
+          'discard_unconfirmed_signup',
+          params: {'p_email': email.trim(), 'p_password': password},
+        ),
+      );
+    } catch (error) {
+      return mapAuthFailure(error).kind == AuthFailureKind.rateLimited
+          ? DiscardSignupOutcome.rateLimited
+          : DiscardSignupOutcome.failed;
     }
   }
 

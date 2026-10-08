@@ -1634,6 +1634,25 @@
       }
   },
   "auth_backToLogin": "Back To Login",
+  "auth_openMail": "Open Mail",
+  "auth_unableToOpenMail": "No mail app could be opened.",
+  "auth_resendEmail": "Resend Email",
+  "auth_resendSent": "A new confirmation email has been sent.",
+  "auth_changeEmail": "Change Email Address",
+  "auth_changeEmailPasswordTitle": "Confirm Your Password",
+  "auth_changeEmailPasswordPrompt": "Enter this account's password to continue.",
+  "auth_changeEmailAlreadyConfirmed": "That address is already confirmed. Log in instead.",
+  "auth_changeEmailRefused": "That account already has data. Log in and delete it from Settings instead.",
+  "auth_emailConfirmedTitle": "Email Confirmed!",
+  "auth_emailConfirmedMessage": "Your email address {email} is confirmed. Log in to continue.",
+  "@auth_emailConfirmedMessage": {
+      "description": "AUTH",
+      "placeholders": {
+          "email": {
+              "type": "String"
+          }
+      }
+  },
   "auth_forgotTitle": "Reset Password",
   "auth_forgotSubtitle": "Enter your email and we will send a recovery code.",
   "auth_recoveryLinkSubtitle": "Choose A New Password For Your Account.",

@@ -3415,6 +3415,44 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_backToLogin => 'লগইনে ফিরে যান';
 
   @override
+  String get auth_openMail => 'মেইল খুলুন';
+
+  @override
+  String get auth_unableToOpenMail => 'কোনো মেইল অ্যাপ খোলা যায়নি।';
+
+  @override
+  String get auth_resendEmail => 'ইমেইল আবার পাঠান';
+
+  @override
+  String get auth_resendSent => 'নতুন নিশ্চিতকরণ ইমেইল পাঠানো হয়েছে।';
+
+  @override
+  String get auth_changeEmail => 'ইমেইল ঠিকানা পরিবর্তন করুন';
+
+  @override
+  String get auth_changeEmailPasswordTitle => 'পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
+  String get auth_changeEmailPasswordPrompt =>
+      'চালিয়ে যেতে এই অ্যাকাউন্টের পাসওয়ার্ডটি লিখুন।';
+
+  @override
+  String get auth_changeEmailAlreadyConfirmed =>
+      'এই ঠিকানাটি আগেই নিশ্চিত হয়েছে। বরং লগইন করুন।';
+
+  @override
+  String get auth_changeEmailRefused =>
+      'এই অ্যাকাউন্টে ইতিমধ্যে তথ্য আছে। লগইন করে সেটিংস থেকে অ্যাকাউন্টটি মুছে ফেলুন।';
+
+  @override
+  String get auth_emailConfirmedTitle => 'ইমেইল নিশ্চিত হয়েছে!';
+
+  @override
+  String auth_emailConfirmedMessage(String email) {
+    return '$email ঠিকানাটি নিশ্চিত হয়েছে। চালিয়ে যেতে লগইন করুন।';
+  }
+
+  @override
   String get auth_forgotTitle => 'পাসওয়ার্ড রিসেট';
 
   @override

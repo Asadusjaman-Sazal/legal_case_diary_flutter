@@ -17,6 +17,15 @@
   "nav_overdueDates": "বিলম্বিত তারিখ",
   "nav_adminPanel": "অ্যাডমিন প্যানেল",
   "drawerOf": "এর",
+  "drawer_version": "V{version}",
+  "@drawer_version": {
+      "description": "Bundled app version, shown as the last line of the side menu.",
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
   "@@_section_allCasesScreen": "ALL CASES SCREEN  |  lib/features/cases/presentation/all_cases/all_cases_screen.dart",
   "allCasesScreen_title": "সব মামলা",
   "allCasesScreen_activeCases": "সক্রিয় মামলা",
@@ -717,8 +726,14 @@
   "settingsLanguage_selected": "নির্বাচিত",
   "settingsLanguage_note": "এটি শুধু অ্যাপের ইন্টারফেস বদলায়। আপনার সংরক্ষিত মামলা ও নোট আগের মতোই থাকবে।",
   "@@_section_settingsAccountProfile": "SETTINGS - ACCOUNT & PROFILE MENU  |  lib/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart",
+  "settingsAccountProfile_sectionProfile": "প্রোফাইল",
+  "settingsAccountProfile_sectionAccount": "অ্যাকাউন্ট",
+  "settingsAccountProfile_sectionFirm": "ফার্ম",
   "settingsAccountProfile_profileSubtitle": "আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য",
-  "settingsAccountProfile_manageAccountSubtitle": "পাসওয়ার্ড, সাবস্ক্রিপশন ও অ্যাকাউন্ট সেটিংস",
+  "settingsAccountProfile_manageAccountSubtitle": "আপনার অ্যাকাউন্টের তথ্য ও সাইন-আউট",
+  "settingsAccountProfile_subscriptionSubtitle": "আপনার প্ল্যান, মেয়াদ ও ক্রয়ের ইতিহাস",
+  "settingsAccountProfile_security": "নিরাপত্তা",
+  "settingsAccountProfile_securitySubtitle": "পাসওয়ার্ড পরিবর্তন করুন",
   "settingsAccountProfile_manageAssociatesSubtitle": "সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন",
   "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
   "settingsProfile_title": "প্রোফাইল",
@@ -756,7 +771,6 @@
   "settingsManageAccount_subscriptionDetails": "সাবস্ক্রিপশন বিবরণ",
   "settingsManageAccount_purchaseNewSubscription": "নতুন সাবস্ক্রিপশন ক্রয়",
   "settingsManageAccount_logout": "লগআউট",
-  "settingsManageAccount_accountSettings": "অ্যাকাউন্ট সেটিংস",
   "settingsManageAccount_deleteAccount": "অ্যাকাউন্ট মুছুন",
   "settingsManageAccount_deleteCannotBeUndone": "এই কাজটি ফিরিয়ে আনা যাবে না",
   "settingsManageAccount_loggedOut": "আপনি লগ আউট হয়েছেন।",

@@ -54,6 +54,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get drawerOf => 'এর';
 
   @override
+  String drawer_version(String version) {
+    return 'V$version';
+  }
+
+  @override
   String get allCasesScreen_title => 'সব মামলা';
 
   @override
@@ -1516,12 +1521,32 @@ class AppLocalizationsBn extends AppLocalizations {
       'এটি শুধু অ্যাপের ইন্টারফেস বদলায়। আপনার সংরক্ষিত মামলা ও নোট আগের মতোই থাকবে।';
 
   @override
+  String get settingsAccountProfile_sectionProfile => 'প্রোফাইল';
+
+  @override
+  String get settingsAccountProfile_sectionAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get settingsAccountProfile_sectionFirm => 'ফার্ম';
+
+  @override
   String get settingsAccountProfile_profileSubtitle =>
       'আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য';
 
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
-      'পাসওয়ার্ড, সাবস্ক্রিপশন ও অ্যাকাউন্ট সেটিংস';
+      'আপনার অ্যাকাউন্টের তথ্য ও সাইন-আউট';
+
+  @override
+  String get settingsAccountProfile_subscriptionSubtitle =>
+      'আপনার প্ল্যান, মেয়াদ ও ক্রয়ের ইতিহাস';
+
+  @override
+  String get settingsAccountProfile_security => 'নিরাপত্তা';
+
+  @override
+  String get settingsAccountProfile_securitySubtitle =>
+      'পাসওয়ার্ড পরিবর্তন করুন';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -1608,9 +1633,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_logout => 'লগআউট';
-
-  @override
-  String get settingsManageAccount_accountSettings => 'অ্যাকাউন্ট সেটিংস';
 
   @override
   String get settingsManageAccount_deleteAccount => 'অ্যাকাউন্ট মুছুন';

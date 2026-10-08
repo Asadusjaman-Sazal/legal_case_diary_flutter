@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.407 - The Settings list card is a Material, not a decorated Container: the per-row ListTile ink assert that filled the error log is gone, and row splashes paint again.
+Version: 0.0.410 - Account & Profile menu grouped into Profile/Account/Firm sections; Subscription moved into it off the Settings list and Change Password moved to a new Security sub-page; mockups now follow the app (rule 9 relaxed).
 --------------------------------------
 
 ## Version History Log:
@@ -421,3 +421,6 @@ Version: 0.0.404 - Diagnostics: Copy Diagnostics and Clear Log moved from the he
 Version: 0.0.405 - Support: the scope text is now a titled card before Never Send These, and the message preview and its hint are removed.
 Version: 0.0.406 - The error log keeps each failure's own message: shown in Diagnostics and carried in the copied and Support reports, so an error can be identified and fixed.
 Version: 0.0.407 - The Settings list card is a Material, not a decorated Container: the per-row ListTile ink assert that filled the error log is gone, and row splashes paint again.
+Version: 0.0.408 - Side menu now shows the bundled app version as its last line, read from appVersion so it cannot drift from the build.
+Version: 0.0.409 - Side menu version line pinned to the very bottom of the panel and left aligned, per the user's follow-up.
+Version: 0.0.410 - Account & Profile menu grouped into Profile/Account/Firm sections; Subscription moved into it off the Settings list and Change Password moved to a new Security sub-page; mockups now follow the app (rule 9 relaxed).

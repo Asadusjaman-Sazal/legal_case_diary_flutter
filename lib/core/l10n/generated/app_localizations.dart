@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'of'**
   String get drawerOf;
 
+  /// Bundled app version, shown as the last line of the side menu.
+  ///
+  /// In en, this message translates to:
+  /// **'V{version}'**
+  String drawer_version(String version);
+
   /// No description provided for @allCasesScreen_title.
   ///
   /// In en, this message translates to:
@@ -2750,6 +2756,24 @@ abstract class AppLocalizations {
   /// **'This changes only the app\'s interface. Your saved cases and notes stay exactly as they are.'**
   String get settingsLanguage_note;
 
+  /// No description provided for @settingsAccountProfile_sectionProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get settingsAccountProfile_sectionProfile;
+
+  /// No description provided for @settingsAccountProfile_sectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccountProfile_sectionAccount;
+
+  /// No description provided for @settingsAccountProfile_sectionFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm'**
+  String get settingsAccountProfile_sectionFirm;
+
   /// No description provided for @settingsAccountProfile_profileSubtitle.
   ///
   /// In en, this message translates to:
@@ -2759,8 +2783,26 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAccountProfile_manageAccountSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Password, subscription, and account settings'**
+  /// **'Your account details and sign-out'**
   String get settingsAccountProfile_manageAccountSubtitle;
+
+  /// No description provided for @settingsAccountProfile_subscriptionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan, expiry, and purchase history'**
+  String get settingsAccountProfile_subscriptionSubtitle;
+
+  /// No description provided for @settingsAccountProfile_security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsAccountProfile_security;
+
+  /// No description provided for @settingsAccountProfile_securitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your password'**
+  String get settingsAccountProfile_securitySubtitle;
 
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
@@ -2923,12 +2965,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get settingsManageAccount_logout;
-
-  /// No description provided for @settingsManageAccount_accountSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Account Settings'**
-  String get settingsManageAccount_accountSettings;
 
   /// No description provided for @settingsManageAccount_deleteAccount.
   ///

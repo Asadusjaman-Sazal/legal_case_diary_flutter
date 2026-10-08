@@ -139,13 +139,11 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Settings offers Subscription after Online Sync, no Go Premium', (
-    tester,
-  ) async {
-    // Regression: Go Premium was an approved departure from this mockup, and it
-    // sat between Accounts & Profile and Online Sync. It is gone, and the entry
-    // that replaced it is where the user asked for it — directly after Online
-    // Sync — so the paywall is now reachable from one place instead of two.
+  testWidgets('the Settings list no longer offers Subscription', (tester) async {
+    // Subscription moved into the Account & Profile menu's Account group, which
+    // `accounts_profile_menu_test.dart` pins on that side. Here: neither Go
+    // Premium (removed earlier) nor Subscription may sit in the Settings list,
+    // so the paywall is reachable from exactly one place.
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -165,23 +163,8 @@ void main() {
 
     expect(find.text(l.payments_goPremium), findsNothing);
     expect(find.text(l.settingsScreen_onlineSync), findsOneWidget);
-    expect(find.text(l.settingsSubscription_title), findsOneWidget);
-
-    final syncY = tester.getTopLeft(find.text(l.settingsScreen_onlineSync)).dy;
-    final subscriptionY =
-        tester.getTopLeft(find.text(l.settingsSubscription_title)).dy;
-    final backupY =
-        tester.getTopLeft(find.text(l.settingsScreen_backupAndRestore)).dy;
-    expect(
-      subscriptionY,
-      greaterThan(syncY),
-      reason: 'Subscription comes after Online Sync',
-    );
-    expect(
-      subscriptionY,
-      lessThan(backupY),
-      reason: 'and before Backup & Restore',
-    );
+    expect(find.text(l.settingsSubscription_title), findsNothing);
+    expect(find.text(l.settingsScreen_backupAndRestore), findsOneWidget);
 
     await unmountApp(tester);
   });

@@ -54,6 +54,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerOf => 'of';
 
   @override
+  String drawer_version(String version) {
+    return 'V$version';
+  }
+
+  @override
   String get allCasesScreen_title => 'All Cases';
 
   @override
@@ -1513,12 +1518,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'This changes only the app\'s interface. Your saved cases and notes stay exactly as they are.';
 
   @override
+  String get settingsAccountProfile_sectionProfile => 'Profile';
+
+  @override
+  String get settingsAccountProfile_sectionAccount => 'Account';
+
+  @override
+  String get settingsAccountProfile_sectionFirm => 'Firm';
+
+  @override
   String get settingsAccountProfile_profileSubtitle =>
       'Your name, bar association, and membership details';
 
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
-      'Password, subscription, and account settings';
+      'Your account details and sign-out';
+
+  @override
+  String get settingsAccountProfile_subscriptionSubtitle =>
+      'Your plan, expiry, and purchase history';
+
+  @override
+  String get settingsAccountProfile_security => 'Security';
+
+  @override
+  String get settingsAccountProfile_securitySubtitle => 'Change your password';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -1605,9 +1629,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_logout => 'Logout';
-
-  @override
-  String get settingsManageAccount_accountSettings => 'Account Settings';
 
   @override
   String get settingsManageAccount_deleteAccount => 'Delete Account';

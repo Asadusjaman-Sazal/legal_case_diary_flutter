@@ -6,10 +6,11 @@
 /// reachable. Logout is real here too: it ends the session and empties the
 /// account caches.
 ///
-/// The Subscription Details and Purchase New Subscription rows have since moved
-/// to Settings > Subscription, so this screen keeps Change Password only; that
-/// departure from its mockup is asserted here, and the rows' own tests live in
-/// `subscription_screen_test.dart`.
+/// The action rows have since moved out: Change Password now lives on the
+/// **Security** sub-page (its own tests are in `security_screen_test.dart`) and
+/// the subscription rows on **Subscription** (`subscription_screen_test.dart`),
+/// so this screen keeps the profile summary, Logout and Delete Account. That
+/// departure from its mockup is asserted here.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -28,7 +29,6 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repo
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_account_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
-import 'package:legal_case_diary/features/auth/presentation/forgot_password_screen.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 
 import 'auth_test_support.dart';
@@ -91,14 +91,6 @@ void main() {
         GoRoute(
           path: AppRoutes.settingsManageAccount,
           builder: (_, _) => const ManageAccountScreen(),
-        ),
-        // The real screen, in the presentation this row asks for: asserting on
-        // it rather than on a marker is what pins "a Settings sub-page, not the
-        // auth route".
-        GoRoute(
-          path: AppRoutes.settingsChangePassword,
-          builder: (_, _) =>
-              const ForgotPasswordScreen(asSettingsSubPage: true),
         ),
         // Where a completed logout lands: Login is a top-level route, so the
         // screen must leave the shell for it rather than pop back to Settings.
@@ -184,40 +176,19 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the subscription rows are no longer here', (tester) async {
-    // They moved to Settings > Subscription. Their mockup still draws all three
-    // rows on this screen, so this is the assertion that pins the approved
-    // departure: if a row ever came back, the two screens would both offer it.
+  testWidgets('none of the Account Settings rows remain here', (tester) async {
+    // Change Password moved to the Security sub-page, and Subscription Details
+    // and Purchase New Subscription to Subscription. This screen keeps the
+    // profile summary, Logout and Delete Account, so this is the assertion that
+    // pins the departure: if a row ever came back, two screens would offer it.
     await pumpManageAccount(tester);
 
-    expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
+    expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
     expect(find.text(l.settingsManageAccount_subscriptionDetails), findsNothing);
     expect(
       find.text(l.settingsManageAccount_purchaseNewSubscription),
       findsNothing,
     );
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('Change Password opens the reset flow as a Settings sub-page', (
-    tester,
-  ) async {
-    // Regression: this row pushed Login's `/forgot-password`, which is an auth
-    // route — and the router sends a signed-in user away from every auth route,
-    // so the tap landed on the default landing page instead of the screen.
-    await pumpManageAccount(tester);
-
-    await tapVisible(tester, find.text(l.settingsManageAccount_changePassword));
-
-    // The same screen Login's "Forgot Password?" shows...
-    expect(find.text(l.auth_forgotTitle), findsOneWidget);
-    expect(find.text(l.auth_sendCodeButton), findsOneWidget);
-    expect(find.text(l.auth_emailLabel), findsOneWidget);
-    // ...but as a Settings sub-page: the standard header with its back button.
-    expect(find.byType(BackButton), findsWidgets);
-    // And no way out to Login, where a signed-in user may not go.
-    expect(find.text(l.auth_backToLogin), findsNothing);
 
     await unmountApp(tester);
   });

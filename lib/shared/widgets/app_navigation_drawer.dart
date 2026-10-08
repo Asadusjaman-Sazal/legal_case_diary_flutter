@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
+import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../features/admin/presentation/admin_viewmodel.dart';
@@ -305,6 +306,19 @@ class AppNavigationDrawer extends ConsumerWidget {
                     },
                   ),
                 ],
+              ),
+            ),
+            // The bundled app version pinned to the very bottom of the drawer,
+            // below all nav items and Print/Share. Read from [appVersion] so it
+            // can never drift from the build.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+              child: Text(
+                l.drawer_version(appVersion),
+                textAlign: TextAlign.left,
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
             ),
           ],

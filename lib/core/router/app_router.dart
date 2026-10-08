@@ -16,6 +16,7 @@ import '../../features/accounts_and_profile/presentation/accounts_profile_menu_s
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
+import '../../features/accounts_and_profile/presentation/security_screen.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
@@ -106,6 +107,10 @@ class AppRoutes {
   /// auth route — so pushing it from Manage Account only ever landed on the
   /// default landing page.
   static const String settingsChangePassword = '/settings/change-password';
+
+  /// Security: the sign-in security rows for this account (Change Password).
+  /// Opened by the Account & Profile menu's Account group.
+  static const String settingsSecurity = '/settings/security';
   static const String settingsManageAssociates = '/settings/manage-associates';
 
   /// The delete-request queue (Task 20 Phase 4): a reviewer's pending list, or
@@ -521,9 +526,13 @@ final List<RouteBase> _shellRoutes = [
     path: AppRoutes.settingsChangePassword,
     // The same screen Login opens, in its Settings presentation: the standard
     // sub-page header with a back button, no line out to Login, and a return to
-    // Manage Account once the password is set.
+    // Security once the password is set.
     builder: (context, state) =>
         const ForgotPasswordScreen(asSettingsSubPage: true),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsSecurity,
+    builder: (context, state) => const SecurityScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsManageAssociates,

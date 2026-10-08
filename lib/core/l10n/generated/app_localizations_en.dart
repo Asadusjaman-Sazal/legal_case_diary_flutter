@@ -1532,17 +1532,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAccountProfile_manageAccountSubtitle =>
-      'Your account details and sign-out';
+      'Your account details, password, and sign-out';
 
   @override
   String get settingsAccountProfile_subscriptionSubtitle =>
       'Your plan, expiry, and purchase history';
-
-  @override
-  String get settingsAccountProfile_security => 'Security';
-
-  @override
-  String get settingsAccountProfile_securitySubtitle => 'Change your password';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -1636,6 +1630,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsManageAccount_deleteCannotBeUndone =>
       'This action cannot be undone';
+
+  @override
+  String get settingsManageAccount_dangerZone => 'Danger Zone';
+
+  @override
+  String get settingsManageAccount_deleted => 'Your Account Has Been Deleted.';
+
+  @override
+  String get settingsManageAccount_deleteDialogTitle => 'Delete Account?';
+
+  @override
+  String get settingsManageAccount_deleteWarningFree =>
+      'This permanently deletes your account and every case, note, case reference and setting on this device. Nothing can be recovered after this.';
+
+  @override
+  String get settingsManageAccount_deleteWarningPremium =>
+      'This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.';
+
+  @override
+  String get settingsManageAccount_deleteNeedsConnection =>
+      'Connect to the internet to delete your account. Nothing Has Been Deleted.';
+
+  @override
+  String get settingsManageAccount_deleteFirmRefused =>
+      'You are part of a firm, so some of your data is shared with it. Ask the firm owner to remove you before deleting your account.';
+
+  @override
+  String get settingsManageAccount_deleteAdminRefused =>
+      'An administrator account cannot be deleted from the app.';
+
+  @override
+  String get settingsManageAccount_deleteFailed =>
+      'Your account could not be deleted. Please try again.';
 
   @override
   String get settingsManageAccount_loggedOut => 'You Have Been Logged Out.';

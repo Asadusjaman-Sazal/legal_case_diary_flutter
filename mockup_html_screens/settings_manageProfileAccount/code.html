@@ -143,31 +143,64 @@
 </header>
 
 <main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
-  <!-- Profile summary card. Part A shows offline placeholder data; the Logout
-       action reports that sign-in arrives with the online version. -->
+  <!-- Profile summary card: who this account is, and nothing else. The small
+       inline Logout that used to sit under the address is a full-size action
+       card below (0.0.411, user request). Values shown are the user's own. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl p-lg flex flex-col items-center">
     <div class="w-24 h-24 rounded-full bg-surface-variant border-2 border-primary flex items-center justify-center overflow-hidden">
       <span class="font-headline-md text-headline-md font-bold text-primary">A</span>
     </div>
     <span class="mt-md font-title-lg text-title-lg text-primary text-center">Asadusjaman</span>
     <span class="mt-xs font-body-md text-body-md text-on-surface-variant text-center">advocate.asad@law.com</span>
-    <button class="mt-sm flex items-center gap-sm px-md py-sm bg-surface-container text-on-surface-variant border border-outline-variant rounded-full hover:bg-surface-container-high transition-colors">
-      <span class="material-symbols-outlined text-[20px]">logout</span>
-      <span class="font-label-lg text-label-lg">Logout</span>
+  </div>
+
+  <!-- Logout: the SAME action card as Delete Account below it, in the neutral
+       tone. Both cards are one widget in the app (SettingsActionCard), so the
+       size the user asked to be shared cannot drift: 16 px padding, a 44 px
+       minimum content row, a 40 px icon circle. -->
+  <div class="mt-lg">
+    <button class="w-full flex items-center bg-surface-container-lowest border border-outline-variant rounded-2xl p-md hover:bg-secondary-hover transition-colors text-left">
+      <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mr-md">
+        <span class="material-symbols-outlined">logout</span>
+      </div>
+      <div class="flex-1 min-h-[44px] flex flex-col justify-center">
+        <span class="block font-title-md text-title-md text-on-surface">Logout</span>
+      </div>
     </button>
   </div>
 
-  <!-- The former Account Settings rows are gone: Change Password moved to the
-       Account & Profile menu's Security sub-page, and Subscription Details /
-       Purchase New Subscription to its Subscription sub-page. This screen keeps
-       the profile summary, Logout and Delete Account. -->
-  <!-- Destructive action. -->
-  <div class="mt-xl pb-xl">
-    <button class="w-full flex items-center bg-error-container border border-error/20 rounded-2xl p-md hover:opacity-90 transition-opacity">
+  <!-- Change Password: back on this screen (0.0.411) from the Account &
+       Profile menu's Security sub-page, directly under Logout. Subscription
+       Details / Purchase New Subscription stay on the Subscription sub-page. -->
+  <div class="mt-sm">
+    <button class="w-full flex items-center bg-surface-container-lowest border border-outline-variant rounded-2xl p-md hover:bg-secondary-hover transition-colors text-left">
+      <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mr-md">
+        <span class="material-symbols-outlined">lock</span>
+      </div>
+      <div class="flex-1 min-h-[44px] flex items-center">
+        <span class="block font-title-md text-title-md text-on-surface">Change Password</span>
+      </div>
+      <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+    </button>
+  </div>
+
+  <!-- Danger Zone: the red bold section label the user asked for, introducing
+       the one irreversible action on this screen. It obeys the same label-md
+       style as every other section heading, in the error colour and bold. -->
+  <p class="mt-lg font-label-md text-label-md font-bold text-error tracking-wider">Danger Zone</p>
+
+  <!-- The destructive action, warned and wired (0.0.411). Tapping it opens the
+       warning: what the deletion takes with it — worded for a free account,
+       whose diary only ever lived on this device, or a premium one, whose diary
+       is in the cloud too — and that the result is permanent. Confirmed, the
+       server removes the account and all of its data, and the device goes back
+       to a fresh install. Offline it refuses: the account row is on the server. -->
+  <div class="mt-sm pb-xl">
+    <button class="w-full flex items-center bg-error-container border border-error/20 rounded-2xl p-md hover:opacity-90 transition-opacity text-left">
       <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-error mr-md">
         <span class="material-symbols-outlined">delete</span>
       </div>
-      <div class="flex-1 text-left">
+      <div class="flex-1 min-h-[44px] flex flex-col justify-center">
         <span class="block font-title-md text-title-md text-on-error-container">Delete Account</span>
         <span class="block mt-xs font-body-sm text-body-sm text-error/80">This action cannot be undone</span>
       </div>

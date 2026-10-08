@@ -1,12 +1,13 @@
 /// Accounts & Profile menu — the sectioned layout.
 ///
-/// The menu was reorganised into three labelled groups: **Profile** (Profile),
-/// **Account** (Manage Account, Subscription, Security) and **Firm** (Manage
-/// Associates, shown only when that entry is offered). Subscription moved here
-/// from the main Settings list and Security is new, holding the Change Password
-/// row that left Manage Account. These tests pin that structure — the section
-/// labels, the rows, and where the two new rows go; the Manage Associates
-/// visibility rules stay in `manage_associates_test.dart`.
+/// The menu is grouped under three labelled headers: **Profile** (Profile),
+/// **Account** (Manage Account, Subscription) and **Firm** (Manage Associates,
+/// shown only when that entry is offered). Subscription moved here from the
+/// main Settings list. The **Security** row that briefly held Change Password is
+/// gone (0.0.411): Change Password came back to Manage Account, so the menu must
+/// offer no row for it and no third Account entry. These tests pin that
+/// structure — the section labels, the rows, and their order; the Manage
+/// Associates visibility rules stay in `manage_associates_test.dart`.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -21,13 +22,13 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/profil
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
-/// Marker rendered by each stand-in destination route.
+/// Marker rendered by the stand-in destination route.
 const String subscriptionMarker = 'Subscription Route';
-const String securityMarker = 'Security Route';
 
 /// Epoch ms 30 days from now: an active premium entitlement for the caches.
 int get _premiumExpiryMs =>
@@ -74,10 +75,6 @@ void main() {
           path: AppRoutes.settingsSubscription,
           builder: (_, _) => const Scaffold(body: Text(subscriptionMarker)),
         ),
-        GoRoute(
-          path: AppRoutes.settingsSecurity,
-          builder: (_, _) => const Scaffold(body: Text(securityMarker)),
-        ),
       ],
     );
     l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -115,8 +112,11 @@ void main() {
     expect(find.text(l.settingsAccountProfile_profileSubtitle), findsOneWidget);
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
     expect(find.text(l.settingsSubscription_title), findsOneWidget);
-    expect(find.text(l.settingsAccountProfile_security), findsOneWidget);
     expect(find.text(l.manageAssociates_title), findsOneWidget);
+    // No fourth row, and Change Password is not offered from here: it lives on
+    // Manage Account again (0.0.411).
+    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
+    expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);
   });
@@ -129,13 +129,13 @@ void main() {
 
     final accountY =
         tester.getTopLeft(find.text(l.settingsAccountProfile_sectionAccount)).dy;
-    final securityY =
-        tester.getTopLeft(find.text(l.settingsAccountProfile_security)).dy;
+    final subscriptionY =
+        tester.getTopLeft(find.text(l.settingsSubscription_title)).dy;
     final firmY =
         tester.getTopLeft(find.text(l.settingsAccountProfile_sectionFirm)).dy;
 
-    expect(securityY, greaterThan(accountY));
-    expect(firmY, greaterThan(securityY));
+    expect(subscriptionY, greaterThan(accountY));
+    expect(firmY, greaterThan(subscriptionY));
 
     await unmountApp(tester);
   });
@@ -163,13 +163,16 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Security opens the Security screen', (tester) async {
-    await pumpMenu(tester);
+  testWidgets('the Account section offers no Security row', (tester) async {
+    // The row and its sub-page are gone (0.0.411). A free individual sees three
+    // cards (Profile, Manage Account, Subscription) — so one is not a fourth
+    // Account entry that only lost its label.
+    await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    await tester.tap(find.text(l.settingsAccountProfile_security));
-    await tester.pumpAndSettle();
-
-    expect(find.text(securityMarker), findsOneWidget);
+    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
+    expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
+    expect(find.text(l.settingsSubscription_title), findsOneWidget);
+    expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);
   });

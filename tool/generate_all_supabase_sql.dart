@@ -391,6 +391,17 @@ const List<LedgerSection> _sections = <LedgerSection>[
         '`6 Months` / `1 Year`), so the raw tables read plainly without '
         'touching the approval path or either table\'s write privileges.',
   ),
+  LedgerSection(
+    file: '20261008100000_delete_my_account.sql',
+    version: '0.0.411',
+    label:
+        'Task 12\'s Manage Account actions, built: delete_my_account(), the '
+        'account holder''s own complete removal — every domain row, custom '
+        'reference row, preference, payment submission and approval event, sync '
+        'receipt, firm link and finally the Auth account — so no residue of it '
+        'remains. Refuses, changing nothing, for a firm account and for an app '
+        'administrator, and names the reason.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -422,6 +433,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.349': 'Task 21 Follow-Up — Discounted Six-Month And Annual Plans',
   '0.0.354': 'Task 23 Phase 1 — The Admin Panel On The Server',
   '0.0.385': 'Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers',
+  '0.0.411': 'Task 12 — Deleting The Account Itself',
 };
 
 const String _header = '''<!--

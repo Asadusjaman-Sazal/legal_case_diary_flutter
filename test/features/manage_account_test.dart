@@ -6,11 +6,14 @@
 /// reachable. Logout is real here too: it ends the session and empties the
 /// account caches.
 ///
-/// The action rows have since moved out: Change Password now lives on the
-/// **Security** sub-page (its own tests are in `security_screen_test.dart`) and
-/// the subscription rows on **Subscription** (`subscription_screen_test.dart`),
-/// so this screen keeps the profile summary, Logout and Delete Account. That
-/// departure from its mockup is asserted here.
+/// **The action column, as the user asked for it (0.0.411).** The profile
+/// summary keeps the avatar, name and email only — the small inline Logout under
+/// the address is gone; a **full-size Logout** card takes its place, the same
+/// card as **Delete Account** below it. **Change Password** is back on this
+/// screen, directly after Logout, and a red bold **Danger Zone** label
+/// introduces the destructive card. The subscription rows stay on
+/// **Subscription** (`subscription_screen_test.dart`). The deletion flow itself
+/// has its own suite, `delete_account_test.dart`.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -29,7 +32,9 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repo
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_account_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
@@ -176,19 +181,75 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('none of the Account Settings rows remain here', (tester) async {
-    // Change Password moved to the Security sub-page, and Subscription Details
-    // and Purchase New Subscription to Subscription. This screen keeps the
-    // profile summary, Logout and Delete Account, so this is the assertion that
-    // pins the departure: if a row ever came back, two screens would offer it.
+  testWidgets('Change Password is here again, the subscription rows are not', (
+    tester,
+  ) async {
+    // Change Password came back from the Security sub-page (0.0.411) and the
+    // subscription rows stayed on Subscription: if one of those ever came back
+    // too, two screens would offer it.
     await pumpManageAccount(tester);
 
-    expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
+    expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
     expect(find.text(l.settingsManageAccount_subscriptionDetails), findsNothing);
     expect(
       find.text(l.settingsManageAccount_purchaseNewSubscription),
       findsNothing,
     );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the action column is Logout, Change Password, Danger Zone, Delete', (
+    tester,
+  ) async {
+    await pumpManageAccount(tester);
+
+    // The two action cards are one widget, so "the Logout button is the same
+    // size as the Delete Account button" is a property of the code rather than
+    // a promise two layouts have to keep in step.
+    final cards = find.byType(SettingsActionCard);
+    expect(cards, findsNWidgets(2));
+    expect(tester.getSize(cards.at(0)).width, tester.getSize(cards.at(1)).width);
+    // And the Logout card is exactly as tall as the one-line Change Password row
+    // beside it: one card shape, one 44 px content row. (The destructive card is
+    // taller only when its own subtitle wraps, which is a wrapped supporting
+    // line rather than anything about the Logout button's size.)
+    expect(
+      tester.getSize(cards.at(0)).height,
+      tester.getSize(find.byType(SettingsSubMenuRow)).height,
+    );
+
+    // The section heading is the error colour, in bold.
+    final label = tester.widget<Text>(
+      find.text(l.settingsManageAccount_dangerZone),
+    );
+    expect(label.style?.color, AppColors.error);
+    expect(label.style?.fontWeight, FontWeight.w700);
+
+    // Order, by geometry: the profile card, then Logout, then Change Password,
+    // then the label, then Delete Account.
+    final emailBottom = tester
+        .getBottomLeft(find.text('advocate.asad@law.com'))
+        .dy;
+    final logoutTop = tester.getTopLeft(cards.at(0)).dy;
+    final passwordTop = tester
+        .getTopLeft(find.text(l.settingsManageAccount_changePassword))
+        .dy;
+    final dangerTop = tester
+        .getTopLeft(find.text(l.settingsManageAccount_dangerZone))
+        .dy;
+    final deleteTop = tester.getTopLeft(cards.at(1)).dy;
+
+    expect(
+      logoutTop,
+      greaterThan(emailBottom),
+      reason: 'Logout is a card below the profile summary, not a button in it',
+    );
+    expect(passwordTop, greaterThan(logoutTop));
+    expect(dangerTop, greaterThan(passwordTop));
+    expect(deleteTop, greaterThan(dangerTop));
+    // One logout affordance on the whole screen: the profile card has none.
+    expect(find.byIcon(Icons.logout), findsOneWidget);
 
     await unmountApp(tester);
   });

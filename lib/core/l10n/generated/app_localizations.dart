@@ -2783,7 +2783,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAccountProfile_manageAccountSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Your account details and sign-out'**
+  /// **'Your account details, password, and sign-out'**
   String get settingsAccountProfile_manageAccountSubtitle;
 
   /// No description provided for @settingsAccountProfile_subscriptionSubtitle.
@@ -2791,18 +2791,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your plan, expiry, and purchase history'**
   String get settingsAccountProfile_subscriptionSubtitle;
-
-  /// No description provided for @settingsAccountProfile_security.
-  ///
-  /// In en, this message translates to:
-  /// **'Security'**
-  String get settingsAccountProfile_security;
-
-  /// No description provided for @settingsAccountProfile_securitySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Change your password'**
-  String get settingsAccountProfile_securitySubtitle;
 
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
@@ -2977,6 +2965,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This action cannot be undone'**
   String get settingsManageAccount_deleteCannotBeUndone;
+
+  /// No description provided for @settingsManageAccount_dangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get settingsManageAccount_dangerZone;
+
+  /// No description provided for @settingsManageAccount_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Account Has Been Deleted.'**
+  String get settingsManageAccount_deleted;
+
+  /// No description provided for @settingsManageAccount_deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get settingsManageAccount_deleteDialogTitle;
+
+  /// No description provided for @settingsManageAccount_deleteWarningFree.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and every case, note, case reference and setting on this device. Nothing can be recovered after this.'**
+  String get settingsManageAccount_deleteWarningFree;
+
+  /// No description provided for @settingsManageAccount_deleteWarningPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.'**
+  String get settingsManageAccount_deleteWarningPremium;
+
+  /// No description provided for @settingsManageAccount_deleteNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to delete your account. Nothing Has Been Deleted.'**
+  String get settingsManageAccount_deleteNeedsConnection;
+
+  /// No description provided for @settingsManageAccount_deleteFirmRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'You are part of a firm, so some of your data is shared with it. Ask the firm owner to remove you before deleting your account.'**
+  String get settingsManageAccount_deleteFirmRefused;
+
+  /// No description provided for @settingsManageAccount_deleteAdminRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator account cannot be deleted from the app.'**
+  String get settingsManageAccount_deleteAdminRefused;
+
+  /// No description provided for @settingsManageAccount_deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account could not be deleted. Please try again.'**
+  String get settingsManageAccount_deleteFailed;
 
   /// No description provided for @settingsManageAccount_loggedOut.
   ///

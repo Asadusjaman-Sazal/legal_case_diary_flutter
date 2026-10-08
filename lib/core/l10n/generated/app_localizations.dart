@@ -7067,6 +7067,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Diagnostics Copied. Paste Them Into A Message To Us.'**
   String get settingsDiagnostics_copied;
+
+  /// No description provided for @settingsAppLock_title.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock'**
+  String get settingsAppLock_title;
+
+  /// No description provided for @settingsAppLock_setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup App Lock'**
+  String get settingsAppLock_setup;
+
+  /// No description provided for @settingsAppLock_changePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change App Lock Pin'**
+  String get settingsAppLock_changePin;
+
+  /// No description provided for @settingsAppLock_enableFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Fingerprint'**
+  String get settingsAppLock_enableFingerprint;
+
+  /// No description provided for @settingsAppLock_disableFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Fingerprint'**
+  String get settingsAppLock_disableFingerprint;
+
+  /// No description provided for @settingsAppLock_whenToAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'When To Ask For The Pin'**
+  String get settingsAppLock_whenToAsk;
+
+  /// No description provided for @settingsAppLock_whenAppOpens.
+  ///
+  /// In en, this message translates to:
+  /// **'When The App Opens'**
+  String get settingsAppLock_whenAppOpens;
+
+  /// No description provided for @settingsAppLock_whenAppOpensAndReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'When The App Opens Or Returns From The Background'**
+  String get settingsAppLock_whenAppOpensAndReturns;
+
+  /// No description provided for @settingsAppLock_setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Up App Lock'**
+  String get settingsAppLock_setupTitle;
+
+  /// Title of the pin-pad dialog's first step; digits is the pin length in the active language.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose A {digits}-Digit PIN'**
+  String settingsAppLock_choosePin(String digits);
+
+  /// No description provided for @settingsAppLock_confirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Your PIN'**
+  String get settingsAppLock_confirmPin;
+
+  /// No description provided for @settingsAppLock_pinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The PINs Do Not Match. Start Again.'**
+  String get settingsAppLock_pinMismatch;
+
+  /// No description provided for @settingsAppLock_setupDone.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock Is On.'**
+  String get settingsAppLock_setupDone;
+
+  /// No description provided for @settingsAppLock_setupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN Could Not Be Saved. Try Again.'**
+  String get settingsAppLock_setupFailed;
+
+  /// No description provided for @settingsAppLock_enterCurrentPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your Current PIN'**
+  String get settingsAppLock_enterCurrentPin;
+
+  /// No description provided for @settingsAppLock_newPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter A New PIN'**
+  String get settingsAppLock_newPin;
+
+  /// No description provided for @settingsAppLock_pinChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock PIN Changed.'**
+  String get settingsAppLock_pinChanged;
+
+  /// No description provided for @settingsAppLock_currentPinWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That PIN Is Not Correct.'**
+  String get settingsAppLock_currentPinWrong;
+
+  /// No description provided for @settingsAppLock_unlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your PIN To Unlock'**
+  String get settingsAppLock_unlockTitle;
+
+  /// No description provided for @settingsAppLock_wrongPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong PIN. Try Again.'**
+  String get settingsAppLock_wrongPin;
+
+  /// Shown while a wrong-pin lockout is still running; seconds is pre-formatted in the active language.
+  ///
+  /// In en, this message translates to:
+  /// **'Too Many Attempts. Try Again In {seconds} Seconds.'**
+  String settingsAppLock_tooManyAttempts(String seconds);
+
+  /// No description provided for @settingsAppLock_verifyForFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Your Identity For App Lock'**
+  String get settingsAppLock_verifyForFingerprint;
+
+  /// No description provided for @settingsAppLock_fingerprintEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint Unlock Enabled.'**
+  String get settingsAppLock_fingerprintEnabled;
+
+  /// No description provided for @settingsAppLock_fingerprintDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint Unlock Disabled.'**
+  String get settingsAppLock_fingerprintDisabled;
+
+  /// No description provided for @settingsAppLock_fingerprintUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Fingerprint Is Available On This Device.'**
+  String get settingsAppLock_fingerprintUnavailable;
+
+  /// No description provided for @settingsAppLock_useFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock With Fingerprint'**
+  String get settingsAppLock_useFingerprint;
 }
 
 class _AppLocalizationsDelegate

@@ -4047,4 +4047,93 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsDiagnostics_copied =>
       'Diagnostics Copied. Paste Them Into A Message To Us.';
+
+  @override
+  String get settingsAppLock_title => 'App Lock';
+
+  @override
+  String get settingsAppLock_setup => 'Setup App Lock';
+
+  @override
+  String get settingsAppLock_changePin => 'Change App Lock Pin';
+
+  @override
+  String get settingsAppLock_enableFingerprint => 'Enable Fingerprint';
+
+  @override
+  String get settingsAppLock_disableFingerprint => 'Disable Fingerprint';
+
+  @override
+  String get settingsAppLock_whenToAsk => 'When To Ask For The Pin';
+
+  @override
+  String get settingsAppLock_whenAppOpens => 'When The App Opens';
+
+  @override
+  String get settingsAppLock_whenAppOpensAndReturns =>
+      'When The App Opens Or Returns From The Background';
+
+  @override
+  String get settingsAppLock_setupTitle => 'Set Up App Lock';
+
+  @override
+  String settingsAppLock_choosePin(String digits) {
+    return 'Choose A $digits-Digit PIN';
+  }
+
+  @override
+  String get settingsAppLock_confirmPin => 'Confirm Your PIN';
+
+  @override
+  String get settingsAppLock_pinMismatch =>
+      'The PINs Do Not Match. Start Again.';
+
+  @override
+  String get settingsAppLock_setupDone => 'App Lock Is On.';
+
+  @override
+  String get settingsAppLock_setupFailed =>
+      'The PIN Could Not Be Saved. Try Again.';
+
+  @override
+  String get settingsAppLock_enterCurrentPin => 'Enter Your Current PIN';
+
+  @override
+  String get settingsAppLock_newPin => 'Enter A New PIN';
+
+  @override
+  String get settingsAppLock_pinChanged => 'App Lock PIN Changed.';
+
+  @override
+  String get settingsAppLock_currentPinWrong => 'That PIN Is Not Correct.';
+
+  @override
+  String get settingsAppLock_unlockTitle => 'Enter Your PIN To Unlock';
+
+  @override
+  String get settingsAppLock_wrongPin => 'Wrong PIN. Try Again.';
+
+  @override
+  String settingsAppLock_tooManyAttempts(String seconds) {
+    return 'Too Many Attempts. Try Again In $seconds Seconds.';
+  }
+
+  @override
+  String get settingsAppLock_verifyForFingerprint =>
+      'Verify Your Identity For App Lock';
+
+  @override
+  String get settingsAppLock_fingerprintEnabled =>
+      'Fingerprint Unlock Enabled.';
+
+  @override
+  String get settingsAppLock_fingerprintDisabled =>
+      'Fingerprint Unlock Disabled.';
+
+  @override
+  String get settingsAppLock_fingerprintUnavailable =>
+      'No Fingerprint Is Available On This Device.';
+
+  @override
+  String get settingsAppLock_useFingerprint => 'Unlock With Fingerprint';
 }

@@ -17,6 +17,7 @@ import '../../features/accounts_and_profile/presentation/delete_account_screen.d
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
+import '../../features/app_lock/presentation/app_lock_screen.dart';
 import '../../features/auth/data/local_auth_service.dart';
 import '../../features/auth/presentation/auth_gate.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
@@ -113,6 +114,11 @@ class AppRoutes {
   /// auth route — so pushing it from Manage Account only ever landed on the
   /// default landing page.
   static const String settingsChangePassword = '/settings/change-password';
+
+  /// App Lock as a Settings sub-page behind Manage Account: the PIN is set,
+  /// changed and paired with a fingerprint here; the lock itself is enforced
+  /// at the app root by `AppLockScope`.
+  static const String settingsAppLock = '/settings/app-lock';
 
   static const String settingsManageAssociates = '/settings/manage-associates';
 
@@ -546,6 +552,10 @@ final List<RouteBase> _shellRoutes = [
     // Manage Account once the password is set.
     builder: (context, state) =>
         const ForgotPasswordScreen(asSettingsSubPage: true),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsAppLock,
+    builder: (context, state) => const AppLockScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsManageAssociates,

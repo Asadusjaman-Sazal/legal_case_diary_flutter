@@ -15,6 +15,7 @@ import 'features/sync/presentation/recovery_required_screen.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/font_size_scope.dart';
+import 'features/app_lock/presentation/app_lock_scope.dart';
 import 'features/settings/presentation/settings_viewmodel.dart';
 import 'shared/providers/locale_provider.dart';
 
@@ -58,41 +59,48 @@ class App extends ConsumerWidget {
           // the app always renders at its designed size plus this step.
           FontSizeScope(
             step: fontSizeStep,
-            child: NotificationSetupGate(
-              router: router,
-              child: NotificationTapListener(
+            // The app lock sits just inside it — outermost of the app's own
+            // content, so the lock covers every route, dialog and gate below
+            // (including the recovery screen), and its text still follows the
+            // user's font size. It lets everything underneath keep *running*
+            // while covered: it paints over, it does not pause.
+            child: AppLockScope(
+              child: NotificationSetupGate(
                 router: router,
-                child: BackupNudgeBanner(
+                child: NotificationTapListener(
                   router: router,
-                  // The session notice: when the server rejected the stored
-                  // session while online, it offers the sign-in above whatever
-                  // screen the user is on — the local diary stays usable either
-                  // way, which is the plan's rule that JWT validity never gates
-                  // local data.
-                  child: SessionExpiryNotice(
+                  child: BackupNudgeBanner(
                     router: router,
-                    // Innermost so it wraps the screens themselves; it renders
-                    // its child untouched and refreshes the profile and firm
-                    // permissions on launch, on resume and on reconnect.
-                    child: AccountRefreshScope(
-                      // Wraps everything below the refresh: a device the firm has
-                      // removed replaces the app with the removal screen, and
-                      // nothing is erased until the user acts there. It sits
-                      // inside the refresh scope because the removal **is** a
-                      // refresh result — the profile loses its firm id — and
-                      // outside the sync trigger so no edit can be started on a
-                      // membership that no longer exists.
-                      child: MembershipRevokedScope(
-                        router: router,
-                        // Drives the push/pull engine on launch, resume,
-                        // reconnect and new local writes.
-                        child: SyncTriggerScope(
-                          // Innermost, so the extended-offline lock covers every
-                          // screen and route: while it is set the app has no
-                          // editable surface at all, and the blocking screen
-                          // returns on every launch until recovery succeeds.
-                          child: RecoveryRequiredScope(
-                            child: child ?? const SizedBox.shrink(),
+                    // The session notice: when the server rejected the stored
+                    // session while online, it offers the sign-in above whatever
+                    // screen the user is on — the local diary stays usable either
+                    // way, which is the plan's rule that JWT validity never gates
+                    // local data.
+                    child: SessionExpiryNotice(
+                      router: router,
+                      // Innermost so it wraps the screens themselves; it renders
+                      // its child untouched and refreshes the profile and firm
+                      // permissions on launch, on resume and on reconnect.
+                      child: AccountRefreshScope(
+                        // Wraps everything below the refresh: a device the firm has
+                        // removed replaces the app with the removal screen, and
+                        // nothing is erased until the user acts there. It sits
+                        // inside the refresh scope because the removal **is** a
+                        // refresh result — the profile loses its firm id — and
+                        // outside the sync trigger so no edit can be started on a
+                        // membership that no longer exists.
+                        child: MembershipRevokedScope(
+                          router: router,
+                          // Drives the push/pull engine on launch, resume,
+                          // reconnect and new local writes.
+                          child: SyncTriggerScope(
+                            // Innermost, so the extended-offline lock covers every
+                            // screen and route: while it is set the app has no
+                            // editable surface at all, and the blocking screen
+                            // returns on every launch until recovery succeeds.
+                            child: RecoveryRequiredScope(
+                              child: child ?? const SizedBox.shrink(),
+                            ),
                           ),
                         ),
                       ),

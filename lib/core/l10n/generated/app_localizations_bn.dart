@@ -4068,4 +4068,93 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsDiagnostics_copied =>
       'ডায়াগনস্টিকস কপি করা হয়েছে। আমাদের একটি বার্তায় পেস্ট করুন।';
+
+  @override
+  String get settingsAppLock_title => 'অ্যাপ লক';
+
+  @override
+  String get settingsAppLock_setup => 'অ্যাপ লক সেটআপ করুন';
+
+  @override
+  String get settingsAppLock_changePin => 'অ্যাপ লক পিন পরিবর্তন করুন';
+
+  @override
+  String get settingsAppLock_enableFingerprint => 'ফিঙ্গারপ্রিন্ট চালু করুন';
+
+  @override
+  String get settingsAppLock_disableFingerprint => 'ফিঙ্গারপ্রিন্ট বন্ধ করুন';
+
+  @override
+  String get settingsAppLock_whenToAsk => 'কখন পিন চাইতে হবে';
+
+  @override
+  String get settingsAppLock_whenAppOpens => 'অ্যাপ খোলার সময়';
+
+  @override
+  String get settingsAppLock_whenAppOpensAndReturns =>
+      'অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়';
+
+  @override
+  String get settingsAppLock_setupTitle => 'অ্যাপ লক সেটআপ';
+
+  @override
+  String settingsAppLock_choosePin(String digits) {
+    return '$digits সংখ্যার একটি পিন চয়ন করুন';
+  }
+
+  @override
+  String get settingsAppLock_confirmPin => 'আপনার পিন নিশ্চিত করুন';
+
+  @override
+  String get settingsAppLock_pinMismatch =>
+      'পিন দুটি মিলছে না। আবার শুরু করুন।';
+
+  @override
+  String get settingsAppLock_setupDone => 'অ্যাপ লক চালু হয়েছে।';
+
+  @override
+  String get settingsAppLock_setupFailed =>
+      'পিন সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsAppLock_enterCurrentPin => 'আপনার বর্তমান পিন দিন';
+
+  @override
+  String get settingsAppLock_newPin => 'নতুন একটি পিন দিন';
+
+  @override
+  String get settingsAppLock_pinChanged => 'অ্যাপ লক পিন পরিবর্তন হয়েছে।';
+
+  @override
+  String get settingsAppLock_currentPinWrong => 'পিনটি সঠিক নয়।';
+
+  @override
+  String get settingsAppLock_unlockTitle => 'আনলক করতে আপনার পিন দিন';
+
+  @override
+  String get settingsAppLock_wrongPin => 'পিন ভুল হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String settingsAppLock_tooManyAttempts(String seconds) {
+    return 'অনেকবার চেষ্টা হয়েছে। $seconds সেকেন্ড পরে আবার চেষ্টা করুন।';
+  }
+
+  @override
+  String get settingsAppLock_verifyForFingerprint =>
+      'অ্যাপ লকের জন্য নিজের পরিচয় নিশ্চিত করুন';
+
+  @override
+  String get settingsAppLock_fingerprintEnabled =>
+      'ফিঙ্গারপ্রিন্ট আনলক চালু হয়েছে।';
+
+  @override
+  String get settingsAppLock_fingerprintDisabled =>
+      'ফিঙ্গারপ্রিন্ট আনলক বন্ধ হয়েছে।';
+
+  @override
+  String get settingsAppLock_fingerprintUnavailable =>
+      'এই ডিভাইসে কোনো ফিঙ্গারপ্রিন্ট নেই।';
+
+  @override
+  String get settingsAppLock_useFingerprint => 'ফিঙ্গারপ্রিন্ট দিয়ে আনলক করুন';
 }

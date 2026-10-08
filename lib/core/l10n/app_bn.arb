@@ -1717,5 +1717,48 @@
   "settingsDiagnostics_clear": "লগ মুছুন",
   "settingsDiagnostics_cleared": "ত্রুটি লগ মুছে ফেলা হয়েছে।",
   "settingsDiagnostics_copy": "ডায়াগনস্টিকস কপি করুন",
-  "settingsDiagnostics_copied": "ডায়াগনস্টিকস কপি করা হয়েছে। আমাদের একটি বার্তায় পেস্ট করুন।"
+  "settingsDiagnostics_copied": "ডায়াগনস্টিকস কপি করা হয়েছে। আমাদের একটি বার্তায় পেস্ট করুন।",
+  "@@_section_settingsAppLock": "SETTINGS - APP LOCK  |  lib/features/app_lock/presentation/app_lock_screen.dart",
+  "settingsAppLock_title": "অ্যাপ লক",
+  "settingsAppLock_setup": "অ্যাপ লক সেটআপ করুন",
+  "settingsAppLock_changePin": "অ্যাপ লক পিন পরিবর্তন করুন",
+  "settingsAppLock_enableFingerprint": "ফিঙ্গারপ্রিন্ট চালু করুন",
+  "settingsAppLock_disableFingerprint": "ফিঙ্গারপ্রিন্ট বন্ধ করুন",
+  "settingsAppLock_whenToAsk": "কখন পিন চাইতে হবে",
+  "settingsAppLock_whenAppOpens": "অ্যাপ খোলার সময়",
+  "settingsAppLock_whenAppOpensAndReturns": "অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়",
+  "settingsAppLock_setupTitle": "অ্যাপ লক সেটআপ",
+  "settingsAppLock_choosePin": "{digits} সংখ্যার একটি পিন চয়ন করুন",
+  "@settingsAppLock_choosePin": {
+      "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",
+      "placeholders": {
+          "digits": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAppLock_confirmPin": "আপনার পিন নিশ্চিত করুন",
+  "settingsAppLock_pinMismatch": "পিন দুটি মিলছে না। আবার শুরু করুন।",
+  "settingsAppLock_setupDone": "অ্যাপ লক চালু হয়েছে।",
+  "settingsAppLock_setupFailed": "পিন সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "settingsAppLock_enterCurrentPin": "আপনার বর্তমান পিন দিন",
+  "settingsAppLock_newPin": "নতুন একটি পিন দিন",
+  "settingsAppLock_pinChanged": "অ্যাপ লক পিন পরিবর্তন হয়েছে।",
+  "settingsAppLock_currentPinWrong": "পিনটি সঠিক নয়।",
+  "settingsAppLock_unlockTitle": "আনলক করতে আপনার পিন দিন",
+  "settingsAppLock_wrongPin": "পিন ভুল হয়েছে। আবার চেষ্টা করুন।",
+  "settingsAppLock_tooManyAttempts": "অনেকবার চেষ্টা হয়েছে। {seconds} সেকেন্ড পরে আবার চেষ্টা করুন।",
+  "@settingsAppLock_tooManyAttempts": {
+      "description": "Shown while a wrong-pin lockout is still running; seconds is pre-formatted in the active language.",
+      "placeholders": {
+          "seconds": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsAppLock_verifyForFingerprint": "অ্যাপ লকের জন্য নিজের পরিচয় নিশ্চিত করুন",
+  "settingsAppLock_fingerprintEnabled": "ফিঙ্গারপ্রিন্ট আনলক চালু হয়েছে।",
+  "settingsAppLock_fingerprintDisabled": "ফিঙ্গারপ্রিন্ট আনলক বন্ধ হয়েছে।",
+  "settingsAppLock_fingerprintUnavailable": "এই ডিভাইসে কোনো ফিঙ্গারপ্রিন্ট নেই।",
+  "settingsAppLock_useFingerprint": "ফিঙ্গারপ্রিন্ট দিয়ে আনলক করুন"
 }

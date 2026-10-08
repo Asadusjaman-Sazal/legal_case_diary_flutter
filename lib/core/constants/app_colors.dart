@@ -136,6 +136,11 @@ class AppColors {
   /// Active / disposed / success status.
   static const Color success = Color(0xFF059669);
 
+  /// Success container — the pale twin of [success], pairing the way
+  /// [errorContainer] pairs with [error]. Used as a field's own background when
+  /// what it holds is right (the Confirm Password box once the two match).
+  static const Color successContainer = Color(0xFFD1FAE5);
+
   /// Court notice red (used in mockup palette).
   static const Color courtNotice = Color(0xFFDC2626);
 

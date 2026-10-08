@@ -78,6 +78,27 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
   final _confirmPassword = TextEditingController();
   final _inviteCode = TextEditingController();
 
+  /// Both password boxes, listened to together: the confirmation field's
+  /// background answers every keystroke in either one, and listening here means
+  /// only that field rebuilds while the form around it stays still.
+  late final Listenable _passwordFields = Listenable.merge([
+    _password,
+    _confirmPassword,
+  ]);
+
+  /// The confirmation field's background.
+  ///
+  /// The theme's own pale fill while it is still empty — an untouched form must
+  /// not look like a mistake — then light red for as long as what was typed
+  /// differs from the password, and light green the moment the two agree (and
+  /// back to red if the password box is edited afterwards).
+  Color? get _confirmPasswordFill {
+    if (_confirmPassword.text.isEmpty) return null;
+    return _confirmPassword.text == _password.text
+        ? AppColors.successContainer
+        : AppColors.errorContainer;
+  }
+
   SignupPath _path = SignupPath.individual;
   bool _hidePassword = true;
   bool _acceptedTerms = false;
@@ -572,19 +593,23 @@ Object? _error;
                           // The confirmation field carries no visibility toggle of
                           // its own: the password field above already reveals
                           // both, and two toggles for one state would be noise.
-                          AuthTextField(
-                            controller: _confirmPassword,
-                            label: l.auth_confirmPasswordLabel,
-                            hint: l.auth_passwordHint,
-                            obscureText: _hidePassword,
-                            textInputAction: _path == SignupPath.joinFirm
-                                ? TextInputAction.next
-                                : TextInputAction.done,
-                            autofillHints: const [AutofillHints.newPassword],
-                            validator: (value) => authConfirmPasswordError(
-                              l,
-                              _password.text,
-                              value,
+                          ListenableBuilder(
+                            listenable: _passwordFields,
+                            builder: (context, _) => AuthTextField(
+                              controller: _confirmPassword,
+                              label: l.auth_confirmPasswordLabel,
+                              hint: l.auth_passwordHint,
+                              obscureText: _hidePassword,
+                              textInputAction: _path == SignupPath.joinFirm
+                                  ? TextInputAction.next
+                                  : TextInputAction.done,
+                              autofillHints: const [AutofillHints.newPassword],
+                              fillColor: _confirmPasswordFill,
+                              validator: (value) => authConfirmPasswordError(
+                                l,
+                                _password.text,
+                                value,
+                              ),
                             ),
                           ),
                           if (_path == SignupPath.joinFirm) ...[

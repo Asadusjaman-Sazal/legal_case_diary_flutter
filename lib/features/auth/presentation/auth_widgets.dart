@@ -221,6 +221,7 @@ class AuthTextField extends StatelessWidget {
     this.trailing,
     this.labelTrailing,
     this.textCapitalization = TextCapitalization.none,
+    this.fillColor,
     super.key,
   });
 
@@ -263,6 +264,11 @@ class AuthTextField extends StatelessWidget {
   /// Text capitalization.
   final TextCapitalization textCapitalization;
 
+  /// The field's own background, for a field whose contents are right or wrong
+  /// on the spot (the Confirm Password box). Null — the default — keeps the
+  /// theme's pale field fill, so nothing else on any auth screen changes.
+  final Color? fillColor;
+
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,6 +302,11 @@ class AuthTextField extends StatelessWidget {
           hintText: hint,
           suffixIcon: trailing,
           suffixIconConstraints: const BoxConstraints(minWidth: 40),
+          // Left unset (null) when no tint is asked for, so the theme's own fill
+          // still decides — passing `false` here would switch the fill off for
+          // every other field that uses this widget.
+          filled: fillColor == null ? null : true,
+          fillColor: fillColor,
         ),
       ),
       if (helper != null) ...[

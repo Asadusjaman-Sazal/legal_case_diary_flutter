@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.415 - Open Mail now asks Android for the email app itself (MAIN + APP_EMAIL), so the button opens the mailbox instead of an empty draft, with the mailto: chooser kept as the fallback.
+Version: 0.0.416 - The Sign Up screen's Confirm Password box is now tinted as it is typed: light red while it differs from the Password box, light green once they match, and the theme's neutral fill while empty.
 --------------------------------------
 
 ## Version History Log:
@@ -429,3 +429,4 @@ Version: 0.0.412 - Delete Account opens a typed confirmation screen: the phrase 
 Version: 0.0.413 - The Check Your Email screen can open the mail app, resend the mail, correct a mistyped address through a new password-checked server cleanup, and turns green once the address is confirmed - and the waiting screen survives a restart.
 Version: 0.0.414 - The Email Confirmed card's button is now Use The App and really signs the user in with the credentials the form still holds (redeeming a pending firm invite too), with the card's sentence changed to match.
 Version: 0.0.415 - Open Mail now asks Android for the email app itself (MAIN + APP_EMAIL), so the button opens the mailbox instead of an empty draft, with the mailto: chooser kept as the fallback.
+Version: 0.0.416 - The Sign Up screen's Confirm Password box is now tinted as it is typed: light red while it differs from the Password box, light green once they match, and the theme's neutral fill while empty.

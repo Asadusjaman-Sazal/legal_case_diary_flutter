@@ -8,10 +8,14 @@
 /// the Addendum cares about most: **a failed code never loses the code**.
 library;
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
 import 'package:legal_case_diary/core/services/contact_launcher.dart';
@@ -98,6 +102,47 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
   }
+
+  /// The colour actually painted behind [field], sampled at its centre.
+  ///
+  /// The decoration's `fillColor` is what the painter is *told* to use; this
+  /// reads what came out of it, so a theme default or an enclosing Material that
+  /// painted over the field would fail here where the property check cannot.
+  Future<Color> paintedFillBehind(WidgetTester tester, Finder field) async {
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.ancestor(of: field, matching: find.byType(RepaintBoundary)).first,
+    );
+    final centre = boundary.globalToLocal(tester.getCenter(field));
+    late final Color colour;
+    await tester.runAsync(() async {
+      final image = await boundary.toImage();
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes = data!;
+      final offset = (centre.dy.round() * image.width + centre.dx.round()) * 4;
+      colour = Color.fromARGB(
+        bytes.getUint8(offset + 3),
+        bytes.getUint8(offset),
+        bytes.getUint8(offset + 1),
+        bytes.getUint8(offset + 2),
+      );
+      image.dispose();
+    });
+    return colour;
+  }
+
+  /// The Confirm Password field's background, read off the [TextField] the
+  /// [TextFormField] builds (`TextFormField` itself keeps no public decoration),
+  /// which is the decoration with the theme's defaults already merged — so the
+  /// neutral state reads as the app's pale field fill, exactly as it is drawn.
+  Color? confirmFill(WidgetTester tester) => tester
+      .widget<TextField>(
+        find.descendant(
+          of: find.byType(TextFormField).at(4),
+          matching: find.byType(TextField),
+        ),
+      )
+      .decoration
+      ?.fillColor;
 
   /// The text a form field holds, by position in the form.
   String fieldText(WidgetTester tester, int index) =>
@@ -223,6 +268,63 @@ void main() {
 
     expect(find.text(l.auth_validationPasswordConfirmRequired), findsOneWidget);
     expect(harness.auth.signUpEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Confirm Password box tints as it is typed into', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+
+    // Empty: the theme's own pale field fill, so an untouched form never looks
+    // like a mistake. (`TextFormField` merges the theme's defaults in, so the
+    // neutral state reads as that fill rather than as null.)
+    expect(confirmFill(tester), AppColors.surfaceVariant);
+
+    // One character in, differing from the (still empty) password: light red,
+    // which is the answer the user asked for on the spot.
+    await tester.enterText(find.byType(TextFormField).at(4), 's');
+    await tester.pump();
+    expect(confirmFill(tester), AppColors.errorContainer);
+
+    // Matching turns it green.
+    await tester.enterText(find.byType(TextFormField).at(3), 'secret123');
+    await tester.enterText(find.byType(TextFormField).at(4), 'secret123');
+    await tester.pump();
+    expect(confirmFill(tester), AppColors.successContainer);
+
+    // Editing the password afterwards takes it back to red, because the tint is
+    // the pair's state and not a one-time stamp.
+    await tester.enterText(find.byType(TextFormField).at(3), 'secret124');
+    await tester.pump();
+    expect(confirmFill(tester), AppColors.errorContainer);
+
+    // Cleared, it goes back to the theme's neutral fill rather than staying red.
+    await tester.enterText(find.byType(TextFormField).at(4), '');
+    await tester.pump();
+    expect(confirmFill(tester), AppColors.surfaceVariant);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Confirm Password box is really painted that colour', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await tester.enterText(find.byType(TextFormField).at(4), 's');
+    await tester.pump();
+    final field = find.byType(TextFormField).at(4);
+
+    // The centre of the field is fill, not glyph: a single character sits at the
+    // left edge. Light red on the spot, green once the two agree — read off the
+    // frame rather than off the widget, so a theme that painted over the field
+    // could not pass this.
+    expect(await paintedFillBehind(tester, field), AppColors.errorContainer);
+
+    await tester.enterText(find.byType(TextFormField).at(3), 's');
+    await tester.pump();
+    expect(await paintedFillBehind(tester, field), AppColors.successContainer);
 
     await unmountApp(tester);
   });

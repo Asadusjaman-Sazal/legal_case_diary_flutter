@@ -438,7 +438,9 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Open Mail hands the user to the device mail app', (tester) async {
+  testWidgets('Open Mail asks for the mail app, not a compose window', (
+    tester,
+  ) async {
     final launcher = _RecordingLauncher();
     await pumpSignup(
       tester,
@@ -448,9 +450,11 @@ void main() {
 
     await tapVisible(tester, find.text(l.auth_openMail));
 
-    // The bare `mailto:` with no recipient: that is what makes Android offer
-    // every mail app rather than opening one compose window.
-    expect(launcher.opened.map((uri) => uri.toString()), ['mailto:']);
+    // The seam is asked for the mail app itself, and no URI at all is opened:
+    // a `mailto:` is a *compose* request (RFC 6068), so a screen that opened one
+    // drops the user into an empty draft instead of their mailbox.
+    expect(launcher.mailAppCalls, 1);
+    expect(launcher.opened, isEmpty);
 
     await unmountApp(tester);
   });
@@ -701,17 +705,27 @@ void main() {
   });
 }
 
-/// A [ContactLauncher] that records the URI of every tap and opens nothing.
+/// A [ContactLauncher] that records what every tap asked for and opens nothing.
 class _RecordingLauncher implements ContactLauncher {
   /// Every URI the screen asked to open, in order.
   final List<Uri> opened = <Uri>[];
 
-  /// What [open] answers; false stands in for a device with no mail app.
+  /// How many times the screen asked for the mail app itself.
+  int mailAppCalls = 0;
+
+  /// What [open] and [openMailApp] answer; false stands in for a device with no
+  /// mail app.
   bool answers = true;
 
   @override
   Future<bool> open(Uri uri) async {
     opened.add(uri);
+    return answers;
+  }
+
+  @override
+  Future<bool> openMailApp() async {
+    mailAppCalls++;
     return answers;
   }
 }

@@ -36,6 +36,13 @@ class _RecordingLauncher implements ContactLauncher {
     opened.add(uri);
     return result;
   }
+
+  @override
+  Future<bool> openMailApp() async {
+    // The case contact actions never ask for the mail app: every channel here is
+    // an addressed URI handed to [open].
+    return result;
+  }
 }
 
 void main() {

@@ -43,7 +43,6 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/contact_providers.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/services/contact_launcher.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../data/auth_repository.dart';
@@ -296,9 +295,14 @@ Object? _error;
     }
   }
 
-  /// Opens the device's mail app, letting the user choose between them.
+  /// Opens the device's mail app — the mailbox the confirmation went to, not an
+  /// empty draft.
+  ///
+  /// The chooser is the OS's either way: the email-app intent raises its own when
+  /// several apps qualify, and the launcher's `mailto:` fallback raises the
+  /// ordinary one when nothing does.
   Future<void> _openMail() async {
-    final opened = await ref.read(contactLauncherProvider).open(mailAppUri());
+    final opened = await ref.read(contactLauncherProvider).openMailApp();
     if (!mounted || opened) return;
     _say(AppLocalizations.of(context).auth_unableToOpenMail);
   }

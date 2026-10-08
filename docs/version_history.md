@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.417 - Open Mail now opens the mail app in its own task (FLAG_ACTIVITY_NEW_TASK), so Back returns to Check Your Email instead of closing the app with the mail screen still inside it.
+Version: 0.0.418 - The Font Size stepper's +1 is now the app's shipped default: every screen renders one pixel larger at Default, and the bottom navigation bar alone keeps its old size.
 --------------------------------------
 
 ## Version History Log:
@@ -431,3 +431,4 @@ Version: 0.0.414 - The Email Confirmed card's button is now Use The App and real
 Version: 0.0.415 - Open Mail now asks Android for the email app itself (MAIN + APP_EMAIL), so the button opens the mailbox instead of an empty draft, with the mailto: chooser kept as the fallback.
 Version: 0.0.416 - The Sign Up screen's Confirm Password box is now tinted as it is typed: light red while it differs from the Password box, light green once they match, and the theme's neutral fill while empty.
 Version: 0.0.417 - Open Mail now opens the mail app in its own task (FLAG_ACTIVITY_NEW_TASK), so Back returns to Check Your Email instead of closing the app with the mail screen still inside it.
+Version: 0.0.418 - The Font Size stepper's +1 is now the app's shipped default: every screen renders one pixel larger at Default, and the bottom navigation bar alone keeps its old size.

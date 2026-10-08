@@ -10,6 +10,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
+import '../../core/theme/font_size_scope.dart';
 
 /// Descriptor for a single bottom nav tab.
 ///
@@ -143,6 +144,12 @@ String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 ///   a bar built before that answer arrives shows only ordinary screens, and a
 ///   tab key stored during an earlier admin session is dropped rather than left
 ///   as an entry that leads nowhere (see [BottomNavTabDef.adminOnly]).
+///
+/// The bar opts out of [defaultFontSizeStep], the size the rest of the app
+/// ships at (user request): its labels keep their designed 12 px while every
+/// other screen grows by that pixel. The user's own step still reaches it — the
+/// pixel is subtracted from whatever scale is in effect, not from zero, so at
+/// `Default` the bar is exactly as it has always rendered.
 class BottomNavBar extends StatelessWidget {
   final String currentRoute;
   final List<String> tabKeys;
@@ -186,14 +193,26 @@ class BottomNavBar extends StatelessWidget {
             ],
           );
 
-    return Container(
-      height: 64,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.outlineVariant)),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+    // The scale the bar paints under: the app's own, one pixel back down. With
+    // no MediaQuery above there is no [FontSizeScope] either, so there is no
+    // shipped default to take back out and the base scaler is left alone.
+    final media = MediaQuery.maybeOf(context);
+
+    return MediaQuery(
+      data: (media ?? const MediaQueryData()).copyWith(
+        textScaler: media == null
+            ? TextScaler.noScaling
+            : SteppedTextScaler(media.textScaler, -defaultFontSizeStep),
       ),
-      child: content,
+      child: Container(
+        height: 64,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          border: Border(top: BorderSide(color: AppColors.outlineVariant)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        ),
+        child: content,
+      ),
     );
   }
 

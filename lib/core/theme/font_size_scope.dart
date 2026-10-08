@@ -4,7 +4,8 @@
 /// app paints: the phone's own font-size setting is **deliberately dropped**, so
 /// a device set to an extreme scale can no longer clip a label, push a button
 /// off its row or break a card. The only thing that may change the app's text is
-/// the user's own Font Size step, chosen in Settings.
+/// the user's own Font Size step, chosen in Settings — drawn on top of
+/// [defaultFontSizeStep], the size the app itself ships at.
 ///
 /// [TextScaler] is Flutter's own seam for this: it travels down through
 /// `MediaQuery` to every `Text`, `TextField` and `TextPainter`, so one wrap at
@@ -19,6 +20,19 @@ library;
 import 'package:flutter/widgets.dart';
 
 import '../constants/app_typography.dart';
+
+/// The size the app ships at, as a step over its design sizes.
+///
+/// One logical pixel is added to every size before the user's own step is
+/// applied, so what the stepper calls `Default` paints one pixel larger than it
+/// used to — that larger size *is* the default now. The stepper itself is
+/// untouched: it still moves one pixel at a time across the same range, it
+/// simply starts from here.
+///
+/// One surface opts out, because it was laid out for the design size rather
+/// than for this: the bottom bar takes the same pixel back out
+/// (`BottomNavBar`), so it renders exactly as it did before the default moved.
+const int defaultFontSizeStep = 1;
 
 /// A [TextScaler] that adds a fixed number of logical pixels to every size.
 ///
@@ -74,15 +88,17 @@ class SteppedTextScaler extends TextScaler {
 /// Sits inside `MaterialApp.builder`, so it covers every route, dialog, sheet
 /// and overlay. It always installs its own scaler — the inherited one is
 /// **replaced**, never wrapped, so the phone's font-size setting cannot reach a
-/// single widget below — and adds [step] on top of that fixed base.
+/// single widget below — and adds [defaultFontSizeStep] plus [step] on top of
+/// that fixed base.
 class FontSizeScope extends StatelessWidget {
-  /// Creates the scope for [step] logical pixels, wrapping [child].
+  /// Creates the scope for [defaultFontSizeStep] + [step] logical pixels,
+  /// wrapping [child].
   const FontSizeScope({required this.step, required this.child, super.key});
 
-  /// The saved step; 0 is the shipped default.
+  /// The saved step; 0 selects [defaultFontSizeStep], the shipped default.
   final int step;
 
-  /// The subtree whose text follows [step].
+  /// The subtree whose text follows [defaultFontSizeStep] + [step].
   final Widget child;
 
   @override
@@ -91,14 +107,18 @@ class FontSizeScope extends StatelessWidget {
     // (a bare widget test, or this widget reused outside the app shell).
     final media =
         MediaQuery.maybeOf(context) ?? MediaQueryData.fromView(View.of(context));
+    // The shipped default and the user's own step are one additive pair, so
+    // they are summed before the scaler is built rather than stacked as two
+    // scalers.
+    final effective = defaultFontSizeStep + step;
     return MediaQuery(
       // The base is [TextScaler.noScaling], not `media.textScaler`: the device's
       // accessibility scale is dropped on purpose, so every screen renders at
       // its designed size and only the in-app step can move it.
       data: media.copyWith(
-        textScaler: step == 0
+        textScaler: effective == 0
             ? TextScaler.noScaling
-            : SteppedTextScaler(TextScaler.noScaling, step),
+            : SteppedTextScaler(TextScaler.noScaling, effective),
       ),
       child: child,
     );

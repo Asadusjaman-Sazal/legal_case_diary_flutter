@@ -1,9 +1,10 @@
 /// Tests for the app-wide font size step (Settings > View Settings > Font).
 ///
-/// Covers the additive scaler itself, the scope that applies it, and the one
-/// piece of wiring no widget test can reach: the app root hands the saved step
-/// to [FontSizeScope], so the setting is inside the app shell rather than
-/// buried in a screen.
+/// Covers the additive scaler itself, the scope that applies it, the shipped
+/// default that sits under the user's own step, the bottom bar's opt-out from
+/// that default, and the one piece of wiring no widget test can reach: the app
+/// root hands the saved step to [FontSizeScope], so the setting is inside the
+/// app shell rather than buried in a screen.
 library;
 
 import 'dart:io';
@@ -12,8 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_typography.dart';
+import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/theme/font_size_scope.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
 
 /// The text every layout check measures.
 const String _sample = 'Hearing on 12 August';
@@ -73,14 +77,31 @@ void main() {
       ),
     );
 
-    testWidgets('at the default step the app size is exactly the design size', (
+    testWidgets('at the default step the app paints the shipped size', (
       tester,
     ) async {
+      // The default moved one pixel above the design size (defaultFontSizeStep),
+      // so `Default` in the stepper is what `+1` used to render.
       await tester.pumpWidget(app(step: 0));
 
       final scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
-      expect(scaler, TextScaler.noScaling);
-      expect(scaler.scale(16), 16);
+      expect(scaler.scale(16), 16 + defaultFontSizeStep);
+    });
+
+    testWidgets('the default and the user step are one additive pair', (
+      tester,
+    ) async {
+      Future<void> scaleOf(int step) async {
+        await tester.pumpWidget(app(step: step));
+        final scaler = MediaQuery.textScalerOf(
+          tester.element(find.byType(Text)),
+        );
+        expect(scaler.scale(16), 16 + defaultFontSizeStep + step);
+      }
+
+      await scaleOf(-2);
+      await scaleOf(0);
+      await scaleOf(6);
     });
 
     testWidgets('a step scales the text that is actually painted', (
@@ -101,8 +122,8 @@ void main() {
 
     testWidgets('the device\'s own scale is dropped', (tester) async {
       // The phone asks for 2x; the app ignores it entirely. A zero step gives
-      // the design size, and a step gives the design size plus the step — never
-      // the doubled platform value.
+      // the shipped default, and a step adds to that — never the doubled
+      // platform value.
       Future<void> pump(int step) => tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -117,11 +138,60 @@ void main() {
 
       await pump(0);
       var scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
-      expect(scaler.scale(16), 16);
+      expect(scaler.scale(16), 16 + defaultFontSizeStep);
 
       await pump(2);
       scaler = MediaQuery.textScalerOf(tester.element(find.byType(Text)));
-      expect(scaler.scale(16), 18);
+      expect(scaler.scale(16), 16 + defaultFontSizeStep + 2);
+    });
+  });
+
+  group('the bottom bar opts out of the default', () {
+    // The bar sits under the same scope as everything else; what is measured is
+    // the scale its labels are painted with, read off the widget itself.
+    Widget app({required int step}) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: FontSizeScope(
+        step: step,
+        child: Scaffold(
+          bottomNavigationBar: BottomNavBar(
+            currentRoute: AppRoutes.notes,
+            tabKeys: const <String>['overdue', 'active'],
+            onTabSelected: (_) {},
+          ),
+          body: const Text(_sample, style: TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
+
+    double scaleAt(WidgetTester tester, String text) => MediaQuery.textScalerOf(
+      tester.element(find.text(text)),
+    ).scale(12);
+
+    testWidgets('at the default the bar is where it always was', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(step: 0));
+
+      // The screen grew by the shipped default…
+      expect(
+        scaleAt(tester, _sample),
+        12 + defaultFontSizeStep,
+        reason: 'every other surface follows the new default',
+      );
+      // …and the bar did not: its pixel was taken straight back out.
+      expect(scaleAt(tester, 'Overdue Dates'), 12);
+    });
+
+    testWidgets('the user step still reaches the bar', (tester) async {
+      await tester.pumpWidget(app(step: 3));
+
+      expect(scaleAt(tester, _sample), 12 + defaultFontSizeStep + 3);
+      // One pixel below the rest, at every step — not one pixel below the
+      // design size wherever the default happens to sit.
+      expect(scaleAt(tester, 'Overdue Dates'), 12 + 3);
     });
   });
 

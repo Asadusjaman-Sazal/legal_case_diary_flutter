@@ -39,6 +39,13 @@ class _RecordingLauncher implements ContactLauncher {
     opened.add(uri);
     return result;
   }
+
+  @override
+  Future<bool> openMailApp() async {
+    // The Support screen never asks for the mail app: its mail channel is an
+    // addressed `mailto:` URI handed to [open].
+    return result;
+  }
 }
 
 /// Reports the device the test chooses, instead of a platform channel.

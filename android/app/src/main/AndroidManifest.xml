@@ -96,5 +96,12 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Android 11+ package visibility: without this entry the "the email
+             app" intent (MAIN + APP_EMAIL) that Check Your Email's Open Mail
+             sends is neither resolvable nor launchable. See contact_launcher.dart. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.APP_EMAIL"/>
+        </intent>
     </queries>
 </manifest>

@@ -9,6 +9,7 @@
 /// to the `mailto:` chooser rather than reporting a success it did not have.
 library;
 
+import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,6 +60,19 @@ void main() {
     // No recipient and no subject: nothing here asks anyone to write anything.
     expect(androidMailAppIntent.data, isNull);
     expect(androidMailAppIntent.arguments, isNull);
+    // And in the mail app's **own task**. The plugin starts the intent from our
+    // live activity with no flags, so without this the mail screen was pushed on
+    // top of ours: Back from it closed the app, and reopening the app brought the
+    // mail screen back inside it. This flag is what makes Back return here.
+    expect(androidMailAppIntent.flags, <int>[Flag.FLAG_ACTIVITY_NEW_TASK]);
+    // And that is the integer the platform receives: the plugin ORs the list into
+    // one int on the channel, and its Java side calls `intent.addFlags()` with it
+    // before `activity.startActivity()`. Pinning the converted value, not only the
+    // list, is what ties this test to the behaviour the device actually runs.
+    expect(
+      androidMailAppIntent.convertFlags(androidMailAppIntent.flags!),
+      Flag.FLAG_ACTIVITY_NEW_TASK,
+    );
   });
 
   test('a platform that cannot answer falls back to the mailto: chooser', () async {

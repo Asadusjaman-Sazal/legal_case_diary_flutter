@@ -13,6 +13,7 @@
 library;
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens an external app for [uri], or the device's mail app.
@@ -67,12 +68,23 @@ class UrlContactLauncher implements ContactLauncher {
 /// so this asks for *the email app*: it opens on its main screen (the inbox),
 /// and where several apps qualify Android raises its own chooser of app entries —
 /// the "pick your mail app" the button wanted, without the draft. A constant,
-/// and public, so a test can state the action and category it sends without a
-/// phone. The manifest's `<queries>` declares this intent, which is what makes it
-/// visible and launchable on Android 11 and later.
+/// and public, so a test can state the action, category and flag it sends without
+/// a phone. The manifest's `<queries>` declares this intent, which is what makes
+/// it visible and launchable on Android 11 and later.
+///
+/// **`FLAG_ACTIVITY_NEW_TASK` is not decoration — its absence was a real defect.**
+/// `android_intent_plus` starts the intent from *our* live activity with no flags
+/// at all, so the mail app's activity was pushed onto **our** task: Back from the
+/// mail app then closed the app and reopening it from the launcher brought the
+/// mail screen back inside it, because the task the system resumed was ours with
+/// the mail app on top. `NEW_TASK` opens the mail app in its own task, which is
+/// what the launcher does when the user taps its icon and what `url_launcher`'s
+/// external-application mode did for the `mailto:` route before this — so Back
+/// returns to this app and this app's own task stays ours.
 const AndroidIntent androidMailAppIntent = AndroidIntent(
   action: 'android.intent.action.MAIN',
   category: 'android.intent.category.APP_EMAIL',
+  flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
 );
 
 /// Normalizes a stored number for launching.

@@ -490,13 +490,59 @@ void main() {
       find.text(l.auth_emailConfirmedMessage('jane@example.com')),
       findsOneWidget,
     );
-    // One action only, and none of the waiting screen's three, is offered.
-    expect(find.text(l.auth_backToLogin), findsOneWidget);
+    // One action only, and none of the waiting screen's three, is offered. It
+    // is the label the user asked for: pressing it lands them in the app, so it
+    // does not offer Login.
+    expect(find.text(l.auth_useTheApp), findsOneWidget);
+    expect(find.text(l.auth_backToLogin), findsNothing);
     expect(find.text(l.auth_openMail), findsNothing);
     expect(find.text(l.auth_resendEmail), findsNothing);
     expect(find.text(l.auth_changeEmail), findsNothing);
     // The wait is spent, so nothing reopens this screen.
     expect(pendingConfirmation(harness.prefs), isNull);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Use The App signs in and leaves for the diary', (tester) async {
+    harness.auth.emailConfirmed = true;
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+    await leaveAndReturn(tester);
+    expect(find.text(l.auth_useTheApp), findsOneWidget);
+
+    await tapVisible(tester, find.text(l.auth_useTheApp));
+
+    // A real sign-in with the credentials the form was still holding — not a
+    // navigation to Login — which is what makes the label honest.
+    expect(harness.auth.signInEmails, ['jane@example.com']);
+    expect(harness.auth.signInPasswords, ['secret123']);
+    expect(harness.auth.identity?.email, 'jane@example.com');
+    // Parity with Login: the join-a-firm sign-up this card came from left its
+    // code pending, and the first sign-in with a session redeems it.
+    expect(harness.firm.redeemedCodes, ['abcde12345']);
+    expect(pendingInviteCode(harness.prefs), isNull);
+    expect(pendingConfirmation(harness.prefs), isNull);
+    expect(find.text(authLandingMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a refused sign-in keeps the card and says so', (tester) async {
+    harness.auth.emailConfirmed = true;
+    harness.auth.signInError = const AuthFailure(AuthFailureKind.network);
+    await pumpSignup(tester);
+    await reachCheckEmailState(tester);
+    await leaveAndReturn(tester);
+
+    await tapVisible(tester, find.text(l.auth_useTheApp));
+
+    // Nothing was adopted, the card is still the screen, and the failure was
+    // said rather than left silent behind a button that looks like it did
+    // nothing.
+    expect(harness.auth.identity, isNull);
+    expect(find.text(l.auth_emailConfirmedTitle), findsOneWidget);
+    expect(find.byType(SnackBar), findsOneWidget);
 
     await unmountApp(tester);
   });

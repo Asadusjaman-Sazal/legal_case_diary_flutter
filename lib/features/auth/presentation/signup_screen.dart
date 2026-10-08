@@ -27,7 +27,8 @@
 ///   with everything but the address still filled in), and **Back To Login** to
 ///   end the wait;
 /// * coming back to the app asks the server whether the address is confirmed
-///   now, and a "yes" turns the card green with a single **Back To Login**;
+///   now, and a "yes" turns the card green with a single **Use The App**, which
+///   signs the user in and leaves them in the app;
 /// * the waiting state is remembered on the device, so a restart in the middle
 ///   of the trip to the mailbox returns here instead of to an empty form.
 library;
@@ -107,6 +108,9 @@ Object? _error;
 
   /// Whether the mistyped sign-up is being removed.
   bool _discarding = false;
+
+  /// Whether the confirmed card's Use The App is signing in.
+  bool _usingApp = false;
 
   @override
   void initState() {
@@ -388,6 +392,53 @@ Object? _error;
     context.go(AppRoutes.login);
   }
 
+  /// Finishes the sign-up: signs in with the credentials the form is still
+  /// holding, so the green card's button really does put the user in the app.
+  ///
+  /// The automatic check deliberately stops short of this — it only reads the
+  /// server's answer and throws the session away, so nothing adopts the account
+  /// behind the user's back. This tap is what spends the credentials, and from
+  /// here it is an ordinary sign-in: the same call Login makes, with the same
+  /// adoption, and the pending confirmation record cleared with it.
+  Future<void> _useTheApp() async {
+    final email = _confirmationEmail;
+    if (email == null || _usingApp) return;
+    final l = AppLocalizations.of(context);
+    // A card restored after a restart holds no password — nothing is ever
+    // stored — so there is nothing to sign in with and Login is the way in.
+    if (_password.text.isEmpty) {
+      await _backToLogin();
+      return;
+    }
+
+    setState(() => _usingApp = true);
+    try {
+      final viewModel = ref.read(authViewModelProvider.notifier);
+      await viewModel.signIn(email: email, password: _password.text);
+      if (!mounted) return;
+      // Parity with Login: a join-a-firm sign-up leaves its code pending, and
+      // the first sign-in that has a session redeems it. Without this the green
+      // card would quietly skip the firm the user asked to join.
+      if (ref.read(localAuthServiceProvider).pendingInviteCode != null) {
+        final redemption = await viewModel.redeemPendingInvite();
+        if (!mounted) return;
+        _showJoinResult(l, redemption);
+        return;
+      }
+      _leaveForAuthenticatedApp();
+    } on AuthFailure catch (failure) {
+      // The card is the whole screen, so a refusal is said rather than bannered
+      // — [failureText] words either domain, exactly as the form's banner does.
+      final text = failureText(l, failure);
+      if (text != null) _say(text);
+    } on FirmFailure catch (failure) {
+      final text = failureText(l, failure);
+      if (text != null) _say(text);
+    } finally {
+      if (mounted) setState(() => _usingApp = false);
+    }
+  }
+
   /// Shows [message] at the foot of the screen.
   void _say(String message) {
     if (!mounted) return;
@@ -408,7 +459,8 @@ Object? _error;
             ? (_emailConfirmed
                   ? _ConfirmedEmailBody(
                       email: _confirmationEmail!,
-                      onBack: _backToLogin,
+                      onUseTheApp: _useTheApp,
+                      busy: _usingApp,
                     )
                   : _CheckEmailBody(
                       email: _confirmationEmail!,
@@ -870,14 +922,25 @@ class _PasswordPromptDialogState extends State<_PasswordPromptDialog> {
 
 /// The state the screen turns into once the address is confirmed.
 ///
-/// One action only, as asked for: the account exists and its address is
-/// verified, so Login is the next step and there is nothing left to offer
-/// here — no Open Mail, no resend, no address to correct.
+/// One action only: the account exists and its address is verified, so there is
+/// nothing left to offer here — no Open Mail, no resend, no address to correct.
+/// The action signs the user in, because that is what the label promises and
+/// what the user asked for: pressing it lands them in the app rather than on
+/// Login.
 class _ConfirmedEmailBody extends StatelessWidget {
-  const _ConfirmedEmailBody({required this.email, required this.onBack});
+  const _ConfirmedEmailBody({
+    required this.email,
+    required this.onUseTheApp,
+    required this.busy,
+  });
 
   final String email;
-  final VoidCallback onBack;
+
+  /// Signs in with the credentials the form is still holding.
+  final VoidCallback onUseTheApp;
+
+  /// Whether that sign-in is in flight.
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -907,7 +970,11 @@ class _ConfirmedEmailBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          AuthPrimaryButton(label: l.auth_backToLogin, onPressed: onBack),
+          AuthPrimaryButton(
+            label: l.auth_useTheApp,
+            onPressed: onUseTheApp,
+            busy: busy,
+          ),
         ],
       ),
     );

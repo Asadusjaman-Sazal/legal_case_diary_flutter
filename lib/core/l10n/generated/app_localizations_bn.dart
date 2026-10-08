@@ -3415,6 +3415,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_backToLogin => 'লগইনে ফিরে যান';
 
   @override
+  String get auth_useTheApp => 'অ্যাপটি ব্যবহার করুন';
+
+  @override
   String get auth_openMail => 'মেইল খুলুন';
 
   @override
@@ -3449,7 +3452,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String auth_emailConfirmedMessage(String email) {
-    return '$email ঠিকানাটি নিশ্চিত হয়েছে। চালিয়ে যেতে লগইন করুন।';
+    return '$email ঠিকানাটি নিশ্চিত হয়েছে। এখন আপনি অ্যাপটি ব্যবহার করতে পারেন।';
   }
 
   @override

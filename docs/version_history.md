@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.413 - The Check Your Email screen can open the mail app, resend the mail, correct a mistyped address through a new password-checked server cleanup, and turns green once the address is confirmed - and the waiting screen survives a restart.
+Version: 0.0.414 - The Email Confirmed card's button is now Use The App and really signs the user in with the credentials the form still holds (redeeming a pending firm invite too), with the card's sentence changed to match.
 --------------------------------------
 
 ## Version History Log:
@@ -427,3 +427,4 @@ Version: 0.0.410 - Account & Profile menu grouped into Profile/Account/Firm sect
 Version: 0.0.411 - Manage Account: full-size Logout, Change Password back from the deleted Security page, a red Danger Zone label, and Delete Account wired to delete_my_account() behind a plan-worded warning and a complete local wipe.
 Version: 0.0.412 - Delete Account opens a typed confirmation screen: the phrase delete my account (English in Bengali too) must be entered before the red button enables, and nothing is destroyed until it matches.
 Version: 0.0.413 - The Check Your Email screen can open the mail app, resend the mail, correct a mistyped address through a new password-checked server cleanup, and turns green once the address is confirmed - and the waiting screen survives a restart.
+Version: 0.0.414 - The Email Confirmed card's button is now Use The App and really signs the user in with the credentials the form still holds (redeeming a pending firm invite too), with the card's sentence changed to match.

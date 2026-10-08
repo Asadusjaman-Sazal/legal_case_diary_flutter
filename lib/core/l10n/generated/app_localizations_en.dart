@@ -3397,6 +3397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_backToLogin => 'Back To Login';
 
   @override
+  String get auth_useTheApp => 'Use The App';
+
+  @override
   String get auth_openMail => 'Open Mail';
 
   @override
@@ -3431,7 +3434,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String auth_emailConfirmedMessage(String email) {
-    return 'Your email address $email is confirmed. Log in to continue.';
+    return 'Your email address $email is confirmed. You can use the app now.';
   }
 
   @override

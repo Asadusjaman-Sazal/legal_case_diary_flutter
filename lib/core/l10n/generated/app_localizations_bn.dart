@@ -3330,7 +3330,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get auth_signupSubtitle =>
-      'আইন পেশাজীবীদের জন্য নিরাপদ লেজারে যোগ দিন।';
+      'ঝামেলামুক্ত কেস ম্যানেজমেন্টের যাত্রা শুরু করুন।';
 
   @override
   String get auth_fullNameLabel => 'পূর্ণ নাম';

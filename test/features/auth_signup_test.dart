@@ -24,6 +24,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/firm_reposit
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_widgets.dart';
 import 'package:legal_case_diary/features/auth/presentation/signup_screen.dart';
 
 import 'auth_test_support.dart';
@@ -268,6 +269,33 @@ void main() {
       (await darkestPaintedInside(tester, logo)).computeLuminance(),
       lessThan(0.2),
       reason: 'the mark itself must be painted, not just placed in the tree',
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the brand row sits in the middle of the card', (tester) async {
+    await pumpSignup(tester);
+
+    // The brand row is read as a widget rather than by measuring it: the test
+    // font is a box per glyph, so "Legal Case Diary" fills the row's whole slot
+    // there (measured: the wordmark's box ends at the header's right edge) and
+    // a centred row and a left-aligned one measure identically. The row's own
+    // alignment is what the request asked for, and it is what the device — with
+    // Manrope, where the wordmark is far narrower than the slot — renders.
+    final row = tester.widget<Row>(
+      find.descendant(
+        of: find.byType(AuthSignupHeader),
+        matching: find.byType(Row),
+      ),
+    );
+    expect(row.mainAxisAlignment, MainAxisAlignment.center);
+
+    // The title and its subtitle keep the card's own alignment below it, so
+    // the centring is the brand row's and not a whole-header change.
+    expect(
+      tester.getTopLeft(find.text(l.auth_signupTitle)).dx,
+      lessThan(tester.getCenter(find.byType(AuthSignupHeader)).dx),
     );
 
     await unmountApp(tester);

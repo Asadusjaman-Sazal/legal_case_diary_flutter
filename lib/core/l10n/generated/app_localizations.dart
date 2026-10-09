@@ -5733,7 +5733,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_signupSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Join the secure ledger for legal professionals.'**
+  /// **'Start a stress-free journey of case management.'**
   String get auth_signupSubtitle;
 
   /// No description provided for @auth_fullNameLabel.

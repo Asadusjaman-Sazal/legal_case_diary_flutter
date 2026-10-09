@@ -106,7 +106,7 @@ class AuthCard extends StatelessWidget {
   }
 }
 
-/// The sign-in card's header: round brand mark, app name and subtitle.
+/// The sign-in card's header: the app logo, app name and subtitle.
 class AuthBrandHeader extends StatelessWidget {
   /// Creates the header.
   const AuthBrandHeader({required this.subtitle, super.key});
@@ -119,17 +119,27 @@ class AuthBrandHeader extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Column(
       children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.account_balance,
-            color: AppColors.onPrimary,
-            size: 24,
+        SizedBox(
+          width: _signInMarkSize,
+          height: _signInMarkSize,
+          // The app logo, as on the Sign Up card and the About identity card.
+          // The round placeholder mark returns if the asset cannot load, so the
+          // header looks exactly as it did before rather than showing a broken
+          // image.
+          child: Image.asset(
+            _appLogo,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => Container(
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.account_balance,
+                color: AppColors.onPrimary,
+                size: 24,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -160,6 +170,9 @@ const String _appLogo = 'assets/icons/app_logo.png';
 /// Side of the square brand mark, unchanged from the placeholder gavel.
 const double _brandMarkSize = 28;
 
+/// Side of the sign-in card's brand mark, unchanged from the round placeholder.
+const double _signInMarkSize = 48;
+
 /// The sign-up card's header: the app logo, the app name in a row, then the
 /// title.
 class AuthSignupHeader extends StatelessWidget {
@@ -183,6 +196,9 @@ class AuthSignupHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          // The card's brand row is centred over the left-aligned form below it
+          // (user request); the title and subtitle keep their own alignment.
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
               width: _brandMarkSize,

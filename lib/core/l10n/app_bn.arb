@@ -1436,7 +1436,7 @@
   "auth_haveAccount": "আগে থেকেই অ্যাকাউন্ট আছে?",
   "auth_loginLink": "লগইন",
   "auth_signupTitle": "অ্যাকাউন্ট তৈরি করুন",
-  "auth_signupSubtitle": "আইন পেশাজীবীদের জন্য নিরাপদ লেজারে যোগ দিন।",
+  "auth_signupSubtitle": "ঝামেলামুক্ত কেস ম্যানেজমেন্টের যাত্রা শুরু করুন।",
   "auth_fullNameLabel": "পূর্ণ নাম",
   "auth_fullNameHint": "অ্যাড. জন ডো",
   "auth_barAssociationLabel": "বার অ্যাসোসিয়েশন",

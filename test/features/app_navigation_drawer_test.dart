@@ -419,11 +419,9 @@ void main() {
     // sheet's top edge on this 1400 px surface would be near 1150).
     expect(popover.top - iconRect.bottom, moreOrLessEquals(8, epsilon: 0.01));
     expect(popover.top, lessThan(400));
-    // It keeps its own width rather than spanning the screen.
-    expect(popover.width, moreOrLessEquals(300, epsilon: 1));
   });
 
-  testWidgets('the account popover lines up with the side menu panel', (
+  testWidgets('the account popover is exactly the side menu panel\'s width', (
     tester,
   ) async {
     await pumpDrawerOnRouter(tester);
@@ -439,14 +437,18 @@ void main() {
       find.byKey(const ValueKey('drawer-account-popover')),
     );
 
+    // Neither narrower nor wider than the side menu — the same width, to the
+    // pixel, which is what rules out a hand-picked menu width.
+    expect(drawerRect.width, greaterThan(0));
+    expect(popover.width, drawerRect.width);
     // Flush with the side menu's own left edge, so no strip of the drawer shows
     // beside the panel...
-    expect(popover.left, moreOrLessEquals(drawerRect.left, epsilon: 0.01));
+    expect(popover.left, drawerRect.left);
     // ...which is a move off the icon's left edge, where the panel was first
     // placed — the assertion the anchored-to-the-icon position fails.
     expect(popover.left, lessThan(iconRect.left));
-    // And it never crosses the drawer: the panel stays inside it.
-    expect(popover.right, lessThanOrEqualTo(drawerRect.right));
+    // ...and its right edge lands on the drawer's, so it crosses nothing.
+    expect(popover.right, drawerRect.right);
   });
 
   testWidgets('the account popover carries a thin grey outline', (tester) async {

@@ -8,11 +8,11 @@
 library;
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:drift/drift.dart' show Value, Variable;
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +27,7 @@ import 'package:legal_case_diary/features/cases/data/local/case_history_dao.dart
 import 'package:legal_case_diary/features/cases/data/local/cases_dao.dart';
 import 'package:legal_case_diary/features/notes/data/local/notes_dao.dart';
 import 'package:legal_case_diary/features/notes/data/notes_repository.dart';
+import 'package:legal_case_diary/features/settings/data/backup_file_gateway.dart';
 import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
 import 'package:legal_case_diary/features/settings/data/court_categories_repository.dart';
 import 'package:legal_case_diary/features/settings/data/courts_repository.dart';
@@ -61,6 +62,10 @@ Map<String, String> _workbookParts(Uint8List bytes) => <String, String>{
 };
 
 void main() {
+  // The folder-resolution tests mock the method channel, which needs the test
+  // binding; the rest of the suite uses it idempotently.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('BackupRepository', () {
     late AppDatabase db;
     late BackupRepository backup;
@@ -599,6 +604,54 @@ void main() {
       expect(
         defaultExcelFileName(stamp),
         '${backup.substring(0, backup.length - '.lcbak'.length)}.xlsx',
+      );
+    });
+  });
+
+  group('backupDocumentsDirectory', () {
+    const channel = MethodChannel(
+      'com.legalcasediary.app/public_downloads',
+    );
+
+    test('uses the public Downloads folder when the host answers', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+        expect(call.method, 'path');
+        return '/storage/emulated/0/Download';
+      });
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null),
+      );
+
+      final folder = await backupDocumentsDirectory();
+      expect(
+        folder.path.replaceAll(r'\', '/'),
+        '/storage/emulated/0/Download/LegalCaseDiary',
+      );
+    });
+
+    test('falls back to the documents folder when the host has no channel', () async {
+      // No handler is installed for the public-downloads channel, so it throws
+      // MissingPluginException and the resolver falls back to the private
+      // documents directory.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.flutter.io/path_provider'),
+            (call) async => 'C:/PrivateDocuments',
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+              const MethodChannel('plugins.flutter.io/path_provider'),
+              null,
+            ),
+      );
+
+      final folder = await backupDocumentsDirectory();
+      expect(
+        folder.path.replaceAll(r'\', '/'),
+        'C:/PrivateDocuments/LegalCaseDiary',
       );
     });
   });

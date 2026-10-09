@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.443 - The drawer's account popup is inset a little on each side, so both edges show inside the side menu instead of sitting flush against it.
+Version: 0.0.444 - The drawer account popup's side inset is halved to 8px, so it sits closer to the side menu edges.
 --------------------------------------
 
 ## Version History Log:
@@ -457,3 +457,4 @@ Version: 0.0.440 - App Lock: the When To Ask For The Pin button shows the curren
 Version: 0.0.441 - Subscription Plans: Unlimited Cases leads the feature list with its own text, each feature has a befitting icon instead of the one green tick, and Subscribe buttons are a little bigger.
 Version: 0.0.442 - Subscription Details on a Free plan hides the Expiry row and shows a Free Plan Limitations section before Payment History.
 Version: 0.0.443 - The drawer's account popup is inset a little on each side, so both edges show inside the side menu instead of sitting flush against it.
+Version: 0.0.444 - The drawer account popup's side inset is halved to 8px, so it sits closer to the side menu edges.

@@ -1,3 +1,12 @@
+### 2026-10-09 — The drawer popup's inset is halved to 8 px — COMPLETE
+
+- **Request (the user's).** The 16 px side inset (0.0.443) was more than expected; halve the gap on each side.
+- **The change is a constant.** `_AccountPopoverLayout._sideInset` moved `AppSpacing.md` (16 px) → **`AppSpacing.sm` (8 px)**. Width is `drawer.width - 8 * 2` and the left edge is `drawer.left + 8`, so the popup sits 8 px in from each edge instead of 16 — half, exactly as asked. Nothing else moved.
+- **Test updated** to `AppSpacing.sm` for the width, left and right assertions.
+- **Records (rule 14 — a correction of the 0.0.443 sentence).** The plan's popover bullet and Task 06's matching bullet now read `AppSpacing.sm` (8 px, *halved from 16 px in 0.0.444*).
+- **Verification.** `flutter analyze` clean; `app_navigation_drawer` suite **18/18**; full suite **1503 passed**; `record_version.py --check` OK; version **0.0.444**.
+- **Resume point:** nothing owed in code. Device check: the popup's side gaps should be visibly narrower than before (8 px each).
+
 ### 2026-10-09 — The drawer's account popup is inset inside the side menu — COMPLETE
 
 - **Request (the user's, scoped to the popup only).** Decrease the popup's width a little on the left and right so its edges are visible inside the side menu.

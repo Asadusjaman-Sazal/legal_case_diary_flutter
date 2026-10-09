@@ -2954,6 +2954,30 @@ abstract class AppLocalizations {
   /// **'Change Password'**
   String get settingsManageAccount_changePassword;
 
+  /// No description provided for @settingsSubscription_freePlanLimitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Plan Limitations'**
+  String get settingsSubscription_freePlanLimitations;
+
+  /// Free-plan limitation: the case ceiling from freeTierCaseLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {limit} cases at a time. Deleting a case frees a slot.'**
+  String settingsSubscription_freeLimitCases(String limit);
+
+  /// No description provided for @settingsSubscription_freeLimitCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.'**
+  String get settingsSubscription_freeLimitCloud;
+
+  /// No description provided for @settingsSubscription_freeLimitRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'If the phone is lost or broken, a free account\'s diary has no cloud copy to restore from.'**
+  String get settingsSubscription_freeLimitRecovery;
+
   /// No description provided for @settingsSubscription_currentPlan.
   ///
   /// In en, this message translates to:

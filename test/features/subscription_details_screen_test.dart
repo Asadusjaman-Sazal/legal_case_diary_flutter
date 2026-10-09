@@ -22,6 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
+import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -183,6 +184,12 @@ void main() {
     expect(find.text(l.settingsManageAccount_roleOwner), findsWidgets);
     expect(find.text(l.settingsManageAccount_firm), findsOneWidget);
     expect(find.text('Rahman & Associates'), findsOneWidget);
+    // A paid plan keeps its Expiry row and shows no limitations section.
+    expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
+    expect(
+      find.text(l.settingsSubscription_freePlanLimitations),
+      findsNothing,
+    );
 
     // The plan is named, not "Premium": a firm member on an approved plan is
     // told which plan they are running.
@@ -220,6 +227,37 @@ void main() {
     // No firm in individual mode, so no Firm row.
     expect(find.text(l.settingsManageAccount_firm), findsNothing);
 
+    // A Free plan shows its limitations, in place of an expiry it does not have.
+    expect(
+      find.text(l.settingsSubscription_freePlanLimitations),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsManageAccount_expiry), findsNothing);
+    // Every limitation is listed, the case ceiling named from the one constant.
+    expect(
+      find.text(
+        l.settingsSubscription_freeLimitCases('$freeTierCaseLimit'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_freeLimitCloud),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_freeLimitRecovery),
+      findsOneWidget,
+    );
+    // The section sits above Payment History.
+    expect(
+      tester.getTopLeft(find.text(l.settingsSubscription_freePlanLimitations)).dy,
+      lessThan(
+        tester
+            .getTopLeft(find.text(l.payments_historyTitle))
+            .dy,
+      ),
+    );
+
     await unmountApp(tester);
   });
 
@@ -234,6 +272,13 @@ void main() {
 
     expect(find.text(l.settingsManageAccount_planFree), findsNothing);
     expect(find.text('—'), findsWidgets, reason: 'the entitlement is unknown');
+    // A dash is neither Free nor premium, so neither the expiry-hiding (the row
+    // stays, for a premium plan still in flight) nor the limitations apply.
+    expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
+    expect(
+      find.text(l.settingsSubscription_freePlanLimitations),
+      findsNothing,
+    );
 
     await unmountApp(tester);
   });
@@ -512,13 +557,14 @@ void main() {
       // last one is the row's value.
       l.settingsManageAccount_roleIndividual,
       l.settingsManageAccount_planFree,
-      // The expiry is a dash here (no premium row), and it is a value like any
-      // other: it must sit at the edge too.
-      '—',
     ]) {
       final right = tester.getTopRight(find.text(value).last).dx;
       expect(right, closeTo(edge, 1.0), reason: value);
     }
+
+    // A free plan hides the expiry row entirely: no Expiry label, no dash.
+    expect(find.text(l.settingsManageAccount_expiry), findsNothing);
+    expect(find.text('—'), findsNothing);
 
     await unmountApp(tester);
   });

@@ -1630,6 +1630,23 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
 
   @override
+  String get settingsSubscription_freePlanLimitations =>
+      'ফ্রি প্ল্যানের সীমাবদ্ধতা';
+
+  @override
+  String settingsSubscription_freeLimitCases(String limit) {
+    return 'একসাথে সর্বোচ্চ $limitটি মামলা। একটি মামলা মুছে ফেললে জায়গা খালি হয়।';
+  }
+
+  @override
+  String get settingsSubscription_freeLimitCloud =>
+      'ক্লাউড সুবিধাগুলো — রিয়েল-টাইম ব্যাকআপ, অন্য ডিভাইস থেকে কাজ করা, এবং সহযোগীদের সঙ্গে ডায়েরি ভাগ করা — পেইড প্ল্যানে পাওয়া যায়।';
+
+  @override
+  String get settingsSubscription_freeLimitRecovery =>
+      'ফোন হারিয়ে গেলে বা নষ্ট হলে, ফ্রি অ্যাকাউন্টের ডায়েরির কোনো ক্লাউড কপি থাকে না যেখান থেকে পুনরুদ্ধার করা যাবে।';
+
+  @override
   String get settingsSubscription_currentPlan => 'বর্তমান প্ল্যান';
 
   @override

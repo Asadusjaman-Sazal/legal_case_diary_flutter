@@ -26,6 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/constants/free_tier.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_utils.dart';
@@ -44,6 +45,10 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // The limitations are for a *known* Free plan only: an entitlement still in
+    // flight reads a dash, which is neither Free nor premium.
+    final plan = ref.watch(currentPlanProvider);
+    final isFree = plan.known && !plan.premium;
 
     return SettingsSubPageModal(
       title: l.settingsManageAccount_subscriptionDetails,
@@ -58,6 +63,10 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const _SubscriptionSummaryCard(),
+            if (isFree) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _FreePlanLimitations(l: l),
+            ],
             const SizedBox(height: AppSpacing.lg),
             _PaymentHistorySection(l: l),
           ],
@@ -85,7 +94,12 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     // The plan, through the one derivation that also prints in the side menu
     // ([currentPlanProvider]) — the dash rule for an entitlement that has not
     // landed lives there, so both surfaces tell the user the same thing.
-    final currentPlan = currentPlanLabel(l, ref.watch(currentPlanProvider));
+    final plan = ref.watch(currentPlanProvider);
+    final currentPlan = currentPlanLabel(l, plan);
+    // *Free* only when it is known to be: an entitlement still in flight reads a
+    // dash, and a dash is not Free — so neither the hidden expiry nor the
+    // limitations belong to it.
+    final isFree = plan.known && !plan.premium;
 
     return _Card(
       child: Column(
@@ -133,18 +147,121 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
             label: l.settingsSubscription_currentPlan,
             value: currentPlan,
             emphasise: true,
+            // A free plan has no expiry, so that row is gone and this is last.
+            last: isFree,
           ),
-          _DetailRow(
-            label: l.settingsManageAccount_expiry,
-            // To the minute, like the history below: a renewal is tracked by
-            // the hour it was approved, not by a bare date.
-            value: expiryMs == null ? '—' : _dateAndTime(l, expiryMs),
-            last: true,
-          ),
+          // Expiry is shown unless the plan is Free: a free account has nothing
+          // to expire, and a dash beside "Free" reads as a missing value rather
+          // than "not applicable".
+          if (!isFree)
+            _DetailRow(
+              label: l.settingsManageAccount_expiry,
+              // To the minute, like the history below: a renewal is tracked by
+              // the hour it was approved, not by a bare date.
+              value: expiryMs == null ? '—' : _dateAndTime(l, expiryMs),
+              last: true,
+            ),
         ],
       ),
     );
   }
+}
+
+/// What a Free account cannot do — shown only while the plan is Free, before
+/// the purchase history.
+///
+/// Each line is a real limitation, not marketing: the case ceiling comes from
+/// [freeTierCaseLimit] (the same constant the Add Case gate enforces, so the
+/// two can never disagree), and the cloud, multi-device, collaboration and
+/// recovery points are exactly the cloud features the paid plans add. The
+/// header carries a bullet so the list reads as the section's items.
+class _FreePlanLimitations extends StatelessWidget {
+  const _FreePlanLimitations({required this.l});
+
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final limit = AppDateUtils.formatDigits(
+      freeTierCaseLimit,
+      l.localeName,
+    );
+    final limitations = <String>[
+      l.settingsSubscription_freeLimitCases(limit),
+      l.settingsSubscription_freeLimitCloud,
+      l.settingsSubscription_freeLimitRecovery,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            // A leading bullet, so the heading reads as the head of a list.
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: AppSpacing.sm),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.error,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                l.settingsSubscription_freePlanLimitations,
+                style: AppTypography.titleMd,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < limitations.length; i++) ...[
+                if (i > 0) const SizedBox(height: AppSpacing.md),
+                _LimitationRow(text: limitations[i]),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// One limitation: a red bullet, then its sentence.
+class _LimitationRow extends StatelessWidget {
+  const _LimitationRow({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        width: 6,
+        height: 6,
+        // Nudged down to sit on the first line's centre rather than its top.
+        margin: const EdgeInsets.only(top: 8, right: AppSpacing.sm),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.error,
+        ),
+      ),
+      Expanded(
+        child: Text(
+          text,
+          style: AppTypography.bodyMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 /// Payment History: the account's own submissions, as a ledger.

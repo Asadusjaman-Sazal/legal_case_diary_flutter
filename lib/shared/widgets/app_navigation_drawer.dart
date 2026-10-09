@@ -4,6 +4,11 @@
 /// (expanding into Subscription Details and Subscription Plans) and Print/Share
 /// actions. Active item is highlighted with a black pill. Item visibility is
 /// driven by [sideNavOptions] from [UserSettings].
+///
+/// **The profile icon is the account's own entry point** (user request): tapping
+/// the header avatar opens a sheet naming the signed-in **e-mail** and offering
+/// **Profile**, **Manage Account** and **Logout** — the three account actions
+/// that otherwise live two levels down under Settings > Account & Profile.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,6 +23,8 @@ import '../../core/router/app_router.dart';
 import '../../features/admin/presentation/admin_viewmodel.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
+import '../../features/auth/presentation/auth_viewmodel.dart';
+import '../../features/auth/presentation/logout_dialogs.dart';
 import '../../features/payments/presentation/current_plan.dart';
 
 /// A nav item descriptor used to build drawer rows.
@@ -195,6 +202,33 @@ class AppNavigationDrawer extends ConsumerWidget {
     );
   }
 
+  /// Opens the account sheet the profile icon leads to (user request).
+  ///
+  /// The sheet goes on the **root navigator**, above the panel: it is shown
+  /// while the drawer is still open, and the drawer is closed by whichever row
+  /// the user picks — so a dismissed sheet returns the user to the panel they
+  /// opened, and a chosen row returns them to the screen behind it.
+  ///
+  /// The panel's own `ref` is deliberately not handed on: it dies with the
+  /// drawer, and **Logout** needs a live one for as long as its windows are up.
+  /// The sheet is therefore a widget with its own, and the two navigators are
+  /// passed as state objects rather than as contexts.
+  Future<void> _openAccountSheet(BuildContext context, WidgetRef ref) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      builder: (_) => _AccountSheet(
+        // Read here, so the sheet is never the reason the drawer must still
+        // exist: the address is a value, not a live lookup.
+        email: ref.read(authIdentityProvider)?.email ?? '',
+        // The navigator the panel is closed through, and the router the rows
+        // navigate with. Both are objects: safe once the drawer is gone.
+        drawerNavigator: Navigator.of(context),
+        router: GoRouter.of(context),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
@@ -227,19 +261,31 @@ class AppNavigationDrawer extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primaryContainer,
-                    backgroundImage: avatarFile != null
-                        ? FileImage(avatarFile)
-                        : null,
-                    child: avatarFile != null
-                        ? null
-                        : const Icon(
-                            Icons.person_outline,
-                            color: AppColors.onPrimaryContainer,
-                            size: 26,
-                          ),
+                  // The avatar opens the account sheet — its 48 px circle is
+                  // the whole tap target, and it carries a label because an
+                  // icon-only button has no text for a screen reader.
+                  Semantics(
+                    button: true,
+                    label: l.settingsScreen_accountAndProfile,
+                    child: InkWell(
+                      key: const ValueKey('drawer-profile-icon'),
+                      customBorder: const CircleBorder(),
+                      onTap: () => _openAccountSheet(context, ref),
+                      child: CircleAvatar(
+                        radius: 24,
+                        backgroundColor: AppColors.primaryContainer,
+                        backgroundImage: avatarFile != null
+                            ? FileImage(avatarFile)
+                            : null,
+                        child: avatarFile != null
+                            ? null
+                            : const Icon(
+                                Icons.person_outline,
+                                color: AppColors.onPrimaryContainer,
+                                size: 26,
+                              ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -545,6 +591,126 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// The account sheet (user request): the signed-in e-mail and the three account
+/// actions, opened from the drawer's profile icon.
+///
+/// A [ConsumerWidget] rather than a builder closure for one reason: **Logout
+/// has to run while this widget is still mounted.** [runBranchedLogout] reads
+/// providers and opens windows, so the `ref` it is given must outlive every
+/// surface closed to make room for it — and the drawer's `ref` cannot, because
+/// the panel is gone the moment it closes. The sheet stays up behind the logout
+/// windows, and closes itself when they are done.
+class _AccountSheet extends ConsumerWidget {
+  const _AccountSheet({
+    required this.email,
+    required this.drawerNavigator,
+    required this.router,
+  });
+
+  /// The address the account signed in with; a dash when there is none.
+  final String email;
+
+  /// The navigator the panel is closed through — a state, so it is still safe
+  /// to use after this widget's neighbours are gone.
+  final NavigatorState drawerNavigator;
+
+  /// The app's router, for the two destinations and for Login.
+  final GoRouter router;
+
+  /// Closes the panel, so the user comes back to the screen it was opened from
+  /// — exactly what every other drawer row does.
+  void _closeDrawer() {
+    if (drawerNavigator.mounted) drawerNavigator.pop();
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Who this account is: the address it signed in with. The value
+          // carries the caption under it, like the plan row's — the address is
+          // the fact, and the caption says which fact it is.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.alternate_email,
+                  size: 22,
+                  color: AppColors.onSurfaceVariant,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        email.isNotEmpty ? email : '—',
+                        style: AppTypography.labelLg.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        l.auth_emailLabel,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.outline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.outlineVariant),
+          ListTile(
+            key: const ValueKey('drawer-account-profile'),
+            leading: const Icon(Icons.person_outline),
+            title: Text(l.settingsScreen_profile),
+            onTap: () {
+              _closeDrawer();
+              Navigator.of(context).pop();
+              router.push(AppRoutes.settingsProfile);
+            },
+          ),
+          ListTile(
+            key: const ValueKey('drawer-account-manage'),
+            leading: const Icon(Icons.manage_accounts_outlined),
+            title: Text(l.settingsScreen_manageAccount),
+            onTap: () {
+              _closeDrawer();
+              Navigator.of(context).pop();
+              router.push(AppRoutes.settingsManageAccount);
+            },
+          ),
+          ListTile(
+            key: const ValueKey('drawer-account-logout'),
+            leading: const Icon(Icons.logout),
+            title: Text(l.settingsManageAccount_logout),
+            onTap: () async {
+              _closeDrawer();
+              // The sheet stays up while the logout windows run: this widget's
+              // `ref` is what the one branched logout reads its providers
+              // through, and it must be alive for the whole flow.
+              final completed = await runBranchedLogout(context, ref);
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+              // Login is reached explicitly: the router's sign-in gate is
+              // decided once per launch, so a signed-out user would otherwise
+              // be left on the now-empty shell.
+              if (completed) router.go(AppRoutes.login);
+            },
+          ),
+        ],
+      ),
     );
   }
 }

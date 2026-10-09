@@ -665,4 +665,47 @@ void main() {
       await unmount(tester);
     }
   });
+
+  testWidgets('an empty case list says what is missing, not its own name', (
+    tester,
+  ) async {
+    // No cases seeded. The five case screens name the absence — and the
+    // All/Active pair point at the + button that fills them — instead of
+    // echoing their own heading as the empty state.
+    final screens =
+        <(Widget Function(), Type, String Function(AppLocalizations))>[
+          (AllCasesScreen.new, AllCasesScreen, (l) => l.allCasesScreen_empty),
+          (
+            ActiveCasesScreen.new,
+            ActiveCasesScreen,
+            (l) => l.activeCasesScreen_empty,
+          ),
+          (
+            OverdueDatesScreen.new,
+            OverdueDatesScreen,
+            (l) => l.overdueDatesScreen_empty,
+          ),
+          (
+            UpcomingCasesScreen.new,
+            UpcomingCasesScreen,
+            (l) => l.upcomingCasesScreen_empty,
+          ),
+          (
+            DisposedCasesScreen.new,
+            DisposedCasesScreen,
+            (l) => l.disposedCasesScreen_empty,
+          ),
+        ];
+
+    for (final (build, screenType, emptyMessage) in screens) {
+      await pumpScreen(tester, build);
+      final l = stringsOf(tester, find.byType(screenType));
+      expect(
+        find.text(emptyMessage(l)),
+        findsOneWidget,
+        reason: '$screenType must show its own empty message',
+      );
+      await unmount(tester);
+    }
+  });
 }

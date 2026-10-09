@@ -62,6 +62,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCasesScreen_title => 'All Cases';
 
   @override
+  String get allCasesScreen_empty => 'No case added yet. Tap + to add one.';
+
+  @override
   String get allCasesScreen_activeCases => 'Active Cases';
 
   @override
@@ -126,7 +129,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activeCasesScreen_title => 'Active Cases';
 
   @override
+  String get activeCasesScreen_empty =>
+      'No active case to show. Tap + to add one.';
+
+  @override
   String get upcomingCasesScreen_title => 'Upcoming Cases';
+
+  @override
+  String get upcomingCasesScreen_empty => 'No upcoming case';
 
   @override
   String get dailyCauseListScreen_title => 'Daily Cause List';
@@ -169,6 +179,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disposedCasesScreen_title => 'Disposed Cases';
 
   @override
+  String get disposedCasesScreen_empty => 'No disposed case';
+
+  @override
   String get disposedCasesScreen_helpTitle => 'How to set a case as disposed?';
 
   @override
@@ -188,6 +201,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overdueDatesScreen_title => 'Overdue Dates';
+
+  @override
+  String get overdueDatesScreen_empty => 'No overdue case';
 
   @override
   String get overdueDatesScreen_lastUpdated => 'Last Updated';

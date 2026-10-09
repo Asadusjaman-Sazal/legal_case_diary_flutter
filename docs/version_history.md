@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.428 - The side menu now shows the account's current plan, expanding into Subscription Details and Subscription Plans.
+Version: 0.0.430 - The five case-list screens now show their own empty message instead of their screen name when no case is left to show.
 --------------------------------------
 
 ## Version History Log:
@@ -442,3 +442,5 @@ Version: 0.0.425 - The Sign Up card's Create Account title is centred over it an
 Version: 0.0.426 - The Login card's subtitle is now 'Log in to the app' in both languages, the user's wording with the verb written professionally, and the copy is pinned in its test.
 Version: 0.0.427 - On the Sign Up card, Create Account and the Legal Case Diary wordmark trade sizes (the wordmark now matches Login's title) and the header sits one step further above Account Type.
 Version: 0.0.428 - The side menu now shows the account's current plan, expanding into Subscription Details and Subscription Plans.
+Version: 0.0.429 - The side menu's Current Plan row moved from under Settings into the Print/Share group, directly above Print (user request).
+Version: 0.0.430 - The five case-list screens now show their own empty message instead of their screen name when no case is left to show.

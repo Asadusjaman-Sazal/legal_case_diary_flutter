@@ -75,6 +75,19 @@ void main() {
   Finder drawerText(String text) =>
       find.descendant(of: find.byType(Drawer), matching: find.text(text));
 
+  /// Top Y of every divider inside the drawer, so a test can tell which section
+  /// a row sits in rather than only what order the labels come in.
+  List<double> drawerDividerYs(WidgetTester tester) {
+    final finder = find.descendant(
+      of: find.byType(Drawer),
+      matching: find.byType(Divider),
+    );
+    return [
+      for (var i = 0; i < finder.evaluate().length; i++)
+        tester.getTopLeft(finder.at(i)).dy,
+    ];
+  }
+
   /// Pumps the drawer on a router, sitting on [route], with the account's plan
   /// stubbed to [plan].
   ///
@@ -230,6 +243,19 @@ void main() {
         tester.getTopLeft(drawerText(l.settingsSubscription_currentPlan)).dy,
       ),
     );
+
+    // It sits in the Print/Share group, not under Settings (user request): a
+    // section divider now separates it from Settings, and Print — the row it
+    // was asked to sit above — follows it.
+    final captionY = tester
+        .getTopLeft(drawerText(l.settingsSubscription_currentPlan))
+        .dy;
+    final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
+    expect(
+      drawerDividerYs(tester).where((y) => y > settingsY && y < captionY),
+      isNotEmpty,
+    );
+    expect(captionY, lessThan(tester.getTopLeft(drawerText(l.nav_print)).dy));
 
     // Collapsed, neither destination is offered yet.
     expect(

@@ -38,9 +38,11 @@ typedef ScopedCaseSearch = ScopedSearch<Case>;
 ///
 /// A scoped search that hides every row says so instead of looking like an
 /// empty diary; when no query is hiding anything the screen shows its own
-/// placeholder ([placeholder] — usually the screen title).
+/// empty message ([placeholder] — the screen's `*_empty` string, e.g. *No case
+/// added yet. Tap + to add one.*, not the screen title).
 class CaseListEmptyState extends StatelessWidget {
-  /// Text shown when nothing has been filtered out by the search.
+  /// The screen's own empty message — what is missing, not what the screen is
+  /// called. Shown when nothing has been filtered out by the search.
   final String placeholder;
 
   /// Whether the scoped search bar is open.

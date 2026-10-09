@@ -284,16 +284,16 @@ class AppNavigationDrawer extends ConsumerWidget {
                   ..._toolItems.map(
                     (item) => _buildItem(context, l, item, isAdmin: isAdmin),
                   ),
-                  // The account's plan, directly under Settings: it is the one
-                  // other Settings-tree destination a drawer user looks for,
-                  // and it names the plan rather than hiding it behind a tap
-                  // (user request).
-                  _PlanDrawerTile(currentRoute: currentRoute),
                   if (isAdmin) ...[
                     const _DrawerDivider(),
                     _buildItem(context, l, _adminItem, isAdmin: true),
                   ],
                   const _DrawerDivider(),
+                  // The account's plan, above Print/Share (user request): the
+                  // bottom group is where a user looks for what the account is
+                  // and what it can do with it, and it names the plan rather
+                  // than hiding it behind a tap.
+                  _PlanDrawerTile(currentRoute: currentRoute),
                   _DrawerNavTile(
                     icon: Icons.print_outlined,
                     label: l.nav_print,

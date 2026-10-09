@@ -62,6 +62,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get allCasesScreen_title => 'সব মামলা';
 
   @override
+  String get allCasesScreen_empty =>
+      'এখনো কোনও মামলা যোগ করা হয়নি। যোগ করতে + চাপুন।';
+
+  @override
   String get allCasesScreen_activeCases => 'সক্রিয় মামলা';
 
   @override
@@ -125,7 +129,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get activeCasesScreen_title => 'চলতি মামলা';
 
   @override
+  String get activeCasesScreen_empty =>
+      'দেখানোর মতো কোনও চলতি মামলা নেই। যোগ করতে + চাপুন।';
+
+  @override
   String get upcomingCasesScreen_title => 'আসন্ন মামলা';
+
+  @override
+  String get upcomingCasesScreen_empty => 'কোনও আসন্ন মামলা নেই';
 
   @override
   String get dailyCauseListScreen_title => 'দৈনিক কজ লিস্ট';
@@ -168,6 +179,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get disposedCasesScreen_title => 'নিষ্পত্তিকৃত মামলা';
 
   @override
+  String get disposedCasesScreen_empty => 'কোনও নিষ্পত্তিকৃত মামলা নেই';
+
+  @override
   String get disposedCasesScreen_helpTitle =>
       'কোনো মামলাকে নিষ্পত্তিকৃত হিসেবে চিহ্নিত করবেন কীভাবে?';
 
@@ -188,6 +202,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get overdueDatesScreen_title => 'বিলম্বিত তারিখ';
+
+  @override
+  String get overdueDatesScreen_empty => 'কোনও বিলম্বিত মামলা নেই';
 
   @override
   String get overdueDatesScreen_lastUpdated => 'সর্বশেষ আপডেট';

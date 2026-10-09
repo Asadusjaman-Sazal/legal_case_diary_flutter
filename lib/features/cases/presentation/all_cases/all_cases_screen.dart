@@ -316,7 +316,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
         Expanded(
           child: visible.isEmpty
               ? CaseListEmptyState(
-                  placeholder: l.allCasesScreen_title,
+                  placeholder: l.allCasesScreen_empty,
                   isSearching: _isSearching,
                   hasAnyCase: _cases.isNotEmpty,
                   onRefresh: () => pullCaseListToSync(ref, _loadCases),

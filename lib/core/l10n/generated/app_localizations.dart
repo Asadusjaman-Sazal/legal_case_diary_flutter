@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'All Cases'**
   String get allCasesScreen_title;
 
+  /// No description provided for @allCasesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No case added yet. Tap + to add one.'**
+  String get allCasesScreen_empty;
+
   /// No description provided for @allCasesScreen_activeCases.
   ///
   /// In en, this message translates to:
@@ -326,11 +332,23 @@ abstract class AppLocalizations {
   /// **'Active Cases'**
   String get activeCasesScreen_title;
 
+  /// No description provided for @activeCasesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active case to show. Tap + to add one.'**
+  String get activeCasesScreen_empty;
+
   /// No description provided for @upcomingCasesScreen_title.
   ///
   /// In en, this message translates to:
   /// **'Upcoming Cases'**
   String get upcomingCasesScreen_title;
+
+  /// No description provided for @upcomingCasesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming case'**
+  String get upcomingCasesScreen_empty;
 
   /// No description provided for @dailyCauseListScreen_title.
   ///
@@ -410,6 +428,12 @@ abstract class AppLocalizations {
   /// **'Disposed Cases'**
   String get disposedCasesScreen_title;
 
+  /// No description provided for @disposedCasesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No disposed case'**
+  String get disposedCasesScreen_empty;
+
   /// No description provided for @disposedCasesScreen_helpTitle.
   ///
   /// In en, this message translates to:
@@ -445,6 +469,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overdue Dates'**
   String get overdueDatesScreen_title;
+
+  /// No description provided for @overdueDatesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No overdue case'**
+  String get overdueDatesScreen_empty;
 
   /// No description provided for @overdueDatesScreen_lastUpdated.
   ///

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.442 - Subscription Details on a Free plan hides the Expiry row and shows a Free Plan Limitations section before Payment History.
+Version: 0.0.443 - The drawer's account popup is inset a little on each side, so both edges show inside the side menu instead of sitting flush against it.
 --------------------------------------
 
 ## Version History Log:
@@ -456,3 +456,4 @@ Version: 0.0.439 - App Lock: the two When To Ask For The Pin choices are now ful
 Version: 0.0.440 - App Lock: the When To Ask For The Pin button shows the currently chosen timing as a subtitle under it.
 Version: 0.0.441 - Subscription Plans: Unlimited Cases leads the feature list with its own text, each feature has a befitting icon instead of the one green tick, and Subscribe buttons are a little bigger.
 Version: 0.0.442 - Subscription Details on a Free plan hides the Expiry row and shows a Free Plan Limitations section before Payment History.
+Version: 0.0.443 - The drawer's account popup is inset a little on each side, so both edges show inside the side menu instead of sitting flush against it.

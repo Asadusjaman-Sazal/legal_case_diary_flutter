@@ -944,8 +944,9 @@ class _AccountPopoverLayout extends SingleChildLayoutDelegate {
   /// attached, far enough not to touch it.
   static const double _gap = 8;
 
-  /// Strip of the drawer left visible beside the panel on each side.
-  static const double _sideInset = AppSpacing.md;
+  /// Strip of the drawer left visible beside the panel on each side: half the
+  /// page margin, which reads as a window sitting just inside the menu.
+  static const double _sideInset = AppSpacing.sm;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>

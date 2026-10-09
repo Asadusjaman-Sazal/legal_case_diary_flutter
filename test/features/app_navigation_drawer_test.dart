@@ -502,9 +502,9 @@ void main() {
     // Narrower than the side menu on both sides, so a strip of the drawer shows
     // beside the panel — a window inside the menu, not a wall over it (0.0.443).
     expect(drawerRect.width, greaterThan(0));
-    expect(popover.width, drawerRect.width - AppSpacing.md * 2);
-    expect(popover.left, drawerRect.left + AppSpacing.md);
-    expect(popover.right, drawerRect.right - AppSpacing.md);
+    expect(popover.width, drawerRect.width - AppSpacing.sm * 2);
+    expect(popover.left, drawerRect.left + AppSpacing.sm);
+    expect(popover.right, drawerRect.right - AppSpacing.sm);
     // Still a move off the icon's own left edge (the panel is a menu window, not
     // an icon-sized bubble).
     expect(popover.left, lessThan(iconRect.left));

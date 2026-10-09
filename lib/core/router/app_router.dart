@@ -7,7 +7,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -70,6 +69,7 @@ import '../../shared/widgets/database_guard.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../providers/notification_providers.dart';
 import '../providers/repository_providers.dart';
+import '../services/app_exit.dart';
 
 // ---------------------------------------------------------------------------
 // Route path constants
@@ -721,11 +721,13 @@ class AppShellRoot extends StatelessWidget {
 
   /// Shows the exit-confirmation dialog and, on confirm, closes the app.
   /// Used by screens that have no in-router history to fall back to the same
-  /// behaviour as the shell's system-back gesture.
+  /// behaviour as the shell's system-back gesture. The close itself goes
+  /// through [closeApp], because `SystemNavigator.pop()` only dispatches an
+  /// Android back press on this Flutter and leaves the app running.
   static Future<void> requestExit(BuildContext context) async {
     final shouldExit = await _confirmExit(context);
     if (shouldExit && context.mounted) {
-      SystemNavigator.pop();
+      await closeApp();
     }
   }
 
@@ -769,7 +771,7 @@ class AppShellRoot extends StatelessWidget {
         // At root — show exit confirmation.
         final shouldExit = await _confirmExit(context);
         if (shouldExit && context.mounted) {
-          SystemNavigator.pop();
+          await closeApp();
         }
       },
       // Shell screens own the app's status-bar inset. Keep this outside the

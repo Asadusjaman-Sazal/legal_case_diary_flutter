@@ -1,8 +1,9 @@
 /// Left navigation drawer for all case screens.
 ///
-/// Displays a profile header, grouped nav items, and Print/Share actions.
-/// Active item is highlighted with a black pill.
-/// Item visibility is driven by [sideNavOptions] from [UserSettings].
+/// Displays a profile header, grouped nav items, the account's **current plan**
+/// (expanding into Subscription Details and Subscription Plans) and Print/Share
+/// actions. Active item is highlighted with a black pill. Item visibility is
+/// driven by [sideNavOptions] from [UserSettings].
 library;
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import '../../core/router/app_router.dart';
 import '../../features/admin/presentation/admin_viewmodel.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
+import '../../features/payments/presentation/current_plan.dart';
 
 /// A nav item descriptor used to build drawer rows.
 class _NavItem {
@@ -282,6 +284,11 @@ class AppNavigationDrawer extends ConsumerWidget {
                   ..._toolItems.map(
                     (item) => _buildItem(context, l, item, isAdmin: isAdmin),
                   ),
+                  // The account's plan, directly under Settings: it is the one
+                  // other Settings-tree destination a drawer user looks for,
+                  // and it names the plan rather than hiding it behind a tap
+                  // (user request).
+                  _PlanDrawerTile(currentRoute: currentRoute),
                   if (isAdmin) ...[
                     const _DrawerDivider(),
                     _buildItem(context, l, _adminItem, isAdmin: true),
@@ -351,17 +358,24 @@ final TextStyle _connectorStyle = AppTypography.labelMd.copyWith(
   color: AppColors.onSurfaceVariant,
 );
 
+/// Left padding that puts a child row under its group's icon column.
+const double _planSubIndent = 24;
+
 class _DrawerNavTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
   final VoidCallback onTap;
 
+  /// Extra left padding, so a sub-row reads as belonging to the row above it.
+  final double indent;
+
   const _DrawerNavTile({
     required this.icon,
     required this.label,
     required this.active,
     required this.onTap,
+    this.indent = 0,
   });
 
   @override
@@ -380,6 +394,7 @@ class _DrawerNavTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               children: [
+                if (indent > 0) SizedBox(width: indent),
                 Icon(
                   icon,
                   size: 22,
@@ -400,6 +415,136 @@ class _DrawerNavTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The current plan, and the two subscription pages it opens (user request).
+///
+/// The header **shows the plan** — [currentPlanProvider], the same derivation
+/// Subscription Details prints — and expands in place instead of navigating:
+/// once a user has read which plan is running, the two things they want are
+/// the page about it (**Subscription Details**) and the page that sells the
+/// next one (**Subscription Plans**). Each child row opens its screen and
+/// closes the drawer, exactly like every other drawer item.
+///
+/// It arrives expanded when the app is already on one of those two screens, so
+/// the active row is never hidden inside a collapsed header.
+class _PlanDrawerTile extends ConsumerStatefulWidget {
+  /// Creates the plan row for the active [currentRoute].
+  const _PlanDrawerTile({required this.currentRoute});
+
+  /// The active GoRouter location, so the opened sub-page is the one filled.
+  final String currentRoute;
+
+  @override
+  ConsumerState<_PlanDrawerTile> createState() => _PlanDrawerTileState();
+}
+
+class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
+  late bool _expanded;
+
+  /// Whether [route] is one of the two screens this row opens.
+  static bool _opens(String route) =>
+      route == AppRoutes.settingsSubscriptionDetails ||
+      route == AppRoutes.paywall;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = _opens(widget.currentRoute);
+  }
+
+  /// Closes the drawer and opens [route], unless it is already the screen.
+  void _open(String route) {
+    Navigator.of(context).pop();
+    if (widget.currentRoute != route) context.push(route);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final plan = currentPlanLabel(l, ref.watch(currentPlanProvider));
+    return Column(
+      children: [
+        // The header keeps the drawer's own row metrics; only the children
+        // below it are indented, so the plan reads as their group title.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+          child: Semantics(
+            button: true,
+            expanded: _expanded,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(24),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.workspace_premium_outlined,
+                        size: 22,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // Two lines: the plan, and the caption saying what that
+                          // word is — a bare "Free" beside a chevron would read
+                          // as the name of a screen.
+                          children: [
+                            Text(
+                              plan,
+                              style: AppTypography.labelLg.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              l.settingsSubscription_currentPlan,
+                              style: AppTypography.bodySm.copyWith(
+                                color: AppColors.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                        size: 22,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_expanded) ...[
+          _DrawerNavTile(
+            icon: Icons.star_outline,
+            label: l.settingsManageAccount_subscriptionDetails,
+            active: widget.currentRoute == AppRoutes.settingsSubscriptionDetails,
+            indent: _planSubIndent,
+            onTap: () => _open(AppRoutes.settingsSubscriptionDetails),
+          ),
+          _DrawerNavTile(
+            icon: Icons.add_shopping_cart_outlined,
+            label: l.paywall_title,
+            active: widget.currentRoute == AppRoutes.paywall,
+            indent: _planSubIndent,
+            onTap: () => _open(AppRoutes.paywall),
+          ),
+        ],
+      ],
     );
   }
 }

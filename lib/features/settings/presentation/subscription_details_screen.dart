@@ -32,6 +32,7 @@ import '../../../core/utils/date_utils.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../payments/data/payment_repository.dart';
+import '../../payments/presentation/current_plan.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
 import 'settings_sub_page_modal.dart';
 
@@ -75,37 +76,16 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final profile = ref.watch(accountProfileProvider).value;
     final firm = ref.watch(accountFirmProvider).value;
-    final premium = ref.watch(premiumAccessProvider);
-    // Whether an answer of "free" is the account's plan or merely the gap left
-    // before the profile pull lands. A premium user who signed in a moment ago
-    // must not read Free while the expiry beside it already names a date.
-    final entitlementKnown = ref.watch(entitlementKnownProvider);
-
     // The firm's expiry is the source of truth for a member; an individual's is
     // their own. Exactly the split `resolvePremiumAccess` uses.
     final expiryMs = profile?.firmId == null
         ? profile?.subscriptionExpiry
         : firm?.subscriptionExpiry;
 
-    // The active paid plan is named by the latest approved submission. With no
-    // approval there is no paid plan to name — a member riding on the firm's
-    // subscription is Premium without a submission of their own, which is the
-    // case the word *Premium* exists for rather than a repeated tier name.
-    final approved = (ref.watch(myPaymentSubmissionsProvider).value ??
-            const <PaymentSubmission>[])
-        .where((s) => s.status == 'approved')
-        .toList(growable: false);
-
-    final String currentPlan;
-    if (premium.isLoading || !entitlementKnown) {
-      currentPlan = '—';
-    } else if (premium.value ?? false) {
-      currentPlan = approved.isEmpty
-          ? l.settingsManageAccount_planPremium
-          : paymentPlanLabel(l, approved.first.planType);
-    } else {
-      currentPlan = l.settingsManageAccount_planFree;
-    }
+    // The plan, through the one derivation that also prints in the side menu
+    // ([currentPlanProvider]) — the dash rule for an entitlement that has not
+    // landed lives there, so both surfaces tell the user the same thing.
+    final currentPlan = currentPlanLabel(l, ref.watch(currentPlanProvider));
 
     return _Card(
       child: Column(

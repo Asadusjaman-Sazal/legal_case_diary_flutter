@@ -9,9 +9,11 @@
 /// a 16 px disc in the avatar's bottom-right corner, filled with the panel's own
 /// background and ringed in the divider grey, holding the `expand_more` the plan
 /// row uses — an affordance that marks the avatar as a menu without covering it.
-/// **The panel lines up with the side menu** (user request, 0.0.433): its left
-/// edge is the drawer's left edge, and its 300 px width stays inside the drawer's
-/// 304 px, so it never crosses the panel. **A thin grey edge** (user request,
+/// **The panel lines up with the side menu, and is exactly its width** (user
+/// requests, 0.0.433 and 0.0.434): its left edge and its width are both the
+/// **drawer's own**, measured from the drawer's box at tap time — neither
+/// narrower nor wider than the panel it opens over, and never crossing it.
+/// **A thin grey edge** (user request,
 /// 0.0.433) — `AppColors.outlineVariant`, the drawer's divider grey — outlines
 /// the panel, so a white menu over the white drawer can be told from the panel
 /// beneath it.
@@ -218,28 +220,37 @@ class AppNavigationDrawer extends ConsumerWidget {
   /// Opens the account popover **against the profile icon** (user request).
   ///
   /// The panel is positioned from the icon's own rectangle — its top edge just
-  /// below the icon, its left edge on the drawer's — so it reads as growing out
-  /// of the icon rather than sliding up from the screen's bottom, the way the
-  /// account switcher does in Google's apps. [iconContext] is the icon's own
-  /// context, which is what makes that measurement possible; the route goes on
-  /// the **root navigator**, above the open panel, and the icon is measured in
-  /// that navigator's overlay because that is the space the panel is laid out
-  /// in.
+  /// below the icon — and takes the **drawer's own left edge and width**, so it
+  /// lines up with the side menu and is neither narrower nor wider than it
+  /// (user request). [iconContext] is the icon's box, which the top edge hangs
+  /// from; [drawerContext] is the drawer's, which the left edge and the width
+  /// come from. Both are measured in the **root navigator's overlay** because
+  /// that is the space the panel is laid out in, and the route goes on that
+  /// navigator, above the open panel.
   ///
   /// The panel's own `ref` is deliberately not handed on: it dies with the
   /// drawer, and **Logout** needs a live one for as long as its windows are up.
   /// The panel is therefore a widget with its own, and the two navigators reach
   /// it as state objects rather than as contexts.
-  void _openAccountSheet(BuildContext iconContext, WidgetRef ref) {
+  void _openAccountSheet(
+    BuildContext iconContext,
+    BuildContext drawerContext,
+    WidgetRef ref,
+  ) {
     final navigator = Navigator.of(iconContext, rootNavigator: true);
     final overlay = navigator.overlay?.context.findRenderObject() as RenderBox?;
     final icon = iconContext.findRenderObject() as RenderBox?;
-    // Nothing to anchor to without an overlay, so nothing opens rather than a
-    // panel landing in a corner the user did not point at.
-    if (overlay == null || icon == null) return;
+    // The drawer's own box: its width is the panel's width, by request.
+    final drawer = drawerContext.findRenderObject() as RenderBox?;
+    // Nothing to anchor to without an overlay — or the drawer it must match — so
+    // nothing opens rather than a panel landing in a corner the user did not
+    // point at.
+    if (overlay == null || icon == null || drawer == null) return;
     navigator.push<void>(
       _AccountPopoverRoute(
         anchor: icon.localToGlobal(Offset.zero, ancestor: overlay) & icon.size,
+        drawer:
+            drawer.localToGlobal(Offset.zero, ancestor: overlay) & drawer.size,
         builder: (_) => _AccountPopover(
           // Read here, so the panel is never the reason the drawer must still
           // exist: the address is a value, not a live lookup.
@@ -289,8 +300,11 @@ class AppNavigationDrawer extends ConsumerWidget {
                   // is the whole tap target, and the popover is measured from
                   // this box, so the panel grows out of the icon.
                   _ProfileIconButton(
+                    // The drawer's own context goes along with the icon's: the
+                    // panel is as wide as the drawer and starts at its left
+                    // edge, and only the drawer can say what those are.
                     onPressed: (iconContext) =>
-                        _openAccountSheet(iconContext, ref),
+                        _openAccountSheet(iconContext, context, ref),
                     child: CircleAvatar(
                       radius: 24,
                       backgroundColor: AppColors.primaryContainer,
@@ -829,10 +843,18 @@ class _AccountPopover extends ConsumerWidget {
 /// long as the panel does, which is what keeps the panel's `ref` alive for the
 /// logout windows that open above it.
 class _AccountPopoverRoute extends PopupRoute<void> {
-  _AccountPopoverRoute({required this.anchor, required this.builder});
+  _AccountPopoverRoute({
+    required this.anchor,
+    required this.drawer,
+    required this.builder,
+  });
 
   /// The icon's rectangle, in the overlay's coordinates.
   final Rect anchor;
+
+  /// The drawer's rectangle, in the overlay's coordinates: the panel's left edge
+  /// and width are taken from it, so the two line up exactly.
+  final Rect drawer;
 
   /// Builds the panel.
   final WidgetBuilder builder;
@@ -857,7 +879,7 @@ class _AccountPopoverRoute extends PopupRoute<void> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) => CustomSingleChildLayout(
-    delegate: _AccountPopoverLayout(anchor: anchor),
+    delegate: _AccountPopoverLayout(anchor: anchor, drawer: drawer),
     child: builder(context),
   );
 
@@ -879,56 +901,43 @@ class _AccountPopoverRoute extends PopupRoute<void> {
   );
 }
 
-/// Places the account popover against the drawer it opens over.
+/// Places the account popover over the drawer it belongs to.
 ///
-/// Its top edge sits just under the icon's bottom edge, so the panel still reads
-/// as growing out of the icon; its **left edge is the drawer's own left edge**
-/// (user request), so the panel lines up with the side menu instead of leaving a
-/// strip of the drawer showing beside it. Its width is a menu's — 300 px, inside
-/// the 304 px Material gives a drawer — so it never crosses the drawer's
-/// trailing edge, and it shrinks rather than overflowing when the screen is
-/// narrower than that. The panel is short (four rows) and the icon is at the
-/// panel's top, so there is no bottom-edge case to handle: it cannot reach the
-/// overlay's foot.
+/// Its **width and left edge are the drawer's own** (user request: the panel is
+/// neither narrower nor wider than the side menu, and it starts where the side
+/// menu starts, so it never crosses it), and its top edge sits just under the
+/// icon's bottom edge, so the panel still reads as growing out of the icon. The
+/// two come from the boxes as laid out — the drawer's rectangle for the width
+/// and left edge, the icon's for the top — rather than from a guessed width, so
+/// a drawer of any size is matched rather than approximated. The panel is short
+/// (four rows) and the icon is at the panel's top, so there is no bottom-edge
+/// case to handle: it cannot reach the overlay's foot.
 class _AccountPopoverLayout extends SingleChildLayoutDelegate {
-  const _AccountPopoverLayout({required this.anchor});
+  const _AccountPopoverLayout({required this.anchor, required this.drawer});
 
   /// The icon's rectangle, in the overlay's coordinates.
   final Rect anchor;
+
+  /// The drawer's rectangle, in the overlay's coordinates.
+  final Rect drawer;
 
   /// Room between the icon's bottom edge and the panel: close enough to read as
   /// attached, far enough not to touch it.
   static const double _gap = 8;
 
-  /// Room kept at the panel's trailing edge, so a narrow screen shrinks the
-  /// panel before it reaches the screen's own right edge.
-  static const double _edgeInset = 8;
-
-  /// The panel's width. A narrower overlay shrinks it rather than overflowing.
-  static const double _preferredWidth = 300;
-
   @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    final double width = constraints.maxWidth.isFinite
-        ? (constraints.maxWidth - _edgeInset)
-              .clamp(0.0, _preferredWidth)
-              .toDouble()
-        : _preferredWidth;
-    return BoxConstraints(maxWidth: width, maxHeight: constraints.maxHeight);
-  }
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints(maxWidth: drawer.width, maxHeight: constraints.maxHeight);
 
   @override
   Offset getPositionForChild(Size size, Size childSize) =>
-      // Left flush with the drawer, below the icon. `ponytail:` the drawer is
-      // the leading surface of the scaffold, which Material lays at the
-      // overlay's own left edge, so that edge is the drawer's; the drawer's
-      // measured rectangle is asserted in the drawer's test, so an edge that
-      // ever stops coinciding fails there rather than drifting silently.
-      Offset(0, anchor.bottom + _gap);
+      // The drawer's own left edge, under the icon: the panel lines up with the
+      // side menu it belongs to instead of sitting inside it.
+      Offset(drawer.left, anchor.bottom + _gap);
 
   @override
   bool shouldRelayout(_AccountPopoverLayout oldDelegate) =>
-      anchor != oldDelegate.anchor;
+      anchor != oldDelegate.anchor || drawer != oldDelegate.drawer;
 }
 
 class _DrawerDivider extends StatelessWidget {

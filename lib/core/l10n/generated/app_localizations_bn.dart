@@ -1045,6 +1045,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_benefitsTitle => 'সাবস্ক্রিপশন প্ল্যানে যা থাকে';
 
   @override
+  String get paywall_featureUnlimitedCasesTitle => 'আনলিমিটেড মামলা';
+
+  @override
+  String get paywall_featureUnlimitedCasesBody =>
+      'যত খুশি মামলা সংরক্ষণ করুন, কোনো সীমা ছাড়াই।';
+
+  @override
   String get paywall_featureDisasterRecoveryTitle => 'দুর্যোগে ডেটা পুনরুদ্ধার';
 
   @override

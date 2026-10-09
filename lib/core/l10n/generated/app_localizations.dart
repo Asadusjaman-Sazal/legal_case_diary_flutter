@@ -1880,6 +1880,18 @@ abstract class AppLocalizations {
   /// **'Subscription Plans Offer'**
   String get paywall_benefitsTitle;
 
+  /// No description provided for @paywall_featureUnlimitedCasesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited Cases'**
+  String get paywall_featureUnlimitedCasesTitle;
+
+  /// No description provided for @paywall_featureUnlimitedCasesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Store as many cases as you need, with no limit.'**
+  String get paywall_featureUnlimitedCasesBody;
+
   /// No description provided for @paywall_featureDisasterRecoveryTitle.
   ///
   /// In en, this message translates to:

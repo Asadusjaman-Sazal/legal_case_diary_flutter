@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.440 - App Lock: the When To Ask For The Pin button shows the currently chosen timing as a subtitle under it.
+Version: 0.0.441 - Subscription Plans: Unlimited Cases leads the feature list with its own text, each feature has a befitting icon instead of the one green tick, and Subscribe buttons are a little bigger.
 --------------------------------------
 
 ## Version History Log:
@@ -454,3 +454,4 @@ Version: 0.0.437 - Turn Off App Lock now asks for the current PIN or a fingerpri
 Version: 0.0.438 - App Lock: the pin dialog and its Cancel button are larger, and When To Ask For The Pin now opens as one grouped card (Backup & Restore's button section), so its two choices read as one control.
 Version: 0.0.439 - App Lock: the two When To Ask For The Pin choices are now full width, one per line, inside the same grouped card.
 Version: 0.0.440 - App Lock: the When To Ask For The Pin button shows the currently chosen timing as a subtitle under it.
+Version: 0.0.441 - Subscription Plans: Unlimited Cases leads the feature list with its own text, each feature has a befitting icon instead of the one green tick, and Subscribe buttons are a little bigger.

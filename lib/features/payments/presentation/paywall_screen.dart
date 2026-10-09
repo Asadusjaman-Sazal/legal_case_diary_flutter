@@ -53,7 +53,12 @@ const int paywallHalfYearlyPrice = paymentHalfYearlyPrice;
 const int paywallAnnualPrice = paymentAnnualPrice;
 
 /// What the subscription plans offer, in display order.
+///
+/// **Unlimited Cases leads the list** (0.0.441, user request): it is the
+/// benefit a free user hits first — the 50-case gate — so it answers the
+/// question that opened this screen before the cloud features do.
 const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
+  PaywallFeature.unlimitedCases,
   PaywallFeature.disasterRecovery,
   PaywallFeature.realTimeBackup,
   PaywallFeature.multiDevice,
@@ -62,6 +67,9 @@ const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
 
 /// One premium feature, as a key the screen localizes to a title and a body.
 enum PaywallFeature {
+  /// No 50-case ceiling: the diary grows with the practice.
+  unlimitedCases,
+
   /// Your data survives a lost or broken phone.
   disasterRecovery,
 
@@ -229,6 +237,8 @@ class _FeaturesCard extends StatelessWidget {
   /// The localized title for one feature.
   static String _title(AppLocalizations l, PaywallFeature feature) =>
       switch (feature) {
+        PaywallFeature.unlimitedCases =>
+          l.paywall_featureUnlimitedCasesTitle,
         PaywallFeature.disasterRecovery =>
           l.paywall_featureDisasterRecoveryTitle,
         PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupTitle,
@@ -239,12 +249,24 @@ class _FeaturesCard extends StatelessWidget {
   /// The localized body sentence for one feature.
   static String _body(AppLocalizations l, PaywallFeature feature) =>
       switch (feature) {
+        PaywallFeature.unlimitedCases => l.paywall_featureUnlimitedCasesBody,
         PaywallFeature.disasterRecovery =>
           l.paywall_featureDisasterRecoveryBody,
         PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupBody,
         PaywallFeature.multiDevice => l.paywall_featureMultiDeviceBody,
         PaywallFeature.collaboration => l.paywall_featureCollaborationBody,
       };
+
+  /// The icon that stands for one feature (0.0.441, user request) — drawn in
+  /// the app's primary, so each row says what it is about at a glance rather
+  /// than repeating one green tick.
+  static IconData _icon(PaywallFeature feature) => switch (feature) {
+    PaywallFeature.unlimitedCases => Icons.all_inclusive,
+    PaywallFeature.disasterRecovery => Icons.cloud_done_outlined,
+    PaywallFeature.realTimeBackup => Icons.cloud_upload_outlined,
+    PaywallFeature.multiDevice => Icons.devices_outlined,
+    PaywallFeature.collaboration => Icons.groups_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -264,10 +286,10 @@ class _FeaturesCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.check_circle,
-                  size: 18,
-                  color: AppColors.success,
+                Icon(
+                  _icon(paywallFeatures[i]),
+                  size: 20,
+                  color: AppColors.primary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -413,7 +435,9 @@ class _PlanRow extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
-            textStyle: AppTypography.labelLg,
+            textStyle: AppTypography.titleMd,
+            minimumSize: const Size(0, 52),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
             ),

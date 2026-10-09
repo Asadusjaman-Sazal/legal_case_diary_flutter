@@ -3266,7 +3266,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get auth_loginSubtitle => 'Sign in to your legal workspace';
+  String get auth_loginSubtitle => 'Log in to the app';
 
   @override
   String get auth_emailLabel => 'Email';

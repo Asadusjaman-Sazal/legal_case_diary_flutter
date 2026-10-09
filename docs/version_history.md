@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.425 - The Sign Up card's Create Account title is centred over it and its subtitle is one font size smaller, applied as the app's own additive Font Size step so it follows that setting.
+Version: 0.0.426 - The Login card's subtitle is now 'Log in to the app' in both languages, the user's wording with the verb written professionally, and the copy is pinned in its test.
 --------------------------------------
 
 ## Version History Log:
@@ -439,3 +439,4 @@ Version: 0.0.422 - Exit App? now really closes the app: SystemNavigator.pop had 
 Version: 0.0.423 - The Create Account card's header now shows the bundled app logo instead of the placeholder gavel, with the gavel kept as the fallback and the mockup updated to match.
 Version: 0.0.424 - Both auth cards now carry the app logo, the Sign Up brand row is centred over its form, and the Sign Up subtitle reads 'Start a stress-free journey of case management.' in both languages.
 Version: 0.0.425 - The Sign Up card's Create Account title is centred over it and its subtitle is one font size smaller, applied as the app's own additive Font Size step so it follows that setting.
+Version: 0.0.426 - The Login card's subtitle is now 'Log in to the app' in both languages, the user's wording with the verb written professionally, and the copy is pinned in its test.

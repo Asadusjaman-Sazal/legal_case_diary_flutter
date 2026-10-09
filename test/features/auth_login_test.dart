@@ -62,6 +62,9 @@ void main() {
 
     expect(find.text(l.appName), findsOneWidget);
     expect(find.text(l.auth_loginSubtitle), findsOneWidget);
+    // The subtitle's wording is the user's, pinned literally (as the exit
+    // window's copy is) so a later copy edit has to be deliberate.
+    expect(find.text('Log in to the app'), findsOneWidget);
     expect(find.text(l.auth_emailLabel), findsOneWidget);
     expect(find.text(l.auth_passwordLabel), findsOneWidget);
     expect(find.text(l.auth_forgotPassword), findsOneWidget);

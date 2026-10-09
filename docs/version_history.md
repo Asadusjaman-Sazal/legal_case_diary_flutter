@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.435 - The side menu's account panel is now a rounded window with transparent option rows: the Email caption dropped, the grey edge kept, and its options read at the side menu's own text size.
+Version: 0.0.436 - App Lock gains a Turn Off button (confirmed, removes the PIN and fingerprint), and When To Ask For The Pin is now a collapsing button with two choice buttons.
 --------------------------------------
 
 ## Version History Log:
@@ -449,3 +449,4 @@ Version: 0.0.432 - The side menu's account options now open at the profile icon 
 Version: 0.0.433 - The side menu's account panel now lines up with the drawer, carries a thin grey outline, and its profile icon shows a small chevron badge marking it as a menu.
 Version: 0.0.434 - The side menu's account panel now takes the side menu's own measured width, matching the panel exactly instead of a hand-picked menu width.
 Version: 0.0.435 - The side menu's account panel is now a rounded window with transparent option rows: the Email caption dropped, the grey edge kept, and its options read at the side menu's own text size.
+Version: 0.0.436 - App Lock gains a Turn Off button (confirmed, removes the PIN and fingerprint), and When To Ask For The Pin is now a collapsing button with two choice buttons.

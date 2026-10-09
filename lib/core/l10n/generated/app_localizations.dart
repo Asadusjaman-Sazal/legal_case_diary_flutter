@@ -7134,16 +7134,16 @@ abstract class AppLocalizations {
   /// **'When To Ask For The Pin'**
   String get settingsAppLock_whenToAsk;
 
-  /// No description provided for @settingsAppLock_whenAppOpens.
+  /// No description provided for @settingsAppLock_whenAppStarts.
   ///
   /// In en, this message translates to:
-  /// **'When The App Opens'**
-  String get settingsAppLock_whenAppOpens;
+  /// **'When The App Starts'**
+  String get settingsAppLock_whenAppStarts;
 
   /// No description provided for @settingsAppLock_whenAppOpensAndReturns.
   ///
   /// In en, this message translates to:
-  /// **'When The App Opens Or Returns From The Background'**
+  /// **'Every Time The App Opens'**
   String get settingsAppLock_whenAppOpensAndReturns;
 
   /// Title of the pin-pad dialog's first step; digits is the pin length in the active language.
@@ -7247,6 +7247,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock With Fingerprint'**
   String get settingsAppLock_useFingerprint;
+
+  /// No description provided for @settingsAppLock_turnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off App Lock'**
+  String get settingsAppLock_turnOff;
+
+  /// No description provided for @settingsAppLock_turnOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off App Lock?'**
+  String get settingsAppLock_turnOffTitle;
+
+  /// No description provided for @settingsAppLock_turnOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The app will open without a PIN or fingerprint until you set App Lock up again.'**
+  String get settingsAppLock_turnOffBody;
+
+  /// No description provided for @settingsAppLock_turnOffConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Off'**
+  String get settingsAppLock_turnOffConfirm;
+
+  /// No description provided for @settingsAppLock_turnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock Is Off.'**
+  String get settingsAppLock_turnedOff;
 }
 
 class _AppLocalizationsDelegate

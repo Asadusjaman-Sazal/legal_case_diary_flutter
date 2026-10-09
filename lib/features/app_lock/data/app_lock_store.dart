@@ -120,6 +120,21 @@ class AppLockStore {
   /// the fingerprint) — verification is the dialog's job, not this one's.
   Future<void> changePin(String newPin) => setupPin(newPin);
 
+  /// Turns App Lock off: the PIN is removed and fingerprint unlock switched
+  /// off, returning the app to a fresh, unlocked install.
+  ///
+  /// **The flag is cleared first, the digest last.** The dangerous residue is
+  /// a "set up" flag with no digest behind it, because that state locks the
+  /// owner out with nothing that can ever match — so if this is interrupted,
+  /// it fails toward an *unlocked* app (flag already false, digest still
+  /// there), and a later setup simply overwrites the digest. The reverse
+  /// order would fail toward the lockout.
+  Future<void> turnOff() async {
+    await prefs.setBool(_setupKey, false);
+    await prefs.setBool(_fingerprintKey, false);
+    await _storage.delete(key: _pinStorageKey);
+  }
+
   /// Sets whether the fingerprint may unlock the app.
   Future<void> setFingerprintEnabled(bool enabled) =>
       prefs.setBool(_fingerprintKey, enabled);
@@ -218,6 +233,12 @@ class AppLockNotifier extends AsyncNotifier<AppLockState> {
   /// Replaces the stored PIN; the caller has already verified the old one.
   Future<void> changePin(String newPin) async {
     await ref.read(appLockStoreProvider).changePin(newPin);
+    state = AsyncValue.data(await _read(ref.read(appLockStoreProvider)));
+  }
+
+  /// Turns App Lock off, returning the screen to its un-set-up state.
+  Future<void> turnOff() async {
+    await ref.read(appLockStoreProvider).turnOff();
     state = AsyncValue.data(await _read(ref.read(appLockStoreProvider)));
   }
 

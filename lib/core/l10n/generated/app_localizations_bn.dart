@@ -4105,11 +4105,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsAppLock_whenToAsk => 'কখন পিন চাইতে হবে';
 
   @override
-  String get settingsAppLock_whenAppOpens => 'অ্যাপ খোলার সময়';
+  String get settingsAppLock_whenAppStarts => 'অ্যাপ চালু হলে';
 
   @override
   String get settingsAppLock_whenAppOpensAndReturns =>
-      'অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়';
+      'প্রতিবার অ্যাপ খোলার সময়';
 
   @override
   String settingsAppLock_choosePin(String digits) {
@@ -4171,4 +4171,20 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsAppLock_useFingerprint => 'ফিঙ্গারপ্রিন্ট দিয়ে আনলক করুন';
+
+  @override
+  String get settingsAppLock_turnOff => 'অ্যাপ লক বন্ধ করুন';
+
+  @override
+  String get settingsAppLock_turnOffTitle => 'অ্যাপ লক বন্ধ করবেন?';
+
+  @override
+  String get settingsAppLock_turnOffBody =>
+      'আবার অ্যাপ লক সেটআপ না করা পর্যন্ত অ্যাপটি কোনো পিন বা ফিঙ্গারপ্রিন্ট ছাড়াই খুলবে।';
+
+  @override
+  String get settingsAppLock_turnOffConfirm => 'বন্ধ করুন';
+
+  @override
+  String get settingsAppLock_turnedOff => 'অ্যাপ লক বন্ধ হয়েছে।';
 }

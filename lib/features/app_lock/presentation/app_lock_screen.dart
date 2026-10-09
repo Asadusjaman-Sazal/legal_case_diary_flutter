@@ -18,9 +18,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
-import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/app_lock_store.dart';
@@ -37,6 +37,10 @@ class AppLockScreen extends ConsumerStatefulWidget {
 }
 
 class _AppLockScreenState extends ConsumerState<AppLockScreen> {
+  /// Whether the timing section is open; it starts collapsed, so the screen
+  /// opens as a plain column of buttons.
+  bool _timingExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -73,6 +77,15 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
           onTap: _setup,
         ),
       ] else ...[
+        // Turn Off first: the way back to an unlocked app, above the actions
+        // that configure one.
+        SettingsSubMenuRow(
+          key: const ValueKey('app-lock-turn-off'),
+          icon: Icons.lock_open_outlined,
+          title: l.settingsAppLock_turnOff,
+          onTap: _confirmTurnOff,
+        ),
+        const SizedBox(height: AppSpacing.sm),
         SettingsSubMenuRow(
           key: const ValueKey('app-lock-change'),
           icon: Icons.password,
@@ -88,17 +101,30 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
               : l.settingsAppLock_enableFingerprint,
           onTap: () => _toggleFingerprint(l, state.fingerprintEnabled),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        SettingsSectionLabel(l.settingsAppLock_whenToAsk),
         const SizedBox(height: AppSpacing.sm),
-        SettingsPickerRow(
+        // The timing control: a button like the two above, closed by default,
+        // opening onto its two choices as two more buttons of the same design.
+        _TimingHeader(
           key: const ValueKey('app-lock-timing'),
-          text: state.timing == AppLockTiming.appOpenAndReturn
-              ? l.settingsAppLock_whenAppOpensAndReturns
-              : l.settingsAppLock_whenAppOpens,
-          icon: Icons.expand_more,
-          onTap: () => _pickTiming(l, state.timing),
+          expanded: _timingExpanded,
+          onTap: () => setState(() => _timingExpanded = !_timingExpanded),
         ),
+        if (_timingExpanded) ...[
+          const SizedBox(height: AppSpacing.sm),
+          _TimingOption(
+            key: const ValueKey('app-lock-timing-app-starts'),
+            label: l.settingsAppLock_whenAppStarts,
+            selected: state.timing == AppLockTiming.appOpen,
+            onTap: () => _chooseTiming(AppLockTiming.appOpen),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _TimingOption(
+            key: const ValueKey('app-lock-timing-every-open'),
+            label: l.settingsAppLock_whenAppOpensAndReturns,
+            selected: state.timing == AppLockTiming.appOpenAndReturn,
+            onTap: () => _chooseTiming(AppLockTiming.appOpenAndReturn),
+          ),
+        ],
       ],
     ],
   );
@@ -230,50 +256,69 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   }
 
   // -------------------------------------------------------------------------
+  // Turn off
+  // -------------------------------------------------------------------------
+
+  /// Confirms, then turns App Lock off and returns the screen to Setup.
+  ///
+  /// The confirmation copies the app's own destructive-warning shape: Cancel
+  /// and the acting button, centred, with the action named for what it does
+  /// rather than a bare "OK". No PIN is asked for here — the request did not
+  /// ask for one, and this is the action a user takes while already inside the
+  /// unlocked app.
+  Future<void> _confirmTurnOff() async {
+    final l = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.settingsAppLock_turnOffTitle),
+        content: Text(l.settingsAppLock_turnOffBody),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              minimumSize: const Size(112, 48),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.sharedActions_cancel),
+          ),
+          TextButton(
+            key: const ValueKey('app-lock-turn-off-confirm'),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(112, 48),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                color: AppColors.error,
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.settingsAppLock_turnOffConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await ref.read(appLockStateProvider.notifier).turnOff();
+    if (!mounted) return;
+    // Collapse the timing section with it: the next setup should open on the
+    // same plain column of buttons this screen shipped with.
+    setState(() => _timingExpanded = false);
+    _snack(l.settingsAppLock_turnedOff);
+  }
+
+  // -------------------------------------------------------------------------
   // Timing
   // -------------------------------------------------------------------------
 
-  /// The two-choice picker for when the pin is asked, in the shared dialog.
-  Future<void> _pickTiming(AppLocalizations l, AppLockTiming current) async {
-    final chosen = await showDialog<AppLockTiming>(
-      context: context,
-      builder: (context) => Dialog(
-        insetPadding: const EdgeInsets.all(AppSpacing.md),
-        backgroundColor: AppColors.surfaceContainerLowest,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SettingsPickerDialogHeader(title: l.settingsAppLock_whenToAsk),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  SettingsOptionRow(
-                    label: l.settingsAppLock_whenAppOpens,
-                    selected: current == AppLockTiming.appOpen,
-                    onTap: () =>
-                        Navigator.of(context).pop(AppLockTiming.appOpen),
-                  ),
-                  const Divider(height: 1, color: AppColors.outlineVariant),
-                  SettingsOptionRow(
-                    label: l.settingsAppLock_whenAppOpensAndReturns,
-                    selected: current == AppLockTiming.appOpenAndReturn,
-                    onTap: () => Navigator.of(
-                      context,
-                    ).pop(AppLockTiming.appOpenAndReturn),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (chosen == null || !mounted) return;
-    await ref.read(appLockStateProvider.notifier).setTiming(chosen);
+  /// Writes the chosen timing and closes the section again.
+  ///
+  /// Collapsing on choose is the point of a section that opens from a button:
+  /// the choice is made and the screen returns to its resting shape.
+  Future<void> _chooseTiming(AppLockTiming timing) async {
+    await ref.read(appLockStateProvider.notifier).setTiming(timing);
+    if (!mounted) return;
+    setState(() => _timingExpanded = false);
   }
 
   void _snack(String text) {
@@ -282,4 +327,131 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text(text)));
   }
+}
+
+/// The timing section's header: a row like the buttons above it, with a chevron
+/// that turns as the section opens and closes.
+class _TimingHeader extends StatelessWidget {
+  const _TimingHeader({required this.expanded, required this.onTap, super.key});
+
+  /// Whether the section below is open.
+  final bool expanded;
+
+  /// Opens or closes the section.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Material(
+      color: AppColors.surfaceContainerLowest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.md),
+        side: BorderSide(color: AppColors.outlineVariant),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: settingsMenuCardRowHeight,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surfaceContainer,
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.schedule, color: AppColors.primary),
+                  ),
+                ),
+                SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    l.settingsAppLock_whenToAsk,
+                    style: AppTypography.titleMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                ),
+                // The same chevron, turned to point down when open.
+                AnimatedRotation(
+                  turns: expanded ? 0.25 : 0,
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(
+                    Icons.chevron_right,
+                    color: AppColors.outlineVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One of the timing section's two choices: the same row design, ticked when it
+/// is the active one.
+class _TimingOption extends StatelessWidget {
+  const _TimingOption({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
+
+  /// The choice's wording.
+  final String label;
+
+  /// Whether this is the timing in effect.
+  final bool selected;
+
+  /// Chooses this timing.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: selected
+        ? AppColors.secondary.withValues(alpha: 0.08)
+        : AppColors.surfaceContainerLowest,
+    clipBehavior: Clip.antiAlias,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.md),
+      side: BorderSide(color: AppColors.outlineVariant),
+    ),
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: settingsMenuCardRowHeight,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTypography.titleMd.copyWith(
+                    color: selected ? AppColors.secondary : AppColors.onSurface,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (selected)
+                const Icon(Icons.check_circle, color: AppColors.secondary),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

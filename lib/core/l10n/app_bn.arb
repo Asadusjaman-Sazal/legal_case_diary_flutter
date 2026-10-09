@@ -1730,8 +1730,8 @@
   "settingsAppLock_enableFingerprint": "ফিঙ্গারপ্রিন্ট চালু করুন",
   "settingsAppLock_disableFingerprint": "ফিঙ্গারপ্রিন্ট বন্ধ করুন",
   "settingsAppLock_whenToAsk": "কখন পিন চাইতে হবে",
-  "settingsAppLock_whenAppOpens": "অ্যাপ খোলার সময়",
-  "settingsAppLock_whenAppOpensAndReturns": "অ্যাপ খোলা বা ব্যাকগ্রাউন্ড থেকে ফিরে আসার সময়",
+  "settingsAppLock_whenAppStarts": "অ্যাপ চালু হলে",
+  "settingsAppLock_whenAppOpensAndReturns": "প্রতিবার অ্যাপ খোলার সময়",
   "settingsAppLock_choosePin": "{digits} সংখ্যার একটি পিন চয়ন করুন",
   "@settingsAppLock_choosePin": {
       "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",
@@ -1764,5 +1764,11 @@
   "settingsAppLock_fingerprintEnabled": "ফিঙ্গারপ্রিন্ট আনলক চালু হয়েছে।",
   "settingsAppLock_fingerprintDisabled": "ফিঙ্গারপ্রিন্ট আনলক বন্ধ হয়েছে।",
   "settingsAppLock_fingerprintUnavailable": "এই ডিভাইসে কোনো ফিঙ্গারপ্রিন্ট নেই।",
-  "settingsAppLock_useFingerprint": "ফিঙ্গারপ্রিন্ট দিয়ে আনলক করুন"
+  "settingsAppLock_useFingerprint": "ফিঙ্গারপ্রিন্ট দিয়ে আনলক করুন",
+  "settingsAppLock_turnOff": "অ্যাপ লক বন্ধ করুন",
+  "settingsAppLock_turnOffTitle": "অ্যাপ লক বন্ধ করবেন?",
+  "settingsAppLock_turnOffBody": "আবার অ্যাপ লক সেটআপ না করা পর্যন্ত অ্যাপটি কোনো পিন বা ফিঙ্গারপ্রিন্ট ছাড়াই খুলবে।",
+  "settingsAppLock_turnOffConfirm": "বন্ধ করুন",
+  "settingsAppLock_turnedOff": "অ্যাপ লক বন্ধ হয়েছে।",
+  "settingsAppLock_whenAppStarts": "অ্যাপ চালু হলে"
 }

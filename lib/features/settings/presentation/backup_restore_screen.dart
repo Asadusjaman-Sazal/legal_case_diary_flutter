@@ -136,11 +136,11 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
 
   /// Runs the export every backup action shares.
   ///
-  /// [sink] is the only difference between the two backup buttons: the platform
-  /// gateway for a local backup, or a [ShareableBackupSink] when the flow goes
-  /// on to the share sheet. A dismissed save dialog writes nothing and records
-  /// nothing, because the archive is only recorded once the sink reported
-  /// success.
+  /// [sink] is the only difference between the backup buttons: all three write
+  /// into the diary folder (the folder-first composite, which falls back to the
+  /// save dialog only when the folder cannot be written). A dismissed save
+  /// dialog writes nothing and records nothing, because the archive is only
+  /// recorded once the sink reported success.
   ///
   /// A passphrase is asked for **only when encryption is on** (off by default):
   /// with it off the backup is written as readable JSON and needs nothing from
@@ -203,17 +203,16 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     );
   }
 
-  /// Backup to Google Drive: the same local backup, then an offer to send it.
+  /// Backup to Google Drive: the same folder backup, then an offer to send it.
   ///
   /// The diary is offline (Part A), so the Drive button cannot upload anything
   /// itself. It does the one thing that is honest and useful: writes the same
-  /// encrypted backup the local action writes — through the same save dialog, so
-  /// the file the user keeps is the file the status card reports — and then
-  /// offers the platform share sheet, which is where Google Drive appears as a
-  /// target.
+  /// encrypted backup the other actions write — automatically into the same
+  /// public folder, with no save dialog — and then offers the platform share
+  /// sheet, which is where Google Drive appears as a target. The file is a real
+  /// path on the device's public storage, so the sheet attaches it as it is.
   Future<void> _backupToDrive() async {
-    final sink = ShareableBackupSink(ref.read(backupFileGatewayProvider));
-    final result = await _exportBackup(sink);
+    final result = await _exportBackup(ref.read(backupFolderFirstSinkProvider));
     if (result == null || !mounted) return;
 
     // The backup is saved and recorded by now, so this window only decides
@@ -225,9 +224,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     final outcome = await ref
         .read(appShareServiceProvider)
         .shareFile(
-          // The sink's copy when the platform returned a content URI no share
-          // sheet can attach, otherwise the user's own file.
-          path: sink.sharePath ?? result.path,
+          path: result.path,
           subject: l.settingsBackupRestore_shareSubject,
         );
     if (!mounted) return;

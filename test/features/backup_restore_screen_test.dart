@@ -1000,7 +1000,7 @@ void main() {
     expect(find.text('Open this backup'), findsNothing);
   });
 
-  testWidgets('the Drive action makes a local backup, then offers to send it', (
+  testWidgets('the Drive action makes a folder backup, then offers to send it', (
     tester,
   ) async {
     await enableEncryption();
@@ -1017,62 +1017,32 @@ void main() {
       confirmLabel: 'Encrypt and save',
     );
 
-    // The file is written and recorded before any sharing is offered, and it is
-    // the encrypted container, not a plaintext copy.
-    final bytes = gateway.savedBytes;
+    // The file is written into the diary folder and recorded before any
+    // sharing is offered, and it is the encrypted container, not plaintext.
+    final bytes = folderBackupBytes();
     expect(bytes, isNotNull);
     expect(
       EncryptedBackup.decode(utf8.decode(bytes!)).format,
       kEncryptedBackupFormat,
     );
-    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(prefs.getString(lastBackupPathKey), folderSavePath());
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNotNull);
 
     // The offer window names the file that was just saved, and nothing has been
     // shared yet.
     expect(find.text('Send to Google Drive?'), findsOneWidget);
     expect(find.textContaining('Your backup is saved.'), findsOneWidget);
-    expect(find.text(gateway.savePath), findsWidgets);
+    expect(find.text(folderSavePath()!), findsWidgets);
     expect(shareService.files, isEmpty);
 
     await tester.tap(find.text('Send'));
     await tester.pumpAndSettle();
 
-    // This save location is not a filesystem path (Android's Save-to dialog
-    // hands back a content URI), so the sheet receives a copy of the very same
-    // bytes — a share sheet cannot attach a content URI.
+    // The sheet attaches the very file the backup was saved as — a real path in
+    // the public folder, so no copy is needed.
     final shared = shareService.files.single;
     expect(shared.subject, 'Legal Case Diary backup');
-    expect(shared.path, isNot(gateway.savePath));
-    expect(shared.path, endsWith(gateway.savedName!));
-    // Sync on purpose: real async I/O never completes under the fake clock.
-    expect(File(shared.path).readAsBytesSync(), bytes);
-  });
-
-  testWidgets('a saved file that really exists is shared as it is', (
-    tester,
-  ) async {
-    await enableEncryption();
-    gateway
-      ..savePath =
-          '${tempDir.path}${Platform.pathSeparator}legal-case-diary.lcbak'
-      ..writeToDisk = true;
-    await pumpScreen(tester);
-
-    await tapAction(tester, 'Backup to Google Drive');
-    await enterPassphrase(
-      tester,
-      passphrase: 'correct horse',
-      confirmation: 'correct horse',
-      confirmLabel: 'Encrypt and save',
-    );
-    await tester.tap(find.text('Send'));
-    await tester.pumpAndSettle();
-
-    // A real path needs no copy: the file the user keeps is the file the sheet
-    // gets, so the two can never drift apart.
-    expect(shareService.files.single.path, gateway.savePath);
-    expect(File(gateway.savePath).readAsBytesSync(), gateway.savedBytes);
+    expect(shared.path, folderSavePath());
   });
 
   testWidgets('declining the Drive offer keeps the backup and shares nothing', (
@@ -1095,7 +1065,7 @@ void main() {
 
     // Declining the sheet is not a failed backup: the file and its record stay.
     expect(shareService.files, isEmpty);
-    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(prefs.getString(lastBackupPathKey), folderSavePath());
     expect(find.text('No backup has been made yet.'), findsNothing);
   });
 
@@ -1109,7 +1079,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    expect(gateway.savedBytes, isNull);
+    expect(folderBackupBytes(), isNull);
     expect(find.text('Send to Google Drive?'), findsNothing);
     expect(shareService.files, isEmpty);
   });
@@ -1131,13 +1101,18 @@ void main() {
 
     expect(find.text('Could not open the share sheet.'), findsOneWidget);
     // The backup itself is unaffected by a share that never happened.
-    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(prefs.getString(lastBackupPathKey), folderSavePath());
   });
 
-  testWidgets('a dismissed save dialog offers no share', (tester) async {
+  testWidgets('a folder that cannot be written falls back to the save dialog', (
+    tester,
+  ) async {
     await enableEncryption();
     gateway.cancelSave = true;
-    await pumpScreen(tester);
+    await pumpScreen(
+      tester,
+      folderSink: const _ThrowingFolderSink(),
+    );
 
     await tapAction(tester, 'Backup to Google Drive');
     await enterPassphrase(
@@ -1147,6 +1122,8 @@ void main() {
       confirmLabel: 'Encrypt and save',
     );
 
+    // The folder failed, so the fallback save dialog was dismissed: nothing
+    // written, no share offer.
     expect(find.text('Send to Google Drive?'), findsNothing);
     expect(shareService.files, isEmpty);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);

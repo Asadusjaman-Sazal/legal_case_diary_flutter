@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
@@ -368,6 +369,38 @@ void main() {
       paragraph.size.width,
       tester.getSize(find.byType(AuthSignupHeader)).width,
     );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the title and the wordmark trade sizes', (tester) async {
+    await pumpSignup(tester);
+
+    final title = tester.widget<Text>(find.text(l.auth_signupTitle));
+    final wordmark = tester.widget<Text>(find.text(l.appName));
+
+    // The title takes the size the wordmark had, and the wordmark takes the
+    // Login card's name size — the two traded places (user request). Both are
+    // read as the design tokens themselves, so the Login card's own case pins
+    // the same token from its side and the pair cannot drift apart.
+    expect(title.style, AppTypography.headlineMd);
+    expect(wordmark.style, AppTypography.headlineLg);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the header sits clear of the first field', (tester) async {
+    await pumpSignup(tester);
+
+    // The gap from the header's last line down to the Account Type label, which
+    // is what the field block starts with: one step more than the card's own
+    // padding (it was AppSpacing.md, 16 px).
+    final label = find.text(l.auth_accountTypeLabel);
+    final gap =
+        tester.getTopLeft(label).dy -
+        tester.getBottomLeft(find.text(l.auth_signupSubtitle)).dy;
+
+    expect(gap, AppSpacing.lg);
 
     await unmountApp(tester);
   });

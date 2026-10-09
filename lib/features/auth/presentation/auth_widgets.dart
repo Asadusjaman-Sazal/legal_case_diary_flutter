@@ -234,10 +234,9 @@ class AuthSignupHeader extends StatelessWidget {
             Flexible(
               child: Text(
                 l.appName,
-                style: AppTypography.headlineMd.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
+                // The Login card's name size (user request): the same token, so
+                // the two cards' wordmarks cannot drift apart.
+                style: AppTypography.headlineLg,
               ),
             ),
           ],
@@ -252,7 +251,9 @@ class AuthSignupHeader extends StatelessWidget {
           child: Text(
             title,
             textAlign: TextAlign.center,
-            style: AppTypography.headlineLg,
+            // The size the wordmark above it used to have (user request): the
+            // two traded places, so this is now the smaller of the pair.
+            style: AppTypography.headlineMd,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),

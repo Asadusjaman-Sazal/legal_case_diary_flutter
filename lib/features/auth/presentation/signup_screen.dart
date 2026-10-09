@@ -503,7 +503,9 @@ Object? _error;
                       AppSpacing.lg,
                       AppSpacing.xl,
                       AppSpacing.lg,
-                      AppSpacing.md,
+                      // The header sits clear of the first field below it (user
+                      // request): one step more than the card's own padding.
+                      AppSpacing.lg,
                     ),
                     child: AuthSignupHeader(
                       title: l.auth_signupTitle,

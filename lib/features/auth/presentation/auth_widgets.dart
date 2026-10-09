@@ -20,6 +20,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/theme/font_size_scope.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../data/auth_repository.dart';
 
@@ -173,6 +174,13 @@ const double _brandMarkSize = 28;
 /// Side of the sign-in card's brand mark, unchanged from the round placeholder.
 const double _signInMarkSize = 48;
 
+/// Font-size steps the Sign Up subtitle is set below the rest of the card.
+///
+/// One step down, in the app's own unit: [SteppedTextScaler] moves sizes by
+/// whole logical pixels, which is what the Font Size setting calls a step (and
+/// what "one font size smaller" means here), so this is negative.
+const int _subtitleStepDown = -1;
+
 /// The sign-up card's header: the app logo, the app name in a row, then the
 /// title.
 class AuthSignupHeader extends StatelessWidget {
@@ -192,12 +200,16 @@ class AuthSignupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // Read once: the subtitle below drops one font size off whatever scale is
+    // already in effect (and off nothing at all where there is no MediaQuery).
+    final media = MediaQuery.maybeOf(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          // The card's brand row is centred over the left-aligned form below it
-          // (user request); the title and subtitle keep their own alignment.
+          // The card's brand row is centred over the app's own alignment rules
+          // below it (user request): the title is centred in its own right and
+          // the subtitle keeps the card's left alignment.
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
@@ -231,12 +243,34 @@ class AuthSignupHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(title, style: AppTypography.headlineLg),
+        // The title is centred over the card (user request). Full width as well
+        // as centred: a shrink-wrapped Text would centre the text inside its own
+        // width and move nothing, and a wrapping title centres each of its
+        // lines.
+        SizedBox(
+          width: double.infinity,
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppTypography.headlineLg,
+          ),
+        ),
         const SizedBox(height: AppSpacing.xs),
-        Text(
-          subtitle,
-          style: AppTypography.bodyMd.copyWith(
-            color: AppColors.onSurfaceVariant,
+        // One font size below the rest of the card (user request), through the
+        // same additive step the Font Size setting uses: the step is taken off
+        // whatever scale is already in effect, so this line follows that setting
+        // rather than overriding it.
+        MediaQuery(
+          data: (media ?? const MediaQueryData()).copyWith(
+            textScaler: media == null
+                ? TextScaler.noScaling
+                : SteppedTextScaler(media.textScaler, _subtitleStepDown),
+          ),
+          child: Text(
+            subtitle,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
         ),
       ],

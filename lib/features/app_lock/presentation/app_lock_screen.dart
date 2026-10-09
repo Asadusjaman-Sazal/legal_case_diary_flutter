@@ -102,29 +102,17 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
           onTap: () => _toggleFingerprint(l, state.fingerprintEnabled),
         ),
         const SizedBox(height: AppSpacing.sm),
-        // The timing control: a button like the two above, closed by default,
-        // opening onto its two choices as two more buttons of the same design.
-        _TimingHeader(
-          key: const ValueKey('app-lock-timing'),
+        // The timing section, shaped like Backup & Restore's Encryption card:
+        // **one** card holds the header and, when open, its two choices, so the
+        // choices read as part of the section rather than as separate buttons.
+        _TimingSection(
           expanded: _timingExpanded,
-          onTap: () => setState(() => _timingExpanded = !_timingExpanded),
+          timing: state.timing,
+          onToggle: () => setState(() => _timingExpanded = !_timingExpanded),
+          onChooseAppStart: () => _chooseTiming(AppLockTiming.appOpen),
+          onChooseEveryOpen: () =>
+              _chooseTiming(AppLockTiming.appOpenAndReturn),
         ),
-        if (_timingExpanded) ...[
-          const SizedBox(height: AppSpacing.sm),
-          _TimingOption(
-            key: const ValueKey('app-lock-timing-app-starts'),
-            label: l.settingsAppLock_whenAppStarts,
-            selected: state.timing == AppLockTiming.appOpen,
-            onTap: () => _chooseTiming(AppLockTiming.appOpen),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _TimingOption(
-            key: const ValueKey('app-lock-timing-every-open'),
-            label: l.settingsAppLock_whenAppOpensAndReturns,
-            selected: state.timing == AppLockTiming.appOpenAndReturn,
-            onTap: () => _chooseTiming(AppLockTiming.appOpenAndReturn),
-          ),
-        ],
       ],
     ],
   );
@@ -259,13 +247,13 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   // Turn off
   // -------------------------------------------------------------------------
 
-  /// Confirms, then turns App Lock off and returns the screen to Setup.
+  /// Warns, then proves it is the owner, then turns App Lock off.
   ///
-  /// The confirmation copies the app's own destructive-warning shape: Cancel
-  /// and the acting button, centred, with the action named for what it does
-  /// rather than a bare "OK". No PIN is asked for here — the request did not
-  /// ask for one, and this is the action a user takes while already inside the
-  /// unlocked app.
+  /// Three steps, and each earns its place: the **warning** copies the app's
+  /// own destructive shape (Cancel and the acting button, named for what it
+  /// does); the **proof** is the current PIN or the fingerprint, the same pair
+  /// the change-PIN flow accepts, so a phone someone else is holding cannot
+  /// switch the lock off; and only then is anything cleared.
   Future<void> _confirmTurnOff() async {
     final l = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
@@ -299,12 +287,48 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    if (!await _proveIdentity(l)) return;
+    if (!mounted) return;
+
     await ref.read(appLockStateProvider.notifier).turnOff();
     if (!mounted) return;
     // Collapse the timing section with it: the next setup should open on the
     // same plain column of buttons this screen shipped with.
     setState(() => _timingExpanded = false);
     _snack(l.settingsAppLock_turnedOff);
+  }
+
+  /// Asks for the current PIN, or a fingerprint where one is enabled and the
+  /// device can answer it; true only when the owner proved themselves.
+  ///
+  /// Runs *after* the warning and *before* anything is cleared, so a cancelled
+  /// or failed proof leaves the lock exactly as it was.
+  Future<bool> _proveIdentity(AppLocalizations l) async {
+    final notifier = ref.read(appLockStateProvider.notifier);
+    final fingerprint = ref.read(biometricsProvider);
+    final usable =
+        ref.read(appLockStateProvider).value?.fingerprintEnabled == true &&
+        await fingerprint.isUsable;
+    if (!mounted) return false;
+
+    final captured = await showPinFlowDialog(
+      context,
+      stages: [
+        PinPadStage(
+          title: l.settingsAppLock_enterCurrentPin,
+          verify: (pin, _) => notifier.verifyPin(pin),
+          error: l.settingsAppLock_currentPinWrong,
+          biometrics: usable
+              ? () => fingerprint.verify(l.settingsAppLock_verifyForFingerprint)
+              : null,
+        ),
+      ],
+      cancelLabel: l.sharedActions_cancel,
+    );
+    // One capture means the PIN stage passed; a fingerprint completion carries
+    // no pin, so an empty non-null result is a proven fingerprint, not a
+    // refusal. A null result is a cancel.
+    return captured != null;
   }
 
   // -------------------------------------------------------------------------
@@ -329,129 +353,205 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   }
 }
 
-/// The timing section's header: a row like the buttons above it, with a chevron
-/// that turns as the section opens and closes.
-class _TimingHeader extends StatelessWidget {
-  const _TimingHeader({required this.expanded, required this.onTap, super.key});
+/// The timing section: one card holding the header and, when open, its two
+/// choices — the shape Backup & Restore's Encryption section uses, so the
+/// choices read as one control rather than two separate buttons.
+class _TimingSection extends StatelessWidget {
+  const _TimingSection({
+    required this.expanded,
+    required this.timing,
+    required this.onToggle,
+    required this.onChooseAppStart,
+    required this.onChooseEveryOpen,
+  });
 
-  /// Whether the section below is open.
+  /// Whether the choices are showing.
   final bool expanded;
 
+  /// The timing in effect, so the matching choice can be filled.
+  final AppLockTiming timing;
+
   /// Opens or closes the section.
-  final VoidCallback onTap;
+  final VoidCallback onToggle;
+
+  /// Chooses "when the app starts".
+  final VoidCallback onChooseAppStart;
+
+  /// Chooses "every time the app opens".
+  final VoidCallback onChooseEveryOpen;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Material(
-      color: AppColors.surfaceContainerLowest,
+      // The section's own surface, one shade lighter than the rows above, so
+      // the whole block reads as a single grouped card.
+      color: AppColors.surfaceBright,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.md),
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
         side: BorderSide(color: AppColors.outlineVariant),
       ),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: settingsMenuCardRowHeight,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainer,
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.schedule, color: AppColors.primary),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // The header row, tappable to open and close.
+          InkWell(
+            key: const ValueKey('app-lock-timing'),
+            onTap: onToggle,
+            child: Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: settingsMenuCardRowHeight,
                 ),
-                SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Text(
-                    l.settingsAppLock_whenToAsk,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.onSurface,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.surfaceContainer,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.schedule, color: AppColors.primary),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.settingsAppLock_whenToAsk,
+                            style: AppTypography.titleMd.copyWith(
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          SizedBox(height: AppSpacing.xs),
+                          // The choice in effect, so the section reads its
+                          // current value without being opened.
+                          Text(
+                            timing == AppLockTiming.appOpen
+                                ? l.settingsAppLock_whenAppStarts
+                                : l.settingsAppLock_whenAppOpensAndReturns,
+                            key: const ValueKey('app-lock-timing-current'),
+                            style: AppTypography.bodySm.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AnimatedRotation(
+                      turns: expanded ? 0.25 : 0,
+                      duration: const Duration(milliseconds: 150),
+                      child: Icon(
+                        Icons.chevron_right,
+                        color: AppColors.outlineVariant,
+                      ),
+                    ),
+                  ],
                 ),
-                // The same chevron, turned to point down when open.
-                AnimatedRotation(
-                  turns: expanded ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 150),
-                  child: Icon(
-                    Icons.chevron_right,
-                    color: AppColors.outlineVariant,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          if (expanded) ...[
+            // A hairline separates the header from its choices, and a second
+            // separates the two choices — the same divider language the
+            // neighbouring Settings cards use.
+            const Divider(height: 1, color: AppColors.outlineVariant),
+            Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              // Full width, one per line: the two wordy choices need the whole
+              // row to read, and stacked they sit under one another as a list
+              // rather than competing side by side.
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _TimingChoice(
+                    key: const ValueKey('app-lock-timing-app-starts'),
+                    label: l.settingsAppLock_whenAppStarts,
+                    selected: timing == AppLockTiming.appOpen,
+                    onPressed: onChooseAppStart,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _TimingChoice(
+                    key: const ValueKey('app-lock-timing-every-open'),
+                    label: l.settingsAppLock_whenAppOpensAndReturns,
+                    selected: timing == AppLockTiming.appOpenAndReturn,
+                    onPressed: onChooseEveryOpen,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 }
 
-/// One of the timing section's two choices: the same row design, ticked when it
-/// is the active one.
-class _TimingOption extends StatelessWidget {
-  const _TimingOption({
+/// One of the timing section's two choices: filled in the app's primary style
+/// when it is the active one, outlined otherwise — the same pair the Backup &
+/// Restore Encryption section draws, at the shared primary-button height.
+class _TimingChoice extends StatelessWidget {
+  const _TimingChoice({
     required this.label,
     required this.selected,
-    required this.onTap,
+    required this.onPressed,
     super.key,
   });
 
   /// The choice's wording.
   final String label;
 
-  /// Whether this is the timing in effect.
+  /// Whether this timing is the one in effect.
   final bool selected;
 
   /// Chooses this timing.
-  final VoidCallback onTap;
+  final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: selected
-        ? AppColors.secondary.withValues(alpha: 0.08)
-        : AppColors.surfaceContainerLowest,
-    clipBehavior: Clip.antiAlias,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.md),
-      side: BorderSide(color: AppColors.outlineVariant),
-    ),
-    child: InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.md),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: settingsMenuCardRowHeight,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: AppTypography.titleMd.copyWith(
-                    color: selected ? AppColors.secondary : AppColors.onSurface,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-              if (selected)
-                const Icon(Icons.check_circle, color: AppColors.secondary),
-            ],
-          ),
-        ),
+  Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    );
+    final style = ButtonStyle(
+      minimumSize: const WidgetStatePropertyAll(
+        Size.fromHeight(settingsPrimaryButtonHeight),
       ),
-    ),
-  );
+      shape: WidgetStatePropertyAll(shape),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      ),
+      textStyle: const WidgetStatePropertyAll(AppTypography.bodyMd),
+    );
+    return selected
+        ? FilledButton(
+            onPressed: onPressed,
+            style: style.copyWith(
+              backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
+              foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+            ),
+            child: Text(label, textAlign: TextAlign.center),
+          )
+        : OutlinedButton(
+            onPressed: onPressed,
+            // Spelled out because this app's theme paints OutlinedButton black:
+            // here it is the secondary choice on the section's own surface.
+            style: style.copyWith(
+              backgroundColor: const WidgetStatePropertyAll(
+                AppColors.surfaceContainerLowest,
+              ),
+              foregroundColor: const WidgetStatePropertyAll(AppColors.primary),
+              side: const WidgetStatePropertyAll(
+                BorderSide(color: AppColors.outlineVariant),
+              ),
+            ),
+            child: Text(label, textAlign: TextAlign.center),
+          );
+  }
 }

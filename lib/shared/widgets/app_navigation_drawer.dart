@@ -37,6 +37,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
@@ -921,15 +922,15 @@ class _AccountPopoverRoute extends PopupRoute<void> {
 
 /// Places the account popover over the drawer it belongs to.
 ///
-/// Its **width and left edge are the drawer's own** (user request: the panel is
-/// neither narrower nor wider than the side menu, and it starts where the side
-/// menu starts, so it never crosses it), and its top edge sits just under the
-/// icon's bottom edge, so the panel still reads as growing out of the icon. The
-/// two come from the boxes as laid out — the drawer's rectangle for the width
-/// and left edge, the icon's for the top — rather than from a guessed width, so
-/// a drawer of any size is matched rather than approximated. The panel is short
-/// (four rows) and the icon is at the panel's top, so there is no bottom-edge
-/// case to handle: it cannot reach the overlay's foot.
+/// Its **width is the drawer's less a small inset each side** (user request,
+/// 0.0.443): the panel is a hair narrower than the side menu and sits that same
+/// amount in from each edge, so a strip of the drawer shows on both sides and
+/// the panel reads as a window *inside* the menu rather than a wall over it. Its
+/// top edge still sits just under the icon's bottom edge, so it reads as growing
+/// out of the icon. The width and edges come from the drawer's laid-out
+/// rectangle rather than a guessed width, so a drawer of any size is matched.
+/// The panel is short (four rows) and the icon is at its top, so there is no
+/// bottom-edge case: it cannot reach the overlay's foot.
 class _AccountPopoverLayout extends SingleChildLayoutDelegate {
   const _AccountPopoverLayout({required this.anchor, required this.drawer});
 
@@ -943,15 +944,24 @@ class _AccountPopoverLayout extends SingleChildLayoutDelegate {
   /// attached, far enough not to touch it.
   static const double _gap = 8;
 
-  @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
-      BoxConstraints(maxWidth: drawer.width, maxHeight: constraints.maxHeight);
+  /// Strip of the drawer left visible beside the panel on each side.
+  static const double _sideInset = AppSpacing.md;
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) =>
-      // The drawer's own left edge, under the icon: the panel lines up with the
-      // side menu it belongs to instead of sitting inside it.
-      Offset(drawer.left, anchor.bottom + _gap);
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints(
+        maxWidth: drawer.width - _sideInset * 2,
+        maxHeight: constraints.maxHeight,
+      );
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) => Offset(
+    // Inset from the drawer's left edge by the same amount the width gives up on
+    // that side, which centres the narrower panel and shows the drawer at both
+    // edges; under the icon vertically.
+    drawer.left + _sideInset,
+    anchor.bottom + _gap,
+  );
 
   @override
   bool shouldRelayout(_AccountPopoverLayout oldDelegate) =>

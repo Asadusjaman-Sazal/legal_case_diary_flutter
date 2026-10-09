@@ -23,6 +23,7 @@ library;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -482,7 +483,7 @@ void main() {
     expect(popover.top, lessThan(400));
   });
 
-  testWidgets('the account popover is exactly the side menu panel\'s width', (
+  testWidgets('the account popover is a hair narrower than the side menu', (
     tester,
   ) async {
     await pumpDrawerOnRouter(tester);
@@ -498,18 +499,15 @@ void main() {
       find.byKey(const ValueKey('drawer-account-popover')),
     );
 
-    // Neither narrower nor wider than the side menu — the same width, to the
-    // pixel, which is what rules out a hand-picked menu width.
+    // Narrower than the side menu on both sides, so a strip of the drawer shows
+    // beside the panel — a window inside the menu, not a wall over it (0.0.443).
     expect(drawerRect.width, greaterThan(0));
-    expect(popover.width, drawerRect.width);
-    // Flush with the side menu's own left edge, so no strip of the drawer shows
-    // beside the panel...
-    expect(popover.left, drawerRect.left);
-    // ...which is a move off the icon's left edge, where the panel was first
-    // placed — the assertion the anchored-to-the-icon position fails.
+    expect(popover.width, drawerRect.width - AppSpacing.md * 2);
+    expect(popover.left, drawerRect.left + AppSpacing.md);
+    expect(popover.right, drawerRect.right - AppSpacing.md);
+    // Still a move off the icon's own left edge (the panel is a menu window, not
+    // an icon-sized bubble).
     expect(popover.left, lessThan(iconRect.left));
-    // ...and its right edge lands on the drawer's, so it crosses nothing.
-    expect(popover.right, drawerRect.right);
   });
 
   testWidgets('the account popover carries a thin grey outline', (tester) async {

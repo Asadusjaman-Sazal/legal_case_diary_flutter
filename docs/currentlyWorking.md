@@ -1,3 +1,12 @@
+### 2026-10-09 — The drawer's account popup is inset inside the side menu — COMPLETE
+
+- **Request (the user's, scoped to the popup only).** Decrease the popup's width a little on the left and right so its edges are visible inside the side menu.
+- **The change is one layout delegate.** `_AccountPopoverLayout` had the panel's **width and left edge equal to the drawer's** (the 0.0.434 rule: "neither narrower nor wider than the side menu"), so it sat flush against both edges. It now gives up `AppSpacing.md` (16 px) a side — `maxWidth: drawer.width - _sideInset * 2` and `Offset(drawer.left + _sideInset, …)` — so a strip of the drawer shows on each side and the panel reads as a window inside the menu. The icon anchoring (top 8 px under the icon) and the rounded window are untouched.
+- **This deliberately reverses a recorded decision**, so both records say so: the plan's popover bullet and Task 06's matching bullet gain a **(0.0.443)** sentence naming the supersession.
+- **Test updated to the new geometry.** `app_navigation_drawer_test.dart`'s width case now asserts `popover.width == drawerRect.width - AppSpacing.md * 2`, `left == drawerRect.left + AppSpacing.md` and `right == drawerRect.right - AppSpacing.md` (both edges inside the drawer), keeping the check that the panel starts left of the icon's own left edge.
+- **Verification.** `flutter analyze` clean; `app_navigation_drawer` suite **18/18**; full suite **1503 passed**; `record_version.py --check` OK; version **0.0.443**.
+- **Resume point:** nothing owed in code. Device check: open the side menu and tap the profile icon — the popup's left and right edges should both stand inside the menu with a strip of drawer visible beside them.
+
 ### 2026-10-09 — Subscription Details: Free plans hide Expiry and show their limits — COMPLETE
 
 - **Request (the user's, scoped to Subscription Details only).** While the Current Plan is **Free**: hide the **Expiry** row, and before Payment History add a section titled **Free Plan Limitations** listing the free plan's limits under a bullet header.

@@ -274,15 +274,15 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// One digit button, 64 × 52 of touch area.
+  /// One digit button, 72 × 56 of touch area.
   Widget _digitKey(String digit, String locale) => Expanded(
     child: Center(
       child: InkWell(
         onTap: widget.enabled ? () => _tap(digit) : null,
         borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
         child: SizedBox(
-          width: 64,
-          height: 52,
+          width: 72,
+          height: 56,
           child: Center(
             child: Text(
               AppDateUtils.formatDigits(
@@ -319,8 +319,8 @@ class _Dots extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
           child: Container(
-            width: 16,
-            height: 16,
+            width: 18,
+            height: 18,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: i < filled
@@ -437,7 +437,17 @@ class _PinFlowDialogState extends State<_PinFlowDialog> {
     final stage = _current;
     final l = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(stage.title),
+      // A little roomier than the framework default, so the pad's keys are a
+      // comfortable size on a phone rather than squeezed.
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xl,
+      ),
+      title: Text(
+        stage.title,
+        style: AppTypography.titleLg,
+        textAlign: TextAlign.center,
+      ),
       content: PinPad(
         key: ValueKey('$_stage-$_attempt'),
         message: _message,
@@ -450,10 +460,22 @@ class _PinFlowDialogState extends State<_PinFlowDialog> {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
-          key: const ValueKey('pin-flow-cancel'),
-          onPressed: () => Navigator.of(context).pop(null),
-          child: Text(widget.cancelLabel),
+        // A full-width, taller Cancel: the pad dominates the dialog, so its one
+        // action matches the pad's weight instead of reading as a stray link.
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            child: TextButton(
+              key: const ValueKey('pin-flow-cancel'),
+              style: TextButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                textStyle: AppTypography.titleMd,
+              ),
+              onPressed: () => Navigator.of(context).pop(null),
+              child: Text(widget.cancelLabel),
+            ),
+          ),
         ),
       ],
     );

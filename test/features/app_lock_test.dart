@@ -366,30 +366,71 @@ void main() {
       await store.setupPin('1234');
       await pumpScreen(tester, store: store);
 
-      // Closed at first: the header is a button, the choices are not shown.
+      // Closed at first: the header is a button, the choices are not shown, but
+      // the current value rides under it as a subtitle.
       expect(
         find.byKey(const ValueKey('app-lock-timing-app-starts')),
         findsNothing,
+      );
+      expect(
+        tester
+            .widget<Text>(
+              find.byKey(const ValueKey('app-lock-timing-current')),
+            )
+            .data,
+        l.settingsAppLock_whenAppStarts,
       );
 
       await tester.tap(find.byKey(const ValueKey('app-lock-timing')));
       await tester.pumpAndSettle();
 
-      // Both choices, marked for the one in effect (the shipped default).
+      // Both choices, the active one filled and the other outlined — the
+      // Backup & Restore pair, not two independent rows. (The subtitle above
+      // repeats the active label, so these are scoped to the buttons.)
       expect(
-        find.text(l.settingsAppLock_whenAppStarts),
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-app-starts')),
+          matching: find.text(l.settingsAppLock_whenAppStarts),
+        ),
         findsOneWidget,
       );
       expect(
-        find.text(l.settingsAppLock_whenAppOpensAndReturns),
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-every-open')),
+          matching: find.text(l.settingsAppLock_whenAppOpensAndReturns),
+        ),
         findsOneWidget,
       );
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('app-lock-timing-app-starts')),
-          matching: find.byIcon(Icons.check_circle),
+          matching: find.byType(FilledButton),
         ),
         findsOneWidget,
+        reason: 'the shipped default is the selected (filled) one',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-every-open')),
+          matching: find.byType(OutlinedButton),
+        ),
+        findsOneWidget,
+      );
+
+      // Full width, one per line: each choice spans the card and sits below the
+      // other, rather than sharing a row.
+      final starts = tester.getRect(
+        find.byKey(const ValueKey('app-lock-timing-app-starts')),
+      );
+      final everyOpen = tester.getRect(
+        find.byKey(const ValueKey('app-lock-timing-every-open')),
+      );
+      expect(starts.width, greaterThan(200), reason: 'spans the card');
+      expect(everyOpen.top, greaterThanOrEqualTo(starts.bottom));
+      expect(
+        (everyOpen.left - starts.left).abs(),
+        lessThan(1.0),
+        reason: 'left-aligned under one another, not side by side',
       );
 
       // Choosing writes the timing and collapses the section again.
@@ -402,13 +443,20 @@ void main() {
         reason: 'the section closes on a choice',
       );
 
-      // Reopening marks the newly chosen one.
+      // Reopening fills the newly chosen one and outlines the other.
       await tester.tap(find.byKey(const ValueKey('app-lock-timing')));
       await tester.pumpAndSettle();
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('app-lock-timing-every-open')),
-          matching: find.byIcon(Icons.check_circle),
+          matching: find.byType(FilledButton),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-app-starts')),
+          matching: find.byType(OutlinedButton),
         ),
         findsOneWidget,
       );
@@ -421,7 +469,8 @@ void main() {
       final store = await plainStore();
       await store.setupPin('1234');
       await store.setFingerprintEnabled(true);
-      await pumpScreen(tester, store: store);
+      final biometrics = FakeBiometrics();
+      await pumpScreen(tester, store: store, biometrics: biometrics);
 
       // Declining the warning changes nothing.
       await tester.tap(find.byKey(const ValueKey('app-lock-turn-off')));
@@ -432,10 +481,16 @@ void main() {
       expect(await store.isSetup, isTrue);
       expect(find.byKey(const ValueKey('app-lock-change')), findsOneWidget);
 
-      // Confirming turns it off: the PIN is gone and fingerprint with it.
+      // Confirming runs the proof: the aksed-for PIN, then the turn-off.
       await tester.tap(find.byKey(const ValueKey('app-lock-turn-off')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('app-lock-turn-off-confirm')));
+      await tester.pumpAndSettle();
+      // The proof dialog asks for the current pin, and nothing is cleared yet.
+      expect(find.text(l.settingsAppLock_enterCurrentPin), findsOneWidget);
+      expect(await store.isSetup, isTrue);
+
+      await enterPin(tester, '1234');
       await tester.pumpAndSettle();
 
       expect(await store.isSetup, isFalse);
@@ -445,6 +500,53 @@ void main() {
       // The screen is back to its first-run shape.
       expect(find.byKey(const ValueKey('app-lock-setup')), findsOneWidget);
       expect(find.byKey(const ValueKey('app-lock-change')), findsNothing);
+      await unmountScreen(tester);
+    });
+
+    testWidgets('a wrong pin at Turn Off leaves the lock untouched', (
+      tester,
+    ) async {
+      final store = await plainStore();
+      await store.setupPin('1234');
+      await pumpScreen(tester, store: store);
+
+      await tester.tap(find.byKey(const ValueKey('app-lock-turn-off')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('app-lock-turn-off-confirm')));
+      await tester.pumpAndSettle();
+
+      await enterPin(tester, '9999');
+      await tester.pumpAndSettle();
+      expect(find.text(l.settingsAppLock_currentPinWrong), findsOneWidget);
+      expect(await store.isSetup, isTrue, reason: 'nothing cleared yet');
+
+      // Cancelling the proof leaves it off too — the way back is the PIN.
+      await tester.tap(find.byKey(const ValueKey('pin-flow-cancel')));
+      await tester.pumpAndSettle();
+      expect(await store.isSetup, isTrue);
+      expect(await store.verifyPin('1234'), isTrue);
+      expect(find.byKey(const ValueKey('app-lock-change')), findsOneWidget);
+      await unmountScreen(tester);
+    });
+
+    testWidgets('the fingerprint alone can prove a Turn Off', (tester) async {
+      final store = await plainStore();
+      await store.setupPin('1234');
+      await store.setFingerprintEnabled(true);
+      final biometrics = FakeBiometrics();
+      await pumpScreen(tester, store: store, biometrics: biometrics);
+
+      await tester.tap(find.byKey(const ValueKey('app-lock-turn-off')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('app-lock-turn-off-confirm')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
+      await tester.pumpAndSettle();
+
+      expect(biometrics.verifyCalls, 1);
+      expect(await store.isSetup, isFalse);
+      expect(find.text(l.settingsAppLock_turnedOff), findsOneWidget);
       await unmountScreen(tester);
     });
   });

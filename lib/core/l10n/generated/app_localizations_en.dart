@@ -4083,11 +4083,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLock_whenToAsk => 'When To Ask For The Pin';
 
   @override
-  String get settingsAppLock_whenAppOpens => 'When The App Opens';
+  String get settingsAppLock_whenAppStarts => 'When The App Starts';
 
   @override
   String get settingsAppLock_whenAppOpensAndReturns =>
-      'When The App Opens Or Returns From The Background';
+      'Every Time The App Opens';
 
   @override
   String settingsAppLock_choosePin(String digits) {
@@ -4149,4 +4149,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppLock_useFingerprint => 'Unlock With Fingerprint';
+
+  @override
+  String get settingsAppLock_turnOff => 'Turn Off App Lock';
+
+  @override
+  String get settingsAppLock_turnOffTitle => 'Turn Off App Lock?';
+
+  @override
+  String get settingsAppLock_turnOffBody =>
+      'The app will open without a PIN or fingerprint until you set App Lock up again.';
+
+  @override
+  String get settingsAppLock_turnOffConfirm => 'Turn Off';
+
+  @override
+  String get settingsAppLock_turnedOff => 'App Lock Is Off.';
 }

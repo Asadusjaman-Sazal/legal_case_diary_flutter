@@ -8,13 +8,16 @@
 /// into Subscription Details and Subscription Plans rather than navigating, and
 /// each of those two rows opens the screen it names.
 ///
-/// And it guards the **profile icon**: tapping it opens the account sheet with
-/// the signed-in e-mail and the three account actions — Profile, Manage Account
-/// and Logout — each of which does what it says.
+/// And it guards the **profile icon**: it carries a small chevron badge that
+/// marks it as a menu, and tapping it opens the account popover — anchored to
+/// the icon, lined up with the drawer's own left edge, outlined in the drawer's
+/// divider grey and naming the signed-in e-mail plus the three account actions,
+/// Profile, Manage Account and Logout, each of which does what it says.
 library;
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +49,7 @@ const CurrentPlan quarterlyPlan = (
 const String subscriptionDetailsMarker = 'Subscription Details Screen';
 const String subscriptionPlansMarker = 'Subscription Plans Screen';
 
-/// Markers rendered by the stand-in screens the account sheet opens.
+/// Markers rendered by the stand-in screens the account popover opens.
 const String profileMarker = 'Profile Screen';
 const String manageAccountMarker = 'Manage Account Screen';
 const String loginMarker = 'Login Screen';
@@ -372,7 +375,7 @@ void main() {
     expect(blackTiles, findsOneWidget);
   });
 
-  testWidgets('the profile icon opens the account sheet with the e-mail', (
+  testWidgets('the profile icon opens the account popover with the e-mail', (
     tester,
   ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -396,7 +399,109 @@ void main() {
     expect(find.text(l.settingsManageAccount_logout), findsOneWidget);
   });
 
-  testWidgets('Profile in the sheet opens the Profile page', (tester) async {
+  testWidgets('the account popover grows from the profile icon', (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(tester);
+
+    final icon = find.byKey(const ValueKey('drawer-profile-icon'));
+    final iconRect = tester.getRect(icon);
+
+    await tester.tap(icon);
+    await tester.pumpAndSettle();
+
+    final popover = tester.getRect(
+      find.byKey(const ValueKey('drawer-account-popover')),
+    );
+
+    // Just under the icon: it hangs off the icon rather than rising from the
+    // screen's foot, which is the difference between a popover and a sheet (a
+    // sheet's top edge on this 1400 px surface would be near 1150).
+    expect(popover.top - iconRect.bottom, moreOrLessEquals(8, epsilon: 0.01));
+    expect(popover.top, lessThan(400));
+    // It keeps its own width rather than spanning the screen.
+    expect(popover.width, moreOrLessEquals(300, epsilon: 1));
+  });
+
+  testWidgets('the account popover lines up with the side menu panel', (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(tester);
+
+    final icon = find.byKey(const ValueKey('drawer-profile-icon'));
+    final iconRect = tester.getRect(icon);
+    final drawerRect = tester.getRect(find.byType(Drawer));
+
+    await tester.tap(icon);
+    await tester.pumpAndSettle();
+
+    final popover = tester.getRect(
+      find.byKey(const ValueKey('drawer-account-popover')),
+    );
+
+    // Flush with the side menu's own left edge, so no strip of the drawer shows
+    // beside the panel...
+    expect(popover.left, moreOrLessEquals(drawerRect.left, epsilon: 0.01));
+    // ...which is a move off the icon's left edge, where the panel was first
+    // placed — the assertion the anchored-to-the-icon position fails.
+    expect(popover.left, lessThan(iconRect.left));
+    // And it never crosses the drawer: the panel stays inside it.
+    expect(popover.right, lessThanOrEqualTo(drawerRect.right));
+  });
+
+  testWidgets('the account popover carries a thin grey outline', (tester) async {
+    await pumpDrawerOnRouter(tester);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // A white panel over the white drawer, so the edge is what tells the user a
+    // menu is floating above the panel rather than being part of it.
+    final shape =
+        tester
+                .widget<Material>(
+                  find.byKey(const ValueKey('drawer-account-popover')),
+                )
+                .shape
+            as RoundedRectangleBorder;
+    expect(shape.side.color, AppColors.outlineVariant);
+    expect(shape.side.width, 1.0, reason: 'thin: an edge, not a frame');
+  });
+
+  testWidgets('the profile icon carries a small chevron badge', (tester) async {
+    await pumpDrawer(tester, locale: const Locale('en'));
+
+    final iconRect = tester.getRect(
+      find.byKey(const ValueKey('drawer-profile-icon')),
+    );
+    final badge = find.byKey(const ValueKey('drawer-profile-icon-indicator'));
+    expect(badge, findsOneWidget, reason: 'the avatar says it can be tapped');
+
+    final badgeRect = tester.getRect(badge);
+    // Small, and inside the avatar's own box: an affordance, not a second avatar
+    // — it leaves the picture alone and does not grow the tap target.
+    expect(badgeRect.width, lessThanOrEqualTo(16));
+    expect(iconRect.contains(badgeRect.center), isTrue);
+    expect(badgeRect.width, lessThan(iconRect.width));
+
+    // The chevron the drawer already uses for "a menu opens here".
+    final chevron = find.descendant(
+      of: badge,
+      matching: find.byIcon(Icons.expand_more),
+    );
+    expect(chevron, findsOneWidget);
+    expect(tester.widget<Icon>(chevron).color, AppColors.onSurfaceVariant);
+
+    // Muted: the panel's own fill behind a hairline of the divider grey, so it
+    // reads as a mark on the avatar rather than a coloured dot.
+    final decoration =
+        tester.widget<Container>(badge).decoration! as BoxDecoration;
+    expect(decoration.color, AppColors.surfaceContainerLowest);
+    expect(decoration.shape, BoxShape.circle);
+    expect(decoration.border!.top.color, AppColors.outlineVariant);
+  });
+
+  testWidgets('Profile in the popover opens the Profile page', (tester) async {
     final router = await pumpDrawerOnRouter(tester);
 
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
@@ -408,7 +513,7 @@ void main() {
     expect(router.state.matchedLocation, AppRoutes.settingsProfile);
   });
 
-  testWidgets('Manage Account in the sheet opens the Manage Account page', (
+  testWidgets('Manage Account in the popover opens the Manage Account page', (
     tester,
   ) async {
     final router = await pumpDrawerOnRouter(tester);
@@ -428,7 +533,9 @@ void main() {
     // A premium account with nothing queued and no link: the branch that ends
     // the session with no copy to offer and no window to answer, so this test
     // observes what the drawer's own tap set in motion rather than restating
-    // the flow's own suite.
+    // the flow's own suite. It is also the case that pins the popover's live
+    // `ref`: a panel that closed before the flow ran could not read its
+    // providers at all.
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     var sessionsEnded = 0;

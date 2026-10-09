@@ -5,10 +5,22 @@
 /// actions. Active item is highlighted with a black pill. Item visibility is
 /// driven by [sideNavOptions] from [UserSettings].
 ///
+/// **The profile icon carries a small chevron badge** (user request, 0.0.433):
+/// a 16 px disc in the avatar's bottom-right corner, filled with the panel's own
+/// background and ringed in the divider grey, holding the `expand_more` the plan
+/// row uses — an affordance that marks the avatar as a menu without covering it.
+/// **The panel lines up with the side menu** (user request, 0.0.433): its left
+/// edge is the drawer's left edge, and its 300 px width stays inside the drawer's
+/// 304 px, so it never crosses the panel. **A thin grey edge** (user request,
+/// 0.0.433) — `AppColors.outlineVariant`, the drawer's divider grey — outlines
+/// the panel, so a white menu over the white drawer can be told from the panel
+/// beneath it.
+///
 /// **The profile icon is the account's own entry point** (user request): tapping
-/// the header avatar opens a sheet naming the signed-in **e-mail** and offering
-/// **Profile**, **Manage Account** and **Logout** — the three account actions
-/// that otherwise live two levels down under Settings > Account & Profile.
+/// the header avatar opens a popover anchored to it, naming the signed-in
+/// **e-mail** and offering **Profile**, **Manage Account** and **Logout** — the
+/// three account actions that otherwise live two levels down under Settings >
+/// Account & Profile.
 library;
 
 import 'package:flutter/material.dart';
@@ -16,6 +28,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
@@ -202,29 +215,40 @@ class AppNavigationDrawer extends ConsumerWidget {
     );
   }
 
-  /// Opens the account sheet the profile icon leads to (user request).
+  /// Opens the account popover **against the profile icon** (user request).
   ///
-  /// The sheet goes on the **root navigator**, above the panel: it is shown
-  /// while the drawer is still open, and the drawer is closed by whichever row
-  /// the user picks — so a dismissed sheet returns the user to the panel they
-  /// opened, and a chosen row returns them to the screen behind it.
+  /// The panel is positioned from the icon's own rectangle — its top edge just
+  /// below the icon, its left edge on the drawer's — so it reads as growing out
+  /// of the icon rather than sliding up from the screen's bottom, the way the
+  /// account switcher does in Google's apps. [iconContext] is the icon's own
+  /// context, which is what makes that measurement possible; the route goes on
+  /// the **root navigator**, above the open panel, and the icon is measured in
+  /// that navigator's overlay because that is the space the panel is laid out
+  /// in.
   ///
   /// The panel's own `ref` is deliberately not handed on: it dies with the
   /// drawer, and **Logout** needs a live one for as long as its windows are up.
-  /// The sheet is therefore a widget with its own, and the two navigators are
-  /// passed as state objects rather than as contexts.
-  Future<void> _openAccountSheet(BuildContext context, WidgetRef ref) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      builder: (_) => _AccountSheet(
-        // Read here, so the sheet is never the reason the drawer must still
-        // exist: the address is a value, not a live lookup.
-        email: ref.read(authIdentityProvider)?.email ?? '',
-        // The navigator the panel is closed through, and the router the rows
-        // navigate with. Both are objects: safe once the drawer is gone.
-        drawerNavigator: Navigator.of(context),
-        router: GoRouter.of(context),
+  /// The panel is therefore a widget with its own, and the two navigators reach
+  /// it as state objects rather than as contexts.
+  void _openAccountSheet(BuildContext iconContext, WidgetRef ref) {
+    final navigator = Navigator.of(iconContext, rootNavigator: true);
+    final overlay = navigator.overlay?.context.findRenderObject() as RenderBox?;
+    final icon = iconContext.findRenderObject() as RenderBox?;
+    // Nothing to anchor to without an overlay, so nothing opens rather than a
+    // panel landing in a corner the user did not point at.
+    if (overlay == null || icon == null) return;
+    navigator.push<void>(
+      _AccountPopoverRoute(
+        anchor: icon.localToGlobal(Offset.zero, ancestor: overlay) & icon.size,
+        builder: (_) => _AccountPopover(
+          // Read here, so the panel is never the reason the drawer must still
+          // exist: the address is a value, not a live lookup.
+          email: ref.read(authIdentityProvider)?.email ?? '',
+          // The navigator the panel is closed through, and the router the rows
+          // navigate with. Both are objects: safe once the drawer is gone.
+          drawerNavigator: Navigator.of(iconContext),
+          router: GoRouter.of(iconContext),
+        ),
       ),
     );
   }
@@ -261,30 +285,25 @@ class AppNavigationDrawer extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // The avatar opens the account sheet — its 48 px circle is
-                  // the whole tap target, and it carries a label because an
-                  // icon-only button has no text for a screen reader.
-                  Semantics(
-                    button: true,
-                    label: l.settingsScreen_accountAndProfile,
-                    child: InkWell(
-                      key: const ValueKey('drawer-profile-icon'),
-                      customBorder: const CircleBorder(),
-                      onTap: () => _openAccountSheet(context, ref),
-                      child: CircleAvatar(
-                        radius: 24,
-                        backgroundColor: AppColors.primaryContainer,
-                        backgroundImage: avatarFile != null
-                            ? FileImage(avatarFile)
-                            : null,
-                        child: avatarFile != null
-                            ? null
-                            : const Icon(
-                                Icons.person_outline,
-                                color: AppColors.onPrimaryContainer,
-                                size: 26,
-                              ),
-                      ),
+                  // The avatar is the account's entry point: its 48 px circle
+                  // is the whole tap target, and the popover is measured from
+                  // this box, so the panel grows out of the icon.
+                  _ProfileIconButton(
+                    onPressed: (iconContext) =>
+                        _openAccountSheet(iconContext, ref),
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.primaryContainer,
+                      backgroundImage: avatarFile != null
+                          ? FileImage(avatarFile)
+                          : null,
+                      child: avatarFile != null
+                          ? null
+                          : const Icon(
+                              Icons.person_outline,
+                              color: AppColors.onPrimaryContainer,
+                              size: 26,
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -595,17 +614,84 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
   }
 }
 
-/// The account sheet (user request): the signed-in e-mail and the three account
-/// actions, opened from the drawer's profile icon.
+/// The profile icon, as the button the account popover grows from.
+///
+/// A widget of its own so the tap can measure **this** rectangle: the popover is
+/// positioned against the icon it belongs to, and that is what makes the two
+/// read as connected. A composite widget's `findRenderObject` descends to the
+/// first render object *below* it, so this element's box is the avatar's own
+/// 48 px circle. It also carries the semantics label an icon-only button needs.
+///
+/// The icon carries a **small chevron badge** in its bottom-right corner (user
+/// request): an avatar reads as a picture, so nothing said it could be tapped.
+/// The badge is deliberately tiny — a 16 px disc, filled with the panel's own
+/// background and ringed in the drawer's divider grey, holding the same
+/// `expand_more` the plan row uses — so it marks the icon as a menu without
+/// covering the face of the avatar or the name beside it. It sits inside the
+/// avatar's 48 px box, so it neither grows the tap target nor moves the
+/// rectangle the popover is measured from.
+class _ProfileIconButton extends StatelessWidget {
+  const _ProfileIconButton({required this.child, required this.onPressed});
+
+  /// The avatar to draw.
+  final Widget child;
+
+  /// Called with this widget's own context, so the caller can measure it.
+  final void Function(BuildContext iconContext) onPressed;
+
+  /// Diameter of the affordance badge — big enough to read at a glance,
+  /// small enough to leave the avatar's own shape intact.
+  static const double _badgeSize = 16;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: AppLocalizations.of(context).settingsScreen_accountAndProfile,
+    child: InkWell(
+      key: const ValueKey('drawer-profile-icon'),
+      customBorder: const CircleBorder(),
+      onTap: () => onPressed(context),
+      child: Stack(
+        children: [
+          child,
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              key: const ValueKey('drawer-profile-icon-indicator'),
+              width: _badgeSize,
+              height: _badgeSize,
+              decoration: BoxDecoration(
+                // The panel's own fill, so the badge reads as a cut-out marker
+                // on the avatar rather than a second coloured dot.
+                color: AppColors.surfaceContainerLowest,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.outlineVariant),
+              ),
+              child: const Icon(
+                Icons.expand_more,
+                size: 12,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// The account popover (user request): the signed-in e-mail and the three
+/// account actions, shown at the drawer's profile icon.
 ///
 /// A [ConsumerWidget] rather than a builder closure for one reason: **Logout
 /// has to run while this widget is still mounted.** [runBranchedLogout] reads
 /// providers and opens windows, so the `ref` it is given must outlive every
 /// surface closed to make room for it — and the drawer's `ref` cannot, because
-/// the panel is gone the moment it closes. The sheet stays up behind the logout
-/// windows, and closes itself when they are done.
-class _AccountSheet extends ConsumerWidget {
-  const _AccountSheet({
+/// the panel is gone the moment it closes. The popover stays up behind the
+/// logout windows and closes itself when they are done.
+class _AccountPopover extends ConsumerWidget {
+  const _AccountPopover({
     required this.email,
     required this.drawerNavigator,
     required this.router,
@@ -630,7 +716,25 @@ class _AccountSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    return SafeArea(
+    // A floating panel, not a sheet: it carries its own elevation and rounding
+    // and floats over the open drawer, which is what makes it look attached to
+    // the icon. Its width and position come from the route's layout delegate.
+    return Material(
+      key: const ValueKey('drawer-account-popover'),
+      color: AppColors.surfaceContainerLowest,
+      elevation: 8,
+      // The app's card radius, which is also the radius Material's own menus
+      // use — a menu-like panel, not a sheet. The one-thing-more is a **thin
+      // grey edge** (user request): the panel and the drawer it floats over are
+      // both white, so the shadow alone left the user unable to tell where the
+      // menu ends and the panel behind it begins. The colour is the drawer's own
+      // divider grey, so the edge speaks the drawer's language rather than
+      // introducing a new one.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        side: const BorderSide(color: AppColors.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -713,6 +817,118 @@ class _AccountSheet extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The account popover's route: the panel, anchored to the drawer's profile
+/// icon.
+///
+/// A [PopupRoute] rather than a bottom sheet, so the panel appears at the icon
+/// instead of at the screen's bottom edge, and a tap anywhere outside dismisses
+/// it. The barrier is transparent — the panel simply floats over the open drawer,
+/// the look Material's own anchored menus have — and this route lives exactly as
+/// long as the panel does, which is what keeps the panel's `ref` alive for the
+/// logout windows that open above it.
+class _AccountPopoverRoute extends PopupRoute<void> {
+  _AccountPopoverRoute({required this.anchor, required this.builder});
+
+  /// The icon's rectangle, in the overlay's coordinates.
+  final Rect anchor;
+
+  /// Builds the panel.
+  final WidgetBuilder builder;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  bool get barrierDismissible => true;
+
+  // No label: the barrier is transparent, so it is never announced as a
+  // dismissible surface of its own — the panel's own rows are the content.
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 150);
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => CustomSingleChildLayout(
+    delegate: _AccountPopoverLayout(anchor: anchor),
+    child: builder(context),
+  );
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => FadeTransition(
+    opacity: animation,
+    child: ScaleTransition(
+      // It grows out of its own top-left, the corner nearest the icon: a scale
+      // from anywhere else would look like the panel had fallen open.
+      alignment: Alignment.topLeft,
+      scale: Tween<double>(begin: 0.96, end: 1).animate(animation),
+      child: child,
+    ),
+  );
+}
+
+/// Places the account popover against the drawer it opens over.
+///
+/// Its top edge sits just under the icon's bottom edge, so the panel still reads
+/// as growing out of the icon; its **left edge is the drawer's own left edge**
+/// (user request), so the panel lines up with the side menu instead of leaving a
+/// strip of the drawer showing beside it. Its width is a menu's — 300 px, inside
+/// the 304 px Material gives a drawer — so it never crosses the drawer's
+/// trailing edge, and it shrinks rather than overflowing when the screen is
+/// narrower than that. The panel is short (four rows) and the icon is at the
+/// panel's top, so there is no bottom-edge case to handle: it cannot reach the
+/// overlay's foot.
+class _AccountPopoverLayout extends SingleChildLayoutDelegate {
+  const _AccountPopoverLayout({required this.anchor});
+
+  /// The icon's rectangle, in the overlay's coordinates.
+  final Rect anchor;
+
+  /// Room between the icon's bottom edge and the panel: close enough to read as
+  /// attached, far enough not to touch it.
+  static const double _gap = 8;
+
+  /// Room kept at the panel's trailing edge, so a narrow screen shrinks the
+  /// panel before it reaches the screen's own right edge.
+  static const double _edgeInset = 8;
+
+  /// The panel's width. A narrower overlay shrinks it rather than overflowing.
+  static const double _preferredWidth = 300;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    final double width = constraints.maxWidth.isFinite
+        ? (constraints.maxWidth - _edgeInset)
+              .clamp(0.0, _preferredWidth)
+              .toDouble()
+        : _preferredWidth;
+    return BoxConstraints(maxWidth: width, maxHeight: constraints.maxHeight);
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) =>
+      // Left flush with the drawer, below the icon. `ponytail:` the drawer is
+      // the leading surface of the scaffold, which Material lays at the
+      // overlay's own left edge, so that edge is the drawer's; the drawer's
+      // measured rectangle is asserted in the drawer's test, so an edge that
+      // ever stops coinciding fails there rather than drifting silently.
+      Offset(0, anchor.bottom + _gap);
+
+  @override
+  bool shouldRelayout(_AccountPopoverLayout oldDelegate) =>
+      anchor != oldDelegate.anchor;
 }
 
 class _DrawerDivider extends StatelessWidget {

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.434 - The side menu's account panel now takes the side menu's own measured width, matching the panel exactly instead of a hand-picked menu width.
+Version: 0.0.435 - The side menu's account panel is now a rounded window with transparent option rows: the Email caption dropped, the grey edge kept, and its options read at the side menu's own text size.
 --------------------------------------
 
 ## Version History Log:
@@ -448,3 +448,4 @@ Version: 0.0.431 - The side menu's profile icon now opens a sheet with the signe
 Version: 0.0.432 - The side menu's account options now open at the profile icon instead of rising from the bottom of the screen.
 Version: 0.0.433 - The side menu's account panel now lines up with the drawer, carries a thin grey outline, and its profile icon shows a small chevron badge marking it as a menu.
 Version: 0.0.434 - The side menu's account panel now takes the side menu's own measured width, matching the panel exactly instead of a hand-picked menu width.
+Version: 0.0.435 - The side menu's account panel is now a rounded window with transparent option rows: the Email caption dropped, the grey edge kept, and its options read at the side menu's own text size.

@@ -13,6 +13,11 @@
 /// the icon, lined up with the drawer's own left edge, outlined in the drawer's
 /// divider grey and naming the signed-in e-mail plus the three account actions,
 /// Profile, Manage Account and Logout, each of which does what it says.
+///
+/// The panel itself is a **rounded window with transparent option rows** (user
+/// request): corners far rounder than the card radius, the address line marked
+/// by its `@` icon alone, and its three options reading at the side menu's own
+/// text size.
 library;
 
 import 'package:drift/native.dart';
@@ -387,9 +392,19 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
 
-    // The address the account signed in with, captioned as such.
+    // The address the account signed in with, and only the address: the
+    // "Email" caption is gone, the `@` icon saying what the line is (user
+    // request).
     expect(find.text(signedInEmail), findsOneWidget);
-    expect(find.text(l.auth_emailLabel), findsOneWidget);
+    expect(find.text(l.auth_emailLabel), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('drawer-account-popover')),
+        matching: find.byIcon(Icons.alternate_email),
+      ),
+      findsOneWidget,
+      reason: 'the icon stays; only the caption went',
+    );
     // The three options, in the app's own words for them.
     expect(find.byKey(const ValueKey('drawer-account-profile')), findsOneWidget);
     expect(find.text(l.settingsScreen_profile), findsOneWidget);
@@ -397,6 +412,52 @@ void main() {
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
     expect(find.byKey(const ValueKey('drawer-account-logout')), findsOneWidget);
     expect(find.text(l.settingsManageAccount_logout), findsOneWidget);
+  });
+
+  testWidgets('the account popover is a rounded window', (tester) async {
+    await pumpDrawerOnRouter(tester);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // Far rounder than the 4 px card radius: the reference panel's own shape.
+    final shape =
+        tester
+                .widget<Material>(
+                  find.byKey(const ValueKey('drawer-account-popover')),
+                )
+                .shape
+            as RoundedRectangleBorder;
+    expect(shape.borderRadius, BorderRadius.circular(16));
+  });
+
+  testWidgets('the popover options read at the side menu\'s text size', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(tester);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // The side menu's own row, as the yardstick the options must match. A row
+    // that is not the active one (the active row is white and bold), so the
+    // comparison is against the resting side-menu metric.
+    final menuStyle = tester.widget<Text>(drawerText(l.nav_settings)).style;
+    for (final option in [
+      (const ValueKey('drawer-account-profile'), l.settingsScreen_profile),
+      (const ValueKey('drawer-account-manage'), l.settingsScreen_manageAccount),
+      (const ValueKey('drawer-account-logout'), l.settingsManageAccount_logout),
+    ]) {
+      final style = tester
+          .widget<Text>(
+            find.descendant(of: find.byKey(option.$1), matching: find.text(option.$2)),
+          )
+          .style;
+      expect(style?.fontSize, menuStyle?.fontSize);
+      expect(style?.fontFamily, menuStyle?.fontFamily);
+      expect(style?.fontWeight, menuStyle?.fontWeight);
+    }
   });
 
   testWidgets('the account popover grows from the profile icon', (

@@ -23,6 +23,13 @@
 /// **e-mail** and offering **Profile**, **Manage Account** and **Logout** — the
 /// three account actions that otherwise live two levels down under Settings >
 /// Account & Profile.
+///
+/// **The popover is a rounded window with transparent option rows** (user
+/// request, 0.0.435): its corners are rounded well past the 4 px card radius so
+/// it reads as a floating menu, the thin grey edge is kept, the address line
+/// carries no "Email" caption (the `@` icon says what it is), and its three
+/// options are the drawer's own nav rows — the same text size and metrics as
+/// the side menu's buttons — on no fill of their own.
 library;
 
 import 'package:flutter/material.dart';
@@ -30,7 +37,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
@@ -450,6 +456,7 @@ class _DrawerNavTile extends StatelessWidget {
   final double indent;
 
   const _DrawerNavTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.active,
@@ -695,6 +702,13 @@ class _ProfileIconButton extends StatelessWidget {
   );
 }
 
+/// Corner radius of the account popover's window (user request, 0.0.435).
+///
+/// The reference panel the user attached rounds its corners far more than the
+/// 4 px card radius, so the panel reads as a floating menu rather than a card.
+/// 16 px keeps that rounding on the 8 px spacing grid.
+const double _accountPopoverRadius = 16;
+
 /// The account popover (user request): the signed-in e-mail and the three
 /// account actions, shown at the drawer's profile icon.
 ///
@@ -737,26 +751,27 @@ class _AccountPopover extends ConsumerWidget {
       key: const ValueKey('drawer-account-popover'),
       color: AppColors.surfaceContainerLowest,
       elevation: 8,
-      // The app's card radius, which is also the radius Material's own menus
-      // use — a menu-like panel, not a sheet. The one-thing-more is a **thin
-      // grey edge** (user request): the panel and the drawer it floats over are
-      // both white, so the shadow alone left the user unable to tell where the
-      // menu ends and the panel behind it begins. The colour is the drawer's own
-      // divider grey, so the edge speaks the drawer's language rather than
-      // introducing a new one.
+      // A **rounded window** (user request): [_accountPopoverRadius] corners,
+      // far past the 4 px card radius, matching the reference panel's shape.
+      // The **thin grey edge** is kept (user request): the panel and the drawer
+      // it floats over are both white, so the shadow alone left the user unable
+      // to tell where the menu ends and the panel behind it begins. The colour
+      // is the drawer's own divider grey, so the edge speaks the drawer's
+      // language rather than introducing a new one.
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        borderRadius: BorderRadius.circular(_accountPopoverRadius),
         side: const BorderSide(color: AppColors.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Who this account is: the address it signed in with. The value
-          // carries the caption under it, like the plan row's — the address is
-          // the fact, and the caption says which fact it is.
+          // Who this account is: the address it signed in with, marked by the
+          // `@` icon alone. The "Email" caption that used to sit under it was
+          // dropped (user request): the icon already says what the line is, so
+          // the caption only repeated it.
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             child: Row(
               children: [
                 const Icon(
@@ -766,53 +781,53 @@ class _AccountPopover extends ConsumerWidget {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        email.isNotEmpty ? email : '—',
-                        style: AppTypography.labelLg.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        l.auth_emailLabel,
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppColors.outline,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    email.isNotEmpty ? email : '—',
+                    style: AppTypography.labelLg.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
           ),
           const Divider(height: 1, color: AppColors.outlineVariant),
-          ListTile(
+          // The three account actions as a **block of transparent rows** (user
+          // request): each is the drawer's own nav row, so the options read at
+          // exactly the side menu's text size and metrics — same 22 px icon,
+          // same 16 px icon gap, same [AppTypography.labelLg] weight and colour.
+          // The rows carry no fill of their own; the window's white shows
+          // through and only the tap ink marks a press.
+          _DrawerNavTile(
             key: const ValueKey('drawer-account-profile'),
-            leading: const Icon(Icons.person_outline),
-            title: Text(l.settingsScreen_profile),
+            icon: Icons.person_outline,
+            label: l.settingsScreen_profile,
+            active: false,
             onTap: () {
               _closeDrawer();
               Navigator.of(context).pop();
               router.push(AppRoutes.settingsProfile);
             },
           ),
-          ListTile(
+          _DrawerNavTile(
             key: const ValueKey('drawer-account-manage'),
-            leading: const Icon(Icons.manage_accounts_outlined),
-            title: Text(l.settingsScreen_manageAccount),
+            icon: Icons.manage_accounts_outlined,
+            label: l.settingsScreen_manageAccount,
+            active: false,
             onTap: () {
               _closeDrawer();
               Navigator.of(context).pop();
               router.push(AppRoutes.settingsManageAccount);
             },
           ),
-          ListTile(
+          _DrawerNavTile(
             key: const ValueKey('drawer-account-logout'),
-            leading: const Icon(Icons.logout),
-            title: Text(l.settingsManageAccount_logout),
+            icon: Icons.logout,
+            label: l.settingsManageAccount_logout,
+            active: false,
             onTap: () async {
               _closeDrawer();
               // The sheet stays up while the logout windows run: this widget's
@@ -827,6 +842,9 @@ class _AccountPopover extends ConsumerWidget {
               if (completed) router.go(AppRoutes.login);
             },
           ),
+          // A little air under the last row, so the window's rounded foot is
+          // not touching it.
+          const SizedBox(height: 8),
         ],
       ),
     );

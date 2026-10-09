@@ -142,6 +142,28 @@ Future<Directory?> sharedDownloadsDirectory() async {
   }
 }
 
+/// The diary backup folder, resolved **without any host channel**.
+///
+/// The background alarm isolate cannot call a `MethodChannel` served by the
+/// activity (the host channels are foreground-only), so the automatic-backup job
+/// resolves the public Downloads folder by its stable well-known Android path
+/// instead. When that is not usable — a test host, or a platform without that
+/// path — it falls back to the private documents directory, which the job can
+/// always reach. This keeps the automatic backup correct on the device while
+/// staying safe to run anywhere.
+Future<Directory> backgroundBackupDirectory() async {
+  if (Platform.isAndroid) {
+    final pubDownloads = Directory('/storage/emulated/0/Download');
+    if (await pubDownloads.exists()) {
+      return Directory(
+        '${pubDownloads.path}${Platform.pathSeparator}LegalCaseDiary',
+      );
+    }
+  }
+  final base = await getApplicationDocumentsDirectory();
+  return Directory('${base.path}${Platform.pathSeparator}LegalCaseDiary');
+}
+
 /// A [BackupArchiveSink] that writes into the app's own documents directory.
 ///
 /// The automatic exports use it — the extended-offline safety copy (Task 19

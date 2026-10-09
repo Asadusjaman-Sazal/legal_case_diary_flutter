@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
+import 'package:legal_case_diary/core/providers/backup_providers.dart';
 import 'package:legal_case_diary/core/providers/print_providers.dart';
 import 'package:path/path.dart' as p;
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -35,6 +36,7 @@ import 'package:legal_case_diary/features/settings/presentation/settings_menu_ca
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
+import '../core/backup_scheduler_test_support.dart';
 import '../core/print_test_support.dart';
 
 /// Records what the screen asked the platform dialogs to do.
@@ -201,6 +203,7 @@ void main() {
   late SharedPreferences prefs;
   late _FakeBackupGateway gateway;
   late RecordingShareService shareService;
+  late FakeBackupScheduler backupScheduler;
   late Directory tempDir;
   late Directory folder;
 
@@ -215,6 +218,7 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     gateway = _FakeBackupGateway();
     shareService = RecordingShareService();
+    backupScheduler = FakeBackupScheduler();
     // The share flow keeps its courier copy through `path_provider`; every
     // test gets a real directory that is removed again afterwards.
     tempDir = Directory.systemTemp.createTempSync('lcb_backup_screen');
@@ -261,6 +265,7 @@ void main() {
           backupFileGatewayProvider.overrideWithValue(gateway),
           backupFolderDirectoryProvider.overrideWithValue(() async => folder),
           backupFolderSinkProvider.overrideWithValue(folderSink),
+          backupSchedulerProvider.overrideWithValue(backupScheduler),
           appShareServiceProvider.overrideWithValue(shareService),
           // Everything else about the export stays real; only the key
           // derivation is cheap, because its default stretch pauses between
@@ -687,14 +692,19 @@ void main() {
     expect(find.text('/storage/backup.lcbak'), findsOneWidget);
   });
 
-  testWidgets('the schedule choice is stored', (tester) async {
+  testWidgets('the schedule choice is stored and re-arms the alarm', (
+    tester,
+  ) async {
     await pumpScreen(tester);
 
     await openSection(tester, 'automatic');
     await tester.tap(find.text('Every 7 days'));
     await tester.pumpAndSettle();
 
+    // The choice is stored, and the scheduler is asked to (re-)arm for it —
+    // otherwise the setting would be saved but never acted on.
     expect(prefs.getInt(backupScheduleDaysKey), 7);
+    expect(backupScheduler.syncScheduleCalls, 1);
   });
 
   testWidgets('the Encryption On Backup section explains and switches the setting', (

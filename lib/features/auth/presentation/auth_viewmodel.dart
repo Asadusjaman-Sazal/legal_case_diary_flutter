@@ -32,6 +32,7 @@ import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../accounts_and_profile/data/profile_picture_store.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
+import '../../../core/providers/backup_providers.dart';
 import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/data/backup_repository.dart';
 import '../data/auth_repository.dart';
@@ -433,6 +434,11 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     await ref.read(profileFieldsProvider.notifier).clear();
     await ref.read(profilePictureProvider.notifier).clear();
     await ref.read(backupMetadataProvider.notifier).reset();
+    // The next account must not inherit the previous holder's automatic-backup
+    // schedule, so its daily alarm is dropped too. Fire-and-forget: cancelling an
+    // alarm is best-effort cleanup (it is re-armed from scratch at the next
+    // launch), so it must never gate a logout on a platform call answering.
+    unawaited(ref.read(backupSchedulerProvider).cancelAll());
     ref.read(localeProvider.notifier).reset();
   }
 

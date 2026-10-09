@@ -34,6 +34,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/app_version.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/backup_providers.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/services/app_share_service.dart';
@@ -588,9 +589,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             onToggle: () => _toggleSection(_Section.automaticBackup),
             child: _ScheduleCard(
               selectedDays: metadata.scheduleDays,
-              onChanged: (days) => ref
-                  .read(backupMetadataProvider.notifier)
-                  .setScheduleDays(days),
+              onChanged: (days) async {
+                await ref
+                    .read(backupMetadataProvider.notifier)
+                    .setScheduleDays(days);
+                // Re-arm the daily alarm for the new interval (or cancel it for
+                // Off), so the choice takes effect immediately.
+                await ref.read(backupSchedulerProvider).syncSchedule();
+              },
             ),
           ),
           const SizedBox(height: AppSpacing.lg),

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.447 - Backup to Google Drive now auto-saves into the public Download/LegalCaseDiary folder like the other backup buttons, then offers the share sheet with the real saved file (ShareableBackupSink removed).
+Version: 0.0.448 - Automatic Backup is wired for real: a local daily alarm job runs a plain backup into Download/LegalCaseDiary per the stored schedule, skips with a notice when encryption is on, and re-arms on launch.
 --------------------------------------
 
 ## Version History Log:
@@ -461,3 +461,4 @@ Version: 0.0.444 - The drawer account popup's side inset is halved to 8px, so it
 Version: 0.0.445 - Backup & Restore: Local/Excel backups now auto-save into Internal storage/LegalCaseDiary as Backup_dd-mm-yy_hh-mm-ssam/pm files without a save dialog; Restore uses that folder directly (one file, or a rounder-corner list), keeping the system picker as fallback.
 Version: 0.0.446 - Backups now save into the public Download/LegalCaseDiary folder (visible in file managers), served by a small Android host channel; falls back to the private documents dir where the channel is absent.
 Version: 0.0.447 - Backup to Google Drive now auto-saves into the public Download/LegalCaseDiary folder like the other backup buttons, then offers the share sheet with the real saved file (ShareableBackupSink removed).
+Version: 0.0.448 - Automatic Backup is wired for real: a local daily alarm job runs a plain backup into Download/LegalCaseDiary per the stored schedule, skips with a notice when encryption is on, and re-arms on launch.

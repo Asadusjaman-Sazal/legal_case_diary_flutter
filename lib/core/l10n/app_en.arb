@@ -813,6 +813,18 @@
   "@@_section_settingsManageAccount": "SETTINGS - MANAGE ACCOUNT  |  lib/features/accounts_and_profile/presentation/manage_account_screen.dart",
   "settingsManageAccount_title": "Manage Account",
   "settingsManageAccount_changePassword": "Change Password",
+  "settingsSubscription_freePlanLimitations": "Free Plan Limitations",
+  "settingsSubscription_freeLimitCases": "Up to {limit} cases at a time. Deleting a case frees a slot.",
+  "@settingsSubscription_freeLimitCases": {
+      "description": "Free-plan limitation: the case ceiling from freeTierCaseLimit.",
+      "placeholders": {
+          "limit": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsSubscription_freeLimitCloud": "The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.",
+  "settingsSubscription_freeLimitRecovery": "If the phone is lost or broken, a free account's diary has no cloud copy to restore from.",
   "settingsSubscription_currentPlan": "Current Plan",
   "settingsSubscription_paid": "Paid",
   "settingsSubscription_dateTime": "Date & Time",

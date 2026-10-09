@@ -1625,6 +1625,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'Change Password';
 
   @override
+  String get settingsSubscription_freePlanLimitations =>
+      'Free Plan Limitations';
+
+  @override
+  String settingsSubscription_freeLimitCases(String limit) {
+    return 'Up to $limit cases at a time. Deleting a case frees a slot.';
+  }
+
+  @override
+  String get settingsSubscription_freeLimitCloud =>
+      'The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.';
+
+  @override
+  String get settingsSubscription_freeLimitRecovery =>
+      'If the phone is lost or broken, a free account\'s diary has no cloud copy to restore from.';
+
+  @override
   String get settingsSubscription_currentPlan => 'Current Plan';
 
   @override

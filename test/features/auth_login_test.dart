@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
@@ -61,6 +62,12 @@ void main() {
     await pumpLogin(tester);
 
     expect(find.text(l.appName), findsOneWidget);
+    // The card's name is set in the large headline token, which is the size the
+    // Sign Up card's wordmark now takes from it (user request).
+    expect(
+      tester.widget<Text>(find.text(l.appName)).style,
+      AppTypography.headlineLg,
+    );
     expect(find.text(l.auth_loginSubtitle), findsOneWidget);
     // The subtitle's wording is the user's, pinned literally (as the exit
     // window's copy is) so a later copy edit has to be deliberate.

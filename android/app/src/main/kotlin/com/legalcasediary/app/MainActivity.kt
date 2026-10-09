@@ -7,13 +7,16 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Hosts the single Android query the Battery & Auto-Start Setup guide needs.
+ * Hosts the two things the Android side must do for Dart.
  *
  * `PowerManager.isIgnoringBatteryOptimizations` is the OS's own answer to the
- * guide's battery step, and no plugin in the app exposes it. The channel is
- * host-only: the background alarm isolate never asks this question, and the
- * Dart side ([AndroidNotificationGateway.batteryOptimizationIgnored]) treats a
- * missing channel as "not done" rather than as a failure.
+ * Battery & Auto-Start Setup guide's battery step, no plugin in the app exposes
+ * it, and no Dart code can finish the app's task on this Flutter (`closeApp`
+ * below). Each action sits on its own channel, so the two concerns stay
+ * independent. The channels are host-only: the background alarm isolate never
+ * asks these questions, and the Dart side
+ * ([AndroidNotificationGateway.batteryOptimizationIgnored]) treats a missing
+ * channel as "not done" rather than as a failure.
  */
 // FlutterFragmentActivity, not FlutterActivity: local_auth's BiometricPrompt
 // needs a FragmentActivity host, and its theme must be an AppCompat theme
@@ -29,6 +32,35 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        configureAppExitChannel(flutterEngine)
+    }
+
+    /**
+     * Closes the app for the Exit App? window, served to Dart on its own channel.
+     *
+     * Dart cannot close the task itself on this Flutter: the engine turns
+     * `SystemNavigator.pop()` into an Android back press
+     * (`PlatformPlugin.popSystemNavigator` calls
+     * `OnBackPressedDispatcher.onBackPressed()` whenever the host is a
+     * `ComponentActivity`, and `FlutterFragmentActivity` — which App Lock's
+     * fingerprint needs — always is). A back press at the root of a task leaves
+     * the app alive in memory, so Exit behaved like the home button.
+     *
+     * `finishAndRemoveTask()` is the real close: the task is finished *and*
+     * dropped from recents, so relaunching starts the app fresh. The reply is
+     * sent first so the Dart call completes before the engine goes with it.
+     */
+    private fun configureAppExitChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, EXIT_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "closeApp" -> {
+                        result.success(null)
+                        finishAndRemoveTask()
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     /** True when this app is exempt from battery optimization ("Unrestricted"). */
@@ -40,5 +72,8 @@ class MainActivity : FlutterFragmentActivity() {
 
     private companion object {
         const val CHANNEL = "com.legalcasediary.app/device_setup"
+
+        /// The Exit App? channel (`lib/core/services/app_exit.dart`).
+        const val EXIT_CHANNEL = "com.legalcasediary.app/app_exit"
     }
 }

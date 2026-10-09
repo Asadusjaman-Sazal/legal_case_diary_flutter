@@ -58,6 +58,11 @@ const Map<String, Widget> _bottomNavScreens = <String, Widget>{
   AppRoutes.notes: NotesScreen(),
 };
 
+/// The channel `MainActivity.kt` serves for the Exit App? window's close.
+const MethodChannel _exitChannel = MethodChannel(
+  'com.legalcasediary.app/app_exit',
+);
+
 /// A stand-in for the screen a destination is opened from, and for the
 /// Settings sub-pages the rule must leave alone.
 class _Stub extends StatelessWidget {
@@ -275,14 +280,64 @@ void main() {
     });
   });
 
-  testWidgets('confirming Exit closes the app', (tester) async {
+  /// Offers the window and confirms it, leaving the tap's work settled.
+  Future<void> confirmExit(WidgetTester tester) async {
+    await pressBack(tester);
+    expect(find.text('Exit App?'), findsOneWidget);
+    await tester.tap(find.text('Exit'));
+    // The window's answer only reaches the app once the dialog's dismissal
+    // completes, so give the route time to finish closing.
+    await settle(tester);
+    await settle(tester);
+    expect(find.text('Exit App?'), findsNothing);
+  }
+
+  testWidgets('confirming Exit closes the app through the host hook', (
+    tester,
+  ) async {
     await withScreens(tester, () async {
-      // `SystemNavigator.pop()` travels on the platform channel.
-      final calls = <MethodCall>[];
+      // The real close is the host's: `SystemNavigator.pop()` only dispatches an
+      // Android back press on this Flutter, which leaves the app running.
+      final hostCalls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        _exitChannel,
+        (call) async {
+          hostCalls.add(call);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          _exitChannel,
+          null,
+        ),
+      );
+
+      final router = _router();
+      await pumpShell(tester, router);
+      router.push(AppRoutes.caseReference);
+      await settle(tester);
+
+      await confirmExit(tester);
+
+      expect(
+        hostCalls.map((call) => call.method),
+        contains('closeApp'),
+        reason: 'Exit must close the app, not merely dismiss the window',
+      );
+    });
+  });
+
+  testWidgets('without a working host hook, Exit falls back to the framework '
+      'pop', (tester) async {
+    await withScreens(tester, () async {
+      // `SystemNavigator.pop()` travels on the platform channel and is what a
+      // host without the hook (a test runner, Windows) still gets.
+      final pops = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
         (call) async {
-          calls.add(call);
+          pops.add(call);
           return null;
         },
       );
@@ -298,20 +353,27 @@ void main() {
       router.push(AppRoutes.caseReference);
       await settle(tester);
 
-      await pressBack(tester);
-      expect(find.text('Exit App?'), findsOneWidget);
+      // A host without the method answers with an empty reply, which is what
+      // `MissingPluginException` means. Left unregistered instead (handler
+      // removed), the test messenger would never answer at all, which is a
+      // property of the harness and not of a host.
+      tester.binding.defaultBinaryMessenger.setMockMessageHandler(
+        _exitChannel.name,
+        (message) async => null,
+      );
+      await confirmExit(tester);
 
-      await tester.tap(find.text('Exit'));
-      // The window's answer only reaches the app once the dialog's dismissal
-      // completes, so give the route time to finish closing.
-      await settle(tester);
-      await settle(tester);
-      expect(find.text('Exit App?'), findsNothing);
+      // A host that answers but refuses: the other fallback branch.
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        _exitChannel,
+        (call) async => throw PlatformException(code: 'refused'),
+      );
+      await confirmExit(tester);
 
       expect(
-        calls.where((call) => call.method == 'SystemNavigator.pop'),
-        isNotEmpty,
-        reason: 'Exit must close the app, not merely dismiss the window',
+        pops.where((call) => call.method == 'SystemNavigator.pop').length,
+        2,
+        reason: 'both fallbacks must still close the app',
       );
     });
   });

@@ -151,7 +151,17 @@ class AuthBrandHeader extends StatelessWidget {
   }
 }
 
-/// The sign-up card's header: a gavel, the app name in a row, then the title.
+/// Bundled app logo, shown where the placeholder gavel used to sit.
+///
+/// The About screen's identity card shows the same asset; here it takes the
+/// gavel's own footprint, so the header's layout is unchanged.
+const String _appLogo = 'assets/icons/app_logo.png';
+
+/// Side of the square brand mark, unchanged from the placeholder gavel.
+const double _brandMarkSize = 28;
+
+/// The sign-up card's header: the app logo, the app name in a row, then the
+/// title.
 class AuthSignupHeader extends StatelessWidget {
   /// Creates the header.
   const AuthSignupHeader({
@@ -174,7 +184,22 @@ class AuthSignupHeader extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.gavel, size: 28, color: AppColors.primary),
+            SizedBox(
+              width: _brandMarkSize,
+              height: _brandMarkSize,
+              // The logo is shown whole inside the placeholder's footprint; the
+              // gavel returns if the asset cannot load, so the header never
+              // shows a broken image (the About card's rule).
+              child: Image.asset(
+                _appLogo,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.gavel,
+                  size: _brandMarkSize,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
             const SizedBox(width: AppSpacing.sm),
             // Flexible so a larger text scale wraps the wordmark instead of
             // overflowing the card.

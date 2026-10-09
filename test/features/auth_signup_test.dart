@@ -12,6 +12,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -130,6 +131,47 @@ void main() {
     return colour;
   }
 
+  /// The darkest pixel painted inside [finder]'s own box, read off the frame.
+  ///
+  /// One sample cannot tell an artwork from a blank box: this mark's centre is
+  /// white by design. Scanning the box for its darkest pixel is what shows ink
+  /// is really painted where the placeholder used to sit.
+  Future<Color> darkestPaintedInside(WidgetTester tester, Finder finder) async {
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.ancestor(of: finder, matching: find.byType(RepaintBoundary)).first,
+    );
+    final rect = Rect.fromPoints(
+      boundary.globalToLocal(tester.getTopLeft(finder)),
+      boundary.globalToLocal(tester.getBottomRight(finder)),
+    );
+    late final Color darkest;
+    await tester.runAsync(() async {
+      final image = await boundary.toImage();
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes = data!;
+      var best = 1.0;
+      var colour = const Color(0xFFFFFFFF);
+      for (var y = rect.top.ceil(); y < rect.bottom.floor(); y++) {
+        for (var x = rect.left.ceil(); x < rect.right.floor(); x++) {
+          final offset = (y * image.width + x) * 4;
+          final pixel = Color.fromARGB(
+            bytes.getUint8(offset + 3),
+            bytes.getUint8(offset),
+            bytes.getUint8(offset + 1),
+            bytes.getUint8(offset + 2),
+          );
+          if (pixel.computeLuminance() < best) {
+            best = pixel.computeLuminance();
+            colour = pixel;
+          }
+        }
+      }
+      darkest = colour;
+      image.dispose();
+    });
+    return darkest;
+  }
+
   /// The Confirm Password field's background, read off the [TextField] the
   /// [TextFormField] builds (`TextFormField` itself keeps no public decoration),
   /// which is the decoration with the theme's defaults already merged — so the
@@ -185,6 +227,48 @@ void main() {
 
     // The individual path is the default, so the firm's code is not asked for.
     expect(find.text(l.auth_inviteCodeLabel), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the header shows the bundled app logo, not the placeholder', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+
+    // The placeholder gavel the header used to draw is gone...
+    expect(find.byIcon(Icons.gavel), findsNothing);
+
+    final logo = find.byWidgetPredicate(
+      (widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/icons/app_logo.png',
+    );
+    // ...replaced by the bundled logo, in the gavel's own 28 x 28 footprint.
+    expect(logo, findsOneWidget);
+    expect(tester.getSize(logo), const Size(28, 28));
+
+    // The asset is really bundled (declared under `assets:` in pubspec.yaml),
+    // so the image loads instead of falling back to the gavel.
+    final bytes = await rootBundle.load('assets/icons/app_logo.png');
+    expect(bytes.lengthInBytes, greaterThan(0));
+
+    // And the artwork really reaches the frame: the mark's box holds its navy
+    // ink, which a blank or unloaded box could not.
+    await tester.runAsync(
+      () => precacheImage(
+        const AssetImage('assets/icons/app_logo.png'),
+        tester.element(find.byType(SignupScreen)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      (await darkestPaintedInside(tester, logo)).computeLuminance(),
+      lessThan(0.2),
+      reason: 'the mark itself must be painted, not just placed in the tree',
+    );
 
     await unmountApp(tester);
   });

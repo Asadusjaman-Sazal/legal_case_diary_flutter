@@ -1,7 +1,8 @@
 /// Sign-up screen: a new account, alone or as an associate joining a firm.
 ///
 /// Body mirrors `mockup_html_screens/settings_onlineSync_signup/code.html`: the
-/// card with the gavel/wordmark header, "Create Account" and its subtitle, then
+/// card with the app logo and its wordmark header, "Create Account" and its
+/// subtitle, then
 /// Full Name, Bar Association, Email Address and Password (with the mockup's
 /// eight-character helper line), the Terms of Service / Privacy Policy
 /// checkbox, the Sign Up button, the "Or Continue With" divider and the Google

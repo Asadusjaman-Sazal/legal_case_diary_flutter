@@ -1912,6 +1912,21 @@ class AppLocalizationsBn extends AppLocalizations {
       'পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন';
 
   @override
+  String get backupScheduled_skipNoticeTitle =>
+      'স্বয়ংক্রিয় ব্যাকআপ এড়িয়ে গেছে';
+
+  @override
+  String get backupScheduled_skipNoticeBody =>
+      'ব্যাকআপ এমন একটি পাসফ্রেজ দিয়ে এনক্রিপ্ট করা থাকে যা কেবল আপনি জানেন, তাই স্বয়ংক্রিয় ব্যাকআপ চালানো যায় না। লিগ্যাল কেস ডায়েরি খুলে ম্যানুয়ালি ব্যাকআপ নিন।';
+
+  @override
+  String get backupScheduled_noticeChannelName => 'ব্যাকআপ রিমাইন্ডার';
+
+  @override
+  String get backupScheduled_noticeChannelDescription =>
+      'আপনার স্বয়ংক্রিয় ব্যাকআপের রিমাইন্ডার।';
+
+  @override
   String get settingsBackupRestore_sectionBackup => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override

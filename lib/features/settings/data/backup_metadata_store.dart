@@ -12,8 +12,9 @@
 /// and is consulted by every backup/restore path.
 ///
 /// Task 12 left the schedule choice in memory and handed its persistence to
-/// Task 15. Choosing a schedule only *stores* the interval here: nothing runs
-/// on a schedule until Part B's background executor exists.
+/// Task 15. The interval is stored here and read by the automatic-backup
+/// scheduler (`core/backup/android_backup_scheduler.dart`), which arms a daily
+/// alarm whose background job consults this same interval before writing.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

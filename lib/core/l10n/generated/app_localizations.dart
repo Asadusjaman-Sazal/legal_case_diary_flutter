@@ -3428,6 +3428,30 @@ abstract class AppLocalizations {
   /// **'Choose the backup to restore'**
   String get settingsBackupRestore_chooseBackupTitle;
 
+  /// No description provided for @backupScheduled_skipNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup skipped'**
+  String get backupScheduled_skipNoticeTitle;
+
+  /// No description provided for @backupScheduled_skipNoticeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups are encrypted with a passphrase only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.'**
+  String get backupScheduled_skipNoticeBody;
+
+  /// No description provided for @backupScheduled_noticeChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup reminders'**
+  String get backupScheduled_noticeChannelName;
+
+  /// No description provided for @backupScheduled_noticeChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders about your automatic backups.'**
+  String get backupScheduled_noticeChannelDescription;
+
   /// No description provided for @settingsBackupRestore_sectionBackup.
   ///
   /// In en, this message translates to:

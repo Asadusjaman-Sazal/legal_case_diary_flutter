@@ -1905,6 +1905,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the backup to restore';
 
   @override
+  String get backupScheduled_skipNoticeTitle => 'Automatic backup skipped';
+
+  @override
+  String get backupScheduled_skipNoticeBody =>
+      'Backups are encrypted with a passphrase only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.';
+
+  @override
+  String get backupScheduled_noticeChannelName => 'Backup reminders';
+
+  @override
+  String get backupScheduled_noticeChannelDescription =>
+      'Reminders about your automatic backups.';
+
+  @override
   String get settingsBackupRestore_sectionBackup => 'Backup & Restore';
 
   @override

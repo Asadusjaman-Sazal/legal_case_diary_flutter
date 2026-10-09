@@ -3312,7 +3312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_signupSubtitle =>
-      'Join the secure ledger for legal professionals.';
+      'Start a stress-free journey of case management.';
 
   @override
   String get auth_fullNameLabel => 'Full Name';

@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -70,6 +71,33 @@ void main() {
     expect(find.byType(GoogleMark), findsOneWidget);
     expect(find.text(l.auth_noAccount), findsOneWidget);
     expect(find.text(l.auth_signUpLink), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the header shows the bundled app logo, not the placeholder', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+
+    // The round account_balance chip the header used to draw is gone...
+    expect(find.byIcon(Icons.account_balance), findsNothing);
+
+    final logo = find.byWidgetPredicate(
+      (widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/icons/app_logo.png',
+    );
+    // ...replaced by the bundled logo, in the chip's own 48 x 48 footprint.
+    expect(logo, findsOneWidget);
+    expect(tester.getSize(logo), const Size(48, 48));
+
+    // The asset is really bundled (declared under `assets:` in pubspec.yaml),
+    // so the image loads instead of falling back to the chip.
+    final bytes = await rootBundle.load('assets/icons/app_logo.png');
+    expect(bytes.lengthInBytes, greaterThan(0));
 
     await unmountApp(tester);
   });

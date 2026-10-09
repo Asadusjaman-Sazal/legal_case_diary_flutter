@@ -1421,7 +1421,7 @@
   "localeScratch_bengaliSample": "এই টেক্সটি বাংলায়।",
   "localeScratch_currentLanguage": "বর্তমান ভাষা: {language}",
   "@@_section_auth": "AUTH (সাইন ইন, সাইন আপ, ফার্মে যোগদান, পাসওয়ার্ড রিসেট)  |  lib/features/auth/presentation/login_screen.dart, signup_screen.dart, forgot_password_screen.dart",
-  "auth_loginSubtitle": "আপনার আইনি কর্মক্ষেত্রে সাইন ইন করুন",
+  "auth_loginSubtitle": "অ্যাপে লগ ইন করুন",
   "auth_emailLabel": "ইমেইল",
   "auth_emailHint": "counsel@example.com",
   "auth_passwordLabel": "পাসওয়ার্ড",

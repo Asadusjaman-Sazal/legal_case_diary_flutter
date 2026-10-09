@@ -3284,7 +3284,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get auth_loginSubtitle => 'আপনার আইনি কর্মক্ষেত্রে সাইন ইন করুন';
+  String get auth_loginSubtitle => 'অ্যাপে লগ ইন করুন';
 
   @override
   String get auth_emailLabel => 'ইমেইল';

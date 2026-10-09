@@ -1,3 +1,13 @@
+### 2026-10-09 — The Login subtitle's wording — COMPLETE
+
+- **Request (the user's, scoped to Login).** Change "Sign in to your legal workspace" to "Login to the app", professional wording where needed.
+- **What changed.** `auth_loginSubtitle` is now **"Log in to the app"** in English and **"অ্যাপে লগ ইন করুন"** in Bengali, `flutter gen-l10n` regenerated both locale files, and the login mockup follows the app (rule 9). The one wording decision, which the request invited: **"Login" → "Log in"**, because "Login" is the button label's form and this is a sentence — the same reasoning as the Sign Up subtitle's "tension free" → "stress-free". The card's existing punctuation style is kept, so the line carries no full stop, exactly as the string it replaces did.
+- **Scope.** The key is read by `AuthBrandHeader` on the Login card alone (`login_screen.dart:145`), so nothing else in the app changed; if the user wants the full stop added, it is a one-word ARB edit in two files.
+- **Tests.** The wording is now pinned **literally** (`find.text('Log in to the app')`) in `auth_login_test.dart`'s render case, beside the existing ARB lookup and matching the precedent of the exit-window tests' literal 'Exit App?' — so a later edit to that string cannot pass unnoticed. No case needed to change: the suite reads the rest of the copy through the ARB, so it followed the new value automatically.
+- **Records (rule 14 — absent from the plan).** A **(0.0.426)** bullet in the plan's Sign Up & Team Onboarding section (the section that owns the auth cards' copy) and a matching note in Task 17's Addendum. `docs/task17_audit.md` still quotes the old string: that file records the audit as it was taken, so it is left as history rather than rewritten.
+- **Verification.** `flutter analyze` clean; auth suites **52/52**; full suite **1483 passed** (exit 0); version **0.0.426** recorded by script, `--check` OK, version guards 7/7. No server change, so no migration and no ledger rebuild.
+- **Resume point:** nothing owed in code. Device check: the Login card reads *Log in to the app* under the app name, in both languages.
+
 ### 2026-10-09 — The Sign Up header's title and subtitle — COMPLETE
 
 - **Request (the user's, scoped to Sign Up).** Centre the **Create Account** title, and take the subtitle "Start a stress-free journey of case management." down by one font size.

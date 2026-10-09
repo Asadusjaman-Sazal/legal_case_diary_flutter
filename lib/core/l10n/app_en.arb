@@ -1584,7 +1584,7 @@
   "localeScratch_bengaliSample": "এই টেক্সটি বাংলায়।",
   "localeScratch_currentLanguage": "Current language: {language}",
   "@@_section_auth": "AUTH (sign in, sign up, join firm, password reset)  |  lib/features/auth/presentation/login_screen.dart, signup_screen.dart, forgot_password_screen.dart",
-  "auth_loginSubtitle": "Sign in to your legal workspace",
+  "auth_loginSubtitle": "Log in to the app",
   "auth_emailLabel": "Email",
   "auth_emailHint": "counsel@example.com",
   "auth_passwordLabel": "Password",

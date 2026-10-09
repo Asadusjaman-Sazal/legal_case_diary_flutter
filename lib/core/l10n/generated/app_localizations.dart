@@ -5643,7 +5643,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to your legal workspace'**
+  /// **'Log in to the app'**
   String get auth_loginSubtitle;
 
   /// No description provided for @auth_emailLabel.

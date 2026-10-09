@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
 import 'package:legal_case_diary/core/services/contact_launcher.dart';
@@ -173,6 +174,58 @@ void main() {
     return darkest;
   }
 
+  /// The horizontal extent of the ink painted inside [finder]'s own box, read
+  /// off the frame.
+  ///
+  /// The paragraph's own text boxes cannot answer this: a line's box includes
+  /// the whitespace that follows it (measured on this title: its first line's
+  /// box is one trailing space wider than its glyphs, which puts the box's
+  /// midpoint 14.7 px right of the text's on the test font). Painted pixels have
+  /// no such problem — a space paints nothing.
+  Future<Rect> inkExtentInside(WidgetTester tester, Finder finder) async {
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.ancestor(of: finder, matching: find.byType(RepaintBoundary)).first,
+    );
+    final rect = Rect.fromPoints(
+      boundary.globalToLocal(tester.getTopLeft(finder)),
+      boundary.globalToLocal(tester.getBottomRight(finder)),
+    );
+    late final Rect ink;
+    await tester.runAsync(() async {
+      final image = await boundary.toImage();
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes = data!;
+      var left = rect.right;
+      var right = rect.left;
+      for (var y = rect.top.ceil(); y < rect.bottom.floor(); y++) {
+        for (var x = rect.left.ceil(); x < rect.right.floor(); x++) {
+          final offset = (y * image.width + x) * 4;
+          final pixel = Color.fromARGB(
+            bytes.getUint8(offset + 3),
+            bytes.getUint8(offset),
+            bytes.getUint8(offset + 1),
+            bytes.getUint8(offset + 2),
+          );
+          // Anything that is not the white card behind the title is a glyph.
+          if (pixel.computeLuminance() < 0.9) {
+            if (x < left) left = x.toDouble();
+            if (x > right) right = x.toDouble();
+          }
+        }
+      }
+      // Returned in [finder]'s own coordinates, so it can be compared with that
+      // widget's size and position directly.
+      ink = Rect.fromLTRB(
+        left - rect.left,
+        0,
+        right - rect.left,
+        rect.height,
+      );
+      image.dispose();
+    });
+    return ink;
+  }
+
   /// The Confirm Password field's background, read off the [TextField] the
   /// [TextFormField] builds (`TextFormField` itself keeps no public decoration),
   /// which is the decoration with the theme's defaults already merged — so the
@@ -291,11 +344,55 @@ void main() {
     );
     expect(row.mainAxisAlignment, MainAxisAlignment.center);
 
-    // The title and its subtitle keep the card's own alignment below it, so
-    // the centring is the brand row's and not a whole-header change.
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Create Account title is centred in the card', (tester) async {
+    await pumpSignup(tester);
+
+    final title = find.text(l.auth_signupTitle);
+    final paragraph = tester.renderObject<RenderParagraph>(title);
+
+    // Where the glyphs are painted, not the properties that produced them: the
+    // ink read off the frame is compared with the middle of the box it is drawn
+    // in, which a start-aligned title fails.
+    final ink = await inkExtentInside(tester, title);
     expect(
-      tester.getTopLeft(find.text(l.auth_signupTitle)).dx,
-      lessThan(tester.getCenter(find.byType(AuthSignupHeader)).dx),
+      ink.center.dx,
+      moreOrLessEquals(paragraph.size.width / 2, epsilon: 1),
+    );
+
+    // Full width as well as centred: a shrink-wrapped box would centre the text
+    // inside its own width and move nothing on screen.
+    expect(
+      paragraph.size.width,
+      tester.getSize(find.byType(AuthSignupHeader)).width,
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the subtitle is one font size below the card', (tester) async {
+    await pumpSignup(tester);
+
+    final size = AppTypography.bodyMd.fontSize!;
+    double painted(Finder where) =>
+        MediaQuery.textScalerOf(tester.element(where)).scale(size);
+
+    // Read as a difference rather than as a number: the step is taken off
+    // whatever scale is in effect, so the case does not have to know which one
+    // that is, and it holds inside the app's Font Size scope and outside it.
+    expect(
+      painted(find.byType(AuthSignupHeader)) -
+          painted(find.text(l.auth_signupSubtitle)),
+      1,
+    );
+
+    // The step lives in the scaler, so the style still names the design token
+    // rather than a size that would stop following it.
+    expect(
+      tester.widget<Text>(find.text(l.auth_signupSubtitle)).style!.fontSize,
+      size,
     );
 
     await unmountApp(tester);

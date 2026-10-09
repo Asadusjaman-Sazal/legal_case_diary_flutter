@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.430 - The five case-list screens now show their own empty message instead of their screen name when no case is left to show.
+Version: 0.0.431 - The side menu's profile icon now opens a sheet with the signed-in e-mail and the Profile, Manage Account and Logout actions.
 --------------------------------------
 
 ## Version History Log:
@@ -444,3 +444,4 @@ Version: 0.0.427 - On the Sign Up card, Create Account and the Legal Case Diary 
 Version: 0.0.428 - The side menu now shows the account's current plan, expanding into Subscription Details and Subscription Plans.
 Version: 0.0.429 - The side menu's Current Plan row moved from under Settings into the Print/Share group, directly above Print (user request).
 Version: 0.0.430 - The five case-list screens now show their own empty message instead of their screen name when no case is left to show.
+Version: 0.0.431 - The side menu's profile icon now opens a sheet with the signed-in e-mail and the Profile, Manage Account and Logout actions.

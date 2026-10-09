@@ -11,9 +11,9 @@
 library;
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -101,16 +101,45 @@ class FilePickerBackupGateway implements BackupFileGateway {
   }
 }
 
-/// The folder the app writes user-facing backups into: the documents directory.
+/// The folder the app writes user-facing backups into: the public Downloads
+/// directory on Android.
 ///
-/// Names the "Internal storage/LegalCaseDiary" folder that surfaces in file
-/// managers, so a backup is a file a non-technical user can find without a
-/// "Save to…" dialog deciding a location for them. All three requested
-/// backups — Local, Excel and the restores they serve — share this home, which
-/// is also what lets restore skip the picker when the folder holds one file.
+/// On Android this is `/storage/emulated/0/Download/LegalCaseDiary` — the one
+/// folder on the device (besides `Android`, `DCIM`, `Download` etc.) that a
+/// non-technical user can find in a file manager or over USB, and the location
+/// the user asked for ("Internal storage/LegalCaseDiary"). Straight writes to
+/// this shared location need no permission on modern Android. Where the
+/// platform has no public Downloads directory (a test host, say; or a platform
+/// whose native channel is absent), it falls back to the app's private
+/// documents directory so code and tests still have a home.
+/// All three requested backups — Local, Excel and the restores they serve —
+/// share this folder, which is also what lets restore skip the picker when the
+/// folder holds one file.
 Future<Directory> backupDocumentsDirectory() async {
-  final base = await getApplicationDocumentsDirectory();
+  final base = (await sharedDownloadsDirectory()) ??
+      await getApplicationDocumentsDirectory();
   return Directory('${base.path}${Platform.pathSeparator}LegalCaseDiary');
+}
+
+/// The device's true public Downloads folder, or null when none is available.
+///
+/// path_provider's Android paths are all **app-scoped** (`Android/data/<pkg>`)
+/// and invisible in a file manager, so the public `/storage/emulated/0/Download`
+/// is asked of the Android host directly. A missing or unhandled channel is
+/// answered null and the caller falls back to the private documents directory —
+/// never a crash.
+Future<Directory?> sharedDownloadsDirectory() async {
+  try {
+    const channel = MethodChannel(
+      'com.legalcasediary.app/public_downloads',
+    );
+    final path = await channel.invokeMethod<String>('path');
+    return path == null || path.isEmpty ? null : Directory(path);
+  } on MissingPluginException {
+    return null;
+  } on PlatformException {
+    return null;
+  }
 }
 
 /// A [BackupArchiveSink] that writes into the app's own documents directory.
@@ -148,9 +177,10 @@ class LocalArchiveSink implements BackupArchiveSink {
 /// A directory sink that resolves to the backup home folder.
 ///
 /// This is the *diary's* "Internal storage/LegalCaseDiary" — a folder a
-/// non-technical user can find in their file manager. A failure bubbles up as
-/// the natural [FileSystemException]; the caller falls back to the system save
-/// dialog rather than silently losing the backup.
+/// non-technical user can find in their file manager (under Downloads on
+/// Android, actually shared storage). A failure bubbles up as the natural
+/// [FileSystemException]; the caller falls back to the system save dialog
+/// rather than silently losing the backup.
 class BackupFolderSink implements BackupArchiveSink {
   /// Creates the sink, optionally over a directory a test controls.
   const BackupFolderSink({this.directoryProvider});

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.445 - Backup & Restore: Local/Excel backups now auto-save into Internal storage/LegalCaseDiary as Backup_dd-mm-yy_hh-mm-ssam/pm files without a save dialog; Restore uses that folder directly (one file, or a rounder-corner list), keeping the system picker as fallback.
+Version: 0.0.446 - Backups now save into the public Download/LegalCaseDiary folder (visible in file managers), served by a small Android host channel; falls back to the private documents dir where the channel is absent.
 --------------------------------------
 
 ## Version History Log:
@@ -459,3 +459,4 @@ Version: 0.0.442 - Subscription Details on a Free plan hides the Expiry row and 
 Version: 0.0.443 - The drawer's account popup is inset a little on each side, so both edges show inside the side menu instead of sitting flush against it.
 Version: 0.0.444 - The drawer account popup's side inset is halved to 8px, so it sits closer to the side menu edges.
 Version: 0.0.445 - Backup & Restore: Local/Excel backups now auto-save into Internal storage/LegalCaseDiary as Backup_dd-mm-yy_hh-mm-ssam/pm files without a save dialog; Restore uses that folder directly (one file, or a rounder-corner list), keeping the system picker as fallback.
+Version: 0.0.446 - Backups now save into the public Download/LegalCaseDiary folder (visible in file managers), served by a small Android host channel; falls back to the private documents dir where the channel is absent.

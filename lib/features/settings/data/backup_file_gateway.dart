@@ -15,6 +15,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'backup_repository.dart';
@@ -100,14 +101,25 @@ class FilePickerBackupGateway implements BackupFileGateway {
   }
 }
 
+/// The folder the app writes user-facing backups into: the documents directory.
+///
+/// Names the "Internal storage/LegalCaseDiary" folder that surfaces in file
+/// managers, so a backup is a file a non-technical user can find without a
+/// "Save to…" dialog deciding a location for them. All three requested
+/// backups — Local, Excel and the restores they serve — share this home, which
+/// is also what lets restore skip the picker when the folder holds one file.
+Future<Directory> backupDocumentsDirectory() async {
+  final base = await getApplicationDocumentsDirectory();
+  return Directory('${base.path}${Platform.pathSeparator}LegalCaseDiary');
+}
+
 /// A [BackupArchiveSink] that writes into the app's own documents directory.
 ///
-/// **No dialog, so it can be used without a user.** That is what the two
-/// automatic exports need — the extended-offline safety copy (Task 19 Phase 5)
-/// and the logout export (Task 19 Phase 6) both run while the app is locked or
-/// being wiped, when there is nobody to answer a Save-to window. The file is the
-/// same encrypted container the manual export writes, and its path is returned
-/// so the caller can record it and show it to the user.
+/// The automatic exports use it — the extended-offline safety copy (Task 19
+/// Phase 5) and the logout export (Task 19 Phase 6) both run while the app is
+/// locked or being wiped, when there is nobody to answer a Save-to window. The
+/// file is the same encrypted container the manual export writes, and its path
+/// is returned so the caller can record it and show it to the user.
 class LocalArchiveSink implements BackupArchiveSink {
   /// Creates the sink, optionally over a directory a test controls.
   const LocalArchiveSink({this.directoryProvider});
@@ -133,9 +145,126 @@ class LocalArchiveSink implements BackupArchiveSink {
   }
 }
 
+/// A directory sink that resolves to the backup home folder.
+///
+/// This is the *diary's* "Internal storage/LegalCaseDiary" — a folder a
+/// non-technical user can find in their file manager. A failure bubbles up as
+/// the natural [FileSystemException]; the caller falls back to the system save
+/// dialog rather than silently losing the backup.
+class BackupFolderSink implements BackupArchiveSink {
+  /// Creates the sink, optionally over a directory a test controls.
+  const BackupFolderSink({this.directoryProvider});
+
+  /// The folder to write into; [backupDocumentsDirectory] by default.
+  final Future<Directory> Function()? directoryProvider;
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    final dir = await (directoryProvider?.call() ?? backupDocumentsDirectory());
+    if (!await dir.exists()) await dir.create(recursive: true);
+    final file = File('${dir.path}${Platform.pathSeparator}$fileName');
+    await file.writeAsBytes(bytes, flush: true);
+    return file.path;
+  }
+}
+
+/// Writes into the diary folder, falling back to the system save dialog when
+/// the folder cannot be created or written.
+///
+/// This is what makes "Backup to Local Storage" and "Backup as Excel File"
+/// dialog-free: the folder is the default, and the picker is the safety net the
+/// user asked for — a backup that cannot reach its folder is not silently lost.
+class BackupFolderFirstSink implements BackupArchiveSink {
+  /// The primary folder sink.
+  final BackupArchiveSink folder;
+
+  /// The dialog-backed sink used when [folder] fails.
+  final BackupArchiveSink fallback;
+
+  /// Creates a folder-first sink.
+  const BackupFolderFirstSink({required this.folder, required this.fallback});
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    try {
+      return await folder.write(fileName: fileName, bytes: bytes);
+    } on FileSystemException {
+      // The diary folder is not writable — ask the user where to save instead.
+      return fallback.write(fileName: fileName, bytes: bytes);
+    }
+  }
+}
+
+/// Lists the backup files in [dir], sorted by name ascending.
+///
+/// A file counts as a backup when its name matches the app's own default file
+/// name — so the folder does not confuse a PDF or a photo left here with a
+/// backup, while still accepting every file this app wrote. The sort orders a
+/// restore by file name, which is timestamp-ordered because the app's default
+/// names are.
+Future<List<File>> listBackupFiles(Directory dir) async {
+  final entries = dir.existsSync()
+      ? dir.listSync().whereType<File>()
+      : <File>[];
+  final backups = <File>[
+    for (final f in entries)
+      if (_isBackupFileName(p.basename(f.path))) f,
+  ]..sort((a, b) => a.path.compareTo(b.path));
+  return backups;
+}
+
+/// Whether a file name is one the app itself would have chosen for a backup.
+///
+/// Accepts both saved formats a restore can open — the `.lcbak` container and
+/// the `.xlsx` workbook — under the same `Backup_dd-mm-yy_hh-mm-ssam/pm` stem.
+bool _isBackupFileName(String name) {
+  for (final ext in const ['.lcbak', '.xlsx']) {
+    if (name.endsWith(ext)) {
+      return backupFileNamePattern.hasMatch(
+        name.substring(0, name.length - ext.length),
+      );
+    }
+  }
+  return false;
+}
+
+/// Matches `Backup_dd-mm-yy_hh-mm-ssam` / `Backup_dd-mm-yy_hh-mm-sspm`.
+final RegExp backupFileNamePattern = RegExp(
+  r'^Backup_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:am|pm)$',
+);
+
+/// The diary folder backups live in; tests override it with a temp directory.
+final backupFolderDirectoryProvider = Provider<Future<Directory> Function()>(
+  (_) => backupDocumentsDirectory,
+);
+
 /// Provider for the backup file dialogs; tests override it with a fake.
 final backupFileGatewayProvider = Provider<BackupFileGateway>(
   (ref) => const FilePickerBackupGateway(),
+);
+
+/// The folder sink for backup actions; tests override it with a fake.
+final backupFolderSinkProvider = Provider<BackupArchiveSink>(
+  (ref) => BackupFolderSink(
+    directoryProvider: ref.watch(backupFolderDirectoryProvider),
+  ),
+);
+
+/// The folder-first composite sink the screen's Local/Excel actions use.
+///
+/// Kept as its own provider so tests can inject a folder sink that throws, yet
+/// keep the [backupFileGatewayProvider] picker as a real dialog fake.
+final backupFolderFirstSinkProvider = Provider<BackupArchiveSink>(
+  (ref) => BackupFolderFirstSink(
+    folder: ref.watch(backupFolderSinkProvider),
+    fallback: ref.watch(backupFileGatewayProvider),
+  ),
 );
 
 /// A [BackupArchiveSink] that also keeps a copy the share sheet can attach.

@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
 import 'package:legal_case_diary/core/providers/print_providers.dart';
+import 'package:path/path.dart' as p;
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -87,6 +88,48 @@ class _FakeBackupGateway implements BackupFileGateway {
     if (failure != null) throw failure;
     return picked;
   }
+}
+
+/// A recorded folder sink that returns a real folder path without disk I/O.
+///
+/// The real [BackupFolderSink] does async disk writes, which never complete
+/// under a widget test's fake clock — so tests fake the sink and read what it
+/// recorded. [restoreFolder] is where a test can pre-place a file to restore.
+class _FakeFolderSink implements BackupArchiveSink {
+  /// The diary folder path this sink reports having written into.
+  final Directory folder;
+
+  /// File name asked for last.
+  String? savedName;
+
+  /// Bytes written last.
+  Uint8List? savedBytes;
+
+  _FakeFolderSink(this.folder);
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async {
+    savedName = fileName;
+    savedBytes = bytes;
+    // Synchronous write on purpose: a real async write never completes under
+    // the widget test's fake clock, and the restore path reads this file.
+    File(p.join(folder.path, fileName)).writeAsBytesSync(bytes, flush: true);
+    return p.join(folder.path, fileName);
+  }
+}
+
+/// A folder sink that always fails, to force the fallback to the save dialog.
+class _ThrowingFolderSink implements BackupArchiveSink {
+  const _ThrowingFolderSink();
+
+  @override
+  Future<String> write({
+    required String fileName,
+    required Uint8List bytes,
+  }) async => throw const FileSystemException('folder not writable');
 }
 
 /// A plaintext envelope file with [notes] rows, as an older build wrote it.
@@ -159,6 +202,7 @@ void main() {
   late _FakeBackupGateway gateway;
   late RecordingShareService shareService;
   late Directory tempDir;
+  late Directory folder;
 
   setUpAll(() {
     // One in-memory database per test is the point here.
@@ -182,6 +226,16 @@ void main() {
         // temp directory, so a locked leftover is not worth failing a test for.
       }
     });
+    // The diary folder a backup is written into and restored from.
+    folder = tempDir.createTempSync('lcb_folder');
+    addTearDown(() {
+      try {
+        if (folder.existsSync()) folder.deleteSync(recursive: true);
+      } on FileSystemException {
+        // Windows can still hold a handle for a moment; the OS clears its own
+        // temp directory, so a locked leftover is not worth failing a test for.
+      }
+    });
     _mockTemporaryDirectory(tempDir);
   });
 
@@ -189,7 +243,11 @@ void main() {
     await db.close();
   });
 
-  Future<void> pumpScreen(WidgetTester tester) async {
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    BackupArchiveSink? folderSink,
+  }) async {
+    folderSink ??= _FakeFolderSink(folder);
     // Tall viewport: the whole mockup body is on one screen and every section
     // under test is built (an off-screen widget would fail for the wrong reason).
     tester.view.physicalSize = const Size(1080, 2400);
@@ -201,6 +259,8 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           backupFileGatewayProvider.overrideWithValue(gateway),
+          backupFolderDirectoryProvider.overrideWithValue(() async => folder),
+          backupFolderSinkProvider.overrideWithValue(folderSink),
           appShareServiceProvider.overrideWithValue(shareService),
           // Everything else about the export stays real; only the key
           // derivation is cheap, because its default stretch pauses between
@@ -255,6 +315,58 @@ void main() {
     "'existing-note', 'user-1', 'Existing', 'Body', 1, 2)",
   );
 
+  /// Writes [file]'s bytes into the diary folder under its own name.
+  ///
+  /// This stands in for the platform having saved a backup there. The name must
+  /// match the app's default backup file shape so the folder scan accepts it.
+  /// Synchronous on purpose: a widget test's fake clock never completes an
+  /// async disk write.
+  Future<void> placeInFolder(PickedBackupFile file) async {
+    File(p.join(folder.path, file.name)).writeAsBytesSync(file.bytes);
+  }
+
+  //// Bytes of the single backup the diary folder now holds, if any.
+  Uint8List? folderBackupBytes() {
+    final files = folder
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.lcbak'))
+        .toList();
+    if (files.isEmpty) return null;
+    return files.single.readAsBytesSync();
+  }
+
+  /// The absolute path the Local backup wrote (the folder's `.lcbak` file).
+  String? folderSavePath() {
+    final files = folder
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.lcbak'))
+        .toList();
+    return files.isEmpty ? null : files.single.path;
+  }
+
+  /// Bytes of the single workbook the diary folder now holds, if any.
+  Uint8List? folderExcelBytes() {
+    final files = folder
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.xlsx'))
+        .toList();
+    if (files.isEmpty) return null;
+    return files.single.readAsBytesSync();
+  }
+
+  /// The absolute path the Excel backup wrote (the folder's `.xlsx` file).
+  String? folderExcelPath() {
+    final files = folder
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.xlsx'))
+        .toList();
+    return files.isEmpty ? null : files.single.path;
+  }
+
 
   /// Turns passphrase encryption on in the stored preferences, exactly as the
   /// Encryption On Backup section's Enable button does.
@@ -262,7 +374,7 @@ void main() {
       prefs.setBool(backupEncryptionEnabledKey, true);
 
   /// A workbook file, written by the real export engine for [db]'s contents.
-  Future<PickedBackupFile> excelBackup({String name = 'diary.xlsx'}) async {
+  Future<PickedBackupFile> excelBackup({String name = 'Backup_20-09-26_11-06-07am.xlsx'}) async {
     final bytes = await BackupRepository(db).buildExcelWorkbook(
       appVersion: '0.0.262',
       exportedAt: DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch,
@@ -442,15 +554,14 @@ void main() {
 
     // No passphrase is asked for: a spreadsheet cannot be sealed.
     expect(find.text('Protect this backup'), findsNothing);
-    final bytes = gateway.savedBytes;
+    final bytes = folderExcelBytes();
     expect(bytes, isNotNull);
-    expect(gateway.savedName, endsWith('.xlsx'));
     // The file really is our workbook, built from what the diary holds.
     final parts = workbookParts(bytes!);
     expect(parts.keys, contains('xl/worksheets/sheet2.xml'));
     expect(parts['xl/workbook.xml'], contains('name="Cases"'));
 
-    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    expect(prefs.getString(lastBackupPathKey), folderExcelPath());
     expect(find.textContaining('Excel file saved to'), findsOneWidget);
   });
 
@@ -489,7 +600,7 @@ void main() {
       'INSERT INTO sync_metadata ("key", "value", "updated_at") '
       "VALUES ('outside.scope', 'kept', 1)",
     );
-    gateway.picked = await excelBackup();
+    await placeInFolder(await excelBackup());
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
@@ -527,15 +638,17 @@ void main() {
     tester,
   ) async {
     await seedNote();
-    gateway.picked = PickedBackupFile(
-      name: 'diary.xlsx',
-      path: null,
-      // One column renamed, as a user tidying the headers might do.
-      bytes: breakWorkbook(
-        (await excelBackup()).bytes,
-        'xl/worksheets/sheet2.xml',
-        '<t xml:space="preserve">case_number</t>',
-        '<t xml:space="preserve">case_no</t>',
+    await placeInFolder(
+      PickedBackupFile(
+        name: 'Backup_20-09-26_11-06-07am.xlsx',
+        path: null,
+        // One column renamed, as a user tidying the headers might do.
+        bytes: breakWorkbook(
+          (await excelBackup()).bytes,
+          'xl/worksheets/sheet2.xml',
+          '<t xml:space="preserve">case_number</t>',
+          '<t xml:space="preserve">case_no</t>',
+        ),
       ),
     );
     await pumpScreen(tester);
@@ -627,9 +740,8 @@ void main() {
 
     // No passphrase window: encryption is off by default.
     expect(find.text('Protect this backup'), findsNothing);
-    final bytes = gateway.savedBytes;
+    final bytes = folderBackupBytes();
     expect(bytes, isNotNull);
-    expect(gateway.savedName, endsWith('.lcbak'));
     // The file is the readable envelope, not the sealed container.
     final decoded = jsonDecode(utf8.decode(bytes!)) as Map<String, dynamic>;
     expect(decoded['format'], isNot(kEncryptedBackupFormat));
@@ -638,8 +750,8 @@ void main() {
       (decoded['payload'] as Map<String, dynamic>),
       contains(kBackupTablesSection),
     );
-    // And it is recorded exactly like an encrypted one.
-    expect(prefs.getString(lastBackupPathKey), gateway.savePath);
+    // And it is recorded exactly like an encrypted one, at the folder path.
+    expect(prefs.getString(lastBackupPathKey), folderSavePath());
     expect(find.textContaining('Backup saved to'), findsOneWidget);
   });
 
@@ -679,11 +791,10 @@ void main() {
       confirmLabel: 'Encrypt and save',
     );
 
-    // The file written through the save dialog is the encrypted container, and
+    // The file written into the diary folder is the encrypted container, and
     // it really opens with the passphrase the user chose.
-    final bytes = gateway.savedBytes;
+    final bytes = folderBackupBytes();
     expect(bytes, isNotNull);
-    expect(gateway.savedName, endsWith('.lcbak'));
     final container = EncryptedBackup.decode(utf8.decode(bytes!));
     expect(container.format, kEncryptedBackupFormat);
     final plaintext = await decryptBackup(
@@ -694,19 +805,14 @@ void main() {
     expect(envelope.tables.keys, contains('cases'));
 
     // The user is told where it went, and the status card records it.
+    final saved = folderSavePath()!;
     expect(
-      find.text('Backup saved to /storage/emulated/0/Download/legal-case-diary.lcbak'),
+      find.text('Backup saved to $saved'),
       findsOneWidget,
     );
-    expect(
-      prefs.getString(lastBackupPathKey),
-      '/storage/emulated/0/Download/legal-case-diary.lcbak',
-    );
+    expect(prefs.getString(lastBackupPathKey), saved);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), envelope.exportedAt);
-    expect(
-      find.text('/storage/emulated/0/Download/legal-case-diary.lcbak'),
-      findsOneWidget,
-    );
+    expect(find.text(saved), findsOneWidget);
   });
 
   testWidgets('a cancelled passphrase dialog exports nothing', (tester) async {
@@ -722,10 +828,13 @@ void main() {
     expect(find.text('No backup has been made yet.'), findsOneWidget);
   });
 
-  testWidgets('a dismissed save dialog records nothing', (tester) async {
+  testWidgets('fallback save dialog dismissed records nothing', (tester) async {
     await enableEncryption();
     gateway.cancelSave = true;
-    await pumpScreen(tester);
+    await pumpScreen(
+      tester,
+      folderSink: const _ThrowingFolderSink(),
+    );
 
     await tapAction(tester, 'Backup to Local Storage');
     await enterPassphrase(
@@ -735,8 +844,8 @@ void main() {
       confirmLabel: 'Encrypt and save',
     );
 
-    // No success message, and the status card still says no backup was made —
-    // the archive is only recorded after the file really exists.
+    // The folder failed, the fallback save dialog was dismissed: nothing was
+    // written, and the archive is only recorded when the file really exists.
     expect(find.textContaining('Backup saved to'), findsNothing);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);
     expect(find.text('No backup has been made yet.'), findsOneWidget);
@@ -747,7 +856,10 @@ void main() {
   ) async {
     await enableEncryption();
     gateway.saveError = StateError('disk full');
-    await pumpScreen(tester);
+    await pumpScreen(
+      tester,
+      folderSink: const _ThrowingFolderSink(),
+    );
 
     await tapAction(tester, 'Backup to Local Storage');
     await enterPassphrase(
@@ -1038,6 +1150,80 @@ void main() {
     expect(find.text('Send to Google Drive?'), findsNothing);
     expect(shareService.files, isEmpty);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), isNull);
+  });
+
+  testWidgets('a single backup in the folder restores directly, no picker', (
+    tester,
+  ) async {
+    await placeInFolder(_legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak'));
+    gateway.picked = null; // The picker must never be asked.
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    // No choice popup and no platform picker: the folder's only file restores.
+    expect(
+      find.text('Choose the backup to restore'),
+      findsNothing,
+    );
+    expect(find.text('Open this backup'), findsNothing);
+    expect(find.text('Restore complete'), findsOneWidget);
+    expect(find.text('3 records restored.'), findsOneWidget);
+  });
+
+  testWidgets('with several backups the folder lists them in a choice popup', (
+    tester,
+  ) async {
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak', notes: 2),
+    );
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
+    );
+    gateway.picked = null;
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    // Both files are listed in the popup, and the popup is the rounder-corner
+    // dialog the user asked for, replacing the platform picker.
+    expect(
+      find.text('Choose the backup to restore'),
+      findsOneWidget,
+    );
+    expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
+    expect(find.text('Backup_02-02-26_09-30-15pm.lcbak'), findsOneWidget);
+
+    // The popup uses a slightly rounder corner than the app's default dialog.
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    final shape = dialog.shape! as RoundedRectangleBorder;
+    expect(
+      (shape.borderRadius as BorderRadius).topLeft.x,
+      greaterThan(8.0),
+    );
+
+    await tester.tap(find.text('Backup_02-02-26_09-30-15pm.lcbak'));
+    await tester.pumpAndSettle();
+
+    // The chosen file's data is what gets restored.
+    expect(find.text('Restore complete'), findsOneWidget);
+    expect(find.text('3 records restored.'), findsOneWidget);
+  });
+
+  testWidgets('an empty or missing folder falls back to the platform picker', (
+    tester,
+  ) async {
+    // No files placed in the folder → the picker is used, exactly the fallback
+    // the user asked to keep.
+    gateway.picked = _legacyBackup(name: 'old-backup.json');
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    // The legacy named file (not a `Backup_...` stem) is unreachable via the
+    // folder scan, so the picker returns it.
+    expect(find.text('Restore complete'), findsOneWidget);
+    expect(find.text('3 records restored.'), findsOneWidget);
   });
 
   test('only the file gateway imports the platform picker', () {

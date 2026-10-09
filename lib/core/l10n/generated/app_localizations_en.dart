@@ -1901,6 +1901,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupRestore_title => 'Backup & Restore';
 
   @override
+  String get settingsBackupRestore_chooseBackupTitle =>
+      'Choose the backup to restore';
+
+  @override
   String get settingsBackupRestore_sectionBackup => 'Backup & Restore';
 
   @override

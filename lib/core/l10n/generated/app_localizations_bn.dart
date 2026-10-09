@@ -1908,6 +1908,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsBackupRestore_title => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override
+  String get settingsBackupRestore_chooseBackupTitle =>
+      'পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন';
+
+  @override
   String get settingsBackupRestore_sectionBackup => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override

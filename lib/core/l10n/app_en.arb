@@ -530,6 +530,8 @@
       }
   },
   "paywall_benefitsTitle": "Subscription Plans Offer",
+  "paywall_featureUnlimitedCasesTitle": "Unlimited Cases",
+  "paywall_featureUnlimitedCasesBody": "Store as many cases as you need, with no limit.",
   "paywall_featureDisasterRecoveryTitle": "Disaster Recovery",
   "paywall_featureDisasterRecoveryBody": "If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.",
   "paywall_featureRealTimeBackupTitle": "Real-time Backup",

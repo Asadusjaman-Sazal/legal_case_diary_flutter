@@ -80,6 +80,8 @@ void main() {
 
     expect(find.text('Subscription Plans Offer'), findsOneWidget);
     for (final title in <String>[
+      // Unlimited Cases leads the offer (0.0.441).
+      'Unlimited Cases',
       'Disaster Recovery',
       'Real-time Backup',
       'Multi-device Support',
@@ -88,6 +90,7 @@ void main() {
       expect(find.text(title), findsOneWidget);
     }
     for (final body in <String>[
+      'Store as many cases as you need, with no limit.',
       'If your phone is lost or broken, your data is always safe in the cloud. '
           'You can login to your new device with your account to get access to '
           'your old data.',
@@ -97,6 +100,22 @@ void main() {
     ]) {
       expect(find.text(body), findsOneWidget);
     }
+    // Unlimited Cases is first, so its heading sits above the rest.
+    expect(
+      tester.getTopLeft(find.text('Unlimited Cases')).dy,
+      lessThan(tester.getTopLeft(find.text('Disaster Recovery')).dy),
+    );
+    // Each row carries its own icon, not one repeated tick.
+    for (final icon in <IconData>[
+      Icons.all_inclusive,
+      Icons.cloud_done_outlined,
+      Icons.cloud_upload_outlined,
+      Icons.devices_outlined,
+      Icons.groups_outlined,
+    ]) {
+      expect(find.byIcon(icon), findsOneWidget, reason: '$icon');
+    }
+    expect(find.byIcon(Icons.check_circle), findsNothing);
 
     expect(find.text('Plans'), findsOneWidget);
     for (final plan in <String>['1 Month', '3 Months', '6 Months', '1 Year']) {
@@ -265,11 +284,13 @@ void main() {
       subscriptionPlans.map((p) => p.undiscountedAmount),
       <int>[100, 300, 600, 1200],
     );
-    expect(paywallFeatures, hasLength(4));
-    // The four the offer section lists, in display order.
+    expect(paywallFeatures, hasLength(5));
+    // The five the offer section lists, in display order: Unlimited Cases leads
+    // (it is the 50-case gate's answer), then the cloud features.
     expect(
       paywallFeatures,
       <PaywallFeature>[
+        PaywallFeature.unlimitedCases,
         PaywallFeature.disasterRecovery,
         PaywallFeature.realTimeBackup,
         PaywallFeature.multiDevice,

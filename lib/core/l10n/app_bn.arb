@@ -523,6 +523,8 @@
       }
   },
   "paywall_benefitsTitle": "সাবস্ক্রিপশন প্ল্যানে যা থাকে",
+  "paywall_featureUnlimitedCasesTitle": "আনলিমিটেড মামলা",
+  "paywall_featureUnlimitedCasesBody": "যত খুশি মামলা সংরক্ষণ করুন, কোনো সীমা ছাড়াই।",
   "paywall_featureDisasterRecoveryTitle": "দুর্যোগে ডেটা পুনরুদ্ধার",
   "paywall_featureDisasterRecoveryBody": "আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।",
   "paywall_featureRealTimeBackupTitle": "রিয়েল-টাইম ব্যাকআপ",

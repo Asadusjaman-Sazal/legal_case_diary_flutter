@@ -1043,6 +1043,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_benefitsTitle => 'Subscription Plans Offer';
 
   @override
+  String get paywall_featureUnlimitedCasesTitle => 'Unlimited Cases';
+
+  @override
+  String get paywall_featureUnlimitedCasesBody =>
+      'Store as many cases as you need, with no limit.';
+
+  @override
   String get paywall_featureDisasterRecoveryTitle => 'Disaster Recovery';
 
   @override

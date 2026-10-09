@@ -1,3 +1,15 @@
+### 2026-10-09 — Subscription Plans: Unlimited Cases, per-feature icons, bigger Subscribe — COMPLETE
+
+- **Request (the user's, scoped to the Subscription Plans screen only).** Add an **Unlimited Cases** feature at the top of the list with a befitting line; give **each title its own icon** instead of the green check; make the **Subscribe** buttons a little bigger.
+- **Unlimited Cases leads on purpose.** It is added **first** in `paywallFeatures` because it is the benefit a free user hits before any cloud feature — the 50-case gate is what opens this screen — so the offer answers the question the user came with. Copy: *"Store as many cases as you need, with no limit."* (ARB, en + bn, gen-l10n re-run.)
+- **One icon per feature.** A `_icon(PaywallFeature)` switch replaces the single `check_circle`: **all_inclusive** (Unlimited Cases), **cloud_done** (Disaster Recovery), **cloud_upload** (Real-time Backup), **devices** (Multi-device), **groups** (Collaboration), drawn at 20 px in `AppColors.primary` — the tick's green was doing no work, and an icon that names the feature is the point.
+- **Subscribe a little bigger.** `minimumSize` height 52, `titleMd` label, `lg` horizontal padding — a firmer target without becoming the screen's loudest element (the plan name and price still lead each row).
+- **Tests.** The offer-list test now checks the fifth title and its body, that **Unlimited Cases sits above Disaster Recovery** (geometry, not just presence), that each of the five icons appears, and that **no `check_circle` remains**; the feature-order test names the five in order.
+- **Mockup (rule 9).** `mockup_html_screens/paywall/code.html` redrawn to match: the row comment, an **Unlimited Cases** row (icon `all_inclusive`), the four rows given their own `cloud_done` / `cloud_upload` / `devices` / `groups` icons in `text-primary`, and the four Subscribe buttons `h-10` → **`h-12`** with the title type. Verified no `check_circle` survives.
+- **Records (rule 14).** The plan's paywall item and Task 21's 0.0.392 offer bullet both note the new row, the per-feature icons and the button size with **(0.0.441)**.
+- **Verification.** `flutter analyze` clean; `paywall` suite **13/13**; full suite **1503 passed**, no overflows; `record_version.py --check` OK; version **0.0.441**.
+- **Resume point:** nothing owed in code. Device check: open Subscription Plans — Unlimited Cases is first with its own icon, each feature has a distinct icon, and the Subscribe buttons read a little larger.
+
 ### 2026-10-09 — App Lock: the timing button shows its current value — COMPLETE
 
 - **Request (the user's, scoped to App Lock only).** "Show the currently selected option as subtitle under the main button."

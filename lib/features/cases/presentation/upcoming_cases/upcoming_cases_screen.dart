@@ -339,7 +339,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
 
     if (groups.isEmpty) {
       return CaseListEmptyState(
-        placeholder: l.upcomingCasesScreen_title,
+        placeholder: l.upcomingCasesScreen_empty,
         isSearching: _isSearching,
         hasAnyCase: _cases.isNotEmpty,
         onRefresh: () => pullCaseListToSync(ref, _loadCases),

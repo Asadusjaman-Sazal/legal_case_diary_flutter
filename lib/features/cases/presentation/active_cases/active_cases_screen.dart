@@ -235,7 +235,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
 
     if (visible.isEmpty) {
       return CaseListEmptyState(
-        placeholder: l.activeCasesScreen_title,
+        placeholder: l.activeCasesScreen_empty,
         isSearching: _isSearching,
         hasAnyCase: _cases.isNotEmpty,
         onRefresh: () => pullCaseListToSync(ref, _loadCases),

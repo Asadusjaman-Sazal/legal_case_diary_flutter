@@ -261,6 +261,8 @@ abstract class AppStrings {
   static const String settingsBackupRestoreGroup = "settingsBackupRestore";
   static const String settingsBackupRestoreTitle =
       "settingsBackupRestore_title";
+  static const String settingsBackupRestoreChooseBackupTitle =
+      "settingsBackupRestore_chooseBackupTitle";
 
   // settingsGuidelines
   static const String settingsGuidelinesGroup = "settingsGuidelines";

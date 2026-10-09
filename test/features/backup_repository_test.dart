@@ -579,20 +579,26 @@ void main() {
   });
 
   group('defaultBackupFileName', () {
-    test('is a sortable UTC timestamp with the encrypted-backup extension', () {
-      // 2026-09-20 05:06:07 UTC.
+    test('is a local-stamped Backup_dd-mm-yy_hh-mm-ssam/pm name', () {
+      // A fixed instant, formatted in the machine's own local time — AM/PM is
+      // only meaningful locally, and the name must stay unique per second.
       final stamp = DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch;
-      expect(
-        defaultBackupFileName(stamp),
-        'legal-case-diary-backup-20260920-050607.lcbak',
-      );
+      final at = DateTime.fromMillisecondsSinceEpoch(stamp);
+      String two(int v) => v.toString().padLeft(2, '0');
+      final amPm = at.hour >= 12 ? 'pm' : 'am';
+      final h = at.hour % 12 == 0 ? 12 : at.hour % 12;
+      final expected = 'Backup_${two(at.day)}-${two(at.month)}-'
+          '${two(at.year % 100)}_${two(h)}-${two(at.minute)}-'
+          '${two(at.second)}$amPm.lcbak';
+      expect(defaultBackupFileName(stamp), expected);
     });
 
-    test('names a workbook with the extension Excel recognises', () {
+    test('names a workbook with the same stem and the Excel extension', () {
       final stamp = DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch;
+      final backup = defaultBackupFileName(stamp);
       expect(
         defaultExcelFileName(stamp),
-        'legal-case-diary-20260920-050607.xlsx',
+        '${backup.substring(0, backup.length - '.lcbak'.length)}.xlsx',
       );
     });
   });

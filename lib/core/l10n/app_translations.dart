@@ -318,6 +318,8 @@ class AppTranslations {
     },
     AppStrings.settingsBackupRestoreGroup: <String, String>{
       AppStrings.settingsBackupRestoreTitle: _loc.settingsBackupRestore_title,
+      AppStrings.settingsBackupRestoreChooseBackupTitle:
+          _loc.settingsBackupRestore_chooseBackupTitle,
     },
     AppStrings.settingsGuidelinesGroup: <String, String>{
       AppStrings.settingsGuidelinesTitle: _loc.settingsGuidelines_title,

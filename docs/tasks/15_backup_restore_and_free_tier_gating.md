@@ -49,6 +49,10 @@
 
 **Phase 4 completion:** `flutter analyze` clean; manual walkthrough of backup + restore. Update `docs/version_history.md`.
 
+### Phase 4 follow-up — dialog-free backups into a diary folder (0.0.446)
+
+> Requested by the user (Backup & Restore screen & system). Deviates from Phase 1/4's "manual backup → save dialog → shows saved path" and Phase 3's "restore → file picker" wording: pressing **Backup to Local Storage** (and **Backup as Excel File**, per the user's choice) no longer opens a "Save to…" dialog. It writes automatically into **Internal storage/LegalCaseDiary** (`<documents>/LegalCaseDiary`, a folder a non-technical user can find), renamed to **`Backup_dd-mm-yy_hh-mm-ssam/pm.<ext>`** (`.lcbak` for the container, `.xlsx` for the workbook); `defaultBackupFileName`/`defaultExcelFileName` now use the local-civil date and the lower-case `am`/`pm`. **Restore** scans that folder instead of the file picker: one backup restores directly, several are offered in a slightly rounder-corner popup (the app's dialog with `sheetRadius + radiusSm`), and the system picker remains the fallback when the folder is missing or holds no app backup (explicit user requirement). The picker is still used by **Backup to Google Drive** (share sheet) and when the folder itself cannot be written or the folder-first sink throws a `FileSystemException`. The two automatic safety exports (logout and extended-offline) keep the private `LocalArchiveSink` (`<documents>/backups`) unchanged.
+
 ## Phase 5 — 50-Case Free-Tier Gating (Local Enforcement)
 
 1. Enforce the free-tier limit **locally at the Add Case flow** (Task 07 left the hook in place): before inserting in add mode, call `CasesDao.getNonDeletedCaseCount()` — the count includes **only `is_deleted = false`** rows. Soft-deleted cases never count.

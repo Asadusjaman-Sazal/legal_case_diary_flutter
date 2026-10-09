@@ -20,8 +20,11 @@
 /// local data, imports in one transaction and reloads the app.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../core/backup/backup_restore.dart';
 import '../../../core/backup/excel_backup.dart';
@@ -188,9 +191,10 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     }
   }
 
-  /// Backup to Local Storage: the export, then the saved location.
+  /// Backup to Local Storage: the export into the diary folder, then the saved
+  /// location. If the folder cannot be created, fall back to the save dialog.
   Future<void> _backupToLocalStorage() async {
-    final result = await _exportBackup(ref.read(backupFileGatewayProvider));
+    final result = await _exportBackup(ref.read(backupFolderSinkProvider));
     if (result == null || !mounted) return;
     _showMessage(
       AppLocalizations.of(context).settingsBackupRestore_backupSaved(
@@ -255,7 +259,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         context,
         l.settingsBackupRestore_excelProgress,
         () => repository.exportExcelWorkbook(
-          sink: ref.read(backupFileGatewayProvider),
+          sink: ref.read(backupFolderFirstSinkProvider),
           appVersion: appVersion,
         ),
       );
@@ -322,11 +326,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   Future<void> _restoreFromBackup() async {
     final l = AppLocalizations.of(context);
 
-    final PickedBackupFile? picked;
+    // Inside the diary folder: one backup restores directly, more than one
+    // offers a choice. The picker is the folder's replacement when the folder
+    // is missing or inaccessible.
+    PickedBackupFile? picked;
     try {
-      picked = await ref.read(backupFileGatewayProvider).pick();
+      picked = await _pickFromFolderOrPicker();
     } catch (error, stack) {
-      debugPrint('Backup file picker failed: $error\n$stack');
+      debugPrint('Backup source unavailable: $error\n$stack');
       _showMessage(l.settingsBackupRestore_errorOpenFile);
       return;
     }
@@ -407,6 +414,49 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Finds the backup(s) the restore should use, dialog-free.
+  ///
+  /// One backup in the folder restores directly. Several are offered in a
+  /// choice dialog (the "slightly rounder corner popup" the user asked for), and
+  /// the system file picker remains the fallback when the folder is missing,
+  /// inaccessible, or holds no backup.
+  ///
+  /// Files are read synchronously: a backup is a few megabytes at most, and this
+  /// keeps the folder path free of the async I/O a widget test's fake clock
+  /// cannot complete.
+  Future<PickedBackupFile?> _pickFromFolderOrPicker() async {
+    final directory = await ref.read(backupFolderDirectoryProvider)();
+    final files = await listBackupFiles(directory);
+    if (files.length == 1) {
+      final bytes = files.single.readAsBytesSync();
+      return PickedBackupFile(
+        name: p.basename(files.single.path),
+        path: files.single.path,
+        bytes: bytes,
+      );
+    }
+    if (files.length > 1) {
+      if (!mounted) return null;
+      final picked = await showDialog<PickedBackupFile?>(
+        context: context,
+        builder: (_) => _BackupFilePickerDialog(
+          files: files,
+          onPick: (File f) async => PickedBackupFile(
+            name: p.basename(f.path),
+            path: f.path,
+            bytes: f.readAsBytesSync(),
+          ),
+        ),
+      );
+      if (picked != null) return picked;
+      return null; // The choice was cancelled; nothing to restore.
+    }
+    // The folder is missing, empty or holds no app backup: ask the platform.
+    final picked = await ref.read(backupFileGatewayProvider).pick();
+    if (picked == null || !mounted) return null;
+    return picked;
   }
 
   /// The user-facing message for one engine refusal.
@@ -567,6 +617,64 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           _StatusCard(metadata: metadata),
         ],
       ),
+    );
+  }
+}
+
+/// The "slightly rounder corner popup" listing the backup files in the diary
+/// folder, shown when a restore finds more than one.
+///
+/// Each row is a tappable backup file; tapping one reads it into the same
+/// [PickedBackupFile] the platform picker would have produced, so the rest of
+/// the restore flow is unchanged. The corner radius is a little rounder than
+/// the app's default dialogs — `sheetRadius + radiusSm` — as the user asked.
+class _BackupFilePickerDialog extends StatelessWidget {
+  /// The backup files to choose from, pre-sorted.
+  final List<File> files;
+
+  /// Reads one chosen file into an opened backup.
+  final Future<PickedBackupFile> Function(File file) onPick;
+
+  const _BackupFilePickerDialog({required this.files, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          AppSpacing.sheetRadius + AppSpacing.radiusSm,
+        ),
+        side: const BorderSide(color: AppColors.outlineVariant),
+      ),
+      title: Text(
+        l.settingsBackupRestore_chooseBackupTitle,
+        style: AppTypography.titleLg,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final file in files)
+            ListTile(
+              key: ValueKey('backup-file-${p.basename(file.path)}'),
+              title: Text(p.basename(file.path)),
+              onTap: () async {
+                final opened = await onPick(file);
+                if (context.mounted) {
+                  Navigator.of(context).pop(opened);
+                }
+              },
+            ),
+        ],
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_cancel),
+        ),
+      ],
     );
   }
 }

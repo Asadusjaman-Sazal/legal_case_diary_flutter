@@ -951,6 +951,7 @@
   },
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "Backup & Restore",
+  "settingsBackupRestore_chooseBackupTitle": "Choose the backup to restore",
   "settingsBackupRestore_sectionBackup": "Backup & Restore",
   "settingsBackupRestore_sectionBackupSubtitle": "Back Up Or Restore Your Diary",
   "settingsBackupRestore_sectionEncryption": "Encryption On Backup",

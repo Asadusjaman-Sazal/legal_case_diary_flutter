@@ -1029,12 +1029,12 @@ class _ExcelReferenceData {
 
 /// Default backup file name for an export taken at [exportedAt].
 ///
-/// UTC `legal-case-diary-backup-YYYYMMDD-HHMMSS.lcbak` — sortable, unique per
-/// second, and independent of the device locale. The extension is not `.json`
-/// because the file is the encrypted container, not readable JSON; Phase 3's
-/// picker filters on it.
+/// `Backup_dd-mm-yy_hh-mm-ssam/`pm`.lcbak` — the local time, superseded by the
+/// user's requested `dd-mm-yy_hh:mm:ssam/pm` shape. The extension is `.lcbak`,
+/// not `.json`, because the file is the encrypted container, not readable JSON.
+/// [backup_file_gateway] recognizes this shape when a restore lists the folder.
 String defaultBackupFileName(int exportedAt) =>
-    'legal-case-diary-backup-${_fileStamp(exportedAt)}.lcbak';
+    'Backup_${_fileStamp(exportedAt)}.lcbak';
 
 /// Default workbook file name for an export taken at [exportedAt].
 ///
@@ -1042,14 +1042,16 @@ String defaultBackupFileName(int exportedAt) =>
 /// the save dialog offers the file as a spreadsheet and the picker can find it
 /// again.
 String defaultExcelFileName(int exportedAt) =>
-    'legal-case-diary-${_fileStamp(exportedAt)}.xlsx';
+    'Backup_${_fileStamp(exportedAt)}.xlsx';
 
-/// UTC `YYYYMMDD-HHMMSS`, the stamp both default file names share.
+/// Local `dd-mm-yy_hh-mm-ssam`/`pm`, the stamp both default file names share.
 String _fileStamp(int exportedAt) {
-  final at = DateTime.fromMillisecondsSinceEpoch(exportedAt, isUtc: true);
+  final at = DateTime.fromMillisecondsSinceEpoch(exportedAt);
   String two(int value) => value.toString().padLeft(2, '0');
-  return '${at.year}${two(at.month)}${two(at.day)}'
-      '-${two(at.hour)}${two(at.minute)}${two(at.second)}';
+  final amPm = at.hour >= 12 ? 'pm' : 'am';
+  final h = at.hour % 12 == 0 ? 12 : at.hour % 12;
+  return '${two(at.day)}-${two(at.month)}-${two(at.year % 100)}'
+      '_${two(h)}-${two(at.minute)}-${two(at.second)}$amPm';
 }
 
 /// The cell kind a database column's values round-trip through.

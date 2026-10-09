@@ -865,6 +865,7 @@
   },
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "ব্যাকআপ ও পুনরুদ্ধার",
+  "settingsBackupRestore_chooseBackupTitle": "পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন",
   "settingsBackupRestore_sectionBackup": "ব্যাকআপ ও পুনরুদ্ধার",
   "settingsBackupRestore_sectionBackupSubtitle": "আপনার ডায়েরি ব্যাকআপ করুন বা পুনরুদ্ধার করুন",
   "settingsBackupRestore_sectionEncryption": "ব্যাকআপে এনক্রিপশন",

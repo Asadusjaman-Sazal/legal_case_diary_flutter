@@ -3422,6 +3422,12 @@ abstract class AppLocalizations {
   /// **'Backup & Restore'**
   String get settingsBackupRestore_title;
 
+  /// No description provided for @settingsBackupRestore_chooseBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the backup to restore'**
+  String get settingsBackupRestore_chooseBackupTitle;
+
   /// No description provided for @settingsBackupRestore_sectionBackup.
   ///
   /// In en, this message translates to:

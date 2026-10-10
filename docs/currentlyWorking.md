@@ -8,6 +8,13 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Logout no longer closes the side menu — COMPLETE
+
+- **Request (the user's).** Tapping **Logout** in the side menu's profile panel closed the side menu; it should stay open.
+- **Fix (one line).** The popover's Logout row dropped its leading `_closeDrawer()` in `lib/shared/widgets/app_navigation_drawer.dart`. The drawer and its account panel now stay up while the branched logout's windows run above them, and the panel is closed only after the flow finishes (before the explicit `go(Login)` when it completed). A cancelled branch therefore leaves the user exactly where they were — still in the open menu, able to pick another action. It also keeps the panel's `ref` and its measured geometry mounted for the whole flow.
+- **Tests.** `app_navigation_drawer_test.dart` gains one case (now 20): it opens the drawer, taps Logout, and asserts the drawer's own row **and** the confirmation window are both on screen before proceeding, then declines the copy and reaches Login. (The Yes branch opens a real save dialog, which is why the sibling test — and this one — cancels it, as the earlier suite already established.)
+- **Verification.** `flutter analyze` clean; drawer suite 20/20; full suite green; version **0.0.451**. (0.0.450 was the companion Logout-crash fix committed between turns.)
+
 ### 2026-10-09 — Logout from the side-menu profile popover crashed — FIXED
 
 - **Report (the user's).** Tapping **Profile → Logout** in the side menu showed `Bad state: Using "ref" when a widget is about to or has been unmounted is unsafe.`

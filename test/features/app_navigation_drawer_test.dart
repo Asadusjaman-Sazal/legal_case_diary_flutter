@@ -749,4 +749,133 @@ void main() {
       expect(router.state.matchedLocation, AppRoutes.login);
     },
   );
+
+  testWidgets('Logout leaves the side menu open while its windows run', (
+    tester,
+  ) async {
+    // A free account with authored data takes the backup-choice branch, so a
+    // confirmation window opens above the still-open drawer. The drawer and its
+    // account panel must stay up until the flow is done — a cancelled logout
+    // leaves the user exactly where they were.
+    await tester.binding.setSurfaceSize(const Size(500, 1400));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value('drawer-category'),
+            nameKey: Value('courtCategory_districtCourtsCivil'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value('drawer-court'),
+            courtName: Value('Drawer Court'),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value('drawer-category'),
+            isCustom: Value(true),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+    var sessionsEnded = 0;
+    final flow = LogoutFlow(
+      db: db,
+      premium: false,
+      online: false,
+      runBacklogPush: () async => null,
+      endSession: () async => sessionsEnded++,
+    );
+
+    final router = GoRouter(
+      initialLocation: AppRoutes.dailyCauseList,
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => Scaffold(body: child),
+          routes: [
+            GoRoute(
+              path: AppRoutes.dailyCauseList,
+              builder: (_, _) => Scaffold(
+                drawer: AppNavigationDrawer(
+                  currentRoute: AppRoutes.dailyCauseList,
+                ),
+                body: const SizedBox.shrink(),
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (_, _) => const Scaffold(body: Text(loginMarker)),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          currentPlanProvider.overrideWithValue(freePlan),
+          authIdentityProvider.overrideWithValue(
+            const AuthIdentity(
+              userId: 'drawer-test-user',
+              email: signedInEmail,
+            ),
+          ),
+          logoutFlowProvider.overrideWith((_) async => flow),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    tester
+        .state<ScaffoldState>(
+          find
+              .byWidgetPredicate((w) => w is Scaffold && w.drawer != null)
+              .first,
+        )
+        .openDrawer();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    // The menu is open when the logout is started.
+    expect(find.text('Daily Cause List'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
+    await tester.pumpAndSettle();
+
+    // The confirmation window is up, and the side menu has NOT been closed
+    // underneath it — the drawer's own row is still on screen.
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(find.text(l.logout_backupPromptTitle), findsOneWidget);
+    expect(find.text('Daily Cause List'), findsOneWidget);
+
+    // Declining the copy wipes without one — the same branch the sibling test
+    // proves reaches Login — while the drawer has stayed open throughout.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text(l.sharedActions_no),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(sessionsEnded, 1, reason: 'the logout ended the session');
+    expect(router.state.matchedLocation, AppRoutes.login);
+  });
+
 }

@@ -17,14 +17,18 @@
 library;
 
 import 'package:drift/drift.dart' show Value;
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
@@ -113,12 +117,17 @@ void main() {
     }
   }
 
-  /// Taps [finder] after scrolling it into view.
-  Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+  /// Taps the Logout card, which starts an indeterminate spinner.
+  ///
+  /// From the tap, the card shows a `CircularProgressIndicator` for the flow's
+  /// duration, so `pumpAndSettle` can never settle — a bounded pump is the
+  /// honest wait (the same rule the drawer suite follows). For a branch with no
+  /// dialog (a synced account), the whole flow runs to Login on this single tap.
+  Future<void> tapLogout(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
     await tester.pumpAndSettle();
     await tester.tap(finder);
-    await tester.pumpAndSettle();
+    await pumpUntilLogoutDone(tester);
   }
 
   testWidgets('shows the signed-in account, never the mockup sample', (
@@ -331,8 +340,13 @@ void main() {
     // Encryption on, so the export asks for a passphrase as this test expects.
     await harness.prefs.setBool(backupEncryptionEnabledKey, true);
 
-    await tapVisible(tester, find.text(l.settingsManageAccount_logout));
-    await completeLogoutPassphrase(tester, l, 'correct-horse');
+    await tapLogout(tester, find.text(l.settingsManageAccount_logout));
+    await completeLogoutPassphrase(
+      tester,
+      l,
+      'correct-horse',
+      boundedPumps: true,
+    );
 
     expect(sink.writes, 1, reason: 'the copy is written before the wipe');
     expect(harness.auth.signOutCalls, 1);
@@ -372,10 +386,11 @@ void main() {
     );
 
     await harness.prefs.setBool(backupEncryptionEnabledKey, true);
-    await tapVisible(tester, find.text(l.settingsManageAccount_logout));
-    await answerLogoutBackup(tester, l);
+    await tapLogout(tester, find.text(l.settingsManageAccount_logout));
+    await answerLogoutBackup(tester, l, boundedPumps: true);
     await tester.tap(find.text(l.sharedActions_cancel));
-    await tester.pumpAndSettle();
+    // Cancelling ends the flow, so the spinner clears — wait for it.
+    await pumpUntilLogoutDone(tester);
 
     expect(sink.writes, 0);
     expect(harness.auth.signOutCalls, 0);
@@ -410,12 +425,51 @@ void main() {
       ),
     );
 
-    await tapVisible(tester, find.text(l.settingsManageAccount_logout));
+    await tapLogout(tester, find.text(l.settingsManageAccount_logout));
 
     expect(find.byType(AlertDialog), findsNothing);
     expect(harness.auth.signOutCalls, 1);
     expect(find.text(l.settingsManageAccount_loggedOut), findsOneWidget);
     // Every completed branch lands on Login, not only the export one.
+    expect(find.text(loginRouteMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Logout card shows a spinner while the flow is running', (
+    tester,
+  ) async {
+    // Held open so the spinner is observable: the whole flow stays in flight
+    // until the test releases it.
+    final gate = Completer<void>();
+    await pumpManageAccount(
+      tester,
+      overrides: [
+        logoutFlowProvider.overrideWith((ref) async {
+          final db = await ref.watch(databaseProvider.future);
+          return LogoutFlow(
+            db: db,
+            premium: true,
+            online: false,
+            runBacklogPush: () async => null,
+            endSession: () => gate.future,
+          );
+        }),
+      ],
+    );
+
+    await tester.ensureVisible(find.text(l.settingsManageAccount_logout));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.settingsManageAccount_logout));
+    await tester.pump();
+
+    // The Logout card's icon is a progress spinner while the flow runs.
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    // Releasing the flow clears the spinner and reaches Login.
+    gate.complete();
+    await pumpUntilLogoutDone(tester);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.text(loginRouteMarker), findsOneWidget);
 
     await unmountApp(tester);

@@ -8,6 +8,14 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Manage Account Logout shows a spinner too — COMPLETE
+
+- **Request (the user's, following 0.0.454).** Apply the same instant-feedback solution to Manage Account's Logout button.
+- **The change.** `SettingsActionCard` gained a `busy` flag that swaps its leading icon for a 22 px `CircularProgressIndicator`. `ManageAccountScreen` became a `ConsumerStatefulWidget` with `_loggingOut`; `_signOut` sets it, runs `runBranchedLogout`, and clears it in a `finally` (so a throw never sticks), and the Logout card passes `busy: _loggingOut`. This screen stays mounted through its dialogs (unlike the drawer popover, which pops), so the spinner is up for the whole flow.
+- **Test note.** Because the card's indeterminate spinner animates behind the logout dialogs, `pumpAndSettle` can never settle during the flow. The shared logout helpers (`answerLogoutBackup`, `completeLogoutPassphrase`) gained an opt-in `boundedPumps` flag, and a `pumpUntilLogoutDone` helper pumps a fixed window; only the Manage Account suite opts in, so the other suites' behaviour is unchanged. `tapVisible` became `tapLogout` (bounded) since its only uses were the Logout taps.
+- **Tests.** `manage_account_test.dart` is now 9 cases; the new one holds the flow with a `Completer`, asserts a spinner is on the card, releases it, and asserts the spinner clears and Login is reached.
+- **Verification.** `flutter analyze` clean; manage account 9/9; the four other suites using the shared helpers 48/48; full suite green; `record_version.py --check` OK; version **0.0.455**.
+
 ### 2026-10-10 — Side-menu Logout shows a spinner — COMPLETE
 
 - **Request (the user's, from the "logout takes 6–7 s" discussion).** The logout is slow (a real wipe + reseed + sign-out), and the button gave no feedback, so it looked dead. The user asked for only the feedback fix: "show progress the moment Logout is pressed."

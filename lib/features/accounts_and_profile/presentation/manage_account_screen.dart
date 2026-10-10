@@ -47,11 +47,21 @@ import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
-class ManageAccountScreen extends ConsumerWidget {
+class ManageAccountScreen extends ConsumerStatefulWidget {
   const ManageAccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ManageAccountScreen> createState() =>
+      _ManageAccountScreenState();
+}
+
+class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
+  /// True from the moment Logout is pressed until the flow ends, whatever the
+  /// outcome — so the Logout card answers the tap at once with a spinner.
+  bool _loggingOut = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     // Same locally saved picture the Profile screen manages.
     final avatarFile = ref.watch(profilePictureProvider);
@@ -142,6 +152,7 @@ class ManageAccountScreen extends ConsumerWidget {
               icon: Icons.logout,
               title: l.settingsManageAccount_logout,
               tone: SettingsActionTone.neutral,
+              busy: _loggingOut,
               onTap: () => _signOut(context, ref),
             ),
             SizedBox(height: AppSpacing.sm),
@@ -208,11 +219,23 @@ class ManageAccountScreen extends ConsumerWidget {
   /// not a pop — Login is a top-level route, so the shell is left behind rather
   /// than uncovered — the same navigation the expired-session notice uses.
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    // Leaving for Login only when the logout actually completed; a cancellation
-    // leaves the account signed in, so there is nothing to leave behind.
-    final completed = await runBranchedLogout(context, ref);
-    if (!context.mounted || !completed) return;
-    context.go(AppRoutes.login);
+    // The card answers the tap at once with a spinner, and ignores re-taps,
+    // so a logout that takes a few seconds (wipe + reseed + sign-out) never
+    // reads as a dead button.
+    if (_loggingOut) return;
+    setState(() => _loggingOut = true);
+    try {
+      // Leaving for Login only when the logout actually completed; a
+      // cancellation leaves the account signed in, so there is nothing to
+      // leave behind.
+      final completed = await runBranchedLogout(context, ref);
+      if (!context.mounted || !completed) return;
+      context.go(AppRoutes.login);
+    } finally {
+      // Clear the spinner whatever the outcome — a throw must never leave the
+      // card stuck spinning.
+      if (mounted) setState(() => _loggingOut = false);
+    }
   }
 
   /// Warns, then opens the typed confirmation that actually deletes.

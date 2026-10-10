@@ -631,15 +631,41 @@ Override logoutFlowOverride({
   );
 });
 
+/// Pumps a bounded window, for flows whose screen shows an indeterminate
+/// spinner while it works.
+///
+/// `pumpAndSettle` can never settle against a `CircularProgressIndicator` that
+/// animates until the flow ends — which is exactly what the Manage Account
+/// Logout card does while its dialogs are up. A bounded pump lets the real work
+/// progress without waiting for a settled frame that will never come.
+Future<void> pumpBounded(WidgetTester tester) =>
+    tester.pump(const Duration(milliseconds: 250));
+
+/// Pumps a generous bounded window so a logout flow can finish.
+///
+/// Used right after the flow's **last** user answer. A fixed window rather than
+/// "pump until the spinner is gone": the spinner is on the Logout card only, and
+/// checking for its absence is fragile across the frames where a dialog is still
+/// dismissing. 1.5 s of pumped time is far more than the in-memory wipe and
+/// sign-out need, and pumping yields to the real event loop so that work lands.
+Future<void> pumpUntilLogoutDone(WidgetTester tester) async {
+  for (var i = 0; i < 30; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
 /// Answers the *Backup Data to Local Storage?* window the export-path logout
 /// branches open first. [backup] true taps **Yes**, false taps **No**.
 ///
 /// The window is part of those branches rather than an interruption, so the test
-/// asserts it appeared before it answers it.
+/// asserts it appeared before it answers it. [boundedPumps] opts into a bounded
+/// pump instead of `pumpAndSettle`, for the Manage Account screen whose Logout
+/// card spins while the dialog is up.
 Future<void> answerLogoutBackup(
   WidgetTester tester,
   AppLocalizations l, {
   bool backup = true,
+  bool boundedPumps = false,
 }) async {
   expect(
     find.text(l.logout_backupPromptTitle),
@@ -652,7 +678,11 @@ Future<void> answerLogoutBackup(
       matching: find.text(backup ? l.sharedActions_yes : l.sharedActions_no),
     ),
   );
-  await tester.pumpAndSettle();
+  if (boundedPumps) {
+    await pumpBounded(tester);
+  } else {
+    await tester.pumpAndSettle();
+  }
 }
 
 /// Answers the passphrase window every export-before-wipe logout branch opens.
@@ -662,9 +692,10 @@ Future<void> answerLogoutBackup(
 Future<void> completeLogoutPassphrase(
   WidgetTester tester,
   AppLocalizations l,
-  String passphrase,
-) async {
-  await answerLogoutBackup(tester, l);
+  String passphrase, {
+  bool boundedPumps = false,
+}) async {
+  await answerLogoutBackup(tester, l, boundedPumps: boundedPumps);
   expect(
     find.text(l.settingsBackupRestore_passphraseTitle),
     findsOneWidget,
@@ -681,7 +712,17 @@ Future<void> completeLogoutPassphrase(
     ),
     passphrase,
   );
-  await tester.pumpAndSettle();
+  if (boundedPumps) {
+    await pumpBounded(tester);
+  } else {
+    await tester.pumpAndSettle();
+  }
   await tester.tap(find.text(l.settingsBackupRestore_encryptAndSave));
-  await tester.pumpAndSettle();
+  if (boundedPumps) {
+    // This is the flow's last answer: wait for the spinner to clear, i.e. for
+    // the wipe and sign-out to finish.
+    await pumpUntilLogoutDone(tester);
+  } else {
+    await tester.pumpAndSettle();
+  }
 }

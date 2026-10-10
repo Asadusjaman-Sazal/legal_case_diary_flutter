@@ -31,12 +31,13 @@ final adminStatusProvider = FutureProvider<bool>((ref) async {
 ///
 /// Refetches after each action, so this is the server's state and never a local
 /// guess. The screen splits it into Pending and Resolved.
-final adminPaymentRequestsProvider =
-    FutureProvider<List<AdminPaymentRequest>>((ref) async {
-      final isAdmin = await ref.watch(adminStatusProvider.future);
-      if (!isAdmin) return const <AdminPaymentRequest>[];
-      return ref.watch(adminRepositoryProvider).listPaymentRequests();
-    });
+final adminPaymentRequestsProvider = FutureProvider<List<AdminPaymentRequest>>((
+  ref,
+) async {
+  final isAdmin = await ref.watch(adminStatusProvider.future);
+  if (!isAdmin) return const <AdminPaymentRequest>[];
+  return ref.watch(adminRepositoryProvider).listPaymentRequests();
+});
 
 /// Every account that never confirmed its address, newest first.
 ///
@@ -49,24 +50,40 @@ final adminUnconfirmedAccountsProvider =
       return ref.watch(adminRepositoryProvider).listUnconfirmedAccounts();
     });
 
+/// The payment submissions still to be decided.
+///
+/// The panel's Payment Requests row counts this, and
+/// [adminPendingCountProvider] adds it to the unconfirmed accounts. Answers 0
+/// for anything but a finished, successful read — loading, a failure, a
+/// non-admin.
+final adminPendingPaymentsProvider = Provider<int>(
+  (ref) =>
+      ref
+          .watch(adminPaymentRequestsProvider)
+          .value
+          ?.where((request) => request.isPending)
+          .length ??
+      0,
+);
+
+/// The accounts that never confirmed their address.
+///
+/// The panel's Non-verified Accounts row counts this.
+final adminUnconfirmedCountProvider = Provider<int>(
+  (ref) => ref.watch(adminUnconfirmedAccountsProvider).value?.length ?? 0,
+);
+
 /// How many things the Admin Panel is waiting on: the payment submissions still
 /// to be decided **plus** the accounts that never confirmed.
 ///
 /// The side menu's badge reads this, so it answers **0 for anything but a
 /// finished, successful read** — loading, a failure, a non-admin — and can never
 /// keep the menu from drawing. Only read once [adminStatusProvider] is true.
-final adminPendingCountProvider = Provider<int>((ref) {
-  final pendingPayments =
-      ref
-          .watch(adminPaymentRequestsProvider)
-          .value
-          ?.where((request) => request.isPending)
-          .length ??
-      0;
-  final unconfirmed =
-      ref.watch(adminUnconfirmedAccountsProvider).value?.length ?? 0;
-  return pendingPayments + unconfirmed;
-});
+final adminPendingCountProvider = Provider<int>(
+  (ref) =>
+      ref.watch(adminPendingPaymentsProvider) +
+      ref.watch(adminUnconfirmedCountProvider),
+);
 
 /// How one admin action ended.
 enum AdminActionPhase {
@@ -112,9 +129,10 @@ class AdminActionState {
 /// Owns the approve and reject calls for the panel.
 class AdminActionViewModel extends Notifier<AdminActionState> {
   /// Riverpod provider for [AdminActionViewModel].
-  static final provider = NotifierProvider<AdminActionViewModel, AdminActionState>(
-    () => AdminActionViewModel(),
-  );
+  static final provider =
+      NotifierProvider<AdminActionViewModel, AdminActionState>(
+        () => AdminActionViewModel(),
+      );
 
   @override
   AdminActionState build() => const AdminActionState();
@@ -175,10 +193,7 @@ class AdminDeleteAccountViewModel extends Notifier<AdminActionState> {
 
   /// Removes the unconfirmed account [userId], then reloads the list.
   Future<void> delete(String userId) async {
-    state = AdminActionState(
-      phase: AdminActionPhase.running,
-      actedOn: userId,
-    );
+    state = AdminActionState(phase: AdminActionPhase.running, actedOn: userId);
     final failure = await ref
         .read(adminRepositoryProvider)
         .deleteUnconfirmedAccount(userId);

@@ -24,14 +24,20 @@ import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
 import 'package:legal_case_diary/shared/widgets/sync_button.dart';
 import 'package:legal_case_diary/sync/sync_status_providers.dart';
 
-/// A repository that answers from memory; the menu itself reads no payment data,
-/// but the badge's count provider does.
+/// A repository that answers from memory. The menu itself reads only the two
+/// counts, but those come from the same lists the sub-pages show.
 class _FakeAdminRepository implements AdminRepository {
-  _FakeAdminRepository({List<AdminPaymentRequest>? rows})
-    : rows = rows ?? <AdminPaymentRequest>[];
+  _FakeAdminRepository({
+    List<AdminPaymentRequest>? rows,
+    List<AdminUnconfirmedAccount>? accounts,
+  }) : rows = rows ?? <AdminPaymentRequest>[],
+       accounts = accounts ?? <AdminUnconfirmedAccount>[];
 
   final List<AdminPaymentRequest> rows;
+  final List<AdminUnconfirmedAccount> accounts;
 
+  /// Calls [syncServiceProvider]'s drain — not these — so nothing here records
+  /// them; a test that needs the drain fakes the service instead.
   @override
   Future<bool> isAdmin() async => true;
 
@@ -49,17 +55,35 @@ class _FakeAdminRepository implements AdminRepository {
 
   @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
-      const <AdminUnconfirmedAccount>[];
+      accounts;
 
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
       null;
 }
 
-const List<String> _routeMarkers = <String>[
-  '/admin-panel/payment-requests',
-  '/admin-panel/unverified-accounts',
-];
+/// One pending submission from a named payer.
+AdminPaymentRequest _pending(String id) => AdminPaymentRequest(
+  id: id,
+  userId: 'user-$id',
+  planKey: 'annual',
+  amount: 960,
+  mfsProvider: 'bkash',
+  senderNumber: '01712345678',
+  transactionId: 'TRX$id',
+  status: 'pending',
+  submittedAt: DateTime(2026, 10, 1),
+  fullName: 'Adv. Sarah Islam',
+);
+
+/// One account that never confirmed its address.
+AdminUnconfirmedAccount _unconfirmed(String id) => AdminUnconfirmedAccount(
+  id: id,
+  email: 'abandoned-$id@example.test',
+  fullName: '',
+  createdAt: DateTime(2026, 10, 8, 14, 30),
+);
+
 
 void main() {
   Future<void> pump(
@@ -108,6 +132,31 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Taps the panel's row for a page and checks where it lands.
+  ///
+  /// One page per test rather than a loop: the panel now reads the two counts,
+  /// so it holds providers that are still resolving when the first frame is
+  /// pumped — and pumping a second whole tree into the same tester while those
+  /// are in flight trips Riverpod's "marked as needing to build during build"
+  /// assert. That is a test-harness artifact (the app never rebuilds its root
+  /// scope), so the fix is one pump per test.
+  Future<void> opensPage(
+    WidgetTester tester, {
+    required String marker,
+    required String title,
+  }) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(),
+      routeMarker: <String>[marker],
+    );
+
+    await tester.tap(find.text(title));
+    await tester.pumpAndSettle();
+
+    expect(find.text('at $marker'), findsOneWidget, reason: marker);
+  }
+
   testWidgets('offers the two pages the panel holds', (tester) async {
     await pump(tester, _FakeAdminRepository());
 
@@ -128,22 +177,67 @@ void main() {
     );
   });
 
-  testWidgets('each entry opens its own page', (tester) async {
-    for (final marker in _routeMarkers) {
-      await pump(
-        tester,
-        _FakeAdminRepository(),
-        routeMarker: <String>[marker],
-      );
+  testWidgets('the Payment Requests entry opens its own page', (tester) async {
+    await opensPage(
+      tester,
+      marker: '/admin-panel/payment-requests',
+      title: 'Payment Requests',
+    );
+  });
 
-      final title = marker.endsWith('payment-requests')
-          ? 'Payment Requests'
-          : 'Non-verified Accounts';
-      await tester.tap(find.text(title));
-      await tester.pumpAndSettle();
+  testWidgets('the Non-verified Accounts entry opens its own page', (
+    tester,
+  ) async {
+    await opensPage(
+      tester,
+      marker: '/admin-panel/unverified-accounts',
+      title: 'Non-verified Accounts',
+    );
+  });
 
-      expect(find.text('at $marker'), findsOneWidget, reason: marker);
+  testWidgets('each row carries the count of what is waiting in it', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        // Two pending payments (the third is already decided, so it must not
+        // count) and three abandoned sign-ups.
+        rows: [
+          _pending('1'),
+          _pending('2'),
+          AdminPaymentRequest(
+            id: '3',
+            userId: 'user-3',
+            planKey: 'annual',
+            amount: 960,
+            mfsProvider: 'bkash',
+            senderNumber: '01712345678',
+            transactionId: 'TRX3',
+            status: 'approved',
+            submittedAt: DateTime(2026, 10, 1),
+            approvedAt: DateTime(2026, 10, 2),
+          ),
+        ],
+        accounts: [_unconfirmed('a'), _unconfirmed('b'), _unconfirmed('c')],
+      ),
+    );
+
+    final cards = tester
+        .widgetList<SettingsMenuCard>(find.byType(SettingsMenuCard))
+        .toList();
+    // The count sits in the trailing slot, beside the row's text, where the
+    // shared chevron would otherwise be.
+    for (final card in cards) {
+      expect(card.trailing, isA<Text>());
     }
+    expect((cards[0].trailing as Text).data, '2', reason: 'pending payments');
+    expect((cards[1].trailing as Text).data, '3', reason: 'unconfirmed');
+  });
+
+  testWidgets('the panel can be pulled down to sync', (tester) async {
+    await pump(tester, _FakeAdminRepository());
+    expect(find.byType(RefreshIndicator), findsOneWidget);
   });
 
   testWidgets('the header is the case screens\', without their own controls', (

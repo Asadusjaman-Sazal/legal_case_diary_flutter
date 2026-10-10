@@ -77,6 +77,7 @@ class _AdminPaymentRequestsScreenState
     return SettingsSubPageModal(
       title: l.adminPanel_paymentRequests,
       actions: [
+        const AdminSyncButton(),
         IconButton(
           key: const ValueKey('admin-payments-search'),
           icon: const Icon(Icons.search),

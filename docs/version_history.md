@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.448 - Automatic Backup is wired for real: a local daily alarm job runs a plain backup into Download/LegalCaseDiary per the stored schedule, skips with a notice when encryption is on, and re-arms on launch.
+Version: 0.0.450 - Fixed the side-menu Logout crash: the account popover read the drawer's ref inside its route builder, so the rebuild after the drawer was unmounted threw 'Using ref when a widget has been unmounted'. The address, navigator and router are now read at open time.
 --------------------------------------
 
 ## Version History Log:
@@ -462,3 +462,5 @@ Version: 0.0.445 - Backup & Restore: Local/Excel backups now auto-save into Inte
 Version: 0.0.446 - Backups now save into the public Download/LegalCaseDiary folder (visible in file managers), served by a small Android host channel; falls back to the private documents dir where the channel is absent.
 Version: 0.0.447 - Backup to Google Drive now auto-saves into the public Download/LegalCaseDiary folder like the other backup buttons, then offers the share sheet with the real saved file (ShareableBackupSink removed).
 Version: 0.0.448 - Automatic Backup is wired for real: a local daily alarm job runs a plain backup into Download/LegalCaseDiary per the stored schedule, skips with a notice when encryption is on, and re-arms on launch.
+Version: 0.0.449 - Fixed a logout crash: runBranchedLogout read a widget ref after awaits, so tapping Logout in the side-menu profile popover threw 'Using ref when a widget has been unmounted'. Provider values are now read before the first await.
+Version: 0.0.450 - Fixed the side-menu Logout crash: the account popover read the drawer's ref inside its route builder, so the rebuild after the drawer was unmounted threw 'Using ref when a widget has been unmounted'. The address, navigator and router are now read at open time.

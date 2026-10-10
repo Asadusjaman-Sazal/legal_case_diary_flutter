@@ -253,19 +253,26 @@ class AppNavigationDrawer extends ConsumerWidget {
     // nothing opens rather than a panel landing in a corner the user did not
     // point at.
     if (overlay == null || icon == null || drawer == null) return;
+    // **Everything the panel needs is read now, not inside its builder.** The
+    // route's builder closure is re-run on every rebuild of the panel's page, and
+    // by then the drawer may be gone — a drawer that is popped while the panel is
+    // up (Logout closes the screen the panel was opened from) would leave a
+    // deactivated context behind, and reading the drawer's `ref` there throws
+    // "Using ref when a widget is about to or has been unmounted". So the address
+    // is read as a value while the drawer is certainly mounted, and the navigator
+    // and router are taken as state objects, which outlive it.
+    final email = ref.read(authIdentityProvider)?.email ?? '';
+    final drawerNavigator = Navigator.of(iconContext);
+    final router = GoRouter.of(iconContext);
     navigator.push<void>(
       _AccountPopoverRoute(
         anchor: icon.localToGlobal(Offset.zero, ancestor: overlay) & icon.size,
         drawer:
             drawer.localToGlobal(Offset.zero, ancestor: overlay) & drawer.size,
         builder: (_) => _AccountPopover(
-          // Read here, so the panel is never the reason the drawer must still
-          // exist: the address is a value, not a live lookup.
-          email: ref.read(authIdentityProvider)?.email ?? '',
-          // The navigator the panel is closed through, and the router the rows
-          // navigate with. Both are objects: safe once the drawer is gone.
-          drawerNavigator: Navigator.of(iconContext),
-          router: GoRouter.of(iconContext),
+          email: email,
+          drawerNavigator: drawerNavigator,
+          router: router,
         ),
       ),
     );

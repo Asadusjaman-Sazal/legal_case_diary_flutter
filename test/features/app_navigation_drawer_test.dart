@@ -20,6 +20,7 @@
 /// text size.
 library;
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
@@ -619,4 +620,133 @@ void main() {
     expect(find.text(loginMarker), findsOneWidget);
     expect(router.state.matchedLocation, AppRoutes.login);
   });
+
+  testWidgets(
+    'Logout survives the drawer being unmounted under the popover',
+    (tester) async {
+      // A shell-shaped router, like the real app's: the drawer's screen sits on
+      // the shell's **nested** navigator, so the popover's close pops that screen
+      // and the drawer is deactivated while the panel is still up. The popover's
+      // page is then rebuilt — a logout window opens above it — and a panel whose
+      // builder still read the drawer's `ref` threw
+      // "Using \"ref\" when a widget is about to or has been unmounted". The
+      // address, the navigator and the router are now read while the drawer is
+      // certainly mounted, so the rebuild is harmless. This test fails on the
+      // pre-fix code with that StateError.
+      await tester.binding.setSurfaceSize(const Size(500, 1400));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      // A row only the user could have authored: the free branch then offers the
+      // safety copy, which is the window that rebuilds the popover's page.
+      await db
+          .into(db.courtCategories)
+          .insert(
+            const CourtCategoriesCompanion(
+              id: Value('drawer-category'),
+              nameKey: Value('courtCategory_districtCourtsCivil'),
+              courtLevel: Value('lower'),
+              orderIndex: Value(1),
+              updatedAt: Value(1),
+            ),
+          );
+      await db
+          .into(db.courts)
+          .insert(
+            const CourtsCompanion(
+              id: Value('drawer-court'),
+              courtName: Value('Drawer Court'),
+              higherLowerCourts: Value('lower_courts'),
+              courtCategoryId: Value('drawer-category'),
+              isCustom: Value(true),
+              orderIndex: Value(0),
+              updatedAt: Value(1),
+            ),
+          );
+      var sessionsEnded = 0;
+      final flow = LogoutFlow(
+        db: db,
+        premium: false,
+        online: false,
+        runBacklogPush: () async => null,
+        endSession: () async => sessionsEnded++,
+      );
+
+      final router = GoRouter(
+        initialLocation: AppRoutes.dailyCauseList,
+        routes: [
+          ShellRoute(
+            builder: (_, _, child) => Scaffold(body: child),
+            routes: [
+              GoRoute(
+                path: AppRoutes.dailyCauseList,
+                builder: (_, _) => Scaffold(
+                  drawer: AppNavigationDrawer(
+                    currentRoute: AppRoutes.dailyCauseList,
+                  ),
+                  body: const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: AppRoutes.login,
+            builder: (_, _) => const Scaffold(body: Text(loginMarker)),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(prefs),
+            currentPlanProvider.overrideWithValue(freePlan),
+            authIdentityProvider.overrideWithValue(
+              const AuthIdentity(
+                userId: 'drawer-test-user',
+                email: signedInEmail,
+              ),
+            ),
+            logoutFlowProvider.overrideWith((_) async => flow),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // The screen's own Scaffold, the one carrying the drawer.
+      tester
+          .state<ScaffoldState>(
+            find
+                .byWidgetPredicate((w) => w is Scaffold && w.drawer != null)
+                .first,
+          )
+          .openDrawer();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
+      await tester.pumpAndSettle();
+
+      // The copy is offered before anything is deleted; No wipes without one.
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.logout_backupPromptTitle), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text(l.sharedActions_no),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(sessionsEnded, 1, reason: 'the logout ended the session');
+      expect(router.state.matchedLocation, AppRoutes.login);
+    },
+  );
 }

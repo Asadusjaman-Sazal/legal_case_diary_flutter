@@ -75,6 +75,10 @@ Implement the three logout branches from Sync Plan §5 (a single "sync before wi
 
 **Phase 6 completion:** `flutter analyze` clean; all three logout branches manually verified per the Verification Plan. Update `docs/version_history.md`.
 
+### Phase 6 follow-up — the widget-ref lifetime crash (0.0.449, bug fix)
+
+> `runBranchedLogout` takes a **widget** `ref` (the side-menu account popover's, or a screen's) and awaits real I/O. It read `ref.read(backupMetadataProvider)` *after* those awaits, so on a device — where the popover can unmount while the database and sync are read — tapping **Logout** threw `Bad state: Using "ref" when a widget is about to or has been unmounted is unsafe` (Riverpod 3's `WidgetRef.read` asserts the widget is mounted). The provider values the orchestration needs are now read **before the first await**, so the widget `ref` is only touched synchronously. It was missed because `app_navigation_drawer_test` and `logout_dialogs_test` override `logoutFlowProvider` with an already-resolved value and so never crossed a real await with a live widget ref; `test/features/logout_ref_lifetime_test.dart` now pops the owning route mid-flow to pin it.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Realtime/conflicts include court_categories and every firm-shared reference table.

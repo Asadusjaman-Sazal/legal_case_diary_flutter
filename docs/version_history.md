@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a sync button in both sub-page headers, and each menu row now shows the count waiting behind it.
+Version: 0.0.463 - The Payment Requests page's Pending and Resolved buttons now pin to the top of the list inside their own section, so an admin scrolling hundreds of cards still sees which section he is in.
 --------------------------------------
 
 ## Version History Log:
@@ -476,3 +476,4 @@ Version: 0.0.459 - Admin Panel is now a menu of Payment Requests and Non-verifie
 Version: 0.0.460 - Applied the Admin Panel's unconfirmed-accounts migration to the project, and closed a grant it left open: Supabase's default privileges had made the internal is_provisional_account() guard callable by any signed-in account.
 Version: 0.0.461 - Non-verified Accounts: the Delete button is now a solid red button with white text.
 Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a sync button in both sub-page headers, and each menu row now shows the count waiting behind it.
+Version: 0.0.463 - The Payment Requests page's Pending and Resolved buttons now pin to the top of the list inside their own section, so an admin scrolling hundreds of cards still sees which section he is in.

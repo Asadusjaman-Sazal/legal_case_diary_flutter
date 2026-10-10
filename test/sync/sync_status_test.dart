@@ -14,6 +14,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/sync/push_worker.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/sync/sync_transport.dart';
@@ -26,8 +27,9 @@ SyncQueueRow _queued(
   String operation,
   String mutationId,
   int createdAt,
-  String state,
-) => SyncQueueRow(
+  String state, {
+  int retryCount = 0,
+}) => SyncQueueRow(
   id: id,
   entityType: entityType,
   entityId: entityId,
@@ -39,7 +41,7 @@ SyncQueueRow _queued(
   payload: '{}',
   preMutationPayload: '{}',
   createdAt: createdAt,
-  retryCount: 0,
+  retryCount: retryCount,
   lastAttemptAt: null,
   state: state,
   lastError: null,
@@ -195,6 +197,191 @@ void main() {
       expect(counts[SyncStatusFilter.blocked], 1);
       // The badge counts only what needs a person.
       expect(syncStatusAttentionCount(rows), 2);
+    });
+  });
+
+  group('entry subjects', () {
+    /// The court + case pair the subject tests resolve against.
+    Future<void> insertCourtAndCase({
+      String caseId = 'k1',
+      String caseNumber = '110/2021',
+      String caseType = 'Criminal',
+    }) async {
+      // The court's own FK needs its category, and the category id is what
+      // picks the case type's label.
+      await db.into(db.courtCategories).insert(
+            CourtCategoriesCompanion.insert(
+              id: 'chief_judicial_magistrate',
+              nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
+              courtLevel: 'lower',
+              orderIndex: 0,
+              updatedAt: 0,
+            ),
+          );
+      await db.into(db.courts).insert(
+            CourtsCompanion.insert(
+              id: 'ct-1',
+              courtName: 'Chief Judicial Magistrate Court, Dhaka',
+              higherLowerCourts: 'Lower Court',
+              courtCategoryId: 'chief_judicial_magistrate',
+              updatedAt: 0,
+            ),
+          );
+      await db.into(db.onBehalfs).insert(
+            OnBehalfsCompanion.insert(
+              id: 'ob-1',
+              courtCategoryId: 'chief_judicial_magistrate',
+              name: 'Petitioner',
+              orderIndex: 0,
+              updatedAt: 0,
+            ),
+          );
+      await db.into(db.cases).insert(
+            CasesCompanion.insert(
+              id: caseId,
+              userId: 'user-1',
+              courtId: 'ct-1',
+              caseType: caseType,
+              caseNumber: caseNumber,
+              petitioner: 'P',
+              respondent: 'R',
+              onBehalfId: 'ob-1',
+              createdAt: 0,
+              updatedAt: 0,
+            ),
+          );
+    }
+
+    test('a case entry names the case and its court', () async {
+      await insertCourtAndCase();
+
+      final subjects = await resolveSyncEntrySubjects(db, [
+        _queued(1, 'case', 'k1', 'update', 'm1', 0, 'blocked'),
+      ]);
+
+      final subject = subjects[syncSubjectKey('case', 'k1')]!;
+      expect(subject.isCase, isTrue);
+      expect(subject.caseType, 'Criminal');
+      expect(subject.caseNumber, '110/2021');
+      // The court travels with its id, so the card can label a pre-seeded court
+      // in the active language and still read a user-added one.
+      expect(subject.court!.id, 'ct-1');
+      expect(subject.court!.name, 'Chief Judicial Magistrate Court, Dhaka');
+      expect(subject.court!.courtCategoryId, 'chief_judicial_magistrate');
+    });
+
+    test('a case-history entry names the case it belongs to', () async {
+      await insertCourtAndCase();
+      await db.into(db.caseHistory).insert(
+            CaseHistoryCompanion.insert(
+              id: 'h1',
+              caseId: 'k1',
+              userId: 'user-1',
+              hearingDate: 0,
+              createdBy: 'user-1',
+              sourceMutationId: 'mut-h1',
+              baseCaseVersion: 1,
+              resultCaseVersion: 2,
+              updatedAt: 0,
+            ),
+          );
+
+      final subjects = await resolveSyncEntrySubjects(db, [
+        _queued(1, 'case_history', 'h1', 'update', 'm1', 0, 'pending'),
+      ]);
+
+      // A history row is not a case, but the card must still name the case.
+      final subject = subjects[syncSubjectKey('case_history', 'h1')]!;
+      expect(subject.caseNumber, '110/2021');
+      expect(subject.court!.name, 'Chief Judicial Magistrate Court, Dhaka');
+    });
+
+    test('an entry that is not a case names its own local row', () async {
+      await insertNote('Rent Agreement');
+
+      final subjects = await resolveSyncEntrySubjects(db, [
+        _queued(1, 'note', 'n1', 'update', 'm1', 0, 'blocked'),
+      ]);
+
+      final subject = subjects[syncSubjectKey('note', 'n1')]!;
+      expect(subject.isCase, isFalse);
+      expect(subject.entityName, 'Rent Agreement');
+    });
+
+    test('a reference with no page number falls back to its title', () async {
+      await db.into(db.caseReferences).insert(
+            CaseReferencesCompanion.insert(
+              id: 'r1',
+              userId: 'user-1',
+              referenceAndPageNo: '',
+              titleAndDescription: const Value<String?>('BLAST 12 BLC 34'),
+              createdAt: 0,
+              updatedAt: 0,
+            ),
+          );
+
+      final subjects = await resolveSyncEntrySubjects(db, [
+        _queued(1, 'reference', 'r1', 'update', 'm1', 0, 'pending'),
+      ]);
+
+      expect(
+        subjects[syncSubjectKey('reference', 'r1')]!.entityName,
+        'BLAST 12 BLC 34',
+      );
+    });
+
+    test('a row whose local record is gone resolves to nothing', () async {
+      // A discarded insert, or a record that belongs to another account: the
+      // card must show no identity rather than a guessed one.
+      final subjects = await resolveSyncEntrySubjects(db, [
+        _queued(1, 'case', 'gone', 'update', 'm1', 0, 'blocked'),
+        _queued(2, 'note', 'gone', 'update', 'm2', 1, 'blocked'),
+      ]);
+
+      expect(subjects, isEmpty);
+    });
+  });
+
+  group('blocked cause', () {
+    test('a refusal below the retry limit is read as a refusal', () {
+      expect(
+        syncBlockCause(_queued(1, 'note', 'n1', 'update', 'm1', 0, 'blocked')),
+        SyncBlockCause.serverRefused,
+      );
+      // One attempt short of the worker's own limit is still a refusal.
+      expect(
+        syncBlockCause(
+          _queued(
+            1,
+            'note',
+            'n1',
+            'update',
+            'm1',
+            0,
+            'blocked',
+            retryCount: syncBlockRetryLimit - 1,
+          ),
+        ),
+        SyncBlockCause.serverRefused,
+      );
+    });
+
+    test('a spent retry budget is read as the worker giving up', () {
+      expect(
+        syncBlockCause(
+          _queued(
+            1,
+            'note',
+            'n1',
+            'update',
+            'm1',
+            0,
+            'blocked',
+            retryCount: syncBlockRetryLimit,
+          ),
+        ),
+        SyncBlockCause.gaveUp,
+      );
     });
   });
 

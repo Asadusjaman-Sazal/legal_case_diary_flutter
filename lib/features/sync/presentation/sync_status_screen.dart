@@ -26,6 +26,7 @@ import '../../../core/errors/error_log_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../database/app_database.dart';
@@ -37,6 +38,7 @@ import '../../../sync/sync_providers.dart';
 import '../../settings/data/backup_file_gateway.dart';
 import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
+import '../../settings/presentation/edit_court_steps/court_category_label.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 
 /// The Sync Status / Diagnostics screen.
@@ -64,6 +66,11 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
     final visible = entries
         .where((row) => syncStatusMatches(row, _filter))
         .toList(growable: false);
+    // What each entry is about, resolved from the local rows: the queue carries
+    // only an entity type and id, which names nothing a user can recognise.
+    final subjects =
+        ref.watch(syncEntrySubjectsProvider).value ??
+        const <String, SyncEntrySubject>{};
 
     return SettingsSubPageModal(
       title: l.syncStatus_title,
@@ -102,6 +109,10 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
                       final row = visible[index];
                       return _QueueEntryCard(
                         row: row,
+                        subject: subjects[syncSubjectKey(
+                          row.entityType,
+                          row.entityId,
+                        )],
                         l: l,
                         onRetry: () => _retry(row),
                         onSyncNow: () =>
@@ -454,6 +465,7 @@ class _EmptyState extends StatelessWidget {
 class _QueueEntryCard extends StatelessWidget {
   const _QueueEntryCard({
     required this.row,
+    required this.subject,
     required this.l,
     required this.onRetry,
     required this.onSyncNow,
@@ -462,6 +474,10 @@ class _QueueEntryCard extends StatelessWidget {
   });
 
   final SyncQueueRow row;
+
+  /// What the entry is about, when the local rows still name it.
+  final SyncEntrySubject? subject;
+
   final AppLocalizations l;
   final VoidCallback onRetry;
   final VoidCallback onSyncNow;
@@ -472,6 +488,11 @@ class _QueueEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final error = row.lastError;
     final lastAttemptAt = row.lastAttemptAt;
+    final isBlocked = row.state == 'blocked';
+    // The identifying line, so the card names which record the issue is about
+    // rather than only what kind of record it is.
+    final identity = syncSubjectLine(context, row, subject);
+    final courtLine = syncSubjectCourtLine(context, subject);
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
@@ -505,6 +526,12 @@ class _QueueEntryCard extends StatelessWidget {
               _StatePill(state: row.state, l: l),
             ],
           ),
+          if (identity != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(identity, style: AppTypography.caseNumber),
+          ],
+          if (courtLine != null)
+            Text(courtLine, style: AppTypography.bodySm),
           const SizedBox(height: AppSpacing.xs),
           Text(
             '${l.syncStatus_queued(syncStatusRelativeTime(l, row.createdAt))}'
@@ -518,7 +545,20 @@ class _QueueEntryCard extends StatelessWidget {
               ),
               style: AppTypography.bodySm,
             ),
-          if (error != null && error.isNotEmpty)
+          // A blocked card carries its reason in a labelled block of its own:
+          // the pill says *that* it stopped, and these are the facts that say
+          // why. Every other state keeps the plain error line, which is all it
+          // needs — a pending row is still going to be tried.
+          if (isBlocked)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: _BlockedWhyBlock(
+                cause: syncBlockCause(row),
+                message: error,
+                l: l,
+              ),
+            )
+          else if (error != null && error.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
               child: Text(
@@ -572,6 +612,108 @@ class _QueueEntryCard extends StatelessWidget {
     ],
     _ => const <Widget>[],
   };
+}
+
+/// The identifying line for one entry, or null when there is nothing to name.
+///
+/// A case reads exactly as it does on every case screen — the localized case
+/// type followed by the case number — because that is the pair the user knows
+/// the record by. An entry that is not a case shows its own local name; a
+/// court and a court category resolve theirs the way their own screens do, and
+/// everything else (`case_types`, `steps`, `on_behalfs`, `case_categories`)
+/// stores the name it is displayed under.
+String? syncSubjectLine(
+  BuildContext context,
+  SyncQueueRow row,
+  SyncEntrySubject? subject,
+) {
+  if (subject == null || subject.isEmpty) return null;
+  if (subject.isCase) {
+    final type = context.l10n
+        .caseTypeLabel(
+          subject.caseType ?? '',
+          courtCategoryId: subject.court?.courtCategoryId,
+        )
+        .trim();
+    final number = subject.caseNumber!.trim();
+    if (type.isEmpty) return number;
+    return number.isEmpty ? type : '$type $number';
+  }
+  final name = subject.entityName!;
+  return switch (row.entityType) {
+    // A pre-seeded court stores an English name, and a court category stores a
+    // localization key rather than a name at all.
+    'court' => context.l10n.seedLabel(row.entityId, fallbackEn: name),
+    'court_category' => courtCategoryName(context, name),
+    _ => name,
+  };
+}
+
+/// The court line under a case subject, or null when the case has no court.
+///
+/// The same resolution the case cards use: a pre-seeded court is labelled from
+/// its id so it follows the active language, and a court the user added falls
+/// back to the name stored with it.
+String? syncSubjectCourtLine(BuildContext context, SyncEntrySubject? subject) {
+  final court = subject?.court;
+  if (court == null) return null;
+  return context.l10n.seedLabel(court.id, fallbackEn: court.name);
+}
+
+/// Why a blocked entry stopped, as a labelled block on its own card.
+///
+/// The request was for the reason to be *labelled*: the state pill says
+/// `blocked`, which repeats the pill problem it already has for `pending` — it
+/// names the state and not the reason. So the card says why in words, and the
+/// server's own message sits under that as the detail.
+class _BlockedWhyBlock extends StatelessWidget {
+  const _BlockedWhyBlock({
+    required this.cause,
+    required this.message,
+    required this.l,
+  });
+
+  /// Why the entry is blocked, from the row's own facts.
+  final SyncBlockCause cause;
+
+  /// The server's message, when there is one.
+  final String? message;
+
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = AppTypography.bodySm.copyWith(
+      color: AppColors.onErrorContainer,
+    );
+    return Container(
+      key: const ValueKey('sync-status-blocked-why'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: AppColors.errorContainer,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.syncStatus_blockedWhy,
+            style: AppTypography.labelMd.copyWith(color: AppColors.error),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            cause == SyncBlockCause.gaveUp
+                ? l.syncStatus_blockedCauseAttempts
+                : l.syncStatus_blockedCauseRefused,
+            style: detail,
+          ),
+          if (message != null && message!.isNotEmpty)
+            Text(l.syncStatus_lastError(message!), style: detail),
+        ],
+      ),
+    );
+  }
 }
 
 /// The entries the overflow menu offers.

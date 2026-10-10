@@ -817,6 +817,17 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get syncStatus_blockedWhy => 'কেন আটকে আছে';
+
+  @override
+  String get syncStatus_blockedCauseRefused =>
+      'সার্ভার এই পরিবর্তনটি গ্রহণ করেনি।';
+
+  @override
+  String get syncStatus_blockedCauseAttempts =>
+      'অনেকবার চেষ্টার পরও সফল না হওয়ায় সিঙ্ক আর চেষ্টা করছে না।';
+
+  @override
   String get syncStatus_timeJustNow => 'এইমাত্র';
 
   @override

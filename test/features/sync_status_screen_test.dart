@@ -21,6 +21,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/sync/presentation/sync_status_screen.dart';
+import 'package:legal_case_diary/sync/push_worker.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
@@ -67,11 +68,11 @@ void main() {
   tearDown(() async => db.close());
 
   /// Inserts one local note row.
-  Future<void> insertNote(String title) => db
+  Future<void> insertNote(String title, {String id = 'n1'}) => db
       .into(db.notes)
       .insert(
         NotesCompanion.insert(
-          id: 'n1',
+          id: id,
           userId: 'user-1',
           title: title,
           body: 'Body',
@@ -79,6 +80,62 @@ void main() {
           updatedAt: 0,
         ),
       );
+
+  /// Inserts the court + case pair a queued case entry resolves its identity
+  /// from.
+  Future<void> insertCourtAndCase() async {
+    // The court's court_category_id is a foreign key, and it is also what picks
+    // the case type's label.
+    await db
+        .into(db.courtCategories)
+        .insert(
+          CourtCategoriesCompanion.insert(
+            id: 'chief_judicial_magistrate',
+            nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
+            courtLevel: 'lower',
+            orderIndex: 0,
+            updatedAt: 0,
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          CourtsCompanion.insert(
+            id: 'ct-1',
+            courtName: 'Chief Judicial Magistrate Court, Dhaka',
+            higherLowerCourts: 'Lower Court',
+            courtCategoryId: 'chief_judicial_magistrate',
+            updatedAt: 0,
+          ),
+        );
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          OnBehalfsCompanion.insert(
+            id: 'ob-1',
+            courtCategoryId: 'chief_judicial_magistrate',
+            name: 'Petitioner',
+            orderIndex: 0,
+            updatedAt: 0,
+          ),
+        );
+    await db
+        .into(db.cases)
+        .insert(
+          CasesCompanion.insert(
+            id: 'k1',
+            userId: 'user-1',
+            courtId: 'ct-1',
+            caseType: 'Criminal',
+            caseNumber: '110/2021',
+            petitioner: 'P',
+            respondent: 'R',
+            onBehalfId: 'ob-1',
+            createdAt: 0,
+            updatedAt: 0,
+          ),
+        );
+  }
 
   /// Inserts one queue entry in [state].
   Future<void> insertQueue({
@@ -220,6 +277,76 @@ void main() {
 
       expect(find.text('Note Update'), findsOneWidget);
       expect(find.text('Case Update'), findsNothing);
+    });
+  });
+
+  testWidgets(
+    'a blocked case entry names the case, its court, and why it is blocked',
+    (tester) async {
+      await insertCourtAndCase();
+      await insertQueue(
+        state: 'blocked',
+        entityType: 'case',
+        entityId: 'k1',
+        retryCount: 1,
+        lastError: 'permission_denied',
+      );
+
+      await withApp(tester, () async {
+        await pumpApp(tester);
+
+        // The queue row itself carries only an entity type and id, so the card
+        // names the case the way every case screen does: type, number, court.
+        expect(find.text('Criminal 110/2021'), findsOneWidget);
+        expect(
+          find.text('Chief Judicial Magistrate Court, Dhaka'),
+          findsOneWidget,
+        );
+        // And the reason is labelled, not left as a bare machine error: the
+        // pill says the state, this says why.
+        expect(find.text('Why It Is Blocked'), findsOneWidget);
+        expect(find.text('The server refused this change.'), findsOneWidget);
+        expect(find.text('Last Error: permission_denied'), findsOneWidget);
+      });
+    },
+  );
+
+  testWidgets('a blocked entry that spent its retries says so', (tester) async {
+    await insertQueue(
+      state: 'blocked',
+      retryCount: syncBlockRetryLimit,
+      lastError: 'SocketException: failed host lookup',
+    );
+
+    await withApp(tester, () async {
+      await pumpApp(tester);
+
+      // The worker blocks a retryable failure only at its attempt limit, so
+      // this row is the one that was given up on rather than refused.
+      expect(find.text('Why It Is Blocked'), findsOneWidget);
+      expect(
+        find.text('Sync gave up after too many failed attempts.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Last Error: SocketException: failed host lookup'),
+        findsOneWidget,
+      );
+      expect(find.text('The server refused this change.'), findsNothing);
+    });
+  });
+
+  testWidgets('a queued note names the note, not just its kind', (
+    tester,
+  ) async {
+    await insertNote('Rent Agreement');
+    await insertQueue(state: 'blocked');
+
+    await withApp(tester, () async {
+      await pumpApp(tester);
+
+      expect(find.text('Rent Agreement'), findsOneWidget);
+      expect(find.text('Note Update'), findsOneWidget);
     });
   });
 

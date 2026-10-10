@@ -815,6 +815,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get syncStatus_blockedWhy => 'Why It Is Blocked';
+
+  @override
+  String get syncStatus_blockedCauseRefused =>
+      'The server refused this change.';
+
+  @override
+  String get syncStatus_blockedCauseAttempts =>
+      'Sync gave up after too many failed attempts.';
+
+  @override
   String get syncStatus_timeJustNow => 'Just Now';
 
   @override

@@ -26,6 +26,7 @@ import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../shared/widgets/sync_button.dart';
@@ -496,11 +497,21 @@ class _CasesHeader extends ConsumerWidget {
             ),
           // Sync Status badge — shown only when something is held for a
           // person, and it opens the screen that explains it (Phase 4.4).
+          //
+          // A `label` rather than `Badge.count`, because the latter paints Latin
+          // digits: a count is written in the active language's own digits, like
+          // every other count in the app.
           if (attention > 0)
             IconButton(
               key: const ValueKey('cases-modal-sync-status'),
-              icon: Badge.count(
-                count: attention,
+              icon: Badge(
+                label: Text(
+                  AppDateUtils.formatDigits(
+                    attention,
+                    l.localeName,
+                    grouping: false,
+                  ),
+                ),
                 child: const Icon(Icons.sync_problem, color: AppColors.error),
               ),
               tooltip: l.syncStatus_title,

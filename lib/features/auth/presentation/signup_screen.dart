@@ -8,8 +8,10 @@
 /// checkbox, the Sign Up button, the "Or Continue With" divider and the Google
 /// button, and finally the "Already have an account?" strip.
 ///
-/// Two deliberate additions the mockup could not show:
+/// Three deliberate additions the mockup could not show:
 ///
+/// * **Language switch** — English / বাংলা in the top right corner (user
+///   request), for a reader who cannot read the default language.
 /// * **Account Type** — Individual or Join Existing Firm. Choosing the firm path
 ///   reveals the Invite Code field, which is the plan's single-use onboarding
 ///   code; the rest of the form is unchanged.
@@ -105,6 +107,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
   bool _acceptedTerms = false;
   bool _termsError = false;
   bool _submitting = false;
+
+  /// Set by the first refused submit. It is what turns the three required
+  /// fields' silence into their mandatory sentence *inside* the field (user
+  /// request) — before that, an untouched form must not look like a mistake.
+  bool _submitted = false;
+
+  /// Whether one of Sign Up's three required fields is still empty.
+  ///
+  /// Decided here rather than by the fields' own validators because their
+  /// refusal is worded *inside* the field (user request), and a [FormField]
+  /// validator's message can only ever land in the slot underneath it. The
+  /// check runs before anything is sent, alongside the form's own validation.
+  bool get _requiredFieldsMissing =>
+      _fullName.text.trim().isEmpty ||
+      _barAssociation.text.trim().isEmpty ||
+      _email.text.trim().isEmpty;
   /// The failure the banner is showing, of whichever domain it came from.
 ///
 /// The screen signs an account up **and** redeems an invite, so a failure can
@@ -166,8 +184,13 @@ Object? _error;
   Future<void> _submit() async {
     if (_submitting) return;
     final l = AppLocalizations.of(context);
-    setState(() => _termsError = !_acceptedTerms);
-    if (!(_formKey.currentState?.validate() ?? false) || !_acceptedTerms) {
+    setState(() {
+      _termsError = !_acceptedTerms;
+      _submitted = true;
+    });
+    if (!(_formKey.currentState?.validate() ?? false) ||
+        !_acceptedTerms ||
+        _requiredFieldsMissing) {
       return;
     }
 
@@ -476,8 +499,13 @@ Object? _error;
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The three required fields read this once a submit has been refused, and
+    // only while they are empty and nothing has been typed into them.
+    final mandatory = _submitted ? l.auth_validationMandatory : null;
 
     return AuthScaffold(
+      // The language choice sits above the card (user request).
+      topRight: const AuthLanguageSwitch(),
       child: AuthCard(
         padding: EdgeInsets.zero,
         clip: true,
@@ -536,35 +564,36 @@ Object? _error;
                             controller: _fullName,
                             label: l.auth_fullNameLabel,
                             hint: l.auth_fullNameHint,
+                            emptyMessage: mandatory,
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
                             autofillHints: const [AutofillHints.name],
-                            validator: (value) => authRequiredError(
-                              value,
-                              l.auth_validationFullNameRequired,
-                            ),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           AuthTextField(
                             controller: _barAssociation,
                             label: l.auth_barAssociationLabel,
                             hint: l.auth_barAssociationHint,
+                            emptyMessage: mandatory,
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
-                            validator: (value) => authRequiredError(
-                              value,
-                              l.auth_validationBarAssociationRequired,
-                            ),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           AuthTextField(
                             controller: _email,
                             label: l.auth_emailAddressLabel,
                             hint: l.auth_emailAddressHint,
+                            emptyMessage: mandatory,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             autofillHints: const [AutofillHints.email],
-                            validator: (value) => authEmailError(l, value),
+                            // Empty is the field's own mandatory sentence, so
+                            // only a filled-in value is judged here: how it is
+                            // shaped, before the round trip.
+                            validator: (value) =>
+                                value == null || value.trim().isEmpty
+                                ? null
+                                : authEmailError(l, value),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           AuthTextField(

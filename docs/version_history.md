@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.463 - The Payment Requests page's Pending and Resolved buttons now pin to the top of the list inside their own section, so an admin scrolling hundreds of cards still sees which section he is in.
+Version: 0.0.465 - Login and Sign Up gained an early language switch, new field placeholders, and Sign Up's three required fields now refuse in red inside the field.
 --------------------------------------
 
 ## Version History Log:
@@ -477,3 +477,5 @@ Version: 0.0.460 - Applied the Admin Panel's unconfirmed-accounts migration to t
 Version: 0.0.461 - Non-verified Accounts: the Delete button is now a solid red button with white text.
 Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a sync button in both sub-page headers, and each menu row now shows the count waiting behind it.
 Version: 0.0.463 - The Payment Requests page's Pending and Resolved buttons now pin to the top of the list inside their own section, so an admin scrolling hundreds of cards still sees which section he is in.
+Version: 0.0.464 - The header, Admin Panel and side-menu count badges now write their digits in the active language, so a Bengali reader no longer sees Latin digits beside Bengali text.
+Version: 0.0.465 - Login and Sign Up gained an early language switch, new field placeholders, and Sign Up's three required fields now refuse in red inside the field.

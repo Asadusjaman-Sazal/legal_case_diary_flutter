@@ -35,6 +35,23 @@ void main() {
     l = await AppLocalizations.delegate.load(const Locale('en'));
   }
 
+  /// The Email field's own decoration, where its placeholder lives.
+  InputDecoration emailDecoration(WidgetTester tester) => tester
+      .widget<TextField>(
+        find.descendant(
+          of: find.byType(TextFormField).first,
+          matching: find.byType(TextField),
+        ),
+      )
+      .decoration!;
+
+  /// The fill of the language button reading [label].
+  Color? languageFill(WidgetTester tester, String label) => tester
+      .widget<Material>(
+        find.ancestor(of: find.text(label), matching: find.byType(Material)).first,
+      )
+      .color;
+
   /// Types [email] and [password] and taps Login.
   Future<void> submitLogin(
     WidgetTester tester, {
@@ -73,6 +90,8 @@ void main() {
     // window's copy is) so a later copy edit has to be deliberate.
     expect(find.text('Log in to the app'), findsOneWidget);
     expect(find.text(l.auth_emailLabel), findsOneWidget);
+    // The placeholder the user asked the field to carry.
+    expect(emailDecoration(tester).hintText, 'example@gmail.com');
     expect(find.text(l.auth_passwordLabel), findsOneWidget);
     expect(find.text(l.auth_forgotPassword), findsOneWidget);
     expect(find.text(l.auth_loginButton), findsOneWidget);
@@ -124,6 +143,53 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('auth-route'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the language switch re-words the screen before signing in', (
+    tester,
+  ) async {
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    // The shell follows the locale provider here, as the app's own shell does,
+    // so this shows the screen changing language rather than only the
+    // preference being written.
+    await pumpAuthScreen(
+      tester,
+      const LoginScreen(),
+      overrides: overrides,
+      followLocale: true,
+    );
+    final english = await AppLocalizations.delegate.load(const Locale('en'));
+    final bengali = await AppLocalizations.delegate.load(const Locale('bn'));
+
+    // Offered before signing in, in the top right corner (user request), with
+    // the active language filled black and the other left outlined.
+    expect(find.text(english.settingsScreen_languageEnglish), findsOneWidget);
+    expect(find.text(english.settingsScreen_languageBengali), findsOneWidget);
+    expect(
+      languageFill(tester, english.settingsScreen_languageEnglish),
+      Colors.black,
+    );
+    expect(
+      languageFill(tester, english.settingsScreen_languageBengali),
+      isNot(Colors.black),
+    );
+
+    await tester.tap(find.text(english.settingsScreen_languageBengali));
+    await tester.pumpAndSettle();
+
+    expect(find.text(bengali.auth_loginButton), findsOneWidget);
+    expect(find.text(english.auth_loginButton), findsNothing);
+    // The same preference Settings > Language writes.
+    expect(harness.prefs.getString('app_locale'), 'bn');
+
+    // And back, so the choice is not a one-way door.
+    await tester.tap(find.text(bengali.settingsScreen_languageEnglish));
+    await tester.pumpAndSettle();
+    expect(find.text(english.auth_loginButton), findsOneWidget);
 
     await unmountApp(tester);
   });

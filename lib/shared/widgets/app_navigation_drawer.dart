@@ -463,6 +463,11 @@ class _DrawerNavTile extends StatelessWidget {
   /// Extra left padding, so a sub-row reads as belonging to the row above it.
   final double indent;
 
+  /// When true, the leading icon is replaced by a small progress spinner and
+  /// the row reports itself disabled — the account panel's Logout row uses this
+  /// while the logout flow runs, so the tap answers the user at once.
+  final bool busy;
+
   const _DrawerNavTile({
     super.key,
     required this.icon,
@@ -470,6 +475,7 @@ class _DrawerNavTile extends StatelessWidget {
     required this.active,
     required this.onTap,
     this.indent = 0,
+    this.busy = false,
   });
 
   @override
@@ -489,11 +495,21 @@ class _DrawerNavTile extends StatelessWidget {
             child: Row(
               children: [
                 if (indent > 0) SizedBox(width: indent),
-                Icon(
-                  icon,
-                  size: 22,
-                  color: active ? Colors.white : AppColors.onSurfaceVariant,
-                ),
+                if (busy)
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: active ? Colors.white : AppColors.onSurfaceVariant,
+                    ),
+                  )
+                else
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: active ? Colors.white : AppColors.onSurfaceVariant,
+                  ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
@@ -726,7 +742,7 @@ const double _accountPopoverRadius = 16;
 /// surface closed to make room for it — and the drawer's `ref` cannot, because
 /// the panel is gone the moment it closes. The popover stays up behind the
 /// logout windows and closes itself when they are done.
-class _AccountPopover extends ConsumerWidget {
+class _AccountPopover extends ConsumerStatefulWidget {
   const _AccountPopover({
     required this.email,
     required this.drawerNavigator,
@@ -743,15 +759,29 @@ class _AccountPopover extends ConsumerWidget {
   /// The app's router, for the two destinations and for Login.
   final GoRouter router;
 
+  @override
+  ConsumerState<_AccountPopover> createState() => _AccountPopoverState();
+}
+
+/// State of the account popover: owns the "logging out" flag so the Logout row
+/// can show a spinner for the whole flow, not just the wait after the last
+/// dialog.
+class _AccountPopoverState extends ConsumerState<_AccountPopover> {
+  /// True from the moment Logout is pressed until the flow ends, whatever the
+  /// outcome (completed, cancelled or failed) — so the row replies instantly.
+  bool _loggingOut = false;
+
   /// Closes the panel, so the user comes back to the screen it was opened from
   /// — exactly what every other drawer row does.
   void _closeDrawer() {
-    if (drawerNavigator.mounted) drawerNavigator.pop();
+    if (widget.drawerNavigator.mounted) widget.drawerNavigator.pop();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final email = widget.email;
+    final router = widget.router;
     // A floating panel, not a sheet: it carries its own elevation and rounding
     // and floats over the open drawer, which is what makes it look attached to
     // the icon. Its width and position come from the route's layout delegate.
@@ -836,21 +866,33 @@ class _AccountPopover extends ConsumerWidget {
             icon: Icons.logout,
             label: l.settingsManageAccount_logout,
             active: false,
+            busy: _loggingOut,
             onTap: () async {
-              // The side menu stays open (user request): the logout windows
-              // appear above it, and nothing is dismissed until the flow is
-              // done — a cancelled branch leaves the user where they were,
-              // still able to pick another action. The account panel and this
-              // widget's `ref` also stay mounted for the whole flow, which is
-              // what the one branched logout reads its providers through.
-              final completed = await runBranchedLogout(context, ref);
-              if (!context.mounted) return;
-              // The panel is closed once the flow has finished its windows.
-              Navigator.of(context).pop();
-              // Login is reached explicitly: the router's sign-in gate is
-              // decided once per launch, so a signed-out user would otherwise
-              // be left on the now-empty shell.
-              if (completed) router.go(AppRoutes.login);
+              // The row answers at once so the tap is not mistaken for a dead
+              // button: the spinner replaces the icon for however long the
+              // flow takes, and the row stops being tappable again.
+              if (_loggingOut) return;
+              setState(() => _loggingOut = true);
+              try {
+                // The side menu stays open (user request): the logout windows
+                // appear above it, and nothing is dismissed until the flow is
+                // done — a cancelled branch leaves the user where they were,
+                // still able to pick another action. The account panel and this
+                // widget's `ref` also stay mounted for the whole flow, which is
+                // what the one branched logout reads its providers through.
+                final completed = await runBranchedLogout(context, ref);
+                if (!context.mounted) return;
+                // The panel is closed once the flow has finished its windows.
+                Navigator.of(context).pop();
+                // Login is reached explicitly: the router's sign-in gate is
+                // decided once per launch, so a signed-out user would otherwise
+                // be left on the now-empty shell.
+                if (completed) router.go(AppRoutes.login);
+              } finally {
+                // Clear the spinner whatever the outcome — a throw must never
+                // leave the row stuck spinning.
+                if (mounted) setState(() => _loggingOut = false);
+              }
             },
           ),
           // A little air under the last row, so the window's rounded foot is

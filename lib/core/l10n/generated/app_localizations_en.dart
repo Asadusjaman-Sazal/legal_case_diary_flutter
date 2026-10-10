@@ -3279,6 +3279,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get print_preparing => 'Preparing Your Print';
 
   @override
+  String get print_serialShort => 'SL';
+
+  @override
+  String get print_dateLabel => 'Date';
+
+  @override
+  String get print_dayLabel => 'Day';
+
+  @override
+  String get print_monthLabel => 'Month';
+
+  @override
+  String get print_yearLabel => 'Year';
+
+  @override
+  String print_dateLine(
+    String dateLabel,
+    String date,
+    String dayLabel,
+    String day,
+    String monthLabel,
+    String month,
+    String yearLabel,
+    String year,
+  ) {
+    return '$dateLabel: $date       $dayLabel: $day       $monthLabel: $month       $yearLabel: $year';
+  }
+
+  @override
   String get print_failed => 'Could Not Print';
 
   @override

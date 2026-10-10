@@ -296,6 +296,20 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
   int _peakRgbaBytes = 0;
   bool _measuring = true;
 
+  /// The budget actually in force: the document's own margin when it sets one
+  /// (the ruled table asks for a narrow margin), the caller's budget otherwise.
+  PrintPageBudget get _budget {
+    final margin = widget.document.margin;
+    if (margin == null) return widget.budget;
+    return PrintPageBudget(
+      pageWidth: widget.budget.pageWidth,
+      pageHeight: widget.budget.pageHeight,
+      margin: margin,
+      maxPixelRatio: widget.budget.maxPixelRatio,
+      maxRgbaBytes: widget.budget.maxRgbaBytes,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -317,17 +331,18 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
     // so every block keeps the natural height the paginator measures, and it is
     // drawn off the visible area rather than hidden: a capture needs a painted
     // layer, so `Offstage` and zero opacity would not do.
+    final budget = _budget;
     return LimitedBox(
-      maxWidth: widget.budget.contentWidth,
-      maxHeight: widget.budget.contentHeight,
+      maxWidth: budget.contentWidth,
+      maxHeight: budget.contentHeight,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            left: -widget.budget.pageWidth,
+            left: -budget.pageWidth,
             top: 0,
             child: SizedBox(
-              width: widget.budget.contentWidth,
+              width: budget.contentWidth,
               child: _measuring ? _measurementBody() : _pageBody(),
             ),
           ),
@@ -336,12 +351,21 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
     );
   }
 
+  /// The repeated header band, or null for a document without one.
+  Widget? get _header => buildRepeatedPageHeader(widget.document);
+
   /// Every block, laid out once at page width so its height can be measured.
+  ///
+  /// The repeated header band, when there is one, is measured first here so the
+  /// paginator can subtract its height before splitting the blocks.
   Widget _measurementBody() => Column(
     key: _measureKey,
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: _blocks,
+    children: [
+      ?_header,
+      ..._blocks,
+    ],
   );
 
   /// The page currently being captured.
@@ -356,7 +380,7 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
         blocks: pageBlocks,
         pageIndex: _capturingPage,
         pageCount: _pages.length,
-        budget: widget.budget,
+        budget: _budget,
       ),
     );
   }
@@ -365,12 +389,19 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
   Future<void> _run() async {
     try {
       final heights = _measureBlocks();
-      _pages = paginateBlockHeights(heights, widget.budget.blockAreaHeight);
+      // The header band (when present) is the first measured child; the blocks
+      // get whatever room is left after it and the 4 pt gap drawn under it.
+      final headerHeight = _header == null ? 0.0 : heights.removeAt(0);
+      _pages = paginateBlockHeights(
+        heights,
+        _budget.blockAreaHeight - (headerHeight == 0 ? 0 : headerHeight + 4),
+      );
 
-      final pixelRatio = widget.budget.pixelRatioFor(
+      final budget = _budget;
+      final pixelRatio = budget.pixelRatioFor(
         View.of(context).devicePixelRatio,
       );
-      final pageRgbaBytes = widget.budget.rgbaBytesAt(pixelRatio);
+      final pageRgbaBytes = budget.rgbaBytesAt(pixelRatio);
       final captured = <Uint8List>[];
 
       for (var page = 0; page < _pages.length; page++) {
@@ -398,9 +429,9 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
         RasterPdfRequest(
           pages: captured,
           title: widget.document.title,
-          pageWidth: widget.budget.pageWidth,
-          pageHeight: widget.budget.pageHeight,
-          margin: widget.budget.margin,
+          pageWidth: budget.pageWidth,
+          pageHeight: budget.pageHeight,
+          margin: budget.margin,
         ),
       );
 

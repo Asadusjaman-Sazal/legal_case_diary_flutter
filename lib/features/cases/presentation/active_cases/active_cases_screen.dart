@@ -25,6 +25,7 @@ import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
+import '../../data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
@@ -50,6 +51,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   List<Case> _cases = const [];
   Map<String, Court> _courtsById = const {};
   Map<String, OnBehalf> _onBehalfsById = const {};
+
+  /// Each case's previous hearing date (epoch ms), for the printed `Prev. Date`.
+  Map<String, int> _previousDatesByCaseId = const {};
   Object? _error;
   bool _loading = true;
 
@@ -114,11 +118,15 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       final cases = await repository.listActive();
       final courts = await CourtsDao(db).getAll();
       final onBehalfs = await OnBehalfsDao(db).getAll();
+      final previousDates = await CaseHistoryDao(
+        db,
+      ).latestHearingDateByCaseIds(cases.map((currentCase) => currentCase.id));
       if (!mounted) return;
       setState(() {
         _cases = cases;
         _courtsById = {for (final court in courts) court.id: court};
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
+        _previousDatesByCaseId = previousDates;
         _error = null;
         _loading = false;
       });
@@ -176,10 +184,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       CaseListPrintRequest(
         title: l.activeCasesScreen_title,
         cases: _visibleCases,
-        dateColumnLabel: l.caseCard_nextDate,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
-        showSerial: true,
+        previousDatesByCaseId: _previousDatesByCaseId,
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

@@ -19,9 +19,6 @@ import 'package:legal_case_diary/core/utils/date_utils.dart';
 AppTranslations _t(String language) =>
     AppTranslations(lookupAppLocalizations(Locale(language)));
 
-/// A fixed print day, so the footer never depends on the wall clock.
-final int _printedAt = AppDateUtils.bangladeshCivilDateEpoch(2026, 9, 19);
-
 PrintCaseRow _row({
   String caseNumber = '110/2021',
   // Dash-terminated, as the pre-seeded case-type labels are.
@@ -52,144 +49,142 @@ PrintCaseRow _row({
 PrintDocument _flatDocument(
   AppTranslations translations, {
   List<PrintCaseRow>? rows,
-  bool showSerial = false,
   List<PrintField> meta = const [],
-}) => buildCaseListDocument(
-  translations: translations,
-  title: translations.raw.nav_allCases,
-  dateColumnLabel: translations.raw.caseCard_nextDate,
-  groups: [PrintCaseGroup(rows: rows ?? [_row()])],
-  showSerial: showSerial,
-  meta: meta,
-  printedAtEpochMs: _printedAt,
-);
+}) {
+  final l = translations.raw;
+  var serial = 0;
+  return buildRuledTableDocument(
+    translations: translations,
+    title: l.nav_allCases,
+    brandTitle: l.appTitle,
+    columns: [
+      const PrintTableColumn(label: 'SL', widthCm: 0.69),
+      const PrintTableColumn(label: 'Prev. Date', widthCm: 1.83),
+      const PrintTableColumn(label: 'Case No.', widthCm: 2.51),
+      const PrintTableColumn(label: 'Petitioner', widthCm: 3.68),
+      const PrintTableColumn(label: 'Respondent', widthCm: 3.68),
+      const PrintTableColumn(label: 'On Behalf', widthCm: 2.22),
+      const PrintTableColumn(label: 'Step', widthCm: 3.18),
+      const PrintTableColumn(label: 'Next Date', widthCm: 1.83),
+    ],
+    rows: [
+      for (final row in rows ?? [_row()])
+        PrintTableRow.data(<String>[
+          AppDateUtils.formatDigits(
+            ++serial,
+            l.localeName,
+            grouping: false,
+          ),
+          row.previousDate,
+          caseTypeAndCaseNumber(row.caseType, row.caseNumber),
+          row.petitioner,
+          row.respondent,
+          row.onBehalf,
+          row.step,
+          row.date,
+        ]),
+    ],
+    meta: meta,
+  );
+}
 
 void main() {
   setUpAll(() async {
     await initializeDateFormatting();
   });
 
-  group('canonical case-list layout', () {
-    test('composes the case number, parties, counsel, step and date', () {
+  group('canonical case-list table', () {
+    test('prints the eight fixed columns in the sample order', () {
       final document = _flatDocument(_t('en'));
-      final entry = document.groups.single.entries.single;
-
-      expect(entry.heading, 'Civil Suit- 110/2021');
+      expect(document.isTable, isTrue);
       expect(
-        entry.fields.map((field) => field.label),
+        document.columns!.map((column) => column.label),
         [
-          'Name of Court',
+          'SL',
+          'Prev. Date',
+          'Case No.',
           'Petitioner',
           'Respondent',
-          'Lead Counsel',
           'On Behalf',
           'Step',
           'Next Date',
-          'Note',
         ],
       );
-      expect(entry.fields[0].value, 'Dhaka Judge Court');
-      expect(entry.fields[3].value, 'Adv. A. Hossain · Adv. B. Islam');
-      expect(entry.fields[6].value, '19/09/2026');
+      // The sample's fixed widths, in centimetres.
+      expect(
+        document.columns!.map((column) => column.widthCm),
+        [0.69, 1.83, 2.51, 3.68, 3.68, 2.22, 3.18, 1.83],
+      );
+    });
+
+    test('a data row carries every column, in order', () {
+      final row = _flatDocument(_t('en')).tableRows.single;
+      expect(row.kind, PrintTableRowKind.data);
+      expect(row.cells, [
+        '1',
+        '', // Prev. Date — this fixture has no history
+        'Civil Suit- 110/2021',
+        'Karim Rahman',
+        'State',
+        'Petitioner',
+        'Evidence',
+        '19/09/2026',
+      ]);
     });
 
     test('leads with the case type, then the number, with nothing between', () {
-      // The type's own trailing dash is the only dash on the line.
-      expect(_flatDocument(_t('en')).groups.single.entries.single.heading,
-          'Civil Suit- 110/2021');
-      // A user-added type without a dash is joined by one space, not given one.
+      // The type's own trailing dash is the only dash on the cell.
       expect(
-        _flatDocument(_t('en'), rows: [_row(caseType: 'Misc')])
-            .groups
-            .single
-            .entries
-            .single
-            .heading,
+        _flatDocument(_t('en')).tableRows.single.cells[2],
+        'Civil Suit- 110/2021',
+      );
+      expect(
+        _flatDocument(
+          _t('en'),
+          rows: [_row(caseType: 'Misc')],
+        ).tableRows.single.cells[2],
         'Misc 110/2021',
       );
       // A case with no type yet prints its number alone, never a bare dash.
       expect(
-        _flatDocument(_t('en'), rows: [_row(caseType: '')])
-            .groups
-            .single
-            .entries
-            .single
-            .heading,
+        _flatDocument(
+          _t('en'),
+          rows: [_row(caseType: '')],
+        ).tableRows.single.cells[2],
         '110/2021',
       );
     });
 
-    test('leaves blank values off the page instead of printing labels alone', () {
-      final document = _flatDocument(
-        _t('en'),
-        rows: [
-          _row(
-            respondent: '',
-            court: '',
-            petitionerCounsel: '',
-            respondentCounsel: '',
-            onBehalf: '',
-            step: '',
-            note: '',
-          ),
+    test('a court heading is a spanning row above its cases', () {
+      final translations = _t('en');
+      final document = buildRuledTableDocument(
+        translations: translations,
+        title: translations.raw.nav_dailyCauseList,
+        brandTitle: translations.raw.appTitle,
+        columns: const [
+          PrintTableColumn(label: 'SL', widthCm: 0.69),
+        ],
+        rows: const [
+          PrintTableRow.court(['Dhaka Judge Court']),
+          PrintTableRow.data(['1']),
+          PrintTableRow.data(['2']),
         ],
       );
-      final entry = document.groups.single.entries.single;
 
-      expect(
-        entry.fields.map((field) => field.label),
-        ['Petitioner', 'Next Date'],
-      );
-      expect(entry.fields.first.value, 'Karim Rahman');
+      expect(document.tableRows.first.kind, PrintTableRowKind.court);
+      expect(document.tableRows.first.cells, ['Dhaka Judge Court']);
+      expect(document.entryCount, 2, reason: 'only data rows count');
     });
 
-    test('a grouped screen names the court in its heading, not every row', () {
-      final document = buildCaseListDocument(
-        translations: _t('en'),
-        title: _t('en').raw.nav_dailyCauseList,
-        dateColumnLabel: _t('en').raw.caseCard_nextDate,
-        groups: [
-          PrintCaseGroup(
-            heading: 'Dhaka Judge Court',
-            rows: [_row(), _row(caseNumber: '111/2021')],
-          ),
-        ],
-        printedAtEpochMs: _printedAt,
-      );
-
-      expect(document.groups.single.heading, 'Dhaka Judge Court');
-      expect(document.entryCount, 2);
-      for (final entry in document.groups.single.entries) {
-        expect(
-          entry.fields.map((field) => field.label),
-          isNot(contains('Name of Court')),
-        );
-      }
+    test('the serial follows the active language', () {
+      expect(_flatDocument(_t('en')).tableRows.first.cells.first, '1');
+      expect(_flatDocument(_t('bn')).tableRows.first.cells.first, '১');
     });
 
-    test('prints the serial only for the screens that show one', () {
-      final plain = _flatDocument(_t('en'));
-      expect(plain.groups.single.entries.single.serial, '');
-
-      final numbered = _flatDocument(
-        _t('en'),
-        rows: [_row(), _row(caseNumber: '111/2021')],
-        showSerial: true,
-      );
-      expect(
-        numbered.groups.single.entries.map((entry) => entry.serial),
-        ['1', '2'],
-      );
-
-      final bengali = _flatDocument(
-        _t('bn'),
-        rows: [_row(), _row(caseNumber: '111/2021')],
-        showSerial: true,
-      );
-      expect(
-        bengali.groups.single.entries.map((entry) => entry.serial),
-        ['১', '২'],
-      );
+    test('prints no "Printed on" footer, keeping only the page counter', () {
+      final document = _flatDocument(_t('en'));
+      expect(document.footer, isEmpty);
+      expect(document.pageLabel(1, 2), isNotEmpty);
     });
   });
 
@@ -200,7 +195,6 @@ void main() {
     }) => buildCaseDetailDocument(
       translations: _t('en'),
       showAllHistory: true,
-      printedAtEpochMs: _printedAt,
       detail: PrintCaseDetail(
         caseNumber: '34/26',
         caseType: caseType,
@@ -262,20 +256,11 @@ void main() {
   });
 
   group('localized document furniture', () {
-    test('labels, footer and page counter follow the active language', () {
-      final bengali = _flatDocument(_t('bn'));
-      final entry = bengali.groups.single.entries.single;
-
-      expect(entry.fields.first.label, 'আদালতের নাম');
-      expect(entry.fields[1].label, 'বাদী');
-      expect(bengali.footer, 'প্রিন্টের তারিখ ১৯/০৯/২০২৬');
-      expect(bengali.pageLabel(2, 3), 'পৃষ্ঠা ২ / ৩');
-
-      final english = _flatDocument(_t('en'));
-      expect(english.footer, 'Printed on 19/09/2026');
-      expect(english.pageLabel(2, 3), 'Page 2 of 3');
+    test('the page counter follows the active language', () {
+      expect(_flatDocument(_t('bn')).pageLabel(2, 3), 'পৃষ্ঠা ২ / ৩');
+      expect(_flatDocument(_t('en')).pageLabel(2, 3), 'Page 2 of 3');
       // The default, translation-free page line, used before a locale is known.
-      const plain = PrintDocument(title: 't', groups: [], footer: 'f');
+      const plain = PrintDocument(title: 't', groups: [], footer: '');
       expect(plain.pageLabel(1, 4), 'Page 1 of 4');
     });
 
@@ -294,39 +279,44 @@ void main() {
       expect(document.allText, contains('karim'));
     });
 
-    test('an empty dataset still builds a printable document', () {
-      final document = buildCaseListDocument(
+    test('an empty dataset still builds a printable table document', () {
+      final document = buildRuledTableDocument(
         translations: _t('en'),
         title: _t('en').raw.nav_overdueDates,
-        dateColumnLabel: _t('en').raw.caseCard_previousDate,
-        groups: const [PrintCaseGroup(rows: [])],
-        printedAtEpochMs: _printedAt,
+        columns: const [PrintTableColumn(label: 'SL', widthCm: 0.69)],
+        rows: const [],
       );
 
       expect(document.isEmpty, isTrue);
       expect(document.entryCount, 0);
-      expect(document.footer, 'Printed on 19/09/2026');
+      expect(document.footer, isEmpty);
     });
   });
 
   group('script-aware renderer decision', () {
-    test('an English document keeps the native text path', () {
-      expect(_flatDocument(_t('en')).needsRaster, isFalse);
-      expect(hasBengaliText('Case 110/2021 · Civil Suit'), isFalse);
+    test('a ruled table always rasterises, whatever the language', () {
+      // Fixed columns, fixed row heights and cell borders must look identical
+      // in both languages, so the table never takes the native text path.
+      expect(_flatDocument(_t('en')).needsRaster, isTrue);
+      expect(_flatDocument(_t('bn')).needsRaster, isTrue);
     });
 
-    test('a Bengali label alone puts the document on the raster path', () {
-      final bengali = _flatDocument(_t('bn'));
-      expect(bengali.needsRaster, isTrue);
-    });
-
-    test('Bengali case data in an English document also flips the decision', () {
-      final document = _flatDocument(
-        _t('en'),
-        rows: [_row(petitioner: 'করিম রহমান', caseNumber: '১১০/২০২১')],
+    test('a non-table document keeps the script-aware rule', () {
+      // An English, table-free document still prints as searchable text.
+      final english = buildCaseDetailDocument(
+        translations: _t('en'),
+        detail: const PrintCaseDetail(caseNumber: '34/26'),
+        showAllHistory: false,
       );
+      expect(english.needsRaster, isFalse);
+      expect(hasBengaliText('Case 110/2021 · Civil Suit'), isFalse);
 
-      expect(document.needsRaster, isTrue);
+      final bengali = buildCaseDetailDocument(
+        translations: _t('bn'),
+        detail: const PrintCaseDetail(caseNumber: '৩৪/২৬'),
+        showAllHistory: false,
+      );
+      expect(bengali.needsRaster, isTrue);
       expect(hasBengaliText('দ্ধ'), isTrue);
       expect(hasBengaliText('ক্ষ'), isTrue);
     });

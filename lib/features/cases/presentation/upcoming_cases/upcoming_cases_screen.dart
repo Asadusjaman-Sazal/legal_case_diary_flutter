@@ -25,6 +25,7 @@ import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
+import '../../data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
@@ -55,6 +56,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
   Map<String, Court> _courtsById = const {};
   Map<String, CourtCategory> _categoriesById = const {};
   Map<String, OnBehalf> _onBehalfsById = const {};
+
+  /// Each case's previous hearing date (epoch ms), for the printed `Prev. Date`.
+  Map<String, int> _previousDatesByCaseId = const {};
   Object? _error;
   bool _loading = true;
 
@@ -136,6 +140,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       final courts = await CourtsDao(db).getAll();
       final categories = await CourtCategoriesDao(db).getAll();
       final onBehalfs = await OnBehalfsDao(db).getAll();
+      final previousDates = await CaseHistoryDao(
+        db,
+      ).latestHearingDateByCaseIds(cases.map((currentCase) => currentCase.id));
       if (!mounted) return;
       setState(() {
         _cases = cases;
@@ -143,6 +150,7 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         _courtsById = {for (final court in courts) court.id: court};
         _categoriesById = {for (final c in categories) c.id: c};
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
+        _previousDatesByCaseId = previousDates;
         _error = null;
         _loading = false;
       });
@@ -213,9 +221,9 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       CaseListPrintRequest(
         title: l.upcomingCasesScreen_title,
         cases: rows,
-        dateColumnLabel: l.caseCard_nextDate,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
+        previousDatesByCaseId: _previousDatesByCaseId,
         groupHeading: (currentCase) => headings[currentCase.id],
         meta: [
           if (_searchController.text.trim().isNotEmpty)

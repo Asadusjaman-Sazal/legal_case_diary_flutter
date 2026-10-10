@@ -29,6 +29,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
+import '../../data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
@@ -56,6 +57,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   Map<String, Court> _courtsById = const {};
   Map<String, CourtCategory> _categoriesById = const {};
   Map<String, OnBehalf> _onBehalfsById = const {};
+
+  /// Each case's previous hearing date (epoch ms), for the printed `Prev. Date`.
+  Map<String, int> _previousDatesByCaseId = const {};
   Object? _error;
   bool _loading = true;
 
@@ -120,6 +124,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       final courts = await CourtsDao(db).getAll();
       final categories = await CourtCategoriesDao(db).getAll();
       final onBehalfs = await OnBehalfsDao(db).getAll();
+      final previousDates = await CaseHistoryDao(
+        db,
+      ).latestHearingDateByCaseIds(cases.map((currentCase) => currentCase.id));
       final active = await repository.activeCount();
       if (!mounted) return;
       setState(() {
@@ -129,6 +136,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
           for (final category in categories) category.id: category,
         };
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
+        _previousDatesByCaseId = previousDates;
         _activeCount = active;
         _disposedCount = cases.length - active;
         _error = null;
@@ -189,10 +197,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
       CaseListPrintRequest(
         title: l.allCasesScreen_title,
         cases: _visibleCases(),
-        dateColumnLabel: l.caseCard_nextDate,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
-        showSerial: true,
+        previousDatesByCaseId: _previousDatesByCaseId,
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

@@ -5676,6 +5676,51 @@ abstract class AppLocalizations {
   /// **'Preparing Your Print'**
   String get print_preparing;
 
+  /// Heading of the case-list table's narrow serial column. The short form is the only one that fits its 0.69 cm cell; Bengali uses the short ক্ৰম.
+  ///
+  /// In en, this message translates to:
+  /// **'SL'**
+  String get print_serialShort;
+
+  /// Label of the day's date in the Daily Cause List printout's Date/Day/Month/Year line.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get print_dateLabel;
+
+  /// Label of the weekday in the Daily Cause List printout's Date/Day/Month/Year line.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get print_dayLabel;
+
+  /// Label of the month in the Daily Cause List printout's Date/Day/Month/Year line.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get print_monthLabel;
+
+  /// Label of the year in the Daily Cause List printout's Date/Day/Month/Year line.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get print_yearLabel;
+
+  /// The Daily Cause List printout's date line, e.g. 'Date: 10/10/26  Day: Saturday  Month: October  Year: 2026'.
+  ///
+  /// In en, this message translates to:
+  /// **'{dateLabel}: {date}       {dayLabel}: {day}       {monthLabel}: {month}       {yearLabel}: {year}'**
+  String print_dateLine(
+    String dateLabel,
+    String date,
+    String dayLabel,
+    String day,
+    String monthLabel,
+    String month,
+    String yearLabel,
+    String year,
+  );
+
   /// Shown when rendering or presenting a print job failed; the user can try again.
   ///
   /// In en, this message translates to:

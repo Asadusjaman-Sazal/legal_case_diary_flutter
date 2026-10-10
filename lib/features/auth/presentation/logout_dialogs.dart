@@ -52,14 +52,20 @@ Future<bool> runBranchedLogout(
   final l = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final dialog = dialogContext ?? context;
-  final flow = await ref.read(logoutFlowProvider.future);
+  // Every provider is read **before the first await**. `ref` is a widget ref, and
+  // Riverpod forbids touching it once the widget that owns it is unmounted — the
+  // flow below awaits real I/O (the database, the sync push, the save dialog), and
+  // by the time it resumes the surface that opened this window may be gone. Read
+  // the two values up front, while the widget is certainly still mounted.
+  final flowFuture = ref.read(logoutFlowProvider.future);
+  // Encryption is off by default; the copy is only asked for a passphrase when
+  // the user has turned it on in Backup & Restore.
+  final encrypt = ref.read(backupMetadataProvider).encryptBackups;
+  final flow = await flowFuture;
   final plan = await flow.plan();
   // A free account holding the user's own work. A free account with nothing
   // authored selects `cleanWipe` instead, so it falls through to step 1 below.
   final freeWithData = plan.branch == LogoutBranch.freeBackupChoice;
-  // Encryption is off by default; the copy is only asked for a passphrase when
-  // the user has turned it on in Backup & Restore.
-  final encrypt = ref.read(backupMetadataProvider).encryptBackups;
 
   // 1. Nothing on this device exists nowhere else, so the wipe needs no copy,
   //    no sync and no warning: a premium account whose work is all on the server,

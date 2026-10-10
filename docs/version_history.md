@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.465 - Login and Sign Up gained an early language switch, new field placeholders, and Sign Up's three required fields now refuse in red inside the field.
+Version: 0.0.466 - Login's English/Bengali switch is now pinned to the screen's own top-right corner through AuthScaffold.pinTopRight, instead of riding above the centred card.
 --------------------------------------
 
 ## Version History Log:
@@ -479,3 +479,4 @@ Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a 
 Version: 0.0.463 - The Payment Requests page's Pending and Resolved buttons now pin to the top of the list inside their own section, so an admin scrolling hundreds of cards still sees which section he is in.
 Version: 0.0.464 - The header, Admin Panel and side-menu count badges now write their digits in the active language, so a Bengali reader no longer sees Latin digits beside Bengali text.
 Version: 0.0.465 - Login and Sign Up gained an early language switch, new field placeholders, and Sign Up's three required fields now refuse in red inside the field.
+Version: 0.0.466 - Login's English/Bengali switch is now pinned to the screen's own top-right corner through AuthScaffold.pinTopRight, instead of riding above the centred card.

@@ -12,9 +12,12 @@
 /// device with nothing on it opens here because there is nothing to lock away
 /// (see `auth_gate.dart`).
 ///
-/// One addition the mockup could not show: the **language switch** in the top
-/// right corner (user request), so a reader who cannot read the default
-/// language can pick one before signing in rather than after.
+/// One addition the mockup could not show: the **language switch** in the
+/// screen's own top-right corner (user request), so a reader who cannot read
+/// the default language can pick one before signing in rather than after. It is
+/// pinned there (`AuthScaffold.pinTopRight`) rather than carried in the card's
+/// column, because the card is centred: in the column the switch rides at
+/// whatever height the centring gives it instead of the corner of the page.
 library;
 
 import 'package:flutter/material.dart';
@@ -143,8 +146,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final l = AppLocalizations.of(context);
 
     return AuthScaffold(
-      // The language choice sits above the card (user request).
+      // The language choice sits in the top-right corner of the screen (user
+      // request), on this screen alone.
       topRight: const AuthLanguageSwitch(),
+      pinTopRight: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

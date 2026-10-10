@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
@@ -169,6 +170,24 @@ void main() {
     // the active language filled black and the other left outlined.
     expect(find.text(english.settingsScreen_languageEnglish), findsOneWidget);
     expect(find.text(english.settingsScreen_languageBengali), findsOneWidget);
+    // The screen's own corner, not the centred card's column: flush with the
+    // card's edge margin, and outside the scrolling area, so the switch keeps
+    // its place while the card below it scrolls.
+    final switchRect = tester.getRect(find.byType(AuthLanguageSwitch));
+    expect(switchRect.right, closeTo(420 - AppSpacing.edgeMargin, 0.5));
+    expect(switchRect.top, closeTo(AppSpacing.edgeMargin, 0.5));
+    expect(
+      find.descendant(
+        of: find.byType(SingleChildScrollView),
+        matching: find.byType(AuthLanguageSwitch),
+      ),
+      findsNothing,
+    );
+    // And clear of the card, which is centred further down the page.
+    expect(
+      tester.getTopLeft(find.text(english.appName)).dy,
+      greaterThan(switchRect.bottom),
+    );
     expect(
       languageFill(tester, english.settingsScreen_languageEnglish),
       Colors.black,

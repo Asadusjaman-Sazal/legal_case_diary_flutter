@@ -25,6 +25,7 @@ import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
 import '../case_list_print.dart';
 import '../../../../database/app_database.dart';
+import '../../data/local/case_history_dao.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/court_categories_dao.dart';
 import '../../../../features/settings/data/local/on_behalfs_dao.dart';
@@ -52,6 +53,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
   Map<String, Court> _courtsById = const {};
   Map<String, CourtCategory> _categoriesById = const {};
   Map<String, OnBehalf> _onBehalfsById = const {};
+
+  /// Each case's previous hearing date (epoch ms), for the printed `Prev. Date`.
+  Map<String, int> _previousDatesByCaseId = const {};
   Object? _error;
   bool _loading = true;
 
@@ -123,6 +127,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       final courts = await CourtsDao(db).getAll();
       final categories = await CourtCategoriesDao(db).getAll();
       final onBehalfs = await OnBehalfsDao(db).getAll();
+      final previousDates = await CaseHistoryDao(
+        db,
+      ).latestHearingDateByCaseIds(cases.map((currentCase) => currentCase.id));
       if (!mounted) return;
       setState(() {
         _cases = cases;
@@ -131,6 +138,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
           for (final category in categories) category.id: category,
         };
         _onBehalfsById = {for (final item in onBehalfs) item.id: item};
+        _previousDatesByCaseId = previousDates;
         _error = null;
         _loading = false;
       });
@@ -220,11 +228,12 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
       CaseListPrintRequest(
         title: l.overdueDatesScreen_title,
         cases: rows,
-        dateColumnLabel: l.caseCard_previousDate,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
+        previousDatesByCaseId: _previousDatesByCaseId,
         groupHeading: (currentCase) => headings[currentCase.id],
-        dateOf: (currentCase, court) => printDisplayDate(l, currentCase.nextDate),
+        nextDateOf: (currentCase, court) =>
+            printDisplayDate(l, currentCase.nextDate),
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

@@ -3299,6 +3299,35 @@ class AppLocalizationsBn extends AppLocalizations {
   String get print_preparing => 'প্রিন্ট তৈরি হচ্ছে';
 
   @override
+  String get print_serialShort => 'ক্রম';
+
+  @override
+  String get print_dateLabel => 'তারিখ';
+
+  @override
+  String get print_dayLabel => 'বার';
+
+  @override
+  String get print_monthLabel => 'মাস';
+
+  @override
+  String get print_yearLabel => 'বছর';
+
+  @override
+  String print_dateLine(
+    String dateLabel,
+    String date,
+    String dayLabel,
+    String day,
+    String monthLabel,
+    String month,
+    String yearLabel,
+    String year,
+  ) {
+    return '$dateLabel: $date       $dayLabel: $day       $monthLabel: $month       $yearLabel: $year';
+  }
+
+  @override
   String get print_failed => 'প্রিন্ট করা যায়নি';
 
   @override

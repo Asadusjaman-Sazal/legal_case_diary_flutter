@@ -176,29 +176,12 @@ void main() {
 
     Future<int> pageCount(int rows) async {
       final bytes = await renderer.render(
-        buildCaseListDocument(
-          translations: _t('en'),
+        _document(
           title: _t('en').raw.nav_allCases,
-          dateColumnLabel: _t('en').raw.caseCard_nextDate,
-          groups: [
-            PrintCaseGroup(
-              rows: [
-                for (var i = 0; i < rows; i++)
-                  PrintCaseRow(
-                    caseNumber: '${100 + i}/2021',
-                    caseType: 'Civil Suit',
-                    petitioner: 'Karim Rahman',
-                    respondent: 'State',
-                    court: 'Dhaka Judge Court',
-                    petitionerCounsel: 'Adv. A. Hossain',
-                    step: 'Evidence',
-                    note: 'Adjourned for cross-examination',
-                    date: '19/09/2026',
-                  ),
-              ],
-            ),
+          values: [
+            for (var i = 0; i < rows; i++) '${100 + i}/2021',
+            'Adjourned for cross-examination',
           ],
-          printedAtEpochMs: 1_758_259_200_000,
         ),
         compress: false,
       );
@@ -242,7 +225,6 @@ void main() {
       buildCaseDetailDocument(
         translations: _t('en'),
         showAllHistory: true,
-        printedAtEpochMs: 1_758_259_200_000,
         detail: const PrintCaseDetail(
           caseNumber: '34/26',
           caseType: 'First Appeal',

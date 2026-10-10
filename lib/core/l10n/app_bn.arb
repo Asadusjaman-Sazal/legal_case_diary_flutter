@@ -1406,6 +1406,40 @@
   "@print_preparing": {
       "description": "Title of the progress dialog while a document is rendered page by page."
   },
+  "print_serialShort": "ক্রম",
+  "@print_serialShort": {
+      "description": "Heading of the case-list table's narrow serial column. The short form is the only one that fits its 0.69 cm cell."
+  },
+  "print_dateLabel": "তারিখ",
+  "@print_dateLabel": {
+      "description": "Label of the day's date in the Daily Cause List printout's Date/Day/Month/Year line."
+  },
+  "print_dayLabel": "বার",
+  "@print_dayLabel": {
+      "description": "Label of the weekday in the Daily Cause List printout's Date/Day/Month/Year line."
+  },
+  "print_monthLabel": "মাস",
+  "@print_monthLabel": {
+      "description": "Label of the month in the Daily Cause List printout's Date/Day/Month/Year line."
+  },
+  "print_yearLabel": "বছর",
+  "@print_yearLabel": {
+      "description": "Label of the year in the Daily Cause List printout's Date/Day/Month/Year line."
+  },
+  "print_dateLine": "{dateLabel}: {date}       {dayLabel}: {day}       {monthLabel}: {month}       {yearLabel}: {year}",
+  "@print_dateLine": {
+      "description": "The Daily Cause List printout's date line.",
+      "placeholders": {
+          "dateLabel": {"type": "String"},
+          "date": {"type": "String"},
+          "dayLabel": {"type": "String"},
+          "day": {"type": "String"},
+          "monthLabel": {"type": "String"},
+          "month": {"type": "String"},
+          "yearLabel": {"type": "String"},
+          "year": {"type": "String"}
+      }
+  },
   "print_failed": "প্রিন্ট করা যায়নি",
   "@print_failed": {
       "description": "Shown when rendering or presenting a print job failed; the user can try again."

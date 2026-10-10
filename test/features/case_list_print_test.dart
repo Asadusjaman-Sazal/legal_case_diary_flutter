@@ -256,9 +256,11 @@ void main() {
         expect(listed, isNotEmpty, reason: '$screenType lists no case');
 
         final document = await tapPrint(tester);
-        final printed = document.groups
-            .expand((group) => group.entries)
-            .map((entry) => entry.heading)
+        // A ruled-table printout: the Case No. is the third cell of every data
+        // row (after the serial and the Prev. Date).
+        final printed = document.tableRows
+            .where((row) => row.kind == PrintTableRowKind.data)
+            .map((row) => row.cells[2])
             .toList();
 
         expect(document.title, title, reason: '$screenType prints its own title');
@@ -269,14 +271,14 @@ void main() {
         );
         for (final number in listed) {
           expect(
-            printed.any((heading) => heading.contains(number)),
+            printed.any((cell) => cell.contains(number)),
             isTrue,
             reason: '$screenType lists $number but did not print it',
           );
         }
         for (final number in numbers.where((n) => !listed.contains(n))) {
           expect(
-            printed.any((heading) => heading.contains(number)),
+            printed.any((cell) => cell.contains(number)),
             isFalse,
             reason: '$screenType printed $number, which it does not list',
           );
@@ -307,30 +309,39 @@ void main() {
       final document = await tapPrint(tester);
 
       expect(document.entryCount, 1);
-      expect(
-        document.groups.single.entries.single.heading,
-        contains('PRN-1'),
-      );
+      expect(document.tableRows.single.cells[2], contains('PRN-1'));
       // The query is printed as a header fact, so the sheet says what it is.
       expect(document.meta.single.value, 'rahim');
 
       await unmount(tester);
     });
 
-    testWidgets('serials are printed on the flat lists only', (tester) async {
+    testWidgets('every table row carries a continuing serial in its first cell', (
+      tester,
+    ) async {
       await seedDatasets();
 
       await pumpScreen(tester, AllCasesScreen.new);
       final flat = await tapPrint(tester);
-      expect(flat.groups.single.entries.first.serial, '1');
+      // The first data row's first cell is the serial `1`.
+      expect(
+        flat.tableRows
+            .firstWhere((row) => row.kind == PrintTableRowKind.data)
+            .cells
+            .first,
+        '1',
+      );
       await unmount(tester);
 
       renderer.documents.clear();
       await pumpScreen(tester, DailyCauseListScreen.new);
       final grouped = await tapPrint(tester);
+      // Serials run across the whole list, including the grouped screen's rows.
       expect(
-        grouped.groups.expand((group) => group.entries).map((e) => e.serial),
-        everyElement(''),
+        grouped.tableRows
+            .where((row) => row.kind == PrintTableRowKind.data)
+            .map((row) => row.cells.first),
+        isNotEmpty,
       );
       await unmount(tester);
     });

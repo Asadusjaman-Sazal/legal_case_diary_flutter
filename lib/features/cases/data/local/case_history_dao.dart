@@ -40,6 +40,37 @@ class CaseHistoryDao {
     return query.watch();
   }
 
+  /// The most recent hearing date for each of [caseIds], keyed by case id.
+  ///
+  /// One grouped query rather than one per case: a case-list printout needs the
+  /// previous hearing date for every row at once, so a per-case lookup would be
+  /// N queries. A case with no non-deleted history is simply **absent** from the
+  /// map — the printout leaves its Prev. Date cell blank. Tombstones are
+  /// excluded, exactly as [getByCaseId] excludes them.
+  Future<Map<String, int>> latestHearingDateByCaseIds(
+    Iterable<String> caseIds,
+  ) async {
+    final ids = caseIds.toSet();
+    if (ids.isEmpty) return const <String, int>{};
+    final maxDate = db.caseHistory.hearingDate.max();
+    final rows =
+        await (db.selectOnly(db.caseHistory)
+              ..addColumns([db.caseHistory.caseId, maxDate])
+              ..where(
+                db.caseHistory.isDeleted.equals(false) &
+                    db.caseHistory.caseId.isIn(ids),
+              )
+              ..groupBy([db.caseHistory.caseId]))
+            .get();
+    final result = <String, int>{};
+    for (final row in rows) {
+      final id = row.read(db.caseHistory.caseId);
+      final date = row.read(maxDate);
+      if (id != null && date != null) result[id] = date;
+    }
+    return result;
+  }
+
   /// Returns a history entry by its source mutation id, or null if not found.
   Future<CaseHistoryRow?> getBySourceMutationId(String sourceMutationId) async =>
       (db.select(db.caseHistory)

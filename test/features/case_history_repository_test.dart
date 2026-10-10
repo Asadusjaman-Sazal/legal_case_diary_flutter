@@ -286,6 +286,80 @@ void main() {
       expect(payload['id'], fixtureId);
     });
   });
+
+  group('CaseHistoryDao.latestHearingDateByCaseIds', () {
+    late AppDatabase db;
+    late CaseHistoryDao historyDao;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      db = AppDatabase(NativeDatabase.memory());
+      historyDao = CaseHistoryDao(db);
+      // History rows carry a foreign key to their case, so the cases exist
+      // first (with the reference rows a case needs). Inserted straight into
+      // the table so the id is exactly the one the history rows reference.
+      await _seedReferenceRows(db);
+      for (final caseId in ['case-a', 'case-b']) {
+        await db.into(db.cases).insert(
+          CasesCompanion.insert(
+            id: caseId,
+            userId: 'user-1',
+            courtId: 'court-test',
+            caseType: 'Civil Suit',
+            caseNumber: '991/2026',
+            petitioner: 'Alice',
+            respondent: 'Bob',
+            onBehalfId: 'onbehalf-test-respondent',
+            createdAt: 1,
+            updatedAt: 1,
+          ),
+        );
+      }
+    });
+
+    tearDown(() async => db.close());
+
+    Future<void> insertHistory(String caseId, int hearingDate) =>
+        historyDao.insertHistoryEntry(
+          CaseHistoryCompanion(
+            id: Value('$caseId-$hearingDate'),
+            caseId: Value(caseId),
+            userId: const Value('user-1'),
+            hearingDate: Value(hearingDate),
+            createdBy: const Value('user-1'),
+            sourceMutationId: Value('mut-$caseId-$hearingDate'),
+            baseCaseVersion: const Value(1),
+            resultCaseVersion: const Value(2),
+            updatedAt: const Value(1),
+          ),
+        );
+
+    test('returns the newest hearing date per case, in one query', () async {
+      await insertHistory('case-a', 100);
+      await insertHistory('case-a', 300);
+      await insertHistory('case-a', 200);
+      await insertHistory('case-b', 50);
+
+      final latest = await historyDao.latestHearingDateByCaseIds([
+        'case-a',
+        'case-b',
+        'case-c',
+      ]);
+
+      expect(latest['case-a'], 300);
+      expect(latest['case-b'], 50);
+      // A case with no history is absent — the printout leaves its cell blank.
+      expect(latest.containsKey('case-c'), isFalse);
+    });
+
+    test('ignores tombstones and answers empty for no ids', () async {
+      await insertHistory('case-a', 100);
+      await historyDao.delete('case-a-100', 2);
+
+      expect(await historyDao.latestHearingDateByCaseIds(['case-a']), isEmpty);
+      expect(await historyDao.latestHearingDateByCaseIds(const []), isEmpty);
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------

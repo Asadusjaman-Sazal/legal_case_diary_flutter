@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 
 import 'print_document.dart';
 import 'print_page_capture.dart';
+import 'print_table_widgets.dart';
 
 /// Sizes, families and colours of a printed page (points, one logical pixel to
 /// one point at the capture's pixel ratio).
@@ -142,17 +143,33 @@ abstract final class PrintStyle {
 /// The document's blocks in reading order.
 ///
 /// The page's own footer and page counter are **not** blocks: they are page
-/// furniture, drawn per page by [buildPrintPage].
-List<Widget> buildPrintBlocks(PrintDocument document) => [
-  ..._headerBlocks(document),
-  for (final field in document.meta) _metaBlock(field),
-  for (final group in document.groups) ...[
-    if (group.heading != null) _groupHeadingBlock(group.heading!),
-    for (final entry in group.entries) ..._entryBlocks(entry),
-  ],
-];
+/// furniture, drawn per page by [buildPrintPage]. A ruled-table document's
+/// header band is furniture too — [buildTablePageHeader] — so the blocks here
+/// are only its rows.
+List<Widget> buildPrintBlocks(PrintDocument document) => document.isTable
+    ? [
+        for (final row in document.tableRows)
+          buildTableRowBlock(row, document.columns!),
+      ]
+    : [
+        ..._headerBlocks(document),
+        for (final field in document.meta) _metaBlock(field),
+        for (final group in document.groups) ...[
+          if (group.heading != null) _groupHeadingBlock(group.heading!),
+          for (final entry in group.entries) ..._entryBlocks(entry),
+        ],
+      ];
 
-/// One captured page: opaque paper, its blocks, its footer and page counter.
+/// The repeated page header band for a table document, or null otherwise.
+///
+/// Drawn on **every** page by [buildPrintPage] (unlike the body header, which
+/// is a block and so appears once). The capture measures this widget to work
+/// out how much room the body has left per page.
+Widget? buildRepeatedPageHeader(PrintDocument document) =>
+    document.isTable ? buildTablePageHeader(document, document.columns!) : null;
+
+/// One captured page: opaque paper, its repeated header, its blocks, its footer
+/// and page counter.
 Widget buildPrintPage({
   required PrintDocument document,
   required List<Widget> blocks,
@@ -167,6 +184,11 @@ Widget buildPrintPage({
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (buildRepeatedPageHeader(document) case final header?)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: header,
+          ),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -176,19 +198,21 @@ Widget buildPrintPage({
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                document.footer,
-                style: PrintStyle.footer,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  document.footer,
+                  style: PrintStyle.footer,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            Text(document.pageLabel(pageIndex + 1, pageCount),
-                style: PrintStyle.footer),
+              Text(
+                document.pageLabel(pageIndex + 1, pageCount),
+                style: PrintStyle.footer,
+              ),
             ],
           ),
         ),

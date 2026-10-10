@@ -15,7 +15,6 @@
 library;
 
 import '../l10n/app_translations.dart';
-import '../utils/date_utils.dart';
 
 /// Whether [text] contains Bengali script (U+0980–U+09FF).
 ///
@@ -55,6 +54,7 @@ class PrintCaseRow {
     this.step = '',
     this.note = '',
     this.date = '',
+    this.previousDate = '',
   });
 
   /// Case number as the user typed it, e.g. `110/2021`.
@@ -90,6 +90,11 @@ class PrintCaseRow {
 
   /// The screen's own date, already formatted (next, previous or disposed).
   final String date;
+
+  /// The case's **previous hearing date** (the last Case History entry's
+  /// `hearing_date`), already formatted `dd/MM/yy`; empty when the case has no
+  /// history. This is the ruled table's `Prev. Date` cell.
+  final String previousDate;
 }
 
 /// A screen's own grouping of rows — a court, a date, or the whole list.
@@ -276,7 +281,6 @@ PrintDocument buildCaseDetailDocument({
   required AppTranslations translations,
   required PrintCaseDetail detail,
   required bool showAllHistory,
-  int? printedAtEpochMs,
 }) {
   final l = translations.raw;
   final history = showAllHistory
@@ -365,14 +369,76 @@ PrintDocument buildCaseDetailDocument({
     groups: groups
         .where((group) => group.entries.any((entry) => entry.fields.isNotEmpty))
         .toList(),
-    footer: l.print_printedOn(
-      AppDateUtils.formatDateDDMMYYYY(
-        printedAtEpochMs ?? DateTime.now().millisecondsSinceEpoch,
-        locale: l.localeName,
-      ),
-    ),
+    // No `Printed on…` footer (user request): the page carries only the
+    // `Page X of Y` counter the renderer draws.
+    footer: '',
     pageLabel: l.print_pageOf,
   );
+}
+
+/// Horizontal alignment of a ruled-table column's cells.
+enum PrintColumnAlign {
+  /// Left-aligned (the default), as free text columns are.
+  start,
+
+  /// Centred — the narrow `SL` and date columns read better centred.
+  center,
+}
+
+/// One column of a ruled-table printout: its localized heading and its
+/// **fixed** width in centimetres.
+///
+/// The width is fixed rather than fitted to the content: every row must line
+/// up, and a value that does not fit wraps to another line inside its own cell
+/// instead of widening the column (the rule the sample layout fixes).
+class PrintTableColumn {
+  /// Creates a table column.
+  const PrintTableColumn({
+    required this.label,
+    required this.widthCm,
+    this.align = PrintColumnAlign.start,
+  });
+
+  /// Localized column heading, e.g. `Prev. Date`.
+  final String label;
+
+  /// Column width in centimetres — the same for every row.
+  final double widthCm;
+
+  /// Cell alignment.
+  final PrintColumnAlign align;
+}
+
+/// What a ruled-table row draws as.
+enum PrintTableRowKind {
+  /// A court group heading: one centred strip across the whole table width.
+  court,
+
+  /// A data row: one cell per column.
+  data,
+
+  /// A blank spacer row drawn between court groups.
+  spacer,
+}
+
+/// One row of a ruled-table printout.
+class PrintTableRow {
+  /// A court group heading row; [cells] holds the single heading text.
+  const PrintTableRow.court(this.cells) : kind = PrintTableRowKind.court;
+
+  /// A data row; [cells] holds one value per column, in column order.
+  const PrintTableRow.data(this.cells) : kind = PrintTableRowKind.data;
+
+  /// A blank spacer row.
+  const PrintTableRow.spacer()
+    : kind = PrintTableRowKind.spacer,
+      cells = const <String>[];
+
+  /// What the row draws as.
+  final PrintTableRowKind kind;
+
+  /// Cell texts (see the constructors for how many each kind carries).
+  final List<String> cells;
 }
 
 /// A complete printable document, ready for either renderer.
@@ -385,6 +451,12 @@ class PrintDocument {
     this.subtitle = '',
     this.meta = const [],
     this.pageLabel = _defaultPageLabel,
+    this.brandTitle = '',
+    this.dateLine = '',
+    this.logoAsset,
+    this.columns,
+    this.tableRows = const [],
+    this.margin,
   });
 
   /// Document title — the screen's own localized name.
@@ -405,9 +477,40 @@ class PrintDocument {
   /// Localized `Page X of Y` line for renderers that paginate.
   final String Function(int page, int total) pageLabel;
 
-  /// Number of printed entries.
-  int get entryCount =>
-      groups.fold(0, (total, group) => total + group.entries.length);
+  /// App brand line drawn beside the logo in the repeated page header
+  /// (`Legal Case Diary`); empty when the header carries no brand.
+  final String brandTitle;
+
+  /// Optional date line under the brand in the repeated page header, e.g. the
+  /// Daily Cause List's `Date: … Day: … Month: … Year: …`. Empty for the
+  /// screens that have no single date of their own.
+  final String dateLine;
+
+  /// Asset path of the logo drawn in the repeated page header, or null for a
+  /// document whose header carries no logo.
+  final String? logoAsset;
+
+  /// Ruled-table columns. When non-null the document prints as a bordered
+  /// table instead of the heading-and-fields [groups] body, and every page
+  /// repeats the header band and these column headings.
+  final List<PrintTableColumn>? columns;
+
+  /// The table's rows, in print order (court headings, data rows, spacers).
+  /// Ignored unless [columns] is non-null.
+  final List<PrintTableRow> tableRows;
+
+  /// Page margin in points, or null for the shared default. The table format
+  /// asks for a narrow margin so its fixed columns hold as much as possible.
+  final double? margin;
+
+  /// Whether the document prints as a ruled table.
+  bool get isTable => columns != null;
+
+  /// Number of printed entries: data rows for a table, one heading-and-fields
+  /// entry per group entry otherwise.
+  int get entryCount => isTable
+      ? tableRows.where((row) => row.kind == PrintTableRowKind.data).length
+      : groups.fold(0, (total, group) => total + group.entries.length);
 
   /// Whether the document has nothing to print.
   bool get isEmpty => entryCount == 0;
@@ -416,9 +519,17 @@ class PrintDocument {
   Iterable<String> get allText sync* {
     yield title;
     yield subtitle;
+    yield brandTitle;
+    yield dateLine;
     for (final field in meta) {
       yield field.label;
       yield field.value;
+    }
+    for (final column in columns ?? const <PrintTableColumn>[]) {
+      yield column.label;
+    }
+    for (final row in tableRows) {
+      yield* row.cells;
     }
     for (final group in groups) {
       if (group.heading != null) yield group.heading!;
@@ -439,85 +550,53 @@ class PrintDocument {
   ///
   /// Script-aware default (user-approved): Bengali content is rendered as
   /// bounded page images, Latin-only content keeps the searchable text path.
-  bool get needsRaster => allText.any(hasBengaliText);
+  /// A ruled table **always** rasterises: its fixed columns, fixed row heights
+  /// and cell borders must look identical in both languages, and the native
+  /// `pdf` layout engine would measure them its own way (the chosen trade-off
+  /// is that a table's text is not selectable).
+  bool get needsRaster =>
+      isTable || allText.any(hasBengaliText);
 }
 
-/// Builds the canonical case-list document (plan §8).
+/// The narrow page margin the ruled-table format uses, in points.
 ///
-/// One list layout serves every case screen: the screen supplies its own
-/// localized [title], its own date column label (`Next Date`, `Previous Date`,
-/// `Disposed`) and its own grouping, and the rows it passes are exactly the
-/// rows it is showing — so an active filter or search is printed too.
-PrintDocument buildCaseListDocument({
+/// **0.69 cm** each side: the sample layout's eight fixed columns total
+/// 19.62 cm, so on A4 (21 cm) a 0.69 cm margin on each side leaves them fitting
+/// almost edge to edge — the "hold as much data as possible" the format asks
+/// for.
+const double kPrintTableMargin = 0.69 * 72 / 2.54;
+
+/// Builds a ruled-table printout (the case-list format).
+///
+/// The screen supplies the fixed [columns] and the [rows] it is showing — court
+/// headings, data rows and spacer rows, in print order — plus the header band's
+/// brand line, optional date line and logo. The document then repeats that
+/// band and the column headings on **every** page, and prints no `Printed on…`
+/// footer (only the `Page X of Y` counter remains).
+PrintDocument buildRuledTableDocument({
   required AppTranslations translations,
   required String title,
-  required String dateColumnLabel,
-  required List<PrintCaseGroup> groups,
+  required List<PrintTableColumn> columns,
+  required List<PrintTableRow> rows,
+  String brandTitle = '',
+  String dateLine = '',
+  String? logoAsset,
   String subtitle = '',
   List<PrintField> meta = const [],
-  bool showSerial = false,
-  int? printedAtEpochMs,
-}) {
-  final l = translations.raw;
-  var serial = 0;
-
-  final composed = <PrintGroup>[
-    for (final group in groups)
-      PrintGroup(
-        heading: group.heading,
-        entries: [
-          for (final row in group.rows)
-            PrintEntry(
-              serial: showSerial
-                  ? AppDateUtils.formatDigits(
-                      ++serial,
-                      l.localeName,
-                      grouping: false,
-                    )
-                  : '',
-              heading: _entryHeading(row),
-              fields: [
-                // The court is a field only on the flat lists; on a grouped
-                // screen the group heading already names it once.
-                if (group.heading == null)
-                  PrintField(l.addEditCaseSheet_nameOfCourt, row.court),
-                PrintField(
-                  l.caseDetailsScreen_petitioner,
-                  row.petitioner,
-                ),
-                PrintField(l.caseDetailsScreen_respondent, row.respondent),
-                PrintField(l.caseDetailsScreen_leadCounsel, _counselLine(row)),
-                PrintField(l.addEditCaseSheet_onBehalf, row.onBehalf),
-                PrintField(l.caseCard_lastStep, row.step),
-                PrintField(dateColumnLabel, row.date),
-                PrintField(l.addEditCaseSheet_note, row.note),
-              ].where((field) => field.value.trim().isNotEmpty).toList(),
-            ),
-        ],
-      ),
-  ];
-
-  return PrintDocument(
-    title: title,
-    subtitle: subtitle,
-    meta: meta,
-    groups: composed,
-    pageLabel: l.print_pageOf,
-    footer: l.print_printedOn(
-      AppDateUtils.formatDateDDMMYYYY(
-        printedAtEpochMs ?? DateTime.now().millisecondsSinceEpoch,
-        locale: l.localeName,
-      ),
-    ),
-  );
-}
-
-/// Primary line of an entry: `First Appeal- 34/26`.
-String _entryHeading(PrintCaseRow row) =>
-    caseTypeAndCaseNumber(row.caseType, row.caseNumber);
-
-/// Both lead counsels on one line, whichever of them exist.
-String _counselLine(PrintCaseRow row) => [
-  row.petitionerCounsel.trim(),
-  row.respondentCounsel.trim(),
-].where((value) => value.isNotEmpty).join(' · ');
+  double margin = kPrintTableMargin,
+}) => PrintDocument(
+  title: title,
+  subtitle: subtitle,
+  meta: meta,
+  groups: const <PrintGroup>[],
+  // The table carries no footer line: `Printed on…` is deliberately gone, and
+  // the page counter is drawn by the renderer.
+  footer: '',
+  pageLabel: translations.raw.print_pageOf,
+  brandTitle: brandTitle,
+  dateLine: dateLine,
+  logoAsset: logoAsset,
+  columns: columns,
+  tableRows: rows,
+  margin: margin,
+);

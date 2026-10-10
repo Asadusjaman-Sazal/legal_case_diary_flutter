@@ -3152,6 +3152,102 @@ abstract class AppLocalizations {
   /// **'This action cannot be undone'**
   String get settingsManageAccount_deleteCannotBeUndone;
 
+  /// No description provided for @settingsManageAccount_deleteLocalAndCloudData.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Local & Cloud Data'**
+  String get settingsManageAccount_deleteLocalAndCloudData;
+
+  /// No description provided for @settingsManageAccount_deleteLocalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Local Data'**
+  String get settingsManageAccount_deleteLocalData;
+
+  /// No description provided for @settingsManageAccount_deleteDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Data?'**
+  String get settingsManageAccount_deleteDataTitle;
+
+  /// No description provided for @settingsManageAccount_deleteDataBodyCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick what to delete from this device and your account. Your profile, subscription and settings stay.'**
+  String get settingsManageAccount_deleteDataBodyCloud;
+
+  /// No description provided for @settingsManageAccount_deleteDataBodyLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick what to delete from this device. Your profile, subscription and settings stay.'**
+  String get settingsManageAccount_deleteDataBodyLocal;
+
+  /// No description provided for @settingsManageAccount_deleteDataCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases'**
+  String get settingsManageAccount_deleteDataCases;
+
+  /// No description provided for @settingsManageAccount_deleteDataNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get settingsManageAccount_deleteDataNotes;
+
+  /// No description provided for @settingsManageAccount_deleteDataCaseReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Case References'**
+  String get settingsManageAccount_deleteDataCaseReferences;
+
+  /// No description provided for @settingsManageAccount_deleteDataCustomSeedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Seed Data'**
+  String get settingsManageAccount_deleteDataCustomSeedData;
+
+  /// No description provided for @settingsManageAccount_deleteDataCustomSeedDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Court categories, court names, steps, case types and on-behalfs you added'**
+  String get settingsManageAccount_deleteDataCustomSeedDataHint;
+
+  /// No description provided for @settingsManageAccount_deleteDataConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Selected'**
+  String get settingsManageAccount_deleteDataConfirm;
+
+  /// No description provided for @settingsManageAccount_deleteDataDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Selected Data Has Been Deleted.'**
+  String get settingsManageAccount_deleteDataDone;
+
+  /// No description provided for @settingsManageAccount_deleteDataCloudPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was deleted from this device. The account\'s copies will be removed on the next sync.'**
+  String get settingsManageAccount_deleteDataCloudPending;
+
+  /// No description provided for @settingsManageAccount_deleteDataNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to delete your cloud data. Nothing Has Been Deleted.'**
+  String get settingsManageAccount_deleteDataNeedsConnection;
+
+  /// No description provided for @settingsManageAccount_deleteDataFirmRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'You are part of a firm, so your diary is shared with it. Ask the firm owner to remove you before deleting your data.'**
+  String get settingsManageAccount_deleteDataFirmRefused;
+
+  /// No description provided for @settingsManageAccount_deleteDataFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data could not be deleted. Please try again.'**
+  String get settingsManageAccount_deleteDataFailed;
+
   /// No description provided for @settingsManageAccount_dangerZone.
   ///
   /// In en, this message translates to:

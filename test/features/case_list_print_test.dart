@@ -309,7 +309,11 @@ void main() {
       final document = await tapPrint(tester);
 
       expect(document.entryCount, 1);
-      expect(document.tableRows.single.cells[2], contains('PRN-1'));
+      // The one matching case, under its court heading.
+      final dataRow = document.tableRows.firstWhere(
+        (row) => row.kind == PrintTableRowKind.data,
+      );
+      expect(dataRow.cells[2], contains('PRN-1'));
       // The query is printed as a header fact, so the sheet says what it is.
       expect(document.meta.single.value, 'rahim');
 

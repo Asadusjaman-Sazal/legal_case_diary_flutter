@@ -184,11 +184,10 @@ Widget buildPrintPage({
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (buildRepeatedPageHeader(document) case final header?)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: header,
-          ),
+        // The repeated band is drawn flush against the body: for a ruled table
+        // the column-heading row's bottom edge must touch the first data row,
+        // or that row's top border is left open (the "missing top border" bug).
+        ?buildRepeatedPageHeader(document),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

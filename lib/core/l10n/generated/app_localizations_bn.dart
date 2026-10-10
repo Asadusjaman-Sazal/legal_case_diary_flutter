@@ -3311,7 +3311,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get print_monthLabel => 'মাস';
 
   @override
-  String get print_yearLabel => 'বছর';
+  String get print_yearLabel => 'সাল';
 
   @override
   String print_dateLine(

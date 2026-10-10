@@ -177,16 +177,21 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
 
   /// The document this screen prints: its own non-disposed dataset, filtered
   /// and searched exactly as the list is (plan §8 and §12.1).
+  ///
+  /// Grouped by court, so the printout carries each case's court name as a
+  /// centred heading (user request).
   PrintDocument _printDocument(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final grouped = groupCasesByCourt(context.l10n, _visibleCases, _courtsById);
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
         title: l.activeCasesScreen_title,
-        cases: _visibleCases,
+        cases: grouped.cases,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
         previousDatesByCaseId: _previousDatesByCaseId,
+        groupHeading: (currentCase) => grouped.headings[currentCase.id],
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

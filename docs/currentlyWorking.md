@@ -8,6 +8,21 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Ruled-table print: quality, borders and headings fixed — COMPLETE
+
+- **Request (the user's, 13 items, Print section only).** Printed logo/text looked soft; Active Cases missed the icon on page 1; open top borders; headings not centred; flat lists missing the court name; Overdue's dates; Upcoming's date prefix; BN "Year".
+- **Resolution (item 1).** The table now captures at **600 dpi** (`kPrintTargetDpi` / `kPrintTablePixelRatio`), not the screen's 2–3× that made it soft. `PrintPageBudget` gained `preferredPixelRatio` so a print resolution can override the device ratio, and the per-page RGBA ceiling rose to 170 MB. Trade-off accepted by the user: a larger file and ~139 MB per page in RAM while a page is captured (one at a time). Drop `kPrintTargetDpi` to `300.0` if a low-memory device ever fails a print.
+- **Logo (item 2).** `PrintPageCapture` now `precacheImage`s the logo before the first frame, so page 1 gets the icon (it used to appear only from page 2, once the image had decoded).
+- **Borders (items 4, 5).** Every cell draws its own top border, the court row is bordered on all four sides, and the repeated band is drawn **flush** against the body — the old 4 pt gap left the first body row's top edge open on every page, which is what "first column missing top border" was.
+- **Band (items 3, 6, 7, 8).** The title is centred **over the whole table** (a `Stack`, logo + brand at the left) and **underlined**; the gap before the heading row is larger on screens with no date line; column headings are centred whatever the column's alignment; court rows are centred.
+- **Flat lists (item 10).** All Cases, Active Cases and Disposed Cases now group by court (`groupCasesByCourt`), so the court name prints as a centred heading. Courts keep first-appearance order and each court keeps the screen's row order.
+- **Overdue (item 9).** Prints its own date as `Prev. Date` (its `next_date` *is* the previous date) and leaves `Next Date` empty, like Daily Cause List — via the new `CaseListPrintRequest.previousDateOf`.
+- **Upcoming (item 11).** The `Tomorrow/Day & Date` prefix is gone from the group heading; the court name remains.
+- **Bengali (item 12).** `print_yearLabel` is `সাল`.
+- **Tests.** `print_table_widgets_test.dart` gains 4 cases (top borders, court-row borders, centred headings, underlined title + 600 dpi); `case_list_print_test.dart`'s search case finds the data row past the new court heading.
+- **Verification.** `flutter analyze` clean; full suite **1539 passed**; `record_version.py --check` OK; version **0.0.457**.
+- **Device check owed.** Print each list and confirm: crisp logo on page 1, closed borders at the top of every page, the court heading on the flat lists, Overdue's blank Next Date, Upcoming's court-only heading, and file size (600 dpi makes bigger PDFs).
+
 ### 2026-10-10 — Case-list printouts are a ruled table — COMPLETE
 
 - **Request (the user's, scoped to the Print section).** The user supplied a sample PDF and Excel (`PrintLayoutTest.*`, in Downloads) and asked the six case-list printouts to be formatted like a physical diary page: fixed column widths, fixed row height with wrapping, a narrow margin, the app's BN/EN print fonts, no `Printed on…`, and the logo/title/column headings repeated on every page.

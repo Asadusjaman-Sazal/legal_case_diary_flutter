@@ -210,9 +210,10 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
         final court = printCourtHeading(context.l10n, courtGroup.court);
         for (final currentCase in courtGroup.cases) {
           rows.add(currentCase);
-          headings[currentCase.id] = court.isEmpty
-              ? dateGroup.dateLabel
-              : '${dateGroup.dateLabel} · $court';
+          // The court name alone: the printout already orders by date, and the
+          // "Tomorrow/Day & Date" prefix ahead of the court name was removed
+          // (user request).
+          headings[currentCase.id] = court;
         }
       }
     }

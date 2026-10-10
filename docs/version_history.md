@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.452 - Subscription Details: the Free Plan Limitations heading lost its leading bullet, and the limitation bullets are now black instead of error red.
+Version: 0.0.453 - Online Sync: removed the 'kept up to date on this device' subtitle line, and the free-plan sentence 'A subscription plan is required...here' is now red (link included).
 --------------------------------------
 
 ## Version History Log:
@@ -466,3 +466,4 @@ Version: 0.0.449 - Fixed a logout crash: runBranchedLogout read a widget ref aft
 Version: 0.0.450 - Fixed the side-menu Logout crash: the account popover read the drawer's ref inside its route builder, so the rebuild after the drawer was unmounted threw 'Using ref when a widget has been unmounted'. The address, navigator and router are now read at open time.
 Version: 0.0.451 - Logout from the side-menu profile panel no longer closes the side menu: the drawer stays open while the logout windows run, and closes only if navigation takes over.
 Version: 0.0.452 - Subscription Details: the Free Plan Limitations heading lost its leading bullet, and the limitation bullets are now black instead of error red.
+Version: 0.0.453 - Online Sync: removed the 'kept up to date on this device' subtitle line, and the free-plan sentence 'A subscription plan is required...here' is now red (link included).

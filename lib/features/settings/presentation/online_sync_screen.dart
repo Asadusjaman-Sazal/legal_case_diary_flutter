@@ -120,13 +120,6 @@ class OnlineSyncScreen extends ConsumerWidget {
           AppSpacing.xl,
         ),
         children: [
-          Text(
-            l.settingsOnlineSync_subtitle,
-            style: AppTypography.bodyMd.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
           _SyncStatusCard(
             health: health,
             lastSuccess: lastSuccess,
@@ -447,12 +440,10 @@ class _FreePlanPurchaseHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // Set exactly like the info line above the card, so the sentence that asks
-    // for a plan reads with the same weight as the sentence that describes the
-    // screen rather than a size smaller than it.
-    final body = AppTypography.bodyMd.copyWith(
-      color: AppColors.onSurfaceVariant,
-    );
+    // Red (user request): the sentence names what is *missing* — a plan — so it
+    // reads as the reason sync is blocked, the same ink the card's own blocked
+    // state uses, rather than the muted grey of an ordinary description.
+    final body = AppTypography.bodyMd.copyWith(color: AppColors.error);
     return Text.rich(
       TextSpan(
         style: body,
@@ -466,10 +457,10 @@ class _FreePlanPurchaseHint extends StatelessWidget {
             child: AuthDocumentLink(
               label: l.settingsOnlineSync_freePlanHintLink,
               route: AppRoutes.paywall,
-              // Bold and underlined, in the ink the app already uses for a
-              // link inside a sentence.
+              // Bold and underlined, so it still reads as a link, but in the
+              // sentence's own red rather than the usual black link ink.
               style: body.copyWith(
-                color: AppColors.secondary,
+                color: AppColors.error,
                 fontWeight: FontWeight.w700,
                 decoration: TextDecoration.underline,
               ),

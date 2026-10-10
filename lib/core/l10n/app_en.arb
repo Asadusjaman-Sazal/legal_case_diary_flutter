@@ -872,7 +872,6 @@
   },
   "@@_section_settingsOnlineSync": "SETTINGS - ONLINE SYNC  |  lib/features/settings/presentation/online_sync_screen.dart",
   "settingsOnlineSync_title": "Online Sync",
-  "settingsOnlineSync_subtitle": "Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium.",
   "settingsOnlineSync_cases": "Cases",
   "settingsOnlineSync_notes": "Notes",
   "settingsOnlineSync_references": "References",

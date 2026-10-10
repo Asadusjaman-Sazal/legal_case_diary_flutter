@@ -3170,12 +3170,6 @@ abstract class AppLocalizations {
   /// **'Online Sync'**
   String get settingsOnlineSync_title;
 
-  /// No description provided for @settingsOnlineSync_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium.'**
-  String get settingsOnlineSync_subtitle;
-
   /// No description provided for @settingsOnlineSync_cases.
   ///
   /// In en, this message translates to:

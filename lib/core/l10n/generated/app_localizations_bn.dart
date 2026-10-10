@@ -1757,10 +1757,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsOnlineSync_title => 'অনলাইন সিঙ্ক';
 
   @override
-  String get settingsOnlineSync_subtitle =>
-      'আপনার মামলা, নোট ও রেফারেন্স এই ডিভাইসে হালনাগাদ থাকে, এবং প্রিমিয়াম থাকলে আপনার অ্যাকাউন্টে পাঠানো হয়।';
-
-  @override
   String get settingsOnlineSync_cases => 'মামলা';
 
   @override

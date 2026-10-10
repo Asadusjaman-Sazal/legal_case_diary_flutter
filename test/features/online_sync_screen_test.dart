@@ -207,7 +207,7 @@ void main() {
     expect(find.text('Not signed in'), findsOneWidget);
     expect(find.text('Synced'), findsNothing);
     expect(find.text('Sign in to sync'), findsNWidgets(3));
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'));
     expect(button.onPressed, isNull);
   });
 
@@ -238,7 +238,7 @@ void main() {
     expect(link.style?.fontWeight, FontWeight.w700);
     expect(link.style?.decoration, TextDecoration.underline);
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'));
     expect(button.onPressed, isNull);
   });
 
@@ -292,7 +292,7 @@ void main() {
       tester
           .getSize(find.ancestor(of: sentence, matching: find.byType(Column)).first)
           .width,
-      tester.getSize(find.byType(FilledButton)).width,
+      tester.getSize(find.widgetWithText(FilledButton, 'Sync Now')).width,
     );
   });
 
@@ -329,7 +329,7 @@ void main() {
       find.textContaining('A subscription plan is required'),
       findsNothing,
     );
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'));
     expect(button.onPressed, isNull);
   });
 
@@ -357,7 +357,7 @@ void main() {
       expect(icon.color, AppColors.error);
     }
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'));
     expect(button.onPressed, isNull);
   });
 
@@ -403,7 +403,7 @@ void main() {
   ) async {
     await pump(tester);
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'));
     expect(button.onPressed, isNotNull);
     expect(find.text('Sync Now'), findsOneWidget);
   });
@@ -468,7 +468,7 @@ void main() {
     expect(label.style?.color, AppColors.tertiary);
   });
 
-  testWidgets('Pending Sync is the last thing on the screen', (tester) async {
+  testWidgets('Pending Sync sits below the entity rows', (tester) async {
     await pump(tester);
 
     expect(find.text('Pending Sync'), findsOneWidget);
@@ -481,14 +481,14 @@ void main() {
     expect(find.text('Every Change Waiting To Be Sent'), findsOneWidget);
   });
 
-  testWidgets('the switch sits below the entity rows, on its own card', (
+  testWidgets('the switch is the last card on the screen, below Pending Sync', (
     tester,
   ) async {
     await pump(tester);
 
-    // Its own card, below the rows it acts on and above the entry that reviews
-    // held work — not beside Sync Now, where it would read as a second way to
-    // sync (user request).
+    // Its own card, below everything it acts on and below the entry that
+    // reviews held work — not beside Sync Now, where it would read as a second
+    // way to sync (user request).
     final toggle = tester.getTopLeft(find.text('Sync Is On'));
     expect(
       toggle.dy,
@@ -496,7 +496,7 @@ void main() {
     );
     expect(
       toggle.dy,
-      lessThan(tester.getTopLeft(find.text('Pending Sync')).dy),
+      greaterThan(tester.getTopLeft(find.text('Pending Sync')).dy),
     );
   });
 
@@ -505,11 +505,30 @@ void main() {
   ) async {
     await pump(tester);
 
-    // Sync on: the way to turn it off is offered in outline, so it does not
-    // compete with Sync Now.
+    // Sync on: the switch is offered just as plainly as the way back is — the
+    // dark ink fill with a white label (user request). The label has to be white
+    // *on* something, and the card behind the button is white too.
     expect(find.text('Sync Is On'), findsOneWidget);
     expect(find.text('Disable Sync'), findsOneWidget);
     expect(find.text('Sync Now'), findsOneWidget);
+    final disable = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Disable Sync'),
+    );
+    expect(
+      disable.style!.foregroundColor!.resolve(const <WidgetState>{}),
+      AppColors.onPrimary,
+    );
+    expect(
+      disable.style!.backgroundColor!.resolve(const <WidgetState>{}),
+      AppColors.primary,
+    );
+    expect(find.widgetWithText(OutlinedButton, 'Disable Sync'), findsNothing);
+    // And the ink the label is actually drawn with, read off the context the
+    // Text sits in rather than off the style object alone.
+    expect(
+      DefaultTextStyle.of(tester.element(find.text('Disable Sync'))).style.color,
+      AppColors.onPrimary,
+    );
 
     await tester.tap(find.text('Disable Sync'));
     await tester.pumpAndSettle();

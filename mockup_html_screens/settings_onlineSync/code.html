@@ -240,15 +240,31 @@
     <span class="ml-xs font-body-sm text-body-sm text-tertiary">Not synced</span>
   </div>
 
-  <!-- The sync switch (user request): its own card below the entity rows, so it
-       cannot be read as a second way to sync. This is the sync-on state — the
-       secondary action in outline. Switched off, the same card reads "Sync Is
-       Off" with "Nothing is sent or received while sync is off. Your changes
-       stay on this device, and sync turns back on when the app is restarted."
-       and a filled black Enable Sync; the status card above turns to its
-       "Sync Off" pill, says "Sync is off. Turn it back on to send and receive
-       your changes.", disables Sync Now and reads "Sync Is Off. Turn It Back On
-       To Sync." beneath it. -->
+  <!-- The route into Sync Status, where held work is reviewed: after the entity
+       rows it is work *about*, and above the sync switch. Long-press-free tap
+       card, same body as the app's shared settings menu card. -->
+  <div class="mt-gutter bg-surface border border-surface-container rounded-xl p-md">
+    <div class="flex items-center min-h-[44px]">
+      <span class="material-symbols-outlined text-[28px] text-primary">fact_check</span>
+      <div class="ml-md flex-1">
+        <p class="font-body-lg text-body-lg text-on-surface">Pending Sync</p>
+        <p class="mt-xs font-body-sm text-body-sm">Every Change Waiting To Be Sent</p>
+      </div>
+      <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+    </div>
+  </div>
+
+  <!-- The sync switch (user request): its own card at the foot of the screen,
+       below the Pending Sync entry so it cannot be read as a second way to
+       sync. Both directions are the same dark ink button with a white label
+       (user request) — white ink needs the fill, since the card behind it is
+       white too. This is the sync-on state; switched off, the same card reads
+       "Sync Is Off" with "Nothing is sent or received while sync is off. Your
+       changes stay on this device, and sync turns back on when the app is
+       restarted." and a filled black Enable Sync; the status card above turns to
+       its "Sync Off" pill, says "Sync is off. Turn it back on to send and
+       receive your changes.", disables Sync Now and reads "Sync Is Off. Turn It
+       Back On To Sync." beneath it. -->
   <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
     <div class="flex items-center">
       <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">
@@ -259,7 +275,7 @@
         <p class="font-body-sm text-body-sm">Turn sync off to keep your changes on this device for now. You can turn it back on here at any time.</p>
       </div>
     </div>
-    <button class="mt-md w-full h-14 flex items-center justify-center gap-sm border border-outline-variant text-primary rounded font-title-md text-title-md" type="button">
+    <button class="mt-md w-full h-14 flex items-center justify-center gap-sm bg-primary text-on-primary rounded font-title-md text-title-md hover:opacity-90 transition-opacity" type="button">
       <span class="material-symbols-outlined text-[20px]">sync_disabled</span>
       Disable Sync
     </button>

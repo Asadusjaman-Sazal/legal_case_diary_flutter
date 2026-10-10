@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.469 - Online Sync gained a Disable/Enable Sync switch that pauses the engine and closes the Realtime channel for this app run, cleared by the button or a restart.
+Version: 0.0.470 - Online Sync: the Disable/Enable Sync button is now one dark filled control with a white label, moved to the foot of the screen below Pending Sync.
 --------------------------------------
 
 ## Version History Log:
@@ -483,3 +483,4 @@ Version: 0.0.466 - Login's English/Bengali switch is now pinned to the screen's 
 Version: 0.0.467 - Sign Up's Account Type choice now gives the short segment only its own label's width so the long Bengali label stays on one line, and the mandatory sentence is shortened.
 Version: 0.0.468 - Sign Up's Account Type pair now splits the row 40/60 between Individual and Join Existing Firm, replacing the shrink-wrap that left the short button looking too small.
 Version: 0.0.469 - Online Sync gained a Disable/Enable Sync switch that pauses the engine and closes the Realtime channel for this app run, cleared by the button or a restart.
+Version: 0.0.470 - Online Sync: the Disable/Enable Sync button is now one dark filled control with a white label, moved to the foot of the screen below Pending Sync.

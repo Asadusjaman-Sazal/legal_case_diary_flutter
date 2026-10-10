@@ -195,25 +195,11 @@ class _FreePlanLimitations extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            // A leading bullet, so the heading reads as the head of a list.
-            Container(
-              width: 6,
-              height: 6,
-              margin: const EdgeInsets.only(right: AppSpacing.sm),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.error,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                l.settingsSubscription_freePlanLimitations,
-                style: AppTypography.titleMd,
-              ),
-            ),
-          ],
+        // The heading is a plain title (user request): the leading bullet that
+        // used to head it is gone, and only the limitations below stay bulleted.
+        Text(
+          l.settingsSubscription_freePlanLimitations,
+          style: AppTypography.titleMd,
         ),
         const SizedBox(height: AppSpacing.sm),
         _Card(
@@ -249,7 +235,8 @@ class _LimitationRow extends StatelessWidget {
         margin: const EdgeInsets.only(top: 8, right: AppSpacing.sm),
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.error,
+          // Black bullets (user request), not the error red they carried.
+          color: AppColors.secondary,
         ),
       ),
       Expanded(

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.451 - Logout from the side-menu profile panel no longer closes the side menu: the drawer stays open while the logout windows run, and closes only if navigation takes over.
+Version: 0.0.452 - Subscription Details: the Free Plan Limitations heading lost its leading bullet, and the limitation bullets are now black instead of error red.
 --------------------------------------
 
 ## Version History Log:
@@ -465,3 +465,4 @@ Version: 0.0.448 - Automatic Backup is wired for real: a local daily alarm job r
 Version: 0.0.449 - Fixed a logout crash: runBranchedLogout read a widget ref after awaits, so tapping Logout in the side-menu profile popover threw 'Using ref when a widget has been unmounted'. Provider values are now read before the first await.
 Version: 0.0.450 - Fixed the side-menu Logout crash: the account popover read the drawer's ref inside its route builder, so the rebuild after the drawer was unmounted threw 'Using ref when a widget has been unmounted'. The address, navigator and router are now read at open time.
 Version: 0.0.451 - Logout from the side-menu profile panel no longer closes the side menu: the drawer stays open while the logout windows run, and closes only if navigation takes over.
+Version: 0.0.452 - Subscription Details: the Free Plan Limitations heading lost its leading bullet, and the limitation bullets are now black instead of error red.

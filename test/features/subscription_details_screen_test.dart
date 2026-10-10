@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -588,6 +589,45 @@ void main() {
     expect(find.text(l.payments_noSubmissions), findsOneWidget);
     expect(find.text(l.settingsSubscription_paid), findsNothing);
     expect(find.text('1'), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Free Plan Limitations heading has no bullet and its bullets are black', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    // The three limitation dots are black; the heading carries no dot at all,
+    // so exactly three 6 px circles remain and none of them is the error red.
+    Color? dotColor(Widget w) =>
+        ((w as Container).decoration as BoxDecoration).color;
+    final dots = tester
+        .widgetList<Container>(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Container &&
+                w.decoration is BoxDecoration &&
+                (w.decoration! as BoxDecoration).shape == BoxShape.circle &&
+                w.constraints?.maxWidth == 6,
+          ),
+        )
+        .toList();
+    expect(dots, hasLength(3), reason: 'one bullet per limitation, no heading bullet');
+    for (final dot in dots) {
+      expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
+    }
 
     await unmountApp(tester);
   });

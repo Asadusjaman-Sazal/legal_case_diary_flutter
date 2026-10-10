@@ -8,6 +8,13 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Free Plan Limitations heading and bullets restyled — COMPLETE
+
+- **Request (the user's, scoped to Subscription Details only).** Remove the bullet header from the **Free Plan Limitations** title; make the section's bullets black.
+- **The change.** In `_FreePlanLimitations`, the heading's leading 6 px dot (a `Row` with a red `Container`) is gone — the title is a plain `Text` on `AppTypography.titleMd`. The three limitation bullets in `_LimitationRow` changed from `AppColors.error` to `AppColors.secondary` (black). No other section moved.
+- **Tests.** `subscription_details_screen_test.dart` gains one case (now 11) that finds the 6 px circle dots and asserts there are exactly three (one per limitation, none for the heading) and all are `AppColors.secondary`.
+- **Verification.** `flutter analyze` clean; subscription details suite 11/11; full suite green; `record_version.py --check` OK; version **0.0.452**.
+
 ### 2026-10-10 — Logout no longer closes the side menu — COMPLETE
 
 - **Request (the user's).** Tapping **Logout** in the side menu's profile panel closed the side menu; it should stay open.

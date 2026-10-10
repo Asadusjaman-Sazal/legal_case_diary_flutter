@@ -156,9 +156,9 @@ class OnlineSyncScreen extends ConsumerWidget {
             entityTypes: const <String>['reference'],
           ),
           const SizedBox(height: AppSpacing.gutter),
-          const _SyncToggleCard(),
-          const SizedBox(height: AppSpacing.gutter),
           const _PendingSyncEntry(),
+          const SizedBox(height: AppSpacing.gutter),
+          const _SyncToggleCard(),
         ],
       ),
     );
@@ -166,7 +166,8 @@ class OnlineSyncScreen extends ConsumerWidget {
 }
 
 /// Entry card for the Sync Status / Diagnostics screen (Task 19 Phase 4),
-/// titled *Pending Sync* and placed last, after the three entity rows.
+/// titled *Pending Sync*: after the three entity rows, with the sync switch
+/// below it.
 ///
 /// The plan's second route into that screen: the header badge is the shortcut
 /// while something is held, and this is where a user looks for it deliberately.
@@ -197,10 +198,11 @@ class _PendingSyncEntry extends ConsumerWidget {
 /// The switch that pauses sync for this app run (user request).
 ///
 /// It is the only control on this screen that changes the engine rather than
-/// reporting it, so it has its own card below the entity rows: beside Sync Now it
-/// would read as a second way to sync. Off is deliberately **not** saved, which
-/// is what makes it a pause — the flag lives for this app run, and a restart is
-/// the other way back besides this button.
+/// reporting it, so it has its own card at the foot of the screen, below the
+/// *Pending Sync* entry: beside Sync Now it would read as a second way to sync.
+/// Off is deliberately **not** saved, which is what makes it a pause — the flag
+/// lives for this app run, and a restart is the other way back besides this
+/// button.
 class _SyncToggleCard extends ConsumerWidget {
   const _SyncToggleCard();
 
@@ -224,45 +226,32 @@ class _SyncToggleCard extends ConsumerWidget {
       );
     }
 
-    // The way out is the prominent one: turning sync off is a secondary action
-    // in outline, turning it back on is the screen's filled CTA.
-    final button = enabled
-        ? OutlinedButton.icon(
-            onPressed: toggle,
-            icon: const Icon(Icons.sync_disabled, size: 20),
-            label: Text(l.settingsOnlineSync_disableSync),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.outlineVariant),
-              textStyle: AppTypography.titleMd,
-              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.sm,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              ),
-            ),
-          )
-        : FilledButton.icon(
-            onPressed: toggle,
-            icon: const Icon(Icons.sync, size: 20),
-            label: Text(l.settingsOnlineSync_enableSync),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              textStyle: AppTypography.titleMd,
-              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.sm,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-              ),
-            ),
-          );
+    // One control in both directions (user request): the dark ink fill with a
+    // white label, so *Disable Sync* reads as plainly as *Enable Sync* — the
+    // white label is why the button is filled rather than outlined, since white
+    // ink on this card's own white surface would not be readable at all.
+    final button = FilledButton.icon(
+      onPressed: toggle,
+      icon: Icon(enabled ? Icons.sync_disabled : Icons.sync, size: 20),
+      label: Text(
+        enabled
+            ? l.settingsOnlineSync_disableSync
+            : l.settingsOnlineSync_enableSync,
+      ),
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        textStyle: AppTypography.titleMd,
+        minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.sm,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        ),
+      ),
+    );
 
     return Container(
       decoration: _cardDecoration(),

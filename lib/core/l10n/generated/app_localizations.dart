@@ -2000,6 +2000,108 @@ abstract class AppLocalizations {
   /// **'Payment Requests'**
   String get adminPanel_paymentRequests;
 
+  /// No description provided for @adminPanel_paymentRequestsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Or Reject Submitted Payments'**
+  String get adminPanel_paymentRequestsSubtitle;
+
+  /// No description provided for @adminPanel_unverifiedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-verified Accounts'**
+  String get adminPanel_unverifiedAccounts;
+
+  /// No description provided for @adminPanel_unverifiedAccountsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-Ups That Never Confirmed'**
+  String get adminPanel_unverifiedAccountsSubtitle;
+
+  /// No description provided for @adminPanel_unverifiedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-verified Accounts'**
+  String get adminPanel_unverifiedTitle;
+
+  /// No description provided for @adminPanel_unverifiedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every account has confirmed its address.'**
+  String get adminPanel_unverifiedEmpty;
+
+  /// No description provided for @adminPanel_unverifiedLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The accounts could not be loaded.'**
+  String get adminPanel_unverifiedLoadFailed;
+
+  /// No description provided for @adminPanel_created.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get adminPanel_created;
+
+  /// No description provided for @adminPanel_lastSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Sign-in'**
+  String get adminPanel_lastSignIn;
+
+  /// No description provided for @adminPanel_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminPanel_delete;
+
+  /// No description provided for @adminPanel_deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete This Account?'**
+  String get adminPanel_deleteTitle;
+
+  /// No description provided for @adminPanel_deleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The account never confirmed its address and has done nothing, so it will be removed for good. This cannot be undone.'**
+  String get adminPanel_deleteBody;
+
+  /// No description provided for @adminPanel_deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get adminPanel_deleteConfirm;
+
+  /// No description provided for @adminPanel_deleteBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has data or is confirmed, so it cannot be deleted from here.'**
+  String get adminPanel_deleteBlocked;
+
+  /// No description provided for @adminPanel_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted.'**
+  String get adminPanel_deleted;
+
+  /// No description provided for @adminPanel_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get adminPanel_search;
+
+  /// No description provided for @adminPanel_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get adminPanel_searchHint;
+
+  /// No description provided for @adminPanel_noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found.'**
+  String get adminPanel_noResults;
+
   /// No description provided for @adminPanel_pending.
   ///
   /// In en, this message translates to:

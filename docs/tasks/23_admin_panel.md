@@ -43,6 +43,21 @@ Migration `20261002110000_admin_panel.sql`, applied to `lsthasywrdrhuuxnykau` an
 - **Approve** and **Reject** while pending. Reject opens a confirmation carrying an optional note for the payer, because a rejection is a decision the payer may query.
 - One outcome banner for the last action, and a load-failure state with a retry.
 
+### Phase 3 follow-up — the panel becomes a menu, and gains Non-verified Accounts (0.0.459, user request)
+
+> The panel now opens as a **menu of two sub-pages**, in the Account & Profile shape:
+>
+> - **Payment Requests** — everything above, moved to `admin_payment_requests_screen.dart` in a `SettingsSubPageModal`; the *"Payment Requests"* heading is gone (the page header covers it), and each card is **numbered within its section from 1**.
+> - **Non-verified Accounts** — new (`admin_unconfirmed_accounts_screen.dart`): the sign-ups that were created and never confirmed, so abandoned ones can be cleaned up. A card carries the account's name, e-mail and **date & time of creation** (and the last sign-in, only when there is one), numbered from 1, with a **Delete** behind a confirmation.
+>
+> The panel itself keeps the case screens' header (hamburger, Sync Status badge, Sync button) rather than the back arrow a Settings sub-page wears, because it is a **top-level destination** — side menu *and* bottom-nav tab; the two sub-pages are pushed and do wear the back arrow. Routes: `/admin-panel/payment-requests` and `/admin-panel/unverified-accounts`.
+>
+> **Search** — the header's search button on both sub-pages (`SettingsSubPageModal.actions`, unused until now) filters each card by any text it shows. **A section holding a match is opened** while a query is active, so a result is never hidden inside the closed Resolved list; a query matching nothing says *No Results Found*.
+>
+> **The badge** — the side-menu Admin row carries a `Badge.count` of what is waiting in the panel: pending payment submissions **plus** the unconfirmed accounts (`adminPendingCountProvider`, which answers 0 while loading or on failure so it can never keep the menu from drawing, and is read only once the account is already known to be an admin).
+>
+> **Server (new migration `20261009120000_admin_unconfirmed_accounts.sql`).** "Never confirmed" is invisible to clients — `email_confirmed_at` lives in `auth.users`, and the `profiles` row (created by the sign-up trigger) carries no confirmation flag — so the list needs its own admin-gated RPC. Three functions: `is_provisional_account(uuid)`, the shared "has this account done anything?" test lifted from `discard_unconfirmed_signup()`'s guard; `admin_list_unconfirmed_accounts()`, the never-confirmed accounts newest first with their profile's name and mirrored e-mail and a **`can_delete`** flag; and `admin_delete_unconfirmed_account(uuid)`, which re-runs that guard and refuses an unknown, confirmed or used account. The page disables Delete when `can_delete` is false rather than offering an action the server would refuse. Pinned by `supabase/tests/admin_unconfirmed_accounts_test.sql` (a rolled-back smoke test) and, on the client, by the three admin test suites.
+
 ## Phase 4 — Navigation
 
 - `AppRoutes.adminPanel` as a **shell route** built with `NoTransitionPage` (the no-motion rule that guards the bottom nav is about how it feels to switch, and the panel is selectable from that bar).
@@ -76,8 +91,23 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 - [x] `flutter analyze` clean; full `flutter test` green.
 - [x] **Follow-up:** `mockup_html_screens/admin_panel/code.html` was written from the shipped screen, with `screen.png` beside it (the user's decision — see the recorded departure above), and the two mismatches it exposed were fixed on the screen.
 
+**0.0.459 — the menu, the badge and Non-verified Accounts (user request).**
+
+- [x] The panel is a **menu** of two sub-pages; it keeps the drawer header, and both sub-pages wear a back arrow.
+- [x] Payment Requests moved to its own page, with its inner heading gone and every card **numbered within its section from 1**.
+- [x] **Non-verified Accounts** lists the never-confirmed sign-ups (name, e-mail, creation date & time), numbered from 1, with **Delete** behind a confirmation.
+- [x] `admin_list_unconfirmed_accounts()` and `admin_delete_unconfirmed_account(uuid)` exist, are admin-gated, SECURITY DEFINER, and refuse `anon`; both share `is_provisional_account()` with `discard_unconfirmed_signup()`, so `can_delete` and the delete cannot disagree.
+- [x] The page **disables** Delete when the server says the account may not go, and names why.
+- [x] A **search** in both sub-pages' headers filters every card by any text it shows, and **opens a closed section** that holds the match.
+- [x] The side-menu Admin row carries a **count badge** of pending payments plus unconfirmed accounts, and none when that is zero.
+- [x] Both languages render; `flutter analyze` clean; full `flutter test` green; `generate_all_supabase_sql.dart --check` clean.
+- [x] **The migration was applied to the project (0.0.460)** — `dart run tool/apply_supabase_migrations.dart` applied `20261009120000` (1 of 36 pending) and then `20261009130000`. Verified through the Supabase connector: the three functions exist, `SECURITY DEFINER`, owned by `postgres`. `supabase/tests/admin_unconfirmed_accounts_test.sql` **passes against the live project** (it rolls back; a follow-up count confirmed no residue).
+- [x] **A grant the default privileges left open is closed (0.0.460).** `20261009120000` revoked `public, anon` on the internal `is_provisional_account()` but not `authenticated` — and Supabase grants a new `public` function directly to `authenticated` too, so it stayed callable by any signed-in account (a one-boolean-at-a-time oracle about an account id it already had to know). `20261009130000_revoke_provisional_guard.sql` takes that EXECUTE back; the two admin RPCs keep theirs and gate themselves in the body. Verified through the connector: the guard now shows only `postgres` and the server's bypass role.
+- [ ] **`mockup_html_screens/admin_panel/screen.png` is stale** — the HTML is redrawn as the menu, but the PNG still shows the old single-screen panel. **The user has confirmed this does not matter: the HTML is what counts for the app.**
+
 ## Not in this version
 
 - **Rejecting after an approval** — the server refuses it (`already_resolved`) and the panel does not offer a refund path.
-- **Any section other than Payment Requests.** The panel's structure takes more; each is new server surface and new policy, so they are added when they are needed rather than scaffolded empty.
+- **Any page other than the two the panel now holds** (Payment Requests, Non-verified Accounts). The menu takes more; each is new server surface and new policy, so they are added when they are needed rather than scaffolded empty. *(0.0.459 added the second; the earlier wording — "any section other than Payment Requests" — is superseded.)*
+- **Sweeping unconfirmed accounts without being asked.** Non-verified Accounts lists them and can delete one at a time; nothing runs on a schedule. A cron sweep would be a decision about deleting people's accounts unattended, which is not this page's to make.
 - **Adding or removing admins from the app.** That stays a service-role operation, deliberately: the one thing that must not be reachable from a phone is the decision about who is allowed to decide.

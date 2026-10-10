@@ -38,6 +38,36 @@ final adminPaymentRequestsProvider =
       return ref.watch(adminRepositoryProvider).listPaymentRequests();
     });
 
+/// Every account that never confirmed its address, newest first.
+///
+/// The Non-verified Accounts page's list; empty for a non-admin, like the
+/// payment list.
+final adminUnconfirmedAccountsProvider =
+    FutureProvider<List<AdminUnconfirmedAccount>>((ref) async {
+      final isAdmin = await ref.watch(adminStatusProvider.future);
+      if (!isAdmin) return const <AdminUnconfirmedAccount>[];
+      return ref.watch(adminRepositoryProvider).listUnconfirmedAccounts();
+    });
+
+/// How many things the Admin Panel is waiting on: the payment submissions still
+/// to be decided **plus** the accounts that never confirmed.
+///
+/// The side menu's badge reads this, so it answers **0 for anything but a
+/// finished, successful read** — loading, a failure, a non-admin — and can never
+/// keep the menu from drawing. Only read once [adminStatusProvider] is true.
+final adminPendingCountProvider = Provider<int>((ref) {
+  final pendingPayments =
+      ref
+          .watch(adminPaymentRequestsProvider)
+          .value
+          ?.where((request) => request.isPending)
+          .length ??
+      0;
+  final unconfirmed =
+      ref.watch(adminUnconfirmedAccountsProvider).value?.length ?? 0;
+  return pendingPayments + unconfirmed;
+});
+
 /// How one admin action ended.
 enum AdminActionPhase {
   /// Nothing attempted yet.
@@ -125,4 +155,45 @@ class AdminActionViewModel extends Notifier<AdminActionState> {
       actedOn: submissionId,
     );
   }
+}
+
+/// Owns the removal of an unconfirmed account.
+///
+/// The same shape as [AdminActionViewModel] — one call, then a reload from the
+/// server, so the list is always the server's record rather than a local guess —
+/// but a separate notifier, because the two actions live on different screens and
+/// a shared state would let one screen's banner appear on the other.
+class AdminDeleteAccountViewModel extends Notifier<AdminActionState> {
+  /// Riverpod provider for [AdminDeleteAccountViewModel].
+  static final provider =
+      NotifierProvider<AdminDeleteAccountViewModel, AdminActionState>(
+        () => AdminDeleteAccountViewModel(),
+      );
+
+  @override
+  AdminActionState build() => const AdminActionState();
+
+  /// Removes the unconfirmed account [userId], then reloads the list.
+  Future<void> delete(String userId) async {
+    state = AdminActionState(
+      phase: AdminActionPhase.running,
+      actedOn: userId,
+    );
+    final failure = await ref
+        .read(adminRepositoryProvider)
+        .deleteUnconfirmedAccount(userId);
+    if (failure == null) {
+      ref.invalidate(adminUnconfirmedAccountsProvider);
+    }
+    state = AdminActionState(
+      phase: failure == null
+          ? AdminActionPhase.success
+          : AdminActionPhase.failure,
+      failure: failure,
+      actedOn: userId,
+    );
+  }
+
+  /// Returns the page to idle, so a stale message does not outlive its subject.
+  void clear() => state = const AdminActionState();
 }

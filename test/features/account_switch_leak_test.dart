@@ -136,6 +136,25 @@ class _FakeAdmin implements AdminRepository {
   @override
   Future<AdminActionFailure?> reject(String submissionId, {String? note}) async =>
       null;
+
+  /// One unconfirmed account per signed-in account, so a leak is visible here
+  /// too — the panel's badge counts these alongside the pending payments.
+  @override
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
+      account.signedIn
+      ? <AdminUnconfirmedAccount>[
+          AdminUnconfirmedAccount(
+            id: '${account.userId}-unconfirmed',
+            email: '${account.userId}@example.test',
+            fullName: '',
+            createdAt: DateTime(2026, 1, 1),
+          ),
+        ]
+      : const <AdminUnconfirmedAccount>[];
+
+  @override
+  Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
+      null;
 }
 
 void main() {

@@ -414,6 +414,30 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'server-managed signup_discard_attempts ledger, and granted to anon '
         'because this caller has no session at all.',
   ),
+  LedgerSection(
+    file: '20261009120000_admin_unconfirmed_accounts.sql',
+    version: '0.0.459',
+    label:
+        'The Admin Panel, extended: the Non-verified Accounts page\'s two '
+        'admin-gated RPCs. admin_list_unconfirmed_accounts() lists every account '
+        'that has never confirmed its address — invisible to clients, since '
+        'email_confirmed_at lives in auth.users and profiles carries no '
+        'confirmation flag — and admin_delete_unconfirmed_account() removes one. '
+        'Both share is_provisional_account(), the same "has this account done '
+        'anything?" guard discard_unconfirmed_signup() applies, so the list\'s '
+        'can_delete flag and the delete can never disagree.',
+  ),
+  LedgerSection(
+    file: '20261009130000_revoke_provisional_guard.sql',
+    version: '0.0.459',
+    label:
+        'Closing a grant the default privileges opened: taking EXECUTE on '
+        'is_provisional_account() back from `authenticated`. Revoking `public` '
+        'and `anon` does not cover it, because Supabase grants a new function '
+        'in `public` directly to `authenticated` as well — so the internal '
+        'guard was callable by any signed-in account, one boolean at a time '
+        'about an account it already knew the id of.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -447,6 +471,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.385': 'Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers',
   '0.0.411': 'Task 12 — Deleting The Account Itself',
   '0.0.413': 'Task 17 — Correcting A Mistyped Sign-Up Address',
+  '0.0.459':
+      'Task 23 Follow-Up — The Admin Panel\'s Non-Verified Accounts',
 };
 
 const String _header = '''<!--

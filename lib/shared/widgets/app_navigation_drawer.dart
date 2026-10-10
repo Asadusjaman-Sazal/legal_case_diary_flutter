@@ -210,6 +210,7 @@ class AppNavigationDrawer extends ConsumerWidget {
     AppLocalizations l,
     _NavItem item, {
     required bool isAdmin,
+    int badgeCount = 0,
   }) {
     if (!_isVisible(item, isAdmin: isAdmin)) return const SizedBox.shrink();
     final active = _isActive(item.route);
@@ -217,6 +218,7 @@ class AppNavigationDrawer extends ConsumerWidget {
       icon: item.icon,
       label: item.label(l),
       active: active,
+      badgeCount: badgeCount,
       onTap: () {
         Navigator.of(context).pop();
         if (!active) context.push(item.route);
@@ -379,7 +381,15 @@ class AppNavigationDrawer extends ConsumerWidget {
                   ),
                   if (isAdmin) ...[
                     const _DrawerDivider(),
-                    _buildItem(context, l, _adminItem, isAdmin: true),
+                    // The count of what is waiting inside the panel, over the
+                    // row, the way the Sync Status icon carries its own.
+                    _buildItem(
+                      context,
+                      l,
+                      _adminItem,
+                      isAdmin: true,
+                      badgeCount: ref.watch(adminPendingCountProvider),
+                    ),
                   ],
                   const _DrawerDivider(),
                   // The account's plan, above Print/Share (user request): the
@@ -468,6 +478,12 @@ class _DrawerNavTile extends StatelessWidget {
   /// while the logout flow runs, so the tap answers the user at once.
   final bool busy;
 
+  /// Count drawn as a badge over the leading icon; 0 or less draws none.
+  ///
+  /// The Admin Panel row uses it for the work waiting inside the panel, exactly
+  /// as the case screens badge the Sync Status icon.
+  final int badgeCount;
+
   const _DrawerNavTile({
     super.key,
     required this.icon,
@@ -476,6 +492,7 @@ class _DrawerNavTile extends StatelessWidget {
     required this.onTap,
     this.indent = 0,
     this.busy = false,
+    this.badgeCount = 0,
   });
 
   @override
@@ -501,6 +518,15 @@ class _DrawerNavTile extends StatelessWidget {
                     height: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
+                      color: active ? Colors.white : AppColors.onSurfaceVariant,
+                    ),
+                  )
+                else if (badgeCount > 0)
+                  Badge.count(
+                    count: badgeCount,
+                    child: Icon(
+                      icon,
+                      size: 22,
                       color: active ? Colors.white : AppColors.onSurfaceVariant,
                     ),
                   )

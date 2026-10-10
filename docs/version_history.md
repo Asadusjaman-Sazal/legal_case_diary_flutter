@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.458 - A printed PDF is now named after the screen plus the print date (e.g. 'All Cases 10-10-26'), so the OS 'Save as PDF' file name is self-describing.
+Version: 0.0.460 - Applied the Admin Panel's unconfirmed-accounts migration to the project, and closed a grant it left open: Supabase's default privileges had made the internal is_provisional_account() guard callable by any signed-in account.
 --------------------------------------
 
 ## Version History Log:
@@ -472,3 +472,5 @@ Version: 0.0.455 - Manage Account > Logout now answers at once too: its card swa
 Version: 0.0.456 - Case-list printouts are now a ruled table in the sample's fixed column widths and row heights, with a repeating header band (logo, titles, column headings) and Prev. Date from each case's latest history; 'Printed on' is gone from every page.
 Version: 0.0.457 - Ruled-table print fixes: 600 dpi capture, logo precached (first page), centred underlined titles, centred headings, closed cell borders, court headings on the flat lists, Overdue's Prev/Next dates, Upcoming heading without the date, BN Year = সাল.
 Version: 0.0.458 - A printed PDF is now named after the screen plus the print date (e.g. 'All Cases 10-10-26'), so the OS 'Save as PDF' file name is self-describing.
+Version: 0.0.459 - Admin Panel is now a menu of Payment Requests and Non-verified Accounts (unconfirmed sign-ups, with a Delete), numbered cards and search on both pages, and a count badge over the side-menu Admin row.
+Version: 0.0.460 - Applied the Admin Panel's unconfirmed-accounts migration to the project, and closed a grant it left open: Supabase's default privileges had made the internal is_provisional_account() guard callable by any signed-in account.

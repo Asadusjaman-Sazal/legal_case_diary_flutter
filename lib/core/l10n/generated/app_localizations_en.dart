@@ -1112,6 +1112,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminPanel_paymentRequests => 'Payment Requests';
 
   @override
+  String get adminPanel_paymentRequestsSubtitle =>
+      'Approve Or Reject Submitted Payments';
+
+  @override
+  String get adminPanel_unverifiedAccounts => 'Non-verified Accounts';
+
+  @override
+  String get adminPanel_unverifiedAccountsSubtitle =>
+      'Sign-Ups That Never Confirmed';
+
+  @override
+  String get adminPanel_unverifiedTitle => 'Non-verified Accounts';
+
+  @override
+  String get adminPanel_unverifiedEmpty =>
+      'Every account has confirmed its address.';
+
+  @override
+  String get adminPanel_unverifiedLoadFailed =>
+      'The accounts could not be loaded.';
+
+  @override
+  String get adminPanel_created => 'Created';
+
+  @override
+  String get adminPanel_lastSignIn => 'Last Sign-in';
+
+  @override
+  String get adminPanel_delete => 'Delete';
+
+  @override
+  String get adminPanel_deleteTitle => 'Delete This Account?';
+
+  @override
+  String get adminPanel_deleteBody =>
+      'The account never confirmed its address and has done nothing, so it will be removed for good. This cannot be undone.';
+
+  @override
+  String get adminPanel_deleteConfirm => 'Delete Account';
+
+  @override
+  String get adminPanel_deleteBlocked =>
+      'This account has data or is confirmed, so it cannot be deleted from here.';
+
+  @override
+  String get adminPanel_deleted => 'Account deleted.';
+
+  @override
+  String get adminPanel_search => 'Search';
+
+  @override
+  String get adminPanel_searchHint => 'Search';
+
+  @override
+  String get adminPanel_noResults => 'No results found.';
+
+  @override
   String get adminPanel_pending => 'Pending';
 
   @override

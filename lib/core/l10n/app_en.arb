@@ -395,6 +395,9 @@
           }
       }
   },
+  "syncStatus_blockedWhy": "Why It Is Blocked",
+  "syncStatus_blockedCauseRefused": "The server refused this change.",
+  "syncStatus_blockedCauseAttempts": "Sync gave up after too many failed attempts.",
   "syncStatus_timeJustNow": "Just Now",
   "syncStatus_timeMinutesAgo": "{count, plural, =1{1 Minute Ago} other{{count} Minutes Ago}}",
   "@syncStatus_timeMinutesAgo": {

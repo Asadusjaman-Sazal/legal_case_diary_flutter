@@ -23,6 +23,14 @@ import 'sync_queue_dao.dart';
 import 'sync_table_bindings.dart';
 import 'sync_transport.dart';
 
+/// How many attempts a *retryable* failure gets before its entry is blocked.
+///
+/// Public because the Sync Status screen names the same boundary when it says
+/// why a row is blocked ("gave up after too many failed attempts"), so the two
+/// cannot drift: a row blocked with `retryCount >= syncBlockRetryLimit` is one
+/// the worker gave up on; anything else blocked was refused outright.
+const int syncBlockRetryLimit = 10;
+
 /// What one batch attempt produced.
 class PushBatchOutcome {
   /// Creates an outcome.
@@ -238,7 +246,8 @@ class PushWorker {
     };
   }
 
-  /// Returns a failed batch to `pending`, or blocks it after ten failures.
+  /// Returns a failed batch to `pending`, or blocks it after
+  /// [syncBlockRetryLimit] failures.
   Future<void> _handleTransportFailure(
     List<_Prepared> prepared,
     SyncFailure failure,
@@ -248,7 +257,7 @@ class PushWorker {
       final nextRetry = item.row.retryCount + 1;
       if (!failure.retryable) {
         await queue.block(item.row.id, error: failure.message);
-      } else if (nextRetry >= 10) {
+      } else if (nextRetry >= syncBlockRetryLimit) {
         await queue.block(item.row.id,
             error: failure.message, retryCount: nextRetry);
       } else {

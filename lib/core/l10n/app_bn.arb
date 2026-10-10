@@ -388,6 +388,9 @@
           }
       }
   },
+  "syncStatus_blockedWhy": "কেন আটকে আছে",
+  "syncStatus_blockedCauseRefused": "সার্ভার এই পরিবর্তনটি গ্রহণ করেনি।",
+  "syncStatus_blockedCauseAttempts": "অনেকবার চেষ্টার পরও সফল না হওয়ায় সিঙ্ক আর চেষ্টা করছে না।",
   "syncStatus_timeJustNow": "এইমাত্র",
   "syncStatus_timeMinutesAgo": "{count, plural, =1{১ মিনিট আগে} other{{count} মিনিট আগে}}",
   "@syncStatus_timeMinutesAgo": {

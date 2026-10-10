@@ -1538,6 +1538,24 @@ abstract class AppLocalizations {
   /// **'Last Error: {message}'**
   String syncStatus_lastError(String message);
 
+  /// No description provided for @syncStatus_blockedWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why It Is Blocked'**
+  String get syncStatus_blockedWhy;
+
+  /// No description provided for @syncStatus_blockedCauseRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The server refused this change.'**
+  String get syncStatus_blockedCauseRefused;
+
+  /// No description provided for @syncStatus_blockedCauseAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync gave up after too many failed attempts.'**
+  String get syncStatus_blockedCauseAttempts;
+
   /// No description provided for @syncStatus_timeJustNow.
   ///
   /// In en, this message translates to:

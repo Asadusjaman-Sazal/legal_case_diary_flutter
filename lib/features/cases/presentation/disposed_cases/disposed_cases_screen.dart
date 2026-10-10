@@ -178,15 +178,20 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
 
   /// The document this screen prints: the disposed set it is showing, with its
   /// own `Disposed` date column (plan §8 and §12.1).
+  ///
+  /// Grouped by court, so the printout carries each case's court name as a
+  /// centred heading (user request).
   PrintDocument _printDocument(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final grouped = groupCasesByCourt(context.l10n, _visibleCases, _courtsById);
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
         title: l.disposedCasesScreen_title,
-        cases: _visibleCases,
+        cases: grouped.cases,
         courtsById: _courtsById,
         previousDatesByCaseId: _previousDatesByCaseId,
+        groupHeading: (currentCase) => grouped.headings[currentCase.id],
         nextDateOf: (currentCase, court) => currentCase.nextDate == null
             ? ''
             : AppDateUtils.formatDateDDMMYYYY(

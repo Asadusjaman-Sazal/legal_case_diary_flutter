@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.456 - Case-list printouts are now a ruled table in the sample's fixed column widths and row heights, with a repeating header band (logo, titles, column headings) and Prev. Date from each case's latest history; 'Printed on' is gone from every page.
+Version: 0.0.457 - Ruled-table print fixes: 600 dpi capture, logo precached (first page), centred underlined titles, centred headings, closed cell borders, court headings on the flat lists, Overdue's Prev/Next dates, Upcoming heading without the date, BN Year = সাল.
 --------------------------------------
 
 ## Version History Log:
@@ -470,3 +470,4 @@ Version: 0.0.453 - Online Sync: removed the 'kept up to date on this device' sub
 Version: 0.0.454 - Side-menu Logout now answers at once: the profile panel's Logout row swaps its icon for a spinner for the flow, and ignores re-taps, so a 6-7s logout reads as working.
 Version: 0.0.455 - Manage Account > Logout now answers at once too: its card swaps the icon for a spinner for the flow (same as the side-menu popover), clearing in a finally so it can never stick.
 Version: 0.0.456 - Case-list printouts are now a ruled table in the sample's fixed column widths and row heights, with a repeating header band (logo, titles, column headings) and Prev. Date from each case's latest history; 'Printed on' is gone from every page.
+Version: 0.0.457 - Ruled-table print fixes: 600 dpi capture, logo precached (first page), centred underlined titles, centred headings, closed cell borders, court headings on the flat lists, Overdue's Prev/Next dates, Upcoming heading without the date, BN Year = সাল.

@@ -190,16 +190,22 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   /// The document this screen prints: the rows it is showing, with the court
   /// filter, the search query and the chronology choice already applied, so the
   /// printout cannot disagree with the list (plan §8 and §12.1).
+  ///
+  /// The rows are grouped by court so the printout carries each case's court
+  /// name as a centred heading (user request) — this screen has no court column
+  /// of its own.
   PrintDocument _printDocument(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final grouped = groupCasesByCourt(context.l10n, _visibleCases(), _courtsById);
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
         title: l.allCasesScreen_title,
-        cases: _visibleCases(),
+        cases: grouped.cases,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
         previousDatesByCaseId: _previousDatesByCaseId,
+        groupHeading: (currentCase) => grouped.headings[currentCase.id],
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

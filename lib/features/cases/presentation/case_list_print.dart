@@ -76,6 +76,40 @@ String printDateLine(AppLocalizations l, int selectedDateEpochMs) {
   );
 }
 
+/// Re-orders [cases] so every court's cases are contiguous, with the localized
+/// court name per case id.
+///
+/// A **flat** list has no court heading of its own, so its printout has no
+/// court name at all (user report). This gives one: the cases are grouped by
+/// court so the builder's own change-of-heading rule prints one centred court
+/// row above each court's cases. The screen's order is kept **inside** a court,
+/// and the courts keep the order they first appear in — so a list sorted by
+/// `created_at` still reads newest-first within each court.
+({List<Case> cases, Map<String, String> headings}) groupCasesByCourt(
+  AppTranslations translations,
+  List<Case> cases,
+  Map<String, Court> courtsById,
+) {
+  final order = <String>[];
+  final byCourt = <String, List<Case>>{};
+  for (final currentCase in cases) {
+    if (byCourt.putIfAbsent(currentCase.courtId, () => <Case>[]).isEmpty) {
+      order.add(currentCase.courtId);
+    }
+    byCourt[currentCase.courtId]!.add(currentCase);
+  }
+  final ordered = <Case>[];
+  final headings = <String, String>{};
+  for (final courtId in order) {
+    final heading = printCourtHeading(translations, courtsById[courtId]);
+    for (final currentCase in byCourt[courtId]!) {
+      ordered.add(currentCase);
+      headings[currentCase.id] = heading;
+    }
+  }
+  return (cases: ordered, headings: headings);
+}
+
 /// What a case-list screen prints.
 class CaseListPrintRequest {
   /// Creates a print request from a screen's current state.
@@ -85,6 +119,7 @@ class CaseListPrintRequest {
     this.courtsById = const {},
     this.onBehalfsById = const {},
     this.previousDatesByCaseId = const {},
+    this.previousDateOf,
     this.groupHeading,
     this.nextDateOf,
     this.showNextDate = true,
@@ -108,6 +143,12 @@ class CaseListPrintRequest {
   /// Each case's previous hearing date (epoch ms), from the latest Case History
   /// entry. A case absent from the map prints a blank `Prev. Date`.
   final Map<String, int> previousDatesByCaseId;
+
+  /// Overrides the `Prev. Date` cell for a screen whose own date column *is*
+  /// the previous date — the Overdue Dates screen, which shows the case's
+  /// current (overdue) next date there. When set it wins over
+  /// [previousDatesByCaseId].
+  final String Function(Case currentCase, Court? court)? previousDateOf;
 
   /// Heading for a case's group — a court or a date — or `null` for a flat list.
   final String? Function(Case currentCase)? groupHeading;
@@ -188,11 +229,12 @@ PrintDocument buildCaseListPrintDocument(
       lastHeading = heading;
     }
 
+    final prevOverride = request.previousDateOf?.call(currentCase, court);
     final prevDate = request.previousDatesByCaseId[currentCase.id];
     rows.add(
       PrintTableRow.data(<String>[
         AppDateUtils.formatDigits(++serial, l.localeName, grouping: false),
-        prevDate == null ? '' : printListDate(l, prevDate),
+        prevOverride ?? (prevDate == null ? '' : printListDate(l, prevDate)),
         caseTypeAndCaseNumber(
           translations.caseTypeLabel(
             currentCase.caseType,

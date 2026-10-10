@@ -213,6 +213,11 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
 
   /// The document this screen prints: the overdue rows in this screen's own
   /// court order, with its `Previous Date` column wording (plan §8, §12.1).
+  ///
+  /// On this screen the case's own date **is** the previous date — an overdue
+  /// case's `next_date` is in the past — so `Prev. Date` prints that (the same
+  /// value the screen shows) and the `Next Date` column is left empty
+  /// (user request), exactly as Daily Cause List leaves it.
   PrintDocument _printDocument(BuildContext context) {
     final l = AppLocalizations.of(context);
     final headings = <String, String>{};
@@ -232,8 +237,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
         onBehalfsById: _onBehalfsById,
         previousDatesByCaseId: _previousDatesByCaseId,
         groupHeading: (currentCase) => headings[currentCase.id],
-        nextDateOf: (currentCase, court) =>
+        previousDateOf: (currentCase, court) =>
             printDisplayDate(l, currentCase.nextDate),
+        showNextDate: false,
         meta: [
           if (_searchController.text.trim().isNotEmpty)
             PrintField(l.sharedActions_search, _searchController.text.trim()),

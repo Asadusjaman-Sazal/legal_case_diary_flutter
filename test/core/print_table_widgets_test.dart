@@ -121,6 +121,59 @@ void main() {
   test('the table width is the sum of its columns', () {
     expect(tableWidthOf(_columns), closeTo(printCm(0.69) + printCm(2.51), 0.001));
   });
+
+  testWidgets('every cell draws its own top border, so no edge is open', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      buildTableDataRow(
+        const PrintTableRow.data(['1', 'Civil- 12/26']),
+        _columns,
+      ),
+    );
+
+    for (final box in tester.widgetList<DecoratedBox>(
+      find.byType(DecoratedBox),
+    )) {
+      final border = (box.decoration as BoxDecoration).border! as Border;
+      expect(border.top, isNot(BorderSide.none), reason: 'an open top edge');
+      expect(border.bottom, isNot(BorderSide.none));
+      expect(border.right, isNot(BorderSide.none));
+    }
+  });
+
+  testWidgets('a court row is bordered on all four sides', (tester) async {
+    await _pump(tester, buildTableCourtRow('Dhaka Judge Court', 400));
+    final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox));
+    final border = (box.decoration as BoxDecoration).border! as Border;
+    expect(border.top, isNot(BorderSide.none));
+    expect(border.left, isNot(BorderSide.none));
+    expect(border.right, isNot(BorderSide.none));
+    expect(border.bottom, isNot(BorderSide.none));
+  });
+
+  testWidgets('column headings are centred whatever the column alignment', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      buildTableHeaderRow(const [
+        PrintTableColumn(label: 'Case No.', widthCm: 2.51),
+      ]),
+    );
+    expect(tester.widget<Text>(find.text('Case No.')).textAlign, TextAlign.center);
+  });
+
+  test('the screen title is underlined', () {
+    expect(
+      PrintTableStyle.screenTitle.decoration,
+      TextDecoration.underline,
+    );
+    // The print resolution is the 600 dpi the user asked for, not a screen cap.
+    expect(kPrintTargetDpi, greaterThanOrEqualTo(300));
+    expect(kPrintTablePixelRatio, closeTo(600 / 72, 0.001));
+  });
 }
 
 /// A tiny probe that lays one row out at a bounded width.

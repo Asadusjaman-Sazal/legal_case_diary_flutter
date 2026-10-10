@@ -19,6 +19,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'print_document.dart';
+import 'print_table_widgets.dart';
 import 'print_widgets.dart';
 
 /// The memory envelope a captured page must fit in.
@@ -34,6 +35,7 @@ class PrintPageBudget {
     this.margin = 32,
     this.maxPixelRatio = 2,
     this.maxRgbaBytes = 8 * 1024 * 1024,
+    this.preferredPixelRatio,
   });
 
   /// A4 width in points.
@@ -61,6 +63,13 @@ class PrintPageBudget {
 
   /// Hard cap on one page's decoded RGBA bytes.
   final int maxRgbaBytes;
+
+  /// The ratio to capture at, when it must not be the screen's own.
+  ///
+  /// Null means "the device's device pixel ratio", the historic behaviour. A
+  /// ruled table sets a print resolution (600 dpi) here instead, because a
+  /// screen ratio of 2–3 makes a printed page look soft.
+  final double? preferredPixelRatio;
 
   /// Width of the area the print blocks are drawn in, in points.
   double get contentWidth => pageWidth - margin * 2;
@@ -296,17 +305,23 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
   int _peakRgbaBytes = 0;
   bool _measuring = true;
 
-  /// The budget actually in force: the document's own margin when it sets one
-  /// (the ruled table asks for a narrow margin), the caller's budget otherwise.
+  /// The budget actually in force.
+  ///
+  /// A ruled table overrides three things: the narrow margin the format asks
+  /// for, a **print-resolution** pixel ratio (600 dpi — see [kPrintTargetDpi],
+  /// rather than the screen's own ratio, which is what made the first table
+  /// printouts look soft), and the larger per-page byte ceiling that resolution
+  /// needs. Every other document keeps the caller's budget unchanged.
   PrintPageBudget get _budget {
     final margin = widget.document.margin;
-    if (margin == null) return widget.budget;
+    if (!widget.document.isTable) return widget.budget;
     return PrintPageBudget(
       pageWidth: widget.budget.pageWidth,
       pageHeight: widget.budget.pageHeight,
-      margin: margin,
-      maxPixelRatio: widget.budget.maxPixelRatio,
-      maxRgbaBytes: widget.budget.maxRgbaBytes,
+      margin: margin ?? widget.budget.margin,
+      maxPixelRatio: kPrintTablePixelRatio,
+      maxRgbaBytes: kPrintTableMaxRgbaBytes,
+      preferredPixelRatio: kPrintTablePixelRatio,
     );
   }
 
@@ -385,21 +400,43 @@ class _PrintPageCaptureState extends State<PrintPageCapture> {
     );
   }
 
+  /// Decodes the header band's logo before the first frame is captured.
+  ///
+  /// `Image.asset` paints nothing until the image has decoded, and the first
+  /// page is captured on the next frame — so without this the logo was missing
+  /// from page 1 and appeared from page 2 once the image was cached (the
+  /// reported "missing app icon on the first page").
+  Future<void> _precacheLogo() async {
+    final asset = widget.document.logoAsset;
+    if (asset == null || !mounted) return;
+    try {
+      await precacheImage(AssetImage(asset), context);
+    } on Object {
+      // A missing or unreadable asset is not fatal: the band's own errorBuilder
+      // draws an empty box, so the printout still completes.
+    }
+  }
+
   /// Measures the blocks, paginates them and captures one page at a time.
   Future<void> _run() async {
     try {
+      // Read the device ratio *before* the first await, so no `BuildContext` use
+      // crosses an async gap.
+      final devicePixelRatio = View.of(context).devicePixelRatio;
+      await _precacheLogo();
       final heights = _measureBlocks();
       // The header band (when present) is the first measured child; the blocks
-      // get whatever room is left after it and the 4 pt gap drawn under it.
+      // get whatever room is left after it (the band is drawn flush, so its own
+      // height is the whole reservation).
       final headerHeight = _header == null ? 0.0 : heights.removeAt(0);
       _pages = paginateBlockHeights(
         heights,
-        _budget.blockAreaHeight - (headerHeight == 0 ? 0 : headerHeight + 4),
+        _budget.blockAreaHeight - headerHeight,
       );
 
       final budget = _budget;
       final pixelRatio = budget.pixelRatioFor(
-        View.of(context).devicePixelRatio,
+        budget.preferredPixelRatio ?? devicePixelRatio,
       );
       final pageRgbaBytes = budget.rgbaBytesAt(pixelRatio);
       final captured = <Uint8List>[];

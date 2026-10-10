@@ -26,6 +26,25 @@ import 'print_widgets.dart';
 /// Converts a length in centimetres to points (72 pt to the inch).
 double printCm(double cm) => cm * 72 / 2.54;
 
+/// Resolution a ruled table is captured at, in dots per inch.
+///
+/// 300 dpi is the print standard and 600 is where text stops improving on
+/// paper; the user asked for 300 at least and 600 if possible, and accepted the
+/// larger file. 600 dpi on A4 is ~139 MB of decoded RGBA **per page** while the
+/// page is being captured (one page at a time, then encoded and released), which
+/// is the ceiling this buys into — drop to 300 (`300.0`) if a low-memory device
+/// ever fails a print.
+const double kPrintTargetDpi = 600;
+
+/// Pixel ratio that renders one point at [kPrintTargetDpi].
+final double kPrintTablePixelRatio = kPrintTargetDpi / 72;
+
+/// Ceiling on one page's decoded RGBA bytes at [kPrintTablePixelRatio].
+///
+/// 600 dpi on A4 needs ~139 MB; the cap sits just above that so the target is
+/// actually reached, while the budget solver still trims on a smaller page.
+const int kPrintTableMaxRgbaBytes = 170 * 1024 * 1024;
+
 /// Sizes and colours of the ruled table.
 abstract final class PrintTableStyle {
   /// The minimum height of a data row (the sample's 0.90 cm).
@@ -73,7 +92,8 @@ abstract final class PrintTableStyle {
   /// The app brand line beside the logo.
   static const TextStyle brand = cell;
 
-  /// The screen title (the page's headline).
+  /// The screen title (the page's headline): bold and underlined, centred over
+  /// the table.
   static const TextStyle screenTitle = TextStyle(
     inherit: false,
     fontFamily: 'Inter',
@@ -82,6 +102,7 @@ abstract final class PrintTableStyle {
     height: 1.2,
     color: PrintStyle.ink,
     fontWeight: FontWeight.w700,
+    decoration: TextDecoration.underline,
   );
 
   /// The Daily Cause List's Date/Day/Month/Year line.
@@ -89,6 +110,14 @@ abstract final class PrintTableStyle {
 
   /// Side of the logo in the header band (the sample's ~18 pt square).
   static const double logoSize = 18;
+
+  /// Gap between the screen title and the column headings when the band carries
+  /// **no** date line — a screen without a date gets a little more air so the
+  /// titled band does not crowd the table.
+  static const double titleToTableGap = 10;
+
+  /// Gap between the date line and the column headings.
+  static const double dateLineToTableGap = 3;
 }
 
 /// One side of the cell border, or null where the edge is shared with the
@@ -97,6 +126,11 @@ BorderSide _side(bool on) =>
     on ? const BorderSide(width: PrintTableStyle.borderWidth, color: PrintTableStyle.borderColor) : BorderSide.none;
 
 /// One bordered cell of fixed width.
+///
+/// Every cell draws its own **top** border, so no row can end up with an open
+/// top edge — a data row at the top of a page, a court row after a spacer, or
+/// the first column on any page. Adjacent rows' edges meet on the same line, so
+/// the grid still reads as single hairlines.
 Widget buildTableCell({
   required String text,
   required PrintTableColumn column,
@@ -104,16 +138,20 @@ Widget buildTableCell({
   required bool isHeader,
   bool isLast = false,
 }) {
-  final alignment = switch (column.align) {
-    PrintColumnAlign.center => TextAlign.center,
-    PrintColumnAlign.start => TextAlign.start,
-  };
+  // Headings are centred whatever the column's own alignment (user request);
+  // data cells follow the column.
+  final alignment = isHeader
+      ? TextAlign.center
+      : switch (column.align) {
+          PrintColumnAlign.center => TextAlign.center,
+          PrintColumnAlign.start => TextAlign.start,
+        };
   return SizedBox(
     width: printCm(column.widthCm),
     child: DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
-          top: _side(isHeader),
+          top: _side(true),
           left: _side(isFirst),
           right: _side(true),
           bottom: _side(true),
@@ -182,6 +220,10 @@ Widget buildTableCourtRow(String heading, double tableWidth) =>
         child: DecoratedBox(
           decoration: const BoxDecoration(
             border: Border(
+              top: BorderSide(
+                width: PrintTableStyle.borderWidth,
+                color: PrintTableStyle.borderColor,
+              ),
               left: BorderSide(
                 width: PrintTableStyle.borderWidth,
                 color: PrintTableStyle.borderColor,
@@ -234,52 +276,66 @@ Widget buildTableRowBlock(
 Widget buildTablePageHeader(
   PrintDocument document,
   List<PrintTableColumn> columns,
-) => Column(
-  crossAxisAlignment: CrossAxisAlignment.stretch,
-  children: [
-    Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (document.logoAsset != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Image.asset(
-              document.logoAsset!,
-              width: PrintTableStyle.logoSize,
-              height: PrintTableStyle.logoSize,
-              fit: BoxFit.contain,
-              // A missing asset must not take the whole printout down; the band
-              // simply carries no logo (the test host has no asset bundle).
-              errorBuilder: (context, error, stack) => const SizedBox(
-                width: PrintTableStyle.logoSize,
-                height: PrintTableStyle.logoSize,
-              ),
+) {
+  final hasDateLine = document.dateLine.trim().isNotEmpty;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // The title is centred **over the whole table** (user request), with the
+      // logo and brand line sitting at the left rather than pushing it right.
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            document.title,
+            style: PrintTableStyle.screenTitle,
+            textAlign: TextAlign.center,
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (document.logoAsset != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Image.asset(
+                      document.logoAsset!,
+                      width: PrintTableStyle.logoSize,
+                      height: PrintTableStyle.logoSize,
+                      fit: BoxFit.contain,
+                      // A missing asset must not take the whole printout down;
+                      // the band simply carries no logo.
+                      errorBuilder: (context, error, stack) => const SizedBox(
+                        width: PrintTableStyle.logoSize,
+                        height: PrintTableStyle.logoSize,
+                      ),
+                    ),
+                  ),
+                if (document.brandTitle.trim().isNotEmpty)
+                  Text(document.brandTitle, style: PrintTableStyle.brand),
+              ],
             ),
           ),
-        if (document.brandTitle.trim().isNotEmpty)
-          Text(document.brandTitle, style: PrintTableStyle.brand),
-        Expanded(
-          child: Center(
-            child: Text(
-              document.title,
-              style: PrintTableStyle.screenTitle,
-              textAlign: TextAlign.center,
-            ),
+        ],
+      ),
+      if (hasDateLine) ...[
+        const SizedBox(height: 2),
+        Center(
+          child: Text(
+            document.dateLine,
+            style: PrintTableStyle.dateLine,
+            textAlign: TextAlign.center,
           ),
         ),
       ],
-    ),
-    if (document.dateLine.trim().isNotEmpty) ...[
-      const SizedBox(height: 2),
-      Center(
-        child: Text(
-          document.dateLine,
-          style: PrintTableStyle.dateLine,
-          textAlign: TextAlign.center,
-        ),
+      // A screen without a date line gets a little more air before the table.
+      SizedBox(
+        height: hasDateLine
+            ? PrintTableStyle.dateLineToTableGap
+            : PrintTableStyle.titleToTableGap,
       ),
+      buildTableHeaderRow(columns),
     ],
-    const SizedBox(height: 3),
-    buildTableHeaderRow(columns),
-  ],
-);
+  );
+}

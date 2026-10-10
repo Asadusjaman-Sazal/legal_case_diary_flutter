@@ -1422,7 +1422,7 @@
   "@print_monthLabel": {
       "description": "Label of the month in the Daily Cause List printout's Date/Day/Month/Year line."
   },
-  "print_yearLabel": "বছর",
+  "print_yearLabel": "সাল",
   "@print_yearLabel": {
       "description": "Label of the year in the Daily Cause List printout's Date/Day/Month/Year line."
   },

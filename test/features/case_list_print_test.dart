@@ -284,8 +284,14 @@ void main() {
           );
         }
 
-        // The presented job carries the document title as its job name.
-        expect(printer.jobs.single.jobName, title);
+        // The presented job is named after the screen, with the print date, so
+        // the saved PDF is self-describing.
+        expect(printer.jobs.single.jobName, startsWith(title));
+        expect(
+          printer.jobs.single.jobName,
+          matches(RegExp(r' \d{2}-\d{2}-\d{2}$')),
+          reason: 'the file name ends with the print date',
+        );
         expect(printer.jobs.single.bytes, isNotEmpty);
 
         await unmount(tester);

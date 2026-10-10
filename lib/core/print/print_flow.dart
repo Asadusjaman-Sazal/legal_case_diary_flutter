@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 
+import '../utils/date_utils.dart';
 import 'print_document.dart';
 import 'print_document_renderer.dart';
 import 'print_service.dart';
@@ -30,12 +31,30 @@ enum PrintOutcome {
   nothingToPrint,
 }
 
+/// The name a print job is saved under: the document's own title plus the
+/// print date — `All Cases 10-10-26`.
+///
+/// The OS pre-fills its "Save as PDF" file name with this job name, so adding
+/// the date makes every saved file self-describing (and two prints of the same
+/// screen on different days no longer collide). The date is the day it is
+/// printed, in the app's Bangladesh civil time like every other date, and in
+/// **Latin digits whatever the active language**: a file name is not prose, and
+/// Bengali digits would be awkward to type or search on a desktop.
+String printJobName(String title, {int? printedAtEpochMs}) {
+  final at = AppDateUtils.bangladeshDateTime(
+    printedAtEpochMs ?? DateTime.now().millisecondsSinceEpoch,
+  );
+  String two(int value) => value.toString().padLeft(2, '0');
+  return '$title ${two(at.day)}-${two(at.month)}-${two(at.year % 100)}';
+}
+
 /// Renders [document] the way its script requires and presents it.
 Future<PrintOutcome> printDocument({
   required BuildContext context,
   required PrintDocument document,
   required PrintService service,
   required PrintDocumentRenderer renderer,
+  int? printedAtEpochMs,
 }) async {
   if (document.isEmpty) return PrintOutcome.nothingToPrint;
 
@@ -45,7 +64,7 @@ Future<PrintOutcome> printDocument({
 
     final presented = await service.present(
       bytes: bytes,
-      jobName: document.title,
+      jobName: printJobName(document.title, printedAtEpochMs: printedAtEpochMs),
     );
     return presented ? PrintOutcome.presented : PrintOutcome.cancelled;
   } catch (_) {

@@ -1740,6 +1740,65 @@ class AppLocalizationsEn extends AppLocalizations {
       'This action cannot be undone';
 
   @override
+  String get settingsManageAccount_deleteLocalAndCloudData =>
+      'Delete Local & Cloud Data';
+
+  @override
+  String get settingsManageAccount_deleteLocalData => 'Delete Local Data';
+
+  @override
+  String get settingsManageAccount_deleteDataTitle => 'Delete Data?';
+
+  @override
+  String get settingsManageAccount_deleteDataBodyCloud =>
+      'Tick what to delete from this device and your account. Your profile, subscription and settings stay.';
+
+  @override
+  String get settingsManageAccount_deleteDataBodyLocal =>
+      'Tick what to delete from this device. Your profile, subscription and settings stay.';
+
+  @override
+  String get settingsManageAccount_deleteDataCases => 'Cases';
+
+  @override
+  String get settingsManageAccount_deleteDataNotes => 'Notes';
+
+  @override
+  String get settingsManageAccount_deleteDataCaseReferences =>
+      'Case References';
+
+  @override
+  String get settingsManageAccount_deleteDataCustomSeedData =>
+      'Custom Seed Data';
+
+  @override
+  String get settingsManageAccount_deleteDataCustomSeedDataHint =>
+      'Court categories, court names, steps, case types and on-behalfs you added';
+
+  @override
+  String get settingsManageAccount_deleteDataConfirm => 'Delete Selected';
+
+  @override
+  String get settingsManageAccount_deleteDataDone =>
+      'Your Selected Data Has Been Deleted.';
+
+  @override
+  String get settingsManageAccount_deleteDataCloudPending =>
+      'Your data was deleted from this device. The account\'s copies will be removed on the next sync.';
+
+  @override
+  String get settingsManageAccount_deleteDataNeedsConnection =>
+      'Connect to the internet to delete your cloud data. Nothing Has Been Deleted.';
+
+  @override
+  String get settingsManageAccount_deleteDataFirmRefused =>
+      'You are part of a firm, so your diary is shared with it. Ask the firm owner to remove you before deleting your data.';
+
+  @override
+  String get settingsManageAccount_deleteDataFailed =>
+      'Your data could not be deleted. Please try again.';
+
+  @override
   String get settingsManageAccount_dangerZone => 'Danger Zone';
 
   @override

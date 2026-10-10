@@ -18,6 +18,17 @@
 ///   straight after Logout;
 /// * a red, bold **Danger Zone** label, then the **Delete Account** card.
 ///
+/// **Deleting the data without the account (0.0.473, user request).** Two more
+/// cards sit in the Danger Zone, directly above Delete Account, and which one is
+/// drawn is the account's plan: a premium account gets **Delete Local & Cloud
+/// Data**, a free one **Delete Local Data**. Both are the same card as Delete
+/// Account, both open the same tick list (`data_deletion_dialog.dart`) — cases,
+/// notes, case references and the reference data the user added — and both delete
+/// through the app's own repositories, so what leaves this device and (for the
+/// premium action) the account is exactly what a normal delete would have sent.
+/// The profile, the subscription and the settings are untouched, which is what
+/// separates these two cards from the account deletion below them.
+///
 /// **Delete Account starts here.** It warns first — what the deletion takes
 /// with it, worded for a free account (whose diary only ever lived on this
 /// device) or a premium one (whose diary is also in the cloud) — and says the
@@ -38,13 +49,16 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../../sync/connectivity_monitor.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
+import '../data/data_deletion_service.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
+import 'data_deletion_dialog.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
 class ManageAccountScreen extends ConsumerStatefulWidget {
@@ -59,6 +73,10 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
   /// True from the moment Logout is pressed until the flow ends, whatever the
   /// outcome — so the Logout card answers the tap at once with a spinner.
   bool _loggingOut = false;
+
+  /// True while a Delete Data action runs, so its card answers the tap with a
+  /// spinner the way Logout does and a second tap cannot start a second run.
+  bool _deletingData = false;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +95,18 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     // "unknown" a lazy first read gives. (The connection is the confirmation
     // screen's business now — it is where the deletion actually runs.)
     final premium = ref.watch(premiumAccessProvider).value;
+    // The plan picks which of the two data cards is drawn. Only a **known**
+    // premium account gets the cloud one: the cached profile has not landed yet
+    // for anyone else, and the smaller promise — this device only — is the one
+    // that can never take away a copy the user did not ask to lose.
+    final cloudDeletion = premium == true;
+    // A firm's diary is shared, so neither card deletes anything there; the
+    // refusal sentence is the same for both (see `_deleteData`).
+    final firmMode = ref.watch(firmModeProvider);
+    // Watched, so the cloud card's offline refusal is never the "unknown" a lazy
+    // first read answers with. Unknown counts as online: the push reports its own
+    // failure, which is the honest direction.
+    final online = ref.watch(isOnlineProvider).value != false;
 
     return SettingsSubPageModal(
       title: l.settingsManageAccount_title,
@@ -189,6 +219,31 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
               ),
             ),
             SizedBox(height: AppSpacing.sm),
+            // Deleting the data, not the account: one card, whose title and reach
+            // are the plan's, opening the tick list both plans share. The premium
+            // card is drawn first because it is the one that also clears the
+            // cloud copy; the free card touches this device alone.
+            SettingsActionCard(
+              key: ValueKey(
+                cloudDeletion
+                    ? 'manage-account-delete-local-and-cloud-data'
+                    : 'manage-account-delete-local-data',
+              ),
+              icon: Icons.delete_sweep_outlined,
+              title: cloudDeletion
+                  ? l.settingsManageAccount_deleteLocalAndCloudData
+                  : l.settingsManageAccount_deleteLocalData,
+              subtitle: l.settingsManageAccount_deleteCannotBeUndone,
+              tone: SettingsActionTone.destructive,
+              busy: _deletingData,
+              onTap: () => _deleteData(
+                context,
+                cloud: cloudDeletion,
+                online: online,
+                firmMode: firmMode,
+              ),
+            ),
+            SizedBox(height: AppSpacing.sm),
             // The destructive action, warned and wired.
             SettingsActionCard(
               icon: Icons.delete_outline,
@@ -236,6 +291,81 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
       // card stuck spinning.
       if (mounted) setState(() => _loggingOut = false);
     }
+  }
+
+  /// Deletes the ticked kinds of data, or says why it will not.
+  ///
+  /// Three refusals come before the window, so a user who cannot act is told
+  /// rather than walked through a tick list that would do nothing: a **firm**
+  /// account (the diary is shared with colleagues, so there is no personal copy
+  /// to delete), and — for the cloud card only — **no connection**, because the
+  /// deletes it queues could only reach the account later. The free card's work
+  /// is local, so it needs no link at all.
+  ///
+  /// [online] and [firmMode] are the live answers watched in `build`, handed in
+  /// rather than re-read here: a lazily-taken first snapshot answers "unknown",
+  /// which is the wrong direction for a refusal.
+  Future<void> _deleteData(
+    BuildContext context, {
+    required bool cloud,
+    required bool online,
+    required bool firmMode,
+  }) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    if (firmMode) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l.settingsManageAccount_deleteDataFirmRefused)),
+      );
+      return;
+    }
+    if (cloud && !online) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l.settingsManageAccount_deleteDataNeedsConnection),
+        ),
+      );
+      return;
+    }
+
+    // A dismissed window is a cancellation: the tick list returns nothing and
+    // this returns without touching the database.
+    final scope = await showDataDeletionDialog(context, cloud: cloud);
+    if (!mounted || scope == null || scope.isEmpty) return;
+
+    setState(() => _deletingData = true);
+    DataDeletionResult result;
+    try {
+      final service = await ref.read(dataDeletionServiceProvider.future);
+      result = await service.delete(scope: scope, cloud: cloud);
+    } on Object {
+      // The service reports its own failures, so this is the provider itself
+      // being unreadable — the same sentence either way, and nothing deleted.
+      result = const DataDeletionResult(
+        counts: <DataDeletionCategory, int>{},
+        failed: true,
+      );
+    } finally {
+      // Clear the spinner whatever the outcome, so a failure never leaves the
+      // card stuck spinning — the same rule the Logout card follows.
+      if (mounted) setState(() => _deletingData = false);
+    }
+    if (!mounted) return;
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          result.failed
+              ? l.settingsManageAccount_deleteDataFailed
+              : cloud && !result.cloudSent
+              // The local deletes are done; the account's copies are queued and
+              // the worker sends them on the next successful sync.
+              ? l.settingsManageAccount_deleteDataCloudPending
+              : l.settingsManageAccount_deleteDataDone,
+        ),
+      ),
+    );
   }
 
   /// Warns, then opens the typed confirmation that actually deletes.
@@ -288,10 +418,7 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
           TextButton(
             style: TextButton.styleFrom(
               minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                color: AppColors.error,
-              ),
+              textStyle: const TextStyle(fontSize: 16, color: AppColors.error),
             ),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.settingsManageAccount_deleteAccount),
@@ -300,6 +427,4 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
       ),
     );
   }
-
 }
-

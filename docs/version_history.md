@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.472 - Backup & Restore now refuses a backup belonging to another account (by the rows' owner ids) and stamps this device's identity onto a hand-filled sample workbook that names nobody.
+Version: 0.0.473 - Manage Account gained Delete Local & Cloud Data (premium) and Delete Local Data (free): one tick list removes the chosen cases, notes, references and custom reference data through the app's own delete path, leaving the account and its settings alone.
 --------------------------------------
 
 ## Version History Log:
@@ -486,3 +486,4 @@ Version: 0.0.469 - Online Sync gained a Disable/Enable Sync switch that pauses t
 Version: 0.0.470 - Online Sync: the Disable/Enable Sync button is now one dark filled control with a white label, moved to the foot of the screen below Pending Sync.
 Version: 0.0.471 - Sync Status: each row now names its record (case type + number + court, or the entity's own name) and a blocked row labels why, with the worker's retry limit shared.
 Version: 0.0.472 - Backup & Restore now refuses a backup belonging to another account (by the rows' owner ids) and stamps this device's identity onto a hand-filled sample workbook that names nobody.
+Version: 0.0.473 - Manage Account gained Delete Local & Cloud Data (premium) and Delete Local Data (free): one tick list removes the chosen cases, notes, references and custom reference data through the app's own delete path, leaving the account and its settings alone.

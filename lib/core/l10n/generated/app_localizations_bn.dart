@@ -1744,6 +1744,63 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই কাজটি ফিরিয়ে আনা যাবে না';
 
   @override
+  String get settingsManageAccount_deleteLocalAndCloudData =>
+      'লোকাল ও ক্লাউড ডেটা মুছুন';
+
+  @override
+  String get settingsManageAccount_deleteLocalData => 'লোকাল ডেটা মুছুন';
+
+  @override
+  String get settingsManageAccount_deleteDataTitle => 'ডেটা মুছে ফেলবেন?';
+
+  @override
+  String get settingsManageAccount_deleteDataBodyCloud =>
+      'এই ডিভাইস ও আপনার অ্যাকাউন্ট থেকে কী মুছবেন তা টিক দিন। আপনার প্রোফাইল, সাবস্ক্রিপশন ও সেটিং অপরিবর্তিত থাকবে।';
+
+  @override
+  String get settingsManageAccount_deleteDataBodyLocal =>
+      'এই ডিভাইস থেকে কী মুছবেন তা টিক দিন। আপনার প্রোফাইল, সাবস্ক্রিপশন ও সেটিং অপরিবর্তিত থাকবে।';
+
+  @override
+  String get settingsManageAccount_deleteDataCases => 'মামলা';
+
+  @override
+  String get settingsManageAccount_deleteDataNotes => 'নোট';
+
+  @override
+  String get settingsManageAccount_deleteDataCaseReferences => 'কেস রেফারেন্স';
+
+  @override
+  String get settingsManageAccount_deleteDataCustomSeedData => 'কাস্টম ডেটা';
+
+  @override
+  String get settingsManageAccount_deleteDataCustomSeedDataHint =>
+      'আপনার যোগ করা আদালতের ক্যাটেগরি, আদালতের নাম, ধাপ, মামলার ধরন ও পক্ষগুলো';
+
+  @override
+  String get settingsManageAccount_deleteDataConfirm => 'নির্বাচিত মুছুন';
+
+  @override
+  String get settingsManageAccount_deleteDataDone =>
+      'আপনার নির্বাচিত ডেটা মুছে ফেলা হয়েছে।';
+
+  @override
+  String get settingsManageAccount_deleteDataCloudPending =>
+      'এই ডিভাইস থেকে আপনার ডেটা মুছে ফেলা হয়েছে। অ্যাকাউন্টের কপিগুলো পরের সিঙ্কে মুছে যাবে।';
+
+  @override
+  String get settingsManageAccount_deleteDataNeedsConnection =>
+      'আপনার ক্লাউড ডেটা মুছতে ইন্টারনেটে সংযুক্ত হন। কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get settingsManageAccount_deleteDataFirmRefused =>
+      'আপনি একটি ফার্মের সদস্য, তাই আপনার ডায়েরি ফার্মের সঙ্গে যুক্ত। ডেটা মুছতে আগে ফার্মের মালিককে আপনাকে সরিয়ে দিতে বলুন।';
+
+  @override
+  String get settingsManageAccount_deleteDataFailed =>
+      'আপনার ডেটা মোছা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get settingsManageAccount_dangerZone => 'সতর্কতা';
 
   @override

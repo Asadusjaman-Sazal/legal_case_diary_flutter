@@ -189,6 +189,28 @@
        style as every other section heading, in the error colour and bold. -->
   <p class="mt-lg font-label-md text-label-md font-bold text-error tracking-wider">Danger Zone</p>
 
+  <!-- Deleting the data without the account (0.0.473, user request): the SAME
+       card as Delete Account above the one that removes the account itself, so
+       the three read as one column. Which of the two titles is drawn is the
+       account's plan — this drawing is the premium one, "Delete Local & Cloud
+       Data"; a free account's card is "Delete Local Data" and touches this
+       device alone. Both open ONE tick list ("Delete Data?" — Cases, Notes,
+       Case References and the Custom Seed Data line below them), whose red
+       Delete Selected button stays disabled until something is ticked; the
+       profile, the subscription and the settings are never in that list, and
+       neither card exists for a firm account, whose diary is shared. -->
+  <div class="mt-sm">
+    <button class="w-full flex items-center bg-error-container border border-error/20 rounded-2xl p-md hover:opacity-90 transition-opacity text-left">
+      <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-error mr-md">
+        <span class="material-symbols-outlined">delete_sweep</span>
+      </div>
+      <div class="flex-1 min-h-[44px] flex flex-col justify-center">
+        <span class="block font-title-md text-title-md text-on-error-container">Delete Local &amp; Cloud Data</span>
+        <span class="block mt-xs font-body-sm text-body-sm text-error/80">This action cannot be undone</span>
+      </div>
+    </button>
+  </div>
+
   <!-- The destructive action, warned and wired (0.0.411). Tapping it opens the
        warning: what the deletion takes with it — worded for a free account,
        whose diary only ever lived on this device, or a premium one, whose diary

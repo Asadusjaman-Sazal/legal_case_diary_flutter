@@ -39,6 +39,7 @@ import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
+import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
@@ -199,7 +200,10 @@ void main() {
     await pumpManageAccount(tester);
 
     expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
-    expect(find.text(l.settingsManageAccount_subscriptionDetails), findsNothing);
+    expect(
+      find.text(l.settingsManageAccount_subscriptionDetails),
+      findsNothing,
+    );
     expect(
       find.text(l.settingsManageAccount_purchaseNewSubscription),
       findsNothing,
@@ -213,15 +217,21 @@ void main() {
   ) async {
     await pumpManageAccount(tester);
 
-    // The two action cards are one widget, so "the Logout button is the same
-    // size as the Delete Account button" is a property of the code rather than
-    // a promise two layouts have to keep in step.
+    // The action cards are one widget, so "the Logout button is the same size as
+    // the Delete Account button" is a property of the code rather than a promise
+    // two layouts have to keep in step — and the Delete Data card the user asked
+    // to sit between them (0.0.473) is the same card again.
     final cards = find.byType(SettingsActionCard);
-    expect(cards, findsNWidgets(2));
-    expect(tester.getSize(cards.at(0)).width, tester.getSize(cards.at(1)).width);
+    expect(cards, findsNWidgets(3));
+    for (var index = 1; index < 3; index++) {
+      expect(
+        tester.getSize(cards.at(index)).width,
+        tester.getSize(cards.at(0)).width,
+      );
+    }
     // And the Logout card is exactly as tall as the one-line Change Password row
     // beside it: one card shape, one 44 px content row. (The destructive card is
-    // taller only when its own subtitle wraps, which is a wrapped supporting
+    // taller only when their own subtitle wraps, which is a wrapped supporting
     // line rather than anything about the Logout button's size.)
     expect(
       tester.getSize(cards.at(0)).height,
@@ -238,7 +248,7 @@ void main() {
     expect(label.style?.fontWeight, FontWeight.w700);
 
     // Order, by geometry: the profile card, then Logout, then Change Password,
-    // then the label, then Delete Account.
+    // then the label, then Delete Data, then Delete Account.
     final emailBottom = tester
         .getBottomLeft(find.text('advocate.asad@law.com'))
         .dy;
@@ -249,7 +259,7 @@ void main() {
     final dangerTop = tester
         .getTopLeft(find.text(l.settingsManageAccount_dangerZone))
         .dy;
-    final deleteTop = tester.getTopLeft(cards.at(1)).dy;
+    final deleteTop = tester.getTopLeft(cards.at(2)).dy;
 
     expect(
       logoutTop,
@@ -274,8 +284,8 @@ void main() {
     // the ink controller each InkWell resolves to must be the render object of
     // the Material *inside its own card* — in the buggy shape there is no
     // Material in the card, and the controller was one shared with the whole
-    // screen. Covers all three buttons on this screen; the two Subscription
-    // rows are the same two widgets, pinned in their own suite.
+    // screen. Covers every card on this screen; the two Subscription rows are
+    // the same widgets, pinned in their own suite.
     await pumpManageAccount(tester);
 
     // Where one InkWell's splash paints, for the card [finder] is inside.
@@ -284,31 +294,40 @@ void main() {
           .descendant(of: card, matching: find.byType(InkWell))
           .evaluate()
           .single;
-      final material = find.descendant(of: card, matching: find.byType(Material));
+      final material = find.descendant(
+        of: card,
+        matching: find.byType(Material),
+      );
       expect(material, findsOneWidget, reason: 'the card is its own Material');
       return Material.of(ink);
     }
 
     final cards = find.byType(SettingsActionCard);
     final logoutSurface = splashSurfaceOf(cards.at(0));
-    final deleteSurface = splashSurfaceOf(cards.at(1));
+    final dataSurface = splashSurfaceOf(cards.at(1));
+    final deleteSurface = splashSurfaceOf(cards.at(2));
     final passwordSurface = splashSurfaceOf(
       find.byType(SettingsSubMenuRow).first,
     );
 
     // A shared controller is exactly what the old opaque-Container shape
     // produced: every card's splash resolved to the one screen-level Material
-    // behind them all. Three distinct controllers is the fixed shape.
+    // behind them all. Distinct controllers are the fixed shape.
+    expect(logoutSurface, isNot(same(dataSurface)));
     expect(logoutSurface, isNot(same(deleteSurface)));
+    expect(dataSurface, isNot(same(deleteSurface)));
     expect(logoutSurface, isNot(same(passwordSurface)));
+    expect(dataSurface, isNot(same(passwordSurface)));
     expect(deleteSurface, isNot(same(passwordSurface)));
 
     // And each card really is its own Material — the assertion inside
-    // splashSurfaceOf — so the three controllers are the three cards.
-    expect(find.descendant(of: cards.at(0), matching: find.byType(Material)),
-        findsOneWidget);
-    expect(find.descendant(of: cards.at(1), matching: find.byType(Material)),
-        findsOneWidget);
+    // splashSurfaceOf — so the distinct controllers are the distinct cards.
+    for (var index = 0; index < 3; index++) {
+      expect(
+        find.descendant(of: cards.at(index), matching: find.byType(Material)),
+        findsOneWidget,
+      );
+    }
 
     await unmountApp(tester);
   });
@@ -473,5 +492,264 @@ void main() {
     expect(find.text(loginRouteMarker), findsOneWidget);
 
     await unmountApp(tester);
+  });
+
+  group('Delete Data (0.0.473, user request)', () {
+    /// Live (non-tombstoned) rows of [table].
+    Future<int> liveRows(String table) async {
+      final row = await harness.db
+          .customSelect(
+            'SELECT COUNT(*) AS n FROM "$table" WHERE is_deleted = 0',
+          )
+          .getSingle();
+      return row.data['n']! as int;
+    }
+
+    /// One case reference, so a deletion has something it must leave alone.
+    Future<void> seedReference(AppDatabase db) => db
+        .into(db.caseReferences)
+        .insert(
+          CaseReferencesCompanion(
+            id: const Value('r1'),
+            userId: const Value('user-1'),
+            referenceAndPageNo: const Value('12 MLR 34'),
+            createdAt: const Value(0),
+            updatedAt: const Value(0),
+          ),
+        );
+
+    /// A premium individual account: an expiry in the future.
+    Future<void> seedPremium(AppDatabase db) => ProfilesDao(db).upsert(
+      ProfilesCompanion(
+        id: const Value('user-1'),
+        fullName: const Value('Adv. Rahim Uddin'),
+        role: const Value(AccountRole.individual),
+        subscriptionStatus: const Value('active'),
+        subscriptionExpiry: Value(
+          DateTime.now()
+              .toUtc()
+              .add(const Duration(days: 30))
+              .millisecondsSinceEpoch,
+        ),
+        createdAt: const Value(1),
+      ),
+    );
+
+    testWidgets('a free account gets the local card and no cloud one', (
+      tester,
+    ) async {
+      await pumpManageAccount(tester);
+
+      expect(
+        find.text(l.settingsManageAccount_deleteLocalData),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+        findsNothing,
+        reason: 'a free account has no cloud copy to delete',
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a premium account gets the cloud card and no local one', (
+      tester,
+    ) async {
+      await pumpManageAccount(tester, seed: seedPremium);
+
+      expect(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+        findsOneWidget,
+      );
+      expect(find.text(l.settingsManageAccount_deleteLocalData), findsNothing);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('ticking Notes deletes the notes and leaves the rest', (
+      tester,
+    ) async {
+      await pumpManageAccount(
+        tester,
+        seed: (db) async {
+          await _seedNote(db);
+          await seedReference(db);
+        },
+      );
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+      await tester.pumpAndSettle();
+
+      // The tick list opens with nothing ticked, so the red action is disabled —
+      // a stray tap cannot delete anything.
+      expect(
+        find.text(l.settingsManageAccount_deleteDataTitle),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<TextButton>(
+              find.byKey(const ValueKey('data-deletion-confirm')),
+            )
+            .onPressed,
+        isNull,
+      );
+      expect(
+        find.text(l.settingsManageAccount_deleteDataCustomSeedDataHint),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('data-deletion-notes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
+      await tester.pumpAndSettle();
+
+      expect(await liveRows('notes'), 0);
+      expect(
+        await liveRows('case_references'),
+        1,
+        reason: 'only what was ticked goes',
+      );
+      expect(find.text(l.settingsManageAccount_deleteDataDone), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('dismissing the tick list deletes nothing', (tester) async {
+      await pumpManageAccount(tester, seed: _seedNote);
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-notes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.sharedActions_cancel));
+      await tester.pumpAndSettle();
+
+      expect(await liveRows('notes'), 1);
+      expect(find.text(l.settingsManageAccount_deleteDataDone), findsNothing);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a firm account is told why nothing is deleted', (
+      tester,
+    ) async {
+      // The diary is shared with colleagues, so there is no personal copy to
+      // delete — the same reason Delete Account refuses a firm account.
+      await pumpManageAccount(
+        tester,
+        seed: (db) async {
+          await _seedNote(db);
+          await ProfilesDao(db).upsert(
+            const ProfilesCompanion(
+              id: Value('user-1'),
+              fullName: Value('Adv. Rahim Uddin'),
+              role: Value(AccountRole.owner),
+              firmId: Value('firm-1'),
+              subscriptionStatus: Value('active'),
+              createdAt: Value(1),
+            ),
+          );
+        },
+      );
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(l.settingsManageAccount_deleteDataFirmRefused),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l.settingsManageAccount_deleteDataTitle),
+        findsNothing,
+        reason: 'the tick list never opens for a firm account',
+      );
+      expect(await liveRows('notes'), 1);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('the cloud card refuses without a connection', (tester) async {
+      // Nothing is deleted offline: the deletes would only reach the account
+      // later, and the user asked for both copies gone.
+      await pumpManageAccount(
+        tester,
+        seed: (db) async {
+          await seedPremium(db);
+          await _seedNote(db);
+        },
+        overrides: <Override>[
+          isOnlineProvider.overrideWith((ref) => Stream<bool>.value(false)),
+        ],
+      );
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(l.settingsManageAccount_deleteDataNeedsConnection),
+        findsOneWidget,
+      );
+      expect(find.text(l.settingsManageAccount_deleteDataTitle), findsNothing);
+      expect(await liveRows('notes'), 1);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('the cloud card deletes locally when there is a link', (
+      tester,
+    ) async {
+      // A premium account, online, in a build with no backend: the local rows go
+      // and the account's copies stay queued, which is the honest sentence. (The
+      // pushed case is pinned in `data_deletion_test.dart`.)
+      await pumpManageAccount(
+        tester,
+        seed: (db) async {
+          await seedPremium(db);
+          await _seedNote(db);
+        },
+      );
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.text(l.settingsManageAccount_deleteLocalAndCloudData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-notes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
+      await tester.pumpAndSettle();
+
+      expect(await liveRows('notes'), 0);
+      expect(
+        find.text(l.settingsManageAccount_deleteDataCloudPending),
+        findsOneWidget,
+      );
+
+      await unmountApp(tester);
+    });
   });
 }

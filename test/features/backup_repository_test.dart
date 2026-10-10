@@ -69,6 +69,7 @@ void main() {
   group('BackupRepository', () {
     late AppDatabase db;
     late BackupRepository backup;
+    late LocalIdentityService identity;
     late LocalCaseRepository caseRepo;
     late LocalNotesRepository notesRepo;
     late CasesDao casesDao;
@@ -80,7 +81,7 @@ void main() {
       db = AppDatabase(NativeDatabase.memory());
 
       final prefs = await SharedPreferences.getInstance();
-      final identity = LocalIdentityService(prefs);
+      identity = LocalIdentityService(prefs);
       final syncHelper = SyncWriteHelper(SyncQueueDao(db), identity);
 
       casesDao = CasesDao(db);
@@ -387,6 +388,7 @@ void main() {
 
       final result = await backup.restoreSnapshot(
         backup: backup.openExcelBackup(bytes),
+        ownerId: identity.getId(),
         replaceExisting: true,
       );
 

@@ -44,6 +44,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/backup/backup_cipher.dart';
 import '../../../core/backup/backup_format.dart';
+import '../../../core/backup/backup_ownership.dart';
 import '../../../core/backup/backup_restore.dart';
 import '../../../core/backup/excel_backup.dart';
 import '../../../database/app_database.dart';
@@ -434,6 +435,81 @@ class BackupRepository {
   TableInfo<Table, Object?> _tableInfo(String name) =>
       db.allTables.firstWhere((table) => table.actualTableName == name);
 
+  // ---------------------------------------------------------------------------
+  // Ownership (Task 15 follow-up, user request)
+  //
+  // A backup's envelope names no owner, so the rows do: every portable table
+  // holding a person's data carries `user_id` (or `requested_by`) and, where it
+  // applies, `firm_id`. The columns are read from the live schema rather than
+  // hand-listed, so a renamed or added column cannot leave the check looking at
+  // a column that no longer exists.
+  // ---------------------------------------------------------------------------
+
+  /// The ownership columns of every portable table that has them.
+  ///
+  /// A table with neither `user_id` nor `requested_by` is left out and never
+  /// consulted: the pull-only caches name accounts in their own columns
+  /// (`firms.owner_id`, `profiles.id`), which are not authored data and which
+  /// would refuse an associate's own firm backup, and `conflict_log` carries
+  /// attribution only.
+  Map<String, BackupOwnerColumns> backupOwnerColumns() =>
+      <String, BackupOwnerColumns>{
+        for (final name in backupTableOrder) name: ?_ownerColumnsFor(name),
+      };
+
+  /// One table's ownership columns, or null when the table holds none.
+  BackupOwnerColumns? _ownerColumnsFor(String table) {
+    final names = <String>{
+      for (final column in _tableInfo(table).$columns) column.name,
+    };
+    final owner = names.contains('user_id')
+        ? 'user_id'
+        : names.contains('requested_by')
+        ? 'requested_by'
+        : null;
+    if (owner == null) return null;
+    return BackupOwnerColumns(
+      owner: owner,
+      firm: names.contains('firm_id') ? 'firm_id' : null,
+      audit: <String>[
+        for (final column in const <String>[
+          'last_modified_by',
+          'created_by',
+          'reviewed_by',
+        ])
+          if (column != owner && names.contains(column)) column,
+      ],
+    );
+  }
+
+  /// Whether [backup] may be restored as [ownerId], or whose file it is.
+  ///
+  /// Throws [BackupRestoreFailure.anotherAccount] when the file names an account
+  /// that is neither [ownerId] nor a firm [firmId] belongs to, and reads nothing
+  /// from the database: the caller can ask this the moment a file is opened,
+  /// before it offers to replace anything. A file with **no** owner — a
+  /// hand-filled sample workbook, or placeholder text in the owner cells —
+  /// answers [BackupOwnership.ownerless] and is stamped on import.
+  BackupOwnership checkRestorable(
+    OpenedBackup backup, {
+    required String ownerId,
+    String? firmId,
+  }) {
+    final ownership = classifyBackupOwnership(
+      tables: backup.tables,
+      columns: backupOwnerColumns(),
+      ownerId: ownerId,
+      firmId: firmId,
+    );
+    if (ownership == BackupOwnership.anotherAccount) {
+      throw const BackupRestoreException(
+        BackupRestoreFailure.anotherAccount,
+        'The backup holds rows owned by another account.',
+      );
+    }
+    return ownership;
+  }
+
   /// Builds the Excel workbook for the current local state.
   Future<Uint8List> buildExcelWorkbook({
     required String appVersion,
@@ -696,27 +772,44 @@ class BackupRepository {
     );
   }
 
-/// Imports an opened backup into the local database.
-///
-/// Everything happens in **one transaction**: the collision check, the
-/// delete-all and every insert. A failure anywhere rolls the whole thing back,
-/// so a restore can never leave the database half-replaced. Rows keep their
-/// original ids and sync columns (they are inserted verbatim from the file), so
-/// a later premium upgrade can push the restored data unchanged.
-///
-/// The file's **own tables are the scope** of both the replace and the collision
-/// check — a full backup carries every portable table and replaces the lot, while
-/// a scoped file replaces only what it carries. That is what makes a partial
-/// format like an Excel workbook safe to restore into a working diary.
+  /// Imports an opened backup into the local database.
+  ///
+  /// Everything happens in **one transaction**: the collision check, the
+  /// delete-all and every insert. A failure anywhere rolls the whole thing back,
+  /// so a restore can never leave the database half-replaced. Rows keep their
+  /// original ids and sync columns (they are inserted verbatim from the file), so
+  /// a later premium upgrade can push the restored data unchanged.
+  ///
+  /// The file's **own tables are the scope** of both the replace and the collision
+  /// check — a full backup carries every portable table and replaces the lot, while/// a scoped file replaces only what it carries. That is what makes a partial
+  /// format like an Excel workbook safe to restore into a working diary.
   ///
   /// When the database already holds data and [replaceExisting] is false this
   /// throws [BackupRestoreFailure.conflictNeedsConfirmation] **before writing
   /// anything** — the caller asks the user, then cancels or calls again with
   /// `replaceExisting: true`. Restores never merge silently.
+  ///
+  /// [ownerId] is the identity the restore is performed as — this device's bound
+  /// account, or its pre-account placeholder — and [firmId] its firm. A file
+  /// naming another account is refused with
+  /// [BackupRestoreFailure.anotherAccount] before the transaction opens, and a
+  /// file that names **no** owner has this identity stamped onto its rows, so a
+  /// hand-filled sample workbook is pushable afterwards instead of arriving
+  /// owned by nobody. See `core/backup/backup_ownership.dart`.
   Future<BackupRestoreResult> restoreSnapshot({
     required OpenedBackup backup,
+    required String ownerId,
     bool replaceExisting = false,
+    String? firmId,
   }) async {
+    // Ownership first, and before the transaction: whose rows these are decides
+    // whether the file may be opened at all, and a refused file must not have
+    // touched the database — not even by holding a write lock.
+    final ownership = checkRestorable(
+      backup,
+      ownerId: ownerId,
+      firmId: firmId,
+    );
     // Validated before the transaction opens: a malformed snapshot is refused
     // outright rather than discovered halfway through the inserts.
     final tables = portableTablesFrom(backup.payload);
@@ -736,6 +829,7 @@ class BackupRepository {
         if (tables.containsKey(name)) name,
     ];
     var replaced = false;
+    var stamped = 0;
     try {
       await db.transaction(() async {
         final existing = await hasDataInTables(scope);
@@ -753,10 +847,25 @@ class BackupRepository {
             await db.customStatement('DELETE FROM "$name"');
           }
         }
-        // Parent before child, the same order the export wrote them in.
+        // Parent before child, the same order the export wrote them in. Each row
+        // is copied before it is stamped, so the payload the caller still holds
+        // is never mutated by an import.
+        final ownerColumns = backupOwnerColumns();
         for (final name in scope) {
+          final columns = ownerColumns[name];
           for (final row in tables[name] ?? const <Map<String, dynamic>>[]) {
-            await _insertRow(name, row);
+            final insert = Map<String, dynamic>.of(row);
+            if (columns != null) {
+              if (stampRowOwnership(
+                insert,
+                columns,
+                ownerId: ownerId,
+                firmId: firmId,
+              )) {
+                stamped++;
+              }
+            }
+            await _insertRow(name, insert);
           }
         }
       });
@@ -776,6 +885,8 @@ class BackupRepository {
       tableCount: tables.length,
       rowCount: rowCount,
       replacedExisting: replaced,
+      ownership: ownership,
+      stampedRows: stamped,
     );
   }
 
@@ -808,6 +919,13 @@ class BackupRestoreResult {
   /// Whether pre-existing data was deleted to make room.
   final bool replacedExisting;
 
+  /// Whose file it was: this device's own rows, or a file that named no owner
+  /// and was stamped with this device's identity on the way in.
+  final BackupOwnership ownership;
+
+  /// How many rows were stamped. Zero for a file that already named its owners.
+  final int stampedRows;
+
   /// Creates a restore receipt.
   const BackupRestoreResult({
     required this.kind,
@@ -815,6 +933,8 @@ class BackupRestoreResult {
     required this.tableCount,
     required this.rowCount,
     required this.replacedExisting,
+    this.ownership = BackupOwnership.mine,
+    this.stampedRows = 0,
   });
 }
 

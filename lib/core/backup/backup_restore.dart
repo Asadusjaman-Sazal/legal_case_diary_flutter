@@ -97,6 +97,17 @@ enum BackupRestoreFailure {
   /// The import transaction failed and was rolled back completely; the database
   /// is exactly as it was before the attempt.
   importFailed,
+
+  /// The file holds rows owned by a **different account** (user request): its
+  /// owner cells name an id that is neither this device's identity nor a firm it
+  /// belongs to, so importing it would put rows on the device that the server
+  /// will never accept from the account restoring them. Refused before the
+  /// transaction opens, and nothing is imported or overwritten.
+  ///
+  /// A file that names **no** owner at all — a sample workbook filled in by hand
+  /// — is not this failure: it restores, and its rows are stamped with this
+  /// device's identity.
+  anotherAccount,
 }
 
 /// Thrown when a backup cannot be opened or imported.

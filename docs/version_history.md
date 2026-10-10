@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.471 - Sync Status: each row now names its record (case type + number + court, or the entity's own name) and a blocked row labels why, with the worker's retry limit shared.
+Version: 0.0.472 - Backup & Restore now refuses a backup belonging to another account (by the rows' owner ids) and stamps this device's identity onto a hand-filled sample workbook that names nobody.
 --------------------------------------
 
 ## Version History Log:
@@ -485,3 +485,4 @@ Version: 0.0.468 - Sign Up's Account Type pair now splits the row 40/60 between 
 Version: 0.0.469 - Online Sync gained a Disable/Enable Sync switch that pauses the engine and closes the Realtime channel for this app run, cleared by the button or a restart.
 Version: 0.0.470 - Online Sync: the Disable/Enable Sync button is now one dark filled control with a white label, moved to the foot of the screen below Pending Sync.
 Version: 0.0.471 - Sync Status: each row now names its record (case type + number + court, or the entity's own name) and a blocked row labels why, with the worker's retry limit shared.
+Version: 0.0.472 - Backup & Restore now refuses a backup belonging to another account (by the rows' owner ids) and stamps this device's identity onto a hand-filled sample workbook that names nobody.

@@ -8,6 +8,13 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Online Sync: subtitle removed, free-plan sentence red — COMPLETE
+
+- **Request (the user's, scoped to Online Sync only).** (1) Remove *"Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium."* (2) Make *"A subscription plan is required… here."* red for the Free plan.
+- **The change.** The screen's top info line is gone — `settingsOnlineSync_subtitle` removed from both ARBs, regenerated, and dropped from the screen (`online_sync_screen.dart`). The free-plan body sentence (`_FreePlanPurchaseHint`) is now `AppColors.error` for the whole text, **here** link included (it keeps its bold + underline); the link's old black ink (`AppColors.secondary`) is replaced.
+- **Tests.** `online_sync_screen_test.dart`'s "sentence is as big as the info line" case is rewritten (now 19): asserts the sentence's root span is red, the **here** link is red (bold + underlined), the subtitle text is absent, and the sentence still spans the card.
+- **Verification.** `flutter analyze` clean; online sync suite 19/19; ARB parity test green; full suite green; `record_version.py --check` OK; version **0.0.453**.
+
 ### 2026-10-10 — Free Plan Limitations heading and bullets restyled — COMPLETE
 
 - **Request (the user's, scoped to Subscription Details only).** Remove the bullet header from the **Free Plan Limitations** title; make the section's bullets black.

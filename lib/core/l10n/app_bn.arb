@@ -814,7 +814,6 @@
   "settingsManageAccount_premiumUntil": "{date} পর্যন্ত প্রিমিয়াম",
   "@@_section_settingsOnlineSync": "SETTINGS - ONLINE SYNC  |  lib/features/settings/presentation/online_sync_screen.dart",
   "settingsOnlineSync_title": "অনলাইন সিঙ্ক",
-  "settingsOnlineSync_subtitle": "আপনার মামলা, নোট ও রেফারেন্স এই ডিভাইসে হালনাগাদ থাকে, এবং প্রিমিয়াম থাকলে আপনার অ্যাকাউন্টে পাঠানো হয়।",
   "settingsOnlineSync_cases": "মামলা",
   "settingsOnlineSync_notes": "নোট",
   "settingsOnlineSync_references": "রেফারেন্স",

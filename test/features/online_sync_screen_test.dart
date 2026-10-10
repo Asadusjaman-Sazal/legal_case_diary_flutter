@@ -252,7 +252,7 @@ void main() {
     expect(find.text(_paywallMarker), findsOneWidget);
   });
 
-  testWidgets('the sentence is as big as the info line, and spans the card', (
+  testWidgets('the sentence spans the card and is red, from the first word to the link', (
     tester,
   ) async {
     await pump(tester, premium: false);
@@ -261,15 +261,26 @@ void main() {
     expect(sentence, findsOneWidget);
     final sentenceText = tester.widget<Text>(sentence);
 
-    // Same type size and ink as the info line above the card.
-    final infoLine = tester.widget<Text>(
-      find.text(
-        'Your cases, notes and references are kept up to date on this '
-        'device, and sent to your account when you are on Premium.',
-      ),
+    // Red (user request): the sentence names what is missing — a plan — so it
+    // reads as the reason sync is blocked, the same ink the card's own blocked
+    // state uses, rather than the muted grey of an ordinary description. The
+    // whole sentence is red, link and all.
+    final textSpan = sentenceText.textSpan! as TextSpan;
+    // The red is on the sentence's root style; the child text spans inherit it
+    // rather than each carrying their own colour copy.
+    expect(textSpan.style?.color, AppColors.error);
+    final link = tester.widget<Text>(find.text('here'));
+    expect(link.style?.color, AppColors.error);
+    expect(link.style?.fontWeight, FontWeight.w700);
+    expect(link.style?.decoration, TextDecoration.underline);
+
+    // The heading sentence that used to sit above the card is gone (user
+    // request), so the card leads the screen.
+    expect(find.byType(OnlineSyncScreen), findsOneWidget);
+    expect(
+      find.textContaining('kept up to date on this device'),
+      findsNothing,
     );
-    expect(sentenceText.textSpan?.style?.fontSize, infoLine.style?.fontSize);
-    expect(sentenceText.textSpan?.style?.color, infoLine.style?.color);
 
     // And it is laid out in the column the Sync Now button fills rather than
     // the header row's column. That one was 64px (48 + the 16 gap) narrower

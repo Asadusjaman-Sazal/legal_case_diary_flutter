@@ -1751,10 +1751,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsOnlineSync_title => 'Online Sync';
 
   @override
-  String get settingsOnlineSync_subtitle =>
-      'Your cases, notes and references are kept up to date on this device, and sent to your account when you are on Premium.';
-
-  @override
   String get settingsOnlineSync_cases => 'Cases';
 
   @override

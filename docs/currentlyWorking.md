@@ -8,6 +8,14 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Non-verified Accounts: Delete is a solid red button — COMPLETE
+
+- **Request (the user's, that screen only).** The Delete button's background should be red with white text.
+- **The change.** It was an `OutlinedButton` — red border and red text on the card's white. It is now a `FilledButton` with `AppColors.error` (`#DC2626`) as its background and `AppColors.onError` (white) as its foreground, so the page's one destructive action reads as one. The disabled pair (the surface greys) is set explicitly, so a Delete that goes out of flight mid-tap still greys rather than staying red.
+- **Tests.** The three `OutlinedButton, 'Delete'` finders in `admin_unconfirmed_accounts_screen_test.dart` became `FilledButton, 'Delete'`.
+- **Verification.** `flutter analyze` clean; `admin_unconfirmed_accounts_screen_test` 9/9; full suite green; `record_version.py --check` OK; version **0.0.461**.
+- **Mockup.** None to update: neither `admin_payment_requests_screen.dart` nor `admin_unconfirmed_accounts_screen.dart` has a mockup of its own (the `admin_panel` mockup draws the menu and names them).
+
 ### 2026-10-10 — Admin Panel: sub-menus, a badge, and Non-verified Accounts — COMPLETE
 
 - **Request (the user's, five items, Admin Panel only).** A count badge over the side-menu Admin row; two sub-menus; move Payment Requests into one (drop its inner heading, number the cards); a new Non-verified Accounts page for abandoned sign-ups (numbered cards with creation date & time, name, e-mail); and a search button in both sub-menus' headers that opens a closed section holding a match.

@@ -313,11 +313,15 @@ class _AccountCard extends StatelessWidget {
           if (account.canDelete)
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
+              // A solid red button with white text (user request): the one
+              // destructive action on the page reads as one.
+              child: FilledButton(
                 onPressed: busy ? null : onDelete,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.error,
-                  side: const BorderSide(color: AppColors.error),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: AppColors.onError,
+                  disabledBackgroundColor: AppColors.surfaceContainerHigh,
+                  disabledForegroundColor: AppColors.onSurfaceVariant,
                   textStyle: AppTypography.labelLg,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(

@@ -3703,8 +3703,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_validationPasswordMismatch => 'Both passwords must match.';
 
   @override
-  String get auth_validationMandatory =>
-      'This field is mandatory. Please, fill this up.';
+  String get auth_validationMandatory => 'This field is mandatory.';
 
   @override
   String get auth_validationInviteCodeRequired => 'Enter your invite code.';

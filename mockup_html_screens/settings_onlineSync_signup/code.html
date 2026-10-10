@@ -240,7 +240,8 @@
   <!-- The same card right after Sign Up was pressed with the three required
        fields left empty (user request): each field turns red — label, underline
        and background text — and reads its mandatory sentence inside itself,
-       with no second copy underneath. -->
+       with no second copy underneath. The sentence is the shortened one
+       ("This field is mandatory."), which is what the field can carry. -->
   <div class="w-full max-w-[420px] bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
     <div class="px-lg pt-xl pb-lg">
       <h1 class="font-headline-md text-headline-md text-on-surface text-center">Create Account</h1>
@@ -248,15 +249,15 @@
     <div class="px-lg pb-xl space-y-md">
       <div>
         <label class="block font-label-lg text-label-lg text-error mb-xs" for="mandatoryFullName">Full Name</label>
-        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryFullName" placeholder="This field is mandatory. Please, fill this up." type="text">
+        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryFullName" placeholder="This field is mandatory." type="text">
       </div>
       <div>
         <label class="block font-label-lg text-label-lg text-error mb-xs" for="mandatoryBarNo">Bar Association</label>
-        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryBarNo" placeholder="This field is mandatory. Please, fill this up." type="text">
+        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryBarNo" placeholder="This field is mandatory." type="text">
       </div>
       <div>
         <label class="block font-label-lg text-label-lg text-error mb-xs" for="mandatoryEmail">Email Address</label>
-        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryEmail" placeholder="This field is mandatory. Please, fill this up." type="email">
+        <input class="w-full bg-surface-variant border-0 border-b-2 border-error focus:ring-0 font-body-md text-body-md text-on-surface rounded-t py-sm px-md placeholder:text-error" id="mandatoryEmail" placeholder="This field is mandatory." type="email">
       </div>
     </div>
   </div>

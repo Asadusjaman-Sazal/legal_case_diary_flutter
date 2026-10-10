@@ -3720,8 +3720,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_validationPasswordMismatch => 'দুটি পাসওয়ার্ড মিলতে হবে।';
 
   @override
-  String get auth_validationMandatory =>
-      'এই ঘরটি বাধ্যতামূলক। অনুগ্রহ করে এটি পূরণ করুন।';
+  String get auth_validationMandatory => 'এই ঘরটি বাধ্যতামূলক।';
 
   @override
   String get auth_validationInviteCodeRequired => 'আপনার ইনভাইট কোড লিখুন।';

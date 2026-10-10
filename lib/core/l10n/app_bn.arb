@@ -1600,7 +1600,7 @@
   "auth_validationPasswordTooShort": "কমপক্ষে ৮ অক্ষর ব্যবহার করুন।",
   "auth_validationPasswordConfirmRequired": "আপনার পাসওয়ার্ড নিশ্চিত করুন।",
   "auth_validationPasswordMismatch": "দুটি পাসওয়ার্ড মিলতে হবে।",
-  "auth_validationMandatory": "এই ঘরটি বাধ্যতামূলক। অনুগ্রহ করে এটি পূরণ করুন।",
+  "auth_validationMandatory": "এই ঘরটি বাধ্যতামূলক।",
   "auth_validationInviteCodeRequired": "আপনার ইনভাইট কোড লিখুন।",
   "auth_validationTermsRequired": "চালিয়ে যেতে সেবার শর্তাবলি ও গোপনীয়তা নীতিতে সম্মতি দিন।",
   "auth_sessionExpired": "আপনার সেশন শেষ হয়েছে। আবার সাইন ইন করুন।",

@@ -837,12 +837,15 @@ class _AccountPopover extends ConsumerWidget {
             label: l.settingsManageAccount_logout,
             active: false,
             onTap: () async {
-              _closeDrawer();
-              // The sheet stays up while the logout windows run: this widget's
-              // `ref` is what the one branched logout reads its providers
-              // through, and it must be alive for the whole flow.
+              // The side menu stays open (user request): the logout windows
+              // appear above it, and nothing is dismissed until the flow is
+              // done — a cancelled branch leaves the user where they were,
+              // still able to pick another action. The account panel and this
+              // widget's `ref` also stay mounted for the whole flow, which is
+              // what the one branched logout reads its providers through.
               final completed = await runBranchedLogout(context, ref);
               if (!context.mounted) return;
+              // The panel is closed once the flow has finished its windows.
               Navigator.of(context).pop();
               // Login is reached explicitly: the router's sign-in gate is
               // decided once per launch, so a signed-out user would otherwise

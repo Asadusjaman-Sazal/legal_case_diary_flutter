@@ -20,6 +20,8 @@
 /// text size.
 library;
 
+import 'dart:async';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -101,6 +103,20 @@ void main() {
 
   Finder drawerText(String text) =>
       find.descendant(of: find.byType(Drawer), matching: find.text(text));
+
+  /// Pumps through a logout that shows an indeterminate spinner.
+  ///
+  /// While the account panel's Logout row is busy it swaps its icon for a
+  /// `CircularProgressIndicator`, which animates forever — so `pumpAndSettle`
+  /// can never see a settled frame and would time out. The flow's real work
+  /// (a wipe on the in-memory database, then the fake endSession) completes on
+  /// the event loop between bounded pumps, so a fixed-window pump is the honest
+  /// way to wait for it.
+  Future<void> pumpLogoutToDone(WidgetTester tester) async {
+    for (var i = 0; i < 40 && tester.any(find.byKey(const ValueKey('drawer-account-logout'))); i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
 
   /// Top Y of every divider inside the drawer, so a test can tell which section
   /// a row sits in rather than only what order the labels come in.
@@ -621,6 +637,57 @@ void main() {
     expect(router.state.matchedLocation, AppRoutes.login);
   });
 
+  testWidgets('Logout shows a spinner on the row while the flow is running', (
+    tester,
+  ) async {
+    // A logout held open on purpose: while it awaits, the Logout row's icon
+    // is a spinner, so the tap is visibly answered before the wipe finishes.
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final gate = Completer<void>();
+    var sessionsEnded = 0;
+    final flow = LogoutFlow(
+      db: db,
+      premium: true,
+      online: false,
+      runBacklogPush: () async => null,
+      // wipeToFreshInstall runs for real; endSession is what we hold, so the
+      // whole flow stays in flight until the test releases it.
+      endSession: () async {
+        await gate.future;
+        sessionsEnded++;
+      },
+    );
+
+    await pumpDrawerOnRouter(tester, logoutFlow: flow);
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
+    await tester.pump();
+
+    // The row's icon is a progress spinner while the flow runs.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('drawer-account-logout')),
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsOneWidget,
+    );
+
+    // Releasing the flow clears the spinner and reaches Login.
+    gate.complete();
+    await tester.pumpAndSettle();
+
+    expect(sessionsEnded, 1);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('drawer-account-logout')),
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsNothing,
+    );
+  });
+
   testWidgets(
     'Logout survives the drawer being unmounted under the popover',
     (tester) async {
@@ -732,7 +799,10 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
-      await tester.pumpAndSettle();
+      // The spinner is up from this tap; a bounded pump lets the confirmation
+      // window animate in over it (pumpAndSettle cannot settle an infinite
+      // animation).
+      await tester.pump(const Duration(milliseconds: 300));
 
       // The copy is offered before anything is deleted; No wipes without one.
       final l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -743,7 +813,7 @@ void main() {
           matching: find.text(l.sharedActions_no),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpLogoutToDone(tester);
 
       expect(sessionsEnded, 1, reason: 'the logout ended the session');
       expect(router.state.matchedLocation, AppRoutes.login);
@@ -856,7 +926,9 @@ void main() {
     expect(find.text('Daily Cause List'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
-    await tester.pumpAndSettle();
+    // The spinner is up from this tap, so a bounded pump (not pumpAndSettle)
+    // lets the confirmation window animate in over it.
+    await tester.pump(const Duration(milliseconds: 300));
 
     // The confirmation window is up, and the side menu has NOT been closed
     // underneath it — the drawer's own row is still on screen.
@@ -872,7 +944,7 @@ void main() {
         matching: find.text(l.sharedActions_no),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpLogoutToDone(tester);
 
     expect(sessionsEnded, 1, reason: 'the logout ended the session');
     expect(router.state.matchedLocation, AppRoutes.login);

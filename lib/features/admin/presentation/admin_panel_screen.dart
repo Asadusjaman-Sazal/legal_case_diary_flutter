@@ -24,6 +24,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../../shared/widgets/sync_button.dart';
 import '../../../sync/connectivity_monitor.dart';
@@ -35,6 +36,7 @@ import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart' show SyncState;
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
+import 'admin_viewmodel.dart';
 
 /// The administrator's menu: the two sets of work the panel holds.
 class AdminPanelScreen extends ConsumerWidget {
@@ -43,6 +45,15 @@ class AdminPanelScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+
+    /// A row's waiting count, in the language's own digits.
+    ///
+    /// Always drawn, including as `0`: a row that hid its number would leave
+    /// the admin unable to tell "nothing waiting" from "not loaded yet".
+    Widget countTrailing(int count) => Text(
+      AppDateUtils.formatDigits(count, l.localeName),
+      style: AppTypography.titleMd.copyWith(color: AppColors.onSurfaceVariant),
+    );
 
     // A shell route, so `AppShellRoot`'s SafeArea already insets the status bar
     // above this screen — unlike the paywall, which sits outside the shell. A
@@ -63,28 +74,49 @@ class AdminPanelScreen extends ConsumerWidget {
         preferredSize: const Size.fromHeight(56),
         child: _AdminHeader(title: l.adminPanel_title),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.edgeMargin,
-          AppSpacing.md,
-          AppSpacing.edgeMargin,
-          AppSpacing.xl,
+      // Pull down to sync (user request): the same forced drain with the delta
+      // pull the header button runs, and then a re-read of both lists, so a
+      // payment or a sign-up that landed while the panel was open appears
+      // without a trip to Settings.
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(syncServiceProvider).retryNow();
+          ref.invalidate(adminPaymentRequestsProvider);
+          ref.invalidate(adminUnconfirmedAccountsProvider);
+          await ref.read(adminPaymentRequestsProvider.future);
+          await ref.read(adminUnconfirmedAccountsProvider.future);
+        },
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.edgeMargin,
+            AppSpacing.md,
+            AppSpacing.edgeMargin,
+            AppSpacing.xl,
+          ),
+          children: [
+            SettingsMenuCard(
+              icon: Icons.receipt_long_outlined,
+              title: l.adminPanel_paymentRequests,
+              subtitle: l.adminPanel_paymentRequestsSubtitle,
+              // The count sits where the chevron would, beside the text (user
+              // request) — the same shape the two payment sections use.
+              trailing: countTrailing(
+                ref.watch(adminPendingPaymentsProvider),
+              ),
+              onTap: () => context.push(AppRoutes.adminPaymentRequests),
+            ),
+            const SizedBox(height: AppSpacing.gutter),
+            SettingsMenuCard(
+              icon: Icons.person_off_outlined,
+              title: l.adminPanel_unverifiedAccounts,
+              subtitle: l.adminPanel_unverifiedAccountsSubtitle,
+              trailing: countTrailing(
+                ref.watch(adminUnconfirmedCountProvider),
+              ),
+              onTap: () => context.push(AppRoutes.adminUnverifiedAccounts),
+            ),
+          ],
         ),
-        children: [
-          SettingsMenuCard(
-            icon: Icons.receipt_long_outlined,
-            title: l.adminPanel_paymentRequests,
-            subtitle: l.adminPanel_paymentRequestsSubtitle,
-            onTap: () => context.push(AppRoutes.adminPaymentRequests),
-          ),
-          const SizedBox(height: AppSpacing.gutter),
-          SettingsMenuCard(
-            icon: Icons.person_off_outlined,
-            title: l.adminPanel_unverifiedAccounts,
-            subtitle: l.adminPanel_unverifiedAccountsSubtitle,
-            onTap: () => context.push(AppRoutes.adminUnverifiedAccounts),
-          ),
-        ],
       ),
     );
   }

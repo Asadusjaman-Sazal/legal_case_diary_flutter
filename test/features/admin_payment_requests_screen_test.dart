@@ -17,6 +17,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_payment_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
+import 'package:legal_case_diary/shared/widgets/sync_button.dart';
 
 /// A repository that answers from memory, so the page can be driven without a
 /// server and every call it makes is recorded.
@@ -335,6 +336,18 @@ void main() {
   testWidgets('the list can be pulled down to sync', (tester) async {
     await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
     expect(find.byType(RefreshIndicator), findsOneWidget);
+  });
+
+  testWidgets('the header carries the shared sync button', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+
+    // The same control the case screens and the panel header use, so a sync is
+    // one tap away from this page too.
+    expect(find.byType(SyncButton), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the page wears a back arrow, not the drawer menu', (

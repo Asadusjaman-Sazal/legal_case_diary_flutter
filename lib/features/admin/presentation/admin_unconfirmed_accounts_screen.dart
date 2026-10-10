@@ -17,6 +17,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../sync/sync_service.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/admin_repository.dart';
 import 'admin_shared.dart';
@@ -61,6 +62,7 @@ class _AdminUnconfirmedAccountsScreenState
     return SettingsSubPageModal(
       title: l.adminPanel_unverifiedTitle,
       actions: [
+        const AdminSyncButton(),
         IconButton(
           key: const ValueKey('admin-accounts-search'),
           icon: const Icon(Icons.search),
@@ -78,10 +80,8 @@ class _AdminUnconfirmedAccountsScreenState
         data: (all) {
           final shown = all
               .where(
-                (account) => adminTextMatches(_query, [
-                  account.fullName,
-                  account.email,
-                ]),
+                (account) =>
+                    adminTextMatches(_query, [account.fullName, account.email]),
               )
               .toList(growable: false);
 
@@ -93,36 +93,49 @@ class _AdminUnconfirmedAccountsScreenState
                 AdminNoResults(message: l.adminPanel_noResults)
               else
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.edgeMargin,
-                      AppSpacing.md,
-                      AppSpacing.edgeMargin,
-                      AppSpacing.xl,
-                    ),
-                    children: [
-                      if (action.phase != AdminActionPhase.idle)
-                        _DeleteBanner(
-                          action: action,
-                          onDismiss: () => ref
-                              .read(AdminDeleteAccountViewModel.provider.notifier)
-                              .clear(),
-                        ),
-                      if (shown.isEmpty)
-                        Text(
-                          l.adminPanel_unverifiedEmpty,
-                          style: AppTypography.bodySm.copyWith(
-                            color: AppColors.onSurfaceVariant,
+                  // Pull down to sync (user request): the same forced drain
+                  // with the delta pull the header button runs, then a re-read
+                  // of the list, so a sign-up that landed while the page was
+                  // open appears without a trip to Settings.
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await ref.read(syncServiceProvider).retryNow();
+                      ref.invalidate(adminUnconfirmedAccountsProvider);
+                      await ref.read(adminUnconfirmedAccountsProvider.future);
+                    },
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.edgeMargin,
+                        AppSpacing.md,
+                        AppSpacing.edgeMargin,
+                        AppSpacing.xl,
+                      ),
+                      children: [
+                        if (action.phase != AdminActionPhase.idle)
+                          _DeleteBanner(
+                            action: action,
+                            onDismiss: () => ref
+                                .read(
+                                  AdminDeleteAccountViewModel.provider.notifier,
+                                )
+                                .clear(),
                           ),
-                        )
-                      else
-                        _AccountList(
-                          accounts: shown,
-                          action: action,
-                          onDelete: (account) =>
-                              _confirmDelete(context, ref, account),
-                        ),
-                    ],
+                        if (shown.isEmpty)
+                          Text(
+                            l.adminPanel_unverifiedEmpty,
+                            style: AppTypography.bodySm.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                          )
+                        else
+                          _AccountList(
+                            accounts: shown,
+                            action: action,
+                            onDelete: (account) =>
+                                _confirmDelete(context, ref, account),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -294,10 +307,7 @@ class _AccountCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          _Line(
-            label: l.adminPanel_detailLabelEmail,
-            value: account.email,
-          ),
+          _Line(label: l.adminPanel_detailLabelEmail, value: account.email),
           _Line(
             label: l.adminPanel_created,
             value: adminPanelDateTime(l, account.createdAt),

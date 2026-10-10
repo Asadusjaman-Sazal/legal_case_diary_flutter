@@ -7,12 +7,20 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/sync_button.dart';
+import '../../../sync/connectivity_monitor.dart';
+import '../../../sync/sync_health.dart';
+import '../../../sync/sync_providers.dart';
+import '../../../sync/sync_service.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
+import '../../cases/presentation/cases_screen_modal.dart' show SyncState;
 
 /// Whether [query] appears anywhere in [fields], case-insensitively.
 ///
@@ -148,6 +156,40 @@ class AdminLoadFailed extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// The same shared sync button the case screens and the panel header carry, for
+/// the two sub-pages' own headers.
+///
+/// It reads the live sync providers itself, so a header that shows it does not
+/// have to plumb five values through — the panel's `_AdminHeader` predates this
+/// and keeps its own wiring.
+class AdminSyncButton extends ConsumerWidget {
+  const AdminSyncButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final pending = ref.watch(syncQueuePendingCountProvider).value ?? 0;
+    final online = ref.watch(isOnlineProvider).value ?? true;
+    final health = ref.watch(syncHealthProvider).value;
+    final syncState = switch (health?.status) {
+      SyncHealthStatus.syncing => SyncState.syncing,
+      SyncHealthStatus.healthy => SyncState.success,
+      SyncHealthStatus.paused => SyncState.paused,
+      _ => SyncState.idle,
+    };
+    final premium = ref.watch(premiumAccessProvider).value == true;
+
+    return SyncButton(
+      syncState: syncState,
+      isPremium: premium,
+      onSync: () => ref.read(syncServiceProvider).retryNow(),
+      l: l,
+      pending: pending,
+      isOnline: online,
+    );
+  }
 }
 
 /// `dd/MM/yyyy`, or the dash the panel uses for an absent value.

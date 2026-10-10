@@ -155,7 +155,14 @@
      the "Sync" tooltip — because the panel is reached only by a signed-in
      admin with sync available, not the grey free-plan variant the case screens
      show. Each row is the shared Settings sub-menu card: a leading icon, a
-     Title Case title, a sentence-case subtitle and the shared chevron. -->
+     Title Case title, a sentence-case subtitle, and — in place of the shared
+     chevron — the count of what is waiting behind it, so the admin can see at a
+     glance whether the trip is worth making. The count is always drawn, `0`
+     included, because a row that hid its number would leave the admin unable to
+     tell "nothing waiting" from "not loaded yet".
+
+     The body is pull-to-sync: a downward drag runs the same forced drain the
+     header's sync button does and then re-reads both lists. -->
 <main class="max-w-lg mx-auto min-h-screen flex flex-col bg-background">
 
   <!-- App header: the case screens' own, minus what has nothing to act on. -->
@@ -180,7 +187,7 @@
         <span class="font-body-lg text-body-lg text-on-surface">Payment Requests</span>
         <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Approve Or Reject Submitted Payments</span>
       </span>
-      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      <span class="font-title-md text-title-md text-on-surface-variant">2</span>
     </button>
 
     <!-- Non-verified Accounts: the sign-ups that never confirmed their address,
@@ -191,7 +198,7 @@
         <span class="font-body-lg text-body-lg text-on-surface">Non-verified Accounts</span>
         <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Sign-Ups That Never Confirmed</span>
       </span>
-      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      <span class="font-title-md text-title-md text-on-surface-variant">3</span>
     </button>
 
   </div>

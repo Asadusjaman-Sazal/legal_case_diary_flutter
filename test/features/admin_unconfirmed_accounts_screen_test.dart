@@ -16,6 +16,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
+import 'package:legal_case_diary/shared/widgets/sync_button.dart';
 
 /// A repository that answers from memory and records what it was asked.
 class _FakeAdminRepository implements AdminRepository {
@@ -219,6 +220,23 @@ void main() {
       find.text('Every account has confirmed its address.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the header carries the shared sync button', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_account(id: 'a1')]));
+
+    // The same control the case screens and the panel header use, so a sync is
+    // one tap away from this page too.
+    expect(find.byType(SyncButton), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the list can be pulled down to sync', (tester) async {
+    await pump(tester, _FakeAdminRepository(rows: [_account(id: 'a1')]));
+    expect(find.byType(RefreshIndicator), findsOneWidget);
   });
 
   testWidgets('renders in Bengali', (tester) async {

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.461 - Non-verified Accounts: the Delete button is now a solid red button with white text.
+Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a sync button in both sub-page headers, and each menu row now shows the count waiting behind it.
 --------------------------------------
 
 ## Version History Log:
@@ -475,3 +475,4 @@ Version: 0.0.458 - A printed PDF is now named after the screen plus the print da
 Version: 0.0.459 - Admin Panel is now a menu of Payment Requests and Non-verified Accounts (unconfirmed sign-ups, with a Delete), numbered cards and search on both pages, and a count badge over the side-menu Admin row.
 Version: 0.0.460 - Applied the Admin Panel's unconfirmed-accounts migration to the project, and closed a grant it left open: Supabase's default privileges had made the internal is_provisional_account() guard callable by any signed-in account.
 Version: 0.0.461 - Non-verified Accounts: the Delete button is now a solid red button with white text.
+Version: 0.0.462 - Admin Panel: pull-to-sync on the panel and both sub-pages, a sync button in both sub-page headers, and each menu row now shows the count waiting behind it.

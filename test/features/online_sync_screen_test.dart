@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -478,5 +479,92 @@ void main() {
     expect(pendingEntry.dy, greaterThan(references.dy));
     // And it still opens the Sync Status screen.
     expect(find.text('Every Change Waiting To Be Sent'), findsOneWidget);
+  });
+
+  testWidgets('the switch sits below the entity rows, on its own card', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    // Its own card, below the rows it acts on and above the entry that reviews
+    // held work — not beside Sync Now, where it would read as a second way to
+    // sync (user request).
+    final toggle = tester.getTopLeft(find.text('Sync Is On'));
+    expect(
+      toggle.dy,
+      greaterThan(tester.getTopLeft(find.text('References')).dy),
+    );
+    expect(
+      toggle.dy,
+      lessThan(tester.getTopLeft(find.text('Pending Sync')).dy),
+    );
+  });
+
+  testWidgets('the switch turns sync off, and the screen says so', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    // Sync on: the way to turn it off is offered in outline, so it does not
+    // compete with Sync Now.
+    expect(find.text('Sync Is On'), findsOneWidget);
+    expect(find.text('Disable Sync'), findsOneWidget);
+    expect(find.text('Sync Now'), findsOneWidget);
+
+    await tester.tap(find.text('Disable Sync'));
+    await tester.pumpAndSettle();
+
+    // The switch wrote the engine's own flag: the request asked for a pause, not
+    // for anything the screen invents for itself.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(OnlineSyncScreen)),
+      listen: false,
+    );
+    expect(container.read(syncEnabledProvider), isFalse);
+
+    // Everything on the card follows from that one fact: the pill, the body, the
+    // disabled CTA with its reason, and rows that no longer claim Synced.
+    expect(find.text('Sync Off'), findsOneWidget);
+    expect(
+      find.textContaining('Turn it back on to send and receive'),
+      findsOneWidget,
+    );
+    expect(find.text('Sync Is Off'), findsOneWidget);
+    expect(find.textContaining('Turn It Back On To Sync'), findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'))
+          .onPressed,
+      isNull,
+    );
+    expect(find.text('Synced'), findsNothing);
+    expect(find.text('Not synced'), findsNWidgets(3));
+    // Muted, not red: the user asked for this state, so nothing has failed.
+    for (final label in tester.widgetList<Text>(find.text('Not synced'))) {
+      expect(label.style?.color, AppColors.onSurfaceVariant);
+    }
+    expect(
+      find.text('Sync Is Off. Your Changes Stay On This Device.'),
+      findsOneWidget,
+    );
+
+    // Let that toast go, so the next one is the one being read.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    // And back: the switch is the only way out, and it restores the screen.
+    await tester.tap(find.text('Enable Sync'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(syncEnabledProvider), isTrue);
+    expect(find.text('Up To Date'), findsOneWidget);
+    expect(find.text('Synced'), findsNWidgets(3));
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'))
+          .onPressed,
+      isNotNull,
+    );
+    expect(find.text('Sync Is On Again.'), findsOneWidget);
   });
 }

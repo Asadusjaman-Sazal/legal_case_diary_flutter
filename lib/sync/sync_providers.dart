@@ -131,6 +131,31 @@ final conflictResolverProvider = FutureProvider<ConflictResolver>((ref) async {
   );
 });
 
+/// Whether this app run is allowed to sync: the Online Sync screen's own
+/// switch.
+///
+/// It is deliberately **not** persisted. The request is a *temporary* pause, so
+/// the flag lives in memory for the length of the process — a `NotifierProvider`
+/// is never auto-disposed, so nothing but the switch or the end of the process
+/// clears it — and a fresh launch always starts with sync on. Everything that
+/// touches the network asks it: the three run paths in `SyncService` and the
+/// Realtime channel in `SyncTriggerScope`.
+class SyncEnabledNotifier extends Notifier<bool> {
+  @override
+  bool build() => true;
+
+  /// Turns sync on or off for this app run.
+  void setEnabled(bool enabled) {
+    if (state == enabled) return;
+    state = enabled;
+  }
+}
+
+/// The switch itself: read by the engine on every run, written by the screen.
+final syncEnabledProvider = NotifierProvider<SyncEnabledNotifier, bool>(
+  SyncEnabledNotifier.new,
+);
+
 /// The number of queue entries still waiting to be pushed.
 ///
 /// It counts only `pending`, so the worker's own `pending -> pushing ->

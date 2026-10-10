@@ -73,6 +73,13 @@ enum _SyncBlocker {
 
   /// No connection.
   offline,
+
+  /// The user has switched sync off on this screen (user request).
+  ///
+  /// The one blocker that is a choice rather than a fault: the engine asks the
+  /// same flag before every run, so nothing is pushed, pulled or subscribed to
+  /// while it is set, and this screen's own switch is the way back.
+  disabled,
 }
 
 /// Online Sync screen, wired to the live account and sync engine.
@@ -149,6 +156,8 @@ class OnlineSyncScreen extends ConsumerWidget {
             entityTypes: const <String>['reference'],
           ),
           const SizedBox(height: AppSpacing.gutter),
+          const _SyncToggleCard(),
+          const SizedBox(height: AppSpacing.gutter),
           const _PendingSyncEntry(),
         ],
       ),
@@ -185,6 +194,130 @@ class _PendingSyncEntry extends ConsumerWidget {
   }
 }
 
+/// The switch that pauses sync for this app run (user request).
+///
+/// It is the only control on this screen that changes the engine rather than
+/// reporting it, so it has its own card below the entity rows: beside Sync Now it
+/// would read as a second way to sync. Off is deliberately **not** saved, which
+/// is what makes it a pause — the flag lives for this app run, and a restart is
+/// the other way back besides this button.
+class _SyncToggleCard extends ConsumerWidget {
+  const _SyncToggleCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final enabled = ref.watch(syncEnabledProvider);
+    final messenger = ScaffoldMessenger.of(context);
+
+    /// Flips the switch, and says which way it went.
+    void toggle() {
+      ref.read(syncEnabledProvider.notifier).setEnabled(!enabled);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            enabled
+                ? l.settingsOnlineSync_syncOffToast
+                : l.settingsOnlineSync_syncOnToast,
+          ),
+        ),
+      );
+    }
+
+    // The way out is the prominent one: turning sync off is a secondary action
+    // in outline, turning it back on is the screen's filled CTA.
+    final button = enabled
+        ? OutlinedButton.icon(
+            onPressed: toggle,
+            icon: const Icon(Icons.sync_disabled, size: 20),
+            label: Text(l.settingsOnlineSync_disableSync),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.outlineVariant),
+              textStyle: AppTypography.titleMd,
+              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.sm,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+              ),
+            ),
+          )
+        : FilledButton.icon(
+            onPressed: toggle,
+            icon: const Icon(Icons.sync, size: 20),
+            label: Text(l.settingsOnlineSync_enableSync),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
+              textStyle: AppTypography.titleMd,
+              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.sm,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+              ),
+            ),
+          );
+
+    return Container(
+      decoration: _cardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // The same 40 px chip the entity rows use, so the card reads as
+              // one of them rather than as a new kind of thing.
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                ),
+                child: Icon(
+                  enabled ? Icons.sync : Icons.sync_disabled,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      enabled
+                          ? l.settingsOnlineSync_syncOnTitle
+                          : l.settingsOnlineSync_syncOffTitle,
+                      style: AppTypography.labelLg.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      enabled
+                          ? l.settingsOnlineSync_syncOnBody
+                          : l.settingsOnlineSync_syncOffCardBody,
+                      style: AppTypography.bodySm,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(width: double.infinity, child: button),
+        ],
+      ),
+    );
+  }
+}
+
 /// Sync status card: the engine's live state and the CTA that drives it.
 class _SyncStatusCard extends ConsumerWidget {
   final SyncHealth? health;
@@ -215,9 +348,12 @@ class _SyncStatusCard extends ConsumerWidget {
     // beside a Sync Now that could not run — the screen saying everything was
     // well at the one moment nothing could sync. The mockup's blocked card is
     // red for the same reason.
-    final tint = needsAction || blocker == _SyncBlocker.offline
+    // A switched-off sync is deliberate, so it is muted like the failure pause
+    // rather than red: nothing has gone wrong.
+    final tint =
+        needsAction || blocker == _SyncBlocker.offline
         ? AppColors.error
-        : paused
+        : blocker == _SyncBlocker.disabled || paused
         ? AppColors.onSurfaceVariant
         : AppColors.success;
 
@@ -344,6 +480,7 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.needsPremium => Icons.workspace_premium_outlined,
     _SyncBlocker.checking => Icons.cloud_sync_outlined,
     _SyncBlocker.offline => Icons.wifi_off_outlined,
+    _SyncBlocker.disabled => Icons.sync_disabled,
     _SyncBlocker.none => switch (health?.status) {
       SyncHealthStatus.syncing => Icons.sync,
       SyncHealthStatus.paused => Icons.pause_circle_outline,
@@ -356,6 +493,7 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.needsPremium => l.settingsOnlineSync_freePlanPill,
     _SyncBlocker.checking => l.settingsOnlineSync_checkingPlan,
     _SyncBlocker.offline => l.settingsOnlineSync_offline,
+    _SyncBlocker.disabled => l.settingsOnlineSync_syncOff,
     _SyncBlocker.none => switch (health?.status) {
       SyncHealthStatus.syncing => l.settingsOnlineSync_syncing,
       SyncHealthStatus.paused => l.settingsOnlineSync_paused,
@@ -378,6 +516,7 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.offline => _plainBody(
       l.settingsOnlineSync_needConnectionToSync,
     ),
+    _SyncBlocker.disabled => _plainBody(l.settingsOnlineSync_syncOffBody),
     _SyncBlocker.none => _plainBody(
       attention > 0
           ? l.settingsOnlineSync_actionRequiredBody
@@ -397,6 +536,7 @@ class _SyncStatusCard extends ConsumerWidget {
     _SyncBlocker.needsPremium => null,
     _SyncBlocker.checking => l.settingsOnlineSync_checkingPlanMessage,
     _SyncBlocker.offline => l.settingsOnlineSync_needConnectionToSync,
+    _SyncBlocker.disabled => l.settingsOnlineSync_syncOffMessage,
     _SyncBlocker.none => null,
   };
 
@@ -589,6 +729,9 @@ IconData _markerIcon(int waiting, _SyncBlocker blocker) {
 /// account, red when it is not and cannot be.
 Color _markerColor(int waiting, _SyncBlocker blocker) {
   if (waiting > 0) return AppColors.tertiary;
+  // A switched-off sync is muted rather than red, for the same reason the
+  // status card is: the user asked for this state.
+  if (blocker == _SyncBlocker.disabled) return AppColors.onSurfaceVariant;
   return blocker == _SyncBlocker.none
       ? AppColors.success
       : AppColors.error;
@@ -611,6 +754,9 @@ String _markerLabel(AppLocalizations l, int waiting, _SyncBlocker blocker) {
 /// disagree about why sync is unavailable.
 _SyncBlocker _syncBlockerOf(WidgetRef ref) {
   if (ref.watch(authIdentityProvider) == null) return _SyncBlocker.signedOut;
+  // The user's own switch, ahead of the plan and the connection: with sync off,
+  // neither of those is what is stopping a run.
+  if (!ref.watch(syncEnabledProvider)) return _SyncBlocker.disabled;
   final premium = ref.watch(premiumAccessProvider);
   // Unknown before free: an account whose profile row has not been pulled yet
   // has no plan to report, and the same false that means "free" for a known

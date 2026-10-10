@@ -36,58 +36,88 @@ const double authButtonHeight = 48.0;
 /// scrolls when the keyboard is up.
 class AuthScaffold extends StatelessWidget {
   /// Creates the shell.
-  const AuthScaffold({required this.child, this.topRight, super.key});
+  const AuthScaffold({
+    required this.child,
+    this.topRight,
+    this.pinTopRight = false,
+    super.key,
+  });
 
   /// Card contents.
   final Widget child;
 
-  /// Optional control pinned to the top-right corner, above [child] — the Login
-  /// and Sign Up cards' language switch. Left null by every other screen that
+  /// Optional control at the top of the page, right-aligned — the Login and
+  /// Sign Up cards' language switch. Left null by every other screen that
   /// reuses this shell, so their layout is exactly what it was.
   final Widget? topRight;
+
+  /// Whether [topRight] belongs to the screen's own top-right corner rather
+  /// than to the centred card column.
+  ///
+  /// True holds it in the corner of the page: the same edge margin the card
+  /// keeps, and above the scrolling area rather than inside it, so it stays put
+  /// while the card scrolls and nothing ever passes under it. Only the Login
+  /// screen asks for this (user request); Sign Up keeps the switch in its
+  /// column, and a screen that passes no [topRight] is unaffected either way.
+  final bool pinTopRight;
 
   @override
   Widget build(BuildContext context) {
     final trailing = topRight;
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+    final pinned = trailing != null && pinTopRight;
+    final card = LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+        child: ConstrainedBox(
+          // Centres the card in the available height without ever clipping
+          // it when the keyboard shrinks the viewport.
+          constraints: BoxConstraints(
+            minHeight: math.max(
+              0,
+              constraints.maxHeight - 2 * AppSpacing.edgeMargin,
+            ),
+          ),
+          child: Center(
             child: ConstrainedBox(
-              // Centres the card in the available height without ever clipping
-              // it when the keyboard shrinks the viewport.
-              constraints: BoxConstraints(
-                minHeight: math.max(
-                  0,
-                  constraints.maxHeight - 2 * AppSpacing.edgeMargin,
-                ),
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: authCardMaxWidth,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (trailing != null) ...[
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: trailing,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
-                      child,
-                    ],
-                  ),
-                ),
+              constraints: const BoxConstraints(maxWidth: authCardMaxWidth),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (trailing != null && !pinned) ...[
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: trailing,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                  child,
+                ],
               ),
             ),
           ),
         ),
+      ),
+    );
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: pinned
+            ? Column(
+                children: [
+                  // The screen's top-right corner: the card's own edge margin on
+                  // both sides, and outside the scrolling area below it.
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: trailing,
+                    ),
+                  ),
+                  Expanded(child: card),
+                ],
+              )
+            : card,
       ),
     );
   }

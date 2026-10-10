@@ -643,6 +643,16 @@ void main() {
       languageFill(tester, english.settingsScreen_languageBengali),
       isNot(Colors.black),
     );
+    // Riding in the card's column, as it did before the Login screen's switch
+    // moved to the corner of the page: the pinned corner is Login's alone (user
+    // request), so this screen's switch is still inside the scroll area.
+    expect(
+      find.descendant(
+        of: find.byType(SingleChildScrollView),
+        matching: find.byType(AuthLanguageSwitch),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text(english.settingsScreen_languageBengali));
     await tester.pumpAndSettle();

@@ -132,9 +132,12 @@
 </style>
 </head>
 <body class="bg-background min-h-screen flex flex-col justify-center items-center p-edge-margin antialiased">
-<!-- The language switch the shipped screen carries above the card, top right
-     (user request): English / বাংলা, the active one filled black with a check. -->
-<div class="w-full max-w-[400px] flex justify-end gap-sm mb-md">
+<!-- The language switch the shipped screen carries in the screen's own top
+     right corner (user request): English / বাংলা, the active one filled black
+     with a check. Pinned to the corner of the page — the card's own 16px edge
+     margin, and outside the card's column, which is why `fixed` and not a flex
+     item of that column — exactly as the Login screen's switch is. -->
+<div class="fixed top-edge-margin right-edge-margin z-10 flex gap-sm">
   <button class="flex items-center gap-xs h-9 px-gutter rounded-lg bg-black text-white font-title-md text-title-md font-semibold" type="button">
     English
     <span class="material-symbols-outlined text-[16px]">check</span>

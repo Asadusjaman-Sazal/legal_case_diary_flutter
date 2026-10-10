@@ -2251,6 +2251,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The restore failed. Your existing data was left unchanged.';
 
   @override
+  String get settingsBackupRestore_errorAnotherAccount =>
+      'This backup belongs to another account. Sign in as that account to restore it.';
+
+  @override
   String get settingsBackupRestore_errorOpenFile => 'Could not open that file.';
 
   @override

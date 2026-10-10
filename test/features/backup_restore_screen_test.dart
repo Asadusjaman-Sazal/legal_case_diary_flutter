@@ -135,7 +135,15 @@ class _ThrowingFolderSink implements BackupArchiveSink {
 }
 
 /// A plaintext envelope file with [notes] rows, as an older build wrote it.
-PickedBackupFile _legacyBackup({int notes = 3, String name = 'old-backup.json'}) {
+///
+/// [userId] is what the rows name as their owner. A real backup carries a UUID —
+/// the account's id, or the exporting device's own placeholder — while the
+/// sample workbook's owner cells hold text no id can look like.
+PickedBackupFile _legacyBackup({
+  int notes = 3,
+  String name = 'old-backup.json',
+  String userId = 'user-1',
+}) {
   final file = BackupEnvelope.create(
     appVersion: '0.0.227',
     exportedAt: DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch,
@@ -145,7 +153,7 @@ PickedBackupFile _legacyBackup({int notes = 3, String name = 'old-backup.json'})
           for (var i = 0; i < notes; i++)
             <String, dynamic>{
               'id': 'note-$i',
-              'user_id': 'user-1',
+              'user_id': userId,
               'title': 'Reminder $i',
               'body': 'File the affidavit',
               'is_deleted': 0,
@@ -957,6 +965,63 @@ void main() {
     // `sync_metadata` row survives, where the pre-scoping engine wiped every
     // portable table whatever the file held.
     expect(outsideScope.data['n'], 1);
+  });
+
+  testWidgets("another account's backup is refused and changes nothing", (
+    tester,
+  ) async {
+    await seedNote();
+    // A UUID this device is not: an account's id, as every real file carries.
+    gateway.picked = _legacyBackup(
+      userId: '33333333-3333-4333-8333-333333333333',
+    );
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    expect(
+      find.text(
+        'This backup belongs to another account. '
+        'Sign in as that account to restore it.',
+      ),
+      findsOneWidget,
+    );
+    // Refused before the replace question, so the diary is never offered up for
+    // a file that could not be restored anyway.
+    expect(find.text('Replace all current data?'), findsNothing);
+    expect(find.text('Restore complete'), findsNothing);
+    final kept = await db
+        .customSelect('SELECT COUNT(*) AS n FROM notes')
+        .getSingle();
+    expect(kept.data['n'], 1);
+    expect(
+      (await db.customSelect('SELECT user_id FROM notes').getSingle()).data['user_id'],
+      'user-1',
+    );
+  });
+
+  testWidgets("a file that names no owner is restored as this device's own", (
+    tester,
+  ) async {
+    // The case the user asked for: the sample workbook, typed into by hand. Its
+    // owner cell holds no id, so the restore is allowed and the rows become this
+    // device's — which is what makes them syncable afterwards.
+    gateway.picked = _legacyBackup(notes: 1, userId: '');
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+    expect(find.text('Restore complete'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    final identity = prefs.getString('local_identity_id');
+    expect(identity, isNotNull);
+    final restored = await db
+        .customSelect('SELECT user_id, last_modified_by FROM notes')
+        .getSingle();
+    expect(restored.data['user_id'], identity);
+    // Attribution follows the owner, so the row reads as this device's work.
+    expect(restored.data['last_modified_by'], identity);
   });
 
   testWidgets('a wrong passphrase is reported and changes nothing', (

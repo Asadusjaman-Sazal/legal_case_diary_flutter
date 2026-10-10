@@ -2260,6 +2260,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'পুনরুদ্ধার ব্যর্থ হয়েছে। আপনার আগের ডেটা অপরিবর্তিত রয়েছে।';
 
   @override
+  String get settingsBackupRestore_errorAnotherAccount =>
+      'এই ব্যাকআপটি অন্য একটি অ্যাকাউন্টের। এটি পুনরুদ্ধার করতে ওই অ্যাকাউন্টে সাইন ইন করুন।';
+
+  @override
   String get settingsBackupRestore_errorOpenFile => 'ফাইলটি খোলা যায়নি।';
 
   @override

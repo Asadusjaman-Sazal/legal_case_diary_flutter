@@ -38,8 +38,10 @@ import '../../../core/providers/backup_providers.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/services/app_share_service.dart';
+import '../../../core/services/local_identity_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../data/backup_file_gateway.dart';
 import '../data/backup_metadata_store.dart';
 import '../data/backup_repository.dart';
@@ -324,6 +326,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   Future<void> _restoreFromBackup() async {
     final l = AppLocalizations.of(context);
 
+    // Whose diary this is, read **before** the first await (Riverpod 3 refuses a
+    // widget ref once the widget is on its way out). The identity is the bound
+    // account after sign-in, or this device's own placeholder before it — the
+    // same value every local write is stamped with — and the firm decides which
+    // rows count as this diary's own.
+    final identity = ref.read(localIdentityServiceProvider).getId();
+    final firmId = ref.read(accountProfileProvider).value?.firmId;
+
     // Inside the diary folder: one backup restores directly, more than one
     // offers a choice. The picker is the folder's replacement when the folder
     // is missing or inaccessible.
@@ -367,6 +377,17 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
             );
       if (!mounted) return;
 
+      // Whose file is this? Asked before the replace question, so a backup that
+      // belongs to another account is refused without ever offering to wipe this
+      // diary for it. A file naming no owner (a sample workbook filled in by
+      // hand) passes and has this device's identity stamped onto its rows.
+      repository.checkRestorable(
+        opened,
+        ownerId: identity,
+        firmId: firmId,
+      );
+      if (!mounted) return;
+
       // Restores never merge silently: existing data asks first. The check is
       // scoped to the tables the file carries, so a four-sheet workbook never
       // asks about — and never replaces — anything outside its own scope.
@@ -388,6 +409,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         l.settingsBackupRestore_restoreProgress,
         () => repository.restoreSnapshot(
           backup: opened,
+          ownerId: identity,
+          firmId: firmId,
           replaceExisting: hasExistingData,
         ),
       );
@@ -471,6 +494,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     BackupRestoreFailure.damagedFile => l.settingsBackupRestore_errorDamaged,
     BackupRestoreFailure.conflictNeedsConfirmation =>
       l.settingsBackupRestore_errorConflict,
+    BackupRestoreFailure.anotherAccount =>
+      l.settingsBackupRestore_errorAnotherAccount,
     BackupRestoreFailure.importFailed =>
       l.settingsBackupRestore_errorImportFailed,
   };

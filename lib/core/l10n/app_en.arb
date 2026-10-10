@@ -1067,6 +1067,7 @@
   "settingsBackupRestore_errorDamaged": "The backup file is damaged and cannot be restored.",
   "settingsBackupRestore_errorConflict": "The app gained new data while restoring, so nothing was changed.",
   "settingsBackupRestore_errorImportFailed": "The restore failed. Your existing data was left unchanged.",
+  "settingsBackupRestore_errorAnotherAccount": "This backup belongs to another account. Sign in as that account to restore it.",
   "settingsBackupRestore_errorOpenFile": "Could not open that file.",
   "settingsBackupRestore_backupExcel": "Backup as Excel File",
   "settingsBackupRestore_excelNote": "The Excel file is a spreadsheet and is not encrypted. Anyone who opens it can read your case data.",

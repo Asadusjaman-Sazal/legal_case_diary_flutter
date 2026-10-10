@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/backup/backup_format.dart';
+import 'package:legal_case_diary/core/backup/backup_ownership.dart';
 import 'package:legal_case_diary/core/backup/backup_restore.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -52,17 +53,25 @@ class _RecordingSink implements BackupArchiveSink {
 
 /// One in-memory database plus the repositories a fixture needs.
 class _Side {
-  _Side._(this.db, this.syncHelper);
+  _Side._(this.db, this.syncHelper, this.identity);
 
   /// Opens a fresh empty database with its own local identity.
   static Future<_Side> open() async {
     final db = AppDatabase(NativeDatabase.memory());
     final prefs = await SharedPreferences.getInstance();
-    return _Side._(db, SyncWriteHelper(SyncQueueDao(db), LocalIdentityService(prefs)));
+    final identity = LocalIdentityService(prefs);
+    return _Side._(db, SyncWriteHelper(SyncQueueDao(db), identity), identity);
   }
 
   final AppDatabase db;
   final SyncWriteHelper syncHelper;
+
+  /// This device's identity: the value its own writes carry, and the value a
+  /// restore is performed as.
+  final LocalIdentityService identity;
+
+  /// Shorthand for [identity].
+  String get ownerId => identity.getId();
 
   BackupRepository get backup => BackupRepository(db);
   CasesDao get casesDao => CasesDao(db);
@@ -152,7 +161,11 @@ Future<({String aliveId, String deadId})> _seed(_Side side) async {
 
 /// An exported file, the archive metadata the source held when it was written,
 /// and the opened copy a restore would use.
-typedef _Export = ({OpenedBackup opened, BackupArchiveState archiveBefore});
+typedef _Export = ({
+  OpenedBackup opened,
+  BackupArchiveState archiveBefore,
+  Uint8List bytes,
+});
 
 /// Exports [side] and opens the written file again.
 Future<_Export> _export(_Side side) async {
@@ -168,6 +181,7 @@ Future<_Export> _export(_Side side) async {
   return (
     opened: await openBackupFile(bytes: sink.written!, recoverySecret: _secret),
     archiveBefore: archiveBefore,
+    bytes: sink.written!,
   );
 }
 
@@ -224,11 +238,13 @@ Future<void> _expectRefused(
   Uint8List bytes,
   BackupRestoreFailure failure, {
   bool replaceExisting = false,
+  String? ownerId,
 }) async {
   await expectLater(
     openBackupFile(bytes: bytes, recoverySecret: _secret).then(
       (opened) => side.backup.restoreSnapshot(
         backup: opened,
+        ownerId: ownerId ?? side.ownerId,
         replaceExisting: replaceExisting,
       ),
     ),
@@ -269,7 +285,10 @@ void main() {
       expect(await target.backup.hasExistingData(), isFalse);
 
       final exported = await _export(source);
-      final result = await target.backup.restoreSnapshot(backup: exported.opened);
+      final result = await target.backup.restoreSnapshot(
+        backup: exported.opened,
+        ownerId: target.ownerId,
+      );
 
       // Every table matches row for row, byte for byte: ids, sync columns,
       // tombstones and queue payloads all survive the round trip.
@@ -291,6 +310,7 @@ void main() {
       final seeded = await _seed(source);
       final result = await target.backup.restoreSnapshot(
         backup: (await _export(source)).opened,
+        ownerId: target.ownerId,
       );
 
       final sourceCases = await source.backup.collectTables();
@@ -329,6 +349,7 @@ void main() {
       await _seed(source);
 
       final result = await target.backup.restoreSnapshot(
+        ownerId: target.ownerId,
         backup: await openBackupFile(
           bytes: _legacyFile(<String, dynamic>{'notes': <Map<String, dynamic>>[]}),
           recoverySecret: '',
@@ -360,6 +381,7 @@ void main() {
       // With permission the target is replaced, not merged.
       final result = await target.backup.restoreSnapshot(
         backup: (await _export(source)).opened,
+        ownerId: target.ownerId,
         replaceExisting: true,
       );
 
@@ -377,6 +399,7 @@ void main() {
 
       final result = await target.backup.restoreSnapshot(
         backup: (await _export(source)).opened,
+        ownerId: target.ownerId,
         replaceExisting: true,
       );
 
@@ -558,6 +581,164 @@ void main() {
           );
         }
       }
+    });
+  });
+
+  group('restoring whose file it is', () {
+    /// An account this device has nothing to do with.
+    const String stranger = '33333333-3333-4333-8333-333333333333';
+
+    /// One note row owned by [ownerId], in the plaintext shape an older build
+    /// wrote — which is also the shape an Excel sheet is handed in as.
+    Uint8List fileOwning(String ownerId) => _legacyFile(<String, dynamic>{
+      'notes': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'id': 'note-1',
+          'user_id': ownerId,
+          'title': 'Theirs',
+          'body': 'File the affidavit',
+          'is_deleted': 0,
+          'created_at': 1,
+          'updated_at': 2,
+        },
+      ],
+    });
+
+    test('another account\'s file is refused and nothing is written', () async {
+      // The reported failure: another account's backup restored "fine" and then
+      // refused to sync, because every row on the device named somebody else.
+      await _seed(source);
+
+      await _expectRefused(
+        target,
+        (await _export(source)).bytes,
+        BackupRestoreFailure.anotherAccount,
+        ownerId: stranger,
+        replaceExisting: true,
+      );
+      await _expectRefused(
+        target,
+        fileOwning(stranger),
+        BackupRestoreFailure.anotherAccount,
+        replaceExisting: true,
+      );
+
+      expect(await target.backup.hasExistingData(), isFalse);
+    });
+
+    test('this device may restore its own file', () async {
+      await _seed(source);
+      final bytes = (await _export(source)).bytes;
+
+      // The same file, restored as the identity that wrote it.
+      final result = await target.backup.restoreSnapshot(
+        backup: await openBackupFile(bytes: bytes, recoverySecret: _secret),
+        ownerId: source.ownerId,
+      );
+
+      expect(result.ownership, BackupOwnership.mine);
+      // Nothing needed stamping: every row already named this identity.
+      expect(result.stampedRows, 0);
+      await _expectSameData(target, source);
+    });
+
+    test('a file that names no owner restores and is stamped', () async {
+      await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: _legacyFile(<String, dynamic>{
+            'notes': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'note-1',
+                'title': 'Typed by hand',
+                'body': 'File the affidavit',
+                'created_at': 1,
+                'updated_at': 2,
+              },
+            ],
+          }),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+      );
+
+      final note = (await target.backup.collectTables())['notes'];
+      final row = (note! as List).cast<Map<String, dynamic>>().single;
+      // The row the user typed into the workbook is now this device's own, so
+      // the next sync pushes it instead of refusing it.
+      expect(row['user_id'], target.ownerId);
+    });
+
+    test('a hand-filled sample workbook names nobody and is accepted', () async {
+      // The user's exact case: the downloaded template, typed into by hand. Its
+      // owner cells still hold the column-name placeholders, which cannot be an
+      // account id — so the file is not refused, unlike a real export.
+      final ids = await target.seedReferenceData();
+      final template = await target.backup.buildExcelTemplateWorkbook(
+        appVersion: '0.0.266',
+      );
+
+      final opened = target.backup.openExcelBackup(template);
+
+      expect(
+        target.backup.checkRestorable(opened, ownerId: target.ownerId),
+        BackupOwnership.ownerless,
+      );
+      // A real export of this diary, by contrast, names this device throughout:
+      // the user has typed a case of their own, so the sheet carries the id the
+      // app stamped it with.
+      await target.addCase(
+        '110/2021',
+        courtId: ids.courtId,
+        onBehalfId: ids.onBehalfId,
+      );
+      final own = target.backup.openExcelBackup(
+        await target.backup.buildExcelWorkbook(
+          appVersion: '0.0.266',
+          exportedAt: 1,
+        ),
+      );
+      expect(
+        target.backup.checkRestorable(own, ownerId: target.ownerId),
+        BackupOwnership.mine,
+      );
+    });
+
+    test("a colleague's rows are accepted and keep their author", () async {
+      const colleague = '22222222-2222-4222-8222-222222222222';
+      const firm = '44444444-4444-4444-8444-444444444444';
+
+      final result = await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: _legacyFile(<String, dynamic>{
+            'notes': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'note-1',
+                'user_id': colleague,
+                'firm_id': firm,
+                'title': "A colleague's note",
+                'body': 'File the affidavit',
+                'is_deleted': 0,
+                'created_at': 1,
+                'updated_at': 2,
+              },
+            ],
+          }),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+        firmId: firm,
+      );
+
+      // A firm's rows are shared, so an associate's own backup is not "somebody
+      // else's file" here — and their authorship survives the import.
+      expect(result.ownership, BackupOwnership.mine);
+      expect(result.stampedRows, 0);
+      final row =
+          ((await target.backup.collectTables())['notes']! as List)
+              .cast<Map<String, dynamic>>()
+              .single;
+      expect(row['user_id'], colleague);
+      expect(row['firm_id'], firm);
     });
   });
 }

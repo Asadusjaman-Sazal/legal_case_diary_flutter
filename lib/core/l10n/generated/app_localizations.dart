@@ -4016,6 +4016,12 @@ abstract class AppLocalizations {
   /// **'The restore failed. Your existing data was left unchanged.'**
   String get settingsBackupRestore_errorImportFailed;
 
+  /// No description provided for @settingsBackupRestore_errorAnotherAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup belongs to another account. Sign in as that account to restore it.'**
+  String get settingsBackupRestore_errorAnotherAccount;
+
   /// No description provided for @settingsBackupRestore_errorOpenFile.
   ///
   /// In en, this message translates to:

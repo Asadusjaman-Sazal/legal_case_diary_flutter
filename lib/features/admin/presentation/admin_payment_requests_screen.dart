@@ -3,9 +3,10 @@
 ///
 /// Moved off the panel itself when the panel became a menu of sub-pages (user
 /// request), so the screen no longer carries a "Payment Requests" heading — the
-/// header names it. Two things were added on the way: each card is numbered
-/// within its section, and the header's search filters both sections, opening a
-/// closed one when it holds a match.
+/// header names it. Three things were added on the way: each card is numbered
+/// within its section, the header's search filters both sections, opening a
+/// closed one when it holds a match, and each section's button sticks to the top
+/// of the list while the admin scrolls that section's own cards.
 ///
 /// The screen is deliberately thin — it renders what `adminPaymentRequestsProvider`
 /// returns and calls two methods on `AdminActionViewModel`. It holds no admin
@@ -122,21 +123,35 @@ class _AdminPaymentRequestsScreenState
                     ref.invalidate(adminPaymentRequestsProvider);
                     await ref.read(adminPaymentRequestsProvider.future);
                   },
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.edgeMargin,
-                      AppSpacing.md,
-                      AppSpacing.edgeMargin,
-                      AppSpacing.xl,
-                    ),
-                    children: [
-                      if (action.phase != AdminActionPhase.idle)
-                        _ActionBanner(
-                          action: action,
-                          onDismiss: () => ref
-                              .read(AdminActionViewModel.provider.notifier)
-                              .clear(),
+                  // Slivers, not a ListView, because each section's button has to
+                  // hold the top of the list while the admin scrolls its own
+                  // cards: the header scrolls away with them otherwise, and after
+                  // a few hundred cards there is nothing left saying which
+                  // section is on screen.
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        // The band around each section's button supplies its own
+                        // `sm` above it, so this keeps the old `md` top edge.
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.edgeMargin,
+                          AppSpacing.sm,
+                          AppSpacing.edgeMargin,
+                          0,
                         ),
+                        sliver: SliverToBoxAdapter(
+                          child: action.phase != AdminActionPhase.idle
+                              ? _ActionBanner(
+                                  action: action,
+                                  onDismiss: () => ref
+                                      .read(
+                                        AdminActionViewModel.provider.notifier,
+                                      )
+                                      .clear(),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
                       _RequestSection(
                         icon: Icons.pending_actions,
                         title: l.adminPanel_pending,
@@ -158,7 +173,11 @@ class _AdminPaymentRequestsScreenState
                         onToggle: () =>
                             setState(() => _pendingOpen = !_pendingOpen),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      // The two bands already contribute a `sm` each, so this
+                      // brings the gap between the sections to the old `lg`.
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: AppSpacing.md),
+                      ),
                       _RequestSection(
                         icon: Icons.task_alt,
                         title: l.adminPanel_resolved,
@@ -182,6 +201,11 @@ class _AdminPaymentRequestsScreenState
                         ],
                         onToggle: () =>
                             setState(() => _resolvedOpen = !_resolvedOpen),
+                      ),
+                      // The list's own bottom padding, which a CustomScrollView
+                      // has no padding for.
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: AppSpacing.xl),
                       ),
                     ],
                   ),
@@ -298,7 +322,16 @@ class _ActionBanner extends StatelessWidget {
 }
 
 /// A collapsible Pending / Resolved section, headed by a Settings sub-menu
-/// button.
+/// button that **sticks to the top of the list** for as long as the section's
+/// own cards are on screen.
+///
+/// The button and its cards are wrapped in a single [SliverMainAxisGroup], which
+/// is what scopes the stickiness to the section: the button holds the top of the
+/// list while that section's cards are being read, then travels up and out as
+/// the next section's button arrives in its place. (Pinned headers placed side
+/// by side in a scroll view pile up at the top instead — they would all stay on
+/// screen at once — so the group is what makes the handover work. The case
+/// screens' court headings pin the same way.)
 class _RequestSection extends StatelessWidget {
   /// Leading icon of the header button.
   final IconData icon;
@@ -327,37 +360,55 @@ class _RequestSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SettingsMenuCard(
-          icon: icon,
-          title: title,
-          onTap: onToggle,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l.adminPanel_sectionCount(
-                  AppDateUtils.formatDigits(count, l.localeName),
-                ),
-                style: AppTypography.bodySm,
+    return SliverMainAxisGroup(
+      slivers: [
+        PinnedHeaderSliver(
+          // The band paints the page background across the list's full width,
+          // which keeps the cards sliding underneath it out of sight while it is
+          // pinned, and insets the button to the gutter the list uses. The `sm`
+          // below it is the gap the cards had before the button was pinned.
+          child: ColoredBox(
+            color: AppColors.background,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.edgeMargin,
+                vertical: AppSpacing.sm,
               ),
-            ],
+              child: SettingsMenuCard(
+                icon: icon,
+                title: title,
+                onTap: onToggle,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l.adminPanel_sectionCount(
+                        AppDateUtils.formatDigits(count, l.localeName),
+                      ),
+                      style: AppTypography.bodySm,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-        // The reveal animates so the list below does not jump when a section
-        // opens under the reader's thumb.
-        AnimatedSize(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          alignment: Alignment.topCenter,
-          child: open
-              ? Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: _body(l),
-                )
-              : const SizedBox(width: double.infinity),
+        // A closed section contributes its button only, so the next section's
+        // button comes straight up to the top behind it. The reveal animates so
+        // the list below does not jump when a section opens under the reader's
+        // thumb.
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.edgeMargin,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: open ? _body(l) : const SizedBox(width: double.infinity),
+            ),
+          ),
         ),
       ],
     );

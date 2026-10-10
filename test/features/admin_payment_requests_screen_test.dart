@@ -4,14 +4,17 @@
 /// became a menu. It pins what that page promises: a non-admin sees no payment
 /// data, the two sections open in the right state, an approve or reject reaches
 /// the repository and is followed by a reload rather than a local guess, each
-/// card is numbered within its section, and the header's search filters both
-/// sections — opening a closed one when it holds the match.
+/// card is numbered within its section, the header's search filters both
+/// sections — opening a closed one when it holds the match — and each section's
+/// button holds the top of the list while the admin scrolls that section's own
+/// cards.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
@@ -336,6 +339,76 @@ void main() {
   testWidgets('the list can be pulled down to sync', (tester) async {
     await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
     expect(find.byType(RefreshIndicator), findsOneWidget);
+  });
+
+  testWidgets('a section button holds the top of the list for its own cards', (
+    tester,
+  ) async {
+    // A few pending cards to scroll inside, and a long Resolved section to hand
+    // the top over to — the shape the admin works in, where one section is
+    // hundreds of cards long.
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        rows: <AdminPaymentRequest>[
+          for (var i = 1; i <= 6; i++) _request(id: 'p$i'),
+          for (var i = 1; i <= 20; i++)
+            _request(
+              id: 'r$i',
+              status: 'approved',
+              approvedAt: DateTime(2026, 10, 2),
+            ),
+        ],
+      ),
+    );
+    await tester.tap(find.text('Resolved'));
+    await tester.pumpAndSettle();
+
+    final list = find.byType(CustomScrollView);
+    expect(list, findsOneWidget);
+    final listTop = tester.getTopLeft(list).dy;
+
+    /// The section's own button — not the "Pending" status chip each pending
+    /// card carries.
+    Finder sectionButton(String title) =>
+        find.widgetWithText(SettingsMenuCard, title);
+    double buttonTop(String title) =>
+        tester.getTopLeft(sectionButton(title)).dy;
+
+    Future<void> scrollList(double dy) async {
+      final rect = tester.getRect(list);
+      await tester.dragFrom(
+        Offset(rect.left + 100, rect.top + rect.height / 2),
+        Offset(0, dy),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    // Scrolling through Pending's own cards leaves its button holding the top of
+    // the list, so the admin can still read which section he is in.
+    await scrollList(-400);
+    expect(
+      buttonTop('Pending'),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the Pending button is pinned',
+    );
+    expect(buttonTop('Resolved'), greaterThan(listTop + 400));
+
+    // Scrolling on to the next section hands the top over: the Pending button is
+    // pushed out and Resolved takes its place.
+    await scrollList(-20000);
+    expect(
+      buttonTop('Resolved'),
+      closeTo(listTop + AppSpacing.sm, 1.0),
+      reason: 'the Resolved button took the top',
+    );
+    // Pending's cards are behind the reader by now, so the button on screen is
+    // the only thing naming the section being worked in.
+    expect(find.text('TrxID: TRXp1'), findsNothing);
+    final pushedOut = sectionButton('Pending');
+    if (pushedOut.evaluate().isNotEmpty) {
+      expect(tester.getTopLeft(pushedOut).dy, lessThan(listTop));
+    }
   });
 
   testWidgets('the header carries the shared sync button', (tester) async {

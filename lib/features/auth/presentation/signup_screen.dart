@@ -709,18 +709,30 @@ Object? _error;
 /// Height of the account-type choice: the height the segmented button gave it.
 const double _accountTypeHeight = 40.0;
 
+/// Share of the account-type choice each segment takes: 2 : 3, which is
+/// **40 % / 60 %** of the row (user request).
+const int _individualFlex = 2;
+
+/// The Join Existing Firm segment's share of the pair — see [_individualFlex].
+const int _joinFirmFlex = 3;
+
 /// The Individual / Join Existing Firm choice above the form.
 ///
 /// Two segments inside one outlined control, drawn as `SegmentedButton` drew
 /// them (a 40 px row, the same fills and the same hairline outline) with the one
 /// difference this choice needs (user request): the segments are **not** the
 /// same width. `SegmentedButton` lays every segment out at one size — a segment
-/// is at most `maxWidth / segmentCount` wide, whichever label is in it — so a
-/// short label spends on itself room the long one needs, and Bengali's
-/// *বিদ্যমান ফারমে যোগ দিন* wrapped onto two lines beside *ব্যক্তিগত*. Here the
-/// short segment takes only its own label's width and the long one has all that
-/// is left, and its label scales down by the little a narrow screen takes off it
-/// rather than wrapping, so it is always read on one line.
+/// is at most `maxWidth / segmentCount` wide, whichever label is in it — which
+/// both left the short *ব্যক্তিগত* looking as wide as the long
+/// *বিদ্যমান ফারমে যোগ দিন* and wrapped that longer label onto two lines.
+///
+/// Here the row is split **40 / 60** (user request): the Individual segment takes
+/// `_individualFlex` of the five shares and Join Existing Firm the other three.
+/// A share rather than the shrink-wrap that came first, which left the shorter
+/// button looking too small beside a very wide one; the ratio holds at every
+/// width, so the pair reads as one control however long either label is. The
+/// longer label still scales down by the little its segment cannot hold instead
+/// of wrapping, so it is always read on one line.
 class _AccountTypeChoice extends StatelessWidget {
   const _AccountTypeChoice({
     required this.label,
@@ -758,12 +770,14 @@ class _AccountTypeChoice extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Shrink-wrapped, so this segment is only as wide as its own
-              // label — the room the longer one needs.
-              _AccountTypeSegment(
-                label: individual,
-                selected: selected == SignupPath.individual,
-                onTap: () => onChanged(SignupPath.individual),
+              // Two fifths of the row (user request).
+              Expanded(
+                flex: _individualFlex,
+                child: _AccountTypeSegment(
+                  label: individual,
+                  selected: selected == SignupPath.individual,
+                  onTap: () => onChanged(SignupPath.individual),
+                ),
               ),
               // The hairline between the two, which each segment used to draw
               // for itself.
@@ -771,7 +785,9 @@ class _AccountTypeChoice extends StatelessWidget {
                 width: 1,
                 child: ColoredBox(color: AppColors.outlineVariant),
               ),
+              // The other three (user request).
               Expanded(
+                flex: _joinFirmFlex,
                 child: _AccountTypeSegment(
                   label: joinFirm,
                   selected: selected == SignupPath.joinFirm,

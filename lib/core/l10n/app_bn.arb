@@ -879,6 +879,17 @@
           }
       }
   },
+  "settingsOnlineSync_syncOff": "সিঙ্ক বন্ধ",
+  "settingsOnlineSync_syncOffBody": "সিঙ্ক বন্ধ আছে। আপনার পরিবর্তন পাঠাতে ও গ্রহণ করতে এটি আবার চালু করুন।",
+  "settingsOnlineSync_syncOffMessage": "সিঙ্ক বন্ধ আছে। সিঙ্ক করতে এটি আবার চালু করুন।",
+  "settingsOnlineSync_syncOnTitle": "সিঙ্ক চালু আছে",
+  "settingsOnlineSync_syncOnBody": "আপাতত আপনার পরিবর্তন এই ডিভাইসেই রাখতে সিঙ্ক বন্ধ করুন। যেকোনো সময় এখান থেকেই আবার চালু করতে পারবেন।",
+  "settingsOnlineSync_syncOffTitle": "সিঙ্ক বন্ধ আছে",
+  "settingsOnlineSync_syncOffCardBody": "সিঙ্ক বন্ধ থাকলে কিছু পাঠানো বা গ্রহণ করা হয় না। আপনার পরিবর্তন এই ডিভাইসেই থাকে, আর অ্যাপ আবার চালু করলে সিঙ্ক নিজে থেকেই চালু হয়ে যায়।",
+  "settingsOnlineSync_disableSync": "সিঙ্ক বন্ধ করুন",
+  "settingsOnlineSync_enableSync": "সিঙ্ক চালু করুন",
+  "settingsOnlineSync_syncOffToast": "সিঙ্ক বন্ধ। আপনার পরিবর্তন এই ডিভাইসেই থাকছে।",
+  "settingsOnlineSync_syncOnToast": "সিঙ্ক আবার চালু হয়েছে।",
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "ব্যাকআপ ও পুনরুদ্ধার",
   "settingsBackupRestore_chooseBackupTitle": "পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন",

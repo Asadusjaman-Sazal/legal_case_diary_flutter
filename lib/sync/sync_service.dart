@@ -2,9 +2,11 @@
 ///
 /// One instance per app, reachable through `syncServiceProvider`. It owns the
 /// **single serialized FIFO** rule: never two pushes at once, and a request that
-/// arrives mid-run is queued rather than run in parallel. It gates on the two
-/// facts the plan requires — an active subscription and a connection — and it
-/// owns the exponential backoff (30s → 30m) between failed attempts.
+/// arrives mid-run is queued rather than run in parallel. It gates on the three
+/// facts that decide whether anything may leave the device — an active
+/// subscription, a connection, and the user's own sync switch on the Online Sync
+/// screen (user request) — and it owns the exponential backoff (30s → 30m)
+/// between failed attempts.
 ///
 /// A drain always pushes the pending queue first. A **delta pull** follows only
 /// when the request asked for one (launch, resume, reconnect), because a burst
@@ -165,6 +167,9 @@ class SyncService {
   /// pull on this run; so does any earlier [requestSync] that asked for one.
   Future<void> syncNow({bool force = false, bool pull = false}) async {
     if (!_ref.mounted) return;
+    // Outranks every other gate, `force` included: while sync is off, neither a
+    // local write, a resume, a reconnect nor the screen's own button runs one.
+    if (!_isSyncEnabled()) return;
     // Recorded before the in-flight check, so a pull request that arrives
     // mid-run is honoured by the run that follows it.
     if (pull) _pullWanted = true;
@@ -215,6 +220,10 @@ class SyncService {
     if (!_ref.mounted || _pendingPings.isEmpty) return;
     // A drain owns the slot; its `_release` starts this run when it finishes.
     if (_inFlight) return;
+    // Sync off means the channel is closed, so a ping can only be a leftover
+    // from the moment it was switched off: hold it rather than run it, and the
+    // pull the enable path asks for fetches those rows anyway.
+    if (!_isSyncEnabled()) return;
 
     _inFlight = true;
     final pings = _pendingPings.toList(growable: false);
@@ -416,6 +425,7 @@ class SyncService {
   /// repaired it back to `pending` (Task 19's Sync Status).
   Future<BacklogOutcome?> runBacklogPush() async {
     if (!_ref.mounted) return null;
+    if (!_isSyncEnabled()) return null;
     if (_inFlight) {
       // A running drain already pushes the same queue; ask for another pass
       // rather than interleaving two batch sequences.
@@ -553,6 +563,15 @@ class SyncService {
   }
 
   bool _isOnline() => _ref.read(isOnlineProvider).value ?? true;
+
+  /// Whether the user has left sync switched on.
+  ///
+  /// The Online Sync screen's switch, and the **first** thing every run path
+  /// asks — before the transport is even built — so a paused app makes no
+  /// request and arms no retry. Nothing is remembered while it is off and
+  /// nothing is lost: the enable path requests a pull, which is what catches up
+  /// on everything missed.
+  bool _isSyncEnabled() => _ref.read(syncEnabledProvider);
 
   Future<bool> _isEntitled() async {
     // The extended-offline lock pauses both workers (Task 19 Phase 5): a device

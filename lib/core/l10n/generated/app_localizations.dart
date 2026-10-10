@@ -3512,6 +3512,72 @@ abstract class AppLocalizations {
   /// **'{count} Items'**
   String settingsOnlineSync_itemsCount(int count);
 
+  /// No description provided for @settingsOnlineSync_syncOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Off'**
+  String get settingsOnlineSync_syncOff;
+
+  /// No description provided for @settingsOnlineSync_syncOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync is off. Turn it back on to send and receive your changes.'**
+  String get settingsOnlineSync_syncOffBody;
+
+  /// No description provided for @settingsOnlineSync_syncOffMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Is Off. Turn It Back On To Sync.'**
+  String get settingsOnlineSync_syncOffMessage;
+
+  /// No description provided for @settingsOnlineSync_syncOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Is On'**
+  String get settingsOnlineSync_syncOnTitle;
+
+  /// No description provided for @settingsOnlineSync_syncOnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn sync off to keep your changes on this device for now. You can turn it back on here at any time.'**
+  String get settingsOnlineSync_syncOnBody;
+
+  /// No description provided for @settingsOnlineSync_syncOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Is Off'**
+  String get settingsOnlineSync_syncOffTitle;
+
+  /// No description provided for @settingsOnlineSync_syncOffCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sent or received while sync is off. Your changes stay on this device, and sync turns back on when the app is restarted.'**
+  String get settingsOnlineSync_syncOffCardBody;
+
+  /// No description provided for @settingsOnlineSync_disableSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Sync'**
+  String get settingsOnlineSync_disableSync;
+
+  /// No description provided for @settingsOnlineSync_enableSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Sync'**
+  String get settingsOnlineSync_enableSync;
+
+  /// No description provided for @settingsOnlineSync_syncOffToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Is Off. Your Changes Stay On This Device.'**
+  String get settingsOnlineSync_syncOffToast;
+
+  /// No description provided for @settingsOnlineSync_syncOnToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Is On Again.'**
+  String get settingsOnlineSync_syncOnToast;
+
   /// No description provided for @settingsBackupRestore_title.
   ///
   /// In en, this message translates to:

@@ -1958,6 +1958,44 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get settingsOnlineSync_syncOff => 'সিঙ্ক বন্ধ';
+
+  @override
+  String get settingsOnlineSync_syncOffBody =>
+      'সিঙ্ক বন্ধ আছে। আপনার পরিবর্তন পাঠাতে ও গ্রহণ করতে এটি আবার চালু করুন।';
+
+  @override
+  String get settingsOnlineSync_syncOffMessage =>
+      'সিঙ্ক বন্ধ আছে। সিঙ্ক করতে এটি আবার চালু করুন।';
+
+  @override
+  String get settingsOnlineSync_syncOnTitle => 'সিঙ্ক চালু আছে';
+
+  @override
+  String get settingsOnlineSync_syncOnBody =>
+      'আপাতত আপনার পরিবর্তন এই ডিভাইসেই রাখতে সিঙ্ক বন্ধ করুন। যেকোনো সময় এখান থেকেই আবার চালু করতে পারবেন।';
+
+  @override
+  String get settingsOnlineSync_syncOffTitle => 'সিঙ্ক বন্ধ আছে';
+
+  @override
+  String get settingsOnlineSync_syncOffCardBody =>
+      'সিঙ্ক বন্ধ থাকলে কিছু পাঠানো বা গ্রহণ করা হয় না। আপনার পরিবর্তন এই ডিভাইসেই থাকে, আর অ্যাপ আবার চালু করলে সিঙ্ক নিজে থেকেই চালু হয়ে যায়।';
+
+  @override
+  String get settingsOnlineSync_disableSync => 'সিঙ্ক বন্ধ করুন';
+
+  @override
+  String get settingsOnlineSync_enableSync => 'সিঙ্ক চালু করুন';
+
+  @override
+  String get settingsOnlineSync_syncOffToast =>
+      'সিঙ্ক বন্ধ। আপনার পরিবর্তন এই ডিভাইসেই থাকছে।';
+
+  @override
+  String get settingsOnlineSync_syncOnToast => 'সিঙ্ক আবার চালু হয়েছে।';
+
+  @override
   String get settingsBackupRestore_title => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override

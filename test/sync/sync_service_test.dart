@@ -173,6 +173,41 @@ void main() {
     expect(transport.calls, isEmpty);
   });
 
+  test('does not sync while the user has switched sync off', () async {
+    await enqueue('c1');
+    final value = container(entitled: true, online: true);
+    final service = value.read(syncServiceProvider);
+    // The Online Sync screen's own switch, for this app run (user request).
+    value.read(syncEnabledProvider.notifier).setEnabled(false);
+
+    await service.syncNow(force: true, pull: true);
+
+    // Forced, entitled and online, and still nothing leaves the device.
+    expect(transport.calls, isEmpty);
+    expect(transport.pulledTables, isEmpty);
+    expect((await SyncQueueDao(db).getAll()).single.state, 'pending');
+
+    // The backlog pass is the other way in, and it refuses too.
+    expect(await service.runBacklogPush(), isNull);
+    expect(transport.calls, isEmpty);
+  });
+
+  test('switching sync back on lets the queue drain', () async {
+    await enqueue('c1');
+    final value = container(entitled: true, online: true);
+    final service = value.read(syncServiceProvider);
+
+    value.read(syncEnabledProvider.notifier).setEnabled(false);
+    await service.syncNow(force: true);
+    expect(transport.calls, isEmpty);
+
+    value.read(syncEnabledProvider.notifier).setEnabled(true);
+    await service.syncNow(force: true, pull: true);
+
+    expect(transport.calls, hasLength(1));
+    expect((await SyncQueueDao(db).getAll()).single.state, 'resolved');
+  });
+
   test('drains the queue when entitled and online', () async {
     await enqueue('c1');
     final value = container(entitled: true, online: true);

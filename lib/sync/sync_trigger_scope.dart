@@ -62,6 +62,9 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
   /// there is no other writer whose deletions could be resurrected.
   Future<void> _checkRecovery() async {
     if (!mounted) return;
+    // Reading the server is sync; with sync off this waits too, and the enable
+    // path runs it below.
+    if (!ref.read(syncEnabledProvider)) return;
     try {
       final flow = await ref.read(recoveryFlowProvider.future);
       if (!mounted) return;
@@ -79,6 +82,9 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
   /// itself is the one derivation every other gate reads.
   Future<void> _openChannelIfEntitled() async {
     if (!mounted) return;
+    // The user's switch: a paused app holds no socket, exactly as it holds none
+    // while signed out or on the free plan.
+    if (!ref.read(syncEnabledProvider)) return;
     if (ref.read(premiumAccessProvider).value != true) return;
     await ref.read(realtimeListenerProvider).start();
   }
@@ -187,6 +193,21 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
           ref.read(subscriptionActivationProvider).observe(premium),
         );
       }
+    });
+
+    // The user's own switch on the Online Sync screen (user request). Off is
+    // immediate — the channel closes, so nothing arrives and nothing is sent,
+    // and no trigger in this scope can reopen it or run a drain. On is a fresh
+    // start: the channel is rejoined and a delta pull catches up on everything
+    // that happened while sync was off, including the queue's own backlog.
+    ref.listen(syncEnabledProvider, (previous, next) {
+      if (!next) {
+        unawaited(ref.read(realtimeListenerProvider).stop());
+        return;
+      }
+      unawaited(_openChannelIfEntitled());
+      unawaited(_checkRecovery());
+      ref.read(syncServiceProvider).requestSync(pull: true);
     });
 
     // A new pending row means a local write landed; coalesce and push. Only a

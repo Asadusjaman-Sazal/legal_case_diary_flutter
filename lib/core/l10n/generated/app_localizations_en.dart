@@ -1951,6 +1951,44 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsOnlineSync_syncOff => 'Sync Off';
+
+  @override
+  String get settingsOnlineSync_syncOffBody =>
+      'Sync is off. Turn it back on to send and receive your changes.';
+
+  @override
+  String get settingsOnlineSync_syncOffMessage =>
+      'Sync Is Off. Turn It Back On To Sync.';
+
+  @override
+  String get settingsOnlineSync_syncOnTitle => 'Sync Is On';
+
+  @override
+  String get settingsOnlineSync_syncOnBody =>
+      'Turn sync off to keep your changes on this device for now. You can turn it back on here at any time.';
+
+  @override
+  String get settingsOnlineSync_syncOffTitle => 'Sync Is Off';
+
+  @override
+  String get settingsOnlineSync_syncOffCardBody =>
+      'Nothing is sent or received while sync is off. Your changes stay on this device, and sync turns back on when the app is restarted.';
+
+  @override
+  String get settingsOnlineSync_disableSync => 'Disable Sync';
+
+  @override
+  String get settingsOnlineSync_enableSync => 'Enable Sync';
+
+  @override
+  String get settingsOnlineSync_syncOffToast =>
+      'Sync Is Off. Your Changes Stay On This Device.';
+
+  @override
+  String get settingsOnlineSync_syncOnToast => 'Sync Is On Again.';
+
+  @override
   String get settingsBackupRestore_title => 'Backup & Restore';
 
   @override

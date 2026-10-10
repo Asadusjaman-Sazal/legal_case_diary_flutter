@@ -239,6 +239,31 @@
     <span class="material-symbols-outlined text-[18px] text-tertiary">cloud_off</span>
     <span class="ml-xs font-body-sm text-body-sm text-tertiary">Not synced</span>
   </div>
+
+  <!-- The sync switch (user request): its own card below the entity rows, so it
+       cannot be read as a second way to sync. This is the sync-on state — the
+       secondary action in outline. Switched off, the same card reads "Sync Is
+       Off" with "Nothing is sent or received while sync is off. Your changes
+       stay on this device, and sync turns back on when the app is restarted."
+       and a filled black Enable Sync; the status card above turns to its
+       "Sync Off" pill, says "Sync is off. Turn it back on to send and receive
+       your changes.", disables Sync Now and reads "Sync Is Off. Turn It Back On
+       To Sync." beneath it. -->
+  <div class="mt-gutter bg-surface-container-lowest border border-outline-variant rounded-lg p-md">
+    <div class="flex items-center">
+      <div class="w-10 h-10 rounded bg-surface-container-low flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">sync</span>
+      </div>
+      <div class="ml-md flex-1">
+        <p class="font-label-lg text-label-lg text-primary">Sync Is On</p>
+        <p class="font-body-sm text-body-sm">Turn sync off to keep your changes on this device for now. You can turn it back on here at any time.</p>
+      </div>
+    </div>
+    <button class="mt-md w-full h-14 flex items-center justify-center gap-sm border border-outline-variant text-primary rounded font-title-md text-title-md" type="button">
+      <span class="material-symbols-outlined text-[20px]">sync_disabled</span>
+      Disable Sync
+    </button>
+  </div>
 </main>
 </body>
 </html>

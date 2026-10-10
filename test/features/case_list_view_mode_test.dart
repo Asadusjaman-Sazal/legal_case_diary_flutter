@@ -55,6 +55,7 @@ import 'package:legal_case_diary/shared/widgets/case_card.dart';
 import 'package:legal_case_diary/shared/widgets/case_table_row.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
+import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
 
 void main() {
@@ -207,6 +208,7 @@ void main() {
     Locale locale = const Locale('en'),
     bool online = true,
     bool premium = true,
+    int attention = 0,
   }) async {
     final router = GoRouter(
       routes: [GoRoute(path: '/', builder: (_, _) => screen)],
@@ -231,6 +233,13 @@ void main() {
           // Premium by default, so the sync button draws its enabled states
           // rather than the free-plan one; a free case passes `premium: false`.
           premiumAccessProvider.overrideWith((ref) async => premium),
+          // Only stubbed when a test asks for it: the header's Sync Status badge
+          // appears exactly while blocked or conflicted work is held, and the
+          // other tests leave the real provider alone.
+          if (attention > 0)
+            syncStatusAttentionProvider.overrideWith(
+              (ref) => Stream<int>.value(attention),
+            ),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1683,6 +1692,37 @@ void main() {
 
     final badge = tester.widget<Badge>(find.byType(Badge).first);
     expect(badge.backgroundColor, AppColors.error);
+    await unmount(tester);
+  });
+
+  testWidgets('the Sync Status badge counts in the language\'s own digits', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const AllCasesScreen(),
+      locale: const Locale('bn'),
+      attention: 2,
+    );
+
+    // The badge names the blocked or conflicted work waiting to be resolved, and
+    // its count is written in the active language's digits — `Badge.count` paints
+    // Latin ones, which a Bengali reader must never be shown.
+    final badge = find.descendant(
+      of: find.byKey(const ValueKey('cases-modal-sync-status')),
+      matching: find.byType(Badge),
+    );
+    expect(badge, findsOneWidget);
+    expect(
+      find.descendant(of: badge, matching: find.text('২')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: badge, matching: find.text('2')),
+      findsNothing,
+      reason: 'the count was painted in Latin digits',
+    );
+
     await unmount(tester);
   });
 

@@ -14,6 +14,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -21,6 +22,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/theme/font_size_scope.dart';
+import '../../../shared/providers/locale_provider.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../data/auth_repository.dart';
 
@@ -34,29 +36,182 @@ const double authButtonHeight = 48.0;
 /// scrolls when the keyboard is up.
 class AuthScaffold extends StatelessWidget {
   /// Creates the shell.
-  const AuthScaffold({required this.child, super.key});
+  const AuthScaffold({required this.child, this.topRight, super.key});
 
   /// Card contents.
   final Widget child;
 
+  /// Optional control pinned to the top-right corner, above [child] — the Login
+  /// and Sign Up cards' language switch. Left null by every other screen that
+  /// reuses this shell, so their layout is exactly what it was.
+  final Widget? topRight;
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: AppColors.background,
-    body: SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.edgeMargin),
-          child: ConstrainedBox(
-            // Centres the card in the available height without ever clipping it
-            // when the keyboard shrinks the viewport.
-            constraints: BoxConstraints(
-              minHeight: math.max(0, constraints.maxHeight - 2 * AppSpacing.edgeMargin),
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: authCardMaxWidth),
-                child: child,
+  Widget build(BuildContext context) {
+    final trailing = topRight;
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+            child: ConstrainedBox(
+              // Centres the card in the available height without ever clipping
+              // it when the keyboard shrinks the viewport.
+              constraints: BoxConstraints(
+                minHeight: math.max(
+                  0,
+                  constraints.maxHeight - 2 * AppSpacing.edgeMargin,
+                ),
               ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: authCardMaxWidth,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (trailing != null) ...[
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: trailing,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                      ],
+                      child,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Height of the language switch's two buttons: small enough for a card's top
+/// corner, tall enough to stay a comfortable tap target.
+const double _languageButtonHeight = 36;
+
+/// The language switch the Login and Sign Up screens carry at their top-right.
+///
+/// The same pair, and the same choice, as Settings → Language: the active
+/// language is filled black with white text and a check, the other is outlined
+/// black-on-white, and either one applies the language at once through
+/// [localeProvider]. It earns its place on these two screens alone because they
+/// are the only ones a user meets before signing in — a reader who cannot read
+/// the default language must be able to switch without finding a setting first.
+class AuthLanguageSwitch extends ConsumerWidget {
+  /// Creates the switch.
+  const AuthLanguageSwitch({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final active = ref.watch(localeProvider);
+    final bengaliSelected = active.languageCode == 'bn';
+
+    /// Applies [locale] exactly as Settings → Language does.
+    void select(Locale locale) =>
+        ref.read(localeProvider.notifier).setLocale(locale);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _AuthLanguageButton(
+          label: l.settingsScreen_languageEnglish,
+          // Each label keeps its own script's typeface, as the Settings screen
+          // pins them: switching the locale must never redraw one of the two
+          // words in the other script's font.
+          textStyle: AppTypography.titleMd,
+          selected: !bengaliSelected,
+          selectedLabel: l.settingsLanguage_selected,
+          onTap: () => select(const Locale('en')),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        _AuthLanguageButton(
+          label: l.settingsScreen_languageBengali,
+          textStyle: AppTypography.bengaliTitleMd,
+          selected: bengaliSelected,
+          selectedLabel: l.settingsLanguage_selected,
+          onTap: () => select(const Locale('bn')),
+        ),
+      ],
+    );
+  }
+}
+
+/// One of those two buttons: filled black with a check while it is the active
+/// language, outlined white while it is not — the Settings → Language option at
+/// the compact size a card corner can carry.
+class _AuthLanguageButton extends StatelessWidget {
+  const _AuthLanguageButton({
+    required this.label,
+    required this.textStyle,
+    required this.selected,
+    required this.selectedLabel,
+    required this.onTap,
+  });
+
+  /// Button label, already in its own script.
+  final String label;
+
+  /// Script-specific base style; only the colour is adjusted here, so the
+  /// family stays with the script rather than with the active locale.
+  final TextStyle textStyle;
+
+  /// Whether this is the active language.
+  final bool selected;
+
+  /// Localized label announced by screen readers with the check mark.
+  final String selectedLabel;
+
+  /// Applies this language.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected,
+    button: true,
+    child: SizedBox(
+      height: _languageButtonHeight,
+      child: Material(
+        color: selected ? Colors.black : AppColors.surfaceContainerLowest,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          side: BorderSide(color: selected ? Colors.black : AppColors.outline),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: textStyle.copyWith(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                // Kept (transparent) when this is not the active language, so
+                // the two buttons are the same size and picking one moves
+                // nothing.
+                Icon(
+                  Icons.check,
+                  size: 16,
+                  color: selected ? Colors.white : Colors.transparent,
+                  semanticLabel: selected ? selectedLabel : null,
+                ),
+              ],
             ),
           ),
         ),
@@ -298,6 +453,7 @@ class AuthTextField extends StatelessWidget {
     this.labelTrailing,
     this.textCapitalization = TextCapitalization.none,
     this.fillColor,
+    this.emptyMessage,
     super.key,
   });
 
@@ -345,57 +501,103 @@ class AuthTextField extends StatelessWidget {
   /// theme's pale field fill, so nothing else on any auth screen changes.
   final Color? fillColor;
 
+  /// The sentence drawn *inside* the field, in the error colour, in place of
+  /// [hint] while the field is empty (user request: a required Sign Up field
+  /// that was submitted empty reads its mandatory message as the field's own
+  /// background text rather than underneath it).
+  ///
+  /// Null — every field but Sign Up's three required ones — leaves the field
+  /// exactly as it was: the hint stays the hint, and a refusal is worded
+  /// underneath in the usual way.
+  ///
+  /// A field that sets this must leave the empty case out of its own
+  /// [validator]: a validator's message and this decoration's empty error widget
+  /// are words and a marker for the same state, and Flutter refuses to hold
+  /// both on one field.
+  final String? emptyMessage;
+
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.labelMd.copyWith(
-                color: AppColors.onSurfaceVariant,
+  Widget build(BuildContext context) {
+    final message = emptyMessage;
+    if (message == null) return _buildField(context, null);
+    // The message follows the field's own text: it shows while the field is
+    // empty and goes the moment something is typed into it.
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => _buildField(
+        context,
+        controller.text.trim().isEmpty ? message : null,
+      ),
+    );
+  }
+
+  /// Builds the labelled field; [emptyState] is the mandatory sentence to show
+  /// in place of the hint while the field is empty, or null.
+  Widget _buildField(BuildContext context, String? emptyState) {
+    final mandatoryEmpty = emptyState != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.labelMd.copyWith(
+                  // The label reddens with the field it names, so the pair reads
+                  // as one refused field.
+                  color: mandatoryEmpty
+                      ? AppColors.error
+                      : AppColors.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
-          ?labelTrailing,
-        ],
-      ),
-      const SizedBox(height: AppSpacing.xs),
-      TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        autofillHints: autofillHints,
-        textCapitalization: textCapitalization,
-        onFieldSubmitted: onSubmitted,
-        style: AppTypography.bodyMd,
-        validator: validator,
-        decoration: InputDecoration(
-          hintText: hint,
-          suffixIcon: trailing,
-          suffixIconConstraints: const BoxConstraints(minWidth: 40),
-          // Left unset (null) when no tint is asked for, so the theme's own fill
-          // still decides — passing `false` here would switch the fill off for
-          // every other field that uses this widget.
-          filled: fillColor == null ? null : true,
-          fillColor: fillColor,
+            ?labelTrailing,
+          ],
         ),
-      ),
-      if (helper != null) ...[
         const SizedBox(height: AppSpacing.xs),
-        Text(
-          helper!,
-          style: AppTypography.bodySm.copyWith(
-            color: AppColors.onSurfaceVariant,
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          autofillHints: autofillHints,
+          textCapitalization: textCapitalization,
+          onFieldSubmitted: onSubmitted,
+          style: AppTypography.bodyMd,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: emptyState ?? hint,
+            hintStyle: mandatoryEmpty
+                ? AppTypography.bodyMd.copyWith(color: AppColors.error)
+                : null,
+            // Being in error is what reddens the field itself, border and all;
+            // a widget of no size is the whole of that marker, because the
+            // sentence is already written inside the field and a second copy
+            // underneath is exactly what the request rules out.
+            error: mandatoryEmpty ? const SizedBox.shrink() : null,
+            suffixIcon: trailing,
+            suffixIconConstraints: const BoxConstraints(minWidth: 40),
+            // Left unset (null) when no tint is asked for, so the theme's own fill
+            // still decides — passing `false` here would switch the fill off for
+            // every other field that uses this widget.
+            filled: fillColor == null ? null : true,
+            fillColor: fillColor,
           ),
         ),
+        if (helper != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            helper!,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
       ],
-    ],
-  );
+    );
+  }
 }
 
 /// The black, full-width primary button the auth mockups use.

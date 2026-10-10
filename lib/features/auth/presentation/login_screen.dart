@@ -11,6 +11,10 @@
 /// database already holds the user's own cases is never redirected here, and a
 /// device with nothing on it opens here because there is nothing to lock away
 /// (see `auth_gate.dart`).
+///
+/// One addition the mockup could not show: the **language switch** in the top
+/// right corner (user request), so a reader who cannot read the default
+/// language can pick one before signing in rather than after.
 library;
 
 import 'package:flutter/material.dart';
@@ -139,6 +143,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final l = AppLocalizations.of(context);
 
     return AuthScaffold(
+      // The language choice sits above the card (user request).
+      topRight: const AuthLanguageSwitch(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -42,6 +42,7 @@ import '../../core/constants/app_typography.dart';
 import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
+import '../../core/utils/date_utils.dart';
 import '../../features/admin/presentation/admin_viewmodel.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
@@ -497,6 +498,7 @@ class _DrawerNavTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: Material(
@@ -521,9 +523,18 @@ class _DrawerNavTile extends StatelessWidget {
                       color: active ? Colors.white : AppColors.onSurfaceVariant,
                     ),
                   )
+                // A `label` rather than `Badge.count`, because the latter paints
+                // Latin digits: the count is written in the active language's own
+                // digits, like every other count in the app.
                 else if (badgeCount > 0)
-                  Badge.count(
-                    count: badgeCount,
+                  Badge(
+                    label: Text(
+                      AppDateUtils.formatDigits(
+                        badgeCount,
+                        l.localeName,
+                        grouping: false,
+                      ),
+                    ),
                     child: Icon(
                       icon,
                       size: 22,

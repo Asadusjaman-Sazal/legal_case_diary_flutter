@@ -32,6 +32,7 @@ import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
+import 'package:legal_case_diary/shared/providers/locale_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
 
@@ -472,26 +473,50 @@ class AuthTestHarness {
 }
 
 /// Pumps [screen] with the app's theme, localizations and [overrides].
+///
+/// [followLocale] makes the shell's locale follow [localeProvider] instead of
+/// the fixed [locale] — the way the app itself is wired — so a language-switch
+/// test sees the whole screen re-word itself rather than only the preference
+/// being written.
 Future<void> pumpAuthScreen(
   WidgetTester tester,
   Widget screen, {
   required List<Override> overrides,
   Locale locale = const Locale('en'),
+  bool followLocale = false,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: overrides,
-      child: MaterialApp(
-        theme: AppTheme.lightTheme(locale),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      child: _authShell(
+        followLocale: followLocale,
         locale: locale,
-        home: screen,
+        builder: (active) => MaterialApp(
+          theme: AppTheme.lightTheme(active),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: active,
+          home: screen,
+        ),
       ),
     ),
   );
   await tester.pumpAndSettle();
 }
+
+/// The localized shell both pump helpers put a screen in.
+///
+/// With [followLocale] it rebuilds on every [localeProvider] change, exactly as
+/// `app.dart` does; without it the shell stays on the [locale] it was given.
+Widget _authShell({
+  required bool followLocale,
+  required Locale locale,
+  required Widget Function(Locale active) builder,
+}) => followLocale
+    ? Consumer(
+        builder: (context, ref, _) => builder(ref.watch(localeProvider)),
+      )
+    : Builder(builder: (_) => builder(locale));
 
 /// Where a screen that leaves the auth routes lands, in [pumpAuthRouter].
 const String authLandingMarker = 'The Diary Opened';
@@ -513,6 +538,7 @@ Future<void> pumpAuthRouter(
   Widget screen, {
   required List<Override> overrides,
   Locale locale = const Locale('en'),
+  bool followLocale = false,
 }) async {
   final router = GoRouter(
     initialLocation: '/under-test',
@@ -546,12 +572,16 @@ Future<void> pumpAuthRouter(
   await tester.pumpWidget(
     ProviderScope(
       overrides: overrides,
-      child: MaterialApp.router(
-        theme: AppTheme.lightTheme(locale),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+      child: _authShell(
+        followLocale: followLocale,
         locale: locale,
-        routerConfig: router,
+        builder: (active) => MaterialApp.router(
+          theme: AppTheme.lightTheme(active),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: active,
+          routerConfig: router,
+        ),
       ),
     ),
   );

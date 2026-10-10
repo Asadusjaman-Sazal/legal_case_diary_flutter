@@ -168,11 +168,20 @@ class _AdminHeader extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          // The same Sync Status badge the case screens carry, count and all —
+          // including its digits: `Badge.count` would paint Latin ones, so the
+          // label is formatted in the active language like every other count.
           if (attention > 0)
             IconButton(
               key: const ValueKey('admin-panel-sync-status'),
-              icon: Badge.count(
-                count: attention,
+              icon: Badge(
+                label: Text(
+                  AppDateUtils.formatDigits(
+                    attention,
+                    l.localeName,
+                    grouping: false,
+                  ),
+                ),
                 child: const Icon(Icons.sync_problem, color: AppColors.error),
               ),
               tooltip: l.syncStatus_title,

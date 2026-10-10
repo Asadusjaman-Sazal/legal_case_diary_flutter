@@ -3412,7 +3412,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_emailLabel => 'Email';
 
   @override
-  String get auth_emailHint => 'counsel@example.com';
+  String get auth_emailHint => 'example@gmail.com';
 
   @override
   String get auth_passwordLabel => 'Password';
@@ -3458,19 +3458,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_fullNameLabel => 'Full Name';
 
   @override
-  String get auth_fullNameHint => 'Adv. John Doe';
+  String get auth_fullNameHint => 'Type your name.';
 
   @override
   String get auth_barAssociationLabel => 'Bar Association';
 
   @override
-  String get auth_barAssociationHint => 'Dhaka Bar';
+  String get auth_barAssociationHint =>
+      'Name of your district bar association.';
 
   @override
   String get auth_emailAddressLabel => 'Email Address';
 
   @override
-  String get auth_emailAddressHint => 'john.doe@chambers.com';
+  String get auth_emailAddressHint => 'example@gmail.com';
 
   @override
   String get auth_passwordHelper => 'Must be at least 8 characters long.';
@@ -3702,11 +3703,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_validationPasswordMismatch => 'Both passwords must match.';
 
   @override
-  String get auth_validationFullNameRequired => 'Enter your full name.';
-
-  @override
-  String get auth_validationBarAssociationRequired =>
-      'Enter your bar association.';
+  String get auth_validationMandatory =>
+      'This field is mandatory. Please, fill this up.';
 
   @override
   String get auth_validationInviteCodeRequired => 'Enter your invite code.';

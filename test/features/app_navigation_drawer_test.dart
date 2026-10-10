@@ -973,11 +973,35 @@ void main() {
     expect(badge.isLabelVisible, isTrue);
     expect(find.descendant(of: find.byType(Badge), matching: find.text('4')),
         findsOneWidget);
+  });  testWidgets("the Admin row's count uses the language's own digits", (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(
+      tester,
+      adminBadgeCount: 4,
+      locale: const Locale('bn'),
+    );
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // A count is written in the active language's digits whichever icon carries
+    // it: `Badge.count` paints Latin ones, and this row is not an exception.
+    final badge = find.byType(Badge);
+    expect(badge, findsOneWidget);
+    expect(
+      find.descendant(of: badge, matching: find.text('৪')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: badge, matching: find.text('4')),
+      findsNothing,
+      reason: 'the count was painted in Latin digits',
+    );
   });
 
   testWidgets('the Admin row carries no badge when nothing is waiting', (
     tester,
-  ) async {
+  ) async {
     await pumpDrawerOnRouter(tester, adminBadgeCount: 0);
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();

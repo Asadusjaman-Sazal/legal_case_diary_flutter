@@ -8,6 +8,7 @@
 /// the Addendum cares about most: **a failed code never loses the code**.
 library;
 
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -249,6 +250,64 @@ void main() {
           ?.text ??
       '';
 
+  /// The decoration the field at [index] is really built with — after the form
+  /// merged its own state into it, which is what the painter then reads.
+  InputDecoration decorationOf(WidgetTester tester, int index) => tester
+      .widget<TextField>(
+        find.descendant(
+          of: find.byType(TextFormField).at(index),
+          matching: find.byType(TextField),
+        ),
+      )
+      .decoration!;
+
+  /// How red the reddest pixel painted inside [finder]'s box is, read off the
+  /// frame.
+  ///
+  /// A decoration is only *told* what colour to use, so a hint or a border that
+  /// resolved some other colour would still pass a property check. Redness is the
+  /// red channel's lead over the other two: 0 for the app's greys, near 1 for its
+  /// error colour.
+  Future<double> rednessInside(WidgetTester tester, Finder finder) async {
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.ancestor(of: finder, matching: find.byType(RepaintBoundary)).first,
+    );
+    final rect = Rect.fromPoints(
+      boundary.globalToLocal(tester.getTopLeft(finder)),
+      boundary.globalToLocal(tester.getBottomRight(finder)),
+    );
+    var reddest = 0.0;
+    await tester.runAsync(() async {
+      final image = await boundary.toImage();
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes = data!;
+      for (var y = rect.top.ceil(); y < rect.bottom.floor(); y++) {
+        for (var x = rect.left.ceil(); x < rect.right.floor(); x++) {
+          final offset = (y * image.width + x) * 4;
+          final pixel = Color.fromARGB(
+            bytes.getUint8(offset + 3),
+            bytes.getUint8(offset),
+            bytes.getUint8(offset + 1),
+            bytes.getUint8(offset + 2),
+          );
+          reddest = math.max(
+            reddest,
+            pixel.r - math.max(pixel.g, pixel.b),
+          );
+        }
+      }
+      image.dispose();
+    });
+    return reddest;
+  }
+
+  /// The fill of the language button reading [label].
+  Color? languageFill(WidgetTester tester, String label) => tester
+      .widget<Material>(
+        find.ancestor(of: find.text(label), matching: find.byType(Material)).first,
+      )
+      .color;
+
   setUp(() => harness = AuthTestHarness());
   tearDown(() async {
     await harness.tearDown();
@@ -457,13 +516,141 @@ void main() {
 
     await tapVisible(tester, find.text(l.auth_signUpButton));
 
-    expect(find.text(l.auth_validationFullNameRequired), findsOneWidget);
-    expect(find.text(l.auth_validationBarAssociationRequired), findsOneWidget);
-    expect(find.text(l.auth_validationEmailRequired), findsOneWidget);
+    // The three required fields word their refusal inside themselves (user
+    // request: it is their own background text), so the one sentence stands
+    // three times — and never a second time underneath them.
+    expect(find.text(l.auth_validationMandatory), findsNWidgets(3));
     expect(find.text(l.auth_validationPasswordRequired), findsOneWidget);
     expect(find.text(l.auth_validationInviteCodeRequired), findsOneWidget);
     expect(find.text(l.auth_validationTermsRequired), findsOneWidget);
     expect(harness.auth.signUpEmails, isEmpty);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets(
+    'the three required fields read their mandatory sentence inside themselves',
+    (tester) async {
+      await pumpSignup(tester);
+
+      // Untouched, the three show their own placeholders and none is red.
+      expect(decorationOf(tester, 0).hintText, 'Type your name.');
+      expect(
+        decorationOf(tester, 1).hintText,
+        'Name of your district bar association.',
+      );
+      expect(decorationOf(tester, 2).hintText, 'example@gmail.com');
+      expect(find.text(l.auth_validationMandatory), findsNothing);
+      expect(
+        await rednessInside(tester, find.byType(TextFormField).at(0)),
+        lessThan(0.2),
+      );
+
+      await tapVisible(tester, find.text(l.auth_signUpButton));
+
+      // The sentence stands inside each of the three (user request), and
+      // nothing was sent.
+      expect(find.text(l.auth_validationMandatory), findsNWidgets(3));
+      expect(harness.auth.signUpEmails, isEmpty);
+
+      for (var index = 0; index < 3; index++) {
+        // The field is marked as being in error — which is what reddens its
+        // own border — while the sentence is its background text, in the error
+        // colour, with no second copy written underneath it.
+        final decoration = decorationOf(tester, index);
+        expect(decoration.hintText, l.auth_validationMandatory);
+        expect(decoration.hintStyle?.color, AppColors.error);
+        expect(decoration.error, isA<SizedBox>());
+        expect(decoration.errorText, isNull);
+      }
+      // The label above the first field reddens with it, and the sentence is
+      // really painted red.
+      expect(
+        tester.widget<Text>(find.text(l.auth_fullNameLabel)).style?.color,
+        AppColors.error,
+      );
+      expect(
+        await rednessInside(tester, find.byType(TextFormField).at(0)),
+        greaterThan(0.3),
+      );
+
+      await unmountApp(tester);
+    },
+  );
+
+  testWidgets('a required field leaves its mandatory state once it is filled in', (
+    tester,
+  ) async {
+    await pumpSignup(tester);
+    await tapVisible(tester, find.text(l.auth_signUpButton));
+    expect(find.text(l.auth_validationMandatory), findsNWidgets(3));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Adv. Jane Doe');
+    await tester.pumpAndSettle();
+
+    // The filled field is back to its ordinary self...
+    final decoration = decorationOf(tester, 0);
+    expect(decoration.error, isNull);
+    expect(decoration.hintText, 'Type your name.');
+    expect(
+      tester.widget<Text>(find.text(l.auth_fullNameLabel)).style?.color,
+      AppColors.onSurfaceVariant,
+    );
+    expect(
+      await rednessInside(tester, find.byType(TextFormField).at(0)),
+      lessThan(0.2),
+    );
+    // ...and only the two still-empty ones hold the sentence.
+    expect(find.text(l.auth_validationMandatory), findsNWidgets(2));
+
+    // Emptying it again brings the refusal back: it follows the field, not the
+    // last tap of Sign Up.
+    await tester.enterText(find.byType(TextFormField).at(0), '');
+    await tester.pumpAndSettle();
+    expect(decorationOf(tester, 0).hintText, l.auth_validationMandatory);
+    expect(find.text(l.auth_validationMandatory), findsNWidgets(3));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the language switch sits above the card and re-words the screen', (
+    tester,
+  ) async {
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    // The shell follows the locale provider here, as the app's own shell does,
+    // so this shows the screen changing language rather than only the
+    // preference being written.
+    await pumpAuthRouter(
+      tester,
+      const SignupScreen(),
+      overrides: overrides,
+      followLocale: true,
+    );
+    final english = await AppLocalizations.delegate.load(const Locale('en'));
+    final bengali = await AppLocalizations.delegate.load(const Locale('bn'));
+
+    // Offered before signing up, in the card's top right corner (user request),
+    // with the active language filled black and the other left outlined.
+    expect(find.text(english.settingsScreen_languageEnglish), findsOneWidget);
+    expect(find.text(english.settingsScreen_languageBengali), findsOneWidget);
+    expect(
+      languageFill(tester, english.settingsScreen_languageEnglish),
+      Colors.black,
+    );
+    expect(
+      languageFill(tester, english.settingsScreen_languageBengali),
+      isNot(Colors.black),
+    );
+
+    await tester.tap(find.text(english.settingsScreen_languageBengali));
+    await tester.pumpAndSettle();
+
+    expect(find.text(bengali.auth_signUpButton), findsOneWidget);
+    expect(find.text(english.auth_signUpButton), findsNothing);
+    // The same preference Settings > Language writes.
+    expect(harness.prefs.getString('app_locale'), 'bn');
 
     await unmountApp(tester);
   });

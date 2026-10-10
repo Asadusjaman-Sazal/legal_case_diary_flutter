@@ -5892,7 +5892,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_emailHint.
   ///
   /// In en, this message translates to:
-  /// **'counsel@example.com'**
+  /// **'example@gmail.com'**
   String get auth_emailHint;
 
   /// No description provided for @auth_passwordLabel.
@@ -5982,7 +5982,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_fullNameHint.
   ///
   /// In en, this message translates to:
-  /// **'Adv. John Doe'**
+  /// **'Type your name.'**
   String get auth_fullNameHint;
 
   /// No description provided for @auth_barAssociationLabel.
@@ -5994,7 +5994,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_barAssociationHint.
   ///
   /// In en, this message translates to:
-  /// **'Dhaka Bar'**
+  /// **'Name of your district bar association.'**
   String get auth_barAssociationHint;
 
   /// No description provided for @auth_emailAddressLabel.
@@ -6006,7 +6006,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_emailAddressHint.
   ///
   /// In en, this message translates to:
-  /// **'john.doe@chambers.com'**
+  /// **'example@gmail.com'**
   String get auth_emailAddressHint;
 
   /// No description provided for @auth_passwordHelper.
@@ -6411,17 +6411,11 @@ abstract class AppLocalizations {
   /// **'Both passwords must match.'**
   String get auth_validationPasswordMismatch;
 
-  /// No description provided for @auth_validationFullNameRequired.
+  /// No description provided for @auth_validationMandatory.
   ///
   /// In en, this message translates to:
-  /// **'Enter your full name.'**
-  String get auth_validationFullNameRequired;
-
-  /// No description provided for @auth_validationBarAssociationRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your bar association.'**
-  String get auth_validationBarAssociationRequired;
+  /// **'This field is mandatory. Please, fill this up.'**
+  String get auth_validationMandatory;
 
   /// No description provided for @auth_validationInviteCodeRequired.
   ///

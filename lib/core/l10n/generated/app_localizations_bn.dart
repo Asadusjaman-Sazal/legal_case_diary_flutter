@@ -3432,7 +3432,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_emailLabel => 'ইমেইল';
 
   @override
-  String get auth_emailHint => 'counsel@example.com';
+  String get auth_emailHint => 'example@gmail.com';
 
   @override
   String get auth_passwordLabel => 'পাসওয়ার্ড';
@@ -3478,19 +3478,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_fullNameLabel => 'পূর্ণ নাম';
 
   @override
-  String get auth_fullNameHint => 'অ্যাড. জন ডো';
+  String get auth_fullNameHint => 'আপনার নাম লিখুন।';
 
   @override
   String get auth_barAssociationLabel => 'বার অ্যাসোসিয়েশন';
 
   @override
-  String get auth_barAssociationHint => 'ঢাকা বার';
+  String get auth_barAssociationHint => 'আপনার জেলা বার অ্যাসোসিয়েশনের নাম।';
 
   @override
   String get auth_emailAddressLabel => 'ইমেইল ঠিকানা';
 
   @override
-  String get auth_emailAddressHint => 'john.doe@chambers.com';
+  String get auth_emailAddressHint => 'example@gmail.com';
 
   @override
   String get auth_passwordHelper => 'কমপক্ষে ৮ অক্ষরের হতে হবে।';
@@ -3720,11 +3720,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_validationPasswordMismatch => 'দুটি পাসওয়ার্ড মিলতে হবে।';
 
   @override
-  String get auth_validationFullNameRequired => 'আপনার পূর্ণ নাম লিখুন।';
-
-  @override
-  String get auth_validationBarAssociationRequired =>
-      'আপনার বার অ্যাসোসিয়েশনের নাম লিখুন।';
+  String get auth_validationMandatory =>
+      'এই ঘরটি বাধ্যতামূলক। অনুগ্রহ করে এটি পূরণ করুন।';
 
   @override
   String get auth_validationInviteCodeRequired => 'আপনার ইনভাইট কোড লিখুন।';

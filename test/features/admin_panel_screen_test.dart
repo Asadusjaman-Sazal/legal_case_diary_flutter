@@ -271,6 +271,34 @@ void main() {
     );
   });
 
+  testWidgets("the Sync Status badge counts in the language's own digits", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(),
+      locale: const Locale('bn'),
+      attention: 2,
+    );
+
+    // The panel carries the case screens' badge, digits and all: `Badge.count`
+    // would paint Latin ones, which a Bengali admin must never be shown.
+    final badge = find.descendant(
+      of: find.byKey(const ValueKey('admin-panel-sync-status')),
+      matching: find.byType(Badge),
+    );
+    expect(badge, findsOneWidget);
+    expect(
+      find.descendant(of: badge, matching: find.text('২')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: badge, matching: find.text('2')),
+      findsNothing,
+      reason: 'the count was painted in Latin digits',
+    );
+  });
+
   testWidgets('the header carries the shared sync button', (tester) async {
     await pump(tester, _FakeAdminRepository());
 

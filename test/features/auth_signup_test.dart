@@ -508,11 +508,12 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the account-type choice gives the long label one line', (
+  testWidgets('the account-type pair splits 40/60 and keeps the long label on one line', (
     tester,
   ) async {
-    // Bengali: the pair the request was made about (user request — *ব্যক্তিগত*
-    // squeezed *বিদ্যমান ফারমে যোগ দিন* onto two lines).
+    // Bengali: the pair the requests were made about (user request —
+    // *ব্যক্তিগত* first squeezed *বিদ্যমান ফারমে যোগ দিন* onto two lines, then
+    // left it looking too small beside a very wide button).
     final overrides = await harness.setUp();
     await tester.binding.setSurfaceSize(const Size(420, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -548,16 +549,17 @@ void main() {
       find.text(bengali.auth_accountTypeJoinFirm),
     );
 
-    // The short segment is only as wide as its own label and the segment's own
-    // padding — no share of the row is set aside for it, which is what the
-    // request asked for and what frees the room the long label needs. (A
-    // `SegmentedButton` gives both segments one width, the wider of the two.)
+    // The row is split 40 / 60 (user request): two shares to Individual, three
+    // to Join Existing Firm, whatever either label measures — which is what
+    // keeps the shorter button from reading as too small beside the longer one.
+    // (A `SegmentedButton` gives both segments one width; the shrink-wrap this
+    // replaced left the short one only as wide as its own label.)
+    final row = individualSegment.width + firmSegment.width;
     expect(
-      individualSegment.width,
-      moreOrLessEquals(individualLabel.width + 2 * AppSpacing.gutter, epsilon: 1),
+      individualSegment.width / row,
+      moreOrLessEquals(0.4, epsilon: 0.01),
     );
-    // The other one has all that is left, at the same height, and it is drawn
-    // to the right of the short one.
+    // The other one is drawn to the right, at the same height.
     expect(firmSegment.right, greaterThan(individualSegment.right));
     expect(firmSegment.height, individualSegment.height);
 

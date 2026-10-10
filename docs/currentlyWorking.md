@@ -1,3 +1,16 @@
+### 2026-10-10 — Sign Up: the Account Type pair holds 40 % / 60 % of the row — COMPLETE
+
+- **Request (the user's, the Sign Up screen only).** The Individual button now looks too small beside a Join Existing Firm button that looks too big: give Individual **40 %** and Join Existing Firm **60 %** of the available button space.
+- **What the previous fix got wrong.** Freeing room for the long Bengali label was solved by letting the short segment **shrink-wrap** to its own label. That fixed the wrapping and broke the balance: the pair no longer read as two halves of one control but as a small button beside a very wide one.
+- **The change (one widget).** The Row's two children are both `Expanded` now, with `flex: _individualFlex` (2) and `flex: _joinFirmFlex` (3) — two of five shares to Individual and three to Join Existing Firm, which is the requested 40 / 60 at every width, the fixed 1 px hairline between them aside. `Flexible`'s `flex` distributes the row's *free* space, so the split is the share named here and does not drift with the label lengths. The label's `FittedBox(BoxFit.scaleDown)` stays: the longer label is still laid out whole and shrunk by only what its 60 % cannot hold, so it never wraps.
+- **Ponytail.** Two named constants on the existing widget and one `Expanded` in place of the shrink-wrapped child — no new control, no magic pixel widths, and nothing else on the screen moved.
+- **Test (the existing case, updated).** `auth_signup_test.dart`'s Bengali account-type case now pins the split as a **ratio** rather than a pixel width — Individual's segment is 40 % of the two segments together (±1 %) — so it holds at any screen width and cannot be satisfied by two equal halves; the one-line, whole-label assertions it already carried are unchanged.
+- **Teeth (two, both proven and reverted).** With both flexes made equal (3/3) the ratio reads 0.5 and the case fails; with the label's scale-down removed (`BoxFit.none`) the painted label is 324 px inside its 202 px segment and the "fits its segment" assertion fails. The file was diffed back to identical bytes afterwards.
+- **Verification.** `flutter analyze` clean; the two auth suites **59 passed**; full suite **1573 passed**; `record_version.py --check` OK; version **0.0.468**.
+- **Records (rule 14).** `(0.0.468)` notes in the plan's auth-cards bullet and Task 17's follow-up paragraph, both beside the `(0.0.467)` note they correct.
+- **Mockup (rule 9).** None to update: the sign-up mockup draws no Account Type control, and nothing else in it changed.
+- **Device check owed.** In Bengali, the Account Type row should read as two buttons split 40 / 60 — Individual narrower, Join Existing Firm wider, its label on one line — and the same pair in English.
+
 ### 2026-10-10 — Sign Up: the Account Type pair is no longer an equal split, and the mandatory sentence is shorter — COMPLETE
 
 - **Request (the user's, the Sign Up screen only).** (1) In Bengali, make the **ব্যক্তিগত** button a bit small so **বিদ্যমান ফার্মে যোগ দিন** can be read on one line — it currently wraps onto two for want of room to the right. (2) Shorten the mandatory text to **"This field is mandatory."**, the current sentence having no room to be shown.

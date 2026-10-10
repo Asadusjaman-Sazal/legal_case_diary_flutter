@@ -14,6 +14,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:legal_case_diary/core/l10n/app_translations.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/print/print_document.dart';
+import 'package:legal_case_diary/core/print/print_flow.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 
 AppTranslations _t(String language) =>
@@ -290,6 +291,23 @@ void main() {
       expect(document.isEmpty, isTrue);
       expect(document.entryCount, 0);
       expect(document.footer, isEmpty);
+    });
+  });
+
+  group('printed file name', () {
+    test('appends the print date, in Latin digits whatever the language', () {
+      // 19 Sep 2026, midday Bangladesh civil time.
+      final stamp = AppDateUtils.bangladeshCivilDateEpoch(2026, 9, 19) +
+          const Duration(hours: 12).inMilliseconds;
+      expect(printJobName('All Cases', printedAtEpochMs: stamp), 'All Cases 19-09-26');
+      expect(printJobName('Daily Cause List', printedAtEpochMs: stamp),
+          'Daily Cause List 19-09-26');
+    });
+
+    test('zero-pads the day and month and shortens the year', () {
+      final stamp = AppDateUtils.bangladeshCivilDateEpoch(2026, 1, 5) +
+          const Duration(hours: 12).inMilliseconds;
+      expect(printJobName('Notes', printedAtEpochMs: stamp), 'Notes 05-01-26');
     });
   });
 

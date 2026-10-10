@@ -284,7 +284,12 @@ void main() {
         .toList();
     expect(headings, contains(l.caseDetailsScreen_caseTitleAndRemark));
     expect(headings, contains(l.caseDetailsScreen_caseHistory));
-    expect(printer.jobs.single.jobName, document.title);
+    // The job is named after the sheet, with the print date appended.
+    expect(printer.jobs.single.jobName, startsWith(document.title));
+    expect(
+      printer.jobs.single.jobName,
+      matches(RegExp(r' \d{2}-\d{2}-\d{2}$')),
+    );
 
     await unmount(tester);
   });

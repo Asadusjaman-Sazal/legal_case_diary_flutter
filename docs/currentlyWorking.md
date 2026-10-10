@@ -8,6 +8,15 @@
 - **Verification.** `flutter analyze` clean; `app_navigation_drawer` **19/19**; full suite **1524 passed**; `record_version.py --check` OK; version **0.0.450**. Records updated in both `docs/implementation_plan.md` (the popover bullet at line 120) and Task 06 (rule 14).
 - **Resume point:** nothing owed in code. Device check: open the side menu → tap the avatar → **Logout**; the branch's window should appear and the app should land on Login with no error entry on Diagnostics.
 
+### 2026-10-10 — Printed PDFs are named with the print date — COMPLETE
+
+- **Request (the user's, Print section only).** Add the date to the PDF file name.
+- **The change.** The print job name — which is what the OS pre-fills its "Save as PDF" file name with — was the bare screen title (`All Cases`). `print_flow.dart` gained `printJobName(title, {printedAtEpochMs})`: the title plus the print date, `All Cases 19-09-26`. The date is the day it is printed, in the app's Bangladesh civil time like every other date, and in **Latin digits whatever the active language** (a file name is not prose). Every printout gets it automatically — case lists and the Case Detail sheet alike — because the name is built in the one print flow, not per screen.
+- **Tests.** `print_document_test.dart` gains a `printed file name` group (format, zero-padding, shortened year, Latin digits); the two `jobName == title` assertions (`case_list_print_test.dart`, `case_detail_print_test.dart`) now assert the title plus a trailing `dd-MM-yy`.
+- **Verification.** `flutter analyze` clean; full suite **1541 passed**; `record_version.py --check` OK; version **0.0.458**.
+- **Device check owed.** Print any screen → "Save as PDF" should offer `<Screen Title> <dd-MM-yy>.pdf`.
+- **Assumption to confirm.** The date used is the **print date** (today) for every screen. If Daily Cause List should instead carry its **selected day**, that is a small addition (the screen already knows `_selectedDate`).
+
 ### 2026-10-10 — Ruled-table print: quality, borders and headings fixed — COMPLETE
 
 - **Request (the user's, 13 items, Print section only).** Printed logo/text looked soft; Active Cases missed the icon on page 1; open top borders; headings not centred; flat lists missing the court name; Overdue's dates; Upcoming's date prefix; BN "Year".

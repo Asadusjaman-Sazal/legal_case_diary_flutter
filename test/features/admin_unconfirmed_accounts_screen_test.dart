@@ -140,7 +140,7 @@ void main() {
     await pump(tester, repo);
     final listsBefore = repo.listCalls;
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
     // Removing an account is permanent, so it is confirmed rather than fired
     // from one tap.
@@ -160,7 +160,7 @@ void main() {
     final repo = _FakeAdminRepository(rows: [_account(id: 'a1')]);
     await pump(tester, repo);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
@@ -178,7 +178,7 @@ void main() {
 
     // The button is absent and the reason is named, rather than offering an
     // action the server would refuse.
-    expect(find.widgetWithText(OutlinedButton, 'Delete'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Delete'), findsNothing);
     expect(
       find.text(
         'This account has data or is confirmed, so it cannot be deleted from '

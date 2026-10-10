@@ -706,7 +706,21 @@ Object? _error;
   }
 }
 
+/// Height of the account-type choice: the height the segmented button gave it.
+const double _accountTypeHeight = 40.0;
+
 /// The Individual / Join Existing Firm choice above the form.
+///
+/// Two segments inside one outlined control, drawn as `SegmentedButton` drew
+/// them (a 40 px row, the same fills and the same hairline outline) with the one
+/// difference this choice needs (user request): the segments are **not** the
+/// same width. `SegmentedButton` lays every segment out at one size — a segment
+/// is at most `maxWidth / segmentCount` wide, whichever label is in it — so a
+/// short label spends on itself room the long one needs, and Bengali's
+/// *বিদ্যমান ফারমে যোগ দিন* wrapped onto two lines beside *ব্যক্তিগত*. Here the
+/// short segment takes only its own label's width and the long one has all that
+/// is left, and its label scales down by the little a narrow screen takes off it
+/// rather than wrapping, so it is always read on one line.
 class _AccountTypeChoice extends StatelessWidget {
   const _AccountTypeChoice({
     required this.label,
@@ -731,30 +745,93 @@ class _AccountTypeChoice extends StatelessWidget {
         style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
       ),
       const SizedBox(height: AppSpacing.xs),
-      SegmentedButton<SignupPath>(
-        segments: [
-          ButtonSegment<SignupPath>(
-            value: SignupPath.individual,
-            label: Text(individual),
+      SizedBox(
+        height: _accountTypeHeight,
+        child: Material(
+          // The control's own corners and outline, drawn once around both
+          // segments: the stadium shape and hairline border the segmented
+          // button carried.
+          shape: const StadiumBorder(
+            side: BorderSide(color: AppColors.outlineVariant),
           ),
-          ButtonSegment<SignupPath>(
-            value: SignupPath.joinFirm,
-            label: Text(joinFirm),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Shrink-wrapped, so this segment is only as wide as its own
+              // label — the room the longer one needs.
+              _AccountTypeSegment(
+                label: individual,
+                selected: selected == SignupPath.individual,
+                onTap: () => onChanged(SignupPath.individual),
+              ),
+              // The hairline between the two, which each segment used to draw
+              // for itself.
+              const SizedBox(
+                width: 1,
+                child: ColoredBox(color: AppColors.outlineVariant),
+              ),
+              Expanded(
+                child: _AccountTypeSegment(
+                  label: joinFirm,
+                  selected: selected == SignupPath.joinFirm,
+                  onTap: () => onChanged(SignupPath.joinFirm),
+                ),
+              ),
+            ],
           ),
-        ],
-        selected: {selected},
-        showSelectedIcon: false,
-        onSelectionChanged: (selection) => onChanged(selection.first),
-        style: SegmentedButton.styleFrom(
-          backgroundColor: AppColors.surfaceContainerLowest,
-          foregroundColor: AppColors.onSurface,
-          selectedBackgroundColor: AppColors.primary,
-          selectedForegroundColor: AppColors.onPrimary,
-          textStyle: AppTypography.labelLg,
-          side: const BorderSide(color: AppColors.outlineVariant),
         ),
       ),
     ],
+  );
+}
+
+/// One segment of the account-type choice: filled black while it is the chosen
+/// path, white while it is not, and its label always on one line.
+class _AccountTypeSegment extends StatelessWidget {
+  const _AccountTypeSegment({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  /// Segment label, already in its own language.
+  final String label;
+
+  /// Whether this is the chosen path.
+  final bool selected;
+
+  /// Chooses this path.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected,
+    button: true,
+    child: Material(
+      color: selected ? AppColors.primary : AppColors.surfaceContainerLowest,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+          child: Center(
+            // Laid out whole and scaled down only by what the segment cannot
+            // hold, so the label never wraps (user request).
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                style: AppTypography.labelLg.copyWith(
+                  color: selected ? AppColors.onPrimary : AppColors.onSurface,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 }
 

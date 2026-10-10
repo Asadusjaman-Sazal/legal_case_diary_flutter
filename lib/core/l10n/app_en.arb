@@ -1763,7 +1763,7 @@
   "auth_validationPasswordTooShort": "Use at least 8 characters.",
   "auth_validationPasswordConfirmRequired": "Confirm your password.",
   "auth_validationPasswordMismatch": "Both passwords must match.",
-  "auth_validationMandatory": "This field is mandatory. Please, fill this up.",
+  "auth_validationMandatory": "This field is mandatory.",
   "auth_validationInviteCodeRequired": "Enter your invite code.",
   "auth_validationTermsRequired": "Accept the Terms of Service and Privacy Policy to continue.",
   "auth_sessionExpired": "Your Session Expired. Sign In Again.",

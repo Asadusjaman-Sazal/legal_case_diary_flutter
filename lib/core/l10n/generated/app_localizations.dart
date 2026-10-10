@@ -6414,7 +6414,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_validationMandatory.
   ///
   /// In en, this message translates to:
-  /// **'This field is mandatory. Please, fill this up.'**
+  /// **'This field is mandatory.'**
   String get auth_validationMandatory;
 
   /// No description provided for @auth_validationInviteCodeRequired.

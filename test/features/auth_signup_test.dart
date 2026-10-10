@@ -508,6 +508,69 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the account-type choice gives the long label one line', (
+    tester,
+  ) async {
+    // Bengali: the pair the request was made about (user request — *ব্যক্তিগত*
+    // squeezed *বিদ্যমান ফারমে যোগ দিন* onto two lines).
+    final overrides = await harness.setUp();
+    await tester.binding.setSurfaceSize(const Size(420, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await pumpAuthRouter(
+      tester,
+      const SignupScreen(),
+      overrides: overrides,
+      locale: const Locale('bn'),
+    );
+    final bengali = await AppLocalizations.delegate.load(const Locale('bn'));
+
+    // Each segment's own box, taken from the widget the label sits in.
+    final individualSegment = tester.getRect(
+      find
+          .ancestor(
+            of: find.text(bengali.auth_accountTypeIndividual),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    final firmSegment = tester.getRect(
+      find
+          .ancestor(
+            of: find.text(bengali.auth_accountTypeJoinFirm),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    final individualLabel = tester.getRect(
+      find.text(bengali.auth_accountTypeIndividual),
+    );
+    final firmLabel = tester.getRect(
+      find.text(bengali.auth_accountTypeJoinFirm),
+    );
+
+    // The short segment is only as wide as its own label and the segment's own
+    // padding — no share of the row is set aside for it, which is what the
+    // request asked for and what frees the room the long label needs. (A
+    // `SegmentedButton` gives both segments one width, the wider of the two.)
+    expect(
+      individualSegment.width,
+      moreOrLessEquals(individualLabel.width + 2 * AppSpacing.gutter, epsilon: 1),
+    );
+    // The other one has all that is left, at the same height, and it is drawn
+    // to the right of the short one.
+    expect(firmSegment.right, greaterThan(individualSegment.right));
+    expect(firmSegment.height, individualSegment.height);
+
+    // And the long label is read whole, on one line, inside its own segment —
+    // neither wrapped onto two (its painted height is a single line's) nor cut
+    // off at the edge (its painted width fits the segment).
+    expect(firmLabel.height, lessThanOrEqualTo(individualLabel.height + 0.5));
+    expect(firmLabel.width, lessThanOrEqualTo(firmSegment.width));
+    expect(firmLabel.left, greaterThanOrEqualTo(firmSegment.left));
+
+    await unmountApp(tester);
+  });
+
   testWidgets('the form, the invite code and the terms are all required', (
     tester,
   ) async {
@@ -515,6 +578,10 @@ void main() {
     await tapVisible(tester, find.text(l.auth_accountTypeJoinFirm));
 
     await tapVisible(tester, find.text(l.auth_signUpButton));
+
+    // The sentence the user asked to shorten, pinned literally so a later edit
+    // to it has to be deliberate.
+    expect(l.auth_validationMandatory, 'This field is mandatory.');
 
     // The three required fields word their refusal inside themselves (user
     // request: it is their own background text), so the one sentence stands

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.454 - Side-menu Logout now answers at once: the profile panel's Logout row swaps its icon for a spinner for the flow, and ignores re-taps, so a 6-7s logout reads as working.
+Version: 0.0.455 - Manage Account > Logout now answers at once too: its card swaps the icon for a spinner for the flow (same as the side-menu popover), clearing in a finally so it can never stick.
 --------------------------------------
 
 ## Version History Log:
@@ -468,3 +468,4 @@ Version: 0.0.451 - Logout from the side-menu profile panel no longer closes the 
 Version: 0.0.452 - Subscription Details: the Free Plan Limitations heading lost its leading bullet, and the limitation bullets are now black instead of error red.
 Version: 0.0.453 - Online Sync: removed the 'kept up to date on this device' subtitle line, and the free-plan sentence 'A subscription plan is required...here' is now red (link included).
 Version: 0.0.454 - Side-menu Logout now answers at once: the profile panel's Logout row swaps its icon for a spinner for the flow, and ignores re-taps, so a 6-7s logout reads as working.
+Version: 0.0.455 - Manage Account > Logout now answers at once too: its card swaps the icon for a spinner for the flow (same as the side-menu popover), clearing in a finally so it can never stick.

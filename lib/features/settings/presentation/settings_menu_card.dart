@@ -226,6 +226,11 @@ class SettingsActionCard extends StatelessWidget {
   /// Tap handler.
   final VoidCallback onTap;
 
+  /// When true, the leading icon is replaced by a small progress spinner —
+  /// the Logout card uses it while the logout flow runs, so the tap is
+  /// answered at once rather than reading as a dead button.
+  final bool busy;
+
   /// Creates an action card.
   const SettingsActionCard({
     required this.icon,
@@ -233,6 +238,7 @@ class SettingsActionCard extends StatelessWidget {
     required this.tone,
     required this.onTap,
     this.subtitle,
+    this.busy = false,
     super.key,
   });
 
@@ -280,12 +286,20 @@ class SettingsActionCard extends StatelessWidget {
                           : AppColors.surfaceContainer,
                     ),
                     child: Center(
-                      child: Icon(
-                        icon,
-                        color: destructive
-                            ? AppColors.error
-                            : AppColors.primary,
-                      ),
+                      child: busy
+                          ? SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Icon(
+                              icon,
+                              color: destructive
+                                  ? AppColors.error
+                                  : AppColors.primary,
+                            ),
                     ),
                   ),
                   SizedBox(width: AppSpacing.md),

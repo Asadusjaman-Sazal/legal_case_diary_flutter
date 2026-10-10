@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(35),
+        hasLength(37),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -75,17 +75,20 @@ void main() {
             'follow-up added the discounted plan prices, Task 23 added '
             'the admin panel RPCs, the plan-name follow-up added the '
             'generated name columns, Task 12\'s account deletion added '
-            'delete_my_account, and the Check Your Email follow-up added the '
-            'password-checked discard_unconfirmed_signup cleanup',
+            'delete_my_account, the Check Your Email follow-up added the '
+            'password-checked discard_unconfirmed_signup cleanup, and the '
+            'Admin Panel follow-up added the unconfirmed-accounts list and '
+            'its removal, and closed the EXECUTE that left its internal guard '
+            'callable by any signed-in account',
       );
-      expect(versions.toSet(), hasLength(35), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(37), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261008110000');
+      expect(versions.last, '20261009130000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

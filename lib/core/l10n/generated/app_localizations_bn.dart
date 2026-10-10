@@ -1114,6 +1114,63 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_paymentRequests => 'পেমেন্ট অনুরোধ';
 
   @override
+  String get adminPanel_paymentRequestsSubtitle =>
+      'জমা দেওয়া পেমেন্ট অনুমোদন বা প্রত্যাখ্যান করুন';
+
+  @override
+  String get adminPanel_unverifiedAccounts => 'অযাচিত অ্যাকাউন্ট';
+
+  @override
+  String get adminPanel_unverifiedAccountsSubtitle =>
+      'যে সাইন-আপগুলো কখনও নিশ্চিত হয়নি';
+
+  @override
+  String get adminPanel_unverifiedTitle => 'অযাচিত অ্যাকাউন্ট';
+
+  @override
+  String get adminPanel_unverifiedEmpty =>
+      'সব অ্যাকাউন্টই তাদের ঠিকানা নিশ্চিত করেছে।';
+
+  @override
+  String get adminPanel_unverifiedLoadFailed =>
+      'অ্যাকাউন্টগুলো লোড করা যায়নি।';
+
+  @override
+  String get adminPanel_created => 'তৈরি';
+
+  @override
+  String get adminPanel_lastSignIn => 'সর্বশেষ সাইন-ইন';
+
+  @override
+  String get adminPanel_delete => 'মুছুন';
+
+  @override
+  String get adminPanel_deleteTitle => 'এই অ্যাকাউন্টটি মুছবেন?';
+
+  @override
+  String get adminPanel_deleteBody =>
+      'অ্যাকাউন্টটি কখনও ঠিকানা নিশ্চিত করেনি এবং কিছুই করেনি, তাই এটি স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।';
+
+  @override
+  String get adminPanel_deleteConfirm => 'অ্যাকাউন্ট মুছুন';
+
+  @override
+  String get adminPanel_deleteBlocked =>
+      'এই অ্যাকাউন্টে ডেটা আছে বা এটি নিশ্চিত হয়েছে, তাই এখান থেকে মোছা যাবে না।';
+
+  @override
+  String get adminPanel_deleted => 'অ্যাকাউন্ট মুছে ফেলা হয়েছে।';
+
+  @override
+  String get adminPanel_search => 'খুঁজুন';
+
+  @override
+  String get adminPanel_searchHint => 'খুঁজুন';
+
+  @override
+  String get adminPanel_noResults => 'কোনো ফলাফল পাওয়া যায়নি।';
+
+  @override
   String get adminPanel_pending => 'অপেক্ষমাণ';
 
   @override

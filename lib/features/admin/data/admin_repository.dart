@@ -159,6 +159,54 @@ class AdminPaymentRequest {
       : null;
 }
 
+/// One account that signed up but never confirmed its address.
+///
+/// Invisible to every client — `email_confirmed_at` lives in `auth.users`, which
+/// no client may read — so it arrives only from the admin-gated
+/// `admin_list_unconfirmed_accounts()`.
+class AdminUnconfirmedAccount {
+  /// Creates an account row.
+  const AdminUnconfirmedAccount({
+    required this.id,
+    required this.email,
+    required this.fullName,
+    this.createdAt,
+    this.lastSignInAt,
+    this.canDelete = false,
+  });
+
+  /// The account's `auth.users` id.
+  final String id;
+
+  /// The address it signed up with.
+  final String email;
+
+  /// The account holder's name from their profile (empty until they fill it in).
+  final String fullName;
+
+  /// When the account was created.
+  final DateTime? createdAt;
+
+  /// The last sign-in, if there ever was one — an unconfirmed account cannot
+  /// sign in, so this is normally null and is shown only when it is not.
+  final DateTime? lastSignInAt;
+
+  /// Whether the server would allow removing it: true only while it is
+  /// **provisional** — unconfirmed and having done nothing at all.
+  final bool canDelete;
+
+  /// Reads one row of `admin_list_unconfirmed_accounts()`'s jsonb array.
+  factory AdminUnconfirmedAccount.fromJson(Map<String, dynamic> json) =>
+      AdminUnconfirmedAccount(
+        id: json['id'] as String? ?? '',
+        email: json['email'] as String? ?? '',
+        fullName: json['full_name'] as String? ?? '',
+        createdAt: AdminPaymentRequest._instant(json['created_at']),
+        lastSignInAt: AdminPaymentRequest._instant(json['last_sign_in_at']),
+        canDelete: json['can_delete'] as bool? ?? false,
+      );
+}
+
 /// The admin panel's data boundary.
 abstract class AdminRepository {
   /// Whether the signed-in account is a registered admin.
@@ -175,6 +223,12 @@ abstract class AdminRepository {
 
   /// Rejects [submissionId] with [note]; returns null on success or why not.
   Future<AdminActionFailure?> reject(String submissionId, {String? note});
+
+  /// Every account that never confirmed its address, newest first.
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts();
+
+  /// Removes the unconfirmed account [userId]; null on success, else why not.
+  Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId);
 }
 
 /// Talks to the three admin RPCs.
@@ -235,6 +289,43 @@ class SupabaseAdminRepository implements AdminRepository {
     }
   }
 
+  @override
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async {
+    final response = await _client.rpc('admin_list_unconfirmed_accounts');
+    if (response is! List) return const <AdminUnconfirmedAccount>[];
+    return response
+        .whereType<Map<String, dynamic>>()
+        .map(AdminUnconfirmedAccount.fromJson)
+        .toList(growable: false);
+  }
+
+  @override
+  Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async {
+    try {
+      final response = await _client.rpc(
+        'admin_delete_unconfirmed_account',
+        params: <String, dynamic>{'p_user_id': userId},
+      );
+      return _failureFromErrorless(response);
+    } on Object catch (error) {
+      return _failureFromError(error);
+    }
+  }
+
+  /// Maps the delete RPC's own `status`/`reason` to a failure, or null on
+  /// success. Unlike the payment actions it answers `removed`, and its refusals
+  /// are `not_found`, `confirmed` and `has_activity` — the last two are the
+  /// account ceasing to be provisional since the list was read.
+  static AdminActionFailure? _failureFromErrorless(Object? response) {
+    if (response is! Map) return AdminActionFailure.unexpected;
+    if (response['status'] == 'removed') return null;
+    return switch (response['reason']) {
+      'not_found' => AdminActionFailure.notFound,
+      'confirmed' || 'has_activity' => AdminActionFailure.alreadyResolved,
+      _ => AdminActionFailure.unexpected,
+    };
+  }
+
   /// Maps a successful RPC's own `status` to a failure, or null when it worked.
   static AdminActionFailure? _failureFrom(Object? response) {
     if (response is! Map) return AdminActionFailure.unexpected;
@@ -282,4 +373,12 @@ class UnavailableAdminRepository implements AdminRepository {
     String submissionId, {
     String? note,
   }) async => AdminActionFailure.notAnAdmin;
+
+  @override
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
+      const <AdminUnconfirmedAccount>[];
+
+  @override
+  Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
+      AdminActionFailure.notAnAdmin;
 }

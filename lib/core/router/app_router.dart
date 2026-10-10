@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/admin_panel_screen.dart';
+import '../../features/admin/presentation/admin_payment_requests_screen.dart';
+import '../../features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
 import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import '../../features/accounts_and_profile/presentation/delete_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
@@ -95,6 +97,11 @@ class AppRoutes {
   /// is **not** the gate: `adminStatusProvider` is, and the panel renders
   /// nothing to an account the server has not confirmed as an admin.
   static const String adminPanel = '/admin-panel';
+
+  /// The panel's two sub-pages (0.0.459), pushed from its menu.
+  static const String adminPaymentRequests = '/admin-panel/payment-requests';
+  static const String adminUnverifiedAccounts =
+      '/admin-panel/unverified-accounts';
   static const String settings = '/settings';
   static const String settingsLanguage = '/settings/language';
   static const String settingsAccountProfile = '/settings/account-profile';
@@ -519,6 +526,17 @@ final List<RouteBase> _shellRoutes = [
     // how it feels to switch, not about which screen it is.
     pageBuilder: (context, state) =>
         const NoTransitionPage(child: AdminPanelScreen()),
+  ),
+  // The panel's own sub-pages, pushed from its menu. Plain `builder:` routes,
+  // so they arrive with the platform transition and a back arrow, exactly like
+  // the Settings sub-pages they are modelled on.
+  GoRoute(
+    path: AppRoutes.adminPaymentRequests,
+    builder: (context, state) => const AdminPaymentRequestsScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.adminUnverifiedAccounts,
+    builder: (context, state) => const AdminUnconfirmedAccountsScreen(),
   ),
   // Settings tree
   GoRoute(

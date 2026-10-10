@@ -35,6 +35,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
+import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
@@ -145,6 +146,7 @@ void main() {
     String route = AppRoutes.dailyCauseList,
     String email = signedInEmail,
     LogoutFlow? logoutFlow,
+    int? adminBadgeCount,
   }) async {
     // Tall, so the plan row (below the eight nav items) is on screen to tap.
     await tester.binding.setSurfaceSize(const Size(500, 1400));
@@ -204,6 +206,13 @@ void main() {
           ),
           if (logoutFlow != null)
             logoutFlowProvider.overrideWith((_) async => logoutFlow),
+          // The Admin row exists only for an admin, and its badge reads a count
+          // derived from the payment and unconfirmed-account lists; both are
+          // stubbed so the row can be exercised without a server.
+          if (adminBadgeCount != null) ...[
+            adminStatusProvider.overrideWith((_) async => true),
+            adminPendingCountProvider.overrideWithValue(adminBadgeCount),
+          ],
         ],
         child: MaterialApp.router(
           routerConfig: router,
@@ -950,4 +959,31 @@ void main() {
     expect(router.state.matchedLocation, AppRoutes.login);
   });
 
+  testWidgets('the Admin row badges the work waiting in the panel', (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(tester, adminBadgeCount: 4);
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // The row exists (the account is an admin) and carries the count over its
+    // icon, the way the Sync Status icon carries its own.
+    expect(find.text('Admin Panel'), findsOneWidget);
+    final badge = tester.widget<Badge>(find.byType(Badge));
+    expect(badge.isLabelVisible, isTrue);
+    expect(find.descendant(of: find.byType(Badge), matching: find.text('4')),
+        findsOneWidget);
+  });
+
+  testWidgets('the Admin row carries no badge when nothing is waiting', (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(tester, adminBadgeCount: 0);
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+
+    // The row is there, with a plain icon and no count over it.
+    expect(find.text('Admin Panel'), findsOneWidget);
+    expect(find.byType(Badge), findsNothing);
+  });
 }

@@ -69,6 +69,8 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.385 | 2026-10-05 | `20261005120000_payment_plan_name.sql` | Readable plan names on both payment ledgers: `plan_type` stays the machine key and `payment_submissions` / `payment_approval_events` each gain a generated `plan_name` (`1 Month` / `3 Months` / `6 Months` / `1 Year`), so the raw tables read plainly without touching the approval path or either table's write privileges. |
 | 0.0.411 | 2026-10-08 | `20261008100000_delete_my_account.sql` | Task 12's Manage Account actions, built: delete_my_account(), the account holders own complete removal — every domain row, custom reference row, preference, payment submission and approval event, sync receipt, firm link and finally the Auth account — so no residue of it remains. Refuses, changing nothing, for a firm account and for an app administrator, and names the reason. |
 | 0.0.413 | 2026-10-08 | `20261008110000_discard_unconfirmed_signup.sql` | The Check Your Email screen, extended: discard_unconfirmed_signup(), the password-checked removal of a sign-up that never confirmed its address — the only way to correct a mistyped one, since an unconfirmed account cannot sign in and abandon_provisional_account() needs a session it can never have. Rate-limited per address in the new server-managed signup_discard_attempts ledger, and granted to anon because this caller has no session at all. |
+| 0.0.459 | 2026-10-09 | `20261009120000_admin_unconfirmed_accounts.sql` | The Admin Panel, extended: the Non-verified Accounts page's two admin-gated RPCs. admin_list_unconfirmed_accounts() lists every account that has never confirmed its address — invisible to clients, since email_confirmed_at lives in auth.users and profiles carries no confirmation flag — and admin_delete_unconfirmed_account() removes one. Both share is_provisional_account(), the same "has this account done anything?" guard discard_unconfirmed_signup() applies, so the list's can_delete flag and the delete can never disagree. |
+| 0.0.459 | 2026-10-09 | `20261009130000_revoke_provisional_guard.sql` | Closing a grant the default privileges opened: taking EXECUTE on is_provisional_account() back from `authenticated`. Revoking `public` and `anon` does not cover it, because Supabase grants a new function in `public` directly to `authenticated` as well — so the internal guard was callable by any signed-in account, one boolean at a time about an account it already knew the id of. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -8124,5 +8126,248 @@ revoke all on function public.discard_unconfirmed_signup(text, text)
   from public;
 grant execute on function public.discard_unconfirmed_signup(text, text)
   to anon, authenticated;
+```
+
+## App Version 0.0.459 — Task 23 Follow-Up — The Admin Panel's Non-Verified Accounts
+
+### 0.0.459 · `20261009120000_admin_unconfirmed_accounts.sql`
+
+> **Created 2026-10-09.** The Admin Panel, extended: the Non-verified Accounts page's two admin-gated RPCs. admin_list_unconfirmed_accounts() lists every account that has never confirmed its address — invisible to clients, since email_confirmed_at lives in auth.users and profiles carries no confirmation flag — and admin_delete_unconfirmed_account() removes one. Both share is_provisional_account(), the same "has this account done anything?" guard discard_unconfirmed_signup() applies, so the list's can_delete flag and the delete can never disagree.
+
+```sql
+-- admin_list_unconfirmed_accounts() / admin_delete_unconfirmed_account():
+-- the Admin Panel's **Non-verified Accounts** page.
+--
+-- Why this exists. A sign-up that never confirms its address is invisible to
+-- every client: `email_confirmed_at` lives in `auth.users`, which no client may
+-- read, and the `profiles` row carries no confirmation flag (the sign-up trigger
+-- creates it before any confirmation, so an unconfirmed account has an ordinary
+-- profile row). Abandoned sign-ups therefore accumulate where nobody can see
+-- them. These two functions are the administrator's window on them: one lists
+-- them, one removes one.
+--
+-- The test for "may be removed" is the **same** guard `discard_unconfirmed_signup()`
+-- uses — unconfirmed, and having done nothing at all: no firm, no membership, no
+-- invite, no payment or approval, no administrator rights, no sync receipt and no
+-- authored row of any kind. It is factored into `is_provisional_account()` so the
+-- list and the delete can never disagree about which accounts qualify; the list
+-- reports it as `can_delete`, so the panel disables the action rather than
+-- letting an administrator press it and be refused.
+--
+-- Nothing here is reachable by a non-administrator: both functions raise
+-- `admin_required` unless `is_admin()` answers true, and both are SECURITY
+-- DEFINER reading `auth.users` as the owner — which is the point, since no client
+-- policy grants access to that table.
+
+-- ---------------------------------------------------------------------------
+-- is_provisional_account() — may this account still be removed?
+-- ---------------------------------------------------------------------------
+
+-- True when the account has done nothing that its removal would destroy. The
+-- tables below are exactly `discard_unconfirmed_signup()`'s list: each is either
+-- a row whose loss would be a loss of work, or a reference that does not cascade
+-- from `auth.users` — which is also why the deletion below cannot fail on a
+-- foreign key.
+--
+-- SECURITY DEFINER so it may read those tables from inside the admin functions
+-- whichever role is calling; it is not granted to any client role.
+create or replace function public.is_provisional_account(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select not exists (
+    select 1
+      from (
+        select 1 from public.firms f where f.owner_id = p_user_id
+        union all select 1 from public.firm_members m where m.user_id = p_user_id
+        union all select 1 from public.firm_invites i where i.created_by = p_user_id
+        union all select 1 from public.payment_submissions s where s.user_id = p_user_id
+        union all select 1 from public.payment_approval_events e
+         where e.user_id = p_user_id or e.approved_by = p_user_id
+        union all select 1 from public.app_admins a where a.user_id = p_user_id
+        union all select 1 from public.mutation_receipts r where r.actor_id = p_user_id
+        union all select 1 from public.cases c where c.user_id = p_user_id
+        union all select 1 from public.case_history h where h.user_id = p_user_id
+        union all select 1 from public.notes n where n.user_id = p_user_id
+        union all select 1 from public.case_references r where r.user_id = p_user_id
+        union all select 1 from public.delete_requests d
+         where d.requested_by = p_user_id or d.reviewed_by = p_user_id
+        union all select 1 from public.conflict_log l where l.user_id = p_user_id
+        union all select 1 from public.courts x where x.user_id = p_user_id
+        union all select 1 from public.court_categories x where x.user_id = p_user_id
+        union all select 1 from public.case_categories x where x.user_id = p_user_id
+        union all select 1 from public.steps x where x.user_id = p_user_id
+        union all select 1 from public.case_types x where x.user_id = p_user_id
+        union all select 1 from public.on_behalfs x where x.user_id = p_user_id
+      ) activity
+  );
+$$;
+
+comment on function public.is_provisional_account(uuid) is
+  'True when the account has done nothing (no firm, membership, invite, payment, approval, admin rights, sync receipt or authored row). The shared test behind admin_delete_unconfirmed_account() and the panel''s can_delete flag; the same guard discard_unconfirmed_signup() applies.';
+
+-- ---------------------------------------------------------------------------
+-- admin_list_unconfirmed_accounts() — the sign-ups that never confirmed
+-- ---------------------------------------------------------------------------
+
+create or replace function public.admin_list_unconfirmed_accounts()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  -- Newest first. `email` prefers the profile's copy (which mirrors the account
+  -- address) and falls back to `auth.users` for a profile row that has not been
+  -- written yet; `full_name` is empty until the account fills it in.
+  return (
+    select coalesce(
+             jsonb_agg(
+               jsonb_build_object(
+                 'id', u.id,
+                 'email', coalesce(nullif(p.email, ''), u.email),
+                 'full_name', coalesce(p.full_name, ''),
+                 'created_at', u.created_at,
+                 'last_sign_in_at', u.last_sign_in_at,
+                 'can_delete', public.is_provisional_account(u.id)
+               )
+               order by u.created_at desc
+             ),
+             '[]'::jsonb
+           )
+      from auth.users u
+      left join public.profiles p on p.id = u.id
+     where u.email_confirmed_at is null
+  );
+end;
+$$;
+
+comment on function public.admin_list_unconfirmed_accounts() is
+  'Admin-only list of every account that has never confirmed its address, joined to its profile for the name and the mirrored email. Newest first; each row carries can_delete, the shared provisional test, so the panel can disable an action that would be refused.';
+
+-- ---------------------------------------------------------------------------
+-- admin_delete_unconfirmed_account() — remove one abandoned sign-up
+-- ---------------------------------------------------------------------------
+
+create or replace function public.admin_delete_unconfirmed_account(
+  p_user_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user auth.users%rowtype;
+begin
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  select u.* into v_user from auth.users u where u.id = p_user_id;
+  if not found then
+    return jsonb_build_object('status', 'refused', 'reason', 'not_found');
+  end if;
+
+  -- A confirmed address is a real account, however empty: the administrator's
+  -- way to deal with it is not this function.
+  if v_user.email_confirmed_at is not null then
+    return jsonb_build_object('status', 'refused', 'reason', 'confirmed');
+  end if;
+
+  -- Re-run the guard even though the list reported it: the account may have
+  -- done something between the two calls.
+  if not public.is_provisional_account(p_user_id) then
+    return jsonb_build_object('status', 'refused', 'reason', 'has_activity');
+  end if;
+
+  -- Removing the account cascades the profile, the preference rows, the invite
+  -- attempts and the sessions — nothing else references it, which the guard
+  -- above has just established.
+  delete from auth.users u where u.id = p_user_id;
+
+  return jsonb_build_object('status', 'removed');
+end;
+$$;
+
+comment on function public.admin_delete_unconfirmed_account(uuid) is
+  'Admin-only removal of an account that has never confirmed its address and has done nothing. Refuses an unknown, confirmed or non-provisional account. Returns {"status":"removed"} or {"status":"refused","reason":"not_found"|"confirmed"|"has_activity"}.';
+
+-- ---------------------------------------------------------------------------
+-- Grants
+-- ---------------------------------------------------------------------------
+
+-- Supabase's default privileges grant EXECUTE on a new function in `public`
+-- directly to `anon` and `authenticated`, and a direct grant outlives a revoke
+-- aimed at PUBLIC — so every function here is re-asserted explicitly. The shared
+-- guard is granted to no client role: only the SECURITY DEFINER functions above
+-- call it, as the owner.
+revoke all on function public.is_provisional_account(uuid) from public, anon;
+
+revoke all on function public.admin_list_unconfirmed_accounts()
+  from public, anon;
+grant execute on function public.admin_list_unconfirmed_accounts()
+  to authenticated;
+
+revoke all on function public.admin_delete_unconfirmed_account(uuid)
+  from public, anon;
+grant execute on function public.admin_delete_unconfirmed_account(uuid)
+  to authenticated;
+```
+
+### 0.0.459 · `20261009130000_revoke_provisional_guard.sql`
+
+> **Created 2026-10-09.** Closing a grant the default privileges opened: taking EXECUTE on is_provisional_account() back from `authenticated`. Revoking `public` and `anon` does not cover it, because Supabase grants a new function in `public` directly to `authenticated` as well — so the internal guard was callable by any signed-in account, one boolean at a time about an account it already knew the id of.
+
+```sql
+-- is_provisional_account() is internal: take back the EXECUTE that Supabase's
+-- default privileges handed to `authenticated`.
+--
+-- Why this exists. The migration that added the Admin Panel's
+-- Non-verified Accounts RPCs (`20261009120000`) intends the shared guard to be
+-- reachable by **no client role** — only the two SECURITY DEFINER functions
+-- above it call it, as the owner. It revoked `public` and `anon`, which is the
+-- shape the rest of this project's functions use, and did not grant
+-- `authenticated` any more than it granted `anon`.
+--
+-- That is not enough for a function that is *not* meant to be a client entry
+-- point. Supabase's default privileges grant EXECUTE on a new function in
+-- `public` **directly** to each client role — including `authenticated` — and a
+-- direct grant outlives a revoke aimed at PUBLIC, the note the admin panel's own
+-- migration carries. So `authenticated` kept a grant this function was never
+-- supposed to have: any signed-in account could call
+-- `is_provisional_account(<any uuid>)` and learn, one boolean at a time,
+-- whether another account had done anything at all. SECURITY DEFINER means it
+-- answers by reading tables that caller cannot read.
+--
+-- The exposure is a boolean about an account whose id the caller must already
+-- know, not the data behind it, but the guard is internal by design and this
+-- closes it. The server's own bypass role keeps its grant, as it does on every
+-- function in this project, and is deliberately not named here — the ledger
+-- test forbids that string in committed SQL.
+
+revoke execute on function public.is_provisional_account(uuid)
+  from authenticated;
+
+-- Re-asserted so the file states the whole grant picture in one place: the two
+-- admin entry points stay callable by a signed-in account (the function body
+-- gates them), and the guard stays internal.
+revoke all on function public.admin_list_unconfirmed_accounts()
+  from public, anon;
+grant execute on function public.admin_list_unconfirmed_accounts()
+  to authenticated;
+
+revoke all on function public.admin_delete_unconfirmed_account(uuid)
+  from public, anon;
+grant execute on function public.admin_delete_unconfirmed_account(uuid)
+  to authenticated;
 ```
 

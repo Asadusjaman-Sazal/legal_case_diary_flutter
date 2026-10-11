@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.480 - More About the App: the Check for Updates button is gone and the app name with its version now sit centred in the card.
+Version: 0.0.481 - About: a collapsible Update section with App Update (check GitHub, download in-app) and Auto Update (check frequency).
 --------------------------------------
 
 ## Version History Log:
@@ -494,3 +494,4 @@ Version: 0.0.477 - Added .github/workflows/release.yml: pushing a v<version> tag
 Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diary v<version>-ARM64.apk', the tag's own 'v' stripped so the name carries exactly one 'v'.
 Version: 0.0.479 - Release workflow: checkout v7 / setup-java v6 / action-gh-release v3, runner pinned to ubuntu-24.04, and the job now refuses an empty Supabase value instead of shipping an offline-only APK.
 Version: 0.0.480 - More About the App: the Check for Updates button is gone and the app name with its version now sit centred in the card.
+Version: 0.0.481 - About: a collapsible Update section with App Update (check GitHub, download in-app) and Auto Update (check frequency).

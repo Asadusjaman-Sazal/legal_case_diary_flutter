@@ -20,6 +20,7 @@ import '../../features/notes/data/local/notes_dao.dart';
 import '../../features/notes/data/notes_repository.dart';
 import '../../features/payments/data/payment_repository.dart';
 import '../../features/settings/data/backup_repository.dart';
+import '../../features/settings/data/update_repository.dart';
 import '../../features/settings/data/case_types_repository.dart';
 import '../../features/settings/data/court_categories_repository.dart';
 import '../../features/settings/data/courts_repository.dart';
@@ -243,6 +244,16 @@ final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>(
         ? const UnavailableAccountDeletionRepository()
         : SupabaseAccountDeletionRepository(client);
   },
+);
+
+/// Provider for the updater's GitHub release client.
+///
+/// Unlike the Supabase-backed providers above, this talks only to the **public
+/// GitHub API** (no client, no token) — so it is a plain constructed repository
+/// rather than an on/off switch keyed to the Supabase client. The About screen
+/// and the launch check both read it.
+final updateRepositoryProvider = Provider<UpdateRepository>(
+  (ref) => UpdateRepository(),
 );
 
 /// This account's own payment submissions, newest first (own rows under RLS).

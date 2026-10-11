@@ -158,6 +158,13 @@ void main() {
       ),
       findsOneWidget,
     );
+    // The collapsible Update entry sits above Data Safety, so the copyright is
+    // pushed below the fold and needs a scroll to be found (the ListView only
+    // builds what is on screen).
+    await tester.scrollUntilVisible(
+      find.textContaining('© 2025 ASADUSJAMAN SAZAL'),
+      200,
+    );
     expect(find.textContaining('© 2025 ASADUSJAMAN SAZAL'), findsOneWidget);
   });
 

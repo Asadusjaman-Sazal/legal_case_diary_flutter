@@ -1555,6 +1555,34 @@
   "settingsAbout_dataSafetyTitle": "Data Safety",
   "settingsAbout_dataSafetyBody": "Your diary and your backup files are stored on your device in encrypted form. Nothing is uploaded unless you send it.",
   "settingsAbout_actionPending": "Arrives in a later task",
+  "@@_section_settingsUpdate": "SETTINGS - UPDATE  |  lib/features/settings/presentation/settings_about/update_section.dart + update_schedule_card.dart",
+  "settingsUpdate_entry": "Update",
+  "settingsUpdate_entrySubtitle": "Check For A Newer Version And Set How Often To Check",
+  "settingsUpdate_appUpdate": "App Update",
+  "settingsUpdate_appUpdateSubtitle": "Check For Updates And Update The App",
+  "settingsUpdate_autoUpdate": "Auto Update",
+  "settingsUpdate_autoUpdateSubtitle": "Choose How Often To Check For Updates",
+  "settingsUpdate_currentVersion": "Current Version:",
+  "settingsUpdate_checkForUpdate": "Check For Update",
+  "settingsUpdate_checking": "Checking For Update",
+  "settingsUpdate_updateNow": "Update Now",
+  "settingsUpdate_newerVersion": "There Is A Newer Version Available ({version}).",
+  "@settingsUpdate_newerVersion": {
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsUpdate_latest": "You're On The Latest Version.",
+  "settingsUpdate_checkFailed": "Could Not Check For An Update Right Now. Please Try Again Later.",
+  "settingsUpdate_installUnavailable": "This Device Cannot Install An Update.",
+  "settingsUpdate_offlineToast": "Please Connect To The Internet And Check For An Update.",
+  "settingsUpdate_frequencyOff": "Off",
+  "settingsUpdate_frequencyEveryday": "Every Day",
+  "settingsUpdate_frequencyEvery3Days": "Every 3 Days",
+  "settingsUpdate_frequencyEvery7Days": "Every 7 Days",
+  "settingsUpdate_frequencyEveryMonth": "Every Month",
   "settingsLegal_loadFailed": "Could not open this document. Please try again.",
   "@@_section_settingsSupport": "SETTINGS - SUPPORT  |  lib/features/settings/presentation/settings_about/support_screen.dart",
   "settingsSupport_title": "Support",

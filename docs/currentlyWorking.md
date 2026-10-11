@@ -1,3 +1,9 @@
+### 2026-10-11 — Backup & Restore: restore-guard buttons stacked equal-sized — COMPLETE
+
+- **Request (the user's, Restore from Backup screen only).** Cancel the same size as Delete Local & Cloud Data; both buttons one after another, middle aligned.
+- **What changed.** `showRestoreBlockedDialog` now lays its actions as one centred full-width `Column`: Delete Local & Cloud Data (red/white) first, Cancel beneath, both 48 px tall and spanning the dialog width. Pinned (equal size, vertical order, shared centre line). `flutter analyze` clean, Backup suite **37 passed**. Version **0.0.476**.
+- **Resume point:** nothing owed. Device check: the guard pop-over shows two equal full-width stacked buttons.
+
 ### 2026-10-11 — Backup & Restore: synced subscribed diaries must wipe before restoring — COMPLETE
 
 - **Request (the user's, Backup & Restore only).** A premium user who has synced at least one item and taps **Restore from Backup** gets a pop-over with the restriction sentence and two middle-aligned buttons — **Cancel**, and **Delete Local & Cloud Data** working exactly like Manage Account's.

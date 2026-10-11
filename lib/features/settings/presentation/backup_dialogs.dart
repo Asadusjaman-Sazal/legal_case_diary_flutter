@@ -99,6 +99,10 @@ Future<String?> showRecoveryPassphraseDialog(BuildContext context) {
 ///
 /// Returns true when the user chooses to wipe first; false on Cancel or a
 /// dismissal, both of which restore nothing.
+///
+/// The two actions are stacked full-width and equal-sized (48 px tall) rather
+/// than side by side: the destructive choice and the way out read as one
+/// centred column, with the wipe first and Cancel beneath it.
 Future<bool> showRestoreBlockedDialog(BuildContext context) async {
   final l = AppLocalizations.of(context);
   final wipe = await showDialog<bool>(
@@ -111,24 +115,30 @@ Future<bool> showRestoreBlockedDialog(BuildContext context) async {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        TextButton(
-          key: const ValueKey('restore-blocked-delete'),
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.settingsManageAccount_deleteLocalAndCloudData),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextButton(
+              key: const ValueKey('restore-blocked-delete'),
+              style: TextButton.styleFrom(
+                minimumSize: Size.fromHeight(_actionSize.height),
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.onError,
+                textStyle: _actionTextStyle,
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l.settingsManageAccount_deleteLocalAndCloudData),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: Size.fromHeight(_actionSize.height),
+                textStyle: _actionTextStyle,
+              ),
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l.sharedActions_cancel),
+            ),
+          ],
         ),
       ],
     ),

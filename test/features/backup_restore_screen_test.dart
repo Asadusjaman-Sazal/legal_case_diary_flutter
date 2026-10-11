@@ -1400,6 +1400,30 @@ void main() {
         wipe.style?.foregroundColor?.resolve(const <WidgetState>{}),
         AppColors.onError,
       );
+      // One after another and middle aligned, at the same size: Cancel spans
+      // the same width and height as the destructive action, stacked beneath
+      // it on the same centre line.
+      final wipeSize = tester.getSize(
+        find.byKey(const ValueKey('restore-blocked-delete')),
+      );
+      final cancelSize = tester.getSize(
+        find.widgetWithText(TextButton, 'Cancel'),
+      );
+      expect(cancelSize, wipeSize);
+      expect(
+        tester
+            .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
+            .dy,
+        lessThan(
+          tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dy,
+        ),
+      );
+      expect(
+        tester
+            .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
+            .dx,
+        tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dx,
+      );
 
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();

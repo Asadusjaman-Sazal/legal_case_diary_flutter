@@ -167,8 +167,9 @@ void main() {
     await tester.tap(find.text('More About the App'));
     await tester.pumpAndSettle();
 
-    // The pushed screen replaces the visible route.
-    expect(find.text('Check for updates'), findsOneWidget);
+    // The pushed screen replaces the visible route. It is marked by its own
+    // content rather than by the removed Check for Updates action.
+    expect(find.text('Version $appVersion'), findsOneWidget);
     expect(find.text('Key Features'), findsOneWidget);
   });
 
@@ -233,7 +234,9 @@ void main() {
     expect(find.text('More About the App'), findsOneWidget);
     expect(find.text('Legal Case Diary'), findsOneWidget);
     expect(find.text('Version $appVersion'), findsOneWidget);
-    expect(find.text('Check for updates'), findsOneWidget);
+    // The version card's own action is gone (user request): this screen no
+    // longer offers an update check at all.
+    expect(find.text('Check for updates'), findsNothing);
     // The description names this app, and the feature list names only what the
     // offline version has.
     expect(
@@ -256,16 +259,10 @@ void main() {
     expect(find.textContaining('Adv. Asadusjaman Sazal'), findsOneWidget);
   });
 
-  testWidgets('store and update actions report their Part A state', (
-    tester,
-  ) async {
+  testWidgets('store actions report their Part A state', (tester) async {
     await pumpAbout(tester);
     await tester.tap(find.text('More About the App'));
     await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Check for updates'));
-    await tester.pumpAndSettle();
-    expect(find.text('Arrives in a later task'), findsOneWidget);
 
     await tester.tap(find.text('Rate App'));
     await tester.pumpAndSettle();
@@ -279,12 +276,40 @@ void main() {
     expect(find.text('Key Features'), findsOneWidget);
   });
 
+  testWidgets('the app name and version sit centred in their card', (
+    tester,
+  ) async {
+    // The Check for Updates action that used to share this row is gone, so the
+    // identity is centred rather than left-aligned beside a button (user
+    // request). Centred is measured against the card, not the screen: the two
+    // lines' midpoints must agree with the card's own.
+    await pumpAbout(tester);
+    await tester.tap(find.text('More About the App'));
+    await tester.pumpAndSettle();
+
+    final title = find.text('Legal Case Diary');
+    final version = find.text('Version $appVersion');
+    final card = find.ancestor(of: title, matching: find.byType(Container)).last;
+
+    final cardMiddle = tester.getCenter(card).dx;
+    // Equal to within a pixel: the two lines are centred, not merely indented.
+    expect(tester.getCenter(title).dx, moreOrLessEquals(cardMiddle, epsilon: 1));
+    expect(
+      tester.getCenter(version).dx,
+      moreOrLessEquals(cardMiddle, epsilon: 1),
+    );
+    expect(title, findsOneWidget);
+    expect(version, findsOneWidget);
+  });
+
   testWidgets('the app theme does not paint the outlined actions black', (
     tester,
   ) async {
     // The shared settings harness pumps without the app theme, so this class of
     // bug is invisible to every other test — the theme paints outlined buttons
-    // black, which left the blue "Check for updates" label on a black surface.
+    // black, which left the outlined labels on a black surface. (The version
+    // card's Check for Updates action was the other outlined button here; Share
+    // App is the one left after it was removed.)
     await tester.binding.setSurfaceSize(const Size(420, 1400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final router = GoRouter(
@@ -332,7 +357,6 @@ void main() {
           .color;
     }
 
-    expect(paintedBehind('Check for updates'), isNot(Colors.black));
     expect(paintedBehind('Share App'), isNot(Colors.black));
   });
 

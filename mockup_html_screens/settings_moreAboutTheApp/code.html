@@ -143,15 +143,11 @@
 </header>
 
 <main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-lg flex flex-col gap-md">
-  <!-- Version card with the store/update action. -->
-  <div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between gap-md">
-    <div class="flex flex-col">
-      <span class="font-title-lg text-title-lg text-primary">Legal Case Diary</span>
-      <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Version 0.0.272</span>
-    </div>
-    <button class="shrink-0 px-md py-sm border border-secondary text-secondary font-label-lg text-label-lg rounded-lg hover:bg-secondary-hover transition-colors">
-      Check for Updates
-    </button>
+  <!-- Version card. The Check for Updates action is gone (user request), so the
+       identity sits centred on its own rather than left-aligned beside a button. -->
+  <div class="bg-surface border border-outline-variant rounded-lg p-md flex flex-col items-center text-center">
+    <span class="font-title-lg text-title-lg text-primary">Legal Case Diary</span>
+    <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Version 0.0.272</span>
   </div>
 
   <!-- Description card — the offline app as built. -->

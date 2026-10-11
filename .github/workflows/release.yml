@@ -1,0 +1,162 @@
+# Tagged Android releases.
+#
+# Pushing a tag like `v0.0.476` builds the arm64 release APK and publishes it as
+# a GitHub Release titled `Legal Case Diary v0.0.476`, with the `## Current
+# Version` log from `docs/version_history.md` as its notes. The tag must be `v` +
+# the `pubspec.yaml` version, which `tool/record_version.py` keeps in step with
+# that log — a mismatched tag publishes the wrong build under the wrong notes, so
+# the job refuses it rather than guessing.
+#
+# Nothing secret is in the repository. Two git-ignored files are recreated here
+# from Actions secrets (see README, "Release Builds"):
+#   - `android/key.properties` + the keystore: ANDROID_KEYSTORE_BASE64,
+#     ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+#     `android/app/build.gradle.kts` refuses a release build without them.
+#   - `env.json`: SUPABASE_URL, SUPABASE_ANON_KEY, GOOGLE_WEB_CLIENT_ID, plus the
+#     optional PAYMENTS_BKASH_NUMBER / PAYMENTS_NAGAD_NUMBER /
+#     PAYMENTS_ROCKET_NUMBER.
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Publishing a release writes to the repository, so this job asks for that one
+# scope and nothing else.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build the arm64 APK and publish the release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tagged commit
+        uses: actions/checkout@v4
+
+      # One version, checked against the file the release is built from, so a tag
+      # can never name a build that is not the one in `docs/version_history.md`.
+      - name: Check the tag matches the app version
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version:[[:space:]]*\([0-9][0-9.]*\).*/\1/p' pubspec.yaml \
+            | head -1 | tr -d '\r')
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match the pubspec.yaml version v${version}. Bump it with 'python tool/record_version.py', commit, then tag that commit."
+            exit 1
+          fi
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Pinned to the version the project is developed and tested on, so a
+      # release built from a tag stays reproducible.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Signing credentials live outside the repository, so the release config is
+      # written here and the job fails loudly when a secret is absent instead of
+      # letting Gradle throw its generic message.
+      - name: Write the release signing config
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=""
+          for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing="${missing} ANDROID_${name}"
+          done
+          if [ -n "${missing}" ]; then
+            echo "::error::Missing repository secrets:${missing}. See README, 'Release Builds'."
+            exit 1
+          fi
+          keystore="${RUNNER_TEMP}/release-upload.jks"
+          printf '%s' "${KEYSTORE_BASE64}" | base64 -d > "${keystore}"
+          {
+            echo "storePassword=${KEYSTORE_PASSWORD}"
+            echo "keyAlias=${KEY_ALIAS}"
+            echo "keyPassword=${KEY_PASSWORD}"
+            echo "storeFile=${keystore}"
+          } > android/key.properties
+          echo "Release signing config written."
+
+      # The Supabase and payment values are compile-time constants read from
+      # `env.json`; `tool/flutter_with_env.dart` appends the flag to the build and
+      # refuses to build when the file is missing.
+      - name: Write env.json from secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          PAYMENTS_BKASH_NUMBER: ${{ secrets.PAYMENTS_BKASH_NUMBER }}
+          PAYMENTS_NAGAD_NUMBER: ${{ secrets.PAYMENTS_NAGAD_NUMBER }}
+          PAYMENTS_ROCKET_NUMBER: ${{ secrets.PAYMENTS_ROCKET_NUMBER }}
+        run: |
+          set -euo pipefail
+          # Every value is a URL, a key, a client ID or a phone number, so none
+          # can contain the two characters JSON would need escaped; a malformed
+          # file is refused by Flutter's `--dart-define-from-file` all the same.
+          cat > env.json <<EOF
+          {
+            "SUPABASE_URL": "${SUPABASE_URL}",
+            "SUPABASE_ANON_KEY": "${SUPABASE_ANON_KEY}",
+            "GOOGLE_WEB_CLIENT_ID": "${GOOGLE_WEB_CLIENT_ID}",
+            "PAYMENTS_BKASH_NUMBER": "${PAYMENTS_BKASH_NUMBER}",
+            "PAYMENTS_NAGAD_NUMBER": "${PAYMENTS_NAGAD_NUMBER}",
+            "PAYMENTS_ROCKET_NUMBER": "${PAYMENTS_ROCKET_NUMBER}"
+          }
+          EOF
+          echo "env.json written."
+
+      # arm64 only: the release target for a regular Android phone.
+      - name: Build the arm64 release APK
+        run: dart run tool/flutter_with_env.dart build apk --release --target-platform android-arm64
+
+      # The tag already carries the leading `v` (`v0.0.476`), so it is stripped
+      # before the filename adds one of its own — the asset reads
+      # `Legal Case Diary v0.0.476-ARM64.apk`, never `vv0.0.476`. The name is
+      # published as a step output because the release step needs the same string.
+      - name: Name the APK after its version
+        id: apk
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          name="Legal Case Diary v${version}-ARM64.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "${name}"
+          echo "name=${name}" >> "${GITHUB_OUTPUT}"
+          echo "${name}"
+
+      # The notes are the single `Version: ...` line under `## Current Version`,
+      # the same line the app's About screen shows.
+      - name: Read the release notes from the version log
+        run: |
+          set -euo pipefail
+          awk '/^## Current Version:/{inside=1; next} inside && /^---/{exit} inside' \
+            docs/version_history.md | tr -d '\r' | sed '/^[[:space:]]*$/d' > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "::error::No '## Current Version' entry found in docs/version_history.md."
+            exit 1
+          fi
+          cat release_notes.md
+
+      - name: Publish the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Legal Case Diary ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body_path: release_notes.md
+          files: ${{ steps.apk.outputs.name }}

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.476 - Backup & Restore: the restore-guard pop-over stacks Cancel and Delete Local & Cloud Data as equal-sized, centred, full-width buttons.
+Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diary v<version>-ARM64.apk', the tag's own 'v' stripped so the name carries exactly one 'v'.
 --------------------------------------
 
 ## Version History Log:
@@ -490,3 +490,5 @@ Version: 0.0.473 - Manage Account gained Delete Local & Cloud Data (premium) and
 Version: 0.0.474 - Manage Account: Delete Selected opens a typed delete my data confirmation screen, both warnings' destructive buttons are red with white text, and Danger Zone is 1px bigger.
 Version: 0.0.475 - Backup & Restore: Restore from Backup is fenced off for synced subscribed diaries holding data, offering Cancel or the Manage Account Delete Local & Cloud Data flow before the restore continues.
 Version: 0.0.476 - Backup & Restore: the restore-guard pop-over stacks Cancel and Delete Local & Cloud Data as equal-sized, centred, full-width buttons.
+Version: 0.0.477 - Added .github/workflows/release.yml: pushing a v<version> tag builds the arm64 release APK and publishes a GitHub Release named after the tag, with the ## Current Version log as its notes.
+Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diary v<version>-ARM64.apk', the tag's own 'v' stripped so the name carries exactly one 'v'.

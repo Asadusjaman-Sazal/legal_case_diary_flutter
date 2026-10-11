@@ -76,3 +76,7 @@ Stub files must contain a one-line doc comment stating their purpose and which t
 4. Use Riverpod's `.select()` guidance (Plan §12.3 Rendering Optimization) as the standing pattern for ViewModels.
 
 **Phase 4 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
+
+## Release Framework — Tagged Builds (follow-up)
+
+Pushing a tag named `v` + the current version (e.g. `v0.0.476`) runs `.github/workflows/release.yml`, which builds the **arm64** release APK and publishes it as a GitHub Release titled **Legal Case Diary v0.0.476**, with the `## Current Version` line of `docs/version_history.md` as its notes. The job refuses a tag that disagrees with the `pubspec.yaml` version, and takes the keystore, `android/key.properties` and `env.json` from repository secrets, so neither credential file is ever committed. Recorded in `docs/implementation_plan.md` (Development Workflow §9) and `README.md` (*Release Builds*).

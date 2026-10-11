@@ -821,6 +821,7 @@
   "settingsManageAccount_deleteDataCustomSeedData": "কাস্টম ডেটা",
   "settingsManageAccount_deleteDataCustomSeedDataHint": "আপনার যোগ করা আদালতের ক্যাটেগরি, আদালতের নাম, ধাপ, মামলার ধরন ও পক্ষগুলো",
   "settingsManageAccount_deleteDataConfirm": "নির্বাচিত মুছুন",
+  "settingsManageAccount_deleteDataConfirmPhrase": "delete my data",
   "settingsManageAccount_deleteDataDone": "আপনার নির্বাচিত ডেটা মুছে ফেলা হয়েছে।",
   "settingsManageAccount_deleteDataCloudPending": "এই ডিভাইস থেকে আপনার ডেটা মুছে ফেলা হয়েছে। অ্যাকাউন্টের কপিগুলো পরের সিঙ্কে মুছে যাবে।",
   "settingsManageAccount_deleteDataNeedsConnection": "আপনার ক্লাউড ডেটা মুছতে ইন্টারনেটে সংযুক্ত হন। কিছুই মুছে ফেলা হয়নি।",

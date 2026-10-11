@@ -865,6 +865,7 @@
   "settingsManageAccount_deleteDataCustomSeedData": "Custom Seed Data",
   "settingsManageAccount_deleteDataCustomSeedDataHint": "Court categories, court names, steps, case types and on-behalfs you added",
   "settingsManageAccount_deleteDataConfirm": "Delete Selected",
+  "settingsManageAccount_deleteDataConfirmPhrase": "delete my data",
   "settingsManageAccount_deleteDataDone": "Your Selected Data Has Been Deleted.",
   "settingsManageAccount_deleteDataCloudPending": "Your data was deleted from this device. The account's copies will be removed on the next sync.",
   "settingsManageAccount_deleteDataNeedsConnection": "Connect to the internet to delete your cloud data. Nothing Has Been Deleted.",

@@ -1779,6 +1779,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_deleteDataConfirm => 'Delete Selected';
 
   @override
+  String get settingsManageAccount_deleteDataConfirmPhrase => 'delete my data';
+
+  @override
   String get settingsManageAccount_deleteDataDone =>
       'Your Selected Data Has Been Deleted.';
 

@@ -2,11 +2,13 @@
 ///
 /// **0.0.473 (user request).** Both actions open this one window: the four kinds
 /// of the user's own data, each ticked on its own, with the two actions the app's
-/// other dialogs wear — a centred Cancel and a red confirm in the error ink. The
+/// other dialogs wear — a centred Cancel and a red confirm (red background,
+/// white text). The
 /// confirm is **disabled while nothing is ticked**, so a stray tap can never
 /// delete anything, and the sentence at the top says the deletion cannot be
-/// recovered. There is deliberately no second gate below it: ticking the data and
-/// pressing the red button *is* the confirmation (decided with the user).
+/// recovered. The red button opens the typed confirmation screen
+/// (`DeleteDataConfirmScreen`), where `delete my data` must be typed before
+/// anything is destroyed.
 ///
 /// **Who opens it decides the wording, not the list.** A premium account's
 /// *Delete Local & Cloud Data* and a free account's *Delete Local Data* offer
@@ -88,7 +90,11 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
           key: const ValueKey('data-deletion-confirm'),
           style: TextButton.styleFrom(
             minimumSize: const Size(112, 48),
-            textStyle: const TextStyle(fontSize: 16, color: AppColors.error),
+            backgroundColor: AppColors.error,
+            foregroundColor: AppColors.onError,
+            disabledBackgroundColor: AppColors.error.withValues(alpha: 0.35),
+            disabledForegroundColor: AppColors.onError,
+            textStyle: const TextStyle(fontSize: 16),
           ),
           // Nothing ticked means nothing to delete, so the red button stays
           // disabled rather than sending an empty request.

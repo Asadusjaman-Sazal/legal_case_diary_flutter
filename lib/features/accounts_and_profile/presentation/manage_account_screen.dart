@@ -23,7 +23,10 @@
 /// drawn is the account's plan: a premium account gets **Delete Local & Cloud
 /// Data**, a free one **Delete Local Data**. Both are the same card as Delete
 /// Account, both open the same tick list (`data_deletion_dialog.dart`) — cases,
-/// notes, case references and the reference data the user added — and both delete
+/// notes, case references and the reference data the user added — and the tick
+/// list's red button opens the typed confirmation screen
+/// (`DeleteDataConfirmScreen`), where `delete my data` must be entered before
+/// anything is destroyed. Both delete
 /// through the app's own repositories, so what leaves this device and (for the
 /// premium action) the account is exactly what a normal delete would have sent.
 /// The profile, the subscription and the settings are untouched, which is what
@@ -59,6 +62,7 @@ import '../data/data_deletion_service.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
 import 'data_deletion_dialog.dart';
+import 'delete_data_confirm_screen.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
 class ManageAccountScreen extends ConsumerStatefulWidget {
@@ -215,6 +219,7 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
               style: AppTypography.labelMd.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w700,
+                fontSize: AppTypography.labelMd.fontSize! + 1,
                 letterSpacing: 0.6,
               ),
             ),
@@ -332,7 +337,15 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     // A dismissed window is a cancellation: the tick list returns nothing and
     // this returns without touching the database.
     final scope = await showDataDeletionDialog(context, cloud: cloud);
-    if (!mounted || scope == null || scope.isEmpty) return;
+    if (!context.mounted || scope == null || scope.isEmpty) return;
+
+    // The typed gate, like Delete Account's: the tick list says what goes and
+    // this screen is the point of no return — `delete my data` must be typed
+    // before anything is destroyed. Back is a cancellation.
+    final confirmed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const DeleteDataConfirmScreen()),
+    );
+    if (!mounted || confirmed != true) return;
 
     setState(() => _deletingData = true);
     DataDeletionResult result;
@@ -388,9 +401,10 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
 
   /// The one warning before an account is destroyed.
   ///
-  /// Cancel and Delete Account, centred and at the shared action size, exactly
-  /// like the logout windows. The destructive action is the red one, so the
-  /// button the user must not press by accident is not the app's black primary.
+  /// Cancel and a red-background Delete Account, centred and at the shared
+  /// action size, exactly like the logout windows. The destructive action wears
+  /// the red background with white text, so the button the user must not press
+  /// by accident is not the app's black primary.
   Future<bool?> _confirmDeleteAccount(
     AppLocalizations l,
     BuildContext context, {
@@ -418,7 +432,9 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
           TextButton(
             style: TextButton.styleFrom(
               minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16, color: AppColors.error),
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.onError,
+              textStyle: const TextStyle(fontSize: 16),
             ),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.settingsManageAccount_deleteAccount),

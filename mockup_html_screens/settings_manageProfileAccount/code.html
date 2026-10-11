@@ -185,9 +185,9 @@
   </div>
 
   <!-- Danger Zone: the red bold section label the user asked for, introducing
-       the one irreversible action on this screen. It obeys the same label-md
-       style as every other section heading, in the error colour and bold. -->
-  <p class="mt-lg font-label-md text-label-md font-bold text-error tracking-wider">Danger Zone</p>
+       the one irreversible action on this screen. It follows label-md in the
+       error colour and bold, set 1px bigger (13px). -->
+  <p class="mt-lg font-label-md font-bold text-error tracking-wider" style="font-size:13px">Danger Zone</p>
 
   <!-- Deleting the data without the account (0.0.473, user request): the SAME
        card as Delete Account above the one that removes the account itself, so
@@ -196,9 +196,13 @@
        Data"; a free account's card is "Delete Local Data" and touches this
        device alone. Both open ONE tick list ("Delete Data?" — Cases, Notes,
        Case References and the Custom Seed Data line below them), whose red
-       Delete Selected button stays disabled until something is ticked; the
+       Delete Selected button (red background, white text) opens the typed
+       confirmation screen where `delete my data` must be entered; the
        profile, the subscription and the settings are never in that list, and
-       neither card exists for a firm account, whose diary is shared. -->
+       neither card exists for a firm account, whose diary is shared. The
+       Delete Account warning's own destructive button is the same red
+       background with white text. (The confirmation screens have no mockup
+       of their own — per rule 9 they do not need one.) -->
   <div class="mt-sm">
     <button class="w-full flex items-center bg-error-container border border-error/20 rounded-2xl p-md hover:opacity-90 transition-opacity text-left">
       <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-error mr-md">

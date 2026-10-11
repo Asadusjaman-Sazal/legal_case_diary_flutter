@@ -1781,6 +1781,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_deleteDataConfirm => 'নির্বাচিত মুছুন';
 
   @override
+  String get settingsManageAccount_deleteDataConfirmPhrase => 'delete my data';
+
+  @override
   String get settingsManageAccount_deleteDataDone =>
       'আপনার নির্বাচিত ডেটা মুছে ফেলা হয়েছে।';
 

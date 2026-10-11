@@ -37,6 +37,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/presentation/mana
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
@@ -240,12 +241,13 @@ void main() {
       tester.getSize(find.byType(SettingsSubMenuRow).first).height,
     );
 
-    // The section heading is the error colour, in bold.
+    // The section heading is the error colour, bold and 1px bigger than a label.
     final label = tester.widget<Text>(
       find.text(l.settingsManageAccount_dangerZone),
     );
     expect(label.style?.color, AppColors.error);
     expect(label.style?.fontWeight, FontWeight.w700);
+    expect(label.style?.fontSize, AppTypography.labelMd.fontSize! + 1);
 
     // Order, by geometry: the profile card, then Logout, then Change Password,
     // then the label, then Delete Data, then Delete Account.
@@ -271,6 +273,42 @@ void main() {
     expect(deleteTop, greaterThan(dangerTop));
     // One logout affordance on the whole screen: the profile card has none.
     expect(find.byIcon(Icons.logout), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Delete Account warning wears the red destructive action', (
+    tester,
+  ) async {
+    // The warning's Delete Account button carries the red background with
+    // white text, so the button the user must not press by accident is not the
+    // app's black primary.
+    await pumpManageAccount(tester);
+
+    final card = find.text(l.settingsManageAccount_deleteAccount);
+    await tester.ensureVisible(card);
+    await tester.pumpAndSettle();
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(l.settingsManageAccount_deleteDialogTitle),
+      findsOneWidget,
+    );
+    final destructive = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, l.settingsManageAccount_deleteAccount),
+    );
+    expect(
+      destructive.style?.backgroundColor?.resolve(const <WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      destructive.style?.foregroundColor?.resolve(const <WidgetState>{}),
+      AppColors.onError,
+    );
+
+    await tester.tap(find.widgetWithText(TextButton, l.sharedActions_cancel));
+    await tester.pumpAndSettle();
 
     await unmountApp(tester);
   });
@@ -505,6 +543,25 @@ void main() {
       return row.data['n']! as int;
     }
 
+    /// Whether the typed screen's destructive button is enabled.
+    bool typedDataConfirmEnabled(WidgetTester tester) {
+      final button = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-data-confirm')),
+      );
+      return button.onPressed != null;
+    }
+
+    /// Types the data-deletion phrase and taps the typed screen's button.
+    Future<void> submitTypedDataConfirmation(WidgetTester tester) async {
+      await tester.enterText(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        l.settingsManageAccount_deleteDataConfirmPhrase,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-data-confirm')));
+      await tester.pumpAndSettle();
+    }
+
     /// One case reference, so a deletion has something it must leave alone.
     Future<void> seedReference(AppDatabase db) => db
         .into(db.caseReferences)
@@ -591,13 +648,22 @@ void main() {
         find.text(l.settingsManageAccount_deleteDataTitle),
         findsOneWidget,
       );
+      final tickConfirm = tester.widget<TextButton>(
+        find.byKey(const ValueKey('data-deletion-confirm')),
+      );
+      expect(tickConfirm.onPressed, isNull);
+      // The destructive action wears the red background with white text.
       expect(
-        tester
-            .widget<TextButton>(
-              find.byKey(const ValueKey('data-deletion-confirm')),
-            )
-            .onPressed,
-        isNull,
+        tickConfirm.style?.backgroundColor?.resolve(
+          const <WidgetState>{WidgetState.disabled},
+        ),
+        AppColors.error.withValues(alpha: 0.35),
+      );
+      expect(
+        tickConfirm.style?.foregroundColor?.resolve(
+          const <WidgetState>{WidgetState.disabled},
+        ),
+        AppColors.onError,
       );
       expect(
         find.text(l.settingsManageAccount_deleteDataCustomSeedDataHint),
@@ -609,6 +675,23 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
       await tester.pumpAndSettle();
 
+      // The red button opens the typed gate instead of deleting: the button
+      // stays disabled until `delete my data` is typed.
+      expect(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        findsOneWidget,
+        reason: 'the tick list opens the typed confirmation, not the deletion',
+      );
+      expect(typedDataConfirmEnabled(tester), isFalse);
+      await tester.enterText(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        l.settingsManageAccount_deleteDataConfirmPhrase,
+      );
+      await tester.pumpAndSettle();
+      expect(typedDataConfirmEnabled(tester), isTrue);
+      await tester.tap(find.byKey(const ValueKey('delete-data-confirm')));
+      await tester.pumpAndSettle();
+
       expect(await liveRows('notes'), 0);
       expect(
         await liveRows('case_references'),
@@ -616,6 +699,35 @@ void main() {
         reason: 'only what was ticked goes',
       );
       expect(find.text(l.settingsManageAccount_deleteDataDone), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('going back from the typed screen deletes nothing', (
+      tester,
+    ) async {
+      await pumpManageAccount(tester, seed: _seedNote);
+
+      await tester.ensureVisible(
+        find.text(l.settingsManageAccount_deleteLocalData),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-notes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        findsOneWidget,
+      );
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      expect(await liveRows('notes'), 1);
+      expect(find.text(l.settingsManageAccount_deleteDataDone), findsNothing);
 
       await unmountApp(tester);
     });
@@ -742,6 +854,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
       await tester.pumpAndSettle();
+      await submitTypedDataConfirmation(tester);
 
       expect(await liveRows('notes'), 0);
       expect(

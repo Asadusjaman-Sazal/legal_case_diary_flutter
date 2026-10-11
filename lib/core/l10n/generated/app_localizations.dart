@@ -3218,6 +3218,12 @@ abstract class AppLocalizations {
   /// **'Delete Selected'**
   String get settingsManageAccount_deleteDataConfirm;
 
+  /// No description provided for @settingsManageAccount_deleteDataConfirmPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'delete my data'**
+  String get settingsManageAccount_deleteDataConfirmPhrase;
+
   /// No description provided for @settingsManageAccount_deleteDataDone.
   ///
   /// In en, this message translates to:

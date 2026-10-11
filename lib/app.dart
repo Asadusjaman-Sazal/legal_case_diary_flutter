@@ -18,6 +18,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/font_size_scope.dart';
 import 'features/app_lock/presentation/app_lock_scope.dart';
 import 'features/settings/presentation/settings_viewmodel.dart';
+import 'features/settings/presentation/update_check_scope.dart';
 import 'shared/providers/locale_provider.dart';
 
 /// The root widget of the Legal Case Diary application.
@@ -101,7 +102,9 @@ class App extends ConsumerWidget {
                               // editable surface at all, and the blocking screen
                               // returns on every launch until recovery succeeds.
                               child: RecoveryRequiredScope(
-                                child: child ?? const SizedBox.shrink(),
+                                child: UpdateCheckScope(
+                                  child: child ?? const SizedBox.shrink(),
+                                ),
                               ),
                             ),
                           ),

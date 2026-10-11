@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider paths for the in-app updater (the About screen's App Update
+     section). The APK is downloaded into the app's cache, so the provider must
+     expose that directory. Named "apk_paths" and exported from cache-path so a
+     sibling download dir stays covered. -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="apk_downloads" path="." />
+</paths>

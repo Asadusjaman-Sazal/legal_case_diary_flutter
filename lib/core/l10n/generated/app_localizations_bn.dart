@@ -3345,6 +3345,74 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsAbout_actionPending => 'পরবর্তী কোনো টাস্কে আসবে';
 
   @override
+  String get settingsUpdate_entry => 'আপডেট';
+
+  @override
+  String get settingsUpdate_entrySubtitle =>
+      'নতুন ভার্সন দেখুন এবং কত ঘন ঘন দেখতে হবে তা ঠিক করুন';
+
+  @override
+  String get settingsUpdate_appUpdate => 'অ্যাপ আপডেট';
+
+  @override
+  String get settingsUpdate_appUpdateSubtitle =>
+      'আপডেট আছে কি না দেখুন এবং অ্যাপ আপডেট করুন';
+
+  @override
+  String get settingsUpdate_autoUpdate => 'অটো আপডেট';
+
+  @override
+  String get settingsUpdate_autoUpdateSubtitle =>
+      'কত ঘন ঘন আপডেট দেখতে হবে তা বেছে নিন';
+
+  @override
+  String get settingsUpdate_currentVersion => 'বর্তমান ভার্সন:';
+
+  @override
+  String get settingsUpdate_checkForUpdate => 'আপডেট দেখুন';
+
+  @override
+  String get settingsUpdate_checking => 'আপডেট দেখা হচ্ছে';
+
+  @override
+  String get settingsUpdate_updateNow => 'এখনই আপডেট করুন';
+
+  @override
+  String settingsUpdate_newerVersion(String version) {
+    return 'নতুন ভার্সন পাওয়া যাচ্ছে ($version)।';
+  }
+
+  @override
+  String get settingsUpdate_latest => 'আপনি সর্বশেষ ভার্সনে আছেন।';
+
+  @override
+  String get settingsUpdate_checkFailed =>
+      'এই মুহূর্তে আপডেট দেখা যায়নি। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsUpdate_installUnavailable =>
+      'এই ডিভাইসে আপডেট ইনস্টল করা যায় না।';
+
+  @override
+  String get settingsUpdate_offlineToast =>
+      'ইন্টারনেটে যুক্ত হয়ে আপডেট দেখুন।';
+
+  @override
+  String get settingsUpdate_frequencyOff => 'বন্ধ';
+
+  @override
+  String get settingsUpdate_frequencyEveryday => 'প্রতিদিন';
+
+  @override
+  String get settingsUpdate_frequencyEvery3Days => 'প্রতি ৩ দিনে';
+
+  @override
+  String get settingsUpdate_frequencyEvery7Days => 'প্রতি ৭ দিনে';
+
+  @override
+  String get settingsUpdate_frequencyEveryMonth => 'প্রতি মাসে';
+
+  @override
   String get settingsLegal_loadFailed =>
       'এই নথিটি খোলা যায়নি। আবার চেষ্টা করুন।';
 

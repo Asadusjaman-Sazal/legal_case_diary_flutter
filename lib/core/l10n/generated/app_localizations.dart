@@ -5748,6 +5748,126 @@ abstract class AppLocalizations {
   /// **'Arrives in a later task'**
   String get settingsAbout_actionPending;
 
+  /// No description provided for @settingsUpdate_entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get settingsUpdate_entry;
+
+  /// No description provided for @settingsUpdate_entrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check For A Newer Version And Set How Often To Check'**
+  String get settingsUpdate_entrySubtitle;
+
+  /// No description provided for @settingsUpdate_appUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'App Update'**
+  String get settingsUpdate_appUpdate;
+
+  /// No description provided for @settingsUpdate_appUpdateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check For Updates And Update The App'**
+  String get settingsUpdate_appUpdateSubtitle;
+
+  /// No description provided for @settingsUpdate_autoUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Update'**
+  String get settingsUpdate_autoUpdate;
+
+  /// No description provided for @settingsUpdate_autoUpdateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose How Often To Check For Updates'**
+  String get settingsUpdate_autoUpdateSubtitle;
+
+  /// No description provided for @settingsUpdate_currentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Version:'**
+  String get settingsUpdate_currentVersion;
+
+  /// No description provided for @settingsUpdate_checkForUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Check For Update'**
+  String get settingsUpdate_checkForUpdate;
+
+  /// No description provided for @settingsUpdate_checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking For Update'**
+  String get settingsUpdate_checking;
+
+  /// No description provided for @settingsUpdate_updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get settingsUpdate_updateNow;
+
+  /// No description provided for @settingsUpdate_newerVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'There Is A Newer Version Available ({version}).'**
+  String settingsUpdate_newerVersion(String version);
+
+  /// No description provided for @settingsUpdate_latest.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re On The Latest Version.'**
+  String get settingsUpdate_latest;
+
+  /// No description provided for @settingsUpdate_checkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Check For An Update Right Now. Please Try Again Later.'**
+  String get settingsUpdate_checkFailed;
+
+  /// No description provided for @settingsUpdate_installUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This Device Cannot Install An Update.'**
+  String get settingsUpdate_installUnavailable;
+
+  /// No description provided for @settingsUpdate_offlineToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Please Connect To The Internet And Check For An Update.'**
+  String get settingsUpdate_offlineToast;
+
+  /// No description provided for @settingsUpdate_frequencyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsUpdate_frequencyOff;
+
+  /// No description provided for @settingsUpdate_frequencyEveryday.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Day'**
+  String get settingsUpdate_frequencyEveryday;
+
+  /// No description provided for @settingsUpdate_frequencyEvery3Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 3 Days'**
+  String get settingsUpdate_frequencyEvery3Days;
+
+  /// No description provided for @settingsUpdate_frequencyEvery7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 7 Days'**
+  String get settingsUpdate_frequencyEvery7Days;
+
+  /// No description provided for @settingsUpdate_frequencyEveryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Month'**
+  String get settingsUpdate_frequencyEveryMonth;
+
   /// No description provided for @settingsLegal_loadFailed.
   ///
   /// In en, this message translates to:

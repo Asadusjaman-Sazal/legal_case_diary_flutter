@@ -1392,6 +1392,34 @@
   "settingsAbout_dataSafetyTitle": "ডেটা নিরাপত্তা",
   "settingsAbout_dataSafetyBody": "আপনার ডায়েরি ও ব্যাকআপ ফাইল আপনার ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। আপনি নিজে না পাঠালে কোনো কিছু আপলোড হয় না।",
   "settingsAbout_actionPending": "পরবর্তী কোনো টাস্কে আসবে",
+  "@@_section_settingsUpdate": "SETTINGS - UPDATE  |  lib/features/settings/presentation/settings_about/update_section.dart + update_schedule_card.dart",
+  "settingsUpdate_entry": "আপডেট",
+  "settingsUpdate_entrySubtitle": "নতুন ভার্সন দেখুন এবং কত ঘন ঘন দেখতে হবে তা ঠিক করুন",
+  "settingsUpdate_appUpdate": "অ্যাপ আপডেট",
+  "settingsUpdate_appUpdateSubtitle": "আপডেট আছে কি না দেখুন এবং অ্যাপ আপডেট করুন",
+  "settingsUpdate_autoUpdate": "অটো আপডেট",
+  "settingsUpdate_autoUpdateSubtitle": "কত ঘন ঘন আপডেট দেখতে হবে তা বেছে নিন",
+  "settingsUpdate_currentVersion": "বর্তমান ভার্সন:",
+  "settingsUpdate_checkForUpdate": "আপডেট দেখুন",
+  "settingsUpdate_checking": "আপডেট দেখা হচ্ছে",
+  "settingsUpdate_updateNow": "এখনই আপডেট করুন",
+  "settingsUpdate_newerVersion": "নতুন ভার্সন পাওয়া যাচ্ছে ({version})।",
+  "@settingsUpdate_newerVersion": {
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsUpdate_latest": "আপনি সর্বশেষ ভার্সনে আছেন।",
+  "settingsUpdate_checkFailed": "এই মুহূর্তে আপডেট দেখা যায়নি। পরে আবার চেষ্টা করুন।",
+  "settingsUpdate_installUnavailable": "এই ডিভাইসে আপডেট ইনস্টল করা যায় না।",
+  "settingsUpdate_offlineToast": "ইন্টারনেটে যুক্ত হয়ে আপডেট দেখুন।",
+  "settingsUpdate_frequencyOff": "বন্ধ",
+  "settingsUpdate_frequencyEveryday": "প্রতিদিন",
+  "settingsUpdate_frequencyEvery3Days": "প্রতি ৩ দিনে",
+  "settingsUpdate_frequencyEvery7Days": "প্রতি ৭ দিনে",
+  "settingsUpdate_frequencyEveryMonth": "প্রতি মাসে",
   "settingsLegal_loadFailed": "এই নথিটি খোলা যায়নি। আবার চেষ্টা করুন।",
   "@@_section_settingsSupport": "SETTINGS - SUPPORT  |  lib/features/settings/presentation/settings_about/support_screen.dart",
   "settingsSupport_title": "সহায়তা",

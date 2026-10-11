@@ -1,11 +1,15 @@
 package com.legalcasediary.app
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
 import android.os.PowerManager
+import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 
 /**
  * Hosts the two things the Android side must do for Dart.
@@ -35,6 +39,58 @@ class MainActivity : FlutterFragmentActivity() {
             }
         configureAppExitChannel(flutterEngine)
         configurePublicDownloadsChannel(flutterEngine)
+        configureAppInstallChannel(flutterEngine)
+    }
+
+    /**
+     * Installs a downloaded APK by handing it to Android's package installer
+     * through a FileProvider `content:` URI (the App Update section).
+     *
+     * Android refuses an APK another app wrote unless the caller is told apart
+     * from the installer: an app needs REQUEST_INSTALL_PACKAGES and must pass
+     * the file by content URI, not a raw path — a raw path is refused outright
+     * from API 24. The FileProvider for the app's cache dir is declared in the
+     * manifest; its authority is `<applicationId>.apkprovider`.
+     *
+     * The Dart side treats the install as fire-and-forget: Android shows its
+     * own "install this app?" confirmation, and the installer, not this
+     * channel, decides whether the install succeeds.
+     */
+    private fun configureAppInstallChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, INSTALL_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "install" -> {
+                        val path = call.arguments as? String
+                        if (path == null) {
+                            result.error("bad_args", "APK path missing", null)
+                            return@setMethodCallHandler
+                        }
+                        val file = File(path)
+                        if (!file.exists() || file.length() == 0L) {
+                            result.error(
+                                "missing_apk",
+                                "Downloaded APK not found: $path",
+                                null
+                            )
+                            return@setMethodCallHandler
+                        }
+                        val uri: Uri = FileProvider.getUriForFile(
+                            this,
+                            "$packageName.apkprovider",
+                            file
+                        )
+                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            setDataAndType(uri, "application/vnd.android.package-archive")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intent)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     /**
@@ -106,5 +162,8 @@ class MainActivity : FlutterFragmentActivity() {
 
         /// The public Downloads channel (`backupDocumentsDirectory`).
         const val DOWNLOADS_CHANNEL = "com.legalcasediary.app/public_downloads"
+
+        /// The in-app update install channel (`lib/features/settings/presentation/app_install.dart`).
+        const val INSTALL_CHANNEL = "com.legalcasediary.app/app_install"
     }
 }

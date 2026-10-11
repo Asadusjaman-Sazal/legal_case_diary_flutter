@@ -27,6 +27,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
+import '../update_section_container.dart';
 
 /// Bundled developer photo (mockup uses a remote image; Part A is offline).
 const String _developerPhoto = 'assets/images/dev_profile.jpg';
@@ -80,6 +81,9 @@ class MoreAboutAppScreen extends StatelessWidget {
             label: l.settingsAbout_support,
             onTap: () => context.push(AppRoutes.settingsSupport),
           ),
+          const SizedBox(height: AppSpacing.md),
+          // The collapsible Update entry: App Update + Auto Update.
+          const UpdateSectionContainer(),
           const SizedBox(height: AppSpacing.md),
           _DataSafetyCard(
             title: l.settingsAbout_dataSafetyTitle,

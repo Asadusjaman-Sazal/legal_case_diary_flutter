@@ -3327,6 +3327,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAbout_actionPending => 'Arrives in a later task';
 
   @override
+  String get settingsUpdate_entry => 'Update';
+
+  @override
+  String get settingsUpdate_entrySubtitle =>
+      'Check For A Newer Version And Set How Often To Check';
+
+  @override
+  String get settingsUpdate_appUpdate => 'App Update';
+
+  @override
+  String get settingsUpdate_appUpdateSubtitle =>
+      'Check For Updates And Update The App';
+
+  @override
+  String get settingsUpdate_autoUpdate => 'Auto Update';
+
+  @override
+  String get settingsUpdate_autoUpdateSubtitle =>
+      'Choose How Often To Check For Updates';
+
+  @override
+  String get settingsUpdate_currentVersion => 'Current Version:';
+
+  @override
+  String get settingsUpdate_checkForUpdate => 'Check For Update';
+
+  @override
+  String get settingsUpdate_checking => 'Checking For Update';
+
+  @override
+  String get settingsUpdate_updateNow => 'Update Now';
+
+  @override
+  String settingsUpdate_newerVersion(String version) {
+    return 'There Is A Newer Version Available ($version).';
+  }
+
+  @override
+  String get settingsUpdate_latest => 'You\'re On The Latest Version.';
+
+  @override
+  String get settingsUpdate_checkFailed =>
+      'Could Not Check For An Update Right Now. Please Try Again Later.';
+
+  @override
+  String get settingsUpdate_installUnavailable =>
+      'This Device Cannot Install An Update.';
+
+  @override
+  String get settingsUpdate_offlineToast =>
+      'Please Connect To The Internet And Check For An Update.';
+
+  @override
+  String get settingsUpdate_frequencyOff => 'Off';
+
+  @override
+  String get settingsUpdate_frequencyEveryday => 'Every Day';
+
+  @override
+  String get settingsUpdate_frequencyEvery3Days => 'Every 3 Days';
+
+  @override
+  String get settingsUpdate_frequencyEvery7Days => 'Every 7 Days';
+
+  @override
+  String get settingsUpdate_frequencyEveryMonth => 'Every Month';
+
+  @override
   String get settingsLegal_loadFailed =>
       'Could not open this document. Please try again.';
 

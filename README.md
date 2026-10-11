@@ -114,6 +114,32 @@ unaffected. Keep an offline backup of the keystore and its password in separate 
 certificate fingerprints (`keytool -list -v -keystore <keystore>`) because Google Play and any future
 API-key restriction need them.
 
+### Tagged Releases (GitHub Actions)
+
+Pushing a tag named `v` + the current version runs [`.github/workflows/release.yml`](.github/workflows/release.yml),
+which builds the **arm64** release APK and publishes it as a GitHub Release:
+
+```bash
+git tag v0.0.476 && git push origin v0.0.476
+```
+
+The release is titled **Legal Case Diary v0.0.476** and its notes are the `## Current Version` line of
+[`docs/version_history.md`](docs/version_history.md). A tag that disagrees with the `pubspec.yaml` version
+fails the job rather than publishing a build whose version and notes disagree, and a missing secret fails
+before Gradle runs.
+
+The workflow recreates the keystore config and `env.json` from repository secrets (Settings → Secrets and
+variables → Actions), so neither file is ever committed:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | the release keystore, base64-encoded: `base64 -w0 <keystore>` |
+| `ANDROID_KEYSTORE_PASSWORD` | its `storePassword` |
+| `ANDROID_KEY_ALIAS` | `upload` |
+| `ANDROID_KEY_PASSWORD` | its `keyPassword` |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID` | the `env.json` values described under *Running With A Backend* |
+| `PAYMENTS_BKASH_NUMBER`, `PAYMENTS_NAGAD_NUMBER`, `PAYMENTS_ROCKET_NUMBER` | optional payment numbers |
+
 ## Running With A Backend
 
 The app talks to Supabase only when the build carries the connection settings, so a plain

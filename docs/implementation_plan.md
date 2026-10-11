@@ -1390,6 +1390,12 @@ Some `.agents/skills/` directories contain `.sh` reference scripts intended for 
 
 ---
 
+### 9. Tagged Releases (Android)
+- Pushing a tag named `v` + the current version (e.g. `v0.0.476`) runs `.github/workflows/release.yml`: it builds the **arm64** release APK (`dart run tool/flutter_with_env.dart build apk --release --target-platform android-arm64`) and publishes it as a GitHub Release titled **Legal Case Diary v0.0.476**, with the `## Current Version` line of `docs/version_history.md` as the release notes.
+- The tag must equal `v` + the `pubspec.yaml` version; the job **fails instead of publishing** when they disagree, so a build can never carry a version its notes do not describe. `android/key.properties` and `env.json` are recreated on the runner from repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`, plus the optional payment numbers), so no credential and no keystore ever enters the repository. Documented in `README.md` under *Release Builds*.
+
+---
+
 ## Verification Plan
 
 ### Automated Tests

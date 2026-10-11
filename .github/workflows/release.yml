@@ -30,10 +30,14 @@ permissions:
 jobs:
   release:
     name: Build the arm64 APK and publish the release
-    runs-on: ubuntu-latest
+    # Pinned, not `ubuntu-latest`: the label migrates to a new Ubuntu on
+    # 2026-10-19, and a release build should change only when this file does.
+    runs-on: ubuntu-24.04
     steps:
+      # Current majors throughout, so no step runs on the retired Node 20
+      # runtime: checkout v7, setup-java v6, action-gh-release v3.
       - name: Check out the tagged commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # One version, checked against the file the release is built from, so a tag
       # can never name a build that is not the one in `docs/version_history.md`.
@@ -48,7 +52,7 @@ jobs:
           fi
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -107,6 +111,18 @@ jobs:
           PAYMENTS_ROCKET_NUMBER: ${{ secrets.PAYMENTS_ROCKET_NUMBER }}
         run: |
           set -euo pipefail
+          # The three backend values are required, because `SupabaseConfig` treats
+          # an empty one as "not configured" and the app then starts offline — the
+          # silent offline release that `tool/flutter_with_env.dart` exists to
+          # prevent. Failing here is the loud version of that.
+          missing=""
+          for name in SUPABASE_URL SUPABASE_ANON_KEY GOOGLE_WEB_CLIENT_ID; do
+            [ -n "${!name}" ] || missing="${missing} ${name}"
+          done
+          if [ -n "${missing}" ]; then
+            echo "::error::Missing repository secrets:${missing}. Add them under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
           # Every value is a URL, a key, a client ID or a phone number, so none
           # can contain the two characters JSON would need escaped; a malformed
           # file is refused by Flutter's `--dart-define-from-file` all the same.
@@ -154,7 +170,7 @@ jobs:
           cat release_notes.md
 
       - name: Publish the GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Legal Case Diary ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}

@@ -140,6 +140,10 @@ variables → Actions), so neither file is ever committed:
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID` | the `env.json` values described under *Running With A Backend* |
 | `PAYMENTS_BKASH_NUMBER`, `PAYMENTS_NAGAD_NUMBER`, `PAYMENTS_ROCKET_NUMBER` | optional payment numbers |
 
+The four signing secrets and the three backend secrets are all required: the job refuses to build without the
+signing ones, and refuses too when a backend value is empty, because `SupabaseConfig` reads an empty value as
+*not configured* and the released APK would start in its offline shape.
+
 ## Running With A Backend
 
 The app talks to Supabase only when the build carries the connection settings, so a plain

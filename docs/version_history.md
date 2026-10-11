@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diary v<version>-ARM64.apk', the tag's own 'v' stripped so the name carries exactly one 'v'.
+Version: 0.0.479 - Release workflow: checkout v7 / setup-java v6 / action-gh-release v3, runner pinned to ubuntu-24.04, and the job now refuses an empty Supabase value instead of shipping an offline-only APK.
 --------------------------------------
 
 ## Version History Log:
@@ -492,3 +492,4 @@ Version: 0.0.475 - Backup & Restore: Restore from Backup is fenced off for synce
 Version: 0.0.476 - Backup & Restore: the restore-guard pop-over stacks Cancel and Delete Local & Cloud Data as equal-sized, centred, full-width buttons.
 Version: 0.0.477 - Added .github/workflows/release.yml: pushing a v<version> tag builds the arm64 release APK and publishes a GitHub Release named after the tag, with the ## Current Version log as its notes.
 Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diary v<version>-ARM64.apk', the tag's own 'v' stripped so the name carries exactly one 'v'.
+Version: 0.0.479 - Release workflow: checkout v7 / setup-java v6 / action-gh-release v3, runner pinned to ubuntu-24.04, and the job now refuses an empty Supabase value instead of shipping an offline-only APK.

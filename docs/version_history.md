@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.475 - Backup & Restore: Restore from Backup is fenced off for synced subscribed diaries holding data, offering Cancel or the Manage Account Delete Local & Cloud Data flow before the restore continues.
+Version: 0.0.476 - Backup & Restore: the restore-guard pop-over stacks Cancel and Delete Local & Cloud Data as equal-sized, centred, full-width buttons.
 --------------------------------------
 
 ## Version History Log:
@@ -489,3 +489,4 @@ Version: 0.0.472 - Backup & Restore now refuses a backup belonging to another ac
 Version: 0.0.473 - Manage Account gained Delete Local & Cloud Data (premium) and Delete Local Data (free): one tick list removes the chosen cases, notes, references and custom reference data through the app's own delete path, leaving the account and its settings alone.
 Version: 0.0.474 - Manage Account: Delete Selected opens a typed delete my data confirmation screen, both warnings' destructive buttons are red with white text, and Danger Zone is 1px bigger.
 Version: 0.0.475 - Backup & Restore: Restore from Backup is fenced off for synced subscribed diaries holding data, offering Cancel or the Manage Account Delete Local & Cloud Data flow before the restore continues.
+Version: 0.0.476 - Backup & Restore: the restore-guard pop-over stacks Cancel and Delete Local & Cloud Data as equal-sized, centred, full-width buttons.

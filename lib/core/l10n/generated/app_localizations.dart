@@ -5880,12 +5880,6 @@ abstract class AppLocalizations {
   /// **'More About the App'**
   String get settingsMoreAbout_title;
 
-  /// No description provided for @settingsMoreAbout_checkUpdates.
-  ///
-  /// In en, this message translates to:
-  /// **'Check for updates'**
-  String get settingsMoreAbout_checkUpdates;
-
   /// No description provided for @settingsMoreAbout_description.
   ///
   /// In en, this message translates to:

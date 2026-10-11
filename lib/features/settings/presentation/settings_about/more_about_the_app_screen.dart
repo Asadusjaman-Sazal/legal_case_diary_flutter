@@ -8,8 +8,12 @@
 /// The mockup's version placeholder is replaced with the bundled app version,
 /// its description and feature list are rewritten to match the app as built
 /// (the mockup named the app "Justice Ledger" and listed cloud sync), and
-/// "Check for updates", "Rate App" and "Share App" only report their Part A
-/// state: store links and update checks belong to later tasks.
+/// "Rate App" and "Share App" only report their Part A state: store links
+/// belong to later tasks.
+///
+/// The version card's **Check for Updates** action is gone (user request), so
+/// the app name and version now sit centred in the card on their own. The
+/// in-app updater is a separate, later piece of work.
 library;
 
 import 'package:flutter/material.dart';
@@ -60,48 +64,27 @@ class MoreAboutTheAppScreen extends StatelessWidget {
           AppSpacing.lg,
         ),
         children: [
-          // App version card.
+          // App version card. The identity sits **centred** in the card (user
+          // request): the Check for Updates action that used to share this row
+          // is gone, so a left-aligned block beside nothing would only read as
+          // an unfinished layout.
           Container(
             decoration: settingsCardDecoration(),
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.appTitle,
-                        style: AppTypography.titleLg.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        l.settingsAbout_version(appVersion),
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                Text(
+                  l.appTitle,
+                  style: AppTypography.titleLg.copyWith(
+                    color: AppColors.primary,
                   ),
                 ),
-                OutlinedButton(
-                  onPressed: () => _showPending(context, l),
-                  // The app theme paints every outlined button black, which the
-                  // mockup never asked for here — it is an outlined secondary
-                  // action (`border-secondary text-secondary`). The surface is
-                  // therefore set explicitly so the colour cannot leak in and
-                  // leave blue text on black.
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: AppColors.secondary,
-                    side: const BorderSide(color: AppColors.secondary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-                    ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l.settingsAbout_version(appVersion),
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
                   ),
-                  child: Text(l.settingsMoreAbout_checkUpdates),
                 ),
               ],
             ),

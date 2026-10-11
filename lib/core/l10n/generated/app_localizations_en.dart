@@ -3402,9 +3402,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMoreAbout_title => 'More About the App';
 
   @override
-  String get settingsMoreAbout_checkUpdates => 'Check for updates';
-
-  @override
   String get settingsMoreAbout_description =>
       'Legal Case Diary is a complete offline case diary built for lawyers in Bangladesh. It organises your cases and hearings into a daily cause list, tracks upcoming and overdue dates so nothing is missed, and keeps your notes and case references beside them. Everything is entered by you and stored on your device in encrypted form — no account is required, and no data leaves your phone unless you send it.';
 

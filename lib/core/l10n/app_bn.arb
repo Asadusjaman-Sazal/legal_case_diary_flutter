@@ -1416,7 +1416,6 @@
   "settingsSupport_unableToOpenEmail": "কোনো ইমেইল অ্যাপ খোলা যায়নি।",
   "@@_section_settingsMoreAbout": "SETTINGS - MORE ABOUT THE APP  |  lib/features/settings/presentation/settings_about/more_about_the_app_screen.dart",
   "settingsMoreAbout_title": "অ্যাপ সম্পর্কে আরও",
-  "settingsMoreAbout_checkUpdates": "আপডেট পরীক্ষা করুন",
   "settingsMoreAbout_description": "লিগ্যাল কেস ডায়েরি বাংলাদেশের আইনজীবীদের জন্য তৈরি একটি সম্পূর্ণ অফলাইন মামলার ডায়েরি। এটি আপনার মামলা ও শুনানিগুলো দৈনিক কজ লিস্টে সাজায়, আসন্ন ও মেয়াদোত্তীর্ণ তারিখের হিসাব রাখে যাতে কোনোটি বাদ না পড়ে, এবং সঙ্গে আপনার নোট ও মামলার রেফারেন্স সংরক্ষণ করে। সব তথ্য আপনি নিজে লিখেন এবং তা আপনার ডিভাইসে এনক্রিপ্ট করা অবস্থায় থাকে — কোনো অ্যাকাউন্ট লাগে না, আর আপনি নিজে না পাঠালে কোনো তথ্য ফোন থেকে বাইরে যায় না।",
   "settingsMoreAbout_keyFeatures": "প্রধান বৈশিষ্ট্য",
   "settingsMoreAbout_featureDailyCauseList": "দৈনিক কজ লিস্ট",

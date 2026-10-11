@@ -1,3 +1,12 @@
+### 2026-10-11 — Backup & Restore: synced subscribed diaries must wipe before restoring — COMPLETE
+
+- **Request (the user's, Backup & Restore only).** A premium user who has synced at least one item and taps **Restore from Backup** gets a pop-over with the restriction sentence and two middle-aligned buttons — **Cancel**, and **Delete Local & Cloud Data** working exactly like Manage Account's.
+- **Three decisions taken with the user first (rule 1).** Synced = last-successful-sync stamp (no engine change); a completed wipe auto-continues into the restore; the fence opens only while the diary holds user-authored data (empty diaries restore straight through, so no dead end).
+- **What changed (Backup & Restore section + one shared flow).** `_restoreFromBackup` checks premium (`resolvePremiumAccess`, called directly — `premiumAccessProvider` answers through the auth chain this screen only peeks at) + sync stamp + `hasUserAuthoredData` before the picker; `showRestoreBlockedDialog` (Cancel + red/white Delete, centred) returns the choice; a completed wipe falls through into the normal restore. The deletion sequence is extracted to `runDataDeletionFlow`, which Manage Account's `_deleteData` now delegates to (its 27-case suites untouched and green). One new ARB key, en+bn.
+- **Tests.** 4 new in `backup_restore_screen_test.dart` (fence before picker with styling pins, wipe-then-restore end to end over the real service, never-synced and empty-diary straight-through); full Backup suite **37 passed**; `flutter analyze` clean; `record_version.py --check` OK; version **0.0.475**.
+- **Records (rule 14).** New section in Task 15 + sub-bullet in the plan's §8 Backup & Restore. No mockup change (rule 9 — new window only).
+- **Resume point:** nothing owed in code. Device check: premium + synced + data → Restore shows the pop-over; Delete wipes (tick + typed phrase) then restores; Cancel restores nothing; free/never-synced/empty restores as before.
+
 ### 2026-10-11 — Manage Account: typed gate for Delete Selected, red destructive actions, bigger Danger Zone — COMPLETE
 
 - **Request (the user's, the Manage Account screen only).** (1) A confirmation screen for **Delete Selected**, like Delete Account's, requiring the user to type **`delete my data`**. (2) In the pop-over windows, the **Delete Account** and **Delete Selected** buttons get a red background with white text. (3) The **Danger Zone** title goes bold and 1px bigger.

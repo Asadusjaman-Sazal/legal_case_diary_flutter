@@ -2244,6 +2244,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBackupRestore_restoreProgress => 'Restoring your data…';
 
   @override
+  String get settingsBackupRestore_restoreBlockedBody =>
+      'Subscribed users are restricted from restoring offline data to prevent data contamination and potential issues. You need to delete current local & cloud data before restoring a local save.';
+
+  @override
   String settingsBackupRestore_backupSaved(String path) {
     return 'Backup saved to $path';
   }

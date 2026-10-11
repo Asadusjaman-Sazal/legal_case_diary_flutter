@@ -2252,6 +2252,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার ডেটা পুনরুদ্ধার হচ্ছে…';
 
   @override
+  String get settingsBackupRestore_restoreBlockedBody =>
+      'ডেটা দূষণ ও সম্ভাব্য সমস্যা এড়াতে সাবস্ক্রিপশন ব্যবহারকারীদের অফলাইন ডেটা পুনরুদ্ধার করা সীমাবদ্ধ। লোকাল সেভ পুনরুদ্ধারের আগে বর্তমান লোকাল ও ক্লাউড ডেটা মুছে ফেলুন।';
+
+  @override
   String settingsBackupRestore_backupSaved(String path) {
     return 'ব্যাকআপ সংরক্ষিত হয়েছে: $path';
   }

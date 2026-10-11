@@ -1050,6 +1050,7 @@
   "settingsBackupRestore_openBackup": "Open backup",
   "settingsBackupRestore_backupProgress": "Creating your backup…",
   "settingsBackupRestore_restoreProgress": "Restoring your data…",
+  "settingsBackupRestore_restoreBlockedBody": "Subscribed users are restricted from restoring offline data to prevent data contamination and potential issues. You need to delete current local & cloud data before restoring a local save.",
   "settingsBackupRestore_backupSaved": "Backup saved to {path}",
   "@settingsBackupRestore_backupSaved": {
       "description": "BACKUP STATUS",

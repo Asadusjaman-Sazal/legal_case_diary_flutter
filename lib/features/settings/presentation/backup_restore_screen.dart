@@ -41,10 +41,14 @@ import '../../../core/services/app_share_service.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../sync/connectivity_monitor.dart';
+import '../../../sync/sync_metadata_dao.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../accounts_and_profile/presentation/data_deletion_flow.dart';
 import '../data/backup_file_gateway.dart';
 import '../data/backup_metadata_store.dart';
 import '../data/backup_repository.dart';
+import '../data/premium_access.dart';
 import 'backup_dialogs.dart';
 import 'edit_court_steps/court_category_label.dart';
 import 'settings_menu_card.dart';
@@ -323,6 +327,14 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// takes the passphrase route as before. From there both become an
   /// [OpenedBackup] and share the confirm-and-replace step, the transaction and
   /// the reload.
+  ///
+  /// A subscribed account that has synced and still holds its own data never
+  /// reaches the picker directly: restoring a local save over a diary that also
+  /// lives in the cloud would contaminate it, so a window says so first and
+  /// offers the way through — Delete Local & Cloud Data, the very flow Manage
+  /// Account runs — and a completed wipe continues into the restore below, which
+  /// then finds an empty diary. Anything else restores straight through, so the
+  /// flow can never strand a user with nothing to delete.
   Future<void> _restoreFromBackup() async {
     final l = AppLocalizations.of(context);
 
@@ -333,6 +345,40 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     // rows count as this diary's own.
     final identity = ref.read(localIdentityServiceProvider).getId();
     final firmId = ref.read(accountProfileProvider).value?.firmId;
+    // The restore-guard's answers, read beside them for the same reason: whether
+    // wiping first is this account's way in, and whether it may wipe at all.
+    final firmMode = ref.read(firmModeProvider);
+    final online = ref.read(isOnlineProvider).value != false;
+    final db = await ref.read(databaseProvider.future);
+    // Premium through the derivation itself rather than `premiumAccessProvider`:
+    // that provider answers through the auth session chain, which this screen
+    // otherwise only ever peeks at (`accountProfileProvider.value`), while the
+    // derivation reads exactly the rows it needs — the cached profile behind
+    // the identity above — under the same expiry-plus-grace rule every gate
+    // uses.
+    final premium = await resolvePremiumAccess(db, identity);
+    final lastSync = await SyncMetadataDao(
+      db,
+    ).getIntValue(lastSuccessfulSyncAtKey);
+    final diaryHoldsUserData = await (await ref.read(
+      backupRepositoryProvider.future,
+    )).hasUserAuthoredData();
+    if (!mounted) return;
+
+    if (premium && lastSync != null && diaryHoldsUserData) {
+      final wipe = await showRestoreBlockedDialog(context);
+      if (!wipe || !mounted) return;
+      final deleted = await runDataDeletionFlow(
+        context,
+        ref,
+        cloud: true,
+        online: online,
+        firmMode: firmMode,
+      );
+      // A refusal or a cancellation restores nothing, and a failure already
+      // said so. Only a completed wipe continues into the restore below.
+      if (deleted == null || deleted.failed || !mounted) return;
+    }
 
     // Inside the diary folder: one backup restores directly, more than one
     // offers a choice. The picker is the folder's replacement when the folder

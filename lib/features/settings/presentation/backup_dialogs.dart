@@ -89,6 +89,53 @@ Future<String?> showRecoveryPassphraseDialog(BuildContext context) {
   );
 }
 
+/// Fences a synced subscribed account off restoring an offline backup.
+///
+/// Restoring a local save on top of a diary that already lives in the cloud
+/// would contaminate it, so the window says so and offers the way through:
+/// Cancel, or **Delete Local & Cloud Data**, which runs exactly the Manage
+/// Account flow (its tick list, its typed screen, its toasts — the label is
+/// that screen's own key, so the two cannot disagree on what it does).
+///
+/// Returns true when the user chooses to wipe first; false on Cancel or a
+/// dismissal, both of which restore nothing.
+Future<bool> showRestoreBlockedDialog(BuildContext context) async {
+  final l = AppLocalizations.of(context);
+  final wipe = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.settingsBackupRestore_restore),
+      content: Text(
+        l.settingsBackupRestore_restoreBlockedBody,
+        style: AppTypography.bodyMd,
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: _actionSize,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_cancel),
+        ),
+        TextButton(
+          key: const ValueKey('restore-blocked-delete'),
+          style: TextButton.styleFrom(
+            minimumSize: _actionSize,
+            backgroundColor: AppColors.error,
+            foregroundColor: AppColors.onError,
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.settingsManageAccount_deleteLocalAndCloudData),
+        ),
+      ],
+    ),
+  );
+  return wipe == true;
+}
+
 /// Shows what the chosen backup holds and asks whether to replace local data.
 ///
 /// Always shown before a restore into a database that holds anything, so a

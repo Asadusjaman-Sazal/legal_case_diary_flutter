@@ -964,6 +964,7 @@
   "settingsBackupRestore_openBackup": "ব্যাকআপ খুলুন",
   "settingsBackupRestore_backupProgress": "আপনার ব্যাকআপ তৈরি হচ্ছে…",
   "settingsBackupRestore_restoreProgress": "আপনার ডেটা পুনরুদ্ধার হচ্ছে…",
+  "settingsBackupRestore_restoreBlockedBody": "ডেটা দূষণ ও সম্ভাব্য সমস্যা এড়াতে সাবস্ক্রিপশন ব্যবহারকারীদের অফলাইন ডেটা পুনরুদ্ধার করা সীমাবদ্ধ। লোকাল সেভ পুনরুদ্ধারের আগে বর্তমান লোকাল ও ক্লাউড ডেটা মুছে ফেলুন।",
   "settingsBackupRestore_backupSaved": "ব্যাকআপ সংরক্ষিত হয়েছে: {path}",
   "@settingsBackupRestore_backupSaved": {
       "description": "BACKUP STATUS",

@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show driftRuntimeOptions, Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,13 +21,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/backup/backup_cipher.dart';
 import 'package:legal_case_diary/core/backup/backup_format.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/providers/backup_providers.dart';
 import 'package:legal_case_diary/core/providers/print_providers.dart';
+import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/data_deletion_service.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart'
+    show AccountRole;
 import 'package:legal_case_diary/features/settings/data/backup_file_gateway.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/backup_repository.dart';
@@ -35,6 +41,8 @@ import 'package:legal_case_diary/features/settings/presentation/backup_restore_s
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+import 'package:legal_case_diary/sync/sync_queue_dao.dart';
+import 'package:legal_case_diary/sync/sync_write_helper.dart';
 
 import '../core/backup_scheduler_test_support.dart';
 import '../core/print_test_support.dart';
@@ -258,6 +266,7 @@ void main() {
   Future<void> pumpScreen(
     WidgetTester tester, {
     BackupArchiveSink? folderSink,
+    DataDeletionService? deletionService,
   }) async {
     folderSink ??= _FakeFolderSink(folder);
     // Tall viewport: the whole mockup body is on one screen and every section
@@ -282,6 +291,14 @@ void main() {
           // The screen re-opens the database after a restore; the override
           // keeps that reload pointing at this test's in-memory instance.
           databaseProvider.overrideWith((ref) async => db),
+          // The restore-guard's wipe runs the real deletion service over this
+          // test's database, with no backend behind it: local deletes run for
+          // real and the cloud half stays queued, exactly like Manage Account's
+          // offline cloud card.
+          if (deletionService != null)
+            dataDeletionServiceProvider.overrideWith(
+              (ref) async => deletionService,
+            ),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1276,6 +1293,188 @@ void main() {
     // folder scan, so the picker returns it.
     expect(find.text('Restore complete'), findsOneWidget);
     expect(find.text('3 records restored.'), findsOneWidget);
+  });
+
+  group('Restore guard for synced subscribed accounts (user request)', () {
+    /// Binds this device to 'user-1' and marks the account premium, so the
+    /// entitlement derivation reads what a renewed account pulls.
+    Future<void> seedPremium() async {
+      await prefs.setString('local_identity_id', 'user-1');
+      await ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-1'),
+          fullName: const Value('Premium User'),
+          role: const Value(AccountRole.individual),
+          subscriptionStatus: const Value('active'),
+          subscriptionExpiry: Value(
+            DateTime.now()
+                .toUtc()
+                .add(const Duration(days: 30))
+                .millisecondsSinceEpoch,
+          ),
+          createdAt: const Value(1),
+        ),
+      );
+    }
+
+    /// Records a completed sync cycle on this device.
+    Future<void> seedLastSync() => db.customInsert(
+      'INSERT INTO sync_metadata ("key", "value", "updated_at") '
+      "VALUES ('last_successful_sync_at', "
+      "'${DateTime.now().toUtc().millisecondsSinceEpoch}', 1)",
+    );
+
+    /// Live (non-tombstoned) notes on this device.
+    Future<int> liveNotes() async =>
+        (await db
+                .customSelect(
+                  'SELECT COUNT(*) AS n FROM notes WHERE is_deleted = 0',
+                )
+                .getSingle())
+            .data['n']! as int;
+
+    /// The real deletion service over this test's database, with no backend:
+    /// local deletes run for real while the cloud half stays queued.
+    DataDeletionService deletionService() => DataDeletionService(
+      db: db,
+      syncHelper: SyncWriteHelper(
+        SyncQueueDao(db),
+        LocalIdentityService(prefs),
+      ),
+    );
+
+    /// The guard window's body, in the pumped English locale.
+    const blockedBody =
+        'Subscribed users are restricted from restoring offline data to '
+        'prevent data contamination and potential issues. You need to delete '
+        'current local & cloud data before restoring a local save.';
+
+    /// Walks the Manage Account deletion flow the guard's button opens: tick
+    /// Notes, confirm, and type the deletion phrase.
+    Future<void> confirmDataDeletion(WidgetTester tester) async {
+      await tester.tap(find.byKey(const ValueKey('data-deletion-notes')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        findsOneWidget,
+        reason: 'the tick list opens the typed screen, not the deletion',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('delete-data-phrase')),
+        'delete my data',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-data-confirm')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a synced premium diary is fenced off before the picker', (
+      tester,
+    ) async {
+      await seedNote();
+      await seedPremium();
+      await seedLastSync();
+      gateway.picked = _legacyBackup();
+      await pumpScreen(tester, deletionService: deletionService());
+
+      await tapAction(tester, 'Restore from Backup');
+
+      // The fence, not the file: the picker never opened, so there is no
+      // replace question and no completion — only the warning, with Cancel and
+      // the red destructive action centred beneath it.
+      expect(find.text(blockedBody), findsOneWidget);
+      expect(find.text('Replace all current data?'), findsNothing);
+      expect(find.text('Restore complete'), findsNothing);
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      expect(dialog.actionsAlignment, MainAxisAlignment.center);
+      final wipe = tester.widget<TextButton>(
+        find.byKey(const ValueKey('restore-blocked-delete')),
+      );
+      expect(
+        wipe.style?.backgroundColor?.resolve(const <WidgetState>{}),
+        AppColors.error,
+      );
+      expect(
+        wipe.style?.foregroundColor?.resolve(const <WidgetState>{}),
+        AppColors.onError,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(blockedBody), findsNothing);
+      expect(await liveNotes(), 1);
+    });
+
+    testWidgets('the guard wipe deletes first, then the restore runs', (
+      tester,
+    ) async {
+      await seedNote();
+      await seedPremium();
+      await seedLastSync();
+      gateway.picked = _legacyBackup();
+      await pumpScreen(tester, deletionService: deletionService());
+
+      await tapAction(tester, 'Restore from Backup');
+      await tester.tap(find.byKey(const ValueKey('restore-blocked-delete')));
+      await tester.pumpAndSettle();
+      await confirmDataDeletion(tester);
+
+      // The wipe ran exactly like Manage Account's: the diary's note is a
+      // tombstone before the restore goes anywhere.
+      expect(await liveNotes(), 0);
+
+      // And the restore continued on its own onto the emptied diary: the
+      // file's tables still ask first, because the tombstone counts as data.
+      expect(find.text('Replace all current data?'), findsOneWidget);
+      await tester.tap(find.text('Replace'));
+      await tester.pumpAndSettle();
+      expect(find.text('Restore complete'), findsOneWidget);
+      expect(find.text('3 records restored.'), findsOneWidget);
+
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(await liveNotes(), 3);
+    });
+
+    testWidgets('a premium diary that never synced restores straight through', (
+      tester,
+    ) async {
+      await seedNote();
+      await seedPremium();
+      gateway.picked = _legacyBackup();
+      await pumpScreen(tester);
+
+      await tapAction(tester, 'Restore from Backup');
+
+      // No fence without a completed sync: the file's own question comes first.
+      expect(find.text(blockedBody), findsNothing);
+      expect(find.text('Replace all current data?'), findsOneWidget);
+
+      await tester.tap(find.text('Replace'));
+      await tester.pumpAndSettle();
+      expect(find.text('3 records restored.'), findsOneWidget);
+    });
+
+    testWidgets(
+      'a synced premium diary with nothing in it restores straight through',
+      (tester) async {
+        await seedPremium();
+        await seedLastSync();
+        gateway.picked = _legacyBackup();
+        await pumpScreen(tester);
+
+        await tapAction(tester, 'Restore from Backup');
+
+        // Nothing of the user's own to contaminate, so nothing to wipe first.
+        expect(find.text(blockedBody), findsNothing);
+        expect(find.text('Replace all current data?'), findsNothing);
+        expect(find.text('Restore complete'), findsOneWidget);
+        expect(find.text('3 records restored.'), findsOneWidget);
+      },
+    );
   });
 
   test('only the file gateway imports the platform picker', () {

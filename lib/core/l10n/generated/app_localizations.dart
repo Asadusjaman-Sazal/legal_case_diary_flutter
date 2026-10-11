@@ -4016,6 +4016,12 @@ abstract class AppLocalizations {
   /// **'Restoring your data…'**
   String get settingsBackupRestore_restoreProgress;
 
+  /// No description provided for @settingsBackupRestore_restoreBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribed users are restricted from restoring offline data to prevent data contamination and potential issues. You need to delete current local & cloud data before restoring a local save.'**
+  String get settingsBackupRestore_restoreBlockedBody;
+
   /// BACKUP STATUS
   ///
   /// In en, this message translates to:

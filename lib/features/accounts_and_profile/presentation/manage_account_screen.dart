@@ -58,11 +58,9 @@ import '../../auth/presentation/logout_dialogs.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
-import '../data/data_deletion_service.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
-import 'data_deletion_dialog.dart';
-import 'delete_data_confirm_screen.dart';
+import 'data_deletion_flow.dart';
 
 /// Manage Account screen matching `settings_manageProfileAccount\code.html`.
 class ManageAccountScreen extends ConsumerStatefulWidget {
@@ -300,12 +298,11 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
 
   /// Deletes the ticked kinds of data, or says why it will not.
   ///
-  /// Three refusals come before the window, so a user who cannot act is told
-  /// rather than walked through a tick list that would do nothing: a **firm**
-  /// account (the diary is shared with colleagues, so there is no personal copy
-  /// to delete), and — for the cloud card only — **no connection**, because the
-  /// deletes it queues could only reach the account later. The free card's work
-  /// is local, so it needs no link at all.
+  /// The flow itself is shared ([runDataDeletionFlow]) with the Backup &
+  /// Restore restore-guard, so both entries delete through the same refusals,
+  /// tick list, typed screen and toasts; this only brackets the service run
+  /// with the card's spinner, the way Logout does, so a second tap cannot
+  /// start a second run.
   ///
   /// [online] and [firmMode] are the live answers watched in `build`, handed in
   /// rather than re-read here: a lazily-taken first snapshot answers "unknown",
@@ -316,68 +313,15 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     required bool online,
     required bool firmMode,
   }) async {
-    final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    if (firmMode) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l.settingsManageAccount_deleteDataFirmRefused)),
-      );
-      return;
-    }
-    if (cloud && !online) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(l.settingsManageAccount_deleteDataNeedsConnection),
-        ),
-      );
-      return;
-    }
-
-    // A dismissed window is a cancellation: the tick list returns nothing and
-    // this returns without touching the database.
-    final scope = await showDataDeletionDialog(context, cloud: cloud);
-    if (!context.mounted || scope == null || scope.isEmpty) return;
-
-    // The typed gate, like Delete Account's: the tick list says what goes and
-    // this screen is the point of no return — `delete my data` must be typed
-    // before anything is destroyed. Back is a cancellation.
-    final confirmed = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const DeleteDataConfirmScreen()),
-    );
-    if (!mounted || confirmed != true) return;
-
-    setState(() => _deletingData = true);
-    DataDeletionResult result;
-    try {
-      final service = await ref.read(dataDeletionServiceProvider.future);
-      result = await service.delete(scope: scope, cloud: cloud);
-    } on Object {
-      // The service reports its own failures, so this is the provider itself
-      // being unreadable — the same sentence either way, and nothing deleted.
-      result = const DataDeletionResult(
-        counts: <DataDeletionCategory, int>{},
-        failed: true,
-      );
-    } finally {
-      // Clear the spinner whatever the outcome, so a failure never leaves the
-      // card stuck spinning — the same rule the Logout card follows.
-      if (mounted) setState(() => _deletingData = false);
-    }
-    if (!mounted) return;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          result.failed
-              ? l.settingsManageAccount_deleteDataFailed
-              : cloud && !result.cloudSent
-              // The local deletes are done; the account's copies are queued and
-              // the worker sends them on the next successful sync.
-              ? l.settingsManageAccount_deleteDataCloudPending
-              : l.settingsManageAccount_deleteDataDone,
-        ),
-      ),
+    await runDataDeletionFlow(
+      context,
+      ref,
+      cloud: cloud,
+      online: online,
+      firmMode: firmMode,
+      onWorking: (working) {
+        if (mounted) setState(() => _deletingData = working);
+      },
     );
   }
 

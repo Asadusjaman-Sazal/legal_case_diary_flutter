@@ -105,44 +105,106 @@ class _UpdateCardsState extends State<UpdateCards> {
   }
 }
 
-/// Which network an update may be downloaded over: Wi-Fi (default) or either.
+/// Which network an update may be downloaded over: Wi-Fi only (default), or
+/// either Wi-Fi or mobile data.
 ///
-/// Two side-by-side buttons in the same filled style as Check For Update, so
-/// the choice reads as one setting with two states rather than a list. Wi-Fi
-/// only is the platform norm — a tens-of-megabytes APK should not ride
-/// cellular without the user saying so.
+/// Two buttons in the same filled style as Check For Update, so the choice
+/// reads as one setting with two states rather than a list. Wi-Fi only is the
+/// platform norm — a tens-of-megabytes APK should not ride cellular without the
+/// user saying so — and the wider option is the one that allows both.
+///
+/// **Side by side when they fit, one after another when they do not** (user
+/// request): the labels are long enough that equal halves overflow on a narrow
+/// phone, especially with the app's font-size steps. The widths are *measured*
+/// rather than compared against a fixed breakpoint, so a larger text step or a
+/// longer translation stacks them instead of clipping.
 class UpdateNetworkCard extends ConsumerWidget {
   const UpdateNetworkCard({super.key});
+
+  /// A button's own horizontal padding, both sides (FilledButton/OutlinedButton
+  /// default), which the share of the row must cover along with the text.
+  static const double _buttonPadding = 32;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final selected = ref.watch(updateMetadataProvider).network;
-    return Row(
-      children: [
-        Expanded(
-          child: _NetworkButton(
-            key: const ValueKey('update-network-wifi'),
-            label: l.settingsUpdate_networkWifi,
-            selected: selected == UpdateNetwork.wifi,
-            onTap: () => ref
-                .read(updateMetadataProvider.notifier)
-                .setNetwork(UpdateNetwork.wifi),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _NetworkButton(
-            key: const ValueKey('update-network-mobile'),
-            label: l.settingsUpdate_networkMobileData,
-            selected: selected == UpdateNetwork.mobileData,
-            onTap: () => ref
-                .read(updateMetadataProvider.notifier)
-                .setNetwork(UpdateNetwork.mobileData),
-          ),
-        ),
-      ],
+
+    Widget button({
+      required Key key,
+      required String label,
+      required UpdateNetwork network,
+    }) => _NetworkButton(
+      key: key,
+      label: label,
+      selected: selected == network,
+      onTap: () =>
+          ref.read(updateMetadataProvider.notifier).setNetwork(network),
     );
+
+    final wifi = button(
+      key: const ValueKey('update-network-wifi'),
+      label: l.settingsUpdate_networkWifi,
+      network: UpdateNetwork.wifi,
+    );
+    final both = button(
+      key: const ValueKey('update-network-mobile'),
+      label: l.settingsUpdate_networkMobileData,
+      network: UpdateNetwork.mobileData,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fits = _fitsSideBySide(
+          context,
+          <String>[
+            l.settingsUpdate_networkWifi,
+            l.settingsUpdate_networkMobileData,
+          ],
+          constraints.maxWidth,
+        );
+        if (!fits) {
+          // Full length, one after another, with the same gap either way.
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              wifi,
+              const SizedBox(height: AppSpacing.sm),
+              both,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: wifi),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: both),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Whether every [label] fits its half of [availableWidth].
+  ///
+  /// Measured with the button's own text style and the active text scaler, so
+  /// the answer follows a larger font step rather than assuming one.
+  static bool _fitsSideBySide(
+    BuildContext context,
+    List<String> labels,
+    double availableWidth,
+  ) {
+    final perButton = (availableWidth - AppSpacing.sm) / 2;
+    if (perButton <= _buttonPadding) return false;
+    for (final label in labels) {
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: AppTypography.labelLg),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout();
+      if (painter.width + _buttonPadding > perButton) return false;
+    }
+    return true;
   }
 }
 
@@ -164,35 +226,40 @@ class _NetworkButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: settingsPrimaryButtonHeight,
-    child: selected
-        ? FilledButton(
-            onPressed: onTap,
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              textStyle: AppTypography.labelLg,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+  Widget build(BuildContext context) {
+    // A floor rather than a fixed height: at a large font step a long label
+    // wraps, and a hard box would clip it. The minimum keeps every button in
+    // the card the same height as Check For Update.
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    );
+    final child = Text(label, textAlign: TextAlign.center);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: settingsPrimaryButtonHeight),
+      child: selected
+          ? FilledButton(
+              onPressed: onTap,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.labelLg,
+                shape: shape,
               ),
-            ),
-            child: Text(label),
-          )
-        : OutlinedButton(
-            onPressed: onTap,
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              foregroundColor: AppColors.primary,
-              side: BorderSide(color: AppColors.outlineVariant),
-              textStyle: AppTypography.labelLg,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+              child: child,
+            )
+          : OutlinedButton(
+              onPressed: onTap,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: AppColors.primary,
+                side: BorderSide(color: AppColors.outlineVariant),
+                textStyle: AppTypography.labelLg,
+                shape: shape,
               ),
+              child: child,
             ),
-            child: Text(label),
-          ),
-  );
+    );
+  }
 }
 
 /// One collapsible card: a header button and its expanded body.

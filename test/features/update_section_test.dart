@@ -80,11 +80,17 @@ void main() {
     _FakeUpdateRepository repo, {
     Locale locale = const Locale('en'),
     ConnectivityMonitor? monitor,
+    Size surface = const Size(420, 1400),
   }) async {
     // The cards read the shared store behind their frequency radios.
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final prefs = await SharedPreferences.getInstance();
-    await tester.binding.setSurfaceSize(const Size(420, 1400));
+    // The window size matters here: the network buttons measure themselves
+    // against the width they are given.
+    tester.view.physicalSize = surface;
+    tester.view.devicePixelRatio = 1.0;
+    await tester.binding.setSurfaceSize(surface);
+    addTearDown(tester.view.reset);
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
@@ -140,43 +146,76 @@ void main() {
     expect(find.text('Every Month'), findsOneWidget);
   });
 
-  testWidgets('Update Over Network defaults folded, Wi-Fi selected', (
+  testWidgets('Update Over Network defaults folded, Wi-Fi Only selected', (
     tester,
   ) async {
     await pump(tester, _FakeUpdateRepository());
 
     // Folded until asked for, and the two buttons are not on screen yet.
     expect(find.text('Update Over Network'), findsOneWidget);
-    expect(find.text('Wi-Fi'), findsNothing);
+    expect(find.text('Wi-Fi Only'), findsNothing);
 
     await tester.tap(find.text('Update Over Network'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Wi-Fi'), findsOneWidget);
-    expect(find.text('Mobile Data'), findsOneWidget);
-    // Wi-Fi is the default, so its button is the filled one and Mobile Data the
-    // outlined one.
+    expect(find.text('Wi-Fi Only'), findsOneWidget);
+    expect(find.text('Wi-Fi & Mobile Data'), findsOneWidget);
+    // Wi-Fi only is the default, so its button is the filled one and the
+    // wider option the outlined one.
     expect(
-      find.widgetWithText(FilledButton, 'Wi-Fi'),
+      find.widgetWithText(FilledButton, 'Wi-Fi Only'),
       findsOneWidget,
-      reason: 'Wi-Fi is selected by default',
+      reason: 'Wi-Fi Only is selected by default',
     );
-    expect(find.widgetWithText(OutlinedButton, 'Mobile Data'), findsOneWidget);
+    expect(
+      find.widgetWithText(OutlinedButton, 'Wi-Fi & Mobile Data'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('choosing Mobile Data stores it', (tester) async {
+  testWidgets('the two network buttons stack when they do not fit', (
+    tester,
+  ) async {
+    // The labels are long: on a narrow phone (and at a larger font step) equal
+    // halves would clip them, so they are drawn one after another, full length.
+    await pump(tester, _FakeUpdateRepository(), surface: const Size(320, 1400));
+
+    await tester.tap(find.text('Update Over Network'));
+    await tester.pumpAndSettle();
+
+    final wifi = tester.getRect(find.widgetWithText(FilledButton, 'Wi-Fi Only'));
+    final both = tester.getRect(
+      find.widgetWithText(OutlinedButton, 'Wi-Fi & Mobile Data'),
+    );
+    // Stacked: the second starts below the first, rather than beside it.
+    expect(both.top, greaterThanOrEqualTo(wifi.bottom));
+    // Full length, so the two buttons are the same width and each label has the
+    // whole row: at half of this width the longer one would be clipped.
+    expect(both.width, closeTo(wifi.width, 0.5));
+    final label = tester.getSize(find.text('Wi-Fi & Mobile Data'));
+    expect(
+      label.width,
+      lessThanOrEqualTo(both.width),
+      reason: 'the label fits inside its button rather than overflowing',
+    );
+  });
+
+  testWidgets('choosing Wi-Fi & Mobile Data stores it', (tester) async {
     await pump(tester, _FakeUpdateRepository());
 
     await tester.tap(find.text('Update Over Network'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Mobile Data'));
+    await tester.tap(find.text('Wi-Fi & Mobile Data'));
     await tester.pumpAndSettle();
 
     // The same mock store the helper installed, read back directly.
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString(updateNetworkKey), 'mobileData');
-    expect(find.widgetWithText(FilledButton, 'Mobile Data'), findsOneWidget);
-    expect(find.widgetWithText(OutlinedButton, 'Wi-Fi'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Wi-Fi & Mobile Data'),
+      findsOneWidget,
+    );
+    expect(find.widgetWithText(OutlinedButton, 'Wi-Fi Only'), findsOneWidget);
   });
 
   testWidgets('a newer release turns the check into Update Now with a notice', (

@@ -3369,10 +3369,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'কোন নেটওয়ার্কে আপডেট ডাউনলোড হবে তা বেছে নিন';
 
   @override
-  String get settingsUpdate_networkWifi => 'ওয়াই-ফাই';
+  String get settingsUpdate_networkWifi => 'শুধু ওয়াই-ফাই';
 
   @override
-  String get settingsUpdate_networkMobileData => 'মোবাইল ডেটা';
+  String get settingsUpdate_networkMobileData => 'ওয়াই-ফাই ও মোবাইল ডেটা';
 
   @override
   String get settingsUpdate_currentVersion => 'বর্তমান ভার্সন:';

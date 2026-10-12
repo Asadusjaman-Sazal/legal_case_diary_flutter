@@ -5841,13 +5841,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_newerVersion.
   ///
   /// In en, this message translates to:
-  /// **'There Is A Newer Version Available ({version}).'**
+  /// **'There is a newer version available ({version}).'**
   String settingsUpdate_newerVersion(String version);
 
   /// No description provided for @settingsUpdate_latest.
   ///
   /// In en, this message translates to:
-  /// **'You\'re On The Latest Version.'**
+  /// **'You\'re on the latest version.'**
   String get settingsUpdate_latest;
 
   /// No description provided for @settingsUpdate_mobileDataTitle.
@@ -5871,19 +5871,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_checkFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Check For An Update Right Now. Please Try Again Later.'**
+  /// **'Could not check for an update right now. Please try again later.'**
   String get settingsUpdate_checkFailed;
 
   /// No description provided for @settingsUpdate_downloadFailed.
   ///
   /// In en, this message translates to:
-  /// **'The Update Could Not Be Downloaded. Please Try Again Later.'**
+  /// **'The update could not be downloaded. Please try again later.'**
   String get settingsUpdate_downloadFailed;
 
   /// No description provided for @settingsUpdate_installUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'This Device Cannot Install An Update.'**
+  /// **'This device cannot install an update.'**
   String get settingsUpdate_installUnavailable;
 
   /// No description provided for @settingsUpdate_offlineToast.

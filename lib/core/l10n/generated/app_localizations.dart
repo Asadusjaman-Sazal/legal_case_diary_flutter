@@ -5754,12 +5754,6 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get settingsUpdate_entry;
 
-  /// No description provided for @settingsUpdate_entrySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Check For A Newer Version And Set How Often To Check'**
-  String get settingsUpdate_entrySubtitle;
-
   /// No description provided for @settingsUpdate_appUpdate.
   ///
   /// In en, this message translates to:
@@ -5775,7 +5769,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_autoUpdate.
   ///
   /// In en, this message translates to:
-  /// **'Auto Update'**
+  /// **'Auto Check For Update'**
   String get settingsUpdate_autoUpdate;
 
   /// No description provided for @settingsUpdate_autoUpdateSubtitle.
@@ -5783,6 +5777,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose How Often To Check For Updates'**
   String get settingsUpdate_autoUpdateSubtitle;
+
+  /// No description provided for @settingsUpdate_networkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Over Network'**
+  String get settingsUpdate_networkTitle;
+
+  /// No description provided for @settingsUpdate_networkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Which Network Downloads The Update'**
+  String get settingsUpdate_networkSubtitle;
+
+  /// No description provided for @settingsUpdate_networkWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi'**
+  String get settingsUpdate_networkWifi;
+
+  /// No description provided for @settingsUpdate_networkMobileData.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Data'**
+  String get settingsUpdate_networkMobileData;
 
   /// No description provided for @settingsUpdate_currentVersion.
   ///
@@ -5808,6 +5826,18 @@ abstract class AppLocalizations {
   /// **'Update Now'**
   String get settingsUpdate_updateNow;
 
+  /// No description provided for @settingsUpdate_later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get settingsUpdate_later;
+
+  /// No description provided for @settingsUpdate_skipVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip This Version'**
+  String get settingsUpdate_skipVersion;
+
   /// No description provided for @settingsUpdate_newerVersion.
   ///
   /// In en, this message translates to:
@@ -5820,11 +5850,35 @@ abstract class AppLocalizations {
   /// **'You\'re On The Latest Version.'**
   String get settingsUpdate_latest;
 
+  /// No description provided for @settingsUpdate_mobileDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Over Mobile Data?'**
+  String get settingsUpdate_mobileDataTitle;
+
+  /// No description provided for @settingsUpdate_mobileDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are on mobile data and the update is a large download. Continue, or switch to Wi-Fi to download it there.'**
+  String get settingsUpdate_mobileDataBody;
+
+  /// No description provided for @settingsUpdate_mobileDataContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get settingsUpdate_mobileDataContinue;
+
   /// No description provided for @settingsUpdate_checkFailed.
   ///
   /// In en, this message translates to:
   /// **'Could Not Check For An Update Right Now. Please Try Again Later.'**
   String get settingsUpdate_checkFailed;
+
+  /// No description provided for @settingsUpdate_downloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The Update Could Not Be Downloaded. Please Try Again Later.'**
+  String get settingsUpdate_downloadFailed;
 
   /// No description provided for @settingsUpdate_installUnavailable.
   ///

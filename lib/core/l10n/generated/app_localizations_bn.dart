@@ -3348,10 +3348,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsUpdate_entry => 'আপডেট';
 
   @override
-  String get settingsUpdate_entrySubtitle =>
-      'নতুন ভার্সন দেখুন এবং কত ঘন ঘন দেখতে হবে তা ঠিক করুন';
-
-  @override
   String get settingsUpdate_appUpdate => 'অ্যাপ আপডেট';
 
   @override
@@ -3359,11 +3355,24 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপডেট আছে কি না দেখুন এবং অ্যাপ আপডেট করুন';
 
   @override
-  String get settingsUpdate_autoUpdate => 'অটো আপডেট';
+  String get settingsUpdate_autoUpdate => 'স্বয়ংক্রিয়ভাবে আপডেট দেখা';
 
   @override
   String get settingsUpdate_autoUpdateSubtitle =>
       'কত ঘন ঘন আপডেট দেখতে হবে তা বেছে নিন';
+
+  @override
+  String get settingsUpdate_networkTitle => 'কোন নেটওয়ার্কে আপডেট';
+
+  @override
+  String get settingsUpdate_networkSubtitle =>
+      'কোন নেটওয়ার্কে আপডেট ডাউনলোড হবে তা বেছে নিন';
+
+  @override
+  String get settingsUpdate_networkWifi => 'ওয়াই-ফাই';
+
+  @override
+  String get settingsUpdate_networkMobileData => 'মোবাইল ডেটা';
 
   @override
   String get settingsUpdate_currentVersion => 'বর্তমান ভার্সন:';
@@ -3378,6 +3387,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsUpdate_updateNow => 'এখনই আপডেট করুন';
 
   @override
+  String get settingsUpdate_later => 'পরে';
+
+  @override
+  String get settingsUpdate_skipVersion => 'এই ভার্সন এড়িয়ে যান';
+
+  @override
   String settingsUpdate_newerVersion(String version) {
     return 'নতুন ভার্সন পাওয়া যাচ্ছে ($version)।';
   }
@@ -3386,8 +3401,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsUpdate_latest => 'আপনি সর্বশেষ ভার্সনে আছেন।';
 
   @override
+  String get settingsUpdate_mobileDataTitle => 'মোবাইল ডেটায় ডাউনলোড করবেন?';
+
+  @override
+  String get settingsUpdate_mobileDataBody =>
+      'আপনি মোবাইল ডেটায় আছেন এবং আপডেটটি বড় ডাউনলোড। চালিয়ে যান, অথবা ওয়াই-ফাইতে গিয়ে ডাউনলোড করুন।';
+
+  @override
+  String get settingsUpdate_mobileDataContinue => 'চালিয়ে যান';
+
+  @override
   String get settingsUpdate_checkFailed =>
       'এই মুহূর্তে আপডেট দেখা যায়নি। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsUpdate_downloadFailed =>
+      'আপডেটটি ডাউনলোড করা যায়নি। পরে আবার চেষ্টা করুন।';
 
   @override
   String get settingsUpdate_installUnavailable =>

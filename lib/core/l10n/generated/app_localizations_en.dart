@@ -3330,10 +3330,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUpdate_entry => 'Update';
 
   @override
-  String get settingsUpdate_entrySubtitle =>
-      'Check For A Newer Version And Set How Often To Check';
-
-  @override
   String get settingsUpdate_appUpdate => 'App Update';
 
   @override
@@ -3341,11 +3337,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check For Updates And Update The App';
 
   @override
-  String get settingsUpdate_autoUpdate => 'Auto Update';
+  String get settingsUpdate_autoUpdate => 'Auto Check For Update';
 
   @override
   String get settingsUpdate_autoUpdateSubtitle =>
       'Choose How Often To Check For Updates';
+
+  @override
+  String get settingsUpdate_networkTitle => 'Update Over Network';
+
+  @override
+  String get settingsUpdate_networkSubtitle =>
+      'Choose Which Network Downloads The Update';
+
+  @override
+  String get settingsUpdate_networkWifi => 'Wi-Fi';
+
+  @override
+  String get settingsUpdate_networkMobileData => 'Mobile Data';
 
   @override
   String get settingsUpdate_currentVersion => 'Current Version:';
@@ -3360,6 +3369,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUpdate_updateNow => 'Update Now';
 
   @override
+  String get settingsUpdate_later => 'Later';
+
+  @override
+  String get settingsUpdate_skipVersion => 'Skip This Version';
+
+  @override
   String settingsUpdate_newerVersion(String version) {
     return 'There Is A Newer Version Available ($version).';
   }
@@ -3368,8 +3383,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUpdate_latest => 'You\'re On The Latest Version.';
 
   @override
+  String get settingsUpdate_mobileDataTitle => 'Download Over Mobile Data?';
+
+  @override
+  String get settingsUpdate_mobileDataBody =>
+      'You are on mobile data and the update is a large download. Continue, or switch to Wi-Fi to download it there.';
+
+  @override
+  String get settingsUpdate_mobileDataContinue => 'Continue';
+
+  @override
   String get settingsUpdate_checkFailed =>
       'Could Not Check For An Update Right Now. Please Try Again Later.';
+
+  @override
+  String get settingsUpdate_downloadFailed =>
+      'The Update Could Not Be Downloaded. Please Try Again Later.';
 
   @override
   String get settingsUpdate_installUnavailable =>

@@ -57,6 +57,9 @@ class FakeConnectivityMonitor implements ConnectivityMonitor {
   Future<bool> isOnline() async => initial;
 
   @override
+  Future<bool> isOnMobileData() async => false;
+
+  @override
   Stream<bool> get onlineChanges => _changes.stream;
 }
 

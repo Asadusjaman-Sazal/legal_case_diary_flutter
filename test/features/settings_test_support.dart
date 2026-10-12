@@ -15,6 +15,8 @@ import 'package:go_router/go_router.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../test_utils.dart';
 
@@ -62,11 +64,25 @@ Future<void> pumpSettingsRouter(
   Locale locale = const Locale('en'),
   List<Override> overrides = const <Override>[],
 }) async {
+  // The Settings surface reads per-user preferences — the updater's own store
+  // among them, which the About and Settings-main rows now consult. An empty
+  // in-memory store is installed unless the caller supplies its own
+  // [sharedPreferencesProvider]; a suite that needs specific values seeds them
+  // and passes that override, so this default only ever fills the gap.
+  final withPrefs = overrides.any(
+    (o) => o.origin == sharedPreferencesProvider,
+  )
+      ? overrides
+      : <Override>[
+          ...overrides,
+          sharedPreferencesProvider.overrideWithValue(await _emptyPrefs()),
+        ];
+
   final router = GoRouter(initialLocation: location, routes: routes);
   addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: withErrorLog(overrides),
+      overrides: withErrorLog(withPrefs),
       child: MaterialApp.router(
         routerConfig: router,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -76,6 +92,12 @@ Future<void> pumpSettingsRouter(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// An empty in-memory preferences store for [pumpSettingsRouter].
+Future<SharedPreferences> _emptyPrefs() async {
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+  return SharedPreferences.getInstance();
 }
 
 /// Pumps [screen] backed by [repo] with the app's localizations.

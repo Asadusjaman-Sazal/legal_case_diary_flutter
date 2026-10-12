@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.481 - About: a collapsible Update section with App Update (check GitHub, download in-app) and Auto Update (check frequency).
+Version: 0.0.484 - Audit hardening in App Update: errors now show a user sentence and log the raw cause, and a failed cache-clear after install is no longer reported as a download failure.
 --------------------------------------
 
 ## Version History Log:
@@ -495,3 +495,6 @@ Version: 0.0.478 - Release workflow: the APK asset is now named 'Legal Case Diar
 Version: 0.0.479 - Release workflow: checkout v7 / setup-java v6 / action-gh-release v3, runner pinned to ubuntu-24.04, and the job now refuses an empty Supabase value instead of shipping an offline-only APK.
 Version: 0.0.480 - More About the App: the Check for Updates button is gone and the app name with its version now sit centred in the card.
 Version: 0.0.481 - About: a collapsible Update section with App Update (check GitHub, download in-app) and Auto Update (check frequency).
+Version: 0.0.482 - About: Update is now a plain row the size of Support that opens its own sub-page holding the App Update and Auto Update cards.
+Version: 0.0.483 - Update: Auto Check for Update renamed, Later and Skip This Version added, an Update Over Network choice (Wi-Fi default), a dot on About, and Support moved to Settings.
+Version: 0.0.484 - Audit hardening in App Update: errors now show a user sentence and log the raw cause, and a failed cache-clear after install is no longer reported as a download failure.

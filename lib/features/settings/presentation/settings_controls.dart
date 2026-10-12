@@ -51,7 +51,18 @@ class SettingsLinkRow extends StatelessWidget {
   /// Opens the destination.
   final VoidCallback onTap;
 
-  const SettingsLinkRow({super.key, required this.label, required this.onTap});
+  /// Draws a small attention dot before the chevron.
+  ///
+  /// Used by the updater's row: something is waiting behind this row that the
+  /// user has not been told about any other way.
+  final bool showDot;
+
+  const SettingsLinkRow({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.showDot = false,
+  });
 
   @override
   Widget build(BuildContext context) => Material(
@@ -73,10 +84,35 @@ class SettingsLinkRow extends StatelessWidget {
                 style: AppTypography.titleMd.copyWith(color: AppColors.primary),
               ),
             ),
+            if (showDot) ...[
+              const UpdateDot(),
+              const SizedBox(width: AppSpacing.sm),
+            ],
             const Icon(Icons.chevron_right, color: AppColors.outline),
           ],
         ),
       ),
+    ),
+  );
+}
+
+/// The small "an update is available" dot.
+///
+/// Green, as the user asked for the update indicator. A dot rather than a count
+/// pill: there is at most one thing to say, and a number would imply more.
+class UpdateDot extends StatelessWidget {
+  const UpdateDot({super.key});
+
+  /// Diameter of the dot.
+  static const double size = 10;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      shape: BoxShape.circle,
+      color: AppColors.success,
     ),
   );
 }

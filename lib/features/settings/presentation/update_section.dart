@@ -14,6 +14,14 @@
 ///  * Tapping **Update Now** downloads the APK into the app cache, showing a
 ///    progress bar until the download finishes, then hands the file to
 ///    Android's installer and deletes the cache copy.
+///  * An update the launch check already found is **offered at once** when the
+///    page opens — the check only ever reports, it never installs.
+///  * **Later** hides the offer until the next app launch; **Skip This
+///    Version** retires that release until a newer one appears. Both exist so
+///    an available update is never an unclearable badge.
+///  * The **Update Over Network** preference is honoured before downloading:
+///    Wi-Fi only (the default) asks once on mobile data, and the user may still
+///    continue.
 library;
 
 import 'dart:io';
@@ -26,8 +34,12 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/app_version.dart';
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../sync/connectivity_monitor.dart';
+import '../data/update_metadata_store.dart';
 import '../data/update_release.dart';
 import '../data/update_repository.dart';
 import 'app_install.dart';
@@ -70,6 +82,22 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
 
   /// The last attempt's failure message, shown when not null.
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // An update the launch check already found is offered at once — no second
+    // lookup, and it works with no connection. The session deferral is ignored
+    // here on purpose: opening this screen *is* the user asking to look.
+    final metadata = ref.read(updateMetadataProvider);
+    if (shouldOfferRelease(
+      release: metadata.availableRelease,
+      skippedVersion: metadata.skippedVersion,
+    )) {
+      _phase = _UpdatePhase.updateAvailable;
+      _release = metadata.availableRelease;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,15 +196,46 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
     }
     switch (_phase) {
       case _UpdatePhase.updateAvailable:
-        return Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.info_outline, color: AppColors.primary, size: 18),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                l.settingsUpdate_newerVersion(_release?.displayName ?? ''),
-                style: AppTypography.bodyMd,
-              ),
+            Row(
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l.settingsUpdate_newerVersion(_release?.displayName ?? ''),
+                    style: AppTypography.bodyMd,
+                  ),
+                ),
+              ],
+            ),
+            // Deferring without being nagged, and retiring this one release —
+            // so an available update is never an unclearable badge.
+            Row(
+              children: [
+                TextButton(
+                  key: const ValueKey('update-later'),
+                  onPressed: _later,
+                  style: TextButton.styleFrom(
+                    textStyle: AppTypography.labelLg,
+                  ),
+                  child: Text(l.settingsUpdate_later),
+                ),
+                TextButton(
+                  key: const ValueKey('update-skip-version'),
+                  onPressed: _skip,
+                  style: TextButton.styleFrom(
+                    textStyle: AppTypography.labelLg,
+                  ),
+                  child: Text(l.settingsUpdate_skipVersion),
+                ),
+              ],
             ),
           ],
         );
@@ -223,22 +282,55 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
         .checkForLatestRelease();
     if (!mounted) return;
 
-    if (outcome.isUpdate) {
+    // A release the user skipped is not offered again — the check still ran,
+    // but it counts as nothing newer, which is what "skip this version" means.
+    final offer = shouldOfferRelease(
+      release: outcome.release,
+      skippedVersion: ref.read(updateMetadataProvider).skippedVersion,
+    );
+
+    if (offer) {
       setState(() {
         _phase = _UpdatePhase.updateAvailable;
         _release = outcome.release;
       });
-    } else if (outcome.result == ReleaseCheckResult.upToDate) {
+    } else if (outcome.result == ReleaseCheckResult.upToDate ||
+        outcome.isUpdate) {
       setState(() {
         _phase = _UpdatePhase.upToDate;
         _release = null;
       });
     } else {
+      // The user gets a sentence; the technical cause goes to the diagnostics
+      // log. Showing the raw cause would put English developer text ("GitHub
+      // responded 403") in front of a Bengali user.
+      recordFailure(ref.read(errorLogProvider), 'update.check', outcome.error!);
       setState(() {
         _phase = _UpdatePhase.idle;
-        _error = outcome.error ?? l.settingsUpdate_checkFailed;
+        _error = l.settingsUpdate_checkFailed;
       });
     }
+  }
+
+  /// Hides the offered update until the app is next launched.
+  void _later() {
+    ref.read(updateDeferredProvider.notifier).defer();
+    setState(() {
+      _phase = _UpdatePhase.idle;
+      _release = null;
+    });
+  }
+
+  /// Retires this exact release until a newer one appears.
+  Future<void> _skip() async {
+    final release = _release;
+    if (release == null) return;
+    await ref.read(updateMetadataProvider.notifier).skipVersion(release.version);
+    if (!mounted) return;
+    setState(() {
+      _phase = _UpdatePhase.idle;
+      _release = null;
+    });
   }
 
   /// Downloads [release] into the app cache, then hands it to the installer.
@@ -247,7 +339,14 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
   /// appends chunks) and verifies the file's stated size before installing, so
   /// a truncated download is refused here rather than reaching Android's
   /// installer half-built. The cache copy is deleted after the handoff.
+  ///
+  /// **The Wi-Fi-only preference is honoured first.** On mobile data the user is
+  /// asked once, naming what the download costs them, and may still proceed —
+  /// they asked for the update, so refusing outright would be the worse answer.
   Future<void> _downloadAndInstall(AppRelease release) async {
+    if (!await _allowedByNetworkPreference()) return;
+    if (!mounted) return;
+
     setState(() {
       _downloading = true;
       _progress = 0;
@@ -282,6 +381,22 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
       if (file.existsSync()) file.deleteSync();
       if (!mounted) return;
 
+      // The offer has been acted on, so it is no longer news: dropping it here
+      // is what keeps the dot from outliving the update it pointed at. This is
+      // best-effort — the install already happened, so a preferences failure
+      // must not be reported as a download failure, and the worst case (the
+      // dot lingers until `recordCheck` next clears it) is harmless.
+      if (installed) {
+        try {
+          await ref
+              .read(updateMetadataProvider.notifier)
+              .clearAvailableRelease();
+        } on Object catch (clearError) {
+          recordFailure(ref.read(errorLogProvider), 'update.clear', clearError);
+        }
+        if (!mounted) return;
+      }
+
       setState(() {
         _downloading = false;
         _progress = null;
@@ -292,12 +407,58 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
         }
       });
     } on Object catch (e) {
+      // A truncated download, a refused connection, an unwritable cache: all
+      // the same sentence to the user, with the cause kept in the log.
+      recordFailure(ref.read(errorLogProvider), 'update.download', e);
       if (!mounted) return;
       setState(() {
         _downloading = false;
         _progress = null;
-        _error = e.toString();
+        _error = AppLocalizations.of(context).settingsUpdate_downloadFailed;
       });
     }
+  }
+
+  /// Whether the download may go ahead under **Update Over Network**.
+  ///
+  /// Wi-Fi only (the default) asks once when the device is on mobile data; the
+  /// user can still continue, because they are the one who tapped Update Now.
+  /// Mobile Data proceeds without a word.
+  Future<bool> _allowedByNetworkPreference() async {
+    if (ref.read(updateMetadataProvider).network != UpdateNetwork.wifi) {
+      return true;
+    }
+    final onMobile = await ref
+        .read(connectivityMonitorProvider)
+        .isOnMobileData();
+    if (!mounted) return false;
+    if (!onMobile) return true;
+    return await _confirmMobileData() ?? false;
+  }
+
+  /// The one question before spending the user's mobile data.
+  Future<bool?> _confirmMobileData() {
+    final l = AppLocalizations.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.settingsUpdate_mobileDataTitle),
+        content: Text(l.settingsUpdate_mobileDataBody),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.sharedActions_cancel),
+          ),
+          FilledButton(
+            key: const ValueKey('update-mobile-continue'),
+            style: FilledButton.styleFrom(minimumSize: const Size(112, 48)),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.settingsUpdate_mobileDataContinue),
+          ),
+        ],
+      ),
+    );
   }
 }

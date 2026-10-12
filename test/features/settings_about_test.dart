@@ -3,13 +3,18 @@
 /// Both mirror their mockups (`settings_about`, `settings_moreAboutTheApp`) and
 /// show the bundled `appVersion`. Two user-requested departures from the About
 /// mockup are pinned here: the developer card no longer carries the email and
-/// WhatsApp rows, and the Support row now opens the Support screen.
+/// WhatsApp rows, and the **Update** row (which replaced Support here — Support
+/// moved to the Settings main page) opens the updater.
 library;
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_version.dart';
@@ -21,6 +26,10 @@ import 'package:legal_case_diary/features/settings/presentation/settings_about/g
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_app_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/support_screen.dart';
+import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
+import 'package:legal_case_diary/features/settings/presentation/update_screen.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
 import 'settings_test_support.dart';
 
@@ -31,6 +40,7 @@ void main() {
   Future<void> pumpAbout(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    SharedPreferences? prefs,
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -38,6 +48,10 @@ void main() {
       tester,
       location: AppRoutes.settingsAbout,
       locale: locale,
+      overrides: [
+        if (prefs != null)
+          sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
       routes: [
         GoRoute(
           path: AppRoutes.settingsAbout,
@@ -60,6 +74,10 @@ void main() {
         GoRoute(
           path: AppRoutes.settingsSupport,
           builder: (context, state) => const SupportScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsAboutUpdate,
+          builder: (context, state) => const UpdateScreen(),
         ),
         GoRoute(
           path: AppRoutes.settingsGuidelines,
@@ -149,7 +167,12 @@ void main() {
     expect(find.text('FAQ'), findsNothing);
     expect(find.text('Privacy Policy'), findsOneWidget);
     expect(find.text('Terms of Service'), findsOneWidget);
-    expect(find.text('Support'), findsOneWidget);
+    // Support is **not** here: it moved to the Settings main page, so there is
+    // one Support entry in the app rather than two.
+    expect(find.text('Support'), findsNothing);
+    // The updater is an ordinary row of the same group (user request), not a
+    // card that expands in place.
+    expect(find.text('Update'), findsOneWidget);
     expect(find.text('Data Safety'), findsOneWidget);
     expect(
       find.text(
@@ -180,25 +203,77 @@ void main() {
     expect(find.text('Key Features'), findsOneWidget);
   });
 
-  testWidgets('the Support row opens the Support screen', (tester) async {
+  testWidgets('the Update row opens the updater, the same row shape', (
+    tester,
+  ) async {
+    // The entry used to be a larger card that expanded in place, toggling both
+    // cards at once; it is now an ordinary row of the same shape and size as
+    // its neighbours that opens a screen of its own (user request).
     await pumpAbout(tester);
 
-    await tester.tap(find.text('Support'));
+    final updateRow = find.ancestor(
+      of: find.text('Update'),
+      matching: find.byType(SettingsLinkRow),
+    );
+    final neighbourRow = find.ancestor(
+      of: find.text('Privacy Policy'),
+      matching: find.byType(SettingsLinkRow),
+    );
+    expect(updateRow, findsOneWidget);
+    expect(
+      tester.getSize(updateRow).height,
+      tester.getSize(neighbourRow).height,
+      reason: 'an ordinary row of the group, not the taller card',
+    );
+
+    await tester.tap(find.text('Update'));
     await tester.pumpAndSettle();
 
-    // No About row reports a pending state any more: the last one navigates.
-    expect(find.byType(SupportScreen), findsOneWidget);
-    expect(find.text('Arrives in a later task'), findsNothing);
-    expect(
-      find.textContaining('We can help you with the app itself'),
-      findsOneWidget,
-    );
+    // It pushes the updater's own page, with all three cards on it.
+    expect(find.byType(UpdateScreen), findsOneWidget);
+    expect(find.text('App Update'), findsOneWidget);
+    expect(find.text('Auto Check For Update'), findsOneWidget);
+    expect(find.text('Update Over Network'), findsOneWidget);
+    expect(find.text('Check For Update'), findsOneWidget);
   });
 
   // The document body loads from the asset bundle, which is real asynchronous
   // I/O the test clock does not drive, so these two pin the row's navigation and
   // the window title; `legal_document_screen_test.dart` covers the document text
   // under both languages.
+  testWidgets('the Update row carries the dot when an update is offered', (
+    tester,
+  ) async {
+    // Seeded before the pump: the notifier reads preferences once when built.
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      updateAvailableReleaseKey: jsonEncode(<String, Object?>{
+        'version': '99.99.999',
+        'url': 'https://example.test/app.apk',
+      }),
+    });
+    await pumpAbout(tester, prefs: await SharedPreferences.getInstance());
+
+    // The row says something is waiting, beside its chevron.
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('Update'),
+          matching: find.byType(SettingsLinkRow),
+        ),
+        matching: find.byType(UpdateDot),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the Update row carries no dot when nothing is waiting', (
+    tester,
+  ) async {
+    await pumpAbout(tester);
+
+    expect(find.byType(UpdateDot), findsNothing);
+  });
+
   testWidgets('the Privacy Policy row opens the document', (tester) async {
     await pumpAbout(tester);
 
@@ -399,13 +474,23 @@ void main() {
       ],
     );
     addTearDown(router.dispose);
+    // The screen reads the updater's provider for its row's dot, so it needs a
+    // scope like every other consumer — and preferences for that provider.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
     await tester.pumpWidget(
-      MaterialApp.router(
-        routerConfig: router,
-        theme: AppTheme.lightTheme(const Locale('en')),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('en'),
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(
+            await SharedPreferences.getInstance(),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          theme: AppTheme.lightTheme(const Locale('en')),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+        ),
       ),
     );
     await tester.pumpAndSettle();

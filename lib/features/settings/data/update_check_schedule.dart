@@ -1,7 +1,7 @@
 /// Pure "when should we auto-check for an update?" rules.
 ///
 /// Plain Dart, no Flutter, no network — the daily launch check and the About
-/// screen's Auto Update section both call it, so the "every N days" rule and
+/// screen's Auto Check For Update card both call it, so the "every N days"
 /// the 7-day-offline → day-8-toast rule live here where a unit test can pin
 /// them without an emulator.
 ///
@@ -27,7 +27,7 @@ const int updateOfflineToastDay = 8;
 
 /// Whether a launch-period check is due.
 ///
-/// [frequencyDays] is the stored Auto Update interval (0 = off), [lastCheckAt]
+/// [frequencyDays] is the stored Auto Check interval (0 = off), [lastCheckAt]
 /// is the epoch-ms of the previous check (null = never). Uses the caller's
 /// already-localized [nowEpochMs] so a *day* boundary is the user's own.
 bool isUpdateCheckDue({

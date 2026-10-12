@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'of'**
   String get drawerOf;
 
+  /// No description provided for @drawer_rateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate App'**
+  String get drawer_rateApp;
+
+  /// No description provided for @drawer_rateAppPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating opens with the Play Store release.'**
+  String get drawer_rateAppPending;
+
   /// No description provided for @drawer_caseScreensShowAll.
   ///
   /// In en, this message translates to:

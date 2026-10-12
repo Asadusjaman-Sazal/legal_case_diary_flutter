@@ -441,6 +441,27 @@ class AppNavigationDrawer extends ConsumerWidget {
                       onShare?.call();
                     },
                   ),
+                  // Rating the app, after Share (user request): the three
+                  // things a user does *with* the app — Print, Share, Rate —
+                  // sit together, above the updater.
+                  //
+                  // The listing does not exist yet, so the row says so rather
+                  // than opening a page that 404s. The URL is already written
+                  // (`appStoreUrl`, flagged as the single line to change at
+                  // launch), so wiring this is a one-line change the day the app
+                  // goes live. It is the one place in this drawer that offers an
+                  // action it cannot yet perform, which is deliberate.
+                  _DrawerNavTile(
+                    icon: Icons.star_outline,
+                    label: l.drawer_rateApp,
+                    active: false,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l.drawer_rateAppPending)),
+                      );
+                    },
+                  ),
                   // The updater, below Share (user request). It does not close
                   // the drawer when tapped — the whole point is the result it
                   // cascades underneath — so it is the one row here that leaves

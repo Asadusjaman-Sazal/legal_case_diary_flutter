@@ -68,6 +68,23 @@ abstract final class AndroidNotificationGateway {
   /// visible in one place.)
   static const int backupAlarmIdBase = 1301 + 24 * 60 + 100;
 
+  /// Notification id of the admin payment-alert count.
+  ///
+  /// **One id for the whole feature**, deliberately: "10 payment requests are
+  /// pending" is one line that gets rewritten, not ten notifications. It sits
+  /// clear of every other id the app uses — the hearing alerts take
+  /// `alertAlarmIdBase + minutes` (2741–2881), the backup notices 2881 — so a
+  /// re-post can only ever replace itself, and the numbers above are free should
+  /// the alert slots grow.
+  static const int paymentAlertNotificationId = 2900;
+
+  /// Channel holding the admin payment-alert count.
+  ///
+  /// Its own channel so its importance is its own: an administrator who has
+  /// silenced hearing reminders still hears that a payment is waiting, and can
+  /// silence this one without touching the other.
+  static const String paymentAlertsChannelId = 'payment_alerts';
+
   /// The app's own package id, needed to open its settings page.
   /// Kept equal to `applicationId` in `android/app/build.gradle.kts`.
   static const String _applicationId = 'com.legalcasediary.app';
@@ -97,12 +114,13 @@ abstract final class AndroidNotificationGateway {
 
   /// Starts the alarm service (foreground only) and initializes the plugin.
   ///
-  /// [onCaseSelected] receives the case id of every notification tap while the
-  /// app is running (the payload is the case id); a tap that launches the app
-  /// is read back through [launchCaseId]. Taking a plain callback keeps the
-  /// plugin's own types out of the scheduler and the call sites.
+  /// [onNotificationSelected] receives the payload of every notification tap
+  /// while the app is running — a case id for a hearing alert, the payment-alert
+  /// marker for the admin count; a tap that launches the app is read back through
+  /// [launchPayload]. Taking a plain callback keeps the plugin's own types out of
+  /// the scheduler and the call sites.
   static Future<void> initialize({
-    required ValueChanged<String> onCaseSelected,
+    required ValueChanged<String> onNotificationSelected,
   }) async {
     // Must run before any alarm is scheduled: it registers the callback
     // dispatcher the background isolates are started from.
@@ -110,7 +128,9 @@ abstract final class AndroidNotificationGateway {
     await _initializePlugin(
       onResponse: (response) {
         final payload = response.payload;
-        if (payload != null && payload.isNotEmpty) onCaseSelected(payload);
+        if (payload != null && payload.isNotEmpty) {
+          onNotificationSelected(payload);
+        }
       },
     );
   }
@@ -129,8 +149,11 @@ abstract final class AndroidNotificationGateway {
     _initialized = true;
   }
 
-  /// Case id carried by the notification that launched the app, if any.
-  static Future<String?> launchCaseId() async {
+  /// Payload carried by the notification that launched the app, if any.
+  ///
+  /// The case id of a hearing alert, or the admin payment alert's own marker;
+  /// whichever it is, it is the reader's job to resolve it into a destination.
+  static Future<String?> launchPayload() async {
     final details = await _plugin.getNotificationAppLaunchDetails();
     if (details == null || !details.didNotificationLaunchApp) return null;
     final payload = details.notificationResponse?.payload;
@@ -265,6 +288,63 @@ abstract final class AndroidNotificationGateway {
         ),
       ),
     );
+  }
+
+  /// Posts the admin payment-alert count, or rewrites the line already posted.
+  ///
+  /// [alert] is the arrival (nothing pending → something pending), and it is the
+  /// only one that earns sound, vibration and high importance — the split the
+  /// user chose: sound on the first, silent updates. A later correction is the
+  /// same line quietly rewritten, because the number moving is not news.
+  static Future<void> presentPaymentAlert({
+    required bool alert,
+    required String title,
+    required String body,
+    required String channelName,
+    required String channelDescription,
+    required String payload,
+  }) async {
+    await _initializePlugin();
+    await _plugin.show(
+      id: paymentAlertNotificationId,
+      title: title,
+      body: body,
+      // Read back on a tap, warm or cold, by the same reader a hearing alert
+      // uses: the payload names the destination, and the router resolves it.
+      payload: payload,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          paymentAlertsChannelId,
+          channelName,
+          channelDescription: channelDescription,
+          icon: _icon,
+          importance: alert ? Importance.high : Importance.low,
+          priority: alert ? Priority.high : Priority.low,
+          groupKey: paymentAlertsChannelId,
+          // A status line rather than an appointment: it says what is waiting
+          // and stays until the total reaches zero.
+          category: AndroidNotificationCategory.status,
+          styleInformation: BigTextStyleInformation(body),
+          playSound: alert,
+          enableVibration: alert,
+          // A rewrite must not buzz the phone again, whatever its importance.
+          onlyAlertOnce: true,
+          // The line is about the server's total, not about this moment, so it
+          // must survive the user clearing it by accident and still be correct
+          // when they open the panel.
+          autoCancel: true,
+        ),
+      ),
+    );
+  }
+
+  /// Removes the payment-alert count — the total reached zero.
+  ///
+  /// A tray holding "1 payment request is pending" after the last one was
+  /// resolved is worse than an empty tray, so the sender's zero clears it.
+  static Future<void> cancelPaymentAlert() async {
+    await _initializePlugin();
+    await _plugin.cancel(id: paymentAlertNotificationId);
   }
 
   static Future<void> showTestNotification({

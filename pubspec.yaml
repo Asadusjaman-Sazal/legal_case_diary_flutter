@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.496
+version: 0.0.500
 
 environment:
   sdk: ^3.12.2
@@ -88,6 +88,8 @@ dependencies:
   # the Google provider and its OAuth client are dashboard/console settings.
   google_sign_in: ^7.2.0
   local_auth: ^3.0.2
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
 
 dev_dependencies:
   flutter_test:

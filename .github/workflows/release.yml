@@ -7,7 +7,7 @@
 # that log — a mismatched tag publishes the wrong build under the wrong notes, so
 # the job refuses it rather than guessing.
 #
-# Nothing secret is in the repository. Two git-ignored files are recreated here
+# Nothing secret is in the repository. Three git-ignored files are recreated here
 # from Actions secrets (see README, "Release Builds"):
 #   - `android/key.properties` + the keystore: ANDROID_KEYSTORE_BASE64,
 #     ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
@@ -15,6 +15,10 @@
 #   - `env.json`: SUPABASE_URL, SUPABASE_ANON_KEY, GOOGLE_WEB_CLIENT_ID, plus the
 #     optional PAYMENTS_BKASH_NUMBER / PAYMENTS_NAGAD_NUMBER /
 #     PAYMENTS_ROCKET_NUMBER.
+#   - `android/app/google-services.json`: GOOGLE_SERVICES_JSON_BASE64, the Firebase
+#     config for the Android app. The google-services Gradle plugin (see
+#     android/settings.gradle.kts) cannot configure the app without it, so admin
+#     notifications would be dead in the released APK.
 name: Release APK
 
 on:
@@ -137,6 +141,29 @@ jobs:
           }
           EOF
           echo "env.json written."
+
+      # The Firebase config is git-ignored like env.json: Google ships it inside
+      # every APK, so it is not a secret, but it names one Firebase project and a
+      # build must never inherit another. Decoding it here turns a corrupt or
+      # missing secret into an error naming that secret, rather than the
+      # google-services plugin's generic "file missing" failure.
+      - name: Write google-services.json from secrets
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          set -euo pipefail
+          # `${VAR:-}`: an unset variable must reach the message below rather than
+          # tripping `set -u`, so the failure always names the secret.
+          if [ -z "${GOOGLE_SERVICES_JSON_BASE64:-}" ]; then
+            echo "::error::Missing repository secret: GOOGLE_SERVICES_JSON_BASE64. See README, 'Release Builds'."
+            exit 1
+          fi
+          printf '%s' "${GOOGLE_SERVICES_JSON_BASE64}" | base64 -d > android/app/google-services.json
+          # The traceback is noise: the `::error::` line below is the message a
+          # reader needs, and it still exits non-zero.
+          python3 -c "import json; json.load(open('android/app/google-services.json'))" 2>/dev/null \
+            || { echo "::error::GOOGLE_SERVICES_JSON_BASE64 did not decode to valid JSON. Re-encode it with 'base64 -w0 android/app/google-services.json'."; exit 1; }
+          echo "google-services.json written."
 
       # arm64 only: the release target for a regular Android phone.
       - name: Build the arm64 release APK

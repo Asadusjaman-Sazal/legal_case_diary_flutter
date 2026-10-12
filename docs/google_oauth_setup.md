@@ -33,8 +33,15 @@ So:
 - The **consent screen** (now called *Branding* + *Audience*) decides **who is allowed to sign in at all**
   while the project is unpublished.
 
-You do **not** need: an API key, a Firebase project, or a `google-services.json` file — this app uses
-neither. If a guide tells you to add one, it is describing a different setup.
+You do **not** need: an API key, a Firebase project, or a `google-services.json` file — **sign-in** uses
+none of them. If a guide tells you to add one for Google sign-in, it is describing a different setup.
+
+> **Updated for admin notifications.** The app now carries a Firebase project for **Cloud Messaging** only
+> (admin payment alerts), so `android/app/google-services.json` exists and the google-services Gradle plugin
+> is applied. That is a *separate* concern from sign-in: this flow still passes the Web client's ID as
+> `serverClientId`, still matches the package name against the **Android OAuth clients** registered here, and
+> never reads the Firebase config. Adding Firebase does not replace, widen or repair anything in this
+> document — see [`firebase_fcm_setup.md`](firebase_fcm_setup.md) for that side.
 
 ```text
   Phone (signed APK):
@@ -444,9 +451,10 @@ Work down this list; each step has a clear pass/fail.
 
 ## 13. Housekeeping
 
-- **Secrets and paths.** `env.json` (Web client ID, Supabase URL + anon key) and `android/key.properties`
-  (keystore path + password) are git-ignored — keep them that way. The Web client **secret** lives only in
-  Supabase.
+- **Secrets and paths.** `env.json` (Web client ID, Supabase URL + anon key), `android/key.properties`
+  (keystore path + password) and `android/app/google-services.json` (Firebase config) are git-ignored — keep
+  them that way. The Web client **secret** lives only in Supabase, and the Firebase service-account key lives
+  only in Supabase's Edge Function secrets.
 - **Keep the list of fingerprints in the repository up to date**, but never a secret. The debug and
   release fingerprints currently recorded in `README.md` should be updated the day either keystore
   changes.

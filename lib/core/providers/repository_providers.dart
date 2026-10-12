@@ -39,6 +39,7 @@ import '../../sync/delete_requests_dao.dart';
 import '../../sync/sync_write_helper.dart';
 import '../../shared/providers/database_provider.dart';
 import '../backup/backup_cipher.dart';
+import '../push/device_token_repository.dart';
 import '../services/local_identity_service.dart';
 
 /// The Supabase client `main.dart` initialized, or null.
@@ -230,6 +231,18 @@ final adminRepositoryProvider = Provider<AdminRepository>((ref) {
   return client == null
       ? const UnavailableAdminRepository()
       : SupabaseAdminRepository(client);
+});
+
+/// Provider for this device's push registration.
+///
+/// A backend-only boundary like [adminRepositoryProvider]: with no client there
+/// is no `device_tokens` row to own, and the inert repository says so instead of
+/// pretending a local half exists.
+final deviceTokenRepositoryProvider = Provider<DeviceTokenRepository>((ref) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  return client == null
+      ? const UnavailableDeviceTokenRepository()
+      : SupabaseDeviceTokenRepository(client);
 });
 
 /// Provider for the account's own deletion (Task 12's Manage Account actions).

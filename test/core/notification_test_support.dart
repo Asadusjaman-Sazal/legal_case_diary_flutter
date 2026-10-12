@@ -27,8 +27,9 @@ class FakeNotificationScheduler implements NotificationScheduler {
   /// Times the system exact-alarm screen was opened.
   int exactAlarmScreenOpens = 0;
 
-  /// Case id reported as the launch payload (null = an ordinary launch).
-  String? launchCaseIdValue;
+  /// Payload reported as the one that launched the app — a case id, or the
+  /// payment alert's own marker (null = an ordinary launch).
+  String? launchPayloadValue;
 
   /// Answer of [notificationsAllowed].
   bool notificationsAllowedValue = true;
@@ -45,8 +46,9 @@ class FakeNotificationScheduler implements NotificationScheduler {
   /// user exempts it.
   bool batteryUnrestrictedValue = false;
 
-  /// Handler registered through [onCaseSelected]; call it to simulate a tap.
-  ValueChanged<String>? caseSelected;
+  /// Handler registered through [onNotificationSelected]; call it to simulate a
+  /// tap on a posted notification.
+  ValueChanged<String>? notificationSelected;
 
   /// What [deviceIdentity] reports; defaults to an unknown phone.
   DeviceIdentity device = const DeviceIdentity();
@@ -65,10 +67,11 @@ class FakeNotificationScheduler implements NotificationScheduler {
   Future<void> initialize() async => initializeCalls++;
 
   @override
-  void onCaseSelected(ValueChanged<String> handler) => caseSelected = handler;
+  void onNotificationSelected(ValueChanged<String> handler) =>
+      notificationSelected = handler;
 
   @override
-  Future<String?> launchCaseId() async => launchCaseIdValue;
+  Future<String?> launchPayload() async => launchPayloadValue;
 
   @override
   Future<bool> notificationsAllowed() async => notificationsAllowedValue;

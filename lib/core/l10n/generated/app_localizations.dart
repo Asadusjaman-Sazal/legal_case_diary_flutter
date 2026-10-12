@@ -4710,6 +4710,12 @@ abstract class AppLocalizations {
   /// **'Notification Time'**
   String get settingsNotifications_timeLabel;
 
+  /// No description provided for @settingsNotifications_paymentAlertsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Request Alerts'**
+  String get settingsNotifications_paymentAlertsLabel;
+
   /// No description provided for @settingsNotifications_reminderBanner.
   ///
   /// In en, this message translates to:
@@ -4799,6 +4805,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hearing alerts are working. This is how a hearing reminder will look.'**
   String get notificationJob_testBody;
+
+  /// No description provided for @adminPush_channelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Requests'**
+  String get adminPush_channelName;
+
+  /// No description provided for @adminPush_channelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts when a payment request is waiting for approval'**
+  String get adminPush_channelDescription;
+
+  /// No description provided for @adminPush_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Requests Pending'**
+  String get adminPush_title;
+
+  /// No description provided for @adminPush_bodyOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One payment request is waiting for your approval.'**
+  String get adminPush_bodyOne;
+
+  /// Body of the admin payment alert. The count arrives already written in the active language's own digits, so it stays a String.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} payment requests are waiting for your approval.'**
+  String adminPush_bodyMany(String count);
 
   /// No description provided for @settingsBatteryGuide_intro.
   ///

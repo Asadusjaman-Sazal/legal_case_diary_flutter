@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -123,6 +123,15 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 10) {
         await m.addColumn(conflictLog, conflictLog.mergeableConflict);
+      }
+      if (from < 11) {
+        // The admin payment-alert toggle (Settings → Notifications). Its column
+        // default is true, so every existing row reads as on, which is the
+        // default the server column carries for the same reason.
+        await m.addColumn(
+          userPreferences,
+          userPreferences.paymentAlertsEnabled,
+        );
       }
     },
     beforeOpen: (details) async {

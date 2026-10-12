@@ -451,6 +451,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'are different questions — and the grants stay as the previous '
         'migration left them.',
   ),
+  LedgerSection(
+    file: '20261012120000_admin_payment_alerts.sql',
+    version: '0.0.498',
+    label:
+        'The server half of the admin push notification: device_tokens (one row '
+        'per device, self-only under RLS, deleted by its own device on the way '
+        'out of an account), the per-user payment_alerts_enabled toggle on '
+        'user_preferences (default on), the two reads the sender runs — the '
+        'pending-payment count and the fan-set — revoked from every client role, '
+        'and pg_net plus two triggers on payment_submissions that post the change '
+        'to the send-admin-payment-alerts Edge Function with the Vault-held '
+        'shared secret.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -488,6 +501,7 @@ const Map<String, String> _groupTitles = <String, String>{
       'Task 23 Follow-Up — The Admin Panel\'s Non-Verified Accounts',
   '0.0.495':
       'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
+  '0.0.498': 'Admin Payment Alerts Phase 2 — The Push Server Half',
 };
 
 const String _header = '''<!--

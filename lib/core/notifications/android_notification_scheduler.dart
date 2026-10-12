@@ -40,14 +40,15 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   /// time, so a slot can be armed for each one.
   final Future<List<int?>> Function() readCaseTimes;
 
-  /// Handler invoked for a tap on a posted hearing notification.
-  ValueChanged<String>? _caseSelected;
+  /// Handler invoked for a tap on any notification the app posted.
+  ValueChanged<String>? _notificationSelected;
 
   @override
   Future<void> initialize() async {
     try {
       await AndroidNotificationGateway.initialize(
-        onCaseSelected: (caseId) => _caseSelected?.call(caseId),
+        onNotificationSelected: (payload) =>
+            _notificationSelected?.call(payload),
       );
 
       // Re-arm on every launch: OEM battery managers and app updates can drop
@@ -61,10 +62,11 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   }
 
   @override
-  void onCaseSelected(ValueChanged<String> handler) => _caseSelected = handler;
+  void onNotificationSelected(ValueChanged<String> handler) =>
+      _notificationSelected = handler;
 
   @override
-  Future<String?> launchCaseId() => AndroidNotificationGateway.launchCaseId();
+  Future<String?> launchPayload() => AndroidNotificationGateway.launchPayload();
 
   @override
   Future<bool> notificationsAllowed() =>

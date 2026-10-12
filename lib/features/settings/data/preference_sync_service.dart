@@ -54,6 +54,9 @@ Map<String, Object?> userPreferencesPayload(UserPreference row) =>
       'notification_enabled': row.notificationEnabled,
       'notification_time': row.notificationTime,
       'notification_default_offsets': row.notificationDefaultOffsets,
+      // The one notification preference the server reads for itself: the alert
+      // sender skips a device whose account has this switched off.
+      'payment_alerts_enabled': row.paymentAlertsEnabled,
       'updated_at': row.updatedAt,
     };
 
@@ -70,6 +73,9 @@ UserPreferencesCompanion userPreferencesCompanion(
   notificationDefaultOffsets: Value(
     row['notification_default_offsets'] as String?,
   ),
+  // A server row that predates the column, or a null in it, reads as the
+  // column's own default of on — the same reading the sender applies.
+  paymentAlertsEnabled: Value(row['payment_alerts_enabled'] as bool? ?? true),
   updatedAt: Value(preferenceUpdatedAt(row['updated_at']) ?? 0),
 );
 

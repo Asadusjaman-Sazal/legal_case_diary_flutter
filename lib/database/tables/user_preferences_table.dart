@@ -34,6 +34,17 @@ class UserPreferences extends Table {
   /// JSON array of default notification day offsets before a hearing.
   TextColumn get notificationDefaultOffsets => text().nullable()();
 
+  /// Whether this account wants a push when an admin's payment request is
+  /// waiting (Settings → Notifications).
+  ///
+  /// Defaults to true: an admin who installs the panel wants to hear about
+  /// payments waiting, and can silence it. It is synced per-user to
+  /// `user_preferences.payment_alerts_enabled`, which the sender reads — an
+  /// account whose toggle is off is skipped server-side, so the switch works
+  /// even while the app is closed.
+  BoolColumn get paymentAlertsEnabled =>
+      boolean().withDefault(const Constant(true))();
+
   /// Timestamp when these preferences were last updated (epoch ms).
   IntColumn get updatedAt => integer()();
 

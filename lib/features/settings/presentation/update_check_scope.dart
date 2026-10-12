@@ -1,7 +1,7 @@
 /// The once-per-launch update check, mounted above the router.
 ///
 /// Renders [child] untouched and, **once per process after the first frame**,
-/// runs the automatic update check the User chose in Auto Check For Update.
+/// runs the automatic update check the User chose in Auto Check for Update.
 /// This is the whole battery story: it never runs again this launch, never
 /// schedules itself, never loops — the same one-shot discipline the launch
 /// refresh scope uses. A

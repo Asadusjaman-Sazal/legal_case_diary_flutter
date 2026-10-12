@@ -19,7 +19,7 @@
 ///  * **Later** hides the offer until the next app launch; **Skip This
 ///    Version** retires that release until a newer one appears. Both exist so
 ///    an available update is never an unclearable badge.
-///  * The **Update Over Network** preference is honoured before downloading:
+///  * The **Update over Network** preference is honoured before downloading:
 ///    Wi-Fi only (the default) asks once on mobile data, and the user may still
 ///    continue.
 library;
@@ -419,7 +419,7 @@ class _AppUpdateSectionState extends ConsumerState<AppUpdateSection> {
     }
   }
 
-  /// Whether the download may go ahead under **Update Over Network**.
+  /// Whether the download may go ahead under **Update over Network**.
   ///
   /// Wi-Fi only (the default) asks once when the device is on mobile data; the
   /// user can still continue, because they are the one who tapped Update Now.

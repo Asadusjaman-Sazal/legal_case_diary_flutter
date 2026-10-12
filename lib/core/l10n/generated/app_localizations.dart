@@ -5769,7 +5769,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_autoUpdate.
   ///
   /// In en, this message translates to:
-  /// **'Auto Check For Update'**
+  /// **'Auto Check for Update'**
   String get settingsUpdate_autoUpdate;
 
   /// No description provided for @settingsUpdate_autoUpdateSubtitle.
@@ -5781,7 +5781,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_networkTitle.
   ///
   /// In en, this message translates to:
-  /// **'Update Over Network'**
+  /// **'Update over Network'**
   String get settingsUpdate_networkTitle;
 
   /// No description provided for @settingsUpdate_networkSubtitle.

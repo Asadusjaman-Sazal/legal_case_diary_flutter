@@ -3337,14 +3337,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check for updates and update the app';
 
   @override
-  String get settingsUpdate_autoUpdate => 'Auto Check For Update';
+  String get settingsUpdate_autoUpdate => 'Auto Check for Update';
 
   @override
   String get settingsUpdate_autoUpdateSubtitle =>
       'Choose how often to check for updates';
 
   @override
-  String get settingsUpdate_networkTitle => 'Update Over Network';
+  String get settingsUpdate_networkTitle => 'Update over Network';
 
   @override
   String get settingsUpdate_networkSubtitle =>

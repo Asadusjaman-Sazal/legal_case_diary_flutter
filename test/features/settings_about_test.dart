@@ -232,8 +232,8 @@ void main() {
     // It pushes the updater's own page, with all three cards on it.
     expect(find.byType(UpdateScreen), findsOneWidget);
     expect(find.text('App Update'), findsOneWidget);
-    expect(find.text('Auto Check For Update'), findsOneWidget);
-    expect(find.text('Update Over Network'), findsOneWidget);
+    expect(find.text('Auto Check for Update'), findsOneWidget);
+    expect(find.text('Update over Network'), findsOneWidget);
     expect(find.text('Check For Update'), findsOneWidget);
   });
 

@@ -187,7 +187,11 @@ List<PrintTableColumn> caseListPrintColumns(AppLocalizations l) => [
     widthCm: 1.83,
     align: PrintColumnAlign.center,
   ),
-  PrintTableColumn(label: l.addEditCaseSheet_caseNumber, widthCm: 2.51),
+  PrintTableColumn(
+    label: l.addEditCaseSheet_caseNumber,
+    widthCm: 2.51,
+    align: PrintColumnAlign.center,
+  ),
   PrintTableColumn(label: l.addEditCaseSheet_petitioner, widthCm: 3.68),
   PrintTableColumn(label: l.addEditCaseSheet_respondent, widthCm: 3.68),
   PrintTableColumn(label: l.allCasesScreen_onBehalf, widthCm: 2.22),

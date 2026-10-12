@@ -1330,4 +1330,37 @@ void main() {
       reason: 'the grey arrow on a white row',
     );
   });
+
+  testWidgets('Rate App sits between Share and Check for update', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(tester, locale: const Locale('en'));
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    final share = tester.getRect(drawerText(l.nav_share)).top;
+    final rate = tester.getRect(drawerText(l.drawer_rateApp)).top;
+    final update = tester
+        .getRect(drawerText(l.settingsUpdate_checkForUpdate))
+        .top;
+    expect(rate, greaterThan(share));
+    expect(update, greaterThan(rate));
+  });
+
+  testWidgets('tapping Rate App says it is not open yet, and closes the menu', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(tester, locale: const Locale('en'));
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    await tester.tap(drawerText(l.drawer_rateApp));
+    await tester.pumpAndSettle();
+
+    // The listing does not exist yet, so the row says so rather than opening a
+    // page that 404s.
+    expect(find.text(l.drawer_rateAppPending), findsOneWidget);
+    // It is an ordinary action row, so it closes the drawer like Print/Share.
+    expect(find.byType(Drawer), findsNothing);
+  });
 }

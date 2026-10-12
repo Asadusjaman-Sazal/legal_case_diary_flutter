@@ -54,6 +54,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerOf => 'of';
 
   @override
+  String get drawer_rateApp => 'Rate App';
+
+  @override
+  String get drawer_rateAppPending =>
+      'Rating opens with the Play Store release.';
+
+  @override
   String get drawer_caseScreensShowAll => 'Show All Case Screens';
 
   @override

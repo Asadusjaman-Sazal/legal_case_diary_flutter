@@ -54,6 +54,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get drawerOf => 'এর';
 
   @override
+  String get drawer_rateApp => 'অ্যাপে রেটিং দিন';
+
+  @override
+  String get drawer_rateAppPending =>
+      'প্লে স্টোরে প্রকাশের পর রেটিং দেওয়া যাবে।';
+
+  @override
   String get drawer_caseScreensShowAll => 'সব মামলার স্ক্রিন দেখান';
 
   @override

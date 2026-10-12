@@ -5940,6 +5940,24 @@ abstract class AppLocalizations {
   /// **'Before You Write To Us'**
   String get settingsSupport_scopeTitle;
 
+  /// No description provided for @settingsSupport_helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What can we help you with:'**
+  String get settingsSupport_helpTitle;
+
+  /// No description provided for @settingsSupport_faqCardPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Most questions are already answered in '**
+  String get settingsSupport_faqCardPrefix;
+
+  /// No description provided for @settingsSupport_faqCardSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get settingsSupport_faqCardSuffix;
+
   /// No description provided for @settingsSupport_scope.
   ///
   /// In en, this message translates to:
@@ -5949,19 +5967,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_faqLead.
   ///
   /// In en, this message translates to:
-  /// **'Most questions are already answered here.'**
+  /// **'Use Diagnostics to find errors in the app.'**
   String get settingsSupport_faqLead;
-
-  /// No description provided for @settingsSupport_faqLink.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Guidelines & FAQs'**
-  String get settingsSupport_faqLink;
 
   /// No description provided for @settingsSupport_channelsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Write To Us'**
+  /// **'Write to Us'**
   String get settingsSupport_channelsLabel;
 
   /// No description provided for @settingsSupport_channelWhatsApp.
@@ -6015,7 +6027,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_warningTitle.
   ///
   /// In en, this message translates to:
-  /// **'Never Send These'**
+  /// **'Never send these:'**
   String get settingsSupport_warningTitle;
 
   /// No description provided for @settingsSupport_warningBody.
@@ -6027,7 +6039,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSupport_replyTitle.
   ///
   /// In en, this message translates to:
-  /// **'When You Will Hear Back'**
+  /// **'When you will hear back:'**
   String get settingsSupport_replyTitle;
 
   /// No description provided for @settingsSupport_replyBody.
@@ -7628,6 +7640,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Diagnostics'**
   String get settingsDiagnostics_title;
+
+  /// No description provided for @settingsDiagnostics_reportBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Error Or Bug'**
+  String get settingsDiagnostics_reportBug;
+
+  /// No description provided for @settingsDiagnostics_reportBugTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How Would You Like To Send It?'**
+  String get settingsDiagnostics_reportBugTitle;
+
+  /// No description provided for @settingsDiagnostics_reportBugBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The message includes your app version, phone and the error log below, so nothing else needs to be attached.'**
+  String get settingsDiagnostics_reportBugBody;
 
   /// No description provided for @settingsDiagnostics_hint.
   ///

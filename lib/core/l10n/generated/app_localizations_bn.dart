@@ -3452,15 +3452,22 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSupport_scopeTitle => 'আমাদের লেখার আগে';
 
   @override
+  String get settingsSupport_helpTitle => 'আমরা কীভাবে সাহায্য করতে পারি:';
+
+  @override
+  String get settingsSupport_faqCardPrefix =>
+      'অধিকাংশ প্রশ্নের উত্তর দেওয়া আছে ';
+
+  @override
+  String get settingsSupport_faqCardSuffix => '-এ।';
+
+  @override
   String get settingsSupport_scope =>
       'আমরা অ্যাপটি নিয়েই সহায়তা করতে পারি: কোনো সুবিধা কীভাবে কাজ করে, কিছু ঠিকভাবে কাজ করছে না, বা কোনো ব্যাকআপ পুনরুদ্ধার হচ্ছে না। আপনার ডায়েরি আমরা দেখতে পাই না — তা আপনার ফোনেই থাকে — এবং আপনার হয়ে কোনো শুনানির তারিখ যাচাই, নিশ্চিত বা খুঁজে দিতে পারি না।';
 
   @override
   String get settingsSupport_faqLead =>
-      'অধিকাংশ প্রশ্নের উত্তর এখানেই দেওয়া আছে।';
-
-  @override
-  String get settingsSupport_faqLink => 'নির্দেশনা ও প্রশ্নোত্তর খুলুন';
+      'অ্যাপের ত্রুটি খুঁজতে ডায়াগনস্টিকস ব্যবহার করুন।';
 
   @override
   String get settingsSupport_channelsLabel => 'আমাদের লিখুন';
@@ -3492,14 +3499,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'কী হয়েছে, এবং তার ঠিক আগে আমি কী করছিলাম:';
 
   @override
-  String get settingsSupport_warningTitle => 'এগুলো কখনো পাঠাবেন না';
+  String get settingsSupport_warningTitle => 'এগুলো কখনো পাঠাবেন না:';
 
   @override
   String get settingsSupport_warningBody =>
       'আপনার পাসফ্রেজ, ডায়েরির ডেটাবেস ফাইল বা ব্যাকআপ ফাইল। আমরা কখনো এগুলো চাইব না, আর যে বার্তায় এগুলো চাওয়া হয় তা আমাদের কাছ থেকে আসেনি।';
 
   @override
-  String get settingsSupport_replyTitle => 'কখন উত্তর পাবেন';
+  String get settingsSupport_replyTitle => 'কখন উত্তর পাবেন:';
 
   @override
   String get settingsSupport_replyBody =>
@@ -4397,6 +4404,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_title => 'ডায়াগনস্টিকস';
+
+  @override
+  String get settingsDiagnostics_reportBug => 'ত্রুটি বা বাগ জানান';
+
+  @override
+  String get settingsDiagnostics_reportBugTitle => 'কীভাবে পাঠাতে চান?';
+
+  @override
+  String get settingsDiagnostics_reportBugBody =>
+      'বার্তায় আপনার অ্যাপ ভার্সন, ফোন ও নিচের এরর লগ থাকবে, তাই আলাদা কিছু সংযুক্ত করার দরকার নেই।';
 
   @override
   String get settingsDiagnostics_hint =>

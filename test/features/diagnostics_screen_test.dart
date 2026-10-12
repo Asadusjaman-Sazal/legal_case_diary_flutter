@@ -15,6 +15,9 @@ import 'package:legal_case_diary/core/errors/error_log_provider.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/core/providers/contact_providers.dart';
+import 'package:legal_case_diary/core/services/contact_launcher.dart';
+import 'package:legal_case_diary/features/settings/data/support_diagnostics.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_about/diagnostics_screen.dart';
 
 /// Installs a clipboard channel handler and hands back a reader for the last
@@ -41,15 +44,60 @@ String? Function() watchClipboard(WidgetTester tester) {
   return () => copied.isEmpty ? null : copied.last;
 }
 
+/// A device-facts reader that answers with fixed facts.
+class _FixedFacts implements SupportDeviceFactsReader {
+  const _FixedFacts(this.facts);
+  final SupportDeviceFacts facts;
+  @override
+  Future<SupportDeviceFacts> read() async => facts;
+}
+
+/// A launcher that records the URIs it was asked to open.
+class _RecordingLauncher implements ContactLauncher {
+  _RecordingLauncher({this.result = true});
+  final bool result;
+  final List<Uri> opened = <Uri>[];
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return result;
+  }
+
+  @override
+  Future<bool> openMailApp() async => result;
+}
+
+/// The message a launched URI carries, decoded.
+String sentMessage(Uri uri) => uri.host == 'wa.me'
+    ? uri.queryParameters['text']!
+    : uri.queryParameters['body']!;
+
 void main() {
   late AppLocalizations l;
 
-  Future<void> pump(WidgetTester tester, ErrorLog log) async {
+  Future<void> pump(
+    WidgetTester tester,
+    ErrorLog log, {
+    ContactLauncher? launcher,
+    SupportDeviceFacts facts = const SupportDeviceFacts(
+      model: 'Redmi Note 10',
+      osVersion: 'Android 13',
+    ),
+  }) async {
     await tester.binding.setSurfaceSize(const Size(420, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [errorLogProvider.overrideWithValue(log)],
+        overrides: [
+          errorLogProvider.overrideWithValue(log),
+          // The Report button reaches the same two seams the Support screen
+          // does, so no test needs WhatsApp installed or a real phone.
+          supportDeviceFactsProvider.overrideWithValue(
+            _FixedFacts(facts),
+          ),
+          if (launcher != null)
+            contactLauncherProvider.overrideWithValue(launcher),
+        ],
         child: MaterialApp(
           theme: AppTheme.lightTheme(const Locale('en')),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -180,5 +228,99 @@ void main() {
     expect(find.text(l.settingsDiagnostics_cleared), findsOneWidget);
     expect(find.text(l.settingsDiagnostics_empty), findsOneWidget);
     expect(find.text(l.settingsDiagnostics_clear), findsNothing);
+  });
+
+  testWidgets('Report Error Or Bug offers WhatsApp and Email', (tester) async {
+    await pump(tester, ErrorLog());
+
+    // Offered even with an empty log: a fault that left no entry still needs
+    // reporting, and "Errors Recorded: 0" is often the answer the developer
+    // needs. (Copy and Clear stay hidden — there is nothing to act on.)
+    expect(find.text(l.settingsDiagnostics_reportBug), findsOneWidget);
+    expect(find.text(l.settingsDiagnostics_copy), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-bug')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.settingsSupport_channelWhatsApp), findsOneWidget);
+    expect(find.text(l.settingsSupport_channelEmail), findsOneWidget);
+  });
+
+  testWidgets('the prompt opens WhatsApp with the whole message written', (
+    tester,
+  ) async {
+    final launcher = _RecordingLauncher();
+    final log = ErrorLog();
+    await log.record('sync.push', StateError('boom'));
+
+    await pump(tester, log, launcher: launcher);
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-bug')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('diagnostics-report-whatsapp')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(launcher.opened, hasLength(1));
+    final uri = launcher.opened.single;
+    expect(uri.host, 'wa.me');
+    final message = sentMessage(uri);
+    // The one format, in the order the user asked for: intro, then the facts,
+    // then the prompt for their own description.
+    expect(message, contains(l.settingsSupport_messageIntro));
+    expect(message, contains('Legal Case Diary — Diagnostics'));
+    expect(message, contains('App Version: '));
+    expect(message, contains('Phone: Redmi Note 10 · Android 13'));
+    expect(message, contains('App Language: English'));
+    expect(message, contains('Generated: '));
+    expect(message, contains('Errors Recorded: 1'));
+    expect(message, contains('| sync.push | StateError'));
+    expect(
+      message.indexOf('Errors Recorded:'),
+      lessThan(message.indexOf(l.settingsSupport_messagePrompt)),
+    );
+  });
+
+  testWidgets('the prompt opens Email with the same message and a subject', (
+    tester,
+  ) async {
+    final launcher = _RecordingLauncher();
+    await pump(tester, ErrorLog(), launcher: launcher);
+
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-bug')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-email')));
+    await tester.pumpAndSettle();
+
+    final uri = launcher.opened.single;
+    expect(uri.scheme, 'mailto');
+    expect(uri.queryParameters['subject'], l.settingsSupport_messageSubject);
+    expect(sentMessage(uri), contains(l.settingsSupport_messageIntro));
+    expect(sentMessage(uri), contains('Errors Recorded: 0'));
+  });
+
+  testWidgets('dismissing the prompt writes nothing', (tester) async {
+    final launcher = _RecordingLauncher();
+    await pump(tester, ErrorLog(), launcher: launcher);
+
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-bug')));
+    await tester.pumpAndSettle();
+    // Tap the barrier: a dismissed window is a cancellation.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    expect(launcher.opened, isEmpty);
+  });
+
+  testWidgets('a channel that opens nothing says so', (tester) async {
+    final launcher = _RecordingLauncher(result: false);
+    await pump(tester, ErrorLog(), launcher: launcher);
+
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-bug')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('diagnostics-report-email')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.settingsSupport_unableToOpenEmail), findsOneWidget);
   });
 }

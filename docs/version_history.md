@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.486 - App Update: the check's info and failure sentences now read in sentence case, like every other instruction rather than a label.
+Version: 0.0.488 - Support: the FAQs are a link inside one merged help card, the channels open empty instead of pre-filled, and the never-send note is no longer red.
 --------------------------------------
 
 ## Version History Log:
@@ -500,3 +500,5 @@ Version: 0.0.483 - Update: Auto Check for Update renamed, Later and Skip This Ve
 Version: 0.0.484 - Audit hardening in App Update: errors now show a user sentence and log the raw cause, and a failed cache-clear after install is no longer reported as a download failure.
 Version: 0.0.485 - Update sub-page: card supporting lines read in sentence case, and the network buttons say Wi-Fi Only / Wi-Fi & Mobile Data, stacking when they do not fit.
 Version: 0.0.486 - App Update: the check's info and failure sentences now read in sentence case, like every other instruction rather than a label.
+Version: 0.0.487 - Diagnostics: a Report Error Or Bug button opening WhatsApp or email pre-filled with the app's one support message; the report header now carries the phone, language and error count.
+Version: 0.0.488 - Support: the FAQs are a link inside one merged help card, the channels open empty instead of pre-filled, and the never-send note is no longer red.

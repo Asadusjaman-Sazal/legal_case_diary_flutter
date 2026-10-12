@@ -11,6 +11,15 @@
 /// No mockup exists for this screen, so rule 9 does not bind it: it is a
 /// Settings sub-page like its neighbours, wearing [SettingsSubPageModal] and the
 /// shared typography rather than inventing a style.
+///
+/// **Report Error Or Bug leads the actions (0.0.487, user request).** It prompts
+/// for the channel — the same WhatsApp and email the Support screen offers —
+/// and opens it with the app's one support message already written: the intro,
+/// the diagnostics header (version, phone, language, generated, error count),
+/// the log, then the prompt for the user's own description. It is shown
+/// **whether or not** anything was recorded, because a fault that left no entry
+/// still needs reporting and "Errors Recorded: 0" is itself an answer. Copy and
+/// Clear stay hidden on an empty log, since there is nothing for them to act on.
 library;
 
 import 'package:flutter/material.dart';
@@ -23,7 +32,10 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/errors/error_log.dart';
 import '../../../../core/errors/error_log_provider.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/providers/contact_providers.dart';
 import '../../data/diagnostics_report.dart';
+import '../../data/support_diagnostics.dart';
+import 'support_screen.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
 
@@ -52,6 +64,54 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
     return ListenableBuilder(
       listenable: log,
       builder: (context, _) => _body(context, log),
+    );
+  }
+
+  /// Asks which channel to write on, then opens it with the log attached.
+  ///
+  /// The prompt is a small window rather than two buttons on the screen: the
+  /// Diagnostics screen's job is to show the log, and a pair of channel buttons
+  /// beside Copy would make three actions competing for the same eye. The
+  /// message is the app's one support format, so what arrives is identical to
+  /// what the Support screen sends.
+  Future<void> _reportBug(ErrorLog log) async {
+    final l = AppLocalizations.of(context);
+    final channel = await showDialog<SupportChannel>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.settingsDiagnostics_reportBugTitle),
+        content: Text(l.settingsDiagnostics_reportBugBody),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            key: const ValueKey('diagnostics-report-whatsapp'),
+            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
+            onPressed: () =>
+                Navigator.of(context).pop(SupportChannel.whatsApp),
+            child: Text(l.settingsSupport_channelWhatsApp),
+          ),
+          TextButton(
+            key: const ValueKey('diagnostics-report-email'),
+            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
+            onPressed: () => Navigator.of(context).pop(SupportChannel.email),
+            child: Text(l.settingsSupport_channelEmail),
+          ),
+        ],
+      ),
+    );
+    if (channel == null || !mounted) return;
+
+    // The device facts are read here rather than kept in state: this screen has
+    // no use for them until the moment they are sent.
+    final facts = await ref.read(supportDeviceFactsProvider).read();
+    if (!mounted) return;
+
+    await writeToSupport(
+      context: context,
+      launcher: ref.read(contactLauncherProvider),
+      channel: channel,
+      facts: facts,
+      entries: log.entries,
     );
   }
 
@@ -84,6 +144,17 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
           // 360 dp, and the Bengali "ডায়াগ্রনস্টিকস কপি করুন" measures 135 px
           // there, so it would wrap to two lines and the pair would misalign.
           // They are shown only when there is a log to act on.
+          // The report is the point of the log, so the ways to send it come
+          // first — and they are shown **whether or not** anything was
+          // recorded: a user reporting a fault that left no entry still needs
+          // to reach the developer, and "Errors Recorded: 0" is often exactly
+          // what the developer needs to know.
+          _ActionButton(
+            key: const ValueKey('diagnostics-report-bug'),
+            onPressed: () => _reportBug(log),
+            label: l.settingsDiagnostics_reportBug,
+          ),
+          const SizedBox(height: AppSpacing.md),
           if (entries.isNotEmpty) ...[
             _ActionButton(
               // The report is the point of the log: it is the one form of it
@@ -138,6 +209,7 @@ class _ActionButton extends StatelessWidget {
     required this.onPressed,
     required this.label,
     this.filled = true,
+    super.key,
   });
 
   final VoidCallback onPressed;

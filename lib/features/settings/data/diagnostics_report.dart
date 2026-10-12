@@ -65,17 +65,28 @@ String diagnosticEntryLine(ErrorLogEntry entry) {
 /// produces the header — "Errors Recorded: 0" is itself the answer to "is
 /// anything wrong?", and the caller decides whether an empty log is worth
 /// sending at all.
+/// [phone] ("Redmi Note 10 · Android 13") and [language] ("English") come from
+/// the caller, because only it knows the device and the active locale. Each
+/// line is **omitted when unknown** rather than printed blank, so a report is
+/// never wrong — just shorter. This one header backs both the copied report and
+/// the Support message, so the two cannot quote different facts.
 String buildDiagnosticsReport({
   required List<ErrorLogEntry> entries,
   DateTime? generatedAt,
   String? version,
+  String? phone,
+  String? language,
 }) {
   final at = generatedAt ?? DateTime.now();
   final shown = entries.take(diagnosticsReportEntryLimit).toList();
+  final device = phone?.trim() ?? '';
+  final lang = language?.trim() ?? '';
 
   return <String>[
     'Legal Case Diary — Diagnostics',
     'App Version: ${version ?? appVersion}',
+    if (device.isNotEmpty) 'Phone: $device',
+    if (lang.isNotEmpty) 'App Language: $lang',
     'Generated: ${diagnosticStamp(at)}',
     'Errors Recorded: ${entries.length}'
         '${entries.length > shown.length ? ' (Showing ${shown.length})' : ''}',

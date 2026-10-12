@@ -1156,6 +1156,29 @@ class _ExcelReferenceData {
 String defaultBackupFileName(int exportedAt) =>
     'Backup_${_fileStamp(exportedAt)}.lcbak';
 
+/// The stem every automatic backup's name starts with.
+///
+/// Shared by the name a run writes and the sweep that deletes the previous one
+/// (in `backup_file_gateway.dart`, which already imports this file), so the two
+/// cannot drift apart.
+const String automaticBackupStem = 'AutomaticBackup_';
+
+/// The name an **automatic** backup is written under (user request).
+///
+/// It carries the same stamp as a manual one — so the file still says when it
+/// was made — but under a stem of its own, because the automatic backup is the
+/// one the app **replaces** rather than accumulates: each run writes a fresh
+/// file and deletes the previous automatic ones, so the diary folder holds one
+/// automatic backup instead of one per day.
+///
+/// The distinct stem is what makes that pruning safe. Manual backups a user
+/// deliberately kept share the folder and must never be swept up by it, and
+/// nothing but this prefix identifies the app's own automatic file — a stamp
+/// alone cannot, because a manual backup made at the same minute would look
+/// identical.
+String automaticBackupFileName(int exportedAt) =>
+    '$automaticBackupStem${_fileStamp(exportedAt)}.lcbak';
+
 /// Default workbook file name for an export taken at [exportedAt].
 ///
 /// Mirrors [defaultBackupFileName] with the extension Excel itself recognises, so

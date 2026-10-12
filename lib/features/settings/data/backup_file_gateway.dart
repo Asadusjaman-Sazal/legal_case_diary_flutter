@@ -271,6 +271,39 @@ Future<List<File>> listBackupFiles(Directory dir) async {
   return backups;
 }
 
+/// Deletes the automatic backups in [dir] except [keep].
+///
+/// The automatic backup is replaced rather than accumulated (user request): a
+/// daily file per day would quietly fill the folder, and nobody keeps them.
+/// Only files carrying the **automatic** stem are touched — a manual backup is
+/// something a user chose to keep, and it shares this folder.
+///
+/// Called **after** the new file is written, never before, so the app is never
+/// between backups: if the write fails, yesterday's file is still there.
+///
+/// Returns the names removed, so a test can assert the sweep without a
+/// filesystem listing of its own.
+Future<List<String>> pruneAutomaticBackups(
+  Directory dir, {
+  required String keep,
+}) async {
+  if (!dir.existsSync()) return const <String>[];
+  final removed = <String>[];
+  for (final file in await listBackupFiles(dir)) {
+    final name = p.basename(file.path);
+    if (name == keep) continue;
+    if (!name.startsWith(automaticBackupStem)) continue;
+    try {
+      await file.delete();
+      removed.add(name);
+    } on FileSystemException {
+      // A file already gone, or one the OS will not let go: nothing to do, and
+      // the next run sweeps again. Failing the backup over it would be worse.
+    }
+  }
+  return removed;
+}
+
 /// Whether a file name is one the app itself would have chosen for a backup.
 ///
 /// Accepts both saved formats a restore can open — the `.lcbak` container and
@@ -286,9 +319,16 @@ bool _isBackupFileName(String name) {
   return false;
 }
 
-/// Matches `Backup_dd-mm-yy_hh-mm-ssam` / `Backup_dd-mm-yy_hh-mm-sspm`.
+/// Matches `Backup_dd-mm-yy_hh-mm-ssam` / `Backup_dd-mm-yy_hh-mm-sspm`, and the
+/// automatic backup's own `AutomaticBackup_` stem (user request).
+///
+/// The automatic stem is accepted here for one reason: a restore lists the
+/// folder through this rule, so a name it does not recognise is a backup the
+/// user cannot restore — which would defeat the automatic backup entirely. The
+/// prefix stays part of the name so the two can still be told apart, and so
+/// pruning can sweep only the app's own automatic file.
 final RegExp backupFileNamePattern = RegExp(
-  r'^Backup_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:am|pm)$',
+  r'^(?:Automatic)?Backup_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:am|pm)$',
 );
 
 /// The diary folder backups live in; tests override it with a temp directory.

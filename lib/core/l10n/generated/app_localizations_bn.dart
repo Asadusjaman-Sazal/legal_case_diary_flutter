@@ -54,6 +54,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get drawerOf => 'এর';
 
   @override
+  String get drawer_caseScreensShowAll => 'সব মামলার স্ক্রিন দেখান';
+
+  @override
+  String get drawer_caseScreensHide => 'কম মামলার স্ক্রিন দেখান';
+
+  @override
   String drawer_version(String version) {
     return 'V$version';
   }

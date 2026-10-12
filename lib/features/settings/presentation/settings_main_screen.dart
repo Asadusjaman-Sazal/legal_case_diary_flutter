@@ -216,6 +216,9 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
       drawer: AppNavigationDrawer(
         currentRoute: currentRoute,
         sideNavOptions: sideNavOptions,
+        // The drawer hides the case screens the bar already carries.
+        bottomNavTabs: settingsAsync.value?.bottomNavTabs ?? const <String>[],
+        bottomNavOrder: settingsAsync.value?.bottomNavOrder ?? const <String>[],
         // The same Share action the case screens' drawer offers: the drawer
         // only knows the callback, so a screen that omits it leaves a dead tap.
         onShare: () => shareAppInvite(context, ref),

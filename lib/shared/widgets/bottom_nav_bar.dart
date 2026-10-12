@@ -123,6 +123,35 @@ const List<BottomNavTabDef> bottomNavTabDefs = [
   ),
 ];
 
+/// The order the bottom-tab candidates are shown in: the saved serial first,
+/// then whatever the user has not placed, canonically.
+///
+/// This is **the** order for the bar's candidates, and it lives beside
+/// [bottomNavTabDefs] because that list is what defines the canonical part. Two
+/// surfaces read it — Settings > View Settings' dropdown, which shows the rows
+/// in this order and rewrites it on a drag, and the navigation drawer, whose
+/// expanded Case Screens list must read in the same serial (user request) — so a
+/// second copy would be the thing that drifts.
+///
+/// A stored key that is no longer a candidate is dropped rather than carried:
+/// a screen removed from the list cannot hold a place in the order.
+List<String> bottomTabSerial({
+  required List<String> storedOrder,
+  required List<BottomNavTabDef> available,
+}) {
+  final canonical = <String>[for (final def in available) def.key];
+  final known = canonical.toSet();
+  final stored = <String>[
+    for (final key in storedOrder)
+      if (known.contains(key)) key,
+  ];
+  return <String>[
+    ...stored,
+    for (final key in canonical)
+      if (!stored.contains(key)) key,
+  ];
+}
+
 String _labelAllCases(AppLocalizations l) => l.nav_allCases;
 String _labelActive(AppLocalizations l) => l.nav_activeCases;
 String _labelDailyCauseList(AppLocalizations l) => l.nav_dailyCauseList;

@@ -54,6 +54,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerOf => 'of';
 
   @override
+  String get drawer_caseScreensShowAll => 'Show All Case Screens';
+
+  @override
+  String get drawer_caseScreensHide => 'Show Fewer Case Screens';
+
+  @override
   String drawer_version(String version) {
     return 'V$version';
   }

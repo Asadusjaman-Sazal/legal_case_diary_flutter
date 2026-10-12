@@ -17,6 +17,8 @@
   "nav_overdueDates": "বিলম্বিত তারিখ",
   "nav_adminPanel": "অ্যাডমিন প্যানেল",
   "drawerOf": "এর",
+  "drawer_caseScreensShowAll": "সব মামলার স্ক্রিন দেখান",
+  "drawer_caseScreensHide": "কম মামলার স্ক্রিন দেখান",
   "drawer_version": "V{version}",
   "@drawer_version": {
       "description": "Bundled app version, shown as the last line of the side menu.",

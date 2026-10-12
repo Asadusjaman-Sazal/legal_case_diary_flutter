@@ -10,13 +10,15 @@
 /// earlier placeholder-data decision for mockup-only content.
 ///
 /// The mockup's Email and WhatsApp rows are gone (user-requested): the support
-/// channels live on the Support screen, reached from this screen's own row, so
-/// the developer card carries identity only. Privacy Policy and Terms of Service
-/// open the bundled documents from `docs/legal/` in the app's current language,
-/// and every row on this screen now opens a real screen.
+/// channels live on the Support screen, so the developer card carries identity
+/// only. **Support is no longer a row here** — it moved to the Settings main
+/// page, so the app has one Support entry rather than two. Privacy Policy and
+/// Terms of Service open the bundled documents from `docs/legal/` in the app's
+/// current language, and every row on this screen opens a real screen.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -25,9 +27,9 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/app_version.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
+import '../../data/update_metadata_store.dart';
 import '../settings_controls.dart';
 import '../settings_sub_page_modal.dart';
-import '../update_section_container.dart';
 
 /// Bundled developer photo (mockup uses a remote image; Part A is offline).
 const String _developerPhoto = 'assets/images/dev_profile.jpg';
@@ -39,11 +41,11 @@ const String _appLogo = 'assets/icons/app_logo.png';
 const double _logoSize = 64;
 
 /// About screen.
-class MoreAboutAppScreen extends StatelessWidget {
+class MoreAboutAppScreen extends ConsumerWidget {
   const MoreAboutAppScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     return SettingsSubPageModal(
       title: l.settingsAbout_title,
@@ -60,8 +62,9 @@ class MoreAboutAppScreen extends StatelessWidget {
           const _DeveloperCard(),
           const SizedBox(height: AppSpacing.md),
           // Menu rows. Every one has a screen: More About the App, the two
-          // legal documents and Support. The FAQs live on the Guidelines & FAQs
-          // screen (which Support links to), so there is no FAQ row here.
+          // legal documents and the updater. The FAQs live on the Guidelines &
+          // FAQs screen (which the Support row on the Settings main page links
+          // to), so there is no FAQ row here.
           SettingsLinkRow(
             label: l.settingsAbout_moreAboutApp,
             onTap: () => context.push(AppRoutes.settingsMoreAbout),
@@ -77,13 +80,16 @@ class MoreAboutAppScreen extends StatelessWidget {
             onTap: () => context.push(AppRoutes.settingsTermsOfService),
           ),
           const SizedBox(height: AppSpacing.xs),
+          // The updater, as an ordinary menu row like the three above it (user
+          // request): it opens a screen of its own rather than expanding in
+          // place. It carries the dot when a check has found a newer release.
+          // Support is **not** here any more — it moved to the Settings main
+          // page, so there is one Support entry in the app rather than two.
           SettingsLinkRow(
-            label: l.settingsAbout_support,
-            onTap: () => context.push(AppRoutes.settingsSupport),
+            label: l.settingsUpdate_entry,
+            showDot: ref.watch(updateAvailableProvider) != null,
+            onTap: () => context.push(AppRoutes.settingsAboutUpdate),
           ),
-          const SizedBox(height: AppSpacing.md),
-          // The collapsible Update entry: App Update + Auto Update.
-          const UpdateSectionContainer(),
           const SizedBox(height: AppSpacing.md),
           _DataSafetyCard(
             title: l.settingsAbout_dataSafetyTitle,

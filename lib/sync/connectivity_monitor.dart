@@ -40,6 +40,26 @@ class ConnectivityMonitor {
     }
   }
 
+  /// Whether the device is on a **mobile** link right now.
+  ///
+  /// Used by the updater's Wi-Fi-only preference, which asks before pulling a
+  /// tens-of-megabytes APK over cellular. Reports the *link*, like [isOnline]:
+  /// an unknown or unanswerable platform says "not mobile", so the worst case is
+  /// proceeding rather than refusing to update. Joining interfaces (Wi-Fi and
+  /// mobile both up) count as not-mobile, since the traffic can ride Wi-Fi.
+  Future<bool> isOnMobileData() async {
+    try {
+      final results = await _connectivity.checkConnectivity();
+      if (results.any((result) => result == ConnectivityResult.wifi) ||
+          results.any((result) => result == ConnectivityResult.ethernet)) {
+        return false;
+      }
+      return results.contains(ConnectivityResult.mobile);
+    } on Exception {
+      return false;
+    }
+  }
+
   /// The current value first, then one value per change.
   ///
   /// Errors from the platform channel are swallowed: a monitor that cannot be

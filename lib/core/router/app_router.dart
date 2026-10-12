@@ -63,6 +63,7 @@ import '../../features/settings/presentation/settings_about/more_about_app_scree
 import '../../features/settings/presentation/settings_about/more_about_the_app_screen.dart';
 import '../../features/settings/presentation/settings_about/diagnostics_screen.dart';
 import '../../features/settings/presentation/settings_about/support_screen.dart';
+import '../../features/settings/presentation/update_screen.dart';
 import '../../features/settings/presentation/settings_main_screen.dart';
 import '../../features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
@@ -183,6 +184,9 @@ class AppRoutes {
   static const String settingsPrivacyPolicy = '/settings/about/privacy';
   static const String settingsTermsOfService = '/settings/about/terms';
   static const String settingsSupport = '/settings/about/support';
+
+  /// The in-app updater's page (0.0.482), pushed from About's Update row.
+  static const String settingsAboutUpdate = '/settings/about/update';
   static const String settingsDiagnostics = '/settings/about/diagnostics';
   static const String caseDetail = '/case-detail/:caseId';
   static const String login = '/login';
@@ -702,6 +706,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsSupport,
     builder: (context, state) => const SupportScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsAboutUpdate,
+    builder: (context, state) => const UpdateScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsDiagnostics,

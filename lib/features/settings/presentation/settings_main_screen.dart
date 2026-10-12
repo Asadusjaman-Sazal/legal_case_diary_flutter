@@ -17,7 +17,9 @@ import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../data/update_metadata_store.dart';
 import 'delete_requests_viewmodel.dart';
+import 'settings_controls.dart';
 
 /// A single navigable settings entry within a section.
 class _SettingsItem {
@@ -36,11 +38,18 @@ class _SettingsItem {
   /// notification), and zero renders nothing at all rather than a "0" badge.
   final int badgeCount;
 
+  /// Whether to draw the updater's small "something is waiting" dot.
+  ///
+  /// Only the About entry uses it, and unlike [badgeCount] there is no number:
+  /// the updater has at most one thing to say.
+  final bool dot;
+
   const _SettingsItem({
     required this.title,
     required this.icon,
     required this.route,
     this.badgeCount = 0,
+    this.dot = false,
   });
 }
 
@@ -156,6 +165,18 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         title: l.settingsScreen_about,
         icon: Icons.info_outline,
         route: AppRoutes.settingsAbout,
+        // The updater's dot rides here: About is where the version and the
+        // update live, and a row that looks the same whether or not something
+        // is waiting is how an update goes unnoticed.
+        dot: ref.watch(updateAvailableProvider) != null,
+      ),
+      // Support moved here from About (user request): it is the one entry a
+      // blocked user reaches for, and burying it two taps deep cost them the
+      // most exactly when they could least afford it.
+      _SettingsItem(
+        title: l.settingsAbout_support,
+        icon: Icons.help_outline,
+        route: AppRoutes.settingsSupport,
       ),
     ]),
   ];
@@ -495,6 +516,10 @@ class _SettingsListTile extends StatelessWidget {
       children: [
         if (item.badgeCount > 0) ...[
           _CountPill(count: item.badgeCount),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+        if (item.dot) ...[
+          const UpdateDot(),
           const SizedBox(width: AppSpacing.sm),
         ],
         const Icon(Icons.chevron_right, color: AppColors.tertiary),

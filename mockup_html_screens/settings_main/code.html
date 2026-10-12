@@ -217,9 +217,22 @@
         <span class="material-symbols-outlined text-tertiary">chevron_right</span>
       </button>
       <div class="mx-edge-margin h-px bg-outline-variant"></div>
+      <!-- About carries the updater's dot (user request) when a check has found
+           a newer release. The updater only ever notifies: nothing installs
+           behind the user's back. -->
       <button class="w-full flex items-center gap-md px-edge-margin py-md hover:bg-secondary-hover transition-colors">
         <span class="material-symbols-outlined text-primary">info</span>
         <span class="flex-grow text-left font-body-lg text-body-lg text-on-surface">About</span>
+        <span class="w-2.5 h-2.5 rounded-full" style="background-color:#059669"></span>
+        <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+      </button>
+      <div class="mx-edge-margin h-px bg-outline-variant"></div>
+      <!-- Support moved here from About (user request): it is the entry a
+           blocked user reaches for, and two taps deep inside About cost them
+           the most. -->
+      <button class="w-full flex items-center gap-md px-edge-margin py-md hover:bg-secondary-hover transition-colors">
+        <span class="material-symbols-outlined text-primary">help</span>
+        <span class="flex-grow text-left font-body-lg text-body-lg text-on-surface">Support</span>
         <span class="material-symbols-outlined text-tertiary">chevron_right</span>
       </button>
     </div>

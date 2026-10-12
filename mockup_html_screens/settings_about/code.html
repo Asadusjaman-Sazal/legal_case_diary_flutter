@@ -180,57 +180,25 @@
       <span class="font-title-md text-title-md text-primary">Terms of Service</span>
       <span class="material-symbols-outlined text-tertiary">chevron_right</span>
     </button>
+    <!-- Support is NOT here any more: it moved to the Settings main page, so
+         there is one Support entry in the app rather than two. -->
+    <!-- Update: an ordinary row of this group (user request). It opens a screen
+         of its own — the updater used to be a larger card here that expanded in
+         place and toggled both of its cards at once. That screen is
+         update_screen.dart, which holds the App Update card (current version,
+         the Check For Update button that becomes Update Now with a progress
+         bar, or the green latest line, plus Later and Skip This Version), the
+         folded Auto Check For Update card (the backup schedule's own frequency
+         radios) and the folded Update Over Network card (Wi-Fi / Mobile Data,
+         Wi-Fi by default). The dot before the chevron appears when a check has
+         found a newer release: the updater notifies, it never force-installs. -->
     <button class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-secondary-hover transition-colors">
-      <span class="font-title-md text-title-md text-primary">Support</span>
-      <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+      <span class="font-title-md text-title-md text-primary">Update</span>
+      <span class="flex items-center gap-sm">
+        <span class="w-2.5 h-2.5 rounded-full" style="background-color:#059669"></span>
+        <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+      </span>
     </button>
-  </div>
-
-  <!-- Update: one collapsible entry holding App Update (open) and Auto Update
-       (folded). App Update shows the current version and a full-width check
-       button that becomes Update Now when a newer release exists, with a
-       progress bar while it downloads; Auto Update is the same frequency radio
-       list as the backup schedule card. -->
-  <div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between gap-md">
-    <div class="flex items-center gap-md">
-      <span class="material-symbols-outlined text-primary text-[28px]">system_update_alt</span>
-      <div class="flex flex-col">
-        <span class="font-body-lg text-body-lg text-on-surface">Update</span>
-        <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Check For A Newer Version And Set How Often To Check</span>
-      </div>
-    </div>
-    <span class="material-symbols-outlined text-tertiary">expand_less</span>
-  </div>
-  <div class="flex flex-col gap-sm pl-sm">
-    <!-- App Update: the header, then its open body. -->
-    <div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between gap-md">
-      <div class="flex items-center gap-md">
-        <span class="material-symbols-outlined text-primary text-[28px]">update</span>
-        <div class="flex flex-col">
-          <span class="font-body-lg text-body-lg text-on-surface">App Update</span>
-          <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Check For Updates And Update The App</span>
-        </div>
-      </div>
-      <span class="material-symbols-outlined text-tertiary">expand_less</span>
-    </div>
-    <div class="flex flex-col">
-      <span class="font-body-md text-body-md text-on-surface">Current Version: <span class="font-bold">V0.0.479</span></span>
-      <button class="mt-md w-full h-14 bg-primary text-on-primary font-label-lg text-label-lg rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
-        <span class="material-symbols-outlined text-[20px]">system_update_alt</span>
-        Check For Update
-      </button>
-    </div>
-    <!-- Auto Update: the header, its body folded away by default. -->
-    <div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between gap-md">
-      <div class="flex items-center gap-md">
-        <span class="material-symbols-outlined text-primary text-[28px]">schedule</span>
-        <div class="flex flex-col">
-          <span class="font-body-lg text-body-lg text-on-surface">Auto Update</span>
-          <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Choose How Often To Check For Updates</span>
-        </div>
-      </div>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
-    </div>
   </div>
 
   <!-- Data Safety note. -->

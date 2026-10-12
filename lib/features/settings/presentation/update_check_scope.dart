@@ -1,9 +1,10 @@
 /// The once-per-launch update check, mounted above the router.
 ///
 /// Renders [child] untouched and, **once per process after the first frame**,
-/// runs the automatic update check the User chose in Auto Update. This is the
-/// whole battery story: it never runs again this launch, never schedules itself,
-/// never loops — the same one-shot discipline the launch refresh scope uses. A
+/// runs the automatic update check the User chose in Auto Check For Update.
+/// This is the whole battery story: it never runs again this launch, never
+/// schedules itself, never loops — the same one-shot discipline the launch
+/// refresh scope uses. A
 /// check that cannot happen (offline) leaves the diary untouched and counts the
 /// day toward the offline streak.
 ///
@@ -73,11 +74,14 @@ class _UpdateCheckScopeState extends ConsumerState<UpdateCheckScope> {
     final outcome = await ref.read(updateRepositoryProvider).checkForLatestRelease();
     final offline = outcome.result == ReleaseCheckResult.unavailable;
 
+    // The check only ever **reports**: it stores what it found so the About and
+    // Update rows can show their dot, and never installs anything. Installing
+    // is the user's tap on Update Now.
     final notifier = ref.read(updateMetadataProvider.notifier);
     await notifier.recordCheck(
       atEpochMs: now,
-      releaseVersion: outcome.release?.version,
       offline: offline,
+      release: outcome.release,
     );
 
     // Day 8 of a streak: one quiet nudge, once per streak, then not again

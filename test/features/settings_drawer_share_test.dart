@@ -7,6 +7,8 @@
 /// fallback must show — so the same omission cannot come back unnoticed.
 library;
 
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,11 +19,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/print_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/settings/data/local/user_preferences_dao.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_about/support_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_main_screen.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
@@ -57,6 +63,10 @@ void main() {
         GoRoute(
           path: '/',
           builder: (context, state) => const SettingsMainScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsSupport,
+          builder: (context, state) => const SupportScreen(),
         ),
       ],
     );
@@ -129,6 +139,71 @@ void main() {
 
     expect(sharer.invites.single.message, contains(appStoreUrl));
     expect(sharer.invites.single.subject, isNotEmpty);
+
+    await unmount(tester);
+  });
+
+  testWidgets('Support sits on the Settings root, in the App Info group', (
+    WidgetTester tester,
+  ) async {
+    // Support moved here from About (user request): it is the entry a blocked
+    // user reaches for, and two taps deep inside About cost them the most.
+    await pumpSettings(tester);
+
+    await tester.scrollUntilVisible(find.text('Support'), 200);
+    expect(find.text('Support'), findsOneWidget);
+    // It is a row of the App Info group, beside Guidelines & FAQs and About.
+    expect(find.text('Guidelines & FAQs'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+
+    // And it still goes where it always did — this is the navigation the About
+    // suite used to pin before the row moved here.
+    await tester.tap(find.text('Support'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SupportScreen), findsOneWidget);
+
+    await unmount(tester);
+  });
+
+  testWidgets('the About row carries the dot only when an update is offered', (
+    WidgetTester tester,
+  ) async {
+    // Seeded *before* the pump: the notifier reads preferences once when it is
+    // built, and pumping a second tree over the first reuses the elements, so a
+    // value written afterwards would never be seen.
+    await prefs.setString(
+      updateAvailableReleaseKey,
+      jsonEncode(<String, Object?>{
+        'version': '99.99.999',
+        'url': 'https://example.test/app.apk',
+      }),
+    );
+    await pumpSettings(tester);
+    // The row is below the fold, so it has to be scrolled to before it exists.
+    await tester.scrollUntilVisible(find.text('About'), 200);
+
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('About'),
+          matching: find.byType(ListTile),
+        ),
+        matching: find.byType(UpdateDot),
+      ),
+      findsOneWidget,
+      reason: 'the dot rides on the About row, not somewhere else',
+    );
+
+    await unmount(tester);
+  });
+
+  testWidgets('no dot is drawn when nothing is waiting', (
+    WidgetTester tester,
+  ) async {
+    await pumpSettings(tester);
+    await tester.scrollUntilVisible(find.text('About'), 200);
+
+    expect(find.byType(UpdateDot), findsNothing);
 
     await unmount(tester);
   });

@@ -29,11 +29,63 @@ class AppRelease {
 
   /// The [version] rendered with the app's usual leading `V` prefix.
   String get displayName => 'V$version';
+
+  /// This release as a plain map, for the small preference cache that lets the
+  /// About screen offer an update the launch check has already found — so the
+  /// offer survives a restart and needs no second lookup.
+  Map<String, Object?> toJson() => <String, Object?>{
+    'version': version,
+    'url': downloadUrl,
+    'size': size,
+  };
+
+  /// Reads back what [toJson] wrote; null when the shape is not a release.
+  ///
+  /// Deliberately strict: a half-written or hand-edited cache yields null
+  /// (no offer) rather than a release with an empty download URL, which would
+  /// only fail later at the point of download.
+  static AppRelease? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final version = json['version'];
+    final url = json['url'];
+    if (version is! String ||
+        url is! String ||
+        version.isEmpty ||
+        url.isEmpty) {
+      return null;
+    }
+    final size = json['size'];
+    return AppRelease(
+      version: version,
+      downloadUrl: url,
+      size: size is int ? size : null,
+    );
+  }
 }
 
 /// True when [releaseVersion] is a newer release than the installed app.
 bool isReleaseNewerThanApp(String releaseVersion) =>
     compareReleaseVersions(releaseVersion, appVersion) > 0;
+
+/// Whether [release] is an update worth offering, given what the user skipped.
+///
+/// False for nothing at all, for a release this build already has (the stored
+/// offer outlives the check that found it, and the app may have caught up since),
+/// and for one the user chose to **skip** — a skipped version stops counting as
+/// an update until a newer one appears.
+///
+/// This is the one place those rules live, so the dot on a row, the button on
+/// the Update screen and the manual check can never disagree about whether there
+/// is something to say. The session deferral ("Later") is deliberately *not*
+/// here: it silences the dots, not the screen.
+bool shouldOfferRelease({
+  required AppRelease? release,
+  String? skippedVersion,
+}) {
+  if (release == null) return false;
+  if (!isReleaseNewerThanApp(release.version)) return false;
+  return release.version != skippedVersion;
+}
 
 /// Compares two dotted numeric version strings.
 ///

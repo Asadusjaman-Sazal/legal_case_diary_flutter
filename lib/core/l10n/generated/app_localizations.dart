@@ -2057,7 +2057,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminPanel_unverifiedAccountsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sign-Ups That Never Confirmed'**
+  /// **'Sign-Ups Unconfirmed For Over 72 Hours'**
   String get adminPanel_unverifiedAccountsSubtitle;
 
   /// No description provided for @adminPanel_unverifiedTitle.
@@ -2069,7 +2069,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminPanel_unverifiedEmpty.
   ///
   /// In en, this message translates to:
-  /// **'Every account has confirmed its address.'**
+  /// **'No sign-up has stayed unconfirmed for over 72 hours.'**
   String get adminPanel_unverifiedEmpty;
 
   /// No description provided for @adminPanel_unverifiedLoadFailed.
@@ -2119,6 +2119,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This account has data or is confirmed, so it cannot be deleted from here.'**
   String get adminPanel_deleteBlocked;
+
+  /// No description provided for @adminPanel_deleteTooRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'This account signed up less than 72 hours ago, so it cannot be deleted from here yet.'**
+  String get adminPanel_deleteTooRecent;
 
   /// No description provided for @adminPanel_deleted.
   ///

@@ -71,6 +71,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.413 | 2026-10-08 | `20261008110000_discard_unconfirmed_signup.sql` | The Check Your Email screen, extended: discard_unconfirmed_signup(), the password-checked removal of a sign-up that never confirmed its address — the only way to correct a mistyped one, since an unconfirmed account cannot sign in and abandon_provisional_account() needs a session it can never have. Rate-limited per address in the new server-managed signup_discard_attempts ledger, and granted to anon because this caller has no session at all. |
 | 0.0.459 | 2026-10-09 | `20261009120000_admin_unconfirmed_accounts.sql` | The Admin Panel, extended: the Non-verified Accounts page's two admin-gated RPCs. admin_list_unconfirmed_accounts() lists every account that has never confirmed its address — invisible to clients, since email_confirmed_at lives in auth.users and profiles carries no confirmation flag — and admin_delete_unconfirmed_account() removes one. Both share is_provisional_account(), the same "has this account done anything?" guard discard_unconfirmed_signup() applies, so the list's can_delete flag and the delete can never disagree. |
 | 0.0.459 | 2026-10-09 | `20261009130000_revoke_provisional_guard.sql` | Closing a grant the default privileges opened: taking EXECUTE on is_provisional_account() back from `authenticated`. Revoking `public` and `anon` does not cover it, because Supabase grants a new function in `public` directly to `authenticated` as well — so the internal guard was callable by any signed-in account, one boolean at a time about an account it already knew the id of. |
+| 0.0.495 | 2026-10-12 | `20261012100000_unconfirmed_accounts_72h_window.sql` | The Non-verified Accounts page waits 72 hours before it calls a sign-up abandoned: admin_list_unconfirmed_accounts() returns only an account created over 72 hours ago, and admin_delete_unconfirmed_account(uuid) refuses a younger one as too_recent before its activity test, so the window is enforced and not merely hidden. is_provisional_account() is untouched — age and activity are different questions — and the grants stay as the previous migration left them. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -8360,6 +8361,182 @@ revoke execute on function public.is_provisional_account(uuid)
 -- Re-asserted so the file states the whole grant picture in one place: the two
 -- admin entry points stay callable by a signed-in account (the function body
 -- gates them), and the guard stays internal.
+revoke all on function public.admin_list_unconfirmed_accounts()
+  from public, anon;
+grant execute on function public.admin_list_unconfirmed_accounts()
+  to authenticated;
+
+revoke all on function public.admin_delete_unconfirmed_account(uuid)
+  from public, anon;
+grant execute on function public.admin_delete_unconfirmed_account(uuid)
+  to authenticated;
+```
+
+## App Version 0.0.495 — Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours
+
+### 0.0.495 · `20261012100000_unconfirmed_accounts_72h_window.sql`
+
+> **Created 2026-10-12.** The Non-verified Accounts page waits 72 hours before it calls a sign-up abandoned: admin_list_unconfirmed_accounts() returns only an account created over 72 hours ago, and admin_delete_unconfirmed_account(uuid) refuses a younger one as too_recent before its activity test, so the window is enforced and not merely hidden. is_provisional_account() is untouched — age and activity are different questions — and the grants stay as the previous migration left them.
+
+```sql
+-- The Non-verified Accounts page shows only sign-ups that have sat unconfirmed
+-- for **72 hours**, and its delete refuses anything younger.
+--
+-- Why this exists. `20261009120000` listed every account whose
+-- `email_confirmed_at` is still null — and therefore listed a sign-up the moment
+-- it was created. A user who has just registered is normally mid-verification,
+-- not abandoned: they are walking to their mailbox, and a slow mail server or a
+-- closed app is not a reason to show them to an administrator as a stray. A
+-- window gives a genuine sign-up its chance to confirm, so the page means
+-- "abandoned" rather than "started", and the side-menu badge (which counts this
+-- list) stops flicking up by one every time somebody taps Sign Up.
+--
+-- What changes. Only the horizon, and only here:
+--   * `admin_list_unconfirmed_accounts()` gains
+--     `and u.created_at < now() - c_min_age`, so a fresh sign-up is not returned;
+--   * `admin_delete_unconfirmed_account(uuid)` re-runs that same window before
+--     the provisional test and refuses a too-young account as `too_recent`,
+--     **not** as `has_activity`. Without this the window would be cosmetic: a
+--     client that knew the id could still remove a sign-up the page refuses to
+--     show, and `has_activity` would be a false reason for an account that has
+--     done nothing at all.
+--
+-- The window lives in one constant per function (`c_min_age`) rather than in a
+-- setting, because it is a policy of this page, not a preference: the list, the
+-- badge and the delete must agree on it, and they all read it from this file's
+-- definition of the two functions. `is_provisional_account()` is untouched — the
+-- window is about *age*, the guard is about *activity*, and they answer
+-- different questions.
+--
+-- Everything else is the predecessor's behaviour re-asserted unchanged: both
+-- functions stay SECURITY DEFINER and admin-gated, the list stays newest-first
+-- with `can_delete` per row, and the grants stay exactly as `20261009130000`
+-- left them (the two entry points callable by `authenticated` and gated in the
+-- body, with the internal guard reachable by no client role).
+
+-- ---------------------------------------------------------------------------
+-- admin_list_unconfirmed_accounts() — the oldest never-confirmed sign-ups
+-- ---------------------------------------------------------------------------
+
+create or replace function public.admin_list_unconfirmed_accounts()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  -- How long an unconfirmed sign-up must have sat before the page calls it
+  -- abandoned. A sign-up younger than this may still be confirming.
+  c_min_age constant interval := interval '72 hours';
+begin
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  -- Newest first. `email` prefers the profile's copy (which mirrors the account
+  -- address) and falls back to `auth.users` for a profile row that has not been
+  -- written yet; `full_name` is empty until the account fills it in. The age
+  -- window is the only addition since `20261009120000`.
+  return (
+    select coalesce(
+             jsonb_agg(
+               jsonb_build_object(
+                 'id', u.id,
+                 'email', coalesce(nullif(p.email, ''), u.email),
+                 'full_name', coalesce(p.full_name, ''),
+                 'created_at', u.created_at,
+                 'last_sign_in_at', u.last_sign_in_at,
+                 'can_delete', public.is_provisional_account(u.id)
+               )
+               order by u.created_at desc
+             ),
+             '[]'::jsonb
+           )
+      from auth.users u
+      left join public.profiles p on p.id = u.id
+     where u.email_confirmed_at is null
+       and u.created_at < now() - c_min_age
+  );
+end;
+$$;
+
+comment on function public.admin_list_unconfirmed_accounts() is
+  'Admin-only list of every account that has never confirmed its address AND was created more than 72 hours ago, joined to its profile for the name and the mirrored email. Newest first; each row carries can_delete, the shared provisional test, so the panel can disable an action that would be refused. A sign-up younger than the window is deliberately absent: it may still be confirming.';
+
+-- ---------------------------------------------------------------------------
+-- admin_delete_unconfirmed_account() — remove one abandoned sign-up
+-- ---------------------------------------------------------------------------
+
+create or replace function public.admin_delete_unconfirmed_account(
+  p_user_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  -- The same window the list applies. Kept equal to it by inspection, the way
+  -- the two already share `is_provisional_account()` for the activity test.
+  c_min_age constant interval := interval '72 hours';
+  v_user auth.users%rowtype;
+begin
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  select u.* into v_user from auth.users u where u.id = p_user_id;
+  if not found then
+    return jsonb_build_object('status', 'refused', 'reason', 'not_found');
+  end if;
+
+  -- A confirmed address is a real account, however empty: the administrator's
+  -- way to deal with it is not this function.
+  if v_user.email_confirmed_at is not null then
+    return jsonb_build_object('status', 'refused', 'reason', 'confirmed');
+  end if;
+
+  -- Too young to call abandoned, so not this function's to remove yet — the
+  -- same horizon the list hides it behind. Refused *before* the activity test,
+  -- and with its own reason, so a fresh sign-up is never reported as an account
+  -- that has done something when it has done nothing.
+  if v_user.created_at >= now() - c_min_age then
+    return jsonb_build_object(
+      'status', 'refused', 'reason', 'too_recent'
+    );
+  end if;
+
+  -- Re-run the guard even though the list reported it: the account may have
+  -- done something between the two calls.
+  if not public.is_provisional_account(p_user_id) then
+    return jsonb_build_object('status', 'refused', 'reason', 'has_activity');
+  end if;
+
+  -- Removing the account cascades the profile, the preference rows, the invite
+  -- attempts and the sessions — nothing else references it, which the guards
+  -- above have just established.
+  delete from auth.users u where u.id = p_user_id;
+
+  return jsonb_build_object('status', 'removed');
+end;
+$$;
+
+comment on function public.admin_delete_unconfirmed_account(uuid) is
+  'Admin-only removal of an account that has never confirmed its address, was created more than 72 hours ago, and has done nothing. Refuses an unknown, confirmed, too-recent or non-provisional account. Returns {"status":"removed"} or {"status":"refused","reason":"not_found"|"confirmed"|"too_recent"|"has_activity"}.';
+
+-- ---------------------------------------------------------------------------
+-- Grants — re-asserted so this file states the whole grant picture in one place
+-- ---------------------------------------------------------------------------
+
+-- Supabase's default privileges grant EXECUTE on a new function in `public`
+-- directly to `anon` and `authenticated`, and a direct grant outlives a revoke
+-- aimed at PUBLIC — so every function here is re-asserted explicitly, exactly as
+-- `20261009130000` left it. The internal guard is named only to keep it closed:
+-- it is granted to no client role.
+revoke all on function public.is_provisional_account(uuid)
+  from public, anon, authenticated;
+
 revoke all on function public.admin_list_unconfirmed_accounts()
   from public, anon;
 grant execute on function public.admin_list_unconfirmed_accounts()

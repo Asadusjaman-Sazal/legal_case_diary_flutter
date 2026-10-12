@@ -1144,14 +1144,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPanel_unverifiedAccountsSubtitle =>
-      'Sign-Ups That Never Confirmed';
+      'Sign-Ups Unconfirmed For Over 72 Hours';
 
   @override
   String get adminPanel_unverifiedTitle => 'Non-verified Accounts';
 
   @override
   String get adminPanel_unverifiedEmpty =>
-      'Every account has confirmed its address.';
+      'No sign-up has stayed unconfirmed for over 72 hours.';
 
   @override
   String get adminPanel_unverifiedLoadFailed =>
@@ -1179,6 +1179,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminPanel_deleteBlocked =>
       'This account has data or is confirmed, so it cannot be deleted from here.';
+
+  @override
+  String get adminPanel_deleteTooRecent =>
+      'This account signed up less than 72 hours ago, so it cannot be deleted from here yet.';
 
   @override
   String get adminPanel_deleted => 'Account deleted.';

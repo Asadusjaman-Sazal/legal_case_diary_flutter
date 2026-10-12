@@ -172,7 +172,7 @@ void main() {
       cards.map((card) => card.subtitle),
       <String>[
         'Approve Or Reject Submitted Payments',
-        'Sign-Ups That Never Confirmed',
+        'Sign-Ups Unconfirmed For Over 72 Hours',
       ],
     );
   });

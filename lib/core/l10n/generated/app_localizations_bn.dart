@@ -1146,14 +1146,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_unverifiedAccountsSubtitle =>
-      'যে সাইন-আপগুলো কখনও নিশ্চিত হয়নি';
+      '৭২ ঘণ্টার বেশি সময় ধরে অনিশ্চিত সাইন-আপ';
 
   @override
   String get adminPanel_unverifiedTitle => 'অযাচিত অ্যাকাউন্ট';
 
   @override
   String get adminPanel_unverifiedEmpty =>
-      'সব অ্যাকাউন্টই তাদের ঠিকানা নিশ্চিত করেছে।';
+      '৭২ ঘণ্টার বেশি সময় ধরে কোনো সাইন-আপ অনিশ্চিত নেই।';
 
   @override
   String get adminPanel_unverifiedLoadFailed =>
@@ -1181,6 +1181,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get adminPanel_deleteBlocked =>
       'এই অ্যাকাউন্টে ডেটা আছে বা এটি নিশ্চিত হয়েছে, তাই এখান থেকে মোছা যাবে না।';
+
+  @override
+  String get adminPanel_deleteTooRecent =>
+      'এই অ্যাকাউন্টটি ৭২ ঘণ্টারও কম আগে সাইন-আপ করেছে, তাই এখনই এখান থেকে মোছা যাবে না।';
 
   @override
   String get adminPanel_deleted => 'অ্যাকাউন্ট মুছে ফেলা হয়েছে।';

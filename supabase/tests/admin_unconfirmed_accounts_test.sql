@@ -8,10 +8,11 @@
 -- One transaction, rolled back at the end, so no account, court or admin row
 -- survives. It exercises the contract the Admin Panel's **Non-verified Accounts**
 -- page depends on: the list is admin-only, it returns only never-confirmed
--- accounts (newest first, with their profile's name/email), `can_delete` is true
--- only for an account that has done nothing, deleting refuses a confirmed or
--- used account, an unknown id is refused as not_found, and a genuinely abandoned
--- sign-up is removed with no residue.
+-- accounts that have sat that way for **over 72 hours** (newest first, with their
+-- profile's name/email), a fresh sign-up is neither listed nor deletable
+-- (`too_recent`), `can_delete` is true only for an account that has done nothing,
+-- deleting refuses a confirmed or used account, an unknown id is refused as
+-- not_found, and a genuinely abandoned sign-up is removed with no residue.
 --
 -- Every check raises "SMOKE FAIL: ...", so ON_ERROR_STOP turns a failure into a
 -- non-zero exit.
@@ -68,6 +69,7 @@ declare
   c_admin constant uuid := gen_random_uuid();
   c_plain constant uuid := gen_random_uuid();
   c_waiting uuid := gen_random_uuid();
+  c_fresh uuid := gen_random_uuid();
   c_confirmed uuid := gen_random_uuid();
   c_used uuid := gen_random_uuid();
   v_category text;
@@ -85,21 +87,30 @@ begin
       'SMOKE FAIL: public.admin_delete_unconfirmed_account(uuid) does not exist';
   end if;
 
-  -- Three unconfirmed accounts (one of which has done something) and one
-  -- confirmed account that must never appear in the list.
+  -- Three unconfirmed accounts that are past the 72-hour window (one of which
+  -- has done something), one unconfirmed account that is **inside** it, and one
+  -- confirmed account that must never appear in the list. The ages are chosen so
+  -- the two the page lists still differ in order (the four-day-old account leads
+  -- the five-day-old one read newest-first, so `c_used` older than `c_waiting`
+  -- would invert the check), and so the fresh one sits well on the hidden side of
+  -- the horizon whatever clock the project runs on.
   insert into auth.users (
     id, instance_id, aud, role, email, encrypted_password,
     email_confirmed_at, created_at, updated_at
   )
   values
-    (c_waiting, '00000000-0000-0000-0000-000000000000', 'authenticated',
-     'authenticated', 'smoke-admin-waiting@example.test',
-     extensions.crypt('x', extensions.gen_salt('bf')), null,
-     now() - interval '2 days', now()),
     (c_used, '00000000-0000-0000-0000-000000000000', 'authenticated',
      'authenticated', 'smoke-admin-used@example.test',
      extensions.crypt('x', extensions.gen_salt('bf')), null,
-     now() - interval '1 day', now()),
+     now() - interval '4 days', now()),
+    (c_waiting, '00000000-0000-0000-0000-000000000000', 'authenticated',
+     'authenticated', 'smoke-admin-waiting@example.test',
+     extensions.crypt('x', extensions.gen_salt('bf')), null,
+     now() - interval '5 days', now()),
+    (c_fresh, '00000000-0000-0000-0000-000000000000', 'authenticated',
+     'authenticated', 'smoke-admin-fresh@example.test',
+     extensions.crypt('x', extensions.gen_salt('bf')), null,
+     now() - interval '1 hour', now()),
     (c_confirmed, '00000000-0000-0000-0000-000000000000', 'authenticated',
      'authenticated', 'smoke-admin-confirmed@example.test',
      extensions.crypt('x', extensions.gen_salt('bf')), now(), now(), now());
@@ -166,7 +177,14 @@ begin
       select 1 from jsonb_array_elements(v_out) e
        where e->>'id' = c_waiting::text
     ),
-    'an unconfirmed account is listed'
+    'an unconfirmed account past the 72-hour window is listed'
+  );
+  perform pg_temp.assert_true(
+    not exists (
+      select 1 from jsonb_array_elements(v_out) e
+       where e->>'id' = c_fresh::text
+    ),
+    'a sign-up inside the 72-hour window is not listed'
   );
   perform pg_temp.assert_true(
     not exists (
@@ -181,7 +199,7 @@ begin
     'an unconfirmed account with work is still listed'
   );
   -- Newest first, checked among the fixtures rather than at the head of the
-  -- answer: the one-day-old account must come before the two-day-old one.
+  -- answer: the four-day-old account must come before the five-day-old one.
   perform pg_temp.assert_true(
     (
       select e_used.idx < e_waiting.idx
@@ -190,7 +208,7 @@ begin
              (select idx from jsonb_array_elements(v_out) with ordinality as t(e, idx)
                where e->>'id' = c_waiting::text) e_waiting
     ),
-    'newest first: the one-day-old account leads the two-day-old one'
+    'newest first: the four-day-old account leads the five-day-old one'
   );
   perform pg_temp.assert_true(
     exists (
@@ -252,6 +270,24 @@ begin
     (v_str::jsonb)->>'reason' = 'not_found',
     'an unknown account is refused as not_found'
   );
+
+  -- 4b. A sign-up inside the 72-hour window is refused as too_recent — its own
+  --     reason, not has_activity: it has done nothing, it is simply young. The
+  --     window the list hides it behind is enforced on the delete too.
+  v_str := pg_temp.scalar(
+    format('select public.admin_delete_unconfirmed_account(%L::uuid)::text',
+           c_fresh)
+  );
+  perform pg_temp.assert_true(
+    (v_str::jsonb)->>'reason' = 'too_recent',
+    'a sign-up inside the 72-hour window is refused as too_recent'
+  );
+  reset role;
+  perform pg_temp.assert_true(
+    exists (select 1 from auth.users u where u.id = c_fresh),
+    'the too-recent account stays'
+  );
+  set local role authenticated;
 
   -- 5. The abandoned sign-up is removed, with no residue.
   v_str := pg_temp.scalar(

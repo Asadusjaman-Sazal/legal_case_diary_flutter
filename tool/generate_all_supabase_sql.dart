@@ -438,6 +438,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'guard was callable by any signed-in account, one boolean at a time '
         'about an account it already knew the id of.',
   ),
+  LedgerSection(
+    file: '20261012100000_unconfirmed_accounts_72h_window.sql',
+    version: '0.0.495',
+    label:
+        'The Non-verified Accounts page waits 72 hours before it calls a '
+        'sign-up abandoned: admin_list_unconfirmed_accounts() returns only an '
+        'account created over 72 hours ago, and '
+        'admin_delete_unconfirmed_account(uuid) refuses a younger one as '
+        'too_recent before its activity test, so the window is enforced and not '
+        'merely hidden. is_provisional_account() is untouched — age and activity '
+        'are different questions — and the grants stay as the previous '
+        'migration left them.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -473,6 +486,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.413': 'Task 17 — Correcting A Mistyped Sign-Up Address',
   '0.0.459':
       'Task 23 Follow-Up — The Admin Panel\'s Non-Verified Accounts',
+  '0.0.495':
+      'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
 };
 
 const String _header = '''<!--

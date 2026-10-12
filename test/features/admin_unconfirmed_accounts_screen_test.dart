@@ -4,7 +4,8 @@
 /// ones can be cleaned up. These pin what it promises: a non-admin sees nothing,
 /// each card is numbered and carries when the account was created, Delete is
 /// **offered only when the server says the account may go** (and refused with a
-/// reason otherwise), removing one goes through the repository and then re-reads
+/// reason otherwise, including `too_recent` for a sign-up inside the server's
+/// 72-hour window), removing one goes through the repository and then re-reads
 /// the list, and the header's search filters the cards.
 library;
 
@@ -125,11 +126,36 @@ void main() {
     expect(find.text('2'), findsOneWidget);
   });
 
-  testWidgets('an empty list says every account has confirmed', (tester) async {
+  testWidgets('an empty list names the 72-hour window, not every account', (
+    tester,
+  ) async {
     await pump(tester, _FakeAdminRepository());
 
+    // "Every account has confirmed" would be untrue once a fresh sign-up is
+    // merely hidden, so the empty state names the horizon instead.
     expect(
-      find.text('Every account has confirmed its address.'),
+      find.text('No sign-up has stayed unconfirmed for over 72 hours.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a too-recent sign-up is refused with its own wording', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository(rows: [_account(id: 'a1')])
+      ..failure = AdminActionFailure.tooRecent;
+    await pump(tester, repo);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete Account'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'This account signed up less than 72 hours ago, so it cannot be '
+        'deleted from here yet.',
+      ),
       findsOneWidget,
     );
   });
@@ -217,7 +243,7 @@ void main() {
 
     expect(find.text('Adv. Rahim Uddin'), findsNothing);
     expect(
-      find.text('Every account has confirmed its address.'),
+      find.text('No sign-up has stayed unconfirmed for over 72 hours.'),
       findsOneWidget,
     );
   });

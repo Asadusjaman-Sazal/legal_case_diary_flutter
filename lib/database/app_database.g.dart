@@ -14690,6 +14690,20 @@ class $UserPreferencesTable extends UserPreferences
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _paymentAlertsEnabledMeta =
+      const VerificationMeta('paymentAlertsEnabled');
+  @override
+  late final GeneratedColumn<bool> paymentAlertsEnabled = GeneratedColumn<bool>(
+    'payment_alerts_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("payment_alerts_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -14710,6 +14724,7 @@ class $UserPreferencesTable extends UserPreferences
     notificationEnabled,
     notificationTime,
     notificationDefaultOffsets,
+    paymentAlertsEnabled,
     updatedAt,
   ];
   @override
@@ -14780,6 +14795,15 @@ class $UserPreferencesTable extends UserPreferences
         ),
       );
     }
+    if (data.containsKey('payment_alerts_enabled')) {
+      context.handle(
+        _paymentAlertsEnabledMeta,
+        paymentAlertsEnabled.isAcceptableOrUnknown(
+          data['payment_alerts_enabled']!,
+          _paymentAlertsEnabledMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -14825,6 +14849,10 @@ class $UserPreferencesTable extends UserPreferences
         DriftSqlType.string,
         data['${effectivePrefix}notification_default_offsets'],
       ),
+      paymentAlertsEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}payment_alerts_enabled'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}updated_at'],
@@ -14862,6 +14890,16 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
   /// JSON array of default notification day offsets before a hearing.
   final String? notificationDefaultOffsets;
 
+  /// Whether this account wants a push when an admin's payment request is
+  /// waiting (Settings → Notifications).
+  ///
+  /// Defaults to true: an admin who installs the panel wants to hear about
+  /// payments waiting, and can silence it. It is synced per-user to
+  /// `user_preferences.payment_alerts_enabled`, which the sender reads — an
+  /// account whose toggle is off is skipped server-side, so the switch works
+  /// even while the app is closed.
+  final bool paymentAlertsEnabled;
+
   /// Timestamp when these preferences were last updated (epoch ms).
   final int updatedAt;
   const UserPreference({
@@ -14872,6 +14910,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
     required this.notificationEnabled,
     this.notificationTime,
     this.notificationDefaultOffsets,
+    required this.paymentAlertsEnabled,
     required this.updatedAt,
   });
   @override
@@ -14896,6 +14935,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
         notificationDefaultOffsets,
       );
     }
+    map['payment_alerts_enabled'] = Variable<bool>(paymentAlertsEnabled);
     map['updated_at'] = Variable<int>(updatedAt);
     return map;
   }
@@ -14920,6 +14960,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
           notificationDefaultOffsets == null && nullToAbsent
           ? const Value.absent()
           : Value(notificationDefaultOffsets),
+      paymentAlertsEnabled: Value(paymentAlertsEnabled),
       updatedAt: Value(updatedAt),
     );
   }
@@ -14941,6 +14982,9 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
       notificationDefaultOffsets: serializer.fromJson<String?>(
         json['notificationDefaultOffsets'],
       ),
+      paymentAlertsEnabled: serializer.fromJson<bool>(
+        json['paymentAlertsEnabled'],
+      ),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
     );
   }
@@ -14957,6 +15001,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
       'notificationDefaultOffsets': serializer.toJson<String?>(
         notificationDefaultOffsets,
       ),
+      'paymentAlertsEnabled': serializer.toJson<bool>(paymentAlertsEnabled),
       'updatedAt': serializer.toJson<int>(updatedAt),
     };
   }
@@ -14969,6 +15014,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
     bool? notificationEnabled,
     Value<int?> notificationTime = const Value.absent(),
     Value<String?> notificationDefaultOffsets = const Value.absent(),
+    bool? paymentAlertsEnabled,
     int? updatedAt,
   }) => UserPreference(
     userId: userId ?? this.userId,
@@ -14984,6 +15030,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
     notificationDefaultOffsets: notificationDefaultOffsets.present
         ? notificationDefaultOffsets.value
         : this.notificationDefaultOffsets,
+    paymentAlertsEnabled: paymentAlertsEnabled ?? this.paymentAlertsEnabled,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserPreference copyWithCompanion(UserPreferencesCompanion data) {
@@ -15003,6 +15050,9 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
       notificationDefaultOffsets: data.notificationDefaultOffsets.present
           ? data.notificationDefaultOffsets.value
           : this.notificationDefaultOffsets,
+      paymentAlertsEnabled: data.paymentAlertsEnabled.present
+          ? data.paymentAlertsEnabled.value
+          : this.paymentAlertsEnabled,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -15017,6 +15067,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
           ..write('notificationEnabled: $notificationEnabled, ')
           ..write('notificationTime: $notificationTime, ')
           ..write('notificationDefaultOffsets: $notificationDefaultOffsets, ')
+          ..write('paymentAlertsEnabled: $paymentAlertsEnabled, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -15031,6 +15082,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
     notificationEnabled,
     notificationTime,
     notificationDefaultOffsets,
+    paymentAlertsEnabled,
     updatedAt,
   );
   @override
@@ -15044,6 +15096,7 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
           other.notificationEnabled == this.notificationEnabled &&
           other.notificationTime == this.notificationTime &&
           other.notificationDefaultOffsets == this.notificationDefaultOffsets &&
+          other.paymentAlertsEnabled == this.paymentAlertsEnabled &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -15055,6 +15108,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
   final Value<bool> notificationEnabled;
   final Value<int?> notificationTime;
   final Value<String?> notificationDefaultOffsets;
+  final Value<bool> paymentAlertsEnabled;
   final Value<int> updatedAt;
   final Value<int> rowid;
   const UserPreferencesCompanion({
@@ -15065,6 +15119,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
     this.notificationEnabled = const Value.absent(),
     this.notificationTime = const Value.absent(),
     this.notificationDefaultOffsets = const Value.absent(),
+    this.paymentAlertsEnabled = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -15076,6 +15131,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
     this.notificationEnabled = const Value.absent(),
     this.notificationTime = const Value.absent(),
     this.notificationDefaultOffsets = const Value.absent(),
+    this.paymentAlertsEnabled = const Value.absent(),
     required int updatedAt,
     this.rowid = const Value.absent(),
   }) : userId = Value(userId),
@@ -15088,6 +15144,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
     Expression<bool>? notificationEnabled,
     Expression<int>? notificationTime,
     Expression<String>? notificationDefaultOffsets,
+    Expression<bool>? paymentAlertsEnabled,
     Expression<int>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -15101,6 +15158,8 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
       if (notificationTime != null) 'notification_time': notificationTime,
       if (notificationDefaultOffsets != null)
         'notification_default_offsets': notificationDefaultOffsets,
+      if (paymentAlertsEnabled != null)
+        'payment_alerts_enabled': paymentAlertsEnabled,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -15114,6 +15173,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
     Value<bool>? notificationEnabled,
     Value<int?>? notificationTime,
     Value<String?>? notificationDefaultOffsets,
+    Value<bool>? paymentAlertsEnabled,
     Value<int>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -15126,6 +15186,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
       notificationTime: notificationTime ?? this.notificationTime,
       notificationDefaultOffsets:
           notificationDefaultOffsets ?? this.notificationDefaultOffsets,
+      paymentAlertsEnabled: paymentAlertsEnabled ?? this.paymentAlertsEnabled,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -15157,6 +15218,11 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
         notificationDefaultOffsets.value,
       );
     }
+    if (paymentAlertsEnabled.present) {
+      map['payment_alerts_enabled'] = Variable<bool>(
+        paymentAlertsEnabled.value,
+      );
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
@@ -15176,6 +15242,7 @@ class UserPreferencesCompanion extends UpdateCompanion<UserPreference> {
           ..write('notificationEnabled: $notificationEnabled, ')
           ..write('notificationTime: $notificationTime, ')
           ..write('notificationDefaultOffsets: $notificationDefaultOffsets, ')
+          ..write('paymentAlertsEnabled: $paymentAlertsEnabled, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -24300,6 +24367,7 @@ typedef $$UserPreferencesTableCreateCompanionBuilder =
       Value<bool> notificationEnabled,
       Value<int?> notificationTime,
       Value<String?> notificationDefaultOffsets,
+      Value<bool> paymentAlertsEnabled,
       required int updatedAt,
       Value<int> rowid,
     });
@@ -24312,6 +24380,7 @@ typedef $$UserPreferencesTableUpdateCompanionBuilder =
       Value<bool> notificationEnabled,
       Value<int?> notificationTime,
       Value<String?> notificationDefaultOffsets,
+      Value<bool> paymentAlertsEnabled,
       Value<int> updatedAt,
       Value<int> rowid,
     });
@@ -24357,6 +24426,11 @@ class $$UserPreferencesTableFilterComposer
 
   ColumnFilters<String> get notificationDefaultOffsets => $composableBuilder(
     column: $table.notificationDefaultOffsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get paymentAlertsEnabled => $composableBuilder(
+    column: $table.paymentAlertsEnabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24410,6 +24484,11 @@ class $$UserPreferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get paymentAlertsEnabled => $composableBuilder(
+    column: $table.paymentAlertsEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -24451,6 +24530,11 @@ class $$UserPreferencesTableAnnotationComposer
 
   GeneratedColumn<String> get notificationDefaultOffsets => $composableBuilder(
     column: $table.notificationDefaultOffsets,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get paymentAlertsEnabled => $composableBuilder(
+    column: $table.paymentAlertsEnabled,
     builder: (column) => column,
   );
 
@@ -24503,6 +24587,7 @@ class $$UserPreferencesTableTableManager
                 Value<int?> notificationTime = const Value.absent(),
                 Value<String?> notificationDefaultOffsets =
                     const Value.absent(),
+                Value<bool> paymentAlertsEnabled = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserPreferencesCompanion(
@@ -24513,6 +24598,7 @@ class $$UserPreferencesTableTableManager
                 notificationEnabled: notificationEnabled,
                 notificationTime: notificationTime,
                 notificationDefaultOffsets: notificationDefaultOffsets,
+                paymentAlertsEnabled: paymentAlertsEnabled,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -24526,6 +24612,7 @@ class $$UserPreferencesTableTableManager
                 Value<int?> notificationTime = const Value.absent(),
                 Value<String?> notificationDefaultOffsets =
                     const Value.absent(),
+                Value<bool> paymentAlertsEnabled = const Value.absent(),
                 required int updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => UserPreferencesCompanion.insert(
@@ -24536,6 +24623,7 @@ class $$UserPreferencesTableTableManager
                 notificationEnabled: notificationEnabled,
                 notificationTime: notificationTime,
                 notificationDefaultOffsets: notificationDefaultOffsets,
+                paymentAlertsEnabled: paymentAlertsEnabled,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

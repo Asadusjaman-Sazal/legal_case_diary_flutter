@@ -72,6 +72,7 @@ import '../../shared/widgets/database_guard.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../providers/notification_providers.dart';
 import '../providers/repository_providers.dart';
+import '../push/payment_alert_message.dart';
 import '../services/app_exit.dart';
 
 // ---------------------------------------------------------------------------
@@ -269,6 +270,21 @@ bool _isPublicLegalDocument(String location) =>
     location == AppRoutes.settingsPrivacyPolicy ||
     location == AppRoutes.settingsTermsOfService;
 
+/// Where a tapped notification's payload should take the app.
+///
+/// One function because there are two readers and they have to agree: the tap
+/// listener while the app is running, and this router itself when the tap is what
+/// launched the app. A hearing alert's payload **is** the case id, so it opens
+/// that case's detail view; the admin payment alert carries its own marker
+/// (`paymentAlertPayload`) and opens the page that count is about — Payment
+/// Requests, where it can actually be acted on.
+///
+/// A legal-looking payload that is neither is treated as a case id, which is what
+/// it has always been, so no existing alert changes destination.
+String notificationPayloadRoute(String payload) => payload == paymentAlertPayload
+    ? AppRoutes.adminPaymentRequests
+    : AppRoutes.caseDetailPath(payload);
+
 /// Resolves where a navigation to [location] should be sent, from the session
 /// facts the router already holds; null means "stay where the user asked".
 ///
@@ -339,12 +355,15 @@ class AuthRouterRefresh extends ChangeNotifier {
 final appRouterProvider = FutureProvider<GoRouter>((ref) async {
   var initialLocation = await ref.watch(defaultLandingRouteProvider.future);
 
-  // A hearing tap that launched the app opens that case directly, overriding
-  // the configured landing page for this one launch (Task 13 Phase 1, item 5).
+  // A tap that launched the app opens that notification's own screen directly,
+  // overriding the configured landing page for this one launch (Task 13 Phase 1,
+  // item 5 for a hearing alert; the admin payment alert joined it in 0.0.500).
   try {
-    final caseId = await ref.read(notificationSchedulerProvider).launchCaseId();
-    if (caseId != null && caseId.isNotEmpty) {
-      initialLocation = AppRoutes.caseDetailPath(caseId);
+    final payload = await ref
+        .read(notificationSchedulerProvider)
+        .launchPayload();
+    if (payload != null && payload.isNotEmpty) {
+      initialLocation = notificationPayloadRoute(payload);
     }
   } catch (_) {
     // No notification launched the app (or the platform has no plugin).

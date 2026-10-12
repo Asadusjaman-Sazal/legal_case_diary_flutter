@@ -21,6 +21,10 @@ plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "9.0.1" apply false
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
+    // Turns android/app/google-services.json into the resources the Firebase SDK
+    // reads (Task 23 follow-up — admin payment notifications). Declared here and
+    // applied in app/build.gradle.kts, like every other plugin in this project.
+    id("com.google.gms.google-services") version "4.5.0" apply false
 }
 
 include(":app")

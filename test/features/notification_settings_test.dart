@@ -7,15 +7,22 @@
 /// delivery time, and the OEM reminder banner plus setup-guide entry the plan
 /// adds on top of the mockup's three controls.
 ///
+/// The card carries one more pair for a **confirmed administrator** — Payment
+/// Request Alerts, the switch the push sender reads for itself. Who may see it
+/// is asserted here (`adminStatusProvider` is the seam), as is what switching it
+/// on asks the OS for.
+///
 /// The time window is Flutter's, so the বাংলা test asserts what the Bengali
 /// bundle is layered over it for: the English 12-hour layout with Bengali
 /// digits, Latin AM/PM and the app's dialog action size.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
+import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/notification_settings_screen.dart';
@@ -275,6 +282,97 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(scheduler.syncScheduleCalls, 4);
+  });
+
+  /// A viewport tall enough for the whole card plus the rows under it, for the
+  /// cases that reach the bottom pair: an off-screen row is not built at all.
+  void useTallViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+  }
+
+  /// Whether the server has confirmed this account as an administrator.
+  Override adminStatus(bool value) =>
+      adminStatusProvider.overrideWith((ref) async => value);
+
+  testWidgets('a non-administrator is not offered the payment-alert pair', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [adminStatus(false)],
+    );
+
+    // The panel is invisible to a non-admin, and so is every control of it: the
+    // switch would only ever write a preference nothing reads.
+    expect(find.text('Payment Request Alerts'), findsNothing);
+    expect(find.text('On'), findsOneWidget);
+    expect(find.text('Off'), findsOneWidget);
+  });
+
+  testWidgets('an administrator sees the payment-alert pair and its stored value', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    repo = FakeSettingsRepository(
+      const UserSettings(paymentAlertsEnabled: false),
+    );
+    final scheduler = FakeNotificationScheduler();
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [
+        adminStatus(true),
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    expect(find.text('Payment Request Alerts'), findsOneWidget);
+    // Two pairs now, the administrator's last — the switch defaults to on, so
+    // OFF here is the stored value rather than the default.
+    await tester.tap(find.text('On').at(1));
+    await tester.pumpAndSettle();
+
+    expect(repo.settings.paymentAlertsEnabled, isTrue);
+    // Nothing local is scheduled for it: the count is pushed by the server.
+    expect(scheduler.syncScheduleCalls, 0);
+    // The OS permission was already granted, so it is not asked for again.
+    expect(scheduler.permissionRequests, 0);
+  });
+
+  testWidgets('switching payment alerts on asks for the OS permission once', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    repo = FakeSettingsRepository(
+      const UserSettings(paymentAlertsEnabled: false),
+    );
+    final scheduler = FakeNotificationScheduler()
+      ..notificationsAllowedValue = false;
+    await pumpSettingsScreen(
+      tester,
+      const NotificationSettingsScreen(),
+      repo: repo,
+      overrides: [
+        adminStatus(true),
+        notificationSchedulerProvider.overrideWithValue(scheduler),
+      ],
+    );
+
+    await tester.tap(find.text('On').at(1));
+    await tester.pumpAndSettle();
+
+    // Android 13+ drops what an app may not post, so a switch turned on without
+    // the permission would be a switch that does nothing. The preference is still
+    // the user's answer: a refused prompt leaves the account in the fan-set, and
+    // the reminder banner already tells them what to fix.
+    expect(scheduler.permissionRequests, 1);
+    expect(repo.settings.paymentAlertsEnabled, isTrue);
   });
 
   testWidgets('shows the OEM reminder banner and setup-guide entry', (

@@ -2678,6 +2678,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifications_timeLabel => 'Notification Time';
 
   @override
+  String get settingsNotifications_paymentAlertsLabel =>
+      'Payment Request Alerts';
+
+  @override
   String get settingsNotifications_reminderBanner =>
       'Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.';
 
@@ -2732,6 +2736,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationJob_testBody =>
       'Hearing alerts are working. This is how a hearing reminder will look.';
+
+  @override
+  String get adminPush_channelName => 'Payment Requests';
+
+  @override
+  String get adminPush_channelDescription =>
+      'Alerts when a payment request is waiting for approval';
+
+  @override
+  String get adminPush_title => 'Payment Requests Pending';
+
+  @override
+  String get adminPush_bodyOne =>
+      'One payment request is waiting for your approval.';
+
+  @override
+  String adminPush_bodyMany(String count) {
+    return '$count payment requests are waiting for your approval.';
+  }
 
   @override
   String get settingsBatteryGuide_intro =>

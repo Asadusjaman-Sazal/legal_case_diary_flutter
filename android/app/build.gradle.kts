@@ -6,6 +6,12 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase Cloud Messaging (admin payment notifications). The plugin reads
+    // android/app/google-services.json, which is git-ignored: a build without it
+    // fails here rather than shipping an app whose push is silently dead.
+    // Google sign-in is unaffected — it passes its own serverClientId
+    // (docs/google_oauth_setup.md), it never reads this file's OAuth client.
+    id("com.google.gms.google-services")
 }
 
 // Release signing.

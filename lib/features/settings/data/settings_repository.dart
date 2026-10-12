@@ -105,6 +105,13 @@ class UserSettings {
   /// Available notification offsets selected in per-user settings.
   final List<int> notificationDefaultOffsets;
 
+  /// Whether this account wants a push when an admin's payment request is
+  /// waiting.
+  ///
+  /// Per-user, never firm-shared (Rev 2.4 scope contract). The sender reads the
+  /// synced column server-side, so switching it off silences a closed app too.
+  final bool paymentAlertsEnabled;
+
   /// Whether the user finished the OEM battery/auto-start setup guide.
   ///
   /// Until this is true the Notifications screen keeps showing the plan's
@@ -160,6 +167,7 @@ class UserSettings {
     this.notificationTime,
     this.notificationDayOffset = 1,
     this.notificationDefaultOffsets = const [1],
+    this.paymentAlertsEnabled = true,
     this.notificationSetupDone = false,
     this.notificationGuideShown = false,
     this.notificationAutoStartDone = false,
@@ -192,6 +200,7 @@ class UserSettings {
     notificationTime: notificationTime,
     notificationDayOffset: notificationDayOffset,
     notificationDefaultOffsets: notificationDefaultOffsets,
+    paymentAlertsEnabled: paymentAlertsEnabled,
     notificationSetupDone: notificationSetupDone,
     notificationGuideShown: notificationGuideShown,
     notificationAutoStartDone: notificationAutoStartDone,
@@ -220,6 +229,7 @@ class UserSettings {
     int? notificationTime,
     int? notificationDayOffset,
     List<int>? notificationDefaultOffsets,
+    bool? paymentAlertsEnabled,
     bool? notificationSetupDone,
     bool? notificationGuideShown,
     bool? notificationAutoStartDone,
@@ -245,6 +255,7 @@ class UserSettings {
     notificationDayOffset: notificationDayOffset ?? this.notificationDayOffset,
     notificationDefaultOffsets:
         notificationDefaultOffsets ?? this.notificationDefaultOffsets,
+    paymentAlertsEnabled: paymentAlertsEnabled ?? this.paymentAlertsEnabled,
     notificationSetupDone: notificationSetupDone ?? this.notificationSetupDone,
     notificationGuideShown: notificationGuideShown ?? this.notificationGuideShown,
     notificationAutoStartDone:
@@ -272,6 +283,7 @@ class UserSettings {
     'notification_enabled': notificationEnabled,
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
+    'payment_alerts_enabled': paymentAlertsEnabled,
     'notification_setup_done': notificationSetupDone,
     'notification_guide_shown': notificationGuideShown,
     'notification_auto_start_done': notificationAutoStartDone,
@@ -297,6 +309,7 @@ class UserSettings {
           row.notificationDefaultOffsets,
           fallback: 1,
         ),
+        paymentAlertsEnabled: row.paymentAlertsEnabled,
         language: effectiveLanguage,
       );
     }
@@ -361,6 +374,10 @@ class UserSettings {
       ),
       notificationEnabled:
           json['notification_enabled'] as bool? ?? row.notificationEnabled,
+      // Read the same way the toggle above is: the blob first, the column as the
+      // fallback, so a row written before this field existed still answers.
+      paymentAlertsEnabled:
+          json['payment_alerts_enabled'] as bool? ?? row.paymentAlertsEnabled,
       notificationTime: row.notificationTime,
       notificationDayOffset:
           (json['notification_day_offset'] as num?)?.toInt() ?? 1,
@@ -488,6 +505,7 @@ class LocalSettingsRepository implements SettingsRepository {
       notificationDefaultOffsets: Value(
         jsonEncode(settings.notificationDefaultOffsets),
       ),
+      paymentAlertsEnabled: Value(settings.paymentAlertsEnabled),
       language: Value(settings.language),
       updatedAt: Value(now),
     );

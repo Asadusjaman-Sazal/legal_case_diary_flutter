@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.496 - Print: Case No. column centred in the ruled case-list tables.
+Version: 0.0.500 - Admin payment alerts: a tap on the count now opens the panel's Payment Requests page, warm or cold, through one payload resolver that also keeps hearing alerts opening their case.
 --------------------------------------
 
 ## Version History Log:
@@ -510,3 +510,7 @@ Version: 0.0.493 - Side menu: a Rate App row between Share and Check for update,
 Version: 0.0.494 - Automatic Backup: automatic files are named AutomaticBackup_<stamp> and the previous one is deleted, so the folder holds one instead of one per day.
 Version: 0.0.495 - Admin Panel: Non-verified Accounts lists only sign-ups older than 72 hours, and its delete refuses a younger account as too_recent rather than hidden-only.
 Version: 0.0.496 - Print: Case No. column centred in the ruled case-list tables.
+Version: 0.0.497 - Task 23 follow-up Phase 1: Firebase is wired for admin payment notifications - firebase_core/firebase_messaging, the google-services Gradle plugin, and a git-ignored android/app/google-services.json recreated in CI from a new secret.
+Version: 0.0.498 - Admin payment alerts (server): device_tokens, the per-user push toggle, two server-only reads and a pg_net webhook feeding a new FCM sender Edge Function, applied to the project and pinned by a rolled-back smoke test.
+Version: 0.0.499 - Admin payment alerts (client): a confirmed admin's device registers with FCM and follows token changes, the sender's count is posted as one notification replaced in place and cancelled at zero, and Settings gains the admin-only Payment Request Alerts switch.
+Version: 0.0.500 - Admin payment alerts: a tap on the count now opens the panel's Payment Requests page, warm or cold, through one payload resolver that also keeps hearing alerts opening their case.

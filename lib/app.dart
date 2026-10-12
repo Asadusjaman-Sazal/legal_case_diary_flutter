@@ -11,6 +11,7 @@ import 'core/l10n/generated/app_localizations.dart';
 import 'core/backup/backup_scheduler_scope.dart';
 import 'core/notifications/notification_setup_gate.dart';
 import 'core/notifications/notification_tap_listener.dart';
+import 'core/push/admin_push_scope.dart';
 import 'features/settings/presentation/backup_nudge_banner.dart';
 import 'features/sync/presentation/recovery_required_screen.dart';
 import 'core/router/app_router.dart';
@@ -103,7 +104,14 @@ class App extends ConsumerWidget {
                               // returns on every launch until recovery succeeds.
                               child: RecoveryRequiredScope(
                                 child: UpdateCheckScope(
-                                  child: child ?? const SizedBox.shrink(),
+                                  // Innermost next to the screens: it renders its
+                                  // child untouched and, in the background,
+                                  // registers this device for admin payment
+                                  // alerts once the server confirms the account
+                                  // is an administrator's.
+                                  child: AdminPushScope(
+                                    child: child ?? const SizedBox.shrink(),
+                                  ),
                                 ),
                               ),
                             ),

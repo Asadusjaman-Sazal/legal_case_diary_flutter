@@ -137,7 +137,10 @@
 
 <main class="max-w-lg mx-auto w-full px-edge-margin py-md flex flex-col">
 
-  <!-- Preferences card: status pair, day offsets and time, all in one card. -->
+  <!-- Preferences card: status pair, day offsets and time, all in one card, then
+       the admin payment-alert pair — the one preference the server reads for itself.
+       That pair is drawn only to a **confirmed administrator**: the screen asks the
+       server, and a non-admin is shown nothing about a panel they cannot open. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
 
     <p class="font-label-md text-label-md text-on-surface-variant">Default Notification Status</p>
@@ -166,6 +169,19 @@
       <button class="w-full h-12 rounded-sm border border-outline-variant bg-surface-container-lowest px-md flex items-center active:bg-surface-container-low">
         <span class="flex-1 text-left font-body-lg text-body-lg text-on-surface">05:00 PM</span>
         <span class="material-symbols-outlined text-on-surface-variant">schedule</span>
+      </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Payment Request Alerts</p>
+    <div class="mt-md flex gap-md">
+      <!-- On is the active half: this one defaults to on for an administrator. -->
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        On
+      </button>
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg active:opacity-80">
+        <span class="material-symbols-outlined text-[20px]">notifications_off</span>
+        Off
       </button>
     </div>
   </div>

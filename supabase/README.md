@@ -208,6 +208,7 @@ for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_matrix_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rpc_smoke_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/push_changes_smoke_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/admin_payment_alerts_test.sql
 ```
 
 ## Project settings this repo cannot set
@@ -232,6 +233,33 @@ audited migration or service-role operation, never by a client. Bootstrap with
 ```sql
 insert into public.app_admins (user_id, granted_by) values ('<auth-user-uuid>', '<auth-user-uuid>');
 ```
+
+## Admin payment alerts — the secrets this repository cannot hold
+
+The admin push notification is the first thing here that is not only SQL:
+`supabase/functions/send-admin-payment-alerts/` is an Edge Function (deployed
+through the Supabase connector, `verify_jwt` off because a webhook has no user to
+sign in), and the webhook that calls it lives in
+`20261012120000_admin_payment_alerts.sql` — pg_net, installed into `extensions`
+so the advisor's "extension in public" warning stays away.
+
+Two secrets must exist before a notification can be delivered, and **both hold the
+same value** — a random string generated once and pasted into both places, never
+into this repository:
+
+| Where | Name | Why |
+|---|---|---|
+| Supabase → Project Settings → **Vault** | `fcm_webhook_secret` | the trigger reads it and sends it as `x-webhook-secret` |
+| Supabase → Project Settings → **Edge Functions → Secrets** | `FCM_WEBHOOK_SECRET` | the function compares the header with it, and answers 401 otherwise |
+
+The third is the service-account key, `FCM_SERVICE_ACCOUNT` — the whole downloaded
+JSON file, set the same way (`docs/firebase_fcm_setup.md` §6).
+
+Neither missing value is silent, deliberately. With no Vault secret the trigger
+raises a warning and sends nothing, so a payment submission is never failed by the
+notification side being unarmed; with no function secret the function answers 500
+`missing_fcm_webhook_secret`, and a wrong header answers 401, so a misconfiguration
+can never look like a delivered notification.
 
 ## Registering a new admin, and what the RPCs are for
 

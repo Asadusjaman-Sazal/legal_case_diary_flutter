@@ -57,13 +57,18 @@ abstract class NotificationScheduler {
   /// Must be awaited before scheduling, and before any launch payload is read.
   Future<void> initialize();
 
-  /// Registers the handler invoked when the user taps a hearing notification
-  /// while the app is running. Cold-start taps are read through [launchCaseId].
-  void onCaseSelected(ValueChanged<String> handler);
+  /// Registers the handler invoked when the user taps a notification while the
+  /// app is running. Cold-start taps are read through [launchPayload].
+  ///
+  /// The handler is handed the notification's **payload**, which names where the
+  /// tap should go: a case id for a hearing alert, and the admin payment alert's
+  /// own marker for the pending count. Resolving it into a route is the router's
+  /// job, not this contract's (`notificationPayloadRoute`).
+  void onNotificationSelected(ValueChanged<String> handler);
 
-  /// Case id of the notification that launched the app, or null on a normal
+  /// Payload of the notification that launched the app, or null on a normal
   /// launch.
-  Future<String?> launchCaseId();
+  Future<String?> launchPayload();
 
   /// Whether the OS currently allows this app to post notifications.
   Future<bool> notificationsAllowed();

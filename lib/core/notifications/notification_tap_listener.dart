@@ -1,10 +1,11 @@
 /// Bridges notification taps to the router.
 ///
 /// Mounted around the app's navigator, it registers the tap handler and
-/// initializes the scheduler once per app process (Task 13 Phase 1, item 5:
-/// a tap opens that case's detail view). A tap that *launches* the app is
-/// handled by [appRouterProvider] through the scheduler's launch payload, so
-/// both cold and warm taps land on the same screen.
+/// initializes the scheduler once per app process (Task 13 Phase 1, item 5: a tap
+/// opens the screen its notification is about — a hearing alert opens that case's
+/// detail view, the admin payment alert opens the panel's Payment Requests page).
+/// A tap that *launches* the app is handled by [appRouterProvider] through the
+/// same resolver, so cold and warm taps land on the same screen.
 library;
 
 import 'dart:async';
@@ -44,15 +45,20 @@ class _NotificationTapListenerState
     final scheduler = ref.read(notificationSchedulerProvider);
     // Register the handler before initializing, so a tap that arrives during
     // startup is not dropped.
-    scheduler.onCaseSelected(_openCase);
+    scheduler.onNotificationSelected(_openPayload);
     // Initialization arms the daily alarm; it must not delay the first frame,
     // so it runs unawaited and reports nothing the UI needs.
     unawaited(scheduler.initialize());
   }
 
-  void _openCase(String caseId) {
+  /// Opens the destination the tapped notification names.
+  ///
+  /// The payload is resolved through the router's own [notificationPayloadRoute],
+  /// so a warm tap and a tap that launched the app cannot disagree about where
+  /// the same notification goes.
+  void _openPayload(String payload) {
     if (!mounted) return;
-    widget.router.go(AppRoutes.caseDetailPath(caseId));
+    widget.router.go(notificationPayloadRoute(payload));
   }
 
   @override

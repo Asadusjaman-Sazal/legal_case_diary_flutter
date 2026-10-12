@@ -24,6 +24,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../core/push/push_gateway.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../../shared/providers/locale_provider.dart';
@@ -365,15 +366,43 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// logout task's; this only ends the session and forgets the cached account,
   /// and it never touches local data.
   ///
-  /// One thing it does clean up is the *server's* copy of an unfinished
-  /// onboarding (see [_abandonProvisionalOnboarding]), which has to happen while
-  /// the session still exists.
+  /// Two things it does clean up are the *server's* copies of this device — an
+  /// unfinished onboarding (see [_abandonProvisionalOnboarding]) and the device's
+  /// push registration (see [_unregisterDeviceToken]) — and both have to happen
+  /// while the session still exists.
   Future<void> signOut() async {
     await _abandonProvisionalOnboarding();
+    // Before `_repository.signOut()`: the `device_tokens` row is this device's
+    // own to delete only while it is still signed in.
+    await _unregisterDeviceToken();
     await _repository.signOut();
     await _forgetAccount();
     await _local.clear();
     state = const AsyncData(AuthState());
+  }
+
+  /// Removes this device's push registration, so the account that is leaving
+  /// stops being pushed to here.
+  ///
+  /// Best-effort on purpose, like the abandoned-onboarding cleanup below it: a
+  /// sign-out must always succeed — it is the one action a user may need
+  /// precisely when the network is gone. The ceiling is that an offline sign-out
+  /// leaves the row behind; the upgrade path is to remove it on the next launch
+  /// while the previous account is still known. Nothing is leaked by that: the
+  /// token is the row's primary key, so the next account to register on this
+  /// device takes the row over rather than sitting beside it.
+  Future<void> _unregisterDeviceToken() async {
+    try {
+      final token = await ref.read(pushGatewayProvider).token();
+      if (token == null) return;
+      await ref.read(deviceTokenRepositoryProvider).unregister(token);
+    } catch (error) {
+      recordFailure(
+        ref.read(errorLogProvider),
+        'auth.unregisterDeviceToken',
+        error,
+      );
+    }
   }
 
   /// Drops everything that belongs to the account that is leaving.

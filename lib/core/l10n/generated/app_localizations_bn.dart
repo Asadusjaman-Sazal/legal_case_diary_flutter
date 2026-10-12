@@ -2693,6 +2693,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsNotifications_timeLabel => 'নোটিফিকেশনের সময়';
 
   @override
+  String get settingsNotifications_paymentAlertsLabel =>
+      'পেমেন্ট অনুরোধ অ্যালার্ট';
+
+  @override
   String get settingsNotifications_reminderBanner =>
       'আপনার ডিভাইসে নোটিফিকেশন যথাযথভাবে কাজ নাও করতে পারে। সেটআপ সম্পন্ন করতে ট্যাপ করুন।';
 
@@ -2748,6 +2752,25 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get notificationJob_testBody =>
       'শুনানির অ্যালার্ট কাজ করছে। আসল রিমাইন্ডার এমনই দেখাবে।';
+
+  @override
+  String get adminPush_channelName => 'পেমেন্ট অনুরোধ';
+
+  @override
+  String get adminPush_channelDescription =>
+      'পেমেন্ট অনুরোধ অনুমোদনের অপেক্ষায় থাকলে অ্যালার্ট';
+
+  @override
+  String get adminPush_title => 'পেমেন্ট অনুরোধ অপেক্ষমাণ';
+
+  @override
+  String get adminPush_bodyOne =>
+      'একটি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।';
+
+  @override
+  String adminPush_bodyMany(String count) {
+    return '$countটি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।';
+  }
 
   @override
   String get settingsBatteryGuide_intro =>

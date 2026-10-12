@@ -139,10 +139,17 @@ variables → Actions), so neither file is ever committed:
 | `ANDROID_KEY_PASSWORD` | its `keyPassword` |
 | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID` | the `env.json` values described under *Running With A Backend* |
 | `PAYMENTS_BKASH_NUMBER`, `PAYMENTS_NAGAD_NUMBER`, `PAYMENTS_ROCKET_NUMBER` | optional payment numbers |
+| `GOOGLE_SERVICES_JSON_BASE64` | `android/app/google-services.json` from the Firebase console, base64-encoded: `base64 -w0 android/app/google-services.json` |
 
 The four signing secrets and the three backend secrets are all required: the job refuses to build without the
 signing ones, and refuses too when a backend value is empty, because `SupabaseConfig` reads an empty value as
-*not configured* and the released APK would start in its offline shape.
+*not configured* and the released APK would start in its offline shape. `GOOGLE_SERVICES_JSON_BASE64` is
+required for the same reason: without it the google-services Gradle plugin cannot configure the app, and the
+admin notifications that Firebase Cloud Messaging delivers would not exist in the build.
+
+`android/app/google-services.json` is git-ignored like `env.json`, so a machine that builds for Android needs
+its own copy — [`docs/firebase_fcm_setup.md`](docs/firebase_fcm_setup.md) walks through creating the Firebase
+project, registering the Android app with package `com.legalcasediary.app`, and reading the FCM admin key.
 
 ## Running With A Backend
 

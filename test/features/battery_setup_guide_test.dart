@@ -426,7 +426,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       scheduler
         ..device = const DeviceIdentity(manufacturer: 'Xiaomi')
-        ..launchCaseIdValue = 'case-9';
+        ..launchPayloadValue = 'case-9';
 
       await pumpApp(tester, db, scheduler, prefs);
       expect(find.byType(BatterySetupGuideScreen), findsNothing);

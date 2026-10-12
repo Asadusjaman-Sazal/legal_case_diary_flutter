@@ -68,3 +68,11 @@ supabase/.env.local
 # secret — every build ships them — but a build must never inherit one project's
 # key by accident, so they stay out of the repository.
 env.json
+
+# Firebase configuration for Cloud Messaging, read by the google-services Gradle
+# plugin (admin payment notifications, Task 23 follow-up). Google ships this file
+# inside every APK, so it is not a secret — but it is a build input naming one
+# Firebase project, and a build must not inherit another project's config by
+# accident. Recreated in CI from the GOOGLE_SERVICES_JSON_BASE64 secret; see
+# docs/firebase_fcm_setup.md.
+android/app/google-services.json

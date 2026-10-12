@@ -1144,6 +1144,7 @@
       }
   },
   "settingsNotifications_timeLabel": "নোটিফিকেশনের সময়",
+  "settingsNotifications_paymentAlertsLabel": "পেমেন্ট অনুরোধ অ্যালার্ট",
   "settingsNotifications_reminderBanner": "আপনার ডিভাইসে নোটিফিকেশন যথাযথভাবে কাজ নাও করতে পারে। সেটআপ সম্পন্ন করতে ট্যাপ করুন।",
   "settingsNotifications_setupGuide": "ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড",
   "settingsNotifications_setupGuideSubtitle": "শাওমি, অপো, ভিভো ও রিয়েলমি ফোনে প্রয়োজন",
@@ -1179,6 +1180,20 @@
   },
   "notificationJob_testTitle": "পরীক্ষামূলক নোটিফিকেশন",
   "notificationJob_testBody": "শুনানির অ্যালার্ট কাজ করছে। আসল রিমাইন্ডার এমনই দেখাবে।",
+  "@@_section_adminPush": "NOTIFICATIONS - ADMIN PAYMENT ALERTS (PUSH)  |  lib/core/push/payment_alert_message.dart",
+  "adminPush_channelName": "পেমেন্ট অনুরোধ",
+  "adminPush_channelDescription": "পেমেন্ট অনুরোধ অনুমোদনের অপেক্ষায় থাকলে অ্যালার্ট",
+  "adminPush_title": "পেমেন্ট অনুরোধ অপেক্ষমাণ",
+  "adminPush_bodyOne": "একটি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।",
+  "adminPush_bodyMany": "{count}টি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।",
+  "@adminPush_bodyMany": {
+      "description": "Body of the admin payment alert. The count arrives already written in the active language's own digits, so it stays a String.",
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
   "@@_section_settingsBatteryGuide": "SETTINGS - BATTERY & AUTO-START GUIDE  |  lib/features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart",
   "settingsBatteryGuide_intro": "শাওমি, অপো, ভিভো, রিয়েলমি ও অনুরূপ ফোন ব্যাটারি বাঁচাতে ব্যাকগ্রাউন্ড অ্যালার্ম বন্ধ করে দেয়, তাই শুনানির রিমাইন্ডার নীরবে ব্যর্থ হতে পারে। এই দুই-তিনটি ধাপ সেগুলো চালু রাখবে।",
   "settingsBatteryGuide_autoStartTitle": "অটো-স্টার্ট অনুমতি দিন",

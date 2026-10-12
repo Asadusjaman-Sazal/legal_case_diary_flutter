@@ -5,6 +5,10 @@
 /// time — plus the OEM battery-setup reminder banner and guide entry that the
 /// plan (§10, Task 13) requires on this screen.
 ///
+/// The card carries one more pair for a **confirmed administrator**: Payment
+/// Request Alerts, the per-user switch the push sender reads for itself so a
+/// silenced account is skipped server-side, while the app is closed.
+///
 /// The day offsets are a multi-select list, so one hearing can alert several
 /// times (the same choice the case form offers per case), and the picker row
 /// shows every ticked offset. The time window stays Flutter's, with the Bengali
@@ -29,6 +33,7 @@ import '../../../../core/notifications/notification_plan.dart';
 import '../../../../core/providers/notification_providers.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../admin/presentation/admin_viewmodel.dart';
 import '../../data/notification_day_offsets.dart';
 import 'notification_time_picker.dart';
 import '../../data/settings_repository.dart';
@@ -46,6 +51,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final settings =
         ref.watch(settingsViewModelProvider).value ?? const UserSettings();
+    // Whether this screen may offer the payment-alert switch at all.
+    final isAdmin = ref.watch(adminStatusProvider).value ?? false;
     final timeMinutes = settings.notificationTime ?? defaultNotificationMinutes;
     final dayOffsets = _tickedDayOffsets(settings);
 
@@ -106,6 +113,39 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   icon: Icons.schedule,
                   onTap: () => _pickTime(context, ref, timeMinutes),
                 ),
+                // Admin payment alerts, for a **confirmed administrator only**
+                // — the same rule the panel itself follows, and the reason is the
+                // same: a non-admin is shown nothing about a feature they cannot
+                // have. False while the server's answer loads, so the row never
+                // flashes in and out.
+                if (isAdmin) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  // Not a hearing reminder: the count arrives from the server
+                  // while the app is closed, and this switch is the per-user
+                  // preference the sender reads for itself, so it silences the
+                  // phone rather than only the app.
+                  SettingsSectionLabel(
+                    l.settingsNotifications_paymentAlertsLabel,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      SettingsChoiceButton(
+                        label: l.settingsNotifications_on,
+                        icon: Icons.notifications_outlined,
+                        selected: settings.paymentAlertsEnabled,
+                        onTap: () => _setPaymentAlerts(ref, true),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      SettingsChoiceButton(
+                        label: l.settingsNotifications_off,
+                        icon: Icons.notifications_off_outlined,
+                        selected: !settings.paymentAlertsEnabled,
+                        onTap: () => _setPaymentAlerts(ref, false),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -172,6 +212,30 @@ class NotificationSettingsScreen extends ConsumerWidget {
           (current) => current.copyWith(notificationEnabled: enabled),
         );
     await _resyncSchedule(ref);
+  }
+
+  /// Persists the admin payment-alert toggle.
+  ///
+  /// Nothing local is scheduled for it — the count is pushed by the server — so
+  /// there is no alarm to re-arm; the saved preference is what reaches the
+  /// sender, and an account that is not an administrator never receives one.
+  ///
+  /// Switching it **on** asks for the OS notification permission if the app does
+  /// not have it, the same question the test alert below asks: Android 13+ drops
+  /// a notification an app may not post, so a preference switched on without it
+  /// would be a switch that does nothing.
+  Future<void> _setPaymentAlerts(WidgetRef ref, bool enabled) async {
+    if (enabled) {
+      final scheduler = ref.read(notificationSchedulerProvider);
+      if (!await scheduler.notificationsAllowed()) {
+        await scheduler.requestNotificationsPermission();
+      }
+    }
+    await ref
+        .read(settingsViewModelProvider.notifier)
+        .updateSettings(
+          (current) => current.copyWith(paymentAlertsEnabled: enabled),
+        );
   }
 
   /// Keeps the armed alarm in step with what was just saved.

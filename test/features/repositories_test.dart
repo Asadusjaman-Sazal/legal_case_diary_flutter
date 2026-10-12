@@ -294,6 +294,41 @@ void main() {
       },
     );
 
+    // The admin payment-alert toggle is a per-user preference like the rest, and
+    // the server reads its synced column for itself — so it has to survive both
+    // the JSON blob and the row, and default to on for an install that has never
+    // touched it.
+    test('UserSettings carries the admin payment-alert toggle', () {
+      expect(
+        const UserSettings().paymentAlertsEnabled,
+        isTrue,
+        reason: 'an admin who never chose is alerted by default',
+      );
+
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          paymentAlertsEnabled: true,
+          viewSettingsJson: jsonEncode(
+            const UserSettings(paymentAlertsEnabled: false).toJson(),
+          ),
+          updatedAt: 1,
+        ),
+      );
+
+      expect(
+        restored.paymentAlertsEnabled,
+        isFalse,
+        reason: 'the saved value wins over the column it was saved beside',
+      );
+      expect(
+        jsonDecode(jsonEncode(const UserSettings().toJson()))['payment_alerts_enabled'],
+        isTrue,
+        reason: 'the toggle travels in the blob the sync payload reads from',
+      );
+    });
+
     test('UserSettings round-trips the Bottom Navigation screen order', () {
       const saved = UserSettings(
         bottomNavTabs: <String>['active', 'all_cases'],
@@ -304,6 +339,7 @@ void main() {
         UserPreference(
           userId: 'user-1',
           notificationEnabled: false,
+          paymentAlertsEnabled: true,
           viewSettingsJson: jsonEncode(saved.toJson()),
           updatedAt: 1,
         ),
@@ -324,6 +360,7 @@ void main() {
         UserPreference(
           userId: 'user-1',
           notificationEnabled: false,
+          paymentAlertsEnabled: true,
           viewSettingsJson: jsonEncode(saved.toJson()),
           updatedAt: 1,
         ),
@@ -348,6 +385,7 @@ void main() {
         UserPreference(
           userId: 'user-1',
           notificationEnabled: false,
+          paymentAlertsEnabled: true,
           viewSettingsJson: jsonEncode(saved.toJson()),
           updatedAt: 1,
         ),
@@ -376,6 +414,7 @@ void main() {
         UserPreference(
           userId: 'user-1',
           notificationEnabled: false,
+          paymentAlertsEnabled: true,
           viewSettingsJson: jsonEncode(saved.toJson()),
           updatedAt: 1,
         ),
@@ -393,6 +432,7 @@ void main() {
         const UserPreference(
           userId: 'user-1',
           notificationEnabled: true,
+          paymentAlertsEnabled: true,
           notificationDefaultOffsets: '[0, 3]',
           viewSettingsJson: '{not-json',
           updatedAt: 1,

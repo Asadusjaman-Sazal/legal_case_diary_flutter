@@ -41,6 +41,15 @@ const List<String> preferenceTables = <String>[
   'case_notification_preferences',
 ];
 
+/// Local operational data the client writes about itself, mirrored server-side:
+/// it never syncs, never reaches a firm and never takes a tombstone. Unlike every
+/// other client-writable table it is legitimately **hard**-deleted, because a
+/// device unregisters its own push token on the way out of an account (0.0.498,
+/// the admin payment-alert server half).
+const List<String> localOperationalTables = <String>[
+  'device_tokens',
+];
+
 /// Server-managed/account/payment tables created by this task.
 const List<String> serverManagedTables = <String>[
   'firm_invites',
@@ -73,6 +82,7 @@ List<String> expectedTables() => <String>[
   ...domainTables,
   ...pullOnlyTables,
   ...preferenceTables,
+  ...localOperationalTables,
   ...serverManagedTables,
 ];
 
@@ -293,8 +303,13 @@ void main() {
           .allMatches(sql)
           .map((match) => match.group(1)!)
           .toSet();
-      // Removing an associate is the one legitimate hard delete in the schema.
-      expect(deleteTargets, <String>{'firm_members'});
+      // Two legitimate hard deletes, and both are about a *membership* rather
+      // than about data: removing an associate, and a device removing its own
+      // push token so a phone that has left an account stops being notified.
+      // Neither table is a soft-deletable domain table — `device_tokens` has no
+      // tombstone columns at all — and nothing here loosens the rule for the
+      // domain class, which the loop below still enforces.
+      expect(deleteTargets, <String>{'firm_members', 'device_tokens'});
       for (final table in domainTables) {
         expect(deleteTargets, isNot(contains(table)));
       }

@@ -127,6 +127,7 @@ Future<void> seedLocalPreferences(
   bool notificationEnabled = false,
   int? notificationTime,
   String? notificationDefaultOffsets,
+  bool paymentAlertsEnabled = true,
   required int updatedAt,
 }) => UserPreferencesDao(db).upsert(
   UserPreferencesCompanion(
@@ -136,6 +137,7 @@ Future<void> seedLocalPreferences(
     notificationEnabled: Value(notificationEnabled),
     notificationTime: Value(notificationTime),
     notificationDefaultOffsets: Value(notificationDefaultOffsets),
+    paymentAlertsEnabled: Value(paymentAlertsEnabled),
     updatedAt: Value(updatedAt),
   ),
 );
@@ -167,6 +169,9 @@ Map<String, Object?> serverUserPreferences({
   bool notificationEnabled = false,
   int? notificationTime,
   String? notificationDefaultOffsets,
+  // Left out when null: a row written before the column existed has no key for
+  // it at all, which is a different value from a row that says `false`.
+  bool? paymentAlertsEnabled,
   required int updatedAt,
 }) => <String, Object?>{
   'user_id': 'user-1',
@@ -176,6 +181,7 @@ Map<String, Object?> serverUserPreferences({
   'notification_enabled': notificationEnabled,
   'notification_time': notificationTime,
   'notification_default_offsets': notificationDefaultOffsets,
+  'payment_alerts_enabled': ?paymentAlertsEnabled,
   'updated_at': updatedAt,
 };
 
@@ -222,6 +228,9 @@ void main() {
             notificationEnabled: true,
             notificationTime: 540,
             notificationDefaultOffsets: '[1,2]',
+            // Deliberately not the column's default: the switch the alert sender
+            // reads for itself has to travel as the user set it.
+            paymentAlertsEnabled: false,
             updatedAt: 200,
           );
           final row = (await UserPreferencesDao(db).getByUserId('user-1'))!;
@@ -233,6 +242,7 @@ void main() {
             'notification_enabled': true,
             'notification_time': 540,
             'notification_default_offsets': '[1,2]',
+            'payment_alerts_enabled': false,
             'updated_at': 200,
           });
           // Nothing in the app writes `theme`; sending the stored null could
@@ -261,6 +271,23 @@ void main() {
         expect(companion.notificationDefaultOffsets.value, '[3]');
         expect(companion.viewSettingsJson.value, '{"font_size_step":1}');
         expect(companion.updatedAt.value, 500);
+        // This row has no key for the payment-alert switch — it was written
+        // before the column existed — and "never touched it" is the column's own
+        // default of on, which is how the sender reads it too.
+        expect(companion.paymentAlertsEnabled.value, isTrue);
+
+        final switchedOff = userPreferencesCompanion(
+          serverUserPreferences(
+            paymentAlertsEnabled: false,
+            updatedAt: 500,
+          ),
+          userId: 'user-1',
+        );
+        expect(
+          switchedOff.paymentAlertsEnabled.value,
+          isFalse,
+          reason: 'the account\'s own switch survives the pull',
+        );
       });
 
       test(
@@ -281,6 +308,7 @@ void main() {
             'notification_enabled': false,
             'notification_time': null,
             'notification_default_offsets': null,
+            'payment_alerts_enabled': true,
             'updated_at': 200,
           });
           final local = (await UserPreferencesDao(db).getByUserId('user-1'))!;

@@ -1307,6 +1307,7 @@
       }
   },
   "settingsNotifications_timeLabel": "Notification Time",
+  "settingsNotifications_paymentAlertsLabel": "Payment Request Alerts",
   "settingsNotifications_reminderBanner": "Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.",
   "settingsNotifications_setupGuide": "Battery & Auto-Start Setup Guide",
   "settingsNotifications_setupGuideSubtitle": "Required on Xiaomi, Oppo, Vivo and Realme Phones",
@@ -1342,6 +1343,20 @@
   },
   "notificationJob_testTitle": "Test Notification",
   "notificationJob_testBody": "Hearing alerts are working. This is how a hearing reminder will look.",
+  "@@_section_adminPush": "NOTIFICATIONS - ADMIN PAYMENT ALERTS (PUSH)  |  lib/core/push/payment_alert_message.dart",
+  "adminPush_channelName": "Payment Requests",
+  "adminPush_channelDescription": "Alerts when a payment request is waiting for approval",
+  "adminPush_title": "Payment Requests Pending",
+  "adminPush_bodyOne": "One payment request is waiting for your approval.",
+  "adminPush_bodyMany": "{count} payment requests are waiting for your approval.",
+  "@adminPush_bodyMany": {
+      "description": "Body of the admin payment alert. The count arrives already written in the active language's own digits, so it stays a String.",
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
   "@@_section_settingsBatteryGuide": "SETTINGS - BATTERY & AUTO-START GUIDE  |  lib/features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart",
   "settingsBatteryGuide_intro": "Xiaomi, Oppo, Vivo, Realme and similar phones stop background alarms to save battery, so hearing reminders can fail silently. These two or three steps keep them working.",
   "settingsBatteryGuide_autoStartTitle": "Allow Auto-Start",

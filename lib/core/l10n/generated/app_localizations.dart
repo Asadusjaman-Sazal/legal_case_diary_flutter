@@ -5763,7 +5763,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_appUpdateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Check For Updates And Update The App'**
+  /// **'Check for updates and update the app'**
   String get settingsUpdate_appUpdateSubtitle;
 
   /// No description provided for @settingsUpdate_autoUpdate.
@@ -5775,7 +5775,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_autoUpdateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose How Often To Check For Updates'**
+  /// **'Choose how often to check for updates'**
   String get settingsUpdate_autoUpdateSubtitle;
 
   /// No description provided for @settingsUpdate_networkTitle.
@@ -5787,19 +5787,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_networkSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose Which Network Downloads The Update'**
+  /// **'Choose which network downloads the update'**
   String get settingsUpdate_networkSubtitle;
 
   /// No description provided for @settingsUpdate_networkWifi.
   ///
   /// In en, this message translates to:
-  /// **'Wi-Fi'**
+  /// **'Wi-Fi Only'**
   String get settingsUpdate_networkWifi;
 
   /// No description provided for @settingsUpdate_networkMobileData.
   ///
   /// In en, this message translates to:
-  /// **'Mobile Data'**
+  /// **'Wi-Fi & Mobile Data'**
   String get settingsUpdate_networkMobileData;
 
   /// No description provided for @settingsUpdate_currentVersion.

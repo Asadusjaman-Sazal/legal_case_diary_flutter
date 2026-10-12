@@ -40,6 +40,20 @@
 - **Tests.** `manage_account_test.dart` + `delete_account_test.dart` **27 passed**: ticking Notes now types the phrase through the new screen, new back-cancels case, cloud-card case extended, Danger Zone size + both buttons' red/white pinned. `arb_keys_test` green. Full `flutter analyze` clean. Version **0.0.474**.
 - **Resume point:** nothing owed in code. Device check: tick data → Delete Selected → typed screen (button disabled until `delete my data`, same words in Bengali) → deletion + toast; back from the typed screen deletes nothing; both pop-overs show red buttons with white text; Danger Zone reads 1px bigger.
 
+### 2026-10-12 — Update sub-page: sentence-case instructions, and the network choice relabelled — COMPLETE
+
+- **Request (the user's, the Update sub-page only).** The three cards' supporting lines should read in **general case** — they are instructions, not titles; and the network buttons should say **Wi-Fi Only** and **Wi-Fi & Mobile Data** (the latter allowing either network), **stacking one after another full-length** when side by side does not fit.
+- **The casing is the app's own rule applied correctly.** Rule 11 makes *labels* Title Case; prose is sentence case, and a card's subtitle is an instruction. The three read *Check for updates and update the app* / *Choose how often to check for updates* / *Choose which network downloads the update*. (The Backup & Restore screen's equivalent subtitles are still Title Case — left alone as out of scope, and worth a follow-up for consistency.) Bengali has no letter case, so only the two relabelled buttons changed there.
+- **The relabel is a real change of meaning, not a rename.** "Mobile Data" was ambiguous — it read as *use mobile data* when the setting actually means *allow either*. **Wi-Fi & Mobile Data** says what it does.
+- **Layout: measured, not a breakpoint.** The longer label needs ~169 dp but an equal half of a 360 dp phone gives ~150 dp, so on a narrow screen they must stack — and the app's font-size steps move that boundary, which a fixed breakpoint would get wrong. `UpdateNetworkCard` now measures both labels with the active text style *and* the active text scaler, and picks a `Row` or a `Column` accordingly. `_NetworkButton` uses a `minHeight` floor rather than a fixed 56 dp box, so a label that wraps at a large font step is not clipped.
+- **Tests (one new, two retargeted).** The two existing network cases now assert the new labels; a new case pins the stacking at a 320 dp width (second button below the first, both full width, label inside its button). The suite's `pump` helper gained a `surface` parameter, since the card measures the width it is given.
+- **Teeth (proven and reverted).** Forcing the side-by-side branch fails the stacking case; the screen was restored byte-for-byte (md5 verified) and the suite re-run green.
+- **Verification.** `flutter analyze` clean; full suite **1679 passed**; `arb_keys_test.dart` green; `record_version.py --check` OK; version **0.0.485**.
+- **Records (rule 14).** The plan's §12.3 bullet and Task 12's updater paragraph both named the old labels and the old Title Case subtitles, so each was amended in place.
+- **Mockup (rule 9).** `settings_about/code.html`'s comment now names the two labels, the stacking rule and the sentence-case reason. Tags re-checked balanced.
+- **Not changed:** the update engine, the stored preference values (`wifi` / `mobileData` are unchanged, so an existing choice survives), the dot, Support's position, and the Backup screen's own subtitles.
+- **Device check owed.** Open About > Update and expand Update Over Network: the two buttons read *Wi-Fi Only* and *Wi-Fi & Mobile Data*, Wi-Fi Only is filled by default, and on a narrow phone (or at a large font step) they stack full-length rather than clipping.
+
 ### 2026-10-12 — App Update: error handling hardened by a self-audit — COMPLETE
 
 - **Asked to re-audit the updater.** The second pass found two real behaviours wrong, both in how errors reach the user.

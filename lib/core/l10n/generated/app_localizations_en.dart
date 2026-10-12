@@ -3334,27 +3334,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUpdate_appUpdateSubtitle =>
-      'Check For Updates And Update The App';
+      'Check for updates and update the app';
 
   @override
   String get settingsUpdate_autoUpdate => 'Auto Check For Update';
 
   @override
   String get settingsUpdate_autoUpdateSubtitle =>
-      'Choose How Often To Check For Updates';
+      'Choose how often to check for updates';
 
   @override
   String get settingsUpdate_networkTitle => 'Update Over Network';
 
   @override
   String get settingsUpdate_networkSubtitle =>
-      'Choose Which Network Downloads The Update';
+      'Choose which network downloads the update';
 
   @override
-  String get settingsUpdate_networkWifi => 'Wi-Fi';
+  String get settingsUpdate_networkWifi => 'Wi-Fi Only';
 
   @override
-  String get settingsUpdate_networkMobileData => 'Mobile Data';
+  String get settingsUpdate_networkMobileData => 'Wi-Fi & Mobile Data';
 
   @override
   String get settingsUpdate_currentVersion => 'Current Version:';

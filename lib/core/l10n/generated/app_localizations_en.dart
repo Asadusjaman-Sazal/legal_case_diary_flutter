@@ -3434,18 +3434,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSupport_scopeTitle => 'Before You Write To Us';
 
   @override
+  String get settingsSupport_helpTitle => 'What can we help you with:';
+
+  @override
+  String get settingsSupport_faqCardPrefix =>
+      'Most questions are already answered in ';
+
+  @override
+  String get settingsSupport_faqCardSuffix => '.';
+
+  @override
   String get settingsSupport_scope =>
       'We can help you with the app itself: how a feature works, something that is not behaving as it should, or a backup that will not restore. We cannot see your diary — it stays on your phone — and we cannot check, confirm or look up a hearing date for you.';
 
   @override
   String get settingsSupport_faqLead =>
-      'Most questions are already answered here.';
+      'Use Diagnostics to find errors in the app.';
 
   @override
-  String get settingsSupport_faqLink => 'Open Guidelines & FAQs';
-
-  @override
-  String get settingsSupport_channelsLabel => 'Write To Us';
+  String get settingsSupport_channelsLabel => 'Write to Us';
 
   @override
   String get settingsSupport_channelWhatsApp => 'WhatsApp';
@@ -3474,14 +3481,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'What happened, and what I did just before it:';
 
   @override
-  String get settingsSupport_warningTitle => 'Never Send These';
+  String get settingsSupport_warningTitle => 'Never send these:';
 
   @override
   String get settingsSupport_warningBody =>
       'Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.';
 
   @override
-  String get settingsSupport_replyTitle => 'When You Will Hear Back';
+  String get settingsSupport_replyTitle => 'When you will hear back:';
 
   @override
   String get settingsSupport_replyBody =>
@@ -4377,6 +4384,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_title => 'Diagnostics';
+
+  @override
+  String get settingsDiagnostics_reportBug => 'Report Error Or Bug';
+
+  @override
+  String get settingsDiagnostics_reportBugTitle =>
+      'How Would You Like To Send It?';
+
+  @override
+  String get settingsDiagnostics_reportBugBody =>
+      'The message includes your app version, phone and the error log below, so nothing else needs to be attached.';
 
   @override
   String get settingsDiagnostics_hint =>

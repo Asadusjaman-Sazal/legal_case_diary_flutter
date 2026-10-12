@@ -1566,7 +1566,7 @@
   "settingsUpdate_networkWifi": "Wi-Fi Only",
   "settingsUpdate_networkMobileData": "Wi-Fi & Mobile Data",
   "settingsUpdate_currentVersion": "Current Version:",
-  "settingsUpdate_checkForUpdate": "Check For Update",
+  "settingsUpdate_checkForUpdate": "Check for update",
   "settingsUpdate_checking": "Checking For Update",
   "settingsUpdate_updateNow": "Update Now",
   "settingsUpdate_later": "Later",
@@ -1579,7 +1579,14 @@
           }
       }
   },
-  "settingsUpdate_latest": "You're on the latest version.",
+  "settingsUpdate_latestVersion": "You are on the latest {version} version.",
+  "@settingsUpdate_latestVersion": {
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
   "settingsUpdate_mobileDataTitle": "Download Over Mobile Data?",
   "settingsUpdate_mobileDataBody": "You are on mobile data and the update is a large download. Continue, or switch to Wi-Fi to download it there.",
   "settingsUpdate_mobileDataContinue": "Continue",

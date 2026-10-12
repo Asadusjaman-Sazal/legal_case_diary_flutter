@@ -1416,7 +1416,14 @@
           }
       }
   },
-  "settingsUpdate_latest": "আপনি সর্বশেষ ভার্সনে আছেন।",
+  "settingsUpdate_latestVersion": "আপনি সর্বশেষ ভার্সনে আছেন ({version})।",
+  "@settingsUpdate_latestVersion": {
+      "placeholders": {
+          "version": {
+              "type": "String"
+          }
+      }
+  },
   "settingsUpdate_mobileDataTitle": "মোবাইল ডেটায় ডাউনলোড করবেন?",
   "settingsUpdate_mobileDataBody": "আপনি মোবাইল ডেটায় আছেন এবং আপডেটটি বড় ডাউনলোড। চালিয়ে যান, অথবা ওয়াই-ফাইতে গিয়ে ডাউনলোড করুন।",
   "settingsUpdate_mobileDataContinue": "চালিয়ে যান",

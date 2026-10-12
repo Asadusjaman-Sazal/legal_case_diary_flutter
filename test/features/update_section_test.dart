@@ -119,7 +119,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('update-app-update')), findsOneWidget);
     expect(find.text('Current Version: V$appVersion'), findsOneWidget);
-    expect(find.text('Check For Update'), findsOneWidget);
+    expect(find.text('Check for update'), findsOneWidget);
     // Auto Check is folded by default, so its radio list is off-screen.
     expect(find.text('Off'), findsNothing);
   });
@@ -235,7 +235,7 @@ void main() {
     );
     await pump(tester, repo);
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
 
     expect(find.text('Update Now'), findsOneWidget);
@@ -260,7 +260,7 @@ void main() {
     );
     await pump(tester, repo);
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
     expect(find.text('Update Now'), findsOneWidget);
 
@@ -269,7 +269,7 @@ void main() {
 
     // Back to at rest, with the offer gone and nothing to nag about.
     expect(find.text('Update Now'), findsNothing);
-    expect(find.text('Check For Update'), findsOneWidget);
+    expect(find.text('Check for update'), findsOneWidget);
     expect(find.text('Later'), findsNothing);
   });
 
@@ -285,18 +285,21 @@ void main() {
     );
     await pump(tester, repo);
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('update-skip-version')));
     await tester.pumpAndSettle();
 
     // Checking again reports the latest version rather than re-offering the
     // release the user retired.
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
 
     expect(find.text('Update Now'), findsNothing);
-    expect(find.text('You\'re on the latest version.'), findsOneWidget);
+    expect(
+      find.text('You are on the latest V$appVersion version.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Wi-Fi only asks before downloading on mobile data', (
@@ -319,7 +322,7 @@ void main() {
     );
     await pump(tester, repo, monitor: _FakeMonitor(onMobileData: true));
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Update Now'));
     await tester.pumpAndSettle();
@@ -347,7 +350,7 @@ void main() {
     );
     await pump(tester, repo, monitor: _FakeMonitor(onMobileData: false));
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Update Now'));
     await tester.pump();
@@ -366,7 +369,7 @@ void main() {
     );
     await pump(tester, repo);
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
 
     // The technical cause is logged, never shown: a Bengali user must not be
@@ -383,10 +386,13 @@ void main() {
   testWidgets('no newer release shows the green latest line', (tester) async {
     await pump(tester, _FakeUpdateRepository());
 
-    await tester.tap(find.text('Check For Update'));
+    await tester.tap(find.text('Check for update'));
     await tester.pumpAndSettle();
 
-    expect(find.text('You\'re on the latest version.'), findsOneWidget);
+    expect(
+      find.text('You are on the latest V$appVersion version.'),
+      findsOneWidget,
+    );
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
 }

@@ -3398,7 +3398,9 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get settingsUpdate_latest => 'আপনি সর্বশেষ ভার্সনে আছেন।';
+  String settingsUpdate_latestVersion(String version) {
+    return 'আপনি সর্বশেষ ভার্সনে আছেন ($version)।';
+  }
 
   @override
   String get settingsUpdate_mobileDataTitle => 'মোবাইল ডেটায় ডাউনলোড করবেন?';

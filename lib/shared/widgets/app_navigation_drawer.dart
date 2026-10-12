@@ -49,6 +49,9 @@ import '../../features/accounts_and_profile/data/profile_picture_store.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/logout_dialogs.dart';
 import '../../features/payments/presentation/current_plan.dart';
+import '../../features/settings/data/update_metadata_store.dart';
+import '../../features/settings/presentation/settings_controls.dart';
+import '../../features/settings/presentation/update_flow.dart';
 
 /// A nav item descriptor used to build drawer rows.
 class _NavItem {
@@ -416,6 +419,11 @@ class AppNavigationDrawer extends ConsumerWidget {
                       onShare?.call();
                     },
                   ),
+                  // The updater, below Share (user request). It does not close
+                  // the drawer when tapped — the whole point is the result it
+                  // cascades underneath — so it is the one row here that leaves
+                  // the menu open.
+                  const _UpdateDrawerTile(),
                 ],
               ),
             ),
@@ -560,6 +568,130 @@ class _DrawerNavTile extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The side menu's **Check for update** row: the updater, one tap away.
+///
+/// It drives the **same** flow the About > Update card does
+/// ([UpdateFlowController]), so it checks the same way, honours the same
+/// Wi-Fi-only preference and shows the same sentences (user request). What it
+/// adds is the row's own shape:
+///
+///  * the row **is** the button, so it takes the flow's own label and changes
+///    with it — *Check for update*, then *Checking for update*, then *Update
+///    now* once a release is offered;
+///  * it **does not close the drawer**, because the point is the result it
+///    cascades underneath;
+///  * it carries the updater's **dot** when a check has found a newer release —
+///    the same dot the About row and the Update row show, which is what makes an
+///    update discoverable without opening anything.
+///
+/// The controller is owned by this widget's state, so a download it started
+/// survives a drawer rebuild, and is disposed with the drawer — which the
+/// controller tolerates by dropping late notifications.
+class _UpdateDrawerTile extends ConsumerStatefulWidget {
+  const _UpdateDrawerTile();
+
+  @override
+  ConsumerState<_UpdateDrawerTile> createState() => _UpdateDrawerTileState();
+}
+
+class _UpdateDrawerTileState extends ConsumerState<_UpdateDrawerTile> {
+  late final UpdateFlowController _flow = UpdateFlowController(
+    ProviderScope.containerOf(context),
+  );
+
+  @override
+  void dispose() {
+    _flow.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    // Watched so the dot appears the moment a check — this one or the launch
+    // check — finds a release, exactly as it does on the About row.
+    final offered = ref.watch(updateAvailableProvider) != null;
+    final busy = _flow.phase == UpdatePhase.checking;
+    return ListenableBuilder(
+      listenable: _flow,
+      builder: (context, _) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(24),
+              child: InkWell(
+                key: const ValueKey('drawer-update'),
+                borderRadius: BorderRadius.circular(24),
+                // A second tap while a download runs would start another, so the
+                // row goes inert the way the card's button does.
+                onTap: _flow.downloading ? null : _flow.check,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      // The row answers the tap at once — the same spinner the
+                      // drawer's own busy rows use.
+                      if (busy)
+                        const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: AppColors.onSurfaceVariant,
+                          ),
+                        )
+                      else
+                        const Icon(
+                          Icons.system_update_alt_outlined,
+                          size: 22,
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          // The flow's label, so the row turns into *Update now*
+                          // when there is something to install.
+                          _flow.buttonLabel(l),
+                          style: AppTypography.labelLg.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (offered && !busy) ...[
+                        const UpdateDot(),
+                        const SizedBox(width: AppSpacing.sm),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // The cascade: the outcome sentence, and the progress line while a
+            // download runs. The button is this row itself, so the body draws
+            // neither.
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
+              child: UpdateFlowBody(
+                controller: _flow,
+                layout: UpdateFlowLayout.row,
+                showButton: false,
+              ),
+            ),
+          ],
         ),
       ),
     );

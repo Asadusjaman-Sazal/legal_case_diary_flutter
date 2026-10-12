@@ -32,6 +32,11 @@ enum AdminActionFailure {
   /// It was already approved or already rejected; nothing was changed.
   alreadyResolved,
 
+  /// The account signed up too recently to be treated as abandoned — the
+  /// Non-verified Accounts page hides and refuses anything younger than its
+  /// 72-hour window, so this only reaches the screen from a stale list.
+  tooRecent,
+
   /// The network or the server failed in a way the caller cannot classify.
   unexpected,
 }
@@ -207,6 +212,11 @@ class AdminUnconfirmedAccount {
       );
 }
 
+/// The Non-verified Accounts page's age window, in hours. An unconfirmed
+/// sign-up younger than this is still expected to confirm, so the server neither
+/// lists it nor deletes it; named here only so the UI can word the same number.
+const int adminUnconfirmedMinAgeHours = 72;
+
 /// The admin panel's data boundary.
 abstract class AdminRepository {
   /// Whether the signed-in account is a registered admin.
@@ -224,7 +234,8 @@ abstract class AdminRepository {
   /// Rejects [submissionId] with [note]; returns null on success or why not.
   Future<AdminActionFailure?> reject(String submissionId, {String? note});
 
-  /// Every account that never confirmed its address, newest first.
+  /// Every account that never confirmed its address, at least
+  /// [adminUnconfirmedMinAgeHours] hours old, newest first.
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts();
 
   /// Removes the unconfirmed account [userId]; null on success, else why not.
@@ -322,6 +333,7 @@ class SupabaseAdminRepository implements AdminRepository {
     return switch (response['reason']) {
       'not_found' => AdminActionFailure.notFound,
       'confirmed' || 'has_activity' => AdminActionFailure.alreadyResolved,
+      'too_recent' => AdminActionFailure.tooRecent,
       _ => AdminActionFailure.unexpected,
     };
   }

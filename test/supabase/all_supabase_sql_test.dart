@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        37,
+        38,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -77,7 +77,8 @@ void main() {
             'discard_unconfirmed_signup cleanup, and the Admin Panel '
             'follow-up added the unconfirmed-accounts list and its removal, and '
             'closed the EXECUTE that left its internal guard callable by any '
-            'signed-in account',
+            'signed-in account, and the Non-verified Accounts follow-up added '
+            'the 72-hour age window to that list and its delete',
       );
     });
 

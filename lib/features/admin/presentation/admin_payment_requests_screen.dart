@@ -273,6 +273,9 @@ class _ActionBanner extends StatelessWidget {
         AdminActionFailure.notFound => l.adminPanel_failedNotFound,
         AdminActionFailure.alreadyResolved =>
           l.adminPanel_failedAlreadyResolved,
+        // The Non-verified Accounts delete's reason; an approve or reject of a
+        // payment can never produce it, so it shares the generic sentence.
+        AdminActionFailure.tooRecent => l.adminPanel_failedUnexpected,
         AdminActionFailure.unexpected => l.adminPanel_failedUnexpected,
         null => l.adminPanel_failedUnexpected,
       },

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.494 - Automatic Backup: automatic files are named AutomaticBackup_<stamp> and the previous one is deleted, so the folder holds one instead of one per day.
+Version: 0.0.495 - Admin Panel: Non-verified Accounts lists only sign-ups older than 72 hours, and its delete refuses a younger account as too_recent rather than hidden-only.
 --------------------------------------
 
 ## Version History Log:
@@ -508,3 +508,4 @@ Version: 0.0.491 - Side menu: case screens already in the bottom bar are hidden,
 Version: 0.0.492 - Side menu: the case-group arrow turns white on the active row, so it stays visible against the black fill.
 Version: 0.0.493 - Side menu: a Rate App row between Share and Check for update, saying the Play Store listing does not exist yet.
 Version: 0.0.494 - Automatic Backup: automatic files are named AutomaticBackup_<stamp> and the previous one is deleted, so the folder holds one instead of one per day.
+Version: 0.0.495 - Admin Panel: Non-verified Accounts lists only sign-ups older than 72 hours, and its delete refuses a younger account as too_recent rather than hidden-only.

@@ -392,6 +392,7 @@ class _DeleteBanner extends StatelessWidget {
         AdminActionFailure.notAnAdmin => l.adminPanel_failedNotAdmin,
         AdminActionFailure.notFound => l.adminPanel_failedNotFound,
         AdminActionFailure.alreadyResolved => l.adminPanel_deleteBlocked,
+        AdminActionFailure.tooRecent => l.adminPanel_deleteTooRecent,
         AdminActionFailure.unexpected => l.adminPanel_failedUnexpected,
         null => l.adminPanel_failedUnexpected,
       },

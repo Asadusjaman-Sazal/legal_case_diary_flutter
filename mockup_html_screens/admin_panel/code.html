@@ -190,13 +190,14 @@
       <span class="font-title-md text-title-md text-on-surface-variant">2</span>
     </button>
 
-    <!-- Non-verified Accounts: the sign-ups that never confirmed their address,
-         listed so abandoned ones can be cleaned up. -->
+    <!-- Non-verified Accounts: the sign-ups that never confirmed their address
+         and have sat that way for over 72 hours, listed so abandoned ones can
+         be cleaned up. A fresh sign-up is not shown: it may still be confirming. -->
     <button class="bg-surface border border-surface-container rounded-xl p-md flex items-center text-left active:opacity-80">
       <span class="material-symbols-outlined text-primary text-[28px]">person_off</span>
       <span class="ml-md flex-1 flex flex-col">
         <span class="font-body-lg text-body-lg text-on-surface">Non-verified Accounts</span>
-        <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Sign-Ups That Never Confirmed</span>
+        <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Sign-Ups Unconfirmed For Over 72 Hours</span>
       </span>
       <span class="font-title-md text-title-md text-on-surface-variant">3</span>
     </button>

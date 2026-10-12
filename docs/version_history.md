@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.491 - Side menu: case screens already in the bottom bar are hidden, and the last one carries an arrow that expands the full list in the View Settings serial.
+Version: 0.0.492 - Side menu: the case-group arrow turns white on the active row, so it stays visible against the black fill.
 --------------------------------------
 
 ## Version History Log:
@@ -505,3 +505,4 @@ Version: 0.0.488 - Support: the FAQs are a link inside one merged help card, the
 Version: 0.0.489 - About > Update: the two card titles read "Auto Check for Update" and "Update over Network", with the short prepositions in lower case.
 Version: 0.0.490 - Side menu: a Check for update row below Share that cascades the result, turns into Update now when a release exists, and carries the updater's dot.
 Version: 0.0.491 - Side menu: case screens already in the bottom bar are hidden, and the last one carries an arrow that expands the full list in the View Settings serial.
+Version: 0.0.492 - Side menu: the case-group arrow turns white on the active row, so it stays visible against the black fill.

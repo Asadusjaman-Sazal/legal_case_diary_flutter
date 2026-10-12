@@ -239,7 +239,6 @@ class AppNavigationDrawer extends ConsumerWidget {
     _NavItem item, {
     required bool isAdmin,
     int badgeCount = 0,
-    Widget? trailing,
   }) => _navTile(
     context,
     item: item,
@@ -247,7 +246,6 @@ class AppNavigationDrawer extends ConsumerWidget {
     isAdmin: isAdmin,
     sideNavOptions: sideNavOptions,
     badgeCount: badgeCount,
-    trailing: trailing,
   );
 
   /// Opens the account popover **against the profile icon** (user request).
@@ -742,7 +740,7 @@ Widget _navTile(
   required bool isAdmin,
   required Map<String, dynamic> sideNavOptions,
   int badgeCount = 0,
-  Widget? trailing,
+  Widget Function(bool active)? trailing,
 }) {
   if (!AppNavigationDrawer._isVisible(
     item,
@@ -757,7 +755,9 @@ Widget _navTile(
     label: item.label(AppLocalizations.of(context)),
     active: active,
     badgeCount: badgeCount,
-    trailing: trailing,
+    // Told whether the row is active, so a trailing control can paint itself
+    // against the row's own colour — the active row is black.
+    trailing: trailing?.call(active),
     onTap: () {
       Navigator.of(context).pop();
       if (!active) context.push(item.route);
@@ -886,8 +886,9 @@ class _CaseDrawerGroupState extends State<_CaseDrawerGroup> {
             sideNavOptions: widget.sideNavOptions,
             // The arrow rides the last row of whichever list is showing.
             trailing: hasMore && i == shown.length - 1
-                ? _CaseExpander(
+                ? (active) => _CaseExpander(
                     expanded: _expanded,
+                    active: active,
                     onTap: () => setState(() => _expanded = !_expanded),
                   )
                 : null,
@@ -903,10 +904,21 @@ class _CaseDrawerGroupState extends State<_CaseDrawerGroup> {
 /// comfortable target — a control that only means something to a sighted user
 /// is not finished.
 class _CaseExpander extends StatelessWidget {
-  const _CaseExpander({required this.expanded, required this.onTap});
+  const _CaseExpander({
+    required this.expanded,
+    required this.active,
+    required this.onTap,
+  });
 
   /// Whether the full list is showing.
   final bool expanded;
+
+  /// Whether the row it rides is the active one.
+  ///
+  /// The active row paints black, so the arrow must carry the same white ink
+  /// the row's icon and label do — in the usual grey it would all but vanish
+  /// (user request).
+  final bool active;
 
   /// Toggles the full list.
   final VoidCallback onTap;
@@ -933,7 +945,7 @@ class _CaseExpander extends StatelessWidget {
               child: Icon(
                 expanded ? Icons.expand_less : Icons.expand_more,
                 size: 22,
-                color: AppColors.onSurfaceVariant,
+                color: active ? Colors.white : AppColors.onSurfaceVariant,
               ),
             ),
           ),

@@ -40,6 +40,17 @@
 - **Tests.** `manage_account_test.dart` + `delete_account_test.dart` **27 passed**: ticking Notes now types the phrase through the new screen, new back-cancels case, cloud-card case extended, Danger Zone size + both buttons' red/white pinned. `arb_keys_test` green. Full `flutter analyze` clean. Version **0.0.474**.
 - **Resume point:** nothing owed in code. Device check: tick data → Delete Selected → typed screen (button disabled until `delete my data`, same words in Bengali) → deletion + toast; back from the typed screen deletes nothing; both pop-overs show red buttons with white text; Danger Zone reads 1px bigger.
 
+### 2026-10-12 — Side menu: the case-group arrow goes white on the active row — COMPLETE
+
+- **Request (the user's, side menu only).** When the row carrying the down-arrow is the **selected** screen, the arrow should be white.
+- **Why it mattered.** The active drawer row fills black and paints its icon and label white, so the arrow — fixed at `onSurfaceVariant`, the muted grey — was all but invisible on exactly the row most likely to be looked at.
+- **The fix, and the shape of it.** `_navTile` now takes a `trailing` **builder** rather than a widget, and calls it with the `active` flag it already computes, so the expander colours itself from the row's own state instead of the group recomputing `currentRoute == item.route` beside it. `_CaseExpander` gained `active` and paints `Colors.white` when set, muted grey otherwise. The now-unused `trailing` parameter on `_buildItem` was **deleted** — nothing had ever passed one, and a slot with no caller is dead flexibility.
+- **Tests (two new).** *The arrow is white when its row is the active one* opens the drawer on the last case row (Disposed, once Active and Overdue are in the bar) and pins `Colors.white`; *the arrow keeps the muted ink on an ordinary row* opens it elsewhere and pins that the grey is still grey, so "always white" cannot pass as a fix.
+- **Teeth (proven and reverted).** Pinning the arrow's colour back to grey fails the white-arrow case. **The first attempt at this check was invalid and I caught it**: the injection's indentation did not match, so it silently changed nothing and the test passed for the wrong reason. Redone against the arrow's exact line, it fails as it should. The drawer was restored byte-for-byte (md5 verified).
+- **Verification.** `flutter analyze` clean; the drawer suite 36 passed; full suite **1695 passed** (up from 1693); `record_version.py --check` OK; version **0.0.492**.
+- **Not changed:** the row's own colours, the arrow's size, its tap target, tooltip, semantics, and the expansion behaviour.
+- **Device check owed.** Open the side menu *on* the last case row while another case screen sits in the bottom bar: the row should be black with a white arrow; open the menu anywhere else and the arrow should be grey again.
+
 ### 2026-10-12 — Side menu: the case screens the bottom bar already carries are hidden — COMPLETE
 
 - **Request (the user's, side menu only).** Hide the case screens that are already in the bottom navigation, to cut the drawer's clutter; the **last** remaining case row then carries a down-arrow, and clicking it shows the full list **in the same serial Settings > View Settings uses**.

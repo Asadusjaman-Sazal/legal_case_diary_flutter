@@ -2,7 +2,7 @@
 ///
 /// Pins what the section promises: the App Update card defaults unfolded with
 /// the current version, a check moves through Checking → Update Now (green
-/// tick on the latest), and the Auto Check For Update card defaults folded
+/// tick on the latest), and the Auto Check for Update card defaults folded
 /// frequency radio list. The network is faked — an injected [UpdateRepository]
 /// without any HTTP — so the section can be driven end to end on the test
 /// clock.
@@ -124,7 +124,7 @@ void main() {
     expect(find.text('Off'), findsNothing);
   });
 
-  testWidgets('Auto Check For Update is folded and opens its frequency list', (
+  testWidgets('Auto Check for Update is folded and opens its frequency list', (
     tester,
   ) async {
     await pump(tester, _FakeUpdateRepository());
@@ -132,11 +132,11 @@ void main() {
     // Folded: the radio list is not on screen. The name says "check", because
     // the app cannot auto-install — an APK always needs the OS installer's
     // own confirmation.
-    expect(find.text('Auto Check For Update'), findsOneWidget);
+    expect(find.text('Auto Check for Update'), findsOneWidget);
     expect(find.text('Off'), findsNothing);
     expect(find.text('Every Day'), findsNothing);
 
-    await tester.tap(find.text('Auto Check For Update'));
+    await tester.tap(find.text('Auto Check for Update'));
     await tester.pumpAndSettle();
 
     expect(find.text('Off'), findsOneWidget);
@@ -146,16 +146,16 @@ void main() {
     expect(find.text('Every Month'), findsOneWidget);
   });
 
-  testWidgets('Update Over Network defaults folded, Wi-Fi Only selected', (
+  testWidgets('Update over Network defaults folded, Wi-Fi Only selected', (
     tester,
   ) async {
     await pump(tester, _FakeUpdateRepository());
 
     // Folded until asked for, and the two buttons are not on screen yet.
-    expect(find.text('Update Over Network'), findsOneWidget);
+    expect(find.text('Update over Network'), findsOneWidget);
     expect(find.text('Wi-Fi Only'), findsNothing);
 
-    await tester.tap(find.text('Update Over Network'));
+    await tester.tap(find.text('Update over Network'));
     await tester.pumpAndSettle();
 
     expect(find.text('Wi-Fi Only'), findsOneWidget);
@@ -180,7 +180,7 @@ void main() {
     // halves would clip them, so they are drawn one after another, full length.
     await pump(tester, _FakeUpdateRepository(), surface: const Size(320, 1400));
 
-    await tester.tap(find.text('Update Over Network'));
+    await tester.tap(find.text('Update over Network'));
     await tester.pumpAndSettle();
 
     final wifi = tester.getRect(find.widgetWithText(FilledButton, 'Wi-Fi Only'));
@@ -203,7 +203,7 @@ void main() {
   testWidgets('choosing Wi-Fi & Mobile Data stores it', (tester) async {
     await pump(tester, _FakeUpdateRepository());
 
-    await tester.tap(find.text('Update Over Network'));
+    await tester.tap(find.text('Update over Network'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Wi-Fi & Mobile Data'));
     await tester.pumpAndSettle();

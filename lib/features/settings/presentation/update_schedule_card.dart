@@ -1,4 +1,4 @@
-/// The About screen's **Auto Check For Update** card: how often to check.
+/// The About screen's **Auto Check for Update** card: how often to check.
 ///
 /// Body of the second collapsible button under the About screen's Update entry.
 /// Defaults **folded**, and choosing an option unfolds it (mirroring the backup
@@ -19,7 +19,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../data/update_metadata_store.dart';
 
-/// One selectable Auto Check For Update frequency.
+/// One selectable Auto Check for Update frequency.
 class _Frequency {
   const _Frequency({required this.days, required this.icon, required this.label});
   final int days;
@@ -52,7 +52,7 @@ List<_Frequency> _frequencies(AppLocalizations l) => <_Frequency>[
   ),
 ];
 
-/// The Auto Check For Update card: a radio list of check intervals.
+/// The Auto Check for Update card: a radio list of check intervals.
 class UpdateScheduleCard extends ConsumerWidget {
   const UpdateScheduleCard({super.key});
 

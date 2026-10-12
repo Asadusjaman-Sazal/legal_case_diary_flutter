@@ -5,8 +5,8 @@
 /// toggling both cards at once, and is now an ordinary menu row that opens a
 /// screen of its own). The three collapsible cards are unchanged — **App
 /// Update** open by default (the check, Update Now the progress bar, and the
-/// Later / Skip This Version pair), **Auto Check For Update** folded by default
-/// (the check frequency), and **Update Over Network** folded by default (Wi-Fi
+/// Later / Skip This Version pair), **Auto Check for Update** folded by default
+/// (the check frequency), and **Update over Network** folded by default (Wi-Fi
 /// or Mobile Data).
 library;
 
@@ -45,8 +45,8 @@ class UpdateScreen extends StatelessWidget {
   }
 }
 
-/// The page's three cards: App Update (open), Auto Check For Update (folded)
-/// and Update Over Network (folded).
+/// The page's three cards: App Update (open), Auto Check for Update (folded)
+/// and Update over Network (folded).
 class UpdateCards extends StatefulWidget {
   const UpdateCards({super.key});
 
@@ -58,10 +58,10 @@ class _UpdateCardsState extends State<UpdateCards> {
   /// Whether App Update is unfolded. Defaults open.
   bool _appExpanded = true;
 
-  /// Whether Auto Check For Update is unfolded. Defaults folded (off).
+  /// Whether Auto Check for Update is unfolded. Defaults folded (off).
   bool _autoExpanded = false;
 
-  /// Whether Update Over Network is unfolded. Defaults folded.
+  /// Whether Update over Network is unfolded. Defaults folded.
   bool _networkExpanded = false;
 
   @override

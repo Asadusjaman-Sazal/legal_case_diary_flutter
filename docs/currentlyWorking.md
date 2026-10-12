@@ -40,6 +40,16 @@
 - **Tests.** `manage_account_test.dart` + `delete_account_test.dart` **27 passed**: ticking Notes now types the phrase through the new screen, new back-cancels case, cloud-card case extended, Danger Zone size + both buttons' red/white pinned. `arb_keys_test` green. Full `flutter analyze` clean. Version **0.0.474**.
 - **Resume point:** nothing owed in code. Device check: tick data → Delete Selected → typed screen (button disabled until `delete my data`, same words in Bengali) → deletion + toast; back from the typed screen deletes nothing; both pop-overs show red buttons with white text; Danger Zone reads 1px bigger.
 
+### 2026-10-12 — About > Update: the two card titles drop their capitalised prepositions — COMPLETE
+
+- **Request (the user's, About > Update only).** *Auto Check For Update* → **Auto Check for Update**, and *Update Over Network* → **Update over Network**.
+- **A deliberate departure from rule 11, on the user's explicit instruction.** Rule 11 makes user-facing English Title Case (every word capitalised), which is what these two were. The user asked for the short prepositions in lower case — the ordinary English convention for titles — so they now read as asked. Bengali has no letter case, so only the English ARB changed.
+- **A consequence worth naming:** the **Check For Update** button on the same screen still carries a capitalised "For", so it now sits beside *Auto Check for Update* with different casing. Not changed, because only these two were asked for — it is a one-word follow-up if the button should match.
+- **Files.** `settingsUpdate_autoUpdate` and `settingsUpdate_networkTitle` in `app_en.arb`, `flutter gen-l10n` re-run; eleven test assertions/names across the Update and About suites retargeted; the five code files whose comments name the cards, the About mockup's comment, and the living plan/task descriptions all brought to the new casing. The **append-only `docs/version_history.md` entry for 0.0.483 was deliberately left as written** — it records what that version did, and rewriting history is not what an amend is for.
+- **Verification.** `flutter analyze` clean; the Update and About suites 27 passed; full suite **1683 passed**; `arb_keys_test.dart` green; `record_version.py --check` OK; version **0.0.489**.
+- **Not changed:** every other label on the screen (App Update, Check For Update, Update Now, Later, Skip This Version, the frequency options), the stored preferences, and the engine.
+- **Device check owed.** About > Update: the two card titles read *Auto Check for Update* and *Update over Network*.
+
 ### 2026-10-12 — Support: FAQs as a link, one help card, and channels that open empty — COMPLETE
 
 - **Request (the user's, Support screen only).** Remove the Guidelines & FAQs row; point the lead line at Diagnostics instead; **stop pre-filling** the WhatsApp and Email message; retitle *Write To Us* to *Write to Us*; and merge the three notes (*Before You Write To Us*, *Never Send These*, *When You Will Hear Back*) into **one card** under a section heading, opening with a sentence linking to Guidelines & FAQs and with the titles retitled to *What can we help you with:* / *Never send these:* / *When you will hear back:* — and with the never-send text **no longer red**.

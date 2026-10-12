@@ -3376,11 +3376,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsUpdate_newerVersion(String version) {
-    return 'There Is A Newer Version Available ($version).';
+    return 'There is a newer version available ($version).';
   }
 
   @override
-  String get settingsUpdate_latest => 'You\'re On The Latest Version.';
+  String get settingsUpdate_latest => 'You\'re on the latest version.';
 
   @override
   String get settingsUpdate_mobileDataTitle => 'Download Over Mobile Data?';
@@ -3394,15 +3394,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUpdate_checkFailed =>
-      'Could Not Check For An Update Right Now. Please Try Again Later.';
+      'Could not check for an update right now. Please try again later.';
 
   @override
   String get settingsUpdate_downloadFailed =>
-      'The Update Could Not Be Downloaded. Please Try Again Later.';
+      'The update could not be downloaded. Please try again later.';
 
   @override
   String get settingsUpdate_installUnavailable =>
-      'This Device Cannot Install An Update.';
+      'This device cannot install an update.';
 
   @override
   String get settingsUpdate_offlineToast =>

@@ -240,7 +240,7 @@ void main() {
 
     expect(find.text('Update Now'), findsOneWidget);
     expect(
-      find.text('There Is A Newer Version Available (V99.99.999).'),
+      find.text('There is a newer version available (V99.99.999).'),
       findsOneWidget,
     );
     // And the two ways out of an offer, so it is never an unclearable badge.
@@ -296,7 +296,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Update Now'), findsNothing);
-    expect(find.text('You\'re On The Latest Version.'), findsOneWidget);
+    expect(find.text('You\'re on the latest version.'), findsOneWidget);
   });
 
   testWidgets('Wi-Fi only asks before downloading on mobile data', (
@@ -374,7 +374,7 @@ void main() {
     expect(find.text('GitHub responded 403'), findsNothing);
     expect(
       find.text(
-        'Could Not Check For An Update Right Now. Please Try Again Later.',
+        'Could not check for an update right now. Please try again later.',
       ),
       findsOneWidget,
     );
@@ -386,7 +386,7 @@ void main() {
     await tester.tap(find.text('Check For Update'));
     await tester.pumpAndSettle();
 
-    expect(find.text('You\'re On The Latest Version.'), findsOneWidget);
+    expect(find.text('You\'re on the latest version.'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
   });
 }

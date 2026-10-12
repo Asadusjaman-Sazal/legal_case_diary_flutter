@@ -9,7 +9,7 @@
 ///    buttons). Tapping it changes the label to *Checking For Update* with a
 ///    spinner, runs [UpdateRepository] against GitHub, and then either finds a
 ///    newer release — the button becomes **Update Now** and the next line says
-///    *There Is A Newer Version Available (Vx.y.z)* — or reports *You're On The
+///    *There is a newer version available (Vx.y.z)* — or reports *You're on the
 ///    Latest Version* with a green check mark.
 ///  * Tapping **Update Now** downloads the APK into the app cache, showing a
 ///    progress bar until the download finishes, then hands the file to

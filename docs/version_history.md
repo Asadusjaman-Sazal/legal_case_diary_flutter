@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.485 - Update sub-page: card supporting lines read in sentence case, and the network buttons say Wi-Fi Only / Wi-Fi & Mobile Data, stacking when they do not fit.
+Version: 0.0.486 - App Update: the check's info and failure sentences now read in sentence case, like every other instruction rather than a label.
 --------------------------------------
 
 ## Version History Log:
@@ -499,3 +499,4 @@ Version: 0.0.482 - About: Update is now a plain row the size of Support that ope
 Version: 0.0.483 - Update: Auto Check for Update renamed, Later and Skip This Version added, an Update Over Network choice (Wi-Fi default), a dot on About, and Support moved to Settings.
 Version: 0.0.484 - Audit hardening in App Update: errors now show a user sentence and log the raw cause, and a failed cache-clear after install is no longer reported as a download failure.
 Version: 0.0.485 - Update sub-page: card supporting lines read in sentence case, and the network buttons say Wi-Fi Only / Wi-Fi & Mobile Data, stacking when they do not fit.
+Version: 0.0.486 - App Update: the check's info and failure sentences now read in sentence case, like every other instruction rather than a label.

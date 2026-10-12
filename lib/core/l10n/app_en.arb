@@ -1571,7 +1571,7 @@
   "settingsUpdate_updateNow": "Update Now",
   "settingsUpdate_later": "Later",
   "settingsUpdate_skipVersion": "Skip This Version",
-  "settingsUpdate_newerVersion": "There Is A Newer Version Available ({version}).",
+  "settingsUpdate_newerVersion": "There is a newer version available ({version}).",
   "@settingsUpdate_newerVersion": {
       "placeholders": {
           "version": {
@@ -1579,13 +1579,13 @@
           }
       }
   },
-  "settingsUpdate_latest": "You're On The Latest Version.",
+  "settingsUpdate_latest": "You're on the latest version.",
   "settingsUpdate_mobileDataTitle": "Download Over Mobile Data?",
   "settingsUpdate_mobileDataBody": "You are on mobile data and the update is a large download. Continue, or switch to Wi-Fi to download it there.",
   "settingsUpdate_mobileDataContinue": "Continue",
-  "settingsUpdate_checkFailed": "Could Not Check For An Update Right Now. Please Try Again Later.",
-  "settingsUpdate_downloadFailed": "The Update Could Not Be Downloaded. Please Try Again Later.",
-  "settingsUpdate_installUnavailable": "This Device Cannot Install An Update.",
+  "settingsUpdate_checkFailed": "Could not check for an update right now. Please try again later.",
+  "settingsUpdate_downloadFailed": "The update could not be downloaded. Please try again later.",
+  "settingsUpdate_installUnavailable": "This device cannot install an update.",
   "settingsUpdate_offlineToast": "Please Connect To The Internet And Check For An Update.",
   "settingsUpdate_frequencyOff": "Off",
   "settingsUpdate_frequencyEveryday": "Every Day",

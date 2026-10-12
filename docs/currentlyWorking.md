@@ -40,6 +40,15 @@
 - **Tests.** `manage_account_test.dart` + `delete_account_test.dart` **27 passed**: ticking Notes now types the phrase through the new screen, new back-cancels case, cloud-card case extended, Danger Zone size + both buttons' red/white pinned. `arb_keys_test` green. Full `flutter analyze` clean. Version **0.0.474**.
 - **Resume point:** nothing owed in code. Device check: tick data → Delete Selected → typed screen (button disabled until `delete my data`, same words in Bengali) → deletion + toast; back from the typed screen deletes nothing; both pop-overs show red buttons with white text; Danger Zone reads 1px bigger.
 
+### 2026-10-12 — App Update: the check's own sentences read in sentence case — COMPLETE
+
+- **Request (the user's, App Update only).** The info text shown after a check — *You're On The Latest Version* / *There Is A Newer Version Available…* — should use sentence case too, as an instruction rather than a label.
+- **The two named, plus three siblings.** The same card's other feedback lines were the same kind of prose and would have read inconsistently beside them, so they changed together: *You're on the latest version.*, *There is a newer version available (Vx.y.z).*, *Could not check for an update right now. Please try again later.*, *The update could not be downloaded. Please try again later.*, *This device cannot install an update.* Rule 11's Title Case is for **labels**; these are sentences. Bengali has no letter case, so only the English ARB changed.
+- **Tests.** Four assertions in `update_section_test.dart` quoted the old strings and were retargeted; no other suite referenced them. Two doc comments that quoted the old wording were corrected.
+- **Verification.** `flutter analyze` clean; the update suite 16 passed; full suite **1679 passed**; `arb_keys_test.dart` green; `record_version.py --check` OK; version **0.0.486**.
+- **Not changed:** the labels (*App Update*, *Check For Update*, *Update Now*, the frequency options), the stored preference values, and the Backup screen's own subtitles (still Title Case — the same issue, out of scope).
+- **Device check owed.** Run a check on About > Update and confirm both the "newer version" and "on the latest version" lines read in sentence case, in both languages.
+
 ### 2026-10-12 — Update sub-page: sentence-case instructions, and the network choice relabelled — COMPLETE
 
 - **Request (the user's, the Update sub-page only).** The three cards' supporting lines should read in **general case** — they are instructions, not titles; and the network buttons should say **Wi-Fi Only** and **Wi-Fi & Mobile Data** (the latter allowing either network), **stacking one after another full-length** when side by side does not fit.

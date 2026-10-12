@@ -10,7 +10,7 @@
 ///
 /// The check's only user-visible output is the *day-8* toast: after seven
 /// consecutive offline days the user is quietly told to connect and check (once
-/// per streak). The green "You're On The Latest Version" state is the About
+/// per streak). The green "You're on the latest version" state is the About
 /// screen's business, not here.
 library;
 

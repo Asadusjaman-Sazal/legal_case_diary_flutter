@@ -234,7 +234,7 @@ void main() {
     expect(find.text('App Update'), findsOneWidget);
     expect(find.text('Auto Check for Update'), findsOneWidget);
     expect(find.text('Update over Network'), findsOneWidget);
-    expect(find.text('Check For Update'), findsOneWidget);
+    expect(find.text('Check for update'), findsOneWidget);
   });
 
   // The document body loads from the asset bundle, which is real asynchronous

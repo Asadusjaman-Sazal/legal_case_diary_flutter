@@ -42,6 +42,11 @@ import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart'
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/presentation/current_plan.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
+import 'package:legal_case_diary/features/settings/data/update_release.dart';
+import 'package:legal_case_diary/features/settings/data/update_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/shared/widgets/app_navigation_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,6 +72,23 @@ const String loginMarker = 'Login Screen';
 /// The address the drawer's account sheet is expected to print.
 const String signedInEmail = 'rahim@example.com';
 
+/// An update repository that answers from memory, recording its calls.
+class _FakeUpdateRepository extends UpdateRepository {
+  _FakeUpdateRepository({this.outcome});
+
+  final UpdateCheckOutcome? outcome;
+
+  /// How many times a check was asked for.
+  int checks = 0;
+
+  @override
+  Future<UpdateCheckOutcome> checkForLatestRelease() async {
+    checks++;
+    return outcome ??
+        const UpdateCheckOutcome(ReleaseCheckResult.upToDate);
+  }
+}
+
 void main() {
   late SharedPreferences prefs;
 
@@ -80,13 +102,20 @@ void main() {
     WidgetTester tester, {
     required Locale locale,
     String route = AppRoutes.dailyCauseList,
+    UpdateRepository? updateRepository,
   }) async {
     await ProfileStore(
       prefs,
     ).write(const ProfileFields(fullName: 'Rahim Uddin'));
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          // The drawer's Check for update row drives the updater, so the
+          // network is stubbed like every other seam in this suite.
+          if (updateRepository != null)
+            updateRepositoryProvider.overrideWithValue(updateRepository),
+        ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -104,6 +133,21 @@ void main() {
 
   Finder drawerText(String text) =>
       find.descendant(of: find.byType(Drawer), matching: find.text(text));
+
+  /// Gives the drawer enough height to build its last rows.
+  ///
+  /// The drawer's body is a `ListView`, so a row below the fold is not built at
+  /// all — and the Check for update row sits under Print and Share.
+  void useTallViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+  }
+
+  Finder drawerKey(String key) => find.descendant(
+    of: find.byType(Drawer),
+    matching: find.byKey(ValueKey(key)),
+  );
 
   /// Pumps through a logout that shows an indeterminate spinner.
   ///
@@ -1001,7 +1045,8 @@ void main() {
 
   testWidgets('the Admin row carries no badge when nothing is waiting', (
     tester,
-  ) async {
+  ) async {
+
     await pumpDrawerOnRouter(tester, adminBadgeCount: 0);
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
@@ -1009,5 +1054,107 @@ void main() {
     // The row is there, with a plain icon and no count over it.
     expect(find.text('Admin Panel'), findsOneWidget);
     expect(find.byType(Badge), findsNothing);
+  });
+
+  testWidgets('Check for update sits below Share, and opens the drawer no wider', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(tester, locale: const Locale('en'));
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // Below Share, as asked.
+    final share = tester.getRect(drawerText(l.nav_share)).top;
+    final update = tester.getRect(drawerText(l.settingsUpdate_checkForUpdate)).top;
+    expect(update, greaterThan(share));
+  });
+
+  testWidgets('tapping it checks and cascades the result underneath', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    final repo = _FakeUpdateRepository(
+      outcome: const UpdateCheckOutcome(
+        ReleaseCheckResult.updateAvailable,
+        release: AppRelease(
+          version: '99.99.999',
+          downloadUrl: 'https://example.test/app.apk',
+        ),
+      ),
+    );
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      updateRepository: repo,
+    );
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // Nothing is said before the tap.
+    expect(
+      drawerText('There is a newer version available (V99.99.999).'),
+      findsNothing,
+    );
+
+    await tester.tap(drawerKey('drawer-update'));
+    await tester.pumpAndSettle();
+
+    expect(repo.checks, 1);
+    // The line cascades under the row, the same sentence the About card shows.
+    expect(
+      drawerText('There is a newer version available (V99.99.999).'),
+      findsOneWidget,
+    );
+    // And the row itself turns into the install action.
+    expect(drawerText(l.settingsUpdate_updateNow), findsOneWidget);
+  });
+
+  testWidgets('a clean check cascades the latest-version line', (tester) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      updateRepository: _FakeUpdateRepository(),
+    );
+
+    await tester.tap(drawerKey('drawer-update'));
+    await tester.pumpAndSettle();
+
+    expect(
+      drawerText('You are on the latest V$appVersion version.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the row carries the dot only when an update is offered', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    // Seeded before the pump: the store reads preferences once when built.
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      updateAvailableReleaseKey:
+          '{"version":"99.99.999","url":"https://example.test/app.apk"}',
+    });
+    prefs = await SharedPreferences.getInstance();
+    await pumpDrawer(tester, locale: const Locale('en'));
+
+    // The same dot the About and Update rows show.
+    final dot = find.descendant(
+      of: drawerKey('drawer-update'),
+      matching: find.byType(UpdateDot),
+    );
+    expect(dot, findsOneWidget);
+  });
+
+  testWidgets('no dot when nothing is waiting', (tester) async {
+    useTallViewport(tester);
+    await pumpDrawer(tester, locale: const Locale('en'));
+
+    expect(
+      find.descendant(
+        of: drawerKey('drawer-update'),
+        matching: find.byType(UpdateDot),
+      ),
+      findsNothing,
+    );
   });
 }

@@ -3360,7 +3360,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsUpdate_currentVersion => 'Current Version:';
 
   @override
-  String get settingsUpdate_checkForUpdate => 'Check For Update';
+  String get settingsUpdate_checkForUpdate => 'Check for update';
 
   @override
   String get settingsUpdate_checking => 'Checking For Update';
@@ -3380,7 +3380,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsUpdate_latest => 'You\'re on the latest version.';
+  String settingsUpdate_latestVersion(String version) {
+    return 'You are on the latest $version version.';
+  }
 
   @override
   String get settingsUpdate_mobileDataTitle => 'Download Over Mobile Data?';

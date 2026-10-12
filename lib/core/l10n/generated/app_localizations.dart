@@ -5811,7 +5811,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_checkForUpdate.
   ///
   /// In en, this message translates to:
-  /// **'Check For Update'**
+  /// **'Check for update'**
   String get settingsUpdate_checkForUpdate;
 
   /// No description provided for @settingsUpdate_checking.
@@ -5844,11 +5844,11 @@ abstract class AppLocalizations {
   /// **'There is a newer version available ({version}).'**
   String settingsUpdate_newerVersion(String version);
 
-  /// No description provided for @settingsUpdate_latest.
+  /// No description provided for @settingsUpdate_latestVersion.
   ///
   /// In en, this message translates to:
-  /// **'You\'re on the latest version.'**
-  String get settingsUpdate_latest;
+  /// **'You are on the latest {version} version.'**
+  String settingsUpdate_latestVersion(String version);
 
   /// No description provided for @settingsUpdate_mobileDataTitle.
   ///

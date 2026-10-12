@@ -65,6 +65,14 @@ class AdminPanelScreen extends ConsumerWidget {
         sideNavOptions:
             ref.watch(settingsViewModelProvider).value?.sideNavOptions ??
             const {},
+        // The case screens the bottom bar already carries are hidden from the
+        // drawer, so it needs the bar's own selection and order.
+        bottomNavTabs:
+            ref.watch(settingsViewModelProvider).value?.bottomNavTabs ??
+            const <String>[],
+        bottomNavOrder:
+            ref.watch(settingsViewModelProvider).value?.bottomNavOrder ??
+            const <String>[],
         // Print is left unbound: there is nothing here to print, and the
         // drawer hides the action rather than offering one that only reports
         // that it cannot help.

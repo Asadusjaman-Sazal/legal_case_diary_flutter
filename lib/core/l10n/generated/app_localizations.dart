@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'of'**
   String get drawerOf;
 
+  /// No description provided for @drawer_caseScreensShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All Case Screens'**
+  String get drawer_caseScreensShowAll;
+
+  /// No description provided for @drawer_caseScreensHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Fewer Case Screens'**
+  String get drawer_caseScreensHide;
+
   /// Bundled app version, shown as the last line of the side menu.
   ///
   /// In en, this message translates to:

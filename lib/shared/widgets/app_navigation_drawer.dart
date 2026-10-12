@@ -43,6 +43,7 @@ import '../../core/constants/app_version.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/utils/date_utils.dart';
+import 'bottom_nav_bar.dart' show bottomNavTabDefs, bottomTabSerial;
 import '../../features/admin/presentation/admin_viewmodel.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
@@ -105,9 +106,25 @@ class AppNavigationDrawer extends ConsumerWidget {
   final VoidCallback? onPrint;
   final VoidCallback? onShare;
 
+  /// The bottom bar's current tab keys.
+  ///
+  /// The drawer hides the case screens that are already one tap away down there
+  /// (user request), so it has to know which they are. Empty means "the bar
+  /// holds nothing", which hides nothing — the safe default for a caller that
+  /// has no settings, and what keeps every existing test unchanged.
+  final List<String> bottomNavTabs;
+
+  /// The saved bottom-tab serial.
+  ///
+  /// The expanded Case Screens list reads in this order, the same one Settings >
+  /// View Settings shows, so the two agree.
+  final List<String> bottomNavOrder;
+
   const AppNavigationDrawer({
     required this.currentRoute,
     this.sideNavOptions = const {},
+    this.bottomNavTabs = const <String>[],
+    this.bottomNavOrder = const <String>[],
     this.displayName,
     this.onPrint,
     this.onShare,
@@ -199,7 +216,16 @@ class AppNavigationDrawer extends ConsumerWidget {
   static String _labelSettings(AppLocalizations l) => l.nav_settings;
   static String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 
-  bool _isVisible(_NavItem item, {required bool isAdmin}) {
+  /// Whether [item] may appear in a drawer carrying [sideNavOptions].
+  ///
+  /// Static so the Case Screens group — a widget of its own, holding the
+  /// expansion state — can ask the same question the rest of the drawer asks,
+  /// rather than keeping a second copy of the rule.
+  static bool _isVisible(
+    _NavItem item, {
+    required bool isAdmin,
+    required Map<String, dynamic> sideNavOptions,
+  }) {
     // A gated item is never merely hidden by a preference — a non-admin does
     // not get a way to bring it back, and a leftover `sideNavOptions` entry
     // from an earlier admin session cannot reveal it.
@@ -207,28 +233,22 @@ class AppNavigationDrawer extends ConsumerWidget {
     return !item.removable || sideNavOptions[item.visibilityKey] != false;
   }
 
-  bool _isActive(String route) => currentRoute == route;
-
   Widget _buildItem(
     BuildContext context,
     AppLocalizations l,
     _NavItem item, {
     required bool isAdmin,
     int badgeCount = 0,
-  }) {
-    if (!_isVisible(item, isAdmin: isAdmin)) return const SizedBox.shrink();
-    final active = _isActive(item.route);
-    return _DrawerNavTile(
-      icon: item.icon,
-      label: item.label(l),
-      active: active,
-      badgeCount: badgeCount,
-      onTap: () {
-        Navigator.of(context).pop();
-        if (!active) context.push(item.route);
-      },
-    );
-  }
+    Widget? trailing,
+  }) => _navTile(
+    context,
+    item: item,
+    currentRoute: currentRoute,
+    isAdmin: isAdmin,
+    sideNavOptions: sideNavOptions,
+    badgeCount: badgeCount,
+    trailing: trailing,
+  );
 
   /// Opens the account popover **against the profile icon** (user request).
   ///
@@ -376,8 +396,12 @@ class AppNavigationDrawer extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 children: [
-                  ..._caseItems.map(
-                    (item) => _buildItem(context, l, item, isAdmin: isAdmin),
+                  _CaseDrawerGroup(
+                    currentRoute: currentRoute,
+                    isAdmin: isAdmin,
+                    sideNavOptions: sideNavOptions,
+                    bottomNavTabs: bottomNavTabs,
+                    bottomNavOrder: bottomNavOrder,
                   ),
                   const _DrawerDivider(),
                   ..._toolItems.map(
@@ -493,6 +517,12 @@ class _DrawerNavTile extends StatelessWidget {
   /// as the case screens badge the Sync Status icon.
   final int badgeCount;
 
+  /// A control drawn at the row's end, past the label.
+  ///
+  /// The Case Screens group's expander is the one user: it must be its own tap
+  /// target, because the row itself navigates.
+  final Widget? trailing;
+
   const _DrawerNavTile({
     super.key,
     required this.icon,
@@ -502,6 +532,7 @@ class _DrawerNavTile extends StatelessWidget {
     this.indent = 0,
     this.busy = false,
     this.badgeCount = 0,
+    this.trailing,
   });
 
   @override
@@ -565,6 +596,7 @@ class _DrawerNavTile extends StatelessWidget {
                     ),
                   ),
                 ),
+                ?trailing,
               ],
             ),
           ),
@@ -692,6 +724,219 @@ class _UpdateDrawerTileState extends ConsumerState<_UpdateDrawerTile> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One drawer row for [item], or nothing when the item is hidden.
+///
+/// A top-level function rather than a method, so the Case Screens group — which
+/// is a widget of its own because it holds the expansion state — draws its rows
+/// through the same code the rest of the drawer does.
+Widget _navTile(
+  BuildContext context, {
+  required _NavItem item,
+  required String currentRoute,
+  required bool isAdmin,
+  required Map<String, dynamic> sideNavOptions,
+  int badgeCount = 0,
+  Widget? trailing,
+}) {
+  if (!AppNavigationDrawer._isVisible(
+    item,
+    isAdmin: isAdmin,
+    sideNavOptions: sideNavOptions,
+  )) {
+    return const SizedBox.shrink();
+  }
+  final active = currentRoute == item.route;
+  return _DrawerNavTile(
+    icon: item.icon,
+    label: item.label(AppLocalizations.of(context)),
+    active: active,
+    badgeCount: badgeCount,
+    trailing: trailing,
+    onTap: () {
+      Navigator.of(context).pop();
+      if (!active) context.push(item.route);
+    },
+  );
+}
+
+/// The drawer's Case Screens group, with the rows the bottom bar already has
+/// hidden (user request).
+///
+/// A screen one tap away in the bottom bar does not need a second home in the
+/// drawer, so this group lists only the case screens the bar does **not**
+/// carry. The last visible row wears a down-arrow which expands the full list —
+/// every case screen the drawer would otherwise list, in the **same serial
+/// Settings > View Settings shows** — so nothing ends up more than one tap away.
+///
+/// **The arrow is its own tap target**, not the row's: the row still opens its
+/// screen, so an arrow that swallowed that tap would cost the shortcut to
+/// whichever screen happens to be last.
+///
+/// When the bar already holds every case screen the group disappears entirely
+/// (the user's choice). They are all in the bar, so there is nothing the drawer
+/// can usefully add, and no row left to hang the arrow on.
+class _CaseDrawerGroup extends StatefulWidget {
+  const _CaseDrawerGroup({
+    required this.currentRoute,
+    required this.isAdmin,
+    required this.sideNavOptions,
+    required this.bottomNavTabs,
+    required this.bottomNavOrder,
+  });
+
+  /// The active route, so a row can mark itself.
+  final String currentRoute;
+
+  /// Whether the account is an admin; the case rows are not gated, but the
+  /// shared visibility rule asks.
+  final bool isAdmin;
+
+  /// The drawer's section preferences.
+  final Map<String, dynamic> sideNavOptions;
+
+  /// The bottom bar's current tab keys.
+  final List<String> bottomNavTabs;
+
+  /// The saved bottom-tab serial.
+  final List<String> bottomNavOrder;
+
+  @override
+  State<_CaseDrawerGroup> createState() => _CaseDrawerGroupState();
+}
+
+class _CaseDrawerGroupState extends State<_CaseDrawerGroup> {
+  /// Whether the group is showing every case screen, including the bar's.
+  bool _expanded = false;
+
+  /// The bottom-bar tab key for a drawer row, or null when the row's screen is
+  /// not one of the bar's candidates.
+  ///
+  /// Matched on the **route**, because a drawer row keys its visibility by route
+  /// while the bar keys a tab by its own name; [bottomNavTabDefs] holds both, so
+  /// it is the one place the two can be tied together.
+  static String? _tabKey(_NavItem item) {
+    for (final def in bottomNavTabDefs) {
+      if (def.route == item.visibilityKey) return def.key;
+    }
+    return null;
+  }
+
+  bool _inBottomBar(_NavItem item) {
+    final key = _tabKey(item);
+    return key != null && widget.bottomNavTabs.contains(key);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = AppNavigationDrawer._caseItems;
+
+    // The order the group reads in: the saved serial first, then canonically —
+    // the same one View Settings' own dropdown shows.
+    final serial = bottomTabSerial(
+      storedOrder: widget.bottomNavOrder,
+      available: bottomNavTabDefs,
+    );
+    final position = <String, int>{
+      for (var i = 0; i < serial.length; i++) serial[i]: i,
+    };
+    final ordered = <_NavItem>[...items]..sort((a, b) {
+      final left = position[_tabKey(a)] ?? serial.length;
+      final right = position[_tabKey(b)] ?? serial.length;
+      return left.compareTo(right);
+    });
+
+    // What the drawer would list at all, and what is left once the bar's own
+    // screens are taken out.
+    final showable = <_NavItem>[
+      for (final item in ordered)
+        if (AppNavigationDrawer._isVisible(
+          item,
+          isAdmin: widget.isAdmin,
+          sideNavOptions: widget.sideNavOptions,
+        ))
+          item,
+    ];
+    final visible = <_NavItem>[
+      for (final item in showable)
+        if (!_inBottomBar(item)) item,
+    ];
+
+    // Nothing left to say: every case screen is in the bar (user's choice), or
+    // the preferences hid them all.
+    if (visible.isEmpty) return const SizedBox.shrink();
+
+    final shown = _expanded ? showable : visible;
+    final hasMore = showable.length > visible.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < shown.length; i++)
+          _navTile(
+            context,
+            item: shown[i],
+            currentRoute: widget.currentRoute,
+            isAdmin: widget.isAdmin,
+            sideNavOptions: widget.sideNavOptions,
+            // The arrow rides the last row of whichever list is showing.
+            trailing: hasMore && i == shown.length - 1
+                ? _CaseExpander(
+                    expanded: _expanded,
+                    onTap: () => setState(() => _expanded = !_expanded),
+                  )
+                : null,
+          ),
+      ],
+    );
+  }
+}
+
+/// The down-arrow that expands the Case Screens group.
+///
+/// Icon-only, so it is labelled for the screen reader and padded to a
+/// comfortable target — a control that only means something to a sighted user
+/// is not finished.
+class _CaseExpander extends StatelessWidget {
+  const _CaseExpander({required this.expanded, required this.onTap});
+
+  /// Whether the full list is showing.
+  final bool expanded;
+
+  /// Toggles the full list.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Semantics(
+      button: true,
+      expanded: expanded,
+      child: Tooltip(
+        message: expanded
+            ? l.drawer_caseScreensHide
+            : l.drawer_caseScreensShowAll,
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            key: const ValueKey('drawer-case-expander'),
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Icon(
+                expanded ? Icons.expand_less : Icons.expand_more,
+                size: 22,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
         ),
       ),
     );

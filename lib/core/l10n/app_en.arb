@@ -17,6 +17,8 @@
   "nav_overdueDates": "Overdue Dates",
   "nav_adminPanel": "Admin Panel",
   "drawerOf": "of",
+  "drawer_caseScreensShowAll": "Show All Case Screens",
+  "drawer_caseScreensHide": "Show Fewer Case Screens",
   "drawer_version": "V{version}",
   "@drawer_version": {
       "description": "Bundled app version, shown as the last line of the side menu.",

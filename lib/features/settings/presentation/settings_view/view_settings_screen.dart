@@ -77,32 +77,6 @@ final Map<String, BottomNavTabDef> _defByKey = <String, BottomNavTabDef>{
 String _screenLabel(AppLocalizations l, String key) =>
     _defByKey[key]?.label(l) ?? key;
 
-/// Row order of the Bottom Navigation dropdown: the saved serial for the
-/// screens it names, then any screen it does not name in canonical order — a
-/// screen added in a later release, or every screen on an install that has
-/// never rearranged a row, since an empty serial means canonical.
-///
-/// [available] is the canonical list this screen may offer, which is
-/// [bottomNavTabDefs] minus any `adminOnly` entry the signed-in account is not
-/// entitled to (Task 22). A stored key outside it is dropped rather than shown,
-/// so an admin session that ended cannot leave a row behind.
-List<String> _bottomTabSerial(
-  UserSettings settings,
-  List<BottomNavTabDef> available,
-) {
-  final canonical = <String>[for (final def in available) def.key];
-  final known = canonical.toSet();
-  final stored = <String>[
-    for (final key in settings.bottomNavOrder)
-      if (known.contains(key)) key,
-  ];
-  return <String>[
-    ...stored,
-    for (final key in canonical)
-      if (!stored.contains(key)) key,
-  ];
-}
-
 /// View settings screen.
 class ViewSettingsScreen extends ConsumerWidget {
   const ViewSettingsScreen({super.key});
@@ -250,7 +224,10 @@ class ViewSettingsScreen extends ConsumerWidget {
       context: context,
       builder: (_) => SettingsMultiSelectDialog<String>(
         title: l.settingsViewSettings_bottomTabs,
-        order: _bottomTabSerial(settings, available),
+        order: bottomTabSerial(
+          storedOrder: settings.bottomNavOrder,
+          available: available,
+        ),
         selected: settings.bottomNavTabs
             .where((k) => available.any((def) => def.key == k))
             .toSet(),

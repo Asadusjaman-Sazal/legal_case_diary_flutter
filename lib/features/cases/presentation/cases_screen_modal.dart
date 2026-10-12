@@ -203,6 +203,10 @@ class CasesScreenModal extends ConsumerWidget {
       drawer: AppNavigationDrawer(
         currentRoute: currentRoute,
         sideNavOptions: sideNavOptions,
+        // The drawer hides the case screens the bar already carries, so it is
+        // told which those are and in what order to read the rest.
+        bottomNavTabs: tabKeys,
+        bottomNavOrder: settings?.bottomNavOrder ?? const <String>[],
         onPrint: documentBuilder == null
             ? (onPrint ?? () => _showPrintUnavailable(context, l))
             : () => _printDocument(context, ref),

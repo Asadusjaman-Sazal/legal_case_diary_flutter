@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.490 - Side menu: a Check for update row below Share that cascades the result, turns into Update now when a release exists, and carries the updater's dot.
+Version: 0.0.491 - Side menu: case screens already in the bottom bar are hidden, and the last one carries an arrow that expands the full list in the View Settings serial.
 --------------------------------------
 
 ## Version History Log:
@@ -504,3 +504,4 @@ Version: 0.0.487 - Diagnostics: a Report Error Or Bug button opening WhatsApp or
 Version: 0.0.488 - Support: the FAQs are a link inside one merged help card, the channels open empty instead of pre-filled, and the never-send note is no longer red.
 Version: 0.0.489 - About > Update: the two card titles read "Auto Check for Update" and "Update over Network", with the short prepositions in lower case.
 Version: 0.0.490 - Side menu: a Check for update row below Share that cascades the result, turns into Update now when a release exists, and carries the updater's dot.
+Version: 0.0.491 - Side menu: case screens already in the bottom bar are hidden, and the last one carries an arrow that expands the full list in the View Settings serial.

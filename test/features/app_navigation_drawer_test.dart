@@ -103,6 +103,8 @@ void main() {
     required Locale locale,
     String route = AppRoutes.dailyCauseList,
     UpdateRepository? updateRepository,
+    List<String> bottomNavTabs = const <String>[],
+    List<String> bottomNavOrder = const <String>[],
   }) async {
     await ProfileStore(
       prefs,
@@ -121,7 +123,11 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           locale: locale,
           home: Scaffold(
-            drawer: AppNavigationDrawer(currentRoute: route),
+            drawer: AppNavigationDrawer(
+              currentRoute: route,
+              bottomNavTabs: bottomNavTabs,
+              bottomNavOrder: bottomNavOrder,
+            ),
             body: const SizedBox.shrink(),
           ),
         ),
@@ -1156,5 +1162,127 @@ void main() {
       ),
       findsNothing,
     );
+  });
+
+  testWidgets('a case screen in the bottom bar is hidden from the drawer', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      // The bar carries these three; the drawer must not repeat them.
+      bottomNavTabs: const <String>['active', 'overdue', 'notes'],
+    );
+
+    expect(drawerText('Active Cases'), findsNothing);
+    expect(drawerText('Overdue Dates'), findsNothing);
+    // Notes is a *tool* row, not a case screen, so it stays (user request).
+    expect(drawerText('Notes'), findsOneWidget);
+    // The case screens the bar does not carry stay put.
+    expect(drawerText('All Cases'), findsOneWidget);
+    expect(drawerText('Daily Cause List'), findsOneWidget);
+    expect(drawerText('Upcoming Cases'), findsOneWidget);
+    expect(drawerText('Disposed Cases'), findsOneWidget);
+  });
+
+  testWidgets('the arrow rides the last visible case row and expands the rest', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      bottomNavTabs: const <String>['all_cases', 'active'],
+    );
+
+    // All Cases and Active are in the bar, so the group starts at Daily Cause
+    // List — and the arrow rides the end of it.
+    expect(drawerText('All Cases'), findsNothing);
+    expect(drawerKey('drawer-case-expander'), findsOneWidget);
+
+    await tester.tap(drawerKey('drawer-case-expander'));
+    await tester.pumpAndSettle();
+
+    // The full list: the bar's screens back in the drawer, in the serial order.
+    expect(drawerText('All Cases'), findsOneWidget);
+    expect(drawerText('Active Cases'), findsOneWidget);
+    final all = tester.getRect(drawerText('All Cases')).top;
+    final active = tester.getRect(drawerText('Active Cases')).top;
+    final daily = tester.getRect(drawerText('Daily Cause List')).top;
+    expect(all, lessThan(active));
+    expect(active, lessThan(daily));
+  });
+
+  testWidgets('the expanded list follows the saved serial, not the canonical one', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      // The user dragged Disposed to the front in View Settings.
+      bottomNavTabs: const <String>['all_cases'],
+      bottomNavOrder: const <String>['disposed', 'notes', 'upcoming'],
+    );
+
+    await tester.tap(drawerKey('drawer-case-expander'));
+    await tester.pumpAndSettle();
+
+    // Disposed leads, because that is the serial the user set.
+    final disposed = tester.getRect(drawerText('Disposed Cases')).top;
+    final upcoming = tester.getRect(drawerText('Upcoming Cases')).top;
+    final daily = tester.getRect(drawerText('Daily Cause List')).top;
+    expect(disposed, lessThan(upcoming));
+    expect(upcoming, lessThan(daily));
+  });
+
+  testWidgets('no arrow when the bar carries no case screen', (tester) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      // Only a tool row is in the bar, so nothing is hidden and there is
+      // nothing to expand.
+      bottomNavTabs: const <String>['notes'],
+    );
+
+    expect(drawerText('All Cases'), findsOneWidget);
+    expect(drawerKey('drawer-case-expander'), findsNothing);
+  });
+
+  testWidgets('the group disappears when the bar carries every case screen', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      bottomNavTabs: const <String>[
+        'all_cases',
+        'active',
+        'daily_cause_list',
+        'overdue',
+        'upcoming',
+        'disposed',
+      ],
+    );
+
+    // Every case screen is in the bar, so the drawer lists none of them — and
+    // there is no row left to hang an arrow on.
+    for (final label in const <String>[
+      'All Cases',
+      'Active Cases',
+      'Daily Cause List',
+      'Overdue Dates',
+      'Upcoming Cases',
+      'Disposed Cases',
+    ]) {
+      expect(drawerText(label), findsNothing, reason: label);
+    }
+    expect(drawerKey('drawer-case-expander'), findsNothing);
+    // The rest of the drawer is untouched.
+    expect(drawerText('Notes'), findsOneWidget);
+    expect(drawerText('Settings'), findsOneWidget);
   });
 }

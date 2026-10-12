@@ -1285,4 +1285,49 @@ void main() {
     expect(drawerText('Notes'), findsOneWidget);
     expect(drawerText('Settings'), findsOneWidget);
   });
+
+  testWidgets('the arrow is white when its row is the active one', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    // Disposed is the last case row once Active and Overdue are in the bar, so
+    // the arrow rides it — and the drawer is opened *on* it, making it the
+    // active row. The active row paints black, so a grey arrow would vanish.
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      route: AppRoutes.disposedCases,
+      bottomNavTabs: const <String>['active', 'overdue'],
+    );
+
+    final arrow = find.descendant(
+      of: drawerKey('drawer-case-expander'),
+      matching: find.byType(Icon),
+    );
+    expect(tester.widget<Icon>(arrow).color, Colors.white);
+  });
+
+  testWidgets('the arrow keeps the muted ink on an ordinary row', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    // The same last row, but the drawer is open on a different screen, so the
+    // row is not active and the arrow stays the usual grey.
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      route: AppRoutes.notes,
+      bottomNavTabs: const <String>['active', 'overdue'],
+    );
+
+    final arrow = find.descendant(
+      of: drawerKey('drawer-case-expander'),
+      matching: find.byType(Icon),
+    );
+    expect(
+      tester.widget<Icon>(arrow).color,
+      isNot(Colors.white),
+      reason: 'the grey arrow on a white row',
+    );
+  });
 }

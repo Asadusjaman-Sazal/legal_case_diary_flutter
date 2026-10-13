@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.517 - App Lock: the timing labels and Change App Lock PIN take the user's wording, and a duplicated ARB key is removed.
+Version: 0.0.518 - Rule 11 in AGENTS.md and CLAUDE.md now uses ordinary title case — articles, conjunctions and short prepositions stay lower-case — and sentence case for any string that reads as a general sentence; no app string was re-cased.
 --------------------------------------
 
 ## Version History Log:
@@ -531,3 +531,4 @@ Version: 0.0.514 - Side menu: Settings moved directly above the Current Plan row
 Version: 0.0.515 - Checkout: the transfer instruction now names Send Money in bold, in both languages.
 Version: 0.0.516 - Login & Sign Up: the divider now reads Or and the Google buttons use sentence-case 'with'.
 Version: 0.0.517 - App Lock: the timing labels and Change App Lock PIN take the user's wording, and a duplicated ARB key is removed.
+Version: 0.0.518 - Rule 11 in AGENTS.md and CLAUDE.md now uses ordinary title case — articles, conjunctions and short prepositions stay lower-case — and sentence case for any string that reads as a general sentence; no app string was re-cased.

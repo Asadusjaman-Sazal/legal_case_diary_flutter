@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.515 - Checkout: the transfer instruction now names Send Money in bold, in both languages.
+Version: 0.0.516 - Login & Sign Up: the divider now reads Or and the Google buttons use sentence-case 'with'.
 --------------------------------------
 
 ## Version History Log:
@@ -529,3 +529,4 @@ Version: 0.0.512 - Settings > Notifications: the admin-only payment alert switch
 Version: 0.0.513 - Header sync icon now syncs and reloads the visible list like pull-to-sync for premium accounts; the free-account off-cloud stays inert.
 Version: 0.0.514 - Side menu: Settings moved directly above the Current Plan row (drawer ordering only).
 Version: 0.0.515 - Checkout: the transfer instruction now names Send Money in bold, in both languages.
+Version: 0.0.516 - Login & Sign Up: the divider now reads Or and the Google buttons use sentence-case 'with'.

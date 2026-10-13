@@ -5,8 +5,8 @@
 /// subtitle, then
 /// Full Name, Bar Association, Email Address and Password (with the mockup's
 /// eight-character helper line), the Terms of Service / Privacy Policy
-/// checkbox, the Sign Up button, the "Or Continue With" divider and the Google
-/// button, and finally the "Already have an account?" strip.
+/// checkbox, the Sign Up button, the "Or" divider and the "Sign Up with
+/// Google" button, and finally the "Already have an account?" strip.
 ///
 /// Three deliberate additions the mockup could not show:
 ///

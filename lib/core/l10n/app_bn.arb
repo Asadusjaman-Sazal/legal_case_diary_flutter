@@ -1609,7 +1609,7 @@
   "auth_passwordHint": "••••••••",
   "auth_forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
   "auth_loginButton": "লগইন",
-  "auth_orContinueWith": "অথবা চালিয়ে যান",
+  "auth_orContinueWith": "অথবা",
   "auth_googleLogin": "গুগল দিয়ে লগইন",
   "auth_googleSignup": "গুগল দিয়ে সাইন আপ",
   "auth_noAccount": "অ্যাকাউন্ট নেই?",

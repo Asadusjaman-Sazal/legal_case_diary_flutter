@@ -3738,7 +3738,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_loginButton => 'লগইন';
 
   @override
-  String get auth_orContinueWith => 'অথবা চালিয়ে যান';
+  String get auth_orContinueWith => 'অথবা';
 
   @override
   String get auth_googleLogin => 'গুগল দিয়ে লগইন';

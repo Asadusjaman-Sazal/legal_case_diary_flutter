@@ -3,8 +3,8 @@
 /// Body mirrors `mockup_html_screens/settings_onlineSync_login/code.html`: the
 /// centred card with the round brand mark, "Legal Case Diary" and the subtitle,
 /// the Email and Password fields (the password with its show/hide toggle and
-/// the "Forgot Password?" link beside the label), the Login button, the "Or
-/// Continue With" divider and the Google button, and the Sign Up line beneath
+/// the "Forgot Password?" link beside the label), the Login button, the "Or"
+/// divider and the "Login with Google" button, and the Sign Up line beneath
 /// the card.
 ///
 /// The router decides whether this screen is shown at all: a device whose local

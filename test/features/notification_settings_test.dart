@@ -309,7 +309,7 @@ void main() {
 
     // The panel is invisible to a non-admin, and so is every control of it: the
     // switch would only ever write a preference nothing reads.
-    expect(find.text('Payment Request Alerts'), findsNothing);
+    expect(find.text('Admin Panel Notification'), findsNothing);
     expect(find.text('On'), findsOneWidget);
     expect(find.text('Off'), findsOneWidget);
   });
@@ -332,7 +332,7 @@ void main() {
       ],
     );
 
-    expect(find.text('Payment Request Alerts'), findsOneWidget);
+    expect(find.text('Admin Panel Notification'), findsOneWidget);
     // Two pairs now, the administrator's last — the switch defaults to on, so
     // OFF here is the stored value rather than the default.
     await tester.tap(find.text('On').at(1));

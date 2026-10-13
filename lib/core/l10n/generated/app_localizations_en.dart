@@ -2711,7 +2711,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotifications_paymentAlertsLabel =>
-      'Payment Request Alerts';
+      'Admin Panel Notification';
 
   @override
   String get settingsNotifications_reminderBanner =>

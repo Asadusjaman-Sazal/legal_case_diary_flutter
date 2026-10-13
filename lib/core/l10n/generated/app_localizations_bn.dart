@@ -2725,7 +2725,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsNotifications_paymentAlertsLabel =>
-      'পেমেন্ট অনুরোধ অ্যালার্ট';
+      'অ্যাডমিন প্যানেল নোটিফিকেশন';
 
   @override
   String get settingsNotifications_reminderBanner =>

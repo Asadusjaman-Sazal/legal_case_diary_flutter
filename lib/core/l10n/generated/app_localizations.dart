@@ -4767,7 +4767,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_paymentAlertsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Payment Request Alerts'**
+  /// **'Admin Panel Notification'**
   String get settingsNotifications_paymentAlertsLabel;
 
   /// No description provided for @settingsNotifications_reminderBanner.

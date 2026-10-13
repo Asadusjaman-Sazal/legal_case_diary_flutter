@@ -98,6 +98,10 @@ void main() {
     expect(find.text(l.auth_loginButton), findsOneWidget);
     expect(find.text(l.auth_orContinueWith), findsOneWidget);
     expect(find.text(l.auth_googleLogin), findsOneWidget);
+    // The divider and button wording is the user's, pinned literally so a later
+    // copy edit has to be deliberate: just "Or", and sentence-cased "with".
+    expect(find.text('Or'), findsOneWidget);
+    expect(find.text('Login with Google'), findsOneWidget);
     expect(find.byType(GoogleMark), findsOneWidget);
     expect(find.text(l.auth_noAccount), findsOneWidget);
     expect(find.text(l.auth_signUpLink), findsOneWidget);

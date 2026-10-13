@@ -4,8 +4,8 @@
 /// `settings_onlineSync_signup`) are two views of the same card language: a
 /// light `#F8FAFC` page, one white rounded card with an outline border, an
 /// optional brand header, underlined filled text fields, a black full-width
-/// primary button, an "Or Continue With" divider and a Google button, and a
-/// final line that switches to the other screen.
+/// primary button, an "Or" divider and a Google button, and a final line that
+/// switches to the other screen.
 ///
 /// Keeping that language in one file means the two screens cannot drift apart,
 /// and the password-reset screen reuses the same fields and buttons.
@@ -768,7 +768,7 @@ class AuthGoogleButton extends StatelessWidget {
   );
 }
 
-/// The "Or Continue With" divider.
+/// The "Or" divider between the form and the Google button.
 class AuthDivider extends StatelessWidget {
   /// Creates the divider.
   const AuthDivider({required this.label, super.key});

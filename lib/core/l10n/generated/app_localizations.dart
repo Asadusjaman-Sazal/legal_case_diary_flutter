@@ -6420,19 +6420,19 @@ abstract class AppLocalizations {
   /// No description provided for @auth_orContinueWith.
   ///
   /// In en, this message translates to:
-  /// **'Or Continue With'**
+  /// **'Or'**
   String get auth_orContinueWith;
 
   /// No description provided for @auth_googleLogin.
   ///
   /// In en, this message translates to:
-  /// **'Login With Google'**
+  /// **'Login with Google'**
   String get auth_googleLogin;
 
   /// No description provided for @auth_googleSignup.
   ///
   /// In en, this message translates to:
-  /// **'Sign Up With Google'**
+  /// **'Sign Up with Google'**
   String get auth_googleSignup;
 
   /// No description provided for @auth_noAccount.

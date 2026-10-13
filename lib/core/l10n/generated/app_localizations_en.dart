@@ -3721,13 +3721,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_loginButton => 'Login';
 
   @override
-  String get auth_orContinueWith => 'Or Continue With';
+  String get auth_orContinueWith => 'Or';
 
   @override
-  String get auth_googleLogin => 'Login With Google';
+  String get auth_googleLogin => 'Login with Google';
 
   @override
-  String get auth_googleSignup => 'Sign Up With Google';
+  String get auth_googleSignup => 'Sign Up with Google';
 
   @override
   String get auth_noAccount => 'Don\'t have an account?';

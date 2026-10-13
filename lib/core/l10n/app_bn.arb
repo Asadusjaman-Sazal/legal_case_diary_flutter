@@ -1951,6 +1951,5 @@
   "settingsAppLock_turnOffTitle": "অ্যাপ লক বন্ধ করবেন?",
   "settingsAppLock_turnOffBody": "আবার অ্যাপ লক সেটআপ না করা পর্যন্ত অ্যাপটি কোনো পিন বা ফিঙ্গারপ্রিন্ট ছাড়াই খুলবে।",
   "settingsAppLock_turnOffConfirm": "বন্ধ করুন",
-  "settingsAppLock_turnedOff": "অ্যাপ লক বন্ধ হয়েছে।",
-  "settingsAppLock_whenAppStarts": "অ্যাপ চালু হলে"
+  "settingsAppLock_turnedOff": "অ্যাপ লক বন্ধ হয়েছে।"
 }

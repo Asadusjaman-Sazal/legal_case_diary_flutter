@@ -2088,12 +2088,12 @@
   "@@_section_settingsAppLock": "SETTINGS - APP LOCK  |  lib/features/app_lock/presentation/app_lock_screen.dart",
   "settingsAppLock_title": "App Lock",
   "settingsAppLock_setup": "Setup App Lock",
-  "settingsAppLock_changePin": "Change App Lock Pin",
+  "settingsAppLock_changePin": "Change App Lock PIN",
   "settingsAppLock_enableFingerprint": "Enable Fingerprint",
   "settingsAppLock_disableFingerprint": "Disable Fingerprint",
-  "settingsAppLock_whenToAsk": "When To Ask For The Pin",
-  "settingsAppLock_whenAppStarts": "When The App Starts",
-  "settingsAppLock_whenAppOpensAndReturns": "Every Time The App Opens",
+  "settingsAppLock_whenToAsk": "When to Ask for PIN",
+  "settingsAppLock_whenAppStarts": "When the App Starts",
+  "settingsAppLock_whenAppOpensAndReturns": "Every Time the App Opens",
   "settingsAppLock_choosePin": "Choose A {digits}-Digit PIN",
   "@settingsAppLock_choosePin": {
       "description": "Title of the pin-pad dialog's first step; digits is the pin length in the active language.",
@@ -2131,6 +2131,5 @@
   "settingsAppLock_turnOffTitle": "Turn Off App Lock?",
   "settingsAppLock_turnOffBody": "The app will open without a PIN or fingerprint until you set App Lock up again.",
   "settingsAppLock_turnOffConfirm": "Turn Off",
-  "settingsAppLock_turnedOff": "App Lock Is Off.",
-  "settingsAppLock_whenAppStarts": "When The App Starts"
+  "settingsAppLock_turnedOff": "App Lock Is Off."
 }

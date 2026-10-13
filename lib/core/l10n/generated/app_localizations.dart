@@ -7836,7 +7836,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLock_changePin.
   ///
   /// In en, this message translates to:
-  /// **'Change App Lock Pin'**
+  /// **'Change App Lock PIN'**
   String get settingsAppLock_changePin;
 
   /// No description provided for @settingsAppLock_enableFingerprint.
@@ -7854,19 +7854,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLock_whenToAsk.
   ///
   /// In en, this message translates to:
-  /// **'When To Ask For The Pin'**
+  /// **'When to Ask for PIN'**
   String get settingsAppLock_whenToAsk;
 
   /// No description provided for @settingsAppLock_whenAppStarts.
   ///
   /// In en, this message translates to:
-  /// **'When The App Starts'**
+  /// **'When the App Starts'**
   String get settingsAppLock_whenAppStarts;
 
   /// No description provided for @settingsAppLock_whenAppOpensAndReturns.
   ///
   /// In en, this message translates to:
-  /// **'Every Time The App Opens'**
+  /// **'Every Time the App Opens'**
   String get settingsAppLock_whenAppOpensAndReturns;
 
   /// Title of the pin-pad dialog's first step; digits is the pin length in the active language.

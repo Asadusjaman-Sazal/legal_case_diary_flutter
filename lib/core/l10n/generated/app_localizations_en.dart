@@ -4500,7 +4500,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLock_setup => 'Setup App Lock';
 
   @override
-  String get settingsAppLock_changePin => 'Change App Lock Pin';
+  String get settingsAppLock_changePin => 'Change App Lock PIN';
 
   @override
   String get settingsAppLock_enableFingerprint => 'Enable Fingerprint';
@@ -4509,14 +4509,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLock_disableFingerprint => 'Disable Fingerprint';
 
   @override
-  String get settingsAppLock_whenToAsk => 'When To Ask For The Pin';
+  String get settingsAppLock_whenToAsk => 'When to Ask for PIN';
 
   @override
-  String get settingsAppLock_whenAppStarts => 'When The App Starts';
+  String get settingsAppLock_whenAppStarts => 'When the App Starts';
 
   @override
   String get settingsAppLock_whenAppOpensAndReturns =>
-      'Every Time The App Opens';
+      'Every Time the App Opens';
 
   @override
   String settingsAppLock_choosePin(String digits) {

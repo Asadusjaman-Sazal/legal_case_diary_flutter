@@ -136,13 +136,13 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    // A minimal router mirrors just the two routes the flow touches, so the
-    // navigation the bare pump helper cannot see gets pinned: the checkout
-    // pushes the Subscription Details sub-page with `focus=history`, and the
-    // confirmation snackbar survives the push.
-    final focusSeen = <String?>[];
+    // A router that mirrors the app's nesting: the shell is already in the
+    // stack when the checkout pushes the ledger, which is what made a
+    // shell-route push throw a duplicated-page-key error (a black screen). The
+    // ledger is a top-level route here, exactly as it is in `app_router.dart`,
+    // so the real push is exercised and the confirmation survives it.
     final router = GoRouter(
-      initialLocation: AppRoutes.checkout,
+      initialLocation: AppRoutes.settingsSubscription,
       routes: [
         GoRoute(
           path: AppRoutes.checkout,
@@ -150,15 +150,20 @@ void main() {
             planKey: paymentPlanMonthly,
           ),
         ),
+        ShellRoute(
+          builder: (context, state, child) => Scaffold(body: child),
+          routes: [
+            GoRoute(
+              path: AppRoutes.settingsSubscription,
+              builder: (context, state) =>
+                  const Scaffold(body: Text('Shell-Home')),
+            ),
+          ],
+        ),
         GoRoute(
           path: AppRoutes.settingsSubscriptionDetails,
-          builder: (context, state) {
-            focusSeen.add(
-              state.uri
-                  .queryParameters[AppRoutes.subscriptionFocusParam],
-            );
-            return const Scaffold(body: Text('Details-Landed'));
-          },
+          builder: (context, state) =>
+              const Scaffold(body: Text('Details-Landed')),
         ),
       ],
     );
@@ -190,6 +195,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // Reach the checkout from the shell, so the shell page sits beneath it —
+    // the stack shape that broke a shell-route push.
+    router.push(AppRoutes.checkout);
+    await tester.pumpAndSettle();
+    expect(find.text('Shell-Home'), findsNothing);
+
     await tester.enterText(
       find.byKey(const ValueKey('checkout-phone')),
       '01712345678',
@@ -203,7 +214,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.submitted, ['TRX42']);
-    expect(focusSeen, ['history']);
     expect(find.text('Details-Landed'), findsOneWidget);
     expect(find.textContaining('Submission Received'), findsOneWidget);
   });

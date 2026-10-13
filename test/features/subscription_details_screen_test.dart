@@ -69,19 +69,13 @@ void main() {
     Locale locale = const Locale('en'),
     Future<void> Function(AppDatabase db)? seed,
     List<Override> overrides = const <Override>[],
-    bool focusHistory = false,
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await pumpSettingsRouter(
       tester,
-      // The checkout names the section it wants in view as a query parameter
-      // on the same path; the route builder below reads it the way the app's
-      // own router does, so the two cannot drift.
-      location: focusHistory
-          ? '${AppRoutes.settingsSubscriptionDetails}?focus=history'
-          : AppRoutes.settingsSubscriptionDetails,
+      location: AppRoutes.settingsSubscriptionDetails,
       locale: locale,
       overrides: await harness.setUp(
         extra: <Override>[
@@ -98,11 +92,7 @@ void main() {
       routes: [
         GoRoute(
           path: AppRoutes.settingsSubscriptionDetails,
-          builder: (_, state) => SubscriptionDetailsScreen(
-            focusHistory:
-                state.uri.queryParameters[AppRoutes.subscriptionFocusParam] ==
-                AppRoutes.subscriptionFocusHistory,
-          ),
+          builder: (_, _) => const SubscriptionDetailsScreen(),
         ),
       ],
     );
@@ -638,56 +628,6 @@ void main() {
     for (final dot in dots) {
       expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
     }
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('the checkout focus scrolls the Payment History into view', (
-    tester,
-  ) async {
-    // Ten purchases make the ledger genuinely taller than the viewport, so the
-    // automatic scroll has somewhere to go, and the account is Free so the
-    // summary and the limitations fill the fold before the heading. Without the
-    // `?focus=history` scroll the heading sits below that fold (past 150 px);
-    // reaching the top is the whole point of the checkout's entry.
-    final history = <PaymentSubmission>[
-      for (var i = 1; i <= 10; i++)
-        submission(
-          id: 'p$i',
-          planType: paymentPlanMonthly,
-          amount: 100,
-          status: 'pending',
-          submittedAt: DateTime.utc(2026, 10, 1, 12).subtract(
-            Duration(hours: i),
-          ),
-        ),
-    ];
-    await pumpDetails(
-      tester,
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith((ref) async => history),
-      ],
-      seed: (AppDatabase db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-      focusHistory: true,
-    );
-
-    final headingTop = tester
-        .getTopLeft(find.text(l.payments_historyTitle))
-        .dy;
-    expect(
-      headingTop,
-      lessThan(150),
-      reason: 'the heading must sit at the top of the viewport, not where the '
-          'layout puts it below the summary and limitations',
-    );
 
     await unmountApp(tester);
   });

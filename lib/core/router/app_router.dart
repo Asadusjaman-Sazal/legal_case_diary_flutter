@@ -141,21 +141,6 @@ class AppRoutes {
   static const String settingsSubscription = '/settings/subscription';
   static const String settingsSubscriptionDetails =
       '/settings/subscription/details';
-
-  /// The `focus` query parameter on the Subscription Details sub-page.
-  ///
-  /// Set to [subscriptionFocusHistory] by the checkout after a confirmed submit,
-  /// so the page scrolls its Payment History — where the new pending purchase
-  /// sits — into view rather than opening at the top.
-  static const String subscriptionFocusParam = 'focus';
-
-  /// The [subscriptionFocusParam] value that asks for the Payment History.
-  static const String subscriptionFocusHistory = 'history';
-
-  /// The Subscription Details sub-page as the checkout opens it: the Payment
-  /// History section scrolled into view.
-  static const String subscriptionDetailsFromCheckout =
-      '$settingsSubscriptionDetails?$subscriptionFocusParam=$subscriptionFocusHistory';
   static const String settingsOnlineSync = '/settings/online-sync';
 
   /// The queue, its filters, and the diagnostic-bundle export
@@ -469,6 +454,16 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
         builder: (context, state) =>
             const LegalDocumentScreen(document: LegalDocument.termsOfService),
       ),
+      // Subscription Details is opened from two different trees — Settings >
+      // Subscription pushes it from inside the shell, and the checkout opens it
+      // after a confirmed submit from the root navigator — so it lives on the
+      // root navigator too. A shell route pushed from the checkout raised a
+      // duplicated-page-key error (the shell page was already in the stack), and
+      // here back pops GoRouter's history from either entry point.
+      GoRoute(
+        path: AppRoutes.settingsSubscriptionDetails,
+        builder: (context, state) => const SubscriptionDetailsScreen(),
+      ),
       GoRoute(
         path: AppRoutes.paywall,
         // Only the 50-case gate names its reason (`?reason=limit`); every other
@@ -630,16 +625,6 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsSubscription,
     builder: (context, state) => const SubscriptionScreen(),
-  ),
-  GoRoute(
-    path: AppRoutes.settingsSubscriptionDetails,
-    // The checkout names the section it wants in view (`?focus=history`); every
-    // other entry (Settings > Subscription) opens the bare route at the top.
-    builder: (context, state) => SubscriptionDetailsScreen(
-      focusHistory:
-          state.uri.queryParameters[AppRoutes.subscriptionFocusParam] ==
-          AppRoutes.subscriptionFocusHistory,
-    ),
   ),
   GoRoute(
     path: AppRoutes.settingsOnlineSync,

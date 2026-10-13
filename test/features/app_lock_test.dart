@@ -226,6 +226,14 @@ void main() {
       expect(find.byKey(const ValueKey('app-lock-setup')), findsNothing);
       expect(find.byKey(const ValueKey('app-lock-turn-off')), findsOneWidget);
       expect(find.byKey(const ValueKey('app-lock-change')), findsOneWidget);
+      // The row's wording is the user's (0.0.517), pinned literally.
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-change')),
+          matching: find.text('Change App Lock PIN'),
+        ),
+        findsOneWidget,
+      );
       expect(
         find.text(l.settingsAppLock_enableFingerprint),
         findsOneWidget,
@@ -398,6 +406,23 @@ void main() {
         find.descendant(
           of: find.byKey(const ValueKey('app-lock-timing-every-open')),
           matching: find.text(l.settingsAppLock_whenAppOpensAndReturns),
+        ),
+        findsOneWidget,
+      );
+      // The three labels are the user's wording (0.0.517), pinned literally
+      // beside the ARB lookups so a later copy edit has to be deliberate.
+      expect(find.text('When to Ask for PIN'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-app-starts')),
+          matching: find.text('When the App Starts'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('app-lock-timing-every-open')),
+          matching: find.text('Every Time the App Opens'),
         ),
         findsOneWidget,
       );

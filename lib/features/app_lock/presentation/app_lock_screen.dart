@@ -3,8 +3,8 @@
 ///
 /// Its rows follow the state exactly, as the request defines them:
 /// **Setup App Lock** is offered only while no PIN exists and vanishes the
-/// moment one is stored; **Change App Lock Pin**, the **Fingerprint** row and
-/// the **When To Ask For The Pin** picker appear only afterwards. Nothing here
+/// moment one is stored; **Change App Lock PIN**, the **Fingerprint** row and
+/// the **When to Ask for PIN** picker appear only afterwards. Nothing here
 /// enforces the lock — that is `AppLockScope` at the app root; this screen
 /// only writes the PIN and the two preferences it obeys.
 ///

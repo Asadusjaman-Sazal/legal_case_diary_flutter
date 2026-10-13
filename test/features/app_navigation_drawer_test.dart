@@ -150,6 +150,10 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
+  /// The colour the update row paints [label] in.
+  Color? updateRowInk(WidgetTester tester, String label) =>
+      tester.widget<Text>(drawerText(label)).style?.color;
+
   Finder drawerKey(String key) => find.descendant(
     of: find.byType(Drawer),
     matching: find.byKey(ValueKey(key)),
@@ -1362,5 +1366,114 @@ void main() {
     expect(find.text(l.drawer_rateAppPending), findsOneWidget);
     // It is an ordinary action row, so it closes the drawer like Print/Share.
     expect(find.byType(Drawer), findsNothing);
+  });
+
+  testWidgets('a stored offer turns the row into Update now', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    // Seeded before the pump: the store reads preferences once when built. This
+    // is a release the *launch check* found — this row's own controller never
+    // saw it — so the row has to read the store, not just its own phase.
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      updateAvailableReleaseKey:
+          '{"version":"99.99.999","url":"https://example.test/app.apk"}',
+    });
+    prefs = await SharedPreferences.getInstance();
+    await pumpDrawer(tester, locale: const Locale('en'));
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    expect(drawerText(l.settingsUpdate_updateNow), findsOneWidget);
+    expect(drawerText(l.settingsUpdate_checkForUpdate), findsNothing);
+    // And in green, so the row that can change the app says so.
+    expect(updateRowInk(tester, l.settingsUpdate_updateNow), AppColors.success);
+  });
+
+  testWidgets('a check that finds nothing keeps the row plain and grey', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      updateRepository: _FakeUpdateRepository(),
+    );
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    expect(drawerText(l.settingsUpdate_checkForUpdate), findsOneWidget);
+    expect(drawerText(l.settingsUpdate_updateNow), findsNothing);
+    expect(
+      updateRowInk(tester, l.settingsUpdate_checkForUpdate),
+      AppColors.onSurfaceVariant,
+    );
+  });
+
+  testWidgets('a check that finds a release turns the row green', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      updateRepository: _FakeUpdateRepository(
+        outcome: const UpdateCheckOutcome(
+          ReleaseCheckResult.updateAvailable,
+          release: AppRelease(
+            version: '99.99.999',
+            downloadUrl: 'https://example.test/app.apk',
+          ),
+        ),
+      ),
+    );
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // Grey before the tap...
+    expect(
+      updateRowInk(tester, l.settingsUpdate_checkForUpdate),
+      AppColors.onSurfaceVariant,
+    );
+
+    await tester.tap(drawerKey('drawer-update'));
+    await tester.pumpAndSettle();
+
+    // ...green once it has something to install, by the manual route too.
+    expect(drawerText(l.settingsUpdate_updateNow), findsOneWidget);
+    expect(updateRowInk(tester, l.settingsUpdate_updateNow), AppColors.success);
+  });
+
+  testWidgets('a release found after the row was built turns it green', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    // The case the store read exists for: the row is already built and its
+    // controller is idle, and *then* something finds a release — which is what
+    // the launch check does, minutes after the drawer was laid out. The
+    // controller would still be idle, so only the store can tell the row.
+    await pumpDrawer(
+      tester,
+      locale: const Locale('en'),
+      updateRepository: _FakeUpdateRepository(),
+    );
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    expect(drawerText(l.settingsUpdate_checkForUpdate), findsOneWidget);
+    expect(updateRowInk(tester, l.settingsUpdate_checkForUpdate),
+        AppColors.onSurfaceVariant);
+
+    // A check elsewhere — exactly the launch check — stores what it found.
+    ProviderScope.containerOf(
+      tester.element(find.byType(Drawer)),
+    ).read(updateMetadataProvider.notifier).recordCheck(
+      atEpochMs: 0,
+      offline: false,
+      release: const AppRelease(
+        version: '99.99.999',
+        downloadUrl: 'https://example.test/app.apk',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(drawerText(l.settingsUpdate_updateNow), findsOneWidget);
+    expect(updateRowInk(tester, l.settingsUpdate_updateNow), AppColors.success);
   });
 }

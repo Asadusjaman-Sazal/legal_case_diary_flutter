@@ -102,6 +102,32 @@ void main() {
     expect(find.text('৳100'), findsOneWidget);
   });
 
+  testWidgets('the instruction names the amount and bolds only Send Money',
+      (tester) async {
+    await pump(tester, await SharedPreferences.getInstance(), _AcceptingRepository());
+
+    final sentence = tester.widget<Text>(
+      find.byKey(const ValueKey('checkout-transfer-body')),
+    );
+    final span = sentence.textSpan! as TextSpan;
+    expect(
+      span.toPlainText(),
+      'Send ৳100 to one of the numbers below using Send Money, '
+      'then carefully enter your payment details.',
+    );
+
+    final runs = <TextSpan>[
+      for (final child in span.children!) child as TextSpan,
+    ];
+    expect(
+      runs
+          .where((run) => run.style?.fontWeight == FontWeight.w700)
+          .map((run) => run.text)
+          .toList(),
+      ['Send Money'],
+    );
+  });
+
   testWidgets('a saved draft pre-fills the form and a submit clears it',
       (tester) async {
     final prefs = await SharedPreferences.getInstance();

@@ -7572,8 +7572,14 @@ abstract class AppLocalizations {
   /// No description provided for @payments_transferBody.
   ///
   /// In en, this message translates to:
-  /// **'Send ৳{amount} to one of the numbers below, then enter your payment details.'**
-  String payments_transferBody(String amount);
+  /// **'Send ৳{amount} to one of the numbers below using {sendMoney}, then carefully enter your payment details.'**
+  String payments_transferBody(String amount, String sendMoney);
+
+  /// No description provided for @payments_sendMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Money'**
+  String get payments_sendMoney;
 
   /// No description provided for @payments_copy.
   ///

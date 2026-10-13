@@ -276,6 +276,9 @@ class _PlanSummaryCard extends StatelessWidget {
   );
 }
 
+/// The transfer-instruction sentence, so a test can find the styled run.
+const Key _transferSentenceKey = ValueKey('checkout-transfer-body');
+
 /// The transfer instructions: the exact amount and each receiving number.
 class _TransferCard extends StatelessWidget {
   final AppLocalizations l;
@@ -290,17 +293,48 @@ class _TransferCard extends StatelessWidget {
     required this.onCopy,
   });
 
+  /// The instruction, with **Send Money** — the service the user has to pick
+  /// inside their MFS app — set in bold.
+  ///
+  /// The sentence stays one ARB string (`… using {sendMoney} …`), so the words
+  /// the user reads and the words this styles are written once and cannot
+  /// drift; the bold run is simply the phrase's own place in the rendered
+  /// sentence. A translation that moved the phrase still renders — plain, with
+  /// no bold run — and `test/l10n/arb_keys_test.dart` already fails one that
+  /// dropped it.
+  Widget _sentence() {
+    final phrase = l.payments_sendMoney;
+    final sentence = l.payments_transferBody(
+      AppDateUtils.formatDigits(amount, l.localeName),
+      phrase,
+    );
+    final start = sentence.indexOf(phrase);
+    return Text.rich(
+      key: _transferSentenceKey,
+      TextSpan(
+        style: AppTypography.bodyMd,
+        children: start < 0
+            ? <TextSpan>[TextSpan(text: sentence)]
+            : <TextSpan>[
+                TextSpan(text: sentence.substring(0, start)),
+                TextSpan(
+                  text: phrase,
+                  style: AppTypography.bodyMd.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                TextSpan(text: sentence.substring(start + phrase.length)),
+              ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => _Card(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l.payments_transferBody(
-            AppDateUtils.formatDigits(amount, l.localeName),
-          ),
-          style: AppTypography.bodyMd,
-        ),
+        _sentence(),
         const SizedBox(height: AppSpacing.md),
         for (var i = 0; i < methods.length; i++) ...[
           if (i > 0) const Divider(height: AppSpacing.lg, color: AppColors.outlineVariant),

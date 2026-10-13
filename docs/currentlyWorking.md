@@ -1,3 +1,12 @@
+### 2026-10-13 — Settings > Notifications: the admin switch is renamed Admin Panel Notification — COMPLETE
+
+- **Request (the user's).** Change the *Payment Request Alerts* label under Settings > Notifications to **Admin Panel Notification**. Nothing else on the screen was to change.
+- **The change.** The label is the ARB key `settingsNotifications_paymentAlertsLabel` (`notification_settings_screen.dart` renders it in a `SettingsSectionLabel` above the admin-only ON/OFF pair): English **Admin Panel Notification**, বাংলা **অ্যাডমিন প্যানেল নোটিফিকেশন**. The key name, the stored column (`payment_alerts_enabled`) and the ON/OFF controls are untouched.
+- **Rule 9.** `mockup_html_screens/settings_notifications/code.html` carries the label, so its heading was updated to match. The generated l10n under `lib/core/l10n/generated/` was regenerated (`flutter gen-l10n`).
+- **Verification.** `flutter gen-l10n` clean; `flutter analyze` clean; `test/features/notification_settings_test.dart` green (the two cases that assert the label now expect *Admin Panel Notification*). Version **0.0.512**.
+- **Records (rule 14).** The label deviates from the plan's wording, so the plan's *The user's switch* bullet and Task 23's client bullet and checklist item now name it **Admin Panel Notification** with the 0.0.512 rename noted.
+- **Resume point:** nothing owed in code. Device check: as a confirmed admin, Settings > Notifications shows the label **Admin Panel Notification** with its On/Off pair, in both languages.
+
 ### 2026-10-13 — Admin Panel: the Payment Request card says when, down to the minute — COMPLETE
 
 - **Request (the user's).** On Admin Panel > Payment Requests: (1) a pending card should show the **date & time** in its Submitted line, not just the date; (2) a resolved card should show date & time in Submitted **and** a new field with the date & time of the decision (`approved_at` / `rejected_at`).

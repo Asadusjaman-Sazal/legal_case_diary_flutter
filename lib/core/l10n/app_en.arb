@@ -1316,7 +1316,7 @@
       }
   },
   "settingsNotifications_timeLabel": "Notification Time",
-  "settingsNotifications_paymentAlertsLabel": "Payment Request Alerts",
+  "settingsNotifications_paymentAlertsLabel": "Admin Panel Notification",
   "settingsNotifications_reminderBanner": "Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.",
   "settingsNotifications_setupGuide": "Battery & Auto-Start Setup Guide",
   "settingsNotifications_setupGuideSubtitle": "Required on Xiaomi, Oppo, Vivo and Realme Phones",

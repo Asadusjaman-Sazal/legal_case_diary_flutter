@@ -1153,7 +1153,7 @@
       }
   },
   "settingsNotifications_timeLabel": "নোটিফিকেশনের সময়",
-  "settingsNotifications_paymentAlertsLabel": "পেমেন্ট অনুরোধ অ্যালার্ট",
+  "settingsNotifications_paymentAlertsLabel": "অ্যাডমিন প্যানেল নোটিফিকেশন",
   "settingsNotifications_reminderBanner": "আপনার ডিভাইসে নোটিফিকেশন যথাযথভাবে কাজ নাও করতে পারে। সেটআপ সম্পন্ন করতে ট্যাপ করুন।",
   "settingsNotifications_setupGuide": "ব্যাটারি ও অটো-স্টার্ট সেটআপ গাইড",
   "settingsNotifications_setupGuideSubtitle": "শাওমি, অপো, ভিভো ও রিয়েলমি ফোনে প্রয়োজন",

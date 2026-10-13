@@ -2030,14 +2030,18 @@
       }
   },
   "payments_transferTitle": "Transfer Instructions",
-  "payments_transferBody": "Send ৳{amount} to one of the numbers below, then enter your payment details.",
+  "payments_transferBody": "Send ৳{amount} to one of the numbers below using {sendMoney}, then carefully enter your payment details.",
   "@payments_transferBody": {
       "placeholders": {
           "amount": {
               "type": "String"
+          },
+          "sendMoney": {
+              "type": "String"
           }
       }
   },
+  "payments_sendMoney": "Send Money",
   "payments_copy": "Copy",
   "payments_copied": "Number Copied.",
   "payments_formTitle": "Payment Details",

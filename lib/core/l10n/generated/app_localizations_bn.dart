@@ -4375,9 +4375,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get payments_transferTitle => 'ট্রান্সফার নির্দেশনা';
 
   @override
-  String payments_transferBody(String amount) {
-    return 'নিচের যেকোনো একটি নম্বরে ৳$amount পাঠান, তারপর আপনার পেমেন্টের তথ্য দিন।';
+  String payments_transferBody(String amount, String sendMoney) {
+    return 'নিচের যেকোনো একটি নম্বরে $sendMoney করে ৳$amount পাঠান, তারপর আপনার পেমেন্টের তথ্য সাবধানে দিন।';
   }
+
+  @override
+  String get payments_sendMoney => 'সেন্ড মানি';
 
   @override
   String get payments_copy => 'কপি';

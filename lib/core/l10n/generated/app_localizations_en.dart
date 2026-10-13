@@ -4355,9 +4355,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payments_transferTitle => 'Transfer Instructions';
 
   @override
-  String payments_transferBody(String amount) {
-    return 'Send ৳$amount to one of the numbers below, then enter your payment details.';
+  String payments_transferBody(String amount, String sendMoney) {
+    return 'Send ৳$amount to one of the numbers below using $sendMoney, then carefully enter your payment details.';
   }
+
+  @override
+  String get payments_sendMoney => 'Send Money';
 
   @override
   String get payments_copy => 'Copy';

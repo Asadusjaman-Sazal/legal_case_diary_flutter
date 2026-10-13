@@ -185,16 +185,23 @@ class AppNavigationDrawer extends ConsumerWidget {
       label: _labelNotes,
       route: AppRoutes.notes,
     ),
-    _NavItem(
-      visibilityKey: AppRoutes.settings,
-      icon: Icons.settings_outlined,
-      label: _labelSettings,
-      route: AppRoutes.settings,
-      removable: false,
-    ),
   ];
 
-  /// Task 22: shown only to an admin, and after Settings so it never
+  /// Settings, directly above the current-plan row (user request).
+  ///
+  /// It is still an ordinary row — never removable, so a stale preference can
+  /// never hide the way back — but it sits in the bottom group now, immediately
+  /// above **Current Plan**, rather than closing the Tools group above the
+  /// divider.
+  static const _NavItem _settingsItem = _NavItem(
+    visibilityKey: AppRoutes.settings,
+    icon: Icons.settings_outlined,
+    label: _labelSettings,
+    route: AppRoutes.settings,
+    removable: false,
+  );
+
+  /// Task 22: shown only to an admin, and after the Tools rows so it never
   /// displaces an ordinary entry in a drawer an admin already arranged.
   static const _NavItem _adminItem = _NavItem(
     visibilityKey: AppRoutes.adminPanel,
@@ -418,6 +425,9 @@ class AppNavigationDrawer extends ConsumerWidget {
                     ),
                   ],
                   const _DrawerDivider(),
+                  // Settings leads the bottom group, directly above the plan
+                  // row (user request).
+                  _buildItem(context, l, _settingsItem, isAdmin: isAdmin),
                   // The account's plan, above Print/Share (user request): the
                   // bottom group is where a user looks for what the account is
                   // and what it can do with it, and it names the plan rather

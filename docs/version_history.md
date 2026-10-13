@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.513 - Header sync icon now syncs and reloads the visible list like pull-to-sync for premium accounts; the free-account off-cloud stays inert.
+Version: 0.0.514 - Side menu: Settings moved directly above the Current Plan row (drawer ordering only).
 --------------------------------------
 
 ## Version History Log:
@@ -527,3 +527,4 @@ Version: 0.0.510 - Checkout submit: Subscription Details is now a top-level rout
 Version: 0.0.511 - Admin Panel Payment Requests: Submitted shows date & time, and a resolved card adds its Approved/Rejected decision time (client-only, 0.0.511).
 Version: 0.0.512 - Settings > Notifications: the admin-only payment alert switch is renamed from 'Payment Request Alerts' to 'Admin Panel Notification' (0.0.512).
 Version: 0.0.513 - Header sync icon now syncs and reloads the visible list like pull-to-sync for premium accounts; the free-account off-cloud stays inert.
+Version: 0.0.514 - Side menu: Settings moved directly above the Current Plan row (drawer ordering only).

@@ -430,6 +430,27 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   Future<void> _forgetAccount() async {
     await (await ref.read(profileRepositoryProvider.future)).invalidate();
     await _clearPerUserCaches();
+    _reaskAccountScopedReads();
+  }
+
+  /// Re-asks the server reads that answer for whoever holds the session.
+  ///
+  /// Called from **both** ends of a session, and the arriving end is the one
+  /// that is easy to miss. Leaving drops the previous account's answers. But
+  /// [signOut] ends the session *before* it drops them, so a screen still
+  /// watching one re-asks at that instant with no JWT — and `isAdmin()` answers
+  /// **false** by design there rather than throwing, which is exactly what a
+  /// non-admin looks like. That false then outlived the sign-out, because
+  /// signing back in as the **same** account is not a switch (the logout has
+  /// just forgotten the remembered id, so [_completeSignIn]'s switch branch does
+  /// nothing) and nothing re-asked: the administrator's own Admin Panel entry
+  /// stayed gone — no drawer row, no bottom tab — until the app was restarted.
+  ///
+  /// Only the live reads are dropped here, never local rows: a cold start or a
+  /// token refresh is a sign-in too, and those must drop nothing of the
+  /// account's own. A provider added later that reads the server on this
+  /// account's behalf belongs in this list as well.
+  void _reaskAccountScopedReads() {
     ref.invalidate(myPaymentSubmissionsProvider);
     ref.invalidate(adminStatusProvider);
     ref.invalidate(firmMembersListProvider);
@@ -515,6 +536,10 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     final blocked = await _adopt(identity, firmId: firmId);
     await _local.rememberIdentity(identity);
     await _local.markGateSatisfied();
+    // Arriving: whatever the status was read as while this device had no
+    // session — including the `false` the sign-out itself caused (see
+    // [_reaskAccountScopedReads]) — must not be what the arriving account sees.
+    _reaskAccountScopedReads();
     // A session can only exist for a confirmed address, so any sign-up that was
     // waiting for its confirmation mail is finished.
     await _local.clearPendingConfirmationEmail();

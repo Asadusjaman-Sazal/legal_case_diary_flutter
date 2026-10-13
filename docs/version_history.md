@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.503 - Reject the Payment is now a scrollable dialog: opening Your Own Message over it no longer overflows the window behind when the keyboard comes up.
+Version: 0.0.505 - Signing back in as the same admin brings the Admin Panel back: the account-scoped server reads are re-asked on every completed sign-in, not only on the way out.
 --------------------------------------
 
 ## Version History Log:
@@ -517,3 +517,5 @@ Version: 0.0.500 - Admin payment alerts: a tap on the count now opens the panel'
 Version: 0.0.501 - Admin Panel Payment Requests: Reject is a red filled button with a white label, the rejection window is titled "Reject the Payment" with two centred 48 px actions, and back from a payment-notification open now lands on the Admin Panel.
 Version: 0.0.502 - Admin Panel Payment Requests: the approve/reject notice is gone, and the Reject the Payment window gained seven pre-fill messages, multi-select joined in pick order, plus an Add Your Own saved per account.
 Version: 0.0.503 - Reject the Payment is now a scrollable dialog: opening Your Own Message over it no longer overflows the window behind when the keyboard comes up.
+Version: 0.0.504 - Admin payment alerts: the two-phone test confirms the push end to end (a request on one phone reached the admin's), with the sound path, zero-cancel, sign-out, tap, switch-off and Bengali digits left as device checks.
+Version: 0.0.505 - Signing back in as the same admin brings the Admin Panel back: the account-scoped server reads are re-asked on every completed sign-in, not only on the way out.

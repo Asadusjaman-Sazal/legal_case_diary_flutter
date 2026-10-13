@@ -426,6 +426,43 @@ void main() {
     expect(c.read(profileFieldsProvider).fullName, 'Adv. A');
   });
 
+  test('the same administrator signing back in gets the panel again', () async {
+    final c = await container();
+    await signInAs(c, 'user-a');
+    expect(await c.read(adminStatusProvider.future), isTrue);
+    expect(admin.statusCalls, 1);
+
+    // The Logout button ends the session, and a screen still watching the status
+    // re-asks at that instant. With no JWT there is nothing to answer, and
+    // `isAdmin` turns that into false rather than throwing — the same answer a
+    // genuine non-admin gets.
+    await c.read(authViewModelProvider.notifier).signOut();
+    account.signedIn = false;
+    expect(await c.read(adminStatusProvider.future), isFalse);
+    // The number of asks made while there was no session, so the assertion below
+    // is about the sign-in asking **again** rather than about a total.
+    final callsWithNoSession = admin.statusCalls;
+
+    // The same administrator signs back in. The logout forgot the remembered
+    // id, so this is *not* an account switch and the switch branch drops
+    // nothing — the arriving end of the session is what has to re-ask, or the
+    // signed-out false stands and their Admin Panel entry never comes back: no
+    // drawer row, no bottom tab, until the app is restarted.
+    await signInAs(c, 'user-a');
+    expect(
+      await c.read(adminStatusProvider.future),
+      isTrue,
+      reason: 'signing in must ask the server again rather than serve the '
+          'answer from the moment the session ended',
+    );
+    expect(
+      admin.statusCalls,
+      callsWithNoSession + 1,
+      reason: 'the sign-in asked the server again rather than serving the '
+          'answer the signed-out read left behind',
+    );
+  });
+
   test('the Logout button drops the live reads too', () async {
     final c = await container();
     await signInAs(c, 'user-a');

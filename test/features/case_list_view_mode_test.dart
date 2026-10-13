@@ -55,8 +55,23 @@ import 'package:legal_case_diary/shared/widgets/case_card.dart';
 import 'package:legal_case_diary/shared/widgets/case_table_row.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
+import 'package:legal_case_diary/sync/sync_service.dart';
 import 'package:legal_case_diary/sync/sync_status_providers.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
+
+/// A [SyncService] that records its manual retries instead of touching the
+/// network, so a test can prove the header's sync tap reached the engine.
+class _RecordingSyncService extends SyncService {
+  _RecordingSyncService(super._ref);
+
+  /// How many times [retryNow] has been called.
+  int retries = 0;
+
+  @override
+  Future<void> retryNow() async {
+    retries++;
+  }
+}
 
 void main() {
   late AppDatabase db;
@@ -209,6 +224,7 @@ void main() {
     bool online = true,
     bool premium = true,
     int attention = 0,
+    SyncService Function(Ref)? syncOverride,
   }) async {
     final router = GoRouter(
       routes: [GoRoute(path: '/', builder: (_, _) => screen)],
@@ -240,6 +256,10 @@ void main() {
             syncStatusAttentionProvider.overrideWith(
               (ref) => Stream<int>.value(attention),
             ),
+          // Only stubbed when a test wants to watch the header's sync tap; the
+          // other tests leave the real service alone.
+          if (syncOverride != null)
+            syncServiceProvider.overrideWith((ref) => syncOverride(ref)),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1861,6 +1881,44 @@ void main() {
     );
     expect(button.tooltip, l.sync_unavailable);
     expect(button.tooltip, isNot(l.sync_offline));
+    await unmount(tester);
+  });
+
+  testWidgets('a free account cannot tap the header sync button', (
+    tester,
+  ) async {
+    // The off cloud is the whole answer for a free account, so the control is
+    // inert: there is no sync to run, and a live tap would promise one.
+    await pumpScreen(tester, const AllCasesScreen(), premium: false);
+
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('cases-modal-sync-button')),
+    );
+    expect(button.onPressed, isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('tapping the header sync button syncs and reloads the list', (
+    tester,
+  ) async {
+    // The header used to reach the sync engine only; a row that arrived from the
+    // server stayed invisible until the user left and came back. The tap now does
+    // what pull-to-sync does — run the sync and re-read the screen's rows.
+    late _RecordingSyncService sync;
+    await pumpScreen(
+      tester,
+      const AllCasesScreen(),
+      syncOverride: (ref) => sync = _RecordingSyncService(ref),
+    );
+    expect(find.byType(CaseCard), findsNothing);
+
+    // A row lands while the screen is up, as a pull would have brought it.
+    await seedCase(id: 'header-sync-reload');
+    await tester.tap(find.byKey(const ValueKey('cases-modal-sync-button')));
+    await settle(tester);
+
+    expect(sync.retries, 1);
+    expect(find.byType(CaseCard), findsOneWidget);
     await unmount(tester);
   });
 }

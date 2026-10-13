@@ -667,84 +667,115 @@ class _UpdateDrawerTileState extends ConsumerState<_UpdateDrawerTile> {
     final l = AppLocalizations.of(context);
     // Watched so the dot appears the moment a check — this one or the launch
     // check — finds a release, exactly as it does on the About row.
-    final offered = ref.watch(updateAvailableProvider) != null;
-    final busy = _flow.phase == UpdatePhase.checking;
+    final offered = ref.watch(updateAvailableProvider);
     return ListenableBuilder(
       listenable: _flow,
-      builder: (context, _) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(24),
-              child: InkWell(
-                key: const ValueKey('drawer-update'),
+      // Everything below is read **inside** the builder, against the live
+      // phase. Read outside it, the closure captures the phase as it stood
+      // when the drawer was built and the row never changes.
+      builder: (context, _) {
+        final busy = _flow.phase == UpdatePhase.checking;
+        // The row follows the flow's own phase first, so a check it started
+        // shows *Update now* at once; and the stored offer second, so a
+        // release the **launch check** found — which this controller never
+        // saw — turns the row into an installer too (user request). Either
+        // way the label is *Update now*, and it can only get there with a
+        // release in hand, so the tap below has something to install.
+        final installingNow =
+            _flow.phase == UpdatePhase.updateAvailable || offered != null;
+        final label = installingNow
+            ? l.settingsUpdate_updateNow
+            : _flow.buttonLabel(l);
+        // Green while the row is offering the install (user request), so the
+        // one row that can change the app says so without being read.
+        final ink = installingNow
+            ? AppColors.success
+            : AppColors.onSurfaceVariant;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Material(
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(24),
-                // A second tap while a download runs would start another, so the
-                // row goes inert the way the card's button does.
-                onTap: _flow.downloading ? null : _flow.check,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    children: [
-                      // The row answers the tap at once — the same spinner the
-                      // drawer's own busy rows use.
-                      if (busy)
-                        const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: AppColors.onSurfaceVariant,
+                child: InkWell(
+                  key: const ValueKey('drawer-update'),
+                  borderRadius: BorderRadius.circular(24),
+                  // A second tap while a download runs would start another, so the
+                  // row goes inert the way the card's button does.
+                  onTap: _flow.downloading
+                      ? null
+                      : () => _flow.phase == UpdatePhase.updateAvailable
+                            ? _flow.check()
+                            // An offer this controller did not find: install it direct
+                            // rather than re-running a check to rediscover it.
+                            : offered != null
+                            ? _flow.updateNow(offered)
+                            : _flow.check(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        // The row answers the tap at once — the same spinner the
+                        // drawer's own busy rows use.
+                        if (busy)
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: ink,
+                            ),
+                          )
+                        else
+                          Icon(
+                            installingNow
+                                ? Icons.download_outlined
+                                : Icons.system_update_alt_outlined,
+                            size: 22,
+                            color: ink,
                           ),
-                        )
-                      else
-                        const Icon(
-                          Icons.system_update_alt_outlined,
-                          size: 22,
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          // The flow's label, so the row turns into *Update now*
-                          // when there is something to install.
-                          _flow.buttonLabel(l),
-                          style: AppTypography.labelLg.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: AppTypography.labelLg.copyWith(
+                              color: ink,
+                              fontWeight: installingNow
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
-                      if (offered && !busy) ...[
-                        const UpdateDot(),
-                        const SizedBox(width: AppSpacing.sm),
+                        if (offered != null && !busy) ...[
+                          const UpdateDot(),
+                          const SizedBox(width: AppSpacing.sm),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // The cascade: the outcome sentence, and the progress line while a
-            // download runs. The button is this row itself, so the body draws
-            // neither.
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
-              child: UpdateFlowBody(
-                controller: _flow,
-                layout: UpdateFlowLayout.row,
-                showButton: false,
+              // The cascade: the outcome sentence, and the progress line while a
+              // download runs. The button is this row itself, so the body draws
+              // neither.
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 4),
+                child: UpdateFlowBody(
+                  controller: _flow,
+                  layout: UpdateFlowLayout.row,
+                  showButton: false,
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -866,11 +897,12 @@ class _CaseDrawerGroupState extends State<_CaseDrawerGroup> {
     final position = <String, int>{
       for (var i = 0; i < serial.length; i++) serial[i]: i,
     };
-    final ordered = <_NavItem>[...items]..sort((a, b) {
-      final left = position[_tabKey(a)] ?? serial.length;
-      final right = position[_tabKey(b)] ?? serial.length;
-      return left.compareTo(right);
-    });
+    final ordered = <_NavItem>[...items]
+      ..sort((a, b) {
+        final left = position[_tabKey(a)] ?? serial.length;
+        final right = position[_tabKey(b)] ?? serial.length;
+        return left.compareTo(right);
+      });
 
     // What the drawer would list at all, and what is left once the bar's own
     // screens are taken out.
@@ -1089,7 +1121,8 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
           _DrawerNavTile(
             icon: Icons.star_outline,
             label: l.settingsManageAccount_subscriptionDetails,
-            active: widget.currentRoute == AppRoutes.settingsSubscriptionDetails,
+            active:
+                widget.currentRoute == AppRoutes.settingsSubscriptionDetails,
             indent: _planSubIndent,
             onTap: () => _open(AppRoutes.settingsSubscriptionDetails),
           ),

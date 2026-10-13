@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.505 - Signing back in as the same admin brings the Admin Panel back: the account-scoped server reads are re-asked on every completed sign-in, not only on the way out.
+Version: 0.0.506 - Side menu: the Check for update row becomes Update Now in green when an update is found, including by the launch check.
 --------------------------------------
 
 ## Version History Log:
@@ -519,3 +519,4 @@ Version: 0.0.502 - Admin Panel Payment Requests: the approve/reject notice is go
 Version: 0.0.503 - Reject the Payment is now a scrollable dialog: opening Your Own Message over it no longer overflows the window behind when the keyboard comes up.
 Version: 0.0.504 - Admin payment alerts: the two-phone test confirms the push end to end (a request on one phone reached the admin's), with the sound path, zero-cancel, sign-out, tap, switch-off and Bengali digits left as device checks.
 Version: 0.0.505 - Signing back in as the same admin brings the Admin Panel back: the account-scoped server reads are re-asked on every completed sign-in, not only on the way out.
+Version: 0.0.506 - Side menu: the Check for update row becomes Update Now in green when an update is found, including by the launch check.

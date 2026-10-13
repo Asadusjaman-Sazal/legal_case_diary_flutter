@@ -208,6 +208,14 @@ class UpdateFlowController extends ChangeNotifier {
     }
   }
 
+  /// Installs [release] straight away.
+  ///
+  /// The path for a surface that learned about the offer from the **store**
+  /// rather than from its own check — the launch check's finding, which a
+  /// second controller in another widget never saw. Without this it would have
+  /// to re-run the check to notice what the app already knows.
+  Future<void> updateNow(AppRelease release) => _downloadAndInstall(release);
+
   /// Hides the offered update until the app is next launched.
   void later() {
     _container.read(updateDeferredProvider.notifier).defer();

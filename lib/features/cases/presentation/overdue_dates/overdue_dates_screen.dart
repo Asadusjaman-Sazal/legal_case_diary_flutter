@@ -231,7 +231,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-        title: l.overdueDatesScreen_title,
+      title: l.overdueDatesScreen_title,
         cases: rows,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
@@ -281,6 +281,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     final extended = watchCaseListExtendedView(ref, CaseListScreenId.overdue);
     return CasesScreenModal(
       title: l.overdueDatesScreen_title,
+      onSync: () => pullCaseListToSync(ref, _loadCases),
       documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,

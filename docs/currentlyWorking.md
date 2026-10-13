@@ -1,3 +1,12 @@
+### 2026-10-13 — Header sync icon: a tap now syncs *and* reloads, like pull-to-sync — COMPLETE
+
+- **Request (the user's).** The sync icon in the app header, wherever it appears, should sync the same way pull-to-sync does for a premium account; for a free account it stays disabled (cloud-off icon). Scope: the sync icon only.
+- **Gap found.** The button already reached the engine — `cases_screen_modal.dart`'s `_onSyncTap` calls `SyncService.retryNow()` (force drain + pull) — but it did not re-read the screen's rows, so a row the pull brought in stayed invisible until the user left and came back. Pull-to-sync already did both (`pullCaseListToSync`, `case_search.dart:25`).
+- **Change, wiring only.** The shell already exposes `onSync`; each host now passes its own reload: the six case screens `onSync: () => pullCaseListToSync(ref, _loadCases)` (`all_cases`, `active_cases`, `upcoming_cases`, `overdue_dates`, `disposed_cases`, `daily_cause_list`), and Notes / Case Reference `onSync: _onRefresh` (`retryNow` + provider invalidate). The Admin Panel header already ran `retryNow` on tap and its pull does the same, so it is unchanged. No widget, provider, mockup or ARB changed — the free-account rule (off cloud, inert, entitlement tooltip) already held in `sync_button.dart` (`canTap = isPremium && syncState != syncing`).
+- **Verification.** `test/features/case_list_view_mode_test.dart` gained *a free account cannot tap the header sync button* (`onPressed` null) and *tapping the header sync button syncs and reloads the list* (a recording `SyncService` subclass counts the retry; a row seeded after load appears once the header icon is tapped) — 42 passed (was 40). `flutter analyze` clean; full `flutter test` **1777 passed**. Version **0.0.513**.
+- **Records (rule 14).** The change deviates from the plan's header-sync bullet (which described the tap as reaching the engine alone), so the plan's `cases_screen_modal.dart` clarification and Task 06's Alignment Addendum both gained the (0.0.513) note.
+- **Resume point:** nothing owed in code. Device check: with premium and something new on the server, tapping the header sync icon updates the visible list just as pulling down does; on a free account the icon is inert and wears the off cloud.
+
 ### 2026-10-13 — Settings > Notifications: the admin switch is renamed Admin Panel Notification — COMPLETE
 
 - **Request (the user's).** Change the *Payment Request Alerts* label under Settings > Notifications to **Admin Panel Notification**. Nothing else on the screen was to change.

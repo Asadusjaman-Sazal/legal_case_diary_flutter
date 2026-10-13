@@ -186,7 +186,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-        title: l.activeCasesScreen_title,
+      title: l.activeCasesScreen_title,
         cases: grouped.cases,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
@@ -208,6 +208,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     final extended = watchCaseListExtendedView(ref, CaseListScreenId.active);
     return CasesScreenModal(
       title: l.activeCasesScreen_title,
+      onSync: () => pullCaseListToSync(ref, _loadCases),
       documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,

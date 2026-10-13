@@ -143,6 +143,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
 
     return CasesScreenModal(
       title: l.caseReferenceScreen_title,
+      onSync: _onRefresh,
       onSearch: _toggleSearch,
       // The bar is mounted by the shared modal, exactly as on the case-list
       // screens: it sits under the header, above the scrolling list, and stays

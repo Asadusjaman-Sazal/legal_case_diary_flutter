@@ -187,7 +187,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-        title: l.disposedCasesScreen_title,
+      title: l.disposedCasesScreen_title,
         cases: grouped.cases,
         courtsById: _courtsById,
         previousDatesByCaseId: _previousDatesByCaseId,
@@ -214,6 +214,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
     final extended = watchCaseListExtendedView(ref, CaseListScreenId.disposed);
     return CasesScreenModal(
       title: l.disposedCasesScreen_title,
+      onSync: () => pullCaseListToSync(ref, _loadCases),
       documentBuilder: () => _printDocument(context),
       showFab: false,
       showHelpFab: true,

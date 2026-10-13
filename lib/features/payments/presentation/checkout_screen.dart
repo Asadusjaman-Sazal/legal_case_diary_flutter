@@ -159,13 +159,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         );
     if (!mounted) return;
     if (ok) {
-      // Keep the confirmation, then take the user to their purchase ledger with
-      // the Payment History section in view, so the pending row they just
-      // created is shown rather than left behind in Settings.
+      // Keep the confirmation, then take the user to their purchase ledger, so
+      // the pending row they just created is shown rather than left behind in
+      // Settings. The ledger sits at the top of the page, so no scroll is
+      // needed; the route is a top-level one so this push works from here.
       _showMessage(l.payments_submitSuccess);
-      GoRouter.maybeOf(context)?.push(
-        AppRoutes.subscriptionDetailsFromCheckout,
-      );
+      GoRouter.maybeOf(context)?.push(AppRoutes.settingsSubscriptionDetails);
     } else {
       _showMessage(
         _failureMessage(l, ref.read(paymentViewModelProvider).value),

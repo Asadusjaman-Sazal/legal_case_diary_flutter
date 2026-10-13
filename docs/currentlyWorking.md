@@ -1,3 +1,11 @@
+### 2026-10-13 — Side menu: Settings moved directly above the Current Plan row — COMPLETE
+
+- **Request (the user's).** In the side menu bar only, move **Settings** above the **Current Plan** row.
+- **Change, drawer ordering only.** Settings was the last row of the **Tools** group (`_toolItems`: Case Reference, Notes, Settings), above the section divider; it now leads the bottom group, placed immediately above `_PlanDrawerTile`. It got its own `_settingsItem` (still `removable: false`, so a stale `side_nav_options` value can never hide it) instead of riding in `_toolItems`; the section divider now falls above Settings, with no divider between Settings and the plan row. The Admin row stays after the Tools rows. The tail reads … Notes | (Admin) | Settings, Current Plan, Print, Share, Rate, Check for update.
+- **Verification.** `test/features/app_navigation_drawer_test.dart`'s plan case was updated: Settings sits directly above the **Current Plan** caption with no divider between them, and a divider still separates the group above Settings — 42 passed. `flutter analyze` clean; full `flutter test` **1777 passed**. Version **0.0.514**.
+- **Records (rule 14).** The plan's side-navigation plan-row bullet and Task 06's Alignment Addendum both gained the (0.0.514) note. **No mockup change was owed (rule 9):** the side panel has no mockup.
+- **Resume point:** nothing owed in code. Device check: open the side menu — **Settings** sits directly above **Current Plan**, which sits above **Print**.
+
 ### 2026-10-13 — Header sync icon: a tap now syncs *and* reloads, like pull-to-sync — COMPLETE
 
 - **Request (the user's).** The sync icon in the app header, wherever it appears, should sync the same way pull-to-sync does for a premium account; for a free account it stays disabled (cloud-off icon). Scope: the sync icon only.

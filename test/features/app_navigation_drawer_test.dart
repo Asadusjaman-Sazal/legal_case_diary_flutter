@@ -375,17 +375,19 @@ void main() {
       ),
     );
 
-    // It sits in the Print/Share group, not under Settings (user request): a
-    // section divider now separates it from Settings, and Print — the row it
-    // was asked to sit above — follows it.
+    // Settings now leads this group (user request): it sits directly above the
+    // plan row with no divider between them, and the section divider that used
+    // to separate the two now sits above Settings.
     final captionY = tester
         .getTopLeft(drawerText(l.settingsSubscription_currentPlan))
         .dy;
     final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
+    expect(settingsY, lessThan(captionY));
     expect(
       drawerDividerYs(tester).where((y) => y > settingsY && y < captionY),
-      isNotEmpty,
+      isEmpty,
     );
+    expect(drawerDividerYs(tester).where((y) => y < settingsY), isNotEmpty);
     expect(captionY, lessThan(tester.getTopLeft(drawerText(l.nav_print)).dy));
 
     // Collapsed, neither destination is offered yet.

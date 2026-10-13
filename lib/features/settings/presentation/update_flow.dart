@@ -48,6 +48,50 @@ import '../data/update_repository.dart';
 import 'app_install.dart';
 import 'settings_menu_card.dart' show settingsPrimaryButtonHeight;
 
+/// The name a downloaded update waits in, inside the app's cache.
+///
+/// One fixed name, not a stamped one: the flow writes it, the launch
+/// reconciliation finds it, and neither has to remember a path — the same
+/// reason the backup's automatic file keeps a stem of its own.
+const String updateApkFileName = 'legal_case_diary_update.apk';
+
+/// The file a downloaded update waits in.
+///
+/// It lives in the app's cache, which the manifest's FileProvider already
+/// exposes to the installer, and it is **not** deleted when the installer is
+/// handed its URI — see [deleteUpdateApkIfStale].
+Future<File> updateApkFile() async {
+  final dir = await getApplicationCacheDirectory();
+  return File('${dir.path}${Platform.pathSeparator}$updateApkFileName');
+}
+
+/// Deletes a downloaded update once it has served its purpose.
+///
+/// **The APK has to outlive the handoff.** `startActivity` only *dispatches*
+/// the intent; Android's installer opens the content URI afterwards, and a file
+/// deleted in between is one it cannot read — which is exactly what made
+/// *Package Installer* appear in the chooser and then do nothing. So the flow
+/// keeps the file, and this is what removes it: at the next launch, once
+/// [stillOffered] is false, meaning either the app is now the offered version
+/// (the install landed) or the offer is gone entirely (the check cleared it, or
+/// the user skipped that release).
+///
+/// A file the OS will not let go of is left for the next launch rather than
+/// treated as a failure — nothing here is worth failing a launch over.
+Future<bool> deleteUpdateApkIfStale(
+  File apk, {
+  required bool stillOffered,
+}) async {
+  if (stillOffered) return false;
+  if (!apk.existsSync()) return false;
+  try {
+    await apk.delete();
+    return true;
+  } on FileSystemException {
+    return false;
+  }
+}
+
 /// What the update flow is currently showing.
 enum UpdatePhase {
   /// Never checked this session, or at rest after a result.
@@ -267,8 +311,7 @@ class UpdateFlowController extends ChangeNotifier {
       _error = null;
     });
     try {
-      final dir = await getApplicationCacheDirectory();
-      final file = File('${dir.path}/legal_case_diary_update.apk');
+      final file = await updateApkFile();
       final bytes = <int>[];
 
       await _container
@@ -294,8 +337,12 @@ class UpdateFlowController extends ChangeNotifier {
       sink.add(bytes);
       await sink.close();
 
+      // **The file is deliberately not deleted here.** `installDownloadedApk`
+      // returns as soon as the intent is dispatched, and Android's installer
+      // reads the URI after that — deleting the APK at this point is what made
+      // selecting *Package Installer* do nothing at all. It is removed by
+      // `deleteUpdateApkIfStale` at the next launch instead.
       final installed = await installDownloadedApk(file.path);
-      if (file.existsSync()) file.deleteSync();
 
       // The offer has been acted on, so it is no longer news: dropping it here
       // is what keeps the dot from outliving the update it pointed at. This is

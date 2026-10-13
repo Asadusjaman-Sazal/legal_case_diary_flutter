@@ -120,5 +120,16 @@
             <action android:name="android.intent.action.MAIN"/>
             <category android:name="android.intent.category.APP_EMAIL"/>
         </intent>
+        <!-- In-app update: the install intent is VIEW + the APK mime type, and
+             Android 11+ package visibility hides every app that handles it
+             unless it is declared here. Without this entry
+             `queryIntentActivities` answers with nothing, so the updater cannot
+             grant the installer read access to the downloaded APK and the
+             installer silently does nothing. See MainActivity's install
+             channel. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:mimeType="application/vnd.android.package-archive"/>
+        </intent>
     </queries>
 </manifest>

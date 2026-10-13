@@ -80,11 +80,37 @@ class MainActivity : FlutterFragmentActivity() {
                             "$packageName.apkprovider",
                             file
                         )
-                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
                             setDataAndType(uri, "application/vnd.android.package-archive")
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
+                        // Grant the URI to every activity that can handle the
+                        // intent, not just to the intent itself.
+                        //
+                        // FLAG_GRANT_READ_URI_PERMISSION is enough when Android
+                        // starts one target, but this intent has several (the
+                        // system installer and, on many devices, others), so
+                        // Android shows a chooser — and **the chooser does not
+                        // forward the grant to whichever app the user picks**.
+                        // The installer then received a `content://` URI it had
+                        // no permission to open, could not read the APK, and
+                        // did nothing at all: the reported "selecting Package
+                        // Installer does nothing". Granting per resolver is the
+                        // documented way to make a chooser's result readable.
+                        //
+                        // The `<queries>` entry in the manifest is what makes
+                        // this list non-empty on Android 11+, where package
+                        // visibility hides anything not declared.
+                        packageManager
+                            .queryIntentActivities(intent, 0)
+                            .forEach { resolved ->
+                                grantUriPermission(
+                                    resolved.activityInfo.packageName,
+                                    uri,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                )
+                            }
                         startActivity(intent)
                         result.success(null)
                     }

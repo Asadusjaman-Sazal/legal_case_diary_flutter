@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.507 - About > Update: the Update Now button is filled green once a release is offered, matching the side menu's green.
+Version: 0.0.508 - In-app update: the APK is kept until the install lands (and deleted next launch), and the URI is granted to every resolver so Package Installer can read it.
 --------------------------------------
 
 ## Version History Log:
@@ -521,3 +521,4 @@ Version: 0.0.504 - Admin payment alerts: the two-phone test confirms the push en
 Version: 0.0.505 - Signing back in as the same admin brings the Admin Panel back: the account-scoped server reads are re-asked on every completed sign-in, not only on the way out.
 Version: 0.0.506 - Side menu: the Check for update row becomes Update Now in green when an update is found, including by the launch check.
 Version: 0.0.507 - About > Update: the Update Now button is filled green once a release is offered, matching the side menu's green.
+Version: 0.0.508 - In-app update: the APK is kept until the install lands (and deleted next launch), and the URI is granted to every resolver so Package Installer can read it.

@@ -8,7 +8,7 @@
 ///     submission. A failed submit keeps it, because retyping a TrxID is exactly
 ///     the kind of loss this is here to prevent;
 ///   * the **local submission log** — the timestamps of this account's accepted
-///     submissions, used purely as a **UX** best-effort check of the 3-per-24h
+///     submissions, used purely as a **UX** best-effort check of the 5-per-24h
 ///     rule. The authoritative gate is the server's `BEFORE INSERT` trigger, and
 ///     the client check exists only so the user sees the limit before typing
 ///     rather than after a round trip.
@@ -32,7 +32,7 @@ const Duration paymentSubmissionWindow = Duration(hours: 24);
 /// How many submissions the local check allows in [paymentSubmissionWindow].
 ///
 /// The server's trigger holds the same number; this copy is UX only.
-const int paymentLocalSubmissionLimit = 3;
+const int paymentLocalSubmissionLimit = 5;
 
 /// Preference key for the checkout draft, scoped to one account.
 String paymentDraftKey(String userId) => 'payment_draft_$userId';

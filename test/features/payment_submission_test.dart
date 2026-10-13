@@ -3,7 +3,7 @@
 /// The rules being pinned are the ones the task states: the draft survives a
 /// failed submit and is cleared **only** on a confirmed success; a server
 /// refusal is worded by kind (the limit trigger gets the friendly sentence); and
-/// the local 3-per-24h check is UX only.
+/// the local 5-per-24h check is UX only.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -89,10 +89,10 @@ void main() {
       expect(isLocallyRateLimited(stamps, now), isFalse);
     });
 
-    test('three inside the window is the limit', () {
+    test('five inside the window is the limit', () {
       final now = DateTime(2026, 10, 1, 12);
       final stamps = <int>[
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < 5; i++)
           now.subtract(Duration(hours: i)).millisecondsSinceEpoch,
       ];
       expect(isLocallyRateLimited(stamps, now), isTrue);

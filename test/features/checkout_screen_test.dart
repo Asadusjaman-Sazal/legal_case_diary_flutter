@@ -8,10 +8,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/payments/data/payment_local_store.dart';
@@ -125,6 +127,84 @@ void main() {
     expect(repo.submitted, ['TRX99']);
     // Confirmed success clears the draft.
     expect(prefs.getString(paymentDraftKey('user-1')), isNull);
+    expect(find.textContaining('Submission Received'), findsOneWidget);
+  });
+
+  testWidgets('a confirmed submit keeps the snackbar and opens payment history',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    // A minimal router mirrors just the two routes the flow touches, so the
+    // navigation the bare pump helper cannot see gets pinned: the checkout
+    // pushes the Subscription Details sub-page with `focus=history`, and the
+    // confirmation snackbar survives the push.
+    final focusSeen = <String?>[];
+    final router = GoRouter(
+      initialLocation: AppRoutes.checkout,
+      routes: [
+        GoRoute(
+          path: AppRoutes.checkout,
+          builder: (context, state) => CheckoutScreen(
+            planKey: paymentPlanMonthly,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsSubscriptionDetails,
+          builder: (context, state) {
+            focusSeen.add(
+              state.uri
+                  .queryParameters[AppRoutes.subscriptionFocusParam],
+            );
+            return const Scaffold(body: Text('Details-Landed'));
+          },
+        ),
+      ],
+    );
+
+    final prefs = await SharedPreferences.getInstance();
+    final repo = _AcceptingRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          authIdentityProvider.overrideWithValue(
+            const AuthIdentity(userId: 'user-1'),
+          ),
+          paymentRepositoryProvider.overrideWithValue(repo),
+          paymentsConfigurationServiceProvider.overrideWithValue(
+            PaymentsConfigurationService(
+              remote: _FakeRemote(),
+              buildDefaults: const <String, String>{},
+            ),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const ValueKey('checkout-phone')),
+      '01712345678',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('checkout-trx')),
+      'TRX42',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('checkout-submit')));
+    await tester.pumpAndSettle();
+
+    expect(repo.submitted, ['TRX42']);
+    expect(focusSeen, ['history']);
+    expect(find.text('Details-Landed'), findsOneWidget);
     expect(find.textContaining('Submission Received'), findsOneWidget);
   });
 }

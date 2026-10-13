@@ -38,13 +38,68 @@ import '../../payments/presentation/payment_plan_labels.dart';
 import 'settings_sub_page_modal.dart';
 
 /// The Subscription Details sub-page.
-class SubscriptionDetailsScreen extends ConsumerWidget {
+class SubscriptionDetailsScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
-  const SubscriptionDetailsScreen({super.key});
+  const SubscriptionDetailsScreen({this.focusHistory = false, super.key});
+
+  /// Whether to scroll the Payment History into view when the page opens.
+  ///
+  /// The checkout sets this after a confirmed submit, so the pending purchase
+  /// the user just reported is on screen instead of below the fold. Every other
+  /// entry (Settings > Subscription) opens at the top.
+  final bool focusHistory;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubscriptionDetailsScreen> createState() =>
+      _SubscriptionDetailsScreenState();
+}
+
+class _SubscriptionDetailsScreenState
+    extends ConsumerState<SubscriptionDetailsScreen> {
+  /// Anchors the Payment History so it can be scrolled to on open.
+  final GlobalKey _historyKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusHistory) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _revealHistory());
+    }
+  }
+
+  /// Brings the Payment History section's heading to the top of the viewport.
+  void _revealHistory() {
+    final context = _historyKey.currentContext;
+    if (context == null) return;
+    Scrollable.ensureVisible(
+      context,
+      alignment: 0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // The focus scroll needs the ledger's real height: at first frame the
+    // history is still loading (a slim spinner under the heading), so the page
+    // does not yet overflow and nothing can be scrolled. When the rows land the
+    // section becomes tall enough, and only then does the checkout's scroll
+    // have somewhere to go.
+    ref.listen(myPaymentSubmissionsProvider, (previous, next) {
+      if (widget.focusHistory && next.hasValue) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _revealHistory());
+      }
+    });
+    // The plan (and with it the Free-limitations block above the heading) can
+    // land on a later frame than the ledger, so the reveal runs again once its
+    // target has stopped moving; re-running is harmless when it has not.
+    ref.listen(currentPlanProvider, (previous, next) {
+      if (widget.focusHistory) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _revealHistory());
+      }
+    });
     // The limitations are for a *known* Free plan only: an entitlement still in
     // flight reads a dash, which is neither Free nor premium.
     final plan = ref.watch(currentPlanProvider);
@@ -68,7 +123,10 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
               _FreePlanLimitations(l: l),
             ],
             const SizedBox(height: AppSpacing.lg),
-            _PaymentHistorySection(l: l),
+            KeyedSubtree(
+              key: _historyKey,
+              child: _PaymentHistorySection(l: l),
+            ),
           ],
         ),
       ),

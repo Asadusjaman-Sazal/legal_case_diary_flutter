@@ -7,7 +7,7 @@
 /// form exactly as the user typed it. On any refusal it maps the typed failure to
 /// the screen's message and leaves the draft alone.
 ///
-/// The 3-per-24h local check is UX only (Addendum/§7): it is read from
+/// The 5-per-24h local check is UX only (Addendum/§7): it is read from
 /// [paymentSubmissionLogProvider] before a submit and the server's trigger stays
 /// authoritative, which is why a server `limitReached` is handled here too.
 library;

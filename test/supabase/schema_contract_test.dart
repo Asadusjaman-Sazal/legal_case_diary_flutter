@@ -518,7 +518,11 @@ void main() {
     test('the payment rate limit overwrites client time and counts server time', () {
       final block = functionBlock(sql, 'enforce_payment_rate_limit')!;
       expect(block, contains('new.submitted_at := now()'));
-      expect(block, contains('c_daily_limit constant integer := 3'));
+      // The mechanism is pinned on the original trigger migration; the effective
+      // limit is the latest definition of it — the follow-up raised it to five —
+      // so the value is asserted against the whole set, not the first block
+      // (`functionBlock` returns the first match).
+      expect(sql, contains('c_daily_limit constant integer := 5'));
       expect(block, contains("interval '24 hours'"));
       expect(block, contains('s.submitted_at'));
     });

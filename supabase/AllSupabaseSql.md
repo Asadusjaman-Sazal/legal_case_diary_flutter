@@ -73,6 +73,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.459 | 2026-10-09 | `20261009130000_revoke_provisional_guard.sql` | Closing a grant the default privileges opened: taking EXECUTE on is_provisional_account() back from `authenticated`. Revoking `public` and `anon` does not cover it, because Supabase grants a new function in `public` directly to `authenticated` as well — so the internal guard was callable by any signed-in account, one boolean at a time about an account it already knew the id of. |
 | 0.0.495 | 2026-10-12 | `20261012100000_unconfirmed_accounts_72h_window.sql` | The Non-verified Accounts page waits 72 hours before it calls a sign-up abandoned: admin_list_unconfirmed_accounts() returns only an account created over 72 hours ago, and admin_delete_unconfirmed_account(uuid) refuses a younger one as too_recent before its activity test, so the window is enforced and not merely hidden. is_provisional_account() is untouched — age and activity are different questions — and the grants stay as the previous migration left them. |
 | 0.0.498 | 2026-10-12 | `20261012120000_admin_payment_alerts.sql` | The server half of the admin push notification: device_tokens (one row per device, self-only under RLS, deleted by its own device on the way out of an account), the per-user payment_alerts_enabled toggle on user_preferences (default on), the two reads the sender runs — the pending-payment count and the fan-set — revoked from every client role, and pg_net plus two triggers on payment_submissions that post the change to the send-admin-payment-alerts Edge Function with the Vault-held shared secret. |
+| 0.0.509 | 2026-10-13 | `20261013120000_payment_rate_limit_five.sql` | The daily payment submission limit rises to five: replaces enforce_payment_rate_limit() with the same body and one changed constant (3 -> 5), so the server's BEFORE INSERT gate matches the client's best-effort warning. The trigger, the server-time stamp, the exception and its errcode are unchanged. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -8869,5 +8870,58 @@ execute function public.notify_admin_payment_alerts();
 
 revoke all on function public.notify_admin_payment_alerts()
   from public, anon, authenticated;
+```
+
+## App Version 0.0.509 — Task 21 Follow-Up — Five Payment Submissions A Day
+
+### 0.0.509 · `20261013120000_payment_rate_limit_five.sql`
+
+> **Created 2026-10-13.** The daily payment submission limit rises to five: replaces enforce_payment_rate_limit() with the same body and one changed constant (3 -> 5), so the server's BEFORE INSERT gate matches the client's best-effort warning. The trigger, the server-time stamp, the exception and its errcode are unchanged.
+
+```sql
+-- Task 21 follow-up — the daily payment submission limit is now five.
+--
+-- `20260929102100_phase3_sync_and_guard_triggers.sql` set the server-side
+-- `BEFORE INSERT` rate limit on `payment_submissions` to three per rolling 24
+-- hours (and that value still lives there, as history). The limit is now five,
+-- so this replaces `enforce_payment_rate_limit()` with the same body and one
+-- changed constant: the count, the server-time stamp, the exception and its
+-- errcode are untouched. The trigger already points at the function, so
+-- `create or replace` is the whole change and the existing grants carry over.
+--
+-- The client's best-effort UX copy (`paymentLocalSubmissionLimit`) follows to
+-- five in the same phase, so the early warning and the authoritative gate agree.
+--
+-- Table class: `payment_submissions` remains server-managed (no client write
+-- policy exists for it), and this runs as the controlled re-issue of a function
+-- under its old grants.
+
+create or replace function public.enforce_payment_rate_limit()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  c_daily_limit constant integer := 5;
+  v_recent integer;
+begin
+  -- Server time only: a client-supplied submitted_at is overwritten, never
+  -- trusted, and the rolling count reads this column.
+  new.submitted_at := now();
+
+  select pg_catalog.count(*) into v_recent
+    from public.payment_submissions s
+   where s.user_id = new.user_id
+     and s.submitted_at > now() - interval '24 hours';
+
+  if v_recent >= c_daily_limit then
+    raise exception 'payment_submission_limit_reached'
+      using errcode = 'P0001',
+            hint = 'Five submissions per 24 hours; the client shows the friendly message.';
+  end if;
+  return new;
+end;
+$$;
 ```
 

@@ -22,11 +22,13 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
 import '../data/payment_local_store.dart';
 import '../data/payment_plans.dart';
@@ -157,7 +159,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         );
     if (!mounted) return;
     if (ok) {
+      // Keep the confirmation, then take the user to their purchase ledger with
+      // the Payment History section in view, so the pending row they just
+      // created is shown rather than left behind in Settings.
       _showMessage(l.payments_submitSuccess);
+      GoRouter.maybeOf(context)?.push(
+        AppRoutes.subscriptionDetailsFromCheckout,
+      );
     } else {
       _showMessage(
         _failureMessage(l, ref.read(paymentViewModelProvider).value),
@@ -404,7 +412,12 @@ class _FormCard extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
-            textStyle: AppTypography.labelLg,
+            // The app's primary action height (the paywall's Subscribe), so the
+            // checkout's one action matches the rest of the app rather than the
+            // platform's smaller default.
+            textStyle: AppTypography.titleMd,
+            minimumSize: const Size.fromHeight(52),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
             ),

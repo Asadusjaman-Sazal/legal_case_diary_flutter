@@ -6,7 +6,7 @@
 /// the server owns and this file must not fight:
 ///
 ///   * `submitted_at` is server-assigned — a `BEFORE INSERT` trigger overwrites
-///     any client value and the 3-per-24h limit counts it, so it is **never**
+///     any client value and the 5-per-24h limit counts it, so it is **never**
 ///     sent;
 ///   * approval is **only** the admin `approve_payment` RPC (Task 16) — there is
 ///     no client update path here, and there never should be.
@@ -17,7 +17,7 @@ import '../../../core/errors/error_log.dart';
 
 /// Why a submission could not be accepted.
 enum PaymentSubmitFailure {
-  /// The server's 3-per-24h trigger refused it.
+  /// The server's 5-per-24h trigger refused it.
   limitReached,
 
   /// The TrxID was already used (the unique constraint).

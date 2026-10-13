@@ -1,3 +1,12 @@
+### 2026-10-13 — Admin Panel: the Payment Request card says when, down to the minute — COMPLETE
+
+- **Request (the user's).** On Admin Panel > Payment Requests: (1) a pending card should show the **date & time** in its Submitted line, not just the date; (2) a resolved card should show date & time in Submitted **and** a new field with the date & time of the decision (`approved_at` / `rejected_at`).
+- **Two decisions asked before any code (rule 1).** The new field's **label is the outcome's own word** — **Approved** / **Rejected** (the strings the status chip already wears) rather than a literal *Approved/Rejected* label; and the existing **Premium Extended To** expiry line **stays**.
+- **The change, client-only.** `admin_payment_requests_screen.dart`: the Submitted line switched from `adminPanelDate` (`dd/MM/yyyy`) to `adminPanelDateTime` (`dd/MM/yy, hh:mm a`, Bangladesh time), and a resolved card gained a line carrying `approvedAt`/`rejectedAt` as the same date & time, placed after Submitted and before *Premium Extended To*. `AdminPaymentRequest` already carried the three timestamps and `admin_list_payment_submissions()` already returned `approved_at`/`rejected_at`, so **no migration, no RPC and no new ARB key**.
+- **Verification.** `flutter analyze` clean; `test/features/admin_payment_requests_screen_test.dart` **25 passed** (was 23) — the two new cases being *a pending card stamps its submission as date and time* and *a resolved card stamps the decision under its own word*. Version **0.0.511**.
+- **Records (rule 14).** Task 23's card spec bullet was corrected, a follow-up section and a checklist item were added, and the plan's clarifications gained the (0.0.511) bullet. **No mockup change was owed (rule 9):** `mockup_html_screens/admin_panel/code.html` draws the panel's menu, not this page, and this page has no mockup of its own.
+- **Resume point:** nothing owed in code. Device check: a pending card shows Submitted as date **& time**; approve or reject it and the resolved card shows that decision as date & time under the word **Approved** / **Rejected**, above *Premium Extended To*.
+
 ### 2026-10-13 — Checkout submit: the black screen fixed (the ledger is now a top-level route) and the needless scroll dropped — COMPLETE
 
 - **Reported on device.** After 0.0.509, tapping *Submit Payment* showed a black screen instead of the ledger, and the Payment History heading was already at the top of Subscription Details on open — so the focus/scroll that version added was pointless.

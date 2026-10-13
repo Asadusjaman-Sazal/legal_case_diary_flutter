@@ -18,6 +18,7 @@ import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_payment_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
@@ -178,6 +179,59 @@ void main() {
     expect(find.text('Email: sarah@example.com'), findsOneWidget);
     expect(find.text('Bar Association: Dhaka Bar Council'), findsOneWidget);
     expect(find.text('Membership No: DBC-4471'), findsOneWidget);
+  });
+
+  testWidgets('a pending card stamps its submission as date and time', (
+    tester,
+  ) async {
+    // Requested on device: the Submitted line used to be a bare date, which left
+    // the admin unable to tell two same-day submissions apart. The expected
+    // value comes from the same helper the card uses, so a revert to the
+    // date-only helper fails here.
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+
+    final submitted = AppDateUtils.formatNoteCardDate(
+      DateTime(2026, 10, 1).millisecondsSinceEpoch,
+      locale: 'en',
+    );
+    expect(find.text('Submitted: $submitted'), findsOneWidget);
+  });
+
+  testWidgets('a resolved card stamps the decision under its own word', (
+    tester,
+  ) async {
+    // An approved card carries "Approved: <when>", a rejected one
+    // "Rejected: <when>", read from approved_at / rejected_at.
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        rows: <AdminPaymentRequest>[
+          _request(
+            id: '1',
+            status: 'approved',
+            approvedAt: DateTime(2026, 10, 2, 15, 30),
+          ),
+          _request(
+            id: '2',
+            status: 'rejected',
+            rejectedAt: DateTime(2026, 10, 3, 9, 5),
+          ),
+        ],
+      ),
+    );
+    await tester.tap(find.text('Resolved'));
+    await tester.pumpAndSettle();
+
+    final approved = AppDateUtils.formatNoteCardDate(
+      DateTime(2026, 10, 2, 15, 30).millisecondsSinceEpoch,
+      locale: 'en',
+    );
+    final rejected = AppDateUtils.formatNoteCardDate(
+      DateTime(2026, 10, 3, 9, 5).millisecondsSinceEpoch,
+      locale: 'en',
+    );
+    expect(find.text('Approved: $approved'), findsOneWidget);
+    expect(find.text('Rejected: $rejected'), findsOneWidget);
   });
 
   testWidgets('each card is numbered within its own section, from 1', (

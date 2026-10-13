@@ -498,9 +498,24 @@ class _RequestCard extends ConsumerWidget {
           ),
           _DetailLine(
             label: l.adminPanel_detailLabelSubmitted,
-            value: adminPanelDate(l, request.submittedAt),
+            value: adminPanelDateTime(l, request.submittedAt),
           ),
           if (request.isResolved) ...[
+            // When it was decided, under the outcome's own word: an approved
+            // card reads "Approved: …", a rejected one "Rejected: …", so the
+            // verdict and its moment are one line. The label is the same word
+            // the status chip already carries.
+            _DetailLine(
+              label: request.status == 'approved'
+                  ? l.adminPanel_statusApproved
+                  : l.adminPanel_statusRejected,
+              value: adminPanelDateTime(
+                l,
+                request.status == 'approved'
+                    ? request.approvedAt
+                    : request.rejectedAt,
+              ),
+            ),
             if (request.approvedAt != null)
               _DetailLine(
                 label: l.adminPanel_approvedExpiry,

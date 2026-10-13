@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.510 - Checkout submit: Subscription Details is now a top-level route so the push works (no black screen), and the needless Payment History scroll is removed.
+Version: 0.0.511 - Admin Panel Payment Requests: Submitted shows date & time, and a resolved card adds its Approved/Rejected decision time (client-only, 0.0.511).
 --------------------------------------
 
 ## Version History Log:
@@ -524,3 +524,4 @@ Version: 0.0.507 - About > Update: the Update Now button is filled green once a 
 Version: 0.0.508 - In-app update: the APK is kept until the install lands (and deleted next launch), and the URI is granted to every resolver so Package Installer can read it.
 Version: 0.0.509 - Checkout: the Submit Payment button matches the app's primary size and a confirmed submit opens Subscription Details focused on Payment History, and the daily payment limit rises to five on both client and server.
 Version: 0.0.510 - Checkout submit: Subscription Details is now a top-level route so the push works (no black screen), and the needless Payment History scroll is removed.
+Version: 0.0.511 - Admin Panel Payment Requests: Submitted shows date & time, and a resolved card adds its Approved/Rejected decision time (client-only, 0.0.511).

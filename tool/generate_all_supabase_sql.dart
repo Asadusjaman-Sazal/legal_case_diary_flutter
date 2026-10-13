@@ -464,6 +464,16 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'to the send-admin-payment-alerts Edge Function with the Vault-held '
         'shared secret.',
   ),
+  LedgerSection(
+    file: '20261013120000_payment_rate_limit_five.sql',
+    version: '0.0.509',
+    label:
+        'The daily payment submission limit rises to five: replaces '
+        'enforce_payment_rate_limit() with the same body and one changed '
+        'constant (3 -> 5), so the server\'s BEFORE INSERT gate matches the '
+        'client\'s best-effort warning. The trigger, the server-time stamp, the '
+        'exception and its errcode are unchanged.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -502,6 +512,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.495':
       'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
   '0.0.498': 'Admin Payment Alerts Phase 2 — The Push Server Half',
+  '0.0.509': 'Task 21 Follow-Up — Five Payment Submissions A Day',
 };
 
 const String _header = '''<!--

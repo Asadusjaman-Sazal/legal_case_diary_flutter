@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(39),
+        hasLength(40),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -83,16 +83,18 @@ void main() {
             'Accounts follow-up added the 72-hour age window to that list and '
             'its delete, and the admin payment-alert server half added '
             'device_tokens, the per-user push toggle, the two reads only the '
-            'server may run and the pg_net webhook that calls the FCM sender',
+            'server may run and the pg_net webhook that calls the FCM sender, '
+            'and the daily payment-limit follow-up raised the submission rate '
+            'limit to five',
       );
-      expect(versions.toSet(), hasLength(39), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(40), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261012120000');
+      expect(versions.last, '20261013120000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

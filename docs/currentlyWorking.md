@@ -155,6 +155,17 @@
 - **Tests.** `manage_account_test.dart` + `delete_account_test.dart` **27 passed**: ticking Notes now types the phrase through the new screen, new back-cancels case, cloud-card case extended, Danger Zone size + both buttons' red/white pinned. `arb_keys_test` green. Full `flutter analyze` clean. Version **0.0.474**.
 - **Resume point:** nothing owed in code. Device check: tick data → Delete Selected → typed screen (button disabled until `delete my data`, same words in Bengali) → deletion + toast; back from the typed screen deletes nothing; both pop-overs show red buttons with white text; Danger Zone reads 1px bigger.
 
+### 2026-10-13 — About > Update: the Update Now button goes green too — COMPLETE
+
+- **Request (the user's).** The Update Now button on **About > Update** should be green as well, matching the side menu's green row.
+- **Green means something different on each surface, deliberately.** The drawer row is a transparent list row, so green there is the **ink** — icon and label. This one is a *filled* button, so green is the **fill** and the label stays white (`onPrimary`), which keeps it legible and keeps the app's primary action in the colour that means "the action is available" rather than the black it wears while there is only a check to run.
+- **One change, both surfaces.** The button lives in the shared `UpdateFlowBody`, so the fill is set once from `installingFill` — `AppColors.success` when a release is offered, `AppColors.primary` otherwise — and both the card and any future surface get it. The value is computed **inside** the builder, for the same reason the drawer row's is: read outside, the closure captures the phase from build time and the button would never change.
+- **Tests (two new).** *The button is green once there is something to install* pins black before the check and `AppColors.success` after it; *the button goes back to black when there is nothing to install* pins the other direction, so "always green" cannot pass as a fix. Both read the button's resolved fill through a key rather than a screenshot.
+- **Teeth (proven and reverted).** Pinning the fill back to `AppColors.primary` fails the green case, and **the injection was confirmed to have landed** (by re-reading the changed line) before the result was trusted. The file was restored byte-for-byte (md5 verified).
+- **Verification.** `flutter analyze` clean; the Update suite 14 passed; full suite **1763 passed**; `record_version.py --check` OK; version **0.0.507**.
+- **Not changed:** the button's label, its icon, the white label ink, the download progress bar, the drawer row (already green from 0.0.506), and the check itself.
+- **Device check owed.** About > Update with an update available: the button is a solid green *Update Now* with white text, and it returns to black *Check for update* once the update is installed.
+
 ### 2026-10-13 — Side menu: the update row turns into a green Update Now — COMPLETE
 
 - **Request (the user's, side menu only).** When an update is found — by the **automatic** check as well as by a manual one — the row should read **Update Now** rather than *Check for update*, and both its **label and icon should be green**.

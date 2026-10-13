@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/update_release.dart';
@@ -73,6 +74,13 @@ class _RecordingUpdateRepository extends _FakeUpdateRepository {
     return (received: 0, total: 0);
   }
 }
+
+/// The fill the updater button is painting right now.
+Color? updateButtonFill(WidgetTester tester) => tester
+    .widget<FilledButton>(find.byKey(const ValueKey('update-flow-button')))
+    .style
+    ?.backgroundColor
+    ?.resolve(<WidgetState>{});
 
 void main() {
   Future<void> pump(
@@ -394,5 +402,43 @@ void main() {
       findsOneWidget,
     );
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
+  });
+
+  testWidgets('the button is green once there is something to install', (
+    tester,
+  ) async {
+    final repo = _FakeUpdateRepository(
+      outcome: const UpdateCheckOutcome(
+        ReleaseCheckResult.updateAvailable,
+        release: AppRelease(
+          version: '99.99.999',
+          downloadUrl: 'https://example.test/app.apk',
+        ),
+      ),
+    );
+    await pump(tester, repo);
+
+    // Black while there is only a check to run...
+    expect(updateButtonFill(tester), AppColors.primary);
+
+    await tester.tap(find.text('Check for update'));
+    await tester.pumpAndSettle();
+
+    // ...green once the button offers the install, the same signal the side
+    // menu's row gives with green ink.
+    expect(find.text('Update Now'), findsOneWidget);
+    expect(updateButtonFill(tester), AppColors.success);
+  });
+
+  testWidgets('the button goes back to black when there is nothing to install', (
+    tester,
+  ) async {
+    await pump(tester, _FakeUpdateRepository());
+
+    await tester.tap(find.text('Check for update'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('You are on the latest V$appVersion version.'), findsOneWidget);
+    expect(updateButtonFill(tester), AppColors.primary);
   });
 }

@@ -438,6 +438,11 @@ class _UpdateFlowBodyState extends State<UpdateFlowBody> {
     final l = AppLocalizations.of(context);
     final controller = widget.controller;
     final progress = controller.progress;
+    // Read from the live phase, inside the builder, for the same reason the
+    // drawer's row is: computed outside it, the button would never change.
+    final installingFill = controller.phase == UpdatePhase.updateAvailable
+        ? AppColors.success
+        : AppColors.primary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -449,6 +454,13 @@ class _UpdateFlowBodyState extends State<UpdateFlowBody> {
             height: settingsPrimaryButtonHeight,
             child: FilledButton.icon(
               onPressed: controller.downloading ? null : controller.check,
+              // Green once there is something to install (user request), the
+              // same signal the side menu's row gives with green ink. Here the
+              // button is *filled*, so green is the fill and the label stays
+              // white — the app's primary button in the colour that means "this
+              // is the action", rather than the black one it wears while there
+              // is only a check to run.
+              key: const ValueKey('update-flow-button'),
               icon: controller.phase == UpdatePhase.checking
                   ? const SizedBox(
                       width: 18,
@@ -461,7 +473,7 @@ class _UpdateFlowBodyState extends State<UpdateFlowBody> {
                   : Icon(controller.buttonIcon(), size: 20),
               label: Text(controller.buttonLabel(l)),
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: installingFill,
                 foregroundColor: AppColors.onPrimary,
                 textStyle: AppTypography.labelLg,
                 shape: RoundedRectangleBorder(

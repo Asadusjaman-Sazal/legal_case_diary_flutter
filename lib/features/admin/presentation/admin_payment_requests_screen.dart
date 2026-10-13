@@ -19,20 +19,30 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/repository_providers.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/confirm_dialogs.dart';
 import '../../../sync/sync_service.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../../payments/data/payment_plans.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
+import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../../settings/presentation/settings_viewmodel.dart';
 import '../data/admin_repository.dart';
 import 'admin_shared.dart';
 import 'admin_viewmodel.dart';
+import 'reject_message_templates.dart';
 
 /// Payment requests: Pending and Resolved, each collapsible, each numbered.
 class AdminPaymentRequestsScreen extends ConsumerStatefulWidget {
@@ -73,149 +83,156 @@ class _AdminPaymentRequestsScreenState
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final requests = ref.watch(adminPaymentRequestsProvider);
-    final action = ref.watch(AdminActionViewModel.provider);
 
-    return SettingsSubPageModal(
-      title: l.adminPanel_paymentRequests,
-      actions: [
-        const AdminSyncButton(),
-        IconButton(
-          key: const ValueKey('admin-payments-search'),
-          icon: const Icon(Icons.search),
-          tooltip: l.adminPanel_search,
-          onPressed: _toggleSearch,
-        ),
-      ],
-      child: requests.when(
-        loading: () => Center(child: CircularProgressIndicator()),
-        error: (_, _) => _LoadFailed(
-          onRetry: () => ref.invalidate(adminPaymentRequestsProvider),
-        ),
-        data: (all) {
-          final searching = _query.trim().isNotEmpty;
-          final pending = all
-              .where((r) => r.isPending && _matches(r))
-              .toList(growable: false);
-          final resolved = all
-              .where((r) => r.isResolved && _matches(r))
-              .toList(growable: false);
-          if (searching && pending.isEmpty && resolved.isEmpty) {
+    return PopScope(
+      // The page can be the stack's only route — a payment-alert launch makes
+      // it the router's initial location, and a tap while the app runs
+      // *replaces* the stack — so the system back gesture must land on the
+      // Admin Panel too, not leave the page stranded (or exit the app).
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _back();
+      },
+      child: SettingsSubPageModal(
+        title: l.adminPanel_paymentRequests,
+        onBack: _back,
+        actions: [
+          const AdminSyncButton(),
+          IconButton(
+            key: const ValueKey('admin-payments-search'),
+            icon: const Icon(Icons.search),
+            tooltip: l.adminPanel_search,
+            onPressed: _toggleSearch,
+          ),
+        ],
+        child: requests.when(
+          loading: () => Center(child: CircularProgressIndicator()),
+          error: (_, _) => _LoadFailed(
+            onRetry: () => ref.invalidate(adminPaymentRequestsProvider),
+          ),
+          data: (all) {
+            final searching = _query.trim().isNotEmpty;
+            final pending = all
+                .where((r) => r.isPending && _matches(r))
+                .toList(growable: false);
+            final resolved = all
+                .where((r) => r.isResolved && _matches(r))
+                .toList(growable: false);
+            if (searching && pending.isEmpty && resolved.isEmpty) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_isSearching) _searchField(l),
+                  AdminNoResults(message: l.adminPanel_noResults),
+                ],
+              );
+            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_isSearching) _searchField(l),
-                AdminNoResults(message: l.adminPanel_noResults),
-              ],
-            );
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_isSearching) _searchField(l),
-              Expanded(
-                // Pull to refresh does what the header button does — a forced
-                // drain with the delta pull — and then re-reads the
-                // submissions, so a payment that landed while the page was
-                // open appears without a second trip to Settings.
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await ref.read(syncServiceProvider).retryNow();
-                    ref.invalidate(adminPaymentRequestsProvider);
-                    await ref.read(adminPaymentRequestsProvider.future);
-                  },
-                  // Slivers, not a ListView, because each section's button has to
-                  // hold the top of the list while the admin scrolls its own
-                  // cards: the header scrolls away with them otherwise, and after
-                  // a few hundred cards there is nothing left saying which
-                  // section is on screen.
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverPadding(
-                        // The band around each section's button supplies its own
-                        // `sm` above it, so this keeps the old `md` top edge.
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.edgeMargin,
-                          AppSpacing.sm,
-                          AppSpacing.edgeMargin,
-                          0,
-                        ),
-                        sliver: SliverToBoxAdapter(
-                          child: action.phase != AdminActionPhase.idle
-                              ? _ActionBanner(
-                                  action: action,
-                                  onDismiss: () => ref
-                                      .read(
-                                        AdminActionViewModel.provider.notifier,
-                                      )
-                                      .clear(),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ),
-                      _RequestSection(
-                        icon: Icons.pending_actions,
-                        title: l.adminPanel_pending,
-                        count: pending.length,
-                        // A section holding a match is opened by the search, so a
-                        // result is never hidden inside a closed section.
-                        open: searching ? pending.isNotEmpty : _pendingOpen,
-                        emptyText: searching
-                            ? l.adminPanel_noResults
-                            : l.adminPanel_emptyPending,
-                        children: [
-                          for (var i = 0; i < pending.length; i++)
-                            _RequestCard(
-                              key: ValueKey('admin-request-${pending[i].id}'),
-                              request: pending[i],
-                              serial: i + 1,
-                            ),
-                        ],
-                        onToggle: () =>
-                            setState(() => _pendingOpen = !_pendingOpen),
-                      ),
-                      // The two bands already contribute a `sm` each, so this
-                      // brings the gap between the sections to the old `lg`.
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: AppSpacing.md),
-                      ),
-                      _RequestSection(
-                        icon: Icons.task_alt,
-                        title: l.adminPanel_resolved,
-                        count: resolved.length,
-                        open: searching ? resolved.isNotEmpty : _resolvedOpen,
-                        emptyText: searching
-                            ? l.adminPanel_noResults
-                            : l.adminPanel_emptyResolved,
-                        // Newest decision first: the admin wants the latest
-                        // history, not the oldest, and the server's own order is
-                        // by submission time rather than by when it was decided.
-                        children: [
-                          for (var i = 0; i < resolved.length; i++)
-                            _RequestCard(
-                              key: ValueKey(
-                                'admin-request-${_byDecisionTime(resolved)[i].id}',
+                Expanded(
+                  // Pull to refresh does what the header button does — a forced
+                  // drain with the delta pull — and then re-reads the
+                  // submissions, so a payment that landed while the page was
+                  // open appears without a second trip to Settings.
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await ref.read(syncServiceProvider).retryNow();
+                      ref.invalidate(adminPaymentRequestsProvider);
+                      await ref.read(adminPaymentRequestsProvider.future);
+                    },
+                    // Slivers, not a ListView, because each section's button has to
+                    // hold the top of the list while the admin scrolls its own
+                    // cards: the header scrolls away with them otherwise, and after
+                    // a few hundred cards there is nothing left saying which
+                    // section is on screen.
+                    child: CustomScrollView(
+                      slivers: [
+                        _RequestSection(
+                          icon: Icons.pending_actions,
+                          title: l.adminPanel_pending,
+                          count: pending.length,
+                          // A section holding a match is opened by the search, so a
+                          // result is never hidden inside a closed section.
+                          open: searching ? pending.isNotEmpty : _pendingOpen,
+                          emptyText: searching
+                              ? l.adminPanel_noResults
+                              : l.adminPanel_emptyPending,
+                          children: [
+                            for (var i = 0; i < pending.length; i++)
+                              _RequestCard(
+                                key: ValueKey('admin-request-${pending[i].id}'),
+                                request: pending[i],
+                                serial: i + 1,
                               ),
-                              request: _byDecisionTime(resolved)[i],
-                              serial: i + 1,
-                            ),
-                        ],
-                        onToggle: () =>
-                            setState(() => _resolvedOpen = !_resolvedOpen),
-                      ),
-                      // The list's own bottom padding, which a CustomScrollView
-                      // has no padding for.
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: AppSpacing.xl),
-                      ),
-                    ],
+                          ],
+                          onToggle: () =>
+                              setState(() => _pendingOpen = !_pendingOpen),
+                        ),
+                        // The two bands already contribute a `sm` each, so this
+                        // brings the gap between the sections to the old `lg`.
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: AppSpacing.md),
+                        ),
+                        _RequestSection(
+                          icon: Icons.task_alt,
+                          title: l.adminPanel_resolved,
+                          count: resolved.length,
+                          open: searching ? resolved.isNotEmpty : _resolvedOpen,
+                          emptyText: searching
+                              ? l.adminPanel_noResults
+                              : l.adminPanel_emptyResolved,
+                          // Newest decision first: the admin wants the latest
+                          // history, not the oldest, and the server's own order is
+                          // by submission time rather than by when it was decided.
+                          children: [
+                            for (var i = 0; i < resolved.length; i++)
+                              _RequestCard(
+                                key: ValueKey(
+                                  'admin-request-${_byDecisionTime(resolved)[i].id}',
+                                ),
+                                request: _byDecisionTime(resolved)[i],
+                                serial: i + 1,
+                              ),
+                          ],
+                          onToggle: () =>
+                              setState(() => _resolvedOpen = !_resolvedOpen),
+                        ),
+                        // The list's own bottom padding, which a CustomScrollView
+                        // has no padding for.
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: AppSpacing.xl),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
+  }
+
+  /// The one way out of this page.
+  ///
+  /// The header arrow and the Android back gesture both call this, so there is
+  /// one answer either way. With history the page pops as usual (the panel
+  /// pushes it on top of its menu); at the root — the two notification entries —
+  /// it goes through the router to the Admin Panel, the screen this page belongs
+  /// to, rather than doing nothing.
+  void _back() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+    // `maybeOf`, not `of`: a test harness can mount this page under a plain
+    // Navigator with no GoRouter above it, and there is nothing to go to there.
+    GoRouter.maybeOf(context)?.go(AppRoutes.adminPanel);
   }
 
   Widget _searchField(AppLocalizations l) => AdminSearchField(
@@ -252,76 +269,6 @@ class _AdminPaymentRequestsScreenState
 
   static DateTime _decidedAt(AdminPaymentRequest r) =>
       r.approvedAt ?? r.rejectedAt ?? r.submittedAt ?? DateTime(1970);
-}
-
-/// The one-line outcome of the last approve/reject, or why it failed.
-class _ActionBanner extends StatelessWidget {
-  final AdminActionState action;
-  final VoidCallback onDismiss;
-
-  const _ActionBanner({required this.action, required this.onDismiss});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isFailure = action.phase == AdminActionPhase.failure;
-    final message = switch (action.phase) {
-      AdminActionPhase.success =>
-        action.failure == null ? l.adminPanel_approved : l.adminPanel_rejected,
-      AdminActionPhase.failure => switch (action.failure) {
-        AdminActionFailure.notAnAdmin => l.adminPanel_failedNotAdmin,
-        AdminActionFailure.notFound => l.adminPanel_failedNotFound,
-        AdminActionFailure.alreadyResolved =>
-          l.adminPanel_failedAlreadyResolved,
-        // The Non-verified Accounts delete's reason; an approve or reject of a
-        // payment can never produce it, so it shares the generic sentence.
-        AdminActionFailure.tooRecent => l.adminPanel_failedUnexpected,
-        AdminActionFailure.unexpected => l.adminPanel_failedUnexpected,
-        null => l.adminPanel_failedUnexpected,
-      },
-      _ => '',
-    };
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Material(
-        color: isFailure
-            ? AppColors.errorContainer
-            : AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.cardPadding),
-          child: Row(
-            children: [
-              Icon(
-                isFailure ? Icons.error_outline : Icons.check_circle,
-                size: 18,
-                color: isFailure
-                    ? AppColors.onErrorContainer
-                    : AppColors.success,
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  message,
-                  style: AppTypography.bodySm.copyWith(
-                    color: isFailure
-                        ? AppColors.onErrorContainer
-                        : AppColors.onSurface,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: onDismiss,
-                iconSize: 18,
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.close),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 /// A collapsible Pending / Resolved section, headed by a Settings sub-menu
@@ -570,11 +517,14 @@ class _RequestCard extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  // Reject is the red decision (user request): a filled error
+                  // button with a white label, so the two decisions read as the
+                  // outcome they produce rather than as two equal choices.
+                  child: FilledButton(
                     onPressed: busy ? null : () => _confirmReject(context, ref),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: const BorderSide(color: AppColors.error),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: AppColors.onError,
                       textStyle: AppTypography.labelLg,
                       minimumSize: const Size.fromHeight(48),
                       shape: RoundedRectangleBorder(
@@ -622,7 +572,10 @@ class _RequestCard extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final note = await showDialog<String>(
       context: context,
-      builder: (_) => _RejectNoteDialog(l: l),
+      builder: (_) => _RejectNoteDialog(
+        l: l,
+        onSavedMessagesChanged: (messages) => _saveOwnMessages(ref, messages),
+      ),
     );
     if (note == null) return;
     final trimmed = note.trim();
@@ -630,20 +583,346 @@ class _RequestCard extends ConsumerWidget {
         .read(AdminActionViewModel.provider.notifier)
         .reject(request.id, note: trimmed.isEmpty ? null : trimmed);
   }
+
+  /// Writes the admin's own reject messages into the per-user preference row.
+  ///
+  /// Read-modify-write through the repository, not the settings view model: the
+  /// view model applies a change to whatever settings it happens to hold, so a
+  /// screen that has not loaded them yet would save its own defaults over the
+  /// lawyer's stored row. The push is the same detached ask the Settings screens
+  /// make after a preference write, and a failure is recorded rather than
+  /// swallowed — the wording left the list, and nothing else would say why.
+  Future<void> _saveOwnMessages(WidgetRef ref, List<String> messages) async {
+    try {
+      final repository = await ref.read(settingsRepositoryProvider.future);
+      final current = await repository.getSettings();
+      await repository.upsertSettings(
+        current.copyWith(adminRejectMessages: messages),
+      );
+      ref.read(pushPreferencesProvider)();
+      // The settings view model caches what it loaded, so the next time this
+      // window opens it must read the row again rather than the stale list.
+      ref.invalidate(settingsViewModelProvider);
+    } on Object catch (error) {
+      recordFailure(
+        ref.read(errorLogProvider),
+        'admin.saveRejectMessages',
+        error,
+      );
+    }
+  }
 }
 
-/// The rejection window: an optional note for the payer, and a Cancel that does
-/// nothing at all.
-class _RejectNoteDialog extends StatefulWidget {
+/// The rejection window: an optional note for the payer, the app's own pre-fill
+/// messages beside the admin's saved ones, and a Cancel that does nothing at all.
+class _RejectNoteDialog extends ConsumerStatefulWidget {
+  /// Localizations, read by the card that opened the window.
   final AppLocalizations l;
 
-  const _RejectNoteDialog({required this.l});
+  /// Called with the admin's own messages after one is added or removed, so the
+  /// screen writes the per-user preference row rather than the window.
+  final ValueChanged<List<String>> onSavedMessagesChanged;
+
+  const _RejectNoteDialog({
+    required this.l,
+    required this.onSavedMessagesChanged,
+  });
 
   @override
-  State<_RejectNoteDialog> createState() => _RejectNoteDialogState();
+  ConsumerState<_RejectNoteDialog> createState() => _RejectNoteDialogState();
 }
 
-class _RejectNoteDialogState extends State<_RejectNoteDialog> {
+/// The rejection window's button size: the app's own 48 px control height, and a
+/// minimum width that keeps the pair side by side inside a phone's dialog (a
+/// wider minimum pushes the two onto separate lines).
+const Size _dialogButtonSize = Size(96, 48);
+
+/// The tallest the opened pre-fill list may grow before it scrolls itself.
+///
+/// The window already carries a title, a three-line note and two buttons, and it
+/// can be open while the keyboard is up, so the list is given a ceiling of its
+/// own instead of stretching the dialog to whatever the messages come to.
+const double _prefillListMaxHeight = 208;
+
+class _RejectNoteDialogState extends ConsumerState<_RejectNoteDialog> {
+  final TextEditingController _controller = TextEditingController();
+
+  /// The admin's own saved messages, read once when the window opens.
+  List<String> _own = const <String>[];
+
+  /// Whether the pre-fill list is showing under its row.
+  bool _open = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // A message's tick is derived from the note, so every keystroke redraws the
+    // row it belongs to: a hand edit and a tap in the list can then never
+    // disagree about what is in the box.
+    _controller.addListener(_onNoteChanged);
+    _loadOwnMessages();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onNoteChanged);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onNoteChanged() => setState(() {});
+
+  /// Reads the admin's own messages from the per-user preference row.
+  ///
+  /// A failed read costs this list and not the window — the rejection must still
+  /// be possible — and the settings view model has already recorded it.
+  Future<void> _loadOwnMessages() async {
+    try {
+      final settings = await ref.read(settingsViewModelProvider.future);
+      if (!mounted) return;
+      setState(() => _own = settings.adminRejectMessages);
+    } on Object {
+      // Deliberately left empty: the app's own messages still work.
+    }
+  }
+
+  /// Every message the list offers: the app's own, then the admin's own.
+  List<String> _messages(AppLocalizations l) => <String>[
+    ...adminRejectTemplates(l),
+    ..._own,
+  ];
+
+  /// Puts [message] in the note, or takes it back out when it is already there.
+  void _toggle(String message) => _write(
+    adminRejectNoteHas(_controller.text, message)
+        ? adminRejectNoteRemove(_controller.text, message)
+        : adminRejectNoteAdd(_controller.text, message),
+  );
+
+  /// Writes [text] into the note, leaving the caret at its end so the admin can
+  /// carry straight on typing.
+  void _write(String text) {
+    _controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  /// Types a message of the admin's own: it goes into the note, and into the
+  /// list for next time.
+  Future<void> _addOwn(AppLocalizations l) async {
+    final typed = await showDialog<String>(
+      context: context,
+      builder: (_) => _OwnMessageDialog(l: l),
+    );
+    final message = typed?.trim() ?? '';
+    if (message.isEmpty) return;
+    if (!_own.contains(message)) {
+      final next = <String>[..._own, message];
+      setState(() => _own = next);
+      widget.onSavedMessagesChanged(next);
+    }
+    _write(adminRejectNoteAdd(_controller.text, message));
+  }
+
+  /// Removes one of the admin's own messages, behind the app's own delete
+  /// window.
+  ///
+  /// The note is left alone: the admin may be writing this rejection with that
+  /// very wording, and deleting an entry from the list is not an edit to what the
+  /// payer is about to read.
+  Future<void> _removeOwn(String message) async {
+    final confirmed = await confirmDeleteDialog(context);
+    if (confirmed != true) return;
+    final next = _own.where((entry) => entry != message).toList(growable: false);
+    setState(() => _own = next);
+    widget.onSavedMessagesChanged(next);
+  }
+
+  /// The pre-fill "dropdown": the app's own 48 px picker row, opening the
+  /// message list beneath it.
+  ///
+  /// A list rather than a `DropdownButton`, because several messages are picked
+  /// *into* the note and the control must not close under the admin's thumb — the
+  /// check-mark picker the Settings screens use, only inline: a second window
+  /// opened from inside this one would hide the note being filled.
+  Widget _prefill(AppLocalizations l) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SettingsPickerRow(
+        text: l.adminPanel_rejectPickMessage,
+        icon: _open ? Icons.expand_less : Icons.expand_more,
+        onTap: () => setState(() => _open = !_open),
+      ),
+      if (_open)
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              border: Border.all(color: AppColors.outlineVariant),
+            ),
+            constraints: const BoxConstraints(maxHeight: _prefillListMaxHeight),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final message in _messages(l)) _messageRow(l, message),
+                  _addOwnRow(l),
+                ],
+              ),
+            ),
+          ),
+        ),
+    ],
+  );
+
+  /// One message: tapping it puts it in the note or takes it out, the tick shows
+  /// which, and the admin's own messages also carry a way to delete them.
+  Widget _messageRow(AppLocalizations l, String message) {
+    final own = _own.contains(message);
+    final picked = adminRejectNoteHas(_controller.text, message);
+    return InkWell(
+      key: ValueKey('admin-reject-message-$message'),
+      onTap: () => _toggle(message),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                message,
+                style: AppTypography.bodySm.copyWith(
+                  color: picked ? AppColors.secondary : AppColors.onSurface,
+                  fontWeight: picked ? FontWeight.w700 : FontWeight.w400,
+                ),
+              ),
+            ),
+            if (own)
+              IconButton(
+                key: ValueKey('admin-reject-own-remove-$message'),
+                icon: const Icon(Icons.close, size: 16),
+                tooltip: l.sharedActions_delete,
+                visualDensity: VisualDensity.compact,
+                onPressed: () => _removeOwn(message),
+              ),
+            if (picked)
+              const Icon(
+                Icons.check_circle,
+                size: 18,
+                color: AppColors.secondary,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The list's last row: the admin's own wording, typed by them.
+  Widget _addOwnRow(AppLocalizations l) => InkWell(
+    key: const ValueKey('admin-reject-add-own'),
+    onTap: () => _addOwn(l),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.add, size: 18, color: AppColors.secondary),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              l.adminPanel_rejectAddOwn,
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.secondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final l = widget.l;
+    return AlertDialog(
+      title: Text(l.adminPanel_rejectTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _controller,
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: l.adminPanel_rejectNoteLabel,
+              hintText: l.adminPanel_rejectNoteHint,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _prefill(l),
+        ],
+      ),
+      // The window can be open while the keyboard is up — "Add Your Own" opens a
+      // field that autofocuses, over this one — and the middle of the window is
+      // the tallest part of it (the opened pre-fill list). Without this the note,
+      // the list and the title are laid out in what the keyboard leaves and the
+      // whole thing overflows off the top of its own box (reported on a phone).
+      // Scrollable keeps the title, note and list in one scrollable column and
+      // the two decisions pinned under it, which is what makes a rejection still
+      // possible with the keyboard showing.
+      scrollable: true,
+      // The two decisions are the window's whole point, so they are centred and
+      // given the app's own button height (user request) rather than the
+      // platform's smaller, right-aligned defaults. The overflow alignment is the
+      // same centre: a narrow phone wraps the pair into a column, and a wrapped
+      // pair that fell back to the platform's `end` would be right-aligned again.
+      actionsAlignment: MainAxisAlignment.center,
+      actionsOverflowAlignment: OverflowBarAlignment.center,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          style: TextButton.styleFrom(
+            textStyle: AppTypography.labelLg,
+            minimumSize: _dialogButtonSize,
+          ),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.error,
+            foregroundColor: AppColors.onError,
+            textStyle: AppTypography.labelLg,
+            minimumSize: _dialogButtonSize,
+          ),
+          child: Text(l.adminPanel_rejectConfirm),
+        ),
+      ],
+    );
+  }
+}
+
+/// The window \"Add Your Own\" opens: one field, and an Add that saves the wording
+/// for next time as well as putting it in the note.
+class _OwnMessageDialog extends StatefulWidget {
+  final AppLocalizations l;
+
+  const _OwnMessageDialog({required this.l});
+
+  @override
+  State<_OwnMessageDialog> createState() => _OwnMessageDialogState();
+}
+
+class _OwnMessageDialogState extends State<_OwnMessageDialog> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -656,13 +935,14 @@ class _RejectNoteDialogState extends State<_RejectNoteDialog> {
   Widget build(BuildContext context) {
     final l = widget.l;
     return AlertDialog(
-      title: Text(l.adminPanel_rejectTitle),
+      title: Text(l.adminPanel_rejectOwnMessageTitle),
       content: TextField(
         controller: _controller,
-        maxLines: 3,
+        autofocus: true,
+        maxLines: 2,
+        textCapitalization: TextCapitalization.sentences,
         decoration: InputDecoration(
-          labelText: l.adminPanel_rejectNoteLabel,
-          hintText: l.adminPanel_rejectNoteHint,
+          hintText: l.adminPanel_rejectOwnMessageHint,
         ),
       ),
       actions: [
@@ -673,10 +953,11 @@ class _RejectNoteDialogState extends State<_RejectNoteDialog> {
         FilledButton(
           onPressed: () => Navigator.of(context).pop(_controller.text),
           style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            textStyle: AppTypography.labelLg,
           ),
-          child: Text(l.adminPanel_rejectConfirm),
+          child: Text(l.sharedActions_add),
         ),
       ],
     );

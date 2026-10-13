@@ -1224,7 +1224,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_reject => 'বাতিল';
 
   @override
-  String get adminPanel_rejectTitle => 'এই পেমেন্ট বাতিল করুন';
+  String get adminPanel_rejectTitle => 'পেমেন্ট বাতিল করুন';
 
   @override
   String get adminPanel_rejectNoteLabel => 'গ্রাহকের জন্য নোট (ঐচ্ছিক)';
@@ -1234,6 +1234,44 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_rejectConfirm => 'পেমেন্ট বাতিল করুন';
+
+  @override
+  String get adminPanel_rejectPickMessage => 'প্রস্তুত বার্তা';
+
+  @override
+  String get adminPanel_rejectTemplateMismatch =>
+      'মোবাইল নম্বর ও ট্রানজেকশন আইডি মেলেনি।';
+
+  @override
+  String get adminPanel_rejectTemplateMobileNumber => 'মোবাইল নম্বর ভুল।';
+
+  @override
+  String get adminPanel_rejectTemplateTransactionId => 'ট্রানজেকশন আইডি ভুল।';
+
+  @override
+  String get adminPanel_rejectTemplateCorrectInfo => 'সঠিক তথ্য দিন।';
+
+  @override
+  String get adminPanel_rejectTemplateTwoTries =>
+      'আজ আর ২ বার চেষ্টা করার সুযোগ আছে।';
+
+  @override
+  String get adminPanel_rejectTemplateOneTry =>
+      'আজ আর ১ বার চেষ্টা করার সুযোগ আছে।';
+
+  @override
+  String get adminPanel_rejectTemplateBeCareful =>
+      'পরের বার তথ্য লেখার সময় সতর্ক থাকবেন।';
+
+  @override
+  String get adminPanel_rejectAddOwn => 'নিজে লিখুন';
+
+  @override
+  String get adminPanel_rejectOwnMessageTitle => 'আপনার নিজের বার্তা';
+
+  @override
+  String get adminPanel_rejectOwnMessageHint =>
+      'গ্রাহক যে বার্তা পড়বেন তা লিখুন';
 
   @override
   String adminPanel_detailLabel(String label, String value) {
@@ -1296,13 +1334,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_retry => 'আবার চেষ্টা করুন';
-
-  @override
-  String get adminPanel_approved =>
-      'পেমেন্ট অনুমোদিত হয়েছে। গ্রাহক এখন প্রিমিয়াম।';
-
-  @override
-  String get adminPanel_rejected => 'পেমেন্ট বাতিল করা হয়েছে।';
 
   @override
   String get adminPanel_failedNotAdmin =>

@@ -14,13 +14,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_payment_requests_screen.dart';
+import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/shared/widgets/sync_button.dart';
+
+import '../test_utils.dart';
+import 'settings_test_support.dart';
 
 /// A repository that answers from memory, so the page can be driven without a
 /// server and every call it makes is recorded.
@@ -99,18 +104,28 @@ AdminPaymentRequest _request({
 );
 
 void main() {
-  Future<void> pump(
+  /// Pumps the page and returns the settings fake behind it.
+  ///
+  /// The reject window reads and writes the admin's own pre-fill messages through
+  /// the per-user preference row, so the fake is what a test asserts against.
+  Future<FakeSettingsRepository> pump(
     WidgetTester tester,
     _FakeAdminRepository repo, {
     Locale locale = const Locale('en'),
+    FakeSettingsRepository? settings,
+    Size size = const Size(1080, 3000),
   }) async {
-    tester.view.physicalSize = const Size(1080, 3000);
+    final settingsRepo = settings ?? FakeSettingsRepository();
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [adminRepositoryProvider.overrideWithValue(repo)],
+        overrides: withErrorLog([
+          adminRepositoryProvider.overrideWithValue(repo),
+          settingsRepositoryProvider.overrideWith((ref) async => settingsRepo),
+        ]),
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -120,6 +135,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    return settingsRepo;
   }
 
   testWidgets('shows both sections, with Pending open and Resolved closed', (
@@ -245,7 +261,13 @@ void main() {
     // The server is the only account of what is resolved, so it is asked again
     // rather than the row being moved locally.
     expect(repo.listCalls, greaterThan(listsBefore));
-    expect(find.textContaining('approved'), findsOneWidget);
+    // No notice at all (user request): the admin made the decision, so the page
+    // does not tell them what they just did. The row leaving Pending is what the
+    // server's own re-read says about it.
+    expect(
+      find.text('Payment approved. The payer is now premium.'),
+      findsNothing,
+    );
   });
 
   testWidgets('rejecting asks for a note and passes it through', (
@@ -254,10 +276,10 @@ void main() {
     final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
     await pump(tester, repo);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Reject'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
     await tester.pumpAndSettle();
     // The window is a decision the payer may query, so it is confirmed.
-    expect(find.text('Reject This Payment'), findsOneWidget);
+    expect(find.text('Reject the Payment'), findsOneWidget);
     expect(repo.calls, isEmpty);
 
     await tester.enterText(find.byType(TextField), 'Amount did not arrive');
@@ -267,9 +289,267 @@ void main() {
     expect(repo.calls, <String>['reject:1:Amount did not arrive']);
   });
 
-  testWidgets('a refusal is reported and the row keeps its actions', (
+  testWidgets('the pre-fill list offers every message the app ships', (
     tester,
   ) async {
+    await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    // The note is the window's first business, so the list starts folded away.
+    expect(find.text('Mobile number is wrong.'), findsNothing);
+
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+
+    for (final message in <String>[
+      "Mobile number & Transaction ID didn't match.",
+      'Mobile number is wrong.',
+      'Transaction ID is wrong.',
+      'Please enter the correct info.',
+      'You have 2 tries left today.',
+      'You have 1 try left today.',
+      'Please be careful typing the info next time.',
+      'Add Your Own',
+    ]) {
+      expect(find.text(message), findsOneWidget, reason: message);
+    }
+  });
+
+  testWidgets('picking several appends them in order, after the typed note', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
+    await pump(tester, repo);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Amount did not arrive');
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+
+    // Picked out of order on purpose: the one picked first comes first.
+    await tester.tap(
+      find.byKey(const ValueKey('admin-reject-message-Transaction ID is wrong.')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('admin-reject-message-Mobile number is wrong.')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Amount did not arrive Transaction ID is wrong. Mobile number is wrong.',
+    );
+    // Both picked rows carry their tick.
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byIcon(Icons.check_circle),
+      ),
+      findsNWidgets(2),
+    );
+
+    // Picking one back out takes that message and its joining space with it.
+    await tester.tap(
+      find.byKey(const ValueKey('admin-reject-message-Transaction ID is wrong.')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Amount did not arrive Mobile number is wrong.',
+    );
+
+    // What the admin sees is what the rejection sends.
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject Payment'));
+    await tester.pumpAndSettle();
+    expect(repo.calls, <String>[
+      'reject:1:Amount did not arrive Mobile number is wrong.',
+    ]);
+  });
+
+  testWidgets('Add Your Own saves the wording and puts it in the note', (
+    tester,
+  ) async {
+    final settings = await pump(
+      tester,
+      _FakeAdminRepository(rows: [_request(id: '1')]),
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('admin-reject-add-own')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).last, 'Send the money again');
+    await tester.tap(find.widgetWithText(FilledButton, 'Add'));
+    await tester.pumpAndSettle();
+
+    // Kept for next time (the user's request) and in the note now.
+    expect(settings.settings.adminRejectMessages, <String>[
+      'Send the money again',
+    ]);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Send the money again',
+    );
+    // And it is one of the list's own rows, with a way to delete it.
+    expect(
+      find.byKey(
+        const ValueKey('admin-reject-own-remove-Send the money again'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('removing an own message deletes it from the list', (
+    tester,
+  ) async {
+    final settings = await pump(
+      tester,
+      _FakeAdminRepository(rows: [_request(id: '1')]),
+      settings: FakeSettingsRepository(
+        const UserSettings(
+          adminRejectMessages: <String>['Send the money again'],
+        ),
+      ),
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+    // The saved one is offered beside the app's own messages.
+    expect(find.text('Send the money again'), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('admin-reject-own-remove-Send the money again'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Behind the app's own delete window, so one stray tap cannot lose it.
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+
+    expect(settings.settings.adminRejectMessages, isEmpty);
+    expect(find.text('Send the money again'), findsNothing);
+  });
+
+  testWidgets('the window and its list fit a phone', (tester) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(rows: [_request(id: '1')]),
+      size: const Size(390, 844),
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+
+    // The list scrolls inside a ceiling of its own rather than stretching the
+    // window off the phone: note, list and both decisions all stay on screen.
+    expect(tester.takeException(), isNull);
+    final dialog = tester.getRect(find.byType(AlertDialog));
+    expect(dialog.top, greaterThanOrEqualTo(0));
+    expect(dialog.bottom, lessThanOrEqualTo(844));
+    expect(find.widgetWithText(FilledButton, 'Reject Payment'), findsOneWidget);
+  });
+
+  testWidgets('the window lays out under the keyboard Your Own Message opens', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(rows: [_request(id: '1')]),
+      // A small phone, deliberately: the shorter the screen, the less the window
+      // has to lay out in once the keyboard arrives.
+      size: const Size(360, 640),
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+    // The list's last row is below the fold on a small phone, so it is scrolled
+    // to before it is tapped — otherwise the tap lands on nothing and the second
+    // window never opens, which is not the case being tested.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('admin-reject-add-own')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('admin-reject-add-own')));
+    await tester.pumpAndSettle();
+    // Both windows really are up, which is the state the report describes.
+    expect(find.byType(TextField), findsNWidgets(2));
+
+    // The own-message field autofocuses, so the keyboard comes up over both
+    // windows at once. The rejection window behind it is laid out in what is
+    // left, and it used to overflow off its own box there (reported on a phone).
+    tester.view.viewInsets = const FakeViewPadding(bottom: 336);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    // Still usable rather than merely not throwing: the note, the picker and
+    // both decisions are all on the phone, so a rejection is still possible with
+    // the keyboard up.
+    expect(find.text('Pre-Fill Message'), findsOneWidget);
+    final reject = tester.getRect(
+      find.widgetWithText(FilledButton, 'Reject Payment'),
+    );
+    expect(reject.bottom, lessThanOrEqualTo(640));
+    expect(reject.top, greaterThanOrEqualTo(0));
+  });
+
+  testWidgets('Reject is the red decision, worded in white', (tester) async {
+    final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
+    await pump(tester, repo);
+
+    // User request: the reject control reads as the outcome it produces — a
+    // filled error button with a white label — rather than as an outlined twin
+    // of Approve.
+    final button = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Reject'),
+    );
+    expect(button.style?.backgroundColor?.resolve(<WidgetState>{}), AppColors.error);
+    expect(button.style?.foregroundColor?.resolve(<WidgetState>{}), AppColors.onError);
+  });
+
+  testWidgets('the rejection window centres two app-height buttons', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
+    await pump(tester, repo);
+    // A phone width, unlike the tall viewport the list tests use: the pair has
+    // to fit side by side and sit in the middle of the dialog they share.
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
+    await tester.pumpAndSettle();
+
+    final cancel = tester.getRect(find.widgetWithText(TextButton, 'Cancel'));
+    final confirm = tester.getRect(
+      find.widgetWithText(FilledButton, 'Reject Payment'),
+    );
+    // The app's own control height, not the platform's smaller dialog default.
+    expect(cancel.height, greaterThanOrEqualTo(48));
+    expect(confirm.height, greaterThanOrEqualTo(48));
+
+    // Middle aligned: each decision sits on the window's own centre line, so the
+    // pair reads as one centred group. (The test font is wider than the app's, so
+    // a narrow phone wraps the two onto separate lines here — centred either way,
+    // which is what the overflow alignment is for.)
+    final window = tester.getRect(find.byType(AlertDialog));
+    expect(cancel.center.dx, closeTo(window.center.dx, 1));
+    expect(confirm.center.dx, closeTo(window.center.dx, 1));
+  });
+
+  testWidgets("a refusal leaves the row's actions in place", (tester) async {
     final repo = _FakeAdminRepository(rows: [_request(id: '1')])
       ..failure = AdminActionFailure.alreadyResolved;
     await pump(tester, repo);
@@ -277,9 +557,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Approve'));
     await tester.pumpAndSettle();
 
-    expect(find.text('That payment was already decided.'), findsOneWidget);
-    // Nothing was resolved, so the admin can still act on it.
+    // The whole notice went (user request), a refusal included — so the point of
+    // this case is that nothing was resolved behind the admin's back: the row is
+    // still there and still actionable.
+    expect(find.text('That payment was already decided.'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Approve'), findsOneWidget);
+    expect(repo.listCalls, 1);
   });
 
   testWidgets('a non-admin is offered no payment data at all', (tester) async {

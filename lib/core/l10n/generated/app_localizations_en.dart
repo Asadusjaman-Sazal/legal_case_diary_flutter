@@ -1221,7 +1221,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminPanel_reject => 'Reject';
 
   @override
-  String get adminPanel_rejectTitle => 'Reject This Payment';
+  String get adminPanel_rejectTitle => 'Reject the Payment';
 
   @override
   String get adminPanel_rejectNoteLabel => 'Note For The Payer (Optional)';
@@ -1231,6 +1231,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPanel_rejectConfirm => 'Reject Payment';
+
+  @override
+  String get adminPanel_rejectPickMessage => 'Pre-Fill Message';
+
+  @override
+  String get adminPanel_rejectTemplateMismatch =>
+      'Mobile number & Transaction ID didn\'t match.';
+
+  @override
+  String get adminPanel_rejectTemplateMobileNumber => 'Mobile number is wrong.';
+
+  @override
+  String get adminPanel_rejectTemplateTransactionId =>
+      'Transaction ID is wrong.';
+
+  @override
+  String get adminPanel_rejectTemplateCorrectInfo =>
+      'Please enter the correct info.';
+
+  @override
+  String get adminPanel_rejectTemplateTwoTries =>
+      'You have 2 tries left today.';
+
+  @override
+  String get adminPanel_rejectTemplateOneTry => 'You have 1 try left today.';
+
+  @override
+  String get adminPanel_rejectTemplateBeCareful =>
+      'Please be careful typing the info next time.';
+
+  @override
+  String get adminPanel_rejectAddOwn => 'Add Your Own';
+
+  @override
+  String get adminPanel_rejectOwnMessageTitle => 'Your Own Message';
+
+  @override
+  String get adminPanel_rejectOwnMessageHint =>
+      'Write the message the payer will read';
 
   @override
   String adminPanel_detailLabel(String label, String value) {
@@ -1293,13 +1332,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPanel_retry => 'Try Again';
-
-  @override
-  String get adminPanel_approved =>
-      'Payment approved. The payer is now premium.';
-
-  @override
-  String get adminPanel_rejected => 'Payment rejected.';
 
   @override
   String get adminPanel_failedNotAdmin => 'Only an administrator can do that.';

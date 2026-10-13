@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.500 - Admin payment alerts: a tap on the count now opens the panel's Payment Requests page, warm or cold, through one payload resolver that also keeps hearing alerts opening their case.
+Version: 0.0.503 - Reject the Payment is now a scrollable dialog: opening Your Own Message over it no longer overflows the window behind when the keyboard comes up.
 --------------------------------------
 
 ## Version History Log:
@@ -514,3 +514,6 @@ Version: 0.0.497 - Task 23 follow-up Phase 1: Firebase is wired for admin paymen
 Version: 0.0.498 - Admin payment alerts (server): device_tokens, the per-user push toggle, two server-only reads and a pg_net webhook feeding a new FCM sender Edge Function, applied to the project and pinned by a rolled-back smoke test.
 Version: 0.0.499 - Admin payment alerts (client): a confirmed admin's device registers with FCM and follows token changes, the sender's count is posted as one notification replaced in place and cancelled at zero, and Settings gains the admin-only Payment Request Alerts switch.
 Version: 0.0.500 - Admin payment alerts: a tap on the count now opens the panel's Payment Requests page, warm or cold, through one payload resolver that also keeps hearing alerts opening their case.
+Version: 0.0.501 - Admin Panel Payment Requests: Reject is a red filled button with a white label, the rejection window is titled "Reject the Payment" with two centred 48 px actions, and back from a payment-notification open now lands on the Admin Panel.
+Version: 0.0.502 - Admin Panel Payment Requests: the approve/reject notice is gone, and the Reject the Payment window gained seven pre-fill messages, multi-select joined in pick order, plus an Add Your Own saved per account.
+Version: 0.0.503 - Reject the Payment is now a scrollable dialog: opening Your Own Message over it no longer overflows the window behind when the keyboard comes up.

@@ -19,6 +19,7 @@ import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/presentation/case_detail/case_detail_screen.dart';
 import 'package:legal_case_diary/core/push/payment_alert_message.dart';
+import 'package:legal_case_diary/features/admin/presentation/admin_panel_screen.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_payment_requests_screen.dart';
 import 'package:legal_case_diary/features/cases/presentation/daily_cause_list/daily_cause_list_screen.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
@@ -162,6 +163,67 @@ void main() {
 
     expect(find.byType(AdminPaymentRequestsScreen), findsOneWidget);
     expect(find.byType(CaseDetailScreen), findsNothing);
+
+    await _unmount(tester);
+  });
+
+  testWidgets('back from a payment-alert launch lands on the Admin Panel', (
+    tester,
+  ) async {
+    final scheduler = FakeNotificationScheduler()
+      ..launchPayloadValue = paymentAlertPayload;
+    final db = await _pumpApp(tester, scheduler);
+    addTearDown(() async => db.close());
+
+    // The launch made Payment Requests the stack's only route, so there is
+    // nothing to pop — back goes to the screen the page belongs to rather than
+    // doing nothing at all.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AdminPaymentRequestsScreen), findsNothing);
+    expect(find.byType(AdminPanelScreen), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
+  testWidgets('back from a payment-alert tap while the app runs lands on the panel', (
+    tester,
+  ) async {
+    final scheduler = FakeNotificationScheduler();
+    final db = await _pumpApp(tester, scheduler);
+    addTearDown(() async => db.close());
+
+    // A warm tap *replaces* the stack, so this entry has nothing beneath it
+    // either and the same back answer must hold.
+    scheduler.notificationSelected!(paymentAlertPayload);
+    await tester.pumpAndSettle();
+    expect(find.byType(AdminPaymentRequestsScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AdminPaymentRequestsScreen), findsNothing);
+    expect(find.byType(AdminPanelScreen), findsOneWidget);
+
+    await _unmount(tester);
+  });
+
+  testWidgets('the system back from a payment-alert launch lands on the panel', (
+    tester,
+  ) async {
+    final scheduler = FakeNotificationScheduler()
+      ..launchPayloadValue = paymentAlertPayload;
+    final db = await _pumpApp(tester, scheduler);
+    addTearDown(() async => db.close());
+
+    // The Android back gesture is the same way out as the arrow, so it cannot
+    // leave the admin on a page with no way back to the panel.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AdminPaymentRequestsScreen), findsNothing);
+    expect(find.byType(AdminPanelScreen), findsOneWidget);
 
     await _unmount(tester);
   });

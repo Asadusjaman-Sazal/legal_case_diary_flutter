@@ -112,6 +112,18 @@ class UserSettings {
   /// synced column server-side, so switching it off silences a closed app too.
   final bool paymentAlertsEnabled;
 
+  /// The admin's own reject messages: the wording they saved from the Reject the
+  /// Payment window, offered beside the app's own pre-fill messages.
+  ///
+  /// An administrator's own working list, per-user and never firm-shared (Rev
+  /// 2.4 scope contract). It travels inside [toJson]'s per-user blob, which the
+  /// preference sync already carries to the account, so the wording follows the
+  /// admin to another device without a column of its own —
+  /// `ponytail: the blob is enough while this is a handful of sentences; a
+  /// second reader on the server, or a much longer list, is when it earns a
+  /// column of its own.
+  final List<String> adminRejectMessages;
+
   /// Whether the user finished the OEM battery/auto-start setup guide.
   ///
   /// Until this is true the Notifications screen keeps showing the plan's
@@ -168,6 +180,7 @@ class UserSettings {
     this.notificationDayOffset = 1,
     this.notificationDefaultOffsets = const [1],
     this.paymentAlertsEnabled = true,
+    this.adminRejectMessages = const [],
     this.notificationSetupDone = false,
     this.notificationGuideShown = false,
     this.notificationAutoStartDone = false,
@@ -206,6 +219,7 @@ class UserSettings {
     notificationAutoStartDone: notificationAutoStartDone,
     language: language,
     backupNudge: backupNudge,
+    adminRejectMessages: adminRejectMessages,
     lastAddCaseHigherLowerCourt: higherLowerCourt,
     lastAddCaseDivision: division,
     lastAddCaseDistrict: district,
@@ -230,6 +244,7 @@ class UserSettings {
     int? notificationDayOffset,
     List<int>? notificationDefaultOffsets,
     bool? paymentAlertsEnabled,
+    List<String>? adminRejectMessages,
     bool? notificationSetupDone,
     bool? notificationGuideShown,
     bool? notificationAutoStartDone,
@@ -256,6 +271,7 @@ class UserSettings {
     notificationDefaultOffsets:
         notificationDefaultOffsets ?? this.notificationDefaultOffsets,
     paymentAlertsEnabled: paymentAlertsEnabled ?? this.paymentAlertsEnabled,
+    adminRejectMessages: adminRejectMessages ?? this.adminRejectMessages,
     notificationSetupDone: notificationSetupDone ?? this.notificationSetupDone,
     notificationGuideShown: notificationGuideShown ?? this.notificationGuideShown,
     notificationAutoStartDone:
@@ -284,6 +300,7 @@ class UserSettings {
     'notification_day_offset': notificationDayOffset,
     'notification_default_offsets': notificationDefaultOffsets,
     'payment_alerts_enabled': paymentAlertsEnabled,
+    'admin_reject_messages': adminRejectMessages,
     'notification_setup_done': notificationSetupDone,
     'notification_guide_shown': notificationGuideShown,
     'notification_auto_start_done': notificationAutoStartDone,
@@ -379,6 +396,11 @@ class UserSettings {
       paymentAlertsEnabled:
           json['payment_alerts_enabled'] as bool? ?? row.paymentAlertsEnabled,
       notificationTime: row.notificationTime,
+      adminRejectMessages: json['admin_reject_messages'] is List
+          ? (json['admin_reject_messages'] as List)
+                .whereType<String>()
+                .toList(growable: false)
+          : const <String>[],
       notificationDayOffset:
           (json['notification_day_offset'] as num?)?.toInt() ?? 1,
       notificationDefaultOffsets: _readOffsets(

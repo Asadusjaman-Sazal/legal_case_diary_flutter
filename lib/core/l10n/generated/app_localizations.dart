@@ -2195,7 +2195,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminPanel_rejectTitle.
   ///
   /// In en, this message translates to:
-  /// **'Reject This Payment'**
+  /// **'Reject the Payment'**
   String get adminPanel_rejectTitle;
 
   /// No description provided for @adminPanel_rejectNoteLabel.
@@ -2215,6 +2215,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reject Payment'**
   String get adminPanel_rejectConfirm;
+
+  /// No description provided for @adminPanel_rejectPickMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-Fill Message'**
+  String get adminPanel_rejectPickMessage;
+
+  /// No description provided for @adminPanel_rejectTemplateMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number & Transaction ID didn\'t match.'**
+  String get adminPanel_rejectTemplateMismatch;
+
+  /// No description provided for @adminPanel_rejectTemplateMobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number is wrong.'**
+  String get adminPanel_rejectTemplateMobileNumber;
+
+  /// No description provided for @adminPanel_rejectTemplateTransactionId.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID is wrong.'**
+  String get adminPanel_rejectTemplateTransactionId;
+
+  /// No description provided for @adminPanel_rejectTemplateCorrectInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the correct info.'**
+  String get adminPanel_rejectTemplateCorrectInfo;
+
+  /// No description provided for @adminPanel_rejectTemplateTwoTries.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 2 tries left today.'**
+  String get adminPanel_rejectTemplateTwoTries;
+
+  /// No description provided for @adminPanel_rejectTemplateOneTry.
+  ///
+  /// In en, this message translates to:
+  /// **'You have 1 try left today.'**
+  String get adminPanel_rejectTemplateOneTry;
+
+  /// No description provided for @adminPanel_rejectTemplateBeCareful.
+  ///
+  /// In en, this message translates to:
+  /// **'Please be careful typing the info next time.'**
+  String get adminPanel_rejectTemplateBeCareful;
+
+  /// No description provided for @adminPanel_rejectAddOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Your Own'**
+  String get adminPanel_rejectAddOwn;
+
+  /// No description provided for @adminPanel_rejectOwnMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Own Message'**
+  String get adminPanel_rejectOwnMessageTitle;
+
+  /// No description provided for @adminPanel_rejectOwnMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the message the payer will read'**
+  String get adminPanel_rejectOwnMessageHint;
 
   /// One payer detail on a payment request, e.g. Bar Association.
   ///
@@ -2335,18 +2401,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try Again'**
   String get adminPanel_retry;
-
-  /// No description provided for @adminPanel_approved.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment approved. The payer is now premium.'**
-  String get adminPanel_approved;
-
-  /// No description provided for @adminPanel_rejected.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment rejected.'**
-  String get adminPanel_rejected;
 
   /// No description provided for @adminPanel_failedNotAdmin.
   ///

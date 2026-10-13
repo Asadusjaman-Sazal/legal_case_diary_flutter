@@ -43,6 +43,8 @@ Every user-facing label on the Settings surface (and the rest of the app) lives 
 - **Both languages are mandatory:** add a Bengali value with the same key in `app_bn.arb`. The guard test also fails if a translation drops a `{placeholder}`.
 - Never hard-code a label in a Settings screen, and never pass a literal to `SettingsSubPageModal(title:)`, a dialog title/body, a button label, a tooltip, or an empty/error state. Section headings are stored in sentence case and upper-cased by the widget.
 
+**Casing is ordinary title case as of 0.0.518, and sentence-like info text is sentence case (user request).** `AGENTS.md`/`CLAUDE.md` rule 11 was reworded, and this is now the app-wide copy convention: in a **title, heading or label** the first and last word and every major word are capitalised while **articles, coordinating conjunctions and short prepositions stay lower-case** unless they are first or last (*What the App Offers*, *Change App Lock PIN*, *When to Ask for PIN*), and any string that **reads as a general sentence** — an info line, helper text, a description, a dialog or a body sentence — is written in **sentence case** however it is styled (the Encryption On Backup paragraphs, the App Update cards' supporting lines and Online Sync's free-plan sentence already are). The case is still written directly in the ARB, there is still no render-time `toUpperCase()`, and Bengali is unaffected. This amends the rule only: no existing string was re-cased, so labels that capitalise every word (*Encryption On Backup*, *Setup App Lock*, *Check For Update*) await a sweep of their own.
+
 ---
 
 ## Shared Sub-Menu Sizing Contract (added during implementation)

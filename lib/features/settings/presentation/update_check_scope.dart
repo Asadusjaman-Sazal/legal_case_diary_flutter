@@ -21,9 +21,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../data/update_check_schedule.dart';
 import '../data/update_metadata_store.dart';
 import '../data/update_repository.dart';
+import 'update_flow.dart';
 
 /// Runs the launch-period auto check on a per-process one-shot basis.
 class UpdateCheckScope extends ConsumerStatefulWidget {
@@ -52,12 +55,42 @@ class _UpdateCheckScopeState extends ConsumerState<UpdateCheckScope> {
   @override
   Widget build(BuildContext context) => widget.child;
 
+  /// Removes a leftover downloaded APK once nothing is waiting on it.
+  ///
+  /// Best-effort and silent: nothing a user can see depends on it, and a file
+  /// the OS will not release is left for the next launch.
+  Future<void> _deleteStaleDownload() async {
+    try {
+      final apk = await updateApkFile();
+      await deleteUpdateApkIfStale(
+        apk,
+        // True while the app is still being told about a release: either the
+        // install has not happened, or it happened and the stored offer has not
+        // been re-checked yet. False once the app *is* that version, or once
+        // the offer has gone.
+        stillOffered: ref.read(updateAvailableProvider) != null,
+      );
+    } on Object catch (error) {
+      recordFailure(ref.read(errorLogProvider), 'update.cleanup', error);
+    }
+  }
+
   Future<void> _checkOnce() async {
     if (_checkedThisLaunch) return; // One check per launch, never more.
     _checkedThisLaunch = true;
 
     final metadata = ref.read(updateMetadataProvider);
     final now = DateTime.now().millisecondsSinceEpoch;
+
+    // Clear a downloaded update left over from an earlier run, **before** the
+    // frequency check: a user who turns Auto Check off should still have their
+    // leftover APK tidied away, and the question ("is an update still being
+    // offered?") does not depend on whether a check is due.
+    //
+    // This is where the install is *confirmed*: the APK has to survive its own
+    // handoff to Android's installer, so the app only knows it worked once the
+    // build it is running is the version that was offered.
+    await _deleteStaleDownload();
 
     // The frequency decides whether a check is even due. Off means never.
     if (!isUpdateCheckDue(

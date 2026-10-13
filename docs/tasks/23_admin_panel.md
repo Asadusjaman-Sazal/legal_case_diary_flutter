@@ -39,7 +39,7 @@ Migration `20261002110000_admin_panel.sql`, applied to `lsthasywrdrhuuxnykau` an
 - **Design reference:** `legal_case_diary_flutter\mockup_html_screens\admin_panel\code.html` (with `screen.png` beside it), written from the shipped screen after the fact — see the recorded departure below.
 - Payment Requests, with two collapsible sections: **Pending open** and **Resolved closed** by default, because a resolved submission cannot be acted on and the admin opening the screen has work to do.
 - Resolved is sorted by decision time, newest first (the server's own order is by submission time).
-- Each row: payer name, status chip, plan and amount worded by the same helpers the paywall uses, the sender's number, the TrxID, the five personal fields, and the submitted date. A resolved row also shows the resulting expiry and any note.
+- Each row: payer name, status chip, plan and amount worded by the same helpers the paywall uses, the sender's number, the TrxID, the five personal fields, and the submitted **date & time** (0.0.511). A resolved row also shows **when it was decided** — labelled with the outcome's own word, **Approved** or **Rejected** (0.0.511) — plus the resulting expiry and any note.
 - **Approve** and **Reject** while pending. Reject opens a confirmation carrying an optional note for the payer, because a rejection is a decision the payer may query.
 - One outcome banner for the last action, and a load-failure state with a retry.
 
@@ -125,6 +125,18 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 >
 > **Verified.** `flutter analyze` clean; `flutter test` green, including the admin suite's **23** cases.
 
+### Phase 3 follow-up — the card says when, down to the minute (0.0.511, user request)
+
+> **The Submitted line showed the day alone.** `adminPanelDate` (`dd/MM/yyyy`) was used on every card, so two submissions on one day read identically and the admin could not tell the waiting one from an older one. The line now uses the panel's **date & time** helper (`adminPanelDateTime`, `dd/MM/yy, hh:mm a` in Bangladesh time — the same helper the Non-verified Accounts page stamps its creation time with), on pending and resolved cards alike.
+>
+> **A resolved card also says when it was decided.** Underneath Submitted sits a new line carrying `approvedAt` or `rejectedAt`, also as date & time. **Its label is the outcome's own word** — `adminPanel_statusApproved` (**Approved**) or `adminPanel_statusRejected` (**Rejected**), the same strings the status chip already wears — rather than a literal *Approved/Rejected* label; the user chose the outcome word. The existing **Premium Extended To** expiry line stays, so a resolved card reads: payer, status chip, plan/amount, number, TrxID, the five personal fields, **Submitted (date & time)**, **Approved/Rejected (date & time)**, Premium Extended To, and any note.
+>
+> **Client-only, and no new string.** `AdminPaymentRequest` already carried `submittedAt`/`approvedAt`/`rejectedAt` and `admin_list_payment_submissions()` already returned `approved_at`/`rejected_at`, so this is one screen's presentation change — no migration, no RPC, no ARB key.
+>
+> **Verified.** `flutter analyze` clean; `flutter test test/features/admin_payment_requests_screen_test.dart` **25 passed** (was 23), the two new cases being *a pending card stamps its submission as date and time* and *a resolved card stamps the decision under its own word*.
+>
+> **No mockup change was owed (rule 9).** `mockup_html_screens/admin_panel/code.html` draws the panel's menu, not this page, and this page has no mockup file of its own.
+
 ### Phase 3 follow-up — Non-verified Accounts waits 72 hours (0.0.495, user request)
 
 > **Only sign-ups older than 72 hours are the page's business.** An unconfirmed account was listed the moment it was created, so the page counted a user who was still on the way to their mailbox — and the side-menu badge (which counts this list) ticked up by one on every registration. A sign-up younger than the window is still expected to confirm; only one that has sat unconfirmed for longer is *abandoned*.
@@ -191,6 +203,7 @@ Recorded in `docs/implementation_plan.md` (Resolved Design Clarifications + the 
 - [x] **The Admin Panel returns after a logout and sign-in as the same admin (0.0.505, user report).** The four account-scoped live reads are re-asked on every completed sign-in (one helper, both ends of a session), so the `false` cached while the device had no session no longer outlives it; pinned by the new case in `account_switch_leak_test.dart`.
 - [x] **The rejection window survives the keyboard (0.0.503, user report).** It is `scrollable`, so opening **Your Own Message** over it no longer overflows the window behind (pinned at 360×640 with a 336 px keyboard inset).
 - [x] **The action notice is gone and the note is pre-fillable (0.0.502, user request).** No success or refusal notice is drawn on this page; the reject window carries the app's seven messages, ticks them into the note in pick order after whatever the admin typed, lets them be unticked or edited by hand, saves a message of the admin's own to the per-user preference row for next time, and can delete a saved one.
+- [x] **A card says when, down to the minute (0.0.511, user request).** Submitted is date **& time** on every card, and a resolved card adds a decision line carrying `approvedAt`/`rejectedAt` as date & time, labelled with the outcome's own word (Approved/Rejected); client-only, no new key.
 - [ ] **`mockup_html_screens/admin_panel/screen.png` is stale** — the HTML is redrawn as the menu, but the PNG still shows the old single-screen panel. **The user has confirmed this does not matter: the HTML is what counts for the app.**
 
 ## Not in this version

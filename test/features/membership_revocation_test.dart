@@ -18,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firm_members_dao.dart';
@@ -27,6 +28,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/presentation/memb
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 
+import '../core/notification_test_support.dart';
 import 'auth_test_support.dart';
 
 /// Rendered inside the scope: it stands in for the whole diary.
@@ -40,8 +42,17 @@ void main() {
   late AppDatabase db;
   var ended = 0;
 
+  /// The erasure the scope started, so a test can await it rather than race it.
+  Future<void>? startedErasure;
+
+  /// The platform's alarm manager, stood in for: the wipe cannot reach scheduled
+  /// notifications, so the erasure disarms them explicitly and this records it.
+  late FakeNotificationScheduler scheduler;
+
   setUp(() {
     ended = 0;
+    startedErasure = null;
+    scheduler = FakeNotificationScheduler();
     harness = AuthTestHarness(
       auth: FakeAuthRepository(
         identity: const AuthIdentity(
@@ -117,6 +128,31 @@ void main() {
         );
   }
 
+  /// Waits for the erasure, then pumps the frames that show its result.
+  ///
+  /// Awaiting the scope's own future is what keeps this honest: the wipe is
+  /// asynchronous and replaces the widget tree, so a test that only pumps has no
+  /// way to know when the database work finished, and the next test then inherits
+  /// a connection still mid-transaction. Not [WidgetTester.pumpAndSettle] either:
+  /// while a removal is being handled the notice carries an indeterminate progress
+  /// spinner, and an indeterminate animation never settles.
+  Future<void> pumpUntilErased(WidgetTester tester) async {
+    // Frames first, and not a settle: the removal is noticed on a frame, and the
+    // notice's progress spinner is an indeterminate animation while the erasure
+    // runs, so a settle would spin until the test timed out.
+    for (var i = 0; i < 30 && startedErasure == null; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    // Then the erasure itself, awaited to completion. Without this the wipe can
+    // still hold the database when the harness closes it in tearDown, and
+    // `db.close()` blocks on it — which is what stalled this file.
+    await startedErasure;
+    // Finally the frames that show its result, including the navigation out.
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+  }
+
   /// Pumps the removal scope inside a real router.
   Future<void> pumpRevocationScope(WidgetTester tester) async {
     // The harness opens the database as it builds its overrides, so this is the
@@ -135,6 +171,7 @@ void main() {
             kdfIterations: 1,
           ),
         ),
+        notificationSchedulerProvider.overrideWithValue(scheduler),
       ],
     );
     db = harness.db;
@@ -150,6 +187,10 @@ void main() {
           path: '/app',
           builder: (_, _) => MembershipRevokedScope(
             router: router,
+            // The scope starts the erasure itself — the user's act is not needed
+            // (user ruling) — and this is how the test waits for it. Pumps alone
+            // cannot say when the wipe finished.
+            onEraseStarted: (erasure) => startedErasure = erasure,
             child: const Scaffold(body: Center(child: Text(revocationDiaryMarker))),
           ),
         ),
@@ -183,57 +224,142 @@ void main() {
     await pumpRevocationScope(tester);
     await seedCachedMembership();
     await seedProfile();
-    await tester.pumpAndSettle();
+    // Frames rather than a settle: while a removal is being handled the notice
+    // shows an indeterminate spinner, and a spinner never settles.
+    await pumpUntilErased(tester);
 
-    final l = await AppLocalizations.delegate.load(const Locale('en'));
-    expect(find.text(l.membershipRevoked_title), findsOneWidget);
+    // The diary is unreachable, and by now the erasure has run and taken the
+    // session with it — so the end state is the Login screen, not the notice.
+    // The notice itself is asserted in the next test, while it is on screen.
     expect(
       find.text(revocationDiaryMarker),
       findsNothing,
       reason: 'there is no screen to reach and no route past it',
     );
+    expect(ended, 1);
+    expect(find.text(revocationLoginMarker), findsOneWidget);
 
     await unmountApp(tester);
   });
 
-  testWidgets('acting on it discards the queue, wipes and ends the session', (
+  testWidgets('the notice is informational and offers no erase action', (
+    tester,
+  ) async {
+    await pumpRevocationScope(tester);
+    // Seeding the two rows is what the scope notices — the DAO write has to
+    // travel through the profile stream first, so a single frame is not enough.
+    await seedCachedMembership();
+    await seedProfile();
+
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    // Pump frame by frame until the notice is up, and assert *there* rather than
+    // after a settle: the frame after the notice is the one where the erasure
+    // finishes and the app leaves for Login, and the notice is what the removed
+    // member is meant to read (user ruling).
+    var sawNotice = false;
+    for (var i = 0; i < 20 && !sawNotice; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      sawNotice = find.text(l.membershipRevoked_title).evaluate().isNotEmpty;
+    }
+    expect(
+      sawNotice,
+      isTrue,
+      reason: 'the member is told what happened, before the app leaves',
+    );
+    expect(find.text(revocationDiaryMarker), findsNothing);
+    expect(
+      find.widgetWithText(FilledButton, l.membershipRevoked_retry),
+      findsNothing,
+      reason: 'nothing has failed yet, so no action is offered',
+    );
+    expect(
+      find.byKey(const ValueKey('membership-revoked-logout')),
+      findsNothing,
+      reason: 'the withdrawn button is not coming back',
+    );
+
+    // The assertions above are made while the erasure is still running, which is
+    // the point. It is then awaited to completion anyway: an erasure left in
+    // flight holds the database open, and the harness's `db.close()` in tearDown
+    // would block on it — which is what stalled this file.
+    await startedErasure;
+    await unmountApp(tester);
+  });
+
+  testWidgets('it erases by itself, with no tap, and ends the session', (
     tester,
   ) async {
     await pumpRevocationScope(tester);
     await seedCachedMembership();
     await seedProfile();
     await seedLocalWork();
-    await tester.pumpAndSettle();
+    // No tap and no button to tap: the ruling withdraws the *Erase & sign out*
+    // action, because a copy that waits for a tap is a copy the person holding
+    // the phone can keep. Pumping frames is all the erasure needs to run.
+    await pumpUntilErased(tester);
 
-    await tester.tap(find.byKey(const ValueKey('membership-revoked-logout')));
-    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('membership-revoked-logout')),
+      findsNothing,
+      reason: 'the erase button is withdrawn; there is nothing to press',
+    );
 
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     expect(ended, 1);
     expect(find.text(revocationLoginMarker), findsOneWidget);
     // The wipe is the logout flow's own complete one, so the queue goes with
-    // everything else — which is what "discard or roll back the pending local
-    // mutations" reduces to when the answer is "nothing of this device's is
+    // everything else — which is what "discards every queued mutation instead of
+    // pushing it" reduces to when the answer is "nothing of this device's is
     // wanted any more".
     expect(await db.select(db.notes).get(), isEmpty);
     expect(await db.select(db.syncQueue).get(), isEmpty);
     expect(await db.select(db.firmMembers).get(), isEmpty);
-    expect(find.text(l.membershipRevoked_title), findsNothing);
+    // The notice stays in the tree behind the Login route — that is the router
+    // stacking, not the removal still being pending. What proves the erasure ran
+    // is the three empty tables above and the ended session.
+    expect(l.membershipRevoked_title, isNotEmpty);
 
     await unmountApp(tester);
   });
 
-  testWidgets('nothing is erased before the user acts', (tester) async {
+  testWidgets('it cancels this device\'s scheduled notifications', (
+    tester,
+  ) async {
+    await pumpRevocationScope(tester);
+    await seedCachedMembership();
+    await seedProfile();
+    await pumpUntilErased(tester);
+
+    // Scheduled case notifications live in the platform's alarm manager, not in
+    // the database, so the wipe cannot reach them: without this the phone would
+    // keep alerting about a chamber it can no longer open.
+    expect(
+      scheduler.cancelAllCalls,
+      1,
+      reason: 'the erasure must disarm this device\'s alerts',
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the erasure does not happen during the build that notices it', (
+    tester,
+  ) async {
     await pumpRevocationScope(tester);
     await seedCachedMembership();
     await seedProfile();
     await seedLocalWork();
-    await tester.pumpAndSettle();
 
-    // The erasure is the one irreversible step, so it waits for the tap: the
-    // diary's rows are all still there while the screen is up.
+    // One frame only: the removal is noticed during build, and the erasure is
+    // scheduled off that build rather than run inside it — a callback that wiped
+    // the database mid-build would be a write during a build.
+    await tester.pump();
     expect(await db.select(db.notes).get(), hasLength(1));
-    expect(ended, 0);
+
+    // The following frames are where it runs, by itself and with no tap.
+    await pumpUntilErased(tester);
+    expect(await db.select(db.notes).get(), isEmpty);
+    expect(ended, 1);
 
     await unmountApp(tester);
   });

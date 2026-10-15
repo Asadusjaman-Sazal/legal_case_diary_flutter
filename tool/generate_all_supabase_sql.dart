@@ -517,6 +517,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and the screens share, are granted to authenticated alone so a '
         'signed-out caller cannot probe another account\'s diary count.',
   ),
+  LedgerSection(
+    file: '20261015160000_firm_removal_clears_device_tokens.sql',
+    version: '0.0.524',
+    label:
+        'Firm mode: removing a member clears that member\'s push tokens. '
+        'remove_firm_member deleted the membership but left the removed '
+        'member\'s device_tokens rows in place, so the chamber\'s other '
+        'members kept addressing notifications to a device that is no longer '
+        'in the chamber — the removal was silent on the one channel it needed '
+        'to be heard on, and the removed member kept the firm\'s topics. The '
+        'tokens are deleted for the removed member alone, in the same '
+        'transaction as the membership, so a device that is no longer a '
+        'member cannot be sent the firm\'s notices, and the row the removed '
+        'member authored keeps its author untouched.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -560,6 +575,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.522':
       'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
       'Belong To The Server',
+  '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523': 'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
       'Have One',
 };

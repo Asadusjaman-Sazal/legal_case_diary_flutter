@@ -941,3 +941,35 @@ into a leak surface.
 > mechanics of §6, the self-erasing removal of §4.1, the flat plan prices of §5.3 and the audit
 > corrections in §3.3, §4.2, §5.2, §5.5, §5.6 and §7). **What remains owed is work, not records:**
 > every migration §10's open list names, none of which is written yet.
+
+## Phases to Implement:
+
+Phase 1 — Read-side scoping (§4.3, §10 line 1). The live hole. Migration: scope_owner_id (nullable uuid) on the eleven ledger tables; the four core select policies, the six reference selects (is_custom = false kept), delete_requests with requested_by, and conflict_log given the membership condition only. Rolled-back SQL proof that a removed member's own authored firm rows read as 0 while the owner's still read; contract test + ledger regeneration. No client change (the pull is scoped by RLS).
+
+Phase 2 — Creation shares the diary, and the scope columns become the server's (§1, §9.1, §3.3). ensure_firm stamps the owner's existing firm-less ledger rows into the new firm (version + server_updated_at bumped so devices converge); push_changes derives firm_id from current_firm_id() instead of the payload, refuses a firm_id change on an existing row, refuses a firm-holding caller creating a firm-less row, and strips scope_owner_id.
+
+Phase 3 — The join gate (§2.1–§2.5, §3.1). Refuse a caller who holds their own diary (firm_id is null and scope_owner_id is null, with the count and the ruled wording), retire a fumbled code as revoked rather than used, default can_edit = true, and stop the client offering the invite field to an account that already has a firm. This must precede Phase 4.
+
+Phase 4 — Removal erases itself (§4.1, §4.2, §6's no-backup half). Auto-erase on detection with no tap, driven by durable evidence (cached firm row or a had a firm marker) rather than the cached membership row, cancelling that device's notifications and discarding its queue before any pull; the informational your access ended screen; the owner's plain-words warning in the removal confirmation; a member's Backup & Restore loses both actions; the removed member's device_tokens rows go with the removal.
+
+Phase 5 — The permission boundary (§3.3, both halves). can_add_firm helper, one BEFORE INSERT trigger (can_add) and one BEFORE UPDATE trigger (can_edit) per table across the ten tables, plus sync_can_write's INSERT branch reading the flag.
+
+Phase 6 — The in-use guard (§3.2, §10.6). Refuse tombstoning a reference row a live case still names, and make purge_tombstones skip rather than fail as a whole; confirm the client offers Add/Edit/Reorder to a member (the §3.2 reversal) and remove any owner-only gate found.
+
+Phase 7 — Stored tier and the creation gate (§5.3 storage, §5.4 mechanism). profiles.tier / firms.tier + the pending pair written by approve_payment, the mirror_owner_subscription_to_firm of/when widened to the tier, join_firm's seat cap (Pro 0, Firm 5, Firm Plus 20) with a refusal naming cap and seats in use, ensure_firm gated on effective tier ≥ Firm instead of is_premium().
+
+Phase 8 — The ten-plan ladder (§5.3). approve_payment rebuilt to the ten keys with Pro's annual at ৳1,000, plus the plans screen, paywall and checkout rebuilt to the same set.
+
+Phase 9 — A member has no plan of their own (§5.1). payment_submissions insert policy refuses a submission from an account holding a firm; has_sync_entitlement counts only the firm's expiry while firm_id is not null; Subscription Plans is not offered to a member (the Current Plan row and the Subscription screen, not just the paywall).
+
+Phase 10 — The lapse allowance (§5.2). Replace the 50-case wall for a lapsed account with the tier's allowance (Pro 100, Firm 500, Firm Plus 1,000) for cases, notes and references; most-recently-updated rows writable, the excess read-only, children follow their parent, seed customisation unlimited, nothing deleted or hidden.
+
+Phase 11 — Dissolution (§4.4). RPC with the roster-empty precondition, invites retired, rows unscoped and given the owner as scope owner, firms row, owner's membership row, role and firm_id reset; plus the client action and its count-of-remaining copy.
+
+Phase 12 — Retention and the recovery window (§5.5). purge_tombstones 180→365 in all four places, recoveryOfflineThreshold 150→335, the 400-day mutation_receipts invariant, the privacy policy's retention row, and the ledger regeneration that --check polices.
+
+Phase 13 — Restore inside a chamber (§6). Account rows never restored, restored rows stamped with the current chamber's firm_id and scope_owner_id cleared, another firm's file refused.
+
+Phase 14 — Attribution and the roster (§9.9). Verify rather than rebuild: the edited by rendering and the roster, filling only what is missing.
+
+Phase 15 — Distribution (§5.6). Update-authenticity (signed release or a checksum pinned in the app) and the install path's docs, since direct distribution makes the updater the only way an update reaches anyone.

@@ -315,7 +315,7 @@ void main() {
       }
     });
 
-    test('scopes case data to self or the same firm', () {
+    test('scopes case data to the author, the firm, or a dissolve scope owner', () {
       for (final table in <String>[
         'cases',
         'case_history',
@@ -325,12 +325,59 @@ void main() {
         final policies = policyActions(sql, table);
         expect(policies, <String>{'select', 'insert', 'update'}, reason: table);
       }
+      // The scoped rule firm mode introduced. The ledger is cumulative, so the
+      // superseded own-rows-or-firm form is still in the file for the earlier
+      // migrations; these three fragments can only come from the scoping
+      // migration, and `supabase/tests/firm_mode_read_scope_test.sql` proves the
+      // behaviour they carry on the live project.
       expect(
-        RegExp(r'user_id = auth\.uid\(\)\s+or firm_id = public\.current_firm_id\(\)')
-            .hasMatch(sql),
-        isTrue,
+        sql,
+        contains('using ((user_id = auth.uid() and firm_id is null and '),
+        reason: 'the individual diary is only yours while no dissolve has '
+            'claimed it',
       );
+      expect(
+        sql,
+        contains('scope_owner_id is null) or firm_id = public.current_firm_id() or '),
+      );
+      expect(sql, contains('scope_owner_id = auth.uid())'));
       expect(sql, contains('or public.can_edit_firm(firm_id)'));
+    });
+
+    test('the scope owner lives on the ledger tables and stays server-only', () {
+      // The column is added by name to each of the eleven ledger tables…
+      expect(
+        sql,
+        contains(
+          "'cases', 'case_history', 'notes', 'case_references', 'delete_requests',",
+        ),
+      );
+      expect(
+        sql,
+        contains(
+          "'court_categories', 'case_categories', 'courts', 'steps', 'case_types',",
+        ),
+      );
+      expect(sql, contains("'on_behalfs'"));
+      // …and deliberately not to conflict_log, whose rows are one device's own
+      // merge diagnostics rather than ledger rows.
+      expect(
+        sql,
+        isNot(
+          contains(
+            'alter table public.conflict_log add column if not exists '
+            'scope_owner_id',
+          ),
+        ),
+      );
+      // Server-only: the table-level write grants are dropped and every other
+      // column granted back, so a direct PostgREST write cannot name it while
+      // the columns a client legitimately writes still work.
+      expect(
+        sql,
+        contains('revoke insert, update on public.%I from authenticated, anon'),
+      );
+      expect(sql, contains("a.attname <> 'scope_owner_id'"));
     });
 
     test('delete_requests is an audit trail the requester or reviewer edits', () {
@@ -365,6 +412,9 @@ void main() {
         contains('is_custom = false or user_id = auth.uid() or '),
         reason: 'pre-seeded rows must be readable by every authenticated user',
       );
+      // Firm mode's scoped form of the same rule: the baseline stays readable,
+      // and a *custom* row follows its author, its chamber or its scope owner.
+      expect(sql, contains('is_custom = false or (user_id = auth.uid() and '));
       expect(sql, contains('firm_id = public.current_firm_id())'));
       for (final action in <String>['select', 'insert', 'update']) {
         expect(sql, contains('on public.%1\$I for $action to '));

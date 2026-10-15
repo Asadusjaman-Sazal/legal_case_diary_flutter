@@ -135,9 +135,21 @@ What is verified now:
   the project: the call returns an instant, `has_function_privilege` is true for
   `authenticated` and false for `anon`, and it touches no table, so it is not
   SECURITY DEFINER (the client compares it with its own clock on every successful
-  pull to record `clock_offset_ms`).
-- Live state: 23 tables all with RLS on, 57 policies, 30 functions, 22 recorded
-  versions, and the 1,442 seeded reference rows (1,016 courts).
+  pull to record `clock_offset_ms`).- `20261015100000_firm_mode_read_scope.sql` (firm mode, phase 1) — **passes**
+  against the project in `supabase/tests/firm_mode_read_scope_test.sql`, a
+  self-contained rolled-back run: a member who has left a chamber no longer
+  reads the rows they authored in it, on all four case-data tables, while the
+  chamber's current members still do; an individual's own firm-less row is
+  untouched; a dissolve's scope owner keeps the ledger and its author does not;
+  `delete_requests` carries the same rule on `requested_by`; `conflict_log`
+  keeps the membership condition only; the built-in reference baseline stays
+  readable to everyone; and `scope_owner_id` is refused to a client INSERT and
+  UPDATE as an error, with its counterpart proven in the same transaction —
+  restoring the superseded policy on a scratch copy hands the row straight back.
+  Live afterwards: `has_column_privilege('authenticated','public.cases',
+  'scope_owner_id','UPDATE')` is false while `case_remarks` is still true.
+- Live state: 26 tables all with RLS on, 62 policies, 44 functions in `public`,
+  43 recorded versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.

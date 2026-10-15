@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.518 - Rule 11 in AGENTS.md and CLAUDE.md now uses ordinary title case — articles, conjunctions and short prepositions stay lower-case — and sentence case for any string that reads as a general sentence; no app string was re-cased.
+Version: 0.0.521 - Records the two firm-mode Phase-1 rulings (the creation stamp set, and device tokens deleted at removal) in the plan and task 20, and corrects the README's live function count.
 --------------------------------------
 
 ## Version History Log:
@@ -532,3 +532,6 @@ Version: 0.0.515 - Checkout: the transfer instruction now names Send Money in bo
 Version: 0.0.516 - Login & Sign Up: the divider now reads Or and the Google buttons use sentence-case 'with'.
 Version: 0.0.517 - App Lock: the timing labels and Change App Lock PIN take the user's wording, and a duplicated ARB key is removed.
 Version: 0.0.518 - Rule 11 in AGENTS.md and CLAUDE.md now uses ordinary title case — articles, conjunctions and short prepositions stay lower-case — and sentence case for any string that reads as a general sentence; no app string was re-cased.
+Version: 0.0.519 - Propagated the firm-mode blueprint's rulings and both audit passes into the plan and tasks 15-21 - scope owner, stored tier, member-editable config, the ruled permission boundary, 365/335 retention and the ten flat plans - so no document contradicts the blueprint.
+Version: 0.0.520 - Firm mode's read side is scoped: scope_owner_id lands on the eleven ledger tables and the SELECT policies stop a removed member reading the chamber rows they authored, with the column kept server-only.
+Version: 0.0.521 - Records the two firm-mode Phase-1 rulings (the creation stamp set, and device tokens deleted at removal) in the plan and task 20, and corrects the README's live function count.

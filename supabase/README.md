@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All twenty-two migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All forty-two migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases
@@ -148,8 +148,48 @@ What is verified now:
   restoring the superseded policy on a scratch copy hands the row straight back.
   Live afterwards: `has_column_privilege('authenticated','public.cases',
   'scope_owner_id','UPDATE')` is false while `case_remarks` is still true.
-- Live state: 26 tables all with RLS on, 62 policies, 44 functions in `public`,
-  43 recorded versions, and the 1,442 seeded reference rows (1,016 courts).
+- `20261015110000_firm_mode_creation_and_scope.sql` (firm mode, phase 2) —
+  **passes** against the project in `supabase/tests/firm_mode_creation_scope_test.sql`,
+  a self-contained rolled-back run: `ensure_firm` stamps every firm-less ledger
+  row its creator authored — all four case-data tables, all six reference
+  tables' custom rows, a pending delete request, tombstones included — with the
+  new `firm_id` and a version bump, while a row of the creator's that already
+  belonged to another firm, the built-in baseline and a resolved delete request
+  are left alone and a second call (an idempotent rename) stamps nothing again;
+  and `push_changes` makes the scope columns the server's — a member's insert
+  whose payload says `firm_id` null (what the shipped client sends) lands in the
+  chamber, a payload naming another firm is corrected rather than obeyed, a
+  payload naming a scope owner is ignored, an update cannot move a row out of its
+  chamber, and an individual's row stays personal. **Both halves were proven to
+  bite:** with the superseded bodies restored on a scratch copy the run fails at
+  `cases scope2-case did not follow the creator into the chamber` and, with only
+  the old `push_changes`, at `a member's insert did not take the chamber's
+  scope`. Live afterwards: `pg_get_functiondef` carries the creation flag and
+  the `firm_id` derivation, `anon` still cannot EXECUTE either RPC and
+  `authenticated` can.
+- `20261015120000_firm_mode_join_gate.sql` (firm mode, phase 3) — **passes**
+  against the project in `supabase/tests/firm_mode_join_gate_test.sql`, a
+  self-contained rolled-back run: the gate refuses an account holding its own
+  individual case (`has_own_diary`, quoting the count) and a chamber past its
+  tier's seats (`seats_full`, quoting the cap), and **writes nothing on either
+  refusal** — no membership, no profile relink, no consumed code; an
+  already-member redemption answers `already_member` with the code `revoked`
+  rather than `used_by`; a join lands `associate` with `can_add`/`can_edit` true,
+  `can_delete` false and both freshness stamps; a lapsed chamber past the grace
+  window has no cap and stays joinable; and the rate limiter still raises `Too
+  many attempts` after five failures. Live afterwards: `pg_get_functiondef`
+  carries both gates, and `has_function_privilege` is true for `authenticated`
+  and false for `anon` on `holds_own_diary`, `individual_diary_cases`,
+  `firm_seat_cap` and `join_firm`. **The first apply of this migration left all
+  three helpers unexecutable — by every role, including the app's own.** The
+  revokes named `authenticated` alongside `public` and `anon` and no grant
+  followed, so a client could not read the two facts the screen's sentences need;
+  `join_firm` itself was unaffected, which is why the gate's own test passed and
+  only a direct `has_function_privilege` check found it. The grants are now
+  issued to `authenticated` after the revokes, and the check above is what the
+  re-apply was verified against.
+- Live state: 26 tables all with RLS on, 62 policies, 47 functions in `public`,
+  45 recorded versions, and the 1,442 seeded reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
@@ -208,7 +248,7 @@ npx supabase migration list                     # what is applied on the project
 ```
 
 Applying by hand with a plain loop also works, but then `supabase_migrations`
-stays empty and `db push` would consider all fifteen files unapplied:
+stays empty and `db push` would consider all forty-two files unapplied:
 
 ```bash
 for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
@@ -221,6 +261,9 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_matrix_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rpc_smoke_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/push_changes_smoke_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/admin_payment_alerts_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_read_scope_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_creation_scope_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_test.sql
 ```
 
 ## Project settings this repo cannot set

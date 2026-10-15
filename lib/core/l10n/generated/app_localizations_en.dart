@@ -3979,6 +3979,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_errorUnknown => 'Something went wrong. Please try again.';
 
   @override
+  String auth_errorOwnDiary(int cases) {
+    return 'This account already has its own diary ($cases cases). An associate\'s diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.';
+  }
+
+  @override
+  String get auth_errorOwnDiaryNoCount =>
+      'This account already has its own diary. An associate\'s diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.';
+
+  @override
+  String auth_errorSeatsFull(int seats) {
+    return 'This firm has no seats left ($seats in use). Ask the owner to add a seat or remove an associate.';
+  }
+
+  @override
+  String get auth_errorSeatsFullNoCount =>
+      'This firm has no seats left. Ask the owner to add a seat or remove an associate.';
+
+  @override
   String get auth_validationEmailRequired => 'Enter your email address.';
 
   @override

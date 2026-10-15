@@ -115,6 +115,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           failure.kind,
         ),
       );
+    } on InviteRefusal catch (refusal) {
+      // A seat refusal is advice rather than a fault (§2.1, §5.4): the account is
+      // untouched and the sentence says what to do next, so it lands in the same
+      // note as the firm errors — the code is kept either way, so the join stays
+      // retryable.
+      if (!mounted) return;
+      setState(
+        () => _pendingInviteNote = inviteRefusalText(
+          AppLocalizations.of(context),
+          refusal,
+        ),
+      );
     }
   }
 

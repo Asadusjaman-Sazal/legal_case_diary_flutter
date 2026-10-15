@@ -161,6 +161,36 @@ void main() {
       expect(failureText(l, StateError('unexpected')), l.auth_errorUnknown);
     });
 
+    test('a seat refusal is worded with its count, not as a system error', () {
+      // §2.1 and §5.4 both quote a number, and the number is the whole point of
+      // the sentence: "its own diary (12 cases)" tells the lawyer what the app
+      // found, where "join failed" leaves them stuck with no way forward.
+      expect(
+        failureText(l, const InviteRefusal(InviteRefusalKind.ownDiary, count: 12)),
+        l.auth_errorOwnDiary(12),
+      );
+      expect(
+        failureText(l, const InviteRefusal(InviteRefusalKind.seatsFull, count: 5)),
+        l.auth_errorSeatsFull(5),
+      );
+      // The count is interpolated, never appended: nothing generic may leak in.
+      expect(
+        failureText(l, const InviteRefusal(InviteRefusalKind.ownDiary, count: 12)),
+        contains('12'),
+      );
+    });
+
+    test('a seat refusal with no count keeps a full sentence', () {
+      expect(
+        failureText(l, const InviteRefusal(InviteRefusalKind.ownDiary)),
+        l.auth_errorOwnDiaryNoCount,
+      );
+      expect(
+        failureText(l, const InviteRefusal(InviteRefusalKind.seatsFull)),
+        l.auth_errorSeatsFullNoCount,
+      );
+    });
+
     test('a firm failure is never logged as an auth failure', () {
       // The one property the report depends on: the label a user hands over
       // names the domain the fault is in.

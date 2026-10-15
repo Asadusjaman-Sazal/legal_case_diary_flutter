@@ -6873,6 +6873,30 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get auth_errorUnknown;
 
+  /// No description provided for @auth_errorOwnDiary.
+  ///
+  /// In en, this message translates to:
+  /// **'This account already has its own diary ({cases} cases). An associate\'s diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.'**
+  String auth_errorOwnDiary(int cases);
+
+  /// No description provided for @auth_errorOwnDiaryNoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'This account already has its own diary. An associate\'s diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.'**
+  String get auth_errorOwnDiaryNoCount;
+
+  /// No description provided for @auth_errorSeatsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'This firm has no seats left ({seats} in use). Ask the owner to add a seat or remove an associate.'**
+  String auth_errorSeatsFull(int seats);
+
+  /// No description provided for @auth_errorSeatsFullNoCount.
+  ///
+  /// In en, this message translates to:
+  /// **'This firm has no seats left. Ask the owner to add a seat or remove an associate.'**
+  String get auth_errorSeatsFullNoCount;
+
   /// No description provided for @auth_validationEmailRequired.
   ///
   /// In en, this message translates to:

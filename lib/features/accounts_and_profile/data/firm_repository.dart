@@ -112,8 +112,9 @@ enum InviteRedemptionStatus {
   /// The account is now a member of the firm.
   joined,
 
-  /// The account was already a member; the code was still consumed, exactly as
-  /// the single-use rule requires.
+  /// The account was already a member; the code was retired as revoked rather
+  /// than consumed, so the owner's list does not read *used* for a member who
+  /// was already in the chamber.
   alreadyMember,
 }
 
@@ -130,6 +131,47 @@ class InviteRedemption {
 
   /// Whether the account is a member of the firm after this call.
   bool get isMember => true;
+}
+
+/// A redemption the server refused, with the number the refusal has to word.
+///
+/// Both of §2's seat refusals quote a count — "its own diary (N cases)" and how
+/// many seats the tier sells — so the count travels with the failure rather than
+/// being a second round trip the client cannot make anyway (an associate cannot
+/// read `firms` or another account's diary).
+class InviteRefusal implements Exception, DiagnosableFailure {
+  /// Creates a refusal of [kind].
+  const InviteRefusal(this.kind, {this.count});
+
+  /// Which refusal this is.
+  final InviteRefusalKind kind;
+
+  /// The number the sentence quotes: cases in the account's own diary, or the
+  /// chamber's seat cap. Null when the refusal does not quote one.
+  final int? count;
+
+  /// The log's label: the kind, so entries stay scannable and comparable.
+  @override
+  String get diagnosticLabel => 'InviteRefusal(${kind.name})';
+
+  /// Nothing beyond the kind is logged: the number is user-facing copy, and the
+  /// refusal is never a diagnostic event.
+  @override
+  String? get diagnosticDetail => null;
+
+  @override
+  String toString() => diagnosticLabel;
+}
+
+/// The seat refusals `join_firm` returns as statuses.
+enum InviteRefusalKind {
+  /// The redeemer already keeps their own diary, so the seat is not empty. The
+  /// refusal is never silent and never merges: the count is shown and the account
+  /// is left exactly as it was.
+  ownDiary,
+
+  /// The chamber's effective tier sells fewer seats than it has live members.
+  seatsFull,
 }
 
 /// An invite that was just created on the server.
@@ -166,6 +208,11 @@ class GeneratedInvite {
 /// used code and a revoked one both arrive as `invalid_code` — `join_firm` only
 /// matches an unused, unrevoked row, so the client cannot and must not try to
 /// tell them apart.
+///
+/// The two seat refusals arrive as statusses rather than errors, with the count
+/// the sentence needs. They are **not** `FirmFailure`s: nothing went wrong, and
+/// the account is untouched, so a screen that shows them as an error banner
+/// would read as a system fault where the message is really advice.
 InviteRedemption parseInviteRedemption(Object? response) {
   final result = decodeRpcMap(response);
   return switch (result['status']) {
@@ -176,6 +223,14 @@ InviteRedemption parseInviteRedemption(Object? response) {
     'already_member' => InviteRedemption(
       status: InviteRedemptionStatus.alreadyMember,
       firmId: result['firm_id'] as String?,
+    ),
+    'has_own_diary' => throw InviteRefusal(
+      InviteRefusalKind.ownDiary,
+      count: (result['cases'] as num?)?.toInt(),
+    ),
+    'seats_full' => throw InviteRefusal(
+      InviteRefusalKind.seatsFull,
+      count: (result['seats'] as num?)?.toInt(),
     ),
     'invalid_code' => throw const FirmFailure(FirmFailureKind.invalidInviteCode),
     // The RPC falls back to a status rather than raising when it cannot see a
@@ -537,6 +592,10 @@ class SupabaseFirmRepository implements FirmRepository {
           params: <String, dynamic>{'code': normalized},
         ),
       );
+    } on InviteRefusal {
+      // A seat refusal is already typed and carries its count; mapping it here
+      // would turn the app's own advice into a generic server error.
+      rethrow;
     } catch (error) {
       // The rate limit is the one outcome the RPC raises instead of returning.
       throw mapFirmFailure(error);

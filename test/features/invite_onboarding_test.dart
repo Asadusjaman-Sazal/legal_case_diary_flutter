@@ -166,6 +166,60 @@ void main() {
         ),
       );
     });
+
+    test('a seat with a diary is refused with the count the sentence needs', () {
+      // The refusal is deliberately not a `FirmFailure`: nothing went wrong and
+      // the account is untouched, so a screen that showed it as a system error
+      // would be lying about what happened.
+      expect(
+        () => parseInviteRedemption(<String, dynamic>{
+          'status': 'has_own_diary',
+          'cases': 12,
+        }),
+        throwsA(
+          isA<InviteRefusal>()
+              .having((r) => r.kind, 'kind', InviteRefusalKind.ownDiary)
+              .having((r) => r.count, 'count', 12),
+        ),
+      );
+    });
+
+    test('a full chamber is refused with the cap it quoted', () {
+      expect(
+        () => parseInviteRedemption(<String, dynamic>{
+          'status': 'seats_full',
+          'firm_id': 'firm-1',
+          'seats': 5,
+        }),
+        throwsA(
+          isA<InviteRefusal>()
+              .having((r) => r.kind, 'kind', InviteRefusalKind.seatsFull)
+              .having((r) => r.count, 'count', 5),
+        ),
+      );
+    });
+
+    test('a seat refusal with no count still has a sentence', () {
+      // A malformed or older response, or the tenant-blocked case where the
+      // count is unknowable, must still say something useful rather than drop to
+      // "Something went wrong".
+      expect(
+        () => parseInviteRedemption(<String, dynamic>{'status': 'has_own_diary'}),
+        throwsA(
+          isA<InviteRefusal>()
+              .having((r) => r.kind, 'kind', InviteRefusalKind.ownDiary)
+              .having((r) => r.count, 'count', isNull),
+        ),
+      );
+    });
+
+    test('a refusal never logs a detail, only its kind', () {
+      // The count is user-facing copy, not diagnostics; the log stays scannable.
+      const refusal = InviteRefusal(InviteRefusalKind.seatsFull, count: 5);
+      expect(refusal.diagnosticLabel, 'InviteRefusal(seatsFull)');
+      expect(refusal.diagnosticDetail, isNull);
+      expect(refusal.toString(), isNot(contains('5')));
+    });
   });
 
   group('the online-only rule', () {

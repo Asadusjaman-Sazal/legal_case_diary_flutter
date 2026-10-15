@@ -248,6 +248,12 @@ Object? _error;
     } on FirmFailure catch (failure) {
       if (!mounted) return;
       setState(() => _error = failure);
+    } on InviteRefusal catch (refusal) {
+      // A seat refusal is not an error kind; the screen holds it as the failure
+      // it words through [failureText], which is what keeps the count in the
+      // sentence (§2.1).
+      if (!mounted) return;
+      setState(() => _error = refusal);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -290,6 +296,9 @@ Object? _error;
     } on FirmFailure catch (failure) {
       if (!mounted) return;
       setState(() => _error = failure);
+    } on InviteRefusal catch (refusal) {
+      if (!mounted) return;
+      setState(() => _error = refusal);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

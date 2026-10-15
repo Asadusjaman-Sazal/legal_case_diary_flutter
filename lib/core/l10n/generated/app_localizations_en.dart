@@ -4142,7 +4142,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_removeAssociateBody =>
-      'They Lose Access To The Firm\'s Cases Immediately. The Records They Authored Stay In The Firm.';
+      'They lose access to the firm\'s cases immediately, and the records they authored stay with the firm. Their phone keeps a copy of the firm until it next opens the app, and erases itself then. If you are still together, have them open the app once while you are connected, so you can see the erase happen. A phone that is never opened again can only be cleared by a factory reset or the platform\'s remote-wipe feature — no app can erase a device that is off.';
 
   @override
   String get manageAssociates_associateRemoved => 'Associate Removed.';
@@ -4156,17 +4156,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.';
 
   @override
-  String get membershipRevoked_title => 'You Have Been Removed From The Firm';
+  String get membershipRevoked_title => 'Your Access Ended';
 
   @override
   String get membershipRevoked_body =>
-      'Your Firm Owner Removed This Account. You Can No Longer See Or Edit The Firm\'s Cases, And Anything Still Waiting To Sync Has Been Discarded. Log Out To Continue With An Individual Diary.';
+      'The firm owner removed this account. Everything the firm had on this device — its cases, notes, references, roster and pending work — has already been erased, and work that was still waiting to sync was discarded rather than sent. Your own records are safe with the firm. You can use this account again for an individual diary, or join another firm. If this phone had already been removed while it was switched off, this is the erase running now, the first time it was opened.';
 
   @override
-  String get membershipRevoked_action => 'Log Out';
+  String get membershipRevoked_eraseFailed =>
+      'Could not finish erasing this device.';
 
   @override
-  String get membershipRevoked_logoutFailed => 'Could Not Log Out. Try Again.';
+  String get membershipRevoked_retry => 'Try Again';
 
   @override
   String get deleteRequest_confirmTitle => 'Send A Deletion Request?';

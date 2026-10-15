@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        43,
+        44,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '

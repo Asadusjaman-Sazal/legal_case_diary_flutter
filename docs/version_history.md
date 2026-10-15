@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.524 - Audit of firm mode phases 1-3: all three guarantees hold under adversarial probing on the live project; scope_owner_id is write-protected but readable via SELECT, which is benign because only scope_owners see those rows.
+Version: 0.0.527 - Docs: recorded that Tasks 01-21 and 23 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.
 --------------------------------------
 
 ## Version History Log:
@@ -538,3 +538,6 @@ Version: 0.0.521 - Records the two firm-mode Phase-1 rulings (the creation stamp
 Version: 0.0.522 - Firm mode phase 2: chamber creation stamps the owner's firm-less diary (tombstones included) and push_changes derives each row's firm server-side, so a member's case can no longer land as a personal row.
 Version: 0.0.523 - Firm mode phase 3: join_firm now requires an empty seat and a free seat — refusing an account with its own diary, counting the cases it quotes, past the tier cap — and joins land with §3.1's associate defaults.
 Version: 0.0.524 - Audit of firm mode phases 1-3: all three guarantees hold under adversarial probing on the live project; scope_owner_id is write-protected but readable via SELECT, which is benign because only scope_owners see those rows.
+Version: 0.0.525 - Firm mode Phase 4: removing a member now clears their push tokens on the server, and the device erases itself with no tap, cancelling its notifications and discarding queued work.
+Version: 0.0.526 - Docs: recorded that Tasks 01-21 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.
+Version: 0.0.527 - Docs: recorded that Tasks 01-21 and 23 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.

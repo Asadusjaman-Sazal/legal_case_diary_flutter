@@ -13,7 +13,7 @@ Binding project-wide rules for all agents. Task-specific requirements live in `d
 
 1. **Never guess.** If a requirement, UI detail, data rule, or edge case is unclear or conflicting, stop and ask the user. Batch questions into one list.
 2. **Scope:** only touch files/sections the current task instructs you to. Never implement future tasks early. (Reporting under rule 15 is not a change to the product, so it is not scope.)
-3. **Part A (Tasks 01–15) is strictly offline.** No `supabase_flutter`, no network code, no auth-server calls. Every write path must still maintain sync columns (`version`, `updated_at`, `is_deleted`, `synced_at`, `last_modified_by`) and populate `sync_queue`.
+3. **Sync columns are mandatory on every write path — but "Part A" is over.** Every write path must maintain sync columns (`version`, `updated_at`, `is_deleted`, `synced_at`, `last_modified_by`) and populate `sync_queue`. **Tasks 01–21 and Task 23 are complete and Task 22 is the only task still open** (see `docs/tasks/00_INDEX.md`, *Current Phase*): the offline app and the Supabase backend are both built, so the app may use the network, `supabase_flutter` and auth-server calls, and the current work is **bug-fixing and polishing**, including the **firm-mode** and **plans/pricing revamps**. Never defer, refuse or label a change as "Part A" or "Part B" work — those are finished historical labels, not a current constraint, and the offline rule applied to the build order that Task 16 fulfilled.
 4. **Table classes are mandatory:** classify every table touched as push/pull domain, pull-only cache, per-user preference, local operational, or server-managed. Never apply generic sync behavior across classes.
 5. **Naming:** DB columns `snake_case`, Dart/JSON `camelCase`, Drift auto-mapping between them.
 6. **Comments:** short intent comments on every file and major section. Never delete existing comments unless they conflict with new logic.
@@ -80,7 +80,7 @@ Ponytail is the project’s default coding policy for every coding task. Apply i
 - Official skills under `.agents/skills/` are optional procedural guidance.
 - Invoke only skills relevant to the current phase; do not preload all skills.
 - Skills never override the current task, referenced plan sections, or this file.
-- Do not use an online/networking skill during Part A.
+- Online/networking skills are allowed: the app is past the old offline build phase, so pick skills by relevance to the work rather than by a Part A / Part B label.
 - Do not use a skill to change architecture, dependencies, serialization, routing,
   or testing strategy unless the task permits it or the user approves it.
 - The project-local Ponytail skills are installed under `.agents/skills/` for focused use:

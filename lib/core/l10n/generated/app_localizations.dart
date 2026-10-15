@@ -7170,7 +7170,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_removeAssociateBody.
   ///
   /// In en, this message translates to:
-  /// **'They Lose Access To The Firm\'s Cases Immediately. The Records They Authored Stay In The Firm.'**
+  /// **'They lose access to the firm\'s cases immediately, and the records they authored stay with the firm. Their phone keeps a copy of the firm until it next opens the app, and erases itself then. If you are still together, have them open the app once while you are connected, so you can see the erase happen. A phone that is never opened again can only be cleared by a factory reset or the platform\'s remote-wipe feature — no app can erase a device that is off.'**
   String get manageAssociates_removeAssociateBody;
 
   /// No description provided for @manageAssociates_associateRemoved.
@@ -7194,26 +7194,26 @@ abstract class AppLocalizations {
   /// No description provided for @membershipRevoked_title.
   ///
   /// In en, this message translates to:
-  /// **'You Have Been Removed From The Firm'**
+  /// **'Your Access Ended'**
   String get membershipRevoked_title;
 
   /// No description provided for @membershipRevoked_body.
   ///
   /// In en, this message translates to:
-  /// **'Your Firm Owner Removed This Account. You Can No Longer See Or Edit The Firm\'s Cases, And Anything Still Waiting To Sync Has Been Discarded. Log Out To Continue With An Individual Diary.'**
+  /// **'The firm owner removed this account. Everything the firm had on this device — its cases, notes, references, roster and pending work — has already been erased, and work that was still waiting to sync was discarded rather than sent. Your own records are safe with the firm. You can use this account again for an individual diary, or join another firm. If this phone had already been removed while it was switched off, this is the erase running now, the first time it was opened.'**
   String get membershipRevoked_body;
 
-  /// No description provided for @membershipRevoked_action.
+  /// No description provided for @membershipRevoked_eraseFailed.
   ///
   /// In en, this message translates to:
-  /// **'Log Out'**
-  String get membershipRevoked_action;
+  /// **'Could not finish erasing this device.'**
+  String get membershipRevoked_eraseFailed;
 
-  /// No description provided for @membershipRevoked_logoutFailed.
+  /// No description provided for @membershipRevoked_retry.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Log Out. Try Again.'**
-  String get membershipRevoked_logoutFailed;
+  /// **'Try Again'**
+  String get membershipRevoked_retry;
 
   /// No description provided for @deleteRequest_confirmTitle.
   ///

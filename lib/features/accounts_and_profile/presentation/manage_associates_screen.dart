@@ -777,7 +777,10 @@ Future<bool> _confirm({
     context: context,
     builder: (context) => AlertDialog(
       title: Text(title),
-      content: Text(body),
+      // Scrollable: the removal warning is several sentences long on purpose
+      // (the owner is told what cannot be reached, and what to do about it), and
+      // a fixed Text would clip it on a phone.
+      content: SingleChildScrollView(child: Text(body)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),

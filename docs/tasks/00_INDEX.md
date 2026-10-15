@@ -4,12 +4,27 @@
 
 ---
 
-## How the tasks are organized
+## Current Phase — Bug-Fixing & Polish (read this first)
 
-The build is split into two parts:
+**The task plan is done except Task 22.** Tasks **01–21 are complete**, including Task 20's firm-management and Task 21's payments work and their post-plan follow-ups, and **Task 23 (the admin panel, added after the original 22) is complete** through its Phase 5 records and the 0.0.511 follow-ups. **Task 22 (`22_verification_plan.md`) is the only task still open.**
 
-- **PART A — Offline-First App (Tasks 01–15):** Build and fully test the complete offline app. Every local write already maintains all sync columns (`version`, `updated_at`, `is_deleted`, `synced_at`, `last_modified_by`) and populates `sync_queue`, so the app is 100% sync-ready from day one (Implementation Plan, Sync Plan §2 "Always Sync-Ready Architecture"). **No Supabase package, no network code, and no auth-server calls are implemented in Part A.**
-- **PART B — Supabase & Online Sync (Tasks 16–22):** Add the Supabase backend, auth, sync engine, realtime, firm management, and payments on top of the finished offline app. Because Part A maintained sync metadata from the start, Part B connects the backend without any local data migration.
+**Part A and Part B are historical labels, not a current constraint.** Both are finished — the offline app and the Supabase backend are built and live — so the build is **not** in "Part A" or "Part B" any more, and nothing should be deferred, refused or labelled on that basis. Do not treat "Part A is strictly offline" (Universal Working Rule 10) as a live rule about scope: the offline requirement was a build-order constraint that Task 16 fulfilled, and the app has talked to the server since. Rule 10 stays in the list only as history.
+
+**What the work actually is now.** We are **bug-fixing and polishing** the shipped app. Inside that, two things are being **revamped** from their original plan shape:
+
+- **Firm mode** — the read-side scoping, the creation/scope rules, the join gate and the self-erasing removal are built; the remaining items are listed in `docs/implementation_plan.md`'s *"What Firm Mode Still Owes"* bullet and in `docs/firm_mode_blueprint.md`. These are current work, not future tasks.
+- **Plans / pricing** — the plan ladder, the plans screen and the tier gates are being reworked to the settled set; the existing payment tables and the ten-plan ladder notes are the starting point, not a fixed contract.
+
+When a change is neither a bug fix nor part of those two revamps, it still belongs to normal polish: implement it, and record it per rule 14 rather than parking it for a later task number.
+
+---
+
+## How the tasks are organized (historical — kept for reference)
+
+The build was split into two parts. Both are complete; the split is recorded here because the task files below are written against it:
+
+- **PART A — Offline-First App (Tasks 01–15):** Build and fully test the complete offline app. Every local write already maintains all sync columns (`version`, `updated_at`, `is_deleted`, `synced_at`, `last_modified_by`) and populates `sync_queue`, so the app is 100% sync-ready from day one (Implementation Plan, Sync Plan §2 "Always Sync-Ready Architecture"). **No Supabase package, no network code, and no auth-server calls are implemented in Part A.** — **COMPLETE.**
+- **PART B — Supabase & Online Sync (Tasks 16–22):** Add the Supabase backend, auth, sync engine, realtime, firm management, and payments on top of the finished offline app. Because Part A maintained sync metadata from the start, Part B connects the backend without any local data migration. — **COMPLETE except Task 22.** (Part B was defined as Tasks 16–22; **Task 23, the admin panel, was added afterwards and is also complete** — it is listed below but was never part of this split.)
 
 ## Task list
 

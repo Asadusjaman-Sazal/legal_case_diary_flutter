@@ -139,6 +139,19 @@ String? functionBlock(String sql, String name) {
   return sql.substring(start, end < 0 ? sql.length : end);
 }
 
+/// The **last** definition of p_name in the ledger.
+///
+/// Two functions in this project have been replaced more than once —
+/// `push_changes` and `ensure_firm` — and only the newest body describes what the
+/// server does today, so the assertions about their current behaviour read this
+/// one rather than the original text.
+String? lastFunctionBlock(String sql, String name) {
+  final start = sql.lastIndexOf('create or replace function public.$name(');
+  if (start < 0) return null;
+  final end = sql.indexOf(r'$$;', start);
+  return sql.substring(start, end < 0 ? sql.length : end);
+}
+
 void main() {
   final files = migrationFiles();
   final sql = migrationSql();
@@ -1099,6 +1112,47 @@ void main() {
       expect(sql, contains("'target_entity_type'"));
       // An unreachable target is named rather than silently skipped.
       expect(sql, contains("'unsupported_target'"));
+    });
+
+    // Firm mode phase 2. Both functions are read from their **newest** body,
+    // because the rules below exist only there.
+    test('derives a new row\'s firm from the caller, never from the payload', () {
+      final block = lastFunctionBlock(sql, 'push_changes')!;
+      // Read once per call, so a profile change cannot split a batch's scope.
+      expect(
+        block,
+        contains('v_firm_id uuid := public.current_firm_id();'),
+      );
+      expect(block, contains("'firm_id', v_firm_id"));
+      // Both scope columns are stripped from every payload before it is used,
+      // which is what makes the insert derivation and the update preservation
+      // hold for every branch at once.
+      expect(block, contains("- 'scope_owner_id' - 'firm_id'"));
+      // An existing row keeps the firm it has: the update never names the column.
+      expect(block, contains("- 'last_modified_by' - 'firm_id'"));
+    });
+
+    test('creation stamps the caller\'s firm-less diary into the new chamber', () {
+      final block = lastFunctionBlock(sql, 'ensure_firm')!;
+      // Creation-only: an idempotent re-call (a rename, a repair) must not
+      // re-stamp rows a member has since written.
+      expect(block, contains('v_created'));
+      expect(block, contains('if v_created then'));
+      expect(
+        block,
+        contains("'cases', 'case_history', 'notes', 'case_references'"),
+      );
+      expect(
+        block,
+        contains(
+            "'court_categories', 'case_categories', 'courts', 'steps', 'case_types',"),
+      );
+      // A built-in reference row has no author and is shared by every install.
+      expect(block, contains('and t.is_custom = true'));
+      // A resolved delete request is audit history, not a ledger row.
+      expect(block, contains("and t.status = 'pending'"));
+      // The version bump is what makes a device converge on the new scope.
+      expect(block, contains('version = coalesce(t.version, 1) + 1'));
     });
   });
 

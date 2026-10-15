@@ -486,6 +486,37 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'condition only, and the column is server-only: the table-level write '
         'grants are dropped and every other column granted back.',
   ),
+  LedgerSection(
+    file: '20261015110000_firm_mode_creation_and_scope.sql',
+    version: '0.0.522',
+    label:
+        'Firm mode: creation shares the owner\'s diary and the scope columns '
+        'become the server\'s. ensure_firm stamps every firm-less ledger row '
+        'its creator authored — all four case-data tables, the six reference '
+        'tables\' custom rows and pending delete requests, tombstones included '
+        '— with the new firm_id, a version bump and a refreshed updated_at, and '
+        'push_changes derives an insert\'s firm_id from current_firm_id() '
+        '(so a member\'s whole-row payload no longer lands a personal case '
+        'inside a chamber), leaves an existing row\'s firm untouched, and never '
+        'takes scope_owner_id from a payload.',
+  ),
+  LedgerSection(
+    file: '20261015120000_firm_mode_join_gate.sql',
+    version: '0.0.523',
+    label:
+        'Firm mode: a seat must be empty and the chamber must have one. '
+        'join_firm refuses an account holding its own diary — counting the '
+        'individual cases its answer quotes and restoring the row in the same '
+        'transaction, so the count is atomic with the check (the restore is '
+        'the \'has_own_diary\' bug fix: without it a refused join lost the '
+        'caller\'s own row) — refuses past the tier\'s seat cap, and joins '
+        'with §3.1\'s defaults (associate, can_add and can_edit in, '
+        'can_delete out) and both freshness stamps while retiring an '
+        'already-member\'s code as revoked rather than used. '
+        'holds_own_diary and individual_diary_cases, the two helpers the gate '
+        'and the screens share, are granted to authenticated alone so a '
+        'signed-out caller cannot probe another account\'s diary count.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -526,6 +557,11 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.498': 'Admin Payment Alerts Phase 2 — The Push Server Half',
   '0.0.509': 'Task 21 Follow-Up — Five Payment Submissions A Day',
   '0.0.520': 'Firm Mode Phase 1 — The Read Side Is Scoped',
+  '0.0.522':
+      'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
+      'Belong To The Server',
+  '0.0.523': 'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
+      'Have One',
 };
 
 const String _header = '''<!--

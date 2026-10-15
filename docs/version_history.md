@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.521 - Records the two firm-mode Phase-1 rulings (the creation stamp set, and device tokens deleted at removal) in the plan and task 20, and corrects the README's live function count.
+Version: 0.0.524 - Audit of firm mode phases 1-3: all three guarantees hold under adversarial probing on the live project; scope_owner_id is write-protected but readable via SELECT, which is benign because only scope_owners see those rows.
 --------------------------------------
 
 ## Version History Log:
@@ -535,3 +535,6 @@ Version: 0.0.518 - Rule 11 in AGENTS.md and CLAUDE.md now uses ordinary title ca
 Version: 0.0.519 - Propagated the firm-mode blueprint's rulings and both audit passes into the plan and tasks 15-21 - scope owner, stored tier, member-editable config, the ruled permission boundary, 365/335 retention and the ten flat plans - so no document contradicts the blueprint.
 Version: 0.0.520 - Firm mode's read side is scoped: scope_owner_id lands on the eleven ledger tables and the SELECT policies stop a removed member reading the chamber rows they authored, with the column kept server-only.
 Version: 0.0.521 - Records the two firm-mode Phase-1 rulings (the creation stamp set, and device tokens deleted at removal) in the plan and task 20, and corrects the README's live function count.
+Version: 0.0.522 - Firm mode phase 2: chamber creation stamps the owner's firm-less diary (tombstones included) and push_changes derives each row's firm server-side, so a member's case can no longer land as a personal row.
+Version: 0.0.523 - Firm mode phase 3: join_firm now requires an empty seat and a free seat — refusing an account with its own diary, counting the cases it quotes, past the tier cap — and joins land with §3.1's associate defaults.
+Version: 0.0.524 - Audit of firm mode phases 1-3: all three guarantees hold under adversarial probing on the live project; scope_owner_id is write-protected but readable via SELECT, which is benign because only scope_owners see those rows.

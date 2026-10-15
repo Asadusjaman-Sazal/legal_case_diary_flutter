@@ -1701,6 +1701,24 @@
   "auth_errorGoogleFailed": "Google সাইন-ইন সম্পন্ন হয়নি। আবার চেষ্টা করুন।",
   "auth_errorAccountMismatch": "এই ডিভাইসটি অন্য একটি অ্যাকাউন্টের। সেই অ্যাকাউন্টে লগইন করুন, অথবা ব্যাকআপ থেকে পুনরুদ্ধার করুন।",
   "auth_errorUnknown": "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।",
+  "auth_errorOwnDiary": "এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে ({cases}টি মামলা)। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।",
+  "@auth_errorOwnDiary": {
+    "placeholders": {
+      "cases": {
+        "type": "int"
+      }
+    }
+  },
+  "auth_errorOwnDiaryNoCount": "এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।",
+  "auth_errorSeatsFull": "এই ফার্মে আর সিট খালি নেই ({seats}টি ব্যবহৃত)। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।",
+  "@auth_errorSeatsFull": {
+    "placeholders": {
+      "seats": {
+        "type": "int"
+      }
+    }
+  },
+  "auth_errorSeatsFullNoCount": "এই ফার্মে আর সিট খালি নেই। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।",
   "auth_validationEmailRequired": "আপনার ইমেইল লিখুন।",
   "auth_validationEmailInvalid": "সঠিক ইমেইল ঠিকানা লিখুন।",
   "auth_validationPasswordRequired": "আপনার পাসওয়ার্ড লিখুন।",

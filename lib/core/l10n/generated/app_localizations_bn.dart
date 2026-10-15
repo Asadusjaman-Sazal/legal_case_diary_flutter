@@ -3992,6 +3992,24 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_errorUnknown => 'কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।';
 
   @override
+  String auth_errorOwnDiary(int cases) {
+    return 'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে ($casesটি মামলা)। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
+  }
+
+  @override
+  String get auth_errorOwnDiaryNoCount =>
+      'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
+
+  @override
+  String auth_errorSeatsFull(int seats) {
+    return 'এই ফার্মে আর সিট খালি নেই ($seatsটি ব্যবহৃত)। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।';
+  }
+
+  @override
+  String get auth_errorSeatsFullNoCount =>
+      'এই ফার্মে আর সিট খালি নেই। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।';
+
+  @override
   String get auth_validationEmailRequired => 'আপনার ইমেইল লিখুন।';
 
   @override

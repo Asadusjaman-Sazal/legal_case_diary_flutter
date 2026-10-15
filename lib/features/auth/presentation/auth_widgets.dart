@@ -1116,8 +1116,29 @@ String? failureText(AppLocalizations l, Object? failure) => switch (failure) {
   null => null,
   final AuthFailure f => authErrorText(l, f.kind),
   final FirmFailure f => firmErrorText(l, f.kind),
+  final InviteRefusal r => inviteRefusalText(l, r),
   _ => l.auth_errorUnknown,
 };
+
+/// The sentence for a seat refusal, with the count it quotes.
+///
+/// The two refusals are §2's own wording, and they are the reason the count is
+/// carried on the failure at all: "This account already has its own diary (N
+/// cases)" is what tells a lawyer **why** the seat is not theirs to take, and a
+/// generic "join failed" would leave them with an account they cannot use and no
+/// explanation. A refusal with no count (an older server, a malformed response)
+/// falls back to the body of the sentence rather than dropping it.
+String inviteRefusalText(AppLocalizations l, InviteRefusal refusal) =>
+    switch (refusal.kind) {
+      InviteRefusalKind.ownDiary =>
+        refusal.count == null
+            ? l.auth_errorOwnDiaryNoCount
+            : l.auth_errorOwnDiary(refusal.count!),
+      InviteRefusalKind.seatsFull =>
+        refusal.count == null
+            ? l.auth_errorSeatsFullNoCount
+            : l.auth_errorSeatsFull(refusal.count!),
+    };
 
 /// Validates an email field, or returns null when it is usable.
 String? authEmailError(AppLocalizations l, String? value) {

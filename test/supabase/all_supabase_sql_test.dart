@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        40,
+        41,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -82,7 +82,9 @@ void main() {
             'payment-alert server half added device_tokens, the per-user push '
             'toggle, the two reads no client role may run and the pg_net webhook '
             'that calls the FCM sender, and the daily payment-limit follow-up '
-            'raised the submission rate limit to five',
+            'raised the submission rate limit to five, and firm mode\'s first '
+            'phase scoped the read side with scope_owner_id and the scoped '
+            'SELECT policies',
       );
     });
 

@@ -474,6 +474,18 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'client\'s best-effort warning. The trigger, the server-time stamp, the '
         'exception and its errcode are unchanged.',
   ),
+  LedgerSection(
+    file: '20261015100000_firm_mode_read_scope.sql',
+    version: '0.0.520',
+    label:
+        'Firm mode: the read side is scoped. scope_owner_id lands on the '
+        'eleven ledger tables and the SELECT policies are rewritten, so a '
+        'removed member loses the chamber rows they authored — `user_id = '
+        'auth.uid()` alone no longer grants them — while a dissolve keeps the '
+        'ledger readable to its owner. conflict_log takes the membership '
+        'condition only, and the column is server-only: the table-level write '
+        'grants are dropped and every other column granted back.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -513,6 +525,7 @@ const Map<String, String> _groupTitles = <String, String>{
       'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
   '0.0.498': 'Admin Payment Alerts Phase 2 — The Push Server Half',
   '0.0.509': 'Task 21 Follow-Up — Five Payment Submissions A Day',
+  '0.0.520': 'Firm Mode Phase 1 — The Read Side Is Scoped',
 };
 
 const String _header = '''<!--

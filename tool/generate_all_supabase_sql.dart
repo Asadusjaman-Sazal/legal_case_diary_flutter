@@ -532,6 +532,32 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'member cannot be sent the firm\'s notices, and the row the removed '
         'member authored keeps its author untouched.',
   ),
+  LedgerSection(
+    file: '20261016100000_firm_mode_permission_boundary.sql',
+    version: '0.0.529',
+    label:
+        'Firm mode: a member\'s flags become a boundary on the server. '
+        'can_add_firm joins its two siblings and enforce_member_permission() '
+        'is attached BEFORE INSERT and BEFORE UPDATE to the ten gated tables '
+        'in one loop, so can_add gates a create and can_edit every '
+        'non-tombstone update — including the author\'s own chamber row, which '
+        'is deliberately stricter than the shipped policy, because in a '
+        'chamber most rows a member touches are ones they authored. The '
+        'tombstone transition keeps can_delete\'s own gate rather than '
+        'duplicating it. The function is SECURITY INVOKER on purpose: the '
+        'permission rule is keyed on auth.uid() so both the direct-PostgREST '
+        'and the push_changes door are bound while a migration, a fixture or a '
+        'nightly job steps aside, and the scope rule is keyed on current_user '
+        'so ensure_firm and the dissolve may still move a scope. §3.3\'s '
+        'scope-column ruling lands here too: a client may not change a row\'s '
+        'firm_id nor create a firm-less row while it holds a chamber — firm_id '
+        'was still in the column grants after the scope_owner_id work, so a '
+        'member could drop a chamber case into their own diary by direct '
+        'update. sync_can_write is replaced with only its INSERT branch '
+        'changed, in both the reference and the general branch, so the RPC '
+        'refuses a create cleanly; its update branch, delete_requests and '
+        'every RLS policy are untouched.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -578,6 +604,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523': 'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
       'Have One',
+  '0.0.529': 'Firm Mode Phase 5 — The Permission Boundary',
 };
 
 const String _header = '''<!--

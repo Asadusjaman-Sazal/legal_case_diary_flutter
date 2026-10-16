@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.527 - Docs: recorded that Tasks 01-21 and 23 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.
+Version: 0.0.529 - Firm mode Phase 5 is live: can_add gates a create and can_edit every non-tombstone update on all ten gated tables, and a client can no longer move a row's firm_id or create a firm-less row.
 --------------------------------------
 
 ## Version History Log:
@@ -541,3 +541,5 @@ Version: 0.0.524 - Audit of firm mode phases 1-3: all three guarantees hold unde
 Version: 0.0.525 - Firm mode Phase 4: removing a member now clears their push tokens on the server, and the device erases itself with no tap, cancelling its notifications and discarding queued work.
 Version: 0.0.526 - Docs: recorded that Tasks 01-21 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.
 Version: 0.0.527 - Docs: recorded that Tasks 01-21 and 23 are complete with only Task 22 open, that the work is now bug-fixing and polish, and that Part A/Part B are finished historical labels rather than a current constraint.
+Version: 0.0.528 - Docs: rewrote the firm-mode blueprint's phase list as a per-phase execution spec with migrations, proofs, acceptance and hazards; marked Phases 1-4 built and corrected five stale status claims plus the plan and task numbering.
+Version: 0.0.529 - Firm mode Phase 5 is live: can_add gates a create and can_edit every non-tombstone update on all ten gated tables, and a client can no longer move a row's firm_id or create a firm-less row.

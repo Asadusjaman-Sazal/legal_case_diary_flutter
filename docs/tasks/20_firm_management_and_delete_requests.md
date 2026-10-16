@@ -58,9 +58,26 @@
 - Reference customizations remain firm-shared while preferences remain per-user throughout membership changes.
 - Extend Task 18's `push_changes(rows jsonb)` in a later migration with delete-review mutation types, idempotent receipts, locking, and concurrency tests. Task 18 owns the base RPC; this task owns only that explicit extension.
 
-## Firm mode membership rulings (user-ruled, plan record — nothing built)
+## Firm mode membership rulings (user-ruled — phases 1–4 built, the rest owed)
 
 > **Where this comes from.** The user's firm-mode rulings, recorded in `docs/implementation_plan.md` → *Resolved Design Clarifications* and written out in full, with the reasoning and the edge cases, in `docs/firm_mode_blueprint.md`.
+>
+> **Phase numbering, so a citation resolves (added with the blueprint’s execution spec).** Three
+> different numbering schemes are cited in this file and in the plan, and they do **not** agree:
+>
+> - **The blueprint’s firm-mode phases (1–15)** — `docs/firm_mode_blueprint.md` → *Phases to
+>   Implement*. This is the **build order of record**, and it is the numbering the entries below use
+>   when they say *Phase 3’s seat gate* or *Phase 2 item 5’s removal*. **Phases 1–4 are built** —
+>   read-side scoping (0.0.520), creation and scope (0.0.522), the join gate (0.0.523) and the
+>   self-erasing removal (0.0.525). **Phases 5–15 are owed.**
+> - **This task file’s own phases (1–4)** — the Manage Associates screen, invites and permissions,
+>   delete-request creation and delete-request review, defined higher up this file. A citation reading
+>   *Phase 2 item 2* or *Phase 2 item 5* means **this file’s** Phase 2, not the blueprint’s.
+> - **The plan’s old owed-list items (1)–(10)** — a list that no longer exists in any file.
+>   `docs/implementation_plan.md`’s *What Firm Mode Still Owes* bullet now carries **phase numbers**
+>   instead, so a surviving `(N)` reference is dead and should be read through that bullet’s mapping.
+>
+> Where an entry below is stale about what exists, the blueprint’s phase list is the status of record.
 
 - **Phase 3's seat gate consumes nothing on a refusal (0.0.523).** `join_firm` decides `has_own_diary` and `seats_full` **before its first write**, so a refused join writes no `firm_members` row, relinks no profile and does **not** consume the invite code — the code stays the caller's to retry. The earlier shape that restored rows in place is withdrawn: a refusal is atomic with the check by construction.
 - **Phase 3's refusals carry the numbers they quote (0.0.523).** Both answers include the count the sentence needs — `cases` from `individual_diary_cases` and `seats` from `firm_seat_cap` — because **the client cannot compute either**: an associate cannot read another account's diary count, and the tier's seat cap is not in any table the app may read. They arrive as **statuses, not errors**: nothing went wrong and the account is untouched. `individual_diary_cases` counts individual rows only, so a chamber row (a `firm_id`), or a firm-less row a dissolve gave a `scope_owner_id`, is never a fresh diary — which is what lets a removed member rejoin with the same account. `holds_own_diary` and `individual_diary_cases` are granted to **`authenticated` alone**, so a signed-out caller cannot probe another account's diary count through the gate's own refusal.

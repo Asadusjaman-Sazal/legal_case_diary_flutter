@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        44,
+        45,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -86,7 +86,10 @@ void main() {
             'phase scoped the read side with scope_owner_id and the scoped '
             'SELECT policies, and its second made creation share the owner\'s '
             'diary and the scope columns the server\'s, and its third put the '
-            'empty-seat and seat-cap gates on the join itself',
+            'empty-seat and seat-cap gates on the join itself, and its fourth '
+            'cleared a removed member\'s push tokens, and its fifth made the '
+            'permission flags a server-side boundary with the scope-column '
+            'ruling folded in beside them',
       );
     });
 

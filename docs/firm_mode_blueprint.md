@@ -5,10 +5,13 @@
 > *Resolved Design Clarifications* (the bullets headed *A Chamber Holds One Ledger* through
 > *The Order Of Work For Firm Mode*). The plan remains the source of truth; if this file and the
 > plan disagree, the plan wins and this file is corrected. Every statement below is a **decision
-> about what to build**, not a description of what exists, and part of it is already built: §6's
+> about what to build**, not a description of what exists, and much of it is already built: §6's
 > firm-mode restore bar with its ownership rules, §4.2's `delete_my_account()` firm refusal and
-> §2.4's premium gate on `ensure_firm` exist today; the rest is owed, and where the shipped server
-> or client contradicts a ruling this file says so (§4.1, §4.3, §5.5, §10).
+> §2.4's premium gate on `ensure_firm` predate the phase list, and §4.3's read-side scoping
+> (0.0.520), §3.3's write-path scope rules with §1's creation stamping (0.0.522), §2.1's empty-seat
+> refusal (0.0.523) and §4.1's self-erasing removal (0.0.525) have landed since. **Where the shipped
+> server or client still contradicts a ruling, the phase list at the end of this file says so**: an
+> `Owed` phase is the contradiction, and its `Hazards` field is what the contradiction costs.
 > `docs/firm_mode_blueprint_audit.md` is the finding-by-finding record of what was checked against
 > the shipped SQL and Dart; this revision answers it.
 >
@@ -900,17 +903,20 @@ into a leak surface.
 
 **Still open, and all of it work rather than questions:**
 
-1. **The read-side migration of §4.3** — written nowhere yet, and the hole is live on the project.
+1. **The read-side migration of §4.3** — **built** (Phase 1, 0.0.520, `20261015100000_firm_mode_read_scope.sql`), so the hole is closed on the project; items 2 and 3 below are where the remaining work is.
 2. **The reference-table write scope in `push_changes`**: with member edits now allowed, the push
    path must accept a member's reference insert/update under `can_edit` and refuse only the
    immutable baseline — to be checked against the RPC as built (§3.2, §3.3).
-3. **Everything this revision adds**, none of it written yet: the `scope_owner_id` column with its
-   read-policy rewrite (§4.3, §4.4), `profiles.tier` / `firms.tier` with the `join_firm` seat check
-   and the ten-plan ladder (§5.3), the `can_add` / `can_edit` triggers (§3.3), the write-path scope
-   rules (§3.3), `ensure_firm`'s creation gate re-pointed from `is_premium()` at the tier
-   (shipped as `is_premium` in `20260930180000_ensure_firm_premium_gate.sql`, so the replacement
-   is owed), the self-erasing removal's client rework (§4.1) and the plans screen rebuilt to
-   the new set.
+3. **Everything this revision adds** — **built and still owed, so this list is not read as
+   untouched.** *Built:* the `scope_owner_id` column with its read-policy rewrite (§4.3, 0.0.520),
+   the write-path scope rules (§3.3, 0.0.522), the `join_firm` **seat check and refusal** (§5.3's
+   mechanism, 0.0.523 — `firm_seat_cap` still reads `is_premium` as a placeholder, so only the source
+   it reads is owed), and the self-erasing removal's client rework (§4.1, 0.0.525). *Still owed:*
+   `profiles.tier` / `firms.tier` with the pending pair and the ten-plan ladder (§5.3), the
+   `can_add` / `can_edit` triggers (§3.3), `ensure_firm`'s creation gate re-pointed from
+   `is_premium()` at the tier (shipped as `is_premium` in
+   `20260930180000_ensure_firm_premium_gate.sql`, so the replacement is owed), and the plans screen
+   rebuilt to the new set.
 
 ---
 
@@ -926,7 +932,7 @@ into a leak surface.
 | `docs/tasks/16_supabase_schema_rls_and_triggers.md` | The read-policy scoping of §4.3, the §3.3 permission triggers, the 365-day purge and the in-use guard. |
 | `docs/tasks/19_realtime_conflicts_and_recovery.md` | The 335-day recovery window and the 400-day `mutation_receipts` invariant. |
 | `docs/tasks/21_payments_and_subscription.md` | The settled tier ladder and its plan rows, the downgrade and lapse rules, and the direct-distribution decision (§5.3, §5.4, §5.6). |
-| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | Nothing yet: §4.3's scoping, §3.3's permission triggers and its **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member), §3.2's in-use guard, §5.5's 365-day retention, §5.3's tier column **with the widened subscription mirror**, and the `payment_submissions` insert policy that refuses a submission from an account holding a firm (§5.1). The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
+| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Four of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523) and §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525). **Still owed:** §3.3's permission triggers, §3.2's in-use guard, §5.5's 365-day retention, §5.3's tier column **with the widened subscription mirror**, and the `payment_submissions` insert policy that refuses a submission from an account holding a firm (§5.1). The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
 | `docs/firm_mode_blueprint_audit.md` | The audit this revision answers: ten findings checked against the shipped SQL and Dart, and the six decisions they raised — now ruled on in §3.3, §4.1, §4.2, §4.4, §5.1, §5.3, §5.5, §5.6, §6 and §7. |
 
 > **Propagation note — done (version 0.0.519).** This file is revised first because the user asked
@@ -940,36 +946,626 @@ into a leak surface.
 > §4.4, the stored tier and seat cap of §5.3, no personal plan for a member of §5.1, the restore
 > mechanics of §6, the self-erasing removal of §4.1, the flat plan prices of §5.3 and the audit
 > corrections in §3.3, §4.2, §5.2, §5.5, §5.6 and §7). **What remains owed is work, not records:**
-> every migration §10's open list names, none of which is written yet.
+> four of the migrations §10's open list names are **built** (§4.3's scoping, the write-path scope rules, the empty-seat refusal and the self-erasing removal, 0.0.520–0.0.525); the work that remains is listed per phase at the end of this file.
 
 ## Phases to Implement:
 
-Phase 1 — Read-side scoping (§4.3, §10 line 1). The live hole. Migration: scope_owner_id (nullable uuid) on the eleven ledger tables; the four core select policies, the six reference selects (is_custom = false kept), delete_requests with requested_by, and conflict_log given the membership condition only. Rolled-back SQL proof that a removed member's own authored firm rows read as 0 while the owner's still read; contract test + ledger regeneration. No client change (the pull is scoped by RLS).
+> **How to read this section.** §1–§10 above are the **rulings** — what to build, and why. This
+> section is only the **execution spec**: the order the work runs in, what each phase touches by
+> name, how each phase is proved, and what is already done. Where the two disagree, §1–§10 win and
+> this section is corrected.
+>
+> **Every phase carries the same ten fields** — `Status`, `Discharges`, `Depends On`, `Why Here`, `Server`, `Objects`, `Client`, `Proof`, `Acceptance` and `Hazards` — plus any phase-specific extra (`Records`, `Note`, `Open Input`, `The Rule`, `Already Built`). `**Objects.**` answers *which functions, tables and files*, `**Hazards.**` answers *what breaks if this is done carelessly*, and `**Status.**` is the one place a phase’s condition is stated. Every phase is one migration or one client change, carries its own
+> proof, and is **applied to the live project** (`lsthasywrdrhuuxnykau`) before it is called done.
 
-Phase 2 — Creation shares the diary, and the scope columns become the server's (§1, §9.1, §3.3). ensure_firm stamps the owner's existing firm-less ledger rows into the new firm (version + server_updated_at bumped so devices converge); push_changes derives firm_id from current_firm_id() instead of the payload, refuses a firm_id change on an existing row, refuses a firm-holding caller creating a firm-less row, and strips scope_owner_id.
+### Status at a Glance
 
-Phase 3 — The join gate (§2.1–§2.5, §3.1). Refuse a caller who holds their own diary (firm_id is null and scope_owner_id is null, with the count and the ruled wording), retire a fumbled code as revoked rather than used, default can_edit = true, and stop the client offering the invite field to an account that already has a firm. This must precede Phase 4.
+| # | Phase | Discharges | Status | Artifact |
+|---|---|---|---|---|
+| 1 | Read-Side Scoping | §4.3 | **Built** 0.0.520 | `20261015100000_firm_mode_read_scope.sql` |
+| 2 | Creation Shares The Diary, And The Scope Columns Become The Server's | §1, §9.1, §3.3 | **Built** 0.0.522 | `20261015110000_firm_mode_creation_and_scope.sql` |
+| 3 | The Join Gate | §2.1–§2.5, §3.1 | **Built** 0.0.523 | `20261015120000_firm_mode_join_gate.sql` |
+| 4 | Removal Erases Itself | §4.1, §4.2, §6 | **Built** 0.0.525 | `20261015160000_firm_removal_clears_device_tokens.sql` |
+| 5 | The Permission Boundary | §3.3 | Owed | new migration |
+| 6 | The In-Use Guard | §3.2, §10.6 | Owed | new migration |
+| 7 | Stored Tier And The Creation Gate | §5.3, §5.4, §10.12, §10.16 | Owed | new migration |
+| 8 | The Ten-Plan Ladder | §5.3, §10.9 | Owed | migration + client |
+| 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | Owed | migration + client |
+| 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | Owed | client (+ server gate) |
+| 11 | Dissolution | §4.4, §10.4, §10.11 | Owed | new migration + client |
+| 12 | Retention And The Recovery Window | §5.5, §10.7 | Owed | migration + regeneration |
+| 13 | Restore Inside A Chamber | §6, §10.14 | Owed | client |
+| 14 | Attribution And The Roster | §9.9 | Owed (verify) | client, verify only |
+| 15 | Distribution | §5.6, §10.4, §10.10 | Owed | client + docs |
 
-Phase 4 — Removal erases itself (§4.1, §4.2, §6's no-backup half). Auto-erase on detection with no tap, driven by durable evidence (cached firm row or a had a firm marker) rather than the cached membership row, cancelling that device's notifications and discarding its queue before any pull; the informational your access ended screen; the owner's plain-words warning in the removal confirmation; a member's Backup & Restore loses both actions; the removed member's device_tokens rows go with the removal.
+**The § → phase map, so rule 4 and the ruling index stay answerable:** §1→P2, §2→P3/P7,
+§3.1→P3, §3.2→P6, §3.3→P2/P5, §4.1–§4.2→P4, §4.3→P1, §4.4→P11, §5.1→P9, §5.2→P10, §5.3→P7/P8,
+§5.4→P7/P8/P10, §5.5→P12, §5.6→P15, §6→P4/P13, §7→no code change, §9.9→P14.
 
-Phase 5 — The permission boundary (§3.3, both halves). can_add_firm helper, one BEFORE INSERT trigger (can_add) and one BEFORE UPDATE trigger (can_edit) per table across the ten tables, plus sync_can_write's INSERT branch reading the flag.
+### The Contract Every Phase Follows
 
-Phase 6 — The in-use guard (§3.2, §10.6). Refuse tombstoning a reference row a live case still names, and make purge_tombstones skip rather than fail as a whole; confirm the client offers Add/Edit/Reorder to a member (the §3.2 reversal) and remove any owner-only gate found.
+1. **Order.** Phases 1–4 are built and are recorded below with their evidence. Phase 5–15 run in
+   the numbered order unless an ordering hazard below says otherwise. The order is deliberate: the
+   firm-mode **correctness** set (5–6) precedes the **plans and tiers** revamp (7–10), because firm
+   mode is not safe to hand to an associate until its permission boundary and in-use guard exist,
+   and because a pricing change is not a prerequisite for a permission fix.
+2. **One migration, one phase.** A server phase adds exactly one file under
+   `supabase/migrations/`. The name is the phase's concern, not a sequence number — the timestamp is
+   the day it is applied, matching the four built firm-mode migrations
+   (`20261015100000_firm_mode_*.sql`).
+3. **The phase is not done until it is applied and proved.** Run `flutter analyze`, run the proof
+   against the live project, run the suite, regenerate the ledger, and record the version. The
+   exact commands are in *Applying A Phase To The Live Project* below.
+4. **A new migration is registered in two more places, or the build breaks.** The generator keeps a
+   **hand-maintained manifest** in `tool/generate_all_supabase_sql.dart` and throws without a
+   `_groupTitles` entry for the new version; and the literal migration counts and `versions.last` in
+   `test/supabase/migration_applier_test.dart` and `test/supabase/all_supabase_sql_test.dart` must
+   move with the ledger. Missing either is a red suite, not a warning.
+5. **A proof file is run wrapped.** Several `supabase/tests/*.sql` files open a PL/pgSQL block
+   rather than a SQL transaction, so a bare `psql -f` **commits its fixtures to the live project**.
+   Always wrap the stream — see the command list below.
+6. **Table classes (rule 4) are named per phase** from §7's list rather than re-derived: push/pull
+   domain, pull-only cache, per-user preference, local operational, server-managed.
 
-Phase 7 — Stored tier and the creation gate (§5.3 storage, §5.4 mechanism). profiles.tier / firms.tier + the pending pair written by approve_payment, the mirror_owner_subscription_to_firm of/when widened to the tier, join_firm's seat cap (Pro 0, Firm 5, Firm Plus 20) with a refusal naming cap and seats in use, ensure_firm gated on effective tier ≥ Firm instead of is_premium().
+---
 
-Phase 8 — The ten-plan ladder (§5.3). approve_payment rebuilt to the ten keys with Pro's annual at ৳1,000, plus the plans screen, paywall and checkout rebuilt to the same set.
+### Phase 1 — Read-Side Scoping — **Built** (0.0.520)
 
-Phase 9 — A member has no plan of their own (§5.1). payment_submissions insert policy refuses a submission from an account holding a firm; has_sync_entitlement counts only the firm's expiry while firm_id is not null; Subscription Plans is not offered to a member (the Current Plan row and the Subscription screen, not just the paywall).
 
-Phase 10 — The lapse allowance (§5.2). Replace the 50-case wall for a lapsed account with the tier's allowance (Pro 100, Firm 500, Firm Plus 1,000) for cases, notes and references; most-recently-updated rows writable, the excess read-only, children follow their parent, seed customisation unlimited, nothing deleted or hidden.
+- **Status.** **Built** — 0.0.520, applied to `lsthasywrdrhuuxnykau`; migration `supabase/migrations/20261015100000_firm_mode_read_scope.sql`; proof `supabase/tests/firm_mode_read_scope_test.sql` → `SCOPE OK`.
+- **Discharges.** §4.3, §10 open item 1. Plan: *What Firm Mode Still Owes* items (1) and (3)'s
+  read-policy half. The hole was live on the project when this landed.
+- **Depends On.** Nothing — it was the first phase, and it is what makes Phase 4 stick: a removed member’s own authored rows must stop being readable *before* their device is erased and their next full pull runs.
+- **Why Here.** §9’s design order put the read scoping fourth; it was **hoisted to Phase 1** because the hole was live on the project and every later phase rests on the scope rule being true.
+- **Server.** Shipped: `supabase/migrations/20261015100000_firm_mode_read_scope.sql`.
+- **Objects.** `scope_owner_id uuid` added to the **eleven ledger tables** — `cases`,
+  `case_history`, `notes`, `case_references`, `delete_requests`, `court_categories`,
+  `case_categories`, `courts`, `steps`, `case_types`, `on_behalfs` — and deliberately **not** on
+  `conflict_log`. The SELECT policies rewritten to
+  `(user_id = auth.uid() and firm_id is null and scope_owner_id is null) or firm_id = current_firm_id() or scope_owner_id = auth.uid()`;
+  the six reference tables keep `is_custom = false`; `delete_requests_select_firm` renamed
+  `delete_requests_select_scoped` and carrying the same rule on `requested_by`; `conflict_log_select_own`
+  narrowed to the membership condition with **no** scope owner. The column is **server-only to
+  write** from the moment it exists: the table-level INSERT/UPDATE grant is dropped and every other
+  column granted back, because a table-level GRANT is not undone by a column-level REVOKE (the fact
+  `20260929102500_phase3_column_privileges.sql` proved).
+- **Client.** None — the pull is scoped by RLS.
+- **Proof.** `supabase/tests/firm_mode_read_scope_test.sql` prints `SCOPE OK`. Guards:
+  `test/supabase/schema_contract_test.dart` (the scoped rule, the eleven-table list,
+  `conflict_log`'s exclusion, the grant-back loop), plus the counts in `all_supabase_sql_test.dart`
+  and `migration_applier_test.dart`.
+- **Acceptance.** A removed member reads **0** of their authored chamber rows on all four case-data
+  tables while the owner and an associate read them; an individual's own firm-less row is untouched
+  and invisible to others; a dissolved row is readable by its scope owner and not by its author; the
+  built-in baseline stays readable to everyone; `delete_requests` keeps the chamber's queue to the
+  chamber; a client INSERT/UPDATE naming `scope_owner_id` is refused while `case_remarks` still
+  updates as that role.
+- **Hazards.** The column-privilege trap it had to work around: Supabase grants table-level INSERT/UPDATE and **a table-level GRANT is not undone by a column-level REVOKE** (the fact `20260929102500` proved), so `scope_owner_id` is protected by dropping the table-level grant and granting every other column back — which is also what leaves any column a later migration adds closed by default.
+- **Note.** The assertion was proved to bite by restoring the superseded policy on a scratch copy:
+  `with the shipped policy: 0, with the old rule: 1`.
 
-Phase 11 — Dissolution (§4.4). RPC with the roster-empty precondition, invites retired, rows unscoped and given the owner as scope owner, firms row, owner's membership row, role and firm_id reset; plus the client action and its count-of-remaining copy.
+### Phase 2 — Creation Shares The Diary, And The Scope Columns Become The Server's — **Built** (0.0.522)
 
-Phase 12 — Retention and the recovery window (§5.5). purge_tombstones 180→365 in all four places, recoveryOfflineThreshold 150→335, the 400-day mutation_receipts invariant, the privacy policy's retention row, and the ledger regeneration that --check polices.
 
-Phase 13 — Restore inside a chamber (§6). Account rows never restored, restored rows stamped with the current chamber's firm_id and scope_owner_id cleared, another firm's file refused.
+- **Status.** **Built** — 0.0.522; migration `supabase/migrations/20261015110000_firm_mode_creation_and_scope.sql`; proof `supabase/tests/firm_mode_creation_scope_test.sql` → `CREATION OK`.
+- **Discharges.** §1, §9.1, §3.3's scope-column half. Plan: *What Firm Mode Still Owes* — the write-path scope half.
+- **Depends On.** Phase 1 — the read rule and `scope_owner_id` had to exist before creation could stamp a diary into a chamber.
+- **Why Here.** Without it firm mode is inert: every repository writes `firmId: null`, so a member’s row landed as a personal row inside a chamber and the server refused it (`42501`).
+- **Server.** Shipped: `supabase/migrations/20261015110000_firm_mode_creation_and_scope.sql`.
+- **Objects.** `ensure_firm` now stamps, in the transaction that creates the firm, every firm-less
+  ledger row its creator authored — all four case-data tables, the six reference tables' **custom**
+  rows, and the owner's **pending** `delete_requests`, **tombstones included** — each with
+  `version = coalesce(version, 1) + 1` beside a refreshed `updated_at`, so devices converge on the
+  `server_updated_at` cursor. A re-call (rename, repair) stamps nothing again; a row already in
+  another firm is left alone; the built-in baseline is untouched. `push_changes` derives an insert's
+  `firm_id` from `current_firm_id()` read once per call, never names `firm_id` on an update, and
+  **subtracts `scope_owner_id`** from every payload before any branch reads it.
+- **Client.** None.
+- **Hazards.** The trap it closes is also the one it must not reopen: `push_changes` is `SECURITY DEFINER`, so it strips only a fixed list of columns and **any column a later migration adds is client-writable through the RPC unless the RPC names it**. Adding a column to a ledger table later means adding it to that strip list.
+- **Ruling taken while building (recorded in the plan, rule 14).** The scope columns are
+  **stripped and derived, not rejected**: the client sends the whole local row, so `firm_id` is
+  present and usually null, and refusing a payload that merely names the column would refuse
+  legitimate writes for no gain, because a column the UPDATE never names cannot change.
+- **Proof.** `supabase/tests/firm_mode_creation_scope_test.sql` prints `CREATION OK`. Bite checked
+  on scratch copies of the superseded bodies: with the old `ensure_firm` the run fails at
+  `cases scope2-case did not follow the creator into the chamber`.
+- **Acceptance.** Creation stamps all twelve row kinds and leaves the four it must alone; a second
+  call stamps nothing; a member's insert whose payload says `firm_id` null lands in the chamber; a
+  payload naming another firm is corrected; a payload naming a scope owner is ignored; an update
+  cannot move a row out of its chamber; an individual's row stays personal.
+- **Why it had to precede Phase 3.** Until this landed, every repository wrote `firmId: null`, so a
+  member's case was rejected on the server (`42501`) and firm mode was inert.
 
-Phase 14 — Attribution and the roster (§9.9). Verify rather than rebuild: the edited by rendering and the roster, filling only what is missing.
+### Phase 3 — The Join Gate — **Built** (0.0.523, audited 0.0.524)
 
-Phase 15 — Distribution (§5.6). Update-authenticity (signed release or a checksum pinned in the app) and the install path's docs, since direct distribution makes the updater the only way an update reaches anyone.
+
+- **Status.** **Built** — 0.0.523, adversarially re-probed at 0.0.524; migration `supabase/migrations/20261015120000_firm_mode_join_gate.sql`; proofs `supabase/tests/firm_mode_join_gate_test.sql` → `JOIN OK` and `supabase/tests/firm_mode_audit_probe.sql`.
+- **Discharges.** §2.1–§2.5, §3.1. Tasks 17 and 20.
+- **Depends On.** Phase 2 — the seat has to be guaranteed empty before Phase 4 may erase a device on the strength of it.
+- **Why Here.** Parity needed the other half of the seat rule: a seat an associate can actually join, and one an account holding its own diary cannot take.
+- **Server.** Shipped: `supabase/migrations/20261015120000_firm_mode_join_gate.sql`.
+- **Objects.** `join_firm(code text)` decides `has_own_diary` and `seats_full` **before its first
+  write**, so a refusal writes no `firm_members` row, relinks no profile and does not consume the
+  invite. `holds_own_diary(p_user_id)` and `individual_diary_cases(p_user_id)` are new and granted
+  to **`authenticated` alone**, so a signed-out caller cannot use the gate's refusal as an oracle
+  for another account's diary count. `firm_seat_cap(p_firm_id)` is new and is a **placeholder** —
+  see Phase 7. An `already_member` redemption now **retires the code as `revoked`** rather than
+  consuming it as `used_by`. A join lands with `role = 'associate'`, `can_add` and `can_edit`
+  **true**, `can_delete` **false**, and both `synced_at` and `permissions_synced_at` written.
+- **Client.** `parseInviteRedemption` maps the two new **statuses** (not errors) to a typed
+  `InviteRefusal` carrying the count the sentence quotes; four new ARB keys in both locales
+  (`auth_errorOwnDiary(cases)`, `auth_errorSeatsFull(seats)` and their no-count fallbacks);
+  `login_screen` and `signup_screen` catch `InviteRefusal` beside their firm branches.
+- **Proof.** `supabase/tests/firm_mode_join_gate_test.sql` prints `JOIN OK`;
+  `supabase/tests/firm_mode_audit_probe.sql` re-ran it adversarially and the guarantee held.
+- **Acceptance.** An account holding one individual case is refused with `cases = 1` and **writes
+  nothing**; a chamber-authored row does not make a diary, so a removed member joins cleanly; a
+  scope-owned firm-less row is nobody's own diary; an already-member redemption answers
+  `already_member` with `revoked` true and `used_by` null; a join lands §3.1's defaults; a live
+  Premium chamber sells 5 seats and the sixth join is refused with `seats = 5`; a chamber lapsed past
+  the grace window has no cap and stays joinable (§2.4).
+- **Hazards.** The trap this phase hit, still live for 5, 6, 7 and 11: The migration revoked
+  EXECUTE on its new helpers from `public, anon, authenticated` and **granted it back to nobody**, so
+  on the project `has_function_privilege` was false for every role while `join_firm` — SECURITY
+  DEFINER, granted in the same file — kept working, which is why the RPC test passed. **A revoke that
+  names `authenticated` is a lock-out unless a grant follows it, and a passing RPC test does not
+  cover the helpers it calls.** Every later phase must re-read the grants it writes.
+
+### Phase 4 — Removal Erases Itself — **Built** (0.0.525)
+
+
+- **Status.** **Built** — 0.0.525; migration `supabase/migrations/20261015160000_firm_removal_clears_device_tokens.sql`; proofs `supabase/tests/firm_removal_test.sql` → `REMOVAL OK` and `test/features/membership_revocation_test.dart`.
+- **Discharges.** §4.1, §4.2, §6's no-backup half, §10.15. Task 20.
+- **Depends On.** Phase 3 — a self-erasing device is only safe once a refused join guarantees the seat was empty, which is why this ships **no earlier than** Phase 3.
+- **Why Here.** Without the wipe a removed member keeps the ledger; without the warning the owner cannot know which phone still holds it.
+- **Server.** Shipped: `supabase/migrations/20261015160000_firm_removal_clears_device_tokens.sql`:
+  `remove_firm_member` deletes the removed member's `device_tokens` rows **in the same transaction
+  as the revocation**, so no firm notification can be routed to a removed device even before its own
+  erase runs; the rows they authored and their attribution are untouched.
+- **Objects.** `remove_firm_member` (deletes the removed member’s `device_tokens` rows in the revocation’s own transaction); client `MembershipRevokedScope`, `membershipRevokedProvider` (`lib/features/accounts_and_profile/data/account_mode.dart`), `BackupRepository.wipeToFreshInstall`, the informational *Your Access Ended* screen, and the owner’s removal confirmation.
+- **Client.** `MembershipRevokedScope` (mounted above the app shell) watches
+  `membershipRevokedProvider` and **erases without asking and without waiting**, cancelling that
+  device's scheduled case notifications, discarding its queued mutations,
+  running `wipeToFreshInstall` before any pull or write, ending the session, and showing an
+  informational *Your Access Ended* screen that reports what was erased. The withdrawn *Erase &
+  sign out* button is gone. A member's Settings > Backup & Restore keeps **neither** action. The
+  owner's removal confirmation carries §4.1's warning about a device that never comes back.
+- **Proof.** `supabase/tests/firm_removal_test.sql` prints
+  `REMOVAL OK: access revoked, authored rows kept, push registrations cleared, both topics announced.`;
+  `test/features/membership_revocation_test.dart` (8 tests).
+- **Acceptance.** Access revoked, authored rows kept with attribution, push registrations cleared
+  for the removed member alone while the owner's are kept, the profile relinked, both topics
+  announced, the three refusal cases still refused, and a device that detects removal erases itself
+  before its first pull.
+- **Hazards.** How this proof must be run: The file opens with a PL/pgSQL `begin`, not a SQL
+  transaction. Running it bare leaked three fixture auth users, their profiles, a case and a firm
+  into the project. Use the wrapped invocation in the command list below, and check every other
+  `supabase/tests/*.sql` probe for the same shape before running it.
+- **Hazards.** A bug worth not repeating: The first erasure was started with
+  `Future<void>(_erase)`, which runs synchronously up to its first `await` **during the build**, so
+  `ref.read` threw inside `build` and the erasure silently never ran; the symptom was a hang, not an
+  exception. It is `Future.microtask(...)`.
+
+---
+
+### Phase 5 — The Permission Boundary — **Owed**
+
+
+- **Status.** **Owed** — no `can_add_firm` helper, no permission trigger and no write-path flag read exist today.
+- **Discharges.** §3.3 (both halves), §9.5, §10.1. Plan: *What Firm Mode Still Owes*, and §10's open item 2 (the reference-table write scope in `push_changes` is this phase's second acceptance case). Task 20's *Permissions are a real
+  boundary now* entry.
+- **Depends On.** Phase 2 (built) — the write-path scope half already exists, so **do not re-write
+  it** — and Phase 3 (built) for the flags themselves, which now default `can_add = true` and
+  `can_edit = true`.
+- **Why Here.** A revocation that is not enforced is worse than no toggle at all, and this is the
+  last correctness item standing between firm mode and handing a chamber to a real associate.
+- **Server.** One new migration (`<timestamp>_firm_mode_permission_boundary.sql`):
+  - a **`can_add_firm`** helper beside `can_edit_firm` and `can_delete_firm` in
+    `20260929102000_phase3_access_helpers.sql`. **It does not exist today** — confirmed by reading
+    the schema — so both halves are new work, not just the UPDATE half.
+  - **One `BEFORE INSERT` trigger per table reading `can_add`, and one `BEFORE UPDATE` trigger per
+    table reading `can_edit`**, across the **ten tables**: `cases`, `case_history`, `notes`,
+    `case_references`, `court_categories`, `case_categories`, `courts`, `steps`, `case_types`,
+    `on_behalfs`. Use the shape `enforce_delete_transition()` already has
+    (`20260929102100_phase3_sync_and_guard_triggers.sql`) — a `BEFORE` trigger per table, **not** a
+    policy rewrite.
+  - **`sync_can_write`**'s INSERT branch (`20260930140000_push_changes.sql`, last replaced by
+    `20260930210000_sync_can_write_firm_membership.sql`) must read the flag. Today it checks
+    authorship and firm scope only and reads no permission flag, so a member with `can_add = false`
+    can insert firm rows through the RPC **and** straight through PostgREST.
+  - **`can_delete` is not duplicated.** It keeps its existing gate — the delete-transition trigger
+    plus the pending delete-request flow (Task 20 Phases 3–4).
+  - **A member may not change their own flags.** The `firm_members` write path is already
+    owner-only (`20260930210000_sync_can_write_firm_membership.sql`).
+- **Objects.** The ten tables named in the Server bullet; `firm_members` as the flag’s source, read for the caller and the row’s firm; `sync_can_write`’s INSERT branch (`20260930140000_push_changes.sql`, last replaced by `20260930210000_sync_can_write_firm_membership.sql`); the helper’s siblings `can_edit_firm` / `can_delete_firm` and the shape `enforce_delete_transition()` already uses.
+- **Client.** None. `can_edit = false` must mean the same thing in the screen and in the database,
+  and §3.2's reversal means no owner-only guard over the six reference tables is expected.
+- **Proof.** A new `supabase/tests/firm_mode_permission_boundary_test.sql`, rolled back, run
+  wrapped, impersonating the `authenticated` role so `sync_can_write`'s own guards run.
+- **Acceptance.** A member with `can_add = false` is refused an INSERT **through `push_changes` and
+  through direct PostgREST**; with `can_edit = false` refused an UPDATE; the owner's own insert is
+  unaffected; a member's reference insert/update under `can_edit = true` is accepted while the
+  `is_custom = false` baseline is refused; `can_delete` behaviour is unchanged.
+- **Records.** The ruling and both halves are already in the plan (*The Permission Is A Boundary,
+  Not An Intention*) and in Task 20, so **nothing new is recorded** (rule 14). Only the as-built
+  facts go into the ledger, the generator's group title and the guards.
+- **Hazards.** (a) Phase 3's revoke-without-grant trap — re-read every grant this migration writes.
+  (b) `push_changes` is `SECURITY DEFINER`, so it bypasses the column privileges and the policies: the
+  **trigger** is the enforcement, and the policy is not. (c) Two triggers across ten tables means a
+  single missed table silently keeps the hole — the proof must **enumerate all ten by name** rather
+  than spot-check.
+
+### Phase 6 — The In-Use Guard — **Owed**
+
+
+- **Status.** **Owed** — a tombstoned reference row a live case still names can be written today, and a purge that meets one aborts as a whole.
+- **Discharges.** §3.2, §10.6. Plan: *What Firm Mode Still Owes*. Task 16.
+- **Depends On.** Phase 5 — the reference tables' member-editable write scope is what makes this
+  load-bearing; and Phase 1's `scope_owner_id` (built) for the table list.
+- **Why Here.** §3.2's reversal lets every member reorder and delete shared config, so a member's
+  edit can now reach the reference rows a live case depends on. §5.5's retention purge must not be
+  the thing that discovers the collision.
+- **Server.** One new migration (`<timestamp>_firm_mode_reference_in_use_guard.sql`):
+  - refuse **tombstoning a reference row a live dependent row still names**. The dependency graph is
+    **nine foreign keys, all declared in `20260929100000_phase1_core_schema.sql`**, and it is not
+    what the older one-line summary implied:
+    - `court_categories` ← `case_categories.court_category_id`, `courts.court_category_id`,
+      `steps.court_category_id`, `case_types.court_category_id`, `on_behalfs.court_category_id`
+    - `case_categories` ← `case_types.case_category_id`, `cases.case_category_id`
+    - `courts` ← `cases.court_id`
+    - `on_behalfs` ← `cases.on_behalf_id`
+    - `steps` ← **nothing**, and `case_types` ← **nothing**: `cases.case_type` is free text, not a
+      foreign key.
+  - make **`purge_tombstones`** (`20260929104000_phase5_indexes_and_tombstone_purge.sql`) **skip a
+    blocked row rather than fail as a whole** — today the blocked foreign key raises and aborts the
+    entire function, so one member's stale reference edit can stop every tombstone on the project
+    from being purged.
+- **Objects.** `purge_tombstones` (`20260929104000_phase5_indexes_and_tombstone_purge.sql`) and its daily `pg_cron` schedule; the nine foreign keys listed above; the device-side refusal in the reference repositories, which is the only protection `steps` and `case_types` can have.
+- **Client.** **Verify, do not rebuild.** Edit Court/Steps, case types and on-behalfs must offer
+  Add, Edit and Reorder to a **member** exactly as to the owner. No owner-only gate exists in the
+  client today (checked — there is no `isFirmOwner`-style guard on those screens), so this half is an
+  assertion to pin, not a change to make.
+- **Proof.** A new `supabase/tests/firm_mode_reference_in_use_guard_test.sql`, rolled back, run
+  wrapped.
+- **Acceptance.** A tombstoned reference row that a live case still names **cannot be written**; a
+  purge run over such a row **completes and skips it** instead of raising; a tombstoned row naming no
+  live dependent is still purged; the built-in baseline (`is_custom = false`) remains undeletable for
+  members and owner alike.
+- **Hazards.** (a) `steps` and `case_types` have **no referencing column**, so a foreign-key-based
+  guard cannot protect them — the device-side refusal in the repositories is the only protection
+  there, and the proof must not claim a server guard where none can exist. (b) `purge_tombstones` is
+  scheduled daily through `pg_cron`, so a failure is silent until someone reads the log — the "skip
+  rather than fail" half is not optional.
+
+### Phase 7 — Stored Tier And The Creation Gate — **Owed**
+
+
+- **Status.** **Owed** — `profiles.tier` / `firms.tier` do not exist, and `firm_seat_cap` reads `is_premium` as a placeholder.
+- **Discharges.** §5.3's storage half, §5.4's mechanism, §10.12, §10.16. Plan: *What Firm Mode Still Owes* — the tier's storage half
+  and the creation gate. Task 21.
+- **Depends On.** Phase 8 — **see the hazard below; this is the one ordering defect in the list.**
+- **Why Here.** The lapse allowance (§5.2) and the join-time seat check (§5.4) both need a source
+  for *which tier* an account holds; today the tier is derived from `is_premium()` and from nothing
+  else, so neither rule is expressible.
+- **Server.** One new migration (`<timestamp>_firm_mode_stored_tier.sql`):
+  - `profiles.tier`, `profiles.tier_pending`, `profiles.tier_pending_from` and the matching
+    `firms.tier` pair, written at approval and **never cleared by expiry**, so "the tier it last
+    held" is derivable and the seat cap has a source. The pending pair carries §10.17: a downgrade
+    waits for the period it was bought for, and because nothing runs when a period turns over the
+    rule is a pending tier plus the instant it starts, with every gate deriving the effective one.
+  - **`approve_payment`** (`20261002100000_payment_prices_discounted.sql`) writes the tier.
+  - **`mirror_owner_subscription_to_firm`** widened in **both** its `of` list and its `when`: today
+    it fires on `subscription_expiry` changes only and copies two columns, so a tier-only change
+    would never reach the firm and the seat cap would read a stale value.
+  - **`firm_seat_cap`** re-pointed at `firms.tier` — Pro 0, Firm 5, Firm Plus 20. **This function
+    already exists** (`20261015120000_firm_mode_join_gate.sql:128`) and is a placeholder that reads
+    `is_premium(f.owner_id) → 5`, with its own comment saying *"Firm 5 until `firms.tier` lands"*.
+    So this phase **widens** it rather than adding it, and Phase 3's seat check and refusal wording
+    need no rework.
+  - **`ensure_firm`**'s gate re-pointed from `is_premium()` at **effective tier ≥ Firm**
+    (`20260930180000_ensure_firm_premium_gate.sql`).
+  - Client writes to `tier` are closed **by construction**:
+    `20260929102500_phase3_column_privileges.sql` grants only `update (full_name)` on `profiles` and
+    `update (name)` on `firms`, and denies by default any column a later migration adds.
+- **Objects.** `profiles.tier` / `firms.tier` and the pending pair; `approve_payment`; `mirror_owner_subscription_to_firm` (both its `of` list and its `when`); `firm_seat_cap` (`20261015120000_firm_mode_join_gate.sql`); `ensure_firm`’s gate (`20260930180000_ensure_firm_premium_gate.sql`); `20260929102500_phase3_column_privileges.sql`, which already closes client writes to a new column by default.
+- **Client.** None for the gate itself.
+- **Proof.** A new `supabase/tests/firm_mode_stored_tier_test.sql`, rolled back, run wrapped.
+- **Acceptance.** A Firm approval writes `firms.tier` through the widened mirror, not only the
+  profile; the tier survives expiry; `firm_seat_cap` answers 0/5/20 by tier; a Pro caller creating a
+  chamber is refused with the reason; a client cannot write `tier` directly or through the RPC.
+- **Hazards.** The ordering defect this pass found — and why the plan carries it as a warning
+  rather than a reorder: Phase 7's two behavioural changes — the seat cap reading a tier, and the
+  creation gate requiring Firm or above — are **only safe once Phase 8 exists**. `approve_payment`
+  accepts exactly four `plan_type` keys today (`monthly`, `quarterly`, `half_yearly`, `annual`) and
+  **all four are Pro** (`20261002100000_payment_prices_discounted.sql:87`), so there is currently
+  **no way for anyone to buy a Firm tier**. Landing Phase 7 alone therefore (a) makes a Pro owner's
+  chamber sell **0 seats**, breaking invitations in chambers that exist and work today, and (b)
+  refuses a Pro owner the creation of a chamber, with nothing purchasable that fixes either.
+  **Ship Phase 7 and Phase 8 in the same pass, or hold the two behavioural changes to the end of
+  Phase 8 and let Phase 7 land as storage only.** The tier columns themselves are inert and safe
+  alone; the gate and the cap are not.
+- **Open input.** Whether the gate switch-on stays inside Phase 7 or moves into Phase 8 is a
+  sequencing decision to take when the phase is built, not a question about the ruling.
+
+### Phase 8 — The Ten-Plan Ladder — **Owed**
+
+
+- **Status.** **Owed** — `approve_payment` still accepts only the four Pro keys.
+- **Discharges.** §5.3's ladder, §10.9. Plan: *What Firm Mode Still Owes* — the ladder and the rebuilt plans screen. Task 21.
+- **Depends On.** Phase 7's columns (the tier is written at approval), and it is the phase that makes
+  Phase 7's gate safe — see the hazard above.
+- **Why Here.** It is the phase that makes Phase 7’s gate safe: until a Firm plan key exists, nobody can buy the tier that Phase 7’s seat cap and creation gate require.
+- **Server.** `approve_payment` rebuilt to the ten keys with the settled prices: Pro
+  ৳100/৳285/৳540/৳1,000 monthly/quarterly/half-yearly/annual; Firm ৳855/৳1,620/৳3,000; Firm Plus
+  ৳1,710/৳3,240/৳6,000, each written into the amount-validation `CASE`, the duration `CASE` and the
+  `plan_type` allow-list. Pro's annual moves from the shipped ৳960 to ৳1,000 as a deliberate price
+  rise.
+- **Objects.** `approve_payment` (`20261002100000_payment_prices_discounted.sql`) — the `plan_type` allow-list, the amount-validation `CASE` and the duration `CASE`; the **generated** `plan_name` `CASE` (`20261005120000_payment_plan_name.sql`); client `lib/features/payments/data/payment_plans.dart`, `presentation/payment_plan_labels.dart`, `paywall_screen.dart`, `checkout_screen.dart`, `current_plan.dart`, `lib/features/settings/presentation/subscription_details_screen.dart`. There is **no `payment_plans` table**.
+- **Client.** The plans screen, the paywall and checkout rebuilt to the same set:
+  `lib/features/payments/data/payment_plans.dart`, `payment_plan_labels.dart`,
+  `presentation/paywall_screen.dart`, `checkout_screen.dart`, `current_plan.dart`,
+  `lib/features/settings/presentation/subscription_details_screen.dart`.
+- **Proof.** A rolled-back SQL run over all ten keys — each approves at its own amount and refuses a wrong amount — plus the paywall and checkout widget tests updated to the new set in **both** locales.
+- **Acceptance.** Each of the ten keys approves at its own amount and refuses a wrong amount; the
+  paywall lists exactly the new set in **both locales**; `payment_plans.dart` and the server's
+  constants agree; a new key cannot be added in one place only.
+- **Hazards.** The audit's correction stands: a new plan touches **four** places — the `plan_type`
+  allow-list, `approve_payment`'s amount `CASE`, the **generated** `plan_name` `CASE`
+  (`20261005120000_payment_plan_name.sql`), and the client's labels — not "one row in
+  `payment_plans`", because **there is no `payment_plans` table**; the ladder lives as keys plus the
+  `approve_payment` constants.
+
+### Phase 9 — A Member Has No Plan Of Their Own — **Owed**
+
+
+- **Status.** **Owed** — the entitlement gate is still *own expiry OR firm’s*, and a member may still submit a payment.
+- **Discharges.** §5.1, §10.13. Task 21.
+- **Depends On.** Phase 3 (a member exists to test against) and Phase 7/8 for the tier story, but its
+  own two changes are independent of the ladder.
+- **Why Here.** The audit found the entitlement gate was *own expiry OR firm's*, so a member holding
+  a leftover plan kept syncing straight through the chamber's lapse — which defeats §5.2's ceilings
+  and makes §2.4's "local-only until renewal" untrue for exactly that member.
+- **Server.** `payment_submissions`'s insert policy
+  (`20260929103200_phase4_rls_account_payment_tables.sql`; rate limit
+  `20261013120000_payment_rate_limit_five.sql`) refuses a submission from an account holding a firm;
+  and `has_sync_entitlement` (`20260930140000_push_changes.sql`) counts **only the firm's expiry**
+  while `profiles.firm_id` is not null, instead of OR-ing the caller's own.
+- **Objects.** `payment_submissions`’s insert policy (`20260929103200_phase4_rls_account_payment_tables.sql`, rate-limited by `20261013120000_payment_rate_limit_five.sql`); `has_sync_entitlement` (`20260930140000_push_changes.sql`); client `lib/features/payments/presentation/current_plan.dart`, `lib/features/settings/presentation/subscription_details_screen.dart`, and the side menu’s Current Plan row.
+- **Client.** Subscription Plans is not offered to a member — on the **Subscription screen** and on
+  the side menu's **Current Plan** row, not only the paywall. A plan bought before joining is ignored
+  while the account holds the firm and applies again once it is individual.
+- **Proof.** A rolled-back SQL run proving a member’s `payment_submissions` insert is refused, and that a member holding a live plan of their own still cannot push while the chamber has lapsed.
+- **Acceptance.** A member's submission is refused by the policy, not merely hidden; a member with a
+  live plan of their own cannot push while the chamber has lapsed; their paid time is preserved for
+  the day they are individual again.
+- **Hazards.** Hiding the screen is the cheap half and not the requirement: §5.1 says the **server**
+  refuses the submission, so the policy change is the deliverable and the UI change is the courtesy.
+
+### Phase 10 — The Lapse Allowance — **Owed**
+
+
+- **Status.** **Owed** — a lapsed account is stopped by the 50-case free wall instead, and notes and references have no ceiling at all.
+- **Discharges.** §5.2, §5.4, §10.8. Task 15.
+- **Depends On.** Phase 7 — the allowance is derived from the stored tier and from nothing else.
+- **Why Here.** It is the rule the revamp exists for: a lapse must cost a lapsed account the writability of its *extra* rows — not its data, and not its ability to read what it already holds.
+- **Objects.** `freeTierCaseLimit` (`lib/core/constants/free_tier.dart`) and its consumption at `lib/shared/widgets/add_edit_case_sheet.dart:1667`; the paywall and Subscription-screen read paths (`paywall_screen.dart:194`, `subscription_details_screen.dart:186`); `firms.tier` / `profiles.tier` as the allowance’s source; the entitlement gate on `push_changes`, left in place as the security boundary.
+- **Proof.** Tests over the computed writable set — the most-recently-updated 100/500/1,000 writable, the excess read-only but readable, a deletion freeing a slot, and renewal restoring all at once — with the free-wall tests unchanged for a genuinely free account.
+- **The rule.** A lapsed account keeps writing up to the allowance of the **tier it last held**: Pro
+  100, Firm 500, Firm Plus 1,000 cases, notes and case references. The **most recently updated** rows
+  are the writable set and the excess is read-only — but never hidden: still readable, searchable,
+  printable and exportable. Children follow their parent, seed customisation stays unlimited, a
+  deletion of a writable row frees a slot, and nothing is deleted. Renewal restores everything at
+  once.
+- **Client.** The sites, named so this is not a rule without one: The shipped gate is
+  `freeTierCaseLimit` (50) in `lib/core/constants/free_tier.dart`, consumed at the Add Case save path
+  (`lib/shared/widgets/add_edit_case_sheet.dart:1667`) and surfaced by
+  `paywall_screen.dart:194` and `subscription_details_screen.dart:186` — a lapsed Pro or Firm account
+  would be stopped at **50** until that check reads the allowance instead. **Notes and case
+  references have no gate anywhere today**, so their ceilings are two new checks. A member's
+  allowance is the chamber's, so the site reads `firms.tier` rather than the member's own absent
+  plan.
+- **Server.** The entitlement gate on `push_changes` stays the security boundary; the device cap is
+  the usability half.
+- **Acceptance.** A lapsed Pro account can write its 100 most-recently-updated cases and no more,
+  sees the remainder read-only, loses nothing readable, and regains everything on renewal; a lapsed
+  chamber holding 2,500 cases keeps its 500 most recent writable.
+- **Hazards.** §5.2's "every device computes the same set" is **false during a lapse**, because
+  nothing syncs and each device's ledger is its own — two devices of one chamber can disagree about
+  which case is editable. The audit narrowed that claim and it must stay narrowed, and renewal needs
+  a stated behaviour for an over-allowance backlog.
+
+### Phase 11 — Dissolution — **Owed**
+
+
+- **Status.** **Owed** — no dissolve RPC exists.
+- **Discharges.** §4.4, §10.4, §10.11. Task 20.
+- **Depends On.** Phase 1's `scope_owner_id` and its read rule (**built**) — without the column the
+  unscoping step cannot be written at all.
+- **Why Here.** It is the only way an owner leaves firm mode without losing the ledger his members wrote, and it is why Phase 1’s `scope_owner_id` exists at all.
+- **Server.** One new RPC (`<timestamp>_firm_mode_dissolution.sql`):
+  - the **roster-empty precondition**: refuse while `firm_members` holds anyone but the owner, and
+    **say how many are left** rather than only refusing;
+  - open invites **retired** (`revoked = true`), so a code issued before the dissolve can never
+    create a seat in a chamber that no longer exists;
+  - every row carrying that `firm_id` has `firm_id` set to null **and `scope_owner_id` set to the
+    owner** — so he keeps a complete, ordinary diary. **`conflict_log` is the exception**: a
+    colleague's merge diagnostics are neither handed to him nor taken from their author;
+  - the `firms` row and the owner's `firm_members` row removed, `profiles.role` back to `individual`
+    and `firm_id` nulled, so `delete_my_account()` is no longer refused;
+  - the owner's **plan untouched** — dissolving is not a cancellation, and the subscription now
+    covers the individual diary.
+- **Objects.** A new `<timestamp>_firm_mode_dissolution.sql` RPC; `firm_members` for the roster precondition; `firm_invites` for the retire step; `delete_requests` and `conflict_log` as the tables whose history must stay readable; `profiles.firm_id` / `profiles.role`; `delete_my_account()`’s firm refusal; client: the dissolve action and its copy.
+- **Client.** The dissolve action and its count-of-remaining copy.
+- **Proof.** A rolled-back SQL run: a dissolve with a member present is refused **with the count**; after the roster empties, the owner reads every row his members wrote and its authors read none; attribution is untouched; `conflict_log` is neither handed over nor taken; `delete_my_account()` unblocks.
+- **Acceptance.** A dissolve with a member is refused with the count; after the roster is empty the
+  dissolve leaves the owner able to read **every** row his members wrote and its authors unable to;
+  attribution is untouched; `delete_my_account()` is unblocked; re-creating a chamber makes a new
+  `firm_id`, and the rows are shared into it the way any existing diary is at creation.
+- **Hazards.** A bare `firm_id` null **inverts ownership** — the audit's most serious finding: the
+  owner could read only the rows he personally authored and the removed members would keep the rest,
+  and §2.1's join refusal would then misfire on those rows as "its own diary". The scope owner is not
+  optional and is a scope key, not attribution: `user_id`, `created_by` and `last_modified_by` are
+  never rewritten.
+
+### Phase 12 — Retention And The Recovery Window — **Owed**
+
+
+- **Status.** **Owed** — the pair is still 180/150.
+- **Discharges.** §5.5, §10.7. Plan: *What Firm Mode Still Owes*. Task 19.
+- **Depends On.** Nothing — it is independent and could be taken early, but it is a
+- **Why Here.** It is independent of firm mode and could be taken at any point, but it is deliberately placed after the work it protects: the 365-day retention is what makes a dissolve, a restore and a removed member’s re-pull recoverable inside the 335-day window.
+- **Server.** No new table and no new policy — one change to `purge_tombstones`’s default and one migration carrying its corrected comments; the rest of the phase is the generator, one Dart constant and the privacy policy.
+  change-a-number-everywhere-it-appears phase and belongs after the firm-mode work it protects.
+- **Objects.** `purge_tombstones`’s default parameter, its `comment on function` and its file’s header comment (`20260929104000_phase5_indexes_and_tombstone_purge.sql`); the generator’s section label (`tool/generate_all_supabase_sql.dart`); `recoveryOfflineThreshold` and its doc block (`lib/sync/recovery_lock.dart`); the privacy policy’s retention row; the generated `supabase/AllSupabaseSql.md`.
+- **Client.** None — the pair lives server-side, in the generator, and in one Dart constant.
+- **Proof.** `dart run tool/generate_all_supabase_sql.dart --check` clean with the ledger’s label reading **365**; a test pinning `recoveryOfflineThreshold` at **335**; and a check that the 30-day buffer is intact.
+- **The pair.** Retention **365 days**, recovery window **335** — a 30-day buffer preserved so a
+  device returning inside 335 days still finds every tombstone it needs.
+- **The four places for 365:**
+  1. `purge_tombstones`'s default parameter — `20260929104000_phase5_indexes_and_tombstone_purge.sql:71`;
+  2. its `comment on function` — same file, line 121;
+  3. the file's own header comment — same file, line 9, which states the 180/150 pair;
+  4. **the generator's section label** — `tool/generate_all_supabase_sql.dart:172`,
+     `'purge_tombstones(180 days) scheduled daily through pg_cron.'`, which `--check` and
+     `test/supabase/all_supabase_sql_test.dart` both police.
+- **And 150 → 335:** `lib/sync/recovery_lock.dart:43`'s
+  `const Duration recoveryOfflineThreshold = Duration(days: 150)` **and** its doc block, which states
+  180/150 twice. The lock itself is firm-mode only and never reads entitlement — unchanged.
+- **Also in this phase:** the **400-day `mutation_receipts` invariant**, which today is documented
+  only and enforced nowhere, so a later cleanup job could break it silently — give it a site where it
+  is (re)checked; and the privacy policy's retention placeholder row.
+- **Then regenerate:** `dart run tool/generate_all_supabase_sql.dart`, because the ledger is
+  generated and rule 13 forbids hand-editing it.
+- **Acceptance.** `--check` is clean; the ledger's label reads 365; `recoveryOfflineThreshold` is 335
+  with its doc block agreeing; the 365/335 buffer is intact; the receipts invariant has a home.
+- **Hazards.** Both numbers are prose in more places than §11 names. Missing the generator label
+  fails `--check` outright; missing the in-code comment leaves the file lying about its own constant.
+
+### Phase 13 — Restore Inside A Chamber — **Owed** (partly built)
+
+
+- **Status.** **Partly Built** — the firm-mode restore bar ships; the three refinements below do not.
+- **Discharges.** §6, §10.14. Task 15.
+- **Depends On.** Phase 4, for the removal condition this must not trip, and Phase 1, for the scope rule a restored row is stamped into.
+- **Why Here.** It is the last place a local file can write into a chamber, and the one that can destroy the diary it has just restored.
+- **Server.** None — client only.
+- **Objects.** `backup_repository.dart` (`backupTableOrder`), `backup_ownership.dart` (`classifyBackupOwnership` / `stampRowOwnership`), `backup_restore_screen.dart`, and `membershipRevokedProvider` as the condition a stale restored account pair would trip.
+- **Proof.** Restore tests against a blank device: no account row written, every restored row stamped into the current chamber with no scope owner, a file naming another firm refused.
+- **Already built.** The firm-mode **restore bar** and its ownership rules: the shipped guard blocks a
+  restore when the account is premium, has synced **and** still holds user-authored data
+  (`backup_restore_screen.dart`), which is what makes the empty-device exception the only one.
+- **Owed — three refinements:**
+  - **`profiles`, `firms` and `firm_members` are never restored.** They are pull-only caches and the
+    server's, not the device's. This is not tidiness: a restored profile naming a dead `firm_id`
+    beside a restored `firm_members` row **is** `membershipRevokedProvider`'s own condition, so a
+    restore could trigger the removal erase and destroy the diary it had just written. Today the
+    snapshot replays **every** portable table including those three.
+  - **A restored row's scope is settled, not inherited.** Each restored row is stamped with the
+    current chamber's `firm_id` and has `scope_owner_id` cleared; a file whose rows name **another
+    firm** is refused outright, because such a row can neither be pushed (`sync_can_write` refuses a
+    foreign firm) nor read back, which would make it permanent local-only data.
+  - **Attribution is not the restorer's to rewrite.** `user_id`, `created_by` and `last_modified_by`
+    are left alone; the existing ownership rule still fills an owner column that names **nobody**,
+    which is a hand-filled workbook.
+- **Client.** `backup_repository.dart` (`backupTableOrder`), `backup_ownership.dart`
+  (`classifyBackupOwnership` / `stampRowOwnership`), `backup_restore_screen.dart`.
+- **Acceptance.** A restore onto a blank phone inside a chamber writes no account row, stamps every
+  restored row into the current chamber with no scope owner, refuses a file naming another firm, and
+  leaves the full pull to run over the restored rows.
+- **Hazards.** The three refinements are one decision, not three: clearing the caches without the
+  stamping rule re-creates the mixed ledger §1 forbids, and the stamping rule without the foreign-firm
+  refusal creates the permanent local-only rows above.
+
+### Phase 14 — Attribution And The Roster — **Owed** (verify rather than rebuild)
+
+
+- **Status.** **Owed (Verification Only)** — no change is expected; the deliverable is the finding.
+- **Discharges.** §9.9. Plan §9's step 9.
+- **Depends On.** Phase 3 and Phase 4, for the membership state it renders; nothing else.
+- **Why Here.** It is readability rather than correctness, so it sits last among the firm-mode items — but an attribution bug would surface here as a display lie rather than a data fault.
+- **Server.** None — this phase writes no SQL.
+- **Objects.** The *edited by [Name]* rendering (reading `last_modified_by` / `created_by`) and the Manage Associates roster (Task 20 Phase 1).
+- **Client.** `lib/features/accounts_and_profile/presentation/`, plus the case and note rendering that shows attribution.
+- **Proof.** A written finding per item — already correct, or added — recorded even when nothing is missing.
+- **Hazards.** Treating it as a build phase. If the verification finds nothing missing, closing it **with no change** is the correct outcome, not an empty phase.
+- **What it is.** The *edited by [Name]* rendering (reading `last_modified_by` / `created_by`) and
+  the owner's roster (Manage Associates) are **readability, not correctness**, and both exist — Task
+  20 Phase 1 built the Manage Associates screen and Task 20's permission management built the
+  per-member toggles.
+- **Deliverable.** A verification pass that confirms each reads the right column and shows the right
+  set, and fills **only** what is missing.
+- **Acceptance.** A written finding per item: already correct, or added. If nothing is missing, the
+  phase closes with the verification recorded and **no change** — that is a pass, not an empty phase.
+
+### Phase 15 — Distribution — **Owed**
+
+
+- **Status.** **Owed** — the updater ships with no authenticity check.
+- **Discharges.** §5.6, §10.10, and the audit's authenticity finding. Task 21.
+- **Depends On.** Nothing.
+- **Why Here.** Direct distribution is the settled channel, which makes the in-app updater the **only**
+  way an update reaches anyone — there is no store to fall back on and no store's signature check
+  standing between a user and a bad release.
+- **Server.** None — client and docs only.
+- **Objects.** `lib/features/settings/data/update_repository.dart`, `update_release.dart`, `presentation/update_flow.dart`, `update_screen.dart`, `update_schedule_card.dart`; the release naming and `FileProvider` grant as they already exist; the readme and the site.
+- **Proof.** A test that a tampered or unverifiable release is refused rather than offered to the user.
+- **Hazards.** With direct distribution there is no store’s signature check standing behind this, and the updater is the **only** path an update takes — so a failure here is a failure of the whole channel.
+- **Owed.** **Update authenticity** — a signed release, or a checksum pinned in the app — so a
+  tampered or unverifiable update is refused; and the **install path's docs**: the APK's download
+  page, a stated owner, and install instructions that survive Android's unknown-sources prompt.
+  Release naming and the `FileProvider` grant already exist.
+- **Client.** `lib/features/settings/data/update_repository.dart`, `update_release.dart`,
+  `update_flow.dart`, `update_screen.dart`, `update_schedule_card.dart`; the readme and the site.
+- **Acceptance.** A tampered or unverifiable release is refused rather than offered; the install path
+  is documented and reachable without the app.
+- **Note.** If Play is adopted later it is a **build flavour**, not a code change: it switches to Play
+  Billing and drops the self-updater, and the 15 % comes off margin rather than being added to the
+  customer's price.
+
+---
+
+### Ordering Hazards, Collected
+
+1. **Phase 7 ↔ Phase 8 (the one real ordering defect in this list).** No Firm plan key exists until
+   Phase 8, and Phase 7's seat cap and creation gate are unsafe without one. Ship them together, or
+   hold Phase 7's two behavioural changes to the end of Phase 8. See Phase 7.
+2. **Phase 3's revoke-without-grant trap, still live for 5, 6, 7 and 11.** A revoke that names
+   `authenticated` is a lock-out unless a grant follows it, and a passing RPC test does not cover the
+   helpers it calls.
+3. **`push_changes` is `SECURITY DEFINER`.** It bypasses the column privileges and the RLS policies,
+   so enforcement must be a trigger (Phase 5) and **any column a later migration adds is
+   client-writable through the RPC unless it is named in the RPC's strip list** (Phase 2's rule).
+4. **`purge_tombstones` fails as a whole on a blocked foreign key** (Phase 6). One stale reference
+   edit can stop every tombstone on the project from being purged, silently.
+5. **Every new migration is registered in two more places** — the generator's hand-maintained
+   manifest with a `_groupTitles` entry, and the count literals in
+   `test/supabase/migration_applier_test.dart` and `all_supabase_sql_test.dart`.
+6. **Every `supabase/tests/*.sql` proof is run wrapped** — several open a PL/pgSQL block rather than
+   a transaction, so a bare `psql -f` commits fixture data to the live project.
+7. **Phase 4 was only safe after Phase 3** (the audit's sequencing finding): a self-erasing device
+   needs the seat-empty refusal first, or an account that kept a diary and joined anyway would have
+   it erased with no backup and no confirmation step left to warn them. Built in that order.
+
+### Applying A Phase To The Live Project
+
+The project is `lsthasywrdrhuuxnykau` ("Legal Case Diary") and **only** that project — rule 12.
+
+```bash
+flutter analyze                                                   # must be clean
+flutter test                                                      # full suite
+dart run tool/apply_supabase_migrations.dart                      # apply to the live project
+
+# A rolled-back SQL proof. The wrapper is not optional: several proofs open their own PL/pgSQL
+# block, so a bare `psql -f` commits its fixtures.
+printf 'begin;\n' | cat - supabase/tests/<proof>.sql <(echo rollback;) \
+  | psql "$URL" -v ON_ERROR_STOP=1 --file=-
+
+dart run tool/generate_all_supabase_sql.dart                      # regenerate the ledger (rule 13)
+dart run tool/generate_all_supabase_sql.dart --check              # must be clean
+python tool/record_version.py --summary "One short, precise sentence."
+python tool/record_version.py --check                             # must be OK
+```
+
+The completion protocol in `AGENTS.md` governs: fix every error and warning the phase introduced,
+record the version with the script and never by hand, and update `docs/currentlyWorking.md` with the
+completed phase and the next resume point.

@@ -59,6 +59,23 @@ begin
 end;
 $$;
 
+-- Puts the session back the way it was found: the role **and** the claims
+-- setting. Clearing the claim is not tidiness. Since firm mode's Phase 5 the
+-- permission trigger reads `auth.uid()`, and `reset role` restores the role but
+-- leaves `request.jwt.claims` behind — so a fixture staged after an
+-- impersonation would be judged as that member's write and refused
+-- `add_not_permitted`, which is exactly what happened before this helper
+-- existed.
+create or replace function pg_temp.as_owner()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claims', '', true);
+  execute 'reset role';
+end;
+$$;
+
 -- Redeems p_code as p_user and returns the RPC's own jsonb answer.
 create or replace function pg_temp.redeem(p_user uuid, p_code text)
 returns jsonb
@@ -69,7 +86,7 @@ declare
 begin
   perform pg_temp.as_user('authenticated', p_user);
   v_out := public.join_firm(p_code);
-  execute 'reset role';
+  perform pg_temp.as_owner();
   return v_out;
 end;
 $$;

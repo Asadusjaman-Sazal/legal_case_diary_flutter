@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        45,
+        46,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -89,7 +89,9 @@ void main() {
             'empty-seat and seat-cap gates on the join itself, and its fourth '
             'cleared a removed member\'s push tokens, and its fifth made the '
             'permission flags a server-side boundary with the scope-column '
-            'ruling folded in beside them',
+            'ruling folded in beside them, and its sixth refuses a reference '
+            'row\'s tombstone while a live dependent still names it and makes '
+            'the purge skip such a row instead of failing whole',
       );
     });
 

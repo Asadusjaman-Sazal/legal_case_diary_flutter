@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(45),
+        hasLength(46),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -95,17 +95,20 @@ void main() {
             'member\'s flags a boundary enforced on the server — can_add on a '
             'create and can_edit on every non-tombstone update, on all ten '
             'gated tables and through both write paths — with §3.3\'s '
-            'scope-column ruling folded in beside it',
+            'scope-column ruling folded in beside it, and its sixth refuses a '
+            'reference row\'s tombstone while a live dependent still names it '
+            '— through both write paths — and makes the purge skip such a row '
+            'instead of failing whole',
       );
 
-      expect(versions.toSet(), hasLength(45), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(46), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261016100000');
+      expect(versions.last, '20261016110000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

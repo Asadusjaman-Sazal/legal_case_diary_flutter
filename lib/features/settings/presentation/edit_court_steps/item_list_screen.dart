@@ -16,6 +16,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
 import '../../data/case_types_repository.dart';
 import '../../data/on_behalfs_repository.dart';
+import '../../data/reference_in_use_checker.dart';
 import '../../data/steps_repository.dart';
 import '../settings_sub_page_modal.dart';
 import 'edit_name_dialog.dart';
@@ -116,7 +117,7 @@ class ItemListScreen extends ConsumerWidget {
         'district_sessions_criminal': l.settingsItemList_catSessions,
         'district_courts_civil': l.settingsItemList_catDistrictCivil,
         'metropolitan_sessions_judge_criminal':
-          l.settingsItemList_catMetropolitanSessions,
+            l.settingsItemList_catMetropolitanSessions,
         'chief_judicial_magistrate': l.settingsItemList_catCjm,
         'chief_metropolitan_magistrate': l.settingsItemList_catCmm,
         'executive_magistrate': l.settingsItemList_catExecutive,
@@ -250,33 +251,42 @@ class _OnBehalfListView extends ConsumerWidget {
   const _OnBehalfListView({required this.repo, required this.categoryId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      StreamBuilder<List<OnBehalf>>(
-        stream: repo.watchByCategory(categoryId),
-        builder: (context, snap) => _ListBody<OnBehalf>(
-          items: snap.data ?? const <OnBehalf>[],
-          getName: (c) => c.name,
-          getId: (c) => c.id,
-          onEdit: (c) => _edit(
-            context,
-            c.name,
-            (name) => repo.update(
-              OnBehalfsCompanion(id: Value(c.id), name: Value(name)),
-              base: c,
-            ),
-          ),
-          onDelete: (c) => _delete(context, c, repo.delete),
-          onReorder: (items, oldIndex, newIndex) => _reorder(
-            items,
-            oldIndex,
-            newIndex,
-            (c, i) => repo.update(
-              OnBehalfsCompanion(id: Value(c.id), orderIndex: Value(i)),
-              base: c,
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    // An on-behalf a live case still names keeps its place: that tombstone is
+    // what the server refuses, so the action is not offered. A step or a case
+    // type is never held back — a case stores both as text, so nothing
+    // references either by id.
+    final inUse =
+        ref.watch(referenceInUseProvider).value ?? ReferenceInUse.none;
+
+    return StreamBuilder<List<OnBehalf>>(
+      stream: repo.watchByCategory(categoryId),
+      builder: (context, snap) => _ListBody<OnBehalf>(
+        items: snap.data ?? const <OnBehalf>[],
+        getName: (c) => c.name,
+        getId: (c) => c.id,
+        onEdit: (c) => _edit(
+          context,
+          c.name,
+          (name) => repo.update(
+            OnBehalfsCompanion(id: Value(c.id), name: Value(name)),
+            base: c,
           ),
         ),
-      );
+        isDeletable: (c) => !inUse.onBehalfIds.contains(c.id),
+        onDelete: (c) => _delete(context, c, repo.delete),
+        onReorder: (items, oldIndex, newIndex) => _reorder(
+          items,
+          oldIndex,
+          newIndex,
+          (c, i) => repo.update(
+            OnBehalfsCompanion(id: Value(c.id), orderIndex: Value(i)),
+            base: c,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Shared list body with reorder/edit/delete rendering.
@@ -285,7 +295,16 @@ class _ListBody<T> extends StatelessWidget {
   final String Function(T) getName;
   final String Function(T) getId;
   final void Function(T) onEdit;
-  final void Function(T) onDelete;
+
+  /// Null when this list offers no deletion at all, in which case the Delete
+  /// action is not rendered.
+  final void Function(T)? onDelete;
+
+  /// Whether one row may be deleted. Null means every row the caller offered an
+  /// action for: a row [isDeletable] refuses — one a live case still names —
+  /// renders no Delete, the same way the built-in courts and categories
+  /// withhold it.
+  final bool Function(T)? isDeletable;
   final void Function(List<T>, int, int) onReorder;
 
   const _ListBody({
@@ -293,7 +312,8 @@ class _ListBody<T> extends StatelessWidget {
     required this.getName,
     required this.getId,
     required this.onEdit,
-    required this.onDelete,
+    this.onDelete,
+    this.isDeletable,
     required this.onReorder,
   });
 
@@ -310,6 +330,7 @@ class _ListBody<T> extends StatelessWidget {
           onReorder(items, oldIndex, newIndex),
       itemBuilder: (context, index) {
         final item = items[index];
+        final canDelete = onDelete != null && (isDeletable?.call(item) ?? true);
         return Card(
           key: ValueKey(getId(item)),
           elevation: 0,
@@ -332,14 +353,15 @@ class _ListBody<T> extends StatelessWidget {
                   onPressed: () => onEdit(item),
                   tooltip: l.sharedActions_edit,
                 ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: AppColors.error,
+                if (canDelete)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: AppColors.error,
+                    ),
+                    onPressed: () => onDelete!(item),
+                    tooltip: l.sharedActions_delete,
                   ),
-                  onPressed: () => onDelete(item),
-                  tooltip: l.sharedActions_delete,
-                ),
               ],
             ),
           ),

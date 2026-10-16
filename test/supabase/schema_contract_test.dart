@@ -804,8 +804,12 @@ void main() {
   });
 
   group('tombstone purge', () {
+    // The newest body is the shipped one: firm mode's in-use guard replaced the
+    // set-based purge with the same predicate, one candidate at a time, so that
+    // a tombstone a live dependent still names is skipped instead of aborting
+    // the whole run.
     test('keeps tombstones long enough for the extended-offline rule', () {
-      final block = functionBlock(sql, 'purge_tombstones')!;
+      final block = lastFunctionBlock(sql, 'purge_tombstones')!;
       expect(block, contains('p_retention_days integer default 180'));
       expect(block, contains('is_deleted = true'));
       expect(block, contains(r'server_updated_at < $1'));
@@ -817,10 +821,19 @@ void main() {
         isNot(contains('and updated_at <')),
         reason: 'the client-edited column never decides a purge',
       );
+      // A blocked row is skipped, not fatal: the exception keeps the run going
+      // and the count of kept rows is reported.
+      expect(block, contains('when foreign_key_violation then'));
+      expect(block, contains('v_skipped := v_skipped + 1'));
+      expect(
+        block,
+        contains('raise notice'),
+        reason: 'a silent skip is invisible in the daily pg_cron log',
+      );
     });
 
     test('deletes children before parents', () {
-      final block = functionBlock(sql, 'purge_tombstones')!;
+      final block = lastFunctionBlock(sql, 'purge_tombstones')!;
       final order = <String>[
         'case_history',
         'cases',
@@ -847,6 +860,80 @@ void main() {
         contains('public.purge_tombstones()'),
         reason: 'the scheduled statement must call the purge function',
       );
+    });
+  });
+
+  group('reference in-use guard', () {
+    File inUseGuardFile() => migrationFiles().firstWhere(
+          (file) => file.path.contains('firm_mode_reference_in_use_guard'),
+        );
+
+    test('refuses a tombstone a live dependent still names, as 23503', () {
+      final block = functionBlock(sql, 'enforce_reference_not_in_use');
+      expect(block, isNotNull, reason: 'the guard function is missing');
+      expect(
+        block,
+        contains('security definer'),
+        reason: 'the rule is about the data, not about what the caller may read',
+      );
+      // The nine foreign keys of the dependency graph, named as pairs.
+      for (final pair in <String>[
+        'case_categories.court_category_id',
+        'courts.court_category_id',
+        'steps.court_category_id',
+        'case_types.court_category_id',
+        'on_behalfs.court_category_id',
+        'case_types.case_category_id',
+        'cases.case_category_id',
+        'cases.court_id',
+        'cases.on_behalf_id',
+      ]) {
+        expect(block, contains(pair), reason: '$pair is not guarded');
+      }
+      expect(
+        block,
+        contains('old.is_deleted = false and new.is_deleted = true'),
+        reason: 'only the tombstone transition is guarded',
+      );
+      expect(
+        block,
+        contains('d.is_deleted = false'),
+        reason: 'a dependent that is itself a tombstone must not block',
+      );
+      expect(
+        block,
+        contains("errcode = '23503'"),
+        reason: 'push_changes catches 23503 per mutation',
+      );
+    });
+
+    test('is attached to the four parents and never to the two it cannot help', () {
+      final block = inUseGuardFile().readAsStringSync();
+      expect(block, contains('trg_%1\$s_in_use_guard'));
+      expect(block, contains('before update on public.%1\$I'));
+
+      // The attachment loop's own array is the thing that could silently miss a
+      // table, so it is the thing asserted.
+      final start = block.indexOf('v_tables text[] := array[');
+      expect(start, greaterThan(-1), reason: 'no attachment array');
+      final end = block.indexOf('];', start);
+      final tableArray = block.substring(start, end);
+      for (final table in <String>[
+        'court_categories',
+        'case_categories',
+        'courts',
+        'on_behalfs',
+      ]) {
+        expect(tableArray, contains("'$table'"), reason: '$table is not guarded');
+      }
+      for (final table in <String>['steps', 'case_types']) {
+        expect(
+          tableArray,
+          isNot(contains("'$table'")),
+          reason: 'cases.case_type and cases.last_step are free text, so a '
+              'foreign-key guard for $table cannot exist',
+        );
+      }
     });
   });
 

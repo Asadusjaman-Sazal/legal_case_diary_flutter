@@ -26,6 +26,7 @@ import '../../../shared/providers/shared_preferences_provider.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
+import '../../payments/data/payment_plans.dart';
 import '../../settings/data/premium_access.dart';
 import 'local/firm_members_dao.dart';
 import 'local/profiles_dao.dart';
@@ -139,6 +140,26 @@ final accountRoleProvider = Provider<String>((ref) {
 final firmModeProvider = Provider<bool>((ref) {
   final profile = ref.watch(accountProfileProvider).value;
   return profile?.firmId != null;
+});
+
+/// The subscription tier this account is entitled to, as the cached rows hold
+/// it: the owner's own tier, or **the chamber's** for a firm member.
+///
+/// Task 21's rule is that a member's plan is the chamber's (§5.1), so the two
+/// rows are read in that order and the chamber wins whenever `firm_id` is set.
+/// Nothing is derived from an expiry here: the server stores the tier and never
+/// clears it, so the column is the record of the last tier held — which is what
+/// the paywall needs in order to offer only what the account may actually buy.
+///
+/// An empty or older cache reads as [SubscriptionTier.free], the safe answer: a
+/// plan the app might sell is never assumed upward from a missing value.
+final currentTierProvider = Provider<SubscriptionTier>((ref) {
+  final profile = ref.watch(accountProfileProvider).value;
+  if (profile == null) return SubscriptionTier.free;
+  if (profile.firmId != null) {
+    return SubscriptionTier.fromKey(ref.watch(accountFirmProvider).value?.tier);
+  }
+  return SubscriptionTier.fromKey(profile.tier);
 });
 
 /// The role while a firm is in play: owner, associate or viewer.

@@ -2012,17 +2012,77 @@ abstract class AppLocalizations {
   /// **'1 Year'**
   String get paywall_planAnnual;
 
-  /// The full price of a discounted plan, rendered struck through before the discounted price.
+  /// No description provided for @paywall_planFirmQuarterly.
   ///
   /// In en, this message translates to:
-  /// **'৳{price}'**
-  String paywall_planWasPrice(String price);
+  /// **'Firm · 3 Months'**
+  String get paywall_planFirmQuarterly;
 
-  /// Badge on a discounted plan, e.g. 20% Off. The percentage is computed from the plan's own prices, so it always describes the saving actually offered.
+  /// No description provided for @paywall_planFirmHalfYearly.
   ///
   /// In en, this message translates to:
-  /// **'{percent}% Off'**
-  String paywall_planDiscount(String percent);
+  /// **'Firm · 6 Months'**
+  String get paywall_planFirmHalfYearly;
+
+  /// No description provided for @paywall_planFirmAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm · 1 Year'**
+  String get paywall_planFirmAnnual;
+
+  /// No description provided for @paywall_planFirmPlusQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Plus · 3 Months'**
+  String get paywall_planFirmPlusQuarterly;
+
+  /// No description provided for @paywall_planFirmPlusHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Plus · 6 Months'**
+  String get paywall_planFirmPlusHalfYearly;
+
+  /// No description provided for @paywall_planFirmPlusAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Plus · 1 Year'**
+  String get paywall_planFirmPlusAnnual;
+
+  /// No description provided for @paywall_tierPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get paywall_tierPro;
+
+  /// No description provided for @paywall_tierFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm'**
+  String get paywall_tierFirm;
+
+  /// No description provided for @paywall_tierFirmPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Plus'**
+  String get paywall_tierFirmPlus;
+
+  /// No description provided for @paywall_tierProNote.
+  ///
+  /// In en, this message translates to:
+  /// **'One account'**
+  String get paywall_tierProNote;
+
+  /// What the Firm tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 5 associates'**
+  String get paywall_tierFirmNote;
+
+  /// What the Firm Plus tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 20 associates'**
+  String get paywall_tierFirmPlusNote;
 
   /// No description provided for @paywall_subscribe.
   ///
@@ -6812,6 +6872,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Firm Mode Requires An Active Premium Subscription.'**
   String get auth_errorPremiumRequired;
+
+  /// No description provided for @firm_errorTierRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating a chamber needs the Firm plan. Pro chambers cannot add associates.'**
+  String get firm_errorTierRequired;
 
   /// No description provided for @firm_errorServer.
   ///

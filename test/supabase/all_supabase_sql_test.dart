@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        46,
+        48,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -91,7 +91,13 @@ void main() {
             'permission flags a server-side boundary with the scope-column '
             'ruling folded in beside them, and its sixth refuses a reference '
             'row\'s tombstone while a live dependent still names it and makes '
-            'the purge skip such a row instead of failing whole',
+            'the purge skip such a row instead of failing whole, and firm '
+            'mode\'s seventh added the stored subscription tier on both account '
+            'kinds with the effective-tier reader, the shared tier ladder, the '
+            'rebuilt ten-plan approval and the ten-key plan-name columns, and '
+            'its eighth made the seat cap read that stored tier — Firm 5, Firm '
+            'Plus 20, Pro 0 — and moved chamber creation from premium to the '
+            'Firm tier the cap already implied',
       );
     });
 

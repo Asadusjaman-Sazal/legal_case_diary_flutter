@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.530 - Firm mode Phase 6 is live and the device agrees with it: a tombstoned reference row a live dependent still names is refused server-side with the purge skipping it, and the same one-home rule now withholds Delete on Edit Court/Steps.
+Version: 0.0.532 - Applied firm mode's stored-tier and seat-cap migrations to the live project, fixing Pro's uncapped chamber and backfilling paid tiers; Phase 7's proof is green.
 --------------------------------------
 
 ## Version History Log:
@@ -544,3 +544,5 @@ Version: 0.0.527 - Docs: recorded that Tasks 01-21 and 23 are complete with only
 Version: 0.0.528 - Docs: rewrote the firm-mode blueprint's phase list as a per-phase execution spec with migrations, proofs, acceptance and hazards; marked Phases 1-4 built and corrected five stale status claims plus the plan and task numbering.
 Version: 0.0.529 - Firm mode Phase 5 is live: can_add gates a create and can_edit every non-tombstone update on all ten gated tables, and a client can no longer move a row's firm_id or create a firm-less row.
 Version: 0.0.530 - Firm mode Phase 6 is live and the device agrees with it: a tombstoned reference row a live dependent still names is refused server-side with the purge skipping it, and the same one-home rule now withholds Delete on Edit Court/Steps.
+Version: 0.0.531 - Firm-mode audit fixes: closed a hole that let any signed-in account write its own subscription tier, folded the ten-plan ladder into one source of plans, and corrected records that claimed two unapplied migrations were live.
+Version: 0.0.532 - Applied firm mode's stored-tier and seat-cap migrations to the live project, fixing Pro's uncapped chamber and backfilling paid tiers; Phase 7's proof is green.

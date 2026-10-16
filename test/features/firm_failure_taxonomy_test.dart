@@ -152,6 +152,18 @@ void main() {
       );
     });
 
+    test('the creation gate names the Firm plan, not the premium gate', () {
+      // Pro is paid, so "Firm Mode requires an active premium subscription"
+      // would be untrue for a Pro owner refused at the gate. The server answers
+      // `firm_tier_required` and the app says which plan is missing instead of
+      // falling back to the generic retry sentence.
+      expect(
+        failureText(l, const FirmFailure(FirmFailureKind.firmTierRequired)),
+        l.firm_errorTierRequired,
+      );
+      expect(l.firm_errorTierRequired, isNot(l.auth_errorPremiumRequired));
+    });
+
     test('an auth failure still reads as one, and a stranger as unknown', () {
       expect(
         failureText(l, const AuthFailure(AuthFailureKind.invalidCode)),

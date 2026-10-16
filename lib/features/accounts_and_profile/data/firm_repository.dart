@@ -419,6 +419,12 @@ enum FirmFailureKind {
   /// Firm Mode needs an active premium subscription.
   premiumRequired,
 
+  /// Creating a chamber needs the Firm tier or above. A distinct answer from
+  /// [premiumRequired] on purpose: Pro is paid, and a paying Pro user told they
+  /// are not premium would be told something untrue (the server answers
+  /// `firm_tier_required` for the same reason).
+  firmTierRequired,
+
   /// Anything else.
   unknown,
 }
@@ -706,15 +712,18 @@ class SupabaseFirmRepository implements FirmRepository {
       final status = result['status'] as String?;
       final firmId = result['firm_id'] as String?;
       if (status == 'ready' && firmId != null) return firmId;
-      // The free-entitlement refusal is the one the screen must word for itself
-      // (Task 20 Phase 1 item 2): it names the Paywall, not a failure. Every
-      // other status — including the member-of-another-firm guard — has no copy
-      // of its own, because the client gate hides this path first and the server
-      // check is the authoritative one behind it.
+      // Two refusals are worded rather than generic (Task 20 Phase 1 item 2):
+      // the free-entitlement one, which names the Paywall, and the creation
+      // gate's, which names the Firm plan. Every other status — including the
+      // member-of-another-firm guard — has no copy of its own, because the
+      // client gate hides this path first and the server check is the
+      // authoritative one behind it.
       throw FirmFailure(
-        status == 'premium_required'
-            ? FirmFailureKind.premiumRequired
-            : FirmFailureKind.unknown,
+        switch (status) {
+          'premium_required' => FirmFailureKind.premiumRequired,
+          'firm_tier_required' => FirmFailureKind.firmTierRequired,
+          _ => FirmFailureKind.unknown,
+        },
         cause: status,
       );
     } catch (error) {

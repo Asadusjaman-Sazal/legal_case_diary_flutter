@@ -1058,18 +1058,27 @@ String adminPaymentMethodLabel(AppLocalizations l, String provider) =>
       _ => provider,
     };
 
-/// "৳960 per year" — the plan's own name plus its bare amount, worded by the
-/// same helpers the paywall uses so the two never disagree.
+/// "Pro 1 Year · ৳1,000" — the plan's own name plus its bare amount, worded by
+/// the same helpers the paywall uses so the two never disagree.
+///
+/// The amount is the row's own, because it is the row the server validates; the
+/// name comes from the ladder row that key names. A key the ladder does not
+/// know — a submission from before the ten-plan ladder, or one whose key was
+/// withdrawn — is shown **as the key itself**, never renamed to a plan that was
+/// not bought: the mismatch is what tells the admin the row needs review rather
+/// than approval, and the server refuses it at approval anyway.
 String adminPaymentPlanAndAmount(
   AppLocalizations l,
   AdminPaymentRequest request,
 ) {
-  final plan = subscriptionPlans.firstWhere(
-    (p) => p.key == request.planKey,
-    orElse: () => subscriptionPlans.first,
-  );
+  final plan = subscriptionPlan(request.planKey);
+  final name = plan != null
+      ? paymentPlanLabel(l, plan.key)
+      : (request.planKey.isEmpty
+            ? l.payments_planSummaryTitle
+            : request.planKey);
   final amount = l.payments_amountValue(
     AppDateUtils.formatDigits(request.amount, l.localeName),
   );
-  return '${paymentPlanLabel(l, plan.key)} · $amount';
+  return '$name · $amount';
 }

@@ -73,7 +73,10 @@ class AdminPaymentRequest {
   /// The paying account.
   final String userId;
 
-  /// The plan key (`monthly`/`quarterly`/`half_yearly`/`annual`).
+  /// The plan key of the ladder's ten (`monthly` … `firm_plus_annual`).
+  ///
+  /// Stored as submitted, so a row from before the ten-plan ladder keeps the key
+  /// it was submitted under rather than being read as a plan it never bought.
   final String planKey;
 
   /// The amount submitted, which the server validates exactly.

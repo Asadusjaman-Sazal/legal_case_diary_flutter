@@ -576,6 +576,46 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'abort the whole nightly purge — with the retention argument, the '
         'children-first order and the returned count unchanged.',
   ),
+  LedgerSection(
+    file: '20261016120000_firm_mode_stored_tier.sql',
+    version: '0.0.531',
+    label:
+        'Firm mode: the stored subscription tier and the ten-plan ladder. '
+        'profiles and firms each gain tier, tier_pending and tier_pending_from, '
+        'so which tier applies to an account or a chamber is a stored fact '
+        'rather than something each screen infers from a payment row. '
+        'effective_tier() answers which tier is in force — a pending change '
+        'takes hold on its own date and not before, so an approval still being '
+        'settled does not open a gate early and a mid-term downgrade is '
+        'honoured when it is due — and tier_rank() gives the ladder one order '
+        '(free 0, pro 1, firm 2, firm_plus 3) for every comparison to share. '
+        'The plan approval is rebuilt around the ten flat prices, so the '
+        'withdrawn discount model no longer decides what a plan costs, and the '
+        'plan-name columns are rebuilt for the ten keys. profiles and firms each '
+        'carried a table-level insert grant for authenticated and anon, which '
+        'reaches a column added later, so both are narrowed to the columns that '
+        'were writable before; the tier is not client-writable at insert either.',
+  ),
+  LedgerSection(
+    file: '20261016130000_firm_mode_seat_cap_and_creation_gate.sql',
+    version: '0.0.532',
+    label:
+        'Firm mode: the seat cap reads the stored tier, and a chamber needs '
+        'Firm. firm_seat_cap() previously asked is_premium(owner) and answered '
+        '5 for anyone premium, so a Firm Plus chamber was capped at the Firm '
+        'number and a Pro owner had a chamber nobody could join; it now reads '
+        'the tier in force — Firm 5, Firm Plus 20, Pro 0 — through '
+        'effective_tier, so the cap a mid-downgrade chamber enforces is the one '
+        'it has paid for. ensure_firm()\'s creation gate moves from '
+        'is_premium() to Firm or above, because Pro\'s cap of 0 means a chamber '
+        'on Pro could never take a member; the refusal keeps the status shape '
+        'the client already handles but names the reason firm_tier_required, '
+        'so a paying Pro user is not told they are not premium. A newly '
+        'created chamber starts on its owner\'s tier, because the cap reads that '
+        'row and a chamber left at the column default would answer null — no cap '
+        'enforced — for every join. A seat cap binds new joins only: neither '
+        'function removes a member, and no membership row is touched.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -624,6 +664,8 @@ const Map<String, String> _groupTitles = <String, String>{
       'Have One',
   '0.0.529': 'Firm Mode Phase 5 — The Permission Boundary',
   '0.0.530': 'Firm Mode Phase 6 — The In-Use Guard For Reference Rows',
+  '0.0.531': 'Firm Mode Phase 7 — The Stored Tier And The Ten-Plan Ladder',
+  '0.0.532': 'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
 };
 
 const String _header = '''<!--

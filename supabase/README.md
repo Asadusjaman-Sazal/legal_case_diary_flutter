@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All forty-six migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All forty-eight migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases
@@ -81,6 +81,21 @@ added more the same way (see below):
    `supabase/tests/push_changes_smoke_test.sql` and running it, not by reading
    the function; the fallback now also requires the column's **type** to be an
    epoch-ms integer (`20260930170000_push_changes_created_at_guard.sql`).
+8. **`firm_seat_cap` left a Pro chamber uncapped** (firm mode, phase 7) — its
+   branch for the stored `pro` tier fell through to the `null` every gate reads
+   as "no ceiling at all", so a chamber whose owner held Pro could sell seats
+   instead of refusing joins. `pro` now answers `0`, and the phase 7 proof pins
+   it alongside Firm's 5 and Firm Plus's 20, so the branch cannot fall through
+   again without a red run.
+9. **The stored tier was never backfilled** (firm mode, phase 7) —
+   `20261016120000_firm_mode_stored_tier.sql` added `profiles.tier` and
+   `firms.tier`, but an account that had **already** paid for Pro — with an
+   approved Pro purchase in `payment_submissions`, or inside a paid period with
+   the grace window still open — would have kept reading the column default
+   `free`, because the tier is only written when an approval lands. The
+   migration now reconstructs every such account's tier from its own approved
+   rows and period, and the phase 7 proof asserts the rule across the project's
+   own rows, not just a fixture.
 
 What is verified now:
 
@@ -222,6 +237,26 @@ What is verified now:
   still names them.` Four `trg_<table>_in_use_guard` triggers cover the four
   guardable parents; `steps` and `case_types` have no referencing column, so the
   device-side refusal in the repositories is the only protection they can have.
+- `20261016120000_firm_mode_stored_tier.sql` with
+  `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` (firm mode, phase 7,
+  phases 7 and 8's server halves) — **passes** against the project in
+  `supabase/tests/firm_mode_stored_tier_test.sql`, one rolled-back run printing
+  `TIER OK`: the backfilled tiers hold over the project's live rows, all ten
+  ladder keys approve at their own amount and store their own tier, a key off
+  the ladder answers `invalid_plan` and a real key at the wrong amount answers
+  `invalid_amount` with nothing written, a chamber answers 0 / 5 / 20 by the tier
+  its owner bought (through the mirror at Pro and Firm, and at creation for Firm
+  and Firm Plus), a Pro purchase bought by a Firm owner waits as the pending
+  pair and takes effect on its own date with no approval while the cap holds at
+  Firm until then, the next upgrade clears that pending pair, a lapse keeps the
+  tier and the ceiling the account paid for, the creation gate refuses free and
+  Pro callers with `firm_tier_required` and writes nothing, and `authenticated`
+  can neither write `tier` nor find an off-ladder value storable nor approve a
+  payment. Each of the ten keys is bought by its own account, because
+  `enforce_payment_rate_limit()` allows five submissions per account per day and
+  a refused approval still counts as one — the first run of this proof failed on
+  exactly that, not on the SQL. `supabase/tests/firm_mode_join_gate_test.sql` was
+  re-run green over the re-pointed cap as well.
 - Live state: 26 tables all with RLS on, 62 policies, 50 functions in `public`,
   48 recorded versions — the newest `20261016110000` — and the 1,442 seeded
   reference rows (1,016 courts).
@@ -283,7 +318,7 @@ npx supabase migration list                     # what is applied on the project
 ```
 
 Applying by hand with a plain loop also works, but then `supabase_migrations`
-stays empty and `db push` would consider all forty-six files unapplied:
+stays empty and `db push` would consider all forty-eight files unapplied:
 
 ```bash
 for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
@@ -299,6 +334,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/admin_payment_alerts_t
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_read_scope_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_creation_scope_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_stored_tier_test.sql
 ```
 
 ## Project settings this repo cannot set

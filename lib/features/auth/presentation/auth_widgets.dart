@@ -1100,6 +1100,7 @@ String? firmErrorText(AppLocalizations l, FirmFailureKind? kind) =>
       FirmFailureKind.alreadyMember => l.auth_errorAlreadyMember,
       FirmFailureKind.firmAdminOffline => l.auth_errorFirmAdminOffline,
       FirmFailureKind.premiumRequired => l.auth_errorPremiumRequired,
+      FirmFailureKind.firmTierRequired => l.firm_errorTierRequired,
       FirmFailureKind.unknown => l.auth_errorUnknown,
     };
 

@@ -49,6 +49,7 @@ import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/logout_dialogs.dart';
+import '../../features/accounts_and_profile/data/account_mode.dart';
 import '../../features/payments/presentation/current_plan.dart';
 import '../../features/settings/data/update_metadata_store.dart';
 import '../../features/settings/presentation/settings_controls.dart';
@@ -1064,6 +1065,11 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final plan = currentPlanLabel(l, ref.watch(currentPlanProvider));
+    // A firm member has no plan of their own to buy (Task 21): the chamber's
+    // subscription is the source of truth on every member's device, so the
+    // plans child is not offered to one. Subscription Details stays — it is
+    // where the member reads the chamber's plan and expiry.
+    final sellsPlans = !ref.watch(firmModeProvider);
     return Column(
       children: [
         // The header keeps the drawer's own row metrics; only the children
@@ -1136,13 +1142,14 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
             indent: _planSubIndent,
             onTap: () => _open(AppRoutes.settingsSubscriptionDetails),
           ),
-          _DrawerNavTile(
-            icon: Icons.add_shopping_cart_outlined,
-            label: l.paywall_title,
-            active: widget.currentRoute == AppRoutes.paywall,
-            indent: _planSubIndent,
-            onTap: () => _open(AppRoutes.paywall),
-          ),
+          if (sellsPlans)
+            _DrawerNavTile(
+              icon: Icons.add_shopping_cart_outlined,
+              label: l.paywall_title,
+              active: widget.currentRoute == AppRoutes.paywall,
+              indent: _planSubIndent,
+              onTap: () => _open(AppRoutes.paywall),
+            ),
         ],
       ],
     );

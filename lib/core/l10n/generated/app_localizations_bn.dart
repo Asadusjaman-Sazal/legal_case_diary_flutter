@@ -1119,14 +1119,40 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_planAnnual => '১ বছর';
 
   @override
-  String paywall_planWasPrice(String price) {
-    return '৳$price';
-  }
+  String get paywall_planFirmQuarterly => 'ফার্ম · ৩ মাস';
 
   @override
-  String paywall_planDiscount(String percent) {
-    return '$percent% ছাড়';
-  }
+  String get paywall_planFirmHalfYearly => 'ফার্ম · ৬ মাস';
+
+  @override
+  String get paywall_planFirmAnnual => 'ফার্ম · ১ বছর';
+
+  @override
+  String get paywall_planFirmPlusQuarterly => 'ফার্ম প্লাস · ৩ মাস';
+
+  @override
+  String get paywall_planFirmPlusHalfYearly => 'ফার্ম প্লাস · ৬ মাস';
+
+  @override
+  String get paywall_planFirmPlusAnnual => 'ফার্ম প্লাস · ১ বছর';
+
+  @override
+  String get paywall_tierPro => 'প্রো';
+
+  @override
+  String get paywall_tierFirm => 'ফার্ম';
+
+  @override
+  String get paywall_tierFirmPlus => 'ফার্ম প্লাস';
+
+  @override
+  String get paywall_tierProNote => 'একটি অ্যাকাউন্ট';
+
+  @override
+  String get paywall_tierFirmNote => 'সর্বোচ্চ ৫ জন সহকারী';
+
+  @override
+  String get paywall_tierFirmPlusNote => 'সর্বোচ্চ ২০ জন সহকারী';
 
   @override
   String get paywall_subscribe => 'সাবস্ক্রাইব';
@@ -3955,6 +3981,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get auth_errorPremiumRequired =>
       'ফার্ম মোডের জন্য সক্রিয় প্রিমিয়াম সাবস্ক্রিপশন প্রয়োজন।';
+
+  @override
+  String get firm_errorTierRequired =>
+      'চেম্বার তৈরি করতে ফার্ম প্ল্যান প্রয়োজন। প্রো চেম্বারে সহকারী যোগ করা যায় না।';
 
   @override
   String get firm_errorServer =>

@@ -8,24 +8,29 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
 
 void main() {
   /// Opens the paywall on top of a home route, exactly as the gate does (a
   /// pushed route is also the only one with a back arrow to test). [showLimit]
-  /// mirrors the route query — true only for the 50-case gate's entry.
+  /// mirrors the route query — true only for the 50-case gate's entry. [tier]
+  /// overrides the tier the account holds, which is what decides how much of the
+  /// ladder is offered; null leaves the real provider in place (an empty cache,
+  /// i.e. Free).
   Future<void> pumpPaywall(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
     double statusBarHeight = 0,
     bool showLimit = false,
+    SubscriptionTier? tier,
   }) async {
     // Tall viewport: the whole screen is on one screen, so no assertion fails
     // for the wrong reason (a lazy ListView never builds an off-screen row).
@@ -37,21 +42,30 @@ void main() {
     tester.view.viewPadding = FakeViewPadding(top: statusBarHeight);
     addTearDown(tester.view.reset);
 
+    // The plans section reads the account's tier from the cached profile, so
+    // the paywall now needs a scope. Unless [tier] says otherwise nothing is
+    // overridden and no profile row is seeded, so the cache is empty and the
+    // tier reads Free — the state a genuinely new account is in.
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: locale,
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: ElevatedButton(
-              key: const ValueKey('open-paywall'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => PaywallScreen(showLimit: showLimit),
+      ProviderScope(
+        overrides: [
+          if (tier != null) currentTierProvider.overrideWithValue(tier),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: locale,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: ElevatedButton(
+                key: const ValueKey('open-paywall'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PaywallScreen(showLimit: showLimit),
+                  ),
                 ),
+                child: const Text('Open'),
               ),
-              child: const Text('Open'),
             ),
           ),
         ),
@@ -118,25 +132,33 @@ void main() {
     expect(find.byIcon(Icons.check_circle), findsNothing);
 
     expect(find.text('Plans'), findsOneWidget);
-    for (final plan in <String>['1 Month', '3 Months', '6 Months', '1 Year']) {
-      expect(find.text(plan), findsOneWidget);
+    // A free account is sold Pro alone: it may buy its own tier or lower, and
+    // Pro is the entry tier. So Pro's card is the only tier card on screen, and
+    // neither of the chamber tiers the account cannot buy is named at all.
+    expect(find.text('Pro'), findsOneWidget);
+    for (final hidden in <String>['Firm', 'Firm Plus']) {
+      expect(find.text(hidden), findsNothing, reason: hidden);
     }
-    // The price carries no duration of its own — the plan's name above it says
-    // how long the plan runs.
-    expect(find.text('৳$paywallMonthlyPrice'), findsOneWidget);
-    expect(find.text('৳$paywallQuarterlyPrice'), findsOneWidget);
-    expect(find.text('৳$paywallHalfYearlyPrice'), findsOneWidget);
-    expect(find.text('৳960'), findsOneWidget);
+    expect(find.text('1 Month'), findsOneWidget);
+    expect(find.text('3 Months'), findsOneWidget);
+    expect(find.text('6 Months'), findsOneWidget);
+    expect(find.text('1 Year'), findsOneWidget);
+    // Flat prices, written as their own amount — Pro's yearly is ৳1,000, and
+    // the withdrawn discount model's struck-through ৳960 is gone.
+    expect(find.text('৳$paymentMonthlyPrice'), findsOneWidget);
+    expect(find.text('৳$paymentQuarterlyPrice'), findsOneWidget);
+    expect(find.text('৳$paymentHalfYearlyPrice'), findsOneWidget);
+    // The amount is written with a thousands separator, so a four-digit price
+    // reads ৳1,000 rather than ৳1000.
+    expect(find.text('৳1,000'), findsOneWidget);
+    for (final gone in <String>['৳960', '৳600', '৳1,200']) {
+      expect(find.text(gone), findsNothing, reason: gone);
+    }
+    for (final badge in <String>['10% Off', '20% Off']) {
+      expect(find.text(badge), findsNothing, reason: badge);
+    }
     expect(find.textContaining('per month'), findsNothing);
-    expect(find.textContaining('for 3 months'), findsNothing);
-    expect(find.textContaining('for 6 months'), findsNothing);
     expect(find.textContaining('per year'), findsNothing);
-    // The full per-month price is struck through beside each discounted plan,
-    // and the badge names the saving the plan actually offers.
-    expect(find.text('৳600'), findsOneWidget);
-    expect(find.text('৳1,200'), findsOneWidget);
-    expect(find.text('10% Off'), findsOneWidget);
-    expect(find.text('20% Off'), findsOneWidget);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
   });
@@ -168,15 +190,28 @@ void main() {
     }
   });
 
-  testWidgets('the struck-through price is red', (tester) async {
+  testWidgets('no price is struck through, and each tier states one', (
+    tester,
+  ) async {
     await pumpPaywall(tester);
 
-    for (final wasPrice in <String>['৳300', '৳600', '৳1,200']) {
-      final text = tester.widget<Text>(find.text(wasPrice));
-      final style = text.style!;
-      expect(style.decoration, TextDecoration.lineThrough);
-      expect(style.color, AppColors.error);
-      expect(style.decorationColor, AppColors.error);
+    // Every plan carries its own flat price now: the discount model that drew a
+    // struck-through original and a saving badge is withdrawn, so any price
+    // still carrying a line through it would be a leftover of it.
+    for (final text in tester.widgetList<Text>(find.byType(Text))) {
+      final style = text.style;
+      if (style?.decoration == TextDecoration.lineThrough) {
+        fail('a struck-through price is still rendered: "${text.data}"');
+      }
+    }
+    // A free account is sold Pro, so Pro's own one-line note is stated once and
+    // the chamber tiers' notes are not shown.
+    expect(find.text('One account'), findsOneWidget);
+    for (final otherNote in <String>[
+      'Up to 5 associates',
+      'Up to 20 associates',
+    ]) {
+      expect(find.text(otherNote), findsNothing, reason: otherNote);
     }
   });
 
@@ -201,7 +236,9 @@ void main() {
     final actions = tester.widgetList<FilledButton>(
       find.widgetWithText(FilledButton, 'Subscribe'),
     );
-    expect(actions, hasLength(subscriptionPlans.length));
+    // A free account is shown Pro's four plans, and every one of them can be
+    // acted on — the ladder added plans, not disabled states.
+    expect(actions, hasLength(4));
     for (final action in actions) {
       expect(action.onPressed, isNotNull);
     }
@@ -239,32 +276,85 @@ void main() {
     expect(find.text('৩ মাস'), findsOneWidget);
     expect(find.text('৬ মাস'), findsOneWidget);
     expect(find.text('১ বছর'), findsOneWidget);
+    // Bengali digits, flat prices: the yearly plan is ৳১,০০০.
     expect(find.text('৳১০০'), findsOneWidget);
     expect(find.text('৳২৮৫'), findsOneWidget);
     expect(find.text('৳৫৪০'), findsOneWidget);
-    expect(find.text('৳৯৬০'), findsOneWidget);
+    expect(find.text('৳১,০০০'), findsOneWidget);
     expect(find.textContaining('/ মাস'), findsNothing);
     expect(find.textContaining('/ বছর'), findsNothing);
-    // The struck-through full price and the savings, in Bengali digits.
-    expect(find.text('৳৬০০'), findsOneWidget);
-    expect(find.text('৳১,২০০'), findsOneWidget);
-    expect(find.text('১০% ছাড়'), findsOneWidget);
-    expect(find.text('২০% ছাড়'), findsOneWidget);
-    expect(find.text('সাবস্ক্রাইব'), findsNWidgets(subscriptionPlans.length));
+    // The withdrawn discount model is gone here too.
+    expect(find.text('৳৯৬০'), findsNothing);
+    expect(find.text('১০% ছাড়'), findsNothing);
+    expect(find.text('২০% ছাড়'), findsNothing);
+    // Free falls back to the entry tier even in Bengali, so Pro's four plans
+    // are the four actions on screen.
+    expect(find.text('সাবস্ক্রাইব'), findsNWidgets(4));
+  });
+
+  testWidgets('offers a Firm Plus account the whole ladder', (tester) async {
+    await pumpPaywall(tester, tier: SubscriptionTier.firmPlus);
+
+    // All three tier cards, in ladder order, and all ten plan rows.
+    expect(find.text('Pro'), findsOneWidget);
+    expect(find.text('Firm'), findsOneWidget);
+    expect(find.text('Firm Plus'), findsOneWidget);
+    for (final plan in subscriptionPlans) {
+      expect(
+        find.byKey(ValueKey('paywall-plan-${plan.key}')),
+        findsOneWidget,
+        reason: 'the ${plan.key} row should be offered to Firm Plus',
+      );
+    }
+    expect(find.text('Subscribe'), findsNWidgets(subscriptionPlans.length));
+  });
+
+  testWidgets('never offers an account a tier above its own', (tester) async {
+    // A Pro account is sold Pro alone: the six chamber rows are not built at
+    // all, so a price it cannot buy is never on screen to be tapped.
+    await pumpPaywall(tester, tier: SubscriptionTier.pro);
+
+    expect(find.text('Subscribe'), findsNWidgets(4));
+    expect(find.text('Firm'), findsNothing);
+    expect(find.text('Firm Plus'), findsNothing);
+    expect(
+      find.byKey(ValueKey('paywall-plan-$paymentPlanFirmAnnual')),
+      findsNothing,
+    );
+  });
+
+  test('the ladder order is the tier rank every comparison reads', () {
+    // `SubscriptionTier.rank` is the declaration order, and the paywall's
+    // "this tier or lower" rule reads it. Reordering the enum would silently
+    // reorder every gate, so the order is pinned here.
+    expect(SubscriptionTier.values.map((tier) => tier.rank), <int>[0, 1, 2, 3]);
+    expect(
+      SubscriptionTier.values.map((tier) => tier.key),
+      <String>['free', 'pro', 'firm', 'firm_plus'],
+    );
   });
 
   test('the plan prices and features are the plan’s own', () {
-    // ৳100 / ৳285 / ৳540 / ৳960, and no lifetime plan.
-    expect(paywallMonthlyPrice, 100);
-    expect(paywallQuarterlyPrice, 285);
-    expect(paywallHalfYearlyPrice, 540);
-    expect(paywallAnnualPrice, 960);
+    // The ladder's ten flat prices. Pro's yearly is ৳1,000 — a deliberate rise
+    // from the shipped ৳960 — and a chamber sells 3, 6 or 12 months, because a
+    // chamber does not buy a single month.
+    expect(paymentMonthlyPrice, 100);
+    expect(paymentQuarterlyPrice, 285);
+    expect(paymentHalfYearlyPrice, 540);
+    expect(paymentAnnualPrice, 1000);
+    expect(paymentFirmQuarterlyPrice, 855);
+    expect(paymentFirmHalfYearlyPrice, 1620);
+    expect(paymentFirmAnnualPrice, 3000);
+    expect(paymentFirmPlusQuarterlyPrice, 1710);
+    expect(paymentFirmPlusHalfYearlyPrice, 3240);
+    expect(paymentFirmPlusAnnualPrice, 6000);
+    // Each key resolves to its own amount, and an unknown key resolves to none.
     expect(paymentPlanAmount(paymentPlanMonthly), 100);
-    expect(paymentPlanAmount(paymentPlanQuarterly), 285);
-    expect(paymentPlanAmount(paymentPlanHalfYearly), 540);
-    expect(paymentPlanAmount(paymentPlanAnnual), 960);
+    expect(paymentPlanAmount(paymentPlanAnnual), 1000);
+    expect(paymentPlanAmount(paymentPlanFirmAnnual), 3000);
+    expect(paymentPlanAmount(paymentPlanFirmPlusAnnual), 6000);
     expect(paymentPlanAmount('lifetime'), isNull);
-    // The four plans, in the order the paywall lists them.
+    // The ten plans, in the ladder's order: Pro, then Firm, then Firm Plus.
     expect(
       subscriptionPlans.map((p) => p.key),
       <String>[
@@ -272,17 +362,43 @@ void main() {
         paymentPlanQuarterly,
         paymentPlanHalfYearly,
         paymentPlanAnnual,
+        paymentPlanFirmQuarterly,
+        paymentPlanFirmHalfYearly,
+        paymentPlanFirmAnnual,
+        paymentPlanFirmPlusQuarterly,
+        paymentPlanFirmPlusHalfYearly,
+        paymentPlanFirmPlusAnnual,
       ],
     );
-    // Every saving is measured against the plan's own per-month rate, so a
-    // badge can only claim a discount the amounts actually carry.
+    // Each plan carries the tier it belongs to, and only Pro sells one month.
     expect(
-      subscriptionPlans.map((p) => p.discountPercent),
-      <int>[0, 5, 10, 20],
+      subscriptionPlans.map((p) => planTier(p.key)),
+      <SubscriptionTier?>[
+        SubscriptionTier.pro,
+        SubscriptionTier.pro,
+        SubscriptionTier.pro,
+        SubscriptionTier.pro,
+        SubscriptionTier.firm,
+        SubscriptionTier.firm,
+        SubscriptionTier.firm,
+        SubscriptionTier.firmPlus,
+        SubscriptionTier.firmPlus,
+        SubscriptionTier.firmPlus,
+      ],
     );
+    expect(planTier('lifetime'), isNull);
+    // No plan carries a discount: every price is simply its price.
+    expect(subscriptionPlans.where((p) => p.amount <= 0), isEmpty);
+    // The one-directional visibility rule: an account buys its own tier or
+    // lower, never higher. Free is sold the entry tier, Pro is Pro alone, and a
+    // Firm Plus account sees all ten.
+    expect(plansVisibleToTier(SubscriptionTier.free), hasLength(4));
+    expect(plansVisibleToTier(SubscriptionTier.pro), hasLength(4));
+    expect(plansVisibleToTier(SubscriptionTier.firm), hasLength(7));
+    expect(plansVisibleToTier(SubscriptionTier.firmPlus), hasLength(10));
     expect(
-      subscriptionPlans.map((p) => p.undiscountedAmount),
-      <int>[100, 300, 600, 1200],
+      plansVisibleToTier(SubscriptionTier.pro).map((p) => planTier(p.key)),
+      everyElement(SubscriptionTier.pro),
     );
     expect(paywallFeatures, hasLength(5));
     // The five the offer section lists, in display order: Unlimited Cases leads

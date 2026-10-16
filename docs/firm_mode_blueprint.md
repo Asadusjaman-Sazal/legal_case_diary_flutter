@@ -1242,10 +1242,10 @@ into a leak surface.
   scheduled daily through `pg_cron`, so a failure is silent until someone reads the log — the "skip
   rather than fail" half is not optional.
 
-### Phase 7 — Stored Tier And The Creation Gate — **Owed**
+### Phase 7 — Stored Tier And The Creation Gate — **Built**
 
 
-- **Status.** **Owed** — `profiles.tier` / `firms.tier` do not exist, and `firm_seat_cap` reads `is_premium` as a placeholder.
+- **Status.** **Built and applied** — the storage half, the widened mirror, the ten-key `approve_payment` and the narrowed insert grants are in `20261016120000_firm_mode_stored_tier.sql`, and the seat cap and creation gate are in `20261016130000_firm_mode_seat_cap_and_creation_gate.sql`. Both went to the live project `lsthasywrdrhuuxnykau` on **2026-10-16, in that order and in one pass with Phase 8**, as the hazard below requires, and are recorded in `supabase_migrations.schema_migrations`: `profiles` and `firms` carry `tier`, and `firm_seat_cap` and `ensure_firm`'s gate read it. The proof below was run green against the applied project. Two defects were found and repaired in the pair before applying, both of which the proof now pins: `firm_seat_cap`'s `pro` branch fell through to `null`, which would have left a Pro chamber **uncapped instead of refusing joins**, and the stored tier was **never backfilled**, so an account that already held a paid Pro purchase — or was inside a paid period — would have read `free` until its subscription next changed.
 - **Discharges.** §5.3's storage half, §5.4's mechanism, §10.12, §10.16. Plan: *What Firm Mode Still Owes* — the tier's storage half
   and the creation gate. Task 21.
 - **Depends On.** Phase 8 — **see the hazard below; this is the one ordering defect in the list.**
@@ -1271,10 +1271,17 @@ into a leak surface.
     (`20260930180000_ensure_firm_premium_gate.sql`).
   - Client writes to `tier` are closed **by construction**:
     `20260929102500_phase3_column_privileges.sql` grants only `update (full_name)` on `profiles` and
-    `update (name)` on `firms`, and denies by default any column a later migration adds.
-- **Objects.** `profiles.tier` / `firms.tier` and the pending pair; `approve_payment`; `mirror_owner_subscription_to_firm` (both its `of` list and its `when`); `firm_seat_cap` (`20261015120000_firm_mode_join_gate.sql`); `ensure_firm`’s gate (`20260930180000_ensure_firm_premium_gate.sql`); `20260929102500_phase3_column_privileges.sql`, which already closes client writes to a new column by default.
+    `update (name)` on `firms`, and denies by default any column a later migration adds. **Insert
+    was the exception this phase had to close**: `profiles` and `firms` also carry a *table-level*
+    `insert` for `authenticated` and `anon`, and a table-level grant reaches every column added
+    afterwards — with `firms_insert_owner` (`owner_id = auth.uid()`) that was enough for any signed-in
+    account to mint a `firm_plus` chamber without paying. `20261016120000_firm_mode_stored_tier.sql`
+    therefore revokes both table-level grants and re-grants exactly the columns that were writable
+    before it, so the three tier columns are unwritable at insert as well as at update, and no later
+    column inherits a write grant.
+- **Objects.** `profiles.tier` / `firms.tier` and the pending pair; `approve_payment`; `mirror_owner_subscription_to_firm` (both its `of` list and its `when`); `firm_seat_cap` (`20261015120000_firm_mode_join_gate.sql`); `ensure_firm`’s gate (`20260930180000_ensure_firm_premium_gate.sql`); `20260929102500_phase3_column_privileges.sql`, which closes client **update** writes to a new column by default, and the insert grants `20261016120000_firm_mode_stored_tier.sql` narrows to match.
 - **Client.** None for the gate itself.
-- **Proof.** A new `supabase/tests/firm_mode_stored_tier_test.sql`, rolled back, run wrapped.
+- **Proof.** `supabase/tests/firm_mode_stored_tier_test.sql`, rolled back and run wrapped — **green against the applied project on 2026-10-16**, covering the backfill's rule over the project's own rows, all ten ladder keys, an off-ladder key and a wrong amount, the mirror at Pro and Firm, the caps at 0 / 5 / 20, a pending downgrade taking effect on its date with no approval, an upgrade clearing the pending pair, the tier surviving a lapse, the creation gate refusing free and Pro and admitting Firm and Firm Plus, and `authenticated` being unable to write `tier` at update, to store an off-ladder value, or to approve anything. `supabase/tests/firm_mode_join_gate_test.sql` was re-run green over the re-pointed cap as well.
 - **Acceptance.** A Firm approval writes `firms.tier` through the widened mirror, not only the
   profile; the tier survives expiry; `firm_seat_cap` answers 0/5/20 by tier; a Pro caller creating a
   chamber is refused with the reason; a client cannot write `tier` directly or through the RPC.
@@ -1292,10 +1299,10 @@ into a leak surface.
 - **Open input.** Whether the gate switch-on stays inside Phase 7 or moves into Phase 8 is a
   sequencing decision to take when the phase is built, not a question about the ruling.
 
-### Phase 8 — The Ten-Plan Ladder — **Owed**
+### Phase 8 — The Ten-Plan Ladder — **Server Applied, Client Built**
 
 
-- **Status.** **Owed** — `approve_payment` still accepts only the four Pro keys.
+- **Status.** **Client built, server applied** — the ten keys, the flat prices and the generated `plan_name` `CASE` are in `20261016120000_firm_mode_stored_tier.sql`, applied to the live project on 2026-10-16, so `approve_payment` accepts all ten keys and a refused key answers `invalid_plan` with the reason the client shows. The client half has landed (`payment_plans.dart` carrying each plan's tier, the paywall's "this tier or lower" rule, the checkout and the plan labels).
 - **Discharges.** §5.3's ladder, §10.9. Plan: *What Firm Mode Still Owes* — the ladder and the rebuilt plans screen. Task 21.
 - **Depends On.** Phase 7's columns (the tier is written at approval), and it is the phase that makes
   Phase 7's gate safe — see the hazard above.

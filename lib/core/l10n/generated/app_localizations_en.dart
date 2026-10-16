@@ -1117,14 +1117,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_planAnnual => '1 Year';
 
   @override
-  String paywall_planWasPrice(String price) {
-    return '৳$price';
-  }
+  String get paywall_planFirmQuarterly => 'Firm · 3 Months';
 
   @override
-  String paywall_planDiscount(String percent) {
-    return '$percent% Off';
-  }
+  String get paywall_planFirmHalfYearly => 'Firm · 6 Months';
+
+  @override
+  String get paywall_planFirmAnnual => 'Firm · 1 Year';
+
+  @override
+  String get paywall_planFirmPlusQuarterly => 'Firm Plus · 3 Months';
+
+  @override
+  String get paywall_planFirmPlusHalfYearly => 'Firm Plus · 6 Months';
+
+  @override
+  String get paywall_planFirmPlusAnnual => 'Firm Plus · 1 Year';
+
+  @override
+  String get paywall_tierPro => 'Pro';
+
+  @override
+  String get paywall_tierFirm => 'Firm';
+
+  @override
+  String get paywall_tierFirmPlus => 'Firm Plus';
+
+  @override
+  String get paywall_tierProNote => 'One account';
+
+  @override
+  String get paywall_tierFirmNote => 'Up to 5 associates';
+
+  @override
+  String get paywall_tierFirmPlusNote => 'Up to 20 associates';
 
   @override
   String get paywall_subscribe => 'Subscribe';
@@ -3940,6 +3966,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get auth_errorPremiumRequired =>
       'Firm Mode Requires An Active Premium Subscription.';
+
+  @override
+  String get firm_errorTierRequired =>
+      'Creating a chamber needs the Firm plan. Pro chambers cannot add associates.';
 
   @override
   String get firm_errorServer =>

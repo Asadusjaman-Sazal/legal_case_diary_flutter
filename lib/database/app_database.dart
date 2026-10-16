@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -71,7 +71,10 @@ class AppDatabase extends _$AppDatabase {
   /// the division/district scope for user-created lower-court categories, then
   /// v7→v8 by adding the per-case notification time to
   /// `case_notification_preferences`, then v8→v9 by adding the to-do checklist
-  /// to `notes`, then v9→v10 by adding `conflict_log.mergeable_conflict`.
+  /// to `notes`, then v9→v10 by adding `conflict_log.mergeable_conflict`, then
+  /// v10→v11 by adding the admin payment-alert toggle, then v11→v12 by adding
+  /// the stored subscription tier (`tier`, `tier_pending`, `tier_pending_from`)
+  /// to the cached `profiles` and `firms` rows.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -132,6 +135,18 @@ class AppDatabase extends _$AppDatabase {
           userPreferences,
           userPreferences.paymentAlertsEnabled,
         );
+      }
+      if (from < 12) {
+        // The stored subscription tier (Task 21's ten-plan ladder). Additive and
+        // defaulted: each column is added with `free`/null, so no existing row
+        // is rewritten and no case data is touched — the upgrade only widens the
+        // two cache tables. The next profile pull fills the real values.
+        await m.addColumn(profiles, profiles.tier);
+        await m.addColumn(profiles, profiles.tierPending);
+        await m.addColumn(profiles, profiles.tierPendingFrom);
+        await m.addColumn(firms, firms.tier);
+        await m.addColumn(firms, firms.tierPending);
+        await m.addColumn(firms, firms.tierPendingFrom);
       }
     },
     beforeOpen: (details) async {

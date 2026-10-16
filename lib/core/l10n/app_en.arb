@@ -552,24 +552,23 @@
   "paywall_planQuarterly": "3 Months",
   "paywall_planHalfYearly": "6 Months",
   "paywall_planAnnual": "1 Year",
-  "paywall_planWasPrice": "৳{price}",
-  "@paywall_planWasPrice": {
-      "description": "The full price of a discounted plan, rendered struck through before the discounted price.",
-      "placeholders": {
-          "price": {
-              "type": "String"
-          }
-      }
+  "paywall_planFirmQuarterly": "Firm · 3 Months",
+  "paywall_planFirmHalfYearly": "Firm · 6 Months",
+  "paywall_planFirmAnnual": "Firm · 1 Year",
+  "paywall_planFirmPlusQuarterly": "Firm Plus · 3 Months",
+  "paywall_planFirmPlusHalfYearly": "Firm Plus · 6 Months",
+  "paywall_planFirmPlusAnnual": "Firm Plus · 1 Year",
+  "paywall_tierPro": "Pro",
+  "paywall_tierFirm": "Firm",
+  "paywall_tierFirmPlus": "Firm Plus",
+  "paywall_tierProNote": "One account",
+  "paywall_tierFirmNote": "Up to 5 associates",
+  "paywall_tierFirmPlusNote": "Up to 20 associates",
+  "@paywall_tierFirmNote": {
+      "description": "What the Firm tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap."
   },
-  "paywall_planDiscount": "{percent}% Off",
-  "@paywall_planDiscount": {
-      "description": "Badge on a discounted plan, e.g. 20% Off. The percentage is computed from the plan's own prices, so it always describes the saving actually offered.",
-      "placeholders": {
-          "percent": {
-              "type": "String",
-              "description": "Whole-number saving, in the language's own digits."
-          }
-      }
+  "@paywall_tierFirmPlusNote": {
+      "description": "What the Firm Plus tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap."
   },
   "paywall_subscribe": "Subscribe",
   "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
@@ -1854,6 +1853,7 @@
   "auth_errorTooManyAttempts": "Too many attempts. Please try again later.",
   "auth_errorFirmAdminOffline": "Connect to the internet to manage your firm.",
   "auth_errorPremiumRequired": "Firm Mode Requires An Active Premium Subscription.",
+  "firm_errorTierRequired": "Creating a chamber needs the Firm plan. Pro chambers cannot add associates.",
   "firm_errorServer": "The server could not complete that request. Please try again.",
   "firm_errorUnauthorized": "Your account is not allowed to do that.",
   "firm_errorUnavailable": "Firm management is not available in this build.",

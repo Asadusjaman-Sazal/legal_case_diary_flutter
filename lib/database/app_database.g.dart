@@ -11702,6 +11702,38 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _tierMeta = const VerificationMeta('tier');
+  @override
+  late final GeneratedColumn<String> tier = GeneratedColumn<String>(
+    'tier',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('free'),
+  );
+  static const VerificationMeta _tierPendingMeta = const VerificationMeta(
+    'tierPending',
+  );
+  @override
+  late final GeneratedColumn<String> tierPending = GeneratedColumn<String>(
+    'tier_pending',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tierPendingFromMeta = const VerificationMeta(
+    'tierPendingFrom',
+  );
+  @override
+  late final GeneratedColumn<int> tierPendingFrom = GeneratedColumn<int>(
+    'tier_pending_from',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -11720,6 +11752,9 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
     ownerId,
     subscriptionStatus,
     subscriptionExpiry,
+    tier,
+    tierPending,
+    tierPendingFrom,
     createdAt,
   ];
   @override
@@ -11775,6 +11810,30 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
         ),
       );
     }
+    if (data.containsKey('tier')) {
+      context.handle(
+        _tierMeta,
+        tier.isAcceptableOrUnknown(data['tier']!, _tierMeta),
+      );
+    }
+    if (data.containsKey('tier_pending')) {
+      context.handle(
+        _tierPendingMeta,
+        tierPending.isAcceptableOrUnknown(
+          data['tier_pending']!,
+          _tierPendingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tier_pending_from')) {
+      context.handle(
+        _tierPendingFromMeta,
+        tierPendingFrom.isAcceptableOrUnknown(
+          data['tier_pending_from']!,
+          _tierPendingFromMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -11812,6 +11871,18 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
         DriftSqlType.int,
         data['${effectivePrefix}subscription_expiry'],
       ),
+      tier: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tier'],
+      )!,
+      tierPending: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tier_pending'],
+      ),
+      tierPendingFrom: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tier_pending_from'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -11841,6 +11912,21 @@ class Firm extends DataClass implements Insertable<Firm> {
   /// Subscription expiry converted from Supabase TIMESTAMPTZ to epoch ms.
   final int? subscriptionExpiry;
 
+  /// The chamber's subscription tier, mirrored from its owner's plan:
+  /// `free`, `pro`, `firm` or `firm_plus`.
+  ///
+  /// This row is the chamber's **source of the seat cap** — Pro 0, Firm 5,
+  /// Firm Plus 20 — and the allowance a lapsed member falls back to, so it is
+  /// read rather than re-derived from the owner's expiry. Defaults to `free`,
+  /// the safe answer for a row cached before the column existed.
+  final String tier;
+
+  /// The tier a mid-term downgrade will fall to, or null when none is waiting.
+  final String? tierPending;
+
+  /// The expiry at which [tierPending] starts, epoch ms.
+  final int? tierPendingFrom;
+
   /// Creation timestamp (epoch ms, converted from TIMESTAMPTZ).
   final int createdAt;
   const Firm({
@@ -11849,6 +11935,9 @@ class Firm extends DataClass implements Insertable<Firm> {
     required this.ownerId,
     required this.subscriptionStatus,
     this.subscriptionExpiry,
+    required this.tier,
+    this.tierPending,
+    this.tierPendingFrom,
     required this.createdAt,
   });
   @override
@@ -11860,6 +11949,13 @@ class Firm extends DataClass implements Insertable<Firm> {
     map['subscription_status'] = Variable<String>(subscriptionStatus);
     if (!nullToAbsent || subscriptionExpiry != null) {
       map['subscription_expiry'] = Variable<int>(subscriptionExpiry);
+    }
+    map['tier'] = Variable<String>(tier);
+    if (!nullToAbsent || tierPending != null) {
+      map['tier_pending'] = Variable<String>(tierPending);
+    }
+    if (!nullToAbsent || tierPendingFrom != null) {
+      map['tier_pending_from'] = Variable<int>(tierPendingFrom);
     }
     map['created_at'] = Variable<int>(createdAt);
     return map;
@@ -11874,6 +11970,13 @@ class Firm extends DataClass implements Insertable<Firm> {
       subscriptionExpiry: subscriptionExpiry == null && nullToAbsent
           ? const Value.absent()
           : Value(subscriptionExpiry),
+      tier: Value(tier),
+      tierPending: tierPending == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tierPending),
+      tierPendingFrom: tierPendingFrom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tierPendingFrom),
       createdAt: Value(createdAt),
     );
   }
@@ -11891,6 +11994,9 @@ class Firm extends DataClass implements Insertable<Firm> {
         json['subscriptionStatus'],
       ),
       subscriptionExpiry: serializer.fromJson<int?>(json['subscriptionExpiry']),
+      tier: serializer.fromJson<String>(json['tier']),
+      tierPending: serializer.fromJson<String?>(json['tierPending']),
+      tierPendingFrom: serializer.fromJson<int?>(json['tierPendingFrom']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
     );
   }
@@ -11903,6 +12009,9 @@ class Firm extends DataClass implements Insertable<Firm> {
       'ownerId': serializer.toJson<String>(ownerId),
       'subscriptionStatus': serializer.toJson<String>(subscriptionStatus),
       'subscriptionExpiry': serializer.toJson<int?>(subscriptionExpiry),
+      'tier': serializer.toJson<String>(tier),
+      'tierPending': serializer.toJson<String?>(tierPending),
+      'tierPendingFrom': serializer.toJson<int?>(tierPendingFrom),
       'createdAt': serializer.toJson<int>(createdAt),
     };
   }
@@ -11913,6 +12022,9 @@ class Firm extends DataClass implements Insertable<Firm> {
     String? ownerId,
     String? subscriptionStatus,
     Value<int?> subscriptionExpiry = const Value.absent(),
+    String? tier,
+    Value<String?> tierPending = const Value.absent(),
+    Value<int?> tierPendingFrom = const Value.absent(),
     int? createdAt,
   }) => Firm(
     id: id ?? this.id,
@@ -11922,6 +12034,11 @@ class Firm extends DataClass implements Insertable<Firm> {
     subscriptionExpiry: subscriptionExpiry.present
         ? subscriptionExpiry.value
         : this.subscriptionExpiry,
+    tier: tier ?? this.tier,
+    tierPending: tierPending.present ? tierPending.value : this.tierPending,
+    tierPendingFrom: tierPendingFrom.present
+        ? tierPendingFrom.value
+        : this.tierPendingFrom,
     createdAt: createdAt ?? this.createdAt,
   );
   Firm copyWithCompanion(FirmsCompanion data) {
@@ -11935,6 +12052,13 @@ class Firm extends DataClass implements Insertable<Firm> {
       subscriptionExpiry: data.subscriptionExpiry.present
           ? data.subscriptionExpiry.value
           : this.subscriptionExpiry,
+      tier: data.tier.present ? data.tier.value : this.tier,
+      tierPending: data.tierPending.present
+          ? data.tierPending.value
+          : this.tierPending,
+      tierPendingFrom: data.tierPendingFrom.present
+          ? data.tierPendingFrom.value
+          : this.tierPendingFrom,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -11947,6 +12071,9 @@ class Firm extends DataClass implements Insertable<Firm> {
           ..write('ownerId: $ownerId, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('tier: $tier, ')
+          ..write('tierPending: $tierPending, ')
+          ..write('tierPendingFrom: $tierPendingFrom, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -11959,6 +12086,9 @@ class Firm extends DataClass implements Insertable<Firm> {
     ownerId,
     subscriptionStatus,
     subscriptionExpiry,
+    tier,
+    tierPending,
+    tierPendingFrom,
     createdAt,
   );
   @override
@@ -11970,6 +12100,9 @@ class Firm extends DataClass implements Insertable<Firm> {
           other.ownerId == this.ownerId &&
           other.subscriptionStatus == this.subscriptionStatus &&
           other.subscriptionExpiry == this.subscriptionExpiry &&
+          other.tier == this.tier &&
+          other.tierPending == this.tierPending &&
+          other.tierPendingFrom == this.tierPendingFrom &&
           other.createdAt == this.createdAt);
 }
 
@@ -11979,6 +12112,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
   final Value<String> ownerId;
   final Value<String> subscriptionStatus;
   final Value<int?> subscriptionExpiry;
+  final Value<String> tier;
+  final Value<String?> tierPending;
+  final Value<int?> tierPendingFrom;
   final Value<int> createdAt;
   final Value<int> rowid;
   const FirmsCompanion({
@@ -11987,6 +12123,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     this.ownerId = const Value.absent(),
     this.subscriptionStatus = const Value.absent(),
     this.subscriptionExpiry = const Value.absent(),
+    this.tier = const Value.absent(),
+    this.tierPending = const Value.absent(),
+    this.tierPendingFrom = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -11996,6 +12135,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     required String ownerId,
     required String subscriptionStatus,
     this.subscriptionExpiry = const Value.absent(),
+    this.tier = const Value.absent(),
+    this.tierPending = const Value.absent(),
+    this.tierPendingFrom = const Value.absent(),
     required int createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -12009,6 +12151,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     Expression<String>? ownerId,
     Expression<String>? subscriptionStatus,
     Expression<int>? subscriptionExpiry,
+    Expression<String>? tier,
+    Expression<String>? tierPending,
+    Expression<int>? tierPendingFrom,
     Expression<int>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -12018,6 +12163,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
       if (ownerId != null) 'owner_id': ownerId,
       if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
       if (subscriptionExpiry != null) 'subscription_expiry': subscriptionExpiry,
+      if (tier != null) 'tier': tier,
+      if (tierPending != null) 'tier_pending': tierPending,
+      if (tierPendingFrom != null) 'tier_pending_from': tierPendingFrom,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -12029,6 +12177,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     Value<String>? ownerId,
     Value<String>? subscriptionStatus,
     Value<int?>? subscriptionExpiry,
+    Value<String>? tier,
+    Value<String?>? tierPending,
+    Value<int?>? tierPendingFrom,
     Value<int>? createdAt,
     Value<int>? rowid,
   }) {
@@ -12038,6 +12189,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
       ownerId: ownerId ?? this.ownerId,
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
       subscriptionExpiry: subscriptionExpiry ?? this.subscriptionExpiry,
+      tier: tier ?? this.tier,
+      tierPending: tierPending ?? this.tierPending,
+      tierPendingFrom: tierPendingFrom ?? this.tierPendingFrom,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -12061,6 +12215,15 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     if (subscriptionExpiry.present) {
       map['subscription_expiry'] = Variable<int>(subscriptionExpiry.value);
     }
+    if (tier.present) {
+      map['tier'] = Variable<String>(tier.value);
+    }
+    if (tierPending.present) {
+      map['tier_pending'] = Variable<String>(tierPending.value);
+    }
+    if (tierPendingFrom.present) {
+      map['tier_pending_from'] = Variable<int>(tierPendingFrom.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -12078,6 +12241,9 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
           ..write('ownerId: $ownerId, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('tier: $tier, ')
+          ..write('tierPending: $tierPending, ')
+          ..write('tierPendingFrom: $tierPendingFrom, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -12732,6 +12898,38 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _tierMeta = const VerificationMeta('tier');
+  @override
+  late final GeneratedColumn<String> tier = GeneratedColumn<String>(
+    'tier',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('free'),
+  );
+  static const VerificationMeta _tierPendingMeta = const VerificationMeta(
+    'tierPending',
+  );
+  @override
+  late final GeneratedColumn<String> tierPending = GeneratedColumn<String>(
+    'tier_pending',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tierPendingFromMeta = const VerificationMeta(
+    'tierPendingFrom',
+  );
+  @override
+  late final GeneratedColumn<int> tierPendingFrom = GeneratedColumn<int>(
+    'tier_pending_from',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -12751,6 +12949,9 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     role,
     subscriptionStatus,
     subscriptionExpiry,
+    tier,
+    tierPending,
+    tierPendingFrom,
     createdAt,
   ];
   @override
@@ -12812,6 +13013,30 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         ),
       );
     }
+    if (data.containsKey('tier')) {
+      context.handle(
+        _tierMeta,
+        tier.isAcceptableOrUnknown(data['tier']!, _tierMeta),
+      );
+    }
+    if (data.containsKey('tier_pending')) {
+      context.handle(
+        _tierPendingMeta,
+        tierPending.isAcceptableOrUnknown(
+          data['tier_pending']!,
+          _tierPendingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tier_pending_from')) {
+      context.handle(
+        _tierPendingFromMeta,
+        tierPendingFrom.isAcceptableOrUnknown(
+          data['tier_pending_from']!,
+          _tierPendingFromMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -12853,6 +13078,18 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.int,
         data['${effectivePrefix}subscription_expiry'],
       ),
+      tier: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tier'],
+      )!,
+      tierPending: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tier_pending'],
+      ),
+      tierPendingFrom: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tier_pending_from'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -12885,6 +13122,23 @@ class Profile extends DataClass implements Insertable<Profile> {
   /// Premium subscription expiry converted from TIMESTAMPTZ to epoch ms.
   final int? subscriptionExpiry;
 
+  /// The subscription tier this account holds: `free`, `pro`, `firm` or
+  /// `firm_plus`, as the server stores it.
+  ///
+  /// The server writes it at approval and **never clears it on expiry**, so the
+  /// column is the record of the last tier held — which is what the lapse
+  /// allowance needs. Defaults to `free` so every row cached before this column
+  /// existed reads as "no paid tier", the safe answer.
+  final String tier;
+
+  /// The tier a mid-term downgrade will fall to when the paid period ends, or
+  /// null when no downgrade is waiting.
+  final String? tierPending;
+
+  /// The expiry at which [tierPending] starts, epoch ms. A downgrade waits for
+  /// the period it was bought for, so the tier in force is never replaced early.
+  final int? tierPendingFrom;
+
   /// Profile creation timestamp (epoch ms, converted from TIMESTAMPTZ).
   final int createdAt;
   const Profile({
@@ -12894,6 +13148,9 @@ class Profile extends DataClass implements Insertable<Profile> {
     required this.role,
     required this.subscriptionStatus,
     this.subscriptionExpiry,
+    required this.tier,
+    this.tierPending,
+    this.tierPendingFrom,
     required this.createdAt,
   });
   @override
@@ -12908,6 +13165,13 @@ class Profile extends DataClass implements Insertable<Profile> {
     map['subscription_status'] = Variable<String>(subscriptionStatus);
     if (!nullToAbsent || subscriptionExpiry != null) {
       map['subscription_expiry'] = Variable<int>(subscriptionExpiry);
+    }
+    map['tier'] = Variable<String>(tier);
+    if (!nullToAbsent || tierPending != null) {
+      map['tier_pending'] = Variable<String>(tierPending);
+    }
+    if (!nullToAbsent || tierPendingFrom != null) {
+      map['tier_pending_from'] = Variable<int>(tierPendingFrom);
     }
     map['created_at'] = Variable<int>(createdAt);
     return map;
@@ -12925,6 +13189,13 @@ class Profile extends DataClass implements Insertable<Profile> {
       subscriptionExpiry: subscriptionExpiry == null && nullToAbsent
           ? const Value.absent()
           : Value(subscriptionExpiry),
+      tier: Value(tier),
+      tierPending: tierPending == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tierPending),
+      tierPendingFrom: tierPendingFrom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tierPendingFrom),
       createdAt: Value(createdAt),
     );
   }
@@ -12943,6 +13214,9 @@ class Profile extends DataClass implements Insertable<Profile> {
         json['subscriptionStatus'],
       ),
       subscriptionExpiry: serializer.fromJson<int?>(json['subscriptionExpiry']),
+      tier: serializer.fromJson<String>(json['tier']),
+      tierPending: serializer.fromJson<String?>(json['tierPending']),
+      tierPendingFrom: serializer.fromJson<int?>(json['tierPendingFrom']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
     );
   }
@@ -12956,6 +13230,9 @@ class Profile extends DataClass implements Insertable<Profile> {
       'role': serializer.toJson<String>(role),
       'subscriptionStatus': serializer.toJson<String>(subscriptionStatus),
       'subscriptionExpiry': serializer.toJson<int?>(subscriptionExpiry),
+      'tier': serializer.toJson<String>(tier),
+      'tierPending': serializer.toJson<String?>(tierPending),
+      'tierPendingFrom': serializer.toJson<int?>(tierPendingFrom),
       'createdAt': serializer.toJson<int>(createdAt),
     };
   }
@@ -12967,6 +13244,9 @@ class Profile extends DataClass implements Insertable<Profile> {
     String? role,
     String? subscriptionStatus,
     Value<int?> subscriptionExpiry = const Value.absent(),
+    String? tier,
+    Value<String?> tierPending = const Value.absent(),
+    Value<int?> tierPendingFrom = const Value.absent(),
     int? createdAt,
   }) => Profile(
     id: id ?? this.id,
@@ -12977,6 +13257,11 @@ class Profile extends DataClass implements Insertable<Profile> {
     subscriptionExpiry: subscriptionExpiry.present
         ? subscriptionExpiry.value
         : this.subscriptionExpiry,
+    tier: tier ?? this.tier,
+    tierPending: tierPending.present ? tierPending.value : this.tierPending,
+    tierPendingFrom: tierPendingFrom.present
+        ? tierPendingFrom.value
+        : this.tierPendingFrom,
     createdAt: createdAt ?? this.createdAt,
   );
   Profile copyWithCompanion(ProfilesCompanion data) {
@@ -12991,6 +13276,13 @@ class Profile extends DataClass implements Insertable<Profile> {
       subscriptionExpiry: data.subscriptionExpiry.present
           ? data.subscriptionExpiry.value
           : this.subscriptionExpiry,
+      tier: data.tier.present ? data.tier.value : this.tier,
+      tierPending: data.tierPending.present
+          ? data.tierPending.value
+          : this.tierPending,
+      tierPendingFrom: data.tierPendingFrom.present
+          ? data.tierPendingFrom.value
+          : this.tierPendingFrom,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -13004,6 +13296,9 @@ class Profile extends DataClass implements Insertable<Profile> {
           ..write('role: $role, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('tier: $tier, ')
+          ..write('tierPending: $tierPending, ')
+          ..write('tierPendingFrom: $tierPendingFrom, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -13017,6 +13312,9 @@ class Profile extends DataClass implements Insertable<Profile> {
     role,
     subscriptionStatus,
     subscriptionExpiry,
+    tier,
+    tierPending,
+    tierPendingFrom,
     createdAt,
   );
   @override
@@ -13029,6 +13327,9 @@ class Profile extends DataClass implements Insertable<Profile> {
           other.role == this.role &&
           other.subscriptionStatus == this.subscriptionStatus &&
           other.subscriptionExpiry == this.subscriptionExpiry &&
+          other.tier == this.tier &&
+          other.tierPending == this.tierPending &&
+          other.tierPendingFrom == this.tierPendingFrom &&
           other.createdAt == this.createdAt);
 }
 
@@ -13039,6 +13340,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<String> role;
   final Value<String> subscriptionStatus;
   final Value<int?> subscriptionExpiry;
+  final Value<String> tier;
+  final Value<String?> tierPending;
+  final Value<int?> tierPendingFrom;
   final Value<int> createdAt;
   final Value<int> rowid;
   const ProfilesCompanion({
@@ -13048,6 +13352,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     this.role = const Value.absent(),
     this.subscriptionStatus = const Value.absent(),
     this.subscriptionExpiry = const Value.absent(),
+    this.tier = const Value.absent(),
+    this.tierPending = const Value.absent(),
+    this.tierPendingFrom = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -13058,6 +13365,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     required String role,
     required String subscriptionStatus,
     this.subscriptionExpiry = const Value.absent(),
+    this.tier = const Value.absent(),
+    this.tierPending = const Value.absent(),
+    this.tierPendingFrom = const Value.absent(),
     required int createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -13072,6 +13382,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Expression<String>? role,
     Expression<String>? subscriptionStatus,
     Expression<int>? subscriptionExpiry,
+    Expression<String>? tier,
+    Expression<String>? tierPending,
+    Expression<int>? tierPendingFrom,
     Expression<int>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -13082,6 +13395,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       if (role != null) 'role': role,
       if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
       if (subscriptionExpiry != null) 'subscription_expiry': subscriptionExpiry,
+      if (tier != null) 'tier': tier,
+      if (tierPending != null) 'tier_pending': tierPending,
+      if (tierPendingFrom != null) 'tier_pending_from': tierPendingFrom,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -13094,6 +13410,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     Value<String>? role,
     Value<String>? subscriptionStatus,
     Value<int?>? subscriptionExpiry,
+    Value<String>? tier,
+    Value<String?>? tierPending,
+    Value<int?>? tierPendingFrom,
     Value<int>? createdAt,
     Value<int>? rowid,
   }) {
@@ -13104,6 +13423,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
       role: role ?? this.role,
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
       subscriptionExpiry: subscriptionExpiry ?? this.subscriptionExpiry,
+      tier: tier ?? this.tier,
+      tierPending: tierPending ?? this.tierPending,
+      tierPendingFrom: tierPendingFrom ?? this.tierPendingFrom,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -13130,6 +13452,15 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     if (subscriptionExpiry.present) {
       map['subscription_expiry'] = Variable<int>(subscriptionExpiry.value);
     }
+    if (tier.present) {
+      map['tier'] = Variable<String>(tier.value);
+    }
+    if (tierPending.present) {
+      map['tier_pending'] = Variable<String>(tierPending.value);
+    }
+    if (tierPendingFrom.present) {
+      map['tier_pending_from'] = Variable<int>(tierPendingFrom.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -13148,6 +13479,9 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
           ..write('role: $role, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
+          ..write('tier: $tier, ')
+          ..write('tierPending: $tierPending, ')
+          ..write('tierPendingFrom: $tierPendingFrom, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -22907,6 +23241,9 @@ typedef $$FirmsTableCreateCompanionBuilder =
       required String ownerId,
       required String subscriptionStatus,
       Value<int?> subscriptionExpiry,
+      Value<String> tier,
+      Value<String?> tierPending,
+      Value<int?> tierPendingFrom,
       required int createdAt,
       Value<int> rowid,
     });
@@ -22917,6 +23254,9 @@ typedef $$FirmsTableUpdateCompanionBuilder =
       Value<String> ownerId,
       Value<String> subscriptionStatus,
       Value<int?> subscriptionExpiry,
+      Value<String> tier,
+      Value<String?> tierPending,
+      Value<int?> tierPendingFrom,
       Value<int> createdAt,
       Value<int> rowid,
     });
@@ -22951,6 +23291,21 @@ class $$FirmsTableFilterComposer extends Composer<_$AppDatabase, $FirmsTable> {
 
   ColumnFilters<int> get subscriptionExpiry => $composableBuilder(
     column: $table.subscriptionExpiry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tier => $composableBuilder(
+    column: $table.tier,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22994,6 +23349,21 @@ class $$FirmsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tier => $composableBuilder(
+    column: $table.tier,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -23025,6 +23395,19 @@ class $$FirmsTableAnnotationComposer
 
   GeneratedColumn<int> get subscriptionExpiry => $composableBuilder(
     column: $table.subscriptionExpiry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get tier =>
+      $composableBuilder(column: $table.tier, builder: (column) => column);
+
+  GeneratedColumn<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
     builder: (column) => column,
   );
 
@@ -23065,6 +23448,9 @@ class $$FirmsTableTableManager
                 Value<String> ownerId = const Value.absent(),
                 Value<String> subscriptionStatus = const Value.absent(),
                 Value<int?> subscriptionExpiry = const Value.absent(),
+                Value<String> tier = const Value.absent(),
+                Value<String?> tierPending = const Value.absent(),
+                Value<int?> tierPendingFrom = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FirmsCompanion(
@@ -23073,6 +23459,9 @@ class $$FirmsTableTableManager
                 ownerId: ownerId,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,
+                tier: tier,
+                tierPending: tierPending,
+                tierPendingFrom: tierPendingFrom,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -23083,6 +23472,9 @@ class $$FirmsTableTableManager
                 required String ownerId,
                 required String subscriptionStatus,
                 Value<int?> subscriptionExpiry = const Value.absent(),
+                Value<String> tier = const Value.absent(),
+                Value<String?> tierPending = const Value.absent(),
+                Value<int?> tierPendingFrom = const Value.absent(),
                 required int createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => FirmsCompanion.insert(
@@ -23091,6 +23483,9 @@ class $$FirmsTableTableManager
                 ownerId: ownerId,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,
+                tier: tier,
+                tierPending: tierPending,
+                tierPendingFrom: tierPendingFrom,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -23402,6 +23797,9 @@ typedef $$ProfilesTableCreateCompanionBuilder =
       required String role,
       required String subscriptionStatus,
       Value<int?> subscriptionExpiry,
+      Value<String> tier,
+      Value<String?> tierPending,
+      Value<int?> tierPendingFrom,
       required int createdAt,
       Value<int> rowid,
     });
@@ -23413,6 +23811,9 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
       Value<String> role,
       Value<String> subscriptionStatus,
       Value<int?> subscriptionExpiry,
+      Value<String> tier,
+      Value<String?> tierPending,
+      Value<int?> tierPendingFrom,
       Value<int> createdAt,
       Value<int> rowid,
     });
@@ -23453,6 +23854,21 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<int> get subscriptionExpiry => $composableBuilder(
     column: $table.subscriptionExpiry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tier => $composableBuilder(
+    column: $table.tier,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -23501,6 +23917,21 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tier => $composableBuilder(
+    column: $table.tier,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -23535,6 +23966,19 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<int> get subscriptionExpiry => $composableBuilder(
     column: $table.subscriptionExpiry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get tier =>
+      $composableBuilder(column: $table.tier, builder: (column) => column);
+
+  GeneratedColumn<String> get tierPending => $composableBuilder(
+    column: $table.tierPending,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tierPendingFrom => $composableBuilder(
+    column: $table.tierPendingFrom,
     builder: (column) => column,
   );
 
@@ -23576,6 +24020,9 @@ class $$ProfilesTableTableManager
                 Value<String> role = const Value.absent(),
                 Value<String> subscriptionStatus = const Value.absent(),
                 Value<int?> subscriptionExpiry = const Value.absent(),
+                Value<String> tier = const Value.absent(),
+                Value<String?> tierPending = const Value.absent(),
+                Value<int?> tierPendingFrom = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProfilesCompanion(
@@ -23585,6 +24032,9 @@ class $$ProfilesTableTableManager
                 role: role,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,
+                tier: tier,
+                tierPending: tierPending,
+                tierPendingFrom: tierPendingFrom,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -23596,6 +24046,9 @@ class $$ProfilesTableTableManager
                 required String role,
                 required String subscriptionStatus,
                 Value<int?> subscriptionExpiry = const Value.absent(),
+                Value<String> tier = const Value.absent(),
+                Value<String?> tierPending = const Value.absent(),
+                Value<int?> tierPendingFrom = const Value.absent(),
                 required int createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => ProfilesCompanion.insert(
@@ -23605,6 +24058,9 @@ class $$ProfilesTableTableManager
                 role: role,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,
+                tier: tier,
+                tierPending: tierPending,
+                tierPendingFrom: tierPendingFrom,
                 createdAt: createdAt,
                 rowid: rowid,
               ),

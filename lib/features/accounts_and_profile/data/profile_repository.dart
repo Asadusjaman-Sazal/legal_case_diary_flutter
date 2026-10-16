@@ -232,6 +232,15 @@ class SupabaseProfileRepository implements ProfileRepository {
           subscriptionExpiry: Value(
             subscriptionExpiryToEpochMs(row['subscription_expiry']),
           ),
+          // The stored tier (Task 21's ladder). The server writes it at approval
+          // and never clears it on expiry, so an absent value on an older row
+          // reads as `free` — the safe answer for a plan this app must not sell
+          // a higher tier from.
+          tier: Value(row['tier'] as String? ?? 'free'),
+          tierPending: Value(row['tier_pending'] as String?),
+          tierPendingFrom: Value(
+            subscriptionExpiryToEpochMs(row['tier_pending_from']),
+          ),
           createdAt: Value(
             subscriptionExpiryToEpochMs(row['created_at']) ??
                 DateTime.now().toUtc().millisecondsSinceEpoch,
@@ -330,6 +339,14 @@ class SupabaseProfileRepository implements ProfileRepository {
         ),
         subscriptionExpiry: Value(
           subscriptionExpiryToEpochMs(firm['subscription_expiry']),
+        ),
+        // The chamber's tier, mirrored from its owner's plan by the server.
+        // This row is the seat cap's source, so it is cached rather than
+        // re-derived from the owner's expiry.
+        tier: Value(firm['tier'] as String? ?? 'free'),
+        tierPending: Value(firm['tier_pending'] as String?),
+        tierPendingFrom: Value(
+          subscriptionExpiryToEpochMs(firm['tier_pending_from']),
         ),
         createdAt: Value(
           subscriptionExpiryToEpochMs(firm['created_at']) ??

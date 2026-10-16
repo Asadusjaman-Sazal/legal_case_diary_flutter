@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(46),
+        hasLength(48),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -98,17 +98,23 @@ void main() {
             'scope-column ruling folded in beside it, and its sixth refuses a '
             'reference row\'s tombstone while a live dependent still names it '
             '— through both write paths — and makes the purge skip such a row '
-            'instead of failing whole',
+            'instead of failing whole, and firm mode\'s seventh added the '
+            'stored subscription tier on both account kinds with the '
+            'effective-tier reader, the shared tier ladder, the rebuilt '
+            'ten-plan approval and the ten-key plan-name columns, and its '
+            'eighth made the seat cap read that stored tier — Firm 5, Firm '
+            'Plus 20, Pro 0 — and moved chamber creation from premium to the '
+            'Firm tier the cap already implied',
       );
 
-      expect(versions.toSet(), hasLength(46), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(48), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261016110000');
+      expect(versions.last, '20261016130000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

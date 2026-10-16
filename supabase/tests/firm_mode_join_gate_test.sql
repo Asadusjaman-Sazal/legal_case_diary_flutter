@@ -21,9 +21,12 @@
 --     code for a stranger;
 --   * **the §3.1 defaults** — a joined associate lands with `can_add` and
 --     `can_edit` true and `can_delete` false, both freshness stamps written;
---   * **the seat cap** — a premium chamber sells 5, the sixth join is refused
---     with the cap in the answer, and a chamber whose subscription has lapsed
---     past the grace window has no cap at all and stays joinable (§2.4);
+--   * **the seat cap** — a Firm chamber sells 5, the sixth join is refused with
+--     the cap in the answer, a Pro chamber sells 0, and a chamber holding no
+--     paid tier has no cap at all and stays joinable (§2.4). Since firm mode's
+--     Phase 7 the cap is read from the chamber's **stored tier**, so a lapse
+--     leaves the tier it paid for in place and only a chamber with no paid
+--     history is the uncapped one;
 --   * **the rate limiter** still raises after five failures and still clears on
 --     a success.
 
@@ -145,27 +148,37 @@ begin
     (c_diary, 'gate-diary@test.local', now(), now(), now(), false, false),
     (c_member, 'gate-member@test.local', now(), now(), now(), false, false);
 
-  -- The owner rides a live subscription, so the chamber has a tier in force.
+  -- The owner rides a live subscription, and the tier that subscription bought
+  -- is stored rather than derived: `firm_seat_cap` reads the chamber's tier, so
+  -- a fixture that left it at the `free` default would be asserting about a
+  -- chamber holding no paid tier at all. Firm's 5 seats is what this file's
+  -- seat check is about.
   update public.profiles
      set subscription_expiry = now() + interval '30 days',
-         subscription_status = 'active'
+         subscription_status = 'active',
+         tier = 'firm'
    where id = c_owner;
 
-  insert into public.firms (id, name, owner_id, subscription_status, subscription_expiry)
-  values (v_firm, 'Gate Chamber', c_owner, 'active', now() + interval '30 days');
+  insert into public.firms (id, name, owner_id, subscription_status,
+                            subscription_expiry, tier)
+  values (v_firm, 'Gate Chamber', c_owner, 'active',
+          now() + interval '30 days', 'firm');
 
   insert into public.firm_members (firm_id, user_id, role, can_add, can_edit, can_delete)
   values (v_firm, c_owner, 'owner', true, true, true);
 
   update public.profiles set firm_id = v_firm, role = 'owner' where id = c_owner;
 
-  -- Two codes: one for the refusals, one for the joins and the cap.
+  -- One code per refusal and per join: 01 for the emptied seat, 02 for the
+  -- retired code, 03 for the defaults, 04 for the cap and the lapse, and 05 for
+  -- the Pro chamber's 0 (firm mode's Phase 7).
   insert into public.firm_invites (firm_id, code_hash, created_by, created_at)
   values
     (v_firm, public.sha256_hex(upper('GATECODE01')), c_owner, v_now_ms),
     (v_firm, public.sha256_hex(upper('GATECODE02')), c_owner, v_now_ms),
     (v_firm, public.sha256_hex(upper('GATECODE03')), c_owner, v_now_ms),
-    (v_firm, public.sha256_hex(upper('GATECODE04')), c_owner, v_now_ms);
+    (v_firm, public.sha256_hex(upper('GATECODE04')), c_owner, v_now_ms),
+    (v_firm, public.sha256_hex(upper('GATECODE05')), c_owner, v_now_ms);
 
   -- -------------------------------------------------------------------------
   -- 1. A seat starts empty: an individual case blocks the join (§2.1)
@@ -310,13 +323,46 @@ begin
   );
 
   -- -------------------------------------------------------------------------
-  -- 5. The seat cap (§5.3, §5.4) and the lapsed chamber that still joins (§2.4)
+  -- 5. The seat cap by tier (§5.3, §5.4) and the chamber that still joins with
+  --    no paid tier (§2.4)
   -- -------------------------------------------------------------------------
 
   perform pg_temp.assert_true(
     public.firm_seat_cap(v_firm) = 5,
-    'a live premium chamber did not sell 5 seats'
+    'a live Firm chamber did not sell 5 seats'
   );
+
+  -- Pro's cap is 0 and must be a number, not a silence: `join_firm` runs its
+  -- whole seat check only when the answer is not null, so a null here is an
+  -- uncapped chamber. This is the ruling the creation gate rests on.
+  update public.profiles set tier = 'pro' where id = c_owner;
+  update public.firms set tier = 'pro' where id = v_firm;
+
+  perform pg_temp.assert_true(
+    public.firm_seat_cap(v_firm) = 0,
+    'a Pro chamber did not sell 0 seats'
+  );
+
+  v_result := pg_temp.redeem(c_member, 'GATECODE05');
+  perform pg_temp.assert_true(
+    v_result ->> 'status' = 'seats_full',
+    'a Pro chamber accepted a join: ' || coalesce(v_result::text, 'null')
+  );
+  perform pg_temp.assert_true(
+    (v_result ->> 'seats')::int = 0,
+    'the Pro refusal did not carry its 0 cap: ' || coalesce(v_result::text, 'null')
+  );
+
+  -- Firm Plus is 20. Restored to Firm afterwards, because the fillers below
+  -- bring this chamber to Firm's own cap.
+  update public.profiles set tier = 'firm_plus' where id = c_owner;
+  update public.firms set tier = 'firm_plus' where id = v_firm;
+  perform pg_temp.assert_true(
+    public.firm_seat_cap(v_firm) = 20,
+    'a Firm Plus chamber did not sell 20 seats'
+  );
+  update public.profiles set tier = 'firm' where id = c_owner;
+  update public.firms set tier = 'firm' where id = v_firm;
 
   -- owner + empty = 2, so three fillers bring the chamber to its cap.
   for i in 1..3 loop
@@ -348,16 +394,27 @@ begin
     'the over-cap join consumed the code'
   );
 
-  -- Lapsed past the grace window: no tier is in force, so no cap — and §2.4
-  -- says such a chamber is still joinable, with the newcomer local-only.
+  -- Lapsed past the grace window. The stored tier is what the cap reads, so a
+  -- chamber that lapses inside a year it paid for keeps the ceiling it paid for
+  -- — only a chamber with no paid history is the uncapped one.
   update public.profiles set subscription_expiry = now() - interval '10 days'
    where id = c_owner;
   update public.firms set subscription_expiry = now() - interval '10 days'
    where id = v_firm;
 
   perform pg_temp.assert_true(
+    public.firm_seat_cap(v_firm) = 5,
+    'a lapse dropped the tier the chamber had paid for'
+  );
+
+  -- No paid tier in force, which is the uncapped chamber of §2.4: it stays
+  -- joinable, with the newcomer local-only.
+  update public.profiles set tier = 'free' where id = c_owner;
+  update public.firms set tier = 'free' where id = v_firm;
+
+  perform pg_temp.assert_true(
     public.firm_seat_cap(v_firm) is null,
-    'a lapsed chamber still had a seat cap'
+    'a chamber with no paid tier still had a seat cap'
   );
 
   v_result := pg_temp.redeem(c_member, 'GATECODE04');

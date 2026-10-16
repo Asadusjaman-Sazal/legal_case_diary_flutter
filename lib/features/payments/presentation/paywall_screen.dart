@@ -1,28 +1,33 @@
-/// Paywall screen: premium benefits display & plan selection.
+/// Paywall screen: subscription benefits and the ten-plan ladder.
 ///
 /// Task 15 Phase 5 left a **stub** here; Task 21 Phase 1 replaced it with the
-/// real screen. Every plan action is now **enabled** and opens the checkout for
-/// that plan — the TrxID entry and submission live in `checkout_screen.dart`.
+/// real screen. Every plan action is **enabled** and opens the checkout for that
+/// plan — the TrxID entry and submission live in `checkout_screen.dart`.
 ///
 /// * it says **why** it opened — the 50-case free limit — and what the user can
 ///   still do about it, instead of blocking a save with no explanation. That
 ///   card shows **only** on the gate's entry: the 50-case limit opens
-///   [AppRoutes.paywallFromCaseLimit], while every other entry (Settings >
-///   Subscription > Purchase New Subscription, Manage Associates' Go Premium)
-///   opens the bare [AppRoutes.paywall] and omits it;
-/// * it lists what the subscription plans offer and what each plan costs, from
-///   the plan's pricing (৳100 for one month, ৳285 for three, ৳540 for six and
-///   ৳960 for a year — there is no lifetime plan), showing the full per-month
-///   price struck through and the saving beside any plan that is discounted;
+///   [AppRoutes.paywall] with `?reason=limit`, while every other entry (the side
+///   menu, Settings → Subscription) opens the bare route and omits it;
+/// * it lists the **ten plans of the ladder**, grouped by tier — Pro, Firm and
+///   Firm Plus — each with its flat price. Pro sells 1, 3, 6 and 12 months; a
+///   chamber (Firm and Firm Plus) sells 3, 6 and 12, because a chamber does not
+///   buy a single month. There is **no struck-through full price and no saving
+///   badge**: every price is simply its price;
+/// * it offers only what the account may buy. The rule is one-directional —
+///   **an account may buy its own tier or lower, never higher** — and it lives
+///   in [plansVisibleToTier], which the screen and the tests both read, so a
+///   Pro account is never shown a chamber plan it cannot seat anyone in;
 /// * selecting a plan pushes the checkout with the plan key as a query
-///   parameter, so it never names a second source of plans or prices.
+///   parameter, so the plan is named in exactly one place.
 ///
-/// No entitlement logic lives here: the gate that opens this screen reads
-/// `resolvePremiumAccess`, which derives premium from the subscription expiry
-/// plus the 48-hour grace window (see `add_edit_case_sheet.dart`).
+/// No entitlement logic lives here: whether premium is *live* is
+/// `resolvePremiumAccess`'s answer, and which tier is *held* is
+/// `currentTierProvider`'s.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -32,31 +37,33 @@ import '../../../core/constants/free_tier.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../data/payment_plans.dart';
 import 'payment_plan_labels.dart';
 
-/// One amount as the paywall writes it — "৳285" — grouped only once it is long
-/// enough for the grouping to help (৳1,200 reads better than ৳1200).
-String _amountText(AppLocalizations l, int amount) => l.payments_amountValue(
-  AppDateUtils.formatDigits(amount, l.localeName, grouping: amount >= 1000),
-);
+/// One subscription benefit, shown in the offer card.
+enum PaywallFeature {
+  /// No case ceiling.
+  unlimitedCases,
 
-/// Prices shown by the paywall, in taka.
-///
-/// Aliases of the shared plan constants ([paymentMonthlyPrice],
-/// [paymentQuarterlyPrice], [paymentHalfYearlyPrice] and [paymentAnnualPrice])
-/// rather than second literals, so the price on the paywall, the amount in the
-/// checkout instructions and the amount submitted can never drift apart.
-const int paywallMonthlyPrice = paymentMonthlyPrice;
-const int paywallQuarterlyPrice = paymentQuarterlyPrice;
-const int paywallHalfYearlyPrice = paymentHalfYearlyPrice;
-const int paywallAnnualPrice = paymentAnnualPrice;
+  /// Data survives a lost phone.
+  disasterRecovery,
 
-/// What the subscription plans offer, in display order.
+  /// Every change saved to the cloud.
+  realTimeBackup,
+
+  /// The same diary from several devices.
+  multiDevice,
+
+  /// Working with associates in one chamber.
+  collaboration,
+}
+
+/// What the plans offer, in display order.
 ///
-/// **Unlimited Cases leads the list** (0.0.441, user request): it is the
-/// benefit a free user hits first — the 50-case gate — so it answers the
-/// question that opened this screen before the cloud features do.
+/// **Unlimited Cases leads the list**: it is the benefit a free user hits first
+/// — the 50-case gate — so it answers the question that opened this screen
+/// before the cloud features do.
 const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
   PaywallFeature.unlimitedCases,
   PaywallFeature.disasterRecovery,
@@ -65,49 +72,58 @@ const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
   PaywallFeature.collaboration,
 ];
 
-/// One premium feature, as a key the screen localizes to a title and a body.
-enum PaywallFeature {
-  /// No 50-case ceiling: the diary grows with the practice.
-  unlimitedCases,
+/// The amount rendered with the app's own currency formatting.
+String _amountText(AppLocalizations l, int amount) => l.payments_amountValue(
+  AppDateUtils.formatDigits(amount, l.localeName, grouping: amount >= 1000),
+);
 
-  /// Your data survives a lost or broken phone.
-  disasterRecovery,
-
-  /// Every change is saved to the cloud as it happens.
-  realTimeBackup,
-
-  /// The same diary on several devices at once.
-  multiDevice,
-
-  /// Associates working on one shared diary.
-  collaboration,
+/// The plans an account on [tier] may buy, in paywall order.
+///
+/// **The rule is one-directional** (Task 21, user ruling): an account may buy
+/// **its own tier or lower**, never higher. A Pro account sees the Pro plans
+/// alone, a Firm account sees Pro and Firm, and a Firm Plus account sees all
+/// ten. This is also what keeps the offer honest against the server's own seat
+/// cap: Pro's cap is 0, so an account that cannot yet create a chamber is never
+/// sold one through a list that ignored its tier.
+///
+/// [SubscriptionTier.free] is treated as Pro because Pro is the entry tier a
+/// free user is being sold; a free account has no tier of its own to buy.
+List<SubscriptionPlan> plansVisibleToTier(SubscriptionTier tier) {
+  final ceiling = switch (tier) {
+    SubscriptionTier.free => SubscriptionTier.pro,
+    SubscriptionTier.pro => SubscriptionTier.pro,
+    SubscriptionTier.firm => SubscriptionTier.firm,
+    SubscriptionTier.firmPlus => SubscriptionTier.firmPlus,
+  };
+  return subscriptionPlans
+      .where((plan) => plan.tier.rank <= ceiling.rank)
+      .toList(growable: false);
 }
 
-/// Premium benefits display & plan selection, per the plan's Payment section.
+/// The subscription-plan screen, optionally carrying the free-limit card.
 class PaywallScreen extends StatelessWidget {
-  /// Whether to show the "Free Plan Limit Reached" card.
+  /// Whether the free-limit card is shown, i.e. the gate's own entry.
   ///
-  /// True only when the 50-case gate opened this screen; every other entry
-  /// opens the bare route and hides it (see [showLimitFor]).
+  /// A query parameter decides it (`?reason=limit`) so the 50-case entry opens
+  /// the card and every other entry opens the bare route and hides it — the
+  /// paywall is one screen with one optional card, not two screens.
   final bool showLimit;
 
   /// Creates the paywall, hiding the free-limit card unless [showLimit] is set.
   const PaywallScreen({super.key, this.showLimit = false});
 
-  /// Whether a paywall opened at this route [state] shows the free-limit card.
+  /// Whether this entry shows the free-limit card.
   ///
-  /// Only the 50-case gate names its reason (`?reason=limit`); every other entry
-  /// leaves the query out, so the card belongs to that gate alone.
+  /// Only the case-limit gate passes `?reason=limit`; every other entry (the
+  /// side menu, Settings → Subscription) opens the bare route and hides it.
   static bool showLimitFor(GoRouterState state) =>
-      state.uri.queryParameters[AppRoutes.paywallReasonParam] ==
-      AppRoutes.paywallReasonLimitReached;
+      state.uri.queryParameters['reason'] == 'limit';
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     // The status bar is the user's own, and every shell screen leaves it
-    // visible by insetting the whole Scaffold (`SafeArea` top, bottom false) —
-    // the shell's own SafeArea does not reach this route, which sits outside it.
+    // visible by insetting the whole Scaffold (`SafeArea` top, bottom false).
     // Without this the Scaffold paints its app bar up behind the status bar and
     // the phone's clock and icons sit on that white instead of on the app's own
     // black, so the paywall is the one screen that loses them.
@@ -140,7 +156,7 @@ class PaywallScreen extends StatelessWidget {
             const _FeaturesCard(),
             const SizedBox(height: AppSpacing.xl),
             _SectionHeader(l.paywall_plansTitle),
-            _PlansCard(
+            _PlansSection(
               // Selecting a plan opens the checkout for that plan. The plan is
               // carried as a query parameter so the checkout route needs no
               // second path and a restored deep link still names its plan.
@@ -163,9 +179,8 @@ class _LimitCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: AppColors.errorContainer,
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        border: Border.all(color: AppColors.outlineVariant),
       ),
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
       child: Column(
@@ -174,15 +189,17 @@ class _LimitCard extends StatelessWidget {
           Row(
             children: [
               const Icon(
-                Icons.workspace_premium,
+                Icons.info_outline,
                 size: 20,
-                color: AppColors.secondary,
+                color: AppColors.onErrorContainer,
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
                   l.paywall_limitTitle,
-                  style: AppTypography.titleMd,
+                  style: AppTypography.titleMd.copyWith(
+                    color: AppColors.onErrorContainer,
+                  ),
                 ),
               ),
             ],
@@ -196,7 +213,9 @@ class _LimitCard extends StatelessWidget {
                 grouping: false,
               ),
             ),
-            style: AppTypography.bodyMd,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onErrorContainer,
+            ),
           ),
         ],
       ),
@@ -204,57 +223,51 @@ class _LimitCard extends StatelessWidget {
   }
 }
 
-/// Group heading for the two titled sections ("Subscription Plans Offer" and
-/// "Plans"). Bold and a step larger than the label style it used to borrow, so
-/// each heading reads as a title. The ARB supplies Title Case, so nothing is
-/// uppercased at render time.
+/// A section's own heading, above its card.
 class _SectionHeader extends StatelessWidget {
-  final String text;
+  const _SectionHeader(this.title);
 
-  const _SectionHeader(this.text);
+  final String title;
 
   @override
+  // The committed heading style: titleMd enlarged to w700, so a card title
+  // outranks the labels beneath it rather than matching them.
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(
-      left: AppSpacing.xs,
-      right: AppSpacing.xs,
-      bottom: AppSpacing.md,
-    ),
+    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
     child: Text(
-      text,
-      style: AppTypography.titleMd.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.onSurface,
-      ),
+      title,
+      style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
     ),
   );
 }
 
-/// One ticked feature per row: a Title Case heading over its sentence-case body.
+/// What the subscription offers, as a card of short benefit rows.
 class _FeaturesCard extends StatelessWidget {
   const _FeaturesCard();
 
-  /// The localized title for one feature.
-  static String _title(AppLocalizations l, PaywallFeature feature) =>
+  /// The title and body for [feature], so the card never restates the copy.
+  static (String, String) _text(AppLocalizations l, PaywallFeature feature) =>
       switch (feature) {
-        PaywallFeature.unlimitedCases =>
+        PaywallFeature.unlimitedCases => (
           l.paywall_featureUnlimitedCasesTitle,
-        PaywallFeature.disasterRecovery =>
+          l.paywall_featureUnlimitedCasesBody,
+        ),
+        PaywallFeature.disasterRecovery => (
           l.paywall_featureDisasterRecoveryTitle,
-        PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupTitle,
-        PaywallFeature.multiDevice => l.paywall_featureMultiDeviceTitle,
-        PaywallFeature.collaboration => l.paywall_featureCollaborationTitle,
-      };
-
-  /// The localized body sentence for one feature.
-  static String _body(AppLocalizations l, PaywallFeature feature) =>
-      switch (feature) {
-        PaywallFeature.unlimitedCases => l.paywall_featureUnlimitedCasesBody,
-        PaywallFeature.disasterRecovery =>
           l.paywall_featureDisasterRecoveryBody,
-        PaywallFeature.realTimeBackup => l.paywall_featureRealTimeBackupBody,
-        PaywallFeature.multiDevice => l.paywall_featureMultiDeviceBody,
-        PaywallFeature.collaboration => l.paywall_featureCollaborationBody,
+        ),
+        PaywallFeature.realTimeBackup => (
+          l.paywall_featureRealTimeBackupTitle,
+          l.paywall_featureRealTimeBackupBody,
+        ),
+        PaywallFeature.multiDevice => (
+          l.paywall_featureMultiDeviceTitle,
+          l.paywall_featureMultiDeviceBody,
+        ),
+        PaywallFeature.collaboration => (
+          l.paywall_featureCollaborationTitle,
+          l.paywall_featureCollaborationBody,
+        ),
       };
 
   /// The icon that stands for one feature (0.0.441, user request) — drawn in
@@ -281,29 +294,25 @@ class _FeaturesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < paywallFeatures.length; i++) ...[
-            if (i > 0) const SizedBox(height: AppSpacing.md),
+          for (final feature in paywallFeatures) ...[
+            if (feature != paywallFeatures.first)
+              const SizedBox(height: AppSpacing.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  _icon(paywallFeatures[i]),
-                  size: 20,
-                  color: AppColors.primary,
-                ),
+                Icon(_icon(feature), size: 20, color: AppColors.primary),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(_text(l, feature).$1, style: AppTypography.labelLg),
+                      const SizedBox(height: 2),
                       Text(
-                        _title(l, paywallFeatures[i]),
-                        style: AppTypography.titleMd,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        _body(l, paywallFeatures[i]),
-                        style: AppTypography.bodyMd,
+                        _text(l, feature).$2,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -317,12 +326,58 @@ class _FeaturesCard extends StatelessWidget {
   }
 }
 
-/// Every plan, with its price and an action each.
-class _PlansCard extends StatelessWidget {
-  /// Called with the selected plan key (`monthly`/`annual`).
+/// The plans this account may buy, one tier card each.
+class _PlansSection extends ConsumerWidget {
   final void Function(String plan) onPlanSelected;
 
-  const _PlansCard({required this.onPlanSelected});
+  const _PlansSection({required this.onPlanSelected});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plans = plansVisibleToTier(ref.watch(currentTierProvider));
+    // Grouped by tier. The ladder is already ordered Pro → Firm → Firm Plus, so
+    // a plain pass preserves that order and no sort is needed.
+    final groups = <SubscriptionTier, List<SubscriptionPlan>>{};
+    for (final plan in plans) {
+      groups.putIfAbsent(planTier(plan.key)!, () => <SubscriptionPlan>[]).add(plan);
+    }
+    return Column(
+      children: [
+        for (final entry in groups.entries) ...[
+          if (entry.key != groups.keys.first)
+            const SizedBox(height: AppSpacing.md),
+          _TierCard(
+            tier: entry.key,
+            plans: entry.value,
+            onPlanSelected: onPlanSelected,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// One tier's plans: the tier's name and what it sells, then its plan rows.
+class _TierCard extends StatelessWidget {
+  final SubscriptionTier tier;
+  final List<SubscriptionPlan> plans;
+  final void Function(String plan) onPlanSelected;
+
+  const _TierCard({
+    required this.tier,
+    required this.plans,
+    required this.onPlanSelected,
+  });
+
+  /// What [tier] sells, under its name — the one line that distinguishes the
+  /// chamber tiers, whose prices alone do not say what they buy.
+  static String _note(AppLocalizations l, SubscriptionTier tier) =>
+      switch (tier) {
+        SubscriptionTier.free => l.paywall_tierProNote,
+        SubscriptionTier.pro => l.paywall_tierProNote,
+        SubscriptionTier.firm => l.paywall_tierFirmNote,
+        SubscriptionTier.firmPlus => l.paywall_tierFirmPlusNote,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -335,25 +390,29 @@ class _PlansCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < subscriptionPlans.length; i++) ...[
+          Text(subscriptionTierLabel(l, tier), style: AppTypography.titleMd),
+          const SizedBox(height: 2),
+          Text(
+            _note(l, tier),
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (var i = 0; i < plans.length; i++) ...[
             if (i > 0)
               const Divider(
                 height: AppSpacing.lg,
                 color: AppColors.outlineVariant,
               ),
             _PlanRow(
-              key: ValueKey('paywall-plan-${subscriptionPlans[i].key}'),
-              name: paymentPlanLabel(l, subscriptionPlans[i].key),
-              price: _amountText(l, subscriptionPlans[i].amount),
-              // The full price is the plan bought month by month, shown struck
-              // through so the saving is visible rather than asserted.
-              wasPrice: subscriptionPlans[i].discountPercent == 0
-                  ? null
-                  : _amountText(l, subscriptionPlans[i].undiscountedAmount),
-              discountLabel: paymentPlanDiscountLabel(l, subscriptionPlans[i]),
+              key: ValueKey('paywall-plan-${plans[i].key}'),
+              name: paymentPlanLabel(l, plans[i].key),
+              price: _amountText(l, plans[i].amount),
               actionLabel: l.paywall_subscribe,
-              onPressed: () => onPlanSelected(subscriptionPlans[i].key),
+              onPressed: () => onPlanSelected(plans[i].key),
             ),
           ],
         ],
@@ -366,13 +425,6 @@ class _PlansCard extends StatelessWidget {
 class _PlanRow extends StatelessWidget {
   final String name;
   final String price;
-
-  /// The full price, struck through, or null when the plan has no discount.
-  final String? wasPrice;
-
-  /// The "20% Off" badge, or null when the plan has no discount.
-  final String? discountLabel;
-
   final String actionLabel;
   final VoidCallback onPressed;
 
@@ -381,55 +433,26 @@ class _PlanRow extends StatelessWidget {
     required this.price,
     required this.actionLabel,
     required this.onPressed,
-    this.wasPrice,
-    this.discountLabel,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bodyStyle = AppTypography.bodySm.copyWith(
-      color: AppColors.onSurfaceVariant,
-    );
     return Row(
       children: [
+        Expanded(child: Text(name, style: AppTypography.titleMd)),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: AppTypography.titleMd),
-              const SizedBox(height: AppSpacing.xs),
-              // The discount and the new price share one line so the eye reads
-              // "was, now, saving" left to right instead of across two rows.
-              if (wasPrice == null)
-                Text(price, style: bodyStyle)
-              else
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: AppSpacing.sm,
-                  children: [
-                    Text(
-                      wasPrice!,
-                      style: bodyStyle.copyWith(
-                        color: AppColors.error,
-                        decoration: TextDecoration.lineThrough,
-                        decorationColor: AppColors.error,
-                      ),
-                    ),
-                    Text(
-                      price,
-                      style: bodyStyle.copyWith(
-                        color: AppColors.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    _DiscountBadge(label: discountLabel!),
-                  ],
-                ),
-            ],
+          child: Text(
+            price,
+            textAlign: TextAlign.end,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        const SizedBox(width: AppSpacing.md),
+        const SizedBox(width: AppSpacing.sm),
         FilledButton(
           onPressed: onPressed,
           style: FilledButton.styleFrom(
@@ -437,37 +460,11 @@ class _PlanRow extends StatelessWidget {
             foregroundColor: AppColors.onPrimary,
             textStyle: AppTypography.titleMd,
             minimumSize: const Size(0, 52),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           ),
           child: Text(actionLabel),
         ),
       ],
     );
   }
-}
-
-/// The savings badge, sized to sit inline with the price.
-class _DiscountBadge extends StatelessWidget {
-  final String label;
-
-  const _DiscountBadge({required this.label});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.radiusSm,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.success.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-    ),
-    child: Text(
-      label,
-      style: AppTypography.labelMd.copyWith(color: AppColors.success),
-    ),
-  );
 }

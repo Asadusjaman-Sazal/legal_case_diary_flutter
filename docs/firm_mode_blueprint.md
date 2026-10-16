@@ -911,9 +911,9 @@ into a leak surface.
    untouched.** *Built:* the `scope_owner_id` column with its read-policy rewrite (§4.3, 0.0.520),
    the write-path scope rules (§3.3, 0.0.522), the `join_firm` **seat check and refusal** (§5.3's
    mechanism, 0.0.523 — `firm_seat_cap` still reads `is_premium` as a placeholder, so only the source
-   it reads is owed), and the self-erasing removal's client rework (§4.1, 0.0.525). *Still owed:*
-   `profiles.tier` / `firms.tier` with the pending pair and the ten-plan ladder (§5.3), the
-   `can_add` / `can_edit` triggers (§3.3), `ensure_firm`'s creation gate re-pointed from
+   it reads is owed), the self-erasing removal's client rework (§4.1, 0.0.525), the `can_add` / `can_edit` triggers (§3.3, 0.0.529) and the in-use guard with the purge's per-row skip (§3.2, 0.0.530). *Still owed:*
+   `profiles.tier` / `firms.tier` with the pending pair and the ten-plan ladder (§5.3),
+   `ensure_firm`'s creation gate re-pointed from
    `is_premium()` at the tier (shipped as `is_premium` in
    `20260930180000_ensure_firm_premium_gate.sql`, so the replacement is owed), and the plans screen
    rebuilt to the new set.
@@ -932,7 +932,7 @@ into a leak surface.
 | `docs/tasks/16_supabase_schema_rls_and_triggers.md` | The read-policy scoping of §4.3, the §3.3 permission triggers, the 365-day purge and the in-use guard. |
 | `docs/tasks/19_realtime_conflicts_and_recovery.md` | The 335-day recovery window and the 400-day `mutation_receipts` invariant. |
 | `docs/tasks/21_payments_and_subscription.md` | The settled tier ladder and its plan rows, the downgrade and lapse rules, and the direct-distribution decision (§5.3, §5.4, §5.6). |
-| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Four of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523) and §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525). **Still owed:** §3.3's permission triggers, §3.2's in-use guard, §5.5's 365-day retention, §5.3's tier column **with the widened subscription mirror**, and the `payment_submissions` insert policy that refuses a submission from an account holding a firm (§5.1). The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
+| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Six of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523) and §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529) and §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530). **Still owed:** §5.5's 365-day retention, §5.3's tier column **with the widened subscription mirror**, and the `payment_submissions` insert policy that refuses a submission from an account holding a firm (§5.1). The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
 | `docs/firm_mode_blueprint_audit.md` | The audit this revision answers: ten findings checked against the shipped SQL and Dart, and the six decisions they raised — now ruled on in §3.3, §4.1, §4.2, §4.4, §5.1, §5.3, §5.5, §5.6, §6 and §7. |
 
 > **Propagation note — done (version 0.0.519).** This file is revised first because the user asked
@@ -966,8 +966,8 @@ into a leak surface.
 | 2 | Creation Shares The Diary, And The Scope Columns Become The Server's | §1, §9.1, §3.3 | **Built** 0.0.522 | `20261015110000_firm_mode_creation_and_scope.sql` |
 | 3 | The Join Gate | §2.1–§2.5, §3.1 | **Built** 0.0.523 | `20261015120000_firm_mode_join_gate.sql` |
 | 4 | Removal Erases Itself | §4.1, §4.2, §6 | **Built** 0.0.525 | `20261015160000_firm_removal_clears_device_tokens.sql` |
-| 5 | The Permission Boundary | §3.3 | Owed | new migration |
-| 6 | The In-Use Guard | §3.2, §10.6 | Owed | new migration |
+| 5 | The Permission Boundary | §3.3 | **Built** 0.0.529 | `20261016100000_firm_mode_permission_boundary.sql` |
+| 6 | The In-Use Guard | §3.2, §10.6 | **Built** 0.0.530 | `20261016110000_firm_mode_reference_in_use_guard.sql` |
 | 7 | Stored Tier And The Creation Gate | §5.3, §5.4, §10.12, §10.16 | Owed | new migration |
 | 8 | The Ten-Plan Ladder | §5.3, §10.9 | Owed | migration + client |
 | 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | Owed | migration + client |
@@ -1148,10 +1148,10 @@ into a leak surface.
 
 ---
 
-### Phase 5 — The Permission Boundary — **Owed**
+### Phase 5 — The Permission Boundary — **Built** (0.0.529)
 
 
-- **Status.** **Owed** — no `can_add_firm` helper, no permission trigger and no write-path flag read exist today.
+- **Status.** **Built (0.0.529)** — `can_add_firm` exists beside its two siblings, twenty `BEFORE` triggers gate INSERT on `can_add` and UPDATE on `can_edit` across the ten named tables, and `sync_can_write`'s INSERT branch reads the flag in both of its branches; `supabase/tests/firm_mode_permission_boundary_test.sql` prints `PERMISSION OK` on the live project.
 - **Discharges.** §3.3 (both halves), §9.5, §10.1. Plan: *What Firm Mode Still Owes*, and §10's open item 2 (the reference-table write scope in `push_changes` is this phase's second acceptance case). Task 20's *Permissions are a real
   boundary now* entry.
 - **Depends On.** Phase 2 (built) — the write-path scope half already exists, so **do not re-write
@@ -1195,10 +1195,10 @@ into a leak surface.
   single missed table silently keeps the hole — the proof must **enumerate all ten by name** rather
   than spot-check.
 
-### Phase 6 — The In-Use Guard — **Owed**
+### Phase 6 — The In-Use Guard — **Built** (0.0.530)
 
 
-- **Status.** **Owed** — a tombstoned reference row a live case still names can be written today, and a purge that meets one aborts as a whole.
+- **Status.** **Built (0.0.530)** — `enforce_reference_not_in_use()` refuses the tombstone with `reference_in_use` (23503) off the nine-pair map, four `trg_<table>_in_use_guard` triggers attach it to the four guardable parents, `purge_tombstones` skips a blocked row instead of aborting as a whole, and the three Edit Court/Steps screens withhold Delete for a row a live dependent still names; `supabase/tests/firm_mode_reference_in_use_guard_test.sql` prints `INUSE OK` on the live project.
 - **Discharges.** §3.2, §10.6. Plan: *What Firm Mode Still Owes*. Task 16.
 - **Depends On.** Phase 5 — the reference tables' member-editable write scope is what makes this
   load-bearing; and Phase 1's `scope_owner_id` (built) for the table list.
@@ -1221,10 +1221,15 @@ into a leak surface.
     entire function, so one member's stale reference edit can stop every tombstone on the project
     from being purged.
 - **Objects.** `purge_tombstones` (`20260929104000_phase5_indexes_and_tombstone_purge.sql`) and its daily `pg_cron` schedule; the nine foreign keys listed above; the device-side refusal in the reference repositories, which is the only protection `steps` and `case_types` can have.
-- **Client.** **Verify, do not rebuild.** Edit Court/Steps, case types and on-behalfs must offer
-  Add, Edit and Reorder to a **member** exactly as to the owner. No owner-only gate exists in the
-  client today (checked — there is no `isFirmOwner`-style guard on those screens), so this half is an
-  assertion to pin, not a change to make.
+- **Client.** **Built (0.0.530).** Edit Court/Steps, case types and on-behalfs still offer **Add, Edit
+  and Reorder** to a member exactly as to the owner — an assertion, not a change, and it is now
+  **pinned** by a widget test over all three screens rather than left to a reading. **Past its own
+  *verify only* wording, on the user's instruction and recorded per rule 14:** the Delete action is
+  now **withheld** for a row a live dependent still names — the device-side refusal this phase's
+  `Objects` names — so an offline delete is never queued only to be refused. The rule has one home,
+  `lib/features/settings/data/reference_in_use_checker.dart` (`referenceInUseProvider`, a Drift
+  `watch()` over live `cases` and the five editable tables), which `data_deletion_service.dart` reads
+  as well, so the Manage Account tick list and those screens cannot disagree about what is in use.
 - **Proof.** A new `supabase/tests/firm_mode_reference_in_use_guard_test.sql`, rolled back, run
   wrapped.
 - **Acceptance.** A tombstoned reference row that a live case still names **cannot be written**; a

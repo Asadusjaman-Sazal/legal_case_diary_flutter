@@ -558,6 +558,24 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'refuses a create cleanly; its update branch, delete_requests and '
         'every RLS policy are untouched.',
   ),
+  LedgerSection(
+    file: '20261016110000_firm_mode_reference_in_use_guard.sql',
+    version: '0.0.530',
+    label:
+        'Firm mode: the in-use guard for reference rows. '
+        'enforce_reference_not_in_use() is attached BEFORE UPDATE to the four '
+        'tables the nine foreign keys point at — court_categories, '
+        'case_categories, courts and on_behalfs — and refuses the tombstone '
+        'transition while a **live** dependent still names the row, raising '
+        'reference_in_use as 23503 so push_changes rejects that one mutation '
+        'instead of aborting the batch. steps and case_types deliberately take '
+        'no trigger: cases.case_type and cases.last_step are free text, so '
+        'nothing references either and no server guard can protect them. '
+        'purge_tombstones() is rewritten to delete one candidate at a time and '
+        'skip a row a dependent still names — one blocked tombstone used to '
+        'abort the whole nightly purge — with the retention argument, the '
+        'children-first order and the returned count unchanged.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -605,6 +623,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.523': 'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
       'Have One',
   '0.0.529': 'Firm Mode Phase 5 — The Permission Boundary',
+  '0.0.530': 'Firm Mode Phase 6 — The In-Use Guard For Reference Rows',
 };
 
 const String _header = '''<!--

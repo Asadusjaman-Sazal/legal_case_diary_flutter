@@ -72,6 +72,7 @@ import '../../settings/data/local/courts_dao.dart';
 import '../../settings/data/local/on_behalfs_dao.dart';
 import '../../settings/data/local/steps_dao.dart';
 import '../../settings/data/on_behalfs_repository.dart';
+import '../../settings/data/reference_in_use_checker.dart';
 import '../../settings/data/steps_repository.dart';
 
 /// The kinds of the user's own data the Danger Zone's tick list offers.
@@ -285,16 +286,14 @@ class DataDeletionService {
   /// at — steps and case types, then on-behalfs and courts, then the categories
   /// last against whatever is still standing — and ticking Cases as well deletes
   /// those cases first, so then nothing is held back.
+  ///
+  /// The rule itself is not stated here: [readReferenceInUse] owns it, and the
+  /// Edit Court/Steps screens withhold their Delete with the same answer, so the
+  /// tick list and those screens cannot disagree about what is still in use.
   Future<int> _deleteCustomSeedData(Map<String, Set<String>> deleted) async {
-    final surviving = await (db.select(
-      db.cases,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    final referencedCourtIds = <String>{
-      for (final row in surviving) row.courtId,
-    };
-    final referencedOnBehalfIds = <String>{
-      for (final row in surviving) row.onBehalfId,
-    };
+    // Read once, before anything goes: a court or an on-behalf a live case
+    // still names is kept, and the case table has not been touched here.
+    final inUse = await readReferenceInUse(db);
 
     var count = 0;
 
@@ -330,7 +329,7 @@ class DataDeletionService {
     );
     final courtRepository = LocalCourtsRepository(CourtsDao(db), syncHelper);
     for (final row in courts) {
-      if (referencedCourtIds.contains(row.id)) continue;
+      if (inUse.courtIds.contains(row.id)) continue;
       await courtRepository.delete(row);
       _track(deleted, 'court', row.id);
       count++;
@@ -345,7 +344,7 @@ class DataDeletionService {
       syncHelper,
     );
     for (final row in onBehalfs) {
-      if (referencedOnBehalfIds.contains(row.id)) continue;
+      if (inUse.onBehalfIds.contains(row.id)) continue;
       await onBehalfRepository.delete(row);
       _track(deleted, 'on_behalf', row.id);
       count++;
@@ -353,8 +352,10 @@ class DataDeletionService {
 
     // Categories last, against the rows still standing: a category a kept court,
     // a kept on-behalf, a built-in step or case type, or a case category still
-    // names is kept with them.
-    final stillReferencedCategoryIds = await _liveCategoryReferences();
+    // names is kept with them. "Still standing" is why the rule is read again
+    // here: a category whose only holders this run has just tombstoned is now
+    // free, and the read above still counted them.
+    final stillInUse = await readReferenceInUse(db);
     final categories = await _customRows(
       db.courtCategories,
       (row) => row.isCustom.equals(true) & row.isDeleted.equals(false),
@@ -364,7 +365,7 @@ class DataDeletionService {
       syncHelper,
     );
     for (final row in categories) {
-      if (stillReferencedCategoryIds.contains(row.id)) continue;
+      if (stillInUse.courtCategoryIds.contains(row.id)) continue;
       await categoryRepository.delete(row);
       _track(deleted, 'court_category', row.id);
       count++;
@@ -378,44 +379,6 @@ class DataDeletionService {
     TableInfo<T, D> table,
     Expression<bool> Function(T row) filter,
   ) => (db.select(table)..where(filter)).get();
-
-  /// Every `court_category_id` a live row of the five editable tables still
-  /// names.
-  ///
-  /// Read table by table, explicitly: a generic helper over `TableInfo` infers
-  /// the table as the bare `Table` (Drift's generic parameters are covariant), so
-  /// the columns could not be named. Typed selects cost five short blocks and are
-  /// checked against the schema, which is the trade worth making here.
-  Future<Set<String>> _liveCategoryReferences() async {
-    final ids = <String>{};
-
-    final courts = await (db.select(
-      db.courts,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    ids.addAll(courts.map((row) => row.courtCategoryId));
-
-    final steps = await (db.select(
-      db.steps,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    ids.addAll(steps.map((row) => row.courtCategoryId));
-
-    final caseTypes = await (db.select(
-      db.caseTypes,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    ids.addAll(caseTypes.map((row) => row.courtCategoryId));
-
-    final onBehalfs = await (db.select(
-      db.onBehalfs,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    ids.addAll(onBehalfs.map((row) => row.courtCategoryId));
-
-    final caseCategories = await (db.select(
-      db.caseCategories,
-    )..where((row) => row.isDeleted.equals(false))).get();
-    ids.addAll(caseCategories.map((row) => row.courtCategoryId));
-
-    return ids;
-  }
 
   /// Records that [id] of [entityType] was deleted by this run.
   void _track(Map<String, Set<String>> deleted, String entityType, String id) =>

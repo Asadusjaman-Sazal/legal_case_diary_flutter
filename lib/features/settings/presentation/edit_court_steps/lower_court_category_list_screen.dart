@@ -28,6 +28,7 @@ import '../../../../shared/widgets/confirm_dialogs.dart';
 import '../../data/court_categories_repository.dart';
 import '../../data/courts_repository.dart';
 import '../../data/district_court_categories.dart';
+import '../../data/reference_in_use_checker.dart';
 import '../settings_sub_page_modal.dart';
 import 'court_category_label.dart';
 import 'edit_name_dialog.dart';
@@ -209,6 +210,10 @@ class _DistrictCategoryList extends ConsumerWidget {
           final canonical = categories
               .where((item) => item.courtLevel == 'lower')
               .toList(growable: false);
+          // A category a live row still names keeps its place: the server
+          // refuses that tombstone, so the action is not offered here either.
+          final inUse =
+              ref.watch(referenceInUseProvider).value ?? ReferenceInUse.none;
           return ReorderableListView.builder(
             padding: const EdgeInsets.all(AppSpacing.md),
             itemCount: items.length,
@@ -222,8 +227,11 @@ class _DistrictCategoryList extends ConsumerWidget {
                 label: courtCategoryLabel(context, category),
                 onEdit: () => _rename(context, ref, category),
                 // Built-in categories cannot be deleted; only what the user
-                // added to this district can.
-                onDelete: category.isCustom
+                // added to this district can — and not one a live row still
+                // names, which the server would refuse.
+                onDelete:
+                    category.isCustom &&
+                        !inUse.courtCategoryIds.contains(category.id)
                     ? () => _delete(context, ref, category)
                     : null,
               );

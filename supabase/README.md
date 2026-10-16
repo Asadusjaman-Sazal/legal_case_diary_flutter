@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All forty-two migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All forty-six migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases
@@ -188,8 +188,43 @@ What is verified now:
   only a direct `has_function_privilege` check found it. The grants are now
   issued to `authenticated` after the revokes, and the check above is what the
   re-apply was verified against.
-- Live state: 26 tables all with RLS on, 62 policies, 47 functions in `public`,
-  45 recorded versions, and the 1,442 seeded reference rows (1,016 courts).
+- `20261015160000_firm_removal_clears_device_tokens.sql` (firm mode, phase 4) —
+  **passes** against the project in `supabase/tests/firm_removal_test.sql`:
+  `remove_firm_member` clears the removed member's `device_tokens` in the same
+  transaction as the membership, the rows they authored and their attribution
+  stay, the profile is relinked, both topics are announced, and the three
+  refusal cases are still refused — printing `REMOVAL OK: access revoked,
+  authored rows kept, push registrations cleared, both topics announced.`
+  **This file opens its own transaction, so it must be run wrapped** — a bare
+  `psql -f` commits its fixtures to the live project; the wrapper is
+  `printf 'begin;\n' | cat - supabase/tests/firm_removal_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
+- `20261016100000_firm_mode_permission_boundary.sql` (firm mode, phase 5) —
+  **passes** against the project in
+  `supabase/tests/firm_mode_permission_boundary_test.sql`, one rolled-back run
+  over six throwaway accounts, printing `PERMISSION OK: can_add gates a create
+  and can_edit every non-tombstone update on all ten tables through both doors,
+  the owner is unaffected, and the scope columns are the server's.` It
+  enumerates the ten gated tables **by name** and drives every refusal through
+  both the direct-PostgREST door and `push_changes`, and pins the two deliberate
+  postures (`enforce_member_permission` SECURITY INVOKER, `can_add_firm`
+  DEFINER) plus all twenty triggers as `BEFORE … FOR EACH ROW`.
+- `20261016110000_firm_mode_reference_in_use_guard.sql` (firm mode, phase 6) —
+  **passes** against the project in
+  `supabase/tests/firm_mode_reference_in_use_guard_test.sql`, a rolled-back run
+  printing `INUSE OK`: `enforce_reference_not_in_use()` refuses a tombstoned
+  reference row a live dependent still names with `reference_in_use` (23503) off
+  the nine foreign-key pairs, the owner is refused exactly as a fully-permitted
+  member (the member's queued case deliberately names a court the member
+  authored, because `push_changes` subtracts `firm_id` before `sync_can_write`
+  sees an update or a delete), a refused tombstone leaves the row live, and
+  `purge_tombstones` **skips** the blocked row instead of failing as a whole —
+  the run prints `NOTICE: purge_tombstones: 1 tombstone(s) kept; a dependent row
+  still names them.` Four `trg_<table>_in_use_guard` triggers cover the four
+  guardable parents; `steps` and `case_types` have no referencing column, so the
+  device-side refusal in the repositories is the only protection they can have.
+- Live state: 26 tables all with RLS on, 62 policies, 50 functions in `public`,
+  48 recorded versions — the newest `20261016110000` — and the 1,442 seeded
+  reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
@@ -248,7 +283,7 @@ npx supabase migration list                     # what is applied on the project
 ```
 
 Applying by hand with a plain loop also works, but then `supabase_migrations`
-stays empty and `db push` would consider all forty-two files unapplied:
+stays empty and `db push` would consider all forty-six files unapplied:
 
 ```bash
 for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done

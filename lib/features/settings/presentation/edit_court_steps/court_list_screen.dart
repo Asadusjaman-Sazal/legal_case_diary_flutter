@@ -17,6 +17,7 @@ import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/courts_repository.dart';
+import '../../data/reference_in_use_checker.dart';
 import '../../../../database/app_database.dart';
 import '../../../../shared/providers/locale_provider.dart';
 import '../settings_sub_page_modal.dart';
@@ -168,6 +169,10 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
   Widget build(BuildContext context) {
     final state = widget.widget;
     final isLower = state.division != null && state.district != null;
+    // A court a live case still names keeps its place: the server refuses that
+    // tombstone, so the action is not offered here either (§3.2).
+    final inUse =
+        ref.watch(referenceInUseProvider).value ?? ReferenceInUse.none;
 
     return StreamBuilder<List<Court>>(
       stream: isLower
@@ -207,8 +212,9 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
               court: court,
               onEdit: () => _editCourt(context, court),
               // Pre-seeded courts cannot be deleted, so only the courts the
-              // user added offer the action.
-              onDelete: court.isCustom
+              // user added offer the action — and not one a live case still
+              // names, which the server would refuse.
+              onDelete: court.isCustom && !inUse.courtIds.contains(court.id)
                   ? () => _deleteCourt(context, court)
                   : null,
             );

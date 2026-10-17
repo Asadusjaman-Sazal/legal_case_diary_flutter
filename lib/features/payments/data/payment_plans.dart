@@ -92,7 +92,9 @@ enum SubscriptionTier {
   /// The declaration order **is** the ladder order, so this is the one place a
   /// "this tier or lower" comparison reads its ranking from — the server's
   /// `tier_rank()` answers the same question for SQL. Reordering [values] would
-  /// silently reorder every gate, so `payment_plans_test.dart` pins it.
+  /// silently reorder every gate, so `paywall_screen_test.dart` pins the order
+  /// and `payment_plan_ladder_test.dart` pins the tier the server reads for each
+  /// key against this one.
   int get rank => index;
 
   /// The tier of [tierKey], or [SubscriptionTier.free] when it names nothing —

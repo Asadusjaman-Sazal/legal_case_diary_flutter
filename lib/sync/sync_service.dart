@@ -375,7 +375,7 @@ class SyncService {
 
     if (!pull) {
       // A push-only drain is still a successful sync: stamp the instant the
-      // 150-day offline check reads, without paying for a server-clock round
+      // 335-day offline check reads, without paying for a server-clock round
       // trip the pull path makes anyway.
       await _recordSyncHealth(transport, db, probeClock: false);
       _health()?.recordSuccess();
@@ -514,7 +514,7 @@ class SyncService {
   }
 
   /// Records the per-device sync health the plan names: the last successful
-  /// sync instant (the 150-day offline check reads it) and, when [probeClock],
+  /// sync instant (the 335-day offline check reads it) and, when [probeClock],
   /// the device-vs-server clock offset, reported past
   /// [syncClockSkewThreshold].
   ///

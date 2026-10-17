@@ -75,7 +75,7 @@ void main() {
       expect(
         shouldRecover(
           firmMode: true,
-          lastSuccessfulSyncAt: now - 151 * day,
+          lastSuccessfulSyncAt: now - 336 * day,
           now: now,
         ),
         isTrue,
@@ -86,7 +86,7 @@ void main() {
       expect(
         shouldRecover(
           firmMode: true,
-          lastSuccessfulSyncAt: now - 149 * day,
+          lastSuccessfulSyncAt: now - 334 * day,
           now: now,
         ),
         isFalse,
@@ -97,10 +97,22 @@ void main() {
       expect(
         shouldRecover(
           firmMode: true,
-          lastSuccessfulSyncAt: now - 150 * day,
+          lastSuccessfulSyncAt: now - 335 * day,
           now: now,
         ),
         isTrue,
+      );
+    });
+
+    test('the threshold is 335 days, 30 below the server\'s 365-day retention', () {
+      // The server forgets a tombstone after 365 days
+      // (`20261017120000_firm_mode_retention_window.sql`); the device recovers 30
+      // days before that, so the pair cannot drift apart silently.
+      const serverRetention = Duration(days: 365);
+      expect(recoveryOfflineThreshold, const Duration(days: 335));
+      expect(
+        serverRetention - recoveryOfflineThreshold,
+        const Duration(days: 30),
       );
     });
 
@@ -173,7 +185,7 @@ void main() {
     });
 
     test('a firm account past the threshold is locked', () async {
-      await setLastSync(now - 200 * day);
+      await setLastSync(now - 400 * day);
       expect(await flow().checkOnReconnect(), isTrue);
       expect(await RecoveryLock(db).isRequired(), isTrue);
       // The checkpoint was committed with the flag.

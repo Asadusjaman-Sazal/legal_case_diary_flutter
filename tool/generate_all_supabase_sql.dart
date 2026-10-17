@@ -169,7 +169,7 @@ const List<LedgerSection> _sections = <LedgerSection>[
     version: '0.0.293',
     label:
         'Delta-pull and payment indexes for every scoped cursor read, plus '
-        'purge_tombstones(180 days) scheduled daily through pg_cron.',
+        'purge_tombstones(365 days) scheduled daily through pg_cron.',
   ),
   LedgerSection(
     file: '20260929105000_profiles_last_successful_sync_at.sql',
@@ -650,6 +650,22 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'memberships and invites, the owner\'s profile returns to individual '
         'mode (which unblocks delete_my_account), and his plan is untouched.',
   ),
+  LedgerSection(
+    file: '20261017120000_firm_mode_retention_window.sql',
+    version: '0.0.537',
+    label:
+        'Firm mode: the retention and recovery window. purge_tombstones() '
+        'keeps a tombstone 365 days instead of 180, so the device-side '
+        'extended-offline rule can be 335 days with the same 30-day buffer '
+        'between them: a device that comes back inside its window still finds '
+        'every deletion it missed, and one away longer is rebuilt rather than '
+        'trusted. Only the default and the comments change — the scheduled job '
+        'calls the function with no argument, and the body (cutoff, children-'
+        'first order, one-row-at-a-time delete, blocked-tombstone skip) is the '
+        'shipped one verbatim. mutation_receipts\' documented retention is '
+        'corrected to at least 400 days in the same pass, because the old '
+        '210-day invariant was written for a 150-day window.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -702,6 +718,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.532': 'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
   '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
   '0.0.536': 'Firm Mode Phase 11 — Dissolution Keeps The Ledger',
+  '0.0.537': 'Firm Mode Phase 12 — Retention And The Recovery Window',
 };
 
 const String _header = '''<!--

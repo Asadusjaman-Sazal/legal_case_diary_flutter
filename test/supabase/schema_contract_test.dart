@@ -804,13 +804,14 @@ void main() {
   });
 
   group('tombstone purge', () {
-    // The newest body is the shipped one: firm mode's in-use guard replaced the
-    // set-based purge with the same predicate, one candidate at a time, so that
-    // a tombstone a live dependent still names is skipped instead of aborting
-    // the whole run.
+    // The newest body is the shipped one, and only its default changes with the
+    // phase: firm mode's in-use guard replaced the set-based purge with the same
+    // predicate, one candidate at a time, so that a tombstone a live dependent
+    // still names is skipped instead of aborting the whole run; the retention
+    // phase then re-created it with a 365-day default for the 335-day window.
     test('keeps tombstones long enough for the extended-offline rule', () {
       final block = lastFunctionBlock(sql, 'purge_tombstones')!;
-      expect(block, contains('p_retention_days integer default 180'));
+      expect(block, contains('p_retention_days integer default 365'));
       expect(block, contains('is_deleted = true'));
       expect(block, contains(r'server_updated_at < $1'));
       expect(block, contains('make_interval(days => p_retention_days)'));
@@ -830,6 +831,23 @@ void main() {
         contains('raise notice'),
         reason: 'a silent skip is invisible in the daily pg_cron log',
       );
+    });
+
+    test('the retention phase states the pair on the function and the table', () {
+      // The number lives in the default above; these two comments are where a
+      // reader and a future cleanup job meet it, so both are pinned.
+      final retention = migrationFiles().firstWhere(
+        (file) => file.path.contains('firm_mode_retention_window'),
+      );
+      final text = retention.readAsStringSync();
+      expect(text, contains('older than the retention (365 days by default'));
+      expect(text, contains('335-day device recovery window'));
+      expect(
+        text,
+        contains('comment on table public.mutation_receipts'),
+        reason: 'the receipts invariant is corrected where it is documented',
+      );
+      expect(text, contains('Retain at least 400 days'));
     });
 
     test('deletes children before parents', () {

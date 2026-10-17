@@ -50,7 +50,7 @@
 
 **Phase 4 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
-## Phase 5 — Extended-Offline Recovery (150-Day, Per-Device)
+## Phase 5 — Extended-Offline Recovery (335-Day, Per-Device)
 
 > **Clarification (user approved; recorded in `docs/implementation_plan.md` → Resolved Design Clarifications, "Extended-Offline Recovery Lock Applies to Firm Mode Only").** This phase applies in **firm (multi-user) mode only** — `firmModeProvider` true. An account in **individual mode is never locked** and performs no recovery work and no network work for it. The lock exists to stop a device resurrecting rows that **another writer** deleted while it was away; a single-author diary has no other writer, so it cannot have anything deleted behind it, and locking it out of its own edits would be pure harm. This sharpens the plan's earlier "premium/Firm mode" wording: the gate is **firm mode alone**, never entitlement, so a premium individual is exempt too.
 
@@ -62,6 +62,8 @@
    - **Close:** leave the app locked without cloud writes; every next launch restores the blocking flow until recovery succeeds.
 
 **Phase 5 completion:** `flutter analyze` clean; extended-offline reset test per the Verification Plan passes. Update `docs/version_history.md`.
+
+> **Built (0.0.537) — the pair moved together.** The threshold is `recoveryOfflineThreshold = Duration(days: 335)` in `lib/sync/recovery_lock.dart`, its file header and doc block now state 365/335, and `test/sync/recovery_lock_test.dart` moves the boundary to 334/335 and adds a test pinning the constant at 335 days and the cushion at exactly 30 days below the server's 365-day retention (`20261017120000_firm_mode_retention_window.sql`). Everything else in this phase — the firm-mode gate, the per-device stamp, the durable flag, the safety export and the wipe — is unchanged.
 
 ## Phase 6 — Branched Logout Flows
 

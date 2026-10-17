@@ -1,10 +1,10 @@
 /// Extended-offline recovery lock (Task 19 Phase 5).
 ///
-/// The server keeps a soft-deleted row for 180 days and then purges it. A device
+/// The server keeps a soft-deleted row for 365 days and then purges it. A device
 /// that has been away longer than that cannot tell a row it never saw from one
 /// that was deleted while it was gone — so if it simply pushed its queued work,
 /// it would resurrect data the firm deliberately removed (the Zombie Data rule,
-/// Sync Plan §3). The buffer the plan chose is **150 days**, and the comparison
+/// Sync Plan §3). The buffer the plan chose is **335 days**, and the comparison
 /// is always against **this device's** own `last_successful_sync_at`, never
 /// `profiles.last_successful_sync_at`, because another device's recent sync would
 /// mask exactly the gap this check exists to find.
@@ -37,10 +37,12 @@ const String recoveryCheckpointKey = 'atomic_recovery_checkpoint';
 
 /// How long a device may stay away before a fresh reconstruction is required.
 ///
-/// 150 days: the plan's 30-day buffer under the server's 180-day tombstone
-/// retention, so a device that recovers always had time to do so before the
-/// server started forgetting what it had deleted.
-const Duration recoveryOfflineThreshold = Duration(days: 150);
+/// 335 days: the plan's 30-day buffer under the server's 365-day tombstone
+/// retention (`20261017120000_firm_mode_retention_window.sql`), so a device that
+/// recovers always had time to do so before the server started forgetting what it
+/// had deleted. The pair moves together — raising this without raising the
+/// server's retention would let a late device push a resurrection.
+const Duration recoveryOfflineThreshold = Duration(days: 335);
 
 /// Whether this device must recover before it may write again.
 ///

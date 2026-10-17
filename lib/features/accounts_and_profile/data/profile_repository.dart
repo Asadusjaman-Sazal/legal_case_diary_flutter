@@ -167,6 +167,68 @@ ProfileFields fillBlankDetails({
   );
 }
 
+/// The four server reads a profile refresh makes, behind one seam.
+///
+/// `refresh()` owns one decision that is purely local: a dissolve — or a removal
+/// applied on another device — deletes the `firms` and `firm_members` rows
+/// **outright** on the server, so no pull will ever tombstone the copies on this
+/// device, and the refresh is the only moment that notices the account has left
+/// its chamber. That decision could not be proven while the method talked to
+/// PostgREST and to the auth session directly, so those reads arrive as this
+/// dependency: production builds it over the live client, and a test answers
+/// with rows and asserts what the local store holds afterwards.
+///
+/// The shape is the rows themselves rather than a domain model, because the
+/// cache stores exactly what the server sent — a mapped model here would be a
+/// second definition of a `profiles` row.
+abstract class ProfileRefreshSource {
+  /// The signed-in account's id, or null when there is no session.
+  String? get userId;
+
+  /// The caller's own `profiles` row, or null when the server has none yet.
+  Future<Map<String, Object?>?> fetchProfile(String userId);
+
+  /// The firm that row names, or null when it cannot be read.
+  Future<Map<String, Object?>?> fetchFirm(String firmId);
+
+  /// The caller's own membership row in [firmId].
+  Future<Map<String, Object?>?> fetchMembership({
+    required String firmId,
+    required String userId,
+  });
+}
+
+/// [ProfileRefreshSource] over the live client, the only implementation the app
+/// ships.
+class SupabaseProfileRefreshSource implements ProfileRefreshSource {
+  /// Creates the source over [client].
+  const SupabaseProfileRefreshSource(this._client);
+
+  final SupabaseClient _client;
+
+  @override
+  String? get userId => _client.auth.currentUser?.id;
+
+  @override
+  Future<Map<String, Object?>?> fetchProfile(String userId) =>
+      _client.from('profiles').select().eq('id', userId).maybeSingle();
+
+  @override
+  Future<Map<String, Object?>?> fetchFirm(String firmId) =>
+      _client.from('firms').select().eq('id', firmId).maybeSingle();
+
+  @override
+  Future<Map<String, Object?>?> fetchMembership({
+    required String firmId,
+    required String userId,
+  }) => _client
+      .from('firm_members')
+      .select()
+      .eq('firm_id', firmId)
+      .eq('user_id', userId)
+      .maybeSingle();
+}
+
 /// The repository used when this build has no backend configured.
 ///
 /// It still clears the cache: a build with no backend can have signed out of a
@@ -197,22 +259,27 @@ class UnavailableProfileRepository implements ProfileRepository {
 /// [ProfileRepository] implemented on `profiles`, `firms` and `firm_members`.
 class SupabaseProfileRepository implements ProfileRepository {
   /// Creates a repository over [client] and the local cache in [db].
-  SupabaseProfileRepository(this._client, this._db);
+  ///
+  /// [source] is the test seam for the server reads; production leaves it null
+  /// and the repository reads through [client].
+  SupabaseProfileRepository(
+    SupabaseClient client,
+    this._db, {
+    ProfileRefreshSource? source,
+  }) : _client = client,
+       _source = source ?? SupabaseProfileRefreshSource(client);
 
   final SupabaseClient _client;
   final AppDatabase _db;
+  final ProfileRefreshSource _source;
 
   @override
   Future<bool> refresh() async {
-    final userId = _client.auth.currentUser?.id;
+    final userId = _source.userId;
     if (userId == null) return false;
 
     try {
-      final row = await _client
-          .from('profiles')
-          .select()
-          .eq('id', userId)
-          .maybeSingle();
+      final row = await _source.fetchProfile(userId);
       if (row == null) {
         // The sign-up trigger creates the row; until it lands there is nothing
         // to cache and nothing to invent.
@@ -331,11 +398,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
   /// Caches the firm row, whose expiry is the source of truth for a member.
   Future<void> _cacheFirm(String firmId) async {
-    final firm = await _client
-        .from('firms')
-        .select()
-        .eq('id', firmId)
-        .maybeSingle();
+    final firm = await _source.fetchFirm(firmId);
     if (firm == null) return;
 
     await FirmsDao(_db).upsert(
@@ -374,12 +437,10 @@ class SupabaseProfileRepository implements ProfileRepository {
     required String userId,
     required String firmId,
   }) async {
-    final member = await _client
-        .from('firm_members')
-        .select()
-        .eq('firm_id', firmId)
-        .eq('user_id', userId)
-        .maybeSingle();
+    final member = await _source.fetchMembership(
+      firmId: firmId,
+      userId: userId,
+    );
     if (member == null) return;
 
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;

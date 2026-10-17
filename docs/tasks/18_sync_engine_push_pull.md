@@ -40,7 +40,7 @@ Implement `push_changes(rows jsonb)` as a Postgres migration, following Sync Pla
 3. **Crash-safe cursor persistence:** maintain an independent composite `(server_updated_at, id)` cursor per table, stored **in the local database** (transactionally adjacent to imported rows — not only SharedPreferences). Advance the cursor only after the page is fully committed to Drift in one transaction; a crash may replay rows but can never skip them. An empty page completes that table without inventing a device-clock cursor. Initial/full pulls start at the minimum sentinel. A single shared cursor is forbidden.
 4. **Pull-side merge:** if a pulled row intersects pending local mutations, do **not** overwrite queued work — run the three-way path (mark `conflict_pending` where fields overlap; details in Task 19). Pulled tombstones (`is_deleted = true`) apply locally and hide the record; if pending edits exist, preserve them and attach the tombstone as `server_payload`.
 5. **Clock-skew detection:** on each successful sync, compare device vs server time; if skew > ~2 minutes, record the offset and show the non-intrusive *"Your device clock appears incorrect…"* warning.
-6. Per-device `last_successful_sync_at` is updated in local storage after each successful sync (feeds the 150-day check in Task 19).
+6. Per-device `last_successful_sync_at` is updated in local storage after each successful sync (feeds the 335-day check in Task 19 — 30 days inside the server's 365-day tombstone retention).
 
 **Phase 3 completion:** `flutter analyze` clean; delta-pull tests pass (equal-timestamp pagination, crash-between-fetch-and-commit replay, no skipped rows across page/table/reconnect/empty boundaries). Update `docs/version_history.md`.
 

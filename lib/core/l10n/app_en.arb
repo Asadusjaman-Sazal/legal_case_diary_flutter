@@ -527,6 +527,8 @@
       }
   },
   "paywall_title": "Subscription Plans",
+  "paywall_memberPlanTitle": "Chamber Plan",
+  "paywall_memberPlanBody": "This account is covered by the chamber's subscription. The chamber owner buys and renews it.",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",
   "@paywall_limitBody": {

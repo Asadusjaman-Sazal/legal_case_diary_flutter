@@ -1058,6 +1058,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_title => 'সাবস্ক্রিপশন প্ল্যান';
 
   @override
+  String get paywall_memberPlanTitle => 'চেম্বারের প্ল্যান';
+
+  @override
+  String get paywall_memberPlanBody =>
+      'এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায়। প্ল্যানটি চেম্বারের মালিক কেনেন ও নবায়ন করেন।';
+
+  @override
   String get paywall_limitTitle => 'ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে';
 
   @override

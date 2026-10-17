@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.533 - Pinned the ten-plan payment ladder's client and server halves to each other with a guard test that fails when a key, price, length, tier or name exists on one side only.
+Version: 0.0.534 - Firm mode Phase 9: a member's payment is refused and only the chamber's expiry counts, while the owner's renewal stays open.
 --------------------------------------
 
 ## Version History Log:
@@ -547,3 +547,4 @@ Version: 0.0.530 - Firm mode Phase 6 is live and the device agrees with it: a to
 Version: 0.0.531 - Firm-mode audit fixes: closed a hole that let any signed-in account write its own subscription tier, folded the ten-plan ladder into one source of plans, and corrected records that claimed two unapplied migrations were live.
 Version: 0.0.532 - Applied firm mode's stored-tier and seat-cap migrations to the live project, fixing Pro's uncapped chamber and backfilling paid tiers; Phase 7's proof is green.
 Version: 0.0.533 - Pinned the ten-plan payment ladder's client and server halves to each other with a guard test that fails when a key, price, length, tier or name exists on one side only.
+Version: 0.0.534 - Firm mode Phase 9: a member's payment is refused and only the chamber's expiry counts, while the owner's renewal stays open.

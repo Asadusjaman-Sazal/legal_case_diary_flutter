@@ -19,7 +19,12 @@
 ///   in [plansVisibleToTier], which the screen and the tests both read, so a
 ///   Pro account is never shown a chamber plan it cannot seat anyone in;
 /// * selecting a plan pushes the checkout with the plan key as a query
-///   parameter, so the plan is named in exactly one place.
+///   parameter, so the plan is named in exactly one place;
+/// * a chamber **member** is shown a short notice instead of the offer: the
+///   chamber's plan covers the account and its owner buys and renews it, so
+///   there is nothing here to buy (Phase 9). This is the screen's own guard, not
+///   only the hidden entries, because the case-limit prompt and a deep link can
+///   still open it; the server refuses the submission regardless.
 ///
 /// No entitlement logic lives here: whether premium is *live* is
 /// `resolvePremiumAccess`'s answer, and which tier is *held* is
@@ -101,7 +106,7 @@ List<SubscriptionPlan> plansVisibleToTier(SubscriptionTier tier) {
 }
 
 /// The subscription-plan screen, optionally carrying the free-limit card.
-class PaywallScreen extends StatelessWidget {
+class PaywallScreen extends ConsumerWidget {
   /// Whether the free-limit card is shown, i.e. the gate's own entry.
   ///
   /// A query parameter decides it (`?reason=limit`) so the 50-case entry opens
@@ -120,8 +125,12 @@ class PaywallScreen extends StatelessWidget {
       state.uri.queryParameters['reason'] == 'limit';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // A member has nothing to buy here (Phase 9). The check is the screen's own,
+    // so every route that reaches it — the gate, a deep link, a stale stack —
+    // sees the same answer as the hidden entries.
+    final isMember = ref.watch(firmMemberProvider);
     // The status bar is the user's own, and every shell screen leaves it
     // visible by insetting the whole Scaffold (`SafeArea` top, bottom false).
     // Without this the Scaffold paints its app bar up behind the status bar and
@@ -146,28 +155,54 @@ class PaywallScreen extends StatelessWidget {
             AppSpacing.xl,
           ),
           children: [
-            // The free-limit card belongs to the gate alone: only the 50-case
-            // entry opens `?reason=limit`, every other entry hides it.
-            if (showLimit) ...[
-              const _LimitCard(),
+            if (isMember) ...[
+              _SectionHeader(l.paywall_memberPlanTitle),
+              const _MemberPlanNotice(),
+            ] else ...[
+              // The free-limit card belongs to the gate alone: only the 50-case
+              // entry opens `?reason=limit`, every other entry hides it.
+              if (showLimit) ...[
+                const _LimitCard(),
+                const SizedBox(height: AppSpacing.xl),
+              ],
+              _SectionHeader(l.paywall_benefitsTitle),
+              const _FeaturesCard(),
               const SizedBox(height: AppSpacing.xl),
+              _SectionHeader(l.paywall_plansTitle),
+              _PlansSection(
+                // Selecting a plan opens the checkout for that plan. The plan is
+                // carried as a query parameter so the checkout route needs no
+                // second path and a restored deep link still names its plan.
+                onPlanSelected: (plan) =>
+                    context.push('${AppRoutes.checkout}?plan=$plan'),
+              ),
             ],
-            _SectionHeader(l.paywall_benefitsTitle),
-            const _FeaturesCard(),
-            const SizedBox(height: AppSpacing.xl),
-            _SectionHeader(l.paywall_plansTitle),
-            _PlansSection(
-              // Selecting a plan opens the checkout for that plan. The plan is
-              // carried as a query parameter so the checkout route needs no
-              // second path and a restored deep link still names its plan.
-              onPlanSelected: (plan) =>
-                  context.push('${AppRoutes.checkout}?plan=$plan'),
-            ),
           ],
         ),
       ),
     );
   }
+}
+
+/// What a chamber member sees instead of the offer: one sentence naming where
+/// the plan comes from and who renews it, styled as a card so the screen does
+/// not read as an empty failure.
+class _MemberPlanNotice extends StatelessWidget {
+  const _MemberPlanNotice();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      border: Border.all(color: AppColors.outlineVariant),
+    ),
+    padding: const EdgeInsets.all(AppSpacing.cardPadding),
+    child: Text(
+      AppLocalizations.of(context).paywall_memberPlanBody,
+      style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
+    ),
+  );
 }
 
 /// Why the screen opened, and what is still free.

@@ -31,6 +31,7 @@ void main() {
     double statusBarHeight = 0,
     bool showLimit = false,
     SubscriptionTier? tier,
+    bool firmMember = false,
   }) async {
     // Tall viewport: the whole screen is on one screen, so no assertion fails
     // for the wrong reason (a lazy ListView never builds an off-screen row).
@@ -50,6 +51,9 @@ void main() {
       ProviderScope(
         overrides: [
           if (tier != null) currentTierProvider.overrideWithValue(tier),
+          // The member rule (Phase 9): a member is covered by the chamber, so
+          // the screen shows the notice rather than an offer.
+          firmMemberProvider.overrideWithValue(firmMember),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -74,6 +78,28 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('open-paywall')));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('a chamber member sees the chamber notice instead of plans', (
+    tester,
+  ) async {
+    // The screen's own guard, not only the hidden entries: the case-limit
+    // prompt and a deep link can still reach this route, and a member has
+    // nothing here to buy.
+    await pumpPaywall(tester, showLimit: true, firmMember: true);
+
+    expect(find.text('Chamber Plan'), findsOneWidget);
+    expect(
+      find.textContaining("covered by the chamber's subscription"),
+      findsOneWidget,
+    );
+    // No offer, no plans, and no free-limit card: the chamber is not a free
+    // plan failing its ceiling.
+    expect(find.text('Subscription Plans Offer'), findsNothing);
+    expect(find.text('Plans'), findsNothing);
+    expect(find.text('Subscribe'), findsNothing);
+    expect(find.text('Free Plan Limit Reached'), findsNothing);
+    expect(find.byKey(const ValueKey('paywall-plan-monthly')), findsNothing);
+  });
 
   testWidgets('says why it opened, what the plans offer and what they cost', (
     tester,

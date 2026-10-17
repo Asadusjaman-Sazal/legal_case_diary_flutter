@@ -1065,11 +1065,13 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final plan = currentPlanLabel(l, ref.watch(currentPlanProvider));
-    // A firm member has no plan of their own to buy (Task 21): the chamber's
-    // subscription is the source of truth on every member's device, so the
-    // plans child is not offered to one. Subscription Details stays — it is
-    // where the member reads the chamber's plan and expiry.
-    final sellsPlans = !ref.watch(firmModeProvider);
+    // A chamber **member** has no plan of their own to buy (Phase 9): the
+    // chamber's subscription is the source of truth on every member's device, so
+    // the plans child is not offered to one. Subscription Details stays — it is
+    // where the member reads the chamber's plan and expiry. The owner keeps the
+    // plans child: this row is his only route to renewing the chamber, so
+    // hiding it for everyone holding a firm would strand him.
+    final sellsPlans = !ref.watch(firmMemberProvider);
     return Column(
       children: [
         // The header keeps the drawer's own row metrics; only the children

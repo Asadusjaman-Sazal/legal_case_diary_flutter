@@ -9,6 +9,11 @@
 /// ([SubscriptionDetailsScreen]); **Purchase New Subscription** still opens the
 /// paywall directly.
 ///
+/// **A chamber member sees Subscription Details alone (Phase 9).** The chamber's
+/// plan is the one running, the plans are the owner's to buy, and the server
+/// refuses a member's submission whether or not this row is drawn. The owner
+/// keeps both rows — this is where a chamber is renewed.
+///
 /// **Mockup departure (approved).** There is no `settings_subscription` mockup,
 /// so this body is the two rows above moved verbatim; correspondingly Manage
 /// Account keeps only Change Password, where its own binding mockup still draws
@@ -22,6 +27,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 
@@ -33,6 +39,8 @@ class SubscriptionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // A member has no plan of their own to buy (Phase 9); the owner still does.
+    final isMember = ref.watch(firmMemberProvider);
     final items = [
       SettingsSubMenuRow(
         icon: Icons.star_outline,
@@ -42,11 +50,12 @@ class SubscriptionScreen extends ConsumerWidget {
         // choice, and it now has room for the ledger table.
         onTap: () => context.push(AppRoutes.settingsSubscriptionDetails),
       ),
-      SettingsSubMenuRow(
-        icon: Icons.add_shopping_cart_outlined,
-        title: l.settingsManageAccount_purchaseNewSubscription,
-        onTap: () => context.push(AppRoutes.paywall),
-      ),
+      if (!isMember)
+        SettingsSubMenuRow(
+          icon: Icons.add_shopping_cart_outlined,
+          title: l.settingsManageAccount_purchaseNewSubscription,
+          onTap: () => context.push(AppRoutes.paywall),
+        ),
     ];
 
     return SettingsSubPageModal(

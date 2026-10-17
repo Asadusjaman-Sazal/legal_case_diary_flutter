@@ -174,6 +174,31 @@ enum InviteRefusalKind {
   seatsFull,
 }
 
+/// A dissolve the server refused because the roster still holds someone.
+///
+/// The refusal is a status rather than an error for the same reason a seat
+/// refusal is: nothing went wrong and nothing was written — the owner simply
+/// still has people in the firm. It carries the count because the sentence
+/// quotes it, and the owner's roster read may be older than the server's answer
+/// (a member may have joined while the screen was open).
+class DissolveRefusal implements Exception, DiagnosableFailure {
+  /// Creates a refusal carrying the number of members still in the firm.
+  const DissolveRefusal(this.count);
+
+  /// How many seats the server says are still occupied, the owner's excluded.
+  final int count;
+
+  /// The log's label; the count is user-facing copy, not a diagnostic.
+  @override
+  String get diagnosticLabel => 'DissolveRefusal(membersRemaining)';
+
+  @override
+  String? get diagnosticDetail => null;
+
+  @override
+  String toString() => diagnosticLabel;
+}
+
 /// An invite that was just created on the server.
 ///
 /// [code] is the **plaintext**, returned exactly once and never written
@@ -366,6 +391,18 @@ abstract class FirmRepository {
   /// or a member who is already gone.
   Future<void> removeMember(String userId);
 
+  /// Dissolves the caller's own firm, keeping its ledger as their own diary.
+  ///
+  /// The `dissolve_firm` RPC is the only path, and it takes no arguments: the
+  /// firm is resolved from the caller, so this can never be aimed at another
+  /// chamber. The server refuses while the roster holds anyone but the owner
+  /// (throwing [DissolveRefusal] with the count); otherwise every row's
+  /// `firm_id` is cleared and the owner becomes its scope owner, the open
+  /// invites and the `firms` row are removed, and the account returns to
+  /// individual mode. The caller's plan is untouched. Throws [FirmFailure] for
+  /// a non-owner and for transport problems.
+  Future<void> dissolveFirm();
+
   /// Removes the caller's own **provisional** account after an abandoned
   /// onboarding — the plan's rule that an unfinished sign-up is treated as never
   /// created.
@@ -544,6 +581,10 @@ class UnavailableFirmRepository implements FirmRepository {
 
   @override
   Future<void> removeMember(String userId) async =>
+      throw const FirmFailure(FirmFailureKind.unavailable);
+
+  @override
+  Future<void> dissolveFirm() async =>
       throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
@@ -868,6 +909,29 @@ class SupabaseFirmRepository implements FirmRepository {
       // itself; the server resolved the firm from the caller, so a wrong firm
       // is not one of the possibilities.
       throw FirmFailure(FirmFailureKind.unknown, cause: status);
+    } catch (error) {
+      throw mapFirmFailure(error);
+    }
+  }
+
+  @override
+  Future<void> dissolveFirm() async {
+    await _requireOnline();
+
+    try {
+      final result = decodeRpcMap(
+        await _client.rpc<dynamic>('dissolve_firm'),
+      );
+      final status = result['status'] as String?;
+      if (status == 'dissolved') return;
+      // A member joined between the roster read and the tap: the count is what
+      // the sentence needs, and the screen refreshes the roster behind it.
+      if (status == 'members_remaining') {
+        throw DissolveRefusal((result['members'] as num?)?.toInt() ?? 1);
+      }
+      throw FirmFailure(FirmFailureKind.unknown, cause: status);
+    } on DissolveRefusal {
+      rethrow;
     } catch (error) {
       throw mapFirmFailure(error);
     }

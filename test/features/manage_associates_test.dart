@@ -672,7 +672,130 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('the dissolve action is blocked while an associate remains', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 1);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    // Disabled rather than hidden, with the count: the owner is told what
+    // stands in the way, not left guessing why there is no action.
+    expect(find.text(l.manageAssociates_dissolveBlockedMembers(1)), findsOneWidget);
+    final button = tester.widget<OutlinedButton>(
+      find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
+    );
+    expect(button.onPressed, isNull);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an empty roster dissolves the firm after confirmation', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 0);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(find.text(l.manageAssociates_dissolveFirm));
+    await tester.pumpAndSettle();
+    expect(find.text(l.manageAssociates_dissolveConfirmTitle), findsOneWidget);
+    expect(harness.firm.dissolveCalls, 0, reason: 'the dialog is the gate');
+
+    await tester.tap(
+      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
+    );
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.dissolveCalls, 1);
+    expect(find.text(l.manageAssociates_dissolveDone), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a refusal from a newer roster shows the count and does not '
+      'claim success', (tester) async {
+    // A member joined after this screen read the roster, so the server is the
+    // authority and its count is what the sentence quotes.
+    harness.firm.members = _roster(associates: 0);
+    harness.firm.dissolveError = const DissolveRefusal(2);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(find.text(l.manageAssociates_dissolveFirm));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_dissolveBlockedMembers(2)), findsOneWidget);
+    expect(find.text(l.manageAssociates_dissolveDone), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a queued change blocks the dissolve until it is sent', (
+    tester,
+  ) async {
+    // The push runs before the pull, so an unsynced edit still names the chamber
+    // and would be refused the moment the chamber stopped existing.
+    harness.firm.members = _roster(associates: 0);
+
+    await pumpManageAssociates(
+      tester,
+      seed: (db) async {
+        await seedOwner(db);
+        await db.into(db.syncQueue).insert(
+          SyncQueueCompanion.insert(
+            entityType: 'case',
+            entityId: 'case-1',
+            operation: 'update',
+            mutationId: 'mutation-1',
+            basePayload: '{}',
+            changedFields: '[]',
+            payload: '{}',
+            preMutationPayload: '{}',
+            createdAt: 1,
+            state: 'pending',
+          ),
+        );
+      },
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_dissolveBlockedPending), findsOneWidget);
+    final button = tester.widget<OutlinedButton>(
+      find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
+    );
+    expect(button.onPressed, isNull);
+
+    await unmountApp(tester);
+  });
 }
+
+/// A roster with the owner and [associates] associates, in the order the
+/// server returns it.
+List<FirmMemberSummary> _roster({required int associates}) => [
+  const FirmMemberSummary(
+    userId: 'user-1',
+    role: AccountRole.owner,
+    fullName: 'Adv. Rahim Uddin',
+    canAdd: true,
+    canEdit: true,
+    canDelete: true,
+  ),
+  for (var i = 0; i < associates; i++)
+    FirmMemberSummary(
+      userId: 'user-${i + 2}',
+      role: AccountRole.associate,
+      fullName: 'Adv. $i',
+      canAdd: true,
+      canEdit: true,
+      canDelete: false,
+    ),
+];
 
 /// Each recorded failure as one `area label` line, so a failed expectation
 /// shows the whole log instead of a "too many elements" that hides it.

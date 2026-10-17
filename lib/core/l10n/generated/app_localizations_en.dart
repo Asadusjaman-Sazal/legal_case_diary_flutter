@@ -4252,6 +4252,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_associateRemoved => 'Associate Removed.';
 
   @override
+  String get manageAssociates_sectionFirm => 'Firm Management';
+
+  @override
+  String get manageAssociates_dissolveFirm => 'Dissolve Firm';
+
+  @override
+  String get manageAssociates_dissolveIntro =>
+      'Dissolving removes the firm and its invites. Every case, note and reference it holds stays with you as your own diary, and your plan keeps running.';
+
+  @override
+  String manageAssociates_dissolveBlockedMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count associates are still in the firm. Remove them first.',
+      one: 'One associate is still in the firm. Remove them first.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get manageAssociates_dissolveBlockedPending =>
+      'Changes are still waiting to sync. Let them finish, then try again.';
+
+  @override
+  String get manageAssociates_dissolveConfirmTitle => 'Dissolve This Firm?';
+
+  @override
+  String get manageAssociates_dissolveConfirmBody =>
+      'The firm and its invites will be removed. Every case, note and reference it holds becomes your own diary, and the associates who wrote them lose access to them. Your plan is not cancelled, and your records keep the name of whoever wrote them. This cannot be undone.';
+
+  @override
+  String get manageAssociates_dissolveDone =>
+      'Firm dissolved. Its cases are now your own diary.';
+
+  @override
   String get syncNotice_permissionsChanged =>
       'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
 

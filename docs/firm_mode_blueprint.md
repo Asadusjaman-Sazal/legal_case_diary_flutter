@@ -434,6 +434,21 @@ is not reversible by the app**: re-creating a chamber is a new chamber with a ne
 rows must be shared into it the way any existing diary is at creation (§1), because the old
 chamber's membership, invites and roster are gone.
 
+**As built (0.0.536).** `dissolve_firm()` takes no arguments and resolves the firm from the caller,
+so it cannot be aimed at another chamber; both refusals — `not_owner` and `members_remaining` with
+its count — are decided before the first write, so a refusal retires no invite and moves no row. Two
+facts this build settled that the ruling above did not spell out. **(1) `conflict_log` cannot be left
+untouched.** Its `firm_id` references `firms (id)` **without** a cascade, so a row still naming the
+chamber would make the `firms` delete fail outright; the dissolve therefore clears that column while
+writing no scope owner — which is exactly the ruling's outcome (the author keeps their own merge
+diagnostics, the owner inherits none), and the table has no `scope_owner_id` column to write because
+it is not one of the eleven ledger tables. **(2) An unsynced edit would have been lost.** The client
+pushes before it pulls, so a local edit still naming the chamber would be refused and rolled back
+the moment the chamber stopped existing; the action is therefore unavailable while the sync queue
+holds anything, and says so, and after the dissolve the client refreshes the account (which drops
+the cached chamber and membership, since a hard-deleted row is never tombstoned by a pull) and runs
+one pull so the unscoped rows arrive locally without their old `firm_id`.
+
 ---
 
 ## 5. Plan, entitlement and gating
@@ -965,7 +980,7 @@ into a leak surface.
 | `docs/tasks/16_supabase_schema_rls_and_triggers.md` | The read-policy scoping of §4.3, the §3.3 permission triggers, the 365-day purge and the in-use guard. |
 | `docs/tasks/19_realtime_conflicts_and_recovery.md` | The 335-day recovery window and the 400-day `mutation_receipts` invariant. |
 | `docs/tasks/21_payments_and_subscription.md` | The settled tier ladder and its plan rows, the downgrade and lapse rules, and the direct-distribution decision (§5.3, §5.4, §5.6). |
-| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Nine of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523), §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529), §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530), §5.3's **stored tier and ten-plan ladder** (`20261016120000_firm_mode_stored_tier.sql`, 0.0.531) with the **seat cap reading it** (`20261016130000_firm_mode_seat_cap_and_creation_gate.sql`, 0.0.532), and §5.1's **member refusal** (`20261017100000_firm_mode_member_no_plan.sql`, 0.0.534), where the gate counts the chamber's expiry alone and a member's payment is refused while the owner's renewal stays open. **Still owed:** §5.5's 365-day retention. The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
+| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Ten of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523), §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529), §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530), §5.3's **stored tier and ten-plan ladder** (`20261016120000_firm_mode_stored_tier.sql`, 0.0.531) with the **seat cap reading it** (`20261016130000_firm_mode_seat_cap_and_creation_gate.sql`, 0.0.532), and §5.1's **member refusal** (`20261017100000_firm_mode_member_no_plan.sql`, 0.0.534), where the gate counts the chamber's expiry alone and a member's payment is refused while the owner's renewal stays open. and §4.4's **dissolution** (`20261017110000_firm_mode_dissolution.sql`, 0.0.536), where the roster must be empty before the first write, the ledger is unscoped to the owner with a scope owner, `conflict_log` merely loses its chamber column, and the account returns to individual with its plan untouched. **Still owed:** §5.5's 365-day retention. The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
 | `docs/firm_mode_blueprint_audit.md` | The audit this revision answers: ten findings checked against the shipped SQL and Dart, and the six decisions they raised — now ruled on in §3.3, §4.1, §4.2, §4.4, §5.1, §5.3, §5.5, §5.6, §6 and §7. |
 
 > **Propagation note — done (version 0.0.519).** This file is revised first because the user asked
@@ -1005,7 +1020,7 @@ into a leak surface.
 | 8 | The Ten-Plan Ladder | §5.3, §10.9 | **Built** 0.0.532 | `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` |
 | 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | **Built** 0.0.534 | `20261017100000_firm_mode_member_no_plan.sql` |
 | 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | **Built** 0.0.535 | client only, no migration |
-| 11 | Dissolution | §4.4, §10.4, §10.11 | Owed | new migration + client |
+| 11 | Dissolution | §4.4, §10.4, §10.11 | **Built** 0.0.536 | `20261017110000_firm_mode_dissolution.sql` + client |
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | Owed | migration + regeneration |
 | 13 | Restore Inside A Chamber | §6, §10.14 | Owed | client |
 | 14 | Attribution And The Roster | §9.9 | Owed (verify) | client, verify only |
@@ -1462,10 +1477,10 @@ into a leak surface.
   Subscription Details tests updated for the new copy. `flutter analyze` clean; `flutter test` 1831
   passed.
 
-### Phase 11 — Dissolution — **Owed**
+### Phase 11 — Dissolution — **Built** 0.0.536
 
 
-- **Status.** **Owed** — no dissolve RPC exists.
+- **Status.** **Built** — `dissolve_firm()` is applied to the project and the client half ships with it.
 - **Discharges.** §4.4, §10.4, §10.11. Task 20.
 - **Depends On.** Phase 1's `scope_owner_id` and its read rule (**built**) — without the column the
   unscoping step cannot be written at all.
@@ -1494,6 +1509,24 @@ into a leak surface.
   and §2.1's join refusal would then misfire on those rows as "its own diary". The scope owner is not
   optional and is a scope key, not attribution: `user_id`, `created_by` and `last_modified_by` are
   never rewritten.
+- **Built (0.0.536) — files and proof.** `supabase/migrations/20261017110000_firm_mode_dissolution.sql`
+  (`dissolve_firm()`, `SECURITY DEFINER`, no arguments, `execute` to `authenticated` only, applied to
+  `lsthasywrdrhuuxnykau`) and `supabase/tests/firm_mode_dissolution_test.sql`, one rolled-back run
+  printing `DISSOLVE OK`. The function locks the caller's `firms` row, counts the seats that are not
+  the owner's, retires the open invites, unscopes the eleven ledger tables in one loop (`firm_id`
+  null, `scope_owner_id` the owner, tombstones included, the sync columns left to their triggers),
+  clears `conflict_log`'s `firm_id` alone, relinks the owner's profile to `individual`, deletes the
+  `firms` row (which cascades the memberships and the invites) and pings the owner's user topic as a
+  `firm_members` change — the client's account refresh. **Client:** `FirmRepository.dissolveFirm()`
+  with a count-carrying `DissolveRefusal`, the dissolve card at the foot of Manage Associates (blocked
+  while the roster or the sync queue holds anything, confirmed before it runs), and the profile
+  refresh now clearing the cached `firms` / `firm_members` rows when the profile stops naming a firm.
+  **Proof:** the SQL test's seven sections — the refusal with its count and nothing written, a member's
+  `not_owner`, the dissolve after the real removal path, each row's attribution/contents/version
+  intact, the per-account read counts (owner keeps everything, authors keep none), `conflict_log`
+  staying with its author, the dead pre-dissolve code, and `delete_my_account()` answering `removed` —
+  plus `test/features/manage_associates_test.dart`'s four dissolution cases. No mockup is owed:
+  Manage Associates has none (rule 9).
 
 ### Phase 12 — Retention And The Recovery Window — **Owed**
 

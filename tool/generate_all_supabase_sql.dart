@@ -632,6 +632,24 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'chamber\'s renewal, and the two entries this phase removes from a '
         'member are the owner\'s only routes to it.',
   ),
+  LedgerSection(
+    file: '20261017110000_firm_mode_dissolution.sql',
+    version: '0.0.536',
+    label:
+        'Firm mode: dissolution. dissolve_firm() refuses while the roster '
+        'holds anyone but the owner and carries the count in the refusal, '
+        'decided before the first write so a refusal retires no invite and '
+        'moves no row. Once the roster is empty it retires the open invites, '
+        'then unscopes the eleven ledger tables — firm_id out, the owner in as '
+        'scope_owner_id, tombstones included — so he keeps a complete ordinary '
+        'diary while attribution, contents and the sync columns stay exactly as '
+        'they were. conflict_log is the one exception: its firm_id is cleared, '
+        'because the foreign key has no cascade and the firms delete would be '
+        'refused otherwise, and no scope owner is written, so a colleague\'s '
+        'merge diagnostics stay with their author. The firms row goes with its '
+        'memberships and invites, the owner\'s profile returns to individual '
+        'mode (which unblocks delete_my_account), and his plan is untouched.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -683,6 +701,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.531': 'Firm Mode Phase 7 — The Stored Tier And The Ten-Plan Ladder',
   '0.0.532': 'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
   '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
+  '0.0.536': 'Firm Mode Phase 11 — Dissolution Keeps The Ledger',
 };
 
 const String _header = '''<!--

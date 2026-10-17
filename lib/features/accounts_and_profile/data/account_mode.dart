@@ -16,6 +16,7 @@ library;
 
 import 'dart:async';
 
+import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/repository_providers.dart';
@@ -27,7 +28,9 @@ import '../../../sync/connectivity_monitor.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../payments/data/payment_plans.dart';
+import '../../payments/data/plan_allowance.dart';
 import '../../settings/data/premium_access.dart';
+import '../../settings/data/write_allowance.dart';
 import 'local/firm_members_dao.dart';
 import 'local/profiles_dao.dart';
 import 'profile_name_store.dart';
@@ -176,6 +179,62 @@ final currentTierProvider = Provider<SubscriptionTier>((ref) {
     return SubscriptionTier.fromKey(ref.watch(accountFirmProvider).value?.tier);
   }
   return SubscriptionTier.fromKey(profile.tier);
+});
+
+/// The tier **in force** for this account, downgrade included.
+///
+/// Different from [currentTierProvider] on purpose: that one reads the stored
+/// key for plan visibility, while Phase 10's allowance must use the tier a
+/// started downgrade has already moved to — the same answer the server's
+/// `effective_tier` gives. A waiting pair that has not reached its date leaves
+/// the stored tier standing.
+final allowanceTierProvider = Provider<SubscriptionTier>((ref) {
+  final profile = ref.watch(accountProfileProvider).value;
+  if (profile == null) return SubscriptionTier.free;
+  if (profile.firmId != null) {
+    final firm = ref.watch(accountFirmProvider).value;
+    return effectiveTier(
+      tier: SubscriptionTier.fromKey(firm?.tier),
+      pendingKey: firm?.tierPending,
+      pendingFromMs: firm?.tierPendingFrom,
+    );
+  }
+  return effectiveTier(
+    tier: SubscriptionTier.fromKey(profile.tier),
+    pendingKey: profile.tierPending,
+    pendingFromMs: profile.tierPendingFrom,
+  );
+});
+
+/// What this account may still write, live from the device's ledger.
+///
+/// Recomputed when a case, note or reference changes, so a new edit re-enters
+/// the writable set and a deletion promotes the next row. A premium account and
+/// a genuinely free one need no set at all, so the stream stops after its first
+/// answer and leaves the tables alone.
+final writeAllowanceProvider = StreamProvider<WriteAllowance>((ref) async* {
+  final dbFuture = ref.watch(databaseProvider.future);
+  final premiumFuture = ref.watch(premiumAccessProvider.future);
+  final tier = ref.watch(allowanceTierProvider);
+  final db = await dbFuture;
+  final premium = await premiumFuture;
+
+  Future<WriteAllowance> resolve() =>
+      resolveWriteAllowance(db, tier: tier, premium: premium);
+
+  yield await resolve();
+  if (premium || tier == SubscriptionTier.free) return;
+
+  final updates = db.tableUpdates(
+    TableUpdateQuery.onAllTables([
+      db.cases,
+      db.notes,
+      db.caseReferences,
+    ]),
+  );
+  await for (final _ in updates) {
+    yield await resolve();
+  }
 });
 
 /// The role while a firm is in play: owner, associate or viewer.

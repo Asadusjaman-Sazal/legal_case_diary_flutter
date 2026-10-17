@@ -38,6 +38,7 @@ import '../../../../features/settings/presentation/delete_request_flow.dart';
 import '../../../../features/settings/presentation/settings_viewmodel.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../../../payments/presentation/lapse_allowance_ui.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
@@ -146,6 +147,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Future<void> _openEditCase() async {
     final current = _current;
     if (current == null) return;
+    // Phase 10: beyond the lapse allowance the case explains itself rather
+    // than opening a form that would be refused on save.
+    if (!ensureCaseWritable(context, ref, current.id)) return;
     await AddEditCaseSheet.show<void>(context, initialCase: current);
     if (mounted) await _load();
   }
@@ -153,6 +157,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Future<void> _openReminderUpdate() async {
     final current = _current;
     if (current == null) return;
+    if (!ensureCaseWritable(context, ref, current.id)) return;
     await QuickUpdateCaseDialog.show(context, current, canEdit: _canEdit);
     if (mounted) await _load();
   }
@@ -247,6 +252,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   Future<void> _openHistoryEdit(CaseHistoryRow entry) async {
     final current = _current;
     if (current == null) return;
+    // A history edit writes the case like any other edit, so it meets the same
+    // allowance boundary.
+    if (!ensureCaseWritable(context, ref, current.id)) return;
     await HistoryEntryEditDialog.show(context, entry: entry, caseData: current);
     if (mounted) await _load();
   }

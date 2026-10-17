@@ -20,8 +20,14 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/read_only_lock.dart';
 import '../../../sync/sync_service.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
+import '../../payments/presentation/lapse_allowance_ui.dart';
+import '../../settings/data/premium_access.dart';
+import '../../settings/data/write_allowance.dart';
 import '../../settings/presentation/delete_request_flow.dart';
 import 'reference_viewmodel.dart';
 
@@ -127,9 +133,19 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 
   void _togglePin(CaseReference reference) {
+    // Pinning writes `updated_at`, which would pull a read-only reference back
+    // into the allowance, so it meets the same boundary as an edit.
+    if (!ensureReferenceWritable(context, ref, reference.id)) return;
     ref
         .read(referenceViewModelProvider.notifier)
         .setPinned(reference.id, !reference.isPinned);
+  }
+
+  /// Phase 10: a read-only reference explains itself instead of opening the
+  /// editor.
+  void _editIfWritable(CaseReference reference) {
+    if (!ensureReferenceWritable(context, ref, reference.id)) return;
+    _openSheet(reference: reference);
   }
 
   @override
@@ -140,9 +156,11 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     final references = referencesAsync.value?.items ?? const <CaseReference>[];
     // The query's own rows while one is in force, otherwise the library.
     final visible = _search.rows ?? references;
+    final allowance = ref.watch(writeAllowanceProvider).value;
 
     return CasesScreenModal(
       title: l.caseReferenceScreen_title,
+      lapseKind: LapseRowKind.references,
       onSync: _onRefresh,
       onSearch: _toggleSearch,
       // The bar is mounted by the shared modal, exactly as on the case-list
@@ -156,7 +174,8 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         isSearching: _isSearching,
         references: visible,
         totalCount: references.length,
-        onEdit: (reference) => _openSheet(reference: reference),
+        writableReferenceIds: allowance?.writableReferenceIds,
+        onEdit: _editIfWritable,
         onDelete: _confirmDelete,
         onTogglePin: _togglePin,
         onRefresh: _onRefresh,
@@ -181,6 +200,7 @@ class _ReferenceList extends StatelessWidget {
     required this.isSearching,
     required this.references,
     required this.totalCount,
+    this.writableReferenceIds,
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
@@ -190,6 +210,10 @@ class _ReferenceList extends StatelessWidget {
   final bool isSearching;
   final List<CaseReference> references;
   final int totalCount;
+
+  /// References the allowance keeps editable, or null when every one is.
+  final Set<String>? writableReferenceIds;
+
   final ValueChanged<CaseReference> onEdit;
   final ValueChanged<CaseReference> onDelete;
   final ValueChanged<CaseReference> onTogglePin;
@@ -234,6 +258,9 @@ class _ReferenceList extends StatelessWidget {
       children.add(
         _ReferenceCard(
           reference: reference,
+          isReadOnly:
+              writableReferenceIds != null &&
+              !writableReferenceIds!.contains(reference.id),
           onEdit: () => onEdit(reference),
           onDelete: () => onDelete(reference),
           onTogglePin: () => onTogglePin(reference),
@@ -256,12 +283,14 @@ class _ReferenceList extends StatelessWidget {
 class _ReferenceCard extends StatefulWidget {
   const _ReferenceCard({
     required this.reference,
+    required this.isReadOnly,
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
   });
 
   final CaseReference reference;
+  final bool isReadOnly;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onTogglePin;
@@ -314,6 +343,10 @@ class _ReferenceCardState extends State<_ReferenceCard> {
                         ],
                       ),
                     ),
+                    if (widget.isReadOnly) ...[
+                      const ReadOnlyLock(),
+                      const SizedBox(width: AppSpacing.xs),
+                    ],
                     PopupMenuButton<String>(
                       key: const ValueKey('reference-menu'),
                       icon: const Icon(Icons.more_vert),
@@ -520,6 +553,26 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
         ).showSnackBar(SnackBar(content: Text(l.caseReferenceScreen_deleted)));
         Navigator.of(context).pop(reference);
       }
+      return;
+    }
+
+    // A lapsed account may add only up to its reference allowance, and may
+    // edit only the references inside it; the rest stay readable.
+    final db = await ref.read(databaseProvider.future);
+    final allowance = await resolveWriteAllowance(
+      db,
+      tier: ref.read(allowanceTierProvider),
+      premium: await resolvePremiumAccess(
+        db,
+        ref.read(accountCacheUserIdProvider),
+      ),
+    );
+    if (_isNew && !allowance.canAddReference()) {
+      if (mounted) showReadOnlyWriteMessage(context, l.lapse_referenceLimit);
+      return;
+    }
+    if (!_isNew && !allowance.isReferenceWritable(widget.reference!.id)) {
+      if (mounted) showReadOnlyWriteMessage(context, l.lapse_readOnlyReference);
       return;
     }
 

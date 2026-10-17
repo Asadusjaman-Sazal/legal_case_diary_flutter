@@ -16,7 +16,6 @@ import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
-import '../../core/constants/free_tier.dart';
 import '../../core/constants/pre_seeded_data.dart';
 import '../../core/l10n/app_translations.dart';
 import '../../core/l10n/generated/app_localizations.dart';
@@ -32,12 +31,13 @@ import '../../features/settings/presentation/settings_notifications/notification
 import '../../features/accounts_and_profile/data/local/firm_members_dao.dart';
 import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
 import '../../features/cases/data/case_form_repository.dart';
-import '../../features/cases/data/local/cases_dao.dart';
+import '../../features/payments/presentation/lapse_allowance_ui.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
 import '../../features/settings/data/district_court_categories.dart';
 import '../../features/settings/data/notification_day_offsets.dart';
 import '../../features/settings/data/premium_access.dart';
+import '../../features/settings/data/write_allowance.dart';
 import '../../features/settings/data/local/court_categories_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
 import '../../features/settings/data/local/on_behalfs_dao.dart';
@@ -1656,21 +1656,43 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       final formRepository = CaseFormRepository(db, repository);
       final identity = ref.read(localIdentityServiceProvider);
       final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+      // Phase 10's allowance, resolved at the write boundary so a stale form
+      // cannot save past it: genuinely free keeps the 50-case wall, a lapsed
+      // paid account keeps writing up to its tier's allowance, premium has no
+      // ceiling. Premium entitlement is derived from subscription expiry, never
+      // from the display-only status flag or a per-user view preference.
+      final hasPremiumAccess = await resolvePremiumAccess(
+        db,
+        identity.getId(),
+      );
+      final allowance = await resolveWriteAllowance(
+        db,
+        tier: ref.read(allowanceTierProvider),
+        premium: hasPremiumAccess,
+      );
       if (widget.initialCase == null) {
-        final count = await CasesDao(db).getNonDeletedCaseCount();
-        // Premium entitlement is derived from subscription expiry, never from
-        // the display-only status flag or a per-user view preference.
-        final hasPremiumAccess = await resolvePremiumAccess(
-          db,
-          identity.getId(),
-        );
-        if (count >= freeTierCaseLimit && !hasPremiumAccess) {
+        if (!allowance.canAddCase()) {
           if (mounted) {
             setState(() => _isSaving = false);
-            context.push(AppRoutes.paywallFromCaseLimit);
+            context.push(
+              allowance.isLapsed
+                  ? AppRoutes.paywallFromLapse
+                  : AppRoutes.paywallFromCaseLimit,
+            );
           }
           return;
         }
+      } else if (!allowance.isCaseWritable(widget.initialCase!.id)) {
+        // Beyond the allowance the case stays readable but not writable; the
+        // refusal names the reason instead of silently doing nothing.
+        if (mounted) {
+          setState(() => _isSaving = false);
+          showReadOnlyWriteMessage(
+            context,
+            AppLocalizations.of(context).lapse_readOnlyCase,
+          );
+        }
+        return;
       }
       // The UI field is optional in the confirmed mandatory-field list, but
       // the local schema requires a valid FK. Auto-resolve only an unambiguous
@@ -2182,6 +2204,24 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
         transactionalCaseRepositoryProvider.future,
       );
       final identity = ref.read(localIdentityServiceProvider);
+      // The quick update is a write on a case like any other, so it meets the
+      // same allowance boundary as the full form.
+      final premium = await resolvePremiumAccess(db, identity.getId());
+      final allowance = await resolveWriteAllowance(
+        db,
+        tier: ref.read(allowanceTierProvider),
+        premium: premium,
+      );
+      if (!allowance.isCaseWritable(widget.currentCase.id)) {
+        if (mounted) {
+          setState(() => _saving = false);
+          showReadOnlyWriteMessage(
+            context,
+            AppLocalizations.of(context).lapse_readOnlyCase,
+          );
+        }
+        return;
+      }
       final updatedAt = DateTime.now().toUtc().millisecondsSinceEpoch;
       await db.transaction(() async {
         await repository.updateCaseInTransaction(

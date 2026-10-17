@@ -146,6 +146,16 @@
     <span class="w-1"></span>
   </header>
 
+  <!-- Phase 10 lapse banner. Silent unless the account has lapsed and is over its
+       allowance: it counts the rows that stay editable and those that do not, and
+       offers Renew. Cases, notes and references each say their own noun, and the
+       counts come from the screen's own ledger. -->
+  <div class="mx-md mt-md px-md py-sm bg-surface-container-highest border border-outline-variant rounded-lg flex items-center">
+    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+    <p class="ml-sm flex-1 font-body-sm text-body-sm text-on-surface">Your plan has lapsed. The 100 most recently updated cases stay editable; 124 are read-only until you renew.</p>
+    <button class="ml-sm font-label-lg text-label-lg text-primary active:opacity-70">Renew</button>
+  </div>
+
   <!-- KPI summary: each tile opens the list it counts. Drawn ~40% smaller than
        the app's default tile, so every size below is scaled by 0.6. -->
   <div class="px-md pt-md pb-sm flex gap-md">
@@ -184,6 +194,9 @@
     <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
       <div class="flex items-start gap-sm">
         <p class="flex-1 font-case-number text-case-number text-secondary">Civil Appeal- 216/2023</p>
+        <!-- The lapse allowance's own mark: this case is beyond the writable set,
+             so it stays readable and printable but not editable. -->
+        <span class="material-symbols-outlined text-[14px] text-on-surface-variant" style="margin-top:2px;">lock</span>
         <span class="px-sm py-xs rounded-sm bg-surface-container font-label-md text-label-md text-on-surface">Appellant</span>
       </div>
       <p class="mt-xs font-title-md text-title-md text-on-surface" style="font-size:15px; line-height:1.6;">Md. Rafiqul Islam Vs State &amp; Others</p>

@@ -30,6 +30,7 @@ void main() {
     Locale locale = const Locale('en'),
     double statusBarHeight = 0,
     bool showLimit = false,
+    bool showLapsed = false,
     SubscriptionTier? tier,
     bool firmMember = false,
   }) async {
@@ -50,7 +51,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          if (tier != null) currentTierProvider.overrideWithValue(tier),
+          if (tier != null) ...[
+            currentTierProvider.overrideWithValue(tier),
+            // The lapsed card names the allowance of the tier in force.
+            allowanceTierProvider.overrideWithValue(tier),
+          ],
           // The member rule (Phase 9): a member is covered by the chamber, so
           // the screen shows the notice rather than an offer.
           firmMemberProvider.overrideWithValue(firmMember),
@@ -65,7 +70,10 @@ void main() {
                 key: const ValueKey('open-paywall'),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => PaywallScreen(showLimit: showLimit),
+                    builder: (_) => PaywallScreen(
+                      showLimit: showLimit,
+                      showLapsed: showLapsed,
+                    ),
                   ),
                 ),
                 child: const Text('Open'),
@@ -120,8 +128,9 @@ void main() {
 
     expect(find.text('Subscription Plans Offer'), findsOneWidget);
     for (final title in <String>[
-      // Unlimited Cases leads the offer (0.0.441).
-      'Unlimited Cases',
+      // More Cases leads the offer: the free wall is the question that opens
+      // this screen, and Phase 10 replaced the old "Unlimited" promise.
+      'More Cases on Every Plan',
       'Disaster Recovery',
       'Real-time Backup',
       'Multi-device Support',
@@ -130,7 +139,7 @@ void main() {
       expect(find.text(title), findsOneWidget);
     }
     for (final body in <String>[
-      'Store as many cases as you need, with no limit.',
+      'Your case ceiling grows with your plan — the plan cards show each limit.',
       'If your phone is lost or broken, your data is always safe in the cloud. '
           'You can login to your new device with your account to get access to '
           'your old data.',
@@ -140,9 +149,9 @@ void main() {
     ]) {
       expect(find.text(body), findsOneWidget);
     }
-    // Unlimited Cases is first, so its heading sits above the rest.
+    // More Cases is first, so its heading sits above the rest.
     expect(
-      tester.getTopLeft(find.text('Unlimited Cases')).dy,
+      tester.getTopLeft(find.text('More Cases on Every Plan')).dy,
       lessThan(tester.getTopLeft(find.text('Disaster Recovery')).dy),
     );
     // Each row carries its own icon, not one repeated tick.
@@ -162,6 +171,10 @@ void main() {
     // Pro is the entry tier. So Pro's card is the only tier card on screen, and
     // neither of the chamber tiers the account cannot buy is named at all.
     expect(find.text('Pro'), findsOneWidget);
+    // Phase 10: the card names the ceiling it sells, from the tier's own number,
+    // instead of the old "no limit" promise.
+    expect(find.text('Up to 1,000 cases'), findsOneWidget);
+    expect(find.textContaining('no limit'), findsNothing);
     for (final hidden in <String>['Firm', 'Firm Plus']) {
       expect(find.text(hidden), findsNothing, reason: hidden);
     }
@@ -187,6 +200,22 @@ void main() {
     expect(find.textContaining('per year'), findsNothing);
     // The stub's "not available yet" note is gone.
     expect(find.textContaining('not available yet'), findsNothing);
+  });
+
+  testWidgets('a lapsed Pro reads its allowance, not the free wall', (
+    tester,
+  ) async {
+    await pumpPaywall(
+      tester,
+      showLapsed: true,
+      tier: SubscriptionTier.pro,
+    );
+
+    expect(find.text('Your Plan Has Lapsed'), findsOneWidget);
+    // The card names the tier's allowance (Pro 100), never the free 50.
+    expect(find.textContaining('up to 100 cases'), findsOneWidget);
+    expect(find.text('Free Plan Limit Reached'), findsNothing);
+    expect(find.textContaining('up to $freeTierCaseLimit cases'), findsNothing);
   });
 
   testWidgets('hides the free-limit card unless the 50-case gate opened it', (
@@ -427,12 +456,12 @@ void main() {
       everyElement(SubscriptionTier.pro),
     );
     expect(paywallFeatures, hasLength(5));
-    // The five the offer section lists, in display order: Unlimited Cases leads
-    // (it is the 50-case gate's answer), then the cloud features.
+    // The five the offer section lists, in display order: More Cases leads (it
+    // is the 50-case gate's answer), then the cloud features.
     expect(
       paywallFeatures,
       <PaywallFeature>[
-        PaywallFeature.unlimitedCases,
+        PaywallFeature.moreCases,
         PaywallFeature.disasterRecovery,
         PaywallFeature.realTimeBackup,
         PaywallFeature.multiDevice,

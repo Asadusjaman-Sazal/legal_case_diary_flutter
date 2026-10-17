@@ -1073,14 +1073,22 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get paywall_lapsedTitle => 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে';
+
+  @override
+  String paywall_lapsedBody(String limit) {
+    return 'মেয়াদ শেষ হওয়া আপনার সর্বশেষ প্ল্যানে সর্বোচ্চ $limitটি মামলা যোগ করা যায়। আগের সব মামলা পড়া যাবে; আরও যোগ করা ও সব সম্পাদনা করতে নবায়ন করুন।';
+  }
+
+  @override
   String get paywall_benefitsTitle => 'সাবস্ক্রিপশন প্ল্যানে যা থাকে';
 
   @override
-  String get paywall_featureUnlimitedCasesTitle => 'আনলিমিটেড মামলা';
+  String get paywall_featureUnlimitedCasesTitle => 'প্রতিটি প্ল্যানে আরও মামলা';
 
   @override
   String get paywall_featureUnlimitedCasesBody =>
-      'যত খুশি মামলা সংরক্ষণ করুন, কোনো সীমা ছাড়াই।';
+      'আপনার প্ল্যান যত বড়, মামলার সীমা তত বেশি — প্রতিটি প্ল্যান কার্ডে সেই সীমা লেখা আছে।';
 
   @override
   String get paywall_featureDisasterRecoveryTitle => 'দুর্যোগে ডেটা পুনরুদ্ধার';
@@ -1156,6 +1164,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_tierProNote => 'একটি অ্যাকাউন্ট';
 
   @override
+  String paywall_tierCases(String count) {
+    return 'সর্বোচ্চ $countটি মামলা';
+  }
+
+  @override
   String get paywall_tierFirmNote => 'সর্বোচ্চ ৫ জন সহকারী';
 
   @override
@@ -1163,6 +1176,47 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_subscribe => 'সাবস্ক্রাইব';
+
+  @override
+  String get lapse_readOnlyBadge => 'পঠন-কেবল';
+
+  @override
+  String get lapse_renewAction => 'নবায়ন';
+
+  @override
+  String lapse_bannerCases(String editable, String readOnly) {
+    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি মামলা সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+  }
+
+  @override
+  String lapse_bannerNotes(String editable, String readOnly) {
+    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি নোট সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+  }
+
+  @override
+  String lapse_bannerReferences(String editable, String readOnly) {
+    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+  }
+
+  @override
+  String get lapse_readOnlyCase =>
+      'প্ল্যানের মেয়াদ শেষ থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+
+  @override
+  String get lapse_readOnlyNote =>
+      'প্ল্যানের মেয়াদ শেষ থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+
+  @override
+  String get lapse_readOnlyReference =>
+      'প্ল্যানের মেয়াদ শেষ থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+
+  @override
+  String get lapse_noteLimit =>
+      'আপনার সর্বশেষ প্ল্যানের নোটের সীমা পূর্ণ হয়েছে। আরও নোট যোগ করতে নবায়ন করুন।';
+
+  @override
+  String get lapse_referenceLimit =>
+      'আপনার সর্বশেষ প্ল্যানের কেস রেফারেন্সের সীমা পূর্ণ হয়েছে। আরও রেফারেন্স যোগ করতে নবায়ন করুন।';
 
   @override
   String get adminPanel_title => 'অ্যাডমিন প্যানেল';
@@ -1783,6 +1837,15 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফ্রি প্ল্যানের সীমাবদ্ধতা';
 
   @override
+  String get settingsSubscription_lapsedTitle =>
+      'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে';
+
+  @override
+  String settingsSubscription_lapsedBody(String count) {
+    return 'সবকিছু এখনও পড়া যাবে। নবায়ন পর্যন্ত সর্বোচ্চ $countটি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।';
+  }
+
+  @override
   String settingsSubscription_freeLimitCases(String limit) {
     return 'একসাথে সর্বোচ্চ $limitটি মামলা। একটি মামলা মুছে ফেললে জায়গা খালি হয়।';
   }
@@ -1956,6 +2019,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_planPremium => 'প্রিমিয়াম';
+
+  @override
+  String settingsManageAccount_planLapsed(String tier) {
+    return '$tier — মেয়াদোত্তীর্ণ';
+  }
 
   @override
   String settingsManageAccount_premiumUntil(String date) {

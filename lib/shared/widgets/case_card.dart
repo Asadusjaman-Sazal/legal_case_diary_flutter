@@ -10,6 +10,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
+import 'read_only_lock.dart';
 
 /// Layout variants used by the case-list screens.
 enum CaseCardVariant {
@@ -91,6 +92,12 @@ class CaseCard extends StatelessWidget {
   /// and the red date text. The Overdue screen always sets this to true.
   final bool isOverdue;
 
+  /// Whether the lapse allowance keeps this case read-only (Phase 10).
+  ///
+  /// Only the mark: the case stays openable, searchable and printable, and its
+  /// edit path explains the refusal instead of opening a form.
+  final bool isReadOnly;
+
   /// Creates a case card.
   const CaseCard({
     required this.caseNumber,
@@ -106,6 +113,7 @@ class CaseCard extends StatelessWidget {
     this.judgesName,
     this.dateLabelOverride,
     this.isOverdue = false,
+    this.isReadOnly = false,
     this.onPhone,
     this.onMessage,
     this.onUpdate,
@@ -145,6 +153,7 @@ class CaseCard extends StatelessWidget {
                       statusLabel: statusLabel,
                       alignStatusLabelRight: alignStatusLabelRight,
                       isOverdue: _isOverdue,
+                      isReadOnly: isReadOnly,
                     ),
                     if (courtName != null) ...[
                       const SizedBox(height: AppSpacing.xs),
@@ -221,6 +230,7 @@ class _CaseHeading extends StatelessWidget {
   final String? statusLabel;
   final bool alignStatusLabelRight;
   final bool isOverdue;
+  final bool isReadOnly;
 
   const _CaseHeading({
     required this.caseNumber,
@@ -229,6 +239,7 @@ class _CaseHeading extends StatelessWidget {
     required this.statusLabel,
     required this.alignStatusLabelRight,
     required this.isOverdue,
+    required this.isReadOnly,
   });
 
   @override
@@ -247,6 +258,13 @@ class _CaseHeading extends StatelessWidget {
                 ),
               ),
             ),
+            if (isReadOnly) ...[
+              const SizedBox(width: AppSpacing.sm),
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: ReadOnlyLock(),
+              ),
+            ],
             if (statusLabel != null) ...[
               const SizedBox(width: AppSpacing.sm),
               Flexible(

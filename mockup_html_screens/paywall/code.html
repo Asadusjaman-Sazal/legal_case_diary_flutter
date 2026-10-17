@@ -142,26 +142,40 @@
 
 <main class="max-w-lg mx-auto w-full px-edge-margin pt-md pb-xl">
 
-  <!-- Why the screen opened: the 50-case free limit, and what is still free. -->
+  <!-- Why the screen opened. Two gates share this one card and only one of them
+       is ever drawn: `?reason=limit` is the free 50 wall shown here, and
+       `?reason=lapsed` (Phase 10) is the lapsed allowance — the same shape with
+       the title "Your Plan Has Lapsed" and the tier in force's own allowance in
+       the body (Pro 100, Firm 500, Firm Plus 1,000), never the free 50, because
+       a lapsed account is not free. Every other entry draws no card. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-center">
       <span class="material-symbols-outlined text-[20px] text-secondary">workspace_premium</span>
       <span class="ml-sm flex-1 font-title-md text-title-md text-on-surface">Free Plan Limit Reached</span>
     </div>
     <p class="mt-sm font-body-md text-body-md text-on-surface">The free plan holds up to 50 cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.</p>
+
+    <!-- The lapsed variant of this one card is NOT drawn here, because the two
+         states are exclusive and drawing both would show a screen the app never
+         renders. The lapsed entry reads exactly: title "Your Plan Has Lapsed",
+         body "Your last plan lets you add up to {allowance} cases while it is
+         lapsed. Everything you already hold stays readable; renew to add more and
+         edit it all." — with the allowance of the tier in force (Pro 100, Firm
+         500, Firm Plus 1,000), never the free 50. -->
   </div>
 
   <div class="h-xl"></div>
 
   <!-- Subscription plans offer: one row each, its own icon, a Title Case heading
-       over its sentence-case explanation. Unlimited Cases leads (0.0.441). -->
+       over its sentence-case explanation. More Cases leads: Phase 10 replaced
+       the old "unlimited" promise with the ladder's own ceilings. -->
   <p class="px-xs pb-md font-title-md text-title-md text-on-surface font-bold">Subscription Plans Offer</p>
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <span class="material-symbols-outlined text-[20px] text-primary">all_inclusive</span>
       <div class="ml-sm flex-1">
-        <p class="font-title-md text-title-md text-on-surface">Unlimited Cases</p>
-        <p class="mt-xs font-body-md text-body-md text-on-surface">Store as many cases as you need, with no limit.</p>
+        <p class="font-title-md text-title-md text-on-surface">More Cases on Every Plan</p>
+        <p class="mt-xs font-body-md text-body-md text-on-surface">Your case ceiling grows with your plan — the plan cards show each limit.</p>
       </div>
     </div>
     <div class="mt-md flex items-start">
@@ -196,12 +210,18 @@
 
   <div class="h-xl"></div>
 
-  <!-- The plans and their prices. Selecting a plan opens the checkout for it;
-       there is no lifetime plan, which is why four rows are drawn: one month,
-       three months, six months and a year. -->
+  <!-- The plans and their prices, grouped by tier (Phase 10). Each tier states
+       the seats it sells and the case ceiling it sells, then its flat prices —
+       no struck-through original, no saving badge. The app draws one card per
+       tier for the account's own ladder; all three are drawn here. -->
   <p class="px-xs pb-md font-title-md text-title-md text-on-surface font-bold">Plans</p>
+
+  <!-- Pro -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
-    <div class="flex items-center">
+    <p class="font-title-md text-title-md text-on-surface">Pro</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">One account</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Up to 1,000 cases</p>
+    <div class="mt-md flex items-center">
       <div class="flex-1">
         <p class="font-title-md text-title-md text-on-surface">1 Month</p>
         <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳100</p>
@@ -212,7 +232,7 @@
     <div class="flex items-center">
       <div class="flex-1">
         <p class="font-title-md text-title-md text-on-surface">3 Months</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant"><span class="line-through text-error">৳300</span> <span class="font-semibold text-on-surface">৳285</span> <span class="inline-block rounded-full bg-success/10 px-sm py-radius-sm font-label-md text-label-md text-success">5% Off</span></p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳285</p>
       </div>
       <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
     </div>
@@ -220,7 +240,7 @@
     <div class="flex items-center">
       <div class="flex-1">
         <p class="font-title-md text-title-md text-on-surface">6 Months</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant"><span class="line-through text-error">৳600</span> <span class="font-semibold text-on-surface">৳540</span> <span class="inline-block rounded-full bg-success/10 px-sm py-radius-sm font-label-md text-label-md text-success">10% Off</span></p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳540</p>
       </div>
       <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
     </div>
@@ -228,7 +248,71 @@
     <div class="flex items-center">
       <div class="flex-1">
         <p class="font-title-md text-title-md text-on-surface">1 Year</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant"><span class="line-through text-error">৳1,200</span> <span class="font-semibold text-on-surface">৳960</span> <span class="inline-block rounded-full bg-success/10 px-sm py-radius-sm font-label-md text-label-md text-success">20% Off</span></p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳1,000</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+  </div>
+
+  <div class="h-md"></div>
+
+  <!-- Firm -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <p class="font-title-md text-title-md text-on-surface">Firm</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Up to 5 associates</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Up to 2,500 cases</p>
+    <div class="mt-md flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm · 3 Months</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳855</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+    <div class="my-lg border-t border-outline-variant"></div>
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm · 6 Months</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳1,620</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+    <div class="my-lg border-t border-outline-variant"></div>
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm · 1 Year</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳3,000</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+  </div>
+
+  <div class="h-md"></div>
+
+  <!-- Firm Plus -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <p class="font-title-md text-title-md text-on-surface">Firm Plus</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Up to 20 associates</p>
+    <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Up to 6,000 cases</p>
+    <div class="mt-md flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm Plus · 3 Months</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳1,710</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+    <div class="my-lg border-t border-outline-variant"></div>
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm Plus · 6 Months</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳3,240</p>
+      </div>
+      <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
+    </div>
+    <div class="my-lg border-t border-outline-variant"></div>
+    <div class="flex items-center">
+      <div class="flex-1">
+        <p class="font-title-md text-title-md text-on-surface">Firm Plus · 1 Year</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface-variant">৳6,000</p>
       </div>
       <div class="ml-md"><button class="btn-primary inline-flex items-center justify-center px-lg h-12 rounded-lg font-title-md text-title-md">Subscribe</button></div>
     </div>

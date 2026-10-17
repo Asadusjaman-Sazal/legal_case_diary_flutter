@@ -1071,14 +1071,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get paywall_lapsedTitle => 'Your Plan Has Lapsed';
+
+  @override
+  String paywall_lapsedBody(String limit) {
+    return 'Your last plan lets you add up to $limit cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.';
+  }
+
+  @override
   String get paywall_benefitsTitle => 'Subscription Plans Offer';
 
   @override
-  String get paywall_featureUnlimitedCasesTitle => 'Unlimited Cases';
+  String get paywall_featureUnlimitedCasesTitle => 'More Cases on Every Plan';
 
   @override
   String get paywall_featureUnlimitedCasesBody =>
-      'Store as many cases as you need, with no limit.';
+      'Your case ceiling grows with your plan — the plan cards show each limit.';
 
   @override
   String get paywall_featureDisasterRecoveryTitle => 'Disaster Recovery';
@@ -1154,6 +1162,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_tierProNote => 'One account';
 
   @override
+  String paywall_tierCases(String count) {
+    return 'Up to $count cases';
+  }
+
+  @override
   String get paywall_tierFirmNote => 'Up to 5 associates';
 
   @override
@@ -1161,6 +1174,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_subscribe => 'Subscribe';
+
+  @override
+  String get lapse_readOnlyBadge => 'Read-only';
+
+  @override
+  String get lapse_renewAction => 'Renew';
+
+  @override
+  String lapse_bannerCases(String editable, String readOnly) {
+    return 'Your plan has lapsed. The $editable most recently updated cases stay editable; $readOnly are read-only until you renew.';
+  }
+
+  @override
+  String lapse_bannerNotes(String editable, String readOnly) {
+    return 'Your plan has lapsed. The $editable most recently updated notes stay editable; $readOnly are read-only until you renew.';
+  }
+
+  @override
+  String lapse_bannerReferences(String editable, String readOnly) {
+    return 'Your plan has lapsed. The $editable most recently updated case references stay editable; $readOnly are read-only until you renew.';
+  }
+
+  @override
+  String get lapse_readOnlyCase =>
+      'This case is read-only while your plan is lapsed. Renew to edit it.';
+
+  @override
+  String get lapse_readOnlyNote =>
+      'This note is read-only while your plan is lapsed. Renew to edit it.';
+
+  @override
+  String get lapse_readOnlyReference =>
+      'This case reference is read-only while your plan is lapsed. Renew to edit it.';
+
+  @override
+  String get lapse_noteLimit =>
+      'You have reached the notes allowance of your last plan. Renew to add more notes.';
+
+  @override
+  String get lapse_referenceLimit =>
+      'You have reached the case references allowance of your last plan. Renew to add more references.';
 
   @override
   String get adminPanel_title => 'Admin Panel';
@@ -1779,6 +1833,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Free Plan Limitations';
 
   @override
+  String get settingsSubscription_lapsedTitle => 'Your Plan Has Lapsed';
+
+  @override
+  String settingsSubscription_lapsedBody(String count) {
+    return 'You can still read everything. Up to $count cases, notes and references stay editable until you renew.';
+  }
+
+  @override
   String settingsSubscription_freeLimitCases(String limit) {
     return 'Up to $limit cases at a time. Deleting a case frees a slot.';
   }
@@ -1953,6 +2015,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_planPremium => 'Premium';
+
+  @override
+  String settingsManageAccount_planLapsed(String tier) {
+    return '$tier — Lapsed';
+  }
 
   @override
   String settingsManageAccount_premiumUntil(String date) {

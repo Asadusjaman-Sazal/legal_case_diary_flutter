@@ -60,6 +60,33 @@ class NotesDao {
     return select.get();
   }
 
+  /// Counts the live notes (the lapse allowance's add ceiling).
+  Future<int> getNonDeletedCount() async {
+    final countExp = db.notes.id.count();
+    final query = db.selectOnly(db.notes)
+      ..addColumns([countExp])
+      ..where(db.notes.isDeleted.equals(false));
+    return query.map((row) => row.read(countExp)!).getSingle();
+  }
+
+  /// Ids of the [limit] most recently updated live notes, newest first.
+  ///
+  /// The lapse allowance's writable set (§5.2), ordered `updated_at` descending
+  /// with `id` as the tie-break. Soft-deleted rows never count, so deleting a
+  /// writable note frees its slot.
+  Future<List<String>> getMostRecentlyUpdatedIds(int limit) async {
+    if (limit <= 0) return const <String>[];
+    final query = db.selectOnly(db.notes)
+      ..addColumns([db.notes.id])
+      ..where(db.notes.isDeleted.equals(false))
+      ..orderBy([
+        OrderingTerm(expression: db.notes.updatedAt, mode: OrderingMode.desc),
+        OrderingTerm(expression: db.notes.id, mode: OrderingMode.desc),
+      ])
+      ..limit(limit);
+    return query.map((row) => row.read(db.notes.id)!).get();
+  }
+
   /// Returns a note by id, or null if not found or deleted.
   Future<Note?> getById(String id) async => (db.select(db.notes)
       ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))

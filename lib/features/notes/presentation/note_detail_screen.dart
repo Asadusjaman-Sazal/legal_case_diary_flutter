@@ -23,6 +23,11 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/providers/database_provider.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
+import '../../payments/presentation/lapse_allowance_ui.dart';
+import '../../settings/data/premium_access.dart';
+import '../../settings/data/write_allowance.dart';
 import '../../settings/presentation/delete_request_flow.dart';
 import '../data/note_items.dart';
 import 'notes_viewmodel.dart';
@@ -140,6 +145,19 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
         NoteItem(text: row.controller.text.trim(), done: row.done),
   ];
 
+  /// Phase 10's allowance, resolved fresh at each write boundary.
+  Future<WriteAllowance> _writeAllowance() async {
+    final db = await ref.read(databaseProvider.future);
+    return resolveWriteAllowance(
+      db,
+      tier: ref.read(allowanceTierProvider),
+      premium: await resolvePremiumAccess(
+        db,
+        ref.read(accountCacheUserIdProvider),
+      ),
+    );
+  }
+
   Future<void> _saveAndPop() async {
     final title = _titleController.text.trim();
     final body = _bodyController.text.trim();
@@ -149,6 +167,19 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     final isEmpty = _isTodo ? items.isEmpty : body.isEmpty;
     if (_isNew && title.isEmpty && isEmpty) {
       if (mounted) Navigator.of(context).pop();
+      return;
+    }
+
+    // A lapsed account may add only up to its notes allowance, and may edit
+    // only the notes inside it; everything else stays readable.
+    final l = AppLocalizations.of(context);
+    final allowance = await _writeAllowance();
+    if (_isNew && !allowance.canAddNote()) {
+      if (mounted) showReadOnlyWriteMessage(context, l.lapse_noteLimit);
+      return;
+    }
+    if (!_isNew && !allowance.isNoteWritable(widget.note!.id)) {
+      if (mounted) showReadOnlyWriteMessage(context, l.lapse_readOnlyNote);
       return;
     }
 
@@ -177,6 +208,18 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
 
   Future<void> _togglePin() async {
     if (_isNew) return;
+    // Pinning writes `updated_at`, which would pull a read-only note back into
+    // the allowance. It is refused with the same explanation as an edit.
+    final allowance = await _writeAllowance();
+    if (!allowance.isNoteWritable(widget.note!.id)) {
+      if (mounted) {
+        showReadOnlyWriteMessage(
+          context,
+          AppLocalizations.of(context).lapse_readOnlyNote,
+        );
+      }
+      return;
+    }
     final next = !_isPinned;
     setState(() => _isPinned = next);
     await ref

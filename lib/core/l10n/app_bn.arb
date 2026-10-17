@@ -531,9 +531,18 @@
           }
       }
   },
+  "paywall_lapsedTitle": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে",
+  "paywall_lapsedBody": "মেয়াদ শেষ হওয়া আপনার সর্বশেষ প্ল্যানে সর্বোচ্চ {limit}টি মামলা যোগ করা যায়। আগের সব মামলা পড়া যাবে; আরও যোগ করা ও সব সম্পাদনা করতে নবায়ন করুন।",
+  "@paywall_lapsedBody": {
+      "placeholders": {
+          "limit": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_benefitsTitle": "সাবস্ক্রিপশন প্ল্যানে যা থাকে",
-  "paywall_featureUnlimitedCasesTitle": "আনলিমিটেড মামলা",
-  "paywall_featureUnlimitedCasesBody": "যত খুশি মামলা সংরক্ষণ করুন, কোনো সীমা ছাড়াই।",
+  "paywall_featureUnlimitedCasesTitle": "প্রতিটি প্ল্যানে আরও মামলা",
+  "paywall_featureUnlimitedCasesBody": "আপনার প্ল্যান যত বড়, মামলার সীমা তত বেশি — প্রতিটি প্ল্যান কার্ডে সেই সীমা লেখা আছে।",
   "paywall_featureDisasterRecoveryTitle": "দুর্যোগে ডেটা পুনরুদ্ধার",
   "paywall_featureDisasterRecoveryBody": "আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।",
   "paywall_featureRealTimeBackupTitle": "রিয়েল-টাইম ব্যাকআপ",
@@ -557,9 +566,28 @@
   "paywall_tierFirm": "ফার্ম",
   "paywall_tierFirmPlus": "ফার্ম প্লাস",
   "paywall_tierProNote": "একটি অ্যাকাউন্ট",
+  "paywall_tierCases": "সর্বোচ্চ {count}টি মামলা",
+  "@paywall_tierCases": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_tierFirmNote": "সর্বোচ্চ ৫ জন সহকারী",
   "paywall_tierFirmPlusNote": "সর্বোচ্চ ২০ জন সহকারী",
   "paywall_subscribe": "সাবস্ক্রাইব",
+  "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
+  "lapse_readOnlyBadge": "পঠন-কেবল",
+  "lapse_renewAction": "নবায়ন",
+  "lapse_bannerCases": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি মামলা সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_bannerNotes": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি নোট সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_bannerReferences": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_readOnlyCase": "প্ল্যানের মেয়াদ শেষ থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_readOnlyNote": "প্ল্যানের মেয়াদ শেষ থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_readOnlyReference": "প্ল্যানের মেয়াদ শেষ থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_noteLimit": "আপনার সর্বশেষ প্ল্যানের নোটের সীমা পূর্ণ হয়েছে। আরও নোট যোগ করতে নবায়ন করুন।",
+  "lapse_referenceLimit": "আপনার সর্বশেষ প্ল্যানের কেস রেফারেন্সের সীমা পূর্ণ হয়েছে। আরও রেফারেন্স যোগ করতে নবায়ন করুন।",
   "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
   "adminPanel_title": "অ্যাডমিন প্যানেল",
   "adminPanel_paymentRequests": "পেমেন্ট অনুরোধ",
@@ -816,6 +844,15 @@
   "settingsManageAccount_title": "অ্যাকাউন্ট ব্যবস্থাপনা",
   "settingsManageAccount_changePassword": "পাসওয়ার্ড পরিবর্তন",
   "settingsSubscription_freePlanLimitations": "ফ্রি প্ল্যানের সীমাবদ্ধতা",
+  "settingsSubscription_lapsedTitle": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে",
+  "settingsSubscription_lapsedBody": "সবকিছু এখনও পড়া যাবে। নবায়ন পর্যন্ত সর্বোচ্চ {count}টি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।",
+  "@settingsSubscription_lapsedBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSubscription_freeLimitCases": "একসাথে সর্বোচ্চ {limit}টি মামলা। একটি মামলা মুছে ফেললে জায়গা খালি হয়।",
   "@settingsSubscription_freeLimitCases": {
       "description": "Free-plan limitation: the case ceiling from freeTierCaseLimit.",
@@ -874,6 +911,14 @@
   "settingsManageAccount_subscription": "সাবস্ক্রিপশন",
   "settingsManageAccount_planFree": "ফ্রি",
   "settingsManageAccount_planPremium": "প্রিমিয়াম",
+  "settingsManageAccount_planLapsed": "{tier} — মেয়াদোত্তীর্ণ",
+  "@settingsManageAccount_planLapsed": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
   "settingsManageAccount_premiumUntil": "{date} পর্যন্ত প্রিমিয়াম",
   "@@_section_settingsOnlineSync": "SETTINGS - ONLINE SYNC  |  lib/features/settings/presentation/online_sync_screen.dart",
   "settingsOnlineSync_title": "অনলাইন সিঙ্ক",

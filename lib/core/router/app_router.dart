@@ -203,10 +203,20 @@ class AppRoutes {
   /// The [paywallReasonParam] value the 50-case gate sends.
   static const String paywallReasonLimitReached = 'limit';
 
+  /// The [paywallReasonParam] value a lapsed gate sends (Phase 10).
+  ///
+  /// A lapsed account is blocked by its allowance, not by the free 50, so the
+  /// card that opens must name the allowance instead of the free wall.
+  static const String paywallReasonLapsed = 'lapsed';
+
   /// The paywall as the 50-case gate opens it — the only entry that shows the
   /// free-limit card.
   static const String paywallFromCaseLimit =
       '$paywall?$paywallReasonParam=$paywallReasonLimitReached';
+
+  /// The paywall as a lapsed allowance opens it.
+  static const String paywallFromLapse =
+      '$paywall?$paywallReasonParam=$paywallReasonLapsed';
   static const String checkout = '/checkout';
 
   /// Maps a [defaultLandingPage] preference key to its route path.
@@ -466,11 +476,13 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
       ),
       GoRoute(
         path: AppRoutes.paywall,
-        // Only the 50-case gate names its reason (`?reason=limit`); every other
-        // entry opens the bare route and hides the "Free Plan Limit Reached"
-        // card, which belongs to that gate alone.
-        builder: (context, state) =>
-            PaywallScreen(showLimit: PaywallScreen.showLimitFor(state)),
+        // Only a gate names its reason (`?reason=limit` for the free wall,
+        // `?reason=lapsed` for a lapsed allowance); every other entry opens the
+        // bare route and shows neither card.
+        builder: (context, state) => PaywallScreen(
+          showLimit: PaywallScreen.showLimitFor(state),
+          showLapsed: PaywallScreen.showLapsedFor(state),
+        ),
       ),
       GoRoute(
         path: AppRoutes.checkout,

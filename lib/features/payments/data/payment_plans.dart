@@ -18,6 +18,8 @@
 /// a key that named only the period could not say which tier was bought.
 library;
 
+import '../../../core/constants/free_tier.dart';
+
 /// Plan key for the Pro 1 Month plan, as sent to the server (`plan_type`).
 const String paymentPlanMonthly = 'monthly';
 
@@ -69,23 +71,40 @@ const int paymentFirmPlusAnnualPrice = 6000;
 
 /// The subscription tier a plan belongs to, as stored on `profiles.tier` /
 /// `firms.tier` and read by the seat cap and the lapse allowance.
+///
+/// Each tier carries its two numbers — the **case ceiling it sells** and the
+/// **allowance it leaves behind when it lapses** — so the paywall, the write
+/// gates and the tests all read one row rather than a number typed at each site.
+/// The free ceiling is [freeTierCaseLimit], the same constant the Add Case gate
+/// and the server trigger already honour, so 50 is written once.
 enum SubscriptionTier {
-  /// The free diary: 50 cases, strictly individual.
-  free('free'),
+  /// The free diary: 50 cases, strictly individual. It has no lapse allowance:
+  /// a free account was never premium, so it keeps the wall rather than a
+  /// read-only set (§5.2).
+  free('free', freeTierCaseLimit, 0),
 
-  /// One account, 1,000 cases, cloud backup.
-  pro('pro'),
+  /// One account, 1,000 cases, cloud backup; a lapsed Pro keeps writing 100.
+  pro('pro', 1000, 100),
 
-  /// Up to 5 associates, 2,500 cases.
-  firm('firm'),
+  /// Up to 5 associates, 2,500 cases; a lapsed Firm keeps writing 500.
+  firm('firm', 2500, 500),
 
-  /// Up to 20 associates, 6,000 cases.
-  firmPlus('firm_plus');
+  /// Up to 20 associates, 6,000 cases; a lapsed Firm Plus keeps writing 1,000.
+  firmPlus('firm_plus', 6000, 1000);
 
-  const SubscriptionTier(this.key);
+  const SubscriptionTier(this.key, this.caseCeiling, this.lapseAllowance);
 
   /// The server's own spelling of the tier, as stored in the tier columns.
   final String key;
+
+  /// Cases this tier may hold while it is live — the ceiling §5.3 sells.
+  final int caseCeiling;
+
+  /// Cases, notes and case references a **lapsed** holder may still write.
+  ///
+  /// Zero for [free], which is never "lapsed": its limit is [caseCeiling] and
+  /// it has no read-only set. Pro 100, Firm 500, Firm Plus 1,000 (§5.2).
+  final int lapseAllowance;
 
   /// Where this tier sits on the ladder: free 0, pro 1, firm 2, firm_plus 3.
   ///

@@ -412,7 +412,7 @@ can never look like a delivered notification.
 | `public.push_changes(rows jsonb)` | The single atomic push pipeline (Task 18): optimistic concurrency, per-mutation savepoints, idempotent `mutation_receipts`, authoritative `case_history` on a changed `next_date`, and cascade soft-deletes. |
 | `public.approve_payment(submission uuid)` | Admin-only, atomic MFS approval: lock, validate, extend `subscription_expiry`, mirror to the firm, write one audit event. |
 | `public.join_firm(code text)` | Redeems a single-use invite: rate limit, hash, membership + profile update, invite consumed. |
-| `public.purge_tombstones()` | Deletes soft-deleted rows older than 180 days, in FK-safe order. |
+| `public.purge_tombstones()` | Deletes soft-deleted rows older than 365 days (30 days above the 335-day device recovery window), in FK-safe order. |
 | `public.is_premium(user uuid)` | Derived entitlement — `subscription_expiry + 48h > now()`. Never reads `subscription_status`. |
 
 ## Table classes (never apply one class's behaviour to another)

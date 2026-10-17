@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(50),
+        hasLength(51),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -109,17 +109,21 @@ void main() {
             'while they hold it, and its eleventh dissolves the chamber — '
             'refusing with the count while the roster holds a member, then '
             'unscoping the ledger to the owner with a scope owner while '
-            'attribution, the plan and every row\'s contents stay as they were',
+            'attribution, the plan and every row\'s contents stay as they were, '
+            'and firm mode\'s twelfth moves the tombstone retention to 365 '
+            'days and the device recovery window to 335 with it, so the '
+            '30-day cushion holds and a late device still finds the '
+            'deletions it missed',
       );
 
-      expect(versions.toSet(), hasLength(50), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(51), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261017110000');
+      expect(versions.last, '20261017120000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

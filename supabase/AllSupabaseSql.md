@@ -47,7 +47,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.292 | 2026-09-29 | `20260929103000_phase4_rls_core_tables.sql` | RLS for the case-data half (1/3): cases, case_history, notes, case_references, delete_requests and conflict_log scoped to self or same-firm, with no DELETE policy anywhere. |
 | 0.0.292 | 2026-09-29 | `20260929103100_phase4_rls_reference_tables.sql` | RLS for the six editable reference tables (2/3): built-in rows readable by every authenticated user, custom rows scoped to creator or firm, soft delete only. |
 | 0.0.292 | 2026-09-29 | `20260929103200_phase4_rls_account_payment_tables.sql` | RLS for account, firm, preference and payment tables (3/3), and the closing statement that RLS is enabled on every table in the schema. |
-| 0.0.293 | 2026-09-29 | `20260929104000_phase5_indexes_and_tombstone_purge.sql` | Delta-pull and payment indexes for every scoped cursor read, plus purge_tombstones(180 days) scheduled daily through pg_cron. |
+| 0.0.293 | 2026-09-29 | `20260929104000_phase5_indexes_and_tombstone_purge.sql` | Delta-pull and payment indexes for every scoped cursor read, plus purge_tombstones(365 days) scheduled daily through pg_cron. |
 | 0.0.300 | 2026-09-29 | `20260929105000_profiles_last_successful_sync_at.sql` | Closes the audit's last column-level gap: adds the plan's `profiles.last_successful_sync_at`, admin analytics only, with a comment stating that the extended-offline reset stays per-device in the local `sync_metadata`. |
 | 0.0.305 | 2026-09-29 | `20260929110000_phase5_owner_firm_establishment.sql` | ensure_firm(name) — the idempotent owner-side conversion from individual to firm: creates the owner's firm, relinks `profiles.firm_id`/`role` (both server-owned by the column privileges) and upserts the owner's `firm_members` row, so the invite generator has a firm to invite into. |
 | 0.0.307 | 2026-09-29 | `20260929120000_abandon_provisional_account.sql` | abandon_provisional_account() — the protected cleanup for an abandoned join-firm onboarding: removes the caller's own Auth account when it is provably provisional (no firm, individual role, no subscription, no authored rows, no firm/payment/admin/sync activity) and refuses with the reason otherwise, so an unfinished sign-up is treated as never created. |
@@ -84,6 +84,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.532 | 2026-10-16 | `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` | Firm mode: the seat cap reads the stored tier, and a chamber needs Firm. firm_seat_cap() previously asked is_premium(owner) and answered 5 for anyone premium, so a Firm Plus chamber was capped at the Firm number and a Pro owner had a chamber nobody could join; it now reads the tier in force — Firm 5, Firm Plus 20, Pro 0 — through effective_tier, so the cap a mid-downgrade chamber enforces is the one it has paid for. ensure_firm()'s creation gate moves from is_premium() to Firm or above, because Pro's cap of 0 means a chamber on Pro could never take a member; the refusal keeps the status shape the client already handles but names the reason firm_tier_required, so a paying Pro user is not told they are not premium. A newly created chamber starts on its owner's tier, because the cap reads that row and a chamber left at the column default would answer null — no cap enforced — for every join. A seat cap binds new joins only: neither function removes a member, and no membership row is touched. |
 | 0.0.534 | 2026-10-17 | `20261017100000_firm_mode_member_no_plan.sql` | Firm mode: a member has no plan of their own. has_sync_entitlement() counted the caller's own expiry OR the chamber's, so a member who had bought a plan before joining kept pushing through the chamber's lapse; it now counts the chamber's mirrored expiry alone once profiles.firm_id is set, and the caller's own only while it is null. payment_submissions_insert_own becomes a member's refusal — user_id = auth.uid() plus no firm, or a firm the caller owns — so an associate or viewer cannot buy a personal plan. The owner is deliberately exempt: the owner's purchase is the chamber's renewal, and the two entries this phase removes from a member are the owner's only routes to it. |
 | 0.0.536 | 2026-10-17 | `20261017110000_firm_mode_dissolution.sql` | Firm mode: dissolution. dissolve_firm() refuses while the roster holds anyone but the owner and carries the count in the refusal, decided before the first write so a refusal retires no invite and moves no row. Once the roster is empty it retires the open invites, then unscopes the eleven ledger tables — firm_id out, the owner in as scope_owner_id, tombstones included — so he keeps a complete ordinary diary while attribution, contents and the sync columns stay exactly as they were. conflict_log is the one exception: its firm_id is cleared, because the foreign key has no cascade and the firms delete would be refused otherwise, and no scope owner is written, so a colleague's merge diagnostics stay with their author. The firms row goes with its memberships and invites, the owner's profile returns to individual mode (which unblocks delete_my_account), and his plan is untouched. |
+| 0.0.537 | 2026-10-17 | `20261017120000_firm_mode_retention_window.sql` | Firm mode: the retention and recovery window. purge_tombstones() keeps a tombstone 365 days instead of 180, so the device-side extended-offline rule can be 335 days with the same 30-day buffer between them: a device that comes back inside its window still finds every deletion it missed, and one away longer is rebuilt rather than trusted. Only the default and the comments change — the scheduled job calls the function with no argument, and the body (cutoff, children-first order, one-row-at-a-time delete, blocked-tombstone skip) is the shipped one verbatim. mutation_receipts' documented retention is corrected to at least 400 days in the same pass, because the old 210-day invariant was written for a 150-day window. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -3641,7 +3642,7 @@ create policy case_notification_preferences_update_own
 
 ### 0.0.293 · `20260929104000_phase5_indexes_and_tombstone_purge.sql`
 
-> **Created 2026-09-29.** Delta-pull and payment indexes for every scoped cursor read, plus purge_tombstones(180 days) scheduled daily through pg_cron.
+> **Created 2026-09-29.** Delta-pull and payment indexes for every scoped cursor read, plus purge_tombstones(365 days) scheduled daily through pg_cron.
 
 ```sql
 -- Phase 5 — Indexes and the scheduled tombstone purge.
@@ -3653,9 +3654,12 @@ create policy case_notification_preferences_update_own
 --      `(server_updated_at, id)`, so each domain table gets the unscoped
 --      composite for a full pull plus a scoped variant for the normal case.
 --   2. Purge tombstones after 180 days — long enough that the 150-day
---      per-device extended-offline rule can never resurrect data (a device
---      coming back inside that window still finds every tombstone it needs),
---      short enough that deleted rows do not accumulate forever.
+--      per-device extended-offline rule then in force could never resurrect
+--      data, short enough that deleted rows do not accumulate forever.
+--      **Both numbers have since moved (§5.5): 365 days of tombstones and a
+--      335-day recovery window, in
+--      `20261017120000_firm_mode_retention_window.sql`.** That file replaces
+--      the default below; this statement is the history.
 --
 -- Table class: indexes and the purge touch the push/pull domain class only.
 
@@ -12344,5 +12348,122 @@ comment on function public.dissolve_firm() is
 
 revoke all on function public.dissolve_firm() from public, anon;
 grant execute on function public.dissolve_firm() to authenticated;
+```
+
+## App Version 0.0.537 — Firm Mode Phase 12 — Retention And The Recovery Window
+
+### 0.0.537 · `20261017120000_firm_mode_retention_window.sql`
+
+> **Created 2026-10-17.** Firm mode: the retention and recovery window. purge_tombstones() keeps a tombstone 365 days instead of 180, so the device-side extended-offline rule can be 335 days with the same 30-day buffer between them: a device that comes back inside its window still finds every deletion it missed, and one away longer is rebuilt rather than trusted. Only the default and the comments change — the scheduled job calls the function with no argument, and the body (cutoff, children-first order, one-row-at-a-time delete, blocked-tombstone skip) is the shipped one verbatim. mutation_receipts' documented retention is corrected to at least 400 days in the same pass, because the old 210-day invariant was written for a 150-day window.
+
+```sql
+-- Firm mode (12) — the retention window moves to 365, and the recovery window to 335.
+--
+-- §5.5's ruling, and the pair has to move together. A device that has been away
+-- cannot tell a row it never saw from one deleted while it was gone, so it is
+-- rebuilt rather than trusted once its own time away passes the recovery
+-- threshold. That threshold only works while the server still remembers every
+-- deletion the device might have missed, so the tombstone retention has to stay
+-- **30 days above** the threshold, whatever the numbers are:
+--
+--   365 days of tombstones - 30 days of buffer = a 335-day recovery window.
+--
+-- `create or replace` is the whole change. The scheduled job calls
+-- `purge_tombstones()` with no argument, so the number lives in this default and
+-- nowhere else. The body — the cutoff, the children-first order, the
+-- one-row-at-a-time delete and the skip that keeps a blocked tombstone from
+-- failing the whole nightly run — is the shipped one verbatim; only the default
+-- and the comments change, which is why the order assertions in
+-- `test/supabase/schema_contract_test.dart` still describe this body.
+--
+-- The same ruling corrects `mutation_receipts`' documented retention. Its
+-- invariant was "the maximum supported offline window plus a retry buffer",
+-- written while that window was 150 days; at 335 it must read **at least 400
+-- days** to stay true. No job purges receipts — they leave with the account — so
+-- this is a corrected comment rather than a schedule, and it sits on the table
+-- where a later cleanup job would meet it.
+--
+-- The other places the old number lived are corrected beside this file: the
+-- original migration's header comment, `lib/sync/recovery_lock.dart`'s constant
+-- and doc block, and the generated ledger's section label. A migration on its
+-- own would leave the app and the ledger disagreeing, which is exactly what
+-- `dart run tool/generate_all_supabase_sql.dart --check` catches.
+
+create or replace function public.purge_tombstones(p_retention_days integer default 365)
+returns integer
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_cutoff timestamptz;
+  v_table text;
+  v_id text;
+  v_deleted integer;
+  v_total integer := 0;
+  v_skipped integer := 0;
+  -- Children before parents: the FK graph is case data -> cases -> the
+  -- reference tables that cases point at, with case_categories and
+  -- court_categories last. Deleting in this order never trips a foreign key for
+  -- a row that is itself purgeable, so the skip below is reserved for the rows
+  -- a **live** or not-yet-purgeable dependent still names.
+  v_order text[] := array[
+    'case_history',
+    'delete_requests',
+    'conflict_log',
+    'notes',
+    'case_references',
+    'cases',
+    'case_types',
+    'steps',
+    'courts',
+    'case_categories',
+    'on_behalfs',
+    'court_categories'
+  ];
+begin
+  -- server_updated_at is stamped by the delete transition itself, so it is the
+  -- tombstone's age.
+  v_cutoff := now() - make_interval(days => p_retention_days);
+
+  foreach v_table in array v_order loop
+    -- One candidate at a time. A row a dependent still names raises
+    -- foreign_key_violation on its own DELETE, and this block skips that row
+    -- alone: the shipped set-based statement let one such row abort every other
+    -- tombstone's purge on the project.
+    for v_id in execute format(
+      'select id from public.%1$I where is_deleted = true '
+      'and server_updated_at < $1',
+      v_table
+    ) using v_cutoff loop
+      begin
+        execute format('delete from public.%1$I where id = $1', v_table)
+          using v_id;
+
+        get diagnostics v_deleted = row_count;
+        v_total := v_total + v_deleted;
+      exception
+        when foreign_key_violation then
+          v_skipped := v_skipped + 1;
+      end;
+    end loop;
+  end loop;
+
+  -- Say so: the job runs daily from pg_cron, where a silent skip is invisible.
+  if v_skipped > 0 then
+    raise notice
+      'purge_tombstones: % tombstone(s) kept; a dependent row still names them.',
+      v_skipped;
+  end if;
+
+  return v_total;
+end;
+$$;
+
+comment on function public.purge_tombstones(integer) is
+  'Deletes soft-deleted rows older than the retention (365 days by default, 30 days above the 335-day device recovery window), children first, and skips (rather than fails on) any tombstone a dependent row still names — one blocked row used to abort the whole purge. Returns the number of rows actually deleted; the skipped ones are reported in a notice.';
+
+comment on table public.mutation_receipts is
+  'Server-internal. Retain at least 400 days — the 335-day maximum supported offline window plus a retry buffer, and inside the 365-day tombstone retention a device recovering from that window relies on — and never purge a receipt still referenced by case_history, conflict_log or an audit record. mutation_id mirrors the client-generated key so a retry returns the original result.';
 ```
 

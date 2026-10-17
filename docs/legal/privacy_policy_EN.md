@@ -169,6 +169,7 @@ transfer basis to cite.]**
 | Everything stored on your device | Until you delete it in the app, or uninstall the app or clear its data |
 | Backup files you created | Under your control, wherever you saved them. We hold none and cannot delete yours for you. |
 | Account and synced records (online) | While your account exists. On deletion of your account, removed from live systems within **[TO CONFIRM: e.g. 30 days]**, and from backups within **[TO CONFIRM: e.g. 90 days]**. |
+| Deletion markers for synced records (online) | When you delete a synced record, a marker is kept for up to 365 days so your account's other devices learn of the deletion, then it is purged. The marker holds the record's id, a deleted flag and two timestamps — no case content. |
 | Payment submissions and approval records | For accounting, dispute and audit purposes for **[TO CONFIRM: e.g. 6 years]** after the payment, then deleted. |
 | Failed invite attempts (online) | Automatically cleaned up within one day. |
 

@@ -696,6 +696,14 @@ consequences:
   `test/supabase/all_supabase_sql_test.dart` police. A 365-day change is therefore four edits plus
   a regeneration, and a migration alone fails the check.
 
+> **Built (0.0.537).** All of the above is done and applied: `20261017120000_firm_mode_retention_window.sql`
+> re-creates `purge_tombstones` with a 365-day default and the corrected comments (the receipts
+> invariant now reads **at least 400 days**), the Phase 5 file's header points at it, the generator's
+> label reads 365 with the ledger regenerated, `recoveryOfflineThreshold` is 335 days with a test pinning
+> the 30-day cushion, and the privacy policy's retention table carries the tombstone row in both
+> languages. The account-deletion and payment-record `[TO CONFIRM]` rows stay open — they need the
+> user's numbers, not this phase's.
+
 ### 5.6 How a subscription is sold — direct distribution, for now (user ruling)
 
 **The app is distributed directly and not through Google Play for now.** The project's own APK,
@@ -980,7 +988,7 @@ into a leak surface.
 | `docs/tasks/16_supabase_schema_rls_and_triggers.md` | The read-policy scoping of §4.3, the §3.3 permission triggers, the 365-day purge and the in-use guard. |
 | `docs/tasks/19_realtime_conflicts_and_recovery.md` | The 335-day recovery window and the 400-day `mutation_receipts` invariant. |
 | `docs/tasks/21_payments_and_subscription.md` | The settled tier ladder and its plan rows, the downgrade and lapse rules, and the direct-distribution decision (§5.3, §5.4, §5.6). |
-| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Ten of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523), §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529), §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530), §5.3's **stored tier and ten-plan ladder** (`20261016120000_firm_mode_stored_tier.sql`, 0.0.531) with the **seat cap reading it** (`20261016130000_firm_mode_seat_cap_and_creation_gate.sql`, 0.0.532), and §5.1's **member refusal** (`20261017100000_firm_mode_member_no_plan.sql`, 0.0.534), where the gate counts the chamber's expiry alone and a member's payment is refused while the owner's renewal stays open. and §4.4's **dissolution** (`20261017110000_firm_mode_dissolution.sql`, 0.0.536), where the roster must be empty before the first write, the ledger is unscoped to the owner with a scope owner, `conflict_log` merely loses its chamber column, and the account returns to individual with its plan untouched. **Still owed:** §5.5's 365-day retention. The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
+| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Eleven of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523), §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529), §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530), §5.3's **stored tier and ten-plan ladder** (`20261016120000_firm_mode_stored_tier.sql`, 0.0.531) with the **seat cap reading it** (`20261016130000_firm_mode_seat_cap_and_creation_gate.sql`, 0.0.532), and §5.1's **member refusal** (`20261017100000_firm_mode_member_no_plan.sql`, 0.0.534), where the gate counts the chamber's expiry alone and a member's payment is refused while the owner's renewal stays open. and §4.4's **dissolution** (`20261017110000_firm_mode_dissolution.sql`, 0.0.536), where the roster must be empty before the first write, the ledger is unscoped to the owner with a scope owner, `conflict_log` merely loses its chamber column, and the account returns to individual with its plan untouched. **Also shipped:** §5.5's **365-day retention** (`20261017120000_firm_mode_retention_window.sql`, 0.0.537), which re-creates `purge_tombstones` with only its default and comments changed and moves the generated ledger's own section label with it. |
 | `docs/firm_mode_blueprint_audit.md` | The audit this revision answers: ten findings checked against the shipped SQL and Dart, and the six decisions they raised — now ruled on in §3.3, §4.1, §4.2, §4.4, §5.1, §5.3, §5.5, §5.6, §6 and §7. |
 
 > **Propagation note — done (version 0.0.519).** This file is revised first because the user asked
@@ -1021,7 +1029,7 @@ into a leak surface.
 | 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | **Built** 0.0.534 | `20261017100000_firm_mode_member_no_plan.sql` |
 | 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | **Built** 0.0.535 | client only, no migration |
 | 11 | Dissolution | §4.4, §10.4, §10.11 | **Built** 0.0.536 | `20261017110000_firm_mode_dissolution.sql` + client |
-| 12 | Retention And The Recovery Window | §5.5, §10.7 | Owed | migration + regeneration |
+| 12 | Retention And The Recovery Window | §5.5, §10.7 | **Built** 0.0.537 | `20261017120000_firm_mode_retention_window.sql` + regeneration |
 | 13 | Restore Inside A Chamber | §6, §10.14 | Owed | client |
 | 14 | Attribution And The Roster | §9.9 | Owed (verify) | client, verify only |
 | 15 | Distribution | §5.6, §10.4, §10.10 | Owed | client + docs |
@@ -1528,10 +1536,11 @@ into a leak surface.
   plus `test/features/manage_associates_test.dart`'s four dissolution cases. No mockup is owed:
   Manage Associates has none (rule 9).
 
-### Phase 12 — Retention And The Recovery Window — **Owed**
+### Phase 12 — Retention And The Recovery Window — **Built (0.0.537)**
 
 
-- **Status.** **Owed** — the pair is still 180/150.
+- **Status.** **Built (0.0.537)** — the pair is 365/335, applied and proven on `lsthasywrdrhuuxnykau`; the
+  "owed" wording below is kept as the record of what the phase had to do.
 - **Discharges.** §5.5, §10.7. Plan: *What Firm Mode Still Owes*. Task 19.
 - **Depends On.** Nothing — it is independent and could be taken early, but it is a
 - **Why Here.** It is independent of firm mode and could be taken at any point, but it is deliberately placed after the work it protects: the 365-day retention is what makes a dissolve, a restore and a removed member’s re-pull recoverable inside the 335-day window.
@@ -1542,21 +1551,33 @@ into a leak surface.
 - **Proof.** `dart run tool/generate_all_supabase_sql.dart --check` clean with the ledger’s label reading **365**; a test pinning `recoveryOfflineThreshold` at **335**; and a check that the 30-day buffer is intact.
 - **The pair.** Retention **365 days**, recovery window **335** — a 30-day buffer preserved so a
   device returning inside 335 days still finds every tombstone it needs.
-- **The four places for 365:**
-  1. `purge_tombstones`'s default parameter — `20260929104000_phase5_indexes_and_tombstone_purge.sql:71`;
-  2. its `comment on function` — same file, line 121;
-  3. the file's own header comment — same file, line 9, which states the 180/150 pair;
-  4. **the generator's section label** — `tool/generate_all_supabase_sql.dart:172`,
-     `'purge_tombstones(180 days) scheduled daily through pg_cron.'`, which `--check` and
+- **Where the four places landed:**
+  1. `purge_tombstones`'s default parameter — **re-created** in
+     `20261017120000_firm_mode_retention_window.sql`, the body copied verbatim and only the default
+     changed; the Phase 5 statement stays in `20260929104000` as history, with a header pointer added;
+  2. its `comment on function` — the same new file, rewritten to 365 with the 30-day reason;
+  3. the Phase 5 file's own header comment — a pointer to the new file rather than an edit to it;
+  4. **the generator's section label** — `tool/generate_all_supabase_sql.dart:172` now reads
+     `'purge_tombstones(365 days) scheduled daily through pg_cron.'`, which `--check` and
      `test/supabase/all_supabase_sql_test.dart` both police.
-- **And 150 → 335:** `lib/sync/recovery_lock.dart:43`'s
-  `const Duration recoveryOfflineThreshold = Duration(days: 150)` **and** its doc block, which states
-  180/150 twice. The lock itself is firm-mode only and never reads entitlement — unchanged.
+- **And 150 → 335:** `lib/sync/recovery_lock.dart`'s
+  `const Duration recoveryOfflineThreshold = Duration(days: 335)` **and** its doc block, now stating
+  365/335. The lock itself is firm-mode only and never reads entitlement — unchanged.
 - **Also in this phase:** the **400-day `mutation_receipts` invariant**, which today is documented
   only and enforced nowhere, so a later cleanup job could break it silently — give it a site where it
   is (re)checked; and the privacy policy's retention placeholder row.
 - **Then regenerate:** `dart run tool/generate_all_supabase_sql.dart`, because the ledger is
   generated and rule 13 forbids hand-editing it.
+- **Built (0.0.537) — files and proof.** `supabase/migrations/20261017120000_firm_mode_retention_window.sql`
+  (applied to `lsthasywrdrhuuxnykau`; live checks: `pg_get_function_arguments` ends
+  `DEFAULT 365`, the function comment reads 365, `mutation_receipts`' table comment reads **at least
+  400 days**, the `purge-tombstones` cron job survives on `15 3 * * *`, and a zero-argument call runs
+  inside a rolled-back transaction); the generator's label plus its `0.0.537` ledger section and group
+  title, with `--check` clean; `recoveryOfflineThreshold` at 335 days with a test pinning it exactly 30
+  days under 365; the boundary test moved to 334/335; and the privacy policy's new row in both
+  languages — a marker holding an id, a deleted flag and two timestamps, no case content, kept up to
+  365 days and then purged. The `[TO CONFIRM]` rows beside it (account-deletion window, payment
+  records) are untouched: they need the user's numbers.
 - **Acceptance.** `--check` is clean; the ledger's label reads 365; `recoveryOfflineThreshold` is 335
   with its doc block agreeing; the 365/335 buffer is intact; the receipts invariant has a home.
 - **Hazards.** Both numbers are prose in more places than §11 names. Missing the generator label

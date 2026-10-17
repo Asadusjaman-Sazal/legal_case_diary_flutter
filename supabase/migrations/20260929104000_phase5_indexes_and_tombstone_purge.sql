@@ -7,9 +7,12 @@
 --      `(server_updated_at, id)`, so each domain table gets the unscoped
 --      composite for a full pull plus a scoped variant for the normal case.
 --   2. Purge tombstones after 180 days — long enough that the 150-day
---      per-device extended-offline rule can never resurrect data (a device
---      coming back inside that window still finds every tombstone it needs),
---      short enough that deleted rows do not accumulate forever.
+--      per-device extended-offline rule then in force could never resurrect
+--      data, short enough that deleted rows do not accumulate forever.
+--      **Both numbers have since moved (§5.5): 365 days of tombstones and a
+--      335-day recovery window, in
+--      `20261017120000_firm_mode_retention_window.sql`.** That file replaces
+--      the default below; this statement is the history.
 --
 -- Table class: indexes and the purge touch the push/pull domain class only.
 

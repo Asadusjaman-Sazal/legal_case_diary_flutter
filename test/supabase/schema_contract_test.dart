@@ -12,6 +12,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/sync/recovery_lock.dart';
+
 /// Push/pull domain tables: the only class that gets the global sync contract.
 const List<String> domainTables = <String>[
   'cases',
@@ -836,12 +838,25 @@ void main() {
     test('the retention phase states the pair on the function and the table', () {
       // The number lives in the default above; these two comments are where a
       // reader and a future cleanup job meet it, so both are pinned.
-      final retention = migrationFiles().firstWhere(
-        (file) => file.path.contains('firm_mode_retention_window'),
+      final file = migrationFiles().firstWhere(
+        (f) => f.path.contains('firm_mode_retention_window'),
       );
-      final text = retention.readAsStringSync();
+      final text = file.readAsStringSync();
       expect(text, contains('older than the retention (365 days by default'));
       expect(text, contains('335-day device recovery window'));
+      // The one tie between the two halves of the pair: the device's window is
+      // read from this file's own default, so changing one alone fails here.
+      final retention = int.parse(
+        RegExp(r'p_retention_days integer default (\d+)')
+            .firstMatch(text)!
+            .group(1)!
+      );
+      expect(
+        retention - recoveryOfflineThreshold.inDays,
+        30,
+        reason: 'the 30-day cushion is the whole reason the pair moves '
+            'together',
+      );
       expect(
         text,
         contains('comment on table public.mutation_receipts'),

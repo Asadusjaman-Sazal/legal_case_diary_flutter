@@ -1056,6 +1056,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_title => 'Subscription Plans';
 
   @override
+  String get paywall_memberPlanTitle => 'Chamber Plan';
+
+  @override
+  String get paywall_memberPlanBody =>
+      'This account is covered by the chamber\'s subscription. The chamber owner buys and renews it.';
+
+  @override
   String get paywall_limitTitle => 'Free Plan Limit Reached';
 
   @override

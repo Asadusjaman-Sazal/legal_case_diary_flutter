@@ -12,6 +12,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -55,6 +56,7 @@ void main() {
   Future<void> pumpSubscription(
     WidgetTester tester, {
     Future<void> Function(AppDatabase db)? seed,
+    List<Override> overrides = const <Override>[],
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -62,7 +64,7 @@ void main() {
     await pumpSettingsRouter(
       tester,
       location: AppRoutes.settingsSubscription,
-      overrides: await harness.setUp(),
+      overrides: [...await harness.setUp(), ...overrides],
       routes: [
         GoRoute(
           path: AppRoutes.settingsSubscription,
@@ -122,6 +124,32 @@ void main() {
     // the cart that opened the paywall.
     expect(find.byIcon(Icons.star_outline), findsOneWidget);
     expect(find.byIcon(Icons.add_shopping_cart_outlined), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a chamber member is offered Subscription Details alone', (
+    tester,
+  ) async {
+    // A member has no plan of their own to buy (Phase 9): the chamber's owner
+    // buys and renews it. The details row stays — it is where the member reads
+    // the chamber's plan and expiry.
+    await pumpSubscription(
+      tester,
+      overrides: [firmMemberProvider.overrideWithValue(true)],
+    );
+
+    expect(find.text(l.settingsSubscription_title), findsOneWidget);
+    expect(
+      find.text(l.settingsManageAccount_subscriptionDetails),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsManageAccount_purchaseNewSubscription),
+      findsNothing,
+    );
+    expect(find.byIcon(Icons.star_outline), findsOneWidget);
+    expect(find.byIcon(Icons.add_shopping_cart_outlined), findsNothing);
 
     await unmountApp(tester);
   });

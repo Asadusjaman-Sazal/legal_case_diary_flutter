@@ -616,6 +616,22 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'enforced — for every join. A seat cap binds new joins only: neither '
         'function removes a member, and no membership row is touched.',
   ),
+  LedgerSection(
+    file: '20261017100000_firm_mode_member_no_plan.sql',
+    version: '0.0.534',
+    label:
+        'Firm mode: a member has no plan of their own. '
+        'has_sync_entitlement() counted the caller\'s own expiry OR the '
+        'chamber\'s, so a member who had bought a plan before joining kept '
+        'pushing through the chamber\'s lapse; it now counts the chamber\'s '
+        'mirrored expiry alone once profiles.firm_id is set, and the caller\'s '
+        'own only while it is null. payment_submissions_insert_own becomes a '
+        'member\'s refusal — user_id = auth.uid() plus no firm, or a firm the '
+        'caller owns — so an associate or viewer cannot buy a personal plan. '
+        'The owner is deliberately exempt: the owner\'s purchase is the '
+        'chamber\'s renewal, and the two entries this phase removes from a '
+        'member are the owner\'s only routes to it.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -666,6 +682,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.530': 'Firm Mode Phase 6 — The In-Use Guard For Reference Rows',
   '0.0.531': 'Firm Mode Phase 7 — The Stored Tier And The Ten-Plan Ladder',
   '0.0.532': 'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
+  '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
 };
 
 const String _header = '''<!--

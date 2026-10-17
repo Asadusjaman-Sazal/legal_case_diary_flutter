@@ -34,19 +34,26 @@ typedef CurrentPlan = ({bool known, bool premium, String? planKey});
 ///   wrong answer for a label.
 /// * [CurrentPlan.premium] is the derived entitlement, so a firm member counts
 ///   as premium on the firm's expiry and an individual on their own.
-/// * [CurrentPlan.planKey] is the newest **approved** submission's plan. A
-///   member riding on the firm's subscription has no submission of their own,
-///   which is the case the word *Premium* exists for rather than a repeated
-///   tier name.
+/// * [CurrentPlan.planKey] is the newest **approved** submission's plan, and it
+///   is deliberately absent for a chamber **member** (Phase 9): a plan they
+///   bought before joining is ignored while they hold the chamber, so naming it
+///   here would tell them a plan is running that is not. *Premium* is the word
+///   for that case rather than a repeated tier name. The owner is not a member
+///   and keeps naming the plan they bought, because that purchase is the
+///   chamber's renewal.
 final currentPlanProvider = Provider<CurrentPlan>((ref) {
   final premium = ref.watch(premiumAccessProvider);
-  // Own rows under RLS, newest first, so the first approval is the active plan.
-  final submissions = ref.watch(myPaymentSubmissionsProvider).value ?? const [];
   String? approvedPlan;
-  for (final submission in submissions) {
-    if (submission.status == 'approved') {
-      approvedPlan = submission.planType;
-      break;
+  if (!ref.watch(firmMemberProvider)) {
+    // Own rows under RLS, newest first, so the first approval is the active
+    // plan. A member's rows are never read: their last tier is the chamber's.
+    final submissions =
+        ref.watch(myPaymentSubmissionsProvider).value ?? const [];
+    for (final submission in submissions) {
+      if (submission.status == 'approved') {
+        approvedPlan = submission.planType;
+        break;
+      }
     }
   }
   return (

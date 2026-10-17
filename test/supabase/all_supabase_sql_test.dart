@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        48,
+        49,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -97,7 +97,9 @@ void main() {
             'rebuilt ten-plan approval and the ten-key plan-name columns, and '
             'its eighth made the seat cap read that stored tier — Firm 5, Firm '
             'Plus 20, Pro 0 — and moved chamber creation from premium to the '
-            'Firm tier the cap already implied',
+            'Firm tier the cap already implied, and its ninth refuses a member\'s '
+            'personal payment and counts only the chamber\'s expiry while they '
+            'hold it',
       );
     });
 

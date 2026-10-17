@@ -142,6 +142,22 @@ final firmModeProvider = Provider<bool>((ref) {
   return profile?.firmId != null;
 });
 
+/// True when the account is a chamber's **member** rather than its owner.
+///
+/// Phase 9's rule reads exactly this predicate: a member is covered by the
+/// chamber's subscription and may not buy a plan of their own, while the owner's
+/// purchase *is* the chamber's renewal. The two are therefore separated here
+/// once, instead of each screen comparing `firmId` and a role by hand — which is
+/// how the side menu came to hide the renewal entry from the owner too.
+///
+/// A chamber row with no role yet (a cache that has not seen the join land)
+/// reads as a member: the safe answer for an offer, and the server refuses such
+/// a submission anyway.
+final firmMemberProvider = Provider<bool>((ref) {
+  if (!ref.watch(firmModeProvider)) return false;
+  return ref.watch(accountRoleProvider) != AccountRole.owner;
+});
+
 /// The subscription tier this account is entitled to, as the cached rows hold
 /// it: the owner's own tier, or **the chamber's** for a firm member.
 ///

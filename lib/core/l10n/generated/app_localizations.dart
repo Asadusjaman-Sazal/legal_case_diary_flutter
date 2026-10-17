@@ -1904,6 +1904,18 @@ abstract class AppLocalizations {
   /// **'Subscription Plans'**
   String get paywall_title;
 
+  /// No description provided for @paywall_memberPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chamber Plan'**
+  String get paywall_memberPlanTitle;
+
+  /// No description provided for @paywall_memberPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is covered by the chamber\'s subscription. The chamber owner buys and renews it.'**
+  String get paywall_memberPlanBody;
+
   /// No description provided for @paywall_limitTitle.
   ///
   /// In en, this message translates to:

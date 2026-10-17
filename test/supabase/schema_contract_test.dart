@@ -1032,10 +1032,17 @@ void main() {
     });
 
     test('derives firm-aware entitlement, never from a stored status', () {
-      final block = functionBlock(sql, 'has_sync_entitlement')!;
+      // The **last** definition: Phase 9 replaced the body that OR-ed the
+      // caller's own expiry with the chamber's, and the first-match helper would
+      // happily keep pinning the superseded text.
+      final block = lastFunctionBlock(sql, 'has_sync_entitlement')!;
       expect(block, contains("interval '48 hours' > now()"));
       expect(block, contains('p.firm_id is not null'));
       expect(block, contains('from public.firms f'));
+      // The two branches are exclusive: a member reads only the chamber's
+      // expiry, and an individual reads their own under `else`.
+      expect(block, contains('else p.subscription_expiry is not null'));
+      expect(block, isNot(contains('or (p.firm_id')));
       expect(block, isNot(contains('subscription_status')));
     });
 

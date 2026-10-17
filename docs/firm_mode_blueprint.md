@@ -448,9 +448,11 @@ chamber's membership, invites and roster are gone.
 - **An associate's entitlement is the firm's, and a member may not buy their own** (user ruling,
   closing the audit's finding here): a member needs no plan of their own, and while the owner's
   subscription is live the member syncs on it — the same mirrored `firms.subscription_expiry` every
-  gate already reads. **A member cannot buy a personal plan**: the app does not offer Subscription
-  Plans to an account that holds a firm, and the server refuses the submission itself, because a
-  screen was never the boundary. Both halves are work with a named site (audit): the side menu's
+  gate already reads.  **A member cannot buy a personal plan**: the app does not offer Subscription
+  Plans to a member — an account inside a chamber it does not own — and the server refuses the
+  submission itself, because a screen was never the boundary. The **owner** is not that member: his
+  purchase is the chamber's renewal, so he keeps the plans screen and may still submit (user ruling
+  2026-10-17, recorded in Phase 9). Both halves are work with a named site (audit): the side menu's
   **Current Plan** row expands into Subscription Plans, so that row — not only the Subscription
   screen — has to drop the entry for a member, and `payment_submissions_insert_own` is
   `with check (user_id = auth.uid())` today, so refusing the submission is a policy change and not
@@ -932,7 +934,7 @@ into a leak surface.
 | `docs/tasks/16_supabase_schema_rls_and_triggers.md` | The read-policy scoping of §4.3, the §3.3 permission triggers, the 365-day purge and the in-use guard. |
 | `docs/tasks/19_realtime_conflicts_and_recovery.md` | The 335-day recovery window and the 400-day `mutation_receipts` invariant. |
 | `docs/tasks/21_payments_and_subscription.md` | The settled tier ladder and its plan rows, the downgrade and lapse rules, and the direct-distribution decision (§5.3, §5.4, §5.6). |
-| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Six of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523) and §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529) and §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530). **Still owed:** §5.5's 365-day retention, §5.3's tier column **with the widened subscription mirror**, and the `payment_submissions` insert policy that refuses a submission from an account holding a firm (§5.1). The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
+| `supabase/migrations/` + `supabase/AllSupabaseSql.md` | **Nine of these are shipped:** §4.3's scoping (`20261015100000_firm_mode_read_scope.sql`, 0.0.520), §3.3's **write-path scope rules** (`firm_id` server-assigned, `scope_owner_id` server-only, no firm-less row for a member) with §1's creation stamping (`20261015110000_firm_mode_creation_and_scope.sql`, 0.0.522), §2.1's empty-seat refusal (`20261015120000_firm_mode_join_gate.sql`, 0.0.523), §4.1's removal clearing the member's `device_tokens` (`20261015160000_firm_removal_clears_device_tokens.sql`, 0.0.525), §3.3's **permission triggers** (`20261016100000_firm_mode_permission_boundary.sql`, 0.0.529), §3.2's **in-use guard** (`20261016110000_firm_mode_reference_in_use_guard.sql`, 0.0.530), §5.3's **stored tier and ten-plan ladder** (`20261016120000_firm_mode_stored_tier.sql`, 0.0.531) with the **seat cap reading it** (`20261016130000_firm_mode_seat_cap_and_creation_gate.sql`, 0.0.532), and §5.1's **member refusal** (`20261017100000_firm_mode_member_no_plan.sql`, 0.0.534), where the gate counts the chamber's expiry alone and a member's payment is refused while the owner's renewal stays open. **Still owed:** §5.5's 365-day retention. The 365-day change also moves the **generated** ledger's own section label, so it is a migration plus a regeneration (§5.5). |
 | `docs/firm_mode_blueprint_audit.md` | The audit this revision answers: ten findings checked against the shipped SQL and Dart, and the six decisions they raised — now ruled on in §3.3, §4.1, §4.2, §4.4, §5.1, §5.3, §5.5, §5.6, §6 and §7. |
 
 > **Propagation note — done (version 0.0.519).** This file is revised first because the user asked
@@ -968,9 +970,9 @@ into a leak surface.
 | 4 | Removal Erases Itself | §4.1, §4.2, §6 | **Built** 0.0.525 | `20261015160000_firm_removal_clears_device_tokens.sql` |
 | 5 | The Permission Boundary | §3.3 | **Built** 0.0.529 | `20261016100000_firm_mode_permission_boundary.sql` |
 | 6 | The In-Use Guard | §3.2, §10.6 | **Built** 0.0.530 | `20261016110000_firm_mode_reference_in_use_guard.sql` |
-| 7 | Stored Tier And The Creation Gate | §5.3, §5.4, §10.12, §10.16 | Owed | new migration |
-| 8 | The Ten-Plan Ladder | §5.3, §10.9 | Owed | migration + client |
-| 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | Owed | migration + client |
+| 7 | Stored Tier And The Creation Gate | §5.3, §5.4, §10.12, §10.16 | **Built** 0.0.531 | `20261016120000_firm_mode_stored_tier.sql` |
+| 8 | The Ten-Plan Ladder | §5.3, §10.9 | **Built** 0.0.532 | `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` |
+| 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | **Built** 0.0.534 | `20261017100000_firm_mode_member_no_plan.sql` |
 | 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | Owed | client (+ server gate) |
 | 11 | Dissolution | §4.4, §10.4, §10.11 | Owed | new migration + client |
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | Owed | migration + regeneration |
@@ -1327,10 +1329,10 @@ into a leak surface.
   `payment_plans`", because **there is no `payment_plans` table**; the ladder lives as keys plus the
   `approve_payment` constants.
 
-### Phase 9 — A Member Has No Plan Of Their Own — **Owed**
+### Phase 9 — A Member Has No Plan Of Their Own — **Built**
 
 
-- **Status.** **Owed** — the entitlement gate is still *own expiry OR firm’s*, and a member may still submit a payment.
+- **Status.** **Built** 0.0.534 (`20261017100000_firm_mode_member_no_plan.sql`, applied to the live project on 2026-10-17) — the gate counts the chamber's expiry alone while `profiles.firm_id` is set, and a member's `payment_submissions` insert is refused by the policy. The app hides the plans entry on the Subscription screen and on the side-menu row (the owner keeps both), the paywall itself answers a member with a notice, and a member's own approved plan is no longer named in Current Plan. Proven by `supabase/tests/firm_mode_member_no_plan_test.sql`, run rolled back against the project.
 - **Discharges.** §5.1, §10.13. Task 21.
 - **Depends On.** Phase 3 (a member exists to test against) and Phase 7/8 for the tier story, but its
   own two changes are independent of the ladder.
@@ -1339,14 +1341,22 @@ into a leak surface.
   and makes §2.4's "local-only until renewal" untrue for exactly that member.
 - **Server.** `payment_submissions`'s insert policy
   (`20260929103200_phase4_rls_account_payment_tables.sql`; rate limit
-  `20261013120000_payment_rate_limit_five.sql`) refuses a submission from an account holding a firm;
+  `20261013120000_payment_rate_limit_five.sql`) refuses a **member's** submission — `user_id = auth.uid()` and (`current_firm_id()` is null or `is_firm_owner(current_firm_id())`);
   and `has_sync_entitlement` (`20260930140000_push_changes.sql`) counts **only the firm's expiry**
-  while `profiles.firm_id` is not null, instead of OR-ing the caller's own.
+  while `profiles.firm_id` is not null, instead of OR-ing the caller's own. **The owner is deliberately exempt** (user ruling 2026-10-17): the owner's purchase *is* the chamber's renewal, and the two entries this phase removes from a member are the owner's only routes to it — refusing every firm holder would make a chamber impossible to renew.
 - **Objects.** `payment_submissions`’s insert policy (`20260929103200_phase4_rls_account_payment_tables.sql`, rate-limited by `20261013120000_payment_rate_limit_five.sql`); `has_sync_entitlement` (`20260930140000_push_changes.sql`); client `lib/features/payments/presentation/current_plan.dart`, `lib/features/settings/presentation/subscription_details_screen.dart`, and the side menu’s Current Plan row.
-- **Client.** Subscription Plans is not offered to a member — on the **Subscription screen** and on
-  the side menu's **Current Plan** row, not only the paywall. A plan bought before joining is ignored
-  while the account holds the firm and applies again once it is individual.
-- **Proof.** A rolled-back SQL run proving a member’s `payment_submissions` insert is refused, and that a member holding a live plan of their own still cannot push while the chamber has lapsed.
+- **Client.** Subscription Plans is not offered to a member — on the **Subscription screen**, on
+  the side menu's **Current Plan** row, and on the paywall itself, which shows a short chamber notice
+  instead of the offer so the case-limit prompt and a deep link are covered too. The owner keeps both
+  entries. A plan bought before joining is ignored while the account is a member — *Premium* is the
+  label rather than that plan's name — and applies again once it is individual.
+- **Proof.** `supabase/tests/firm_mode_member_no_plan_test.sql` — a rolled-back run proving a member’s
+  `payment_submissions` insert is refused, the owner’s renewal is accepted, an individual is
+  unaffected, a member holding a live plan of their own is not entitled while the chamber has lapsed,
+  that member’s `push_changes` is rejected with `entitlement_required`, a live chamber entitles its
+  member, and the paid time counts again once the member is individual.
+  `test/supabase/schema_contract_test.dart` pins the effective (last) function body, and the client
+  tests pin the three screens.
 - **Acceptance.** A member's submission is refused by the policy, not merely hidden; a member with a
   live plan of their own cannot push while the chamber has lapsed; their paid time is preserved for
   the day they are individual again.

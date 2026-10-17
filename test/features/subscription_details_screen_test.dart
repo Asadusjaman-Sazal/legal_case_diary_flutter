@@ -160,6 +160,37 @@ void main() {
     );
   }
 
+  /// A chamber member's profile and the same firm row: the member's own paid
+  /// period runs to 01/06/2027, deliberately different from the chamber's, so a
+  /// screen that showed the wrong one is visible rather than coincidental.
+  Future<void> seedMember(AppDatabase db) async {
+    await ProfilesDao(db).upsert(
+      ProfilesCompanion(
+        id: const Value('user-1'),
+        fullName: const Value('Adv. Rahim Uddin'),
+        role: const Value(AccountRole.associate),
+        firmId: const Value('firm-1'),
+        subscriptionStatus: const Value('active'),
+        subscriptionExpiry: Value(
+          DateTime.utc(2027, 6, 1, 17, 30).millisecondsSinceEpoch,
+        ),
+        createdAt: const Value(1),
+      ),
+    );
+    await FirmsDao(db).upsert(
+      FirmsCompanion(
+        id: const Value('firm-1'),
+        name: const Value('Rahman & Associates'),
+        ownerId: const Value('user-2'),
+        subscriptionStatus: const Value('active'),
+        subscriptionExpiry: Value(
+          DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
+        ),
+        createdAt: const Value(1),
+      ),
+    );
+  }
+
   testWidgets('a firm owner sees role, firm, plan and an expiry to the minute', (
     tester,
   ) async {
@@ -205,6 +236,44 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets(
+    'a member reads Premium, not the plan they bought before joining',
+    (tester) async {
+      await pumpDetails(
+        tester,
+        overrides: [
+          myPaymentSubmissionsProvider.overrideWith(
+            (ref) async => [
+                  submission(
+                    id: 'p1',
+                    planType: paymentPlanQuarterly,
+                    amount: 285,
+                    status: 'approved',
+                    submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+                  ),
+            ],
+          ),
+          firmMemberProvider.overrideWithValue(true),
+        ],
+        seed: seedMember,
+      );
+
+      // The chamber's subscription is the one running (Phase 9): the member's
+      // own approved 3 Months row is ignored, so the plan reads Premium rather
+      // than naming a plan that is not in force on this account. The one
+      // remaining "3 Months" is the purchase in Payment History, not the plan
+      // label — the ledger is a record of what was bought, not what is running.
+      expect(find.text(l.settingsManageAccount_planPremium), findsWidgets);
+      expect(find.text(l.paywall_planQuarterly), findsOneWidget);
+
+      // The expiry is the chamber's, not the member's own (01/06/2027).
+      expect(find.text('01/12/2026, 11:30 PM'), findsOneWidget);
+      expect(find.text('01/06/2027, 11:30 PM'), findsNothing);
+
+      await unmountApp(tester);
+    },
+  );
 
   testWidgets('an individual on the free plan reads Free, not a dash', (
     tester,

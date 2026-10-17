@@ -34,6 +34,7 @@ import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
@@ -201,6 +202,7 @@ void main() {
     String email = signedInEmail,
     LogoutFlow? logoutFlow,
     int? adminBadgeCount,
+    bool firmMember = false,
   }) async {
     // Tall, so the plan row (below the eight nav items) is on screen to tap.
     await tester.binding.setSurfaceSize(const Size(500, 1400));
@@ -253,6 +255,9 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           currentPlanProvider.overrideWithValue(plan),
+          // The member rule behind the plans child: a member has nothing to buy,
+          // while the owner (the default here) keeps the renewal entry.
+          firmMemberProvider.overrideWithValue(firmMember),
           // The address the sheet names. Stubbed, so a sheet that invented its
           // own address (or printed nothing) would fail the assertion below.
           authIdentityProvider.overrideWithValue(
@@ -408,6 +413,25 @@ void main() {
       findsOneWidget,
     );
     expect(drawerText(l.paywall_title), findsOneWidget);
+  });
+
+  testWidgets('a chamber member expands to Subscription Details alone', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    // The member has no plan to buy (Phase 9); the details page stays, because
+    // that is where the chamber's plan and expiry are read. The owner's plans
+    // row is the test above, which still expects both children.
+    await pumpDrawerOnRouter(tester, firmMember: true);
+
+    await tester.tap(drawerText(l.settingsSubscription_currentPlan));
+    await tester.pumpAndSettle();
+
+    expect(
+      drawerText(l.settingsManageAccount_subscriptionDetails),
+      findsOneWidget,
+    );
+    expect(drawerText(l.paywall_title), findsNothing);
   });
 
   testWidgets('Subscription Details opens the details sub-page', (tester) async {

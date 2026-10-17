@@ -82,6 +82,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.530 | 2026-10-16 | `20261016110000_firm_mode_reference_in_use_guard.sql` | Firm mode: the in-use guard for reference rows. enforce_reference_not_in_use() is attached BEFORE UPDATE to the four tables the nine foreign keys point at — court_categories, case_categories, courts and on_behalfs — and refuses the tombstone transition while a **live** dependent still names the row, raising reference_in_use as 23503 so push_changes rejects that one mutation instead of aborting the batch. steps and case_types deliberately take no trigger: cases.case_type and cases.last_step are free text, so nothing references either and no server guard can protect them. purge_tombstones() is rewritten to delete one candidate at a time and skip a row a dependent still names — one blocked tombstone used to abort the whole nightly purge — with the retention argument, the children-first order and the returned count unchanged. |
 | 0.0.531 | 2026-10-16 | `20261016120000_firm_mode_stored_tier.sql` | Firm mode: the stored subscription tier and the ten-plan ladder. profiles and firms each gain tier, tier_pending and tier_pending_from, so which tier applies to an account or a chamber is a stored fact rather than something each screen infers from a payment row. effective_tier() answers which tier is in force — a pending change takes hold on its own date and not before, so an approval still being settled does not open a gate early and a mid-term downgrade is honoured when it is due — and tier_rank() gives the ladder one order (free 0, pro 1, firm 2, firm_plus 3) for every comparison to share. The plan approval is rebuilt around the ten flat prices, so the withdrawn discount model no longer decides what a plan costs, and the plan-name columns are rebuilt for the ten keys. profiles and firms each carried a table-level insert grant for authenticated and anon, which reaches a column added later, so both are narrowed to the columns that were writable before; the tier is not client-writable at insert either. |
 | 0.0.532 | 2026-10-16 | `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` | Firm mode: the seat cap reads the stored tier, and a chamber needs Firm. firm_seat_cap() previously asked is_premium(owner) and answered 5 for anyone premium, so a Firm Plus chamber was capped at the Firm number and a Pro owner had a chamber nobody could join; it now reads the tier in force — Firm 5, Firm Plus 20, Pro 0 — through effective_tier, so the cap a mid-downgrade chamber enforces is the one it has paid for. ensure_firm()'s creation gate moves from is_premium() to Firm or above, because Pro's cap of 0 means a chamber on Pro could never take a member; the refusal keeps the status shape the client already handles but names the reason firm_tier_required, so a paying Pro user is not told they are not premium. A newly created chamber starts on its owner's tier, because the cap reads that row and a chamber left at the column default would answer null — no cap enforced — for every join. A seat cap binds new joins only: neither function removes a member, and no membership row is touched. |
+| 0.0.534 | 2026-10-17 | `20261017100000_firm_mode_member_no_plan.sql` | Firm mode: a member has no plan of their own. has_sync_entitlement() counted the caller's own expiry OR the chamber's, so a member who had bought a plan before joining kept pushing through the chamber's lapse; it now counts the chamber's mirrored expiry alone once profiles.firm_id is set, and the caller's own only while it is null. payment_submissions_insert_own becomes a member's refusal — user_id = auth.uid() plus no firm, or a firm the caller owns — so an associate or viewer cannot buy a personal plan. The owner is deliberately exempt: the owner's purchase is the chamber's renewal, and the two entries this phase removes from a member are the owner's only routes to it. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -12093,5 +12094,94 @@ revoke all on function public.ensure_firm(text) from public, anon;
 revoke all on function public.firm_seat_cap(uuid) from public, anon, authenticated;
 grant execute on function public.ensure_firm(text) to authenticated;
 grant execute on function public.firm_seat_cap(uuid) to authenticated;
+```
+
+## App Version 0.0.534 — Firm Mode Phase 9 — A Member Has No Plan Of Their Own
+
+### 0.0.534 · `20261017100000_firm_mode_member_no_plan.sql`
+
+> **Created 2026-10-17.** Firm mode: a member has no plan of their own. has_sync_entitlement() counted the caller's own expiry OR the chamber's, so a member who had bought a plan before joining kept pushing through the chamber's lapse; it now counts the chamber's mirrored expiry alone once profiles.firm_id is set, and the caller's own only while it is null. payment_submissions_insert_own becomes a member's refusal — user_id = auth.uid() plus no firm, or a firm the caller owns — so an associate or viewer cannot buy a personal plan. The owner is deliberately exempt: the owner's purchase is the chamber's renewal, and the two entries this phase removes from a member are the owner's only routes to it.
+
+```sql
+-- Firm mode Phase 9 — a member has no plan of their own.
+--
+-- Two changes, one rule (§5.1): an account working inside a chamber it does not
+-- own is covered by that chamber's subscription, cannot buy a plan of its own,
+-- and keeps any plan it bought before joining for the day it is individual
+-- again. The server is the boundary; hiding a screen was never one.
+--
+-- 1. `has_sync_entitlement` counted *the caller's own* expiry OR the firm's.
+--    That left the audit's live hole open: a member who had bought Pro before
+--    joining kept pushing straight through the chamber's lapse, so the lapse
+--    allowance had no server gate behind it for exactly that account. While
+--    `profiles.firm_id` is set, only the chamber's mirrored expiry counts now.
+--    The owner is covered by the same rule and loses nothing: the existing
+--    `mirror_owner_subscription_to_firm()` keeps `firms.subscription_expiry`
+--    equal to theirs, and `ensure_firm` copies it when a chamber is created.
+--
+-- 2. `payment_submissions_insert_own` becomes a member's refusal. The owner is
+--    deliberately exempt: the owner's purchase IS the chamber's renewal (that is
+--    what a Firm or Firm Plus plan buys), and the two entries Phase 9 removes
+--    from a member — Settings > Subscription and the side menu's plan row — are
+--    the owner's only routes to that purchase. Refusing every firm holder would
+--    make a chamber impossible to renew, so the rule is "a member, not an
+--    owner": `current_firm_id()` is null, or it names a chamber the caller owns.
+--
+-- Applied to the live project on 2026-10-17, and proved by
+-- `supabase/tests/firm_mode_member_no_plan_test.sql`.
+
+-- ---------------------------------------------------------------------------
+-- 1. Entitlement: the chamber's expiry while the account holds a chamber.
+-- ---------------------------------------------------------------------------
+
+-- Same rule, same signature, same 48-hour grace. The CASE keeps the two
+-- branches from ever OR-ing: a firm member never reads their own expiry, and an
+-- individual never reads a firm's. Still derived, never `subscription_status`.
+create or replace function public.has_sync_entitlement(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select exists (
+    select 1 from public.profiles p
+     where p.id = p_user_id
+       and case
+             when p.firm_id is not null then exists (
+               select 1 from public.firms f
+                where f.id = p.firm_id
+                  and f.subscription_expiry is not null
+                  and f.subscription_expiry + interval '48 hours' > now()
+             )
+             else p.subscription_expiry is not null
+                  and p.subscription_expiry + interval '48 hours' > now()
+           end
+  );
+$$;
+
+comment on function public.has_sync_entitlement(uuid) is
+  'Sync entitlement = the chamber''s subscription_expiry + 48h grace once profiles.firm_id is set, the caller''s own expiry while it is null; never reads subscription_status.';
+
+-- ---------------------------------------------------------------------------
+-- 2. A member's payment submission is refused by the policy itself.
+-- ---------------------------------------------------------------------------
+
+-- `current_firm_id()` and `is_firm_owner()` are SECURITY DEFINER (the Phase 3
+-- access helpers), so this policy checks the caller's own profile and chamber
+-- without recursing through either table's RLS. The insert still has to name the
+-- caller, exactly as before.
+drop policy if exists payment_submissions_insert_own on public.payment_submissions;
+create policy payment_submissions_insert_own on public.payment_submissions
+  for insert to authenticated
+  with check (
+    user_id = auth.uid()
+    and (
+      public.current_firm_id() is null
+      or public.is_firm_owner(public.current_firm_id())
+    )
+  );
+
+-- No UPDATE or DELETE policy: approval is approve_payment() only.
 ```
 

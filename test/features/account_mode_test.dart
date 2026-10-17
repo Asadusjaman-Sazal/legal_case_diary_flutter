@@ -263,6 +263,42 @@ void main() {
       expect(container.read(canEditDirectlyProvider), isTrue);
     });
 
+    test('a chamber owner is not a member, so the plans entry stays his', () async {
+      await setUpContainer(
+        seed: (db) => seedProfile(
+          db,
+          userId: 'user-1',
+          role: AccountRole.owner,
+          firmId: 'firm-1',
+        ),
+      );
+
+      // Phase 9's split: the owner's purchase is the chamber's renewal, so only
+      // the non-owner holds the no-plan rule.
+      expect(container.read(firmModeProvider), isTrue);
+      expect(container.read(firmMemberProvider), isFalse);
+    });
+
+    test('an associate or viewer is a member', () async {
+      await setUpContainer(
+        seed: (db) => seedProfile(
+          db,
+          userId: 'user-1',
+          role: AccountRole.associate,
+          firmId: 'firm-1',
+        ),
+      );
+      expect(container.read(firmMemberProvider), isTrue);
+    });
+
+    test('an individual is not a member', () async {
+      await setUpContainer(
+        seed: (db) => seedProfile(db, userId: 'user-1'),
+      );
+      expect(container.read(firmModeProvider), isFalse);
+      expect(container.read(firmMemberProvider), isFalse);
+    });
+
     test('an associate is limited by the cached permission flags', () async {
       await setUpContainer(
         seed: (db) async {

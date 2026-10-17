@@ -335,6 +335,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_read_scope_t
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_creation_scope_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_stored_tier_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_member_no_plan_test.sql
 ```
 
 ## Project settings this repo cannot set

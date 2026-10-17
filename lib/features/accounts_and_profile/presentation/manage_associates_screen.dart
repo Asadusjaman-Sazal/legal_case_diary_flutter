@@ -44,6 +44,8 @@ import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../sync/connectivity_monitor.dart';
+import '../../../sync/sync_service.dart';
+import '../../../sync/sync_status_providers.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/auth_widgets.dart';
 import '../../settings/presentation/settings_controls.dart';
@@ -120,6 +122,17 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     final firmName = ref.watch(accountFirmProvider).value?.name ?? '';
     final members = ref.watch(firmMembersListProvider);
     final invites = ref.watch(firmInvitesListProvider);
+
+    // Dissolving is server-only work and the push runs before the pull: a queued
+    // local edit still names this chamber, so it would be refused and rolled
+    // back the moment the chamber stopped existing. The action therefore waits
+    // for the queue, and says so, rather than losing an edit it cannot see.
+    final pendingWrites =
+        ref.watch(syncQueueEntriesProvider).value?.isNotEmpty ?? false;
+    // Null until the roster is read: an unknown count is not "nobody left".
+    final membersLeft = members.value
+        ?.where((member) => member.role != AccountRole.owner)
+        .length;
 
     // A read that fails here only becomes an error state the banner draws, so
     // the providers behind these two watches are what remember it — the
@@ -213,6 +226,24 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           error: (error, _) => AuthErrorBanner(
             text: failureText(l, error) ?? l.auth_errorUnknown,
           ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        SettingsSectionLabel(l.manageAssociates_sectionFirm),
+        const SizedBox(height: AppSpacing.sm),
+        _DissolveCard(
+          intro: l.manageAssociates_dissolveIntro,
+          // One reason at a time, in the order the action has to clear them.
+          note: membersLeft == null
+              ? null
+              : membersLeft > 0
+              ? l.manageAssociates_dissolveBlockedMembers(membersLeft)
+              : pendingWrites
+              ? l.manageAssociates_dissolveBlockedPending
+              : null,
+          actionLabel: l.manageAssociates_dissolveFirm,
+          onPressed: membersLeft == 0 && !pendingWrites && !_busy
+              ? _dissolveFirm
+              : null,
         ),
       ],
     );
@@ -349,6 +380,41 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
       if (!mounted) return;
       ref.invalidate(firmInvitesListProvider);
       _say(context, l.manageAssociates_inviteRevoked);
+    });
+  }
+
+  /// Dissolves the firm, after confirming it, and turns the ledger into the
+  /// owner's own diary.
+  Future<void> _dissolveFirm() async {
+    final l = AppLocalizations.of(context);
+    final confirmed = await _confirm(
+      context: context,
+      title: l.manageAssociates_dissolveConfirmTitle,
+      body: l.manageAssociates_dissolveConfirmBody,
+      confirmLabel: l.manageAssociates_dissolveFirm,
+    );
+    if (!confirmed) return;
+    await _run(() async {
+      try {
+        await ref.read(firmRepositoryProvider).dissolveFirm();
+      } on DissolveRefusal {
+        // The server's roster is newer than this screen's: show the count the
+        // refusal carries and re-read the roster behind it.
+        if (mounted) ref.invalidate(firmMembersListProvider);
+        rethrow;
+      }
+      // The profile no longer names a firm, which is what makes this account
+      // individual again and drops the cached chamber.
+      await ref.read(accountRefreshProvider)();
+      if (!mounted) return;
+      ref.invalidate(firmMembersListProvider);
+      ref.invalidate(firmInvitesListProvider);
+      // Pull once before saying it is done: the rows the server unscoped must
+      // arrive locally without their old `firm_id`, or the next push would
+      // offer the server a chamber that no longer exists.
+      await ref.read(syncServiceProvider).syncNow(force: true, pull: true);
+      if (!mounted) return;
+      _say(context, l.manageAssociates_dissolveDone);
     });
   }
 
@@ -804,6 +870,72 @@ String _roleLabel(AppLocalizations l, String role) => switch (role) {
   AccountRole.viewer => l.settingsManageAccount_roleViewer,
   _ => l.settingsManageAccount_roleIndividual,
 };
+
+/// The dissolve card: what it does, why it is unavailable, and the action.
+///
+/// In the error colour rather than the primary one, because it is the one
+/// destructive action in firm administration — and disabled rather than hidden
+/// while the roster holds anyone, so the owner can see what stands in the way.
+class _DissolveCard extends StatelessWidget {
+  const _DissolveCard({
+    required this.intro,
+    required this.note,
+    required this.actionLabel,
+    required this.onPressed,
+  });
+
+  /// What dissolving does, in plain words.
+  final String intro;
+
+  /// Why the action is unavailable right now, or null when it is available.
+  final String? note;
+
+  /// The action's own label.
+  final String actionLabel;
+
+  /// Runs the dissolve; null disables the button.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final note = this.note;
+    return Container(
+      decoration: settingsCardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            intro,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          if (note != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              note,
+              style: AppTypography.bodyMd.copyWith(color: AppColors.error),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: const Icon(Icons.delete_forever_outlined),
+              label: Text(actionLabel),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.error,
+                side: const BorderSide(color: AppColors.error),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// A small role pill.
 class _RoleChip extends StatelessWidget {

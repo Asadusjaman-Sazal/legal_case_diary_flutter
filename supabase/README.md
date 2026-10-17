@@ -257,8 +257,24 @@ What is verified now:
   a refused approval still counts as one — the first run of this proof failed on
   exactly that, not on the SQL. `supabase/tests/firm_mode_join_gate_test.sql` was
   re-run green over the re-pointed cap as well.
-- Live state: 26 tables all with RLS on, 62 policies, 50 functions in `public`,
-  48 recorded versions — the newest `20261016110000` — and the 1,442 seeded
+- `20261017110000_firm_mode_dissolution.sql` (firm mode, phase 11) — **passes**
+  against the project in `supabase/tests/firm_mode_dissolution_test.sql`, one
+  rolled-back run printing `DISSOLVE OK`: a chamber holding two members is
+  refused with the count in the answer and **nothing written** — not a row, not
+  the open invites, not the profile; a member gets `not_owner`; once the roster
+  is emptied through `remove_firm_member` the dissolve succeeds, and the owner
+  reads every case, note, reference, history row, custom court and delete
+  request his former members wrote while those accounts read none of them — with
+  each row's `user_id`, `created_by`, `last_modified_by`, contents, version and
+  timestamps exactly as they were. `conflict_log` is the exception: its `firm_id`
+  is cleared (without that the `firms` delete is refused by a non-cascading
+  foreign key) and **no scope owner** is written, so its author still reads it
+  and the owner still reads none of it. The `firms`, `firm_members` and
+  `firm_invites` rows are gone, a code issued before the dissolve answers
+  `invalid_code`, the owner's profile is individual again with his name, expiry
+  and tier untouched, and `delete_my_account()` answers `removed`.
+- Live state: 26 tables all with RLS on, 62 policies, 53 functions in `public`,
+  52 recorded versions — the newest `20261017110000` — and the 1,442 seeded
   reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
@@ -276,7 +292,7 @@ What is verified now:
   `join_firm`, `ensure_firm`, `abandon_provisional_account`) are locked; the rest
   need a closing migration (`revoke execute on all functions in schema public
   from anon` plus an `alter default privileges` so future ones stay closed).
-- **Every RLS policy calls `auth.uid()` per row** (`auth_rls_initplan`, 50
+- **Every RLS policy calls `auth.uid()` per row** (`auth_rls_initplan`, 55
   policies). Wrapping the calls as `(select auth.uid())` is the documented fix and
   is mechanical.
 - **24 foreign keys have no covering index**, and the 24 delta indexes are unused
@@ -318,7 +334,7 @@ npx supabase migration list                     # what is applied on the project
 ```
 
 Applying by hand with a plain loop also works, but then `supabase_migrations`
-stays empty and `db push` would consider all forty-eight files unapplied:
+stays empty and `db push` would consider all fifty files unapplied:
 
 ```bash
 for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
@@ -336,6 +352,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_creation_sco
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_stored_tier_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_member_no_plan_test.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_dissolution_test.sql
 ```
 
 ## Project settings this repo cannot set

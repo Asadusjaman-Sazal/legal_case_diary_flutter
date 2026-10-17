@@ -4270,6 +4270,42 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_associateRemoved => 'সহকারীকে সরানো হয়েছে।';
 
   @override
+  String get manageAssociates_sectionFirm => 'ফার্ম ব্যবস্থাপনা';
+
+  @override
+  String get manageAssociates_dissolveFirm => 'ফার্ম বিলুপ্ত করুন';
+
+  @override
+  String get manageAssociates_dissolveIntro =>
+      'বিলুপ্ত করলে ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হিসেবে থেকে যাবে, আর আপনার প্ল্যান চালু থাকবে।';
+
+  @override
+  String manageAssociates_dissolveBlockedMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ফার্মে এখনো $count জন সহকারী আছেন। প্রথমে তাঁদের সরান।',
+      one: 'ফার্মে এখনো একজন সহকারী আছেন। প্রথমে তাঁকে সরান।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get manageAssociates_dissolveBlockedPending =>
+      'কিছু পরিবর্তন এখনো সিঙ্ক হয়নি। সেগুলো শেষ হতে দিন, তারপর আবার চেষ্টা করুন।';
+
+  @override
+  String get manageAssociates_dissolveConfirmTitle => 'এই ফার্ম বিলুপ্ত করবেন?';
+
+  @override
+  String get manageAssociates_dissolveConfirmBody =>
+      'ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হয়ে যাবে, আর যাঁরা সেগুলো লিখেছেন সেই সহকারীরা আর সেগুলো দেখতে পাবেন না। আপনার প্ল্যান বাতিল হবে না, আর প্রতিটি রেকর্ডে লেখকের নাম অপরিবর্তিত থাকবে। এটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get manageAssociates_dissolveDone =>
+      'ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।';
+
+  @override
   String get syncNotice_permissionsChanged =>
       'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
 

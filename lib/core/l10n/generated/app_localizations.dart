@@ -7353,6 +7353,54 @@ abstract class AppLocalizations {
   /// **'Associate Removed.'**
   String get manageAssociates_associateRemoved;
 
+  /// No description provided for @manageAssociates_sectionFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Management'**
+  String get manageAssociates_sectionFirm;
+
+  /// No description provided for @manageAssociates_dissolveFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve Firm'**
+  String get manageAssociates_dissolveFirm;
+
+  /// No description provided for @manageAssociates_dissolveIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolving removes the firm and its invites. Every case, note and reference it holds stays with you as your own diary, and your plan keeps running.'**
+  String get manageAssociates_dissolveIntro;
+
+  /// No description provided for @manageAssociates_dissolveBlockedMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One associate is still in the firm. Remove them first.} other{{count} associates are still in the firm. Remove them first.}}'**
+  String manageAssociates_dissolveBlockedMembers(int count);
+
+  /// No description provided for @manageAssociates_dissolveBlockedPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are still waiting to sync. Let them finish, then try again.'**
+  String get manageAssociates_dissolveBlockedPending;
+
+  /// No description provided for @manageAssociates_dissolveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve This Firm?'**
+  String get manageAssociates_dissolveConfirmTitle;
+
+  /// No description provided for @manageAssociates_dissolveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The firm and its invites will be removed. Every case, note and reference it holds becomes your own diary, and the associates who wrote them lose access to them. Your plan is not cancelled, and your records keep the name of whoever wrote them. This cannot be undone.'**
+  String get manageAssociates_dissolveConfirmBody;
+
+  /// No description provided for @manageAssociates_dissolveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm dissolved. Its cases are now your own diary.'**
+  String get manageAssociates_dissolveDone;
+
   /// No description provided for @syncNotice_permissionsChanged.
   ///
   /// In en, this message translates to:

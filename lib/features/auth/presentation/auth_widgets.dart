@@ -1118,6 +1118,9 @@ String? failureText(AppLocalizations l, Object? failure) => switch (failure) {
   final AuthFailure f => authErrorText(l, f.kind),
   final FirmFailure f => firmErrorText(l, f.kind),
   final InviteRefusal r => inviteRefusalText(l, r),
+  // A dissolve refused because the roster filled up after the screen read it:
+  // advice with a count, not a fault, so it is worded rather than logged as one.
+  final DissolveRefusal r => l.manageAssociates_dissolveBlockedMembers(r.count),
   _ => l.auth_errorUnknown,
 };
 

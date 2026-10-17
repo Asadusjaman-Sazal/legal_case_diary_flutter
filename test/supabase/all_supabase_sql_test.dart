@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        49,
+        50,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -99,7 +99,10 @@ void main() {
             'Plus 20, Pro 0 — and moved chamber creation from premium to the '
             'Firm tier the cap already implied, and its ninth refuses a member\'s '
             'personal payment and counts only the chamber\'s expiry while they '
-            'hold it',
+            'hold it, and its eleventh dissolves the chamber — refusing with '
+            'the count while the roster holds a member, then unscoping the '
+            'ledger to the owner with a scope owner while attribution, the plan '
+            'and every row\'s contents stay as they were',
       );
     });
 

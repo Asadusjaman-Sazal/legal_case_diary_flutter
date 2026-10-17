@@ -337,6 +337,12 @@ class FakeFirmRepository implements FirmRepository {
   /// Error to throw from [removeMember]; null to succeed.
   Object? removeMemberError;
 
+  /// Number of [dissolveFirm] calls.
+  int dissolveCalls = 0;
+
+  /// Error to throw from [dissolveFirm]; null to succeed.
+  Object? dissolveError;
+
   @override
   Future<List<FirmInviteSummary>> listInvites() async {
     final failure = invitesError;
@@ -369,6 +375,13 @@ class FakeFirmRepository implements FirmRepository {
   Future<void> removeMember(String userId) async {
     removedMemberIds.add(userId);
     final failure = removeMemberError;
+    if (failure != null) throw failure;
+  }
+
+  @override
+  Future<void> dissolveFirm() async {
+    dissolveCalls++;
+    final failure = dissolveError;
     if (failure != null) throw failure;
   }
 

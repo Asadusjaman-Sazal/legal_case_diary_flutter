@@ -248,7 +248,16 @@ class SupabaseProfileRepository implements ProfileRepository {
         ),
       );
 
-      if (firmId == null) return true;
+      if (firmId == null) {
+        // No firm on the profile means this account is not in one any more — a
+        // dissolve, or a removal applied on another device. Both delete rows
+        // outright on the server, so no pull will ever tombstone them here:
+        // the cached chamber and membership are cleared at the moment the
+        // profile stops naming a firm, or they would sit on the device for good.
+        await _db.delete(_db.firms).go();
+        await _db.delete(_db.firmMembers).go();
+        return true;
+      }
 
       await _cacheFirm(firmId);
       await _cacheMembership(userId: userId, firmId: firmId);

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.535 - Firm mode Phase 10: a lapse caps writing at the tier it last held — Pro 100, Firm 500, Firm Plus 1,000 cases, notes and references — with the excess read-only but readable, and the 50-case wall kept only for an account that was never premium.
+Version: 0.0.536 - Firm mode Phase 11: dissolution — the owner empties the roster, then dissolves; every row stays as his own diary with attribution intact, while the chamber, its invites and the account's firm link go.
 --------------------------------------
 
 ## Version History Log:
@@ -549,3 +549,4 @@ Version: 0.0.532 - Applied firm mode's stored-tier and seat-cap migrations to th
 Version: 0.0.533 - Pinned the ten-plan payment ladder's client and server halves to each other with a guard test that fails when a key, price, length, tier or name exists on one side only.
 Version: 0.0.534 - Firm mode Phase 9: a member's payment is refused and only the chamber's expiry counts, while the owner's renewal stays open.
 Version: 0.0.535 - Firm mode Phase 10: a lapse caps writing at the tier it last held — Pro 100, Firm 500, Firm Plus 1,000 cases, notes and references — with the excess read-only but readable, and the 50-case wall kept only for an account that was never premium.
+Version: 0.0.536 - Firm mode Phase 11: dissolution — the owner empties the roster, then dissolves; every row stays as his own diary with attribution intact, while the chamber, its invites and the account's firm link go.

@@ -1302,7 +1302,7 @@ into a leak surface.
 ### Phase 8 — The Ten-Plan Ladder — **Server Applied, Client Built**
 
 
-- **Status.** **Client built, server applied** — the ten keys, the flat prices and the generated `plan_name` `CASE` are in `20261016120000_firm_mode_stored_tier.sql`, applied to the live project on 2026-10-16, so `approve_payment` accepts all ten keys and a refused key answers `invalid_plan` with the reason the client shows. The client half has landed (`payment_plans.dart` carrying each plan's tier, the paywall's "this tier or lower" rule, the checkout and the plan labels).
+- **Status.** **Client built, server applied** — the ten keys, the flat prices and the generated `plan_name` `CASE` are in `20261016120000_firm_mode_stored_tier.sql`, applied to the live project on 2026-10-16, so `approve_payment` accepts all ten keys and a refused key answers `invalid_plan` with the reason the client shows. The client half has landed (`payment_plans.dart` carrying each plan's tier, the paywall's "this tier or lower" rule, the checkout and the plan labels), and the ladder's client and server halves are now pinned to each other by `test/supabase/payment_plan_ladder_test.dart`, so a key added in one place only fails the suite.
 - **Discharges.** §5.3's ladder, §10.9. Plan: *What Firm Mode Still Owes* — the ladder and the rebuilt plans screen. Task 21.
 - **Depends On.** Phase 7's columns (the tier is written at approval), and it is the phase that makes
   Phase 7's gate safe — see the hazard above.
@@ -1317,7 +1317,7 @@ into a leak surface.
   `lib/features/payments/data/payment_plans.dart`, `payment_plan_labels.dart`,
   `presentation/paywall_screen.dart`, `checkout_screen.dart`, `current_plan.dart`,
   `lib/features/settings/presentation/subscription_details_screen.dart`.
-- **Proof.** A rolled-back SQL run over all ten keys — each approves at its own amount and refuses a wrong amount — plus the paywall and checkout widget tests updated to the new set in **both** locales.
+- **Proof.** A rolled-back SQL run over all ten keys — each approves at its own amount and refuses a wrong amount — plus the paywall and checkout widget tests updated to the new set in **both** locales. `test/supabase/payment_plan_ladder_test.dart` then pins the two halves to each other: it reads the **last** migration defining each of the four places (and the tier `CASE`), and fails on a key, price, length, tier or readable name that only one side has, in either direction, which is the acceptance item above.
 - **Acceptance.** Each of the ten keys approves at its own amount and refuses a wrong amount; the
   paywall lists exactly the new set in **both locales**; `payment_plans.dart` and the server's
   constants agree; a new key cannot be added in one place only.

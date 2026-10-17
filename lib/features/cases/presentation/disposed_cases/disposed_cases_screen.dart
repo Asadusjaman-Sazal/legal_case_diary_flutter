@@ -34,6 +34,8 @@ import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_table_row.dart';
+import '../../../../shared/widgets/read_only_lock.dart';
+import '../../../payments/presentation/lapse_allowance_ui.dart';
 import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../case_table_view.dart';
@@ -298,6 +300,12 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
         : buildList(null);
   }
 
+  /// Phase 10: a read-only case explains itself instead of opening the form.
+  void _updateIfWritable(Case currentCase) {
+    if (!ensureCaseWritable(context, ref, currentCase.id)) return;
+    _openQuickUpdate(currentCase);
+  }
+
   /// The compact disposed card for [currentCase].
   Widget _buildCaseCard(
     BuildContext context,
@@ -339,9 +347,10 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       judgesName: isHigherCourt ? currentCase.honorableJudges : null,
       disposedDate: disposedDate,
       note: currentCase.notesResults,
+      isReadOnly: isCaseReadOnly(ref, currentCase.id),
       onPhone: () => _contactParty(currentCase, message: false),
       onMessage: () => _contactParty(currentCase, message: true),
-      onUpdate: () => _openQuickUpdate(currentCase),
+      onUpdate: () => _updateIfWritable(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );
   }
@@ -395,7 +404,8 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       date: disposedDate,
       step: stepOrResult,
       note: currentCase.notesResults,
-      onUpdate: () => _openQuickUpdate(currentCase),
+      isReadOnly: isCaseReadOnly(ref, currentCase.id),
+      onUpdate: () => _updateIfWritable(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );
   }
@@ -418,6 +428,7 @@ class _DisposedCaseCard extends StatelessWidget {
     required this.judgesName,
     required this.disposedDate,
     required this.note,
+    required this.isReadOnly,
     required this.onPhone,
     required this.onMessage,
     required this.onUpdate,
@@ -432,6 +443,7 @@ class _DisposedCaseCard extends StatelessWidget {
   final String? judgesName;
   final String? disposedDate;
   final String? note;
+  final bool isReadOnly;
   final VoidCallback onPhone;
   final VoidCallback onMessage;
   final VoidCallback onUpdate;
@@ -490,6 +502,13 @@ class _DisposedCaseCard extends StatelessWidget {
               Expanded(
                 child: Text(caseNumber, style: AppTypography.caseNumber),
               ),
+              if (isReadOnly) ...[
+                const SizedBox(width: AppSpacing.sm),
+                const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: ReadOnlyLock(),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

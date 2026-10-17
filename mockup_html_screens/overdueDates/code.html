@@ -145,6 +145,15 @@
     <span class="w-1"></span>
   </header>
 
+  <!-- Phase 10 lapse banner. Silent unless the account has lapsed and is over its
+       allowance: the rows inside the allowance stay editable, the rest are
+       read-only but still readable, and Renew lifts the set at once. -->
+  <div class="mx-md mt-md px-md py-sm bg-surface-container-highest border border-outline-variant rounded-lg flex items-center">
+    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+    <p class="ml-sm flex-1 font-body-sm text-body-sm text-on-surface">Your plan has lapsed. The 100 most recently updated cases stay editable; 124 are read-only until you renew.</p>
+    <button class="ml-sm font-label-lg text-label-lg text-primary active:opacity-70">Renew</button>
+  </div>
+
   <!-- Last-updated status line. -->
   <div class="px-md pt-sm pb-xs flex items-center">
     <span class="material-symbols-outlined text-[14px] text-on-surface">history</span>
@@ -166,6 +175,8 @@
         <div class="flex-1 p-card-padding">
           <div class="flex items-start gap-sm">
             <p class="flex-1 font-case-number text-case-number text-on-surface">Misc Case- 87/2024</p>
+            <!-- Beyond the allowance: readable and printable, not editable. -->
+            <span class="material-symbols-outlined text-[14px] text-on-surface-variant" style="margin-top:2px;">lock</span>
             <span class="px-sm py-xs rounded-sm bg-surface-container font-label-md text-label-md text-on-surface">Accused</span>
           </div>
           <p class="mt-xs font-title-md text-title-md text-on-surface" style="font-size:15px; line-height:1.6;">Mofizul Islam Vs The State</p>

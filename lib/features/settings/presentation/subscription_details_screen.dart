@@ -32,6 +32,7 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
+import '../../payments/data/payment_plans.dart';
 import '../../payments/data/payment_repository.dart';
 import '../../payments/presentation/current_plan.dart';
 import '../../payments/presentation/payment_plan_labels.dart';
@@ -48,7 +49,12 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
     // The limitations are for a *known* Free plan only: an entitlement still in
     // flight reads a dash, which is neither Free nor premium.
     final plan = ref.watch(currentPlanProvider);
-    final isFree = plan.known && !plan.premium;
+    final tier = ref.watch(allowanceTierProvider);
+    // A paid tier with no entitlement is **lapsed**, not free: its 50-case block
+    // would contradict the allowance it still holds (Phase 10).
+    final isLapsed =
+        plan.known && !plan.premium && tier != SubscriptionTier.free;
+    final isFree = plan.known && !plan.premium && !isLapsed;
 
     return SettingsSubPageModal(
       title: l.settingsManageAccount_subscriptionDetails,
@@ -66,6 +72,9 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
             if (isFree) ...[
               const SizedBox(height: AppSpacing.lg),
               _FreePlanLimitations(l: l),
+            ] else if (isLapsed) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _LapsedAllowance(l: l, allowance: tier.lapseAllowance),
             ],
             const SizedBox(height: AppSpacing.lg),
             _PaymentHistorySection(l: l),
@@ -95,11 +104,14 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     // ([currentPlanProvider]) — the dash rule for an entitlement that has not
     // landed lives there, so both surfaces tell the user the same thing.
     final plan = ref.watch(currentPlanProvider);
-    final currentPlan = currentPlanLabel(l, plan);
+    final tier = ref.watch(allowanceTierProvider);
+    final currentPlan = currentPlanLabel(l, plan, tier: tier);
     // *Free* only when it is known to be: an entitlement still in flight reads a
     // dash, and a dash is not Free — so neither the hidden expiry nor the
-    // limitations belong to it.
-    final isFree = plan.known && !plan.premium;
+    // limitations belong to it. A lapsed account is not Free either, and keeps
+    // its expiry row (it has a date, in the past) and its allowance block.
+    final isFree =
+        plan.known && !plan.premium && tier == SubscriptionTier.free;
 
     return _Card(
       child: Column(
@@ -163,6 +175,44 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// What a lapsed paid account may still write (Phase 10).
+///
+/// Shown instead of the free block: the account holds a tier, so the free 50 is
+/// not its rule — its allowance is.
+class _LapsedAllowance extends StatelessWidget {
+  const _LapsedAllowance({required this.l, required this.allowance});
+
+  final AppLocalizations l;
+
+  /// The tier's lapse allowance (Pro 100, Firm 500, Firm Plus 1,000).
+  final int allowance;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = AppDateUtils.formatDigits(
+      allowance,
+      l.localeName,
+      grouping: true,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l.settingsSubscription_lapsedTitle,
+          style: AppTypography.titleMd,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _Card(
+          child: Text(
+            l.settingsSubscription_lapsedBody(count),
+            style: AppTypography.bodyMd,
+          ),
+        ),
+      ],
     );
   }
 }

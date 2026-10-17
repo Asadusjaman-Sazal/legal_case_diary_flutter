@@ -48,8 +48,9 @@ import 'payment_plan_labels.dart';
 
 /// One subscription benefit, shown in the offer card.
 enum PaywallFeature {
-  /// No case ceiling.
-  unlimitedCases,
+  /// A larger case ceiling on every tier (Phase 10 replaced the old
+  /// "unlimited" promise with the ladder's own numbers).
+  moreCases,
 
   /// Data survives a lost phone.
   disasterRecovery,
@@ -70,7 +71,7 @@ enum PaywallFeature {
 /// — the 50-case gate — so it answers the question that opened this screen
 /// before the cloud features do.
 const List<PaywallFeature> paywallFeatures = <PaywallFeature>[
-  PaywallFeature.unlimitedCases,
+  PaywallFeature.moreCases,
   PaywallFeature.disasterRecovery,
   PaywallFeature.realTimeBackup,
   PaywallFeature.multiDevice,
@@ -105,7 +106,7 @@ List<SubscriptionPlan> plansVisibleToTier(SubscriptionTier tier) {
       .toList(growable: false);
 }
 
-/// The subscription-plan screen, optionally carrying the free-limit card.
+/// The subscription-plan screen, optionally carrying a gate's card.
 class PaywallScreen extends ConsumerWidget {
   /// Whether the free-limit card is shown, i.e. the gate's own entry.
   ///
@@ -114,8 +115,18 @@ class PaywallScreen extends ConsumerWidget {
   /// paywall is one screen with one optional card, not two screens.
   final bool showLimit;
 
-  /// Creates the paywall, hiding the free-limit card unless [showLimit] is set.
-  const PaywallScreen({super.key, this.showLimit = false});
+  /// Whether the **lapsed allowance** card is shown (`?reason=lapsed`).
+  ///
+  /// Phase 10: a lapsed account is stopped by its allowance, not by the free
+  /// 50, so it needs the card that names the allowance and the renewal route.
+  final bool showLapsed;
+
+  /// Creates the paywall, hiding the gate cards unless their flag is set.
+  const PaywallScreen({
+    super.key,
+    this.showLimit = false,
+    this.showLapsed = false,
+  });
 
   /// Whether this entry shows the free-limit card.
   ///
@@ -123,6 +134,10 @@ class PaywallScreen extends ConsumerWidget {
   /// side menu, Settings → Subscription) opens the bare route and hides it.
   static bool showLimitFor(GoRouterState state) =>
       state.uri.queryParameters['reason'] == 'limit';
+
+  /// Whether this entry is the lapsed allowance's own.
+  static bool showLapsedFor(GoRouterState state) =>
+      state.uri.queryParameters['reason'] == 'lapsed';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,10 +174,10 @@ class PaywallScreen extends ConsumerWidget {
               _SectionHeader(l.paywall_memberPlanTitle),
               const _MemberPlanNotice(),
             ] else ...[
-              // The free-limit card belongs to the gate alone: only the 50-case
-              // entry opens `?reason=limit`, every other entry hides it.
-              if (showLimit) ...[
-                const _LimitCard(),
+              // Each gate card belongs to its own entry: only `?reason=limit`
+              // opens the free wall's, only `?reason=lapsed` the allowance one.
+              if (showLimit || showLapsed) ...[
+                _LimitCard(lapsed: showLapsed),
                 const SizedBox(height: AppSpacing.xl),
               ],
               _SectionHeader(l.paywall_benefitsTitle),
@@ -206,12 +221,23 @@ class _MemberPlanNotice extends StatelessWidget {
 }
 
 /// Why the screen opened, and what is still free.
-class _LimitCard extends StatelessWidget {
-  const _LimitCard();
+///
+/// Two gates share the card's shape: the free 50 wall, and (Phase 10) a lapsed
+/// allowance. The second names the allowance of the tier in force rather than
+/// the free wall, because telling a lapsed Pro they hold 50 cases would be a
+/// different rule from the one the app enforces.
+class _LimitCard extends ConsumerWidget {
+  const _LimitCard({required this.lapsed});
+
+  /// Whether this is the lapsed gate's card rather than the free wall's.
+  final bool lapsed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final limit = lapsed
+        ? ref.watch(allowanceTierProvider).lapseAllowance
+        : freeTierCaseLimit;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.errorContainer,
@@ -231,7 +257,7 @@ class _LimitCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  l.paywall_limitTitle,
+                  lapsed ? l.paywall_lapsedTitle : l.paywall_limitTitle,
                   style: AppTypography.titleMd.copyWith(
                     color: AppColors.onErrorContainer,
                   ),
@@ -241,11 +267,11 @@ class _LimitCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            l.paywall_limitBody(
+            (lapsed ? l.paywall_lapsedBody : l.paywall_limitBody)(
               AppDateUtils.formatDigits(
-                freeTierCaseLimit,
+                limit,
                 l.localeName,
-                grouping: false,
+                grouping: limit >= 1000,
               ),
             ),
             style: AppTypography.bodySm.copyWith(
@@ -283,7 +309,7 @@ class _FeaturesCard extends StatelessWidget {
   /// The title and body for [feature], so the card never restates the copy.
   static (String, String) _text(AppLocalizations l, PaywallFeature feature) =>
       switch (feature) {
-        PaywallFeature.unlimitedCases => (
+        PaywallFeature.moreCases => (
           l.paywall_featureUnlimitedCasesTitle,
           l.paywall_featureUnlimitedCasesBody,
         ),
@@ -309,7 +335,7 @@ class _FeaturesCard extends StatelessWidget {
   /// the app's primary, so each row says what it is about at a glance rather
   /// than repeating one green tick.
   static IconData _icon(PaywallFeature feature) => switch (feature) {
-    PaywallFeature.unlimitedCases => Icons.all_inclusive,
+    PaywallFeature.moreCases => Icons.all_inclusive,
     PaywallFeature.disasterRecovery => Icons.cloud_done_outlined,
     PaywallFeature.realTimeBackup => Icons.cloud_upload_outlined,
     PaywallFeature.multiDevice => Icons.devices_outlined,
@@ -431,6 +457,22 @@ class _TierCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             _note(l, tier),
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          // The ceiling this tier sells, from the tier's own number — never a
+          // figure typed into the copy. Phase 10 (user ruling) names it per card
+          // rather than promising "no limit".
+          Text(
+            l.paywall_tierCases(
+              AppDateUtils.formatDigits(
+                tier.caseCeiling,
+                l.localeName,
+                grouping: true,
+              ),
+            ),
             style: AppTypography.bodySm.copyWith(
               color: AppColors.onSurfaceVariant,
             ),

@@ -513,11 +513,42 @@ new. The rule:
   have **no** gate anywhere today, so their ceilings are two new checks rather than a tightened
   existing one. A member's allowance is the chamber's, so the same site must read `firms.tier`
   rather than the member's own (absent) plan.
+- **Built (0.0.535), and the audit's three gaps are closed.** The Add Case save path no longer
+  tests one number: it resolves the allowance at the write boundary and sends a lapsed account to
+  the lapsed card and a genuinely free one to the 50-case card. The two brand-new gates exist —
+  the note editor and the reference editor each refuse an add past the ceiling and an edit outside
+  the writable set. The chamber's tier is read on the member's device through the same derivation
+  the individual path uses, so a member's allowance is the chamber's.
 
 **The allowance is a ceiling on writing, never on reading, and it is per item rather than a hidden
 row.** Searching, opening, printing and exporting ignore it entirely: a lapsed chamber can still
 hand a client a printed cause list of all 2,500 of its cases, every row is still found by a search,
 and the only thing the lapse changes is which of them can be edited.
+
+> **Built (0.0.535) — the rule's one home and its one gate list.** The number and the tier are
+> resolved in two new files and nowhere else: `lib/features/payments/data/payment_plans.dart` carries
+> each tier's **ceiling** and its **lapse allowance** on the enum (`free` 50/0, `pro` 1,000/100,
+> `firm` 2,500/500, `firm_plus` 6,000/1,000), so no site retypes a figure and the free 50 comes from
+> the same `freeTierCaseLimit` the server trigger honours; and
+> `lib/features/settings/data/write_allowance.dart` turns a tier plus a premium flag into a
+> `WriteAllowance` — the three states (premium unlimited, free with its add wall only, lapsed with its
+> ceiling and its writable sets) in one object, with the sets read from the ledger as the **most
+> recently updated** ids, `updated_at` descending with `id` as the tie-break, soft-deleted rows
+> excluded so deleting a writable row promotes the next one. The tier **in force** — not the stored
+> key — is what the allowance reads: `lib/features/payments/data/plan_allowance.dart` repeats the
+> server's `effective_tier` on the device, so a downgrade that has already started counts at its own
+> instant and one still waiting leaves the stored tier standing. The gate list: the Add Case save
+> path and the Quick Update dialog (`lib/shared/widgets/add_edit_case_sheet.dart`), the note editor
+> and its pin action (`note_detail_screen.dart`, `notes_screen.dart`), and the reference editor and
+> its pin action (`case_reference_screen.dart`) — where the pin is included deliberately, because
+> pinning writes `updated_at` and would otherwise pull a read-only row back inside the allowance. The
+> visible half: a lock on the affected case cards and table rows, note cards and reference cards
+> (`lib/shared/widgets/read_only_lock.dart`), one banner per list saying how many rows stay editable
+> and how many do not, with a Renew action (`lib/features/payments/presentation/lapse_allowance_ui.dart`,
+> mounted once in the shared list shell), a lapsed card on the paywall behind `?reason=lapsed`, the
+> tier's own case ceiling printed on each plan card, and a lapsed block on Subscription Details that
+> replaces the free-limitations block rather than sitting beside it. A refused write always explains
+> itself — a snack-bar naming the lapse and offering Renew — so nothing looks like a broken button.
 
 ### 5.3 The tier ladder (user ruling)
 
@@ -973,7 +1004,7 @@ into a leak surface.
 | 7 | Stored Tier And The Creation Gate | §5.3, §5.4, §10.12, §10.16 | **Built** 0.0.531 | `20261016120000_firm_mode_stored_tier.sql` |
 | 8 | The Ten-Plan Ladder | §5.3, §10.9 | **Built** 0.0.532 | `20261016130000_firm_mode_seat_cap_and_creation_gate.sql` |
 | 9 | A Member Has No Plan Of Their Own | §5.1, §10.13 | **Built** 0.0.534 | `20261017100000_firm_mode_member_no_plan.sql` |
-| 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | Owed | client (+ server gate) |
+| 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | **Built** 0.0.535 | client only, no migration |
 | 11 | Dissolution | §4.4, §10.4, §10.11 | Owed | new migration + client |
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | Owed | migration + regeneration |
 | 13 | Restore Inside A Chamber | §6, §10.14 | Owed | client |
@@ -1363,14 +1394,14 @@ into a leak surface.
 - **Hazards.** Hiding the screen is the cheap half and not the requirement: §5.1 says the **server**
   refuses the submission, so the policy change is the deliverable and the UI change is the courtesy.
 
-### Phase 10 — The Lapse Allowance — **Owed**
+### Phase 10 — The Lapse Allowance — **Built**
 
 
-- **Status.** **Owed** — a lapsed account is stopped by the 50-case free wall instead, and notes and references have no ceiling at all.
+- **Status.** **Built** 0.0.535, client only — **no migration, and none needed**: the entitlement gate on `push_changes` was already the server's boundary, so this phase is the device's usability half plus the two ceilings that did not exist. A lapsed Pro keeps 100 cases, notes and references writable (Firm 500, Firm Plus 1,000); a genuinely free account keeps the 50-case add wall and no other ceiling; premium keeps no ceiling at all. The writable set is the most recently updated rows; everything beyond it stays readable, searchable, printable and exportable. Proven by `test/features/lapse_allowance_test.dart` (8) and `test/features/lapse_allowance_ui_test.dart` (6), with `test/features/paywall_screen_test.dart` pinned to the per-card ceilings. **One clause of §5.2 has no site and is therefore not implemented:** *children follow their parent* cannot be enforced today because neither `notes` nor `case_references` carries a case link at all (`references_table.dart`, `notes_table.dart` — `userId`, `firmId` and their own columns, no `case_id`), so no note or reference is a child of a case. The rule becomes enforceable the day such a link is added; nothing was invented for it now, and the allowance's own note and reference ceilings apply in its place.
 - **Discharges.** §5.2, §5.4, §10.8. Task 15.
 - **Depends On.** Phase 7 — the allowance is derived from the stored tier and from nothing else.
 - **Why Here.** It is the rule the revamp exists for: a lapse must cost a lapsed account the writability of its *extra* rows — not its data, and not its ability to read what it already holds.
-- **Objects.** `freeTierCaseLimit` (`lib/core/constants/free_tier.dart`) and its consumption at `lib/shared/widgets/add_edit_case_sheet.dart:1667`; the paywall and Subscription-screen read paths (`paywall_screen.dart:194`, `subscription_details_screen.dart:186`); `firms.tier` / `profiles.tier` as the allowance’s source; the entitlement gate on `push_changes`, left in place as the security boundary.
+- **Objects** *(the state the audit found; the sites below are named again, as built, at the end of this section)*. `freeTierCaseLimit` (`lib/core/constants/free_tier.dart`) and its consumption at `lib/shared/widgets/add_edit_case_sheet.dart:1667`; the paywall and Subscription-screen read paths (`paywall_screen.dart:194`, `subscription_details_screen.dart:186`); `firms.tier` / `profiles.tier` as the allowance’s source; the entitlement gate on `push_changes`, left in place as the security boundary.
 - **Proof.** Tests over the computed writable set — the most-recently-updated 100/500/1,000 writable, the excess read-only but readable, a deletion freeing a slot, and renewal restoring all at once — with the free-wall tests unchanged for a genuinely free account.
 - **The rule.** A lapsed account keeps writing up to the allowance of the **tier it last held**: Pro
   100, Firm 500, Firm Plus 1,000 cases, notes and case references. The **most recently updated** rows
@@ -1378,7 +1409,7 @@ into a leak surface.
   printable and exportable. Children follow their parent, seed customisation stays unlimited, a
   deletion of a writable row frees a slot, and nothing is deleted. Renewal restores everything at
   once.
-- **Client.** The sites, named so this is not a rule without one: The shipped gate is
+- **Client** *(the sites the audit found; the shipped sites are listed under **Built** below)*. The sites, named so this is not a rule without one: The shipped gate is
   `freeTierCaseLimit` (50) in `lib/core/constants/free_tier.dart`, consumed at the Add Case save path
   (`lib/shared/widgets/add_edit_case_sheet.dart:1667`) and surfaced by
   `paywall_screen.dart:194` and `subscription_details_screen.dart:186` — a lapsed Pro or Firm account
@@ -1395,6 +1426,41 @@ into a leak surface.
   nothing syncs and each device's ledger is its own — two devices of one chamber can disagree about
   which case is editable. The audit narrowed that claim and it must stay narrowed, and renewal needs
   a stated behaviour for an over-allowance backlog.
+- **Built (0.0.535) — files, sites and the three rulings this build needed.** Two new data files:
+  `lib/features/payments/data/payment_plans.dart` now carries **both** numbers on the tier
+  (`caseCeiling`, `lapseAllowance`), and `lib/features/settings/data/write_allowance.dart` resolves a
+  tier plus a premium flag into a `WriteAllowance` (premium unlimited / free with its add wall only /
+  lapsed with its ceiling and writable id sets), reading the sets as the most recently updated live
+  ids — `updated_at` descending, `id` as the tie-break, soft-deleted rows excluded. The tier read is
+  the tier **in force**, not the stored key: `lib/features/payments/data/plan_allowance.dart` mirrors
+  the server's `effective_tier`, so a downgrade already under way counts from its own instant.
+  `allowanceTierProvider` and `writeAllowanceProvider` (`account_mode.dart`) resolve it once for the
+  whole app and recompute it when a case, note or reference changes. The gates: the Add Case save
+  path and the Quick Update dialog (`lib/shared/widgets/add_edit_case_sheet.dart`), which now route a
+  lapsed account to `AppRoutes.paywallFromLapse` and a genuinely free one to
+  `paywallFromCaseLimit`; the note editor's save and pin and the reference editor's save and pin
+  (`note_detail_screen.dart`, `notes_screen.dart`, `case_reference_screen.dart`) — the pin actions are
+  gated deliberately, because pinning writes `updated_at` and would otherwise pull a read-only row
+  back inside the allowance; and the list actions in the four case screens plus Case Detail, which
+  explain the refusal instead of opening a form that would be refused on save. The marks:
+  `lib/shared/widgets/read_only_lock.dart`, the banner and the `ensure…Writable` helpers in
+  `lib/features/payments/presentation/lapse_allowance_ui.dart` mounted once in the shared list shell,
+  the lapsed card on the paywall behind `?reason=lapsed`, each plan card printing its tier's own case
+  ceiling, and the lapsed block on Subscription Details standing **in place of** the free-limitations
+  block (a lapsed account is not free, so showing it 50 would contradict its own allowance).
+  **Three rulings this build needed, made and recorded here:** (1) a lapsed account is named by its
+  tier — *Pro — Lapsed* — on the side menu and Subscription Details rather than *Free*; (2) the
+  paywall states **each plan's case ceiling** instead of the withdrawn "unlimited cases" promise,
+  because the ladder now has numbers; (3) *children follow their parent* is **not implemented**,
+  because neither notes nor case references carries a `case_id` — there is no parent link to follow,
+  and the note and reference ceilings apply in its place. **Proof:** `test/features/lapse_allowance_test.dart`
+  (the tier numbers; a waiting downgrade's own instant; premium, genuinely free, lapsed Pro, a
+  deletion promoting the next row, the chamber tiers and the notes order) and
+  `test/features/lapse_allowance_ui_test.dart` (the banner's counts and renewal action, its silence
+  inside the allowance and for premium, the lock on a read-only card, its absence on a writable one,
+  and the lapsed plan naming its tier), with `test/features/paywall_screen_test.dart` and the
+  Subscription Details tests updated for the new copy. `flutter analyze` clean; `flutter test` 1831
+  passed.
 
 ### Phase 11 — Dissolution — **Owed**
 

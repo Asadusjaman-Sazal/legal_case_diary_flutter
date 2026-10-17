@@ -143,6 +143,15 @@
     <span class="w-1"></span>
   </header>
 
+  <!-- Phase 10 lapse banner. Case references have their own ceiling under a lapse,
+       so the library says its own counts; silent unless the account is over its
+       allowance. -->
+  <div class="mx-md mt-md px-md py-sm bg-surface-container-highest border border-outline-variant rounded-lg flex items-center">
+    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+    <p class="ml-sm flex-1 font-body-sm text-body-sm text-on-surface">Your plan has lapsed. The 100 most recently updated case references stay editable; 76 are read-only until you renew.</p>
+    <button class="ml-sm font-label-lg text-label-lg text-primary active:opacity-70">Renew</button>
+  </div>
+
   <!-- One card per reference: the citation and statute as grey chips with the
        3-dot menu on the right, then the section / article, the description, and
        the comments in the black-bordered note box. Pinned items lead the list;
@@ -155,6 +164,9 @@
           <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">29 DLR (AD), P-69-73</span>
           <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">CRPC</span>
         </div>
+        <!-- Beyond the allowance: readable, not editable — and not pinnable
+             either, because pinning writes the reference's own updated_at. -->
+        <span class="material-symbols-outlined text-[14px] text-on-surface-variant self-center">lock</span>
         <button aria-label="More Options" class="w-10 h-10 flex items-center justify-center text-outline active:opacity-70">
           <span class="material-symbols-outlined">more_vert</span>
         </button>

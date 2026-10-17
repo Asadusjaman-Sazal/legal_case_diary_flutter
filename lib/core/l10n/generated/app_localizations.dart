@@ -1928,6 +1928,18 @@ abstract class AppLocalizations {
   /// **'The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.'**
   String paywall_limitBody(String limit);
 
+  /// No description provided for @paywall_lapsedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Plan Has Lapsed'**
+  String get paywall_lapsedTitle;
+
+  /// No description provided for @paywall_lapsedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last plan lets you add up to {limit} cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.'**
+  String paywall_lapsedBody(String limit);
+
   /// No description provided for @paywall_benefitsTitle.
   ///
   /// In en, this message translates to:
@@ -1937,13 +1949,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_featureUnlimitedCasesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Unlimited Cases'**
+  /// **'More Cases on Every Plan'**
   String get paywall_featureUnlimitedCasesTitle;
 
   /// No description provided for @paywall_featureUnlimitedCasesBody.
   ///
   /// In en, this message translates to:
-  /// **'Store as many cases as you need, with no limit.'**
+  /// **'Your case ceiling grows with your plan — the plan cards show each limit.'**
   String get paywall_featureUnlimitedCasesBody;
 
   /// No description provided for @paywall_featureDisasterRecoveryTitle.
@@ -2084,6 +2096,12 @@ abstract class AppLocalizations {
   /// **'One account'**
   String get paywall_tierProNote;
 
+  /// No description provided for @paywall_tierCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} cases'**
+  String paywall_tierCases(String count);
+
   /// What the Firm tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap.
   ///
   /// In en, this message translates to:
@@ -2101,6 +2119,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subscribe'**
   String get paywall_subscribe;
+
+  /// No description provided for @lapse_readOnlyBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only'**
+  String get lapse_readOnlyBadge;
+
+  /// No description provided for @lapse_renewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew'**
+  String get lapse_renewAction;
+
+  /// No description provided for @lapse_bannerCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has lapsed. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.'**
+  String lapse_bannerCases(String editable, String readOnly);
+
+  /// No description provided for @lapse_bannerNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has lapsed. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.'**
+  String lapse_bannerNotes(String editable, String readOnly);
+
+  /// No description provided for @lapse_bannerReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has lapsed. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.'**
+  String lapse_bannerReferences(String editable, String readOnly);
+
+  /// No description provided for @lapse_readOnlyCase.
+  ///
+  /// In en, this message translates to:
+  /// **'This case is read-only while your plan is lapsed. Renew to edit it.'**
+  String get lapse_readOnlyCase;
+
+  /// No description provided for @lapse_readOnlyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This note is read-only while your plan is lapsed. Renew to edit it.'**
+  String get lapse_readOnlyNote;
+
+  /// No description provided for @lapse_readOnlyReference.
+  ///
+  /// In en, this message translates to:
+  /// **'This case reference is read-only while your plan is lapsed. Renew to edit it.'**
+  String get lapse_readOnlyReference;
+
+  /// No description provided for @lapse_noteLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the notes allowance of your last plan. Renew to add more notes.'**
+  String get lapse_noteLimit;
+
+  /// No description provided for @lapse_referenceLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the case references allowance of your last plan. Renew to add more references.'**
+  String get lapse_referenceLimit;
 
   /// No description provided for @adminPanel_title.
   ///
@@ -3236,6 +3314,18 @@ abstract class AppLocalizations {
   /// **'Free Plan Limitations'**
   String get settingsSubscription_freePlanLimitations;
 
+  /// No description provided for @settingsSubscription_lapsedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Plan Has Lapsed'**
+  String get settingsSubscription_lapsedTitle;
+
+  /// No description provided for @settingsSubscription_lapsedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still read everything. Up to {count} cases, notes and references stay editable until you renew.'**
+  String settingsSubscription_lapsedBody(String count);
+
   /// Free-plan limitation: the case ceiling from freeTierCaseLimit.
   ///
   /// In en, this message translates to:
@@ -3535,6 +3625,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Premium'**
   String get settingsManageAccount_planPremium;
+
+  /// No description provided for @settingsManageAccount_planLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} — Lapsed'**
+  String settingsManageAccount_planLapsed(String tier);
 
   /// No description provided for @settingsManageAccount_premiumUntil.
   ///

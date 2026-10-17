@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../data/payment_plans.dart';
 import 'payment_plan_labels.dart';
 
 /// The account's plan: whether entitlement has landed, whether it is premium
@@ -65,9 +66,24 @@ final currentPlanProvider = Provider<CurrentPlan>((ref) {
 
 /// The localized label for [plan]: the dash while entitlement is in flight,
 /// *Free*, *Premium*, or the paid plan's own name.
-String currentPlanLabel(AppLocalizations l, CurrentPlan plan) {
+///
+/// Phase 10 adds the lapsed case: a paid account whose period has ended holds a
+/// tier but no entitlement, so calling it *Free* would contradict the allowance
+/// — it names the tier and says it has lapsed instead. [tier] is optional so a
+/// caller without a tier (a test, a surface with no tier yet) keeps the old
+/// answer.
+String currentPlanLabel(
+  AppLocalizations l,
+  CurrentPlan plan, {
+  SubscriptionTier? tier,
+}) {
   if (!plan.known) return '—';
-  if (!plan.premium) return l.settingsManageAccount_planFree;
+  if (!plan.premium) {
+    if (tier != null && tier != SubscriptionTier.free) {
+      return l.settingsManageAccount_planLapsed(subscriptionTierLabel(l, tier));
+    }
+    return l.settingsManageAccount_planFree;
+  }
   final key = plan.planKey;
   return key == null
       ? l.settingsManageAccount_planPremium

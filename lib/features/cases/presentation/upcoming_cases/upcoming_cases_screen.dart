@@ -34,6 +34,7 @@ import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../../shared/widgets/case_card.dart';
 import '../../../../shared/widgets/case_table_row.dart';
+import '../../../payments/presentation/lapse_allowance_ui.dart';
 import '../case_list_view_mode.dart';
 import '../case_search.dart';
 import '../case_table_view.dart';
@@ -548,6 +549,12 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
     );
   }
 
+  /// Phase 10: a read-only case explains itself instead of opening the form.
+  void _updateIfWritable(Case currentCase) {
+    if (!ensureCaseWritable(context, ref, currentCase.id)) return;
+    _openQuickUpdate(currentCase);
+  }
+
   Widget _buildCard(Case currentCase, AppLocalizations l) {
     final court = _courtsById[currentCase.courtId];
     final isHigherCourt =
@@ -584,7 +591,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       showMessageButton: true,
       onPhone: () => _contactParty(currentCase, message: false),
       onMessage: () => _contactParty(currentCase, message: true),
-      onUpdate: () => _openQuickUpdate(currentCase),
+      isReadOnly: isCaseReadOnly(ref, currentCase.id),
+      onUpdate: () => _updateIfWritable(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );
   }
@@ -633,7 +641,8 @@ class _UpcomingCasesScreenState extends ConsumerState<UpcomingCasesScreen> {
       ),
       result: currentCase.result,
       note: currentCase.notesResults,
-      onUpdate: () => _openQuickUpdate(currentCase),
+      isReadOnly: isCaseReadOnly(ref, currentCase.id),
+      onUpdate: () => _updateIfWritable(currentCase),
       onTap: () => _openCaseDetail(currentCase),
     );
   }

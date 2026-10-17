@@ -32,6 +32,7 @@ import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../shared/widgets/sync_button.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
+import '../../payments/presentation/lapse_allowance_ui.dart';
 import '../../payments/presentation/subscription_banner.dart';
 import '../../sync/presentation/sync_conflict_banner.dart';
 import '../../../sync/connectivity_monitor.dart';
@@ -124,6 +125,12 @@ class CasesScreenModal extends ConsumerWidget {
   /// Builds the printable document from the host screen's current rows.
   final PrintDocument Function()? documentBuilder;
 
+  /// Which ledger the lapse banner above the body speaks about (Phase 10).
+  ///
+  /// The case lists, the notes list and the reference library all share this
+  /// shell, so the banner is mounted once here and told which rows it counts.
+  final LapseRowKind lapseKind;
+
   const CasesScreenModal({
     required this.title,
     required this.body,
@@ -144,6 +151,7 @@ class CasesScreenModal extends ConsumerWidget {
     this.onPrint,
     this.onShare,
     this.documentBuilder,
+    this.lapseKind = LapseRowKind.cases,
     super.key,
   });
 
@@ -254,6 +262,8 @@ class CasesScreenModal extends ConsumerWidget {
                   onChanged: onSearchChanged,
                   onClose: onSearch,
                 ),
+              // Phase 10: silent unless a lapsed account is over its allowance.
+              LapseAllowanceBanner(kind: lapseKind),
               Expanded(child: body),
             ],
           ),

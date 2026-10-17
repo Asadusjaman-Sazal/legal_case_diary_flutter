@@ -538,9 +538,18 @@
           }
       }
   },
+  "paywall_lapsedTitle": "Your Plan Has Lapsed",
+  "paywall_lapsedBody": "Your last plan lets you add up to {limit} cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.",
+  "@paywall_lapsedBody": {
+      "placeholders": {
+          "limit": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_benefitsTitle": "Subscription Plans Offer",
-  "paywall_featureUnlimitedCasesTitle": "Unlimited Cases",
-  "paywall_featureUnlimitedCasesBody": "Store as many cases as you need, with no limit.",
+  "paywall_featureUnlimitedCasesTitle": "More Cases on Every Plan",
+  "paywall_featureUnlimitedCasesBody": "Your case ceiling grows with your plan — the plan cards show each limit.",
   "paywall_featureDisasterRecoveryTitle": "Disaster Recovery",
   "paywall_featureDisasterRecoveryBody": "If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.",
   "paywall_featureRealTimeBackupTitle": "Real-time Backup",
@@ -564,6 +573,14 @@
   "paywall_tierFirm": "Firm",
   "paywall_tierFirmPlus": "Firm Plus",
   "paywall_tierProNote": "One account",
+  "paywall_tierCases": "Up to {count} cases",
+  "@paywall_tierCases": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_tierFirmNote": "Up to 5 associates",
   "paywall_tierFirmPlusNote": "Up to 20 associates",
   "@paywall_tierFirmNote": {
@@ -573,6 +590,35 @@
       "description": "What the Firm Plus tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap."
   },
   "paywall_subscribe": "Subscribe",
+  "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
+  "lapse_readOnlyBadge": "Read-only",
+  "lapse_renewAction": "Renew",
+  "lapse_bannerCases": "Your plan has lapsed. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.",
+  "@lapse_bannerCases": {
+    "placeholders": {
+      "editable": { "type": "String" },
+      "readOnly": { "type": "String" }
+    }
+  },
+  "lapse_bannerNotes": "Your plan has lapsed. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.",
+  "@lapse_bannerNotes": {
+    "placeholders": {
+      "editable": { "type": "String" },
+      "readOnly": { "type": "String" }
+    }
+  },
+  "lapse_bannerReferences": "Your plan has lapsed. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.",
+  "@lapse_bannerReferences": {
+    "placeholders": {
+      "editable": { "type": "String" },
+      "readOnly": { "type": "String" }
+    }
+  },
+  "lapse_readOnlyCase": "This case is read-only while your plan is lapsed. Renew to edit it.",
+  "lapse_readOnlyNote": "This note is read-only while your plan is lapsed. Renew to edit it.",
+  "lapse_readOnlyReference": "This case reference is read-only while your plan is lapsed. Renew to edit it.",
+  "lapse_noteLimit": "You have reached the notes allowance of your last plan. Renew to add more notes.",
+  "lapse_referenceLimit": "You have reached the case references allowance of your last plan. Renew to add more references.",
   "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
   "adminPanel_title": "Admin Panel",
   "adminPanel_paymentRequests": "Payment Requests",
@@ -849,6 +895,15 @@
   "settingsManageAccount_title": "Manage Account",
   "settingsManageAccount_changePassword": "Change Password",
   "settingsSubscription_freePlanLimitations": "Free Plan Limitations",
+  "settingsSubscription_lapsedTitle": "Your Plan Has Lapsed",
+  "settingsSubscription_lapsedBody": "You can still read everything. Up to {count} cases, notes and references stay editable until you renew.",
+  "@settingsSubscription_lapsedBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSubscription_freeLimitCases": "Up to {limit} cases at a time. Deleting a case frees a slot.",
   "@settingsSubscription_freeLimitCases": {
       "description": "Free-plan limitation: the case ceiling from freeTierCaseLimit.",
@@ -914,6 +969,14 @@
   "settingsManageAccount_subscription": "Subscription",
   "settingsManageAccount_planFree": "Free",
   "settingsManageAccount_planPremium": "Premium",
+  "settingsManageAccount_planLapsed": "{tier} — Lapsed",
+  "@settingsManageAccount_planLapsed": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
   "settingsManageAccount_premiumUntil": "Premium Until {date}",
   "@settingsManageAccount_premiumUntil": {
     "placeholders": {

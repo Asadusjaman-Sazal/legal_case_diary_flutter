@@ -144,6 +144,14 @@
     <span class="w-1"></span>
   </header>
 
+  <!-- Phase 10 lapse banner. Notes have their own ceiling under a lapse, so the
+       list says its own counts; silent unless the account is over its allowance. -->
+  <div class="mx-md mt-md px-md py-sm bg-surface-container-highest border border-outline-variant rounded-lg flex items-center">
+    <span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+    <p class="ml-sm flex-1 font-body-sm text-body-sm text-on-surface">Your plan has lapsed. The 100 most recently updated notes stay editable; 48 are read-only until you renew.</p>
+    <button class="ml-sm font-label-lg text-label-lg text-primary active:opacity-70">Renew</button>
+  </div>
+
   <!-- The note cards. A card is one note: its modified date with the Delete and
        Pin actions, its title, then its body — a text note's words or a to-do's
        first three rows and a count of the rest. Tapping the card opens the
@@ -153,6 +161,9 @@
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
       <div class="flex items-center">
         <span class="flex-1 font-label-md text-label-md text-on-surface-variant">Modified: 26/09/26, 10:45 AM</span>
+        <!-- Beyond the allowance: readable, not editable — and not pinnable
+             either, because pinning writes the note's own updated_at. -->
+        <span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
         <button aria-label="Delete" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
           <span class="material-symbols-outlined">delete</span>
         </button>

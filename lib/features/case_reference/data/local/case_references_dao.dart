@@ -64,6 +64,39 @@ class CaseReferencesDao {
     return select.get();
   }
 
+  /// Counts the live references (the lapse allowance's add ceiling).
+  Future<int> getNonDeletedCount() async {
+    final countExp = db.caseReferences.id.count();
+    final query = db.selectOnly(db.caseReferences)
+      ..addColumns([countExp])
+      ..where(db.caseReferences.isDeleted.equals(false));
+    return query.map((row) => row.read(countExp)!).getSingle();
+  }
+
+  /// Ids of the [limit] most recently updated live references, newest first.
+  ///
+  /// The lapse allowance's writable set (§5.2), ordered `updated_at` descending
+  /// with `id` as the tie-break. Soft-deleted rows never count, so deleting a
+  /// writable reference frees its slot.
+  Future<List<String>> getMostRecentlyUpdatedIds(int limit) async {
+    if (limit <= 0) return const <String>[];
+    final query = db.selectOnly(db.caseReferences)
+      ..addColumns([db.caseReferences.id])
+      ..where(db.caseReferences.isDeleted.equals(false))
+      ..orderBy([
+        OrderingTerm(
+          expression: db.caseReferences.updatedAt,
+          mode: OrderingMode.desc,
+        ),
+        OrderingTerm(
+          expression: db.caseReferences.id,
+          mode: OrderingMode.desc,
+        ),
+      ])
+      ..limit(limit);
+    return query.map((row) => row.read(db.caseReferences.id)!).get();
+  }
+
   /// Returns a reference by id, or null if not found or deleted.
   Future<CaseReference?> getById(String id) async => (db.select(db.caseReferences)
       ..where((row) => row.id.equals(id) & row.isDeleted.equals(false)))

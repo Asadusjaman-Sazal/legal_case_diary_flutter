@@ -14,6 +14,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_typography.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../core/utils/date_utils.dart';
+import 'read_only_lock.dart';
 
 /// The columns of the extended view, in the order they render.
 ///
@@ -356,6 +357,10 @@ class CaseTableRow extends StatelessWidget {
   /// Whether this case is overdue: draws the red left strip and the red date.
   final bool isOverdue;
 
+  /// Whether the lapse allowance keeps this case read-only (Phase 10): the
+  /// Update cell shows a lock instead of the edit icon.
+  final bool isReadOnly;
+
   /// Called by the Update action, when supplied.
   final VoidCallback? onUpdate;
 
@@ -379,6 +384,7 @@ class CaseTableRow extends StatelessWidget {
     this.note,
     this.date,
     this.isOverdue = false,
+    this.isReadOnly = false,
     this.onUpdate,
     this.onTap,
     super.key,
@@ -448,7 +454,11 @@ class CaseTableRow extends StatelessWidget {
           align: TextAlign.center,
         );
       case CaseTableColumn.update:
-        return _UpdateCell(l: l, onUpdate: onUpdate);
+        return _UpdateCell(
+          l: l,
+          onUpdate: onUpdate,
+          isReadOnly: isReadOnly,
+        );
       case CaseTableColumn.date:
         return _DataCell(
           text: date ?? '',
@@ -578,26 +588,42 @@ class _DataCell extends StatelessWidget {
 class _UpdateCell extends StatelessWidget {
   final AppLocalizations l;
   final VoidCallback? onUpdate;
+  final bool isReadOnly;
 
-  const _UpdateCell({required this.l, required this.onUpdate});
+  const _UpdateCell({
+    required this.l,
+    required this.onUpdate,
+    required this.isReadOnly,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // A read-only row keeps the button tappable on purpose: the host wraps
+    // `onUpdate` with the allowance check, so the tap explains the lapse instead
+    // of opening a form that would be refused on save.
     return Center(
       child: IconButton(
-        key: const ValueKey('case-row-update'),
-        tooltip: l.allCasesScreen_update,
+        key: ValueKey(
+          isReadOnly ? 'case-row-read-only' : 'case-row-update',
+        ),
+        tooltip: isReadOnly ? l.lapse_readOnlyBadge : l.allCasesScreen_update,
         onPressed: onUpdate,
         style: IconButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
+          backgroundColor: isReadOnly
+              ? AppColors.surfaceContainerHighest
+              : AppColors.primary,
+          foregroundColor: isReadOnly
+              ? AppColors.onSurfaceVariant
+              : AppColors.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
           ),
         ),
         constraints: const BoxConstraints.tightFor(width: 40, height: 40),
         padding: EdgeInsets.zero,
-        icon: const Icon(Icons.edit_outlined, size: 20),
+        icon: isReadOnly
+            ? const ReadOnlyLock(size: 20)
+            : const Icon(Icons.edit_outlined, size: 20),
       ),
     );
   }

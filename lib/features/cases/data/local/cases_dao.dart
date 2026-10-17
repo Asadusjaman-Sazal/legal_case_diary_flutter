@@ -282,6 +282,25 @@ class CasesDao {
     return query.map((row) => row.read(countExp)!).getSingle();
   }
 
+  /// Ids of the [limit] most recently updated live cases, newest first.
+  ///
+  /// This is the lapse allowance's writable set (§5.2): `updated_at` descending
+  /// with `id` as the tie-break, so two calls — and two devices holding the same
+  /// ledger — agree on the order. Soft-deleted rows are excluded, which is what
+  /// makes deleting a writable case free a slot for the next one.
+  Future<List<String>> getMostRecentlyUpdatedIds(int limit) async {
+    if (limit <= 0) return const <String>[];
+    final query = db.selectOnly(db.cases)
+      ..addColumns([db.cases.id])
+      ..where(db.cases.isDeleted.equals(false))
+      ..orderBy([
+        OrderingTerm(expression: db.cases.updatedAt, mode: OrderingMode.desc),
+        OrderingTerm(expression: db.cases.id, mode: OrderingMode.desc),
+      ])
+      ..limit(limit);
+    return query.map((row) => row.read(db.cases.id)!).get();
+  }
+
   /// Reactive stream of the non-deleted case count.
   Stream<int> watchNonDeletedCaseCount() {
     final countExp = db.cases.id.count();

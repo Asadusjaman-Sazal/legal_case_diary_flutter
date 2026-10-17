@@ -20,8 +20,11 @@ import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../../sync/sync_service.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
+import '../../payments/presentation/lapse_allowance_ui.dart';
 import '../../settings/presentation/delete_request_flow.dart';
+import '../../../shared/widgets/read_only_lock.dart';
 import '../data/note_items.dart';
 import 'note_detail_screen.dart';
 import 'notes_viewmodel.dart';
@@ -190,9 +193,18 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   void _togglePin(Note note) {
+    // Pinning writes `updated_at`, which would pull a read-only note back into
+    // the allowance, so it meets the same boundary as an edit.
+    if (!ensureNoteWritable(context, ref, note.id)) return;
     ref
         .read(notesViewModelProvider.notifier)
         .setPinned(note.id, !note.isPinned);
+  }
+
+  /// Phase 10: a read-only note explains itself instead of opening the editor.
+  void _editIfWritable(Note note) {
+    if (!ensureNoteWritable(context, ref, note.id)) return;
+    _openDetail(note: note);
   }
 
   @override
@@ -203,9 +215,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final notes = notesAsync.value?.items ?? const <Note>[];
     // The query's own rows while one is in force, otherwise the library.
     final visible = _search.rows ?? notes;
+    final allowance = ref.watch(writeAllowanceProvider).value;
 
     return CasesScreenModal(
       title: l.notesScreen_title,
+      lapseKind: LapseRowKind.notes,
       onSync: _onRefresh,
       onSearch: _toggleSearch,
       // The bar is mounted by the shared modal, exactly as on the case-list
@@ -220,7 +234,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         notes: visible,
         totalCount: notes.length,
         locale: Localizations.localeOf(context).toLanguageTag(),
-        onEdit: (note) => _openDetail(note: note),
+        writableNoteIds: allowance?.writableNoteIds,
+        onEdit: _editIfWritable,
         onDelete: _confirmDelete,
         onTogglePin: _togglePin,
         onRefresh: _onRefresh,
@@ -236,6 +251,7 @@ class _NotesList extends StatelessWidget {
     required this.notes,
     required this.totalCount,
     required this.locale,
+    this.writableNoteIds,
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
@@ -246,6 +262,9 @@ class _NotesList extends StatelessWidget {
   final List<Note> notes;
   final int totalCount;
   final String locale;
+
+  /// Notes the allowance keeps editable, or null when every note is editable.
+  final Set<String>? writableNoteIds;
   final ValueChanged<Note> onEdit;
   final ValueChanged<Note> onDelete;
   final ValueChanged<Note> onTogglePin;
@@ -291,6 +310,8 @@ class _NotesList extends StatelessWidget {
         _NoteCard(
           note: note,
           locale: locale,
+          isReadOnly:
+              writableNoteIds != null && !writableNoteIds!.contains(note.id),
           onEdit: () => onEdit(note),
           onDelete: () => onDelete(note),
           onTogglePin: () => onTogglePin(note),
@@ -366,6 +387,7 @@ class _NoteCard extends StatefulWidget {
   const _NoteCard({
     required this.note,
     required this.locale,
+    required this.isReadOnly,
     required this.onEdit,
     required this.onDelete,
     required this.onTogglePin,
@@ -373,6 +395,7 @@ class _NoteCard extends StatefulWidget {
 
   final Note note;
   final String locale;
+  final bool isReadOnly;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onTogglePin;
@@ -425,6 +448,10 @@ class _NoteCardState extends State<_NoteCard> {
                         ),
                       ),
                     ),
+                    if (widget.isReadOnly) ...[
+                      const ReadOnlyLock(),
+                      const SizedBox(width: AppSpacing.xs),
+                    ],
                     IconButton(
                       key: const ValueKey('note-delete'),
                       icon: const Icon(Icons.delete_outline),

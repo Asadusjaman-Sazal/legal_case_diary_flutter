@@ -38,6 +38,7 @@ import '../../../../features/settings/presentation/delete_request_flow.dart';
 import '../../../../features/settings/presentation/settings_viewmodel.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
+import '../../../../shared/widgets/attribution_line.dart';
 import '../../../payments/presentation/lapse_allowance_ui.dart';
 import '../../../../features/accounts_and_profile/data/account_mode.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
@@ -1263,9 +1264,22 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                     textAlign: TextAlign.left,
                   ),
                 ],
+                // Drawn **only inside a chamber**, where several people write
+                // one case's history and its entries would otherwise be
+                // indistinguishable from each other. On an individual device
+                // every entry is this account's own, so the line would repeat
+                // one name down the whole list — the same reason the roster and
+                // the delete-request requester are chamber-only surfaces.
                 if (chamber) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  _addedByLine(l, authorName, entry.id),
+                  AttributionLine(
+                    label: l.caseDetailsScreen_historyAddedBy(
+                      // `profiles` caches this account's own row alone (rule 4),
+                      // so a colleague's name is not here and the neutral label
+                      // stands in for it rather than a wrong name or a raw id.
+                      authorName ?? l.sharedLabels_chamberMember,
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -1280,35 +1294,6 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       child: content,
     );
   }
-
-  /// One history entry's author line (firm-mode §9.9, Phase 14).
-  ///
-  /// Drawn **only inside a chamber**, where several people write one case's
-  /// history and its entries would otherwise be indistinguishable from each
-  /// other. On an individual device every entry is this account's own, so the
-  /// line would repeat one name down the whole list — the same reason the roster
-  /// and the delete-request requester are chamber-only surfaces.
-  ///
-  /// [name] is the display name this device holds for the row's `created_by`, or
-  /// null when it holds none: `profiles` caches this account's own row alone
-  /// (rule 4), so a colleague's name is not here and the neutral label stands in
-  /// for it instead of a wrong name or a raw id.
-  Widget _addedByLine(AppLocalizations l, String? name, String entryId) => Row(
-    children: [
-      const Icon(Icons.person_outline, size: 14, color: AppColors.tertiary),
-      const SizedBox(width: AppSpacing.xs),
-      Expanded(
-        child: Text(
-          l.caseDetailsScreen_historyAddedBy(
-            name ?? l.sharedLabels_chamberMember,
-          ),
-          key: ValueKey('case-detail-history-added-by-$entryId'),
-          style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-          textAlign: TextAlign.left,
-        ),
-      ),
-    ],
-  );
 
   /// Mockup Next Date highlight card (mobile extra).
   Widget _buildNextDateCard(

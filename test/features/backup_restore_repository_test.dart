@@ -741,4 +741,201 @@ void main() {
       expect(row['firm_id'], firm);
     });
   });
+
+  group('restore inside a chamber (firm-mode §6, Phase 13)', () {
+    /// A file carrying the three pull-only caches, a note of this account's own,
+    /// and — when [foreignFirm] is set — a row scoped to another chamber.
+    Uint8List chamberFile({String? foreignFirm}) => _legacyFile(
+      <String, dynamic>{
+        'notes': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 'note-1',
+            'user_id': 'mine',
+            'title': 'Mine',
+            'body': 'Restored',
+            'is_deleted': 0,
+            'created_at': 1,
+            'updated_at': 2,
+          },
+          if (foreignFirm != null)
+            <String, dynamic>{
+              'id': 'note-2',
+              'user_id': 'mine',
+              'firm_id': foreignFirm,
+              'title': 'Elsewhere',
+              'body': 'Never pushable',
+              'is_deleted': 0,
+              'created_at': 3,
+              'updated_at': 4,
+            },
+        ],
+        // The account's own copies of the server's rows. A restore writes none
+        // of them: a stale profile beside a stale membership row is the removal
+        // check's own condition, so writing these could erase the diary the
+        // restore had just written.
+        'profiles': <Map<String, dynamic>>[
+          <String, dynamic>{'id': 'account-1', 'full_name': 'From The File'},
+        ],
+        'firms': <Map<String, dynamic>>[
+          <String, dynamic>{'id': 'firm-1', 'name': 'From The File'},
+        ],
+        'firm_members': <Map<String, dynamic>>[
+          <String, dynamic>{'id': 'member-1', 'user_id': 'mine'},
+        ],
+      },
+    );
+
+    test('the pull-only caches are never written, deleted or counted', () async {
+      final result = await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: chamberFile(),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+      );
+
+      final tables = await target.backup.collectTables();
+      expect(tables['profiles'], isEmpty);
+      expect(tables['firms'], isEmpty);
+      expect(tables['firm_members'], isEmpty);
+      // One note was written, and the receipt counts only what was written.
+      expect((tables['notes']! as List), hasLength(1));
+      expect(result.rowCount, 1);
+      expect(result.tableCount, greaterThan(result.rowCount));
+    });
+
+    test('the scope the screen asks about is the scope the import writes', () {
+      final repository = target.backup;
+      expect(
+        repository.restorableTables(<String>[
+          'profiles',
+          'firms',
+          'firm_members',
+          'notes',
+        ]),
+        <String>['notes'],
+      );
+      // The FK-safe order is kept, whatever order the file lists its tables in.
+      expect(
+        repository.restorableTables(<String>['cases', 'courts']),
+        <String>['courts', 'cases'],
+      );
+    });
+
+    test('a restored row is stamped into the current chamber', () async {
+      const firm = '44444444-4444-4444-8444-444444444444';
+      await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: chamberFile(),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+        firmId: firm,
+      );
+
+      final row =
+          ((await target.backup.collectTables())['notes']! as List)
+              .cast<Map<String, dynamic>>()
+              .single;
+      expect(row['firm_id'], firm);
+    });
+
+    test("a colleague's row keeps its author and gains only the chamber", () async {
+      // The three rows a chamber restore can meet: a colleague's (mine through
+      // its firm, never mine to rewrite), my own from before the chamber (no firm
+      // yet), and a hand-filled template row that names nobody.
+      const firm = '44444444-4444-4444-8444-444444444444';
+      const colleague = '77777777-7777-4777-8777-777777777777';
+      await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: _legacyFile(<String, dynamic>{
+            'notes': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'note-colleague',
+                'user_id': colleague,
+                'firm_id': firm,
+                'last_modified_by': colleague,
+                'title': 'Their note',
+                'body': 'Written by a colleague',
+                'is_deleted': 0,
+                'created_at': 1,
+                'updated_at': 2,
+              },
+              <String, dynamic>{
+                'id': 'note-mine',
+                'user_id': target.ownerId,
+                'last_modified_by': target.ownerId,
+                'title': 'My note, before the chamber',
+                'body': 'Restored after joining',
+                'is_deleted': 0,
+                'created_at': 3,
+                'updated_at': 4,
+              },
+              <String, dynamic>{
+                'id': 'note-template',
+                'user_id': 'user_id',
+                'title': 'Typed into the sample',
+                'body': 'Names nobody',
+                'is_deleted': 0,
+                'created_at': 5,
+                'updated_at': 6,
+              },
+            ],
+          }),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+        firmId: firm,
+      );
+
+      final rows = ((await target.backup.collectTables())['notes']! as List)
+          .cast<Map<String, dynamic>>();
+      Map<String, dynamic> rowOf(String id) =>
+          rows.singleWhere((row) => row['id'] == id);
+
+      final theirs = rowOf('note-colleague');
+      expect(theirs['user_id'], colleague);
+      expect(theirs['last_modified_by'], colleague);
+      expect(theirs['firm_id'], firm);
+      expect(theirs['body'], 'Written by a colleague');
+
+      // My own row was written as an individual, so it carried no firm: the
+      // restore settles that rather than leaving a half-scoped ledger.
+      final mine = rowOf('note-mine');
+      expect(mine['user_id'], target.ownerId);
+      expect(mine['firm_id'], firm);
+
+      final template = rowOf('note-template');
+      expect(template['user_id'], target.ownerId);
+      expect(template['firm_id'], firm);
+    });
+
+    test('a file naming another chamber is refused and writes nothing', () async {
+      const firm = '44444444-4444-4444-8444-444444444444';
+      const otherFirm = '55555555-5555-4555-8555-555555555555';
+
+      await expectLater(
+        target.backup.restoreSnapshot(
+          backup: await openBackupFile(
+            bytes: chamberFile(foreignFirm: otherFirm),
+            recoverySecret: '',
+          ),
+          ownerId: target.ownerId,
+          firmId: firm,
+        ),
+        throwsA(
+          isA<BackupRestoreException>().having(
+            (error) => error.failure,
+            'failure',
+            BackupRestoreFailure.anotherFirm,
+          ),
+        ),
+      );
+
+      // Refused before the transaction opened: the diary is exactly as it was.
+      final tables = await target.backup.collectTables();
+      expect(tables['notes'], isEmpty);
+      expect(tables['profiles'], isEmpty);
+    });
+  });
 }

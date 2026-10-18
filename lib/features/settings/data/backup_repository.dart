@@ -86,6 +86,20 @@ const List<String> backupTableOrder = <String>[
   'seed_migrations',
 ];
 
+/// Tables a restore **never** writes: the pull-only caches (rule 4).
+///
+/// They belong to the server — it is their only writer — and a stale copy is not
+/// merely untidy: a restored `profiles` row naming a firm the account is no
+/// longer in, beside a restored `firm_members` row, **is** the removal check's
+/// own condition (`membershipRevokedProvider`), so restoring them can erase the
+/// diary the restore had just written. Their rows come from the pull instead
+/// (firm-mode §6, blueprint Phase 13).
+const Set<String> neverRestoredTables = <String>{
+  'profiles',
+  'firms',
+  'firm_members',
+};
+
 /// The six editable reference tables, in the order [backupTableOrder] lists them.
 ///
 /// A row here is the user's own when either `is_custom` (a row they added) or
@@ -482,11 +496,26 @@ class BackupRepository {
     );
   }
 
+  /// The tables a restore of [fileTables] actually writes, in FK-safe order.
+  ///
+  /// One rule, one home: the file's own tables are the scope, less
+  /// [neverRestoredTables]. Both the engine and the screen's collision question
+  /// ask this, so neither can drift into the pull-only caches on its own.
+  List<String> restorableTables(Iterable<String> fileTables) {
+    final carried = fileTables.toSet();
+    return <String>[
+      for (final name in backupTableOrder)
+        if (carried.contains(name) && !neverRestoredTables.contains(name)) name,
+    ];
+  }
+
   /// Whether [backup] may be restored as [ownerId], or whose file it is.
   ///
   /// Throws [BackupRestoreFailure.anotherAccount] when the file names an account
-  /// that is neither [ownerId] nor a firm [firmId] belongs to, and reads nothing
-  /// from the database: the caller can ask this the moment a file is opened,
+  /// that is neither [ownerId] nor a firm [firmId] belongs to, and
+  /// [BackupRestoreFailure.anotherFirm] when it names a chamber this device is not
+  /// in. It reads nothing from the database: the caller can ask this the moment a
+  /// file is opened,
   /// before it offers to replace anything. A file with **no** owner — a
   /// hand-filled sample workbook, or placeholder text in the owner cells —
   /// answers [BackupOwnership.ownerless] and is stamped on import.
@@ -505,6 +534,12 @@ class BackupRepository {
       throw const BackupRestoreException(
         BackupRestoreFailure.anotherAccount,
         'The backup holds rows owned by another account.',
+      );
+    }
+    if (ownership == BackupOwnership.anotherFirm) {
+      throw const BackupRestoreException(
+        BackupRestoreFailure.anotherFirm,
+        'The backup holds rows belonging to another firm.',
       );
     }
     return ownership;
@@ -792,10 +827,18 @@ class BackupRepository {
   /// [ownerId] is the identity the restore is performed as — this device's bound
   /// account, or its pre-account placeholder — and [firmId] its firm. A file
   /// naming another account is refused with
-  /// [BackupRestoreFailure.anotherAccount] before the transaction opens, and a
-  /// file that names **no** owner has this identity stamped onto its rows, so a
-  /// hand-filled sample workbook is pushable afterwards instead of arriving
-  /// owned by nobody. See `core/backup/backup_ownership.dart`.
+  /// [BackupRestoreFailure.anotherAccount] before the transaction opens, and one
+  /// naming another chamber with [BackupRestoreFailure.anotherFirm] beside it,
+  /// while a file that names **no** owner has this identity stamped onto its rows,
+  /// so a hand-filled sample workbook is pushable afterwards instead of arriving
+  /// owned by nobody. Each row's **scope** is settled, not inherited: both kinds
+  /// of row are stamped with this device's `firm_id`, so a chamber's restored
+  /// ledger is one chamber's rather than a mixture, while a colleague's author
+  /// and attribution are left exactly as the file wrote them
+  /// ([settleRestoredScope]). The pull-only caches are never written either way —
+  /// neither deleted nor inserted — because they are the server's rows and a
+  /// stale copy of them can erase the diary this restore just wrote
+  /// ([neverRestoredTables]). See `core/backup/backup_ownership.dart`.
   Future<BackupRestoreResult> restoreSnapshot({
     required OpenedBackup backup,
     required String ownerId,
@@ -813,21 +856,17 @@ class BackupRepository {
     // Validated before the transaction opens: a malformed snapshot is refused
     // outright rather than discovered halfway through the inserts.
     final tables = portableTablesFrom(backup.payload);
-    final rowCount = tables.values.fold<int>(
-      0,
-      (sum, rows) => sum + rows.length,
-    );
-    // The file's own tables are the whole scope: the collision check, the wipe
-    // and the inserts all walk this list, in the FK-safe order. A JSON backup
-    // carries every portable table, so its behaviour is exactly as it was; a
-    // scoped file — an Excel workbook covering four tables — replaces those four
-    // and leaves every other table (courts, steps, preferences, the queue)
-    // untouched, which is what keeps a partial file from emptying the diary's
-    // reference data.
-    final scope = <String>[
-      for (final name in backupTableOrder)
-        if (tables.containsKey(name)) name,
-    ];
+    // The file's own tables are the whole scope, less the pull-only caches: the
+    // collision check, the wipe and the inserts all walk this list, in the
+    // FK-safe order. A JSON backup carries every portable table, so its behaviour
+    // is exactly as it was apart from those caches; a scoped file — an Excel
+    // workbook covering four tables — replaces those four and leaves every other
+    // table (courts, steps, preferences, the queue) untouched, which is what
+    // keeps a partial file from emptying the diary's reference data.
+    final scope = restorableTables(tables.keys);
+    // Counted over the scope rather than the file: a receipt that counted the
+    // skipped caches would overstate what was written.
+    var rowCount = 0;
     var replaced = false;
     var stamped = 0;
     try {
@@ -854,16 +893,20 @@ class BackupRepository {
         for (final name in scope) {
           final columns = ownerColumns[name];
           for (final row in tables[name] ?? const <Map<String, dynamic>>[]) {
+            rowCount++;
             final insert = Map<String, dynamic>.of(row);
             if (columns != null) {
               if (stampRowOwnership(
                 insert,
                 columns,
                 ownerId: ownerId,
-                firmId: firmId,
               )) {
                 stamped++;
               }
+              // Scope is settled for every row, not only the stamped ones: a
+              // colleague's row keeps its author and attribution and gains the
+              // chamber it already belonged to (firm-mode §6).
+              settleRestoredScope(insert, columns, firmId: firmId);
             }
             await _insertRow(name, insert);
           }

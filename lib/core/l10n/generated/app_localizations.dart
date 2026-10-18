@@ -1760,6 +1760,18 @@ abstract class AppLocalizations {
   /// **'Some data haven\'t finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.'**
   String get logout_unsyncedWarningBody;
 
+  /// No description provided for @logout_memberWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out and Erase This Device?'**
+  String get logout_memberWarningTitle;
+
+  /// No description provided for @logout_memberWarningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The chamber keeps its records, so no copy is taken from this device. Everything the chamber has here — its cases, notes, references and roster — is erased, and anything still waiting to sync is discarded. Sign in again to get the chamber\'s records back.'**
+  String get logout_memberWarningBody;
+
   /// No description provided for @logout_proceed.
   ///
   /// In en, this message translates to:
@@ -4381,6 +4393,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This backup belongs to another account. Sign in as that account to restore it.'**
   String get settingsBackupRestore_errorAnotherAccount;
+
+  /// No description provided for @settingsBackupRestore_errorAnotherFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made inside another chamber. Only a backup of this chamber can be restored here.'**
+  String get settingsBackupRestore_errorAnotherFirm;
+
+  /// No description provided for @settingsBackupRestore_memberNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the chamber\'s owner can back up or restore. A member keeps no copy of the chamber\'s records outside the app.'**
+  String get settingsBackupRestore_memberNotice;
+
+  /// No description provided for @settingsBackupRestore_chamberBarredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Is Not Available In A Chamber'**
+  String get settingsBackupRestore_chamberBarredTitle;
+
+  /// No description provided for @settingsBackupRestore_chamberBarredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is a copy of the ledger at one moment, and restoring it here could undo changes other members have made since. Restore is only available on a device that holds nothing yet, such as a fresh install.'**
+  String get settingsBackupRestore_chamberBarredBody;
 
   /// No description provided for @settingsBackupRestore_errorOpenFile.
   ///

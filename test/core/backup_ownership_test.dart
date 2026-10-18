@@ -105,7 +105,7 @@ void main() {
       );
     });
 
-    test('a colleague of another firm is still another account', () {
+    test('a row scoped to another firm is refused as another firm', () {
       expect(
         _classify(
           <Map<String, dynamic>>[
@@ -117,7 +117,56 @@ void main() {
           ],
           firmId: _firm,
         ),
-        BackupOwnership.anotherAccount,
+        BackupOwnership.anotherFirm,
+      );
+    });
+
+    test('my own owner column does not rescue another firm\'s row', () {
+      // The hole this rule closes: the owner column matched, so the row used to
+      // pass with a foreign firm_id and could never be pushed afterwards.
+      expect(
+        _classify(
+          <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'n1',
+              'user_id': _mine,
+              'firm_id': _otherFirm,
+            },
+          ],
+          firmId: _firm,
+        ),
+        BackupOwnership.anotherFirm,
+      );
+    });
+
+    test('a firm row on a device with no firm is refused too', () {
+      expect(
+        _classify(
+          <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'n1',
+              'user_id': _mine,
+              'firm_id': _firm,
+            },
+          ],
+        ),
+        BackupOwnership.anotherFirm,
+      );
+    });
+
+    test('a colleague in my own firm still restores', () {
+      expect(
+        _classify(
+          <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'n1',
+              'user_id': _colleague,
+              'firm_id': _firm,
+            },
+          ],
+          firmId: _firm,
+        ),
+        BackupOwnership.mine,
       );
     });
 
@@ -184,25 +233,40 @@ void main() {
         'last_modified_by': 'user_id',
       };
 
-      expect(
-        stampRowOwnership(row, _columns, ownerId: _mine, firmId: _firm),
-        isTrue,
-      );
+      expect(stampRowOwnership(row, _columns, ownerId: _mine), isTrue);
       expect(row['user_id'], _mine);
       expect(row['last_modified_by'], _mine);
-      expect(row['firm_id'], _firm);
     });
 
-    test('an individual device writes no firm scope', () {
-      final row = <String, dynamic>{'id': 'n1'};
+    test('a row that already names its author is not stamped', () {
+      final row = <String, dynamic>{
+        'id': 'n1',
+        'user_id': _colleague,
+        'last_modified_by': _colleague,
+      };
+
+      expect(stampRowOwnership(row, _columns, ownerId: _mine), isFalse);
+      expect(row['user_id'], _colleague);
+      expect(row['last_modified_by'], _colleague);
+    });
+  });
+
+  group('settleRestoredScope', () {
+    test('a row written before the chamber joins it', () {
+      // The case this rule exists for: my own backup, made as an individual, then
+      // restored after joining a chamber. It names no firm, so without this the
+      // restored ledger would be half-scoped (firm-mode §1).
+      final row = <String, dynamic>{'id': 'n1', 'user_id': _mine};
 
       stampRowOwnership(row, _columns, ownerId: _mine);
+      settleRestoredScope(row, _columns, firmId: _firm);
 
+      expect(row['firm_id'], _firm);
+      // Attribution is not the restorer's to rewrite.
       expect(row['user_id'], _mine);
-      expect(row['firm_id'], isNull);
     });
 
-    test("a colleague's row keeps its author, firm and attribution", () {
+    test("a colleague's row keeps its author and attribution", () {
       final row = <String, dynamic>{
         'id': 'n1',
         'user_id': _colleague,
@@ -210,13 +274,34 @@ void main() {
         'last_modified_by': _colleague,
       };
 
-      expect(
-        stampRowOwnership(row, _columns, ownerId: _mine, firmId: _firm),
-        isFalse,
-      );
+      expect(stampRowOwnership(row, _columns, ownerId: _mine), isFalse);
+      settleRestoredScope(row, _columns, firmId: _firm);
+
       expect(row['user_id'], _colleague);
-      expect(row['firm_id'], _firm);
       expect(row['last_modified_by'], _colleague);
+      expect(row['firm_id'], _firm);
+    });
+
+    test('an individual device leaves the row firmless', () {
+      final row = <String, dynamic>{'id': 'n1'};
+
+      stampRowOwnership(row, _columns, ownerId: _mine);
+      settleRestoredScope(row, _columns);
+
+      expect(row['user_id'], _mine);
+      expect(row['firm_id'], isNull);
+    });
+
+    test('a table with no firm column is left alone', () {
+      final row = <String, dynamic>{'id': 'n1'};
+
+      settleRestoredScope(
+        row,
+        const BackupOwnerColumns(owner: 'requested_by'),
+        firmId: _firm,
+      );
+
+      expect(row, <String, dynamic>{'id': 'n1'});
     });
   });
 }

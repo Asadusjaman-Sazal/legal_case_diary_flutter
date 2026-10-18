@@ -784,6 +784,18 @@ are in the chamber. Only the owner keeps both actions.
 This **supersedes the safety-copy offer in Sync Plan §5 for firm accounts only**: an individual
 account's logout flow keeps the offer it has.
 
+**As built (0.0.538), Phase 13.** The bar is firm mode's own, not the premium guard's: a chamber
+whose device holds any user-authored data is refused with a sentence and a single **Close**, and the
+premium guard's *Delete Local & Cloud Data* route is **not** offered inside a chamber, because
+erasing the chamber's records from the server is not a choice a restore screen may make. The caches
+are never restored, every restored row is stamped with the current chamber's `firm_id` and a row
+naming a chamber this device is not in is refused before the transaction opens, and attribution is
+touched only where an owner cell names nobody. `scope_owner_id` is cleared by construction rather
+than by code: it is a server column the local schema does not hold and every push payload is stripped
+of it, so what the pull brings back never carries one. A member keeps neither action, at both sites —
+the Settings list hides Backup & Restore and the screen itself shows only the notice, and the logout
+flow replaces the copy offer with a warning naming what is being discarded.
+
 ---
 
 ## 7. What is shared and what is personal
@@ -1030,7 +1042,7 @@ into a leak surface.
 | 10 | The Lapse Allowance | §5.2, §5.4, §10.8 | **Built** 0.0.535 | client only, no migration |
 | 11 | Dissolution | §4.4, §10.4, §10.11 | **Built** 0.0.536 | `20261017110000_firm_mode_dissolution.sql` + client |
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | **Built** 0.0.537 | `20261017120000_firm_mode_retention_window.sql` + regeneration |
-| 13 | Restore Inside A Chamber | §6, §10.14 | Owed | client |
+| 13 | Restore Inside A Chamber | §6, §10.14 | **Built** 0.0.538 | client only, no migration |
 | 14 | Attribution And The Roster | §9.9 | Owed (verify) | client, verify only |
 | 15 | Distribution | §5.6, §10.4, §10.10 | Owed | client + docs |
 
@@ -1583,20 +1595,54 @@ into a leak surface.
 - **Hazards.** Both numbers are prose in more places than §11 names. Missing the generator label
   fails `--check` outright; missing the in-code comment leaves the file lying about its own constant.
 
-### Phase 13 — Restore Inside A Chamber — **Owed** (partly built)
+### Phase 13 — Restore Inside A Chamber — **Built (0.0.538)**
 
 
-- **Status.** **Partly Built** — the firm-mode restore bar ships; the three refinements below do not.
+- **Status.** **Built (0.0.538)** — the restore bar is now firm mode's own, the three refinements ship, and the
+  "owed" wording below is kept as the record of what the phase had to do.
 - **Discharges.** §6, §10.14. Task 15.
 - **Depends On.** Phase 4, for the removal condition this must not trip, and Phase 1, for the scope rule a restored row is stamped into.
 - **Why Here.** It is the last place a local file can write into a chamber, and the one that can destroy the diary it has just restored.
 - **Server.** None — client only.
 - **Objects.** `backup_repository.dart` (`backupTableOrder`), `backup_ownership.dart` (`classifyBackupOwnership` / `stampRowOwnership`), `backup_restore_screen.dart`, and `membershipRevokedProvider` as the condition a stale restored account pair would trip.
 - **Proof.** Restore tests against a blank device: no account row written, every restored row stamped into the current chamber with no scope owner, a file naming another firm refused.
-- **Already built.** The firm-mode **restore bar** and its ownership rules: the shipped guard blocks a
-  restore when the account is premium, has synced **and** still holds user-authored data
-  (`backup_restore_screen.dart`), which is what makes the empty-device exception the only one.
-- **Owed — three refinements:**
+- **Already built.** The ownership rules of the 0.0.472 gate: a file naming another account is still
+  refused before the replace question, and a file naming nobody is still stamped.
+- **Corrected on build.** The earlier note here claimed the shipped premium guard *was* the chamber's
+  restore bar. It is not, and it could not be: that window's way through is **Delete Local & Cloud Data**, which §6 rules out for a chamber — erasing a chamber's records from the server is not a
+  choice a restore screen may offer. Firm mode therefore gets a fence of its own, above the guard and
+  with no way through.
+- **Built (0.0.538) — the fence, and what it says.** `_restoreFromBackup` refuses before the folder
+  scan and before the picker when `firmModeProvider` is true and the diary holds any user-authored
+  data, through the new `showRestoreBarredInChamberDialog` (`backup_dialogs.dart`): the chamber
+  sentence and one **Close**, no destructive action, so the only restore firm mode allows is onto a
+  device that holds nothing yet — a fresh install. Two ARB keys, en + bn.
+- **Built (0.0.538) — the three refinements, one at a time:**
+  - **The pull-only caches are never restored.** `neverRestoredTables` (`profiles`, `firms`,
+    `firm_members`) and one `BackupRepository.restorableTables` scope, shared by the import and the
+    screen's own collision question so the two cannot disagree about which tables a restore writes.
+    A file whose only rows are the caches now replaces nothing and counts nothing.
+  - **A restored row's scope is settled, not inherited.** New `settleRestoredScope` writes this
+    device's `firm_id` onto **every** restored row, and `stampRowOwnership`'s firm writing was
+    removed so one column has one writer. `scope_owner_id` needs no code: it is a **server** column,
+    absent from this device's schema and stripped from every push payload by `20261015110000`, so a
+    restored row reaches the server with no scope owner by construction (the local schema growing the
+    column is the case the doc comment names). A file whose rows name **another firm** is refused
+    outright with the new `BackupOwnership.anotherFirm` / `BackupRestoreFailure.anotherFirm`, whatever
+    its owner column says — a matching owner used to be enough to let a foreign-firm row through.
+  - **Attribution is not the restorer's to rewrite.** Unchanged where it already held: only an owner
+    column that names **nobody** is filled, and `last_modified_by` follows it there alone.
+- **Proof (0.0.538).** `test/core/backup_ownership_test.dart` — a foreign firm's row refused even when
+  its owner is mine, a firm row on an individual device refused, a colleague of my own firm still
+  mine, and the stamp/settle split (a row from before the chamber, a colleague's row keeping its
+  author and attribution, an individual device leaving the row firmless, a table with no firm column
+  untouched). `test/features/backup_restore_repository_test.dart` — the caches written neither as
+  rows nor as deletions and not counted, the import's scope equal to the screen's question, a restored
+  row stamped into the chamber, a colleague's row keeping its author, its attribution and its body,
+  a hand-filled row stamped, and a file naming another chamber refused with nothing written.
+  `test/features/backup_restore_screen_test.dart` — the fence with its Close and no destructive
+  action, and a chamber device holding nothing restoring straight through.
+- **Owed — the three refinements as they were written, kept as the record:**
   - **`profiles`, `firms` and `firm_members` are never restored.** They are pull-only caches and the
     server's, not the device's. This is not tidiness: a restored profile naming a dead `firm_id`
     beside a restored `firm_members` row **is** `membershipRevokedProvider`'s own condition, so a

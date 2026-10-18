@@ -69,7 +69,11 @@ enum LogoutBranch {
 /// What a logout would do, decided before anything is destroyed.
 class LogoutPlan {
   /// Creates a plan.
-  const LogoutPlan({required this.branch, required this.unsyncedCount});
+  const LogoutPlan({
+    required this.branch,
+    required this.unsyncedCount,
+    this.backupBarred = false,
+  });
 
   /// Which branch applies.
   final LogoutBranch branch;
@@ -77,10 +81,18 @@ class LogoutPlan {
   /// How many queue entries still need the server.
   final int unsyncedCount;
 
+  /// Whether this account may keep no copy of the ledger at all — a chamber
+  /// member (firm-mode §6). The branches are unchanged; only the *Backup Data to
+  /// Local Storage?* choice is, because a member who could export would hold the
+  /// chamber's whole ledger in a file they keep, which is the firm's asset rather
+  /// than theirs. A warning naming what is being discarded takes its place.
+  final bool backupBarred;
+
   /// Whether this branch must offer a safety copy before the wipe may run.
   bool get needsBackupChoice =>
-      branch == LogoutBranch.freeBackupChoice ||
-      branch == LogoutBranch.blockedOffline;
+      !backupBarred &&
+      (branch == LogoutBranch.freeBackupChoice ||
+          branch == LogoutBranch.blockedOffline);
 
   /// Whether this branch must warn, because the copies can be lost.
   bool get needsWarning => branch == LogoutBranch.blockedOffline;
@@ -115,6 +127,7 @@ class LogoutFlow {
     required this.online,
     required this.runBacklogPush,
     required this.endSession,
+    this.backupBarred = false,
     this.sink = const LocalArchiveSink(),
     this.kdfIterations = kBackupKdfIterations,
   });
@@ -127,6 +140,11 @@ class LogoutFlow {
 
   /// Whether the device currently has a link.
   final bool online;
+
+  /// Whether this account may keep no copy of the ledger — a chamber member
+  /// (firm-mode §6). Read from `firmMemberProvider` by [logoutFlowProvider]; an
+  /// individual and a chamber owner both leave it false.
+  final bool backupBarred;
 
   /// The mandatory sync, injected so a test needs no engine: production passes
   /// `SyncService.runBacklogPush`. A null result means the pass refused to start
@@ -152,6 +170,7 @@ class LogoutFlow {
   /// Works out which branch applies, without changing anything.
   Future<LogoutPlan> plan() async {
     final unsynced = (await _queue.getUnresolved()).length;
+    final barred = backupBarred;
 
     // A free account has no cloud copy of anything — not just of the queue — so
     // it offers a copy before the wipe, whatever the link says. An empty device
@@ -164,6 +183,7 @@ class LogoutFlow {
             ? LogoutBranch.freeBackupChoice
             : LogoutBranch.cleanWipe,
         unsyncedCount: unsynced,
+        backupBarred: barred,
       );
     }
     if (!online) {
@@ -174,11 +194,13 @@ class LogoutFlow {
             ? LogoutBranch.cleanWipe
             : LogoutBranch.blockedOffline,
         unsyncedCount: unsynced,
+        backupBarred: barred,
       );
     }
     return LogoutPlan(
       branch: LogoutBranch.syncedThenWiped,
       unsyncedCount: unsynced,
+      backupBarred: barred,
     );
   }
 
@@ -217,6 +239,9 @@ class LogoutFlow {
   /// written as readable JSON. When encryption is on it is the user's passphrase,
   /// and an empty one is treated as a cancelled copy rather than a weak one.
   Future<LogoutResult> exportThenComplete({String? passphrase}) async {
+    // Belt to the dialog's brace: a barred account writes no copy, whatever
+    // reached here, and nothing is deleted for a copy that was not written.
+    if (backupBarred) return LogoutResult.exportCancelled;
     if (passphrase != null && passphrase.isEmpty) {
       return LogoutResult.exportCancelled;
     }
@@ -301,6 +326,7 @@ final logoutFlowProvider = FutureProvider<LogoutFlow>((ref) async {
     online: ref.watch(isOnlineProvider).value ?? false,
     runBacklogPush: () => ref.read(syncServiceProvider).runBacklogPush(),
     endSession: () => ref.read(authViewModelProvider.notifier).signOut(),
+    backupBarred: ref.watch(firmMemberProvider),
     sink: ref.watch(logoutArchiveSinkProvider),
   );
 });

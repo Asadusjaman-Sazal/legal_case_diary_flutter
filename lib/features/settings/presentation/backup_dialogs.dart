@@ -146,6 +146,40 @@ Future<bool> showRestoreBlockedDialog(BuildContext context) async {
   return wipe == true;
 }
 
+/// Says no to a restore inside a chamber, with no way through (firm-mode §6).
+///
+/// Deliberately a single Close, and deliberately **not** the premium guard's
+/// Delete Local & Cloud Data route: a chamber's records are the firm's, so
+/// erasing them from the server to make room for an older photograph of the
+/// ledger is not a choice this screen may offer. The one restore firm mode
+/// allows is onto a device that holds nothing yet — a fresh install — and that
+/// is reached by using the app, not by passing this window.
+Future<void> showRestoreBarredInChamberDialog(BuildContext context) async {
+  final l = AppLocalizations.of(context);
+  await showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.settingsBackupRestore_chamberBarredTitle),
+      content: Text(
+        l.settingsBackupRestore_chamberBarredBody,
+        style: AppTypography.bodyMd,
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          key: const ValueKey('restore-chamber-barred-close'),
+          style: TextButton.styleFrom(
+            minimumSize: Size.fromHeight(_actionSize.height),
+            textStyle: _actionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.sharedActions_close),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Shows what the chosen backup holds and asks whether to replace local data.
 ///
 /// Always shown before a restore into a database that holds anything, so a

@@ -10,7 +10,10 @@
 /// the changes must sync first and offers an explicit way past; the **unsynced
 /// warning**, which names exactly what logging out now costs; and the **backup
 /// choice**, *Backup Data to Local Storage?* with **Yes**/**No**, which lets the
-/// user keep a copy or go without one — never both mandatory.
+/// user keep a copy or go without one — never both mandatory. A chamber member is
+/// offered no copy at all: the member reads a warning naming what is being
+/// discarded and logging out erases the chamber's rows from the device
+/// (firm-mode §6).
 library;
 
 import 'package:flutter/material.dart';
@@ -66,6 +69,9 @@ Future<bool> runBranchedLogout(
   // A free account holding the user's own work. A free account with nothing
   // authored selects `cleanWipe` instead, so it falls through to step 1 below.
   final freeWithData = plan.branch == LogoutBranch.freeBackupChoice;
+  // A chamber member keeps no copy (firm-mode §6), so wherever the branches below
+  // would offer one, the warning takes its place.
+  final backupBarred = plan.backupBarred;
 
   // 1. Nothing on this device exists nowhere else, so the wipe needs no copy,
   //    no sync and no warning: a premium account whose work is all on the server,
@@ -90,7 +96,14 @@ Future<bool> runBranchedLogout(
     if (!dialog.mounted) return false;
     if (!await _confirmUnsyncedWarning(dialog)) return false;
     if (!dialog.mounted) return false;
-    return _backupThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
+    return _backupThenFinish(
+      dialog,
+      flow,
+      messenger,
+      l,
+      encrypt: encrypt,
+      barred: backupBarred,
+    );
   }
 
   // 3. Premium, with unsynced work and no way to send it: (b) offline blocks
@@ -107,9 +120,46 @@ Future<bool> runBranchedLogout(
   }
 
   // 4. (c) Free with the user's own work, and the way past the offline block:
-  //    offer a copy, then wipe.
+  //    offer a copy, then wipe — or, for a member, name what is discarded.
   if (!dialog.mounted) return false;
-  return _backupThenFinish(dialog, flow, messenger, l, encrypt: encrypt);
+  return _backupThenFinish(
+    dialog,
+    flow,
+    messenger,
+    l,
+    encrypt: encrypt,
+    barred: backupBarred,
+  );
+}
+
+/// What a chamber member reads in place of the *Backup Data to Local Storage?*
+/// choice (firm-mode §6).
+///
+/// **Proceed** wipes and signs out with no copy written; there is nothing to
+/// offer, because the chamber holds the records and a member's export would hold
+/// the chamber's whole ledger in a file they keep. Cancel, or a dismissal, ends
+/// the logout and deletes nothing — the same direction as every other window in
+/// this flow.
+Future<bool> _confirmMemberWarning(BuildContext context) async {
+  final l = AppLocalizations.of(context);
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.logout_memberWarningTitle),
+      content: Text(l.logout_memberWarningBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.logout_proceed),
+        ),
+      ],
+    ),
+  );
+  return answer ?? false;
 }
 
 /// The backup choice: *Backup Data to Local Storage?* with **Yes** and **No**.
@@ -210,13 +260,27 @@ Future<bool> _confirmUnsyncedWarning(BuildContext context) async {
 /// deleted without one. With [encrypt] false (the default) that window never
 /// appears — the copy is written unencrypted and the logout continues. Returns
 /// whether the logout actually completed.
+///
+/// [barred] is the chamber member: no copy is offered and none is written, so the
+/// passphrase window never appears for them either — the warning above replaces
+/// the whole choice (firm-mode §6).
 Future<bool> _backupThenFinish(
   BuildContext context,
   LogoutFlow flow,
   ScaffoldMessengerState messenger,
   AppLocalizations l, {
   required bool encrypt,
+  bool barred = false,
 }) async {
+  // A member gets the warning, never the choice: the copy is not theirs to keep
+  // and no passphrase window is shown for one that will not be written.
+  if (barred) {
+    if (!await _confirmMemberWarning(context)) return false;
+    await flow.wipeAndComplete();
+    _sayLoggedOut(messenger, l);
+    return true;
+  }
+
   final choice = await _confirmBackupChoice(context);
   // Dismissed: cancel the logout, delete nothing.
   if (choice == null) return false;

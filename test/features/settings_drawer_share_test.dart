@@ -23,6 +23,7 @@ import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/settings/data/local/user_preferences_dao.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
@@ -57,7 +58,7 @@ void main() {
   /// Flutter's ListTile ink assert once per row per layout (its card was a
   /// decorated `Container`, fixed in 0.0.407), and a test that swallows
   /// framework noise cannot report the next one.
-  Future<void> pumpSettings(WidgetTester tester) async {
+  Future<void> pumpSettings(WidgetTester tester, {bool member = false}) async {
     final router = GoRouter(
       routes: [
         GoRoute(
@@ -82,6 +83,9 @@ void main() {
                 LocalSettingsRepository(UserPreferencesDao(db), identity),
           ),
           appShareServiceProvider.overrideWithValue(sharer),
+          // The chamber-member bar (firm-mode §6) is stated here rather than
+          // derived, so the test states only the fact it is about.
+          if (member) firmMemberProvider.overrideWithValue(true),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -126,6 +130,25 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));
   }
+
+  testWidgets('a chamber member is not offered Backup & Restore', (
+    WidgetTester tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    await pumpSettings(tester);
+    expect(find.text(l.settingsScreen_backupAndRestore), findsOneWidget);
+    await unmount(tester);
+
+    // The same screen for a member: the entry is the owner's and an individual
+    // account's, because a member who could export would hold the chamber's whole
+    // ledger in a file they keep (firm-mode §6).
+    await pumpSettings(tester, member: true);
+    expect(find.text(l.settingsScreen_backupAndRestore), findsNothing);
+    // The rest of the General group is untouched by the bar.
+    expect(find.text(l.settingsScreen_accountAndProfile), findsOneWidget);
+    await unmount(tester);
+  });
 
   testWidgets('the Settings drawer Share hands over the app invite', (
     WidgetTester tester,

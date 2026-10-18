@@ -108,6 +108,14 @@ enum BackupRestoreFailure {
   /// — is not this failure: it restores, and its rows are stamped with this
   /// device's identity.
   anotherAccount,
+
+  /// The file holds rows scoped to a **different chamber** (firm-mode §6): its
+  /// `firm_id` cells name a firm this device is not in, so those rows can be
+  /// neither pushed — `sync_can_write` refuses a firm that is not the caller's —
+  /// nor read back from the server, which would leave them stranded on the device
+  /// as local-only data. Refused before the transaction opens, whatever the owner
+  /// column says, and nothing is imported or overwritten.
+  anotherFirm,
 }
 
 /// Thrown when a backup cannot be opened or imported.

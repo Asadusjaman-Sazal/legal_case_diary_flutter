@@ -127,11 +127,15 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
       // Subscription moved into the Account & Profile menu's Account group, so
       // the account's billing sits with the account it belongs to rather than
       // in the General Settings list.
-      _SettingsItem(
-        title: l.settingsScreen_backupAndRestore,
-        icon: Icons.cloud_upload_outlined,
-        route: AppRoutes.settingsBackupRestore,
-      ),
+      // Backup & Restore is the owner's, and an individual account's: a member is
+      // offered neither action (firm-mode §6), because a member who could export
+      // would hold the chamber's whole ledger in a file they keep.
+      if (!ref.watch(firmMemberProvider))
+        _SettingsItem(
+          title: l.settingsScreen_backupAndRestore,
+          icon: Icons.cloud_upload_outlined,
+          route: AppRoutes.settingsBackupRestore,
+        ),
     ]),
     _SettingsSection(l.settingsScreen_sectionPreferences, [
       _SettingsItem(

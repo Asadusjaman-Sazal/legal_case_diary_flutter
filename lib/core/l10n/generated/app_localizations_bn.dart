@@ -967,6 +967,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'কিছু তথ্য এখনও ক্লাউডে সিঙ্ক হয়নি। এখন লগ আউট করলে সেই সিঙ্ক না হওয়া তথ্য মুছে যাবে।';
 
   @override
+  String get logout_memberWarningTitle => 'লগ আউট করে এই ডিভাইস মুছে ফেলবেন?';
+
+  @override
+  String get logout_memberWarningBody =>
+      'চেম্বার তার রেকর্ড রাখে, তাই এই ডিভাইস থেকে কোনো কপি নেওয়া হয় না। চেম্বারের এখানে থাকা সবকিছু — মামলা, নোট, রেফারেন্স ও সদস্য তালিকা — মুছে যাবে, আর সিঙ্কের অপেক্ষায় থাকা পরিবর্তন বাদ পড়বে। আবার সাইন ইন করলে চেম্বারের রেকর্ডগুলো ফিরে আসবে।';
+
+  @override
   String get logout_proceed => 'লগ আউট করুন';
 
   @override
@@ -2475,6 +2482,22 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsBackupRestore_errorAnotherAccount =>
       'এই ব্যাকআপটি অন্য একটি অ্যাকাউন্টের। এটি পুনরুদ্ধার করতে ওই অ্যাকাউন্টে সাইন ইন করুন।';
+
+  @override
+  String get settingsBackupRestore_errorAnotherFirm =>
+      'এই ব্যাকআপটি অন্য একটি চেম্বারে তৈরি। এখানে কেবল এই চেম্বারের ব্যাকআপ পুনরুদ্ধার করা যায়।';
+
+  @override
+  String get settingsBackupRestore_memberNotice =>
+      'চেম্বারের মালিকই কেবল ব্যাকআপ বা পুনরুদ্ধার করতে পারেন। সদস্যের কাছে চেম্বারের রেকর্ডের অ্যাপের বাইরে কোনো কপি থাকে না।';
+
+  @override
+  String get settingsBackupRestore_chamberBarredTitle =>
+      'চেম্বারে পুনরুদ্ধার করা যায় না';
+
+  @override
+  String get settingsBackupRestore_chamberBarredBody =>
+      'ব্যাকআপ হলো এক সময়ের লেজারের কপি, এটি এখানে ফিরিয়ে আনলে অন্য সদস্যরা এর পর যে পরিবর্তন করেছেন তা মুছে যেতে পারে। কেবল নতুন ইনস্টল করা ফাঁকা ডিভাইসে পুনরুদ্ধার করা যায়।';
 
   @override
   String get settingsBackupRestore_errorOpenFile => 'ফাইলটি খোলা যায়নি।';

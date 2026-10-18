@@ -49,6 +49,7 @@ void main() {
   Override flowOverride({
     required bool premium,
     bool online = true,
+    bool backupBarred = false,
     Future<BacklogOutcome?> Function()? push,
     RecordingArchiveSink? sink,
   }) => logoutFlowProvider.overrideWith((ref) async {
@@ -56,6 +57,7 @@ void main() {
       db: db,
       premium: premium,
       online: online,
+      backupBarred: backupBarred,
       runBacklogPush: push ?? () async => const BacklogOutcome(),
       endSession: () async => ended++,
       sink: sink ?? RecordingArchiveSink(),
@@ -328,6 +330,53 @@ void main() {
     );
     expect(yes.style?.minimumSize?.resolve(<WidgetState>{}), const Size(112, 48));
     expect(yes.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+  });
+
+  testWidgets('a chamber member is warned, never offered a copy', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final sink = RecordingArchiveSink();
+    await seedWork();
+    // Encryption on, so a copy offered by mistake would ask for a passphrase:
+    // the member's window must be the warning and never that prompt.
+    await prefs.setBool(backupEncryptionEnabledKey, true);
+    await pumpLogout(
+      tester,
+      flowOverride(premium: true, sink: sink, backupBarred: true),
+    );
+
+    await tapLogout(tester);
+    // The unsynced warning comes first, then the member's own window in place of
+    // the copy choice.
+    await tapDialogAction(tester, l.logout_proceed);
+
+    expect(find.text(l.logout_memberWarningTitle), findsOneWidget);
+    expect(find.text(l.logout_backupPromptTitle), findsNothing);
+    await tapDialogAction(tester, l.logout_proceed);
+
+    expect(sink.writes, 0, reason: 'a member keeps no copy of the ledger');
+    expect(find.byType(TextFormField), findsNothing);
+    expect(ended, 1);
+    await expectNothingLeft();
+  });
+
+  testWidgets('a member who cancels the warning deletes nothing', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await seedWork();
+    await pumpLogout(
+      tester,
+      flowOverride(premium: true, backupBarred: true),
+    );
+
+    await tapLogout(tester);
+    await tapDialogAction(tester, l.logout_proceed);
+    await tapDialogAction(tester, l.sharedActions_cancel);
+
+    expect(ended, 0);
+    await expectWorkIntact();
   });
 
   testWidgets('a sync that cannot clear the queue warns, then exports', (

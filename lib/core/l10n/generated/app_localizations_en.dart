@@ -965,6 +965,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some data haven\'t finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.';
 
   @override
+  String get logout_memberWarningTitle => 'Log Out and Erase This Device?';
+
+  @override
+  String get logout_memberWarningBody =>
+      'The chamber keeps its records, so no copy is taken from this device. Everything the chamber has here — its cases, notes, references and roster — is erased, and anything still waiting to sync is discarded. Sign in again to get the chamber\'s records back.';
+
+  @override
   String get logout_proceed => 'Log Out';
 
   @override
@@ -2468,6 +2475,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsBackupRestore_errorAnotherAccount =>
       'This backup belongs to another account. Sign in as that account to restore it.';
+
+  @override
+  String get settingsBackupRestore_errorAnotherFirm =>
+      'This backup was made inside another chamber. Only a backup of this chamber can be restored here.';
+
+  @override
+  String get settingsBackupRestore_memberNotice =>
+      'Only the chamber\'s owner can back up or restore. A member keeps no copy of the chamber\'s records outside the app.';
+
+  @override
+  String get settingsBackupRestore_chamberBarredTitle =>
+      'Restore Is Not Available In A Chamber';
+
+  @override
+  String get settingsBackupRestore_chamberBarredBody =>
+      'A backup is a copy of the ledger at one moment, and restoring it here could undo changes other members have made since. Restore is only available on a device that holds nothing yet, such as a fresh install.';
 
   @override
   String get settingsBackupRestore_errorOpenFile => 'Could not open that file.';

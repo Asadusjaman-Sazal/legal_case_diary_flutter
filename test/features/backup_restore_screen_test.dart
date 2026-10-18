@@ -30,6 +30,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/data_deletion_service.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart'
@@ -151,6 +152,7 @@ PickedBackupFile _legacyBackup({
   int notes = 3,
   String name = 'old-backup.json',
   String userId = 'user-1',
+  String? firmId,
 }) {
   final file = BackupEnvelope.create(
     appVersion: '0.0.227',
@@ -162,6 +164,7 @@ PickedBackupFile _legacyBackup({
             <String, dynamic>{
               'id': 'note-$i',
               'user_id': userId,
+              'firm_id': ?firmId,
               'title': 'Reminder $i',
               'body': 'File the affidavit',
               'is_deleted': 0,
@@ -267,6 +270,8 @@ void main() {
     WidgetTester tester, {
     BackupArchiveSink? folderSink,
     DataDeletionService? deletionService,
+    bool member = false,
+    bool chamber = false,
   }) async {
     folderSink ??= _FakeFolderSink(folder);
     // Tall viewport: the whole mockup body is on one screen and every section
@@ -299,6 +304,17 @@ void main() {
             dataDeletionServiceProvider.overrideWith(
               (ref) async => deletionService,
             ),
+          // The chamber-member bar (firm-mode §6) is stated here rather than
+          // derived, so the test states only the fact it is about.
+          if (member) firmMemberProvider.overrideWithValue(true),
+          // The chamber's own fence (§6) is stated the same way, so the restore
+          // guard is exercised as a chamber rather than inferred from a profile:
+          // firm mode on, and its **owner** rather than a member — the pair a real
+          // chamber's owner holds.
+          if (chamber) ...[
+            firmModeProvider.overrideWithValue(true),
+            firmMemberProvider.overrideWithValue(false),
+          ],
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -447,6 +463,26 @@ void main() {
     await tester.tap(find.text(confirmLabel));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('a chamber member is told the bar and offered no actions', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpScreen(tester, member: true);
+
+    // The sentence, and none of the four buttons that would refuse (firm-mode
+    // §6: a member keeps no copy of the chamber's ledger, and no restore).
+    expect(
+      find.byKey(const ValueKey('backup-member-notice')),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsBackupRestore_memberNotice), findsOneWidget);
+    // The page title is "Backup & Restore" as well, so the actions are asserted
+    // by their own labels rather than by the section heading.
+    expect(find.text(l.settingsBackupRestore_backupLocal), findsNothing);
+    expect(find.text(l.settingsBackupRestore_backupExcel), findsNothing);
+    expect(find.text(l.settingsBackupRestore_restore), findsNothing);
+  });
 
   testWidgets('shows the mockup sections with no backup yet', (tester) async {
     await pumpScreen(tester);
@@ -1015,6 +1051,87 @@ void main() {
       (await db.customSelect('SELECT user_id FROM notes').getSingle()).data['user_id'],
       'user-1',
     );
+  });
+
+  testWidgets('a file made in another chamber is refused, and says so', (
+    tester,
+  ) async {
+    await seedNote();
+    // A row scoped to a chamber: this device belongs to none, so the file could
+    // never be pushed from here and is refused before anything is written
+    // (firm-mode §6).
+    gateway.picked = _legacyBackup(
+      notes: 1,
+      userId: '',
+      firmId: '44444444-4444-4444-8444-444444444444',
+    );
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    expect(
+      find.text(
+        'This backup was made inside another chamber. '
+        'Only a backup of this chamber can be restored here.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Restore complete'), findsNothing);
+    final kept = await db
+        .customSelect('SELECT COUNT(*) AS n FROM notes')
+        .getSingle();
+    expect(kept.data['n'], 1);
+  });
+
+  testWidgets('inside a chamber a restore is refused, with no way through', (
+    tester,
+  ) async {
+    // The chamber's own fence (firm-mode §6): a backup is the ledger at one
+    // moment, and putting it back could undo a colleague's change since. It sits
+    // above the premium guard and deliberately has no Delete Local & Cloud Data
+    // route — erasing a chamber's records is not this screen's choice.
+    await seedNote();
+    gateway.picked = _legacyBackup();
+    await pumpScreen(tester, chamber: true);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    expect(find.text('Restore Is Not Available In A Chamber'), findsOneWidget);
+    expect(
+      find.text(
+        'A backup is a copy of the ledger at one moment, and restoring it '
+        'here could undo changes other members have made since. Restore is '
+        'only available on a device that holds nothing yet, such as a fresh '
+        'install.',
+      ),
+      findsOneWidget,
+    );
+    // No way through: neither the destructive wipe nor the replace question.
+    expect(find.byKey(const ValueKey('restore-blocked-delete')), findsNothing);
+    expect(find.text('Replace all current data?'), findsNothing);
+    expect(find.text('Restore complete'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('restore-chamber-barred-close')));
+    await tester.pumpAndSettle();
+    // Closed with nothing done: the diary is exactly as it was.
+    final kept = await db
+        .customSelect('SELECT COUNT(*) AS n FROM notes')
+        .getSingle();
+    expect(kept.data['n'], 1);
+  });
+
+  testWidgets('a chamber device holding nothing restores straight through', (
+    tester,
+  ) async {
+    // The exception the fence leaves open: a fresh install inside a chamber has
+    // nothing to overwrite, and the pull that follows corrects a stale row.
+    gateway.picked = _legacyBackup(notes: 1, userId: 'user-1');
+    await pumpScreen(tester, chamber: true);
+
+    await tapAction(tester, 'Restore from Backup');
+
+    expect(find.text('Restore Is Not Available In A Chamber'), findsNothing);
+    expect(find.text('Restore complete'), findsOneWidget);
   });
 
   testWidgets("a file that names no owner is restored as this device's own", (

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.537 - Firm mode Phase 12: tombstones live 365 days and the device recovery window 335, keeping the 30-day cushion; applied and proven live.
+Version: 0.0.538 - Firm mode Phase 13: a chamber refuses a restore with no way through and never writes the pull-only caches, and each restored row is stamped into the current chamber while another chamber's file is refused.
 --------------------------------------
 
 ## Version History Log:
@@ -551,3 +551,4 @@ Version: 0.0.534 - Firm mode Phase 9: a member's payment is refused and only the
 Version: 0.0.535 - Firm mode Phase 10: a lapse caps writing at the tier it last held — Pro 100, Firm 500, Firm Plus 1,000 cases, notes and references — with the excess read-only but readable, and the 50-case wall kept only for an account that was never premium.
 Version: 0.0.536 - Firm mode Phase 11: dissolution — the owner empties the roster, then dissolves; every row stays as his own diary with attribution intact, while the chamber, its invites and the account's firm link go.
 Version: 0.0.537 - Firm mode Phase 12: tombstones live 365 days and the device recovery window 335, keeping the 30-day cushion; applied and proven live.
+Version: 0.0.538 - Firm mode Phase 13: a chamber refuses a restore with no way through and never writes the pull-only caches, and each restored row is stamped into the current chamber while another chamber's file is refused.

@@ -365,6 +365,18 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     )).hasUserAuthoredData();
     if (!mounted) return;
 
+    // A chamber's fence sits above the premium guard and has no way through
+    // (firm-mode §6): a backup is the ledger at one moment, and putting it back
+    // over a chamber re-introduces rows other members may have changed or
+    // deleted since. The premium guard's Delete Local & Cloud Data route is not
+    // offered here — erasing a chamber's records is not this screen's choice to
+    // make — so the one restore firm mode allows is onto a device that holds
+    // nothing yet, which is a fresh install rather than a window to click past.
+    if (firmMode && diaryHoldsUserData) {
+      await showRestoreBarredInChamberDialog(context);
+      return;
+    }
+
     if (premium && lastSync != null && diaryHoldsUserData) {
       final wipe = await showRestoreBlockedDialog(context);
       if (!wipe || !mounted) return;
@@ -437,8 +449,11 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       // Restores never merge silently: existing data asks first. The check is
       // scoped to the tables the file carries, so a four-sheet workbook never
       // asks about — and never replaces — anything outside its own scope.
+      // Asked of the repository's own scope, so the question and the import can
+      // never disagree about which tables a restore writes: a file whose only
+      // rows are the pull-only caches replaces nothing and asks nothing.
       final hasExistingData = await repository.hasDataInTables(
-        opened.tables.keys.toList(),
+        repository.restorableTables(opened.tables.keys),
       );
       if (!mounted) return;
       if (hasExistingData) {
@@ -542,6 +557,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       l.settingsBackupRestore_errorConflict,
     BackupRestoreFailure.anotherAccount =>
       l.settingsBackupRestore_errorAnotherAccount,
+    BackupRestoreFailure.anotherFirm =>
+      l.settingsBackupRestore_errorAnotherFirm,
     BackupRestoreFailure.importFailed =>
       l.settingsBackupRestore_errorImportFailed,
   };
@@ -594,6 +611,25 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // A member is offered neither action (firm-mode §6): a member who could
+    // export would hold the chamber's whole ledger in a file they keep, which is
+    // the firm's asset rather than theirs. The Settings list hides this entry for
+    // them, and this is the second site of the same rule — a stale route, or a
+    // link that still points here, must not offer buttons that would refuse.
+    if (ref.watch(firmMemberProvider)) {
+      return SettingsSubPageModal(
+        title: l.settingsBackupRestore_title,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.edgeMargin,
+            AppSpacing.md,
+            AppSpacing.edgeMargin,
+            AppSpacing.xl,
+          ),
+          children: const [_MemberNotice()],
+        ),
+      );
+    }
     final metadata = ref.watch(backupMetadataProvider);
     return SettingsSubPageModal(
       title: l.settingsBackupRestore_title,
@@ -947,6 +983,25 @@ class _ActionButton extends StatelessWidget {
 /// These lines are paragraphs rather than labels, so their strings are written in
 /// **sentence case** in the ARB — Title Case is kept for headings, button labels
 /// and menu entries only.
+/// What a chamber member meets here instead of the actions.
+///
+/// The same card as the screen's other notes, one sentence: the bar exists, so
+/// the screen states it rather than drawing a button that cannot work.
+class _MemberNotice extends StatelessWidget {
+  const _MemberNotice();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('backup-member-notice'),
+    decoration: _cardDecoration(color: AppColors.surfaceBright),
+    padding: const EdgeInsets.all(AppSpacing.lg),
+    child: Text(
+      AppLocalizations.of(context).settingsBackupRestore_memberNotice,
+      style: AppTypography.bodyMd,
+    ),
+  );
+}
+
 class _BackupNote extends StatelessWidget {
   const _BackupNote();
 

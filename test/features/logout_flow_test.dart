@@ -54,12 +54,14 @@ void main() {
   LogoutFlow flow({
     bool premium = true,
     bool online = true,
+    bool backupBarred = false,
     Future<BacklogOutcome?> Function()? push,
     BackupArchiveSink? sink,
   }) => LogoutFlow(
     db: db,
     premium: premium,
     online: online,
+    backupBarred: backupBarred,
     runBacklogPush: push ?? () async => const BacklogOutcome(),
     endSession: () async => ended++,
     sink: sink ?? _RecordingSink(),
@@ -336,6 +338,37 @@ void main() {
         isNot(contains('cat-1')),
       );
       expect(await db.select(db.steps).get(), isNotEmpty);
+    });
+  });
+
+  group('a chamber member keeps no copy (firm-mode §6)', () {
+    test('the plan states the bar and offers no choice', () async {
+      // A free account holding its own work is the branch that offers a copy;
+      // barred, the offer is gone and the warning takes its place.
+      final barred = await flow(premium: false, backupBarred: true).plan();
+      expect(barred.backupBarred, isTrue);
+      expect(barred.needsBackupChoice, isFalse);
+      // The branches themselves are unchanged: the sync still gates the wipe.
+      expect(
+        (await flow(backupBarred: true).plan()).branch,
+        LogoutBranch.syncedThenWiped,
+      );
+      expect(
+        (await flow(premium: false, backupBarred: true).plan()).branch,
+        LogoutBranch.cleanWipe,
+      );
+    });
+
+    test('the export refuses, so nothing is written and nothing deleted', () async {
+      final sink = _RecordingSink();
+      final result = await flow(
+        backupBarred: true,
+        sink: sink,
+      ).exportThenComplete(passphrase: 'correct-horse');
+
+      expect(result, LogoutResult.exportCancelled);
+      expect(sink.bytes, isNull);
+      expect(ended, 0);
     });
   });
 

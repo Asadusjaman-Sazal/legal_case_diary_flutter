@@ -23,6 +23,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/attribution_line.dart';
 import '../../../sync/conflict_rebase.dart';
 import '../../../sync/conflict_resolution.dart';
 import '../../../sync/entity_tables.dart';
@@ -337,6 +338,8 @@ class _Card extends StatelessWidget {
 /// A chamber colleague's name is **not** on this device — `profiles` holds this
 /// account's own row (rule 4) — so the fallback is what a member sees for one: a
 /// neutral label. "Another Device" is kept outside a chamber, where it is true.
+/// The row itself is the app's one attribution style, shared with the case
+/// History's *Added By* (`AttributionLine`).
 class _EditorLine extends ConsumerWidget {
   const _EditorLine({required this.editorId});
 
@@ -349,18 +352,7 @@ class _EditorLine extends ConsumerWidget {
     final fallback = ref.watch(firmModeProvider)
         ? l.sharedLabels_chamberMember
         : l.syncConflict_unknownEditor;
-    return Row(
-      children: [
-        const Icon(Icons.person_outline, size: 18, color: AppColors.tertiary),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            l.syncConflict_editedBy(name ?? fallback),
-            style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-          ),
-        ),
-      ],
-    );
+    return AttributionLine(label: l.syncConflict_editedBy(name ?? fallback));
   }
 }
 

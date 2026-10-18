@@ -1711,6 +1711,14 @@ display gaps in attribution; both were filled, and the "verification only" wordi
   style), drawn **only inside a chamber**: on an individual device every entry is this account's own
   and the line would repeat one name down the list, the same reason the roster and the
   delete-request requester are chamber-only surfaces.
+- **One owner for the row (0.0.540).** The two renderings were near-identical but copied: the History
+  line and the conflict screen's editor line each built their own `person_outline` row, and their
+  icons even differed (14 px against 18 px). Both now draw the shared `AttributionLine`
+  (`lib/shared/widgets/attribution_line.dart`), which owns the icon, the gap, the `bodySm` style and
+  the tertiary tint once; the conflict icon came down to 14 px, so "one attribution style" is now
+  literally true. The **wording and its fallback stay at each call site**, because they genuinely
+  differ — the History line is chamber-only and a colleague reads *A Chamber Member*, while a
+  conflict outside a chamber keeps *Another Device*.
 - **Gap 2, filled — a colleague was called a device.** `profiles` caches this account's own row alone
   (rule 4), so a colleague's name never resolves from the device and the fallback is what a member
   reads; the conflict screen's was `syncConflict_unknownEditor` = *Another Device*, true for your own

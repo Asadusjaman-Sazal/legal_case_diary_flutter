@@ -74,7 +74,7 @@ The app is distributed **directly, not through Google Play**, so it is installed
 
 **<https://github.com/Asadusjaman-Sazal/legal_case_diary_flutter/releases/latest>**
 
-The releases are published by **Asadusjaman-Sazal**, this repository's owner, and the file is named with the version it carries, for example `Legal.Case.Diary.v0.0.509-ARM64.apk`. GitHub turns the spaces in the name into dots as it stores the file, so the published asset reads with dots even though the release itself is titled *Legal Case Diary v0.0.509*.
+This repository belongs to **Asadusjaman-Sazal**, and every release is built from it automatically by GitHub Actions, which is why the release page credits **github-actions bot** as the publisher rather than a person — the code and the signing key are the owner's, the typing is the robot's. The file is named with the version it carries, for example `Legal.Case.Diary.v0.0.509-ARM64.apk`: it is built as *Legal Case Diary v0.0.509-ARM64.apk*, and GitHub turns the spaces into dots as it stores the file.
 
 ### How To Install It
 
@@ -92,7 +92,7 @@ Every release is signed with the project's release key, and the app refuses to i
 
 **<https://github.com/Asadusjaman-Sazal/legal_case_diary_flutter/releases/latest>**
 
-রিলিজগুলো প্রকাশ করে **Asadusjaman-Sazal**, অর্থাৎ এই রিপোজিটরির মালিক। ফাইলের নামের সঙ্গে সংস্করণ থাকে, যেমন `Legal.Case.Diary.v0.0.509-ARM64.apk`; গিটহাব ফাইলের নামের ফাঁকা জায়গাকে ডট করে রাখে, তাই ডাউনলোড করা ফাইলে ডট থাকে।
+এই রিপোজিটরির মালিক **Asadusjaman-Sazal**, আর প্রতিটি রিলিজ গিটহাব Actions থেকে স্বয়ংক্রিয়ভাবে তৈরি হয়; তাই রিলিজের পাতায় প্রকাশক হিসেবে ব্যক্তির নামের বদলে **github-actions bot** লেখা থাকে — কোড ও সাইনিং কী মালিকের, লেখার কাজটা যন্ত্রের। ফাইলের নামের সঙ্গে সংস্করণ থাকে, যেমন `Legal.Case.Diary.v0.0.509-ARM64.apk`: ফাইলটি তৈরি হয় *Legal Case Diary v0.0.509-ARM64.apk* নামে, আর গিটহাব সেটি সংরক্ষণ করার সময় ফাঁকা জায়গাকে ডট করে রাখে।
 
 **ইনস্টল করার ধাপ:**
 

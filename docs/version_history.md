@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.541 - Phase 15: the app refuses an update whose APK is not signed like itself, says so in both languages, and the readme documents the download page and the install steps.
+Version: 0.0.542 - Phase 15 audit: the case count and the readme's publisher claim corrected against the shipped artifacts, and the phase's one shortfall (refusal at install, not at offer) recorded at the acceptance.
 --------------------------------------
 
 ## Version History Log:
@@ -555,3 +555,4 @@ Version: 0.0.538 - Firm mode Phase 13: a chamber refuses a restore with no way t
 Version: 0.0.539 - Firm mode Phase 14: a case's history names who added each entry inside a chamber, and the conflict screen names a member rather than a device; the roster was verified correct with no change.
 Version: 0.0.540 - The case History's Added By line and the Review Conflict screen's editor line now draw one shared AttributionLine, so the app has a single attribution style.
 Version: 0.0.541 - Phase 15: the app refuses an update whose APK is not signed like itself, says so in both languages, and the readme documents the download page and the install steps.
+Version: 0.0.542 - Phase 15 audit: the case count and the readme's publisher claim corrected against the shipped artifacts, and the phase's one shortfall (refusal at install, not at offer) recorded at the acceptance.

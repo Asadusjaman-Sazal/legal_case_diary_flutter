@@ -1759,11 +1759,17 @@ display gaps in attribution; both were filled, and the "verification only" wordi
 - **Server.** None — client and docs only.
 - **Objects.** `lib/features/settings/data/update_repository.dart`, `update_release.dart`, `presentation/update_flow.dart`, `update_screen.dart`, `update_schedule_card.dart`; the release naming and `FileProvider` grant as they already exist; the readme and the site.
 - **Proof.** A test that a tampered or unverifiable release is refused rather than offered to the user.
-  **Written (0.0.541):** eight cases across the two existing harnesses — the host's refusal answered
-  at the channel, the flow's refusal state and its retained offer through the shared controller, the
-  refusal sentence on the real Update screen, and the Kotlin halves read from source.
+  **Written (0.0.541):** nine cases across the two existing harnesses — four at the channel (the
+  refusal, an accepted handoff, a host refusal keeping its old meaning, and a platform with no hook),
+  two on the flow (the refusal state with its retained offer, and an accepted handoff still clearing
+  it) through the shared controller, one widget case for the refusal sentence on the real Update
+  screen, and the Kotlin halves read from source. **Where the acceptance is met and where it is not:**
+  the refusal lands at the **install**, not at the **offer** — nothing unverifiable is ever installed,
+  but a tampered release can still be dangled in front of the user, because before the APK exists
+  there is nothing to verify (see *As built* below).
 - **Hazards.** With direct distribution there is no store’s signature check standing behind this, and the updater is the **only** path an update takes — so a failure here is a failure of the whole channel.
-- **Owed.** **Update authenticity** — a signed release, or a checksum pinned in the app — so a
+- ~~**Owed.**~~ **Was owed — built at 0.0.541, kept as the record of what this phase was expected to
+  be.** **Update authenticity** — a signed release, or a checksum pinned in the app — so a
   tampered or unverifiable update is refused; and the **install path's docs**: the APK's download
   page, a stated owner, and install instructions that survive Android's unknown-sources prompt.
   Release naming and the `FileProvider` grant already exist.
@@ -1803,7 +1809,8 @@ offer, so a refused release is never reported as the version you are already run
 
 **As built (0.0.541) — the install path's docs.** `README.md` gained **Installing The App
 (Android)**: the download page (the project's GitHub releases page, which is where the updater
-itself reads from and needs no hosting of its own), the publisher named as the repository's owner,
+itself reads from and needs no hosting of its own), the owner named as the authority behind the
+releases with the release page's own *github-actions bot* publisher explained rather than ignored,
 the published asset name **as GitHub actually stores it** (`Legal.Case.Diary.v<version>-ARM64.apk` —
 the workflow writes spaces and GitHub turns them into dots, which is why the asset a user sees
 carries dots), and the install steps that survive Android's warning, including the *Install unknown

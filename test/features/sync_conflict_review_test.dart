@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/sync/presentation/review_conflict_screen.dart';
 import 'package:legal_case_diary/features/sync/presentation/sync_conflict_banner.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
@@ -99,13 +100,16 @@ void main() {
     ),
   );
 
-  Future<void> pumpApp(WidgetTester tester) async {
+  Future<void> pumpApp(WidgetTester tester, {bool chamber = false}) async {
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           databaseProvider.overrideWith((_) async => db),
+          // The chamber is stated rather than derived, so the test says only the
+          // fact it is about (firm-mode §9.9).
+          if (chamber) firmModeProvider.overrideWithValue(true),
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -268,6 +272,54 @@ void main() {
         (await db.select(db.conflictLog).get()).single.resolutionState,
         conflictUserResolved,
       );
+    });
+  });
+
+  group('who the server says edited the row (firm-mode §9.9)', () {
+    /// A server payload edited by [editorId], which is what the screen reads.
+    Map<String, dynamic> editedBy(String editorId) => <String, dynamic>{
+      ..._serverNote(),
+      'last_modified_by': editorId,
+    };
+
+    /// A colleague: a real account id this device holds no profile row for.
+    const colleague = '77777777-7777-4777-8777-777777777777';
+
+    testWidgets('inside a chamber the other side is a member, not a device', (
+      tester,
+    ) async {
+      await logConflict(server: editedBy(colleague));
+      await withApp(tester, () async {
+        await pumpApp(tester, chamber: true);
+
+        await tester.tap(find.text('A Conflict Needs Review'));
+        await tester.pumpAndSettle();
+
+        // A chamber colleague is a person, and this device never holds their
+        // name — so the screen says what it knows instead of blaming a device.
+        expect(find.text('A Chamber Member Changed This Record'), findsOneWidget);
+        expect(find.text('Edited By A Chamber Member'), findsOneWidget);
+        expect(find.text('Another Device Changed This Record'), findsNothing);
+        expect(find.text('Edited By Another Device'), findsNothing);
+      });
+    });
+
+    testWidgets("outside a chamber the two-device wording is kept", (
+      tester,
+    ) async {
+      // The regression pin: an individual account's other side really is its own
+      // second device, so the wording that was there stays there.
+      await logConflict(server: editedBy(colleague));
+      await withApp(tester, () async {
+        await pumpApp(tester);
+
+        await tester.tap(find.text('A Conflict Needs Review'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Another Device Changed This Record'), findsOneWidget);
+        expect(find.text('Edited By Another Device'), findsOneWidget);
+        expect(find.text('A Chamber Member Changed This Record'), findsNothing);
+      });
     });
   });
 }

@@ -596,6 +596,12 @@ abstract class AppLocalizations {
   /// **'{count} Entries Total'**
   String caseDetailsScreen_entriesTotal(int count);
 
+  /// No description provided for @caseDetailsScreen_historyAddedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Added By {name}'**
+  String caseDetailsScreen_historyAddedBy(String name);
+
   /// No description provided for @caseDetailsScreen_noHistoryEntries.
   ///
   /// In en, this message translates to:
@@ -1345,6 +1351,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Another Device Changed This Record'**
   String get syncConflict_subtitle;
+
+  /// No description provided for @syncConflict_subtitleMember.
+  ///
+  /// In en, this message translates to:
+  /// **'A Chamber Member Changed This Record'**
+  String get syncConflict_subtitleMember;
 
   /// No description provided for @syncConflict_editedBy.
   ///
@@ -2701,6 +2713,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign In To Continue'**
   String get sharedMessages_signInRequired;
+
+  /// No description provided for @sharedLabels_chamberMember.
+  ///
+  /// In en, this message translates to:
+  /// **'A Chamber Member'**
+  String get sharedLabels_chamberMember;
 
   /// No description provided for @appShell_exitTitle.
   ///

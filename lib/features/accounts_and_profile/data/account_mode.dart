@@ -62,6 +62,31 @@ final accountProfileProvider = StreamProvider<Profile?>((ref) async* {
   yield* ProfilesDao(db).watchById(identity.userId);
 });
 
+/// The display name this device holds for one account id, or null.
+///
+/// One home for the question every attribution line asks. `profiles` is a
+/// pull-only cache of **this** account's own row (rule 4), so the account's own
+/// name resolves and a chamber colleague's does not: the server never sends that
+/// row here, and the roster — a live read — is the one place a colleague's name
+/// is available. A null answer therefore means "somebody whose name this device
+/// does not hold", and callers print a neutral label rather than a person's
+/// name.
+///
+/// It is deliberately **not** a network read: a conflict, and a case's history,
+/// have to stay readable offline — the same ruling the delete-request requester's
+/// name records (`delete_requests_viewmodel.dart`).
+///
+/// A blank name reads as null too, so a pull-only row that exists but names
+/// nobody is never printed as an empty attribution.
+final accountDisplayNameProvider =
+    StreamProvider.family<String?, String>((ref, id) async* {
+  final db = await ref.watch(databaseProvider.future);
+  yield* ProfilesDao(db).watchById(id).map((profile) {
+    final name = profile?.fullName.trim() ?? '';
+    return name.isEmpty ? null : name;
+  });
+});
+
 /// The cached firm row for a firm-mode account, or null.
 ///
 /// Its subscription expiry is the source of truth for every member, which is

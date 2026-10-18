@@ -891,7 +891,10 @@ and never restored (§6) — `profiles`, `firms`, `firm_members`. *Server-manage
    its scope owner**: without the scope owner, the dissolve hands the chamber's rows to their
    authors and hides them from the owner.
 9. **Attribution in the UI** — who added a row, who last changed it — and the owner's roster, which
-   are readability rather than correctness.
+   are readability rather than correctness. **Built (0.0.539):** the roster was verified correct with
+   no change; a case's history gained a chamber-only *Added By [name]* line from the row's own
+   `created_by`, and the conflict screen now names a **member** rather than a device inside a chamber.
+   See Phase 14.
 
 A per-row "only me" scope is **not** on this list and is not planned: under the single-ledger model
 of §1 it would have nothing to mark, and building it is exactly what would turn every read path
@@ -1043,7 +1046,7 @@ into a leak surface.
 | 11 | Dissolution | §4.4, §10.4, §10.11 | **Built** 0.0.536 | `20261017110000_firm_mode_dissolution.sql` + client |
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | **Built** 0.0.537 | `20261017120000_firm_mode_retention_window.sql` + regeneration |
 | 13 | Restore Inside A Chamber | §6, §10.14 | **Built** 0.0.538 | client only, no migration |
-| 14 | Attribution And The Roster | §9.9 | Owed (verify) | client, verify only |
+| 14 | Attribution And The Roster | §9.9 | **Built** 0.0.539 | client only, no migration |
 | 15 | Distribution | §5.6, §10.4, §10.10 | Owed | client + docs |
 
 **The § → phase map, so rule 4 and the ruling index stay answerable:** §1→P2, §2→P3/P7,
@@ -1664,10 +1667,12 @@ into a leak surface.
   stamping rule re-creates the mixed ledger §1 forbids, and the stamping rule without the foreign-firm
   refusal creates the permanent local-only rows above.
 
-### Phase 14 — Attribution And The Roster — **Owed** (verify rather than rebuild)
+### Phase 14 — Attribution And The Roster — **Built (0.0.539)**
 
 
-- **Status.** **Owed (Verification Only)** — no change is expected; the deliverable is the finding.
+- **Status.** **Built (0.0.539)** — the verification found the roster already correct and two
+display gaps in attribution; both were filled, and the "verification only" wording below is kept as the
+  record of what the phase was expected to be.
 - **Discharges.** §9.9. Plan §9's step 9.
 - **Depends On.** Phase 3 and Phase 4, for the membership state it renders; nothing else.
 - **Why Here.** It is readability rather than correctness, so it sits last among the firm-mode items — but an attribution bug would surface here as a display lie rather than a data fault.
@@ -1684,6 +1689,50 @@ into a leak surface.
   set, and fills **only** what is missing.
 - **Acceptance.** A written finding per item: already correct, or added. If nothing is missing, the
   phase closes with the verification recorded and **no change** — that is a pass, not an empty phase.
+- **Verified, item 1 — attribution's storage.** The server authors the column and a client cannot
+  claim another account's work: `push_changes` strips `last_modified_by` from the payload and writes
+  the authenticated actor (`20260930140000_push_changes.sql:389-397`, `:480-486`), and a
+  `case_history` row's `created_by` is that actor too (`:556-570`). `case_history.created_by` is
+  adopted onto the signed-in account at sign-in while it still names the pre-account placeholder
+  (`identity_adoption_service.dart:129-134`), so a history row's author is a real account id. The one
+  *Edited By [Name]* rendering already read the right column (`review_conflict_screen.dart:142`).
+- **Verified, item 2 — the roster.** `FirmRepository.listMembers()`
+  (`firm_repository.dart:782-830`) reads `firm_members` (`user_id, role, can_add, can_edit,
+  can_delete`) filtered by RLS to the caller's own chamber and resolves names with
+  `profiles(id, full_name)`; `firmMembersListProvider` is a live read, invalidated after a change, so
+  there is no second local copy of the membership state. The screen draws one row per member, the
+  owner's own row un-tappable (their permissions are structural), a blank name as *Unnamed Member*,
+  and a failed read as a banner. **Already correct, no change** — and already pinned by three cases in
+  `test/features/manage_associates_test.dart`.
+- **Gap 1, filled — a case's history named nobody.** Every entry showed date, Step/Result and Note,
+  so inside a chamber several people's entries were indistinguishable although `created_by` held the
+  real account. Each entry now carries **Added By [name]** under its note (`person_outline` at 14 px,
+  `bodySm`, `AppColors.tertiary` — the conflict screen's editor line, so the app has one attribution
+  style), drawn **only inside a chamber**: on an individual device every entry is this account's own
+  and the line would repeat one name down the list, the same reason the roster and the
+  delete-request requester are chamber-only surfaces.
+- **Gap 2, filled — a colleague was called a device.** `profiles` caches this account's own row alone
+  (rule 4), so a colleague's name never resolves from the device and the fallback is what a member
+  reads; the conflict screen's was `syncConflict_unknownEditor` = *Another Device*, true for your own
+  second phone and false for a colleague. In firm mode the editor line now reads **A Chamber Member**
+  and the screen's subtitle **A Chamber Member Changed This Record**; outside a chamber both keep the
+  two-device wording, which is correct there.
+- **One home for the question.** New `accountDisplayNameProvider(id)` (`account_mode.dart`) answers
+  from this device's own cached profile row, normalising a blank name to null so a row that names
+  nobody is never printed as an empty attribution. It is deliberately **not** a network read — a case
+  and a conflict have to stay readable offline, the ruling the delete-request requester's name
+  records — and the conflict screen's private duplicate of it was deleted in favour of it. The
+  delete-request provider keeps its own `FutureProvider` shape and tests.
+- **Proof (0.0.539).** `test/features/case_detail_test.dart` — in a chamber this account's entry reads
+  *Added By <own name>* while a colleague's reads *Added By A Chamber Member* (and the raw id is never
+  shown), and an individual device draws no author line at all. `test/features/sync_conflict_review_test.dart`
+  — in a chamber the subtitle and the editor fallback are the member wording, and outside a chamber
+  the *Another Device* wording is unchanged (the regression pin). `test/features/manage_associates_test.dart`
+  needed no edit: its roster cases were already the proof.
+- **Mockup (rule 9).** `mockup_html_screens/caseDetails/code.html` draws the individual state, whose
+  body does not change, so the chamber-only line is recorded in a comment beside the Case History card
+  rather than drawn — the way the paywall mockup records the lapsed card. The Review Conflict screen
+  has no mockup, so none was added.
 
 ### Phase 15 — Distribution — **Owed**
 

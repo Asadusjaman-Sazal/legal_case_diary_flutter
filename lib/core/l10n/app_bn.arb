@@ -109,6 +109,14 @@
           }
       }
   },
+  "caseDetailsScreen_historyAddedBy": "{name} যোগ করেছেন",
+  "@caseDetailsScreen_historyAddedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
   "caseDetailsScreen_noHistoryEntries": "এখনো কোনো কেস হিস্টোরি যুক্ত করা হয়নি।",
   "caseDetailsScreen_showHistory": "দেখুন",
   "caseDetailsScreen_hideHistory": "লুকান",
@@ -313,6 +321,7 @@
   "syncConflict_bannerAction": "পর্যালোচনা করুন",
   "syncConflict_title": "দ্বন্দ্ব পর্যালোচনা",
   "syncConflict_subtitle": "অন্য একটি ডিভাইস এই রেকর্ডটি পরিবর্তন করেছে",
+  "syncConflict_subtitleMember": "একজন চেম্বার সদস্য এই রেকর্ডটি পরিবর্তন করেছেন",
   "syncConflict_editedBy": "{name} সম্পাদনা করেছেন",
   "@syncConflict_editedBy": {
       "placeholders": {
@@ -685,6 +694,7 @@
       }
   },
   "sharedMessages_signInRequired": "চালিয়ে যেতে সাইন ইন করুন",
+  "sharedLabels_chamberMember": "একজন চেম্বার সদস্য",
   "@@_section_appShell": "APP SHELL (exit confirmation)  |  lib/core/router/app_router.dart - exit confirmation",
   "appShell_exitTitle": "অ্যাপ থেকে প্রস্থান?",
   "appShell_exitMessage": "আপনি কি লিগ্যাল কেস ডায়েরি থেকে প্রস্থান করতে চান?",

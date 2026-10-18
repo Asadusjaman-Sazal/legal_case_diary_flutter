@@ -1532,6 +1532,7 @@
   "settingsUpdate_checkFailed": "এই মুহূর্তে আপডেট দেখা যায়নি। পরে আবার চেষ্টা করুন।",
   "settingsUpdate_downloadFailed": "আপডেটটি ডাউনলোড করা যায়নি। পরে আবার চেষ্টা করুন।",
   "settingsUpdate_installUnavailable": "এই ডিভাইসে আপডেট ইনস্টল করা যায় না।",
+  "settingsUpdate_unverifiedRelease": "এই আপডেটটি যাচাই করা যায়নি, তাই ইনস্টল করা হয়নি।",
   "settingsUpdate_offlineToast": "ইন্টারনেটে যুক্ত হয়ে আপডেট দেখুন।",
   "settingsUpdate_frequencyOff": "বন্ধ",
   "settingsUpdate_frequencyEveryday": "প্রতিদিন",

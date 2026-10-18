@@ -6228,6 +6228,12 @@ abstract class AppLocalizations {
   /// **'This device cannot install an update.'**
   String get settingsUpdate_installUnavailable;
 
+  /// No description provided for @settingsUpdate_unverifiedRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'This update could not be verified, so it was not installed.'**
+  String get settingsUpdate_unverifiedRelease;
+
   /// No description provided for @settingsUpdate_offlineToast.
   ///
   /// In en, this message translates to:

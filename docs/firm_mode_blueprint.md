@@ -731,7 +731,10 @@ URI permission are critical infrastructure, and a broken update path strands the
 with no store to fall back on. **Authenticity is part of that infrastructure** (audit): with no
 store review in the path, the app is what installs the file, so it has to be able to tell a release
 of ours from anything else — a signed release, or a checksum pinned in the app — because the
-release feed is otherwise a direct route into every installed diary. (2) Installs become the marketing problem: the APK needs a reachable
+release feed is otherwise a direct route into every installed diary. **Built (0.0.541):** the first
+mechanism, a signed release checked by the app itself — the downloaded APK's signing certificate
+against the certificate of the app already installed, refused before anything is dispatched, with a
+refusal sentence of its own in both languages. See Phase 15. (2) Installs become the marketing problem: the APK needs a reachable
 download page, a stated owner, and install instructions that survive Android's unknown-sources
 prompt, so the readme and the site are part of the product. (3) The manual MFS flow stays exactly as
 built — `approve_payment`'s per-plan amount validation, the rate limit, the Admin Panel — and its
@@ -1047,7 +1050,7 @@ into a leak surface.
 | 12 | Retention And The Recovery Window | §5.5, §10.7 | **Built** 0.0.537 | `20261017120000_firm_mode_retention_window.sql` + regeneration |
 | 13 | Restore Inside A Chamber | §6, §10.14 | **Built** 0.0.538 | client only, no migration |
 | 14 | Attribution And The Roster | §9.9 | **Built** 0.0.539 | client only, no migration |
-| 15 | Distribution | §5.6, §10.4, §10.10 | Owed | client + docs |
+| 15 | Distribution | §5.6, §10.4, §10.10 | **Built** 0.0.541 | client + docs, no migration |
 
 **The § → phase map, so rule 4 and the ruling index stay answerable:** §1→P2, §2→P3/P7,
 §3.1→P3, §3.2→P6, §3.3→P2/P5, §4.1–§4.2→P4, §4.3→P1, §4.4→P11, §5.1→P9, §5.2→P10, §5.3→P7/P8,
@@ -1742,10 +1745,12 @@ display gaps in attribution; both were filled, and the "verification only" wordi
   rather than drawn — the way the paywall mockup records the lapsed card. The Review Conflict screen
   has no mockup, so none was added.
 
-### Phase 15 — Distribution — **Owed**
+### Phase 15 — Distribution — **Built (0.0.541)**
 
 
-- **Status.** **Owed** — the updater ships with no authenticity check.
+- **Status.** **Built (0.0.541)** — client and docs only, no migration: the updater now refuses an
+  APK it cannot authenticate, and the install path is documented in the readme in both languages.
+  The "owed" wording below is kept as the record of what the phase was expected to be.
 - **Discharges.** §5.6, §10.10, and the audit's authenticity finding. Task 21.
 - **Depends On.** Nothing.
 - **Why Here.** Direct distribution is the settled channel, which makes the in-app updater the **only**
@@ -1754,6 +1759,9 @@ display gaps in attribution; both were filled, and the "verification only" wordi
 - **Server.** None — client and docs only.
 - **Objects.** `lib/features/settings/data/update_repository.dart`, `update_release.dart`, `presentation/update_flow.dart`, `update_screen.dart`, `update_schedule_card.dart`; the release naming and `FileProvider` grant as they already exist; the readme and the site.
 - **Proof.** A test that a tampered or unverifiable release is refused rather than offered to the user.
+  **Written (0.0.541):** eight cases across the two existing harnesses — the host's refusal answered
+  at the channel, the flow's refusal state and its retained offer through the shared controller, the
+  refusal sentence on the real Update screen, and the Kotlin halves read from source.
 - **Hazards.** With direct distribution there is no store’s signature check standing behind this, and the updater is the **only** path an update takes — so a failure here is a failure of the whole channel.
 - **Owed.** **Update authenticity** — a signed release, or a checksum pinned in the app — so a
   tampered or unverifiable update is refused; and the **install path's docs**: the APK's download
@@ -1766,6 +1774,43 @@ display gaps in attribution; both were filled, and the "verification only" wordi
 - **Note.** If Play is adopted later it is a **build flavour**, not a code change: it switches to Play
   Billing and drops the self-updater, and the 15 % comes off margin rather than being added to the
   customer's price.
+
+**As built (0.0.541) — the authenticity half, one signed-release check.** The plan offered two
+mechanisms and the ruling took the first: **a signed release**, verified by the app. In the install
+handler itself, and before the `FileProvider` lookup or any intent, the host now reads the downloaded
+archive's signing certificate (`getPackageArchiveInfo` with `GET_SIGNING_CERTIFICATES` on API ≥ 28 and
+the pre-28 `GET_SIGNATURES` below it, because minSdk is 24), hashes it with SHA-256, and compares it
+with the certificate of **the app already installed** — the identity Android itself enforces at
+install. A mismatch, an unreadable archive or a missing certificate returns
+`error("unverified_signature")` and dispatches nothing: no content URI, no per-resolver grant, no
+`startActivity`. **Why the self-comparison and not a fingerprint pinned in the app:** the anchor is
+already correct for every build and every future release, needs no value transcribed by hand, and
+cannot be broken by a keystore change that no code would see. **Why in Kotlin and not Dart:** reading
+a certificate is a platform API, and the check has to be the same step that dispatches the intent, so
+an APK cannot change between being verified and being handed over. **What it does not buy:** the
+offer can still be *shown* — "ours" is unknowable before there is a file to inspect — so the phase's
+acceptance is met where it counts: such a release is never **installed**, and the refusal names
+itself rather than looking like a device that cannot install updates.
+
+**As built (0.0.541) — the refusal the user reads.** One new ARB key in both languages,
+`settingsUpdate_unverifiedRelease` (*This update could not be verified, so it was not installed.* /
+*এই আপডেটটি যাচাই করা যায়নি, তাই ইনস্টল করা হয়নি।*), reached through the flow's own
+`UpdateFlowError.unverifiedRelease`, so the About card and the side menu's row both say it. The
+install handoff returns a three-way `ApkInstallOutcome` (`handedOff` / `unsupported` / `unverified`)
+instead of a bare bool, because "this device cannot install an update" would be an untrue
+explanation for a release that failed its authenticity check. A refusal does **not** clear the stored
+offer, so a refused release is never reported as the version you are already running.
+
+**As built (0.0.541) — the install path's docs.** `README.md` gained **Installing The App
+(Android)**: the download page (the project's GitHub releases page, which is where the updater
+itself reads from and needs no hosting of its own), the publisher named as the repository's owner,
+the published asset name **as GitHub actually stores it** (`Legal.Case.Diary.v<version>-ARM64.apk` —
+the workflow writes spaces and GitHub turns them into dots, which is why the asset a user sees
+carries dots), and the install steps that survive Android's warning, including the *Install unknown
+apps* permission and the older *Unknown sources* spelling — in **English and Bengali**, because the
+steps are where a non-technical reader stops. *As the plan puts it, installs are the marketing
+problem and the readme is part of the product.* No website is built in this phase (user ruling: the
+releases page for now, a proper site later), so the readme is the download page until then.
 
 ---
 

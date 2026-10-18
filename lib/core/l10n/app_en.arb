@@ -1702,6 +1702,7 @@
   "settingsUpdate_checkFailed": "Could not check for an update right now. Please try again later.",
   "settingsUpdate_downloadFailed": "The update could not be downloaded. Please try again later.",
   "settingsUpdate_installUnavailable": "This device cannot install an update.",
+  "settingsUpdate_unverifiedRelease": "This update could not be verified, so it was not installed.",
   "settingsUpdate_offlineToast": "Please Connect To The Internet And Check For An Update.",
   "settingsUpdate_frequencyOff": "Off",
   "settingsUpdate_frequencyEveryday": "Every Day",

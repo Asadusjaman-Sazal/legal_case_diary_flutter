@@ -3614,6 +3614,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This device cannot install an update.';
 
   @override
+  String get settingsUpdate_unverifiedRelease =>
+      'This update could not be verified, so it was not installed.';
+
+  @override
   String get settingsUpdate_offlineToast =>
       'Please Connect To The Internet And Check For An Update.';
 

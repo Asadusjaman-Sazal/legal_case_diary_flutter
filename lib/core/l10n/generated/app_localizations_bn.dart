@@ -3632,6 +3632,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ডিভাইসে আপডেট ইনস্টল করা যায় না।';
 
   @override
+  String get settingsUpdate_unverifiedRelease =>
+      'এই আপডেটটি যাচাই করা যায়নি, তাই ইনস্টল করা হয়নি।';
+
+  @override
   String get settingsUpdate_offlineToast =>
       'ইন্টারনেটে যুক্ত হয়ে আপডেট দেখুন।';
 

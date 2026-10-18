@@ -2,7 +2,10 @@ package com.legalcasediary.app
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.os.PowerManager
 import androidx.core.content.FileProvider
@@ -10,6 +13,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
+import java.security.MessageDigest
 
 /**
  * Hosts the two things the Android side must do for Dart.
@@ -75,6 +79,16 @@ class MainActivity : FlutterFragmentActivity() {
                             )
                             return@setMethodCallHandler
                         }
+                        // Authenticity first, and in this same call, so the file
+                        // cannot change between the check and the handoff.
+                        if (!apkSignatureMatchesInstalledApp(file)) {
+                            result.error(
+                                "unverified_signature",
+                                "Downloaded APK is not signed by this app's key: $path",
+                                null
+                            )
+                            return@setMethodCallHandler
+                        }
                         val uri: Uri = FileProvider.getUriForFile(
                             this,
                             "$packageName.apkprovider",
@@ -117,6 +131,58 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    /**
+     * Whether the downloaded APK is signed like this app.
+     *
+     * Direct distribution means no store stands between a release and somebody's
+     * diary, so this is what tells a release of ours from anything else: the
+     * archive's signing certificate is read and compared with the certificate of
+     * the app already installed. Nothing is pinned by hand — the anchor is the
+     * running app's own signature, which is the identity Android itself would
+     * enforce at install — so an APK signed with another key is refused here,
+     * before the installer is ever offered the file, rather than after a prompt a
+     * user could be talked past.
+     *
+     * An unreadable archive, or either side carrying no certificate, returns
+     * false as well: an unverifiable update is refused exactly like a foreign one.
+     */
+    private fun apkSignatureMatchesInstalledApp(apk: File): Boolean {
+        val archive = runCatching {
+            signerCertificateSha256(
+                packageManager.getPackageArchiveInfo(apk.absolutePath, signingFlags)
+            )
+        }.getOrNull() ?: return false
+        val installed = runCatching {
+            signerCertificateSha256(packageManager.getPackageInfo(packageName, signingFlags))
+        }.getOrNull() ?: return false
+        return archive.contentEquals(installed)
+    }
+
+    /// The flag asking for a package's signing certificate on this API level.
+    ///
+    /// `GET_SIGNATURES` is the pre-28 spelling and returns the same certificate
+    /// bytes; minSdk is 24, so both spellings are reachable at runtime.
+    @Suppress("DEPRECATION")
+    private val signingFlags: Int
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageManager.GET_SIGNING_CERTIFICATES
+        } else {
+            PackageManager.GET_SIGNATURES
+        }
+
+    /// SHA-256 of the first signing certificate [info] carries, or null.
+    @Suppress("DEPRECATION")
+    private fun signerCertificateSha256(info: PackageInfo?): ByteArray? {
+        // Not typed `Signature?`: the `?: return null` below is what makes the
+        // receiver non-null for the hash, and re-declaring it nullable undoes it.
+        val signer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            info?.signingInfo?.apkContentsSigners?.firstOrNull()
+        } else {
+            info?.signatures?.firstOrNull()
+        } ?: return null
+        return MessageDigest.getInstance("SHA-256").digest(signer.toByteArray())
     }
 
     /**

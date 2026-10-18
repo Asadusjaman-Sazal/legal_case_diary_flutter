@@ -68,6 +68,42 @@ Security is part of the application architecture rather than an optional layer:
 
 Firm access is tied to the owner&apos;s premium entitlement. If the subscription expires, cloud synchronization pauses for all firm members while local data remains available.
 
+## Installing The App (Android)
+
+The app is distributed **directly, not through Google Play**, so it is installed from an APK you download yourself. Download the newest one from the project's release page:
+
+**<https://github.com/Asadusjaman-Sazal/legal_case_diary_flutter/releases/latest>**
+
+The releases are published by **Asadusjaman-Sazal**, this repository's owner, and the file is named with the version it carries, for example `Legal.Case.Diary.v0.0.509-ARM64.apk`. GitHub turns the spaces in the name into dots as it stores the file, so the published asset reads with dots even though the release itself is titled *Legal Case Diary v0.0.509*.
+
+### How To Install It
+
+1. Open the release page on the phone — or transfer the APK to the phone — and download the file.
+2. Open the downloaded file. Android stops with a warning rather than installing, because the app did not come from Google Play.
+3. Allow it for the app you are downloading with: **Settings → Apps → Special access → Install unknown apps**, choose the browser (or the file manager), and turn **Allow from this source** on. On older Android the same switch is under **Settings → Security → Unknown sources**.
+4. Open the downloaded file again and confirm Android's install prompt.
+5. Open the app. Later updates arrive **inside the app**: **Settings → About → Update → Check for update** — the side menu carries the same **Check for update** row.
+
+Every release is signed with the project's release key, and the app refuses to install an update that is not signed like the copy already on the phone, so a tampered or unverifiable download is never installed.
+
+### ইনস্টল করার নিয়ম (বাংলা)
+
+অ্যাপটি **গুগল প্লে-তে নয়, সরাসরি** বিতরণ করা হয়, তাই এটি নিজে ডাউনলোড করা APK থেকে ইনস্টল করতে হয়। সর্বশেষ সংস্করণ ডাউনলোড করুন এই রিলিজ পেজ থেকে:
+
+**<https://github.com/Asadusjaman-Sazal/legal_case_diary_flutter/releases/latest>**
+
+রিলিজগুলো প্রকাশ করে **Asadusjaman-Sazal**, অর্থাৎ এই রিপোজিটরির মালিক। ফাইলের নামের সঙ্গে সংস্করণ থাকে, যেমন `Legal.Case.Diary.v0.0.509-ARM64.apk`; গিটহাব ফাইলের নামের ফাঁকা জায়গাকে ডট করে রাখে, তাই ডাউনলোড করা ফাইলে ডট থাকে।
+
+**ইনস্টল করার ধাপ:**
+
+1. ফোনে রিলিজ পেজ খুলে ফাইলটি ডাউনলোড করুন — অথবা ফাইলটি ফোনে নিয়ে আসুন।
+2. ডাউনলোড করা ফাইলে ট্যাপ করুন। গুগল প্লে থেকে না আসায় অ্যান্ড্রয়েড প্রথমে ইনস্টল করতে দেবে না।
+3. যে অ্যাপ দিয়ে ডাউনলোড করছেন তার অনুমতি দিন: **সেটিংস → Apps → Special access → Install unknown apps**, এরপর ব্রাউজার (বা ফাইল ম্যানেজার) বেছে নিয়ে **Allow from this source** চালু করুন। পুরোনো অ্যান্ড্রয়েডে একই সেটিং **সেটিংস → Security → Unknown sources**-এ থাকে।
+4. ফাইলে আবার ট্যাপ করে অ্যান্ড্রয়েডের ইনস্টল নিশ্চিতকরণে সম্মতি দিন।
+5. অ্যাপটি খুলুন। পরের আপডেটগুলো **অ্যাপের ভেতর থেকেই** পাওয়া যাবে: **Settings → About → Update → Check for update** — সাইড মেনুতেও একই **Check for update** সারি আছে।
+
+প্রতিটি রিলিজ প্রকল্পের রিলিজ কী দিয়ে সাইন করা থাকে। ফোনে থাকা অ্যাপের সঙ্গে মিলে না এমন কোনো আপডেট অ্যাপটি ইনস্টল করে না, তাই বদলে দেওয়া বা যাচাই করা যায় না এমন ফাইল কখনও ইনস্টল হয় না।
+
 ## Design System
 
 The **Justice Ledger** design language uses an ink-dark primary palette, action blue, parchment-white backgrounds, restrained status colors, and flat stationery-inspired surfaces. English typography uses Manrope, Inter, and IBM Plex Sans according to content type, while Bengali content uses Tiro Bangla with script-appropriate line height.

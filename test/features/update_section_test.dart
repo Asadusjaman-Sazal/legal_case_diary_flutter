@@ -8,7 +8,10 @@
 /// clock.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +24,7 @@ import 'package:legal_case_diary/core/constants/app_version.dart';
 import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/update_release.dart';
 import 'package:legal_case_diary/features/settings/data/update_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/app_install.dart';
 import 'package:legal_case_diary/features/settings/presentation/update_screen.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
@@ -364,6 +368,81 @@ void main() {
     await tester.pump();
 
     expect(find.text('Download Over Mobile Data?'), findsNothing);
+  });
+
+  testWidgets('an update that fails its authenticity check is refused', (
+    tester,
+  ) async {
+    // The download and the handoff are real file IO and a platform channel, so
+    // the cache directory is answered by hand and the host is made to refuse the
+    // APK as not signed like this app (firm-mode §5.6). What the user must read
+    // is a refusal that names itself — not a silent no-op, and not "you are on
+    // the latest version".
+    final cache = Directory.systemTemp.createTempSync('lcb_refused_update');
+    addTearDown(() {
+      if (cache.existsSync()) cache.deleteSync(recursive: true);
+    });
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (call) async =>
+          call.method == 'getApplicationCacheDirectory' ? cache.path : null,
+    );
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        null,
+      ),
+    );
+    messenger.setMockMethodCallHandler(
+      appInstallChannel,
+      (call) async =>
+          throw PlatformException(code: apkUnverifiedSignatureCode),
+    );
+    addTearDown(() => messenger.setMockMethodCallHandler(appInstallChannel, null));
+
+    final repo = _RecordingUpdateRepository(
+      outcome: const UpdateCheckOutcome(
+        ReleaseCheckResult.updateAvailable,
+        release: AppRelease(
+          version: '99.99.999',
+          downloadUrl: 'https://x.test/a',
+        ),
+      ),
+    );
+    await pump(tester, repo, monitor: _FakeMonitor(onMobileData: false));
+
+    await tester.tap(find.text('Check for update'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Update Now'));
+    // The download and the handoff are real asynchronous work, which only
+    // `runAsync` lets finish, while the preference and the cache lookups around
+    // it are fake-clock work that only `pump` advances — so the two alternate
+    // until the flow has run its course.
+    for (var i = 0; i < 6; i++) {
+      await tester.pump();
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+    }
+    await tester.pumpAndSettle();
+
+    expect(repo.downloads, <String>['99.99.999']);
+    expect(
+      find.text('This update could not be verified, so it was not installed.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('You are on the latest V$appVersion version.'),
+      findsNothing,
+      reason: 'a refused update was not installed, so it is not the latest one',
+    );
+    // Back to at rest, exactly like a failed download: the offer is retired
+    // nowhere (its dot and the store still hold it — see
+    // `update_install_test.dart`), and the screen claims no success.
+    expect(find.text('Check for update'), findsOneWidget);
+    expect(find.text('Update Now'), findsNothing);
   });
 
   testWidgets('a failed check shows the sentence, not the raw cause', (

@@ -129,6 +129,10 @@ enum UpdateFlowError {
 
   /// The APK reached Android but this device cannot install an update.
   installUnavailable,
+
+  /// The APK is not signed like this app — or its signature could not be read —
+  /// so the host dispatched nothing. A refusal, not a failed install.
+  unverifiedRelease,
 }
 
 /// Owns the update flow's state and work, shared by every surface that drives it.
@@ -342,7 +346,8 @@ class UpdateFlowController extends ChangeNotifier {
       // reads the URI after that — deleting the APK at this point is what made
       // selecting *Package Installer* do nothing at all. It is removed by
       // `deleteUpdateApkIfStale` at the next launch instead.
-      final installed = await installDownloadedApk(file.path);
+      final outcome = await installDownloadedApk(file.path);
+      final installed = outcome == ApkInstallOutcome.handedOff;
 
       // The offer has been acted on, so it is no longer news: dropping it here
       // is what keeps the dot from outliving the update it pointed at. This is
@@ -364,7 +369,11 @@ class UpdateFlowController extends ChangeNotifier {
         _progress = null;
         // The handoff is the end of the app's part; Android owns the rest.
         _phase = installed ? UpdatePhase.upToDate : UpdatePhase.idle;
-        if (!installed) _error = UpdateFlowError.installUnavailable;
+        _error = switch (outcome) {
+          ApkInstallOutcome.handedOff => null,
+          ApkInstallOutcome.unsupported => UpdateFlowError.installUnavailable,
+          ApkInstallOutcome.unverified => UpdateFlowError.unverifiedRelease,
+        };
       });
     } on Object catch (e) {
       // A truncated download, a refused connection, an unwritable cache: all
@@ -655,5 +664,6 @@ class _UpdateFlowBodyState extends State<UpdateFlowBody> {
     UpdateFlowError.checkFailed => l.settingsUpdate_checkFailed,
     UpdateFlowError.downloadFailed => l.settingsUpdate_downloadFailed,
     UpdateFlowError.installUnavailable => l.settingsUpdate_installUnavailable,
+    UpdateFlowError.unverifiedRelease => l.settingsUpdate_unverifiedRelease,
   };
 }

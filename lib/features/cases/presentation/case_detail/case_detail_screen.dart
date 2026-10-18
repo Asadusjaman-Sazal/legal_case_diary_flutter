@@ -39,6 +39,7 @@ import '../../../../features/settings/presentation/settings_viewmodel.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/add_edit_case_sheet.dart';
 import '../../../payments/presentation/lapse_allowance_ui.dart';
+import '../../../../features/accounts_and_profile/data/account_mode.dart';
 import '../../../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../case_contact_actions.dart';
 import 'history_entry_edit_dialog.dart';
@@ -1174,6 +1175,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     // AD/HCD cases have no Steps; their per-hearing outcome is the Result
     // snapshot, shown in the same slot where lower-court rows show Step.
     final trimmedResult = entry.result?.trim();
+    // Who added this entry, and only inside a chamber (firm-mode §9.9): the
+    // author is read from the row's own `created_by`, which the server writes as
+    // the authenticated account, and the name from this device's own cache.
+    final chamber = ref.watch(firmModeProvider);
+    final authorName = chamber
+        ? ref.watch(accountDisplayNameProvider(entry.createdBy)).value
+        : null;
     // Steps are stored by name, so they need the language lookup; an AD/HCD
     // case's free-text Result is shown as it was typed.
     final mainContent = _isHigherCourt
@@ -1255,6 +1263,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                     textAlign: TextAlign.left,
                   ),
                 ],
+                if (chamber) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  _addedByLine(l, authorName, entry.id),
+                ],
               ],
             ),
           ),
@@ -1268,6 +1280,35 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       child: content,
     );
   }
+
+  /// One history entry's author line (firm-mode §9.9, Phase 14).
+  ///
+  /// Drawn **only inside a chamber**, where several people write one case's
+  /// history and its entries would otherwise be indistinguishable from each
+  /// other. On an individual device every entry is this account's own, so the
+  /// line would repeat one name down the whole list — the same reason the roster
+  /// and the delete-request requester are chamber-only surfaces.
+  ///
+  /// [name] is the display name this device holds for the row's `created_by`, or
+  /// null when it holds none: `profiles` caches this account's own row alone
+  /// (rule 4), so a colleague's name is not here and the neutral label stands in
+  /// for it instead of a wrong name or a raw id.
+  Widget _addedByLine(AppLocalizations l, String? name, String entryId) => Row(
+    children: [
+      const Icon(Icons.person_outline, size: 14, color: AppColors.tertiary),
+      const SizedBox(width: AppSpacing.xs),
+      Expanded(
+        child: Text(
+          l.caseDetailsScreen_historyAddedBy(
+            name ?? l.sharedLabels_chamberMember,
+          ),
+          key: ValueKey('case-detail-history-added-by-$entryId'),
+          style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+          textAlign: TextAlign.left,
+        ),
+      ),
+    ],
+  );
 
   /// Mockup Next Date highlight card (mobile extra).
   Widget _buildNextDateCard(

@@ -275,6 +275,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String caseDetailsScreen_historyAddedBy(String name) {
+    return '$name যোগ করেছেন';
+  }
+
+  @override
   String get caseDetailsScreen_noHistoryEntries =>
       'এখনো কোনো কেস হিস্টোরি যুক্ত করা হয়নি।';
 
@@ -697,6 +702,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get syncConflict_subtitle =>
       'অন্য একটি ডিভাইস এই রেকর্ডটি পরিবর্তন করেছে';
+
+  @override
+  String get syncConflict_subtitleMember =>
+      'একজন চেম্বার সদস্য এই রেকর্ডটি পরিবর্তন করেছেন';
 
   @override
   String syncConflict_editedBy(String name) {
@@ -1502,6 +1511,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sharedMessages_signInRequired => 'চালিয়ে যেতে সাইন ইন করুন';
+
+  @override
+  String get sharedLabels_chamberMember => 'একজন চেম্বার সদস্য';
 
   @override
   String get appShell_exitTitle => 'অ্যাপ থেকে প্রস্থান?';

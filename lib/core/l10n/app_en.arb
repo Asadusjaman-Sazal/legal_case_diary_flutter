@@ -109,6 +109,14 @@
           }
       }
   },
+  "caseDetailsScreen_historyAddedBy": "Added By {name}",
+  "@caseDetailsScreen_historyAddedBy": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          }
+      }
+  },
   "caseDetailsScreen_noHistoryEntries": "No history entries yet.",
   "caseDetailsScreen_showHistory": "Show",
   "caseDetailsScreen_hideHistory": "Hide",
@@ -320,6 +328,7 @@
   "syncConflict_bannerAction": "Review",
   "syncConflict_title": "Review Conflict",
   "syncConflict_subtitle": "Another Device Changed This Record",
+  "syncConflict_subtitleMember": "A Chamber Member Changed This Record",
   "syncConflict_editedBy": "Edited By {name}",
   "@syncConflict_editedBy": {
       "placeholders": {
@@ -736,6 +745,7 @@
       }
   },
   "sharedMessages_signInRequired": "Sign In To Continue",
+  "sharedLabels_chamberMember": "A Chamber Member",
   "@@_section_appShell": "APP SHELL (exit confirmation)  |  lib/core/router/app_router.dart - exit confirmation",
   "appShell_exitTitle": "Exit App?",
   "appShell_exitMessage": "Do you want to exit Legal Case Diary?",

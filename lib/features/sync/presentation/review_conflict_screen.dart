@@ -28,20 +28,9 @@ import '../../../sync/conflict_resolution.dart';
 import '../../../sync/entity_tables.dart';
 import '../../../sync/sync_conflict_log.dart';
 import '../../../sync/sync_providers.dart';
-import '../../accounts_and_profile/data/local/profiles_dao.dart';
+import '../../accounts_and_profile/data/account_mode.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
-
-/// The display name of the lawyer whose change the server holds.
-///
-/// Resolved from the same-firm `profiles` cache, which is the only identity
-/// source the app has (Task 17). Null while the profile is not cached, and the
-/// screen falls back to a neutral label rather than inventing a name.
-final _editorNameProvider =
-    StreamProvider.family<String?, String>((ref, id) async* {
-  final db = await ref.watch(databaseProvider.future);
-  yield* ProfilesDao(db).watchById(id).map((profile) => profile?.fullName);
-});
 
 /// Every queue row still held for one entity, oldest first.
 ///
@@ -117,10 +106,16 @@ class _ReviewConflictScreenState extends ConsumerState<ReviewConflictScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final conflict = ref.watch(conflictByIdProvider(widget.conflictId)).value;
+    // A chamber's other side may be a **colleague**, not a second device of this
+    // account, so the subtitle names a member there (firm-mode §9.9). Outside a
+    // chamber the two-device wording is exactly right and is kept.
+    final subtitle = ref.watch(firmModeProvider)
+        ? l.syncConflict_subtitleMember
+        : l.syncConflict_subtitle;
 
     return SettingsSubPageModal(
       title: l.syncConflict_title,
-      subtitle: l.syncConflict_subtitle,
+      subtitle: subtitle,
       child: switch (conflict) {
         null => Center(child: Text(l.syncConflict_missingNotice)),
         final c when c.resolutionState != conflictUnresolved =>
@@ -337,7 +332,11 @@ class _Card extends StatelessWidget {
   );
 }
 
-/// "Edited By {name}" resolved from the profiles cache.
+/// "Edited By {name}" resolved from this device's own profile cache.
+///
+/// A chamber colleague's name is **not** on this device — `profiles` holds this
+/// account's own row (rule 4) — so the fallback is what a member sees for one: a
+/// neutral label. "Another Device" is kept outside a chamber, where it is true.
 class _EditorLine extends ConsumerWidget {
   const _EditorLine({required this.editorId});
 
@@ -346,14 +345,17 @@ class _EditorLine extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final name = ref.watch(_editorNameProvider(editorId)).value;
+    final name = ref.watch(accountDisplayNameProvider(editorId)).value;
+    final fallback = ref.watch(firmModeProvider)
+        ? l.sharedLabels_chamberMember
+        : l.syncConflict_unknownEditor;
     return Row(
       children: [
         const Icon(Icons.person_outline, size: 18, color: AppColors.tertiary),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
-            l.syncConflict_editedBy(name ?? l.syncConflict_unknownEditor),
+            l.syncConflict_editedBy(name ?? fallback),
             style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
           ),
         ),

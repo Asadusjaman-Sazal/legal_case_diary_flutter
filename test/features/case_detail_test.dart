@@ -15,6 +15,8 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/cases/data/case_repository.dart';
 import 'package:legal_case_diary/features/cases/data/local/case_history_dao.dart';
 import 'package:legal_case_diary/features/cases/data/local/cases_dao.dart';
@@ -62,6 +64,7 @@ void main() {
       Widget child, {
       bool canEdit = true,
       Locale locale = const Locale('en'),
+      bool chamber = false,
     }) {
       return ProviderScope(
         overrides: [
@@ -81,6 +84,9 @@ void main() {
           caseWritePermissionsProvider.overrideWith(
             (_) async => CaseWritePermissions(canAdd: true, canEdit: canEdit),
           ),
+          // The chamber is stated rather than derived, so the test says only the
+          // fact it is about (firm-mode §9.9).
+          if (chamber) firmModeProvider.overrideWithValue(true),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -96,6 +102,7 @@ void main() {
       String caseId, {
       bool canEdit = true,
       Locale locale = const Locale('en'),
+      bool chamber = false,
     }) async {
       // Tall viewport so the whole detail list builds without scrolling.
       tester.view.physicalSize = const Size(1080, 2600);
@@ -106,9 +113,31 @@ void main() {
           CaseDetailScreen(caseId: caseId),
           canEdit: canEdit,
           locale: locale,
+          chamber: chamber,
         ),
       );
       await tester.pumpAndSettle();
+    }
+
+    /// Runs [body] and always unmounts the screen before the test ends.
+    ///
+    /// The history author line is the first provider-backed **stream** this
+    /// screen consumes (`accountDisplayNameProvider`), and drift schedules a
+    /// zero-duration timer when such a stream closes. `flutter_test` fails a test
+    /// whose timers are still pending, and the leftover timer then stops the next
+    /// test from settling — so the tree is unmounted inside the body, whether the
+    /// body passed or threw. `sync_conflict_review_test.dart` uses the same dance
+    /// for the same reason.
+    Future<void> withDetail(
+      WidgetTester tester,
+      Future<void> Function() body,
+    ) async {
+      try {
+        await body();
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(milliseconds: 1));
+      }
     }
 
     Future<String> seedCase({
@@ -166,6 +195,7 @@ void main() {
       String? step,
       String? note,
       String? result,
+      String? createdBy,
     }) async {
       await CaseHistoryDao(db).insertHistoryEntry(
         CaseHistoryCompanion(
@@ -177,7 +207,7 @@ void main() {
           nextDate: Value(nextEpochMs),
           noteResult: Value(note),
           result: Value(result),
-          createdBy: Value(identity.getId()),
+          createdBy: Value(createdBy ?? identity.getId()),
           sourceMutationId: Value('mutation-$nextEpochMs-$hearingEpochMs'),
           baseCaseVersion: const Value(0),
           resultCaseVersion: const Value(1),
@@ -983,6 +1013,79 @@ void main() {
         expect(find.text('Tender Number'), findsNothing);
       },
     );
+
+    group('who added a history entry (firm-mode §9.9)', () {
+      /// This device's own cached profile row, which is the only one the app
+      /// holds — a colleague's name is never on the device (rule 4).
+      Future<void> seedOwnName(String name) => ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: Value(identity.getId()),
+          fullName: Value(name),
+          role: const Value('individual'),
+          subscriptionStatus: const Value('free'),
+          createdAt: const Value(1),
+        ),
+      );
+
+      /// A colleague: a real account id with no profile row on this device.
+      const colleague = '77777777-7777-4777-8777-777777777777';
+
+      Finder addedBy(String text) => find.textContaining(text);
+
+      testWidgets('a chamber names the author of each entry', (tester) async {
+        await withDetail(tester, () async {
+          await seedOwnName('Adv. Abdul Kalam');
+          final caseId = await seedCase();
+          await seedHistoryEntry(
+            caseId,
+            hearingEpochMs: 1000,
+            nextEpochMs: 2000,
+            step: 'Steps for Hearing',
+            note: 'Mine.',
+          );
+          await seedHistoryEntry(
+            caseId,
+            hearingEpochMs: 500,
+            nextEpochMs: 1500,
+            step: 'Written Objection',
+            note: 'Theirs.',
+            createdBy: colleague,
+          );
+
+          await pumpDetail(tester, caseId, chamber: true);
+
+          // This account's own entry resolves to its name; a colleague's does
+          // not, because the device holds only its own profile row — so it is
+          // labelled, never guessed and never shown as a raw id.
+          expect(addedBy('Added By Adv. Abdul Kalam'), findsOneWidget);
+          expect(addedBy('Added By A Chamber Member'), findsOneWidget);
+          expect(find.textContaining(colleague), findsNothing);
+        });
+      });
+
+      testWidgets('an individual device shows no author line at all', (
+        tester,
+      ) async {
+        // Every entry on an individual's device is this account's own, so the
+        // line would repeat one name down the whole list.
+        await withDetail(tester, () async {
+          await seedOwnName('Adv. Abdul Kalam');
+          final caseId = await seedCase();
+          await seedHistoryEntry(
+            caseId,
+            hearingEpochMs: 1000,
+            nextEpochMs: 2000,
+            step: 'Steps for Hearing',
+            note: 'Mine.',
+          );
+
+          await pumpDetail(tester, caseId);
+
+          expect(addedBy('Added By'), findsNothing);
+          expect(find.text('Steps for Hearing'), findsOneWidget);
+        });
+      });
+    });
   });
 }
 

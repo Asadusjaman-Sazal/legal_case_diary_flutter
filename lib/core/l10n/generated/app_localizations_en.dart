@@ -274,6 +274,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String caseDetailsScreen_historyAddedBy(String name) {
+    return 'Added By $name';
+  }
+
+  @override
   String get caseDetailsScreen_noHistoryEntries => 'No history entries yet.';
 
   @override
@@ -694,6 +699,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncConflict_subtitle => 'Another Device Changed This Record';
+
+  @override
+  String get syncConflict_subtitleMember =>
+      'A Chamber Member Changed This Record';
 
   @override
   String syncConflict_editedBy(String name) {
@@ -1500,6 +1509,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sharedMessages_signInRequired => 'Sign In To Continue';
+
+  @override
+  String get sharedLabels_chamberMember => 'A Chamber Member';
 
   @override
   String get appShell_exitTitle => 'Exit App?';

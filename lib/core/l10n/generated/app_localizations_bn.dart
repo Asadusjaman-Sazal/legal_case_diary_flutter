@@ -1216,6 +1216,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_orChoose => 'অথবা বেছে নিন';
 
   @override
+  String paywall_priceOff(String amount) {
+    return '$amount ছাড়';
+  }
+
+  @override
   String paywall_pricePerMonth(String amount) {
     return '$amount/মাস';
   }

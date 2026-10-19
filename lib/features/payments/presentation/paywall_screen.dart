@@ -6,9 +6,11 @@
 /// * one full-width card per tier, stacked — never side by side — with the
 ///   plan's name, badge, description, inherited-feature header, feature rows,
 ///   monthly price, three term buttons, the free-month notes and one action;
-/// * every paid tier's term buttons are grey with dark text. Tapping the
-///   selected term again clears it, and the action falls back to the shortest
-///   term the tier sells (one month for Starter and Pro, three for the rest);
+/// * every paid tier's term buttons are grey with dark text. Individual cards
+///   open on **1 Month** and chamber cards on **6 Months**, and selecting is
+///   one-way: tapping the chosen term leaves it chosen, so a card always
+///   carries a term (and its action) to buy. A 6-month or yearly button also
+///   shows its undiscounted price struck in red with the saving in green;
 /// * the card the account holds carries **Current Plan** and its action says
 ///   **Renew**; a queued change carries **Scheduled** and its start date; the
 ///   Starter and Firm cards carry **Most Popular**.
@@ -208,11 +210,18 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   SubscriptionTier _previousTier(SubscriptionTier tier) =>
       SubscriptionTier.values[tier.index - 1];
 
-  /// The term selected for [tier]; the annual plan by default.
+  /// The term selected for [tier]; the audience's own by default.
+  ///
+  /// Individual plans open on **1 Month** (the tier's base price, so no term
+  /// button is ticked), chamber plans on **6 Months**. A chamber tier has no
+  /// one-month plan, so it cannot open on the base price the way Starter does.
   String? _selectedKey(SubscriptionTier tier) {
     if (_selectedTerm.containsKey(tier)) return _selectedTerm[tier];
     final plans = plansForTier(tier);
-    return plans.isEmpty ? null : plans.last.key;
+    if (plans.isEmpty) return null;
+    return tier.audience == SubscriptionAudience.individual
+        ? plans.first.key
+        : plans.firstWhere((plan) => plan.months == 6).key;
   }
 
   @override
@@ -265,23 +274,57 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           title: Text(l.paywall_title, style: AppTypography.titleLg),
           backgroundColor: AppColors.surfaceContainerLowest,
         ),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.edgeMargin,
-            AppSpacing.md,
-            AppSpacing.edgeMargin,
-            AppSpacing.xl,
-          ),
-          children: [
-            if (isMember) ..._memberNotice(l) else ..._offer(
-              l: l,
-              audience: audience,
-              effectiveTier: effectiveTier,
-              pendingTier: pendingTier,
-              pendingFrom: pendingFrom,
-              hasScheduled: hasScheduled,
-              isActive: isActive,
-              expiryMs: expiryMs,
+        body: CustomScrollView(
+          slivers: [
+            // The intro is a lead-in, so it scrolls away with the cards.
+            if (!isMember)
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.edgeMargin,
+                  AppSpacing.md,
+                  AppSpacing.edgeMargin,
+                  0,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    l.paywall_intro,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            // The toggle itself sticks: switching audience is the one thing a
+            // user does halfway down a long list of plans.
+            if (!isMember)
+              PinnedHeaderSliver(
+                key: const ValueKey('paywall-pinned-header'),
+                child: _PinnedAudience(
+                  audience: audience,
+                  onChanged: (value) => setState(() => _audience = value),
+                ),
+              ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.edgeMargin,
+                AppSpacing.sm,
+                AppSpacing.edgeMargin,
+                AppSpacing.xl,
+              ),
+              sliver: SliverList.list(
+                children: [
+                  if (isMember) ..._memberNotice(l) else ..._offer(
+                    l: l,
+                    audience: audience,
+                    effectiveTier: effectiveTier,
+                    pendingTier: pendingTier,
+                    pendingFrom: pendingFrom,
+                    hasScheduled: hasScheduled,
+                    isActive: isActive,
+                    expiryMs: expiryMs,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -327,21 +370,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         _LimitCard(lapsed: widget.showLapsed),
         const SizedBox(height: AppSpacing.lg),
       ],
-      Text(
-        l.paywall_intro,
-        style: AppTypography.bodyMd.copyWith(
-          color: AppColors.onSurfaceVariant,
-        ),
-      ),
-      const SizedBox(height: AppSpacing.md),
-      Center(
-        child: _AudienceToggle(
-          selected: audience,
-          onChanged: (value) => setState(() => _audience = value),
-        ),
-      ),
       if (hasScheduled) ...<Widget>[
-        const SizedBox(height: AppSpacing.md),
         _ScheduledBanner(
           key: const ValueKey('paywall-scheduled-banner'),
           label: l.paywall_scheduledBadge,
@@ -353,7 +382,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       ],
       const SizedBox(height: AppSpacing.md),
       for (var i = 0; i < tiers.length; i++) ...<Widget>[
-        if (i > 0) const SizedBox(height: AppSpacing.md),
+        // Roomier than the old `md`: six full cards in a row read as one block
+        // without it, and the 16px gutter made neighbouring terms look paired.
+        if (i > 0) const SizedBox(height: AppSpacing.lg),
         _buildCard(
           l: l,
           tier: tiers[i],
@@ -443,8 +474,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           const SizedBox(height: 2),
           Text(
             _description(l, tier),
+            // 1.5 line height instead of bodyMd's 20/14: the card is a column
+            // of short lines, and the default reads as tight there.
             style: AppTypography.bodyMd.copyWith(
               color: AppColors.onSurfaceVariant,
+              height: 1.5,
             ),
           ),
           if (isScheduled) ...<Widget>[
@@ -485,6 +519,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                       feature.text,
                       style: AppTypography.bodyMd.copyWith(
                         color: AppColors.onSurface,
+                        height: 1.5,
                       ),
                     ),
                   ),
@@ -512,16 +547,22 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ),
           if (tier.isSellable) ...<Widget>[
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              l.paywall_orChoose,
-              style: AppTypography.labelLg,
-            ),
-            const SizedBox(height: AppSpacing.sm),
+            // *Or choose* only where there is a one-month price above to choose
+            // away from; a chamber card's terms simply follow its price line.
+            if (tier.sellsMonthly) ...<Widget>[
+              Text(
+                l.paywall_orChoose,
+                style: AppTypography.labelLg,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             _TermSelector(
               tier: tier,
               selectedKey: selectedKey,
+              // Selecting is one-way: a tap on the chosen term leaves it chosen,
+              // so a card always carries a term to buy.
               onSelected: (planKey) => setState(() {
-                _selectedTerm[tier] = selectedKey == planKey ? null : planKey;
+                _selectedTerm[tier] = planKey;
               }),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -569,7 +610,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
               disabledForegroundColor: AppColors.onSurfaceVariant,
               textStyle: AppTypography.titleMd,
-              minimumSize: const Size.fromHeight(52),
+              minimumSize: const Size.fromHeight(53),
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
@@ -822,6 +863,40 @@ class _Badge extends StatelessWidget {
   );
 }
 
+/// The Individual / Firm toggle, pinned above the cards.
+///
+/// The intro above it scrolls away with the cards — it is a one-time lead-in,
+/// not something to keep on screen — while the toggle stays put for anyone
+/// deciding halfway down a long list.
+class _PinnedAudience extends StatelessWidget {
+  const _PinnedAudience({
+    required this.audience,
+    required this.onChanged,
+  });
+
+  final SubscriptionAudience audience;
+  final ValueChanged<SubscriptionAudience> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    // The page background, so cards scrolling under the toggle stay hidden;
+    // without it the pill would sit on top of a card's text.
+    color: AppColors.background,
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.edgeMargin,
+      AppSpacing.sm,
+      AppSpacing.edgeMargin,
+      AppSpacing.sm,
+    ),
+    child: Center(
+      child: _AudienceToggle(
+        selected: audience,
+        onChanged: onChanged,
+      ),
+    ),
+  );
+}
+
 /// The Individual / Firm pill toggle.
 class _AudienceToggle extends StatelessWidget {
   const _AudienceToggle({required this.selected, required this.onChanged});
@@ -914,6 +989,27 @@ class _TermSelector extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
+    // The undiscounted price of a discounted term: its months at the tier's
+    // monthly anchor (6 months = 5 payments, 1 year = 10). A 3-month term has
+    // nothing struck, so the button keeps its plain two lines.
+    String? undiscounted(SubscriptionPlan plan) =>
+        plan.months > 3 ? '৳${AppDateUtils.formatDigits(
+          tier.monthlyPrice * plan.months,
+          l.localeName,
+          grouping: true,
+        )}' : null;
+
+    String? saving(SubscriptionPlan plan) {
+      final full = tier.monthlyPrice * plan.months;
+      final off = full - plan.amount;
+      if (plan.months == 0 || off <= 0) return null;
+      return l.paywall_priceOff(
+        l.payments_amountValue(
+          AppDateUtils.formatDigits(off, l.localeName, grouping: off >= 1000),
+        ),
+      );
+    }
+
     Widget button(SubscriptionPlan plan) => _TermButton(
       key: ValueKey('paywall-term-${tier.key}-${plan.key}'),
       label: _termLabel(l, plan),
@@ -924,6 +1020,8 @@ class _TermSelector extends StatelessWidget {
           grouping: plan.amount >= 1000,
         ),
       ),
+      undiscountedAmount: undiscounted(plan),
+      saving: saving(plan),
       isSelected: selectedKey == plan.key,
       onTap: () => onSelected(plan.key),
     );
@@ -957,11 +1055,17 @@ class _TermSelector extends StatelessWidget {
       };
 }
 
-/// One grey term button: term and total, with a black selected border.
+/// One grey term button: term and total, with a green selected border.
+///
+/// A **6 Months** / **1 Year** button also carries its undiscounted price in
+/// red strike-through, with the saving in green beside it — the same facts the
+/// notes below state in words, attached to the button they belong to.
 class _TermButton extends StatelessWidget {
   const _TermButton({
     required this.label,
     required this.amount,
+    required this.undiscountedAmount,
+    required this.saving,
     required this.isSelected,
     required this.onTap,
     super.key,
@@ -969,6 +1073,13 @@ class _TermButton extends StatelessWidget {
 
   final String label;
   final String amount;
+
+  /// The full price for the term, or null when the term has no discount.
+  final String? undiscountedAmount;
+
+  /// The saving, already localized ("৳60 Off"), or null.
+  final String? saving;
+
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -992,9 +1103,9 @@ class _TermButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
             border: Border.all(
-              color: isSelected
-                  ? AppColors.primary
-                  : AppColors.outlineVariant,
+              // The light green of the app's success state, not the ink: a
+              // selected term is a saving, and the ink marked it like a button.
+              color: isSelected ? AppColors.success : AppColors.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -1018,7 +1129,9 @@ class _TermButton extends StatelessWidget {
                     const SizedBox(width: 2),
                     const Icon(
                       Icons.check,
-                      size: 14,
+                      // 18 rather than 14: at 14 the tick read as punctuation
+                      // beside the term rather than as its selected mark.
+                      size: 18,
                       color: AppColors.onSurface,
                     ),
                   ],
@@ -1033,6 +1146,32 @@ class _TermButton extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (undiscountedAmount != null || saving != null) ...<Widget>[
+                const SizedBox(height: 2),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  children: [
+                    if (undiscountedAmount != null)
+                      Text(
+                        undiscountedAmount!,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.error,
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: AppColors.error,
+                        ),
+                      ),
+                    if (saving != null)
+                      Text(
+                        saving!,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.success,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

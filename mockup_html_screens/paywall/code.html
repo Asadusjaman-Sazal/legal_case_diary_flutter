@@ -156,16 +156,20 @@
   <div class="h-lg"></div>
 
   <!-- Intro and the Individual / Firm toggle. The app opens on the tab of the
-       tier the account holds; a free account opens Individual. -->
+       tier the account holds; a free account opens Individual.
+
+       The intro scrolls away with the cards; the toggle is pinned and stays at
+       the top once reached (the app draws it in a PinnedHeaderSliver over the
+       page background). -->
   <p class="font-body-md text-body-md text-on-surface-variant">Choose the plan that fits your practice.</p>
-  <div class="mt-md flex justify-center">
+  <div class="sticky top-14 z-30 bg-background py-sm flex justify-center">
     <div class="inline-flex rounded-full bg-surface-container p-1">
       <button class="px-lg h-9 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Individual</button>
       <button class="px-lg h-9 rounded-full text-on-surface-variant font-label-lg text-label-lg">Firm</button>
     </div>
   </div>
 
-  <div class="h-md"></div>
+  <div class="h-sm"></div>
 
   <!-- One full-width card per tier, stacked. The Firm tab draws Firm, Firm Plus
        and Enterprise the same way with their own features and prices. -->
@@ -194,22 +198,25 @@
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Starter</p>
       <span class="ml-sm px-sm py-1 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Most Popular</span>
     </div>
-    <p class="mt-xs font-body-md text-body-md text-on-surface-variant">For lawyers who need cloud backup.</p>
+    <p class="mt-xs font-body-md text-body-md text-on-surface-variant leading-normal">For lawyers who need cloud backup.</p>
     <p class="mt-md font-title-md text-title-md text-on-surface">Everything in Free, plus</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">📁 Up to 500 Cases</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">☁️ Real-Time Cloud Backup</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">🛟 Disaster Recovery: Restore your diary from the cloud on a new phone</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">📱 Single-Device Use</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 500 Cases</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">☁️ Real-Time Cloud Backup</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">🛟 Disaster Recovery: Restore your diary from the cloud on a new phone</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📱 Single-Device Use</p>
     <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳60</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>
     <p class="mt-sm font-label-lg text-label-lg text-on-surface">Or choose</p>
+    <!-- No term is ticked on an Individual card by default: the monthly price
+         above is the selection. A ticked term takes the green edge, and the 6M
+         and 1Y buttons name their undiscounted price and saving. -->
     <div class="mt-sm grid grid-cols-3 gap-sm">
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months</button>
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months</button>
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year</button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months<span class="block font-title-md text-title-md">৳180</span></button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months<span class="block font-title-md text-title-md">৳300</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳360</s> <span class="text-[#059669]">৳60 Off</span></span></button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year<span class="block font-title-md text-title-md">৳600</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳720</s> <span class="text-[#059669]">৳120 Off</span></span></button>
     </div>
     <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
     <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[52px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — 3 Months/৳180</button>
+    <button class="mt-md w-full h-[53px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳60/month</button>
   </div>
 
   <div class="h-md"></div>
@@ -217,20 +224,20 @@
   <!-- Pro: inherits Starter and adds the second device. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <p class="font-title-lg text-title-lg text-on-surface">Pro</p>
-    <p class="mt-xs font-body-md text-body-md text-on-surface-variant">For lawyers who need flexibility and cloud backup.</p>
+    <p class="mt-xs font-body-md text-body-md text-on-surface-variant leading-normal">For lawyers who need flexibility and cloud backup.</p>
     <p class="mt-md font-title-md text-title-md text-on-surface">Everything in Starter, plus</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">📁 Up to 1,000 Cases</p>
-    <p class="mt-sm font-body-md text-body-md text-on-surface">💻 Multi-Device Support: Up to 2 Devices</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 1,000 Cases</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">💻 Multi-Device Support: Up to 2 Devices</p>
     <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳120</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>
     <p class="mt-sm font-label-lg text-label-lg text-on-surface">Or choose</p>
     <div class="mt-sm grid grid-cols-3 gap-sm">
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months</button>
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months</button>
-      <button class="h-10 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year</button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months<span class="block font-title-md text-title-md">৳360</span></button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months<span class="block font-title-md text-title-md">৳600</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳720</s> <span class="text-[#059669]">৳120 Off</span></span></button>
+      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year<span class="block font-title-md text-title-md">৳1,200</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳1,440</s> <span class="text-[#059669]">৳240 Off</span></span></button>
     </div>
     <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
     <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[52px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — 3 Months/৳360</button>
+    <button class="mt-md w-full h-[53px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳120/month</button>
   </div>
 
   <div class="h-xl"></div>

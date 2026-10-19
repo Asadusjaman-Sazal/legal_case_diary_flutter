@@ -1213,6 +1213,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_orChoose => 'Or choose';
 
   @override
+  String paywall_priceOff(String amount) {
+    return '$amount Off';
+  }
+
+  @override
   String paywall_pricePerMonth(String amount) {
     return '$amount/month';
   }

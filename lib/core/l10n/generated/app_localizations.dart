@@ -2168,6 +2168,12 @@ abstract class AppLocalizations {
   /// **'Or choose'**
   String get paywall_orChoose;
 
+  /// No description provided for @paywall_priceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} Off'**
+  String paywall_priceOff(String amount);
+
   /// No description provided for @paywall_pricePerMonth.
   ///
   /// In en, this message translates to:

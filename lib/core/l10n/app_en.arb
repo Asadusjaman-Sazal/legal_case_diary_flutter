@@ -627,6 +627,14 @@
       }
   },
   "paywall_orChoose": "Or choose",
+  "paywall_priceOff": "{amount} Off",
+  "@paywall_priceOff": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_pricePerMonth": "{amount}/month",
   "@paywall_pricePerMonth": {
       "placeholders": {

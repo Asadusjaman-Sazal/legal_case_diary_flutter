@@ -64,6 +64,8 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.333 | 2026-10-01 | `20261001000000_payment_configuration.sql` | Task 21 Phase 1's payments configuration: a read-only server table (`provider`, `receiving_number`, `is_active`, `updated_at`) that holds the MFS receiving numbers, authenticated SELECT only and no client write policy at all. It exists so a receiving number can rotate without a release (Rev 2.4 §5); it is not seeded, and the client falls back to validated build defaults until an admin inserts a row. |
 | 0.0.339 | 2026-10-01 | `20261001010000_payment_plans_four.sql` | Task 21 follow-up's four-plan approval: replaces `approve_payment` so the subscription knows `monthly`, `quarterly`, `half_yearly` and `annual`, validates ৳100/৳285/৳550/৳1,000 and extends by 1/3/6/12 months — the admin gate, lock, idempotency, firm mirror and audit event are unchanged. |
 | 0.0.339 | 2026-10-01 | `20261001020000_seed_payment_configuration.sql` | Task 21 follow-up's seeded receiving numbers: one idempotent row per provider (`bkash`, `nagad`, `rocket`) in `payment_configuration` with the firm's single MFS account in local 11-digit form, so the checkout shows a real number instead of falling back to build defaults. |
+| 0.0.339 | 2026-10-01 | `20261001102042_payment_plans_four_recorded_duplicate.sql` | Recorded duplicate — the four-plan approval re-applied under a connector-generated version (`20261001102042`). The SQL is the same `approve_payment` body `20261001010000` ships; keeping it as a file is what makes the project's recorded history match the migration set, so the applier no longer reports a version with no local file. Superseded by every later approval migration. |
+| 0.0.339 | 2026-10-01 | `20261001102048_seed_payment_configuration_recorded_duplicate.sql` | Recorded duplicate — the receiving-number seed re-applied under a connector-generated version (`20261001102048`). The SQL is the same idempotent upsert `20261001020000` ships; keeping it as a file makes the recorded history match the migration set. |
 | 0.0.349 | 2026-10-02 | `20261002100000_payment_prices_discounted.sql` | Discounted 6 Months and 1 Year plans: replaces `approve_payment` so it validates ৳100/৳285/৳540/৳960 — the two longer plans priced against the ৳100 monthly rate (10% and 20% off) instead of ৳550 and ৳1,000. Only the four price constants move; the gate, lock, idempotency, intervals, firm mirror and audit event are unchanged. |
 | 0.0.354 | 2026-10-02 | `20261002110000_admin_panel.sql` | Task 23 Admin Panel: `app_admins` gains hand-filled `full_name` and `email`, `payment_submissions` gains `rejected_by`/`rejected_at`, and three admin-gated RPCs arrive — `is_app_admin()` (the only way a client learns its own status), `admin_list_payment_submissions()` (every submission joined to the payer profile) and `admin_reject_payment()`. Approval needs no new code; `profiles` stays self-or-firm. |
 | 0.0.385 | 2026-10-05 | `20261005120000_payment_plan_name.sql` | Readable plan names on both payment ledgers: `plan_type` stays the machine key and `payment_submissions` / `payment_approval_events` each gain a generated `plan_name` (`1 Month` / `3 Months` / `6 Months` / `1 Year`), so the raw tables read plainly without touching the approval path or either table's write privileges. |
@@ -85,6 +87,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.534 | 2026-10-17 | `20261017100000_firm_mode_member_no_plan.sql` | Firm mode: a member has no plan of their own. has_sync_entitlement() counted the caller's own expiry OR the chamber's, so a member who had bought a plan before joining kept pushing through the chamber's lapse; it now counts the chamber's mirrored expiry alone once profiles.firm_id is set, and the caller's own only while it is null. payment_submissions_insert_own becomes a member's refusal — user_id = auth.uid() plus no firm, or a firm the caller owns — so an associate or viewer cannot buy a personal plan. The owner is deliberately exempt: the owner's purchase is the chamber's renewal, and the two entries this phase removes from a member are the owner's only routes to it. |
 | 0.0.536 | 2026-10-17 | `20261017110000_firm_mode_dissolution.sql` | Firm mode: dissolution. dissolve_firm() refuses while the roster holds anyone but the owner and carries the count in the refusal, decided before the first write so a refusal retires no invite and moves no row. Once the roster is empty it retires the open invites, then unscopes the eleven ledger tables — firm_id out, the owner in as scope_owner_id, tombstones included — so he keeps a complete ordinary diary while attribution, contents and the sync columns stay exactly as they were. conflict_log is the one exception: its firm_id is cleared, because the foreign key has no cascade and the firms delete would be refused otherwise, and no scope owner is written, so a colleague's merge diagnostics stay with their author. The firms row goes with its memberships and invites, the owner's profile returns to individual mode (which unblocks delete_my_account), and his plan is untouched. |
 | 0.0.537 | 2026-10-17 | `20261017120000_firm_mode_retention_window.sql` | Firm mode: the retention and recovery window. purge_tombstones() keeps a tombstone 365 days instead of 180, so the device-side extended-offline rule can be 335 days with the same 30-day buffer between them: a device that comes back inside its window still finds every deletion it missed, and one away longer is rebuilt rather than trusted. Only the default and the comments change — the scheduled job calls the function with no argument, and the body (cutoff, children-first order, one-row-at-a-time delete, blocked-tombstone skip) is the shipped one verbatim. mutation_receipts' documented retention is corrected to at least 400 days in the same pass, because the old 210-day invariant was written for a 150-day window. |
+| 0.0.543 | 2026-10-18 | `20261018100000_subscription_cancellation.sql` | Subscription History — cancelling a live plan, reconstructed. The install that shipped cancellation on 2026-10-18 recorded its version without statements and committed no file, so the app called an RPC the repository could not define and the applier reported it as drift. This section is the table, its own-row SELECT policy, its narrowed grants and cancel_subscription() copied from the applied project's catalogs, kept idempotent so the live project skips it and a fresh project can apply it. |
 | 0.0.546 | 2026-10-19 | `20261019100000_subscription_ladder_six_tiers.sql` | Task 22 — The six-tier subscription ladder. The stored tier vocabulary gains starter and enterprise, and the old ladder's pro rung is renamed starter without moving any expiry. tier_rank, the case ceilings and the lapse allowances are restated for the six rungs; adding a case is checked against the diary's tier ceiling, not only the free wall; approve_payment accepts the seventeen sellable keys plus the four legacy ones at their own prices and durations, queues any different tier bought while a plan is running, renews a same-tier purchase and pushes a waiting change back by the term bought, and refuses a third plan behind a queued one; the seat caps become Firm 5, Firm Plus 12 and Enterprise unlimited, so chamber creation needs the Firm rung; and the generated plan names cover every key, old and new. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -7221,6 +7224,182 @@ on conflict (provider) do update
       updated_at = now();
 ```
 
+### 0.0.339 · `20261001102042_payment_plans_four_recorded_duplicate.sql`
+
+> **Created 2026-10-01.** Recorded duplicate — the four-plan approval re-applied under a connector-generated version (`20261001102042`). The SQL is the same `approve_payment` body `20261001010000` ships; keeping it as a file is what makes the project's recorded history match the migration set, so the applier no longer reports a version with no local file. Superseded by every later approval migration.
+
+```sql
+-- Recorded duplicate — `payment_plans_four`, applied under a connector version.
+--
+-- `supabase_migrations.schema_migrations` holds version `20261001102042` with
+-- the exact `approve_payment` body below: it is the four-plan ladder that
+-- `20261001010000_payment_plans_four.sql` also ships, applied again through a
+-- connector that generated its own timestamp instead of using the file's
+-- version. No SQL was missing from the repository, but the project's own
+-- history had a statement with no file behind it.
+--
+-- This file is that statement verbatim, so the recorded history and the
+-- migration set agree and the applier's drift warning has nothing to report.
+-- It is superseded by every later approval migration (the discounted prices,
+-- the ten-plan ladder and the six-tier ladder); on a fresh project it runs in
+-- filename order before them and changes nothing that survives. Version
+-- `20261001102042` is already recorded on the live project, so the applier
+-- skips it there.
+--
+-- Table class: `payment_submissions` / `payment_approval_events` stay
+-- server-managed; only the function body is restated.
+
+create or replace function public.approve_payment(payment_submission_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  c_monthly_bdt constant integer := 100;
+  c_quarterly_bdt constant integer := 285;
+  c_half_yearly_bdt constant integer := 550;
+  c_annual_bdt constant integer := 1000;
+
+  v_submission public.payment_submissions%rowtype;
+  v_profile public.profiles%rowtype;
+  v_event public.payment_approval_events%rowtype;
+  v_previous_expiry timestamptz;
+  v_new_expiry timestamptz;
+begin
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  select * into v_submission
+    from public.payment_submissions s
+   where s.id = payment_submission_id
+   for update;
+
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  select * into v_event
+    from public.payment_approval_events e
+   where e.payment_submission_id = approve_payment.payment_submission_id;
+
+  if v_submission.status = 'approved' then
+    if found then
+      return jsonb_build_object(
+        'status', 'already_approved',
+        'new_expiry', v_event.new_expiry
+      );
+    end if;
+    return jsonb_build_object('status', 'already_resolved');
+  end if;
+
+  if v_submission.status <> 'pending' then
+    return jsonb_build_object('status', 'already_resolved');
+  end if;
+
+  if v_submission.plan_type not in (
+    'monthly', 'quarterly', 'half_yearly', 'annual'
+  ) then
+    return jsonb_build_object('status', 'invalid_plan');
+  end if;
+
+  if v_submission.amount <> (case v_submission.plan_type
+                               when 'monthly' then c_monthly_bdt
+                               when 'quarterly' then c_quarterly_bdt
+                               when 'half_yearly' then c_half_yearly_bdt
+                               else c_annual_bdt
+                             end) then
+    return jsonb_build_object('status', 'invalid_amount');
+  end if;
+
+  select * into v_profile
+    from public.profiles p
+   where p.id = v_submission.user_id
+   for update;
+
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  v_previous_expiry := v_profile.subscription_expiry;
+  v_new_expiry := greatest(coalesce(v_previous_expiry, now()), now())
+    + case v_submission.plan_type
+        when 'monthly' then interval '1 month'
+        when 'quarterly' then interval '3 months'
+        when 'half_yearly' then interval '6 months'
+        else interval '1 year'
+      end;
+
+  update public.profiles p
+     set subscription_expiry = v_new_expiry,
+         subscription_status = 'premium'
+   where p.id = v_submission.user_id;
+
+  update public.payment_submissions s
+     set status = 'approved',
+         approved_at = now(),
+         approved_by = auth.uid(),
+         updated_at = (extract(epoch from clock_timestamp()) * 1000)::bigint
+   where s.id = payment_submission_id;
+
+  insert into public.payment_approval_events (
+    payment_submission_id, user_id, approved_by, plan_type, amount,
+    previous_expiry, new_expiry
+  )
+  values (
+    payment_submission_id, v_submission.user_id, auth.uid(),
+    v_submission.plan_type, v_submission.amount,
+    v_previous_expiry, v_new_expiry
+  );
+
+  return jsonb_build_object(
+    'status', 'approved',
+    'previous_expiry', v_previous_expiry,
+    'new_expiry', v_new_expiry
+  );
+end;
+$$;
+
+comment on function public.approve_payment(uuid) is
+  'Admin-only atomic MFS approval: lock, validate, extend entitlement (1/3/6/12 months), mirror to the firm, one audit event.';
+
+revoke all on function public.approve_payment(uuid) from public, anon;
+grant execute on function public.approve_payment(uuid) to authenticated;
+```
+
+### 0.0.339 · `20261001102048_seed_payment_configuration_recorded_duplicate.sql`
+
+> **Created 2026-10-01.** Recorded duplicate — the receiving-number seed re-applied under a connector-generated version (`20261001102048`). The SQL is the same idempotent upsert `20261001020000` ships; keeping it as a file makes the recorded history match the migration set.
+
+```sql
+-- Recorded duplicate — `seed_payment_configuration`, applied under a connector
+-- version.
+--
+-- `supabase_migrations.schema_migrations` holds version `20261001102048` with
+-- this upsert: the same seed `20261001020000_seed_payment_configuration.sql`
+-- ships, applied again through a connector that generated its own timestamp.
+-- Nothing was missing; the project history simply had a statement with no file
+-- behind it. This file is that statement verbatim, so the two agree.
+--
+-- The upsert is idempotent (`on conflict (provider) do update`), so re-running
+-- it cannot duplicate a row or half-write one, and version `20261001102048` is
+-- already recorded on the live project, so the applier skips it there.
+--
+-- Table class: `payment_configuration` is server-managed configuration —
+-- readable by any authenticated client, writable by no client.
+
+insert into public.payment_configuration (provider, receiving_number)
+values
+  ('bkash', '01835252721'),
+  ('nagad', '01835252721'),
+  ('rocket', '01835252721')
+on conflict (provider) do update
+  set receiving_number = excluded.receiving_number,
+      is_active = true,
+      updated_at = now();
+```
+
 ## App Version 0.0.349 — Task 21 Follow-Up — Discounted Six-Month And Annual Plans
 
 ### 0.0.349 · `20261002100000_payment_prices_discounted.sql`
@@ -12466,6 +12645,192 @@ comment on function public.purge_tombstones(integer) is
 
 comment on table public.mutation_receipts is
   'Server-internal. Retain at least 400 days — the 335-day maximum supported offline window plus a retry buffer, and inside the 365-day tombstone retention a device recovering from that window relies on — and never purge a receipt still referenced by case_history, conflict_log or an audit record. mutation_id mirrors the client-generated key so a retry returns the original result.';
+```
+
+## App Version 0.0.543 — Subscription History — Cancelling A Live Plan
+
+### 0.0.543 · `20261018100000_subscription_cancellation.sql`
+
+> **Created 2026-10-18.** Subscription History — cancelling a live plan, reconstructed. The install that shipped cancellation on 2026-10-18 recorded its version without statements and committed no file, so the app called an RPC the repository could not define and the applier reported it as drift. This section is the table, its own-row SELECT policy, its narrowed grants and cancel_subscription() copied from the applied project's catalogs, kept idempotent so the live project skips it and a fresh project can apply it.
+
+```sql
+-- Subscription History — cancelling a live plan, reconstructed from the live
+-- project on 2026-10-19.
+--
+-- **Why this file exists, and why it is a reconstruction.** The cancellation
+-- table, its own-row policy and `cancel_subscription()` were applied to the
+-- writable project `lsthasywrdrhuuxnykau` on 2026-10-18 under version
+-- `20261018100000`, but that version was recorded **without its statements**
+-- and no migration file was committed. The app therefore called an RPC that no
+-- file in this repository defined, and `tool/apply_supabase_migrations.dart`
+-- reported the version as drift. This file is that missing record: the table,
+-- policy, grants and function are copied from the applied project's own
+-- catalogs (`pg_get_functiondef`, `information_schema`, `pg_policies`,
+-- `pg_class`) rather than invented from the client's call sites. The function's
+-- logic is byte-for-byte the live one; only its lapse-allowance comment was
+-- updated from the old Pro/Firm/Firm Plus numbers to the six-tier ladder's.
+--
+-- The version in the filename is the version the live project already holds, so
+-- the applier skips it there and its history stays truthful. Every statement is
+-- idempotent (`if not exists`, `create or replace`, `drop policy if exists`), so
+-- a fresh project can apply this file and re-running it changes nothing.
+--
+-- Table class: `subscription_cancellations` is **server-managed**. Only
+-- `cancel_subscription()` writes it, and a signed-in client may select its own
+-- rows under RLS; there is deliberately no insert, update or delete policy.
+--
+-- Proven on 2026-10-19 by running this file inside a rolled-back transaction on
+-- the applied project (it re-created the same objects with no error) and by the
+-- client's own cancellation cases in
+-- `test/features/subscription_details_screen_test.dart`.
+
+-- ---------------------------------------------------------------------------
+-- 1. The ledger row.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.subscription_cancellations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  -- The plan that was running and what was actually paid for it. Both are
+  -- nullable because a period granted outside the ladder has no purchase row to
+  -- name; the cancellation still happened and its expiry is still a fact.
+  plan_type text,
+  amount integer,
+  -- The expiry that was ended, and the instant it was ended. Both required:
+  -- a cancellation without either cannot be reconciled against a statement.
+  previous_expiry timestamptz not null,
+  cancelled_at timestamptz not null default now()
+);
+
+comment on table public.subscription_cancellations is
+  'Server-managed. One row per cancelled paid plan: the plan that was running, what was paid for it, the expiry that was ended and the instant it was cancelled. Written only by cancel_subscription(); the client may read its own rows.';
+
+-- One account's ledger, newest first — the read the Subscription History list
+-- makes.
+create index if not exists subscription_cancellations_user_cancelled_at_idx
+  on public.subscription_cancellations (user_id, cancelled_at desc);
+
+-- ---------------------------------------------------------------------------
+-- 2. Read your own rows, and nothing else.
+-- ---------------------------------------------------------------------------
+
+alter table public.subscription_cancellations enable row level security;
+
+-- RLS is a second fence, not the first: the table-level grants are narrowed to
+-- the one verb a client needs, so even a mistake in a policy cannot let a
+-- client write this ledger.
+revoke all on table public.subscription_cancellations from public, anon, authenticated;
+grant select on table public.subscription_cancellations to authenticated;
+grant all on table public.subscription_cancellations to service_role;
+
+drop policy if exists subscription_cancellations_select_own
+  on public.subscription_cancellations;
+create policy subscription_cancellations_select_own
+  on public.subscription_cancellations
+  for select
+  using (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- 3. The one write path.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.cancel_subscription()
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  -- The account is the session's own, never a parameter: this ends the caller's
+  -- plan or nothing.
+  v_user_id uuid := auth.uid();
+  v_profile public.profiles%rowtype;
+  v_plan_type text;
+  v_amount integer;
+  v_now timestamptz := now();
+  v_previous_expiry timestamptz;
+  v_cancelled_at timestamptz;
+begin
+  if v_user_id is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  select * into v_profile
+    from public.profiles p
+   where p.id = v_user_id
+   for update;
+
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  -- A member's plan is the chamber's (§5.1), so their own row is not where their
+  -- entitlement lives and ending it would change nothing while silently
+  -- discarding paid time they keep for later. Refused instead. The owner is not
+  -- a member: his own row *is* the chamber's plan, and the existing
+  -- `mirror_owner_subscription_to_firm()` carries the new expiry to it.
+  if v_profile.firm_id is not null
+     and v_profile.role in ('associate', 'viewer') then
+    return jsonb_build_object('status', 'firm_member');
+  end if;
+
+  -- Only a live paid period can be cancelled, and the test is the same derived
+  -- rule every gate reads, so this cannot disagree with `is_premium()` about
+  -- whether anything is running.
+  if v_profile.subscription_expiry is null
+     or v_profile.subscription_expiry + interval '48 hours' <= v_now then
+    return jsonb_build_object('status', 'no_active_plan');
+  end if;
+
+  v_previous_expiry := v_profile.subscription_expiry;
+
+  -- The plan that is running is the newest approved purchase — the same rule the
+  -- app's Current Plan uses — and the amount recorded is what was actually paid
+  -- for it rather than today's price list.
+  select s.plan_type, s.amount
+    into v_plan_type, v_amount
+    from public.payment_submissions s
+   where s.user_id = v_user_id
+     and s.status = 'approved'
+   order by coalesce(s.approved_at, s.submitted_at) desc
+   limit 1;
+
+  -- Backdated past the 48-hour grace, with an hour of cushion at the boundary,
+  -- so the next entitlement check is false rather than true for two more days.
+  -- The stored tier is deliberately untouched: it is the record of the last tier
+  -- held, and it is what gives the account its lapse allowance (Starter 100,
+  -- Pro 250, Firm 500, Firm Plus 1,000, Enterprise 2,000) instead of dropping it
+  -- to Free.
+  update public.profiles p
+     set subscription_expiry = v_now - interval '49 hours',
+         subscription_status = 'cancelled'
+   where p.id = v_user_id;
+
+  insert into public.subscription_cancellations (
+    user_id, plan_type, amount, previous_expiry, cancelled_at
+  )
+  values (v_user_id, v_plan_type, v_amount, v_previous_expiry, v_now)
+  returning cancelled_at into v_cancelled_at;
+
+  return jsonb_build_object(
+    'status', 'cancelled',
+    'plan_type', v_plan_type,
+    'amount', v_amount,
+    'previous_expiry', v_previous_expiry,
+    'cancelled_at', v_cancelled_at
+  );
+end;
+$$;
+
+comment on function public.cancel_subscription() is
+  'Ends the caller''s own live paid plan: backdates subscription_expiry past the 48-hour grace so entitlement is false at once, records one subscription_cancellations row (plan, amount, the expiry ended, the instant) and leaves the stored tier alone so the account lands on its lapse allowance. Answers status firm_member for an associate or viewer (the chamber holds the plan), no_active_plan for a free or lapsed account, not_found without a profile row, and unauthenticated without a session.';
+
+-- The RPC is for signed-in callers only. `create or replace` preserves an ACL,
+-- but stating it here is what makes this file a complete record: a fresh project
+-- gets the same answer as the live one.
+revoke all on function public.cancel_subscription() from public, anon;
+grant execute on function public.cancel_subscription() to authenticated;
+grant execute on function public.cancel_subscription() to service_role;
 ```
 
 ## App Version 0.0.546 — Task 22 — The Six-Tier Subscription Ladder

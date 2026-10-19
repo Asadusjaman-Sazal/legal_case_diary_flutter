@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(52),
+        hasLength(55),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -118,10 +118,12 @@ void main() {
             'starter, the six-rung ceilings and allowances, the tier-ceiling '
             'insert guard, the rebuilt approval that queues a different tier '
             'and refuses a third behind it, the new seat caps and the wider '
-            'plan names',
+            'plan names, and the cancellation history\'s missing record was '
+            'reconstructed from the applied project under the version it already '
+            'held, so the folder and the project history agree again',
       );
 
-      expect(versions.toSet(), hasLength(52), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(55), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),

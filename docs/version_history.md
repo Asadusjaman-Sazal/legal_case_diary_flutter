@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.546 - Six-tier subscription ladder with seventeen plans, paid case ceilings, queued plan changes, new seat caps, a rebuilt paywall and a server migration.
+Version: 0.0.547 - Recorded the live cancellation table, policy and RPC as an idempotent migration, and the two duplicate connector versions, so the applier reports no drift.
 --------------------------------------
 
 ## Version History Log:
@@ -560,3 +560,4 @@ Version: 0.0.543 - Subscription Details can cancel a live plan through cancel_su
 Version: 0.0.544 - Subscription Details' Cancel action is now a filled red button with white text, matching the cancellation window's confirm button.
 Version: 0.0.545 - Subscription Details insets for the phone's status bar like Subscription Plans, so the clock and icons stay visible instead of sitting on the white app bar.
 Version: 0.0.546 - Six-tier subscription ladder with seventeen plans, paid case ceilings, queued plan changes, new seat caps, a rebuilt paywall and a server migration.
+Version: 0.0.547 - Recorded the live cancellation table, policy and RPC as an idempotent migration, and the two duplicate connector versions, so the applier reports no drift.

@@ -404,14 +404,22 @@ class _CancelSubscriptionActionState
         // The default 48 px tap target is kept: the label is small, the target a
         // thumb hits is not.
         minimumSize: const Size(0, 40),
-        foregroundColor: AppColors.error,
+        // A filled destructive action (user request): the red the confirmation
+        // window's own button carries, so the two read as one decision.
+        backgroundColor: AppColors.error,
+        foregroundColor: AppColors.onError,
         textStyle: AppTypography.labelMd,
       ),
       child: _busy
           ? const SizedBox(
               width: 14,
               height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              // White like the label: a spinner inherits no button colour of its
+              // own, so the default primary would vanish into the red.
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.onError,
+              ),
             )
           : Text(l.payments_cancelPlan),
     );

@@ -156,26 +156,28 @@
   <div class="h-lg"></div>
 
   <!-- Intro and the Individual / Firm toggle. The app opens on the tab of the
-       tier the account holds; a free account opens Individual.
-
-       The intro scrolls away with the cards; the toggle is pinned and stays at
-       the top once reached (the app draws it in a PinnedHeaderSliver over the
-       page background). -->
+       tier the account holds; a free account opens Individual. Both scroll with
+       the page. -->
   <p class="font-body-md text-body-md text-on-surface-variant">Choose the plan that fits your practice.</p>
-  <div class="sticky top-14 z-30 bg-background py-sm flex justify-center">
+  <div class="mt-md flex justify-center">
     <div class="inline-flex rounded-full bg-surface-container p-1">
       <button class="px-lg h-9 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Individual</button>
       <button class="px-lg h-9 rounded-full text-on-surface-variant font-label-lg text-label-lg">Firm</button>
     </div>
   </div>
 
-  <div class="h-sm"></div>
+  <div class="h-md"></div>
 
   <!-- One full-width card per tier, stacked. The Firm tab draws Firm, Firm Plus
        and Enterprise the same way with their own features and prices. -->
 
-  <!-- Free: the current plan on a free account. -->
-  <div class="bg-surface-container-lowest border-2 border-primary rounded-lg p-card-padding">
+  <!-- Free: the current plan on a free account.
+
+       A card is 1px grey at rest; it takes the 2px ink outline only while a
+       finger is down on it. The badges (Current Plan, Most Popular) are what
+       mark a card's standing, not a permanent outline. The app draws the press
+       with a Listener around an AnimatedContainer. -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Free</p>
       <span class="ml-sm px-sm py-1 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Current Plan</span>
@@ -192,8 +194,10 @@
 
   <div class="h-md"></div>
 
-  <!-- Starter: the most popular individual rung. -->
-  <div class="bg-surface-container-lowest border-2 border-primary rounded-lg p-card-padding">
+  <!-- Starter: the most popular individual rung. Its 3 Months button is drawn
+       selected — the 2px ink outline and the tick — since a pressed or chosen
+       term is the screen's one black mark. -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Starter</p>
       <span class="ml-sm px-sm py-1 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Most Popular</span>
@@ -207,16 +211,16 @@
     <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳60</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>
     <p class="mt-sm font-label-lg text-label-lg text-on-surface">Or choose</p>
     <!-- No term is ticked on an Individual card by default: the monthly price
-         above is the selection. A ticked term takes the green edge, and the 6M
+         above is the selection. A ticked term takes the ink outline, and the 6M
          and 1Y buttons name their undiscounted price and saving. -->
     <div class="mt-sm grid grid-cols-3 gap-sm">
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months<span class="block font-title-md text-title-md">৳180</span></button>
+      <button class="min-h-14 rounded-lg border-2 border-primary bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months ✓<span class="block font-title-md text-title-md">৳180</span></button>
       <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months<span class="block font-title-md text-title-md">৳300</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳360</s> <span class="text-[#059669]">৳60 Off</span></span></button>
       <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year<span class="block font-title-md text-title-md">৳600</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳720</s> <span class="text-[#059669]">৳120 Off</span></span></button>
     </div>
     <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
     <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[53px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳60/month</button>
+    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳60/month</button>
   </div>
 
   <div class="h-md"></div>
@@ -237,7 +241,7 @@
     </div>
     <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
     <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[53px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳120/month</button>
+    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳120/month</button>
   </div>
 
   <div class="h-xl"></div>

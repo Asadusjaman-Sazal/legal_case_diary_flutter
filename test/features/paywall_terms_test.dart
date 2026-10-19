@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
@@ -107,37 +108,112 @@ void main() {
     expect(find.text('Or choose'), findsNothing);
   });
 
-  testWidgets('the toggle stays put while the intro scrolls away', (
+  testWidgets('the toggle scrolls away with the intro, not pinned', (
     tester,
   ) async {
     await pumpPaywall(tester, height: 800);
 
-    final intro = find.text('Choose the plan that fits your practice.');
     final toggle = find.byKey(const ValueKey('paywall-audience-individual'));
     final starter = find.byKey(const ValueKey('paywall-plan-starter'));
-    expect(intro, findsOneWidget);
-
     final toggleBefore = tester.getRect(toggle);
     final starterBefore = tester.getRect(starter);
-    // The intro sits above the toggle, and the toggle above the first card.
-    expect(tester.getRect(intro).top, lessThan(toggleBefore.top));
-    expect(toggleBefore.top, lessThan(starterBefore.top));
 
-    // Scroll past the intro: the toggle travels up with it, then stops dead at
-    // the top of the viewport.
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
     await tester.pumpAndSettle();
 
-    final pinned = tester.getRect(toggle);
-    expect(pinned.top, lessThan(toggleBefore.top));
-    // The cards kept going under it, and the intro — above the toggle — is
-    // unmounted once it is out of view.
+    // The toggle moved up with the page (or left the tree) rather than staying
+    // at a fixed offset the way a pinned header would.
+    final movedAway =
+        toggle.evaluate().isEmpty ||
+        tester.getRect(toggle).top < toggleBefore.top;
+    expect(movedAway, isTrue);
+    // The cards scrolled too, so this is ordinary scrolling, not a layout jump.
     expect(tester.getRect(starter).top, lessThan(starterBefore.top));
-    expect(intro, findsNothing);
-
-    // ...and scrolling further leaves the toggle exactly where it is.
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
-    await tester.pumpAndSettle();
-    expect(tester.getRect(toggle), pinned);
   });
+
+  testWidgets('no card is outlined at rest, and a pressed card is', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    // Most Popular and the free card's Current Plan badge do not ink the card.
+    for (final tier in ['free', 'starter', 'pro']) {
+      final frame = find.byKey(ValueKey('paywall-plan-$tier'));
+      final border = _cardBorder(tester, frame);
+      expect(border.color, AppColors.outlineVariant, reason: tier);
+      expect(border.width, 1, reason: tier);
+    }
+
+    // Press and hold the Starter card: its outline inks while the finger is
+    // down, and clears when it lifts.
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(const ValueKey('paywall-plan-starter'))),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-starter')))
+          .color,
+      AppColors.primary,
+    );
+    // The other cards stayed grey: only the touched card inks.
+    expect(
+      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-pro'))).color,
+      AppColors.outlineVariant,
+    );
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(
+      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-starter')))
+          .color,
+      AppColors.outlineVariant,
+    );
+  });
+
+  testWidgets('the selected term is marked with the ink outline, not green', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    final selected = find.byKey(
+      const ValueKey('paywall-term-starter-starter_quarterly'),
+    );
+    final unselected = find.byKey(
+      const ValueKey('paywall-term-starter-starter_half_yearly'),
+    );
+    expect(_termBorder(tester, unselected).color, AppColors.outlineVariant);
+
+    await tester.tap(selected);
+    await tester.pumpAndSettle();
+
+    final border = _termBorder(tester, selected);
+    expect(border.color, AppColors.primary);
+    expect(border.color, isNot(AppColors.success));
+    expect(border.width, 2);
+  });
+
+  testWidgets('the action is 54 tall', (tester) async {
+    await pumpPaywall(tester);
+    final button = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('paywall-subscribe-starter')),
+    );
+    expect(button.style?.minimumSize?.resolve({}), const Size.fromHeight(54));
+  });
+}
+
+/// The border of a card's frame, which is an [AnimatedContainer].
+BorderSide _cardBorder(WidgetTester tester, Finder card) {
+  final container = tester.widget<AnimatedContainer>(
+    find.descendant(of: card, matching: find.byType(AnimatedContainer)).first,
+  );
+  return ((container.decoration! as BoxDecoration).border! as Border).top;
+}
+
+/// The border of one term button's inner container.
+BorderSide _termBorder(WidgetTester tester, Finder term) {
+  final container = tester.widget<Container>(
+    find.descendant(of: term, matching: find.byType(Container)).first,
+  );
+  final decoration = container.decoration! as BoxDecoration;
+  return (decoration.border! as Border).top;
 }

@@ -6,9 +6,10 @@
 /// * one full-width card per tier, stacked — never side by side — with the
 ///   plan's name, badge, description, inherited-feature header, feature rows,
 ///   monthly price, three term buttons, the free-month notes and one action;
-/// * every paid tier's term buttons are grey with dark text. Individual cards
-///   open on **1 Month** and chamber cards on **6 Months**, and selecting is
-///   one-way: tapping the chosen term leaves it chosen, so a card always
+/// * every paid tier's term buttons are grey with dark text; the chosen one
+///   takes a **2px ink outline**, the app's one selected-state mark. Individual
+///   cards open on **1 Month** and chamber cards on **6 Months**, and selecting
+///   is one-way: tapping the chosen term leaves it chosen, so a card always
 ///   carries a term (and its action) to buy. A 6-month or yearly button also
 ///   shows its undiscounted price struck in red with the saving in green;
 /// * the card the account holds carries **Current Plan** and its action says
@@ -276,7 +277,6 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         ),
         body: CustomScrollView(
           slivers: [
-            // The intro is a lead-in, so it scrolls away with the cards.
             if (!isMember)
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
@@ -286,22 +286,27 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   0,
                 ),
                 sliver: SliverToBoxAdapter(
-                  child: Text(
-                    l.paywall_intro,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        l.paywall_intro,
+                        style: AppTypography.bodyMd.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      // The toggle scrolls with the page: it is a one-time
+                      // choice, not a control to keep on screen.
+                      Center(
+                        child: _AudienceToggle(
+                          selected: audience,
+                          onChanged: (value) =>
+                              setState(() => _audience = value),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            // The toggle itself sticks: switching audience is the one thing a
-            // user does halfway down a long list of plans.
-            if (!isMember)
-              PinnedHeaderSliver(
-                key: const ValueKey('paywall-pinned-header'),
-                child: _PinnedAudience(
-                  audience: audience,
-                  onChanged: (value) => setState(() => _audience = value),
                 ),
               ),
             SliverPadding(
@@ -440,19 +445,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       plan: basePlan,
     );
 
-    return Container(
+    return _PlanCardFrame(
       key: ValueKey('paywall-plan-${tier.key}'),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        border: Border.all(
-          color: isCurrent || isPopular
-              ? AppColors.primary
-              : AppColors.outlineVariant,
-          width: isCurrent || isPopular ? 2 : 1,
-        ),
-      ),
-      padding: const EdgeInsets.all(AppSpacing.cardPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -610,7 +604,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
               disabledForegroundColor: AppColors.onSurfaceVariant,
               textStyle: AppTypography.titleMd,
-              minimumSize: const Size.fromHeight(53),
+              minimumSize: const Size.fromHeight(54),
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
@@ -636,6 +630,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }
 
   /// The card's one-line description.
+
   String _description(AppLocalizations l, SubscriptionTier tier) =>
       switch (tier) {
         SubscriptionTier.free => l.paywall_tierFreeNote,
@@ -838,6 +833,50 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   );
 }
 
+/// A plan card's surface, inked **only while the user is touching it**.
+///
+/// The card used to carry a permanent black outline when it was the most
+/// popular rung or the one the account holds. That made two cards shout at
+/// once, and it read as the card being *selected* — which on this screen is
+/// what a term is for. Now the outline follows the finger: it is 1px grey at
+/// rest and 2px ink while any part of the card is pressed, which is also the
+/// press feedback the card otherwise lacked.
+class _PlanCardFrame extends StatefulWidget {
+  const _PlanCardFrame({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  State<_PlanCardFrame> createState() => _PlanCardFrameState();
+}
+
+class _PlanCardFrameState extends State<_PlanCardFrame> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    // `Listener` rather than `GestureDetector`: the card's own buttons must
+    // keep their taps, and a raw pointer listener never competes with them for
+    // the gesture arena.
+    onPointerDown: (_) => setState(() => _pressed = true),
+    onPointerUp: (_) => setState(() => _pressed = false),
+    onPointerCancel: (_) => setState(() => _pressed = false),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+        border: Border.all(
+          color: _pressed ? AppColors.primary : AppColors.outlineVariant,
+          width: _pressed ? 2 : 1,
+        ),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.cardPadding),
+      child: widget.child,
+    ),
+  );
+}
+
 /// The plan card's small status pill.
 class _Badge extends StatelessWidget {
   const _Badge({required this.label});
@@ -859,40 +898,6 @@ class _Badge extends StatelessWidget {
       style: AppTypography.labelMd.copyWith(color: AppColors.onPrimary),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-    ),
-  );
-}
-
-/// The Individual / Firm toggle, pinned above the cards.
-///
-/// The intro above it scrolls away with the cards — it is a one-time lead-in,
-/// not something to keep on screen — while the toggle stays put for anyone
-/// deciding halfway down a long list.
-class _PinnedAudience extends StatelessWidget {
-  const _PinnedAudience({
-    required this.audience,
-    required this.onChanged,
-  });
-
-  final SubscriptionAudience audience;
-  final ValueChanged<SubscriptionAudience> onChanged;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    // The page background, so cards scrolling under the toggle stay hidden;
-    // without it the pill would sit on top of a card's text.
-    color: AppColors.background,
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.edgeMargin,
-      AppSpacing.sm,
-      AppSpacing.edgeMargin,
-      AppSpacing.sm,
-    ),
-    child: Center(
-      child: _AudienceToggle(
-        selected: audience,
-        onChanged: onChanged,
-      ),
     ),
   );
 }
@@ -1103,9 +1108,10 @@ class _TermButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
             border: Border.all(
-              // The light green of the app's success state, not the ink: a
-              // selected term is a saving, and the ink marked it like a button.
-              color: isSelected ? AppColors.success : AppColors.outlineVariant,
+              // The app's one "chosen" mark is the ink outline (the same 2px
+              // used by the pressed card and the app's selected pills). Green
+              // belongs to success and savings, not to a selection.
+              color: isSelected ? AppColors.primary : AppColors.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
           ),

@@ -51,6 +51,14 @@ class _AcceptingRepository implements PaymentRepository {
   @override
   Future<List<PaymentSubmission>> fetchMySubmissions() async =>
       const <PaymentSubmission>[];
+
+  @override
+  Future<List<SubscriptionCancellation>> fetchMyCancellations() async =>
+      const <SubscriptionCancellation>[];
+
+  @override
+  Future<void> cancelSubscription() async =>
+      throw const PaymentCancelException(PaymentCancelFailure.network);
 }
 
 void main() {

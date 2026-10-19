@@ -41,6 +41,48 @@ import 'package:legal_case_diary/features/settings/presentation/subscription_det
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
+/// A payments boundary whose cancellation the test decides.
+///
+/// The screen's Cancel action calls the repository directly, so this fake both
+/// records the attempt and can refuse it with one of the server's typed answers.
+class _FakePaymentsRepository implements PaymentRepository {
+  _FakePaymentsRepository({this.refusal});
+
+  /// When set, `cancelSubscription` throws it.
+  final PaymentCancelFailure? refusal;
+
+  /// The cancellations `fetchMyCancellations` returns.
+  List<SubscriptionCancellation> cancellations =
+      const <SubscriptionCancellation>[];
+
+  /// How many cancellations were attempted.
+  int cancelCalls = 0;
+
+  @override
+  Future<void> cancelSubscription() async {
+    cancelCalls++;
+    if (refusal != null) throw PaymentCancelException(refusal!);
+  }
+
+  @override
+  Future<List<SubscriptionCancellation>> fetchMyCancellations() async =>
+      cancellations;
+
+  @override
+  Future<List<PaymentSubmission>> fetchMySubmissions() async =>
+      const <PaymentSubmission>[];
+
+  @override
+  Future<void> submit({
+    required String userId,
+    required String planType,
+    required int amount,
+    required String mfsProvider,
+    required String senderNumber,
+    required String transactionId,
+  }) async {}
+}
+
 void main() {
   late AuthTestHarness harness;
   late AppLocalizations l;
@@ -85,6 +127,12 @@ void main() {
           if (!overrides.any((o) => o.origin == myPaymentSubmissionsProvider))
             myPaymentSubmissionsProvider.overrideWith(
               (ref) async => const <PaymentSubmission>[],
+            ),
+          if (!overrides.any(
+            (o) => o.origin == mySubscriptionCancellationsProvider,
+          ))
+            mySubscriptionCancellationsProvider.overrideWith(
+              (ref) async => const <SubscriptionCancellation>[],
             ),
           ...overrides,
         ],
@@ -139,6 +187,9 @@ void main() {
         fullName: const Value('Adv. Rahim Uddin'),
         role: const Value(AccountRole.owner),
         firmId: const Value('firm-1'),
+        // A paid account holds its tier even when the period ends, which is what
+        // gives a lapsed plan its allowance instead of the free 50.
+        tier: const Value('pro'),
         subscriptionStatus: const Value('active'),
         subscriptionExpiry: Value(
           DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
@@ -697,6 +748,329 @@ void main() {
     for (final dot in dots) {
       expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
     }
+
+    await unmountApp(tester);
+  });
+
+  /// A paid individual: no chamber, so the Cancel action is the account's own
+  /// decision and the lapsed landing after it is observable.
+  Future<void> seedIndividualPaid(AppDatabase db) => ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-1'),
+          fullName: const Value('Adv. Rahim Uddin'),
+          role: const Value(AccountRole.individual),
+          tier: const Value('pro'),
+          subscriptionStatus: const Value('active'),
+          subscriptionExpiry: Value(
+            DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
+          ),
+          createdAt: const Value(1),
+        ),
+      );
+
+  const cancelKey = ValueKey('subscription-details-cancel');
+
+  testWidgets('a paid plan carries Cancel at the right of the plan card', (
+    tester,
+  ) async {
+    await pumpDetails(tester, seed: seedIndividualPaid);
+
+    expect(find.byKey(cancelKey), findsOneWidget);
+    expect(find.text(l.payments_cancelPlan), findsOneWidget);
+
+    // It sits at the card's content edge, not beside the plan's name: the same
+    // edge every right-aligned value on this page finishes at.
+    final edge = 420 - AppSpacing.edgeMargin - AppSpacing.md;
+    expect(
+      tester.getTopRight(find.byKey(cancelKey)).dx,
+      closeTo(edge, 1.0),
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a Free plan has nothing to cancel', (tester) async {
+    await pumpDetails(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    expect(find.byKey(cancelKey), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a lapsed plan has nothing left to cancel', (tester) async {
+    // The tier is kept and the period has ended: the account holds a lapse
+    // allowance, but there is no live plan for the action to end.
+    await pumpDetails(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-1'),
+          fullName: const Value('Adv. Rahim Uddin'),
+          role: const Value(AccountRole.individual),
+          tier: const Value('pro'),
+          subscriptionStatus: const Value('cancelled'),
+          subscriptionExpiry: Value(
+            DateTime.utc(2026, 10, 1, 17, 30).millisecondsSinceEpoch,
+          ),
+          createdAt: const Value(1),
+        ),
+      ),
+    );
+
+    expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
+    expect(find.byKey(cancelKey), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a chamber member cannot cancel the chamber\'s plan', (
+    tester,
+  ) async {
+    // The server refuses this case (`firm_member`), so the action is never
+    // offered: their entitlement is the chamber's, and the owner is the one who
+    // may end it.
+    await pumpDetails(tester, seed: seedMember);
+
+    expect(find.text('01/12/2026, 11:30 PM'), findsOneWidget);
+    expect(find.byKey(cancelKey), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets(
+    'the warning says the plan cannot be restored and Go Back sends nothing',
+    (tester) async {
+      final repo = _FakePaymentsRepository();
+      await pumpDetails(
+        tester,
+        overrides: [paymentRepositoryProvider.overrideWithValue(repo)],
+        seed: seedIndividualPaid,
+      );
+
+      await tester.tap(find.byKey(cancelKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.payments_cancelTitle), findsOneWidget);
+      expect(find.text(l.payments_cancelWarning), findsOneWidget);
+      expect(find.text(l.payments_goBack), findsOneWidget);
+      expect(find.text(l.payments_confirmCancellation), findsOneWidget);
+
+      // The way out is black, the destructive choice is red, both with white
+      // text — the two colours the request names.
+      Color? background(String key) => tester
+          .widget<TextButton>(find.byKey(ValueKey(key)))
+          .style
+          ?.backgroundColor
+          ?.resolve(<WidgetState>{});
+      Color? foreground(String key) => tester
+          .widget<TextButton>(find.byKey(ValueKey(key)))
+          .style
+          ?.foregroundColor
+          ?.resolve(<WidgetState>{});
+      expect(
+        background('subscription-details-cancel-go-back'),
+        AppColors.secondary,
+      );
+      expect(
+        foreground('subscription-details-cancel-go-back'),
+        AppColors.onSecondary,
+      );
+      expect(
+        background('subscription-details-cancel-confirm'),
+        AppColors.error,
+      );
+      expect(
+        foreground('subscription-details-cancel-confirm'),
+        AppColors.onError,
+      );
+
+      await tester.tap(find.text(l.payments_goBack));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.payments_cancelTitle), findsNothing);
+      expect(repo.cancelCalls, 0);
+      expect(find.byKey(cancelKey), findsOneWidget);
+
+      await unmountApp(tester);
+    },
+  );
+
+  testWidgets(
+    'a confirmed cancellation ends the plan and lands in the ledger',
+    (tester) async {
+      var refreshes = 0;
+      final repo = _FakePaymentsRepository()
+        ..cancellations = <SubscriptionCancellation>[
+          SubscriptionCancellation(
+            id: 'c1',
+            planType: paymentPlanQuarterly,
+            amount: 285,
+            cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
+          ),
+        ];
+
+      await pumpDetails(
+        tester,
+        overrides: [
+          paymentRepositoryProvider.overrideWithValue(repo),
+          // The ledger stays empty until the server has recorded the change, so
+          // the entry asserted below is the one the cancellation created.
+          mySubscriptionCancellationsProvider.overrideWith(
+            (ref) async =>
+                repo.cancelCalls == 0
+                    ? const <SubscriptionCancellation>[]
+                    : repo.cancellations,
+          ),
+          // The pull the action runs after the RPC; it carries the server's new
+          // expiry, which is what moves the page to the lapsed stage.
+          accountRefreshProvider.overrideWithValue(() async {
+            refreshes++;
+            await ProfilesDao(harness.db).upsert(
+              ProfilesCompanion(
+                id: const Value('user-1'),
+                fullName: const Value('Adv. Rahim Uddin'),
+                role: const Value(AccountRole.individual),
+                tier: const Value('pro'),
+                subscriptionStatus: const Value('cancelled'),
+                // Behind the 48-hour grace, exactly where the server's own
+                // cancellation puts it.
+                subscriptionExpiry: Value(
+                  DateTime.utc(2026, 10, 1, 12).millisecondsSinceEpoch,
+                ),
+                createdAt: const Value(1),
+              ),
+            );
+            return true;
+          }),
+        ],
+        seed: seedIndividualPaid,
+      );
+
+      expect(find.text(l.payments_statusCancelled), findsNothing);
+      await tester.tap(find.byKey(cancelKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.payments_confirmCancellation));
+      await tester.pumpAndSettle();
+
+      expect(repo.cancelCalls, 1);
+      expect(refreshes, 1);
+
+      // The plan lapsed, and the tier it held still names it.
+      expect(
+        find.text(l.settingsManageAccount_planLapsed(l.paywall_tierPro)),
+        findsWidgets,
+      );
+      expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
+
+      // The cancellation is an entry of its own: plan and amount repeated, a
+      // red verdict, and the moment it happened rather than the purchase's.
+      expect(find.text(l.payments_statusCancelled), findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(find.text(l.payments_statusCancelled))
+            .style
+            ?.color,
+        AppColors.error,
+      );
+      expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
+
+      // Nothing is left to cancel, so the action is gone with the live plan.
+      expect(find.byKey(cancelKey), findsNothing);
+
+      await unmountApp(tester);
+    },
+  );
+
+  testWidgets('a refused cancellation keeps the plan and says why', (
+    tester,
+  ) async {
+    final repo = _FakePaymentsRepository(
+      refusal: PaymentCancelFailure.noActivePlan,
+    );
+    var refreshes = 0;
+    await pumpDetails(
+      tester,
+      overrides: [
+        paymentRepositoryProvider.overrideWithValue(repo),
+        accountRefreshProvider.overrideWithValue(() async {
+          refreshes++;
+          return true;
+        }),
+      ],
+      seed: seedIndividualPaid,
+    );
+
+    await tester.tap(find.byKey(cancelKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.payments_confirmCancellation));
+    await tester.pumpAndSettle();
+
+    expect(repo.cancelCalls, 1);
+    expect(refreshes, 0, reason: 'a refusal changed nothing to pull');
+    expect(find.text(l.payments_cancelNoActivePlan), findsOneWidget);
+    // The plan is still running, so the action is still offered.
+    expect(find.byKey(cancelKey), findsOneWidget);
+    expect(find.text(l.payments_statusCancelled), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('cancellations and purchases share one newest-first ledger', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => [
+            submission(
+              id: 'p1',
+              planType: paymentPlanQuarterly,
+              amount: 285,
+              status: 'approved',
+              submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+            ),
+          ],
+        ),
+        mySubscriptionCancellationsProvider.overrideWith(
+          (ref) async => [
+            SubscriptionCancellation(
+              id: 'c1',
+              planType: paymentPlanQuarterly,
+              amount: 285,
+              cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
+            ),
+          ],
+        ),
+      ],
+      seed: seedIndividualPaid,
+    );
+
+    // Both moments are drawn, newest first: the cancellation is card 1 and the
+    // purchase it ended is card 2.
+    final cancelled = find.text('02/12/2026, 11:30 PM');
+    final purchased = find.text('02/11/2026, 11:30 PM');
+    expect(cancelled, findsOneWidget);
+    expect(purchased, findsOneWidget);
+    expect(
+      tester.getTopLeft(cancelled).dy,
+      lessThan(tester.getTopLeft(purchased).dy),
+    );
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text(l.payments_statusCancelled), findsOneWidget);
+    expect(find.text(l.payments_statusApproved), findsOneWidget);
 
     await unmountApp(tester);
   });

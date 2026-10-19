@@ -4622,10 +4622,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Submission Received. We Will Verify It Shortly.';
 
   @override
-  String get payments_historyTitle => 'Payment History';
+  String get payments_historyTitle => 'Subscription History';
 
   @override
-  String get payments_noSubmissions => 'No Payments Submitted Yet.';
+  String get payments_noSubmissions => 'No Subscription History Yet.';
 
   @override
   String get payments_statusPending => 'Pending';
@@ -4635,6 +4635,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payments_statusRejected => 'Rejected';
+
+  @override
+  String get payments_statusCancelled => 'Cancelled';
+
+  @override
+  String get payments_cancelPlan => 'Cancel';
+
+  @override
+  String get payments_cancelTitle => 'Cancel Subscription?';
+
+  @override
+  String get payments_cancelWarning =>
+      'A cancelled plan cannot be restored. Your account will move to the lapsed stage and keep only its limited allowance until you buy another plan.';
+
+  @override
+  String get payments_goBack => 'Go Back';
+
+  @override
+  String get payments_confirmCancellation => 'Confirm Cancellation';
+
+  @override
+  String get payments_cancelFailed =>
+      'The subscription could not be cancelled. Please try again.';
+
+  @override
+  String get payments_cancelNoActivePlan =>
+      'There is no active plan to cancel.';
+
+  @override
+  String get payments_cancelFirmMember =>
+      'This plan belongs to the firm. Only the firm owner can cancel it.';
 
   @override
   String get payments_notesLabel => 'Note';

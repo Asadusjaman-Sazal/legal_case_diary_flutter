@@ -4640,10 +4640,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get payments_submitSuccess => 'জমা পাওয়া গেছে। আমরা শীঘ্রই যাচাই করব।';
 
   @override
-  String get payments_historyTitle => 'পেমেন্টের ইতিহাস';
+  String get payments_historyTitle => 'সাবস্ক্রিপশনের ইতিহাস';
 
   @override
-  String get payments_noSubmissions => 'এখনো কোনো পেমেন্ট জমা দেওয়া হয়নি।';
+  String get payments_noSubmissions => 'এখনো কোনো সাবস্ক্রিপশনের ইতিহাস নেই।';
 
   @override
   String get payments_statusPending => 'অপেক্ষমাণ';
@@ -4653,6 +4653,37 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get payments_statusRejected => 'প্রত্যাখ্যাত';
+
+  @override
+  String get payments_statusCancelled => 'বাতিল';
+
+  @override
+  String get payments_cancelPlan => 'বাতিল করুন';
+
+  @override
+  String get payments_cancelTitle => 'সাবস্ক্রিপশন বাতিল করবেন?';
+
+  @override
+  String get payments_cancelWarning =>
+      'বাতিল করা প্ল্যান আর ফিরিয়ে আনা যাবে না। নতুন প্ল্যান কেনার আগ পর্যন্ত আপনার অ্যাকাউন্ট ল্যাপ্সড অবস্থায় থাকবে এবং শুধু সীমিত সুবিধা পাবে।';
+
+  @override
+  String get payments_goBack => 'ফিরে যান';
+
+  @override
+  String get payments_confirmCancellation => 'বাতিল নিশ্চিত করুন';
+
+  @override
+  String get payments_cancelFailed =>
+      'সাবস্ক্রিপশন বাতিল করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get payments_cancelNoActivePlan =>
+      'বাতিল করার মতো কোনো সক্রিয় প্ল্যান নেই।';
+
+  @override
+  String get payments_cancelFirmMember =>
+      'এই প্ল্যানটি ফার্মের। শুধু ফার্মের মালিক এটি বাতিল করতে পারেন।';
 
   @override
   String get payments_notesLabel => 'মন্তব্য';

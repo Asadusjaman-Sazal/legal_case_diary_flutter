@@ -620,6 +620,14 @@
       }
   },
   "paywall_orChoose": "অথবা বেছে নিন",
+  "paywall_priceOff": "{amount} ছাড়",
+  "@paywall_priceOff": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
   "paywall_pricePerMonth": "{amount}/মাস",
   "@paywall_pricePerMonth": {
       "placeholders": {

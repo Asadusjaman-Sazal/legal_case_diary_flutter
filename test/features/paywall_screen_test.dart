@@ -162,29 +162,49 @@ void main() {
     expect(find.text('৳300'), findsOneWidget);
     // ৳600 is Starter's year and Pro's six months.
     expect(find.text('৳600'), findsNWidgets(2));
+    // Each 6-month and yearly button names its undiscounted price and saving,
+    // so Starter's 6-month button reads ৳300 with ৳360 struck and ৳60 Off.
+    final starterCard = find.byKey(const ValueKey('paywall-plan-starter'));
+    expect(
+      find.descendant(of: starterCard, matching: find.text('৳360')),
+      findsOneWidget,
+    );
+    expect(find.text('৳60 Off'), findsOneWidget);
+    // Pro's 6-month full price is ৳720 and Pro's yearly saving ৳120.
+    final proCard = find.byKey(const ValueKey('paywall-plan-pro'));
+    expect(
+      find.descendant(of: proCard, matching: find.text('৳720')),
+      findsOneWidget,
+    );
+    // ৳120 Off is Starter's year and Pro's six months.
+    expect(find.text('৳120 Off'), findsNWidgets(2));
     // Both paid cards carry the same two notes.
     expect(find.text('1 month free on 6 months'), findsNWidgets(2));
     expect(find.text('2 months free on 1 year'), findsNWidgets(2));
-    // The annual term is selected by default.
-    expect(find.text('Subscribe — 1 Year/৳600'), findsOneWidget);
+    // Both paid cards say *Or choose* above their term buttons.
+    expect(find.text('Or choose'), findsNWidgets(2));
+    // An Individual card opens on 1 Month: the monthly price is the base, and
+    // no term button is ticked.
+    expect(find.text('Subscribe — ৳60/month'), findsOneWidget);
   });
 
-  testWidgets('tapping a term applies its price and tapping it again clears it', (
+  testWidgets('tapping a term applies its price and cannot be cleared', (
     tester,
   ) async {
     await pumpPaywall(tester);
 
-    // The default is the annual plan.
-    expect(find.text('Subscribe — 1 Year/৳600'), findsOneWidget);
-
-    // Tap the selected annual term: the action falls back to one month.
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-starter-starter_annual')),
-    );
-    await tester.pumpAndSettle();
+    // The default is one month.
     expect(find.text('Subscribe — ৳60/month'), findsOneWidget);
 
     // Choose six months: the action carries the total.
+    await tester.tap(
+      find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
+
+    // Tapping the chosen term again leaves it chosen: a card always carries a
+    // term to buy, so there is no way back to "no term".
     await tester.tap(
       find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
     );
@@ -225,11 +245,22 @@ void main() {
     expect(find.text('Unlimited Cases (Fair Use Applies)'), findsOneWidget);
     expect(find.text('Unlimited Members and Devices'), findsOneWidget);
 
-    // Firm sells no one-month term; its shortest is three months.
+    // Chamber tiers sell no one-month term; their shortest is three months.
     expect(find.text('Shortest term: 3 months'), findsNWidgets(3));
-    expect(find.text('Subscribe — 1 Year/৳2,500'), findsOneWidget);
+    // A chamber card opens on six months and carries no "Or choose".
+    expect(find.text('Subscribe — 6 Months/৳1,250'), findsOneWidget);
+    expect(find.text('Or choose'), findsNothing);
+    // Its 6-month button names Firm's full price (৳250 × 6) and the saving.
+    final firmCard = find.byKey(const ValueKey('paywall-plan-firm'));
+    expect(
+      find.descendant(of: firmCard, matching: find.text('৳1,500')),
+      findsOneWidget,
+    );
+    expect(find.text('৳250 Off'), findsOneWidget);
+    // Removing the label does not shift the term buttons: they still pick a
+    // term, and the action follows.
     await tester.tap(
-      find.byKey(const ValueKey('paywall-term-firm-firm_annual')),
+      find.byKey(const ValueKey('paywall-term-firm-firm_quarterly')),
     );
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 3 Months/৳750'), findsOneWidget);
@@ -253,7 +284,7 @@ void main() {
       find.descendant(of: proCard, matching: find.text('Current Plan')),
       findsOneWidget,
     );
-    expect(find.text('Renew — 1 Year/৳1,200'), findsOneWidget);
+    expect(find.text('Renew — ৳120/month'), findsOneWidget);
     // The Free card is included, not purchasable.
     final freeButton = tester.widget<FilledButton>(
       find.byKey(const ValueKey('paywall-subscribe-free')),
@@ -319,7 +350,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text('Renew Scheduled Plan — 1 Year/৳2,500'),
+      find.text('Renew Scheduled Plan — 6 Months/৳1,250'),
       findsOneWidget,
     );
 
@@ -421,7 +452,8 @@ void main() {
     expect(find.text('৩ মাস'), findsNWidgets(2));
     expect(find.text('৬ মাস'), findsNWidgets(2));
     expect(find.text('১ বছর'), findsNWidgets(2));
-    expect(find.text('সাবস্ক্রাইব — ১ বছর/৳৬০০'), findsOneWidget);
+    expect(find.text('সাবস্ক্রাইব — ৳৬০/মাস'), findsOneWidget);
+    expect(find.text('৳৬০ ছাড়'), findsOneWidget);
   });
 
   test('the six tiers and seventeen plans are the settled ladder', () {

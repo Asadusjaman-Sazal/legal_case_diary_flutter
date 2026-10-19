@@ -20,6 +20,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
+import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_payment_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
@@ -88,8 +89,8 @@ AdminPaymentRequest _request({
 }) => AdminPaymentRequest(
   id: id,
   userId: 'user-$id',
-  planKey: 'annual',
-  amount: 960,
+  planKey: paymentPlanProAnnual,
+  amount: paymentProAnnualPrice,
   mfsProvider: 'bkash',
   senderNumber: '01712345678',
   transactionId: 'TRX$id',
@@ -169,7 +170,7 @@ void main() {
     await pump(tester, _FakeAdminRepository(rows: [_request(id: '1')]));
 
     expect(find.text('Adv. Sarah Islam'), findsOneWidget);
-    expect(find.text('1 Year · ৳960'), findsOneWidget);
+    expect(find.text('Pro · 1 Year · ৳1,200'), findsOneWidget);
     // The sender's number is a number, not an amount: no ৳ prefix.
     expect(find.text('01712345678'), findsOneWidget);
     expect(find.text('৳01712345678'), findsNothing);
@@ -644,7 +645,7 @@ void main() {
     );
 
     expect(find.text('পেমেন্ট অনুরোধ'), findsOneWidget);
-    expect(find.text('১ বছর · ৳৯৬০'), findsOneWidget);
+    expect(find.text('প্রো · ১ বছর · ৳১,২০০'), findsOneWidget);
     expect(find.text('অনুমোদন'), findsOneWidget);
     expect(find.text('বাতিল'), findsOneWidget);
   });

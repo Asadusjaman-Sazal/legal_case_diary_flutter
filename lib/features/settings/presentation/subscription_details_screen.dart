@@ -64,29 +64,40 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
         plan.known && !plan.premium && tier != SubscriptionTier.free;
     final isFree = plan.known && !plan.premium && !isLapsed;
 
-    return SettingsSubPageModal(
-      title: l.settingsManageAccount_subscriptionDetails,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.edgeMargin,
-          AppSpacing.md,
-          AppSpacing.edgeMargin,
-          AppSpacing.xl,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _SubscriptionSummaryCard(),
-            if (isFree) ...[
+    // The status bar is the user's own. This page is a top-level route (it sits
+    // outside the shell so the checkout can push it — see the router), so the
+    // shell's own `SafeArea(top: true)` does not reach it. Without this inset
+    // the Scaffold paints its app bar up behind the status bar, and the phone's
+    // clock and icons sit on that white instead of on the app's own black.
+    // Same inset, and same reason, as the paywall's and legal documents' own
+    // `SafeArea` — the Subscription Plans screen is how this one should read.
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: SettingsSubPageModal(
+        title: l.settingsManageAccount_subscriptionDetails,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.edgeMargin,
+            AppSpacing.md,
+            AppSpacing.edgeMargin,
+            AppSpacing.xl,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _SubscriptionSummaryCard(),
+              if (isFree) ...[
+                const SizedBox(height: AppSpacing.lg),
+                _FreePlanLimitations(l: l),
+              ] else if (isLapsed) ...[
+                const SizedBox(height: AppSpacing.lg),
+                _LapsedAllowance(l: l, allowance: tier.lapseAllowance),
+              ],
               const SizedBox(height: AppSpacing.lg),
-              _FreePlanLimitations(l: l),
-            ] else if (isLapsed) ...[
-              const SizedBox(height: AppSpacing.lg),
-              _LapsedAllowance(l: l, allowance: tier.lapseAllowance),
+              _SubscriptionHistorySection(l: l),
             ],
-            const SizedBox(height: AppSpacing.lg),
-            _SubscriptionHistorySection(l: l),
-          ],
+          ),
         ),
       ),
     );
@@ -205,7 +216,8 @@ class _LapsedAllowance extends StatelessWidget {
 
   final AppLocalizations l;
 
-  /// The tier's lapse allowance (Pro 100, Firm 500, Firm Plus 1,000).
+  /// The tier's lapse allowance (Starter 100, Pro 250, Firm 500,
+  /// Firm Plus 1,000, Enterprise 2,000).
   final int allowance;
 
   @override

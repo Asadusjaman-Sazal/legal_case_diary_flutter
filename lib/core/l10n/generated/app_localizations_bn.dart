@@ -1097,57 +1097,176 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_benefitsTitle => 'সাবস্ক্রিপশন প্ল্যানে যা থাকে';
+  String get paywall_intro => 'আপনার চর্চার জন্য উপযুক্ত প্ল্যান বেছে নিন।';
 
   @override
-  String get paywall_featureUnlimitedCasesTitle => 'প্রতিটি প্ল্যানে আরও মামলা';
+  String get paywall_audienceIndividual => 'ব্যক্তিগত';
 
   @override
-  String get paywall_featureUnlimitedCasesBody =>
-      'আপনার প্ল্যান যত বড়, মামলার সীমা তত বেশি — প্রতিটি প্ল্যান কার্ডে সেই সীমা লেখা আছে।';
+  String get paywall_audienceFirm => 'ফার্ম';
 
   @override
-  String get paywall_featureDisasterRecoveryTitle => 'দুর্যোগে ডেটা পুনরুদ্ধার';
+  String get paywall_tierFree => 'ফ্রি';
 
   @override
-  String get paywall_featureDisasterRecoveryBody =>
-      'আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।';
+  String get paywall_tierStarter => 'স্টার্টার';
 
   @override
-  String get paywall_featureRealTimeBackupTitle => 'রিয়েল-টাইম ব্যাকআপ';
+  String get paywall_tierPro => 'প্রো';
 
   @override
-  String get paywall_featureRealTimeBackupBody =>
-      'প্রতিটি পরিবর্তন সঙ্গে সঙ্গে ক্লাউডে সংরক্ষিত হয়।';
+  String get paywall_tierFirm => 'ফার্ম';
 
   @override
-  String get paywall_featureMultiDeviceTitle => 'একাধিক ডিভাইসে ব্যবহার';
+  String get paywall_tierFirmPlus => 'ফার্ম প্লাস';
 
   @override
-  String get paywall_featureMultiDeviceBody =>
-      'একই সময়ে একাধিক ডিভাইস থেকে আপনার ডায়েরি ব্যবহার করুন।';
+  String get paywall_tierEnterprise => 'এন্টারপ্রাইজ';
 
   @override
-  String get paywall_featureCollaborationTitle => 'সহযোগিতা';
+  String get paywall_tierFreeNote =>
+      'নতুন আইনজীবীদের জন্য, যারা অ্যাপটি চেষ্টা করে দেখতে চান।';
 
   @override
-  String get paywall_featureCollaborationBody =>
-      'একই ডায়েরিতে আপনার সহযোগীদের সঙ্গে একসঙ্গে কাজ করুন।';
+  String get paywall_tierStarterNote => 'যেসব আইনজীবীর ক্লাউড ব্যাকআপ দরকার।';
 
   @override
-  String get paywall_plansTitle => 'প্ল্যান';
+  String get paywall_tierProNote =>
+      'যেসব আইনজীবীর নমনীয়তা ও ক্লাউড ব্যাকআপ দরকার।';
 
   @override
-  String get paywall_planMonthly => '১ মাস';
+  String get paywall_tierFirmNote =>
+      'যেসব ফার্ম ও আইনজীবীর রিয়েল-টাইম সহযোগিতা দরকার।';
 
   @override
-  String get paywall_planQuarterly => '৩ মাস';
+  String get paywall_tierFirmPlusNote =>
+      'যেসব ফার্ম ও আইনজীবী প্রচুর মামলার ডেটা ক্লাউডে রাখতে চান।';
 
   @override
-  String get paywall_planHalfYearly => '৬ মাস';
+  String get paywall_tierEnterpriseNote =>
+      'যেসব ফার্মের সদস্য ও মামলার সীমা ছাড়া ক্লাউড স্টোরেজ দরকার।';
 
   @override
-  String get paywall_planAnnual => '১ বছর';
+  String get paywall_includes => 'অন্তর্ভুক্ত';
+
+  @override
+  String paywall_everythingIn(String tier) {
+    return '$tier-এর সবকিছু, সাথে';
+  }
+
+  @override
+  String paywall_featureCases(String count) {
+    return 'সর্বোচ্চ $countটি মামলা';
+  }
+
+  @override
+  String get paywall_featureUnlimitedCases => 'অসীম মামলা';
+
+  @override
+  String get paywall_featureOfflineUse => 'শুধু অফলাইনে ব্যবহার';
+
+  @override
+  String get paywall_featureOfflineBackup => 'অফলাইন ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get paywall_featureCustomization =>
+      'ডেটা কাস্টমাইজেশন: আদালতের নাম, ধাপ ও মামলার ধরন';
+
+  @override
+  String get paywall_featureCloudBackup => 'রিয়েল-টাইম ক্লাউড ব্যাকআপ';
+
+  @override
+  String get paywall_featureDisasterRecovery =>
+      'দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ফোনে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন';
+
+  @override
+  String get paywall_featureSingleDevice => 'একটি ডিভাইসে ব্যবহার';
+
+  @override
+  String paywall_featureMultiDevice(String count) {
+    return 'একাধিক ডিভাইসে ব্যবহার: সর্বোচ্চ $countটি ডিভাইস';
+  }
+
+  @override
+  String paywall_featureCollaboration(String count) {
+    return 'সহযোগিতা: সর্বোচ্চ $count জন সদস্য (প্রতিজনে একটি ডিভাইস)';
+  }
+
+  @override
+  String get paywall_featureUnlimitedMembers => 'অসীম সদস্য ও ডিভাইস';
+
+  @override
+  String get paywall_fairUse => 'ন্যায্য ব্যবহার প্রযোজ্য';
+
+  @override
+  String get paywall_mostPopular => 'সবচেয়ে জনপ্রিয়';
+
+  @override
+  String get paywall_currentPlanBadge => 'চলমান প্ল্যান';
+
+  @override
+  String get paywall_scheduledBadge => 'নির্ধারিত';
+
+  @override
+  String paywall_startsOn(String date) {
+    return '$date তারিখে শুরু';
+  }
+
+  @override
+  String get paywall_orChoose => 'অথবা বেছে নিন';
+
+  @override
+  String paywall_pricePerMonth(String amount) {
+    return '$amount/মাস';
+  }
+
+  @override
+  String get paywall_perMonth => '/মাস';
+
+  @override
+  String get paywall_freeMonthsSix => '৬ মাসে ১ মাস ফ্রি';
+
+  @override
+  String get paywall_freeMonthsTwelve => '১ বছরে ২ মাস ফ্রি';
+
+  @override
+  String get paywall_shortestTerm => 'সর্বনিম্ন মেয়াদ: ৩ মাস';
+
+  @override
+  String get paywall_termMonthly => '১ মাস';
+
+  @override
+  String get paywall_termQuarterly => '৩ মাস';
+
+  @override
+  String get paywall_termHalfYearly => '৬ মাস';
+
+  @override
+  String get paywall_termAnnual => '১ বছর';
+
+  @override
+  String get paywall_planStarterMonthly => 'স্টার্টার · ১ মাস';
+
+  @override
+  String get paywall_planStarterQuarterly => 'স্টার্টার · ৩ মাস';
+
+  @override
+  String get paywall_planStarterHalfYearly => 'স্টার্টার · ৬ মাস';
+
+  @override
+  String get paywall_planStarterAnnual => 'স্টার্টার · ১ বছর';
+
+  @override
+  String get paywall_planProMonthly => 'প্রো · ১ মাস';
+
+  @override
+  String get paywall_planProQuarterly => 'প্রো · ৩ মাস';
+
+  @override
+  String get paywall_planProHalfYearly => 'প্রো · ৬ মাস';
+
+  @override
+  String get paywall_planProAnnual => 'প্রো · ১ বছর';
 
   @override
   String get paywall_planFirmQuarterly => 'ফার্ম · ৩ মাস';
@@ -1168,30 +1287,99 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_planFirmPlusAnnual => 'ফার্ম প্লাস · ১ বছর';
 
   @override
-  String get paywall_tierPro => 'প্রো';
+  String get paywall_planEnterpriseQuarterly => 'এন্টারপ্রাইজ · ৩ মাস';
 
   @override
-  String get paywall_tierFirm => 'ফার্ম';
+  String get paywall_planEnterpriseHalfYearly => 'এন্টারপ্রাইজ · ৬ মাস';
 
   @override
-  String get paywall_tierFirmPlus => 'ফার্ম প্লাস';
-
-  @override
-  String get paywall_tierProNote => 'একটি অ্যাকাউন্ট';
-
-  @override
-  String paywall_tierCases(String count) {
-    return 'সর্বোচ্চ $countটি মামলা';
-  }
-
-  @override
-  String get paywall_tierFirmNote => 'সর্বোচ্চ ৫ জন সহকারী';
-
-  @override
-  String get paywall_tierFirmPlusNote => 'সর্বোচ্চ ২০ জন সহকারী';
+  String get paywall_planEnterpriseAnnual => 'এন্টারপ্রাইজ · ১ বছর';
 
   @override
   String get paywall_subscribe => 'সাবস্ক্রাইব';
+
+  @override
+  String paywall_subscribePlan(String plan) {
+    return 'সাবস্ক্রাইব — $plan';
+  }
+
+  @override
+  String paywall_renewPlan(String plan) {
+    return 'নবায়ন — $plan';
+  }
+
+  @override
+  String paywall_renewScheduledPlan(String plan) {
+    return 'নির্ধারিত প্ল্যান নবায়ন — $plan';
+  }
+
+  @override
+  String get paywall_included => 'অন্তর্ভুক্ত';
+
+  @override
+  String get paywall_changeTitle => 'এই প্ল্যানটি পরে শুরু হবে';
+
+  @override
+  String paywall_changeBody(
+    String current,
+    String end,
+    String next,
+    String start,
+    String term,
+    String limit,
+  ) {
+    return 'আপনার $current প্ল্যান $end পর্যন্ত চলবে। $next $start তারিখে শুরু হবে এবং $term চলবে। তখন থেকে আপনার মামলার সীমা $limit হবে।';
+  }
+
+  @override
+  String get paywall_changeGoBack => 'ফিরে যান';
+
+  @override
+  String get paywall_changeContinue => 'পেমেন্টে যান';
+
+  @override
+  String get paywall_changePendingTitle =>
+      'একটি প্ল্যান পরিবর্তন ইতিমধ্যে নির্ধারিত';
+
+  @override
+  String paywall_changePendingBody(String plan, String date) {
+    return '$plan $date তারিখে শুরু হওয়ার কথা। আপনি চলমান প্ল্যান অথবা নির্ধারিত প্ল্যান নবায়ন করতে পারেন।';
+  }
+
+  @override
+  String get paywall_changePendingClose => 'বন্ধ করুন';
+
+  @override
+  String get paywall_renewShiftTitle => 'আপনার নির্ধারিত প্ল্যান পরে শুরু হবে';
+
+  @override
+  String paywall_renewShiftBody(String current, String end, String next) {
+    return '$current নবায়ন করলে এটি $end পর্যন্ত বাড়বে। $next তখনই শুরু হবে।';
+  }
+
+  @override
+  String get paywall_renewShiftConfirm => 'চালিয়ে যান';
+
+  @override
+  String paywall_caseLimitTitle(String tier) {
+    return '$tier প্ল্যানের মামলার সীমা পূর্ণ';
+  }
+
+  @override
+  String paywall_caseLimitBody(String tier, String limit) {
+    return 'আপনার $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। জায়গা খালি করতে একটি মামলা মুছুন, অথবা বড় প্ল্যান বেছে নিন।';
+  }
+
+  @override
+  String paywall_caseLimitMemberBody(String tier, String limit) {
+    return 'এই চেম্বারের $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। প্ল্যানটি চেম্বারের মালিক পরিচালনা করেন।';
+  }
+
+  @override
+  String get paywall_caseLimitAction => 'প্ল্যান দেখুন';
+
+  @override
+  String get paywall_caseLimitClose => 'বন্ধ করুন';
 
   @override
   String get lapse_readOnlyBadge => 'পঠন-কেবল';

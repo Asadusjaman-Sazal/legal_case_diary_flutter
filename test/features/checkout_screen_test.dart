@@ -68,7 +68,7 @@ void main() {
     WidgetTester tester,
     SharedPreferences prefs,
     PaymentRepository repo, {
-    String? planKey = paymentPlanMonthly,
+    String? planKey = paymentPlanProMonthly,
   }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -107,7 +107,7 @@ void main() {
     expect(find.text('01712345678'), findsOneWidget);
     expect(find.text('bKash'), findsWidgets);
     // The exact amount is shown in the plan summary.
-    expect(find.text('৳100'), findsOneWidget);
+    expect(find.text('৳120'), findsOneWidget);
   });
 
   testWidgets('the instruction names the amount and bolds only Send Money',
@@ -120,7 +120,7 @@ void main() {
     final span = sentence.textSpan! as TextSpan;
     expect(
       span.toPlainText(),
-      'Send ৳100 to one of the numbers below using Send Money, '
+      'Send ৳120 to one of the numbers below using Send Money, '
       'then carefully enter your payment details.',
     );
 
@@ -181,7 +181,7 @@ void main() {
         GoRoute(
           path: AppRoutes.checkout,
           builder: (context, state) => CheckoutScreen(
-            planKey: paymentPlanMonthly,
+            planKey: paymentPlanProMonthly,
           ),
         ),
         ShellRoute(

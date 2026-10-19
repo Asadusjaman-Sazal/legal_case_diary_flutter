@@ -256,13 +256,14 @@ select pg_temp.assert_raises(
   'immutable'
 );
 
--- The 3-per-24h trigger: two more submissions are accepted, the fourth is
--- refused, and a client-supplied submitted_at is overwritten with server time.
+-- The 5-per-24h trigger (raised from three in 0.0.509): four more submissions
+-- are accepted, the sixth is refused, and a client-supplied submitted_at is
+-- overwritten with server time.
 do $$
 declare
   v_index integer;
 begin
-  for v_index in 2..3 loop
+  for v_index in 2..5 loop
     insert into public.payment_submissions (
       user_id, plan_type, amount, mfs_provider, sender_number,
       transaction_id, created_at, updated_at, submitted_at
@@ -277,7 +278,7 @@ begin
   perform pg_temp.assert_true(
     (select count(*) from public.payment_submissions
       where user_id = current_setting('test.user_id')::uuid
-        and submitted_at > now() - interval '1 hour') = 3,
+        and submitted_at > now() - interval '1 hour') = 5,
     'the trigger did not stamp server time on every submission'
   );
 end;
@@ -287,7 +288,7 @@ select pg_temp.assert_raises(
   'insert into public.payment_submissions (user_id, plan_type, amount, '
   'mfs_provider, sender_number, transaction_id, created_at, updated_at) '
   'values (''' || current_setting('test.user_id') || ''', ''monthly'', 100, '
-  '''bkash'', ''01700000000'', ''SMOKE-TRX-4'', 0, 0)',
+  '''bkash'', ''01700000000'', ''SMOKE-TRX-6'', 0, 0)',
   'payment_submission_limit_reached'
 );
 
@@ -451,6 +452,9 @@ declare
   v_court text;
   v_on_behalf text;
   v_index integer;
+  -- A throwaway account of its own: the variables' real accounts may hold cases
+  -- from their own diary, and the free wall needs a diary that starts empty.
+  v_user uuid := gen_random_uuid();
 begin
   select id into v_court from public.courts where is_deleted = false limit 1;
   select id into v_on_behalf
@@ -461,10 +465,13 @@ begin
     'the built-in seed data is missing; apply the seed migration first'
   );
 
-  -- The admin fixture user is still free (only test.user_id was approved).
+  insert into auth.users (id, email, email_confirmed_at, created_at, updated_at,
+                          is_sso_user, is_anonymous)
+  values (v_user, 'smoke-ceiling@test.local', now(), now(), now(), false, false);
+
   perform pg_temp.assert_true(
-    not public.is_premium(current_setting('test.admin_id')::uuid),
-    'the admin fixture user must be on a free entitlement'
+    not public.is_premium(v_user),
+    'the ceiling fixture must be on a free entitlement'
   );
 
   for v_index in 1..50 loop
@@ -474,12 +481,13 @@ begin
     )
     values (
       'smoke-case-' || v_index,
-      current_setting('test.admin_id')::uuid,
+      v_user,
       v_court, 'Smoke Type', 'SMOKE-' || v_index, 'Petitioner', 'Respondent',
       v_on_behalf, 0, 0
     );
   end loop;
 
+  perform set_config('test.ceiling_user', v_user::text, true);
   perform set_config('test.court_id', v_court, true);
   perform set_config('test.on_behalf_id', v_on_behalf, true);
 end;
@@ -488,11 +496,11 @@ $$;
 select pg_temp.assert_raises(
   'insert into public.cases (id, user_id, court_id, case_type, case_number, '
   'petitioner, respondent, on_behalf_id, created_at, updated_at) values ('
-  '''smoke-case-51'', ''' || current_setting('test.admin_id') || ''', '''
+  '''smoke-case-51'', ''' || current_setting('test.ceiling_user') || ''', '''
   || current_setting('test.court_id') || ''', ''Smoke Type'', ''SMOKE-51'', '
   '''Petitioner'', ''Respondent'', ''' || current_setting('test.on_behalf_id')
   || ''', 0, 0)',
-  'free_case_limit_reached'
+  'case_limit_reached'
 );
 
 -- Soft-deleting one case frees a slot: the ceiling counts live rows only.
@@ -502,7 +510,7 @@ insert into public.cases (
   on_behalf_id, created_at, updated_at
 )
 values (
-  'smoke-case-51', current_setting('test.admin_id')::uuid,
+  'smoke-case-51', current_setting('test.ceiling_user')::uuid,
   current_setting('test.court_id'), 'Smoke Type', 'SMOKE-51', 'Petitioner',
   'Respondent', current_setting('test.on_behalf_id'), 0, 0
 );
@@ -515,33 +523,46 @@ values (
 -- transaction: a free individual first, then a premium one, then a premium one
 -- who already belongs to somebody else's firm.
 do $$
+declare
+  -- A throwaway account of its own: the variables' real accounts may already
+  -- own a chamber, and this block needs an individual with no firm at all.
+  v_user uuid := gen_random_uuid();
 begin
-  perform set_config(
-    'request.jwt.claims',
-    json_build_object('sub', current_setting('test.user_id'), 'role',
-    'authenticated')::text,
-    true
-  );
+  insert into auth.users (id, email, email_confirmed_at, created_at, updated_at,
+                          is_sso_user, is_anonymous)
+  values (v_user, 'smoke-owner@test.local', now(), now(), now(), false, false);
+
   update public.profiles
      set subscription_status = 'free',
          subscription_expiry = null,
+         tier = 'free',
+         tier_pending = null,
+         tier_pending_from = null,
          firm_id = null,
          role = 'individual'
-   where id = current_setting('test.user_id')::uuid;
+   where id = v_user;
+
+  perform set_config('test.owner_id', v_user::text, true);
+  perform set_config(
+    'request.jwt.claims',
+    json_build_object('sub', v_user::text, 'role', 'authenticated')::text,
+    true
+  );
 end;
 $$;
 set local role authenticated;
 
--- Phase 1 item 2: becoming a firm owner requires a derived premium entitlement.
+-- Firm mode Phase 7: becoming a firm owner requires the Firm tier, because
+-- Pro and Starter sell no seat (`firm_seat_cap` answers 0).
 select pg_temp.assert_true(
   pg_temp.scalar('select public.ensure_firm(''Smoke Free Firm'')')
-    like '%"premium_required"%',
+    like '%"firm_tier_required"%',
   'a free account was allowed to become a firm owner'
 );
 reset role;
 select pg_temp.assert_true(
   (select count(*) from public.firms
-    where owner_id = current_setting('test.user_id')::uuid) = 0,
+    where owner_id = current_setting('test.owner_id')::uuid) = 0,
   'the premium refusal created a firm anyway'
 );
 
@@ -550,8 +571,9 @@ do $$
 begin
   update public.profiles
      set subscription_status = 'premium',
-         subscription_expiry = now() + interval '30 days'
-   where id = current_setting('test.user_id')::uuid;
+         subscription_expiry = now() + interval '30 days',
+         tier = 'firm'
+   where id = current_setting('test.owner_id')::uuid;
 end;
 $$;
 set local role authenticated;
@@ -567,7 +589,7 @@ declare
 begin
   select id into v_firm_id
     from public.firms
-   where owner_id = current_setting('test.user_id')::uuid;
+   where owner_id = current_setting('test.owner_id')::uuid;
 
   perform pg_temp.assert_true(
     v_firm_id is not null,
@@ -575,19 +597,19 @@ begin
   );
   perform pg_temp.assert_true(
     (select firm_id from public.profiles
-      where id = current_setting('test.user_id')::uuid) = v_firm_id,
+      where id = current_setting('test.owner_id')::uuid) = v_firm_id,
     'the transition did not relink profiles.firm_id'
   );
   perform pg_temp.assert_true(
     (select role from public.profiles
-      where id = current_setting('test.user_id')::uuid) = 'owner',
+      where id = current_setting('test.owner_id')::uuid) = 'owner',
     'the transition did not set the owner role'
   );
   perform pg_temp.assert_true(
     exists (
       select 1 from public.firm_members m
        where m.firm_id = v_firm_id
-         and m.user_id = current_setting('test.user_id')::uuid
+         and m.user_id = current_setting('test.owner_id')::uuid
          and m.role = 'owner'
          and m.can_add and m.can_edit and m.can_delete
     ),
@@ -604,7 +626,7 @@ declare
 begin
   perform set_config(
     'request.jwt.claims',
-    json_build_object('sub', current_setting('test.user_id'), 'role',
+    json_build_object('sub', current_setting('test.owner_id'), 'role',
     'authenticated')::text,
     true
   );
@@ -618,7 +640,7 @@ $$;
 reset role;
 select pg_temp.assert_true(
   (select count(*) from public.firms
-    where owner_id = current_setting('test.user_id')::uuid) = 1,
+    where owner_id = current_setting('test.owner_id')::uuid) = 1,
   'the second call created a second firm'
 );
 
@@ -629,7 +651,7 @@ begin
   update public.profiles
      set firm_id = current_setting('test.firm_id')::uuid,
          role = 'associate'
-   where id = current_setting('test.user_id')::uuid;
+   where id = current_setting('test.owner_id')::uuid;
 end;
 $$;
 set local role authenticated;
@@ -641,7 +663,7 @@ select pg_temp.assert_true(
 reset role;
 select pg_temp.assert_true(
   (select firm_id from public.profiles
-    where id = current_setting('test.user_id')::uuid)
+    where id = current_setting('test.owner_id')::uuid)
       = current_setting('test.firm_id')::uuid,
   'the refusal relinked the profile anyway'
 );
@@ -660,13 +682,20 @@ begin
          role = 'associate'
    where id = current_setting('test.user_id')::uuid;
 
+  -- The join_firm block above may already have seated this account; the removal
+  -- block needs the same membership with the associate defaults either way.
   insert into public.firm_members (firm_id, user_id, role, can_add, can_edit,
                                    can_delete)
   values (
     current_setting('test.invite_firm_id')::uuid,
     current_setting('test.user_id')::uuid,
     'associate', true, true, false
-  );
+  )
+  on conflict (firm_id, user_id) do update
+    set role = 'associate',
+        can_add = true,
+        can_edit = true,
+        can_delete = false;
 
   insert into public.cases (
     id, user_id, firm_id, court_id, case_type, case_number, petitioner,

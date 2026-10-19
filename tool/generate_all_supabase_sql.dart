@@ -666,6 +666,23 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'corrected to at least 400 days in the same pass, because the old '
         '210-day invariant was written for a 150-day window.',
   ),
+  LedgerSection(
+    file: '20261019100000_subscription_ladder_six_tiers.sql',
+    version: '0.0.546',
+    label:
+        'Task 22 — The six-tier subscription ladder. The stored tier vocabulary '
+        'gains starter and enterprise, and the old ladder\'s pro rung is renamed '
+        'starter without moving any expiry. tier_rank, the case ceilings and the '
+        'lapse allowances are restated for the six rungs; adding a case is '
+        'checked against the diary\'s tier ceiling, not only the free wall; '
+        'approve_payment accepts the seventeen sellable keys plus the four '
+        'legacy ones at their own prices and durations, queues any different '
+        'tier bought while a plan is running, renews a same-tier purchase and '
+        'pushes a waiting change back by the term bought, and refuses a third '
+        'plan behind a queued one; the seat caps become Firm 5, Firm Plus 12 '
+        'and Enterprise unlimited, so chamber creation needs the Firm rung; and '
+        'the generated plan names cover every key, old and new.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -719,6 +736,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
   '0.0.536': 'Firm Mode Phase 11 — Dissolution Keeps The Ledger',
   '0.0.537': 'Firm Mode Phase 12 — Retention And The Recovery Window',
+  '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
 };
 
 const String _header = '''<!--

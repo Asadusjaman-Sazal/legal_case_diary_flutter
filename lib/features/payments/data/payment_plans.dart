@@ -1,4 +1,4 @@
-/// The ten subscription plans and their prices, in one place.
+/// The seventeen sellable plans and the six tiers of the revamped ladder.
 ///
 /// The paywall shows them and the checkout charges one, so the key that travels
 /// in the checkout route's `plan` query parameter, the amount shown in the
@@ -6,31 +6,62 @@
 /// same three facts. The server's `approve_payment` validates the exact amount
 /// and the plan key, so a drift here is a rejected payment, not a wrong price.
 ///
-/// **The ladder is ten plans** (Task 21, user ruling): **Pro** sells 1, 3, 6 and
-/// 12 months, and **Firm** and **Firm Plus** sell 3, 6 and 12 months — a chamber
-/// does not buy a single month. Every price is flat: there is **no struck-through
-/// full price, no saving badge and no discount percentage**, which is why this
-/// file carries no `undiscountedAmount` or `discountPercent` any more.
+/// **The ladder is six tiers** (user ruling, 2026-10-19):
+///
+/// * **Free** — 50 cases, offline only;
+/// * **Starter** — 500 cases, one device, ৳60 a month;
+/// * **Pro** — 1,000 cases, two devices, ৳120 a month;
+/// * **Firm** — 2,500 cases, 5 members including the owner, ৳250 a month;
+/// * **Firm Plus** — 6,000 cases, 12 members including the owner, ৳500 a month;
+/// * **Enterprise** — no case or member ceiling, ৳1,500 a month.
+///
+/// A chamber does not buy a single month: Firm, Firm Plus and Enterprise sell
+/// 3, 6 and 12 months. Starter and Pro sell 1, 3, 6 and 12. Every price is flat:
+/// there is no struck-through full price, no saving badge and no discount
+/// percentage. The 6-month price is five monthly payments and the 12-month price
+/// is ten, which is where the card's "1 month free" and "2 months free" notes
+/// come from.
 ///
 /// The keys name both the tier and the period (`firm_half_yearly`,
-/// `firm_plus_annual`) because the server's allow-list, amount `CASE`, duration
+/// `enterprise_annual`) because the server's allow-list, amount `CASE`, duration
 /// `CASE` and generated `plan_name` `CASE` are all driven by the key alone, and
 /// a key that named only the period could not say which tier was bought.
+///
+/// The four old Pro keys (`monthly`, `quarterly`, `half_yearly`, `annual`) are
+/// kept as **legacy read-only keys**: approved rows from before the revamp still
+/// carry them, and their tier is now [SubscriptionTier.starter]. They are never
+/// sold again and are not in [subscriptionPlans].
 library;
 
 import '../../../core/constants/free_tier.dart';
 
-/// Plan key for the Pro 1 Month plan, as sent to the server (`plan_type`).
-const String paymentPlanMonthly = 'monthly';
+// ---------------------------------------------------------------------------
+// Sellable plan keys
+// ---------------------------------------------------------------------------
+
+/// Plan key for the Starter 1 Month plan.
+const String paymentPlanStarterMonthly = 'starter_monthly';
+
+/// Plan key for the Starter 3 Months plan.
+const String paymentPlanStarterQuarterly = 'starter_quarterly';
+
+/// Plan key for the Starter 6 Months plan.
+const String paymentPlanStarterHalfYearly = 'starter_half_yearly';
+
+/// Plan key for the Starter 1 Year plan.
+const String paymentPlanStarterAnnual = 'starter_annual';
+
+/// Plan key for the Pro 1 Month plan.
+const String paymentPlanProMonthly = 'pro_monthly';
 
 /// Plan key for the Pro 3 Months plan.
-const String paymentPlanQuarterly = 'quarterly';
+const String paymentPlanProQuarterly = 'pro_quarterly';
 
 /// Plan key for the Pro 6 Months plan.
-const String paymentPlanHalfYearly = 'half_yearly';
+const String paymentPlanProHalfYearly = 'pro_half_yearly';
 
 /// Plan key for the Pro 1 Year plan.
-const String paymentPlanAnnual = 'annual';
+const String paymentPlanProAnnual = 'pro_annual';
 
 /// Plan key for the Firm 3 Months plan.
 const String paymentPlanFirmQuarterly = 'firm_quarterly';
@@ -50,71 +81,214 @@ const String paymentPlanFirmPlusHalfYearly = 'firm_plus_half_yearly';
 /// Plan key for the Firm Plus 1 Year plan.
 const String paymentPlanFirmPlusAnnual = 'firm_plus_annual';
 
-/// Pro prices in BDT: one, three, six and twelve months.
+/// Plan key for the Enterprise 3 Months plan.
+const String paymentPlanEnterpriseQuarterly = 'enterprise_quarterly';
+
+/// Plan key for the Enterprise 6 Months plan.
+const String paymentPlanEnterpriseHalfYearly = 'enterprise_half_yearly';
+
+/// Plan key for the Enterprise 1 Year plan.
+const String paymentPlanEnterpriseAnnual = 'enterprise_annual';
+
+// ---------------------------------------------------------------------------
+// Legacy Pro keys (read-only history)
+// ---------------------------------------------------------------------------
+
+/// The old Pro 1 Month key. Never sold again; its tier is Starter now.
+const String paymentPlanLegacyMonthly = 'monthly';
+
+/// The old Pro 3 Months key.
+const String paymentPlanLegacyQuarterly = 'quarterly';
+
+/// The old Pro 6 Months key.
+const String paymentPlanLegacyHalfYearly = 'half_yearly';
+
+/// The old Pro 1 Year key.
+const String paymentPlanLegacyAnnual = 'annual';
+
+/// The four keys the old Pro tier was sold under.
 ///
-/// The annual price moved from the shipped ৳960 to **৳1,000** as a deliberate
-/// price rise (Task 21), so the two must change together or a payment is refused.
-const int paymentMonthlyPrice = 100;
-const int paymentQuarterlyPrice = 285;
-const int paymentHalfYearlyPrice = 540;
-const int paymentAnnualPrice = 1000;
+/// They stay readable so an approved purchase made before the revamp still has
+/// a name in Subscription History. Their tier is [SubscriptionTier.starter],
+/// because that is what the stored `pro` tier became.
+const Set<String> legacyStarterPlanKeys = <String>{
+  paymentPlanLegacyMonthly,
+  paymentPlanLegacyQuarterly,
+  paymentPlanLegacyHalfYearly,
+  paymentPlanLegacyAnnual,
+};
 
-/// Firm prices in BDT: three, six and twelve months.
-const int paymentFirmQuarterlyPrice = 855;
-const int paymentFirmHalfYearlyPrice = 1620;
-const int paymentFirmAnnualPrice = 3000;
+// ---------------------------------------------------------------------------
+// Prices, in BDT
+// ---------------------------------------------------------------------------
 
-/// Firm Plus prices in BDT: three, six and twelve months.
-const int paymentFirmPlusQuarterlyPrice = 1710;
-const int paymentFirmPlusHalfYearlyPrice = 3240;
-const int paymentFirmPlusAnnualPrice = 6000;
+/// Starter prices: one, three, six and twelve months.
+const int paymentStarterMonthlyPrice = 60;
+const int paymentStarterQuarterlyPrice = 180;
+const int paymentStarterHalfYearlyPrice = 300;
+const int paymentStarterAnnualPrice = 600;
+
+/// Pro prices: one, three, six and twelve months.
+const int paymentProMonthlyPrice = 120;
+const int paymentProQuarterlyPrice = 360;
+const int paymentProHalfYearlyPrice = 600;
+const int paymentProAnnualPrice = 1200;
+
+/// Firm prices: three, six and twelve months.
+const int paymentFirmQuarterlyPrice = 750;
+const int paymentFirmHalfYearlyPrice = 1250;
+const int paymentFirmAnnualPrice = 2500;
+
+/// Firm Plus prices: three, six and twelve months.
+const int paymentFirmPlusQuarterlyPrice = 1500;
+const int paymentFirmPlusHalfYearlyPrice = 2500;
+const int paymentFirmPlusAnnualPrice = 5000;
+
+/// Enterprise prices: three, six and twelve months.
+const int paymentEnterpriseQuarterlyPrice = 4500;
+const int paymentEnterpriseHalfYearlyPrice = 7500;
+const int paymentEnterpriseAnnualPrice = 15000;
+
+// ---------------------------------------------------------------------------
+// Tiers
+// ---------------------------------------------------------------------------
+
+/// Which paywall tab a tier belongs to.
+///
+/// The split is presentational: both tabs are visible to every account, and
+/// any plan may be bought. The audience decides whether a card sits under
+/// **Individual** or **Firm**.
+enum SubscriptionAudience {
+  /// Free, Starter and Pro.
+  individual,
+
+  /// Firm, Firm Plus and Enterprise.
+  firm,
+}
 
 /// The subscription tier a plan belongs to, as stored on `profiles.tier` /
-/// `firms.tier` and read by the seat cap and the lapse allowance.
+/// `firms.tier` and read by the seat cap, the case ceiling and the lapse
+/// allowance.
 ///
-/// Each tier carries its two numbers — the **case ceiling it sells** and the
-/// **allowance it leaves behind when it lapses** — so the paywall, the write
-/// gates and the tests all read one row rather than a number typed at each site.
-/// The free ceiling is [freeTierCaseLimit], the same constant the Add Case gate
-/// and the server trigger already honour, so 50 is written once.
+/// Each tier carries the numbers it sells: its **case ceiling** (null for
+/// Enterprise), the **allowance it leaves behind when it lapses**, its
+/// **monthly anchor** (what the card's price line prints), its **seat cap**
+/// (0 for the individual tiers, null for unlimited) and the **audience** whose
+/// tab it sits on. The free ceiling is [freeTierCaseLimit], the same constant
+/// the Add Case gate and the server trigger honour, so 50 is written once.
 enum SubscriptionTier {
-  /// The free diary: 50 cases, strictly individual. It has no lapse allowance:
-  /// a free account was never premium, so it keeps the wall rather than a
-  /// read-only set (§5.2).
-  free('free', freeTierCaseLimit, 0),
+  /// The free diary: 50 cases, offline only, strictly individual. It has no
+  /// lapse allowance because a free account was never premium.
+  free(
+    'free',
+    freeTierCaseLimit,
+    0,
+    0,
+    null,
+    1,
+    SubscriptionAudience.individual,
+  ),
 
-  /// One account, 1,000 cases, cloud backup; a lapsed Pro keeps writing 100.
-  pro('pro', 1000, 100),
+  /// One account, 500 cases, one device; a lapsed Starter keeps writing 100.
+  starter(
+    'starter',
+    500,
+    100,
+    60,
+    0,
+    1,
+    SubscriptionAudience.individual,
+  ),
 
-  /// Up to 5 associates, 2,500 cases; a lapsed Firm keeps writing 500.
-  firm('firm', 2500, 500),
+  /// One account, 1,000 cases, two devices; a lapsed Pro keeps writing 250.
+  pro(
+    'pro',
+    1000,
+    250,
+    120,
+    0,
+    2,
+    SubscriptionAudience.individual,
+  ),
 
-  /// Up to 20 associates, 6,000 cases; a lapsed Firm Plus keeps writing 1,000.
-  firmPlus('firm_plus', 6000, 1000);
+  /// Five members including the owner, 2,500 cases; a lapse keeps 500.
+  firm('firm', 2500, 500, 250, 5, null, SubscriptionAudience.firm),
 
-  const SubscriptionTier(this.key, this.caseCeiling, this.lapseAllowance);
+  /// Twelve members including the owner, 6,000 cases; a lapse keeps 1,000.
+  firmPlus('firm_plus', 6000, 1000, 500, 12, null, SubscriptionAudience.firm),
+
+  /// No case or member ceiling; a lapse keeps 2,000.
+  enterprise(
+    'enterprise',
+    null,
+    2000,
+    1500,
+    null,
+    null,
+    SubscriptionAudience.firm,
+  );
+
+  const SubscriptionTier(
+    this.key,
+    this.caseCeiling,
+    this.lapseAllowance,
+    this.monthlyPrice,
+    this.seatCap,
+    this.deviceCap,
+    this.audience,
+  );
 
   /// The server's own spelling of the tier, as stored in the tier columns.
   final String key;
 
-  /// Cases this tier may hold while it is live — the ceiling §5.3 sells.
-  final int caseCeiling;
+  /// Cases this tier may hold while it is live, or null when uncapped.
+  ///
+  /// Enterprise is the only null: its card says *Unlimited Cases*, with fair
+  /// use stated in the Terms. Every other tier has a number, including Free.
+  final int? caseCeiling;
 
   /// Cases, notes and case references a **lapsed** holder may still write.
   ///
   /// Zero for [free], which is never "lapsed": its limit is [caseCeiling] and
-  /// it has no read-only set. Pro 100, Firm 500, Firm Plus 1,000 (§5.2).
+  /// it has no read-only set.
   final int lapseAllowance;
 
-  /// Where this tier sits on the ladder: free 0, pro 1, firm 2, firm_plus 3.
+  /// The monthly anchor shown on the paywall card, in BDT.
+  ///
+  /// Free is 0. Firm and above do not sell a one-month plan, but the anchor is
+  /// still what the card prints, with the shortest sold term named beneath it.
+  final int monthlyPrice;
+
+  /// Members a chamber may hold, including the owner; 0 means "no chamber".
+  ///
+  /// Null means no cap (Enterprise). The server's `firm_seat_cap` answers the
+  /// same numbers.
+  final int? seatCap;
+
+  /// Devices an individual account may use, or null when the tier's device
+  /// rule is **one per member** rather than one number for the account.
+  ///
+  /// The paywall states these limits; they are not enforced yet (user ruling,
+  /// 2026-10-19). Firm, Firm Plus and Enterprise say *one device each* in
+  /// their member line instead of using this field.
+  final int? deviceCap;
+
+  /// The paywall tab this tier sits on.
+  final SubscriptionAudience audience;
+
+  /// Where this tier sits on the ladder, from Free (0) to Enterprise (5).
   ///
   /// The declaration order **is** the ladder order, so this is the one place a
-  /// "this tier or lower" comparison reads its ranking from — the server's
-  /// `tier_rank()` answers the same question for SQL. Reordering [values] would
-  /// silently reorder every gate, so `paywall_screen_test.dart` pins the order
-  /// and `payment_plan_ladder_test.dart` pins the tier the server reads for each
-  /// key against this one.
+  /// rank comparison reads its ranking from — the server's `tier_rank()`
+  /// answers the same question for SQL. Reordering [values] would silently
+  /// reorder every gate, so the tests pin the order.
   int get rank => index;
+
+  /// Whether this tier is sold as a paid plan (every tier except Free).
+  bool get isSellable => this != free;
+
+  /// Whether this tier sells a one-month plan (Starter and Pro only).
+  bool get sellsMonthly => this == starter || this == pro;
 
   /// The tier of [tierKey], or [SubscriptionTier.free] when it names nothing —
   /// a null or unknown tier is "no paid tier", which is the safe reading.
@@ -122,13 +296,17 @@ enum SubscriptionTier {
       values.firstWhere((tier) => tier.key == tierKey, orElse: () => free);
 }
 
+// ---------------------------------------------------------------------------
+// Plans
+// ---------------------------------------------------------------------------
+
 /// One sellable plan: its server key, its price, its tier and its period.
 ///
 /// The duration is carried here (and mirrored by the server's interval) so the
 /// paywall, the checkout and any future "renew" wording read one description of
-/// a plan rather than restating its length. [tier] is derived from the key by
-/// [planTier] rather than stored twice, so a key can never disagree with its own
-/// tier.
+/// a plan rather than restating its length. [tier] is carried on the row rather
+/// than derived from a switch, so a key, its price, its length and its tier are
+/// one row that cannot disagree with itself.
 class SubscriptionPlan {
   /// Creates a plan.
   const SubscriptionPlan({
@@ -148,40 +326,63 @@ class SubscriptionPlan {
   final int months;
 
   /// The tier this plan buys.
-  ///
-  /// Carried on the plan row rather than restated in a switch over the keys:
-  /// the key, its price, its length and its tier are then one row that cannot
-  /// disagree with itself, and adding a plan is one row plus its server entry.
   final SubscriptionTier tier;
+
+  /// Whether this is a one-month plan.
+  bool get isMonthly => months == 1;
 }
 
-/// Every plan, in the order the paywall lists them.
+/// Every sellable plan, in paywall order.
 ///
-/// Grouped by tier — Pro, then Firm, then Firm Plus — and within a tier by length,
-/// so the list reads as three ladders rather than one mixed column. This is the
-/// order the paywall renders and the order the tests expect.
+/// Grouped by tier — Starter, Pro, Firm, Firm Plus, Enterprise — and within a
+/// tier by length. Starter and Pro lead with one month; the chamber tiers start
+/// at three, because a chamber does not buy a single month.
 const List<SubscriptionPlan> subscriptionPlans = <SubscriptionPlan>[
   SubscriptionPlan(
-    key: paymentPlanMonthly,
-    amount: paymentMonthlyPrice,
+    key: paymentPlanStarterMonthly,
+    amount: paymentStarterMonthlyPrice,
+    months: 1,
+    tier: SubscriptionTier.starter,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanStarterQuarterly,
+    amount: paymentStarterQuarterlyPrice,
+    months: 3,
+    tier: SubscriptionTier.starter,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanStarterHalfYearly,
+    amount: paymentStarterHalfYearlyPrice,
+    months: 6,
+    tier: SubscriptionTier.starter,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanStarterAnnual,
+    amount: paymentStarterAnnualPrice,
+    months: 12,
+    tier: SubscriptionTier.starter,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanProMonthly,
+    amount: paymentProMonthlyPrice,
     months: 1,
     tier: SubscriptionTier.pro,
   ),
   SubscriptionPlan(
-    key: paymentPlanQuarterly,
-    amount: paymentQuarterlyPrice,
+    key: paymentPlanProQuarterly,
+    amount: paymentProQuarterlyPrice,
     months: 3,
     tier: SubscriptionTier.pro,
   ),
   SubscriptionPlan(
-    key: paymentPlanHalfYearly,
-    amount: paymentHalfYearlyPrice,
+    key: paymentPlanProHalfYearly,
+    amount: paymentProHalfYearlyPrice,
     months: 6,
     tier: SubscriptionTier.pro,
   ),
   SubscriptionPlan(
-    key: paymentPlanAnnual,
-    amount: paymentAnnualPrice,
+    key: paymentPlanProAnnual,
+    amount: paymentProAnnualPrice,
     months: 12,
     tier: SubscriptionTier.pro,
   ),
@@ -221,9 +422,30 @@ const List<SubscriptionPlan> subscriptionPlans = <SubscriptionPlan>[
     months: 12,
     tier: SubscriptionTier.firmPlus,
   ),
+  SubscriptionPlan(
+    key: paymentPlanEnterpriseQuarterly,
+    amount: paymentEnterpriseQuarterlyPrice,
+    months: 3,
+    tier: SubscriptionTier.enterprise,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanEnterpriseHalfYearly,
+    amount: paymentEnterpriseHalfYearlyPrice,
+    months: 6,
+    tier: SubscriptionTier.enterprise,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanEnterpriseAnnual,
+    amount: paymentEnterpriseAnnualPrice,
+    months: 12,
+    tier: SubscriptionTier.enterprise,
+  ),
 ];
 
-/// The plan [planKey] names, or null when it is not a known plan.
+/// The plan [planKey] names, or null when it is not a sellable plan.
+///
+/// Legacy Pro keys deliberately resolve to null here: they are history, not
+/// offers, and no checkout should ever charge one again.
 SubscriptionPlan? subscriptionPlan(String? planKey) {
   for (final plan in subscriptionPlans) {
     if (plan.key == planKey) return plan;
@@ -231,14 +453,60 @@ SubscriptionPlan? subscriptionPlan(String? planKey) {
   return null;
 }
 
-/// The amount for [planKey], or null when it is not a known plan.
+/// The amount for [planKey], or null when it is not a sellable plan.
 ///
 /// Read by the checkout's transfer instructions and the admin's request list, so
 /// the amount shown is the amount the plan row carries, not a second copy of it.
 int? paymentPlanAmount(String? planKey) => subscriptionPlan(planKey)?.amount;
 
-/// The tier [planKey] buys, or null when it is not a known plan.
+/// The tier [planKey] buys, or null when it names nothing.
 ///
-/// Read by the paywall's grouping and the checkout's tier note, so a key's tier
-/// is decided in exactly one place.
-SubscriptionTier? planTier(String? planKey) => subscriptionPlan(planKey)?.tier;
+/// The four legacy Pro keys answer [SubscriptionTier.starter], because that is
+/// what their stored `pro` tier became. This keeps an old approved purchase
+/// named consistently in Subscription History.
+SubscriptionTier? planTier(String? planKey) {
+  final plan = subscriptionPlan(planKey);
+  if (plan != null) return plan.tier;
+  if (legacyStarterPlanKeys.contains(planKey)) {
+    return SubscriptionTier.starter;
+  }
+  return null;
+}
+
+/// Whether [planKey] is one of the four old Pro keys.
+bool isLegacyStarterPlan(String? planKey) =>
+    legacyStarterPlanKeys.contains(planKey);
+
+/// Every sellable plan of [tier], shortest term first.
+List<SubscriptionPlan> plansForTier(SubscriptionTier tier) => subscriptionPlans
+    .where((plan) => plan.tier == tier)
+    .toList(growable: false);
+
+/// Every sellable plan on [audience]'s tab, in paywall order.
+List<SubscriptionPlan> plansForAudience(SubscriptionAudience audience) =>
+    subscriptionPlans
+        .where((plan) => plan.tier.audience == audience)
+        .toList(growable: false);
+
+/// The one-month plan of [tier], or null when the tier does not sell one.
+SubscriptionPlan? monthlyPlanFor(SubscriptionTier tier) {
+  for (final plan in plansForTier(tier)) {
+    if (plan.isMonthly) return plan;
+  }
+  return null;
+}
+
+/// The shortest plan [tier] sells — the base price when no term is selected.
+///
+/// Starter and Pro answer their one-month plan; Firm and above answer their
+/// three-month plan. Free has no paid plan and answers null.
+SubscriptionPlan? shortestPlanFor(SubscriptionTier tier) {
+  final plans = plansForTier(tier);
+  return plans.isEmpty ? null : plans.first;
+}
+
+/// The tier labels in paywall order, for the audience tabs.
+List<SubscriptionTier> tiersForAudience(SubscriptionAudience audience) =>
+    SubscriptionTier.values
+        .where((tier) => tier.audience == audience)
+        .toList(growable: false);

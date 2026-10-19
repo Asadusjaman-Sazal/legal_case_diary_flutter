@@ -1095,57 +1095,175 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_benefitsTitle => 'Subscription Plans Offer';
+  String get paywall_intro => 'Choose the plan that fits your practice.';
 
   @override
-  String get paywall_featureUnlimitedCasesTitle => 'More Cases on Every Plan';
+  String get paywall_audienceIndividual => 'Individual';
 
   @override
-  String get paywall_featureUnlimitedCasesBody =>
-      'Your case ceiling grows with your plan — the plan cards show each limit.';
+  String get paywall_audienceFirm => 'Firm';
 
   @override
-  String get paywall_featureDisasterRecoveryTitle => 'Disaster Recovery';
+  String get paywall_tierFree => 'Free';
 
   @override
-  String get paywall_featureDisasterRecoveryBody =>
-      'If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.';
+  String get paywall_tierStarter => 'Starter';
 
   @override
-  String get paywall_featureRealTimeBackupTitle => 'Real-time Backup';
+  String get paywall_tierPro => 'Pro';
 
   @override
-  String get paywall_featureRealTimeBackupBody =>
-      'Every change is instantly saved to the cloud.';
+  String get paywall_tierFirm => 'Firm';
 
   @override
-  String get paywall_featureMultiDeviceTitle => 'Multi-device Support';
+  String get paywall_tierFirmPlus => 'Firm Plus';
 
   @override
-  String get paywall_featureMultiDeviceBody =>
-      'Access your diary from multiple devices simultaneously.';
+  String get paywall_tierEnterprise => 'Enterprise';
 
   @override
-  String get paywall_featureCollaborationTitle => 'Collaboration';
+  String get paywall_tierFreeNote => 'For new lawyers who want to try the app.';
 
   @override
-  String get paywall_featureCollaborationBody =>
-      'Work together with your associates on the same diary.';
+  String get paywall_tierStarterNote => 'For lawyers who need cloud backup.';
 
   @override
-  String get paywall_plansTitle => 'Plans';
+  String get paywall_tierProNote =>
+      'For lawyers who need flexibility and cloud backup.';
 
   @override
-  String get paywall_planMonthly => '1 Month';
+  String get paywall_tierFirmNote =>
+      'For firms and lawyers who need real-time collaboration.';
 
   @override
-  String get paywall_planQuarterly => '3 Months';
+  String get paywall_tierFirmPlusNote =>
+      'For firms and lawyers that need to store large amounts of case data in the cloud.';
 
   @override
-  String get paywall_planHalfYearly => '6 Months';
+  String get paywall_tierEnterpriseNote =>
+      'For firms that need unlimited members and case storage in the cloud.';
 
   @override
-  String get paywall_planAnnual => '1 Year';
+  String get paywall_includes => 'Includes';
+
+  @override
+  String paywall_everythingIn(String tier) {
+    return 'Everything in $tier, plus';
+  }
+
+  @override
+  String paywall_featureCases(String count) {
+    return 'Up to $count Cases';
+  }
+
+  @override
+  String get paywall_featureUnlimitedCases => 'Unlimited Cases';
+
+  @override
+  String get paywall_featureOfflineUse => 'Offline Use Only';
+
+  @override
+  String get paywall_featureOfflineBackup => 'Offline Backup and Restoration';
+
+  @override
+  String get paywall_featureCustomization =>
+      'Data Customization: Court Names, Steps, and Case Types';
+
+  @override
+  String get paywall_featureCloudBackup => 'Real-Time Cloud Backup';
+
+  @override
+  String get paywall_featureDisasterRecovery =>
+      'Disaster Recovery: Restore your diary from the cloud on a new phone';
+
+  @override
+  String get paywall_featureSingleDevice => 'Single-Device Use';
+
+  @override
+  String paywall_featureMultiDevice(String count) {
+    return 'Multi-Device Support: Up to $count Devices';
+  }
+
+  @override
+  String paywall_featureCollaboration(String count) {
+    return 'Collaboration: Up to $count Members (One Device Each)';
+  }
+
+  @override
+  String get paywall_featureUnlimitedMembers => 'Unlimited Members and Devices';
+
+  @override
+  String get paywall_fairUse => 'Fair Use Applies';
+
+  @override
+  String get paywall_mostPopular => 'Most Popular';
+
+  @override
+  String get paywall_currentPlanBadge => 'Current Plan';
+
+  @override
+  String get paywall_scheduledBadge => 'Scheduled';
+
+  @override
+  String paywall_startsOn(String date) {
+    return 'Starts on $date';
+  }
+
+  @override
+  String get paywall_orChoose => 'Or choose';
+
+  @override
+  String paywall_pricePerMonth(String amount) {
+    return '$amount/month';
+  }
+
+  @override
+  String get paywall_perMonth => '/month';
+
+  @override
+  String get paywall_freeMonthsSix => '1 month free on 6 months';
+
+  @override
+  String get paywall_freeMonthsTwelve => '2 months free on 1 year';
+
+  @override
+  String get paywall_shortestTerm => 'Shortest term: 3 months';
+
+  @override
+  String get paywall_termMonthly => '1 Month';
+
+  @override
+  String get paywall_termQuarterly => '3 Months';
+
+  @override
+  String get paywall_termHalfYearly => '6 Months';
+
+  @override
+  String get paywall_termAnnual => '1 Year';
+
+  @override
+  String get paywall_planStarterMonthly => 'Starter · 1 Month';
+
+  @override
+  String get paywall_planStarterQuarterly => 'Starter · 3 Months';
+
+  @override
+  String get paywall_planStarterHalfYearly => 'Starter · 6 Months';
+
+  @override
+  String get paywall_planStarterAnnual => 'Starter · 1 Year';
+
+  @override
+  String get paywall_planProMonthly => 'Pro · 1 Month';
+
+  @override
+  String get paywall_planProQuarterly => 'Pro · 3 Months';
+
+  @override
+  String get paywall_planProHalfYearly => 'Pro · 6 Months';
+
+  @override
+  String get paywall_planProAnnual => 'Pro · 1 Year';
 
   @override
   String get paywall_planFirmQuarterly => 'Firm · 3 Months';
@@ -1166,30 +1284,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_planFirmPlusAnnual => 'Firm Plus · 1 Year';
 
   @override
-  String get paywall_tierPro => 'Pro';
+  String get paywall_planEnterpriseQuarterly => 'Enterprise · 3 Months';
 
   @override
-  String get paywall_tierFirm => 'Firm';
+  String get paywall_planEnterpriseHalfYearly => 'Enterprise · 6 Months';
 
   @override
-  String get paywall_tierFirmPlus => 'Firm Plus';
-
-  @override
-  String get paywall_tierProNote => 'One account';
-
-  @override
-  String paywall_tierCases(String count) {
-    return 'Up to $count cases';
-  }
-
-  @override
-  String get paywall_tierFirmNote => 'Up to 5 associates';
-
-  @override
-  String get paywall_tierFirmPlusNote => 'Up to 20 associates';
+  String get paywall_planEnterpriseAnnual => 'Enterprise · 1 Year';
 
   @override
   String get paywall_subscribe => 'Subscribe';
+
+  @override
+  String paywall_subscribePlan(String plan) {
+    return 'Subscribe — $plan';
+  }
+
+  @override
+  String paywall_renewPlan(String plan) {
+    return 'Renew — $plan';
+  }
+
+  @override
+  String paywall_renewScheduledPlan(String plan) {
+    return 'Renew Scheduled Plan — $plan';
+  }
+
+  @override
+  String get paywall_included => 'Included';
+
+  @override
+  String get paywall_changeTitle => 'This Plan Starts Later';
+
+  @override
+  String paywall_changeBody(
+    String current,
+    String end,
+    String next,
+    String start,
+    String term,
+    String limit,
+  ) {
+    return 'Your $current plan runs until $end. $next will start on $start and run for $term. Your case ceiling will be $limit from then.';
+  }
+
+  @override
+  String get paywall_changeGoBack => 'Go Back';
+
+  @override
+  String get paywall_changeContinue => 'Continue to Payment';
+
+  @override
+  String get paywall_changePendingTitle => 'A Plan Change Is Already Scheduled';
+
+  @override
+  String paywall_changePendingBody(String plan, String date) {
+    return '$plan is scheduled to start on $date. You can renew your current plan or the scheduled plan.';
+  }
+
+  @override
+  String get paywall_changePendingClose => 'Close';
+
+  @override
+  String get paywall_renewShiftTitle => 'Your Scheduled Plan Will Start Later';
+
+  @override
+  String paywall_renewShiftBody(String current, String end, String next) {
+    return 'Renewing $current extends it to $end. $next will now start on that date.';
+  }
+
+  @override
+  String get paywall_renewShiftConfirm => 'Continue';
+
+  @override
+  String paywall_caseLimitTitle(String tier) {
+    return '$tier Case Limit Reached';
+  }
+
+  @override
+  String paywall_caseLimitBody(String tier, String limit) {
+    return 'Your $tier plan holds up to $limit cases. Delete a case to free a slot, or choose a larger plan.';
+  }
+
+  @override
+  String paywall_caseLimitMemberBody(String tier, String limit) {
+    return 'This chamber\'s $tier plan holds up to $limit cases. The chamber owner manages the plan.';
+  }
+
+  @override
+  String get paywall_caseLimitAction => 'See Plans';
+
+  @override
+  String get paywall_caseLimitClose => 'Close';
 
   @override
   String get lapse_readOnlyBadge => 'Read-only';

@@ -29,12 +29,13 @@ class Firms extends Table {
   IntColumn get subscriptionExpiry => integer().nullable()();
 
   /// The chamber's subscription tier, mirrored from its owner's plan:
-  /// `free`, `pro`, `firm` or `firm_plus`.
+  /// `free`, `starter`, `pro`, `firm`, `firm_plus` or `enterprise`.
   ///
-  /// This row is the chamber's **source of the seat cap** — Pro 0, Firm 5,
-  /// Firm Plus 20 — and the allowance a lapsed member falls back to, so it is
-  /// read rather than re-derived from the owner's expiry. Defaults to `free`,
-  /// the safe answer for a row cached before the column existed.
+  /// This row is the chamber's **source of the seat cap** — Starter and Pro 0,
+  /// Firm 5, Firm Plus 12, Enterprise unlimited — and the allowance a lapsed
+  /// member falls back to, so it is read rather than re-derived from the owner's
+  /// expiry. Defaults to `free`, the safe answer for a row cached before the
+  /// column existed.
   TextColumn get tier => text().withDefault(const Constant('free'))();
 
   /// The tier a mid-term downgrade will fall to, or null when none is waiting.

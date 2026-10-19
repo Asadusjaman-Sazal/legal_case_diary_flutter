@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        51,
+        52,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -104,7 +104,13 @@ void main() {
             'ledger to the owner with a scope owner while attribution, the plan '
             'and every row\'s contents stay as they were, and its twelfth moves '
             'the tombstone retention to 365 days and the device recovery window '
-            'to 335 with it, keeping the 30-day cushion between them',
+            'to 335 with it, keeping the 30-day cushion between them, and '
+            'Task 22\'s revamp added the six-tier ladder — the starter and '
+            'enterprise tier keys, the old pro row renamed starter, the case '
+            'ceilings and lapse allowances for six rungs, the tier-ceiling '
+            'trigger, the rebuilt approval that queues a different tier and '
+            'refuses a third behind it, the new seat caps and the wider plan '
+            'names',
       );
     });
 

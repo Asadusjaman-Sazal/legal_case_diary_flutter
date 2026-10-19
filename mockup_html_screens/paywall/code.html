@@ -173,10 +173,11 @@
 
   <!-- Free: the current plan on a free account.
 
-       A card is 1px grey at rest; it takes the 2px ink outline only while a
-       finger is down on it. The badges (Current Plan, Most Popular) are what
-       mark a card's standing, not a permanent outline. The app draws the press
-       with a Listener around an AnimatedContainer. -->
+       A card is 1px grey until it is touched; the touched card takes the 2px
+       ink outline and keeps it until a different card is touched. The badges
+       (Current Plan, Most Popular) mark a card's standing, not the outline.
+       The app drives this from the screen's state, because only one card may
+       be inked at a time. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Free</p>
@@ -195,15 +196,15 @@
   <div class="h-md"></div>
 
   <!-- Starter: the most popular individual rung. Its 3 Months button is drawn
-       selected — the 2px ink outline and the tick — since a pressed or chosen
-       term is the screen's one black mark. -->
+       selected — the 2px ink outline and the tick — since a chosen term is the
+       screen's one black mark inside a card. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Starter</p>
       <span class="ml-sm px-sm py-1 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Most Popular</span>
     </div>
     <p class="mt-xs font-body-md text-body-md text-on-surface-variant leading-normal">For lawyers who need cloud backup.</p>
-    <p class="mt-md font-title-md text-title-md text-on-surface">Everything in Free, plus</p>
+    <p class="mt-md font-title-md text-title-md text-on-surface">Includes Everything in Free, plus</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 500 Cases</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">☁️ Real-Time Cloud Backup</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">🛟 Disaster Recovery: Restore your diary from the cloud on a new phone</p>
@@ -229,7 +230,7 @@
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <p class="font-title-lg text-title-lg text-on-surface">Pro</p>
     <p class="mt-xs font-body-md text-body-md text-on-surface-variant leading-normal">For lawyers who need flexibility and cloud backup.</p>
-    <p class="mt-md font-title-md text-title-md text-on-surface">Everything in Starter, plus</p>
+    <p class="mt-md font-title-md text-title-md text-on-surface">Includes Everything in Starter, plus</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 1,000 Cases</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">💻 Multi-Device Support: Up to 2 Devices</p>
     <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳120</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>

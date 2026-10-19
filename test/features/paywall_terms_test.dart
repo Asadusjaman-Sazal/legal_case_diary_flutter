@@ -131,43 +131,34 @@ void main() {
     expect(tester.getRect(starter).top, lessThan(starterBefore.top));
   });
 
-  testWidgets('no card is outlined at rest, and a pressed card is', (
+  testWidgets('a touched card inks, and stays inked until another is touched', (
     tester,
   ) async {
     await pumpPaywall(tester);
 
-    // Most Popular and the free card's Current Plan badge do not ink the card.
-    for (final tier in ['free', 'starter', 'pro']) {
-      final frame = find.byKey(ValueKey('paywall-plan-$tier'));
-      final border = _cardBorder(tester, frame);
-      expect(border.color, AppColors.outlineVariant, reason: tier);
-      expect(border.width, 1, reason: tier);
-    }
+    final starter = find.byKey(const ValueKey('paywall-plan-starter'));
+    final pro = find.byKey(const ValueKey('paywall-plan-pro'));
 
-    // Press and hold the Starter card: its outline inks while the finger is
-    // down, and clears when it lifts.
-    final gesture = await tester.startGesture(
-      tester.getCenter(find.byKey(const ValueKey('paywall-plan-starter'))),
-    );
-    await tester.pumpAndSettle();
+    // No card has been touched: even Most Popular and Current Plan are grey.
+    expect(_cardBorder(tester, starter).color, AppColors.outlineVariant);
+    expect(_cardBorder(tester, pro).color, AppColors.outlineVariant);
     expect(
-      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-starter')))
-          .color,
-      AppColors.primary,
-    );
-    // The other cards stayed grey: only the touched card inks.
-    expect(
-      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-pro'))).color,
+      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-free'))).color,
       AppColors.outlineVariant,
     );
 
-    await gesture.up();
+    // Touch Starter and lift: the ink stays after the finger is gone.
+    await tester.tap(starter);
     await tester.pumpAndSettle();
-    expect(
-      _cardBorder(tester, find.byKey(const ValueKey('paywall-plan-starter')))
-          .color,
-      AppColors.outlineVariant,
-    );
+    expect(_cardBorder(tester, starter).color, AppColors.primary);
+    expect(_cardBorder(tester, starter).width, 2);
+    expect(_cardBorder(tester, pro).color, AppColors.outlineVariant);
+
+    // Touch Pro: the ink moves, and Starter goes back to grey.
+    await tester.tap(pro);
+    await tester.pumpAndSettle();
+    expect(_cardBorder(tester, pro).color, AppColors.primary);
+    expect(_cardBorder(tester, starter).color, AppColors.outlineVariant);
   });
 
   testWidgets('the selected term is marked with the ink outline, not green', (

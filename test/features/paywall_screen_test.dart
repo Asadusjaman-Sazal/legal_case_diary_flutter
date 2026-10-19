@@ -134,7 +134,7 @@ void main() {
 
     // Starter's own features and its inherited header.
     expect(find.text('Most Popular'), findsOneWidget);
-    expect(find.text('Everything in Free, plus'), findsOneWidget);
+    expect(find.text('Includes Everything in Free, plus'), findsOneWidget);
     expect(find.text('Up to 500 Cases'), findsOneWidget);
     expect(find.text('Real-Time Cloud Backup'), findsOneWidget);
     expect(
@@ -147,7 +147,7 @@ void main() {
     expect(find.text('Pro · 1 Month'), findsNothing);
 
     // Pro inherits Starter and adds its own two features.
-    expect(find.text('Everything in Starter, plus'), findsOneWidget);
+    expect(find.text('Includes Everything in Starter, plus'), findsOneWidget);
     expect(find.text('Up to 1,000 Cases'), findsOneWidget);
     expect(find.text('Multi-Device Support: Up to 2 Devices'), findsOneWidget);
 
@@ -229,19 +229,19 @@ void main() {
     expect(find.text('Pro'), findsNothing);
 
     expect(find.text('Most Popular'), findsOneWidget);
-    expect(find.text('Everything in Pro, plus'), findsOneWidget);
+    expect(find.text('Includes Everything in Pro, plus'), findsOneWidget);
     expect(find.text('Up to 2,500 Cases'), findsOneWidget);
     expect(
       find.text('Collaboration: Up to 5 Members (One Device Each)'),
       findsOneWidget,
     );
-    expect(find.text('Everything in Firm, plus'), findsOneWidget);
+    expect(find.text('Includes Everything in Firm, plus'), findsOneWidget);
     expect(find.text('Up to 6,000 Cases'), findsOneWidget);
     expect(
       find.text('Collaboration: Up to 12 Members (One Device Each)'),
       findsOneWidget,
     );
-    expect(find.text('Everything in Firm Plus, plus'), findsOneWidget);
+    expect(find.text('Includes Everything in Firm Plus, plus'), findsOneWidget);
     expect(find.text('Unlimited Cases (Fair Use Applies)'), findsOneWidget);
     expect(find.text('Unlimited Members and Devices'), findsOneWidget);
 

@@ -12,6 +12,10 @@
 ///   is one-way: tapping the chosen term leaves it chosen, so a card always
 ///   carries a term (and its action) to buy. A 6-month or yearly button also
 ///   shows its undiscounted price struck in red with the saving in green;
+/// * paid cards lead their list with **Includes Everything in X, plus** — the
+///   *Includes* heading Free already had, so every card opens its list the same
+///   way — and a card takes the ink outline when it is **touched**, keeping it
+///   until a different card is touched;
 /// * the card the account holds carries **Current Plan** and its action says
 ///   **Renew**; a queued change carries **Scheduled** and its start date; the
 ///   Starter and Firm cards carry **Most Popular**.
@@ -91,6 +95,13 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// A tier with no entry defaults to its annual plan.
   final Map<SubscriptionTier, String?> _selectedTerm = {};
 
+  /// The card the user last touched, if any.
+  ///
+  /// One at a time by design: touching a card inks it and leaves it inked until
+  /// another card is touched, so the outline marks the card in hand rather than
+  /// only the moment of the press.
+  SubscriptionTier? _touchedTier;
+
   /// The amount rendered with the app's own currency formatting.
   String _amountText(AppLocalizations l, int amount) => l.payments_amountValue(
     AppDateUtils.formatDigits(amount, l.localeName, grouping: amount >= 1000),
@@ -128,7 +139,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// The tier's own feature rows, in display order.
   ///
   /// Only what the tier **adds** is listed: the inherited features sit behind
-  /// the card's *Everything in X, plus* header.
+  /// the card's *Includes Everything in X, plus* header.
   List<_PlanFeature> _features(AppLocalizations l, SubscriptionTier tier) {
     String cases(int count) => l.paywall_featureCases(
       AppDateUtils.formatDigits(count, l.localeName, grouping: true),
@@ -207,7 +218,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     };
   }
 
-  /// The tier a paid tier inherits from, for its *Everything in X, plus* line.
+  /// The tier a paid tier inherits from, for its *Everything in X, plus* line
+  /// (which the card prints under *Includes*).
   SubscriptionTier _previousTier(SubscriptionTier tier) =>
       SubscriptionTier.values[tier.index - 1];
 
@@ -447,6 +459,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
     return _PlanCardFrame(
       key: ValueKey('paywall-plan-${tier.key}'),
+      // Inked once touched and kept inked until another card is touched. Only
+      // one card can hold the mark, so the state lives on the screen.
+      isTouched: _touchedTier == tier,
+      onTouched: () => setState(() => _touchedTier = tier),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -488,11 +504,15 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ],
           const SizedBox(height: AppSpacing.md),
           Text(
+            // Every card's feature list opens with *Includes*. On a paid card
+            // it runs straight into the inherited line — *Includes Everything
+            // in Free, plus* — so no comma: the phrase is one sentence.
             tier == SubscriptionTier.free
                 ? l.paywall_includes
-                : l.paywall_everythingIn(
-                    subscriptionTierLabel(l, _previousTier(tier)),
-                  ),
+                : '${l.paywall_includes} '
+                      '${l.paywall_everythingIn(
+                        subscriptionTierLabel(l, _previousTier(tier)),
+                      )}',
             style: AppTypography.titleMd,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -833,46 +853,44 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   );
 }
 
-/// A plan card's surface, inked **only while the user is touching it**.
+/// A plan card's surface: 1px grey until touched, 2px ink once it is.
 ///
-/// The card used to carry a permanent black outline when it was the most
-/// popular rung or the one the account holds. That made two cards shout at
-/// once, and it read as the card being *selected* — which on this screen is
-/// what a term is for. Now the outline follows the finger: it is 1px grey at
-/// rest and 2px ink while any part of the card is pressed, which is also the
-/// press feedback the card otherwise lacked.
-class _PlanCardFrame extends StatefulWidget {
-  const _PlanCardFrame({required this.child, super.key});
+/// Touching any part of the card inks it, and the ink **stays** after the finger
+/// lifts, until a different card is touched — so the outline marks the card the
+/// user is looking at, not just the moment of the press.
+///
+/// The touched tier lives in the screen's state, not here: only one card may be
+/// inked at a time, and a card cannot know when a sibling is touched.
+class _PlanCardFrame extends StatelessWidget {
+  const _PlanCardFrame({
+    required this.isTouched,
+    required this.onTouched,
+    required this.child,
+    super.key,
+  });
 
+  final bool isTouched;
+  final VoidCallback onTouched;
   final Widget child;
-
-  @override
-  State<_PlanCardFrame> createState() => _PlanCardFrameState();
-}
-
-class _PlanCardFrameState extends State<_PlanCardFrame> {
-  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) => Listener(
     // `Listener` rather than `GestureDetector`: the card's own buttons must
     // keep their taps, and a raw pointer listener never competes with them for
     // the gesture arena.
-    onPointerDown: (_) => setState(() => _pressed = true),
-    onPointerUp: (_) => setState(() => _pressed = false),
-    onPointerCancel: (_) => setState(() => _pressed = false),
+    onPointerDown: (_) => onTouched(),
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
         border: Border.all(
-          color: _pressed ? AppColors.primary : AppColors.outlineVariant,
-          width: _pressed ? 2 : 1,
+          color: isTouched ? AppColors.primary : AppColors.outlineVariant,
+          width: isTouched ? 2 : 1,
         ),
       ),
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
-      child: widget.child,
+      child: child,
     ),
   );
 }

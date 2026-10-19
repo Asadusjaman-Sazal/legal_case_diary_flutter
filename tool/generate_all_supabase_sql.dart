@@ -361,6 +361,26 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'defaults.',
   ),
   LedgerSection(
+    file: '20261001102042_payment_plans_four_recorded_duplicate.sql',
+    version: '0.0.339',
+    label:
+        'Recorded duplicate — the four-plan approval re-applied under a '
+        'connector-generated version (`20261001102042`). The SQL is the same '
+        '`approve_payment` body `20261001010000` ships; keeping it as a file is '
+        'what makes the project\'s recorded history match the migration set, so '
+        'the applier no longer reports a version with no local file. Superseded '
+        'by every later approval migration.',
+  ),
+  LedgerSection(
+    file: '20261001102048_seed_payment_configuration_recorded_duplicate.sql',
+    version: '0.0.339',
+    label:
+        'Recorded duplicate — the receiving-number seed re-applied under a '
+        'connector-generated version (`20261001102048`). The SQL is the same '
+        'idempotent upsert `20261001020000` ships; keeping it as a file makes '
+        'the recorded history match the migration set.',
+  ),
+  LedgerSection(
     file: '20261002100000_payment_prices_discounted.sql',
     version: '0.0.349',
     label:
@@ -667,6 +687,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         '210-day invariant was written for a 150-day window.',
   ),
   LedgerSection(
+    file: '20261018100000_subscription_cancellation.sql',
+    version: '0.0.543',
+    label:
+        'Subscription History — cancelling a live plan, reconstructed. The '
+        'install that shipped cancellation on 2026-10-18 recorded its version '
+        'without statements and committed no file, so the app called an RPC the '
+        'repository could not define and the applier reported it as drift. This '
+        'section is the table, its own-row SELECT policy, its narrowed grants '
+        'and cancel_subscription() copied from the applied project\'s catalogs, '
+        'kept idempotent so the live project skips it and a fresh project can '
+        'apply it.',
+  ),
+  LedgerSection(
     file: '20261019100000_subscription_ladder_six_tiers.sql',
     version: '0.0.546',
     label:
@@ -736,6 +769,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
   '0.0.536': 'Firm Mode Phase 11 — Dissolution Keeps The Ledger',
   '0.0.537': 'Firm Mode Phase 12 — Retention And The Recovery Window',
+  '0.0.543': 'Subscription History — Cancelling A Live Plan',
   '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
 };
 

@@ -212,9 +212,14 @@ void main() {
     });
 
     test('do not carry credentials', () {
+      // A role *name* is schema — `grant ... to service_role` grants a
+      // privilege, it does not reveal a key — so the guard is on key- and
+      // token-shaped strings. The live cancellation migration grants that role
+      // access, and the repository must be able to record what the project
+      // actually runs.
       for (final secret in <String>[
         'eyJhbGciOi',
-        'service_role',
+        'service_role_key',
         'SUPABASE_SERVICE_ROLE_KEY',
         'BEGIN PRIVATE KEY',
       ]) {

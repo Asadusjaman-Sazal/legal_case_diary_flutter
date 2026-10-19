@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        52,
+        55,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -110,7 +110,12 @@ void main() {
             'ceilings and lapse allowances for six rungs, the tier-ceiling '
             'trigger, the rebuilt approval that queues a different tier and '
             'refuses a third behind it, the new seat caps and the wider plan '
-            'names',
+            'names, and the cancellation history\'s missing record was '
+            'reconstructed from the applied project as '
+            '`20261018100000_subscription_cancellation.sql` — the table, its '
+            'own-row policy, its narrowed grants and '
+            '`cancel_subscription()`, kept idempotent under the version the live '
+            'project already recorded',
       );
     });
 
@@ -190,8 +195,10 @@ void main() {
       final ledger = normalizeSql(File(ledgerPath).readAsStringSync());
       expect(ledger, contains('`lsthasywrdrhuuxnykau`'));
       // Same rule as the migration contract: no credentials in committed SQL.
-      expect(ledger, isNot(contains('service_role')));
+      // A role *name* is schema, not a credential — `grant ... to service_role`
+      // is a normal statement — so the guard is on the key-shaped strings.
       expect(ledger, isNot(contains('SUPABASE_SERVICE')));
+      expect(ledger, isNot(contains('service_role_key')));
     });
   });
 }

@@ -274,3 +274,13 @@ final myPaymentSubmissionsProvider =
     FutureProvider<List<PaymentSubmission>>((ref) async {
       return ref.watch(paymentRepositoryProvider).fetchMySubmissions();
     });
+
+/// This account's own plan cancellations, newest first (own rows under RLS).
+///
+/// Server-managed like [myPaymentSubmissionsProvider]: a cancellation is written
+/// only by `cancel_subscription()`, and this reads it back so the subscription
+/// ledger can show the cancellation as an entry of its own.
+final mySubscriptionCancellationsProvider =
+    FutureProvider<List<SubscriptionCancellation>>((ref) async {
+      return ref.watch(paymentRepositoryProvider).fetchMyCancellations();
+    });

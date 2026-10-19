@@ -8004,13 +8004,13 @@ abstract class AppLocalizations {
   /// No description provided for @payments_historyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Payment History'**
+  /// **'Subscription History'**
   String get payments_historyTitle;
 
   /// No description provided for @payments_noSubmissions.
   ///
   /// In en, this message translates to:
-  /// **'No Payments Submitted Yet.'**
+  /// **'No Subscription History Yet.'**
   String get payments_noSubmissions;
 
   /// No description provided for @payments_statusPending.
@@ -8030,6 +8030,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rejected'**
   String get payments_statusRejected;
+
+  /// No description provided for @payments_statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get payments_statusCancelled;
+
+  /// No description provided for @payments_cancelPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get payments_cancelPlan;
+
+  /// No description provided for @payments_cancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Subscription?'**
+  String get payments_cancelTitle;
+
+  /// No description provided for @payments_cancelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'A cancelled plan cannot be restored. Your account will move to the lapsed stage and keep only its limited allowance until you buy another plan.'**
+  String get payments_cancelWarning;
+
+  /// No description provided for @payments_goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get payments_goBack;
+
+  /// No description provided for @payments_confirmCancellation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Cancellation'**
+  String get payments_confirmCancellation;
+
+  /// No description provided for @payments_cancelFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The subscription could not be cancelled. Please try again.'**
+  String get payments_cancelFailed;
+
+  /// No description provided for @payments_cancelNoActivePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no active plan to cancel.'**
+  String get payments_cancelNoActivePlan;
+
+  /// No description provided for @payments_cancelFirmMember.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan belongs to the firm. Only the firm owner can cancel it.'**
+  String get payments_cancelFirmMember;
 
   /// No description provided for @payments_notesLabel.
   ///

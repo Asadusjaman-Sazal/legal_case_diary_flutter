@@ -85,6 +85,14 @@ class _FakePayments implements PaymentRepository {
   }
 
   @override
+  Future<List<SubscriptionCancellation>> fetchMyCancellations() async =>
+      const <SubscriptionCancellation>[];
+
+  @override
+  Future<void> cancelSubscription() async =>
+      throw const PaymentCancelException(PaymentCancelFailure.network);
+
+  @override
   Future<void> submit({
     required String userId,
     required String planType,

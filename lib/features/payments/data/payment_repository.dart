@@ -54,6 +54,49 @@ class PaymentSubmitException implements Exception, DiagnosableFailure {
   String toString() => 'PaymentSubmitException($kind)';
 }
 
+/// Why this account's plan could not be cancelled.
+///
+/// The server's `cancel_subscription()` answers with a status rather than an
+/// error, so each of its refusals is named here instead of being flattened into
+/// one "failed" message the user cannot act on.
+enum PaymentCancelFailure {
+  /// No session, so there is no plan to end.
+  notSignedIn,
+
+  /// Nothing paid is running — already lapsed, or already cancelled.
+  noActivePlan,
+
+  /// A chamber member's plan is the chamber's, not theirs to end.
+  firmMember,
+
+  /// The request never reached the server.
+  network,
+
+  /// Anything else the server refused.
+  other,
+}
+
+/// A typed cancellation failure, so the screen can word it honestly.
+class PaymentCancelException implements Exception, DiagnosableFailure {
+  /// Creates a failure of [kind].
+  const PaymentCancelException(this.kind, {this.detail});
+
+  /// The category the screen words.
+  final PaymentCancelFailure kind;
+
+  /// Optional server detail, for diagnostics only.
+  final String? detail;
+
+  @override
+  String get diagnosticLabel => 'PaymentCancelException(${kind.name})';
+
+  @override
+  String? get diagnosticDetail => detail;
+
+  @override
+  String toString() => 'PaymentCancelException($kind)';
+}
+
 /// One row of this account's payment history, as the app reads it back.
 class PaymentSubmission {
   /// Creates a submission.
@@ -119,6 +162,46 @@ class PaymentSubmission {
   }
 }
 
+/// One plan cancellation this account recorded, as the app reads it back.
+///
+/// `subscription_cancellations` is **server-managed** (rule 4): only the
+/// `cancel_subscription()` RPC writes it, and the client only ever SELECTs its
+/// own rows under RLS. `plan_type` and `amount` are the plan that was running
+/// when the cancellation happened, recorded from the newest approved purchase,
+/// so the ledger's cancellation card can repeat what the purchase card said.
+class SubscriptionCancellation {
+  /// Creates a cancellation.
+  const SubscriptionCancellation({
+    required this.id,
+    this.planType,
+    this.amount,
+    this.cancelledAt,
+  });
+
+  /// Server id.
+  final String id;
+
+  /// The plan key that was running, when the server could name one.
+  final String? planType;
+
+  /// What was paid for that plan, when the server could name it.
+  final int? amount;
+
+  /// The authoritative server cancellation time.
+  final DateTime? cancelledAt;
+
+  /// Reads a PostgREST row.
+  static SubscriptionCancellation fromRow(Map<String, dynamic> row) {
+    final cancelled = row['cancelled_at'];
+    return SubscriptionCancellation(
+      id: row['id'] as String,
+      planType: row['plan_type'] as String?,
+      amount: (row['amount'] as num?)?.toInt(),
+      cancelledAt: cancelled is String ? DateTime.tryParse(cancelled) : null,
+    );
+  }
+}
+
 /// The payments data boundary.
 abstract class PaymentRepository {
   /// Submits one payment for [userId].
@@ -135,6 +218,16 @@ abstract class PaymentRepository {
 
   /// This account's own submissions, newest first.
   Future<List<PaymentSubmission>> fetchMySubmissions();
+
+  /// This account's own cancellations, newest first.
+  Future<List<SubscriptionCancellation>> fetchMyCancellations();
+
+  /// Ends this account's live paid period through `cancel_subscription()`.
+  ///
+  /// Throws [PaymentCancelException] on any refusal so the caller can word it.
+  /// Only the server may do this: the RPC is security-definer, resolves the
+  /// account from the session (never a parameter) and writes the record itself.
+  Future<void> cancelSubscription();
 }
 
 /// The real repository: PostgREST against `payment_submissions`.
@@ -202,6 +295,57 @@ class SupabasePaymentRepository implements PaymentRepository {
         .map(PaymentSubmission.fromRow)
         .toList(growable: false);
   }
+
+  @override
+  Future<List<SubscriptionCancellation>> fetchMyCancellations() async {
+    final rows = await _client
+        .from('subscription_cancellations')
+        .select()
+        .order('cancelled_at', ascending: false);
+    return rows
+        .map(Map<String, dynamic>.from)
+        .map(SubscriptionCancellation.fromRow)
+        .toList(growable: false);
+  }
+
+  @override
+  Future<void> cancelSubscription() async {
+    // The server answers a typed status instead of raising, so the switch below
+    // is the one place its refusals become the screen's wording. The RPC call is
+    // kept outside the try so the exceptions thrown after it are not mistaken
+    // for a transport failure by the catch-all.
+    Object? reply;
+    try {
+      reply = await _client.rpc('cancel_subscription');
+    } on PostgrestException catch (error) {
+      throw PaymentCancelException(
+        PaymentCancelFailure.other,
+        detail: error.message,
+      );
+    } on Object catch (error) {
+      throw PaymentCancelException(
+        PaymentCancelFailure.network,
+        detail: error.toString(),
+      );
+    }
+
+    final status = reply is Map ? reply['status'] : null;
+    switch (status) {
+      case 'cancelled':
+        return;
+      case 'unauthenticated':
+        throw const PaymentCancelException(PaymentCancelFailure.notSignedIn);
+      case 'no_active_plan':
+        throw const PaymentCancelException(PaymentCancelFailure.noActivePlan);
+      case 'firm_member':
+        throw const PaymentCancelException(PaymentCancelFailure.firmMember);
+      default:
+        throw PaymentCancelException(
+          PaymentCancelFailure.other,
+          detail: 'cancel_subscription returned $status',
+        );
+    }
+  }
 }
 
 /// A repository for a build with no backend: every submit is a network failure.
@@ -224,4 +368,12 @@ class UnavailablePaymentRepository implements PaymentRepository {
   @override
   Future<List<PaymentSubmission>> fetchMySubmissions() async =>
       const <PaymentSubmission>[];
+
+  @override
+  Future<List<SubscriptionCancellation>> fetchMyCancellations() async =>
+      const <SubscriptionCancellation>[];
+
+  @override
+  Future<void> cancelSubscription() async =>
+      throw const PaymentCancelException(PaymentCancelFailure.network);
 }

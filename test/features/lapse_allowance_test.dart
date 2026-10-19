@@ -70,13 +70,18 @@ void main() {
   group('the tier numbers', () {
     test('each tier carries its ceiling and its lapse allowance', () {
       expect(SubscriptionTier.free.caseCeiling, 50);
+      expect(SubscriptionTier.starter.caseCeiling, 500);
       expect(SubscriptionTier.pro.caseCeiling, 1000);
       expect(SubscriptionTier.firm.caseCeiling, 2500);
       expect(SubscriptionTier.firmPlus.caseCeiling, 6000);
-      // §5.2's allowances, not the ceilings.
-      expect(SubscriptionTier.pro.lapseAllowance, 100);
+      // Enterprise is the one uncapped tier.
+      expect(SubscriptionTier.enterprise.caseCeiling, isNull);
+      // The allowances, not the ceilings.
+      expect(SubscriptionTier.starter.lapseAllowance, 100);
+      expect(SubscriptionTier.pro.lapseAllowance, 250);
       expect(SubscriptionTier.firm.lapseAllowance, 500);
       expect(SubscriptionTier.firmPlus.lapseAllowance, 1000);
+      expect(SubscriptionTier.enterprise.lapseAllowance, 2000);
       // Free is never "lapsed": it has the wall instead.
       expect(SubscriptionTier.free.lapseAllowance, 0);
     });
@@ -122,7 +127,7 @@ void main() {
   });
 
   group('what may be written', () {
-    test('premium has no ceiling of any kind', () async {
+    test('premium carries the tier case ceiling and no other ceiling', () async {
       await seedCases(3);
       final allowance = await resolveWriteAllowance(
         db,
@@ -130,7 +135,9 @@ void main() {
         premium: true,
       );
 
-      expect(allowance.caseAddCeiling, isNull);
+      // The paid ladder enforces its case ceiling; notes and references stay
+      // uncapped while the subscription is live.
+      expect(allowance.caseAddCeiling, 1000);
       expect(allowance.noteAddCeiling, isNull);
       expect(allowance.writableCaseIds, isNull);
       expect(allowance.isCaseWritable('case-0'), isTrue);
@@ -155,8 +162,8 @@ void main() {
       expect(allowance.referenceAddCeiling, isNull);
     });
 
-    test('a lapsed Pro keeps its 100 most recent cases writable', () async {
-      await seedCases(150);
+    test('a lapsed Pro keeps its 250 most recent cases writable', () async {
+      await seedCases(300);
       final allowance = await resolveWriteAllowance(
         db,
         tier: SubscriptionTier.pro,
@@ -164,21 +171,21 @@ void main() {
       );
 
       expect(allowance.isLapsed, isTrue);
-      expect(allowance.caseAddCeiling, 100);
-      expect(allowance.writableCaseIds, hasLength(100));
+      expect(allowance.caseAddCeiling, 250);
+      expect(allowance.writableCaseIds, hasLength(250));
       // The most recently updated stay editable; the archive is read-only.
-      expect(allowance.isCaseWritable('case-149'), isTrue);
+      expect(allowance.isCaseWritable('case-299'), isTrue);
       expect(allowance.isCaseWritable('case-50'), isTrue);
       expect(allowance.isCaseWritable('case-49'), isFalse);
       expect(allowance.isCaseWritable('case-0'), isFalse);
       expect(allowance.readOnlyCases, 50);
       expect(allowance.canAddCase(), isFalse);
       // Reading is never capped: the set only decides editing.
-      expect(await db.select(db.cases).get(), hasLength(150));
+      expect(await db.select(db.cases).get(), hasLength(300));
     });
 
     test('deleting a writable row promotes the next one', () async {
-      await seedCases(150);
+      await seedCases(300);
       final before = await resolveWriteAllowance(
         db,
         tier: SubscriptionTier.pro,
@@ -187,7 +194,7 @@ void main() {
       expect(before.isCaseWritable('case-49'), isFalse);
 
       // Delete the newest row, which is inside the allowance.
-      await (db.update(db.cases)..where((row) => row.id.equals('case-149')))
+      await (db.update(db.cases)..where((row) => row.id.equals('case-299')))
           .write(const CasesCompanion(isDeleted: Value(true)));
 
       final after = await resolveWriteAllowance(
@@ -195,8 +202,8 @@ void main() {
         tier: SubscriptionTier.pro,
         premium: false,
       );
-      expect(after.liveCases, 149);
-      expect(after.writableCaseIds, hasLength(100));
+      expect(after.liveCases, 299);
+      expect(after.writableCaseIds, hasLength(250));
       expect(after.isCaseWritable('case-49'), isTrue);
       expect(after.isCaseWritable('case-48'), isFalse);
     });
@@ -218,19 +225,19 @@ void main() {
     });
 
     test('notes carry the same ceiling and the same order', () async {
-      await seedNotes(120);
+      await seedNotes(300);
       final allowance = await resolveWriteAllowance(
         db,
         tier: SubscriptionTier.pro,
         premium: false,
       );
 
-      expect(allowance.noteAddCeiling, 100);
-      expect(allowance.writableNoteIds, hasLength(100));
-      expect(allowance.isNoteWritable('note-119'), isTrue);
-      expect(allowance.isNoteWritable('note-19'), isFalse);
-      expect(allowance.liveNotes, 120);
-      expect(allowance.readOnlyNotes, 20);
+      expect(allowance.noteAddCeiling, 250);
+      expect(allowance.writableNoteIds, hasLength(250));
+      expect(allowance.isNoteWritable('note-299'), isTrue);
+      expect(allowance.isNoteWritable('note-49'), isFalse);
+      expect(allowance.liveNotes, 300);
+      expect(allowance.readOnlyNotes, 50);
     });
   });
 }

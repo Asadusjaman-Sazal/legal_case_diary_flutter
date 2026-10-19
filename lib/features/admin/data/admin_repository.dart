@@ -73,9 +73,10 @@ class AdminPaymentRequest {
   /// The paying account.
   final String userId;
 
-  /// The plan key of the ladder's ten (`monthly` … `firm_plus_annual`).
+  /// The plan key of the ladder's seventeen (`starter_monthly` …
+  /// `enterprise_annual`), or one of the four legacy keys the old ladder sold.
   ///
-  /// Stored as submitted, so a row from before the ten-plan ladder keeps the key
+  /// Stored as submitted, so a row from before the six-tier ladder keeps the key
   /// it was submitted under rather than being read as a plan it never bought.
   final String planKey;
 

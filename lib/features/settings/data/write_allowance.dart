@@ -1,9 +1,15 @@
 /// Phase 10's lapse allowance, resolved from the device's own ledger.
 ///
 /// §5.2's rule: a lapsed paid account keeps **writing** up to the allowance of the
-/// tier it last held — Pro 100, Firm 500, Firm Plus 1,000 cases, notes and case
-/// references — and everything beyond that is read-only but still readable. A
-/// genuinely free account keeps its 50-case add wall and no other ceiling.
+/// tier it last held — Starter 100, Pro 250, Firm 500, Firm Plus 1,000 and
+/// Enterprise 2,000 cases, notes and case references — and everything beyond
+/// that is read-only but still readable. A genuinely free account keeps its
+/// 50-case add wall and no other ceiling.
+///
+/// A **premium** account is no longer unlimited: every paid tier sells a case
+/// ceiling (Starter 500, Pro 1,000, Firm 2,500, Firm Plus 6,000, Enterprise
+/// none), and the Add Case gate reads it from the tier. Notes and references
+/// stay uncapped while premium; only the lapse allowance caps those.
 ///
 /// The writable set is the **most recently updated** rows, `updated_at`
 /// descending with `id` as the tie-break, so the work a lawyer is on stays
@@ -28,7 +34,8 @@ import '../../payments/data/payment_plans.dart';
 /// means "every row of this kind is editable". Both together describe the three
 /// states in one shape:
 ///
-/// * premium — every ceiling and set null (nothing is restricted);
+/// * premium — the tier's case ceiling (null only for Enterprise), no writable
+///   set, and no note or reference ceiling;
 /// * genuinely free — [caseAddCeiling] 50, notes and references uncapped, and
 ///   every case editable (the wall is on adding, not on editing);
 /// * lapsed paid — each ceiling is the tier's [SubscriptionTier.lapseAllowance]
@@ -47,7 +54,16 @@ class WriteAllowance {
     this.isLapsed = false,
   });
 
-  /// No allowance applies: a premium account.
+  /// A premium account: the tier's case ceiling, and nothing else capped.
+  ///
+  /// `caseAddCeiling` is null for Enterprise, whose card sells unlimited cases.
+  const WriteAllowance.premium({
+    required int liveCases,
+    int? caseAddCeiling,
+  }) : this._(liveCases: liveCases, caseAddCeiling: caseAddCeiling);
+
+  /// No ceiling of any kind. Used by tests and by an entitlement whose tier
+  /// cannot be resolved; a real premium tier uses [WriteAllowance.premium].
   const WriteAllowance.unlimited({required int liveCases})
     : this._(liveCases: liveCases);
 
@@ -157,11 +173,20 @@ Future<WriteAllowance> resolveWriteAllowance(
   final cases = CasesDao(db);
   final liveCases = await cases.getNonDeletedCaseCount();
 
-  if (premium) return WriteAllowance.unlimited(liveCases: liveCases);
+  if (premium) {
+    // A live entitlement whose stored tier is still `free` — a period granted
+    // from the dashboard, or a row the ladder has not named — keeps no wall:
+    // the paid ceilings belong to a tier, and inventing the free one for an
+    // account that has paid would take away what it already had.
+    return WriteAllowance.premium(
+      liveCases: liveCases,
+      caseAddCeiling: tier == SubscriptionTier.free ? null : tier.caseCeiling,
+    );
+  }
   if (tier == SubscriptionTier.free) {
     return WriteAllowance.free(
       liveCases: liveCases,
-      caseAddCeiling: tier.caseCeiling,
+      caseAddCeiling: tier.caseCeiling!,
     );
   }
 

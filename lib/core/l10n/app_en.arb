@@ -558,49 +558,189 @@
           }
       }
   },
-  "paywall_benefitsTitle": "Subscription Plans Offer",
-  "paywall_featureUnlimitedCasesTitle": "More Cases on Every Plan",
-  "paywall_featureUnlimitedCasesBody": "Your case ceiling grows with your plan — the plan cards show each limit.",
-  "paywall_featureDisasterRecoveryTitle": "Disaster Recovery",
-  "paywall_featureDisasterRecoveryBody": "If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.",
-  "paywall_featureRealTimeBackupTitle": "Real-time Backup",
-  "paywall_featureRealTimeBackupBody": "Every change is instantly saved to the cloud.",
-  "paywall_featureMultiDeviceTitle": "Multi-device Support",
-  "paywall_featureMultiDeviceBody": "Access your diary from multiple devices simultaneously.",
-  "paywall_featureCollaborationTitle": "Collaboration",
-  "paywall_featureCollaborationBody": "Work together with your associates on the same diary.",
-  "paywall_plansTitle": "Plans",
-  "paywall_planMonthly": "1 Month",
-  "paywall_planQuarterly": "3 Months",
-  "paywall_planHalfYearly": "6 Months",
-  "paywall_planAnnual": "1 Year",
-  "paywall_planFirmQuarterly": "Firm · 3 Months",
-  "paywall_planFirmHalfYearly": "Firm · 6 Months",
-  "paywall_planFirmAnnual": "Firm · 1 Year",
-  "paywall_planFirmPlusQuarterly": "Firm Plus · 3 Months",
-  "paywall_planFirmPlusHalfYearly": "Firm Plus · 6 Months",
-  "paywall_planFirmPlusAnnual": "Firm Plus · 1 Year",
+  "paywall_intro": "Choose the plan that fits your practice.",
+  "paywall_audienceIndividual": "Individual",
+  "paywall_audienceFirm": "Firm",
+  "paywall_tierFree": "Free",
+  "paywall_tierStarter": "Starter",
   "paywall_tierPro": "Pro",
   "paywall_tierFirm": "Firm",
   "paywall_tierFirmPlus": "Firm Plus",
-  "paywall_tierProNote": "One account",
-  "paywall_tierCases": "Up to {count} cases",
-  "@paywall_tierCases": {
+  "paywall_tierEnterprise": "Enterprise",
+  "paywall_tierFreeNote": "For new lawyers who want to try the app.",
+  "paywall_tierStarterNote": "For lawyers who need cloud backup.",
+  "paywall_tierProNote": "For lawyers who need flexibility and cloud backup.",
+  "paywall_tierFirmNote": "For firms and lawyers who need real-time collaboration.",
+  "paywall_tierFirmPlusNote": "For firms and lawyers that need to store large amounts of case data in the cloud.",
+  "paywall_tierEnterpriseNote": "For firms that need unlimited members and case storage in the cloud.",
+  "paywall_includes": "Includes",
+  "paywall_everythingIn": "Everything in {tier}, plus",
+  "@paywall_everythingIn": {
+      "placeholders": {
+          "tier": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_featureCases": "Up to {count} Cases",
+  "@paywall_featureCases": {
       "placeholders": {
           "count": {
               "type": "String"
           }
       }
   },
-  "paywall_tierFirmNote": "Up to 5 associates",
-  "paywall_tierFirmPlusNote": "Up to 20 associates",
-  "@paywall_tierFirmNote": {
-      "description": "What the Firm tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap."
+  "paywall_featureUnlimitedCases": "Unlimited Cases",
+  "paywall_featureOfflineUse": "Offline Use Only",
+  "paywall_featureOfflineBackup": "Offline Backup and Restoration",
+  "paywall_featureCustomization": "Data Customization: Court Names, Steps, and Case Types",
+  "paywall_featureCloudBackup": "Real-Time Cloud Backup",
+  "paywall_featureDisasterRecovery": "Disaster Recovery: Restore your diary from the cloud on a new phone",
+  "paywall_featureSingleDevice": "Single-Device Use",
+  "paywall_featureMultiDevice": "Multi-Device Support: Up to {count} Devices",
+  "@paywall_featureMultiDevice": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
   },
-  "@paywall_tierFirmPlusNote": {
-      "description": "What the Firm Plus tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap."
+  "paywall_featureCollaboration": "Collaboration: Up to {count} Members (One Device Each)",
+  "@paywall_featureCollaboration": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
   },
+  "paywall_featureUnlimitedMembers": "Unlimited Members and Devices",
+  "paywall_fairUse": "Fair Use Applies",
+  "paywall_mostPopular": "Most Popular",
+  "paywall_currentPlanBadge": "Current Plan",
+  "paywall_scheduledBadge": "Scheduled",
+  "paywall_startsOn": "Starts on {date}",
+  "@paywall_startsOn": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_orChoose": "Or choose",
+  "paywall_pricePerMonth": "{amount}/month",
+  "@paywall_pricePerMonth": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_perMonth": "/month",
+  "paywall_freeMonthsSix": "1 month free on 6 months",
+  "paywall_freeMonthsTwelve": "2 months free on 1 year",
+  "paywall_shortestTerm": "Shortest term: 3 months",
+  "paywall_termMonthly": "1 Month",
+  "paywall_termQuarterly": "3 Months",
+  "paywall_termHalfYearly": "6 Months",
+  "paywall_termAnnual": "1 Year",
+  "paywall_planStarterMonthly": "Starter · 1 Month",
+  "paywall_planStarterQuarterly": "Starter · 3 Months",
+  "paywall_planStarterHalfYearly": "Starter · 6 Months",
+  "paywall_planStarterAnnual": "Starter · 1 Year",
+  "paywall_planProMonthly": "Pro · 1 Month",
+  "paywall_planProQuarterly": "Pro · 3 Months",
+  "paywall_planProHalfYearly": "Pro · 6 Months",
+  "paywall_planProAnnual": "Pro · 1 Year",
+  "paywall_planFirmQuarterly": "Firm · 3 Months",
+  "paywall_planFirmHalfYearly": "Firm · 6 Months",
+  "paywall_planFirmAnnual": "Firm · 1 Year",
+  "paywall_planFirmPlusQuarterly": "Firm Plus · 3 Months",
+  "paywall_planFirmPlusHalfYearly": "Firm Plus · 6 Months",
+  "paywall_planFirmPlusAnnual": "Firm Plus · 1 Year",
+  "paywall_planEnterpriseQuarterly": "Enterprise · 3 Months",
+  "paywall_planEnterpriseHalfYearly": "Enterprise · 6 Months",
+  "paywall_planEnterpriseAnnual": "Enterprise · 1 Year",
   "paywall_subscribe": "Subscribe",
+  "paywall_subscribePlan": "Subscribe — {plan}",
+  "@paywall_subscribePlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_renewPlan": "Renew — {plan}",
+  "@paywall_renewPlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_renewScheduledPlan": "Renew Scheduled Plan — {plan}",
+  "@paywall_renewScheduledPlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_included": "Included",
+  "paywall_changeTitle": "This Plan Starts Later",
+  "paywall_changeBody": "Your {current} plan runs until {end}. {next} will start on {start} and run for {term}. Your case ceiling will be {limit} from then.",
+  "@paywall_changeBody": {
+      "placeholders": {
+          "current": { "type": "String" },
+          "end": { "type": "String" },
+          "next": { "type": "String" },
+          "start": { "type": "String" },
+          "term": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_changeGoBack": "Go Back",
+  "paywall_changeContinue": "Continue to Payment",
+  "paywall_changePendingTitle": "A Plan Change Is Already Scheduled",
+  "paywall_changePendingBody": "{plan} is scheduled to start on {date}. You can renew your current plan or the scheduled plan.",
+  "@paywall_changePendingBody": {
+      "placeholders": {
+          "plan": { "type": "String" },
+          "date": { "type": "String" }
+      }
+  },
+  "paywall_changePendingClose": "Close",
+  "paywall_renewShiftTitle": "Your Scheduled Plan Will Start Later",
+  "paywall_renewShiftBody": "Renewing {current} extends it to {end}. {next} will now start on that date.",
+  "@paywall_renewShiftBody": {
+      "placeholders": {
+          "current": { "type": "String" },
+          "end": { "type": "String" },
+          "next": { "type": "String" }
+      }
+  },
+  "paywall_renewShiftConfirm": "Continue",
+  "paywall_caseLimitTitle": "{tier} Case Limit Reached",
+  "@paywall_caseLimitTitle": {
+      "placeholders": {
+          "tier": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitBody": "Your {tier} plan holds up to {limit} cases. Delete a case to free a slot, or choose a larger plan.",
+  "@paywall_caseLimitBody": {
+      "placeholders": {
+          "tier": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitMemberBody": "This chamber's {tier} plan holds up to {limit} cases. The chamber owner manages the plan.",
+  "@paywall_caseLimitMemberBody": {
+      "placeholders": {
+          "tier": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitAction": "See Plans",
+  "paywall_caseLimitClose": "Close",
   "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
   "lapse_readOnlyBadge": "Read-only",
   "lapse_renewAction": "Renew",

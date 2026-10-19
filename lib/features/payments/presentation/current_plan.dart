@@ -35,23 +35,34 @@ typedef CurrentPlan = ({bool known, bool premium, String? planKey});
 ///   wrong answer for a label.
 /// * [CurrentPlan.premium] is the derived entitlement, so a firm member counts
 ///   as premium on the firm's expiry and an individual on their own.
-/// * [CurrentPlan.planKey] is the newest **approved** submission's plan, and it
-///   is deliberately absent for a chamber **member** (Phase 9): a plan they
-///   bought before joining is ignored while they hold the chamber, so naming it
-///   here would tell them a plan is running that is not. *Premium* is the word
-///   for that case rather than a repeated tier name. The owner is not a member
-///   and keeps naming the plan they bought, because that purchase is the
-///   chamber's renewal.
+/// * [CurrentPlan.planKey] is the newest **approved** submission whose tier is
+///   the tier the account holds — not the newest purchase outright, because a
+///   different tier is queued until the current period ends. It is deliberately
+///   absent for a chamber **member** (Phase 9): a plan they bought before
+///   joining is ignored while they hold the chamber, so naming it here would
+///   tell them a plan is running that is not. *Premium* is the word for that
+///   case rather than a repeated tier name. The owner is not a member and keeps
+///   naming the plan they bought, because that purchase is the chamber's
+///   renewal.
 final currentPlanProvider = Provider<CurrentPlan>((ref) {
   final premium = ref.watch(premiumAccessProvider);
   String? approvedPlan;
   if (!ref.watch(firmMemberProvider)) {
-    // Own rows under RLS, newest first, so the first approval is the active
-    // plan. A member's rows are never read: their last tier is the chamber's.
+    // Own rows under RLS, newest first. A member's rows are never read: their
+    // last tier is the chamber's.
+    //
+    // The newest approved purchase is **not** always the plan running: a
+    // purchase of a different tier is queued and starts when the current
+    // period ends. So the label looks for the newest approval whose tier is the
+    // tier this account actually holds, and leaves the queued one to the
+    // *Scheduled* line. Legacy `pro` keys answer Starter, which is what their
+    // stored tier became.
+    final storedTier = ref.watch(currentTierProvider);
     final submissions =
         ref.watch(myPaymentSubmissionsProvider).value ?? const [];
     for (final submission in submissions) {
-      if (submission.status == 'approved') {
+      if (submission.status == 'approved' &&
+          planTier(submission.planType) == storedTier) {
         approvedPlan = submission.planType;
         break;
       }

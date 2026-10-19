@@ -93,19 +93,28 @@ adding a further case is blocked and the premium screen is shown. **Nothing alre
 ever hidden, blocked or deleted** because of the limit — you keep every case you have, and you may
 continue to view, edit, update, print and delete them. Cloud sync is not part of the free plan.
 
-**Premium.** Premium raises the case limit and, when the online version is released, enables cloud
-synchronisation, multi-device use and firm mode. The plans are **৳100 per month** and **৳1,000 per
-year**. There is no lifetime plan. **[TO CONFIRM: whether the premium case limit is unlimited.]**
+**Premium.** A paid plan raises the case ceiling and enables cloud synchronisation, multi-device use
+(where the plan allows it) and firm mode. The plans are **Starter** (৳60 a month, 500 cases),
+**Pro** (৳120 a month, 1,000 cases), **Firm** (৳250 a month, 2,500 cases, five members including
+the owner), **Firm Plus** (৳500 a month, 6,000 cases, twelve members including the owner) and
+**Enterprise** (৳1,500 a month, unlimited cases and members, subject to fair use). Starter and Pro
+sell 1, 3, 6 and 12 months; the chamber plans sell 3, 6 and 12. There is no lifetime plan.
 
 - **Purchasing is not yet open.** The premium screen shows the plans, but the purchase actions are
   disabled until the online version ships. Until then, nothing in the app can take your money.
 - **No automatic renewal.** Subscriptions are activated manually after we verify your payment, so
   nothing is charged to you automatically and no plan renews without a fresh payment from you.
+- **A change of plan starts when the paid period ends.** A different plan bought while one is
+  running starts on the date the current plan ends, and the app shows both dates before you pay. A
+  renewal of the running plan extends it. Only one change can wait at a time.
 - **Expiry and grace.** When a subscription ends, synchronisation continues for a **48-hour grace
   period**, during which the app shows a renewal notice. After that, sync stops and the app returns
   to local-only operation.
-- **Lapsed users keep everything.** If you do not renew, the 50-case limit does **not** apply to
-  cases you already hold. It gates only *adding* further cases on a free entitlement.
+- **Lapsed users keep everything.** If you do not renew, the free 50-case limit does **not** apply
+  to cases you already hold, and nothing is hidden or deleted. You may keep writing up to the
+  allowance of the plan you last held — Starter 100, Pro 250, Firm 500, Firm Plus 1,000 and
+  Enterprise 2,000 cases, notes and case references — with the most recently updated rows editable
+  and the rest readable, printable and exportable until you renew.
 - **Price changes.** We may change prices for future periods. A change will be shown in the app
   before you pay it, and it never affects a period you have already paid for.
 

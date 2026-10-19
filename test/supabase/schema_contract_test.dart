@@ -572,12 +572,20 @@ void main() {
       }
     });
 
-    test('the free-tier ceiling serializes its count-and-insert', () {
-      final block = functionBlock(sql, 'enforce_free_case_limit')!;
-      expect(block, contains('public.is_premium(new.user_id)'));
+    test('the tier ceiling serializes its count-and-insert', () {
+      final block = functionBlock(sql, 'enforce_case_ceiling')!;
+      // The ceiling is the tier's, not a hard-coded 50; the scope is the diary
+      // (the chamber's for a firm case), and the count is of live rows only.
+      expect(block, contains('public.tier_case_ceiling'));
       expect(block, contains('pg_advisory_xact_lock'));
-      expect(block, contains('c_free_case_limit constant integer := 50'));
+      expect(block, contains('c.firm_id = v_scope'));
       expect(block, contains('and c.is_deleted = false'));
+      // The free-only function is gone, so no reader keeps believing the wall
+      // is free-only.
+      expect(
+        sql,
+        contains('drop function if exists public.enforce_free_case_limit()'),
+      );
     });
 
     test('the payment rate limit overwrites client time and counts server time', () {

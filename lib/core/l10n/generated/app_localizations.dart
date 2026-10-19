@@ -1964,101 +1964,311 @@ abstract class AppLocalizations {
   /// **'Your last plan lets you add up to {limit} cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.'**
   String paywall_lapsedBody(String limit);
 
-  /// No description provided for @paywall_benefitsTitle.
+  /// No description provided for @paywall_intro.
   ///
   /// In en, this message translates to:
-  /// **'Subscription Plans Offer'**
-  String get paywall_benefitsTitle;
+  /// **'Choose the plan that fits your practice.'**
+  String get paywall_intro;
 
-  /// No description provided for @paywall_featureUnlimitedCasesTitle.
+  /// No description provided for @paywall_audienceIndividual.
   ///
   /// In en, this message translates to:
-  /// **'More Cases on Every Plan'**
-  String get paywall_featureUnlimitedCasesTitle;
+  /// **'Individual'**
+  String get paywall_audienceIndividual;
 
-  /// No description provided for @paywall_featureUnlimitedCasesBody.
+  /// No description provided for @paywall_audienceFirm.
   ///
   /// In en, this message translates to:
-  /// **'Your case ceiling grows with your plan — the plan cards show each limit.'**
-  String get paywall_featureUnlimitedCasesBody;
+  /// **'Firm'**
+  String get paywall_audienceFirm;
 
-  /// No description provided for @paywall_featureDisasterRecoveryTitle.
+  /// No description provided for @paywall_tierFree.
   ///
   /// In en, this message translates to:
-  /// **'Disaster Recovery'**
-  String get paywall_featureDisasterRecoveryTitle;
+  /// **'Free'**
+  String get paywall_tierFree;
 
-  /// No description provided for @paywall_featureDisasterRecoveryBody.
+  /// No description provided for @paywall_tierStarter.
   ///
   /// In en, this message translates to:
-  /// **'If your phone is lost or broken, your data is always safe in the cloud. You can login to your new device with your account to get access to your old data.'**
-  String get paywall_featureDisasterRecoveryBody;
+  /// **'Starter'**
+  String get paywall_tierStarter;
 
-  /// No description provided for @paywall_featureRealTimeBackupTitle.
+  /// No description provided for @paywall_tierPro.
   ///
   /// In en, this message translates to:
-  /// **'Real-time Backup'**
-  String get paywall_featureRealTimeBackupTitle;
+  /// **'Pro'**
+  String get paywall_tierPro;
 
-  /// No description provided for @paywall_featureRealTimeBackupBody.
+  /// No description provided for @paywall_tierFirm.
   ///
   /// In en, this message translates to:
-  /// **'Every change is instantly saved to the cloud.'**
-  String get paywall_featureRealTimeBackupBody;
+  /// **'Firm'**
+  String get paywall_tierFirm;
 
-  /// No description provided for @paywall_featureMultiDeviceTitle.
+  /// No description provided for @paywall_tierFirmPlus.
   ///
   /// In en, this message translates to:
-  /// **'Multi-device Support'**
-  String get paywall_featureMultiDeviceTitle;
+  /// **'Firm Plus'**
+  String get paywall_tierFirmPlus;
 
-  /// No description provided for @paywall_featureMultiDeviceBody.
+  /// No description provided for @paywall_tierEnterprise.
   ///
   /// In en, this message translates to:
-  /// **'Access your diary from multiple devices simultaneously.'**
-  String get paywall_featureMultiDeviceBody;
+  /// **'Enterprise'**
+  String get paywall_tierEnterprise;
 
-  /// No description provided for @paywall_featureCollaborationTitle.
+  /// No description provided for @paywall_tierFreeNote.
   ///
   /// In en, this message translates to:
-  /// **'Collaboration'**
-  String get paywall_featureCollaborationTitle;
+  /// **'For new lawyers who want to try the app.'**
+  String get paywall_tierFreeNote;
 
-  /// No description provided for @paywall_featureCollaborationBody.
+  /// No description provided for @paywall_tierStarterNote.
   ///
   /// In en, this message translates to:
-  /// **'Work together with your associates on the same diary.'**
-  String get paywall_featureCollaborationBody;
+  /// **'For lawyers who need cloud backup.'**
+  String get paywall_tierStarterNote;
 
-  /// No description provided for @paywall_plansTitle.
+  /// No description provided for @paywall_tierProNote.
   ///
   /// In en, this message translates to:
-  /// **'Plans'**
-  String get paywall_plansTitle;
+  /// **'For lawyers who need flexibility and cloud backup.'**
+  String get paywall_tierProNote;
 
-  /// No description provided for @paywall_planMonthly.
+  /// No description provided for @paywall_tierFirmNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For firms and lawyers who need real-time collaboration.'**
+  String get paywall_tierFirmNote;
+
+  /// No description provided for @paywall_tierFirmPlusNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For firms and lawyers that need to store large amounts of case data in the cloud.'**
+  String get paywall_tierFirmPlusNote;
+
+  /// No description provided for @paywall_tierEnterpriseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'For firms that need unlimited members and case storage in the cloud.'**
+  String get paywall_tierEnterpriseNote;
+
+  /// No description provided for @paywall_includes.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes'**
+  String get paywall_includes;
+
+  /// No description provided for @paywall_everythingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in {tier}, plus'**
+  String paywall_everythingIn(String tier);
+
+  /// No description provided for @paywall_featureCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} Cases'**
+  String paywall_featureCases(String count);
+
+  /// No description provided for @paywall_featureUnlimitedCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited Cases'**
+  String get paywall_featureUnlimitedCases;
+
+  /// No description provided for @paywall_featureOfflineUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Use Only'**
+  String get paywall_featureOfflineUse;
+
+  /// No description provided for @paywall_featureOfflineBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Backup and Restoration'**
+  String get paywall_featureOfflineBackup;
+
+  /// No description provided for @paywall_featureCustomization.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Customization: Court Names, Steps, and Case Types'**
+  String get paywall_featureCustomization;
+
+  /// No description provided for @paywall_featureCloudBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-Time Cloud Backup'**
+  String get paywall_featureCloudBackup;
+
+  /// No description provided for @paywall_featureDisasterRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Disaster Recovery: Restore your diary from the cloud on a new phone'**
+  String get paywall_featureDisasterRecovery;
+
+  /// No description provided for @paywall_featureSingleDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Single-Device Use'**
+  String get paywall_featureSingleDevice;
+
+  /// No description provided for @paywall_featureMultiDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-Device Support: Up to {count} Devices'**
+  String paywall_featureMultiDevice(String count);
+
+  /// No description provided for @paywall_featureCollaboration.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaboration: Up to {count} Members (One Device Each)'**
+  String paywall_featureCollaboration(String count);
+
+  /// No description provided for @paywall_featureUnlimitedMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited Members and Devices'**
+  String get paywall_featureUnlimitedMembers;
+
+  /// No description provided for @paywall_fairUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair Use Applies'**
+  String get paywall_fairUse;
+
+  /// No description provided for @paywall_mostPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Popular'**
+  String get paywall_mostPopular;
+
+  /// No description provided for @paywall_currentPlanBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get paywall_currentPlanBadge;
+
+  /// No description provided for @paywall_scheduledBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get paywall_scheduledBadge;
+
+  /// No description provided for @paywall_startsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts on {date}'**
+  String paywall_startsOn(String date);
+
+  /// No description provided for @paywall_orChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Or choose'**
+  String get paywall_orChoose;
+
+  /// No description provided for @paywall_pricePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}/month'**
+  String paywall_pricePerMonth(String amount);
+
+  /// No description provided for @paywall_perMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'/month'**
+  String get paywall_perMonth;
+
+  /// No description provided for @paywall_freeMonthsSix.
+  ///
+  /// In en, this message translates to:
+  /// **'1 month free on 6 months'**
+  String get paywall_freeMonthsSix;
+
+  /// No description provided for @paywall_freeMonthsTwelve.
+  ///
+  /// In en, this message translates to:
+  /// **'2 months free on 1 year'**
+  String get paywall_freeMonthsTwelve;
+
+  /// No description provided for @paywall_shortestTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortest term: 3 months'**
+  String get paywall_shortestTerm;
+
+  /// No description provided for @paywall_termMonthly.
   ///
   /// In en, this message translates to:
   /// **'1 Month'**
-  String get paywall_planMonthly;
+  String get paywall_termMonthly;
 
-  /// No description provided for @paywall_planQuarterly.
+  /// No description provided for @paywall_termQuarterly.
   ///
   /// In en, this message translates to:
   /// **'3 Months'**
-  String get paywall_planQuarterly;
+  String get paywall_termQuarterly;
 
-  /// No description provided for @paywall_planHalfYearly.
+  /// No description provided for @paywall_termHalfYearly.
   ///
   /// In en, this message translates to:
   /// **'6 Months'**
-  String get paywall_planHalfYearly;
+  String get paywall_termHalfYearly;
 
-  /// No description provided for @paywall_planAnnual.
+  /// No description provided for @paywall_termAnnual.
   ///
   /// In en, this message translates to:
   /// **'1 Year'**
-  String get paywall_planAnnual;
+  String get paywall_termAnnual;
+
+  /// No description provided for @paywall_planStarterMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter · 1 Month'**
+  String get paywall_planStarterMonthly;
+
+  /// No description provided for @paywall_planStarterQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter · 3 Months'**
+  String get paywall_planStarterQuarterly;
+
+  /// No description provided for @paywall_planStarterHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter · 6 Months'**
+  String get paywall_planStarterHalfYearly;
+
+  /// No description provided for @paywall_planStarterAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter · 1 Year'**
+  String get paywall_planStarterAnnual;
+
+  /// No description provided for @paywall_planProMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro · 1 Month'**
+  String get paywall_planProMonthly;
+
+  /// No description provided for @paywall_planProQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro · 3 Months'**
+  String get paywall_planProQuarterly;
+
+  /// No description provided for @paywall_planProHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro · 6 Months'**
+  String get paywall_planProHalfYearly;
+
+  /// No description provided for @paywall_planProAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro · 1 Year'**
+  String get paywall_planProAnnual;
 
   /// No description provided for @paywall_planFirmQuarterly.
   ///
@@ -2096,53 +2306,150 @@ abstract class AppLocalizations {
   /// **'Firm Plus · 1 Year'**
   String get paywall_planFirmPlusAnnual;
 
-  /// No description provided for @paywall_tierPro.
+  /// No description provided for @paywall_planEnterpriseQuarterly.
   ///
   /// In en, this message translates to:
-  /// **'Pro'**
-  String get paywall_tierPro;
+  /// **'Enterprise · 3 Months'**
+  String get paywall_planEnterpriseQuarterly;
 
-  /// No description provided for @paywall_tierFirm.
+  /// No description provided for @paywall_planEnterpriseHalfYearly.
   ///
   /// In en, this message translates to:
-  /// **'Firm'**
-  String get paywall_tierFirm;
+  /// **'Enterprise · 6 Months'**
+  String get paywall_planEnterpriseHalfYearly;
 
-  /// No description provided for @paywall_tierFirmPlus.
+  /// No description provided for @paywall_planEnterpriseAnnual.
   ///
   /// In en, this message translates to:
-  /// **'Firm Plus'**
-  String get paywall_tierFirmPlus;
-
-  /// No description provided for @paywall_tierProNote.
-  ///
-  /// In en, this message translates to:
-  /// **'One account'**
-  String get paywall_tierProNote;
-
-  /// No description provided for @paywall_tierCases.
-  ///
-  /// In en, this message translates to:
-  /// **'Up to {count} cases'**
-  String paywall_tierCases(String count);
-
-  /// What the Firm tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap.
-  ///
-  /// In en, this message translates to:
-  /// **'Up to 5 associates'**
-  String get paywall_tierFirmNote;
-
-  /// What the Firm Plus tier sells. The seat count here is the chamber its owner's plan covers, and it must match the server's seat cap.
-  ///
-  /// In en, this message translates to:
-  /// **'Up to 20 associates'**
-  String get paywall_tierFirmPlusNote;
+  /// **'Enterprise · 1 Year'**
+  String get paywall_planEnterpriseAnnual;
 
   /// No description provided for @paywall_subscribe.
   ///
   /// In en, this message translates to:
   /// **'Subscribe'**
   String get paywall_subscribe;
+
+  /// No description provided for @paywall_subscribePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe — {plan}'**
+  String paywall_subscribePlan(String plan);
+
+  /// No description provided for @paywall_renewPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew — {plan}'**
+  String paywall_renewPlan(String plan);
+
+  /// No description provided for @paywall_renewScheduledPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew Scheduled Plan — {plan}'**
+  String paywall_renewScheduledPlan(String plan);
+
+  /// No description provided for @paywall_included.
+  ///
+  /// In en, this message translates to:
+  /// **'Included'**
+  String get paywall_included;
+
+  /// No description provided for @paywall_changeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Plan Starts Later'**
+  String get paywall_changeTitle;
+
+  /// No description provided for @paywall_changeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {current} plan runs until {end}. {next} will start on {start} and run for {term}. Your case ceiling will be {limit} from then.'**
+  String paywall_changeBody(
+    String current,
+    String end,
+    String next,
+    String start,
+    String term,
+    String limit,
+  );
+
+  /// No description provided for @paywall_changeGoBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get paywall_changeGoBack;
+
+  /// No description provided for @paywall_changeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to Payment'**
+  String get paywall_changeContinue;
+
+  /// No description provided for @paywall_changePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A Plan Change Is Already Scheduled'**
+  String get paywall_changePendingTitle;
+
+  /// No description provided for @paywall_changePendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} is scheduled to start on {date}. You can renew your current plan or the scheduled plan.'**
+  String paywall_changePendingBody(String plan, String date);
+
+  /// No description provided for @paywall_changePendingClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get paywall_changePendingClose;
+
+  /// No description provided for @paywall_renewShiftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Scheduled Plan Will Start Later'**
+  String get paywall_renewShiftTitle;
+
+  /// No description provided for @paywall_renewShiftBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewing {current} extends it to {end}. {next} will now start on that date.'**
+  String paywall_renewShiftBody(String current, String end, String next);
+
+  /// No description provided for @paywall_renewShiftConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get paywall_renewShiftConfirm;
+
+  /// No description provided for @paywall_caseLimitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} Case Limit Reached'**
+  String paywall_caseLimitTitle(String tier);
+
+  /// No description provided for @paywall_caseLimitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {tier} plan holds up to {limit} cases. Delete a case to free a slot, or choose a larger plan.'**
+  String paywall_caseLimitBody(String tier, String limit);
+
+  /// No description provided for @paywall_caseLimitMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This chamber\'s {tier} plan holds up to {limit} cases. The chamber owner manages the plan.'**
+  String paywall_caseLimitMemberBody(String tier, String limit);
+
+  /// No description provided for @paywall_caseLimitAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See Plans'**
+  String get paywall_caseLimitAction;
+
+  /// No description provided for @paywall_caseLimitClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get paywall_caseLimitClose;
 
   /// No description provided for @lapse_readOnlyBadge.
   ///

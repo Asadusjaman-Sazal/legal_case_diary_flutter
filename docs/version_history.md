@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.544 - Subscription Details' Cancel action is now a filled red button with white text, matching the cancellation window's confirm button.
+Version: 0.0.546 - Six-tier subscription ladder with seventeen plans, paid case ceilings, queued plan changes, new seat caps, a rebuilt paywall and a server migration.
 --------------------------------------
 
 ## Version History Log:
@@ -558,3 +558,5 @@ Version: 0.0.541 - Phase 15: the app refuses an update whose APK is not signed l
 Version: 0.0.542 - Phase 15 audit: the case count and the readme's publisher claim corrected against the shipped artifacts, and the phase's one shortfall (refusal at install, not at offer) recorded at the acceptance.
 Version: 0.0.543 - Subscription Details can cancel a live plan through cancel_subscription(), with a red Cancelled entry in a ledger renamed Subscription History.
 Version: 0.0.544 - Subscription Details' Cancel action is now a filled red button with white text, matching the cancellation window's confirm button.
+Version: 0.0.545 - Subscription Details insets for the phone's status bar like Subscription Plans, so the clock and icons stay visible instead of sitting on the white app bar.
+Version: 0.0.546 - Six-tier subscription ladder with seventeen plans, paid case ceilings, queued plan changes, new seat caps, a rebuilt paywall and a server migration.

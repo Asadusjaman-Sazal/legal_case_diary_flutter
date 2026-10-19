@@ -114,7 +114,7 @@ void main() {
 
       await notifier.save(
         const PaymentDraft(
-          planKey: paymentPlanAnnual,
+          planKey: paymentPlanProAnnual,
           method: 'nagad',
           phone: '01712345678',
           trx: 'TRX123',
@@ -137,7 +137,7 @@ void main() {
       final container = await _container(repo);
       await container.read(paymentDraftProvider.notifier).save(
         const PaymentDraft(
-          planKey: paymentPlanMonthly,
+          planKey: paymentPlanProMonthly,
           method: 'bkash',
           phone: '01712345678',
           trx: 'TRX1',
@@ -147,7 +147,7 @@ void main() {
       final ok = await container
           .read(paymentViewModelProvider.notifier)
           .submit(
-            planKey: paymentPlanMonthly,
+            planKey: paymentPlanProMonthly,
             provider: 'bkash',
             phone: '01712345678',
             trx: 'TRX1',
@@ -171,7 +171,7 @@ void main() {
       final container = await _container(repo);
       await container.read(paymentDraftProvider.notifier).save(
         const PaymentDraft(
-          planKey: paymentPlanMonthly,
+          planKey: paymentPlanProMonthly,
           method: 'bkash',
           phone: '01712345678',
           trx: 'TRX2',
@@ -181,7 +181,7 @@ void main() {
       final ok = await container
           .read(paymentViewModelProvider.notifier)
           .submit(
-            planKey: paymentPlanMonthly,
+            planKey: paymentPlanProMonthly,
             provider: 'bkash',
             phone: '01712345678',
             trx: 'TRX2',
@@ -204,7 +204,7 @@ void main() {
       final container = await _container(repo);
 
       await container.read(paymentViewModelProvider.notifier).submit(
-        planKey: paymentPlanMonthly,
+        planKey: paymentPlanProMonthly,
         provider: 'bkash',
         phone: '01712345678',
         trx: 'TRX3',

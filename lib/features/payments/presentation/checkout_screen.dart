@@ -39,7 +39,7 @@ import 'payment_viewmodel.dart';
 
 /// Checkout: pay one plan by MFS transfer and report the transaction.
 class CheckoutScreen extends ConsumerStatefulWidget {
-  /// The plan key from the route (`monthly`/`annual`), or null.
+  /// The plan key from the route (`starter_monthly`/`pro_annual`/…), or null.
   final String? planKey;
 
   /// Creates the checkout.
@@ -77,9 +77,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     super.dispose();
   }
 
-  /// The effective plan, defaulting to monthly for a bare/unknown link.
-  String get _planKey =>
-      paymentPlanAmount(widget.planKey) == null ? paymentPlanMonthly : widget.planKey!;
+  /// The effective plan, defaulting to Starter monthly for a bare/unknown link.
+  String get _planKey => paymentPlanAmount(widget.planKey) == null
+      ? paymentPlanStarterMonthly
+      : widget.planKey!;
 
   /// Saves the current form as the draft. Cheap enough for every keystroke.
   void _persistDraft() {
@@ -176,7 +177,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final config = ref.watch(paymentsConfigurationProvider);
-    final amount = paymentPlanAmount(_planKey) ?? paymentMonthlyPrice;
+    final amount = paymentPlanAmount(_planKey) ?? paymentStarterMonthlyPrice;
     final isSubmitting = ref.watch(
       paymentViewModelProvider.select((s) => s.value?.isSubmitting ?? false),
     );

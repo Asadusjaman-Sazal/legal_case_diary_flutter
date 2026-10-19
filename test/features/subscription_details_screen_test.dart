@@ -202,6 +202,7 @@ void main() {
         id: const Value('firm-1'),
         name: const Value('Rahman & Associates'),
         ownerId: const Value('user-1'),
+        tier: const Value('pro'),
         subscriptionStatus: const Value('active'),
         subscriptionExpiry: Value(
           DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
@@ -252,7 +253,7 @@ void main() {
           (ref) async => [
                 submission(
                   id: 'p1',
-                  planType: paymentPlanQuarterly,
+                  planType: paymentPlanProQuarterly,
                   amount: 285,
                   status: 'approved',
                   submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
@@ -277,7 +278,7 @@ void main() {
     // The plan is named, not "Premium": a firm member on an approved plan is
     // told which plan they are running.
     expect(find.text(l.settingsSubscription_currentPlan), findsWidgets);
-    expect(find.text(l.paywall_planQuarterly), findsWidgets);
+    expect(find.text(l.paywall_planProQuarterly), findsWidgets);
 
     // 01/12/2026, 17:30 UTC is 23:30 on the same day in Bangladesh civil time,
     // so the expiry reads 11:30 PM rather than 5:30 PM: the date and the clock
@@ -298,8 +299,8 @@ void main() {
             (ref) async => [
                   submission(
                     id: 'p1',
-                    planType: paymentPlanQuarterly,
-                    amount: 285,
+                    planType: paymentPlanStarterQuarterly,
+                    amount: 180,
                     status: 'approved',
                     submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
                   ),
@@ -311,12 +312,12 @@ void main() {
       );
 
       // The chamber's subscription is the one running (Phase 9): the member's
-      // own approved 3 Months row is ignored, so the plan reads Premium rather
+      // own approved Starter row is ignored, so the plan reads Premium rather
       // than naming a plan that is not in force on this account. The one
-      // remaining "3 Months" is the purchase in Payment History, not the plan
+      // remaining Starter label is the purchase in Payment History, not the plan
       // label — the ledger is a record of what was bought, not what is running.
       expect(find.text(l.settingsManageAccount_planPremium), findsWidgets);
-      expect(find.text(l.paywall_planQuarterly), findsOneWidget);
+      expect(find.text(l.paywall_planStarterQuarterly), findsOneWidget);
 
       // The expiry is the chamber's, not the member's own (01/06/2027).
       expect(find.text('01/12/2026, 11:30 PM'), findsOneWidget);
@@ -414,16 +415,16 @@ void main() {
           (ref) async => [
                 submission(
                   id: 'older',
-                  planType: paymentPlanMonthly,
-                  amount: 100,
+                  planType: paymentPlanStarterMonthly,
+                  amount: 60,
                   status: 'approved',
                   submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
                   approvedAt: DateTime.utc(2026, 10, 2, 18, 45),
                 ),
                 submission(
                   id: 'newer',
-                  planType: paymentPlanQuarterly,
-                  amount: 285,
+                  planType: paymentPlanStarterQuarterly,
+                  amount: 180,
                   status: 'pending',
                   submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
                 ),
@@ -448,10 +449,10 @@ void main() {
     expect(find.text('2'), findsOneWidget);
 
     // Each card states its plan, what was paid, when, and the verdict.
-    expect(find.text(l.paywall_planQuarterly), findsWidgets);
-    expect(find.text(l.paywall_planMonthly), findsWidgets);
-    expect(find.text(l.payments_amountValue('285')), findsOneWidget);
-    expect(find.text(l.payments_amountValue('100')), findsOneWidget);
+    expect(find.text(l.paywall_planStarterQuarterly), findsWidgets);
+    expect(find.text(l.paywall_planStarterMonthly), findsWidgets);
+    expect(find.text(l.payments_amountValue('180')), findsOneWidget);
+    expect(find.text(l.payments_amountValue('60')), findsOneWidget);
     expect(find.text(l.payments_statusPending), findsOneWidget);
     expect(find.text(l.payments_statusApproved), findsOneWidget);
 
@@ -477,7 +478,7 @@ void main() {
     // boxed the timestamp into the narrower column and it wrapped its AM/PM.
     // The test font is too wide to measure wrapping itself, so the contract is
     // what is pinned: the timestamp's column is the wider one.
-    final paidWidth = tester.getSize(find.text(l.payments_amountValue('285'))).width;
+    final paidWidth = tester.getSize(find.text(l.payments_amountValue('180'))).width;
     final stampWidth =
         tester.getSize(find.text('02/11/2026, 11:30 PM')).width;
     expect(paidWidth, lessThan(stampWidth));
@@ -498,14 +499,14 @@ void main() {
           (ref) async => [
                 submission(
                   id: 'older',
-                  planType: paymentPlanMonthly,
+                  planType: paymentPlanProMonthly,
                   amount: 100,
                   status: 'approved',
                   submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
                 ),
                 submission(
                   id: 'newer',
-                  planType: paymentPlanQuarterly,
+                  planType: paymentPlanProQuarterly,
                   amount: 285,
                   status: 'pending',
                   submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
@@ -553,7 +554,7 @@ void main() {
           (ref) async => [
                 submission(
                   id: 'p1',
-                  planType: paymentPlanMonthly,
+                  planType: paymentPlanProMonthly,
                   amount: 100,
                   status: 'rejected',
                   submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
@@ -618,7 +619,7 @@ void main() {
           (ref) async => [
                 PaymentSubmission(
                   id: 'p1',
-                  planType: paymentPlanMonthly,
+                  planType: paymentPlanProMonthly,
                   amount: 100,
                   mfsProvider: 'bkash',
                   senderNumber: '01700000000',
@@ -800,6 +801,24 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the page starts below the phone status bar', (tester) async {
+    // This page is a top-level route, so the shell's own inset does not reach
+    // it. Without its own `SafeArea` the Scaffold painted its app bar up behind
+    // the status bar and the phone's clock sat on that white instead of on the
+    // app's own black — the Subscription Plans screen is the reference.
+    // Pixels are physical: one logical pixel per pixel keeps the 24 a round
+    // number on every device the suite runs on.
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.padding = const FakeViewPadding(top: 24);
+    addTearDown(tester.view.reset);
+
+    await pumpDetails(tester, seed: seedIndividualPaid);
+
+    expect(tester.getTopLeft(find.byType(AppBar)).dy, 24);
+
+    await unmountApp(tester);
+  });
+
   testWidgets('a Free plan has nothing to cancel', (tester) async {
     await pumpDetails(
       tester,
@@ -925,7 +944,7 @@ void main() {
         ..cancellations = <SubscriptionCancellation>[
           SubscriptionCancellation(
             id: 'c1',
-            planType: paymentPlanQuarterly,
+            planType: paymentPlanProQuarterly,
             amount: 285,
             cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
           ),
@@ -1047,7 +1066,7 @@ void main() {
           (ref) async => [
             submission(
               id: 'p1',
-              planType: paymentPlanQuarterly,
+              planType: paymentPlanProQuarterly,
               amount: 285,
               status: 'approved',
               submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
@@ -1058,7 +1077,7 @@ void main() {
           (ref) async => [
             SubscriptionCancellation(
               id: 'c1',
-              planType: paymentPlanQuarterly,
+              planType: paymentPlanProQuarterly,
               amount: 285,
               cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
             ),

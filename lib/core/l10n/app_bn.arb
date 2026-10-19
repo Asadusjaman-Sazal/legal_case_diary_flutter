@@ -551,43 +551,189 @@
           }
       }
   },
-  "paywall_benefitsTitle": "সাবস্ক্রিপশন প্ল্যানে যা থাকে",
-  "paywall_featureUnlimitedCasesTitle": "প্রতিটি প্ল্যানে আরও মামলা",
-  "paywall_featureUnlimitedCasesBody": "আপনার প্ল্যান যত বড়, মামলার সীমা তত বেশি — প্রতিটি প্ল্যান কার্ডে সেই সীমা লেখা আছে।",
-  "paywall_featureDisasterRecoveryTitle": "দুর্যোগে ডেটা পুনরুদ্ধার",
-  "paywall_featureDisasterRecoveryBody": "আপনার ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলে আপনার ডেটা সবসময় ক্লাউডে নিরাপদ থাকে। আপনার অ্যাকাউন্ট দিয়ে নতুন ডিভাইসে লগ ইন করলেই আপনি পুরোনো ডেটা পেয়ে যাবেন।",
-  "paywall_featureRealTimeBackupTitle": "রিয়েল-টাইম ব্যাকআপ",
-  "paywall_featureRealTimeBackupBody": "প্রতিটি পরিবর্তন সঙ্গে সঙ্গে ক্লাউডে সংরক্ষিত হয়।",
-  "paywall_featureMultiDeviceTitle": "একাধিক ডিভাইসে ব্যবহার",
-  "paywall_featureMultiDeviceBody": "একই সময়ে একাধিক ডিভাইস থেকে আপনার ডায়েরি ব্যবহার করুন।",
-  "paywall_featureCollaborationTitle": "সহযোগিতা",
-  "paywall_featureCollaborationBody": "একই ডায়েরিতে আপনার সহযোগীদের সঙ্গে একসঙ্গে কাজ করুন।",
-  "paywall_plansTitle": "প্ল্যান",
-  "paywall_planMonthly": "১ মাস",
-  "paywall_planQuarterly": "৩ মাস",
-  "paywall_planHalfYearly": "৬ মাস",
-  "paywall_planAnnual": "১ বছর",
-  "paywall_planFirmQuarterly": "ফার্ম · ৩ মাস",
-  "paywall_planFirmHalfYearly": "ফার্ম · ৬ মাস",
-  "paywall_planFirmAnnual": "ফার্ম · ১ বছর",
-  "paywall_planFirmPlusQuarterly": "ফার্ম প্লাস · ৩ মাস",
-  "paywall_planFirmPlusHalfYearly": "ফার্ম প্লাস · ৬ মাস",
-  "paywall_planFirmPlusAnnual": "ফার্ম প্লাস · ১ বছর",
+  "paywall_intro": "আপনার চর্চার জন্য উপযুক্ত প্ল্যান বেছে নিন।",
+  "paywall_audienceIndividual": "ব্যক্তিগত",
+  "paywall_audienceFirm": "ফার্ম",
+  "paywall_tierFree": "ফ্রি",
+  "paywall_tierStarter": "স্টার্টার",
   "paywall_tierPro": "প্রো",
   "paywall_tierFirm": "ফার্ম",
   "paywall_tierFirmPlus": "ফার্ম প্লাস",
-  "paywall_tierProNote": "একটি অ্যাকাউন্ট",
-  "paywall_tierCases": "সর্বোচ্চ {count}টি মামলা",
-  "@paywall_tierCases": {
+  "paywall_tierEnterprise": "এন্টারপ্রাইজ",
+  "paywall_tierFreeNote": "নতুন আইনজীবীদের জন্য, যারা অ্যাপটি চেষ্টা করে দেখতে চান।",
+  "paywall_tierStarterNote": "যেসব আইনজীবীর ক্লাউড ব্যাকআপ দরকার।",
+  "paywall_tierProNote": "যেসব আইনজীবীর নমনীয়তা ও ক্লাউড ব্যাকআপ দরকার।",
+  "paywall_tierFirmNote": "যেসব ফার্ম ও আইনজীবীর রিয়েল-টাইম সহযোগিতা দরকার।",
+  "paywall_tierFirmPlusNote": "যেসব ফার্ম ও আইনজীবী প্রচুর মামলার ডেটা ক্লাউডে রাখতে চান।",
+  "paywall_tierEnterpriseNote": "যেসব ফার্মের সদস্য ও মামলার সীমা ছাড়া ক্লাউড স্টোরেজ দরকার।",
+  "paywall_includes": "অন্তর্ভুক্ত",
+  "paywall_everythingIn": "{tier}-এর সবকিছু, সাথে",
+  "@paywall_everythingIn": {
+      "placeholders": {
+          "tier": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_featureCases": "সর্বোচ্চ {count}টি মামলা",
+  "@paywall_featureCases": {
       "placeholders": {
           "count": {
               "type": "String"
           }
       }
   },
-  "paywall_tierFirmNote": "সর্বোচ্চ ৫ জন সহকারী",
-  "paywall_tierFirmPlusNote": "সর্বোচ্চ ২০ জন সহকারী",
+  "paywall_featureUnlimitedCases": "অসীম মামলা",
+  "paywall_featureOfflineUse": "শুধু অফলাইনে ব্যবহার",
+  "paywall_featureOfflineBackup": "অফলাইন ব্যাকআপ ও পুনরুদ্ধার",
+  "paywall_featureCustomization": "ডেটা কাস্টমাইজেশন: আদালতের নাম, ধাপ ও মামলার ধরন",
+  "paywall_featureCloudBackup": "রিয়েল-টাইম ক্লাউড ব্যাকআপ",
+  "paywall_featureDisasterRecovery": "দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ফোনে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন",
+  "paywall_featureSingleDevice": "একটি ডিভাইসে ব্যবহার",
+  "paywall_featureMultiDevice": "একাধিক ডিভাইসে ব্যবহার: সর্বোচ্চ {count}টি ডিভাইস",
+  "@paywall_featureMultiDevice": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_featureCollaboration": "সহযোগিতা: সর্বোচ্চ {count} জন সদস্য (প্রতিজনে একটি ডিভাইস)",
+  "@paywall_featureCollaboration": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_featureUnlimitedMembers": "অসীম সদস্য ও ডিভাইস",
+  "paywall_fairUse": "ন্যায্য ব্যবহার প্রযোজ্য",
+  "paywall_mostPopular": "সবচেয়ে জনপ্রিয়",
+  "paywall_currentPlanBadge": "চলমান প্ল্যান",
+  "paywall_scheduledBadge": "নির্ধারিত",
+  "paywall_startsOn": "{date} তারিখে শুরু",
+  "@paywall_startsOn": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_orChoose": "অথবা বেছে নিন",
+  "paywall_pricePerMonth": "{amount}/মাস",
+  "@paywall_pricePerMonth": {
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_perMonth": "/মাস",
+  "paywall_freeMonthsSix": "৬ মাসে ১ মাস ফ্রি",
+  "paywall_freeMonthsTwelve": "১ বছরে ২ মাস ফ্রি",
+  "paywall_shortestTerm": "সর্বনিম্ন মেয়াদ: ৩ মাস",
+  "paywall_termMonthly": "১ মাস",
+  "paywall_termQuarterly": "৩ মাস",
+  "paywall_termHalfYearly": "৬ মাস",
+  "paywall_termAnnual": "১ বছর",
+  "paywall_planStarterMonthly": "স্টার্টার · ১ মাস",
+  "paywall_planStarterQuarterly": "স্টার্টার · ৩ মাস",
+  "paywall_planStarterHalfYearly": "স্টার্টার · ৬ মাস",
+  "paywall_planStarterAnnual": "স্টার্টার · ১ বছর",
+  "paywall_planProMonthly": "প্রো · ১ মাস",
+  "paywall_planProQuarterly": "প্রো · ৩ মাস",
+  "paywall_planProHalfYearly": "প্রো · ৬ মাস",
+  "paywall_planProAnnual": "প্রো · ১ বছর",
+  "paywall_planFirmQuarterly": "ফার্ম · ৩ মাস",
+  "paywall_planFirmHalfYearly": "ফার্ম · ৬ মাস",
+  "paywall_planFirmAnnual": "ফার্ম · ১ বছর",
+  "paywall_planFirmPlusQuarterly": "ফার্ম প্লাস · ৩ মাস",
+  "paywall_planFirmPlusHalfYearly": "ফার্ম প্লাস · ৬ মাস",
+  "paywall_planFirmPlusAnnual": "ফার্ম প্লাস · ১ বছর",
+  "paywall_planEnterpriseQuarterly": "এন্টারপ্রাইজ · ৩ মাস",
+  "paywall_planEnterpriseHalfYearly": "এন্টারপ্রাইজ · ৬ মাস",
+  "paywall_planEnterpriseAnnual": "এন্টারপ্রাইজ · ১ বছর",
   "paywall_subscribe": "সাবস্ক্রাইব",
+  "paywall_subscribePlan": "সাবস্ক্রাইব — {plan}",
+  "@paywall_subscribePlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_renewPlan": "নবায়ন — {plan}",
+  "@paywall_renewPlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_renewScheduledPlan": "নির্ধারিত প্ল্যান নবায়ন — {plan}",
+  "@paywall_renewScheduledPlan": {
+      "placeholders": {
+          "plan": {
+              "type": "String"
+          }
+      }
+  },
+  "paywall_included": "অন্তর্ভুক্ত",
+  "paywall_changeTitle": "এই প্ল্যানটি পরে শুরু হবে",
+  "paywall_changeBody": "আপনার {current} প্ল্যান {end} পর্যন্ত চলবে। {next} {start} তারিখে শুরু হবে এবং {term} চলবে। তখন থেকে আপনার মামলার সীমা {limit} হবে।",
+  "@paywall_changeBody": {
+      "placeholders": {
+          "current": { "type": "String" },
+          "end": { "type": "String" },
+          "next": { "type": "String" },
+          "start": { "type": "String" },
+          "term": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_changeGoBack": "ফিরে যান",
+  "paywall_changeContinue": "পেমেন্টে যান",
+  "paywall_changePendingTitle": "একটি প্ল্যান পরিবর্তন ইতিমধ্যে নির্ধারিত",
+  "paywall_changePendingBody": "{plan} {date} তারিখে শুরু হওয়ার কথা। আপনি চলমান প্ল্যান অথবা নির্ধারিত প্ল্যান নবায়ন করতে পারেন।",
+  "@paywall_changePendingBody": {
+      "placeholders": {
+          "plan": { "type": "String" },
+          "date": { "type": "String" }
+      }
+  },
+  "paywall_changePendingClose": "বন্ধ করুন",
+  "paywall_renewShiftTitle": "আপনার নির্ধারিত প্ল্যান পরে শুরু হবে",
+  "paywall_renewShiftBody": "{current} নবায়ন করলে এটি {end} পর্যন্ত বাড়বে। {next} তখনই শুরু হবে।",
+  "@paywall_renewShiftBody": {
+      "placeholders": {
+          "current": { "type": "String" },
+          "end": { "type": "String" },
+          "next": { "type": "String" }
+      }
+  },
+  "paywall_renewShiftConfirm": "চালিয়ে যান",
+  "paywall_caseLimitTitle": "{tier} প্ল্যানের মামলার সীমা পূর্ণ",
+  "@paywall_caseLimitTitle": {
+      "placeholders": {
+          "tier": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitBody": "আপনার {tier} প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। জায়গা খালি করতে একটি মামলা মুছুন, অথবা বড় প্ল্যান বেছে নিন।",
+  "@paywall_caseLimitBody": {
+      "placeholders": {
+          "tier": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitMemberBody": "এই চেম্বারের {tier} প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। প্ল্যানটি চেম্বারের মালিক পরিচালনা করেন।",
+  "@paywall_caseLimitMemberBody": {
+      "placeholders": {
+          "tier": { "type": "String" },
+          "limit": { "type": "String" }
+      }
+  },
+  "paywall_caseLimitAction": "প্ল্যান দেখুন",
+  "paywall_caseLimitClose": "বন্ধ করুন",
   "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
   "lapse_readOnlyBadge": "পঠন-কেবল",
   "lapse_renewAction": "নবায়ন",

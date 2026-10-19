@@ -4,6 +4,12 @@
 /// its amount `CASE`, its duration `CASE` and the generated `plan_name` `CASE`
 /// (`tier` is read from the key by a fifth `CASE`, checked here too).
 ///
+/// The server additionally accepts the **four legacy keys** the old ten-plan
+/// ladder sold (`monthly`, `quarterly`, `half_yearly`, `annual`), so a submission
+/// already waiting when the ladder changed can still be resolved. They are not
+/// sellable on the client and are checked separately: a legacy key's tier and
+/// label are Starter, because that is the rung the old `pro` became.
+///
 /// There is **no `payment_plans` table**, so nothing in the database can catch a
 /// key that was added in one place only. The failure it would cause is a paying
 /// user's submission refused with `invalid_plan`, or their amount refused with
@@ -31,22 +37,40 @@ const String _enArb = 'lib/core/l10n/app_en.arb';
 const String _bnArb = 'lib/core/l10n/app_bn.arb';
 
 /// The ladder's length, pinned so a plan cannot be dropped or added silently.
-const int _ladderLength = 10;
+const int _ladderLength = 17;
+
+/// The four keys the old ladder sold, which the server still resolves.
+const Set<String> _legacyKeys = <String>{
+  'monthly',
+  'quarterly',
+  'half_yearly',
+  'annual',
+};
+
+/// The Starter label each legacy key answers now.
+const Map<String, String> _legacyLabelKey = <String, String>{
+  'monthly': 'paywall_planStarterMonthly',
+  'quarterly': 'paywall_planStarterQuarterly',
+  'half_yearly': 'paywall_planStarterHalfYearly',
+  'annual': 'paywall_planStarterAnnual',
+};
 
 void main() {
   group('Payment plan ladder', () {
-    test('the client sells exactly the ten keys the server accepts', () {
+    test('the client sells exactly the seventeen keys the server accepts', () {
       final allowed = _allowedKeys();
       final clientKeys = _clientKeys();
 
-      expect(_ladderLength, subscriptionPlans.length, reason: 'the ladder is ten plans');
+      expect(_ladderLength, subscriptionPlans.length, reason: 'the ladder is seventeen plans');
       expect(
         clientKeys,
-        allowed,
+        allowed.difference(_legacyKeys),
         reason: 'a key the server does not accept is a payment refused with '
             '`invalid_plan`; a key the server accepts and the client does not sell '
-            'is a plan nobody can buy',
+            'is a plan nobody can buy. The four legacy keys are the intentional '
+            'exception: they resolve old pending rows and are never sold again.',
       );
+      expect(allowed.difference(_legacyKeys), clientKeys);
     });
 
     test('each price is the price the server validates', () {
@@ -59,7 +83,7 @@ void main() {
               '${amounts[plan.key]} — the amount mismatch is `invalid_amount`',
         );
       }
-      expect(amounts.keys, _clientKeys(), reason: 'every key has one amount, and no amount has no key');
+      expect(amounts.keys, _serverKeys(), reason: 'every accepted key has one amount, and no amount has no key');
     });
 
     test('each length is the length the server grants', () {
@@ -72,7 +96,22 @@ void main() {
               '${months[plan.key]}',
         );
       }
-      expect(months.keys, _clientKeys(), reason: 'every key has one duration, and no duration has no key');
+      expect(months.keys, _serverKeys(), reason: 'every accepted key has one duration, and no duration has no key');
+    });
+
+    test('the four legacy keys keep their old price and length', () {
+      const legacy = <String, (int, int)>{
+        'monthly': (100, 1),
+        'quarterly': (285, 3),
+        'half_yearly': (540, 6),
+        'annual': (1000, 12),
+      };
+      final amounts = _amountsByKey();
+      final months = _monthsByKey();
+      for (final entry in legacy.entries) {
+        expect(amounts[entry.key], entry.value.$1, reason: '${entry.key} was sold at ${entry.value.$1}');
+        expect(months[entry.key], entry.value.$2, reason: '${entry.key} granted ${entry.value.$2} months');
+      }
     });
 
     test('each tier is the tier the server reads from the key', () {
@@ -86,17 +125,17 @@ void main() {
               'the server`s answer',
         );
       }
-      expect(tiers.keys, _clientKeys(), reason: 'every key names one tier, and no tier has no key');
+      // The old Pro rung is the new Starter rung, so a legacy key buys Starter.
+      for (final key in _legacyKeys) {
+        expect(tiers[key], SubscriptionTier.starter.key);
+      }
+      expect(tiers.keys, _serverKeys(), reason: 'every accepted key names one tier, and no tier has no key');
     });
 
     test('each key has a readable name on the server, and the client says the same', () {
       final names = _serverNames();
       for (final plan in subscriptionPlans) {
-        final label = _labelOf(_enArb, plan.key);
-        // The Pro rows sit under the tier's own heading, so the server prefixes
-        // "Pro · " and the client's label carries the period alone. Both are
-        // asserted, so neither side can drift from the other unnoticed.
-        final expected = plan.tier == SubscriptionTier.pro ? 'Pro · $label' : label;
+        final expected = _labelOf(_enArb, plan.key);
         expect(
           names[plan.key],
           expected,
@@ -104,12 +143,16 @@ void main() {
               '"$expected" on the client',
         );
       }
-      expect(names.keys, _clientKeys(), reason: 'every key has one readable name, and no name has no key');
+      // A legacy key's generated name is the Starter name it now maps to.
+      for (final key in _legacyKeys) {
+        expect(names[key], _arbOf(_enArb)[_legacyLabelKey[key]]);
+      }
+      expect(names.keys, _serverKeys(), reason: 'every accepted key has one readable name, and no name has no key');
     });
 
     test('both locales label every key, and no label exists without a key', () {
       final expected = {for (final key in _clientKeys()) _labelKeyFor(key)};
-      expect(expected.length, _ladderLength, reason: 'ten plans, ten labels');
+      expect(expected.length, _ladderLength, reason: 'seventeen plans, seventeen labels');
       for (final arb in <String>[_enArb, _bnArb]) {
         final labels = _labelKeysIn(arb);
         expect(
@@ -129,7 +172,7 @@ void main() {
     });
 
     test('every one of the four places covers every key', () {
-      final keys = _clientKeys();
+      final keys = _serverKeys();
       // The four places the blueprint's hazard names, plus the tier `CASE`: a key
       // added to one of these alone is the drift this guard exists to catch.
       final places = <String, Set<String>>{
@@ -153,8 +196,11 @@ void main() {
 
 // --- The client ---------------------------------------------------------------
 
-/// The client's ten plan keys, in ladder order.
+/// The client's seventeen sellable plan keys.
 Set<String> _clientKeys() => {for (final plan in subscriptionPlans) plan.key};
+
+/// Every key the server accepts: the sellable ladder plus the legacy four.
+Set<String> _serverKeys() => {..._clientKeys(), ..._legacyKeys};
 
 /// `firm_plus_half_yearly` → `paywall_planFirmPlusHalfYearly`.
 String _labelKeyFor(String planKey) =>
@@ -237,7 +283,7 @@ String _block(String sql, String start, String end, String what) {
 /// key it covers is the ladder key no `when` branch named. Exactly one may be
 /// missing, and the caller decides what that means.
 String _elseKey(Set<String> covered, String elseValue, String what) {
-  final remaining = _clientKeys().difference(covered);
+  final remaining = _serverKeys().difference(covered);
   expect(
     remaining.length,
     1,
@@ -353,7 +399,7 @@ Map<String, String> _tiersByKey() {
   expect(elseMatch, isNotNull, reason: 'the tier CASE has no `else`');
   // Unlike the price and the duration, whose `else` is one plan's own value, a
   // tier covers several keys: `else` here is the whole top of the ladder.
-  final remaining = _clientKeys().difference(byKey.keys.toSet());
+  final remaining = _serverKeys().difference(byKey.keys.toSet());
   expect(
     remaining,
     isNotEmpty,

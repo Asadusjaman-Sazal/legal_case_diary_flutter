@@ -58,7 +58,7 @@ const CurrentPlan freePlan = (known: true, premium: false, planKey: null);
 const CurrentPlan quarterlyPlan = (
   known: true,
   premium: true,
-  planKey: paymentPlanQuarterly,
+  planKey: paymentPlanProQuarterly,
 );
 
 /// Markers rendered by the stand-in screens the two plan rows open.
@@ -365,16 +365,16 @@ void main() {
     tester,
   ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    // A paid plan, so the row is pinned to name the plan itself ("3 Months")
-    // rather than falling back to the word Premium.
+    // A paid plan, so the row is pinned to name the plan itself
+    // ("Pro · 3 Months") rather than falling back to the word Premium.
     final router = await pumpDrawerOnRouter(tester, plan: quarterlyPlan);
 
-    expect(drawerText(l.paywall_planQuarterly), findsOneWidget);
-    // The caption says which fact that word is: a bare "3 Months" beside a
-    // chevron would read as the name of a screen.
+    expect(drawerText(l.paywall_planProQuarterly), findsOneWidget);
+    // The caption says which fact that word is: a bare "Pro · 3 Months" beside
+    // a chevron would read as the name of a screen.
     expect(drawerText(l.settingsSubscription_currentPlan), findsOneWidget);
     expect(
-      tester.getTopLeft(drawerText(l.paywall_planQuarterly)).dy,
+      tester.getTopLeft(drawerText(l.paywall_planProQuarterly)).dy,
       lessThan(
         tester.getTopLeft(drawerText(l.settingsSubscription_currentPlan)).dy,
       ),
@@ -402,7 +402,7 @@ void main() {
     );
     expect(drawerText(l.paywall_title), findsNothing);
 
-    await tester.tap(drawerText(l.paywall_planQuarterly));
+    await tester.tap(drawerText(l.paywall_planProQuarterly));
     await tester.pumpAndSettle();
 
     // Expanding is not navigating: the app is still on the screen the drawer

@@ -778,6 +778,17 @@ void main() {
     expect(find.byKey(cancelKey), findsOneWidget);
     expect(find.text(l.payments_cancelPlan), findsOneWidget);
 
+    // A filled red action with white text (user request).
+    final button = tester.widget<TextButton>(find.byKey(cancelKey));
+    expect(
+      button.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      button.style?.foregroundColor?.resolve(<WidgetState>{}),
+      AppColors.onError,
+    );
+
     // It sits at the card's content edge, not beside the plan's name: the same
     // edge every right-aligned value on this page finishes at.
     final edge = 420 - AppSpacing.edgeMargin - AppSpacing.md;

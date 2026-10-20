@@ -127,29 +127,29 @@ void main() {
 
     // Free is the current plan and has no purchase action.
     expect(find.text('Current Plan'), findsWidgets);
-    expect(find.text('Up to 50 Cases'), findsOneWidget);
-    expect(find.text('Offline Use Only'), findsOneWidget);
-    expect(find.text('Offline Backup and Restoration'), findsOneWidget);
-    expect(find.text('Data Customization: Court Names, Steps, and Case Types'), findsOneWidget);
+    expect(find.text('Up to 50 cases'), findsOneWidget);
+    expect(find.text('Offline use only'), findsOneWidget);
+    expect(find.text('Offline backup and restoration'), findsOneWidget);
+    expect(find.text('Data customization: court names, steps and case types'), findsOneWidget);
 
     // Starter's own features and its inherited header.
     expect(find.text('Most Popular'), findsOneWidget);
     expect(find.text('Includes Everything in Free, plus'), findsOneWidget);
-    expect(find.text('Up to 500 Cases'), findsOneWidget);
-    expect(find.text('Real-Time Cloud Backup'), findsOneWidget);
+    expect(find.text('Up to 500 cases'), findsOneWidget);
+    expect(find.text('Real-time cloud backup'), findsOneWidget);
     expect(
       find.text(
-        'Disaster Recovery: Restore your diary from the cloud on a new phone',
+        'Disaster recovery: restore your diary from the cloud on a new phone',
       ),
       findsOneWidget,
     );
-    expect(find.text('Single-Device Use'), findsOneWidget);
+    expect(find.text('Single-device use'), findsOneWidget);
     expect(find.text('Pro · 1 Month'), findsNothing);
 
     // Pro inherits Starter and adds its own two features.
     expect(find.text('Includes Everything in Starter, plus'), findsOneWidget);
-    expect(find.text('Up to 1,000 Cases'), findsOneWidget);
-    expect(find.text('Multi-Device Support: Up to 2 Devices'), findsOneWidget);
+    expect(find.text('Up to 1,000 cases'), findsOneWidget);
+    expect(find.text('Multi-device support: up to 2 devices'), findsOneWidget);
 
     // No paid card prints a headline price any more: Free is the one card left
     // with a price line, because it has no term rows to carry a total.
@@ -188,8 +188,8 @@ void main() {
       expect(text.style?.decoration, isNot(TextDecoration.lineThrough));
     }
 
-    // An Individual card opens on 1 Month.
-    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
+    // An Individual card opens on 6 Months too, as every card now does.
+    expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
   });
 
   testWidgets('tapping a term applies its price and cannot be cleared', (
@@ -197,24 +197,24 @@ void main() {
   ) async {
     await pumpPaywall(tester);
 
-    // The default is one month.
-    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
-
-    // Choose six months: the action carries the total.
-    final halfYearly = find.byKey(
-      const ValueKey('paywall-term-starter-starter_half_yearly'),
-    );
-    await tester.ensureVisible(halfYearly);
-    await tester.tap(halfYearly);
-    await tester.pumpAndSettle();
+    // The default is six months.
     expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
+
+    // Choose one month: the action carries its per-month price.
+    final monthly = find.byKey(
+      const ValueKey('paywall-term-starter-starter_monthly'),
+    );
+    await tester.ensureVisible(monthly);
+    await tester.tap(monthly);
+    await tester.pumpAndSettle();
+    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
 
     // Tapping the chosen term again leaves it chosen: a card always carries a
     // term to buy, so there is no way back to "no term".
-    await tester.ensureVisible(halfYearly);
-    await tester.tap(halfYearly);
+    await tester.ensureVisible(monthly);
+    await tester.tap(monthly);
     await tester.pumpAndSettle();
-    expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
+    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
   });
 
   testWidgets('the Firm tab shows Firm, Firm Plus and Enterprise', (
@@ -235,20 +235,25 @@ void main() {
 
     expect(find.text('Most Popular'), findsOneWidget);
     expect(find.text('Includes Everything in Pro, plus'), findsOneWidget);
-    expect(find.text('Up to 2,500 Cases'), findsOneWidget);
+    expect(find.text('Up to 2,500 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: Up to 5 Members (One Device Each)'),
+      find.text('Collaboration: up to 5 members (one device each)'),
       findsOneWidget,
     );
     expect(find.text('Includes Everything in Firm, plus'), findsOneWidget);
-    expect(find.text('Up to 6,000 Cases'), findsOneWidget);
+    expect(find.text('Up to 6,000 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: Up to 12 Members (One Device Each)'),
+      find.text('Collaboration: up to 10 members (one device each)'),
       findsOneWidget,
     );
     expect(find.text('Includes Everything in Firm Plus, plus'), findsOneWidget);
-    expect(find.text('Unlimited Cases (Fair Use Applies)'), findsOneWidget);
-    expect(find.text('Unlimited Members and Devices'), findsOneWidget);
+    // Enterprise is the largest tier, not an unlimited one: both numbers are
+    // the ones the app's Add Case gate and the join gate enforce.
+    expect(find.text('Up to 20,000 cases'), findsOneWidget);
+    expect(
+      find.text('Collaboration: up to 20 members (one device each)'),
+      findsOneWidget,
+    );
 
     // Firm is the one chamber tier with a one-month plan; Firm Plus and
     // Enterprise still start at three, so the row counts differ.
@@ -295,7 +300,7 @@ void main() {
       find.descendant(of: proCard, matching: find.text('Current Plan')),
       findsOneWidget,
     );
-    expect(find.text('Renew — ৳150/month'), findsOneWidget);
+    expect(find.text('Renew — 6 Months/৳660'), findsOneWidget);
     // The Free card is included, not purchasable.
     final freeButton = tester.widget<FilledButton>(
       find.byKey(const ValueKey('paywall-subscribe-free')),
@@ -466,7 +471,7 @@ void main() {
     expect(find.text('১ বছর'), findsNWidgets(2));
     expect(find.text('৳৮০/মাস'), findsOneWidget);
     expect(find.text('৳৪৫/মাস'), findsOneWidget);
-    expect(find.text('সাবস্ক্রাইব — ৳৮০/মাস'), findsOneWidget);
+    expect(find.text('সাবস্ক্রাইব — ৬ মাস/৳৩০০'), findsOneWidget);
   });
 
   test('the six tiers and eighteen plans are the settled ladder', () {
@@ -487,7 +492,7 @@ void main() {
     );
     expect(
       SubscriptionTier.values.map((tier) => tier.caseCeiling),
-      <int?>[50, 500, 1000, 2500, 6000, null],
+      <int?>[50, 500, 1000, 2500, 6000, 20000],
     );
     expect(
       SubscriptionTier.values.map((tier) => tier.lapseAllowance),
@@ -499,7 +504,7 @@ void main() {
     );
     expect(
       SubscriptionTier.values.map((tier) => tier.seatCap),
-      <int?>[null, 0, 0, 5, 12, null],
+      <int?>[null, 0, 0, 5, 10, 20],
     );
 
     expect(subscriptionPlans, hasLength(18));

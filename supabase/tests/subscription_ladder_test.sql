@@ -15,7 +15,7 @@
 -- What it proves, in order:
 --
 --   * **the six rungs** — rank, case ceiling and lapse allowance answer the
---     ladder's numbers, and Enterprise is the one uncapped rung;
+--     ladder's numbers, and no sold rung is uncapped
 --   * **a first purchase starts at once** — a free account buying Starter
 --     annual is Starter on the spot, with no queued change;
 --   * **a same-tier purchase renews** — the expiry grows by the term and the
@@ -33,7 +33,7 @@
 --     expiry do not move;
 --   * **the generated names** — `enterprise_annual` and the legacy `annual` both
 --     read the name the client shows;
---   * **the seat caps** — Firm 5, Firm Plus 12, Enterprise unlimited;
+--   * **the seat caps** — Firm 5, Firm Plus 10, Enterprise 20;
 --   * **the creation gate is the Firm rung** — a Starter and a Pro owner are
 --     refused `firm_tier_required` with nothing written, and a Firm owner's
 --     chamber is created on the tier the gate read.
@@ -181,7 +181,7 @@ begin
   perform pg_temp.assert_true(public.tier_case_ceiling('pro') = 1000, 'pro ceiling 1,000');
   perform pg_temp.assert_true(public.tier_case_ceiling('firm') = 2500, 'firm ceiling 2,500');
   perform pg_temp.assert_true(public.tier_case_ceiling('firm_plus') = 6000, 'firm_plus ceiling 6,000');
-  perform pg_temp.assert_true(public.tier_case_ceiling('enterprise') is null, 'enterprise is uncapped');
+  perform pg_temp.assert_true(public.tier_case_ceiling('enterprise') = 20000, 'enterprise ceiling 20,000');
 
   perform pg_temp.assert_true(public.tier_lapse_allowance('free') = 0, 'free is never lapsed');
   perform pg_temp.assert_true(public.tier_lapse_allowance('starter') = 100, 'starter allowance 100');
@@ -195,7 +195,7 @@ begin
   -- -------------------------------------------------------------------------
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_first, 'starter_annual', 600, 'LAD-FIRST')
+    pg_temp.stage(c_first, 'starter_annual', 540, 'LAD-FIRST')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'starter annual approved');
   perform pg_temp.assert_true((v_result->>'queued')::boolean is false, 'a first purchase is not queued');
@@ -214,14 +214,14 @@ begin
   -- -------------------------------------------------------------------------
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_renew, 'starter_annual', 600, 'LAD-RENEW-1')
+    pg_temp.stage(c_renew, 'starter_annual', 540, 'LAD-RENEW-1')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'starter annual approved');
   select subscription_expiry into v_first_expiry from public.profiles p where p.id = c_renew;
 
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_renew, 'starter_monthly', 60, 'LAD-RENEW-2')
+    pg_temp.stage(c_renew, 'starter_monthly', 80, 'LAD-RENEW-2')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'starter monthly approved');
   select * into v_profile from public.profiles p where p.id = c_renew;
@@ -236,7 +236,7 @@ begin
   -- -------------------------------------------------------------------------
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_queue, 'starter_annual', 600, 'LAD-QUEUE-1')
+    pg_temp.stage(c_queue, 'starter_annual', 540, 'LAD-QUEUE-1')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'queue setup approved');
   select subscription_expiry into v_first_expiry from public.profiles p where p.id = c_queue;
@@ -345,10 +345,10 @@ begin
   perform pg_temp.assert_true(public.firm_seat_cap(v_firm_id) = 5, 'firm seats 5');
 
   update public.firms set tier = 'firm_plus' where id = v_firm_id;
-  perform pg_temp.assert_true(public.firm_seat_cap(v_firm_id) = 12, 'firm plus seats 12');
+  perform pg_temp.assert_true(public.firm_seat_cap(v_firm_id) = 10, 'firm plus seats 10');
 
   update public.firms set tier = 'enterprise' where id = v_firm_id;
-  perform pg_temp.assert_true(public.firm_seat_cap(v_firm_id) is null, 'enterprise is unlimited');
+  perform pg_temp.assert_true(public.firm_seat_cap(v_firm_id) = 20, 'enterprise seats 20');
   delete from public.firms where id = v_firm_id;
 
   -- -------------------------------------------------------------------------

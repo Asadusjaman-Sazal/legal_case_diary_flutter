@@ -2051,7 +2051,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_tierEnterpriseNote.
   ///
   /// In en, this message translates to:
-  /// **'For firms that need unlimited members and case storage in the cloud.'**
+  /// **'For firms that need the largest case capacity and a team of 20.'**
   String get paywall_tierEnterpriseNote;
 
   /// No description provided for @paywall_includes.
@@ -2069,74 +2069,62 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_featureCases.
   ///
   /// In en, this message translates to:
-  /// **'Up to {count} Cases'**
+  /// **'Up to {count} cases'**
   String paywall_featureCases(String count);
 
   /// No description provided for @paywall_featureUnlimitedCases.
   ///
   /// In en, this message translates to:
-  /// **'Unlimited Cases'**
+  /// **'Unlimited cases'**
   String get paywall_featureUnlimitedCases;
 
   /// No description provided for @paywall_featureOfflineUse.
   ///
   /// In en, this message translates to:
-  /// **'Offline Use Only'**
+  /// **'Offline use only'**
   String get paywall_featureOfflineUse;
 
   /// No description provided for @paywall_featureOfflineBackup.
   ///
   /// In en, this message translates to:
-  /// **'Offline Backup and Restoration'**
+  /// **'Offline backup and restoration'**
   String get paywall_featureOfflineBackup;
 
   /// No description provided for @paywall_featureCustomization.
   ///
   /// In en, this message translates to:
-  /// **'Data Customization: Court Names, Steps, and Case Types'**
+  /// **'Data customization: court names, steps and case types'**
   String get paywall_featureCustomization;
 
   /// No description provided for @paywall_featureCloudBackup.
   ///
   /// In en, this message translates to:
-  /// **'Real-Time Cloud Backup'**
+  /// **'Real-time cloud backup'**
   String get paywall_featureCloudBackup;
 
   /// No description provided for @paywall_featureDisasterRecovery.
   ///
   /// In en, this message translates to:
-  /// **'Disaster Recovery: Restore your diary from the cloud on a new phone'**
+  /// **'Disaster recovery: restore your diary from the cloud on a new phone'**
   String get paywall_featureDisasterRecovery;
 
   /// No description provided for @paywall_featureSingleDevice.
   ///
   /// In en, this message translates to:
-  /// **'Single-Device Use'**
+  /// **'Single-device use'**
   String get paywall_featureSingleDevice;
 
   /// No description provided for @paywall_featureMultiDevice.
   ///
   /// In en, this message translates to:
-  /// **'Multi-Device Support: Up to {count} Devices'**
+  /// **'Multi-device support: up to {count} devices'**
   String paywall_featureMultiDevice(String count);
 
   /// No description provided for @paywall_featureCollaboration.
   ///
   /// In en, this message translates to:
-  /// **'Collaboration: Up to {count} Members (One Device Each)'**
+  /// **'Collaboration: up to {count} members (one device each)'**
   String paywall_featureCollaboration(String count);
-
-  /// No description provided for @paywall_featureUnlimitedMembers.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlimited Members and Devices'**
-  String get paywall_featureUnlimitedMembers;
-
-  /// No description provided for @paywall_fairUse.
-  ///
-  /// In en, this message translates to:
-  /// **'Fair Use Applies'**
-  String get paywall_fairUse;
 
   /// No description provided for @paywall_mostPopular.
   ///

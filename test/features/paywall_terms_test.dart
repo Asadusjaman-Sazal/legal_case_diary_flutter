@@ -2,9 +2,9 @@
 ///
 ///  * every term is a full-width row — the term and its price per month on the
 ///    left, the total and the round chosen mark on the right;
-///  * the default term is each audience's own (1 Month for Individual, 6 Months
-///    for Firm), and a term can no longer be deselected: a card always carries
-///    one, marked by the 2 px ink outline and the filled round mark;
+///  * the default term is **6 Months on every card**, individual and chamber
+///    alike, and a term can no longer be deselected: a card always carries one,
+///    marked by the 2 px ink outline and the filled round mark;
 ///  * Firm sells a one-month plan, priced above its three-month rate; Firm Plus
 ///    and Enterprise still start at three months;
 ///  * no price is struck through, no saving is named in words and there is no
@@ -55,20 +55,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Individual cards open on 1 Month, Firm cards on 6 Months', (
-    tester,
-  ) async {
+  testWidgets('every card opens on 6 Months', (tester) async {
     await pumpPaywall(tester);
 
-    // Starter and Pro lead with one month, which is now a row like any other.
-    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
-    expect(find.text('Subscribe — ৳150/month'), findsOneWidget);
-    expect(find.textContaining('3 Months/'), findsNothing);
+    // Starter and Pro, on the individual tab.
+    expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
+    expect(find.text('Subscribe — 6 Months/৳660'), findsOneWidget);
+    expect(find.textContaining('1 Month/'), findsNothing);
 
     await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
     await tester.pumpAndSettle();
 
-    // Firm, Firm Plus and Enterprise open on their six-month plan.
+    // Firm, Firm Plus and Enterprise open on their six-month plan too.
     expect(find.text('Subscribe — 6 Months/৳1,350'), findsOneWidget);
     expect(find.text('Subscribe — 6 Months/৳2,700'), findsOneWidget);
     expect(find.text('Subscribe — 6 Months/৳8,000'), findsOneWidget);
@@ -77,6 +75,7 @@ void main() {
   testWidgets('tapping the selected term keeps it selected', (tester) async {
     await pumpPaywall(tester);
 
+    // The six-month row is the default, and re-tapping it changes nothing.
     final halfYearly = find.byKey(
       const ValueKey('paywall-term-starter-starter_half_yearly'),
     );
@@ -211,11 +210,13 @@ void main() {
   ) async {
     await pumpPaywall(tester);
 
+    // The six-month row is the card's default, so the quarter and the month
+    // are the rows outside the mark.
     final selected = find.byKey(
       const ValueKey('paywall-term-starter-starter_quarterly'),
     );
     final unselected = find.byKey(
-      const ValueKey('paywall-term-starter-starter_half_yearly'),
+      const ValueKey('paywall-term-starter-starter_monthly'),
     );
     expect(_termBorder(tester, unselected).color, AppColors.outlineVariant);
 
@@ -275,12 +276,80 @@ void main() {
     expect(find.text('৳80/month'), findsOneWidget);
   });
 
-  testWidgets('the action is 54 tall', (tester) async {
+  testWidgets('a small phone at the largest text scale overflows nowhere', (
+    tester,
+  ) async {
+    // The two defects this replaces: the card's title + badge row went past the
+    // card's edge by 3 px at 1.5, and the Individual / Firm pill by 73 px at
+    // 2.0 on a 360 pt phone. The viewport is tall as well as narrow so every
+    // card's header is built and laid out, not only the one on screen.
+    for (final scale in <double>[1.5, 2.0]) {
+      tester.view.physicalSize = const Size(360, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            accountProfileProvider.overrideWith((ref) => Stream.value(null)),
+            firmMemberProvider.overrideWithValue(false),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(scale)),
+                child: const PaywallScreen(),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: 'the toggle at $scale');
+
+      // The chamber tab carries the longest title + badge pair — Firm and
+      // Most Popular — so it is where a header row would overflow first.
+      await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: 'a card header at $scale');
+    }
+  });
+
+  testWidgets('the action is 55 tall', (tester) async {
     await pumpPaywall(tester);
     final button = tester.widget<FilledButton>(
       find.byKey(const ValueKey('paywall-subscribe-starter')),
     );
-    expect(button.style?.minimumSize?.resolve({}), const Size.fromHeight(54));
+    expect(button.style?.minimumSize?.resolve({}), const Size.fromHeight(55));
+  });
+
+  testWidgets('a feature pairs a 12 px icon gap with the lighter row fill', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    // The gap between an icon and its sentence is one gutter (12 px), measured
+    // on the rendered boxes rather than read from the widget tree, because the
+    // 20 px glyph carries its own padding inside the icon box.
+    final icon = find.byIcon(Icons.folder_outlined).first;
+    final text = find.text('Up to 50 cases');
+    expect(tester.getRect(text).left - tester.getRect(icon).right, 12);
+
+    // The term rows take the lighter grey (surfaceContainer); the audience
+    // pill keeps surfaceContainerHigh, so the two are deliberately one step
+    // apart, as the user chose.
+    final row = find.byKey(
+      const ValueKey('paywall-term-starter-starter_monthly'),
+    );
+    final fill = tester.widget<Material>(
+      find.descendant(of: row, matching: find.byType(Material)).first,
+    );
+    expect(fill.color, AppColors.surfaceContainer);
+    expect(AppColors.surfaceContainer, isNot(AppColors.surfaceContainerHigh));
   });
 
   testWidgets('exactly one row per card is marked, and the mark follows a tap', (

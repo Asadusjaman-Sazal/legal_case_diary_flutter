@@ -565,7 +565,7 @@
   "paywall_tierProNote": "যেসব আইনজীবীর নমনীয়তা ও ক্লাউড ব্যাকআপ দরকার।",
   "paywall_tierFirmNote": "যেসব ফার্ম ও আইনজীবীর রিয়েল-টাইম সহযোগিতা দরকার।",
   "paywall_tierFirmPlusNote": "যেসব ফার্ম ও আইনজীবী প্রচুর মামলার ডেটা ক্লাউডে রাখতে চান।",
-  "paywall_tierEnterpriseNote": "যেসব ফার্মের সদস্য ও মামলার সীমা ছাড়া ক্লাউড স্টোরেজ দরকার।",
+  "paywall_tierEnterpriseNote": "যেসব ফার্মের সবচেয়ে বেশি মামলার সক্ষমতা ও ২০ জনের দল দরকার।",
   "paywall_includes": "অন্তর্ভুক্ত",
   "paywall_everythingIn": "{tier}-এর সবকিছু, সাথে",
   "@paywall_everythingIn": {
@@ -606,8 +606,6 @@
           }
       }
   },
-  "paywall_featureUnlimitedMembers": "অসীম সদস্য ও ডিভাইস",
-  "paywall_fairUse": "ন্যায্য ব্যবহার প্রযোজ্য",
   "paywall_mostPopular": "সবচেয়ে জনপ্রিয়",
   "paywall_currentPlanBadge": "চলমান প্ল্যান",
   "paywall_scheduledBadge": "নির্ধারিত",

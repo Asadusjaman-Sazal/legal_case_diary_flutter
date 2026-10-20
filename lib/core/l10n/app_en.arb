@@ -572,7 +572,7 @@
   "paywall_tierProNote": "For lawyers who need flexibility and cloud backup.",
   "paywall_tierFirmNote": "For firms and lawyers who need real-time collaboration.",
   "paywall_tierFirmPlusNote": "For firms and lawyers that need to store large amounts of case data in the cloud.",
-  "paywall_tierEnterpriseNote": "For firms that need unlimited members and case storage in the cloud.",
+  "paywall_tierEnterpriseNote": "For firms that need the largest case capacity and a team of 20.",
   "paywall_includes": "Includes",
   "paywall_everythingIn": "Everything in {tier}, plus",
   "@paywall_everythingIn": {
@@ -582,7 +582,7 @@
           }
       }
   },
-  "paywall_featureCases": "Up to {count} Cases",
+  "paywall_featureCases": "Up to {count} cases",
   "@paywall_featureCases": {
       "placeholders": {
           "count": {
@@ -590,14 +590,14 @@
           }
       }
   },
-  "paywall_featureUnlimitedCases": "Unlimited Cases",
-  "paywall_featureOfflineUse": "Offline Use Only",
-  "paywall_featureOfflineBackup": "Offline Backup and Restoration",
-  "paywall_featureCustomization": "Data Customization: Court Names, Steps, and Case Types",
-  "paywall_featureCloudBackup": "Real-Time Cloud Backup",
-  "paywall_featureDisasterRecovery": "Disaster Recovery: Restore your diary from the cloud on a new phone",
-  "paywall_featureSingleDevice": "Single-Device Use",
-  "paywall_featureMultiDevice": "Multi-Device Support: Up to {count} Devices",
+  "paywall_featureUnlimitedCases": "Unlimited cases",
+  "paywall_featureOfflineUse": "Offline use only",
+  "paywall_featureOfflineBackup": "Offline backup and restoration",
+  "paywall_featureCustomization": "Data customization: court names, steps and case types",
+  "paywall_featureCloudBackup": "Real-time cloud backup",
+  "paywall_featureDisasterRecovery": "Disaster recovery: restore your diary from the cloud on a new phone",
+  "paywall_featureSingleDevice": "Single-device use",
+  "paywall_featureMultiDevice": "Multi-device support: up to {count} devices",
   "@paywall_featureMultiDevice": {
       "placeholders": {
           "count": {
@@ -605,7 +605,7 @@
           }
       }
   },
-  "paywall_featureCollaboration": "Collaboration: Up to {count} Members (One Device Each)",
+  "paywall_featureCollaboration": "Collaboration: up to {count} members (one device each)",
   "@paywall_featureCollaboration": {
       "placeholders": {
           "count": {
@@ -613,8 +613,6 @@
           }
       }
   },
-  "paywall_featureUnlimitedMembers": "Unlimited Members and Devices",
-  "paywall_fairUse": "Fair Use Applies",
   "paywall_mostPopular": "Most Popular",
   "paywall_currentPlanBadge": "Current Plan",
   "paywall_scheduledBadge": "Scheduled",

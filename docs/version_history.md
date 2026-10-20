@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a one-month plan, and each card now shows every term as a row with its price per month and a round selection mark.
+Version: 0.0.554 - Applied the two pending migrations and proved the ladder on the live project, fixed both large-text overflows on the plans screen, and made 6 Months the default term on every card.
 --------------------------------------
 
 ## Version History Log:
@@ -566,3 +566,5 @@ Version: 0.0.549 - Subscription Plans: roomier cards, per-audience default term,
 Version: 0.0.550 - Subscription Plans: the Individual/Firm toggle no longer pins, a card is inked only while touched, a selected term takes the ink outline instead of green, and the Subscribe button is 1px taller.
 Version: 0.0.551 - Subscription Plans: paid cards now open their list with Includes Everything in X, plus, and a touched card keeps the black outline until another card is touched.
 Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a one-month plan, and each card now shows every term as a row with its price per month and a round selection mark.
+Version: 0.0.553 - Subscription Plans polish, and the plan limits made real: Firm Plus 10 seats, Enterprise capped at 20,000 cases and 20 members.
+Version: 0.0.554 - Applied the two pending migrations and proved the ladder on the live project, fixed both large-text overflows on the plans screen, and made 6 Months the default term on every card.

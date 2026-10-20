@@ -74,8 +74,9 @@ void main() {
       expect(SubscriptionTier.pro.caseCeiling, 1000);
       expect(SubscriptionTier.firm.caseCeiling, 2500);
       expect(SubscriptionTier.firmPlus.caseCeiling, 6000);
-      // Enterprise is the one uncapped tier.
-      expect(SubscriptionTier.enterprise.caseCeiling, isNull);
+      // Enterprise is the largest tier, not an uncapped one: its ceiling is
+      // high enough that no honest chamber reaches it.
+      expect(SubscriptionTier.enterprise.caseCeiling, 20000);
       // The allowances, not the ceilings.
       expect(SubscriptionTier.starter.lapseAllowance, 100);
       expect(SubscriptionTier.pro.lapseAllowance, 250);

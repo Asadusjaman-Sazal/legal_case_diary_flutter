@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        56,
+        57,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -116,7 +116,10 @@ void main() {
             'own-row policy, its narrowed grants and '
             '`cancel_subscription()`, kept idempotent under the version the live '
             'project already recorded, and the 2026-10-20 price ladder moved '
-            'seven amounts and added the Firm one-month plan',
+            'seven amounts and added the Firm one-month plan, and the '
+            'enterprise-limits migration capped Firm Plus at ten seats and '
+            'Enterprise at 20,000 cases and 20 members, so no sold tier is '
+            'uncapped any more',
       );
     });
 

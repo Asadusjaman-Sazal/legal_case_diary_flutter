@@ -2162,18 +2162,6 @@ abstract class AppLocalizations {
   /// **'Starts on {date}'**
   String paywall_startsOn(String date);
 
-  /// No description provided for @paywall_orChoose.
-  ///
-  /// In en, this message translates to:
-  /// **'Or choose'**
-  String get paywall_orChoose;
-
-  /// No description provided for @paywall_priceOff.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} Off'**
-  String paywall_priceOff(String amount);
-
   /// No description provided for @paywall_pricePerMonth.
   ///
   /// In en, this message translates to:
@@ -2185,24 +2173,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'/month'**
   String get paywall_perMonth;
-
-  /// No description provided for @paywall_freeMonthsSix.
-  ///
-  /// In en, this message translates to:
-  /// **'1 month free on 6 months'**
-  String get paywall_freeMonthsSix;
-
-  /// No description provided for @paywall_freeMonthsTwelve.
-  ///
-  /// In en, this message translates to:
-  /// **'2 months free on 1 year'**
-  String get paywall_freeMonthsTwelve;
-
-  /// No description provided for @paywall_shortestTerm.
-  ///
-  /// In en, this message translates to:
-  /// **'Shortest term: 3 months'**
-  String get paywall_shortestTerm;
 
   /// No description provided for @paywall_termMonthly.
   ///
@@ -2275,6 +2245,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pro · 1 Year'**
   String get paywall_planProAnnual;
+
+  /// No description provided for @paywall_planFirmMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm · 1 Month'**
+  String get paywall_planFirmMonthly;
 
   /// No description provided for @paywall_planFirmQuarterly.
   ///

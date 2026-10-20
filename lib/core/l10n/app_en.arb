@@ -626,15 +626,6 @@
           }
       }
   },
-  "paywall_orChoose": "Or choose",
-  "paywall_priceOff": "{amount} Off",
-  "@paywall_priceOff": {
-      "placeholders": {
-          "amount": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_pricePerMonth": "{amount}/month",
   "@paywall_pricePerMonth": {
       "placeholders": {
@@ -644,9 +635,6 @@
       }
   },
   "paywall_perMonth": "/month",
-  "paywall_freeMonthsSix": "1 month free on 6 months",
-  "paywall_freeMonthsTwelve": "2 months free on 1 year",
-  "paywall_shortestTerm": "Shortest term: 3 months",
   "paywall_termMonthly": "1 Month",
   "paywall_termQuarterly": "3 Months",
   "paywall_termHalfYearly": "6 Months",
@@ -659,6 +647,7 @@
   "paywall_planProQuarterly": "Pro · 3 Months",
   "paywall_planProHalfYearly": "Pro · 6 Months",
   "paywall_planProAnnual": "Pro · 1 Year",
+  "paywall_planFirmMonthly": "Firm · 1 Month",
   "paywall_planFirmQuarterly": "Firm · 3 Months",
   "paywall_planFirmHalfYearly": "Firm · 6 Months",
   "paywall_planFirmAnnual": "Firm · 1 Year",

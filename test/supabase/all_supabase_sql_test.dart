@@ -54,7 +54,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        55,
+        56,
         reason: 'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
@@ -115,7 +115,8 @@ void main() {
             '`20261018100000_subscription_cancellation.sql` — the table, its '
             'own-row policy, its narrowed grants and '
             '`cancel_subscription()`, kept idempotent under the version the live '
-            'project already recorded',
+            'project already recorded, and the 2026-10-20 price ladder moved '
+            'seven amounts and added the Firm one-month plan',
       );
     });
 

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.551 - Subscription Plans: paid cards now open their list with Includes Everything in X, plus, and a touched card keeps the black outline until another card is touched.
+Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a one-month plan, and each card now shows every term as a row with its price per month and a round selection mark.
 --------------------------------------
 
 ## Version History Log:
@@ -565,3 +565,4 @@ Version: 0.0.548 - Repaired rpc_smoke_test.sql so every check runs as the identi
 Version: 0.0.549 - Subscription Plans: roomier cards, per-audience default term, red struck price with green saving, Firm terms always selected, bigger tick, green selected edge, taller Subscribe, and a pinned Individual/Firm toggle.
 Version: 0.0.550 - Subscription Plans: the Individual/Firm toggle no longer pins, a card is inked only while touched, a selected term takes the ink outline instead of green, and the Subscribe button is 1px taller.
 Version: 0.0.551 - Subscription Plans: paid cards now open their list with Includes Everything in X, plus, and a touched card keeps the black outline until another card is touched.
+Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a one-month plan, and each card now shows every term as a row with its price per month and a round selection mark.

@@ -151,41 +151,45 @@ void main() {
     expect(find.text('Up to 1,000 Cases'), findsOneWidget);
     expect(find.text('Multi-Device Support: Up to 2 Devices'), findsOneWidget);
 
-    // Price line and three term buttons.
-    expect(find.text('৳60'), findsOneWidget);
-    expect(find.text('/month'), findsNWidgets(3));
-    // Starter and Pro each carry the same three term names.
+    // No paid card prints a headline price any more: Free is the one card left
+    // with a price line, because it has no term rows to carry a total.
+    expect(find.text('৳0'), findsOneWidget);
+    expect(find.text('/month'), findsOneWidget);
+
+    // Four term rows on each paid card, each naming its own per-month price.
+    expect(find.text('1 Month'), findsNWidgets(2));
     expect(find.text('3 Months'), findsNWidgets(2));
     expect(find.text('6 Months'), findsNWidgets(2));
     expect(find.text('1 Year'), findsNWidgets(2));
+    expect(find.text('৳80/month'), findsOneWidget);
+    expect(find.text('৳60/month'), findsOneWidget);
+    expect(find.text('৳50/month'), findsOneWidget);
+    expect(find.text('৳45/month'), findsOneWidget);
+    expect(find.text('৳150/month'), findsOneWidget);
+    expect(find.text('৳120/month'), findsOneWidget);
+    expect(find.text('৳110/month'), findsOneWidget);
+    expect(find.text('৳100/month'), findsOneWidget);
+
+    // The totals, which are the exact amounts the server validates.
     expect(find.text('৳180'), findsOneWidget);
     expect(find.text('৳300'), findsOneWidget);
-    // ৳600 is Starter's year and Pro's six months.
-    expect(find.text('৳600'), findsNWidgets(2));
-    // Each 6-month and yearly button names its undiscounted price and saving,
-    // so Starter's 6-month button reads ৳300 with ৳360 struck and ৳60 Off.
-    final starterCard = find.byKey(const ValueKey('paywall-plan-starter'));
-    expect(
-      find.descendant(of: starterCard, matching: find.text('৳360')),
-      findsOneWidget,
-    );
-    expect(find.text('৳60 Off'), findsOneWidget);
-    // Pro's 6-month full price is ৳720 and Pro's yearly saving ৳120.
-    final proCard = find.byKey(const ValueKey('paywall-plan-pro'));
-    expect(
-      find.descendant(of: proCard, matching: find.text('৳720')),
-      findsOneWidget,
-    );
-    // ৳120 Off is Starter's year and Pro's six months.
-    expect(find.text('৳120 Off'), findsNWidgets(2));
-    // Both paid cards carry the same two notes.
-    expect(find.text('1 month free on 6 months'), findsNWidgets(2));
-    expect(find.text('2 months free on 1 year'), findsNWidgets(2));
-    // Both paid cards say *Or choose* above their term buttons.
-    expect(find.text('Or choose'), findsNWidgets(2));
-    // An Individual card opens on 1 Month: the monthly price is the base, and
-    // no term button is ticked.
-    expect(find.text('Subscribe — ৳60/month'), findsOneWidget);
+    expect(find.text('৳540'), findsOneWidget);
+    expect(find.text('৳360'), findsOneWidget);
+    expect(find.text('৳660'), findsOneWidget);
+    expect(find.text('৳1,200'), findsOneWidget);
+
+    // The prose that used to state the ladder is gone: the per-month figures
+    // state it now, so nothing is struck through and no saving is named.
+    expect(find.text('Or choose'), findsNothing);
+    expect(find.text('1 month free on 6 months'), findsNothing);
+    expect(find.text('2 months free on 1 year'), findsNothing);
+    expect(find.textContaining(' Off'), findsNothing);
+    for (final text in tester.widgetList<Text>(find.byType(Text))) {
+      expect(text.style?.decoration, isNot(TextDecoration.lineThrough));
+    }
+
+    // An Individual card opens on 1 Month.
+    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
   });
 
   testWidgets('tapping a term applies its price and cannot be cleared', (
@@ -194,20 +198,21 @@ void main() {
     await pumpPaywall(tester);
 
     // The default is one month.
-    expect(find.text('Subscribe — ৳60/month'), findsOneWidget);
+    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
 
     // Choose six months: the action carries the total.
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
+    final halfYearly = find.byKey(
+      const ValueKey('paywall-term-starter-starter_half_yearly'),
     );
+    await tester.ensureVisible(halfYearly);
+    await tester.tap(halfYearly);
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
 
     // Tapping the chosen term again leaves it chosen: a card always carries a
     // term to buy, so there is no way back to "no term".
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
-    );
+    await tester.ensureVisible(halfYearly);
+    await tester.tap(halfYearly);
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
   });
@@ -245,23 +250,29 @@ void main() {
     expect(find.text('Unlimited Cases (Fair Use Applies)'), findsOneWidget);
     expect(find.text('Unlimited Members and Devices'), findsOneWidget);
 
-    // Chamber tiers sell no one-month term; their shortest is three months.
-    expect(find.text('Shortest term: 3 months'), findsNWidgets(3));
-    // A chamber card opens on six months and carries no "Or choose".
-    expect(find.text('Subscribe — 6 Months/৳1,250'), findsOneWidget);
+    // Firm is the one chamber tier with a one-month plan; Firm Plus and
+    // Enterprise still start at three, so the row counts differ.
+    expect(find.text('1 Month'), findsOneWidget);
+    expect(find.text('3 Months'), findsNWidgets(3));
+    expect(find.text('6 Months'), findsNWidgets(3));
+    expect(find.text('1 Year'), findsNWidgets(3));
+    // Firm's month costs more per month than its quarter, on purpose.
+    expect(find.text('৳300/month'), findsOneWidget);
+    expect(find.text('৳250/month'), findsOneWidget);
+    expect(find.text('৳225/month'), findsOneWidget);
+    expect(find.text('৳208/month'), findsOneWidget);
+    expect(find.text('৳1,350'), findsOneWidget);
+    // A chamber card opens on six months and names no prose.
+    expect(find.text('Subscribe — 6 Months/৳1,350'), findsOneWidget);
     expect(find.text('Or choose'), findsNothing);
-    // Its 6-month button names Firm's full price (৳250 × 6) and the saving.
-    final firmCard = find.byKey(const ValueKey('paywall-plan-firm'));
-    expect(
-      find.descendant(of: firmCard, matching: find.text('৳1,500')),
-      findsOneWidget,
+    expect(find.text('Shortest term: 3 months'), findsNothing);
+    expect(find.textContaining(' Off'), findsNothing);
+    // The quarter still picks a term, and the action follows.
+    final firmQuarterly = find.byKey(
+      const ValueKey('paywall-term-firm-firm_quarterly'),
     );
-    expect(find.text('৳250 Off'), findsOneWidget);
-    // Removing the label does not shift the term buttons: they still pick a
-    // term, and the action follows.
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-firm-firm_quarterly')),
-    );
+    await tester.ensureVisible(firmQuarterly);
+    await tester.tap(firmQuarterly);
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 3 Months/৳750'), findsOneWidget);
   });
@@ -284,7 +295,7 @@ void main() {
       find.descendant(of: proCard, matching: find.text('Current Plan')),
       findsOneWidget,
     );
-    expect(find.text('Renew — ৳120/month'), findsOneWidget);
+    expect(find.text('Renew — ৳150/month'), findsOneWidget);
     // The Free card is included, not purchasable.
     final freeButton = tester.widget<FilledButton>(
       find.byKey(const ValueKey('paywall-subscribe-free')),
@@ -350,7 +361,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text('Renew Scheduled Plan — 6 Months/৳1,250'),
+      find.text('Renew Scheduled Plan — 6 Months/৳1,350'),
       findsOneWidget,
     );
 
@@ -448,15 +459,17 @@ void main() {
     expect(find.text('সাবস্ক্রিপশন প্ল্যান'), findsOneWidget);
     expect(find.text('স্টার্টার'), findsOneWidget);
     expect(find.text('প্রো'), findsOneWidget);
-    expect(find.text('৳৬০'), findsOneWidget);
+    expect(find.text('৳০'), findsOneWidget);
+    expect(find.text('১ মাস'), findsNWidgets(2));
     expect(find.text('৩ মাস'), findsNWidgets(2));
     expect(find.text('৬ মাস'), findsNWidgets(2));
     expect(find.text('১ বছর'), findsNWidgets(2));
-    expect(find.text('সাবস্ক্রাইব — ৳৬০/মাস'), findsOneWidget);
-    expect(find.text('৳৬০ ছাড়'), findsOneWidget);
+    expect(find.text('৳৮০/মাস'), findsOneWidget);
+    expect(find.text('৳৪৫/মাস'), findsOneWidget);
+    expect(find.text('সাবস্ক্রাইব — ৳৮০/মাস'), findsOneWidget);
   });
 
-  test('the six tiers and seventeen plans are the settled ladder', () {
+  test('the six tiers and eighteen plans are the settled ladder', () {
     expect(
       SubscriptionTier.values.map((tier) => tier.key),
       <String>[
@@ -482,16 +495,20 @@ void main() {
     );
     expect(
       SubscriptionTier.values.map((tier) => tier.monthlyPrice),
-      <int>[0, 60, 120, 250, 500, 1500],
+      <int>[0, 80, 150, 250, 500, 1500],
     );
     expect(
       SubscriptionTier.values.map((tier) => tier.seatCap),
       <int?>[null, 0, 0, 5, 12, null],
     );
 
-    expect(subscriptionPlans, hasLength(17));
-    expect(paymentPlanAmount(paymentPlanStarterAnnual), 600);
+    expect(subscriptionPlans, hasLength(18));
+    expect(paymentPlanAmount(paymentPlanStarterMonthly), 80);
+    expect(paymentPlanAmount(paymentPlanStarterAnnual), 540);
+    expect(paymentPlanAmount(paymentPlanProMonthly), 150);
     expect(paymentPlanAmount(paymentPlanProAnnual), 1200);
+    expect(paymentPlanAmount(paymentPlanFirmMonthly), 300);
+    expect(paymentPlanAmount(paymentPlanFirmHalfYearly), 1350);
     expect(paymentPlanAmount(paymentPlanFirmAnnual), 2500);
     expect(paymentPlanAmount(paymentPlanFirmPlusAnnual), 5000);
     expect(paymentPlanAmount(paymentPlanEnterpriseAnnual), 15000);
@@ -503,11 +520,12 @@ void main() {
     expect(subscriptionPlan(paymentPlanLegacyAnnual), isNull);
 
     expect(monthlyPlanFor(SubscriptionTier.starter), isNotNull);
-    expect(monthlyPlanFor(SubscriptionTier.firm), isNull);
-    expect(shortestPlanFor(SubscriptionTier.firm)!.months, 3);
+    expect(monthlyPlanFor(SubscriptionTier.firm), isNotNull);
+    expect(monthlyPlanFor(SubscriptionTier.firmPlus), isNull);
+    expect(shortestPlanFor(SubscriptionTier.firm)!.months, 1);
     expect(shortestPlanFor(SubscriptionTier.enterprise)!.months, 3);
     expect(plansForAudience(SubscriptionAudience.individual), hasLength(8));
-    expect(plansForAudience(SubscriptionAudience.firm), hasLength(9));
+    expect(plansForAudience(SubscriptionAudience.firm), hasLength(10));
     expect(tiersForAudience(SubscriptionAudience.individual), hasLength(3));
     expect(tiersForAudience(SubscriptionAudience.firm), hasLength(3));
   });

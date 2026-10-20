@@ -619,15 +619,6 @@
           }
       }
   },
-  "paywall_orChoose": "অথবা বেছে নিন",
-  "paywall_priceOff": "{amount} ছাড়",
-  "@paywall_priceOff": {
-      "placeholders": {
-          "amount": {
-              "type": "String"
-          }
-      }
-  },
   "paywall_pricePerMonth": "{amount}/মাস",
   "@paywall_pricePerMonth": {
       "placeholders": {
@@ -637,9 +628,6 @@
       }
   },
   "paywall_perMonth": "/মাস",
-  "paywall_freeMonthsSix": "৬ মাসে ১ মাস ফ্রি",
-  "paywall_freeMonthsTwelve": "১ বছরে ২ মাস ফ্রি",
-  "paywall_shortestTerm": "সর্বনিম্ন মেয়াদ: ৩ মাস",
   "paywall_termMonthly": "১ মাস",
   "paywall_termQuarterly": "৩ মাস",
   "paywall_termHalfYearly": "৬ মাস",
@@ -652,6 +640,7 @@
   "paywall_planProQuarterly": "প্রো · ৩ মাস",
   "paywall_planProHalfYearly": "প্রো · ৬ মাস",
   "paywall_planProAnnual": "প্রো · ১ বছর",
+  "paywall_planFirmMonthly": "ফার্ম · ১ মাস",
   "paywall_planFirmQuarterly": "ফার্ম · ৩ মাস",
   "paywall_planFirmHalfYearly": "ফার্ম · ৬ মাস",
   "paywall_planFirmAnnual": "ফার্ম · ১ বছর",

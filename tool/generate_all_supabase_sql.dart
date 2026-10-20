@@ -716,6 +716,18 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and Enterprise unlimited, so chamber creation needs the Firm rung; and '
         'the generated plan names cover every key, old and new.',
   ),
+  LedgerSection(
+    file: '20261020100000_payment_ladder_v2_prices.sql',
+    version: '0.0.552',
+    label:
+        'Task 22 — The 2026-10-20 price ladder. Seven ladder prices move and a '
+        'Firm one-month plan joins the eighteen sellable keys, so a chamber can '
+        'try firm mode without buying a quarter. Only the ladder inside '
+        'approve_payment changes — its price constants, key allow-list, amount, '
+        'duration and tier CASEs — and the two generated plan names gain the '
+        'Firm month; the gate, the row lock, the queue and the audit insert are '
+        'unchanged.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -771,6 +783,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.537': 'Firm Mode Phase 12 — Retention And The Recovery Window',
   '0.0.543': 'Subscription History — Cancelling A Live Plan',
   '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
+  '0.0.552': 'Task 22 — The 2026-10-20 Price Ladder',
 };
 
 const String _header = '''<!--

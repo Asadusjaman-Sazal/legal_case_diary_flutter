@@ -1210,29 +1210,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_orChoose => 'Or choose';
-
-  @override
-  String paywall_priceOff(String amount) {
-    return '$amount Off';
-  }
-
-  @override
   String paywall_pricePerMonth(String amount) {
     return '$amount/month';
   }
 
   @override
   String get paywall_perMonth => '/month';
-
-  @override
-  String get paywall_freeMonthsSix => '1 month free on 6 months';
-
-  @override
-  String get paywall_freeMonthsTwelve => '2 months free on 1 year';
-
-  @override
-  String get paywall_shortestTerm => 'Shortest term: 3 months';
 
   @override
   String get paywall_termMonthly => '1 Month';
@@ -1269,6 +1252,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_planProAnnual => 'Pro · 1 Year';
+
+  @override
+  String get paywall_planFirmMonthly => 'Firm · 1 Month';
 
   @override
   String get paywall_planFirmQuarterly => 'Firm · 3 Months';

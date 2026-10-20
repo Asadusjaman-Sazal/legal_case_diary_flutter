@@ -1141,7 +1141,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_tierEnterpriseNote =>
-      'For firms that need unlimited members and case storage in the cloud.';
+      'For firms that need the largest case capacity and a team of 20.';
 
   @override
   String get paywall_includes => 'Includes';
@@ -1153,47 +1153,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String paywall_featureCases(String count) {
-    return 'Up to $count Cases';
+    return 'Up to $count cases';
   }
 
   @override
-  String get paywall_featureUnlimitedCases => 'Unlimited Cases';
+  String get paywall_featureUnlimitedCases => 'Unlimited cases';
 
   @override
-  String get paywall_featureOfflineUse => 'Offline Use Only';
+  String get paywall_featureOfflineUse => 'Offline use only';
 
   @override
-  String get paywall_featureOfflineBackup => 'Offline Backup and Restoration';
+  String get paywall_featureOfflineBackup => 'Offline backup and restoration';
 
   @override
   String get paywall_featureCustomization =>
-      'Data Customization: Court Names, Steps, and Case Types';
+      'Data customization: court names, steps and case types';
 
   @override
-  String get paywall_featureCloudBackup => 'Real-Time Cloud Backup';
+  String get paywall_featureCloudBackup => 'Real-time cloud backup';
 
   @override
   String get paywall_featureDisasterRecovery =>
-      'Disaster Recovery: Restore your diary from the cloud on a new phone';
+      'Disaster recovery: restore your diary from the cloud on a new phone';
 
   @override
-  String get paywall_featureSingleDevice => 'Single-Device Use';
+  String get paywall_featureSingleDevice => 'Single-device use';
 
   @override
   String paywall_featureMultiDevice(String count) {
-    return 'Multi-Device Support: Up to $count Devices';
+    return 'Multi-device support: up to $count devices';
   }
 
   @override
   String paywall_featureCollaboration(String count) {
-    return 'Collaboration: Up to $count Members (One Device Each)';
+    return 'Collaboration: up to $count members (one device each)';
   }
-
-  @override
-  String get paywall_featureUnlimitedMembers => 'Unlimited Members and Devices';
-
-  @override
-  String get paywall_fairUse => 'Fair Use Applies';
 
   @override
   String get paywall_mostPopular => 'Most Popular';

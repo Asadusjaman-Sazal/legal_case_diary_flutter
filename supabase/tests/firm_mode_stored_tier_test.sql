@@ -24,8 +24,9 @@
 --   * **the backfill's rule holds over the project's own rows** — no account
 --     that holds an approved Pro purchase and no account inside its paid period
 --     is left reading `free`, which is the state `20261016120000` had to repair;
---   * **the ladder prices all ten keys** — each key approves at its own amount,
---     names its own tier, and leaves that tier stored on its buyer;
+--   * **the ladder prices all eighteen sellable keys** — each key approves at
+--     its own amount, names its own tier, and leaves that tier stored on its
+--     buyer;
 --   * **a key off the ladder and a real key at the wrong amount are refused** —
 --     and neither write moves the buyer's tier;
 --   * **the chamber follows its owner** — the mirror carries the tier to the
@@ -40,7 +41,7 @@
 --   * **the creation gate is Firm or above** — a free caller and a Pro caller
 --     are both refused `firm_tier_required` with nothing written, and a Firm and
 --     a Firm Plus caller's chambers are created on the very tier the gate read,
---     answering the ladder's 0 / 5 / 20 through `firm_seat_cap`;
+--     answering the ladder's 0 / 5 / 10 through `firm_seat_cap`;
 --   * **only the server writes the tier** — `authenticated` cannot write
 --     `profiles.tier` at all while its own granted column still works, an
 --     off-ladder value is refused by the column's own check, and a non-admin
@@ -176,23 +177,31 @@ declare
   v_expiry timestamptz;
   i integer;
 
-  -- The ladder as the migration states it: the ten keys, what each costs, and
-  -- the tier each one buys. Written out rather than derived, so a price or a
-  -- tier that moves without this list moving is a red test.
+  -- The ladder as the newest approval migration states it: the eighteen
+  -- sellable keys, what each costs, and the tier each one buys. Written out
+  -- rather than derived, so a price or a tier that moves without this list
+  -- moving is a red test. The four old Pro keys are deliberately absent: they
+  -- are readable history, not offers (the legacy-key half below covers one).
   v_keys text[] := array[
-    'monthly', 'quarterly', 'half_yearly', 'annual',
-    'firm_quarterly', 'firm_half_yearly', 'firm_annual',
-    'firm_plus_quarterly', 'firm_plus_half_yearly', 'firm_plus_annual'
+    'starter_monthly', 'starter_quarterly', 'starter_half_yearly', 'starter_annual',
+    'pro_monthly', 'pro_quarterly', 'pro_half_yearly', 'pro_annual',
+    'firm_monthly', 'firm_quarterly', 'firm_half_yearly', 'firm_annual',
+    'firm_plus_quarterly', 'firm_plus_half_yearly', 'firm_plus_annual',
+    'enterprise_quarterly', 'enterprise_half_yearly', 'enterprise_annual'
   ];
   v_prices integer[] := array[
-    100, 285, 540, 1000,
-    855, 1620, 3000,
-    1710, 3240, 6000
+    80, 180, 300, 540,
+    150, 360, 660, 1200,
+    300, 750, 1350, 2500,
+    1500, 2700, 5000,
+    4500, 8000, 15000
   ];
   v_tiers text[] := array[
+    'starter', 'starter', 'starter', 'starter',
     'pro', 'pro', 'pro', 'pro',
-    'firm', 'firm', 'firm',
-    'firm_plus', 'firm_plus', 'firm_plus'
+    'firm', 'firm', 'firm', 'firm',
+    'firm_plus', 'firm_plus', 'firm_plus',
+    'enterprise', 'enterprise', 'enterprise'
   ];
 begin
   -- -------------------------------------------------------------------------
@@ -251,13 +260,13 @@ begin
   );
 
   -- -------------------------------------------------------------------------
-  -- 2. The ladder prices all ten keys (§5.1)
+  -- 2. The ladder prices all eighteen sellable keys (§5.1)
   -- -------------------------------------------------------------------------
   --
   -- One buyer per key, because the rate limit allows five submissions per
   -- account per day. Each fresh account buys exactly one key, so the stored tier
   -- asserted below can only have come from that approval.
-  for i in 1..10 loop
+  for i in 1..18 loop
     v_ladder := pg_temp.sign_up('tier-ladder-' || i || '@test.local');
 
     v_submission := pg_temp.stage(
@@ -312,29 +321,20 @@ begin
   -- 4. The mirror carries the tier to the chamber (§5.3, §5.4)
   -- -------------------------------------------------------------------------
 
-  -- Pro first, which is the case an `else null` in `firm_seat_cap` hides: the
-  -- chamber must answer a number, because null is what `join_firm` reads as "no
-  -- cap at all".
-  v_submission := pg_temp.stage(c_payer, 'annual', 1000, 'TIER-TRX-PAYER-1');
+  -- The payer's **first** purchase, made while the chamber still holds no tier:
+  -- a free account starts at once, so the mirror carries Firm to the chamber on
+  -- the spot and the cap becomes a real number. Buying a lower tier first would
+  -- turn this into a queued change, which §5 tests on its own; Pro's own 0 is
+  -- proven there too, and by the ladder proof's seat-cap block.
+  v_submission := pg_temp.stage(c_payer, 'firm_annual', 2500, 'TIER-TRX-PAYER-1');
   v_result := pg_temp.approve(c_admin, v_submission);
 
   perform pg_temp.assert_true(
     v_result ->> 'status' = 'approved',
-    'the Pro purchase did not approve: ' || coalesce(v_result::text, 'null')
+    'the Firm purchase did not approve: ' || coalesce(v_result::text, 'null')
   );
   perform pg_temp.assert_true(
-    (select f.tier from public.firms f where f.id = v_payer_firm) = 'pro',
-    'the chamber did not follow its owner to Pro'
-  );
-  perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 0,
-    'a Pro chamber did not sell 0 seats'
-  );
-
-  -- Then Firm: the gate's own tier, and the cap a chamber is sold on.
-  v_submission := pg_temp.stage(c_payer, 'firm_annual', 3000, 'TIER-TRX-PAYER-2');
-  perform pg_temp.assert_true(
-    (pg_temp.approve(c_admin, v_submission)) ->> 'tier' = 'firm',
+    v_result ->> 'tier' = 'firm',
     'the Firm purchase did not report the Firm tier'
   );
   perform pg_temp.assert_true(
@@ -350,7 +350,7 @@ begin
   -- 5. A downgrade waits its turn (§5.4)
   -- -------------------------------------------------------------------------
 
-  v_submission := pg_temp.stage(c_payer, 'annual', 1000, 'TIER-TRX-PAYER-3');
+  v_submission := pg_temp.stage(c_payer, 'pro_annual', 1200, 'TIER-TRX-PAYER-3');
   v_result := pg_temp.approve(c_admin, v_submission);
   v_expiry := (v_result ->> 'new_expiry')::timestamptz;
 
@@ -362,9 +362,16 @@ begin
     (select p.tier_pending from public.profiles p where p.id = c_payer) = 'pro',
     'a downgrade did not store the tier it bought as pending'
   );
+  -- The queue starts where the paid period ends, and the **new** expiry is that
+  -- day plus the term bought: the pending pair never names the far end.
   perform pg_temp.assert_true(
-    (select p.tier_pending_from from public.profiles p where p.id = c_payer) = v_expiry,
-    'the pending tier did not start when the new period ends'
+    (select p.tier_pending_from from public.profiles p where p.id = c_payer)
+      = (v_result ->> 'previous_expiry')::timestamptz,
+    'the pending tier did not start when the old period ends'
+  );
+  perform pg_temp.assert_true(
+    v_expiry = (v_result ->> 'previous_expiry')::timestamptz + interval '12 months',
+    'the queued term did not extend the paid period by its own length'
   );
   perform pg_temp.assert_true(
     public.firm_seat_cap(v_payer_firm) = 5,
@@ -385,20 +392,24 @@ begin
     'the cap did not drop to Pro once the downgrade took effect'
   );
 
-  -- And the next upgrade wins outright: it clears the pending pair rather than
-  -- leaving a second transition waiting behind it.
-  v_submission := pg_temp.stage(c_payer, 'firm_annual', 3000, 'TIER-TRX-PAYER-4');
+  -- A purchase of a **different** tier while the plan is running is queued too,
+  -- and it replaces the waiting pair: the stored tier is never rewritten when a
+  -- queued change starts, so Firm bought here leaves the account on Firm (its
+  -- stored tier) rather than on the Pro the earlier purchase had queued. The
+  -- chamber follows the effective tier the same way, so the cap is Firm's 5.
+  v_submission := pg_temp.stage(c_payer, 'firm_annual', 2500, 'TIER-TRX-PAYER-4');
+  v_result := pg_temp.approve(c_admin, v_submission);
   perform pg_temp.assert_true(
-    (pg_temp.approve(c_admin, v_submission)) ->> 'tier' = 'firm',
-    'the upgrade did not report the Firm tier'
+    (v_result ->> 'queued')::boolean,
+    'a purchase behind a started change was not queued'
   );
   perform pg_temp.assert_true(
-    (select p.tier_pending from public.profiles p where p.id = c_payer) is null,
-    'an upgrade left the waiting downgrade behind'
+    (select p.tier_pending from public.profiles p where p.id = c_payer) = 'firm',
+    'the new change was not stored as pending'
   );
   perform pg_temp.assert_true(
     public.firm_seat_cap(v_payer_firm) = 5,
-    'the cap did not return to Firm after the upgrade'
+    'the chamber did not follow the effective tier after a second purchase'
   );
 
   -- -------------------------------------------------------------------------
@@ -506,8 +517,8 @@ begin
     'the new chamber did not start on its Firm Plus owner''s tier'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_plus_firm) = 20,
-    'a Firm Plus chamber did not sell 20 seats'
+    public.firm_seat_cap(v_plus_firm) = 10,
+    'a Firm Plus chamber did not sell 10 seats'
   );
 
   -- -------------------------------------------------------------------------
@@ -544,7 +555,7 @@ begin
   -- And the value itself is constrained, so even a definer path cannot store a
   -- tier the ladder does not sell.
   begin
-    update public.profiles set tier = 'enterprise' where id = c_pro;
+    update public.profiles set tier = 'lifetime' where id = c_pro;
     perform pg_temp.assert_true(false, 'an off-ladder tier was stored');
   exception
     when check_violation then
@@ -558,7 +569,7 @@ begin
 
   -- The ladder's own door: an authenticated caller cannot approve anything,
   -- whatever the role grant on the function says.
-  v_submission := pg_temp.stage(c_pro, 'firm_annual', 3000, 'TIER-TRX-NONADMIN');
+  v_submission := pg_temp.stage(c_pro, 'firm_annual', 2500, 'TIER-TRX-NONADMIN');
 
   begin
     perform pg_temp.as_user('authenticated', c_pro);
@@ -580,4 +591,4 @@ $$;
 
 rollback;
 
-\echo 'TIER OK: the ladder prices ten keys, the caps answer 0/5/20, the tier is server-written, a lapse keeps it, a downgrade waits, and the creation gate is Firm or above.'
+\echo 'TIER OK: the ladder prices eighteen keys, the caps answer 0/5/10, the tier is server-written, a lapse keeps it, a downgrade waits, and the creation gate is Firm or above.'

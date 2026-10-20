@@ -1144,7 +1144,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_tierEnterpriseNote =>
-      'যেসব ফার্মের সদস্য ও মামলার সীমা ছাড়া ক্লাউড স্টোরেজ দরকার।';
+      'যেসব ফার্মের সবচেয়ে বেশি মামলার সক্ষমতা ও ২০ জনের দল দরকার।';
 
   @override
   String get paywall_includes => 'অন্তর্ভুক্ত';
@@ -1191,12 +1191,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String paywall_featureCollaboration(String count) {
     return 'সহযোগিতা: সর্বোচ্চ $count জন সদস্য (প্রতিজনে একটি ডিভাইস)';
   }
-
-  @override
-  String get paywall_featureUnlimitedMembers => 'অসীম সদস্য ও ডিভাইস';
-
-  @override
-  String get paywall_fairUse => 'ন্যায্য ব্যবহার প্রযোজ্য';
 
   @override
   String get paywall_mostPopular => 'সবচেয়ে জনপ্রিয়';

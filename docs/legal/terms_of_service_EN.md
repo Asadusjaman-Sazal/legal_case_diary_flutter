@@ -96,9 +96,9 @@ continue to view, edit, update, print and delete them. Cloud sync is not part of
 **Premium.** A paid plan raises the case ceiling and enables cloud synchronisation, multi-device use
 (where the plan allows it) and firm mode. The plans are **Starter** (৳80 a month, 500 cases),
 **Pro** (৳150 a month, 1,000 cases), **Firm** (৳300 a month, or ৳750 for three months, 2,500 cases,
-five members including the owner), **Firm Plus** (৳1,500 for three months, 6,000 cases, twelve
-members including the owner) and **Enterprise** (৳4,500 for three months, unlimited cases and
-members, subject to fair use). Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm Plus and
+five members including the owner), **Firm Plus** (৳1,500 for three months, 6,000 cases, ten
+members including the owner) and **Enterprise** (৳4,500 for three months, 20,000 cases and twenty
+members including the owner). Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm Plus and
 Enterprise sell 3, 6 and 12. A longer term costs less per month, and the app shows each plan's
 price per month before you pay. There is no lifetime plan.
 

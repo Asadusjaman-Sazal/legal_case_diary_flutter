@@ -57,7 +57,7 @@ void main() {
 
       expect(
         versions,
-        hasLength(56),
+        hasLength(57),
         reason: 'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -122,17 +122,19 @@ void main() {
             'reconstructed from the applied project under the version it already '
             'held, so the folder and the project history agree again, and the '
             '2026-10-20 price ladder moved nine prices and added the Firm '
-            'one-month plan it validates',
+            'one-month plan it validates, and the enterprise-limits '
+            'migration capped Firm Plus at ten seats and Enterprise at 20,000 '
+            'cases and 20 members',
       );
 
-      expect(versions.toSet(), hasLength(56), reason: 'versions must be unique');
+      expect(versions.toSet(), hasLength(57), reason: 'versions must be unique');
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261020100000');
+      expect(versions.last, '20261020110000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk = Directory(migrationsDir)

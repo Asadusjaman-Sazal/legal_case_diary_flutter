@@ -13,10 +13,10 @@
 /// * **Pro** — 1,000 cases, two devices, ৳150 for one month;
 /// * **Firm** — 2,500 cases, 5 members including the owner, ৳300 for one month
 ///   or ৳750 for three (৳250 a month);
-/// * **Firm Plus** — 6,000 cases, 12 members including the owner, ৳1,500 for
+/// * **Firm Plus** — 6,000 cases, 10 members including the owner, ৳1,500 for
 ///   three months (৳500 a month);
-/// * **Enterprise** — no case or member ceiling, ৳4,500 for three months
-///   (৳1,500 a month).
+/// * **Enterprise** — 20,000 cases, 20 members including the owner, ৳4,500 for
+///   three months (৳1,500 a month).
 ///
 /// Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm's one month is priced
 /// 20% above its three-month rate so committing to a quarter still pays. Firm
@@ -181,11 +181,10 @@ enum SubscriptionAudience {
 /// `firms.tier` and read by the seat cap, the case ceiling and the lapse
 /// allowance.
 ///
-/// Each tier carries the numbers it sells: its **case ceiling** (null for
-/// Enterprise), the **allowance it leaves behind when it lapses**, its
-/// **monthly anchor** (one month at the tier's shortest sold rate), its **seat
-/// cap** (0 for the individual tiers, null for unlimited) and the **audience**
-/// whose tab it sits on. The free ceiling is [freeTierCaseLimit], the same
+/// Each tier carries the numbers it sells: its **case ceiling**, the
+/// **allowance it leaves behind when it lapses**, its **monthly anchor** (one
+/// month at the tier's shortest sold rate), its **seat cap** (0 for the
+/// individual tiers) and the **audience** whose tab it sits on. The free ceiling is [freeTierCaseLimit], the same
 /// constant the Add Case gate and the server trigger honour, so 50 is written
 /// once.
 enum SubscriptionTier {
@@ -226,16 +225,20 @@ enum SubscriptionTier {
   /// Five members including the owner, 2,500 cases; a lapse keeps 500.
   firm('firm', 2500, 500, 250, 5, null, SubscriptionAudience.firm),
 
-  /// Twelve members including the owner, 6,000 cases; a lapse keeps 1,000.
-  firmPlus('firm_plus', 6000, 1000, 500, 12, null, SubscriptionAudience.firm),
+  /// Ten members including the owner, 6,000 cases; a lapse keeps 1,000.
+  firmPlus('firm_plus', 6000, 1000, 500, 10, null, SubscriptionAudience.firm),
 
-  /// No case or member ceiling; a lapse keeps 2,000.
+  /// Twenty members including the owner, 20,000 cases; a lapse keeps 2,000.
+  ///
+  /// Enterprise is the largest tier, not an unlimited one: its two numbers are
+  /// as real as Firm's, so the card, the Add Case wall and the join gate all
+  /// state the same ceiling instead of promising a limit nobody enforces.
   enterprise(
     'enterprise',
-    null,
+    20000,
     2000,
     1500,
-    null,
+    20,
     null,
     SubscriptionAudience.firm,
   );
@@ -255,8 +258,9 @@ enum SubscriptionTier {
 
   /// Cases this tier may hold while it is live, or null when uncapped.
   ///
-  /// Enterprise is the only null: its card says *Unlimited Cases*, with fair
-  /// use stated in the Terms. Every other tier has a number, including Free.
+  /// No tier on sale is uncapped: Enterprise, the largest, holds 20,000, and
+  /// the server's `tier_case_ceiling` answers the same number. Null stays the
+  /// field's "no ceiling" value for a tier that has none.
   final int? caseCeiling;
 
   /// Cases, notes and case references a **lapsed** holder may still write.
@@ -276,8 +280,8 @@ enum SubscriptionTier {
 
   /// Members a chamber may hold, including the owner; 0 means "no chamber".
   ///
-  /// Null means no cap (Enterprise). The server's `firm_seat_cap` answers the
-  /// same numbers.
+  /// Null means no cap, and no tier on sale has one: Enterprise, the largest,
+  /// holds 20. The server's `firm_seat_cap` answers the same numbers.
   final int? seatCap;
 
   /// Devices an individual account may use, or null when the tier's device

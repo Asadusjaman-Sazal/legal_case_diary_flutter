@@ -7,10 +7,10 @@
 ///   plan's name, badge, description, inherited-feature header, feature rows,
 ///   monthly price, three term buttons, the free-month notes and one action;
 /// * every paid tier's term buttons are grey with dark text; the chosen one
-///   takes a **2px ink outline**, the app's one selected-state mark. Individual
-///   cards open on **1 Month** and chamber cards on **6 Months**, and selecting
-///   is one-way: tapping the chosen term leaves it chosen, so a card always
-///   carries a term (and its action) to buy. A 6-month or yearly button also
+///   takes a **2px ink outline**, the app's one selected-state mark. Every card
+///   opens on **6 Months**, and selecting is one-way: tapping the chosen term
+///   leaves it chosen, so a card always carries a term (and its action) to
+///   buy. A 6-month or yearly button also
 ///   shows its undiscounted price struck in red with the saving in green;
 /// * paid cards lead their list with **Includes Everything in X, plus** — the
 ///   *Includes* heading Free already had, so every card opens its list the same
@@ -179,40 +179,22 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ),
         ),
       ],
-      SubscriptionTier.firm => <_PlanFeature>[
-        _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
-        _PlanFeature(
-          Icons.groups_outlined,
-          l.paywall_featureCollaboration(
-            AppDateUtils.formatDigits(
-              tier.seatCap!,
-              l.localeName,
-              grouping: false,
-            ),
-          ),
-        ),
-      ],
-      SubscriptionTier.firmPlus => <_PlanFeature>[
-        _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
-        _PlanFeature(
-          Icons.groups_outlined,
-          l.paywall_featureCollaboration(
-            AppDateUtils.formatDigits(
-              tier.seatCap!,
-              l.localeName,
-              grouping: false,
-            ),
-          ),
-        ),
-      ],
+      // The three chamber tiers now sell the same two facts — a case ceiling
+      // and a member cap — differing only in the numbers, so one branch reads
+      // both from the tier and no card can print a limit the app does not hold.
+      SubscriptionTier.firm ||
+      SubscriptionTier.firmPlus ||
       SubscriptionTier.enterprise => <_PlanFeature>[
-        _PlanFeature(
-          Icons.all_inclusive,
-          '${l.paywall_featureUnlimitedCases} (${l.paywall_fairUse})',
-        ),
+        _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
         _PlanFeature(
           Icons.groups_outlined,
-          l.paywall_featureUnlimitedMembers,
+          l.paywall_featureCollaboration(
+            AppDateUtils.formatDigits(
+              tier.seatCap!,
+              l.localeName,
+              grouping: false,
+            ),
+          ),
         ),
       ],
     };
@@ -223,18 +205,17 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   SubscriptionTier _previousTier(SubscriptionTier tier) =>
       SubscriptionTier.values[tier.index - 1];
 
-  /// The term selected for [tier]; the audience's own by default.
+  /// The term selected for [tier]; **6 Months** by default on every card.
   ///
-  /// Individual plans open on **1 Month** (the tier's base price, so no term
-  /// button is ticked), chamber plans on **6 Months**. A chamber tier has no
-  /// one-month plan, so it cannot open on the base price the way Starter does.
+  /// Both audiences now open on the half-year (user ruling, 2026-10-20), which
+  /// is the term the ladder prices best without asking anyone to commit to a
+  /// year. Every tier sells six months, so this is the one default that fits
+  /// all six cards, and it is read from the plan list rather than hardcoded.
   String? _selectedKey(SubscriptionTier tier) {
     if (_selectedTerm.containsKey(tier)) return _selectedTerm[tier];
     final plans = plansForTier(tier);
     if (plans.isEmpty) return null;
-    return tier.audience == SubscriptionAudience.individual
-        ? plans.first.key
-        : plans.firstWhere((plan) => plan.months == 6).key;
+    return plans.firstWhere((plan) => plan.months == 6).key;
   }
 
   @override
@@ -466,19 +447,20 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // A `Wrap`, not a `Row`: at large text a single-word title such as
+          // *Enterprise* cannot wrap, so a fixed badge beside it would push the
+          // line past the card's edge. Here the badge drops to its own line
+          // instead, and nothing overflows at any scale.
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
             children: [
-              Expanded(
-                child: Text(
-                  subscriptionTierLabel(l, tier),
-                  style: AppTypography.titleLg,
-                ),
+              Text(
+                subscriptionTierLabel(l, tier),
+                style: AppTypography.titleLg,
               ),
-              if (badge != null) ...<Widget>[
-                const SizedBox(width: AppSpacing.sm),
-                _Badge(label: badge),
-              ],
+              if (badge != null) _Badge(label: badge),
             ],
           ),
           const SizedBox(height: 2),
@@ -527,7 +509,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     size: 20,
                     color: AppColors.primary,
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  // One gutter (12px) between the icon and the sentence, so
+                  // the glyph's own padding does not read as the whole gap.
+                  const SizedBox(width: AppSpacing.gutter),
                   Expanded(
                     child: Text(
                       feature.text,
@@ -601,7 +585,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
               disabledForegroundColor: AppColors.onSurfaceVariant,
               textStyle: AppTypography.titleMd,
-              minimumSize: const Size.fromHeight(54),
+              minimumSize: const Size.fromHeight(55),
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
@@ -913,20 +897,28 @@ class _AudienceToggle extends StatelessWidget {
         color: AppColors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
       ),
+      // Both halves are flexible and the pill keeps its compact shape: at the
+      // largest text scale two 112px-minimum segments plus their labels no
+      // longer fit a 360pt phone, so each half takes what is left and its label
+      // is fitted to that width rather than pushed past the screen.
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _segment(
-            key: const ValueKey('paywall-audience-individual'),
-            label: l.paywall_audienceIndividual,
-            value: SubscriptionAudience.individual,
-            isSelected: selected == SubscriptionAudience.individual,
+          Flexible(
+            child: _segment(
+              key: const ValueKey('paywall-audience-individual'),
+              label: l.paywall_audienceIndividual,
+              value: SubscriptionAudience.individual,
+              isSelected: selected == SubscriptionAudience.individual,
+            ),
           ),
-          _segment(
-            key: const ValueKey('paywall-audience-firm'),
-            label: l.paywall_audienceFirm,
-            value: SubscriptionAudience.firm,
-            isSelected: selected == SubscriptionAudience.firm,
+          Flexible(
+            child: _segment(
+              key: const ValueKey('paywall-audience-firm'),
+              label: l.paywall_audienceFirm,
+              value: SubscriptionAudience.firm,
+              isSelected: selected == SubscriptionAudience.firm,
+            ),
           ),
         ],
       ),
@@ -952,12 +944,21 @@ class _AudienceToggle extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44, minWidth: 112),
           child: Center(
-            child: Text(
-              label,
-              style: AppTypography.labelLg.copyWith(
-                color: isSelected
-                    ? AppColors.onPrimary
-                    : AppColors.onSurfaceVariant,
+            // Fitted to the segment rather than wrapped: the project's picker
+            // header solves a long label the same way, and a two-line pill
+            // would change the control's shape at the very scale it is meant
+            // to stay usable at.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                style: AppTypography.labelLg.copyWith(
+                  color: isSelected
+                      ? AppColors.onPrimary
+                      : AppColors.onSurfaceVariant,
+                ),
               ),
             ),
           ),
@@ -1071,7 +1072,10 @@ class _TermRow extends StatelessWidget {
       selected: isSelected,
       label: '$label, $perMonthText, $amount',
       child: Material(
-        color: AppColors.surfaceContainerHigh,
+        // One step lighter than the audience pill's track: the row sits inside
+        // a white card, so the same grey there would read heavier than it does
+        // under the pill.
+        color: AppColors.surfaceContainer,
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
         child: InkWell(
           onTap: onTap,

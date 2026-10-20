@@ -728,6 +728,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'Firm month; the gate, the row lock, the queue and the audit insert are '
         'unchanged.',
   ),
+  LedgerSection(
+    file: '20261020110000_enterprise_limits_and_firm_plus_seats.sql',
+    version: '0.0.553',
+    label:
+        'Task 22 — Enterprise limits, and Firm Plus down to ten seats. Two '
+        'functions, no prices: tier_case_ceiling answers 20,000 for enterprise '
+        'instead of null, so the Add Case trigger, which returned early on a '
+        'null ceiling, now counts a real number on every sold tier; and '
+        'firm_seat_cap answers Firm Plus 10 (was 12) and Enterprise 20 (was '
+        'null, which every join gate read as uncapped), leaving Firm 5, Starter '
+        'and Pro 0 untouched. A cap binds new joins only, so a chamber already '
+        'holding eleven or twelve members keeps them.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -784,6 +797,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.543': 'Subscription History — Cancelling A Live Plan',
   '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
   '0.0.552': 'Task 22 — The 2026-10-20 Price Ladder',
+  '0.0.553': 'Task 22 — Enterprise Limits And Ten Firm Plus Seats',
 };
 
 const String _header = '''<!--

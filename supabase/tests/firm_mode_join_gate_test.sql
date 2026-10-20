@@ -353,13 +353,13 @@ begin
     'the Pro refusal did not carry its 0 cap: ' || coalesce(v_result::text, 'null')
   );
 
-  -- Firm Plus is 20. Restored to Firm afterwards, because the fillers below
+  -- Firm Plus is 10. Restored to Firm afterwards, because the fillers below
   -- bring this chamber to Firm's own cap.
   update public.profiles set tier = 'firm_plus' where id = c_owner;
   update public.firms set tier = 'firm_plus' where id = v_firm;
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_firm) = 20,
-    'a Firm Plus chamber did not sell 20 seats'
+    public.firm_seat_cap(v_firm) = 10,
+    'a Firm Plus chamber did not sell 10 seats'
   );
   update public.profiles set tier = 'firm' where id = c_owner;
   update public.firms set tier = 'firm' where id = v_firm;

@@ -94,11 +94,13 @@ ever hidden, blocked or deleted** because of the limit — you keep every case y
 continue to view, edit, update, print and delete them. Cloud sync is not part of the free plan.
 
 **Premium.** A paid plan raises the case ceiling and enables cloud synchronisation, multi-device use
-(where the plan allows it) and firm mode. The plans are **Starter** (৳60 a month, 500 cases),
-**Pro** (৳120 a month, 1,000 cases), **Firm** (৳250 a month, 2,500 cases, five members including
-the owner), **Firm Plus** (৳500 a month, 6,000 cases, twelve members including the owner) and
-**Enterprise** (৳1,500 a month, unlimited cases and members, subject to fair use). Starter and Pro
-sell 1, 3, 6 and 12 months; the chamber plans sell 3, 6 and 12. There is no lifetime plan.
+(where the plan allows it) and firm mode. The plans are **Starter** (৳80 a month, 500 cases),
+**Pro** (৳150 a month, 1,000 cases), **Firm** (৳300 a month, or ৳750 for three months, 2,500 cases,
+five members including the owner), **Firm Plus** (৳1,500 for three months, 6,000 cases, twelve
+members including the owner) and **Enterprise** (৳4,500 for three months, unlimited cases and
+members, subject to fair use). Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm Plus and
+Enterprise sell 3, 6 and 12. A longer term costs less per month, and the app shows each plan's
+price per month before you pay. There is no lifetime plan.
 
 - **Purchasing is not yet open.** The premium screen shows the plans, but the purchase actions are
   disabled until the online version ships. Until then, nothing in the app can take your money.

@@ -1,4 +1,4 @@
-/// The seventeen sellable plans and the six tiers of the revamped ladder.
+/// The eighteen sellable plans and the six tiers of the revamped ladder.
 ///
 /// The paywall shows them and the checkout charges one, so the key that travels
 /// in the checkout route's `plan` query parameter, the amount shown in the
@@ -6,21 +6,25 @@
 /// same three facts. The server's `approve_payment` validates the exact amount
 /// and the plan key, so a drift here is a rejected payment, not a wrong price.
 ///
-/// **The ladder is six tiers** (user ruling, 2026-10-19):
+/// **The ladder is six tiers** (user rulings, 2026-10-19 and 2026-10-20):
 ///
 /// * **Free** — 50 cases, offline only;
-/// * **Starter** — 500 cases, one device, ৳60 a month;
-/// * **Pro** — 1,000 cases, two devices, ৳120 a month;
-/// * **Firm** — 2,500 cases, 5 members including the owner, ৳250 a month;
-/// * **Firm Plus** — 6,000 cases, 12 members including the owner, ৳500 a month;
-/// * **Enterprise** — no case or member ceiling, ৳1,500 a month.
+/// * **Starter** — 500 cases, one device, ৳80 for one month;
+/// * **Pro** — 1,000 cases, two devices, ৳150 for one month;
+/// * **Firm** — 2,500 cases, 5 members including the owner, ৳300 for one month
+///   or ৳750 for three (৳250 a month);
+/// * **Firm Plus** — 6,000 cases, 12 members including the owner, ৳1,500 for
+///   three months (৳500 a month);
+/// * **Enterprise** — no case or member ceiling, ৳4,500 for three months
+///   (৳1,500 a month).
 ///
-/// A chamber does not buy a single month: Firm, Firm Plus and Enterprise sell
-/// 3, 6 and 12 months. Starter and Pro sell 1, 3, 6 and 12. Every price is flat:
-/// there is no struck-through full price, no saving badge and no discount
-/// percentage. The 6-month price is five monthly payments and the 12-month price
-/// is ten, which is where the card's "1 month free" and "2 months free" notes
-/// come from.
+/// Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm's one month is priced
+/// 20% above its three-month rate so committing to a quarter still pays. Firm
+/// Plus and Enterprise sell 3, 6 and 12. Every price is flat — the total is the
+/// only thing charged — and each card prints that total beside its per-month
+/// equivalent (total ÷ months, rounded to the taka), which is the only place a
+/// saving is stated. There is no struck-through price, no saving badge and no
+/// discount percentage.
 ///
 /// The keys name both the tier and the period (`firm_half_yearly`,
 /// `enterprise_annual`) because the server's allow-list, amount `CASE`, duration
@@ -62,6 +66,9 @@ const String paymentPlanProHalfYearly = 'pro_half_yearly';
 
 /// Plan key for the Pro 1 Year plan.
 const String paymentPlanProAnnual = 'pro_annual';
+
+/// Plan key for the Firm 1 Month plan.
+const String paymentPlanFirmMonthly = 'firm_monthly';
 
 /// Plan key for the Firm 3 Months plan.
 const String paymentPlanFirmQuarterly = 'firm_quarterly';
@@ -123,30 +130,34 @@ const Set<String> legacyStarterPlanKeys = <String>{
 // ---------------------------------------------------------------------------
 
 /// Starter prices: one, three, six and twelve months.
-const int paymentStarterMonthlyPrice = 60;
+const int paymentStarterMonthlyPrice = 80;
 const int paymentStarterQuarterlyPrice = 180;
 const int paymentStarterHalfYearlyPrice = 300;
-const int paymentStarterAnnualPrice = 600;
+const int paymentStarterAnnualPrice = 540;
 
 /// Pro prices: one, three, six and twelve months.
-const int paymentProMonthlyPrice = 120;
+const int paymentProMonthlyPrice = 150;
 const int paymentProQuarterlyPrice = 360;
-const int paymentProHalfYearlyPrice = 600;
+const int paymentProHalfYearlyPrice = 660;
 const int paymentProAnnualPrice = 1200;
 
-/// Firm prices: three, six and twelve months.
+/// Firm prices: one, three, six and twelve months.
+///
+/// One month is deliberately dearer per month (৳300) than the three-month rate
+/// (৳250), so the card's first two rows are not the same offer.
+const int paymentFirmMonthlyPrice = 300;
 const int paymentFirmQuarterlyPrice = 750;
-const int paymentFirmHalfYearlyPrice = 1250;
+const int paymentFirmHalfYearlyPrice = 1350;
 const int paymentFirmAnnualPrice = 2500;
 
 /// Firm Plus prices: three, six and twelve months.
 const int paymentFirmPlusQuarterlyPrice = 1500;
-const int paymentFirmPlusHalfYearlyPrice = 2500;
+const int paymentFirmPlusHalfYearlyPrice = 2700;
 const int paymentFirmPlusAnnualPrice = 5000;
 
 /// Enterprise prices: three, six and twelve months.
 const int paymentEnterpriseQuarterlyPrice = 4500;
-const int paymentEnterpriseHalfYearlyPrice = 7500;
+const int paymentEnterpriseHalfYearlyPrice = 8000;
 const int paymentEnterpriseAnnualPrice = 15000;
 
 // ---------------------------------------------------------------------------
@@ -172,10 +183,11 @@ enum SubscriptionAudience {
 ///
 /// Each tier carries the numbers it sells: its **case ceiling** (null for
 /// Enterprise), the **allowance it leaves behind when it lapses**, its
-/// **monthly anchor** (what the card's price line prints), its **seat cap**
-/// (0 for the individual tiers, null for unlimited) and the **audience** whose
-/// tab it sits on. The free ceiling is [freeTierCaseLimit], the same constant
-/// the Add Case gate and the server trigger honour, so 50 is written once.
+/// **monthly anchor** (one month at the tier's shortest sold rate), its **seat
+/// cap** (0 for the individual tiers, null for unlimited) and the **audience**
+/// whose tab it sits on. The free ceiling is [freeTierCaseLimit], the same
+/// constant the Add Case gate and the server trigger honour, so 50 is written
+/// once.
 enum SubscriptionTier {
   /// The free diary: 50 cases, offline only, strictly individual. It has no
   /// lapse allowance because a free account was never premium.
@@ -194,7 +206,7 @@ enum SubscriptionTier {
     'starter',
     500,
     100,
-    60,
+    80,
     0,
     1,
     SubscriptionAudience.individual,
@@ -205,7 +217,7 @@ enum SubscriptionTier {
     'pro',
     1000,
     250,
-    120,
+    150,
     0,
     2,
     SubscriptionAudience.individual,
@@ -253,10 +265,13 @@ enum SubscriptionTier {
   /// it has no read-only set.
   final int lapseAllowance;
 
-  /// The monthly anchor shown on the paywall card, in BDT.
+  /// The tier's monthly anchor, in BDT: one month at its shortest sold rate.
   ///
-  /// Free is 0. Firm and above do not sell a one-month plan, but the anchor is
-  /// still what the card prints, with the shortest sold term named beneath it.
+  /// Free is 0, which is the one price line a card still prints. Starter and Pro
+  /// anchor at their one-month plan. Firm's anchor is its three-month rate
+  /// (৳750 ÷ 3), so its one-month plan is sold *above* it at ৳300 — a month is
+  /// the no-commitment option, not the base. Firm Plus and Enterprise sell no
+  /// month at all and anchor at their three-month rate.
   final int monthlyPrice;
 
   /// Members a chamber may hold, including the owner; 0 means "no chamber".
@@ -286,9 +301,6 @@ enum SubscriptionTier {
 
   /// Whether this tier is sold as a paid plan (every tier except Free).
   bool get isSellable => this != free;
-
-  /// Whether this tier sells a one-month plan (Starter and Pro only).
-  bool get sellsMonthly => this == starter || this == pro;
 
   /// The tier of [tierKey], or [SubscriptionTier.free] when it names nothing —
   /// a null or unknown tier is "no paid tier", which is the safe reading.
@@ -335,8 +347,8 @@ class SubscriptionPlan {
 /// Every sellable plan, in paywall order.
 ///
 /// Grouped by tier — Starter, Pro, Firm, Firm Plus, Enterprise — and within a
-/// tier by length. Starter and Pro lead with one month; the chamber tiers start
-/// at three, because a chamber does not buy a single month.
+/// tier by length. Starter, Pro and Firm lead with one month; Firm Plus and
+/// Enterprise start at three, because those chambers buy a quarter at a time.
 const List<SubscriptionPlan> subscriptionPlans = <SubscriptionPlan>[
   SubscriptionPlan(
     key: paymentPlanStarterMonthly,
@@ -385,6 +397,12 @@ const List<SubscriptionPlan> subscriptionPlans = <SubscriptionPlan>[
     amount: paymentProAnnualPrice,
     months: 12,
     tier: SubscriptionTier.pro,
+  ),
+  SubscriptionPlan(
+    key: paymentPlanFirmMonthly,
+    amount: paymentFirmMonthlyPrice,
+    months: 1,
+    tier: SubscriptionTier.firm,
   ),
   SubscriptionPlan(
     key: paymentPlanFirmQuarterly,
@@ -498,8 +516,8 @@ SubscriptionPlan? monthlyPlanFor(SubscriptionTier tier) {
 
 /// The shortest plan [tier] sells — the base price when no term is selected.
 ///
-/// Starter and Pro answer their one-month plan; Firm and above answer their
-/// three-month plan. Free has no paid plan and answers null.
+/// Starter, Pro and Firm answer their one-month plan; Firm Plus and Enterprise
+/// answer their three-month plan. Free has no paid plan and answers null.
 SubscriptionPlan? shortestPlanFor(SubscriptionTier tier) {
   final plans = plansForTier(tier);
   return plans.isEmpty ? null : plans.first;

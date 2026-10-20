@@ -168,8 +168,9 @@
 
   <div class="h-md"></div>
 
-  <!-- One full-width card per tier, stacked. The Firm tab draws Firm, Firm Plus
-       and Enterprise the same way with their own features and prices. -->
+  <!-- One full-width card per tier, stacked. The Firm tab draws Firm with four
+       rows (its one-month plan included) and Firm Plus and Enterprise with
+       three, since neither of those sells a month. -->
 
   <!-- Free: the current plan on a free account.
 
@@ -195,9 +196,12 @@
 
   <div class="h-md"></div>
 
-  <!-- Starter: the most popular individual rung. Its 3 Months button is drawn
-       selected — the 2px ink outline and the tick — since a chosen term is the
-       screen's one black mark inside a card. -->
+  <!-- Starter: the most popular individual rung. Every term is a row — the term
+       and its price per month on the left, the total and the round mark on the
+       right — and the chosen one is the app's default, 1 Month, drawn with the
+       2px ink outline and the filled round mark. No price is struck through and
+       no saving is named in words: the per-month figure states the whole
+       ladder. -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
     <div class="flex items-start">
       <p class="flex-1 font-title-lg text-title-lg text-on-surface">Starter</p>
@@ -209,19 +213,29 @@
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">☁️ Real-Time Cloud Backup</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">🛟 Disaster Recovery: Restore your diary from the cloud on a new phone</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📱 Single-Device Use</p>
-    <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳60</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>
-    <p class="mt-sm font-label-lg text-label-lg text-on-surface">Or choose</p>
-    <!-- No term is ticked on an Individual card by default: the monthly price
-         above is the selection. A ticked term takes the ink outline, and the 6M
-         and 1Y buttons name their undiscounted price and saving. -->
-    <div class="mt-sm grid grid-cols-3 gap-sm">
-      <button class="min-h-14 rounded-lg border-2 border-primary bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months ✓<span class="block font-title-md text-title-md">৳180</span></button>
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months<span class="block font-title-md text-title-md">৳300</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳360</s> <span class="text-[#059669]">৳60 Off</span></span></button>
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year<span class="block font-title-md text-title-md">৳600</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳720</s> <span class="text-[#059669]">৳120 Off</span></span></button>
+    <div class="mt-md space-y-sm">
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border-2 border-primary text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Month</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳80/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳80</span>
+        <span class="ml-sm w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px] text-on-primary">check</span></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">3 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳60/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳180</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">6 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳50/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳300</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Year</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳45/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳540</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
     </div>
-    <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
-    <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳60/month</button>
+    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳80/month</button>
   </div>
 
   <div class="h-md"></div>
@@ -233,16 +247,65 @@
     <p class="mt-md font-title-md text-title-md text-on-surface">Includes Everything in Starter, plus</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 1,000 Cases</p>
     <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">💻 Multi-Device Support: Up to 2 Devices</p>
-    <p class="mt-md"><span class="font-headline-lg text-headline-lg">৳120</span><span class="font-body-md text-body-md text-on-surface-variant">/month</span></p>
-    <p class="mt-sm font-label-lg text-label-lg text-on-surface">Or choose</p>
-    <div class="mt-sm grid grid-cols-3 gap-sm">
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">3 Months<span class="block font-title-md text-title-md">৳360</span></button>
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">6 Months<span class="block font-title-md text-title-md">৳600</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳720</s> <span class="text-[#059669]">৳120 Off</span></span></button>
-      <button class="min-h-14 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg">1 Year<span class="block font-title-md text-title-md">৳1,200</span><span class="block font-body-sm text-body-sm"><s class="text-[#DC2626]">৳1,440</s> <span class="text-[#059669]">৳240 Off</span></span></button>
+    <div class="mt-md space-y-sm">
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border-2 border-primary text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Month</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳150/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳150</span>
+        <span class="ml-sm w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px] text-on-primary">check</span></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">3 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳120/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳360</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">6 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳110/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳660</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Year</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳100/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳1,200</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
     </div>
-    <p class="mt-sm font-body-sm text-body-sm text-on-surface-variant">1 month free on 6 months</p>
-    <p class="font-body-sm text-body-sm text-on-surface-variant">2 months free on 1 year</p>
-    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳120/month</button>
+    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — ৳150/month</button>
+  </div>
+
+  <div class="h-md"></div>
+
+  <!-- Firm, the first rung of the Firm tab: the only chamber tier with a
+       one-month plan, priced above its three-month rate so a quarter still reads
+       as the better buy. A chamber card opens on 6 Months. -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding">
+    <p class="font-title-lg text-title-lg text-on-surface">Firm</p>
+    <p class="mt-xs font-body-md text-body-md text-on-surface-variant leading-normal">For firms and lawyers who need real-time collaboration.</p>
+    <p class="mt-md font-title-md text-title-md text-on-surface">Includes Everything in Pro, plus</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">📁 Up to 2,500 Cases</p>
+    <p class="mt-sm font-body-md text-body-md text-on-surface leading-normal">👥 Collaboration: Up to 5 Members (One Device Each)</p>
+    <div class="mt-md space-y-sm">
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Month</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳300/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳300</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">3 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳250/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳750</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border-2 border-primary text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">6 Months</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳225/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳1,350</span>
+        <span class="ml-sm w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[14px] text-on-primary">check</span></span>
+      </button>
+      <button class="w-full min-h-[60px] flex items-center rounded-lg px-md py-sm bg-surface-container-high border border-outline-variant text-left">
+        <span class="flex-1"><span class="block font-title-md text-title-md text-on-surface">1 Year</span><span class="block font-body-sm text-body-sm text-on-surface-variant">৳208/month</span></span>
+        <span class="ml-sm font-title-md text-title-md text-on-surface">৳2,500</span>
+        <span class="ml-sm w-5 h-5 rounded-full border-2 border-outline-variant shrink-0"></span>
+      </button>
+    </div>
+    <button class="mt-md w-full h-[54px] rounded-lg btn-primary font-title-md text-title-md">Subscribe — 6 Months/৳1,350</button>
   </div>
 
   <div class="h-xl"></div>

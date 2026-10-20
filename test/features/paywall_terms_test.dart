@@ -1,10 +1,14 @@
-/// Subscription plans screen (paywall) changes, 2026-10-19:
+/// Subscription plans screen (paywall) term rows, 2026-10-20:
 ///
-///  * the six-tier cards got breathing room between them and taller text lines;
+///  * every term is a full-width row — the term and its price per month on the
+///    left, the total and the round chosen mark on the right;
 ///  * the default term is each audience's own (1 Month for Individual, 6 Months
-///    for Firm), and a term can no longer be deselect: a card always carries one;
-///  * each term button gained its undiscounted price and saving underneath;
-///  * the Firm terms are a plain choice under the price line, with no "Or choose".
+///    for Firm), and a term can no longer be deselected: a card always carries
+///    one, marked by the 2 px ink outline and the filled round mark;
+///  * Firm sells a one-month plan, priced above its three-month rate; Firm Plus
+///    and Enterprise still start at three months;
+///  * no price is struck through, no saving is named in words and there is no
+///    headline price line: the per-month figures state the ladder.
 library;
 
 import 'package:flutter/material.dart';
@@ -14,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
 
 void main() {
@@ -55,57 +60,97 @@ void main() {
   ) async {
     await pumpPaywall(tester);
 
-    // Starter and Pro lead with one month: the one-month plan is the base price
-    // and no term button is selected.
-    expect(find.text('Subscribe — ৳60/month'), findsOneWidget);
-    expect(find.text('Subscribe — ৳120/month'), findsOneWidget);
+    // Starter and Pro lead with one month, which is now a row like any other.
+    expect(find.text('Subscribe — ৳80/month'), findsOneWidget);
+    expect(find.text('Subscribe — ৳150/month'), findsOneWidget);
     expect(find.textContaining('3 Months/'), findsNothing);
 
     await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
     await tester.pumpAndSettle();
 
     // Firm, Firm Plus and Enterprise open on their six-month plan.
-    expect(find.text('Subscribe — 6 Months/৳1,250'), findsOneWidget);
-    expect(find.text('Subscribe — 6 Months/৳2,500'), findsOneWidget);
-    expect(find.text('Subscribe — 6 Months/৳7,500'), findsOneWidget);
+    expect(find.text('Subscribe — 6 Months/৳1,350'), findsOneWidget);
+    expect(find.text('Subscribe — 6 Months/৳2,700'), findsOneWidget);
+    expect(find.text('Subscribe — 6 Months/৳8,000'), findsOneWidget);
   });
 
   testWidgets('tapping the selected term keeps it selected', (tester) async {
     await pumpPaywall(tester);
 
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
+    final halfYearly = find.byKey(
+      const ValueKey('paywall-term-starter-starter_half_yearly'),
     );
+    await tester.ensureVisible(halfYearly);
+    await tester.tap(halfYearly);
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
 
     // Selecting the chosen term again is a no-op, not a clear.
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-term-starter-starter_half_yearly')),
-    );
+    await tester.ensureVisible(halfYearly);
+    await tester.tap(halfYearly);
     await tester.pumpAndSettle();
     expect(find.text('Subscribe — 6 Months/৳300'), findsOneWidget);
   });
 
-  testWidgets('six-month and yearly buttons name their undiscounted price', (
+  testWidgets('each row names its own price per month, and nothing is struck', (
     tester,
   ) async {
     await pumpPaywall(tester);
 
-    // 6 months costs 5 monthly payments, 1 year costs 10.
-    expect(find.text('৳360'), findsWidgets);
-    expect(find.text('৳60 Off'), findsWidgets);
-    expect(find.text('৳720'), findsWidgets);
-    expect(find.text('৳120 Off'), findsWidgets);
+    // Starter: ৳80 → ৳60 → ৳50 → ৳45 a month, with the totals beside them.
+    expect(find.text('৳80/month'), findsOneWidget);
+    expect(find.text('৳60/month'), findsOneWidget);
+    expect(find.text('৳50/month'), findsOneWidget);
+    expect(find.text('৳45/month'), findsOneWidget);
+    expect(find.text('৳540'), findsOneWidget);
+
+    // The old prose is gone with the strike-through it described.
+    expect(find.text('Or choose'), findsNothing);
+    expect(find.text('1 month free on 6 months'), findsNothing);
+    expect(find.text('2 months free on 1 year'), findsNothing);
+    expect(find.textContaining(' Off'), findsNothing);
   });
 
-  testWidgets('Firm cards say no "Or choose"', (tester) async {
+  testWidgets('a firm annual rounds its price per month to the taka', (
+    tester,
+  ) async {
     await pumpPaywall(tester);
-    expect(find.text('Or choose'), findsNWidgets(2));
 
     await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
     await tester.pumpAndSettle();
-    expect(find.text('Or choose'), findsNothing);
+
+    // ৳2,500 a year is ৳208.33 a month, shown as ৳208; ৳5,000 a year is
+    // ৳416.67, shown as ৳417; ৳8,000 for six months is ৳1,333.33, shown as
+    // ৳1,333. The total beside each stays the exact amount charged.
+    expect(find.text('৳208/month'), findsOneWidget);
+    expect(find.text('৳417/month'), findsOneWidget);
+    expect(find.text('৳1,333/month'), findsOneWidget);
+    expect(find.text('৳2,500'), findsOneWidget);
+    expect(find.text('৳5,000'), findsOneWidget);
+    expect(find.text('৳8,000'), findsOneWidget);
+  });
+
+  testWidgets('Firm has a 1 Month row; Firm Plus and Enterprise do not', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
+    await tester.pumpAndSettle();
+
+    // Only the Firm card sells a month, and its month costs more per month than
+    // its quarter, so the two rows are not the same offer.
+    expect(find.text('1 Month'), findsOneWidget);
+    expect(find.text('৳300/month'), findsOneWidget);
+    expect(find.text('৳250/month'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('paywall-term-firm_plus-firm_plus_monthly')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('paywall-term-enterprise-enterprise_monthly')),
+      findsNothing,
+    );
   });
 
   testWidgets('the toggle scrolls away with the intro, not pinned', (
@@ -183,6 +228,53 @@ void main() {
     expect(border.width, 2);
   });
 
+  testWidgets('the stacked rows survive a small phone at large text', (
+    tester,
+  ) async {
+    // The 3-across row needed a large-text fallback above 1.3; full-width rows
+    // must not, so this is the claim they replaced it with, measured just past
+    // that threshold on a 360pt phone. (1.5 also trips a pre-existing overflow
+    // in the card's title+badge row, which is outside the term rows.)
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          accountProfileProvider.overrideWith((ref) => Stream.value(null)),
+          firmMemberProvider.overrideWithValue(false),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.35)),
+              child: const PaywallScreen(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    // The cards start below the fold on an 800pt phone, so scroll to the rows.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('paywall-term-starter-starter_monthly')),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('1 Month'), findsWidgets);
+    expect(find.text('৳80/month'), findsOneWidget);
+  });
+
   testWidgets('the action is 54 tall', (tester) async {
     await pumpPaywall(tester);
     final button = tester.widget<FilledButton>(
@@ -190,6 +282,44 @@ void main() {
     );
     expect(button.style?.minimumSize?.resolve({}), const Size.fromHeight(54));
   });
+
+  testWidgets('exactly one row per card is marked, and the mark follows a tap', (
+    tester,
+  ) async {
+    await pumpPaywall(tester);
+
+    // A card always carries a term to buy, and only one of them is marked.
+    expect(_markedRows(tester, SubscriptionTier.starter), 1);
+    expect(_markedRows(tester, SubscriptionTier.pro), 1);
+
+    final quarterly = find.byKey(
+      const ValueKey('paywall-term-starter-starter_quarterly'),
+    );
+    await tester.ensureVisible(quarterly);
+    await tester.tap(quarterly);
+    await tester.pumpAndSettle();
+
+    // Still one mark, and it is now on the 3 Months row.
+    expect(_markedRows(tester, SubscriptionTier.starter), 1);
+    expect(_termBorder(tester, quarterly).width, 2);
+    expect(
+      _termBorder(
+        tester,
+        find.byKey(const ValueKey('paywall-term-starter-starter_monthly')),
+      ).width,
+      1,
+    );
+  });
+}
+
+/// How many of [tier]'s term rows carry the 2 px chosen outline.
+int _markedRows(WidgetTester tester, SubscriptionTier tier) {
+  var marked = 0;
+  for (final plan in plansForTier(tier)) {
+    final row = find.byKey(ValueKey('paywall-term-${tier.key}-${plan.key}'));
+    if (_termBorder(tester, row).width == 2) marked++;
+  }
+  return marked;
 }
 
 /// The border of a card's frame, which is an [AnimatedContainer].

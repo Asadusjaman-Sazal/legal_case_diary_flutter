@@ -37,7 +37,7 @@ const String _enArb = 'lib/core/l10n/app_en.arb';
 const String _bnArb = 'lib/core/l10n/app_bn.arb';
 
 /// The ladder's length, pinned so a plan cannot be dropped or added silently.
-const int _ladderLength = 17;
+const int _ladderLength = 18;
 
 /// The four keys the old ladder sold, which the server still resolves.
 const Set<String> _legacyKeys = <String>{
@@ -57,11 +57,11 @@ const Map<String, String> _legacyLabelKey = <String, String>{
 
 void main() {
   group('Payment plan ladder', () {
-    test('the client sells exactly the seventeen keys the server accepts', () {
+    test('the client sells exactly the eighteen keys the server accepts', () {
       final allowed = _allowedKeys();
       final clientKeys = _clientKeys();
 
-      expect(_ladderLength, subscriptionPlans.length, reason: 'the ladder is seventeen plans');
+      expect(_ladderLength, subscriptionPlans.length, reason: 'the ladder is eighteen plans');
       expect(
         clientKeys,
         allowed.difference(_legacyKeys),
@@ -152,7 +152,7 @@ void main() {
 
     test('both locales label every key, and no label exists without a key', () {
       final expected = {for (final key in _clientKeys()) _labelKeyFor(key)};
-      expect(expected.length, _ladderLength, reason: 'seventeen plans, seventeen labels');
+      expect(expected.length, _ladderLength, reason: 'eighteen plans, eighteen labels');
       for (final arb in <String>[_enArb, _bnArb]) {
         final labels = _labelKeysIn(arb);
         expect(
@@ -196,7 +196,7 @@ void main() {
 
 // --- The client ---------------------------------------------------------------
 
-/// The client's seventeen sellable plan keys.
+/// The client's eighteen sellable plan keys.
 Set<String> _clientKeys() => {for (final plan in subscriptionPlans) plan.key};
 
 /// Every key the server accepts: the sellable ladder plus the legacy four.

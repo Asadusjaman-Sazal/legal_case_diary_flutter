@@ -35,6 +35,7 @@ String paymentPlanLabel(AppLocalizations l, String? planKey) =>
       paymentPlanProQuarterly => l.paywall_planProQuarterly,
       paymentPlanProHalfYearly => l.paywall_planProHalfYearly,
       paymentPlanProAnnual => l.paywall_planProAnnual,
+      paymentPlanFirmMonthly => l.paywall_planFirmMonthly,
       paymentPlanFirmQuarterly => l.paywall_planFirmQuarterly,
       paymentPlanFirmHalfYearly => l.paywall_planFirmHalfYearly,
       paymentPlanFirmAnnual => l.paywall_planFirmAnnual,

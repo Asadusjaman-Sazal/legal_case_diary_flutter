@@ -541,35 +541,32 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               ),
             ),
           ],
-          const SizedBox(height: AppSpacing.xs),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                _amountText(l, tier.monthlyPrice),
-                style: AppTypography.headlineLg,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                l.paywall_perMonth,
-                style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
+          if (tier == SubscriptionTier.free) ...<Widget>[
+            // The one price line left on the screen: Free sells no term, so it
+            // has no rows to carry a total and its price lives here.
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  _amountText(l, tier.monthlyPrice),
+                  style: AppTypography.headlineLg,
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 2),
+                Text(
+                  l.paywall_perMonth,
+                  style: AppTypography.bodyMd.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (tier.isSellable) ...<Widget>[
-            const SizedBox(height: AppSpacing.sm),
-            // *Or choose* only where there is a one-month price above to choose
-            // away from; a chamber card's terms simply follow its price line.
-            if (tier.sellsMonthly) ...<Widget>[
-              Text(
-                l.paywall_orChoose,
-                style: AppTypography.labelLg,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
+            // Each term is a row carrying its own total and its per-month
+            // equivalent, so the card needs no headline price and no note.
+            const SizedBox(height: AppSpacing.md),
             _TermSelector(
               tier: tier,
               selectedKey: selectedKey,
@@ -579,29 +576,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 _selectedTerm[tier] = planKey;
               }),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              l.paywall_freeMonthsSix,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            Text(
-              l.paywall_freeMonthsTwelve,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            if (!tier.sellsMonthly) ...<Widget>[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l.paywall_shortestTerm,
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ],
           ],
+          // The gap under the last term — or under Free's price line — before
+          // the action: a row touching the button reads as part of it.
           const SizedBox(height: AppSpacing.md),
           FilledButton(
             key: ValueKey('paywall-subscribe-${tier.key}'),
@@ -990,7 +967,12 @@ class _AudienceToggle extends StatelessWidget {
   );
 }
 
-/// The grey term buttons under *Or choose*.
+/// The card's term rows: every plan the tier sells, in ladder order.
+///
+/// A row carries the term and its per-month price on the left and the total it
+/// is charged on the right, so the card needs no headline price line, no
+/// struck-through full price and no note — the ladder is legible from the
+/// numbers themselves, and every one of them comes from `payment_plans.dart`.
 class _TermSelector extends StatelessWidget {
   const _TermSelector({
     required this.tier,
@@ -1004,203 +986,180 @@ class _TermSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The one-month plan is the card's base price, not a button: the three
-    // buttons are the 3/6/12 terms the user asked to expose.
-    final plans = plansForTier(
-      tier,
-    ).where((plan) => plan.months > 1).toList(growable: false);
+    // Every term the tier sells is a row, including a one-month plan where the
+    // tier has one: the price line that used to stand for the month is gone, so
+    // the month must be selectable like any other term.
+    final plans = plansForTier(tier);
     final l = AppLocalizations.of(context);
-    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
-    // The undiscounted price of a discounted term: its months at the tier's
-    // monthly anchor (6 months = 5 payments, 1 year = 10). A 3-month term has
-    // nothing struck, so the button keeps its plain two lines.
-    String? undiscounted(SubscriptionPlan plan) =>
-        plan.months > 3 ? '৳${AppDateUtils.formatDigits(
-          tier.monthlyPrice * plan.months,
-          l.localeName,
-          grouping: true,
-        )}' : null;
-
-    String? saving(SubscriptionPlan plan) {
-      final full = tier.monthlyPrice * plan.months;
-      final off = full - plan.amount;
-      if (plan.months == 0 || off <= 0) return null;
-      return l.paywall_priceOff(
-        l.payments_amountValue(
-          AppDateUtils.formatDigits(off, l.localeName, grouping: off >= 1000),
-        ),
-      );
-    }
-
-    Widget button(SubscriptionPlan plan) => _TermButton(
-      key: ValueKey('paywall-term-${tier.key}-${plan.key}'),
-      label: _termLabel(l, plan),
-      amount: l.payments_amountValue(
-        AppDateUtils.formatDigits(
-          plan.amount,
-          l.localeName,
-          grouping: plan.amount >= 1000,
-        ),
-      ),
-      undiscountedAmount: undiscounted(plan),
-      saving: saving(plan),
-      isSelected: selectedKey == plan.key,
-      onTap: () => onSelected(plan.key),
-    );
-
-    if (largeText) {
-      return Column(
-        children: [
-          for (var i = 0; i < plans.length; i++) ...<Widget>[
-            if (i > 0) const SizedBox(height: AppSpacing.sm),
-            SizedBox(width: double.infinity, child: button(plans[i])),
-          ],
-        ],
-      );
-    }
-
-    return Row(
+    return Column(
       children: [
         for (var i = 0; i < plans.length; i++) ...<Widget>[
-          if (i > 0) const SizedBox(width: AppSpacing.sm),
-          Expanded(child: button(plans[i])),
+          if (i > 0) const SizedBox(height: AppSpacing.sm),
+          _TermRow(
+            key: ValueKey('paywall-term-${tier.key}-${plans[i].key}'),
+            label: _termLabel(l, plans[i]),
+            perMonth: _perMonth(l, plans[i]),
+            amount: l.payments_amountValue(
+              AppDateUtils.formatDigits(
+                plans[i].amount,
+                l.localeName,
+                grouping: plans[i].amount >= 1000,
+              ),
+            ),
+            isSelected: selectedKey == plans[i].key,
+            onTap: () => onSelected(plans[i].key),
+          ),
         ],
       ],
     );
   }
 
+  /// A plan's price per month, localized: its total split over its months.
+  ///
+  /// Rounded to the taka, so ৳2,500 a year reads ৳208 a month rather than a
+  /// fraction. The total beside it stays the exact amount the server validates.
+  String _perMonth(AppLocalizations l, SubscriptionPlan plan) {
+    final perMonth = (plan.amount / plan.months).round();
+    return l.payments_amountValue(
+      AppDateUtils.formatDigits(
+        perMonth,
+        l.localeName,
+        grouping: perMonth >= 1000,
+      ),
+    );
+  }
+
   String _termLabel(AppLocalizations l, SubscriptionPlan plan) =>
       switch (plan.months) {
+        1 => l.paywall_termMonthly,
         3 => l.paywall_termQuarterly,
         6 => l.paywall_termHalfYearly,
         _ => l.paywall_termAnnual,
       };
 }
 
-/// One grey term button: term and total, with a green selected border.
-///
-/// A **6 Months** / **1 Year** button also carries its undiscounted price in
-/// red strike-through, with the saving in green beside it — the same facts the
-/// notes below state in words, attached to the button they belong to.
-class _TermButton extends StatelessWidget {
-  const _TermButton({
+/// One term row: term and per-month price on the left, total and the round
+/// chosen mark on the right.
+class _TermRow extends StatelessWidget {
+  const _TermRow({
     required this.label,
+    required this.perMonth,
     required this.amount,
-    required this.undiscountedAmount,
-    required this.saving,
     required this.isSelected,
     required this.onTap,
     super.key,
   });
 
   final String label;
+
+  /// The per-month equivalent, already localized (৳45).
+  final String perMonth;
+
+  /// The total the term is charged, already localized (৳540).
   final String amount;
-
-  /// The full price for the term, or null when the term has no discount.
-  final String? undiscountedAmount;
-
-  /// The saving, already localized ("৳60 Off"), or null.
-  final String? saving;
 
   final bool isSelected;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: isSelected,
-    label: '$label, $amount',
-    child: Material(
-      color: AppColors.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      child: InkWell(
-        onTap: onTap,
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final perMonthText = '$perMonth${l.paywall_perMonth}';
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: '$label, $perMonthText, $amount',
+      child: Material(
+        color: AppColors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 56),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-            border: Border.all(
-              // The app's one "chosen" mark is the ink outline (the same 2px
-              // used by the pressed card and the app's selected pills). Green
-              // belongs to success and savings, not to a selection.
-              color: isSelected ? AppColors.primary : AppColors.outlineVariant,
-              width: isSelected ? 2 : 1,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 60),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: AppTypography.labelLg.copyWith(
-                        color: AppColors.onSurface,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+              border: Border.all(
+                // The app's one "chosen" mark is the ink outline (the same 2px
+                // used by the pressed card and the app's selected pills). Green
+                // belongs to savings and success, not to a selection.
+                color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: AppTypography.titleMd.copyWith(
+                          color: AppColors.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      const SizedBox(height: 2),
+                      Text(
+                        perMonthText,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  if (isSelected) ...<Widget>[
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.check,
-                      // 18 rather than 14: at 14 the tick read as punctuation
-                      // beside the term rather than as its selected mark.
-                      size: 18,
-                      color: AppColors.onSurface,
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(
-                amount,
-                style: AppTypography.titleMd.copyWith(
-                  color: AppColors.onSurface,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (undiscountedAmount != null || saving != null) ...<Widget>[
-                const SizedBox(height: 2),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
-                  children: [
-                    if (undiscountedAmount != null)
-                      Text(
-                        undiscountedAmount!,
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppColors.error,
-                          decoration: TextDecoration.lineThrough,
-                          decorationColor: AppColors.error,
-                        ),
-                      ),
-                    if (saving != null)
-                      Text(
-                        saving!,
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppColors.success,
-                        ),
-                      ),
-                  ],
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  amount,
+                  style: AppTypography.titleMd.copyWith(
+                    color: AppColors.onSurface,
+                  ),
                 ),
+                const SizedBox(width: AppSpacing.sm),
+                _SelectionDot(isSelected: isSelected),
               ],
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The round mark on a term row: a hollow ring at rest, a filled ink circle with
+/// a tick when the row is the card's chosen term.
+class _SelectionDot extends StatelessWidget {
+  const _SelectionDot({required this.isSelected});
+
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 20,
+    height: 20,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: isSelected ? AppColors.primary : Colors.transparent,
+      border: Border.all(
+        color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+        width: 2,
+      ),
     ),
+    child: isSelected
+        ? const Icon(Icons.check, size: 14, color: AppColors.onPrimary)
+        : null,
   );
 }
 

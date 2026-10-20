@@ -107,7 +107,7 @@ void main() {
     expect(find.text('01712345678'), findsOneWidget);
     expect(find.text('bKash'), findsWidgets);
     // The exact amount is shown in the plan summary.
-    expect(find.text('৳120'), findsOneWidget);
+    expect(find.text('৳150'), findsOneWidget);
   });
 
   testWidgets('the instruction names the amount and bolds only Send Money',
@@ -120,7 +120,7 @@ void main() {
     final span = sentence.textSpan! as TextSpan;
     expect(
       span.toPlainText(),
-      'Send ৳120 to one of the numbers below using Send Money, '
+      'Send ৳150 to one of the numbers below using Send Money, '
       'then carefully enter your payment details.',
     );
 

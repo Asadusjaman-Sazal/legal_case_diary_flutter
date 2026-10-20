@@ -1213,29 +1213,12 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_orChoose => 'অথবা বেছে নিন';
-
-  @override
-  String paywall_priceOff(String amount) {
-    return '$amount ছাড়';
-  }
-
-  @override
   String paywall_pricePerMonth(String amount) {
     return '$amount/মাস';
   }
 
   @override
   String get paywall_perMonth => '/মাস';
-
-  @override
-  String get paywall_freeMonthsSix => '৬ মাসে ১ মাস ফ্রি';
-
-  @override
-  String get paywall_freeMonthsTwelve => '১ বছরে ২ মাস ফ্রি';
-
-  @override
-  String get paywall_shortestTerm => 'সর্বনিম্ন মেয়াদ: ৩ মাস';
 
   @override
   String get paywall_termMonthly => '১ মাস';
@@ -1272,6 +1255,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_planProAnnual => 'প্রো · ১ বছর';
+
+  @override
+  String get paywall_planFirmMonthly => 'ফার্ম · ১ মাস';
 
   @override
   String get paywall_planFirmQuarterly => 'ফার্ম · ৩ মাস';

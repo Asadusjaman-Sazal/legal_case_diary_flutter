@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-21 — A finished to-do list is cleared, in both rulebooks — COMPLETE (0.0.564)
+
+- **What the user asked for, and why.** The to-do list is meant to be a live view of work in progress, but it was being left on screen after every item was done, which the user reads as unfinished work. The rule now says so explicitly.
+- **What changed.** One bullet under `## Session protocol` in both `AGENTS.md` and `CLAUDE.md`: mark each item completed as it is finished, and once the last one is done — or the work stops early, or the list turned out not to be needed — call `write_todos` with an empty list in the **same turn**, before the final message. The final message and this file are the record, not the ticks.
+- **Both files, deliberately.** They are separate copies of the same rulebook and an agent may be handed either, so a rule in only one is a rule half the agents never see.
+- **Noted, not changed.** `CLAUDE.md` has drifted from `AGENTS.md`: its rule 3 still says *Part A is strictly offline / no `supabase_flutter`*, which today's `AGENTS.md` rule 3 forbids. Reconciling the two files is a separate job, offered to the user.
+- **Proof.** The bullet is present once in each file, inside the same section, with identical wording; `python tool/record_version.py --check` OK; version **0.0.564** recorded with the script. No app code, so analyze and the test suite are unaffected, and nothing touched the server.
+- **Resume point, next session.** Nothing outstanding here. The open offer is the `CLAUDE.md` reconciliation.
+
 ### 2026-10-21 — The scheduled-start warning counts months the way the server does — COMPLETE (0.0.563)
 
 - **The question, and the answer.** The user asked whether two rules were in the app: that buying the same plan twice only lengthens the term, and that a month lasts 30 or 31 days depending on the month of purchase. **The first is shipped.** `approve_payment`'s renewal branch writes only the expiry, never the tier, and the case ceiling and member seats are read from the tier, so a renewal cannot change them; `subscription_ladder_test.sql` pins it as *a renewal does not move the tier*.

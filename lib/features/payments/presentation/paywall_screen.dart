@@ -758,15 +758,26 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   SubscriptionTier _currentTierForLabel() =>
       ref.read(allowanceTierProvider);
 
-  /// Adds [months] to an epoch-ms instant, in UTC.
+  /// Adds [months] to an epoch-ms instant, in UTC, the way the server does.
+  ///
+  /// `approve_payment` grows the expiry with `make_interval(months => …)`, and
+  /// SQL clamps a day the target month does not have: 31 January plus one month
+  /// is 28 February, not 3 March. Dart rolls the day over instead, so the day is
+  /// clamped here — otherwise this warning names a start date the server never
+  /// sets. Only the day is ever altered; the instant's time of day is kept.
   int _addMonths(int epochMs, int months) {
     final dt = DateTime.fromMillisecondsSinceEpoch(epochMs, isUtc: true);
+    final month = dt.month + months;
+    // Day 0 of the month after the target is the target month's last day.
+    final lastDay = DateTime.utc(dt.year, month + 1, 0).day;
     return DateTime.utc(
       dt.year,
-      dt.month + months,
-      dt.day,
+      month,
+      dt.day > lastDay ? lastDay : dt.day,
       dt.hour,
       dt.minute,
+      dt.second,
+      dt.millisecond,
     ).millisecondsSinceEpoch;
   }
 

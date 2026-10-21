@@ -444,6 +444,41 @@ void main() {
     );
   });
 
+  testWidgets('the start warning clamps a month the way the server does', (
+    tester,
+  ) async {
+    // 31 January plus one month is 28 February on the server, because SQL
+    // clamps a day the target month does not have. Dart would roll that day
+    // over to 3 March, so the warning used to name a start date the account
+    // would never be given (2027 is not a leap year).
+    final start = DateTime.utc(2027, 1, 31, 10).millisecondsSinceEpoch;
+    await pumpPaywall(
+      tester,
+      tier: SubscriptionTier.pro,
+      premium: true,
+      expiryMs: start,
+      pendingKey: SubscriptionTier.firm.key,
+      pendingFrom: start,
+      planKey: paymentPlanProMonthly,
+    );
+
+    // One month, so the date the warning prints is January's 31st plus one.
+    final monthly = find.byKey(const ValueKey('paywall-term-pro-pro_monthly'));
+    await tester.ensureVisible(monthly);
+    await tester.tap(monthly);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('paywall-subscribe-pro')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('paywall-renew-shift-dialog')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('28/02/2027'), findsOneWidget);
+    expect(find.textContaining('03/03/2027'), findsNothing);
+  });
+
   testWidgets('a lapsed plan names its allowance in the gate card', (
     tester,
   ) async {

@@ -18,7 +18,7 @@
 ///   until a different card is touched;
 /// * the card the account holds carries **Current Plan** and its action says
 ///   **Renew**; a queued change carries **Scheduled** and its start date; the
-///   Starter and Firm cards carry **Most Popular**.
+///   Starter and Firm Plus cards carry **Most Popular**.
 ///
 /// **Changing plans never happens immediately.** A different tier bought while
 /// the current plan is active is queued to start when that plan ends, and the
@@ -412,9 +412,14 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final isScheduled = hasScheduled && tier == pendingTier;
     final isBlocked =
         hasScheduled && !isCurrent && !isScheduled;
+    // Most Popular marks the tier the ladder is built around: Starter among
+    // individuals and **Firm Plus** among chambers (user ruling 2026-10-21 — it
+    // was Firm, which is the entry chamber rung rather than the recommended
+    // one).
     final isPopular =
         !isCurrent && !isScheduled &&
-        (tier == SubscriptionTier.starter || tier == SubscriptionTier.firm);
+        (tier == SubscriptionTier.starter ||
+            tier == SubscriptionTier.firmPlus);
 
     final selectedKey = tier.isSellable ? _selectedKey(tier) : null;
     final selectedPlan = selectedKey == null
@@ -447,21 +452,54 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // A `Wrap`, not a `Row`: at large text a single-word title such as
-          // *Enterprise* cannot wrap, so a fixed badge beside it would push the
-          // line past the card's edge. Here the badge drops to its own line
-          // instead, and nothing overflows at any scale.
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.xs,
-            children: [
-              Text(
-                subscriptionTierLabel(l, tier),
-                style: AppTypography.titleLg,
-              ),
-              if (badge != null) _Badge(label: badge),
-            ],
+          // Title on the left, badge **at the card's far right** — the shape the
+          // card has always had. A plain `Row` overflowed by 3 px at text scale
+          // 1.5, because a single-word title such as *Enterprise* cannot wrap;
+          // so the title is the half that yields: it is fitted into the space the
+          // badge leaves, at its own size on a normal phone and a few percent
+          // smaller only when the largest text settings leave no room. The badge
+          // never moves, because it is the mark the eye is meant to land on.
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                // `Expanded`, not `Flexible`: the title area takes every pixel
+                // the badge does not, which is what puts the badge on the
+                // card's right edge. A loose `Flexible` shrink-wrapped the
+                // title and left the spare width at the end of the row.
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        subscriptionTierLabel(l, tier),
+                        maxLines: 1,
+                        softWrap: false,
+                        style: AppTypography.titleLg,
+                      ),
+                    ),
+                  ),
+                ),
+                if (badge != null) ...<Widget>[
+                  const SizedBox(width: AppSpacing.sm),
+                  // The badge is the fixed half, but never more than half the
+                  // row: at the very largest text setting its own label would
+                  // otherwise be wider than the card. It scales a little in
+                  // that one case instead of being clipped or wrapping.
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * 0.5,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: _Badge(label: badge),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 2),
           Text(

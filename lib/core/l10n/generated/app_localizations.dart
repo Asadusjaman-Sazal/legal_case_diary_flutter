@@ -1955,13 +1955,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_lapsedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your Plan Has Lapsed'**
+  /// **'Limited Access Mode'**
   String get paywall_lapsedTitle;
 
   /// No description provided for @paywall_lapsedBody.
   ///
   /// In en, this message translates to:
-  /// **'Your last plan lets you add up to {limit} cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.'**
+  /// **'Your plan has ended, so your access is limited: you can add up to {limit} cases. Everything you already hold stays readable; renew to add more and edit it all.'**
   String paywall_lapsedBody(String limit);
 
   /// No description provided for @paywall_intro.
@@ -2436,37 +2436,37 @@ abstract class AppLocalizations {
   /// No description provided for @lapse_bannerCases.
   ///
   /// In en, this message translates to:
-  /// **'Your plan has lapsed. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.'**
+  /// **'Your access is limited. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.'**
   String lapse_bannerCases(String editable, String readOnly);
 
   /// No description provided for @lapse_bannerNotes.
   ///
   /// In en, this message translates to:
-  /// **'Your plan has lapsed. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.'**
+  /// **'Your access is limited. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.'**
   String lapse_bannerNotes(String editable, String readOnly);
 
   /// No description provided for @lapse_bannerReferences.
   ///
   /// In en, this message translates to:
-  /// **'Your plan has lapsed. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.'**
+  /// **'Your access is limited. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.'**
   String lapse_bannerReferences(String editable, String readOnly);
 
   /// No description provided for @lapse_readOnlyCase.
   ///
   /// In en, this message translates to:
-  /// **'This case is read-only while your plan is lapsed. Renew to edit it.'**
+  /// **'This case is read-only while your access is limited. Renew to edit it.'**
   String get lapse_readOnlyCase;
 
   /// No description provided for @lapse_readOnlyNote.
   ///
   /// In en, this message translates to:
-  /// **'This note is read-only while your plan is lapsed. Renew to edit it.'**
+  /// **'This note is read-only while your access is limited. Renew to edit it.'**
   String get lapse_readOnlyNote;
 
   /// No description provided for @lapse_readOnlyReference.
   ///
   /// In en, this message translates to:
-  /// **'This case reference is read-only while your plan is lapsed. Renew to edit it.'**
+  /// **'This case reference is read-only while your access is limited. Renew to edit it.'**
   String get lapse_readOnlyReference;
 
   /// No description provided for @lapse_noteLimit.
@@ -3624,14 +3624,20 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSubscription_lapsedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your Plan Has Lapsed'**
+  /// **'Limited Access Mode'**
   String get settingsSubscription_lapsedTitle;
 
   /// No description provided for @settingsSubscription_lapsedBody.
   ///
   /// In en, this message translates to:
-  /// **'You can still read everything. Up to {count} cases, notes and references stay editable until you renew.'**
+  /// **'Your subscription plan has expired. You can still read everything. Up to {count} most recent cases, notes and case references stay editable until you renew.'**
   String settingsSubscription_lapsedBody(String count);
+
+  /// Limited Access: the reason is a cancellation, not the date running out.
+  ///
+  /// In en, this message translates to:
+  /// **'You recently cancelled your subscription plan. You can still read everything. Up to {count} most recent cases, notes and case references stay editable until you renew.'**
+  String settingsSubscription_lapsedBodyCancelled(String count);
 
   /// Free-plan limitation: the case ceiling from freeTierCaseLimit.
   ///
@@ -3933,11 +3939,11 @@ abstract class AppLocalizations {
   /// **'Premium'**
   String get settingsManageAccount_planPremium;
 
-  /// No description provided for @settingsManageAccount_planLapsed.
+  /// No description provided for @settingsManageAccount_planLimitedAccessTag.
   ///
   /// In en, this message translates to:
-  /// **'{tier} — Lapsed'**
-  String settingsManageAccount_planLapsed(String tier);
+  /// **'[Limited Access]'**
+  String get settingsManageAccount_planLimitedAccessTag;
 
   /// No description provided for @settingsManageAccount_premiumUntil.
   ///
@@ -8329,7 +8335,7 @@ abstract class AppLocalizations {
   /// No description provided for @payments_cancelWarning.
   ///
   /// In en, this message translates to:
-  /// **'A cancelled plan cannot be restored. Your account will move to the lapsed stage and keep only its limited allowance until you buy another plan.'**
+  /// **'A cancelled plan cannot be restored. Your account will move to Limited Access and keep only its reduced allowance until you buy another plan.'**
   String get payments_cancelWarning;
 
   /// No description provided for @payments_goBack.

@@ -1064,11 +1064,6 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final plan = currentPlanLabel(
-      l,
-      ref.watch(currentPlanProvider),
-      tier: ref.watch(allowanceTierProvider),
-    );
     // A chamber **member** has no plan of their own to buy (Phase 9): the
     // chamber's subscription is the source of truth on every member's device, so
     // the plans child is not offered to one. Subscription Details stays — it is
@@ -1111,8 +1106,9 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
                           // word is — a bare "Free" beside a chevron would read
                           // as the name of a screen.
                           children: [
-                            Text(
-                              plan,
+                            // The same label Subscription Details prints, so
+                            // the red *[Limited Access]* tag appears here too.
+                            CurrentPlanLabel(
                               style: AppTypography.labelLg.copyWith(
                                 color: AppColors.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,

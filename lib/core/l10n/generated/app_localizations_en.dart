@@ -1087,11 +1087,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get paywall_lapsedTitle => 'Your Plan Has Lapsed';
+  String get paywall_lapsedTitle => 'Limited Access Mode';
 
   @override
   String paywall_lapsedBody(String limit) {
-    return 'Your last plan lets you add up to $limit cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.';
+    return 'Your plan has ended, so your access is limited: you can add up to $limit cases. Everything you already hold stays readable; renew to add more and edit it all.';
   }
 
   @override
@@ -1370,30 +1370,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lapse_bannerCases(String editable, String readOnly) {
-    return 'Your plan has lapsed. The $editable most recently updated cases stay editable; $readOnly are read-only until you renew.';
+    return 'Your access is limited. The $editable most recently updated cases stay editable; $readOnly are read-only until you renew.';
   }
 
   @override
   String lapse_bannerNotes(String editable, String readOnly) {
-    return 'Your plan has lapsed. The $editable most recently updated notes stay editable; $readOnly are read-only until you renew.';
+    return 'Your access is limited. The $editable most recently updated notes stay editable; $readOnly are read-only until you renew.';
   }
 
   @override
   String lapse_bannerReferences(String editable, String readOnly) {
-    return 'Your plan has lapsed. The $editable most recently updated case references stay editable; $readOnly are read-only until you renew.';
+    return 'Your access is limited. The $editable most recently updated case references stay editable; $readOnly are read-only until you renew.';
   }
 
   @override
   String get lapse_readOnlyCase =>
-      'This case is read-only while your plan is lapsed. Renew to edit it.';
+      'This case is read-only while your access is limited. Renew to edit it.';
 
   @override
   String get lapse_readOnlyNote =>
-      'This note is read-only while your plan is lapsed. Renew to edit it.';
+      'This note is read-only while your access is limited. Renew to edit it.';
 
   @override
   String get lapse_readOnlyReference =>
-      'This case reference is read-only while your plan is lapsed. Renew to edit it.';
+      'This case reference is read-only while your access is limited. Renew to edit it.';
 
   @override
   String get lapse_noteLimit =>
@@ -2023,11 +2023,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Free Plan Limitations';
 
   @override
-  String get settingsSubscription_lapsedTitle => 'Your Plan Has Lapsed';
+  String get settingsSubscription_lapsedTitle => 'Limited Access Mode';
 
   @override
   String settingsSubscription_lapsedBody(String count) {
-    return 'You can still read everything. Up to $count cases, notes and references stay editable until you renew.';
+    return 'Your subscription plan has expired. You can still read everything. Up to $count most recent cases, notes and case references stay editable until you renew.';
+  }
+
+  @override
+  String settingsSubscription_lapsedBodyCancelled(String count) {
+    return 'You recently cancelled your subscription plan. You can still read everything. Up to $count most recent cases, notes and case references stay editable until you renew.';
   }
 
   @override
@@ -2207,9 +2212,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_planPremium => 'Premium';
 
   @override
-  String settingsManageAccount_planLapsed(String tier) {
-    return '$tier — Lapsed';
-  }
+  String get settingsManageAccount_planLimitedAccessTag => '[Limited Access]';
 
   @override
   String settingsManageAccount_premiumUntil(String date) {
@@ -4818,7 +4821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payments_cancelWarning =>
-      'A cancelled plan cannot be restored. Your account will move to the lapsed stage and keep only its limited allowance until you buy another plan.';
+      'A cancelled plan cannot be restored. Your account will move to Limited Access and keep only its reduced allowance until you buy another plan.';
 
   @override
   String get payments_goBack => 'Go Back';

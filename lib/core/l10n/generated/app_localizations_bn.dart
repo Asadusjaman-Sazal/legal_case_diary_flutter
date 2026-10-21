@@ -1089,11 +1089,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_lapsedTitle => 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে';
+  String get paywall_lapsedTitle => 'সীমিত অ্যাক্সেস মোড';
 
   @override
   String paywall_lapsedBody(String limit) {
-    return 'মেয়াদ শেষ হওয়া আপনার সর্বশেষ প্ল্যানে সর্বোচ্চ $limitটি মামলা যোগ করা যায়। আগের সব মামলা পড়া যাবে; আরও যোগ করা ও সব সম্পাদনা করতে নবায়ন করুন।';
+    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে, তাই অ্যাক্সেস সীমিত: সর্বোচ্চ $limitটি মামলা যোগ করা যায়। আগের সবকিছু পড়া যাবে; আরও যোগ করা ও সবকিছু সম্পাদনা করতে নবায়ন করুন।';
   }
 
   @override
@@ -1374,30 +1374,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String lapse_bannerCases(String editable, String readOnly) {
-    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি মামলা সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি মামলা সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
   }
 
   @override
   String lapse_bannerNotes(String editable, String readOnly) {
-    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি নোট সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি নোট সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
   }
 
   @override
   String lapse_bannerReferences(String editable, String readOnly) {
-    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা $editableটি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
   }
 
   @override
   String get lapse_readOnlyCase =>
-      'প্ল্যানের মেয়াদ শেষ থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
 
   @override
   String get lapse_readOnlyNote =>
-      'প্ল্যানের মেয়াদ শেষ থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
 
   @override
   String get lapse_readOnlyReference =>
-      'প্ল্যানের মেয়াদ শেষ থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
 
   @override
   String get lapse_noteLimit =>
@@ -2029,12 +2029,16 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফ্রি প্ল্যানের সীমাবদ্ধতা';
 
   @override
-  String get settingsSubscription_lapsedTitle =>
-      'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে';
+  String get settingsSubscription_lapsedTitle => 'সীমিত অ্যাক্সেস মোড';
 
   @override
   String settingsSubscription_lapsedBody(String count) {
-    return 'সবকিছু এখনও পড়া যাবে। নবায়ন পর্যন্ত সর্বোচ্চ $countটি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।';
+    return 'আপনার সাবস্ক্রিপশন প্ল্যানের মেয়াদ শেষ হয়েছে। আপনি সবকিছু এখনও পড়তে পারবেন। নবায়ন করার আগ পর্যন্ত সর্বশেষ $countটি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।';
+  }
+
+  @override
+  String settingsSubscription_lapsedBodyCancelled(String count) {
+    return 'আপনি সম্প্রতি আপনার সাবস্ক্রিপশন প্ল্যান বাতিল করেছেন। আপনি সবকিছু এখনও পড়তে পারবেন। নবায়ন করার আগ পর্যন্ত সর্বশেষ $countটি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।';
   }
 
   @override
@@ -2213,9 +2217,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_planPremium => 'প্রিমিয়াম';
 
   @override
-  String settingsManageAccount_planLapsed(String tier) {
-    return '$tier — মেয়াদোত্তীর্ণ';
-  }
+  String get settingsManageAccount_planLimitedAccessTag => '[সীমিত অ্যাক্সেস]';
 
   @override
   String settingsManageAccount_premiumUntil(String date) {
@@ -4838,7 +4840,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get payments_cancelWarning =>
-      'বাতিল করা প্ল্যান আর ফিরিয়ে আনা যাবে না। নতুন প্ল্যান কেনার আগ পর্যন্ত আপনার অ্যাকাউন্ট ল্যাপ্সড অবস্থায় থাকবে এবং শুধু সীমিত সুবিধা পাবে।';
+      'বাতিল করা প্ল্যান আর ফিরিয়ে আনা যাবে না। নতুন প্ল্যান কেনার আগ পর্যন্ত আপনার অ্যাকাউন্ট সীমিত অ্যাক্সেসে থাকবে এবং শুধু সীমিত সুবিধা পাবে।';
 
   @override
   String get payments_goBack => 'ফিরে যান';

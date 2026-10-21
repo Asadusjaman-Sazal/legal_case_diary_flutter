@@ -23,6 +23,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -36,6 +37,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repo
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
+import 'package:legal_case_diary/features/payments/presentation/current_plan.dart';
 import 'package:legal_case_diary/features/settings/presentation/subscription_details_screen.dart';
 
 import 'auth_test_support.dart';
@@ -996,24 +998,38 @@ void main() {
       expect(repo.cancelCalls, 1);
       expect(refreshes, 1);
 
-      // The plan lapsed, and the tier it held still names it.
+      // The plan is on Limited Access: the tier it held still names it, with
+      // the red tag beside it, and the block's own title says what that means.
+      // `find.text` would match both the `Text.rich` and the `RichText` it
+      // builds, so the label itself is the finder.
       expect(
-        find.text(l.settingsManageAccount_planLapsed(l.paywall_tierPro)),
-        findsWidgets,
+        find.byWidgetPredicate((w) => w is CurrentPlanLabel && w.showTag),
+        findsOneWidget,
       );
       expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
+      // The reason is a cancellation, so the card says when rather than showing
+      // the backdated expiry the server moved behind the grace window.
+      expect(find.text(l.settingsManageAccount_expiry), findsNothing);
+      expect(
+        find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
+        findsOneWidget,
+      );
 
       // The cancellation is an entry of its own: plan and amount repeated, a
       // red verdict, and the moment it happened rather than the purchase's.
-      expect(find.text(l.payments_statusCancelled), findsOneWidget);
+      // Twice: the card's own Cancelled row, and the ledger pill. The pill is
+      // the later of the two in the tree and keeps its red.
+      expect(find.text(l.payments_statusCancelled), findsNWidgets(2));
       expect(
         tester
-            .widget<Text>(find.text(l.payments_statusCancelled))
+            .widgetList<Text>(find.text(l.payments_statusCancelled))
+            .last
             .style
             ?.color,
         AppColors.error,
       );
-      expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
+      // The cancellation's moment, on the card and on its ledger entry.
+      expect(find.text('02/12/2026, 11:30 PM'), findsNWidgets(2));
 
       // Nothing is left to cancel, so the action is gone with the live plan.
       expect(find.byKey(cancelKey), findsNothing);
@@ -1101,6 +1117,182 @@ void main() {
     expect(find.text('2'), findsOneWidget);
     expect(find.text(l.payments_statusCancelled), findsOneWidget);
     expect(find.text(l.payments_statusApproved), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  /// A paid individual whose period is over but whose tier is kept: Pro's 250
+  /// is what Limited Access still allows.
+  Future<void> seedIndividualEnded(AppDatabase db) => ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-1'),
+          fullName: const Value('Adv. Rahim Uddin'),
+          role: const Value(AccountRole.individual),
+          tier: const Value('pro'),
+          subscriptionStatus: const Value('expired'),
+          subscriptionExpiry: Value(
+            DateTime.utc(2026, 10, 1, 17, 30).millisecondsSinceEpoch,
+          ),
+          createdAt: const Value(1),
+        ),
+      );
+
+  /// Payments that bought the Pro quarter a cancellation later ended.
+  List<Override> paidProOverrides() => <Override>[
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => [
+            submission(
+              id: 'p1',
+              planType: paymentPlanProQuarterly,
+              amount: 360,
+              status: 'approved',
+              submittedAt: DateTime.utc(2026, 10, 1, 10),
+              approvedAt: DateTime.utc(2026, 10, 1, 12),
+            ),
+          ],
+        ),
+      ];
+
+  testWidgets('a cancelled plan says Cancelled, with the moment it happened', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        ...paidProOverrides(),
+        mySubscriptionCancellationsProvider.overrideWith(
+          (ref) async => [
+            SubscriptionCancellation(
+              id: 'c1',
+              planType: paymentPlanProQuarterly,
+              amount: 360,
+              cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
+            ),
+          ],
+        ),
+      ],
+      seed: seedIndividualEnded,
+    );
+
+    // The row is the cancellation, not the expiry the server backdated behind
+    // the grace window: the moment it happened is what the user came for. It
+    // appears twice — the card's row and the ledger's own entry for it.
+    expect(find.text(l.payments_statusCancelled), findsNWidgets(2));
+    expect(find.text(l.settingsManageAccount_expiry), findsNothing);
+    expect(find.text('02/12/2026, 11:30 PM'), findsNWidgets(2));
+
+    // And the block says why the access is limited, in the cancelled words.
+    expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
+    expect(
+      find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsSubscription_lapsedBody('250')), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a plan that simply ran out keeps Expiry and says it expired', (
+    tester,
+  ) async {
+    await pumpDetails(tester, seed: seedIndividualEnded);
+
+    // No cancellation in the ledger, so nothing was cancelled: the expiry is
+    // the honest fact and the row stays.
+    expect(find.text(l.payments_statusCancelled), findsNothing);
+    expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
+    expect(find.text('01/10/2026, 11:30 PM'), findsOneWidget);
+    expect(
+      find.text(l.settingsSubscription_lapsedBody('250')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
+      findsNothing,
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('every value shares one size, and the plan keeps its weight', (
+    tester,
+  ) async {
+    await pumpDetails(tester, seed: seedIndividualPaid);
+
+    // The section body's size on every value: the card is a list of facts, not
+    // a headline above four footnotes (user request).
+    for (final value in <String>[
+      l.settingsManageAccount_roleIndividual,
+      '01/12/2026, 11:30 PM',
+    ]) {
+      final text = tester.widget<Text>(find.text(value).first);
+      expect(
+        text.style?.fontSize,
+        AppTypography.bodyMd.fontSize,
+        reason: value,
+      );
+    }
+
+    final planLabel = tester.widget<CurrentPlanLabel>(
+      find.byWidgetPredicate((w) => w is CurrentPlanLabel && w.showTag),
+    );
+    expect(planLabel.style?.fontSize, AppTypography.bodyMd.fontSize);
+    // Bold, as it was: only the size came down.
+    expect(planLabel.style?.fontWeight, FontWeight.w600);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the Limited Access tag is red and a little smaller', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        ...paidProOverrides(),
+        mySubscriptionCancellationsProvider.overrideWith(
+          (ref) async => [
+            SubscriptionCancellation(
+              id: 'c1',
+              planType: paymentPlanProQuarterly,
+              amount: 360,
+              cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
+            ),
+          ],
+        ),
+      ],
+      seed: seedIndividualEnded,
+    );
+
+    // The row prints the tier, then the tag as its own span — which is what lets
+    // the words be red and smaller than the name beside them. The card's
+    // heading carries the name alone, so the tag is stated once.
+    final label = find.byWidgetPredicate(
+      (w) => w is CurrentPlanLabel && w.showTag,
+    );
+    expect(label, findsOneWidget);
+    final rich = tester.widget<RichText>(
+      find.descendant(of: label, matching: find.byType(RichText)),
+    );
+    // `Text` wraps the span it is given in one carrying the style, so the two
+    // printed spans are found by walking the tree rather than by index.
+    final spans = <TextSpan>[];
+    (rich.text as TextSpan).visitChildren((span) {
+      if (span is TextSpan && span.text != null) spans.add(span);
+      return true;
+    });
+    expect(
+      spans.map((span) => span.text),
+      <String>[
+        l.paywall_tierPro,
+        ' ${l.settingsManageAccount_planLimitedAccessTag}',
+      ],
+    );
+    expect(spans[1].style?.color, AppColors.error);
+    expect(
+      spans[1].style!.fontSize!,
+      lessThan(AppTypography.bodyMd.fontSize!),
+    );
 
     await unmountApp(tester);
   });

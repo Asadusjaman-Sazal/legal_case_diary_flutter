@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.558 - Hold the Individual/Firm pill at 60% on real phones by raising its compact cap to 240 pt.
+Version: 0.0.560 - Subscription Details: a cancelled plan now says Cancelled with its moment, every Lapsed label reads Limited Access in red brackets, and the card's values share one size.
 --------------------------------------
 
 ## Version History Log:
@@ -572,3 +572,5 @@ Version: 0.0.555 - Warn a paying account before its plan ends: a banner from 7 d
 Version: 0.0.556 - Narrow the Individual/Firm pill on Subscription Plans to 52% of the card width (capped at 200), so it reads as a control rather than a bar.
 Version: 0.0.557 - Widen the Individual/Firm pill on Subscription Plans from 52% to 60% of the card width, at the user's word.
 Version: 0.0.558 - Hold the Individual/Firm pill at 60% on real phones by raising its compact cap to 240 pt.
+Version: 0.0.559 - Restore the plan card badge to the card's right edge and mark Firm Plus, not Firm, as Most Popular.
+Version: 0.0.560 - Subscription Details: a cancelled plan now says Cancelled with its moment, every Lapsed label reads Limited Access in red brackets, and the card's values share one size.

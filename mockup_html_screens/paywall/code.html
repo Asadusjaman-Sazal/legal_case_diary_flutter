@@ -163,9 +163,12 @@
        one-step-lighter surface-container, so the same grey inside a white card
        does not read heavier than it does under the pill. -->
   <div class="mt-md flex justify-center">
-    <div class="inline-flex rounded-full bg-surface-container-high p-1">
-      <button class="px-lg h-9 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Individual</button>
-      <button class="px-lg h-9 rounded-full text-on-surface-variant font-label-lg text-label-lg">Firm</button>
+    <!-- The pill is a control, not a banner: it takes six tenths of the card's
+         width (60%, capped at 240px) with two equal halves, matching the app's
+         `_AudienceToggle`. -->
+    <div class="flex w-[60%] max-w-[240px] rounded-full bg-surface-container-high p-1">
+      <button class="flex-1 h-9 rounded-full bg-primary text-on-primary font-label-lg text-label-lg">Individual</button>
+      <button class="flex-1 h-9 rounded-full text-on-surface-variant font-label-lg text-label-lg">Firm</button>
     </div>
   </div>
 

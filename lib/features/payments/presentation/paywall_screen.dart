@@ -888,39 +888,60 @@ class _AudienceToggle extends StatelessWidget {
   final SubscriptionAudience selected;
   final ValueChanged<SubscriptionAudience> onChanged;
 
+  /// Share of the card's width the pill takes.
+  ///
+  /// Three fifths (user ruling: 60%, after living with 52% for a moment), which
+  /// is how a pricing page's audience switch normally reads: a control you
+  /// choose from, not a banner the width of the page. The card is the full width
+  /// less the screen's edge margins, so on a 360 pt phone this is about 197 pt
+  /// against a 328 pt card.
+  static const double widthFactor = 0.60;
+
+  /// Ceiling for that share, so the pill stays compact on a wide screen (the
+  /// tests' 1200 pt viewport, a tablet in landscape) instead of stretching with
+  /// the card back to the width this change just removed. Set above the widest
+  /// common phone's share — 60% of a 430 pt phone's card is 240 pt — so the ask
+  /// holds on a real phone and only a tablet meets the cap.
+  static const double maxWidth = 240;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-      ),
-      // Both halves are flexible and the pill keeps its compact shape: at the
-      // largest text scale two 112px-minimum segments plus their labels no
-      // longer fit a 360pt phone, so each half takes what is left and its label
-      // is fitted to that width rather than pushed past the screen.
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: _segment(
-              key: const ValueKey('paywall-audience-individual'),
-              label: l.paywall_audienceIndividual,
-              value: SubscriptionAudience.individual,
-              isSelected: selected == SubscriptionAudience.individual,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        width: (constraints.maxWidth * widthFactor).clamp(0.0, maxWidth),
+        child: Container(
+          key: const ValueKey('paywall-audience-pill'),
+          padding: const EdgeInsets.all(AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           ),
-          Flexible(
-            child: _segment(
-              key: const ValueKey('paywall-audience-firm'),
-              label: l.paywall_audienceFirm,
-              value: SubscriptionAudience.firm,
-              isSelected: selected == SubscriptionAudience.firm,
-            ),
+          // The two halves split the pill equally, and each label is fitted to
+          // its half rather than wrapped: a two-line pill would change the
+          // control's shape at the very scale it is meant to stay usable at,
+          // and the settings picker header solves a long label the same way.
+          child: Row(
+            children: [
+              Expanded(
+                child: _segment(
+                  key: const ValueKey('paywall-audience-individual'),
+                  label: l.paywall_audienceIndividual,
+                  value: SubscriptionAudience.individual,
+                  isSelected: selected == SubscriptionAudience.individual,
+                ),
+              ),
+              Expanded(
+                child: _segment(
+                  key: const ValueKey('paywall-audience-firm'),
+                  label: l.paywall_audienceFirm,
+                  value: SubscriptionAudience.firm,
+                  isSelected: selected == SubscriptionAudience.firm,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -942,7 +963,10 @@ class _AudienceToggle extends StatelessWidget {
         onTap: () => onChanged(value),
         borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44, minWidth: 112),
+          // A minimum height only: the width comes from the half of the pill
+          // this segment owns, so a fixed minimum would push the pill wider
+          // than the share the user asked for.
+          constraints: const BoxConstraints(minHeight: 44),
           child: Center(
             // Fitted to the segment rather than wrapped: the project's picker
             // header solves a long label the same way, and a two-line pill

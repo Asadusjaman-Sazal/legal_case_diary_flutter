@@ -55,6 +55,7 @@ Version: 0.0.41 - Task 07 Phase 1 complete: ...
 - Read ONLY: the current task file, the plan sections it explicitly cites, and the mockups for the screens it builds. Do not read the whole plan or unrelated task files.
 - PLAN before BUILD: propose a terse phase-by-phase plan and wait for user approval before writing code.
 - After the final phase, run the task file's acceptance tests/checklist (including Addendum items) and report pass/fail per item.
+- **Clear the to-do list when its work ends.** The list is a live progress view, not a record: mark each item completed as you finish it, and once the last one is done — or the work stops early, or the list turns out not to have been needed — call `write_todos` with an empty list (`write_todos({ todos: [] })`) in the same turn, **before** the final message. A finished list must never be left hanging on the user's screen; the final message and `docs/currentlyWorking.md` are the record, not the ticks.
 
 ## Output discipline (token economy)
 

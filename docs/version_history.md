@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.563 - The scheduled-start warning now counts a month the way the server does, so a renewal from 31 January reads 28 February instead of 3 March.
+Version: 0.0.564 - AGENTS.md and CLAUDE.md now require a finished to-do list to be cleared in the same turn, so nothing is left hanging on the user's screen.
 --------------------------------------
 
 ## Version History Log:
@@ -577,3 +577,4 @@ Version: 0.0.560 - Subscription Details: a cancelled plan now says Cancelled wit
 Version: 0.0.561 - Side menu: the [Limited Access] tag now sits two spaces off the plan name, while Subscription Details keeps one.
 Version: 0.0.562 - Subscription Plans: the three chamber cards list their whole allowance under a plain Includes heading, and the device sentences now say new device and concurrent devices.
 Version: 0.0.563 - The scheduled-start warning now counts a month the way the server does, so a renewal from 31 January reads 28 February instead of 3 March.
+Version: 0.0.564 - AGENTS.md and CLAUDE.md now require a finished to-do list to be cleared in the same turn, so nothing is left hanging on the user's screen.

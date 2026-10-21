@@ -18,6 +18,7 @@ import '../../features/accounts_and_profile/presentation/delete_account_screen.d
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import '../../features/accounts_and_profile/presentation/profile_screen.dart';
+import '../../features/accounts_and_profile/presentation/devices_screen.dart';
 import '../../features/app_lock/presentation/app_lock_screen.dart';
 import '../../features/auth/data/local_auth_service.dart';
 import '../../features/auth/presentation/auth_gate.dart';
@@ -114,8 +115,7 @@ class AppRoutes {
 
   /// The typed confirmation a deletion must pass through (0.0.412), pushed from
   /// Manage Account's warning. Nothing is deleted until the phrase matches.
-  static const String settingsDeleteAccount =
-      '/settings/manage-account/delete';
+  static const String settingsDeleteAccount = '/settings/manage-account/delete';
 
   /// Change Password as a Settings sub-page.
   ///
@@ -130,6 +130,9 @@ class AppRoutes {
   /// changed and paired with a fingerprint here; the lock itself is enforced
   /// at the app root by `AppLockScope`.
   static const String settingsAppLock = '/settings/app-lock';
+
+  /// Devices: the slots this plan allows, and which devices hold them.
+  static const String settingsDevices = '/settings/devices';
 
   static const String settingsManageAssociates = '/settings/manage-associates';
 
@@ -495,9 +498,8 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
         // The plan travels as a query parameter (`?plan=monthly|annual`) so the
         // paywall's plan tap needs no second route and a restored deep link
         // still names the plan it was opened for.
-        builder: (context, state) => CheckoutScreen(
-          planKey: state.uri.queryParameters['plan'],
-        ),
+        builder: (context, state) =>
+            CheckoutScreen(planKey: state.uri.queryParameters['plan']),
       ),
     ],
   );
@@ -625,6 +627,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsAppLock,
     builder: (context, state) => const AppLockScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsDevices,
+    builder: (context, state) => const DevicesScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsManageAssociates,

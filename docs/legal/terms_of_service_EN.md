@@ -117,6 +117,15 @@ price per month before you pay. There is no lifetime plan.
   allowance of the plan you last held — Starter 100, Pro 250, Firm 500, Firm Plus 1,000 and
   Enterprise 2,000 cases, notes and case references — with the most recently updated rows editable
   and the rest readable, printable and exportable until you renew.
+- **Devices.** A plan allows a set number of devices signed in at the same time: **Starter one**,
+  **Pro two**, and each chamber plan **one for every member, the owner included**. When a new device
+  signs in and the plan is full, the device used least recently is signed out only if it has been
+  idle for **seven days or more**; a device used more recently is never signed out for you, and the
+  new device is asked to free a place or sign out instead. Before a signed-out device is emptied,
+  whatever it has not yet sent is uploaded to your account, and a device that cannot reach your
+  account is left untouched. **Nothing is erased while a plan is lapsed**, because the account has
+  no live copy to send the work to. You can free a place yourself at any time under Settings →
+  Manage Account → Devices.
 - **Price changes.** We may change prices for future periods. A change will be shown in the app
   before you pay it, and it never affects a period you have already paid for.
 

@@ -2022,6 +2022,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'Change Password';
 
   @override
+  String get devices_title => 'Devices';
+
+  @override
+  String get devices_subtitle =>
+      'The devices that can use this account at the same time.';
+
+  @override
+  String devices_limitLabel(String used, String cap) {
+    return '$used of $cap devices in use';
+  }
+
+  @override
+  String get devices_thisDevice => 'This device';
+
+  @override
+  String devices_lastUsed(String date) {
+    return 'Last used $date';
+  }
+
+  @override
+  String get devices_remove => 'Remove';
+
+  @override
+  String get devices_removeTitle => 'Remove This Device?';
+
+  @override
+  String devices_removeBody(String name) {
+    return '$name will be signed out, and its local copy erased once its unsaved work has reached your account.';
+  }
+
+  @override
+  String get devices_cancel => 'Cancel';
+
+  @override
+  String get devices_removed => 'Device removed.';
+
+  @override
+  String get devices_empty => 'No devices are registered yet.';
+
+  @override
+  String get devices_unavailable =>
+      'Could not reach your account. Check your connection and try again.';
+
+  @override
+  String get devices_tryAgain => 'Try Again';
+
+  @override
+  String get devices_signOut => 'Sign Out';
+
+  @override
+  String get devices_planFullTitle => 'Your Plan Is Full';
+
+  @override
+  String devices_planFullBody(String cap) {
+    return 'This account is already in use on $cap devices, and every one of them was used in the last seven days. Remove one to use this device.';
+  }
+
+  @override
+  String get devices_revokedTitle => 'This Device Was Signed Out';
+
+  @override
+  String devices_revokedBody(String cap) {
+    return 'Your plan allows $cap device(s) at a time, and another device took this one\'s place. Your unsaved work will be sent to your account before this device is erased.';
+  }
+
+  @override
+  String get devices_revokedSaving => 'Saving your unsaved work…';
+
+  @override
+  String get devices_revokedSaved =>
+      'Your work was saved. This device has been erased.';
+
+  @override
+  String get devices_revokedSaveFailed =>
+      'Your work could not reach your account, so nothing has been erased. Everything is still on this device.';
+
+  @override
+  String devices_revokedLapseBody(String cap) {
+    return 'Your plan changed and now allows $cap device(s) at a time, so this device gave up its place. Your unsaved work will be sent to your account before this device is erased.';
+  }
+
+  @override
+  String get devices_revokedRemovedBody =>
+      'You removed this device from your device list. Your unsaved work will be sent to your account before this device is erased.';
+
+  @override
+  String get devices_revokedReplacedBody =>
+      'You signed in again on this device, so this sign-in has ended. Your unsaved work will be sent to your account before this device is erased.';
+
+  @override
+  String get devices_discard => 'Sign Out and Discard';
+
+  @override
+  String devices_evicted(String name) {
+    return '$name was signed out to make room for this device.';
+  }
+
+  @override
   String get settingsSubscription_freePlanLimitations =>
       'Free Plan Limitations';
 

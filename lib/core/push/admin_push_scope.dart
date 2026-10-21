@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/auth_viewmodel.dart';
+import '../providers/device_providers.dart';
 import '../providers/repository_providers.dart';
 import 'push_gateway.dart';
 
@@ -115,7 +116,9 @@ class _AdminPushScopeState extends ConsumerState<AdminPushScope> {
 
       final token = await gateway.token();
       if (token == null) return;
-      await ref.read(deviceTokenRepositoryProvider).register(token);
+      await ref
+          .read(deviceTokenRepositoryProvider)
+          .register(token, deviceKey: _deviceKey());
       _registeredUserId = identity.userId;
     } catch (error, stackTrace) {
       _log('admin push registration failed', error, stackTrace);
@@ -130,11 +133,23 @@ class _AdminPushScopeState extends ConsumerState<AdminPushScope> {
     // non-administrator has no row to update.
     if (_registeredUserId == null) return;
     try {
-      await ref.read(deviceTokenRepositoryProvider).register(token);
+      await ref
+          .read(deviceTokenRepositoryProvider)
+          .register(token, deviceKey: _deviceKey());
     } catch (error, stackTrace) {
       _log('admin push token refresh failed', error, stackTrace);
     }
   }
+
+  /// This install's device key, so a revocation can find this token.
+  ///
+  /// Read, never awaited: the key is metadata on a best-effort registration, and
+  /// the device gate resolves it at launch, so it is normally there by now. A
+  /// registration that waited on a slow platform channel would delay the token
+  /// row for nothing — the server's `device_key` is only how a later revocation
+  /// finds the row, and a missing one is already handled by that device's own
+  /// sign-out.
+  String? _deviceKey() => ref.read(deviceIdentityServiceProvider).cachedKey;
 }
 
 /// Logs and swallows a failure on the registration path.

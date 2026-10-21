@@ -48,9 +48,7 @@ const List<String> preferenceTables = <String>[
 /// other client-writable table it is legitimately **hard**-deleted, because a
 /// device unregisters its own push token on the way out of an account (0.0.498,
 /// the admin payment-alert server half).
-const List<String> localOperationalTables = <String>[
-  'device_tokens',
-];
+const List<String> localOperationalTables = <String>['device_tokens'];
 
 /// Server-managed/account/payment tables created by this task.
 const List<String> serverManagedTables = <String>[
@@ -91,12 +89,13 @@ List<String> expectedTables() => <String>[
 Directory migrationDir() => Directory('supabase/migrations');
 
 List<File> migrationFiles() {
-  final files = migrationDir()
-      .listSync()
-      .whereType<File>()
-      .where((file) => file.path.endsWith('.sql'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final files =
+      migrationDir()
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.sql'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
   return files;
 }
 
@@ -118,20 +117,17 @@ String? tableBlock(String sql, String table) {
 
 /// Every table created by the migrations, in file order.
 Set<String> createdTables(String sql) => RegExp(
-      r'create table if not exists public\.(\w+)',
-    ).allMatches(sql).map((match) => match.group(1)!).toSet();
+  r'create table if not exists public\.(\w+)',
+).allMatches(sql).map((match) => match.group(1)!).toSet();
 
 /// The policy actions (`select`, `insert`, `update`, …) defined on one table.
 ///
 /// Whitespace is allowed around `on` and `for`, because a long policy name is
 /// wrapped onto the next line.
 Set<String> policyActions(String sql, String table) => RegExp(
-      r'create policy \w+\s+on public\.' + table + r'\s+for (\w+)',
-      dotAll: true,
-    )
-        .allMatches(sql)
-        .map((match) => match.group(1)!)
-        .toSet();
+  r'create policy \w+\s+on public\.' + table + r'\s+for (\w+)',
+  dotAll: true,
+).allMatches(sql).map((match) => match.group(1)!).toSet();
 
 /// The body of one `create or replace function public.<name>(...) $$ ... $$;`.
 String? functionBlock(String sql, String name) {
@@ -187,9 +183,11 @@ void main() {
 
     test('create tables idempotently', () {
       expect(
-        RegExp(r'^create table (?!if not exists)',
-                multiLine: true, caseSensitive: false)
-            .hasMatch(sql),
+        RegExp(
+          r'^create table (?!if not exists)',
+          multiLine: true,
+          caseSensitive: false,
+        ).hasMatch(sql),
         isFalse,
         reason: 'every create table must be `create table if not exists`',
       );
@@ -202,8 +200,9 @@ void main() {
         final fileSql = normalizeSql(file.readAsStringSync());
         for (final table in createdTables(fileSql)) {
           expect(
-            RegExp('alter table public\\.$table enable row level security')
-                .hasMatch(fileSql),
+            RegExp(
+              'alter table public\\.$table enable row level security',
+            ).hasMatch(fileSql),
             isTrue,
             reason: '${file.path} creates public.$table without enabling RLS',
           );
@@ -231,9 +230,9 @@ void main() {
   group('table classes', () {
     test('every expected table is created exactly once', () {
       for (final table in expectedTables()) {
-        final count = RegExp('create table if not exists public\\.$table \\(')
-            .allMatches(sql)
-            .length;
+        final count = RegExp(
+          'create table if not exists public\\.$table \\(',
+        ).allMatches(sql).length;
         expect(count, 1, reason: 'public.$table must be created exactly once');
       }
     });
@@ -260,7 +259,8 @@ void main() {
         expect(
           block.contains('server_updated_at'),
           isFalse,
-          reason: '$table is not domain-synced and must not carry '
+          reason:
+              '$table is not domain-synced and must not carry '
               'server_updated_at',
         );
         expect(
@@ -273,42 +273,52 @@ void main() {
 
     test('unique constraints required by the sync contract exist', () {
       expect(
-        RegExp(r'source_mutation_id text not null unique')
-            .hasMatch(tableBlock(sql, 'case_history')!),
+        RegExp(
+          r'source_mutation_id text not null unique',
+        ).hasMatch(tableBlock(sql, 'case_history')!),
         isTrue,
-        reason: 'case_history.source_mutation_id must be unique for idempotency',
+        reason:
+            'case_history.source_mutation_id must be unique for idempotency',
       );
       expect(
-        RegExp(r'transaction_id text not null unique')
-            .hasMatch(tableBlock(sql, 'payment_submissions')!),
+        RegExp(
+          r'transaction_id text not null unique',
+        ).hasMatch(tableBlock(sql, 'payment_submissions')!),
         isTrue,
         reason: 'payment_submissions.transaction_id must be unique',
       );
     });
 
-    test('client-generated row keys are text and identity columns are uuid', () {
-      for (final table in domainTables) {
-        final block = tableBlock(sql, table)!;
+    test(
+      'client-generated row keys are text and identity columns are uuid',
+      () {
+        for (final table in domainTables) {
+          final block = tableBlock(sql, table)!;
+          expect(
+            block.contains('id text primary key'),
+            isTrue,
+            reason: '$table keeps the client-generated text key',
+          );
+        }
         expect(
-          block.contains('id text primary key'),
+          tableBlock(sql, 'cases')!.contains('user_id uuid not null'),
           isTrue,
-          reason: '$table keeps the client-generated text key',
         );
-      }
-      expect(tableBlock(sql, 'cases')!.contains('user_id uuid not null'), isTrue);
-      expect(
-        tableBlock(sql, 'case_history')!.contains('created_by uuid not null'),
-        isTrue,
-      );
-    });
+        expect(
+          tableBlock(sql, 'case_history')!.contains('created_by uuid not null'),
+          isTrue,
+        );
+      },
+    );
   });
 
   group('row-level security', () {
     test('is enabled on every table the task creates', () {
       for (final table in expectedTables()) {
         expect(
-          RegExp('alter table public\\.$table enable row level security')
-              .hasMatch(sql),
+          RegExp(
+            'alter table public\\.$table enable row level security',
+          ).hasMatch(sql),
           isTrue,
           reason: '$table must have RLS enabled',
         );
@@ -319,10 +329,7 @@ void main() {
       final deleteTargets = RegExp(
         r'create policy \w+ on public\.(\w+)\s+for delete',
         dotAll: true,
-      )
-          .allMatches(sql)
-          .map((match) => match.group(1)!)
-          .toSet();
+      ).allMatches(sql).map((match) => match.group(1)!).toSet();
       // Two legitimate hard deletes, and both are about a *membership* rather
       // than about data: removing an associate, and a device removing its own
       // push token so a phone that has left an account stops being notified.
@@ -335,34 +342,44 @@ void main() {
       }
     });
 
-    test('scopes case data to the author, the firm, or a dissolve scope owner', () {
-      for (final table in <String>[
-        'cases',
-        'case_history',
-        'notes',
-        'case_references',
-      ]) {
-        final policies = policyActions(sql, table);
-        expect(policies, <String>{'select', 'insert', 'update'}, reason: table);
-      }
-      // The scoped rule firm mode introduced. The ledger is cumulative, so the
-      // superseded own-rows-or-firm form is still in the file for the earlier
-      // migrations; these three fragments can only come from the scoping
-      // migration, and `supabase/tests/firm_mode_read_scope_test.sql` proves the
-      // behaviour they carry on the live project.
-      expect(
-        sql,
-        contains('using ((user_id = auth.uid() and firm_id is null and '),
-        reason: 'the individual diary is only yours while no dissolve has '
-            'claimed it',
-      );
-      expect(
-        sql,
-        contains('scope_owner_id is null) or firm_id = public.current_firm_id() or '),
-      );
-      expect(sql, contains('scope_owner_id = auth.uid())'));
-      expect(sql, contains('or public.can_edit_firm(firm_id)'));
-    });
+    test(
+      'scopes case data to the author, the firm, or a dissolve scope owner',
+      () {
+        for (final table in <String>[
+          'cases',
+          'case_history',
+          'notes',
+          'case_references',
+        ]) {
+          final policies = policyActions(sql, table);
+          expect(policies, <String>{
+            'select',
+            'insert',
+            'update',
+          }, reason: table);
+        }
+        // The scoped rule firm mode introduced. The ledger is cumulative, so the
+        // superseded own-rows-or-firm form is still in the file for the earlier
+        // migrations; these three fragments can only come from the scoping
+        // migration, and `supabase/tests/firm_mode_read_scope_test.sql` proves the
+        // behaviour they carry on the live project.
+        expect(
+          sql,
+          contains('using ((user_id = auth.uid() and firm_id is null and '),
+          reason:
+              'the individual diary is only yours while no dissolve has '
+              'claimed it',
+        );
+        expect(
+          sql,
+          contains(
+            'scope_owner_id is null) or firm_id = public.current_firm_id() or ',
+          ),
+        );
+        expect(sql, contains('scope_owner_id = auth.uid())'));
+        expect(sql, contains('or public.can_edit_firm(firm_id)'));
+      },
+    );
 
     test('the scope owner lives on the ledger tables and stays server-only', () {
       // The column is added by name to each of the eleven ledger tables…
@@ -400,52 +417,64 @@ void main() {
       expect(sql, contains("a.attname <> 'scope_owner_id'"));
     });
 
-    test('delete_requests is an audit trail the requester or reviewer edits', () {
-      expect(
-        sql,
-        contains("(requested_by = auth.uid() and status = 'pending')"),
-      );
-      expect(sql, contains('or public.can_delete_firm(firm_id)'));
-      expect(
-        policyActions(sql, 'delete_requests'),
-        isNot(contains('delete')),
-        reason: 'the delete-request queue is an audit trail',
-      );
-    });
+    test(
+      'delete_requests is an audit trail the requester or reviewer edits',
+      () {
+        expect(
+          sql,
+          contains("(requested_by = auth.uid() and status = 'pending')"),
+        );
+        expect(sql, contains('or public.can_delete_firm(firm_id)'));
+        expect(
+          policyActions(sql, 'delete_requests'),
+          isNot(contains('delete')),
+          reason: 'the delete-request queue is an audit trail',
+        );
+      },
+    );
 
-    test('the six reference tables share one matrix, built-ins readable by all', () {
-      const referenceTables = <String>[
-        'court_categories',
-        'case_categories',
-        'courts',
-        'steps',
-        'case_types',
-        'on_behalfs',
-      ];
-      for (final table in referenceTables) {
-        expect(sql, contains("'$table'"));
-      }
-      // The rule is split across concatenated format() literals in the file, so
-      // it is checked in halves rather than as one contiguous string.
-      expect(
-        sql,
-        contains('is_custom = false or user_id = auth.uid() or '),
-        reason: 'pre-seeded rows must be readable by every authenticated user',
-      );
-      // Firm mode's scoped form of the same rule: the baseline stays readable,
-      // and a *custom* row follows its author, its chamber or its scope owner.
-      expect(sql, contains('is_custom = false or (user_id = auth.uid() and '));
-      expect(sql, contains('firm_id = public.current_firm_id())'));
-      for (final action in <String>['select', 'insert', 'update']) {
-        expect(sql, contains('on public.%1\$I for $action to '));
-      }
-    });
+    test(
+      'the six reference tables share one matrix, built-ins readable by all',
+      () {
+        const referenceTables = <String>[
+          'court_categories',
+          'case_categories',
+          'courts',
+          'steps',
+          'case_types',
+          'on_behalfs',
+        ];
+        for (final table in referenceTables) {
+          expect(sql, contains("'$table'"));
+        }
+        // The rule is split across concatenated format() literals in the file, so
+        // it is checked in halves rather than as one contiguous string.
+        expect(
+          sql,
+          contains('is_custom = false or user_id = auth.uid() or '),
+          reason:
+              'pre-seeded rows must be readable by every authenticated user',
+        );
+        // Firm mode's scoped form of the same rule: the baseline stays readable,
+        // and a *custom* row follows its author, its chamber or its scope owner.
+        expect(
+          sql,
+          contains('is_custom = false or (user_id = auth.uid() and '),
+        );
+        expect(sql, contains('firm_id = public.current_firm_id())'));
+        for (final action in <String>['select', 'insert', 'update']) {
+          expect(sql, contains('on public.%1\$I for $action to '));
+        }
+      },
+    );
 
     test('account, firm and preference rows keep their own scope', () {
       // Self or same-firm profiles: Manage Associates and "edited by [Name]".
       expect(
         sql,
-        contains('or (firm_id is not null and firm_id = public.current_firm_id())'),
+        contains(
+          'or (firm_id is not null and firm_id = public.current_firm_id())',
+        ),
       );
       // Only the sign-up trigger creates a profile, and nothing deletes one.
       expect(policyActions(sql, 'profiles'), isNot(contains('insert')));
@@ -456,7 +485,10 @@ void main() {
         contains('using (public.is_firm_owner(firm_id))'),
         reason: 'firm administration is owner-only',
       );
-      expect(policyActions(sql, 'payment_submissions'), <String>{'select', 'insert'});
+      expect(policyActions(sql, 'payment_submissions'), <String>{
+        'select',
+        'insert',
+      });
       expect(
         policyActions(sql, 'payment_submissions'),
         isNot(contains('update')),
@@ -468,11 +500,11 @@ void main() {
         reason: 'owners read their own approval receipts, admins read all',
       );
       for (final table in preferenceTables) {
-        expect(
-          policyActions(sql, table),
-          <String>{'select', 'insert', 'update'},
-          reason: table,
-        );
+        expect(policyActions(sql, table), <String>{
+          'select',
+          'insert',
+          'update',
+        }, reason: table);
       }
     });
   });
@@ -481,14 +513,17 @@ void main() {
     test('deny every direct client command', () {
       for (final table in serverInternalTables) {
         expect(
-          RegExp('alter table public\\.$table enable row level security')
-              .hasMatch(sql),
+          RegExp(
+            'alter table public\\.$table enable row level security',
+          ).hasMatch(sql),
           isTrue,
           reason: '$table must have RLS enabled',
         );
         expect(
-          RegExp('create policy [^;]*on public\\.$table', dotAll: true)
-              .hasMatch(sql),
+          RegExp(
+            'create policy [^;]*on public\\.$table',
+            dotAll: true,
+          ).hasMatch(sql),
           isFalse,
           reason: '$table is server-internal and must have no policy',
         );
@@ -497,8 +532,9 @@ void main() {
 
     test('keep the attempts index the rate limiter counts through', () {
       expect(
-        RegExp(r'create index if not exists invite_attempts_user_attempted_at_idx\s+on public\.invite_attempts \(user_id, attempted_at desc\)')
-            .hasMatch(sql),
+        RegExp(
+          r'create index if not exists invite_attempts_user_attempted_at_idx\s+on public\.invite_attempts \(user_id, attempted_at desc\)',
+        ).hasMatch(sql),
         isTrue,
       );
     });
@@ -510,8 +546,9 @@ void main() {
         reason: 'a grant is immutable; revocation is a delete',
       );
       expect(
-        RegExp(r'before update or delete on public\.payment_approval_events')
-            .hasMatch(sql),
+        RegExp(
+          r'before update or delete on public\.payment_approval_events',
+        ).hasMatch(sql),
         isTrue,
       );
     });
@@ -548,23 +585,38 @@ void main() {
       }
     });
 
-    test('server_updated_at is the only delta cursor and is trigger-assigned', () {
-      final block = functionBlock(sql, 'set_server_updated_at')!;
-      expect(block, contains('new.server_updated_at := now()'));
-      expect(block, contains('return new'));
-    });
+    test(
+      'server_updated_at is the only delta cursor and is trigger-assigned',
+      () {
+        final block = functionBlock(sql, 'set_server_updated_at')!;
+        expect(block, contains('new.server_updated_at := now()'));
+        expect(block, contains('return new'));
+      },
+    );
 
-    test('a delete transition needs can_delete unless the row is individual', () {
-      final block = functionBlock(sql, 'enforce_delete_transition')!;
-      expect(block, contains('old.is_deleted = false and new.is_deleted = true'));
-      expect(block, contains('public.can_delete_firm(old.firm_id)'));
-      expect(block, contains('old.firm_id is not null'));
-    });
+    test(
+      'a delete transition needs can_delete unless the row is individual',
+      () {
+        final block = functionBlock(sql, 'enforce_delete_transition')!;
+        expect(
+          block,
+          contains('old.is_deleted = false and new.is_deleted = true'),
+        );
+        expect(block, contains('public.can_delete_firm(old.firm_id)'));
+        expect(block, contains('old.firm_id is not null'));
+      },
+    );
 
     test('resurrection needs the transaction-local admin flag only', () {
       final block = functionBlock(sql, 'enforce_no_resurrection')!;
-      expect(block, contains('old.is_deleted = true and new.is_deleted = false'));
-      expect(block, contains("current_setting('app.allow_resurrection', true)"));
+      expect(
+        block,
+        contains('old.is_deleted = true and new.is_deleted = false'),
+      );
+      expect(
+        block,
+        contains("current_setting('app.allow_resurrection', true)"),
+      );
       // The guard must not weigh client clocks, versions or editor ids.
       for (final forbidden in <String>[
         'old.updated_at',
@@ -593,26 +645,32 @@ void main() {
       );
     });
 
-    test('the payment rate limit overwrites client time and counts server time', () {
-      final block = functionBlock(sql, 'enforce_payment_rate_limit')!;
-      expect(block, contains('new.submitted_at := now()'));
-      // The mechanism is pinned on the original trigger migration; the effective
-      // limit is the latest definition of it — the follow-up raised it to five —
-      // so the value is asserted against the whole set, not the first block
-      // (`functionBlock` returns the first match).
-      expect(sql, contains('c_daily_limit constant integer := 5'));
-      expect(block, contains("interval '24 hours'"));
-      expect(block, contains('s.submitted_at'));
-    });
+    test(
+      'the payment rate limit overwrites client time and counts server time',
+      () {
+        final block = functionBlock(sql, 'enforce_payment_rate_limit')!;
+        expect(block, contains('new.submitted_at := now()'));
+        // The mechanism is pinned on the original trigger migration; the effective
+        // limit is the latest definition of it — the follow-up raised it to five —
+        // so the value is asserted against the whole set, not the first block
+        // (`functionBlock` returns the first match).
+        expect(sql, contains('c_daily_limit constant integer := 5'));
+        expect(block, contains("interval '24 hours'"));
+        expect(block, contains('s.submitted_at'));
+      },
+    );
   });
 
   group('entitlement', () {
-    test('is always derived from expiry plus the 48h grace, never from status', () {
-      final block = functionBlock(sql, 'is_premium')!;
-      expect(block, contains("interval '48 hours' > now()"));
-      expect(block, contains('p.subscription_expiry is not null'));
-      expect(block, isNot(contains('subscription_status')));
-    });
+    test(
+      'is always derived from expiry plus the 48h grace, never from status',
+      () {
+        final block = functionBlock(sql, 'is_premium')!;
+        expect(block, contains("interval '48 hours' > now()"));
+        expect(block, contains('p.subscription_expiry is not null'));
+        expect(block, isNot(contains('subscription_status')));
+      },
+    );
   });
 
   group('SECURITY DEFINER RPCs', () {
@@ -626,7 +684,10 @@ void main() {
       expect(block, contains("'already_resolved'"));
       expect(block, contains("'invalid_plan'"));
       expect(block, contains("'invalid_amount'"));
-      expect(block, contains('greatest(coalesce(v_previous_expiry, now()), now())'));
+      expect(
+        block,
+        contains('greatest(coalesce(v_previous_expiry, now()), now())'),
+      );
       expect(block, contains("interval '1 month'"));
       expect(block, contains("interval '1 year'"));
       expect(block, contains('insert into public.payment_approval_events'));
@@ -636,15 +697,20 @@ void main() {
       expect(
         sql,
         contains(
-            'revoke all on function public.approve_payment(uuid) from public, anon'),
+          'revoke all on function public.approve_payment(uuid) from public, anon',
+        ),
       );
       expect(
         sql,
-        contains('grant execute on function public.approve_payment(uuid) to authenticated'),
+        contains(
+          'grant execute on function public.approve_payment(uuid) to authenticated',
+        ),
       );
       expect(
         sql,
-        contains('revoke all on function public.join_firm(text) from public, anon'),
+        contains(
+          'revoke all on function public.join_firm(text) from public, anon',
+        ),
       );
     });
 
@@ -653,16 +719,27 @@ void main() {
       expect(block, contains('security definer'));
       expect(block, contains('set search_path = pg_catalog, public'));
       expect(block, contains('c_max_failures constant integer := 5'));
-      expect(block, contains("c_window constant interval := interval '15 minutes'"));
+      expect(
+        block,
+        contains("c_window constant interval := interval '15 minutes'"),
+      );
       expect(block, contains('public.sha256_hex'));
       expect(block, contains("i.used_by is null"));
       expect(block, contains('i.revoked = false'));
       expect(block, contains('insert into public.firm_members'));
       expect(block, contains('update public.profiles p'));
-      expect(block, contains('delete from public.invite_attempts a where a.user_id = v_user_id'));
+      expect(
+        block,
+        contains(
+          'delete from public.invite_attempts a where a.user_id = v_user_id',
+        ),
+      );
       // A failed match must reach the attempt insert through a return, never by
       // inserting and then raising (which would roll the attempt back).
-      expect(block, contains("return jsonb_build_object('status', 'invalid_code')"));
+      expect(
+        block,
+        contains("return jsonb_build_object('status', 'invalid_code')"),
+      );
       final invalidAt = block.indexOf("'invalid_code'");
       final raiseBefore = block
           .substring(0, invalidAt)
@@ -670,7 +747,9 @@ void main() {
       expect(raiseBefore, isFalse);
       expect(
         sql,
-        contains('grant execute on function public.join_firm(text) to authenticated'),
+        contains(
+          'grant execute on function public.join_firm(text) to authenticated',
+        ),
       );
     });
   });
@@ -699,15 +778,21 @@ void main() {
       // Only the columns a client legitimately edits come back.
       expect(
         sql,
-        contains('grant update (full_name) on public.profiles to authenticated'),
+        contains(
+          'grant update (full_name) on public.profiles to authenticated',
+        ),
       );
-      expect(sql, contains('grant update (name) on public.firms to authenticated'));
+      expect(
+        sql,
+        contains('grant update (name) on public.firms to authenticated'),
+      );
 
       // Approval state has no client write path at all, so nothing is granted
       // back on payment_submissions...
       expect(
-        RegExp(r'grant update \([^)]*\) on public\.payment_submissions')
-            .hasMatch(sql),
+        RegExp(
+          r'grant update \([^)]*\) on public\.payment_submissions',
+        ).hasMatch(sql),
         isFalse,
       );
       // ...and no server-owned column is named in any GRANT, which is also the
@@ -730,18 +815,22 @@ void main() {
       }
     });
 
-    test('the firm expiry mirror is the only firms.subscription_expiry writer', () {
-      expect(
-        RegExp(r'after update of subscription_expiry on public\.profiles')
-            .hasMatch(sql),
-        isTrue,
-      );
-      expect(
-        sql,
-        contains('where f.owner_id = new.id'),
-        reason: 'only owner rows mirror',
-      );
-    });
+    test(
+      'the firm expiry mirror is the only firms.subscription_expiry writer',
+      () {
+        expect(
+          RegExp(
+            r'after update of subscription_expiry on public\.profiles',
+          ).hasMatch(sql),
+          isTrue,
+        );
+        expect(
+          sql,
+          contains('where f.owner_id = new.id'),
+          reason: 'only owner rows mirror',
+        );
+      },
+    );
   });
 
   group('realtime', () {
@@ -754,7 +843,9 @@ void main() {
       expect(block, contains("'user:' || (v_row ->> 'requested_by')"));
       expect(
         block,
-        contains("jsonb_build_object('table', TG_TABLE_NAME, 'id', v_row ->> 'id')"),
+        contains(
+          "jsonb_build_object('table', TG_TABLE_NAME, 'id', v_row ->> 'id')",
+        ),
         reason: 'the payload is the table and the id, never the row',
       );
     });
@@ -765,7 +856,9 @@ void main() {
       expect(block, contains("'firm:' || public.current_firm_id()::text"));
       expect(
         sql,
-        contains('create policy realtime_messages_read_own_topics on realtime.messages'),
+        contains(
+          'create policy realtime_messages_read_own_topics on realtime.messages',
+        ),
       );
     });
   });
@@ -799,16 +892,14 @@ void main() {
       expect(sql, contains('(firm_id, server_updated_at, id)'));
       expect(sql, contains('(user_id, server_updated_at, id)'));
       // delete_requests has no user_id: its scope is the requester.
-      expect(
-        sql,
-        contains('delete_requests_requester_delta_idx'),
-      );
+      expect(sql, contains('delete_requests_requester_delta_idx'));
     });
 
     test('the payment window and the invite attempts are indexed', () {
       expect(
-        RegExp(r'create index if not exists payment_submissions_user_submitted_at_idx\s+on public\.payment_submissions \(user_id, submitted_at desc\)')
-            .hasMatch(sql),
+        RegExp(
+          r'create index if not exists payment_submissions_user_submitted_at_idx\s+on public\.payment_submissions \(user_id, submitted_at desc\)',
+        ).hasMatch(sql),
         isTrue,
       );
       expect(
@@ -848,35 +939,39 @@ void main() {
       );
     });
 
-    test('the retention phase states the pair on the function and the table', () {
-      // The number lives in the default above; these two comments are where a
-      // reader and a future cleanup job meet it, so both are pinned.
-      final file = migrationFiles().firstWhere(
-        (f) => f.path.contains('firm_mode_retention_window'),
-      );
-      final text = file.readAsStringSync();
-      expect(text, contains('older than the retention (365 days by default'));
-      expect(text, contains('335-day device recovery window'));
-      // The one tie between the two halves of the pair: the device's window is
-      // read from this file's own default, so changing one alone fails here.
-      final retention = int.parse(
-        RegExp(r'p_retention_days integer default (\d+)')
-            .firstMatch(text)!
-            .group(1)!
-      );
-      expect(
-        retention - recoveryOfflineThreshold.inDays,
-        30,
-        reason: 'the 30-day cushion is the whole reason the pair moves '
-            'together',
-      );
-      expect(
-        text,
-        contains('comment on table public.mutation_receipts'),
-        reason: 'the receipts invariant is corrected where it is documented',
-      );
-      expect(text, contains('Retain at least 400 days'));
-    });
+    test(
+      'the retention phase states the pair on the function and the table',
+      () {
+        // The number lives in the default above; these two comments are where a
+        // reader and a future cleanup job meet it, so both are pinned.
+        final file = migrationFiles().firstWhere(
+          (f) => f.path.contains('firm_mode_retention_window'),
+        );
+        final text = file.readAsStringSync();
+        expect(text, contains('older than the retention (365 days by default'));
+        expect(text, contains('335-day device recovery window'));
+        // The one tie between the two halves of the pair: the device's window is
+        // read from this file's own default, so changing one alone fails here.
+        final retention = int.parse(
+          RegExp(
+            r'p_retention_days integer default (\d+)',
+          ).firstMatch(text)!.group(1)!,
+        );
+        expect(
+          retention - recoveryOfflineThreshold.inDays,
+          30,
+          reason:
+              'the 30-day cushion is the whole reason the pair moves '
+              'together',
+        );
+        expect(
+          text,
+          contains('comment on table public.mutation_receipts'),
+          reason: 'the receipts invariant is corrected where it is documented',
+        );
+        expect(text, contains('Retain at least 400 days'));
+      },
+    );
 
     test('deletes children before parents', () {
       final block = lastFunctionBlock(sql, 'purge_tombstones')!;
@@ -911,8 +1006,8 @@ void main() {
 
   group('reference in-use guard', () {
     File inUseGuardFile() => migrationFiles().firstWhere(
-          (file) => file.path.contains('firm_mode_reference_in_use_guard'),
-        );
+      (file) => file.path.contains('firm_mode_reference_in_use_guard'),
+    );
 
     test('refuses a tombstone a live dependent still names, as 23503', () {
       final block = functionBlock(sql, 'enforce_reference_not_in_use');
@@ -920,7 +1015,8 @@ void main() {
       expect(
         block,
         contains('security definer'),
-        reason: 'the rule is about the data, not about what the caller may read',
+        reason:
+            'the rule is about the data, not about what the caller may read',
       );
       // The nine foreign keys of the dependency graph, named as pairs.
       for (final pair in <String>[
@@ -953,41 +1049,50 @@ void main() {
       );
     });
 
-    test('is attached to the four parents and never to the two it cannot help', () {
-      final block = inUseGuardFile().readAsStringSync();
-      expect(block, contains('trg_%1\$s_in_use_guard'));
-      expect(block, contains('before update on public.%1\$I'));
+    test(
+      'is attached to the four parents and never to the two it cannot help',
+      () {
+        final block = inUseGuardFile().readAsStringSync();
+        expect(block, contains('trg_%1\$s_in_use_guard'));
+        expect(block, contains('before update on public.%1\$I'));
 
-      // The attachment loop's own array is the thing that could silently miss a
-      // table, so it is the thing asserted.
-      final start = block.indexOf('v_tables text[] := array[');
-      expect(start, greaterThan(-1), reason: 'no attachment array');
-      final end = block.indexOf('];', start);
-      final tableArray = block.substring(start, end);
-      for (final table in <String>[
-        'court_categories',
-        'case_categories',
-        'courts',
-        'on_behalfs',
-      ]) {
-        expect(tableArray, contains("'$table'"), reason: '$table is not guarded');
-      }
-      for (final table in <String>['steps', 'case_types']) {
-        expect(
-          tableArray,
-          isNot(contains("'$table'")),
-          reason: 'cases.case_type and cases.last_step are free text, so a '
-              'foreign-key guard for $table cannot exist',
-        );
-      }
-    });
+        // The attachment loop's own array is the thing that could silently miss a
+        // table, so it is the thing asserted.
+        final start = block.indexOf('v_tables text[] := array[');
+        expect(start, greaterThan(-1), reason: 'no attachment array');
+        final end = block.indexOf('];', start);
+        final tableArray = block.substring(start, end);
+        for (final table in <String>[
+          'court_categories',
+          'case_categories',
+          'courts',
+          'on_behalfs',
+        ]) {
+          expect(
+            tableArray,
+            contains("'$table'"),
+            reason: '$table is not guarded',
+          );
+        }
+        for (final table in <String>['steps', 'case_types']) {
+          expect(
+            tableArray,
+            isNot(contains("'$table'")),
+            reason:
+                'cases.case_type and cases.last_step are free text, so a '
+                'foreign-key guard for $table cannot exist',
+          );
+        }
+      },
+    );
   });
 
   group('sign-up trigger', () {
     test('creates one individual profile per new auth user', () {
       expect(
-        RegExp(r'create trigger on_auth_user_created\s+after insert on auth\.users')
-            .hasMatch(sql),
+        RegExp(
+          r'create trigger on_auth_user_created\s+after insert on auth\.users',
+        ).hasMatch(sql),
         isTrue,
       );
       final function = sql.substring(
@@ -1008,17 +1113,21 @@ void main() {
       expect(
         sql,
         contains(
-            'revoke all on function public.push_changes(jsonb) from public, anon'),
+          'revoke all on function public.push_changes(jsonb) from public, anon',
+        ),
       );
       expect(
         sql,
         contains(
-            'grant execute on function public.push_changes(jsonb) to authenticated'),
+          'grant execute on function public.push_changes(jsonb) to authenticated',
+        ),
       );
       // Its SECURITY DEFINER helpers stay unreachable to every client role.
       expect(
         sql,
-        contains('revoke all on function public.sync_can_write(text, jsonb, text)'),
+        contains(
+          'revoke all on function public.sync_can_write(text, jsonb, text)',
+        ),
       );
       expect(
         sql,
@@ -1055,7 +1164,11 @@ void main() {
         'firm_invites',
         'payment_approval_events',
       ]) {
-        expect(map, isNot(contains("'$table'")), reason: '$table is out of class');
+        expect(
+          map,
+          isNot(contains("'$table'")),
+          reason: '$table is out of class',
+        );
       }
 
       final rank = functionBlock(sql, 'sync_dependency_rank')!;
@@ -1072,7 +1185,11 @@ void main() {
         expect(rank, contains("'$table' then 0"), reason: '$table must rank 0');
       }
       expect(rank, contains("'cases' then 1"));
-      for (final table in <String>['case_history', 'notes', 'case_references']) {
+      for (final table in <String>[
+        'case_history',
+        'notes',
+        'case_references',
+      ]) {
         expect(rank, contains("'$table' then 2"), reason: '$table must rank 2');
       }
     });
@@ -1132,8 +1249,7 @@ void main() {
       // `sync_can_write` could revoke, so the policy itself is the only thing
       // standing between them and a direct PostgREST write.
       final policies = migrationFiles().firstWhere(
-        (file) =>
-            file.path.endsWith('20260930220000_rls_firm_membership.sql'),
+        (file) => file.path.endsWith('20260930220000_rls_firm_membership.sql'),
       );
       final block = normalizeSql(policies.readAsStringSync());
 
@@ -1182,7 +1298,10 @@ void main() {
     test('accepts an update only on an exact base_version match', () {
       final block = functionBlock(sql, 'push_changes')!;
       expect(block, contains('for update'));
-      expect(block, contains("v_base_version <> (v_existing ->> 'version')::int"));
+      expect(
+        block,
+        contains("v_base_version <> (v_existing ->> 'version')::int"),
+      );
       expect(block, contains("'version_conflict'"));
       // The server assigns the next version and the editor; the client cannot.
       expect(block, contains("'version', v_old_version + 1"));
@@ -1238,7 +1357,8 @@ void main() {
       expect(
         sql,
         contains(
-            r"'select to_jsonb(t) from public.%I t where t.id = $1 for update'"),
+          r"'select to_jsonb(t) from public.%I t where t.id = $1 for update'",
+        ),
       );
       expect(sql, contains("v_expected <> (v_target ->> 'version')::int"));
       // A changed target parks the request as stale and reports the conflict.
@@ -1257,12 +1377,17 @@ void main() {
     // Firm mode phase 2. Both functions are read from their **newest** body,
     // because the rules below exist only there.
     test('derives a new row\'s firm from the caller, never from the payload', () {
-      final block = lastFunctionBlock(sql, 'push_changes')!;
+      // The device-limit migration wraps push_changes instead of re-typing it:
+      // the body was renamed to `push_changes_core` and still runs unchanged,
+      // behind a gate that only asks whether this device may write. So the rules
+      // are read from the last body written before that rename.
+      final renamed = sql.indexOf('rename to push_changes_core');
+      final block = lastFunctionBlock(
+        renamed < 0 ? sql : sql.substring(0, renamed),
+        'push_changes',
+      )!;
       // Read once per call, so a profile change cannot split a batch's scope.
-      expect(
-        block,
-        contains('v_firm_id uuid := public.current_firm_id();'),
-      );
+      expect(block, contains('v_firm_id uuid := public.current_firm_id();'));
       expect(block, contains("'firm_id', v_firm_id"));
       // Both scope columns are stripped from every payload before it is used,
       // which is what makes the insert derivation and the update preservation
@@ -1285,7 +1410,8 @@ void main() {
       expect(
         block,
         contains(
-            "'court_categories', 'case_categories', 'courts', 'steps', 'case_types',"),
+          "'court_categories', 'case_categories', 'courts', 'steps', 'case_types',",
+        ),
       );
       // A built-in reference row has no author and is shared by every install.
       expect(block, contains('and t.is_custom = true'));
@@ -1305,11 +1431,14 @@ void main() {
       expect(
         sql,
         contains(
-            'revoke all on function public.sync_server_time() from public, anon'),
+          'revoke all on function public.sync_server_time() from public, anon',
+        ),
       );
       expect(
         sql,
-        contains('grant execute on function public.sync_server_time() to authenticated'),
+        contains(
+          'grant execute on function public.sync_server_time() to authenticated',
+        ),
       );
     });
   });

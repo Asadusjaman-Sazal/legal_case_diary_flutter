@@ -22,7 +22,7 @@ abstract class DeviceTokenRepository {
   /// Upserts [token] for the signed-in account.
   ///
   /// Idempotent: the same device signing in again rewrites its own row.
-  Future<void> register(String token);
+  Future<void> register(String token, {String? deviceKey});
 
   /// Removes [token].
   ///
@@ -39,16 +39,17 @@ class SupabaseDeviceTokenRepository implements DeviceTokenRepository {
   final SupabaseClient _client;
 
   @override
-  Future<void> register(String token) async {
+  Future<void> register(String token, {String? deviceKey}) async {
     final userId = _client.auth.currentUser?.id;
     if (token.isEmpty || userId == null) return;
-    await _client
-        .from('device_tokens')
-        .upsert(<String, Object?>{
-          'token': token,
-          // The account's own id, from the session rather than an argument.
-          'user_id': userId,
-        }, onConflict: 'token');
+    await _client.from('device_tokens').upsert(<String, Object?>{
+      'token': token,
+      // The account's own id, from the session rather than an argument.
+      'user_id': userId,
+      // Which device holds this token, so a revocation can delete exactly
+      // this device's row rather than the whole account's.
+      if (deviceKey != null && deviceKey.isNotEmpty) 'device_key': deviceKey,
+    }, onConflict: 'token');
   }
 
   @override
@@ -68,7 +69,7 @@ class UnavailableDeviceTokenRepository implements DeviceTokenRepository {
   const UnavailableDeviceTokenRepository();
 
   @override
-  Future<void> register(String token) async {}
+  Future<void> register(String token, {String? deviceKey}) async {}
 
   @override
   Future<void> unregister(String token) async {}

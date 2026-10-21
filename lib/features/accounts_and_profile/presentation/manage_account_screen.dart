@@ -209,6 +209,15 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
               title: l.settingsAppLock_title,
               onTap: () => context.push(AppRoutes.settingsAppLock),
             ),
+            SizedBox(height: AppSpacing.sm),
+            // The plan's device slots: which devices hold them, and the way to
+            // free one without hunting for the other phone.
+            SettingsSubMenuRow(
+              key: const ValueKey('manage-account-devices'),
+              icon: Icons.devices_outlined,
+              title: l.devices_title,
+              onTap: () => context.push(AppRoutes.settingsDevices),
+            ),
             SizedBox(height: AppSpacing.lg),
             // The section heading the user asked for: red and bold, drawing the
             // eye to the one irreversible action on this screen.

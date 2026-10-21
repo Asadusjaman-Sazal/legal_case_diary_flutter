@@ -23,25 +23,28 @@ void main() {
       expect(
         file.existsSync(),
         isTrue,
-        reason: 'missing $ledgerPath — run '
+        reason:
+            'missing $ledgerPath — run '
             '`dart run tool/generate_all_supabase_sql.dart`',
       );
       expect(
         normalizeSql(file.readAsStringSync()),
         normalizeSql(buildAllSupabaseSql()),
-        reason: 'the ledger is stale — run '
+        reason:
+            'the ledger is stale — run '
             '`dart run tool/generate_all_supabase_sql.dart`',
       );
     });
 
     test('every migration on disk is covered, and nothing else is claimed', () {
-      final onDisk = Directory(migrationsDir)
-          .listSync()
-          .whereType<File>()
-          .where((file) => file.path.endsWith('.sql'))
-          .map((file) => file.uri.pathSegments.last)
-          .toList()
-        ..sort();
+      final onDisk =
+          Directory(migrationsDir)
+              .listSync()
+              .whereType<File>()
+              .where((file) => file.path.endsWith('.sql'))
+              .map((file) => file.uri.pathSegments.last)
+              .toList()
+            ..sort();
 
       // Both directions matter: a new migration missing from the ledger is the
       // drift this rule exists to catch, and a ledger row with no file behind it
@@ -54,8 +57,12 @@ void main() {
       );
       expect(
         onDisk.length,
-        57,
-        reason: 'Task 16 shipped fourteen; the audit closure added one, '
+        60,
+        reason:
+            'The device limit (2026-10-21) added its registry, its '
+            'enforcement pair and the trim correction its proof caught, so the '
+            'folder is three files longer. '
+            'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '
             'Profile details follow-up added the self-service profile columns, '
@@ -135,8 +142,9 @@ void main() {
         );
 
         // The label sits between the heading and the SQL, per the section rule.
-        final afterHeading =
-            ledger.substring(ledger.indexOf(heading) + heading.length);
+        final afterHeading = ledger.substring(
+          ledger.indexOf(heading) + heading.length,
+        );
         expect(
           afterHeading,
           startsWith(
@@ -158,22 +166,25 @@ void main() {
 
     test('sections are grouped by app version, in increasing order', () {
       final ledger = normalizeSql(File(ledgerPath).readAsStringSync());
-      final versions = RegExp(r'^## App Version (\d+\.\d+\.\d+) — ', multiLine: true)
-          .allMatches(ledger)
-          .map((match) => match.group(1)!)
-          .toList();
+      final versions = RegExp(
+        r'^## App Version (\d+\.\d+\.\d+) — ',
+        multiLine: true,
+      ).allMatches(ledger).map((match) => match.group(1)!).toList();
 
       expect(versions, isNotEmpty);
       expect(versions, _sorted(versions));
       // Every `###` section is under some `## App Version` group.
-      final sectionCount =
-          RegExp(r'^### \d+\.\d+\.\d+ · ', multiLine: true).allMatches(ledger).length;
+      final sectionCount = RegExp(
+        r'^### \d+\.\d+\.\d+ · ',
+        multiLine: true,
+      ).allMatches(ledger).length;
       expect(sectionCount, ledgerMigrationFiles().length);
     });
 
     test('the applier bootstrap leads the ledger, labelled and complete', () {
       final ledger = normalizeSql(File(ledgerPath).readAsStringSync());
-      const heading = '## Bootstrap — Applier Bookkeeping (before the first apply)';
+      const heading =
+          '## Bootstrap — Applier Bookkeeping (before the first apply)';
 
       expect(ledger, contains(heading));
       // It leads the file because it is the first SQL that ever runs, and it
@@ -191,7 +202,9 @@ void main() {
       }
       expect(
         ledger,
-        contains('${upsertVersionRowSql(version: '<version>', name: '<name>')};'),
+        contains(
+          '${upsertVersionRowSql(version: '<version>', name: '<name>')};',
+        ),
       );
     });
 

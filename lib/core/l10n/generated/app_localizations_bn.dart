@@ -2029,6 +2029,104 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_changePassword => 'পাসওয়ার্ড পরিবর্তন';
 
   @override
+  String get devices_title => 'ডিভাইস';
+
+  @override
+  String get devices_subtitle =>
+      'এই অ্যাকাউন্টটি একইসঙ্গে যেসব ডিভাইসে ব্যবহার করা যাবে।';
+
+  @override
+  String devices_limitLabel(String used, String cap) {
+    return '$capটির মধ্যে $usedটি ডিভাইস ব্যবহৃত';
+  }
+
+  @override
+  String get devices_thisDevice => 'এই ডিভাইস';
+
+  @override
+  String devices_lastUsed(String date) {
+    return 'সর্বশেষ ব্যবহার $date';
+  }
+
+  @override
+  String get devices_remove => 'সরিয়ে ফেলুন';
+
+  @override
+  String get devices_removeTitle => 'এই ডিভাইসটি সরিয়ে ফেলবেন?';
+
+  @override
+  String devices_removeBody(String name) {
+    return '$name সাইন আউট হবে, আর তার অসংরক্ষিত কাজ আপনার অ্যাকাউন্টে পৌঁছানোর পর স্থানীয় কপি মুছে ফেলা হবে।';
+  }
+
+  @override
+  String get devices_cancel => 'বাতিল';
+
+  @override
+  String get devices_removed => 'ডিভাইসটি সরানো হয়েছে।';
+
+  @override
+  String get devices_empty => 'এখনো কোনো ডিভাইস নিবন্ধিত হয়নি।';
+
+  @override
+  String get devices_unavailable =>
+      'আপনার অ্যাকাউন্টে পৌঁছানো যায়নি। সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।';
+
+  @override
+  String get devices_tryAgain => 'আবার চেষ্টা করুন';
+
+  @override
+  String get devices_signOut => 'সাইন আউট';
+
+  @override
+  String get devices_planFullTitle => 'আপনার প্ল্যান পূর্ণ';
+
+  @override
+  String devices_planFullBody(String cap) {
+    return 'এই অ্যাকাউন্টটি ইতিমধ্যে $capটি ডিভাইসে ব্যবহৃত হচ্ছে, আর প্রতিটিই গত সাত দিনে ব্যবহৃত হয়েছে। এই ডিভাইসটি ব্যবহার করতে একটি সরিয়ে ফেলুন।';
+  }
+
+  @override
+  String get devices_revokedTitle => 'এই ডিভাইসটি সাইন আউট হয়েছে';
+
+  @override
+  String devices_revokedBody(String cap) {
+    return 'আপনার প্ল্যানে একসঙ্গে $capটি ডিভাইস চলে, আর অন্য একটি ডিভাইস এর জায়গা নিয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+  }
+
+  @override
+  String get devices_revokedSaving => 'আপনার অসংরক্ষিত কাজ সংরক্ষণ করা হচ্ছে…';
+
+  @override
+  String get devices_revokedSaved =>
+      'আপনার কাজ সংরক্ষিত হয়েছে। এই ডিভাইসটি মুছে ফেলা হয়েছে।';
+
+  @override
+  String get devices_revokedSaveFailed =>
+      'আপনার কাজ অ্যাকাউন্টে পৌঁছায়নি, তাই কিছুই মোছা হয়নি। সবকিছু এখনো এই ডিভাইসে আছে।';
+
+  @override
+  String devices_revokedLapseBody(String cap) {
+    return 'আপনার প্ল্যান বদলেছে এবং এখন একসঙ্গে $capটি ডিভাইস চলে, তাই এই ডিভাইসটি জায়গা ছেড়ে দিয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+  }
+
+  @override
+  String get devices_revokedRemovedBody =>
+      'আপনি ডিভাইসের তালিকা থেকে এই ডিভাইসটি সরিয়েছেন। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+
+  @override
+  String get devices_revokedReplacedBody =>
+      'এই ডিভাইসে আবার সাইন ইন করেছেন, তাই আগের সাইন-ইনটি শেষ হয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+
+  @override
+  String get devices_discard => 'সাইন আউট করে বাদ দিন';
+
+  @override
+  String devices_evicted(String name) {
+    return 'এই ডিভাইসের জায়গা করতে $name সাইন আউট হয়েছে।';
+  }
+
+  @override
   String get settingsSubscription_freePlanLimitations =>
       'ফ্রি প্ল্যানের সীমাবদ্ধতা';
 

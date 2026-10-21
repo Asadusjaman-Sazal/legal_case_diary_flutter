@@ -54,6 +54,23 @@ void main() {
     }
   });
 
+  test('a sync with no armed reminder leaves the alarm service alone', () {
+    // Found the hard way: cancelling both reminder ids on every sync called the
+    // alarm plugin when nothing was armed, and on the widget-test host that
+    // await never returned — the Add/Edit sheet stayed open and two unrelated
+    // acceptance tests failed. The armed list is the guard, so it is pinned.
+    final gateway = File(
+      '${_folder}android_notification_gateway.dart',
+    ).readAsStringSync();
+
+    expect(
+      gateway.contains('if (armed.isEmpty) return;'),
+      isTrue,
+      reason: 'Cancelling reminders must return before any platform call when '
+          'none was ever armed.',
+    );
+  });
+
   test('the background job never reaches a sync or network API by name', () {
     // Comments are stripped: the file documents the rule it obeys.
     final job = File('${_folder}notification_alarm_callback.dart')

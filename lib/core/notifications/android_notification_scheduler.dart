@@ -24,12 +24,14 @@ import 'oem_setup_guide.dart';
 class AndroidNotificationScheduler implements NotificationScheduler {
   /// Creates the scheduler.
   ///
-  /// [readSettings] supplies the live per-user settings and [readCaseTimes] the
-  /// stored per-case Notification Time overrides; injecting both keeps this
-  /// class independent of Riverpod and of the repositories' construction.
+  /// [readSettings] supplies the live per-user settings, [readCaseTimes] the
+  /// stored per-case Notification Time overrides and [readSubscriptionExpiry]
+  /// the plan's end date; injecting all three keeps this class independent of
+  /// Riverpod and of the repositories' construction.
   AndroidNotificationScheduler({
     required this.readSettings,
     required this.readCaseTimes,
+    required this.readSubscriptionExpiry,
   });
 
   /// Reads the current per-user settings.
@@ -39,6 +41,10 @@ class AndroidNotificationScheduler implements NotificationScheduler {
   /// those with notifications on — null for a case that follows the default
   /// time, so a slot can be armed for each one.
   final Future<List<int?>> Function() readCaseTimes;
+
+  /// Reads the plan's end date (the firm's in firm mode, the profile's
+  /// otherwise), or null for an account that never subscribed.
+  final Future<int?> Function() readSubscriptionExpiry;
 
   /// Handler invoked for a tap on any notification the app posted.
   ValueChanged<String>? _notificationSelected;
@@ -125,7 +131,17 @@ class AndroidNotificationScheduler implements NotificationScheduler {
         defaultMinutes: defaultTime,
         caseTimes: caseTimes,
       );
-      if (times.isEmpty) {
+
+      // The pre-expiry reminders are armed on their own, before the early
+      // return below: a chamber with no hearings must still be warned that the
+      // plan it pays for is ending.
+      final reminders = subscriptionReminderFireTimes(
+        expiryEpochMs: await readSubscriptionExpiry(),
+        nowEpochMs: DateTime.now().millisecondsSinceEpoch,
+      );
+      await _syncSubscriptionReminders(reminders);
+
+      if (times.isEmpty && reminders.isEmpty) {
         // Cancelling is explicit rather than implicit: nothing can alert, so
         // yesterday's slots must not wake the phone once more.
         await AndroidNotificationGateway.cancelAllAlertAlarms();
@@ -133,10 +149,16 @@ class AndroidNotificationScheduler implements NotificationScheduler {
       }
 
       // Android 13+ needs POST_NOTIFICATIONS at runtime; without it every alert
-      // would be posted and silently dropped by the OS. The permission is asked
-      // for the first time the user actually wants alerts, not on app start.
+      // would be posted and silently dropped by the OS. Asked when the user
+      // actually has something to be told about — a hearing, or a plan ending
+      // — and never on a bare app start.
       if (!await AndroidNotificationGateway.notificationsAllowed()) {
         await AndroidNotificationGateway.requestNotificationsPermission();
+      }
+
+      if (times.isEmpty) {
+        await AndroidNotificationGateway.cancelAllAlertAlarms();
+        return;
       }
 
       // The arming is idempotent and cancels the slots this sync no longer wants.
@@ -156,10 +178,34 @@ class AndroidNotificationScheduler implements NotificationScheduler {
     }
   }
 
+  /// Arms the reminders still ahead and forgets the ones already past.
+  ///
+  /// Cancelling first is what makes a renewal or a changed end date take effect:
+  /// the stale alarm is gone, and the job's own expiry re-read would have
+  /// silenced it anyway.
+  Future<void> _syncSubscriptionReminders(
+    List<({int daysLeft, int fireAtEpochMs})> reminders,
+  ) async {
+    await AndroidNotificationGateway.cancelSubscriptionReminderAlarms();
+    if (reminders.isEmpty) return;
+    final precision = alarmPrecisionFor(
+      exactAllowed: await AndroidNotificationGateway.exactAlarmsAllowed(),
+    );
+    for (final reminder in reminders) {
+      await AndroidNotificationGateway.scheduleSubscriptionReminderAlarm(
+        daysLeft: reminder.daysLeft,
+        fireAtEpochMs: reminder.fireAtEpochMs,
+        callback: subscriptionReminderAlarmCallback,
+        precision: precision,
+      );
+    }
+  }
+
   @override
   Future<void> cancelAll() async {
     try {
       await AndroidNotificationGateway.cancelAllAlertAlarms();
+      await AndroidNotificationGateway.cancelSubscriptionReminderAlarms();
       await AndroidNotificationGateway.cancelAllPresentedAlerts();
     } catch (error, stackTrace) {
       AndroidNotificationGateway.reportFailure(error, stackTrace);

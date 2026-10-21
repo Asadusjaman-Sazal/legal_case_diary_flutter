@@ -2326,6 +2326,75 @@
   "payments_cancelNoActivePlan": "There is no active plan to cancel.",
   "payments_cancelFirmMember": "This plan belongs to the firm. Only the firm owner can cancel it.",
   "payments_notesLabel": "Note",
+  "subscription_bannerEnding": "Your subscription ends in {days} days, on {date}. Renew to keep syncing.",
+  "@subscription_bannerEnding": {
+      "description": "Pre-expiry banner for an individual or a firm owner. 'days' arrives already written in the active language's digits.",
+      "placeholders": {
+          "days": {
+              "type": "String"
+          },
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "subscription_bannerEndingLastDay": "Your subscription ends on {date}. Renew to keep syncing.",
+  "@subscription_bannerEndingLastDay": {
+      "description": "Pre-expiry banner on the plan's last day; the 'two days or more' wording would read badly here.",
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "subscription_bannerEndingAssociate": "Your firm's plan ends in {days} days, on {date}. Ask your firm owner to renew.",
+  "@subscription_bannerEndingAssociate": {
+      "description": "Pre-expiry banner for a firm member: the plan is the chamber's, so only the owner can pay.",
+      "placeholders": {
+          "days": {
+              "type": "String"
+          },
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "subscription_bannerEndingAssociateLastDay": "Your firm's plan ends on {date}. Ask your firm owner to renew.",
+  "@subscription_bannerEndingAssociateLastDay": {
+      "description": "Pre-expiry banner for a firm member on the plan's last day.",
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "subscription_reminderChannelName": "Subscription Reminders",
+  "subscription_reminderChannelDescription": "Warnings before a paid plan ends",
+  "subscription_reminderTitle": "Subscription Ending Soon",
+  "subscription_reminderBody": "Your subscription ends in {days} days, on {date}. Renew to keep syncing.",
+  "@subscription_reminderBody": {
+      "description": "Phone reminder for an individual or a firm owner, posted seven and three days before the end date. 'days' arrives already written in the active language's digits.",
+      "placeholders": {
+          "days": {
+              "type": "String"
+          },
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "subscription_reminderBodyAssociate": "Your firm's plan ends in {days} days, on {date}. Ask your firm owner to renew.",
+  "@subscription_reminderBodyAssociate": {
+      "description": "Phone reminder for a firm member, posted seven and three days before the chamber's plan ends.",
+      "placeholders": {
+          "days": {
+              "type": "String"
+          },
+          "date": {
+              "type": "String"
+          }
+      }
+  },
   "subscription_bannerGrace": "Your subscription expired. Renew to avoid losing sync access.",
   "subscription_bannerExpiredOwner": "Your premium subscription has ended. Renew your subscription to restore sync.",
   "subscription_bannerExpiredAssociate": "Your firm's premium subscription has ended. Contact your firm owner to renew.",

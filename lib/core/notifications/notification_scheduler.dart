@@ -46,6 +46,14 @@ class HearingAlert {
   });
 }
 
+/// Payload carried by a pre-expiry subscription reminder.
+///
+/// The app's own token for "this reminder is about the subscription", never a
+/// case id, so a tap opens the plans screen instead of a case detail that does
+/// not exist (`notificationPayloadRoute`, its one reader). Hyphenated and not a
+/// UUID, which is what a case id always is.
+const String subscriptionReminderPayload = 'subscription-plans';
+
 /// The platform notification/alarm contract.
 ///
 /// Implementations are constructed once per app process. The background job

@@ -17,10 +17,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../database/app_database.dart';
 import '../../database/database_factory.dart';
+import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
+import '../../features/accounts_and_profile/data/profile_repository.dart'
+    show AccountRole;
 import '../../features/cases/data/local/cases_dao.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
 import '../../features/settings/data/local/user_preferences_dao.dart';
+import '../../features/settings/data/premium_access.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -58,6 +62,93 @@ Future<void> notificationAlarmCallback(int alarmId) async {
       error: error,
       stackTrace: stackTrace,
     );
+  }
+}
+
+/// Entry point the alarm service executes for a pre-expiry subscription
+/// reminder.
+///
+/// A one-shot alarm, not part of the hearing chain: the reminder is posted on
+/// two named mornings before a paid plan ends, whether or not the chamber has
+/// hearings scheduled. [alarmId] encodes which morning — seven or three days
+/// left — and the job re-reads the expiry before posting, so a plan renewed in
+/// the meantime is never announced as ending.
+@pragma('vm:entry-point')
+Future<void> subscriptionReminderAlarmCallback(int alarmId) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  try {
+    await runSubscriptionReminderJob(
+      daysLeft: AndroidNotificationGateway.subscriptionDaysForId(alarmId),
+    );
+  } catch (error, stackTrace) {
+    // Like the hearing job: a failure must never crash the alarm service. The
+    // next app launch re-arms whatever is still ahead.
+    dev.log(
+      'Subscription reminder job failed',
+      name: 'notifications',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
+}
+
+/// Posts the reminder for [daysLeft], if the plan still ends that many days out.
+///
+/// [nowEpochMs] is injectable for tests. The expiry is read from the local cache
+/// and the whole run stays on the device (plan §12.3): a reminder must work in
+/// a lift, on a plane and with the phone offline.
+Future<void> runSubscriptionReminderJob({
+  required int? daysLeft,
+  int? nowEpochMs,
+}) async {
+  if (daysLeft == null) return;
+  final prefs = await SharedPreferences.getInstance();
+  final userId = LocalIdentityService(prefs).peekId();
+  if (userId == null) return;
+
+  final db = AppDatabase(await DatabaseFactory().createExecutor());
+  try {
+    final now = nowEpochMs ?? DateTime.now().millisecondsSinceEpoch;
+    final expiry = await resolveSubscriptionExpiry(db, userId);
+    if (!isSubscriptionReminderDue(
+      expiryEpochMs: expiry,
+      nowEpochMs: now,
+      daysLeft: daysLeft,
+    )) {
+      return;
+    }
+
+    final settings = UserSettings.fromRow(
+      await UserPreferencesDao(db).getByUserId(userId),
+    );
+    final profile = await ProfilesDao(db).getById(userId);
+    // A member is told to ask the owner, because the plan is the chamber's and
+    // only the owner can pay for it. The reminder still reaches every member:
+    // they are the ones who lose sync mid-work.
+    final associate =
+        profile?.firmId != null && profile?.role != AccountRole.owner;
+    final translations = AppTranslations(
+      lookupAppLocalizations(Locale(settings.language)),
+    );
+    final days = AppDateUtils.formatDigits(daysLeft, settings.language);
+    final date = AppDateUtils.formatDateDDMMYYYY(
+      expiry!,
+      locale: settings.language,
+    );
+    await AndroidNotificationGateway.presentSubscriptionReminder(
+      daysLeft: daysLeft,
+      title: translations.raw.subscription_reminderTitle,
+      body: associate
+          ? translations.raw.subscription_reminderBodyAssociate(days, date)
+          : translations.raw.subscription_reminderBody(days, date),
+      channelName: translations.raw.subscription_reminderChannelName,
+      channelDescription:
+          translations.raw.subscription_reminderChannelDescription,
+      payload: subscriptionReminderPayload,
+    );
+  } finally {
+    await db.close();
   }
 }
 

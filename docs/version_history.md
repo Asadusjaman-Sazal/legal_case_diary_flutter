@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.554 - Applied the two pending migrations and proved the ladder on the live project, fixed both large-text overflows on the plans screen, and made 6 Months the default term on every card.
+Version: 0.0.555 - Warn a paying account before its plan ends: a banner from 7 days out and phone reminders at 7 and 3 days, for a chamber's owner and members alike.
 --------------------------------------
 
 ## Version History Log:
@@ -568,3 +568,4 @@ Version: 0.0.551 - Subscription Plans: paid cards now open their list with Inclu
 Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a one-month plan, and each card now shows every term as a row with its price per month and a round selection mark.
 Version: 0.0.553 - Subscription Plans polish, and the plan limits made real: Firm Plus 10 seats, Enterprise capped at 20,000 cases and 20 members.
 Version: 0.0.554 - Applied the two pending migrations and proved the ladder on the live project, fixed both large-text overflows on the plans screen, and made 6 Months the default term on every card.
+Version: 0.0.555 - Warn a paying account before its plan ends: a banner from 7 days out and phone reminders at 7 and 3 days, for a chamber's owner and members alike.

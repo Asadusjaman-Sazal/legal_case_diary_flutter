@@ -44,6 +44,15 @@ abstract final class AndroidNotificationGateway {
   /// from a time the settings no longer mention.
   static const String _armedTimesKey = 'notification_armed_times';
 
+  /// SharedPreferences key naming the subscription reminders that are armed.
+  ///
+  /// Same bookkeeping for the two one-shot reminders, and it does a second job:
+  /// with nothing recorded, a sync touches the alarm service not at all. That
+  /// keeps the common case — an account with no plan ending, or a test host with
+  /// no platform behind the plugin — free of platform calls that would otherwise
+  /// be awaited for no reason.
+  static const String _armedRemindersKey = 'notification_armed_reminder_days';
+
   /// Notification channel id holding every hearing alert.
   static const String channelId = 'hearing_alerts';
 
@@ -77,6 +86,21 @@ abstract final class AndroidNotificationGateway {
   /// re-post can only ever replace itself, and the numbers above are free should
   /// the alert slots grow.
   static const int paymentAlertNotificationId = 2900;
+
+  /// Alarm and notification id base of the pre-expiry subscription reminders.
+  ///
+  /// One id per announced day — `base + daysLeft` (2957 and 2953) — so a
+  /// re-armed reminder replaces itself instead of stacking, and the alarm id
+  /// tells the job which day it is announcing. Clear of the payment alert
+  /// (2900), the backup notices (2881) and the hearing slots (2741–2881).
+  static const int subscriptionReminderIdBase = 2950;
+
+  /// Channel holding the pre-expiry subscription reminders.
+  ///
+  /// Its own channel, like the payment alerts: a lawyer who silences hearing
+  /// reminders still hears that a plan they pay for is about to end, and can
+  /// silence this one without losing the hearings.
+  static const String subscriptionReminderChannelId = 'subscription_reminders';
 
   /// Channel holding the admin payment-alert count.
   ///
@@ -536,6 +560,111 @@ abstract final class AndroidNotificationGateway {
   /// Cancels the daily automatic-backup alarm, if armed.
   static Future<void> cancelBackupAlarm() async {
     await AndroidAlarmManager.cancel(backupAlarmIdBase);
+  }
+
+  /// Arms the subscription reminder that announces [daysLeft].
+  ///
+  /// A one-shot at a fixed instant rather than a daily chain: the reminder is
+  /// posted on two named mornings, and nothing else needs to run on the days in
+  /// between. `wakeup: false` on purpose — a notice about a payment date must
+  /// not light up the screen at nine in the morning.
+  static Future<void> scheduleSubscriptionReminderAlarm({
+    required int daysLeft,
+    required int fireAtEpochMs,
+    required Function callback,
+    required AlarmPrecision precision,
+  }) async {
+    await AndroidAlarmManager.oneShotAt(
+      DateTime.fromMillisecondsSinceEpoch(fireAtEpochMs),
+      subscriptionReminderIdBase + daysLeft,
+      callback,
+      exact: precision == AlarmPrecision.exact,
+      wakeup: false,
+      allowWhileIdle: true,
+      rescheduleOnReboot: true,
+    );
+    final armed = await armedSubscriptionReminderDays();
+    await _storeArmedReminderDays(<int>{...armed, daysLeft});
+  }
+
+  /// Cancels the reminder alarms this app armed, if any.
+  ///
+  /// Nothing recorded means nothing to cancel, and the alarm service is not
+  /// called at all.
+  static Future<void> cancelSubscriptionReminderAlarms() async {
+    final armed = await armedSubscriptionReminderDays();
+    if (armed.isEmpty) return;
+    for (final daysLeft in armed) {
+      await AndroidAlarmManager.cancel(subscriptionReminderIdBase + daysLeft);
+    }
+    await _storeArmedReminderDays(const <int>{});
+  }
+
+  /// Reminder days whose alarm this app has armed.
+  static Future<Set<int>> armedSubscriptionReminderDays() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getStringList(_armedRemindersKey);
+      if (stored == null) return <int>{};
+      return stored.map(int.tryParse).whereType<int>().toSet();
+    } catch (error, stackTrace) {
+      // Unreadable bookkeeping must not block arming, exactly like the slots.
+      reportFailure(error, stackTrace);
+      return <int>{};
+    }
+  }
+
+  static Future<void> _storeArmedReminderDays(Set<int> days) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_armedRemindersKey, [
+        for (final day in days) '$day',
+      ]);
+    } catch (error, stackTrace) {
+      reportFailure(error, stackTrace);
+    }
+  }
+
+  /// The announced day encoded in a reminder alarm id, or null when [alarmId]
+  /// is not one of them (a hearing slot, a backup alarm, a legacy id).
+  static int? subscriptionDaysForId(int alarmId) {
+    final daysLeft = alarmId - subscriptionReminderIdBase;
+    return subscriptionReminderDays.contains(daysLeft) ? daysLeft : null;
+  }
+
+  /// Posts one pre-expiry reminder, replacing that day's previous posting.
+  static Future<void> presentSubscriptionReminder({
+    required int daysLeft,
+    required String title,
+    required String body,
+    required String channelName,
+    required String channelDescription,
+    required String payload,
+  }) async {
+    await _initializePlugin();
+    await _plugin.show(
+      id: subscriptionReminderIdBase + daysLeft,
+      title: title,
+      body: body,
+      // The tap lands on the plans screen; the payload names it rather than
+      // being read as a case id.
+      payload: payload,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          subscriptionReminderChannelId,
+          channelName,
+          channelDescription: channelDescription,
+          icon: _icon,
+          // A heads-up, not an alarm: default importance keeps it out of the
+          // full-screen/heads-up path the hearing alerts earn.
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          groupKey: subscriptionReminderChannelId,
+          category: AndroidNotificationCategory.reminder,
+          styleInformation: BigTextStyleInformation(body),
+        ),
+      ),
+    );
   }
 
   /// The wall-clock hour the daily backup alarm fires at (03:00, quiet and

@@ -8,6 +8,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
+import '../../features/settings/data/premium_access.dart';
 import '../../shared/providers/database_provider.dart';
 import '../notifications/android_notification_scheduler.dart';
 import '../notifications/notification_scheduler.dart';
@@ -37,6 +38,14 @@ final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
         for (final row in rows)
           if (row.enabled) row.timeMinutes,
       ];
+    },
+    // The same derivation the entitlement uses — the firm's expiry in firm
+    // mode, the profile's otherwise — so a reminder can never be armed against
+    // a date the app does not believe in.
+    readSubscriptionExpiry: () async {
+      final db = await ref.read(databaseProvider.future);
+      final identity = ref.read(localIdentityServiceProvider);
+      return resolveSubscriptionExpiry(db, identity.getId());
     },
   );
 });

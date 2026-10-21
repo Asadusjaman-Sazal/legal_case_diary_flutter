@@ -1109,6 +1109,10 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
                             // The same label Subscription Details prints, so
                             // the red *[Limited Access]* tag appears here too.
                             CurrentPlanLabel(
+                              // Two spaces before *[Limited Access]* (user
+                              // request): the drawer's row is wide, and the tag
+                              // needs to read as a note beside the name.
+                              tagGap: '  ',
                               style: AppTypography.labelLg.copyWith(
                                 color: AppColors.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-21 — Side menu: a little more air before [Limited Access] — COMPLETE (0.0.561)
+
+- **The request, scoped to the side menu only.** Give the plan name and the **`[Limited Access]`** tag a bit more space between them.
+- **What changed.** `CurrentPlanLabel` gained a `tagGap`; the drawer's plan row passes **two spaces**, while Subscription Details keeps **one**. The whole point of the separate knob is exactly the scope the user set: the details card is unchanged.
+- **Proof.** `app_navigation_drawer_test.dart` **44 passed** (+1): the new case stubs a paid tier with no entitlement, reads the row's two runs and pins `'  [Limited Access]'` plus its red. `flutter analyze` clean; full `flutter test` **1926 passed**.
+- **Resume point.** A device look at the side menu with an ended plan: the tag should read as a note beside the name, not glued to it. Nothing else moved.
+
 ### 2026-10-21 — Subscription Details: Cancelled, Limited Access, and one value size — COMPLETE (0.0.560)
 
 - **The request (five items).** Put back the **Cancel** action from 0.0.543–0.0.544; show **Cancelled** with the cancellation's date and time instead of **Expiry** once a plan is cancelled; call *Lapsed* **Limited Access** everywhere, in red square brackets and a little smaller; give the card's **Current Plan** value the same size as the other entries while keeping it bold; and, when a plan has ended, title the block **Limited Access Mode** with a sentence naming the reason and the allowance.

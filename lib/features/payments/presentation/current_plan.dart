@@ -172,6 +172,7 @@ class CurrentPlanLabel extends ConsumerWidget {
     this.textAlign = TextAlign.start,
     this.maxLines = 1,
     this.showTag = true,
+    this.tagGap = ' ',
   });
 
   /// The style the caller's surface gives the plan's name.
@@ -186,6 +187,13 @@ class CurrentPlanLabel extends ConsumerWidget {
 
   /// Whether a plan that has ended carries its red tag.
   final bool showTag;
+
+  /// The run of spaces that sets the tag apart from the plan's name.
+  ///
+  /// One space on the details card, where the row is narrow; the side menu asks
+  /// for one more, because its row is wider and the tag reads there as a note
+  /// beside the name rather than a suffix (user request).
+  final String tagGap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,7 +220,7 @@ class CurrentPlanLabel extends ConsumerWidget {
         children: [
           TextSpan(text: subscriptionTierLabel(l, tier)),
           TextSpan(
-            text: ' ${l.settingsManageAccount_planLimitedAccessTag}',
+            text: '$tagGap${l.settingsManageAccount_planLimitedAccessTag}',
             style: TextStyle(
               color: AppColors.error,
               // Relative, not a size of its own: the tag has to sit inside a

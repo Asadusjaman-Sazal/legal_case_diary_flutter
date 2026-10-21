@@ -586,11 +586,12 @@
   "paywall_featureUnlimitedCases": "অসীম মামলা",
   "paywall_featureOfflineUse": "শুধু অফলাইনে ব্যবহার",
   "paywall_featureOfflineBackup": "অফলাইন ব্যাকআপ ও পুনরুদ্ধার",
+  "paywall_featureOfflineDataBackup": "অফলাইন ব্যবহার ও ডেটা ব্যাকআপ",
   "paywall_featureCustomization": "ডেটা কাস্টমাইজেশন: আদালতের নাম, ধাপ ও মামলার ধরন",
   "paywall_featureCloudBackup": "রিয়েল-টাইম ক্লাউড ব্যাকআপ",
-  "paywall_featureDisasterRecovery": "দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ফোনে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন",
+  "paywall_featureDisasterRecovery": "দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ডিভাইসে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন",
   "paywall_featureSingleDevice": "একটি ডিভাইসে ব্যবহার",
-  "paywall_featureMultiDevice": "একাধিক ডিভাইসে ব্যবহার: সর্বোচ্চ {count}টি ডিভাইস",
+  "paywall_featureMultiDevice": "একাধিক ডিভাইসে ব্যবহার: একসঙ্গে সর্বোচ্চ {count}টি ডিভাইস",
   "@paywall_featureMultiDevice": {
       "placeholders": {
           "count": {
@@ -598,7 +599,7 @@
           }
       }
   },
-  "paywall_featureCollaboration": "সহযোগিতা: সর্বোচ্চ {count} জন সদস্য (প্রতিজনে একটি ডিভাইস)",
+  "paywall_featureCollaboration": "সহযোগিতা: সর্বোচ্চ {count} জন সদস্য (প্রতিজনে একসঙ্গে একটি ডিভাইস)",
   "@paywall_featureCollaboration": {
       "placeholders": {
           "count": {

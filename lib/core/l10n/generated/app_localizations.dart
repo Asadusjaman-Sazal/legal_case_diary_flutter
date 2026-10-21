@@ -2090,6 +2090,12 @@ abstract class AppLocalizations {
   /// **'Offline backup and restoration'**
   String get paywall_featureOfflineBackup;
 
+  /// No description provided for @paywall_featureOfflineDataBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline usage & data backup'**
+  String get paywall_featureOfflineDataBackup;
+
   /// No description provided for @paywall_featureCustomization.
   ///
   /// In en, this message translates to:
@@ -2105,7 +2111,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_featureDisasterRecovery.
   ///
   /// In en, this message translates to:
-  /// **'Disaster recovery: restore your diary from the cloud on a new phone'**
+  /// **'Disaster recovery: restore your diary from the cloud on a new device'**
   String get paywall_featureDisasterRecovery;
 
   /// No description provided for @paywall_featureSingleDevice.
@@ -2117,13 +2123,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_featureMultiDevice.
   ///
   /// In en, this message translates to:
-  /// **'Multi-device support: up to {count} devices'**
+  /// **'Multi-device support: up to {count} concurrent devices'**
   String paywall_featureMultiDevice(String count);
 
   /// No description provided for @paywall_featureCollaboration.
   ///
   /// In en, this message translates to:
-  /// **'Collaboration: up to {count} members (one device each)'**
+  /// **'Collaboration: up to {count} members (one concurrent device each)'**
   String paywall_featureCollaboration(String count);
 
   /// No description provided for @paywall_mostPopular.

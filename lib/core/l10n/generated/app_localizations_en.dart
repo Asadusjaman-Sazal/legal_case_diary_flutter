@@ -1166,6 +1166,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_featureOfflineBackup => 'Offline backup and restoration';
 
   @override
+  String get paywall_featureOfflineDataBackup => 'Offline usage & data backup';
+
+  @override
   String get paywall_featureCustomization =>
       'Data customization: court names, steps and case types';
 
@@ -1174,19 +1177,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_featureDisasterRecovery =>
-      'Disaster recovery: restore your diary from the cloud on a new phone';
+      'Disaster recovery: restore your diary from the cloud on a new device';
 
   @override
   String get paywall_featureSingleDevice => 'Single-device use';
 
   @override
   String paywall_featureMultiDevice(String count) {
-    return 'Multi-device support: up to $count devices';
+    return 'Multi-device support: up to $count concurrent devices';
   }
 
   @override
   String paywall_featureCollaboration(String count) {
-    return 'Collaboration: up to $count members (one device each)';
+    return 'Collaboration: up to $count members (one concurrent device each)';
   }
 
   @override

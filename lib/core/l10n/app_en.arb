@@ -593,11 +593,12 @@
   "paywall_featureUnlimitedCases": "Unlimited cases",
   "paywall_featureOfflineUse": "Offline use only",
   "paywall_featureOfflineBackup": "Offline backup and restoration",
+  "paywall_featureOfflineDataBackup": "Offline usage & data backup",
   "paywall_featureCustomization": "Data customization: court names, steps and case types",
   "paywall_featureCloudBackup": "Real-time cloud backup",
-  "paywall_featureDisasterRecovery": "Disaster recovery: restore your diary from the cloud on a new phone",
+  "paywall_featureDisasterRecovery": "Disaster recovery: restore your diary from the cloud on a new device",
   "paywall_featureSingleDevice": "Single-device use",
-  "paywall_featureMultiDevice": "Multi-device support: up to {count} devices",
+  "paywall_featureMultiDevice": "Multi-device support: up to {count} concurrent devices",
   "@paywall_featureMultiDevice": {
       "placeholders": {
           "count": {
@@ -605,7 +606,7 @@
           }
       }
   },
-  "paywall_featureCollaboration": "Collaboration: up to {count} members (one device each)",
+  "paywall_featureCollaboration": "Collaboration: up to {count} members (one concurrent device each)",
   "@paywall_featureCollaboration": {
       "placeholders": {
           "count": {

@@ -141,7 +141,7 @@ void main() {
     expect(find.text('Real-time cloud backup'), findsOneWidget);
     expect(
       find.text(
-        'Disaster recovery: restore your diary from the cloud on a new phone',
+        'Disaster recovery: restore your diary from the cloud on a new device',
       ),
       findsOneWidget,
     );
@@ -151,7 +151,10 @@ void main() {
     // Pro inherits Starter and adds its own two features.
     expect(find.text('Includes Everything in Starter, plus'), findsOneWidget);
     expect(find.text('Up to 1,000 cases'), findsOneWidget);
-    expect(find.text('Multi-device support: up to 2 devices'), findsOneWidget);
+    expect(
+      find.text('Multi-device support: up to 2 concurrent devices'),
+      findsOneWidget,
+    );
 
     // No paid card prints a headline price any more: Free is the one card left
     // with a price line, because it has no term rows to carry a total.
@@ -246,25 +249,34 @@ void main() {
       findsNothing,
       reason: 'Firm is the entry chamber rung; the badge belongs to Firm Plus.',
     );
-    expect(find.text('Includes Everything in Pro, plus'), findsOneWidget);
+    // Each chamber card lists its **whole** allowance under a plain *Includes*
+    // heading (user ruling, 2026-10-21): a buyer comparing chambers never has
+    // to leave this tab to decode "Everything in Pro".
+    expect(find.text('Includes'), findsNWidgets(3));
+    expect(find.textContaining('Everything in'), findsNothing);
     expect(find.text('Up to 2,500 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 5 members (one device each)'),
+      find.text('Collaboration: up to 5 members (one concurrent device each)'),
       findsOneWidget,
     );
-    expect(find.text('Includes Everything in Firm, plus'), findsOneWidget);
     expect(find.text('Up to 6,000 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 10 members (one device each)'),
+      find.text('Collaboration: up to 10 members (one concurrent device each)'),
       findsOneWidget,
     );
-    expect(find.text('Includes Everything in Firm Plus, plus'), findsOneWidget);
     // Enterprise is the largest tier, not an unlimited one: both numbers are
     // the ones the app's Add Case gate and the join gate enforce.
     expect(find.text('Up to 20,000 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 20 members (one device each)'),
+      find.text('Collaboration: up to 20 members (one concurrent device each)'),
       findsOneWidget,
+    );
+    // The three shared rows are printed from the same strings on every card.
+    expect(find.text('Real-time cloud backup'), findsNWidgets(3));
+    expect(find.text('Offline usage & data backup'), findsNWidgets(3));
+    expect(
+      find.text('Data customization: court names, steps and case types'),
+      findsNWidgets(3),
     );
 
     // Firm is the one chamber tier with a one-month plan; Firm Plus and

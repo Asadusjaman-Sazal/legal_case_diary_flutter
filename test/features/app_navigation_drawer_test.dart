@@ -203,6 +203,7 @@ void main() {
     LogoutFlow? logoutFlow,
     int? adminBadgeCount,
     bool firmMember = false,
+    SubscriptionTier? tier,
   }) async {
     // Tall, so the plan row (below the eight nav items) is on screen to tap.
     await tester.binding.setSurfaceSize(const Size(500, 1400));
@@ -258,6 +259,9 @@ void main() {
           // The member rule behind the plans child: a member has nothing to buy,
           // while the owner (the default here) keeps the renewal entry.
           firmMemberProvider.overrideWithValue(firmMember),
+          // The tier behind the plan label's Limited Access tag: stubbed only
+          // where a test needs the ended state, so no other case changes.
+          if (tier != null) allowanceTierProvider.overrideWithValue(tier),
           // The address the sheet names. Stubbed, so a sheet that invented its
           // own address (or printed nothing) would fail the assertion below.
           authIdentityProvider.overrideWithValue(
@@ -413,6 +417,45 @@ void main() {
       findsOneWidget,
     );
     expect(drawerText(l.paywall_title), findsOneWidget);
+  });
+
+  testWidgets('an ended plan carries its tag two spaces off the name', (
+    tester,
+  ) async {
+    // A paid tier with no entitlement is on Limited Access, which the row marks
+    // with its own red tag. The user asked for a little more air before it here
+    // than the details card gives: two spaces, so the tag reads as a note
+    // beside the name rather than a suffix.
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(
+      tester,
+      plan: (known: true, premium: false, planKey: null),
+      tier: SubscriptionTier.pro,
+    );
+
+    final label = find.descendant(
+      of: find.byType(Drawer),
+      matching: find.byType(CurrentPlanLabel),
+    );
+    expect(label, findsOneWidget);
+    final rich = tester.widget<RichText>(
+      find.descendant(of: label, matching: find.byType(RichText)),
+    );
+    // `Text` wraps the span it is given in one carrying the style, so the two
+    // printed runs are found by walking the tree rather than by index.
+    final spans = <TextSpan>[];
+    (rich.text as TextSpan).visitChildren((span) {
+      if (span is TextSpan && span.text != null) spans.add(span);
+      return true;
+    });
+    expect(
+      spans.map((span) => span.text),
+      <String>[
+        l.paywall_tierPro,
+        '  ${l.settingsManageAccount_planLimitedAccessTag}',
+      ],
+    );
+    expect(spans[1].style?.color, AppColors.error);
   });
 
   testWidgets('a chamber member expands to Subscription Details alone', (

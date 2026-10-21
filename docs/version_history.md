@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.555 - Warn a paying account before its plan ends: a banner from 7 days out and phone reminders at 7 and 3 days, for a chamber's owner and members alike.
+Version: 0.0.558 - Hold the Individual/Firm pill at 60% on real phones by raising its compact cap to 240 pt.
 --------------------------------------
 
 ## Version History Log:
@@ -569,3 +569,6 @@ Version: 0.0.552 - Paywall prices replaced across all six tiers, Firm gained a o
 Version: 0.0.553 - Subscription Plans polish, and the plan limits made real: Firm Plus 10 seats, Enterprise capped at 20,000 cases and 20 members.
 Version: 0.0.554 - Applied the two pending migrations and proved the ladder on the live project, fixed both large-text overflows on the plans screen, and made 6 Months the default term on every card.
 Version: 0.0.555 - Warn a paying account before its plan ends: a banner from 7 days out and phone reminders at 7 and 3 days, for a chamber's owner and members alike.
+Version: 0.0.556 - Narrow the Individual/Firm pill on Subscription Plans to 52% of the card width (capped at 200), so it reads as a control rather than a bar.
+Version: 0.0.557 - Widen the Individual/Firm pill on Subscription Plans from 52% to 60% of the card width, at the user's word.
+Version: 0.0.558 - Hold the Individual/Firm pill at 60% on real phones by raising its compact cap to 240 pt.

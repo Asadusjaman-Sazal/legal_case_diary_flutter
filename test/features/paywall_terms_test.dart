@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
@@ -30,9 +31,10 @@ void main() {
   Future<void> pumpPaywall(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    double width = 1200,
     double height = 4200,
   }) async {
-    tester.view.physicalSize = Size(1200, height);
+    tester.view.physicalSize = Size(width, height);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
@@ -316,6 +318,38 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'a card header at $scale');
+    }
+  });
+
+  testWidgets('the audience pill takes six tenths of the card width', (
+    tester,
+  ) async {
+    // The user's ask: a pricing page's audience switch is a control you choose
+    // from, not a bar the width of the page — six tenths of the card (raised
+    // from 52% at the user's word). Two phone widths, so the compact cap cannot
+    // quietly swallow the share on a wider handset.
+    for (final width in <double>[360, 390]) {
+      await pumpPaywall(tester, width: width, height: 3000);
+
+      final cardWidth = width - 2 * AppSpacing.edgeMargin;
+      final pill = tester.getRect(
+        find.byKey(const ValueKey('paywall-audience-pill')),
+      );
+      expect(pill.width, closeTo(cardWidth * 0.60, 0.5), reason: '$width pt');
+      expect(
+        pill.width / cardWidth,
+        inInclusiveRange(0.58, 0.62),
+        reason: '$width pt',
+      );
+      // Centred on the card, and its two halves equal.
+      expect(pill.center.dx, closeTo(width / 2, 0.5));
+      final individual = tester.getRect(
+        find.byKey(const ValueKey('paywall-audience-individual')),
+      );
+      final firm = tester.getRect(
+        find.byKey(const ValueKey('paywall-audience-firm')),
+      );
+      expect(individual.width, closeTo(firm.width, 0.5));
     }
   });
 

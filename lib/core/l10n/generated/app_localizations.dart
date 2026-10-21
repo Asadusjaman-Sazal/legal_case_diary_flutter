@@ -8368,6 +8368,60 @@ abstract class AppLocalizations {
   /// **'Note'**
   String get payments_notesLabel;
 
+  /// Pre-expiry banner for an individual or a firm owner. 'days' arrives already written in the active language's digits.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription ends in {days} days, on {date}. Renew to keep syncing.'**
+  String subscription_bannerEnding(String days, String date);
+
+  /// Pre-expiry banner on the plan's last day; the 'two days or more' wording would read badly here.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription ends on {date}. Renew to keep syncing.'**
+  String subscription_bannerEndingLastDay(String date);
+
+  /// Pre-expiry banner for a firm member: the plan is the chamber's, so only the owner can pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s plan ends in {days} days, on {date}. Ask your firm owner to renew.'**
+  String subscription_bannerEndingAssociate(String days, String date);
+
+  /// Pre-expiry banner for a firm member on the plan's last day.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s plan ends on {date}. Ask your firm owner to renew.'**
+  String subscription_bannerEndingAssociateLastDay(String date);
+
+  /// No description provided for @subscription_reminderChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Reminders'**
+  String get subscription_reminderChannelName;
+
+  /// No description provided for @subscription_reminderChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings before a paid plan ends'**
+  String get subscription_reminderChannelDescription;
+
+  /// No description provided for @subscription_reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Ending Soon'**
+  String get subscription_reminderTitle;
+
+  /// Phone reminder for an individual or a firm owner, posted seven and three days before the end date. 'days' arrives already written in the active language's digits.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription ends in {days} days, on {date}. Renew to keep syncing.'**
+  String subscription_reminderBody(String days, String date);
+
+  /// Phone reminder for a firm member, posted seven and three days before the chamber's plan ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s plan ends in {days} days, on {date}. Ask your firm owner to renew.'**
+  String subscription_reminderBodyAssociate(String days, String date);
+
   /// No description provided for @subscription_bannerGrace.
   ///
   /// In en, this message translates to:

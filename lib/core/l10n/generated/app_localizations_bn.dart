@@ -4862,6 +4862,46 @@ class AppLocalizationsBn extends AppLocalizations {
   String get payments_notesLabel => 'মন্তব্য';
 
   @override
+  String subscription_bannerEnding(String days, String date) {
+    return 'আপনার সাবস্ক্রিপশন $days দিন পর, $date তারিখে শেষ হবে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
+  }
+
+  @override
+  String subscription_bannerEndingLastDay(String date) {
+    return 'আপনার সাবস্ক্রিপশন $date তারিখে শেষ হবে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
+  }
+
+  @override
+  String subscription_bannerEndingAssociate(String days, String date) {
+    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+  }
+
+  @override
+  String subscription_bannerEndingAssociateLastDay(String date) {
+    return 'আপনার ফার্মের প্ল্যান $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+  }
+
+  @override
+  String get subscription_reminderChannelName => 'সাবস্ক্রিপশন রিমাইন্ডার';
+
+  @override
+  String get subscription_reminderChannelDescription =>
+      'পরিশোধিত প্ল্যান শেষ হওয়ার আগে সতর্কতা';
+
+  @override
+  String get subscription_reminderTitle => 'সাবস্ক্রিপশন শীঘ্রই শেষ হচ্ছে';
+
+  @override
+  String subscription_reminderBody(String days, String date) {
+    return 'আপনার সাবস্ক্রিপশন $days দিন পর, $date তারিখে শেষ হবে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
+  }
+
+  @override
+  String subscription_reminderBodyAssociate(String days, String date) {
+    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+  }
+
+  @override
   String get subscription_bannerGrace =>
       'আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
 

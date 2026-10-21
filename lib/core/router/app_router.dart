@@ -72,6 +72,8 @@ import '../../shared/widgets/database_guard.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../providers/notification_providers.dart';
 import '../providers/repository_providers.dart';
+import '../notifications/notification_scheduler.dart'
+    show subscriptionReminderPayload;
 import '../push/payment_alert_message.dart';
 import '../services/app_exit.dart';
 
@@ -287,13 +289,17 @@ bool _isPublicLegalDocument(String location) =>
 /// launched the app. A hearing alert's payload **is** the case id, so it opens
 /// that case's detail view; the admin payment alert carries its own marker
 /// (`paymentAlertPayload`) and opens the page that count is about — Payment
-/// Requests, where it can actually be acted on.
+/// Requests, where it can actually be acted on. The pre-expiry subscription
+/// reminder carries `subscriptionReminderPayload` and opens the plans screen,
+/// where the renewal happens.
 ///
 /// A legal-looking payload that is neither is treated as a case id, which is what
 /// it has always been, so no existing alert changes destination.
-String notificationPayloadRoute(String payload) => payload == paymentAlertPayload
-    ? AppRoutes.adminPaymentRequests
-    : AppRoutes.caseDetailPath(payload);
+String notificationPayloadRoute(String payload) => switch (payload) {
+  paymentAlertPayload => AppRoutes.adminPaymentRequests,
+  subscriptionReminderPayload => AppRoutes.paywall,
+  _ => AppRoutes.caseDetailPath(payload),
+};
 
 /// Resolves where a navigation to [location] should be sent, from the session
 /// facts the router already holds; null means "stay where the user asked".

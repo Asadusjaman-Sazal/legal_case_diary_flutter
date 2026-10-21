@@ -35,10 +35,7 @@ Future<bool> resolvePremiumAccess(
   String userId, {
   DateTime? now,
 }) async {
-  final profile = await ProfilesDao(db).getById(userId);
-  final expiry = profile?.firmId == null
-      ? profile?.subscriptionExpiry
-      : (await FirmsDao(db).getById(profile!.firmId!))?.subscriptionExpiry;
+  final expiry = await resolveSubscriptionExpiry(db, userId);
   if (expiry == null) return false;
   final offsetMs =
       await SyncMetadataDao(db).getIntValue(clockOffsetMsKey) ?? 0;
@@ -50,4 +47,22 @@ Future<bool> resolvePremiumAccess(
     isUtc: true,
   ).add(const Duration(hours: 48));
   return graceExpiry.isAfter(serverNow);
+}
+
+/// The expiry that governs [userId], or null when they never subscribed.
+///
+/// An individual's own `subscription_expiry`; a firm member's is the firm's
+/// mirrored expiry, which is the source of truth for the whole chamber. Split
+/// out of [resolvePremiumAccess] so the pre-expiry reminder arms against exactly
+/// the same date the entitlement is derived from, instead of a second reading of
+/// the same rule.
+Future<int?> resolveSubscriptionExpiry(
+  AppDatabase db,
+  String userId,
+) async {
+  final profile = await ProfilesDao(db).getById(userId);
+  if (profile == null) return null;
+  final firmId = profile.firmId;
+  if (firmId == null) return profile.subscriptionExpiry;
+  return (await FirmsDao(db).getById(firmId))?.subscriptionExpiry;
 }

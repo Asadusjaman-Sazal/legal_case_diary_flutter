@@ -4842,6 +4842,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payments_notesLabel => 'Note';
 
   @override
+  String subscription_bannerEnding(String days, String date) {
+    return 'Your subscription ends in $days days, on $date. Renew to keep syncing.';
+  }
+
+  @override
+  String subscription_bannerEndingLastDay(String date) {
+    return 'Your subscription ends on $date. Renew to keep syncing.';
+  }
+
+  @override
+  String subscription_bannerEndingAssociate(String days, String date) {
+    return 'Your firm\'s plan ends in $days days, on $date. Ask your firm owner to renew.';
+  }
+
+  @override
+  String subscription_bannerEndingAssociateLastDay(String date) {
+    return 'Your firm\'s plan ends on $date. Ask your firm owner to renew.';
+  }
+
+  @override
+  String get subscription_reminderChannelName => 'Subscription Reminders';
+
+  @override
+  String get subscription_reminderChannelDescription =>
+      'Warnings before a paid plan ends';
+
+  @override
+  String get subscription_reminderTitle => 'Subscription Ending Soon';
+
+  @override
+  String subscription_reminderBody(String days, String date) {
+    return 'Your subscription ends in $days days, on $date. Renew to keep syncing.';
+  }
+
+  @override
+  String subscription_reminderBodyAssociate(String days, String date) {
+    return 'Your firm\'s plan ends in $days days, on $date. Ask your firm owner to renew.';
+  }
+
+  @override
   String get subscription_bannerGrace =>
       'Your subscription expired. Renew to avoid losing sync access.';
 

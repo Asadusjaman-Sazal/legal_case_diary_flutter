@@ -246,7 +246,82 @@ int nextAlarmEpochMs({
   return todayFire > referenceEpochMs
       ? todayFire
       : todayFire + _millisecondsPerDay;
+}// ---------------------------------------------------------------------------
+// Subscription reminders (pre-expiry)
+// ---------------------------------------------------------------------------
+//
+// A paying account is warned *before* its plan ends, not only after sync has
+// stopped. The days are civil days on the Bangladesh calendar, exactly like a
+// hearing offset, so "7 days before" means the morning of the same weekday a
+// week earlier, whatever time of day the plan happens to end.
+
+/// Days left on which a subscription reminder is posted: seven and three.
+///
+/// Two, deliberately: the user asked not to be nagged, so a chamber on a
+/// monthly plan hears from the app twice in its last week and then the existing
+/// expiry warnings take over.
+const List<int> subscriptionReminderDays = <int>[7, 3];
+
+/// Wall-clock time of a reminder (09:00 Bangladesh): early enough to act on in
+/// the working day, too early to interrupt the evening.
+const int subscriptionReminderMinutes = 9 * 60;
+
+/// Whole Bangladesh civil days from [nowEpochMs] until [expiryEpochMs].
+///
+/// 7 for a plan ending seven civil days later, 0 on the plan's last day, and
+/// negative once it has ended. Civil dates rather than elapsed hours, because
+/// that is how the lawyer reads "ends on the 30th".
+int subscriptionDaysLeft({
+  required int expiryEpochMs,
+  required int nowEpochMs,
+}) {
+  final expiryDay = AppDateUtils.normalizeToBangladeshStartOfDay(expiryEpochMs);
+  final today = AppDateUtils.bangladeshTodayStartOfDay(
+    referenceEpochMs: nowEpochMs,
+  );
+  return (expiryDay - today) ~/ _millisecondsPerDay;
 }
+
+/// The reminders still ahead of [nowEpochMs], each with the day it announces.
+///
+/// A reminder whose morning has already passed is simply not armed, so opening
+/// the app for the first time on day 5 still arms day 3. Returns an empty list
+/// for an account with no expiry (never subscribed) or one already ending today.
+List<({int daysLeft, int fireAtEpochMs})> subscriptionReminderFireTimes({
+  required int? expiryEpochMs,
+  required int nowEpochMs,
+}) {
+  if (expiryEpochMs == null) return const <({int daysLeft, int fireAtEpochMs})>[];
+  final expiryDay = AppDateUtils.normalizeToBangladeshStartOfDay(expiryEpochMs);
+  return <({int daysLeft, int fireAtEpochMs})>[
+    for (final daysLeft in subscriptionReminderDays)
+      if (expiryDay - daysLeft * _millisecondsPerDay +
+              subscriptionReminderMinutes * 60 * 1000 >
+          nowEpochMs)
+        (
+          daysLeft: daysLeft,
+          fireAtEpochMs:
+              expiryDay -
+              daysLeft * _millisecondsPerDay +
+              subscriptionReminderMinutes * 60 * 1000,
+        ),
+  ];
+}
+
+/// Whether a reminder armed for [daysLeft] may still be posted.
+///
+/// The alarm is armed days in advance and nothing cancels it when the chamber
+/// renews, so the job re-reads the expiry and posts only if the plan still ends
+/// in exactly [daysLeft] days. A renewal, a lapse or a moved date therefore
+/// silences the stale reminder instead of announcing the wrong thing.
+bool isSubscriptionReminderDue({
+  required int? expiryEpochMs,
+  required int nowEpochMs,
+  required int daysLeft,
+}) =>
+    expiryEpochMs != null &&
+    subscriptionDaysLeft(expiryEpochMs: expiryEpochMs, nowEpochMs: nowEpochMs) ==
+        daysLeft;
 
 /// Decodes a stored offsets array (`case_notification_preferences.offsets`).
 ///

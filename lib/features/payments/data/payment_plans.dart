@@ -201,26 +201,10 @@ enum SubscriptionTier {
   ),
 
   /// One account, 500 cases, one device; a lapsed Starter keeps writing 100.
-  starter(
-    'starter',
-    500,
-    100,
-    80,
-    0,
-    1,
-    SubscriptionAudience.individual,
-  ),
+  starter('starter', 500, 100, 80, 0, 1, SubscriptionAudience.individual),
 
   /// One account, 1,000 cases, two devices; a lapsed Pro keeps writing 250.
-  pro(
-    'pro',
-    1000,
-    250,
-    150,
-    0,
-    2,
-    SubscriptionAudience.individual,
-  ),
+  pro('pro', 1000, 250, 150, 0, 2, SubscriptionAudience.individual),
 
   /// Five members including the owner, 2,500 cases; a lapse keeps 500.
   firm('firm', 2500, 500, 250, 5, null, SubscriptionAudience.firm),
@@ -287,9 +271,11 @@ enum SubscriptionTier {
   /// Devices an individual account may use, or null when the tier's device
   /// rule is **one per member** rather than one number for the account.
   ///
-  /// The paywall states these limits; they are not enforced yet (user ruling,
-  /// 2026-10-19). Firm, Firm Plus and Enterprise say *one device each* in
-  /// their member line instead of using this field.
+  /// The paywall states these limits and the server enforces them: this number
+  /// is what `tier_device_cap` answers, pinned by
+  /// `test/supabase/device_cap_parity_test.dart`. Firm, Firm Plus and Enterprise
+  /// say *one device each* in their member line instead of using this field,
+  /// and a chamber member reads 1 whatever the chamber's tier says.
   final int? deviceCap;
 
   /// The paywall tab this tier sits on.

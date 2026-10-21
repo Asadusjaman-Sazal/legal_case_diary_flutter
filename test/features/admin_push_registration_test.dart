@@ -36,7 +36,8 @@ class _FakePushGateway implements PushGateway {
   int initializeCalls = 0;
 
   /// Tokens the device is handed later, as FCM would.
-  final StreamController<String> refreshed = StreamController<String>.broadcast();
+  final StreamController<String> refreshed =
+      StreamController<String>.broadcast();
 
   @override
   Future<void> initialize() async => initializeCalls++;
@@ -69,7 +70,8 @@ class _FakeDeviceTokens implements DeviceTokenRepository {
   final List<String> unregistered = <String>[];
 
   @override
-  Future<void> register(String token) async => registered.add(token);
+  Future<void> register(String token, {String? deviceKey}) async =>
+      registered.add(token);
 
   @override
   Future<void> unregister(String token) async => unregistered.add(token);
@@ -100,8 +102,10 @@ class _FakeAdmin implements AdminRepository {
   Future<AdminActionFailure?> approve(String submissionId) async => null;
 
   @override
-  Future<AdminActionFailure?> reject(String submissionId, {String? note}) async =>
-      null;
+  Future<AdminActionFailure?> reject(
+    String submissionId, {
+    String? note,
+  }) async => null;
 
   @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
@@ -136,9 +140,7 @@ void main() {
     AuthIdentity? identity,
     PushGateway? gateway,
   }) async {
-    harness = AuthTestHarness(
-      auth: FakeAuthRepository(identity: identity),
-    );
+    harness = AuthTestHarness(auth: FakeAuthRepository(identity: identity));
     await pumpAuthScreen(
       tester,
       const AdminPushScope(child: SizedBox.shrink()),
@@ -156,10 +158,7 @@ void main() {
   }
 
   testWidgets('an administrator\'s device registers its token', (tester) async {
-    await pumpScope(
-      tester,
-      identity: const AuthIdentity(userId: 'user-a'),
-    );
+    await pumpScope(tester, identity: const AuthIdentity(userId: 'user-a'));
     await tester.pumpAndSettle();
 
     // One row, for the account the server confirmed, written once even though the
@@ -180,10 +179,7 @@ void main() {
 
   testWidgets('a non-administrator registers nothing', (tester) async {
     admin = _FakeAdmin(admin: false);
-    await pumpScope(
-      tester,
-      identity: const AuthIdentity(userId: 'user-b'),
-    );
+    await pumpScope(tester, identity: const AuthIdentity(userId: 'user-b'));
     await tester.pumpAndSettle();
 
     // The fan-set holds administrators' devices only, and nothing here can put a
@@ -192,7 +188,9 @@ void main() {
     expect(tokens.registered, isEmpty);
   });
 
-  testWidgets('a device with no push channel registers nothing', (tester) async {
+  testWidgets('a device with no push channel registers nothing', (
+    tester,
+  ) async {
     _FakePushGateway tokenless() => _FakePushGateway(tokenValue: null);
     await pumpScope(
       tester,
@@ -225,10 +223,7 @@ void main() {
   });
 
   testWidgets('a rotated token replaces the row', (tester) async {
-    await pumpScope(
-      tester,
-      identity: const AuthIdentity(userId: 'user-a'),
-    );
+    await pumpScope(tester, identity: const AuthIdentity(userId: 'user-a'));
     await tester.pumpAndSettle();
     expect(tokens.registered, <String>['device-token-1']);
 
@@ -275,10 +270,7 @@ void main() {
     // The user is signed out all the same — this is the one action they may need
     // precisely when the network is gone — and the failure is remembered rather
     // than swallowed, because "still being pushed to" is otherwise invisible.
-    expect(
-      container.read(authViewModelProvider).value?.identity,
-      isNull,
-    );
+    expect(container.read(authViewModelProvider).value?.identity, isNull);
     expect(
       harness.log.entries.map((entry) => entry.area),
       contains('auth.unregisterDeviceToken'),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_colors.dart';
 import 'features/accounts_and_profile/presentation/account_refresh_scope.dart';
 import 'features/accounts_and_profile/presentation/membership_revoked_scope.dart';
+import 'features/auth/presentation/device_gate_scope.dart';
 import 'features/auth/presentation/session_state.dart';
 import 'sync/sync_trigger_scope.dart';
 import 'core/l10n/generated/app_localizations.dart';
@@ -95,22 +96,31 @@ class App extends ConsumerWidget {
                           // membership that no longer exists.
                           child: MembershipRevokedScope(
                             router: router,
-                            // Drives the push/pull engine on launch, resume,
-                            // reconnect and new local writes.
-                            child: SyncTriggerScope(
-                              // Innermost, so the extended-offline lock covers every
-                              // screen and route: while it is set the app has no
-                              // editable surface at all, and the blocking screen
-                              // returns on every launch until recovery succeeds.
-                              child: RecoveryRequiredScope(
-                                child: UpdateCheckScope(
-                                  // Innermost next to the screens: it renders its
-                                  // child untouched and, in the background,
-                                  // registers this device for admin payment
-                                  // alerts once the server confirms the account
-                                  // is an administrator's.
-                                  child: AdminPushScope(
-                                    child: child ?? const SizedBox.shrink(),
+                            // Inside the removal scope: losing the chamber is the
+                            // larger event, and its wipe wins. The device gate
+                            // then answers for the plan's slot — a full plan names
+                            // the devices holding it, and a revoked device saves
+                            // its unsent work before it erases.
+                            child: DeviceGateScope(
+                              router: router,
+                              // Drives the push/pull engine on launch, resume,
+                              // reconnect and new local writes.
+                              child: SyncTriggerScope(
+                                // Innermost, so the extended-offline lock covers
+                                // every screen and route: while it is set the app
+                                // has no editable surface at all, and the blocking
+                                // screen returns on every launch until recovery
+                                // succeeds.
+                                child: RecoveryRequiredScope(
+                                  child: UpdateCheckScope(
+                                    // Innermost next to the screens: it renders its
+                                    // child untouched and, in the background,
+                                    // registers this device for admin payment
+                                    // alerts once the server confirms the account
+                                    // is an administrator's.
+                                    child: AdminPushScope(
+                                      child: child ?? const SizedBox.shrink(),
+                                    ),
                                   ),
                                 ),
                               ),

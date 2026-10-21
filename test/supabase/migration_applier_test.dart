@@ -18,7 +18,9 @@ import '../../tool/apply_supabase_migrations.dart';
 void main() {
   group('migration file names', () {
     test('a timestamped file yields the version and name the CLI records', () {
-      final record = parseMigrationFile('20260929100000_phase1_core_schema.sql');
+      final record = parseMigrationFile(
+        '20260929100000_phase1_core_schema.sql',
+      );
 
       expect(record.version, '20260929100000');
       expect(record.name, 'phase1_core_schema');
@@ -57,8 +59,12 @@ void main() {
 
       expect(
         versions,
-        hasLength(57),
-        reason: 'Task 16 shipped fourteen files; the audit closure added one, '
+        hasLength(60),
+        reason:
+            'The device limit (2026-10-21) added its registry, its '
+            'enforcement pair and the trim correction its proof caught, so the '
+            'folder is three files longer. '
+            'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
             'the self-service profile columns, Task 18 Phase 1 added '
@@ -127,42 +133,54 @@ void main() {
             'cases and 20 members',
       );
 
-      expect(versions.toSet(), hasLength(57), reason: 'versions must be unique');
+      expect(
+        versions.toSet(),
+        hasLength(60),
+        reason: 'versions must be unique',
+      );
       expect(
         versions,
         List<String>.from(versions)..sort(),
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261020110000');
+      expect(versions.last, '20261022120000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
-      final onDisk = Directory(migrationsDir)
-          .listSync()
-          .whereType<File>()
-          .map((file) => file.uri.pathSegments.last)
-          .where((name) => name.endsWith('.sql'))
-          .toList()
-        ..sort();
+      final onDisk =
+          Directory(migrationsDir)
+              .listSync()
+              .whereType<File>()
+              .map((file) => file.uri.pathSegments.last)
+              .where((name) => name.endsWith('.sql'))
+              .toList()
+            ..sort();
       expect(migrations.map((m) => m.fileName).toList(), onDisk);
     });
   });
 
   group('connection string', () {
-    test('the URL is read out of the env file, quotes and comments ignored', () {
-      const env = '''
+    test(
+      'the URL is read out of the env file, quotes and comments ignored',
+      () {
+        const env =
+            '''
 # a comment
 OTHER=value
 $dbUrlVariable="postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres"
 ''';
-      expect(
-        readConnectionUrl(env),
-        'postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres',
-      );
-    });
+        expect(
+          readConnectionUrl(env),
+          'postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres',
+        );
+      },
+    );
 
     test('a missing line is reported with what to put there', () {
-      expect(() => readConnectionUrl('# nothing here\n'), throwsA(isA<ToolFailure>()));
+      expect(
+        () => readConnectionUrl('# nothing here\n'),
+        throwsA(isA<ToolFailure>()),
+      );
     });
 
     test('the project comes from the pooler user or the direct host', () {
@@ -179,7 +197,8 @@ $dbUrlVariable="postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres
         writableProjectRef,
       );
       expect(
-        () => projectRefFromConnectionUrl('postgresql://localhost:5432/postgres'),
+        () =>
+            projectRefFromConnectionUrl('postgresql://localhost:5432/postgres'),
         throwsA(isA<ToolFailure>()),
       );
     });
@@ -247,7 +266,8 @@ $dbUrlVariable="postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres
     test('a notice that matters survives the filter', () {
       // This is the one NOTICE the operator must not lose: pg_cron missing means
       // the tombstone purge is never scheduled.
-      const notice = 'NOTICE:  pg_cron is not available on this project; '
+      const notice =
+          'NOTICE:  pg_cron is not available on this project; '
           'purge_tombstones() is not scheduled.';
       const error = 'ERROR:  syntax error at end of input';
 
@@ -261,7 +281,10 @@ $dbUrlVariable="postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres
 
   group('CLI-compatible version recording', () {
     test('the version row is the CLI upsert, with statements left NULL', () {
-      final sql = upsertVersionRowSql(version: '20260929100000', name: 'phase1');
+      final sql = upsertVersionRowSql(
+        version: '20260929100000',
+        name: 'phase1',
+      );
 
       expect(
         sql,
@@ -280,20 +303,19 @@ $dbUrlVariable="postgresql://postgres.lsthasywrdrhuuxnykau:pw@host:5432/postgres
     });
 
     test('the bootstrap is the CLI DDL, in the CLI order, all idempotent', () {
+      expect(supabaseBootstrapStatements.map((s) => s.sql).toList(), <String>[
+        'CREATE SCHEMA IF NOT EXISTS supabase_migrations',
+        'CREATE TABLE IF NOT EXISTS '
+            'supabase_migrations.schema_migrations (version text NOT NULL PRIMARY KEY)',
+        'ALTER TABLE supabase_migrations.schema_migrations '
+            'ADD COLUMN IF NOT EXISTS statements text[]',
+        'ALTER TABLE supabase_migrations.schema_migrations '
+            'ADD COLUMN IF NOT EXISTS name text',
+      ]);
       expect(
-        supabaseBootstrapStatements.map((s) => s.sql).toList(),
-        <String>[
-          'CREATE SCHEMA IF NOT EXISTS supabase_migrations',
-          'CREATE TABLE IF NOT EXISTS '
-              'supabase_migrations.schema_migrations (version text NOT NULL PRIMARY KEY)',
-          'ALTER TABLE supabase_migrations.schema_migrations '
-              'ADD COLUMN IF NOT EXISTS statements text[]',
-          'ALTER TABLE supabase_migrations.schema_migrations '
-              'ADD COLUMN IF NOT EXISTS name text',
-        ],
-      );
-      expect(
-        supabaseBootstrapStatements.every((s) => s.sql.contains('IF NOT EXISTS')),
+        supabaseBootstrapStatements.every(
+          (s) => s.sql.contains('IF NOT EXISTS'),
+        ),
         isTrue,
       );
     });

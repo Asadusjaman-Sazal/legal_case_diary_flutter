@@ -416,7 +416,8 @@ const List<LedgerSection> _sections = <LedgerSection>[
     version: '0.0.411',
     label:
         'Task 12\'s Manage Account actions, built: delete_my_account(), the '
-        'account holder''s own complete removal — every domain row, custom '
+        'account holder'
+        's own complete removal — every domain row, custom '
         'reference row, preference, payment submission and approval event, sync '
         'receipt, firm link and finally the Auth account — so no residue of it '
         'remains. Refuses, changing nothing, for a firm account and for an app '
@@ -741,11 +742,72 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and Pro 0 untouched. A cap binds new joins only, so a chamber already '
         'holding eleven or twelve members keeps them.',
   ),
+  LedgerSection(
+    file: '20261022100000_device_limit_registry.sql',
+    version: '0.0.565',
+    label:
+        'Task 22 — The device limit\'s registry. Every paid card promises a '
+        'number of devices signed in at once and nothing enforced it. '
+        'tier_device_cap states the number per rung (Pro 2, every other rung '
+        '1) and device_cap answers the caller\'s own allowance, holding a '
+        'chamber member — the owner included — to one whatever the chamber '
+        'buys; user_devices keeps one row per sign-in, keyed by the session_id '
+        'claim in the access token that a client cannot forge, with the '
+        'install\'s device_key beside it so a re-login reuses its own slot; '
+        'register_device is the decision table — re-registering is idempotent, '
+        'a free slot is taken, at the cap the least recently seen spare is '
+        'evicted only when it has been idle seven days or more and the plan is '
+        'live, and a registration past the cap is admitted and flagged '
+        'grandfathered until the 2026-11-21 roll-out end; device_state is the '
+        'launch check, revoke_device frees a slot the lawyer picks and refuses '
+        'a device revoking itself, ack_device_wipe records that a revoked '
+        'device flushed its work and erased, device_trim_surplus revokes the '
+        'surplus after a ceiling falls and revokes nothing without a live '
+        'plan, and device_tokens gains the device_key a revocation deletes by.',
+  ),
+  LedgerSection(
+    file: '20261022110000_device_limit_enforcement.sql',
+    version: '0.0.565',
+    label:
+        'Task 22 — Enforcing the device limit. A limit a client can ignore by '
+        'never registering is not a limit, so three gates: device_may_push '
+        'admits an active device, a revoked device inside its 14-day flush '
+        'window — the window is what lets unsent work reach the account before '
+        'the device erases — and a caller carrying no session at all (psql, the '
+        'service role); device_may_read admits only an active device, plus an '
+        'unregistered session until the same roll-out end so an install that '
+        'has not updated yet keeps working; and push_changes keeps its body — '
+        'renamed push_changes_core with its grants, never re-typed — behind a '
+        'wrapper that refuses a revoked session past its window with '
+        'device_revoked. The eleven ledger tables and conflict_log gain '
+        'device_may_read() in their SELECT policies, which is the same '
+        'condition a Realtime subscription reads. profiles, the billing tables '
+        'and the firm roster stay readable on purpose: a revoked device needs '
+        'its own profile to explain itself, and it erases at its next contact '
+        'anyway.',
+  ),
+  LedgerSection(
+    file: '20261022120000_device_trim_counts_the_caller.sql',
+    version: '0.0.566',
+    label:
+        'Task 22 — Device trim counts the caller only when it holds a slot. '
+        'The proof caught the first run of the limit admitting a third '
+        'sign-in on a two-device plan and revoking one of the two devices '
+        'already there as lapse: device_trim_surplus kept cap-minus-one '
+        'devices other than the caller, which is right only while the caller '
+        'already occupies a slot, and register_device trims before it knows. '
+        'It now asks user_devices whether the caller holds an active row and '
+        'subtracts one only then; a new device leaves the whole cap to the '
+        'devices present, so a full plan answers device_limit_reached, and an '
+        'account already above its cap is still trimmed back to it.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.566': 'Task 22 — The Device Limit, Made Correct',
+  '0.0.565': 'Task 22 — The Device Limit',
   '0.0.289':
       'Task 16 Phase 1 — Core Schema, Sign-Up Trigger And Reference Seed',
   '0.0.290': 'Task 16 Phase 2 — Server-Internal Ledgers',
@@ -774,10 +836,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.385': 'Task 21 Follow-Up — Readable Plan Names On The Payment Ledgers',
   '0.0.411': 'Task 12 — Deleting The Account Itself',
   '0.0.413': 'Task 17 — Correcting A Mistyped Sign-Up Address',
-  '0.0.459':
-      'Task 23 Follow-Up — The Admin Panel\'s Non-Verified Accounts',
-  '0.0.495':
-      'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
+  '0.0.459': 'Task 23 Follow-Up — The Admin Panel\'s Non-Verified Accounts',
+  '0.0.495': 'Task 23 Follow-Up — Non-Verified Accounts Waits 72 Hours',
   '0.0.498': 'Admin Payment Alerts Phase 2 — The Push Server Half',
   '0.0.509': 'Task 21 Follow-Up — Five Payment Submissions A Day',
   '0.0.520': 'Firm Mode Phase 1 — The Read Side Is Scoped',
@@ -785,12 +845,14 @@ const Map<String, String> _groupTitles = <String, String>{
       'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
       'Belong To The Server',
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
-  '0.0.523': 'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
+  '0.0.523':
+      'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '
       'Have One',
   '0.0.529': 'Firm Mode Phase 5 — The Permission Boundary',
   '0.0.530': 'Firm Mode Phase 6 — The In-Use Guard For Reference Rows',
   '0.0.531': 'Firm Mode Phase 7 — The Stored Tier And The Ten-Plan Ladder',
-  '0.0.532': 'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
+  '0.0.532':
+      'Firm Mode Phase 8 — The Seat Cap Reads The Tier, And A Chamber Needs Firm',
   '0.0.534': 'Firm Mode Phase 9 — A Member Has No Plan Of Their Own',
   '0.0.536': 'Firm Mode Phase 11 — Dissolution Keeps The Ledger',
   '0.0.537': 'Firm Mode Phase 12 — Retention And The Recovery Window',

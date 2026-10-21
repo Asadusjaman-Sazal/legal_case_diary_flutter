@@ -91,6 +91,9 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.546 | 2026-10-19 | `20261019100000_subscription_ladder_six_tiers.sql` | Task 22 — The six-tier subscription ladder. The stored tier vocabulary gains starter and enterprise, and the old ladder's pro rung is renamed starter without moving any expiry. tier_rank, the case ceilings and the lapse allowances are restated for the six rungs; adding a case is checked against the diary's tier ceiling, not only the free wall; approve_payment accepts the seventeen sellable keys plus the four legacy ones at their own prices and durations, queues any different tier bought while a plan is running, renews a same-tier purchase and pushes a waiting change back by the term bought, and refuses a third plan behind a queued one; the seat caps become Firm 5, Firm Plus 12 and Enterprise unlimited, so chamber creation needs the Firm rung; and the generated plan names cover every key, old and new. |
 | 0.0.552 | 2026-10-20 | `20261020100000_payment_ladder_v2_prices.sql` | Task 22 — The 2026-10-20 price ladder. Seven ladder prices move and a Firm one-month plan joins the eighteen sellable keys, so a chamber can try firm mode without buying a quarter. Only the ladder inside approve_payment changes — its price constants, key allow-list, amount, duration and tier CASEs — and the two generated plan names gain the Firm month; the gate, the row lock, the queue and the audit insert are unchanged. |
 | 0.0.553 | 2026-10-20 | `20261020110000_enterprise_limits_and_firm_plus_seats.sql` | Task 22 — Enterprise limits, and Firm Plus down to ten seats. Two functions, no prices: tier_case_ceiling answers 20,000 for enterprise instead of null, so the Add Case trigger, which returned early on a null ceiling, now counts a real number on every sold tier; and firm_seat_cap answers Firm Plus 10 (was 12) and Enterprise 20 (was null, which every join gate read as uncapped), leaving Firm 5, Starter and Pro 0 untouched. A cap binds new joins only, so a chamber already holding eleven or twelve members keeps them. |
+| 0.0.565 | 2026-10-22 | `20261022100000_device_limit_registry.sql` | Task 22 — The device limit's registry. Every paid card promises a number of devices signed in at once and nothing enforced it. tier_device_cap states the number per rung (Pro 2, every other rung 1) and device_cap answers the caller's own allowance, holding a chamber member — the owner included — to one whatever the chamber buys; user_devices keeps one row per sign-in, keyed by the session_id claim in the access token that a client cannot forge, with the install's device_key beside it so a re-login reuses its own slot; register_device is the decision table — re-registering is idempotent, a free slot is taken, at the cap the least recently seen spare is evicted only when it has been idle seven days or more and the plan is live, and a registration past the cap is admitted and flagged grandfathered until the 2026-11-21 roll-out end; device_state is the launch check, revoke_device frees a slot the lawyer picks and refuses a device revoking itself, ack_device_wipe records that a revoked device flushed its work and erased, device_trim_surplus revokes the surplus after a ceiling falls and revokes nothing without a live plan, and device_tokens gains the device_key a revocation deletes by. |
+| 0.0.565 | 2026-10-22 | `20261022110000_device_limit_enforcement.sql` | Task 22 — Enforcing the device limit. A limit a client can ignore by never registering is not a limit, so three gates: device_may_push admits an active device, a revoked device inside its 14-day flush window — the window is what lets unsent work reach the account before the device erases — and a caller carrying no session at all (psql, the service role); device_may_read admits only an active device, plus an unregistered session until the same roll-out end so an install that has not updated yet keeps working; and push_changes keeps its body — renamed push_changes_core with its grants, never re-typed — behind a wrapper that refuses a revoked session past its window with device_revoked. The eleven ledger tables and conflict_log gain device_may_read() in their SELECT policies, which is the same condition a Realtime subscription reads. profiles, the billing tables and the firm roster stay readable on purpose: a revoked device needs its own profile to explain itself, and it erases at its next contact anyway. |
+| 0.0.566 | 2026-10-22 | `20261022120000_device_trim_counts_the_caller.sql` | Task 22 — Device trim counts the caller only when it holds a slot. The proof caught the first run of the limit admitting a third sign-in on a two-device plan and revoking one of the two devices already there as lapse: device_trim_surplus kept cap-minus-one devices other than the caller, which is right only while the caller already occupies a slot, and register_device trims before it knows. It now asks user_devices whether the caller holds an active row and subtracts one only then; a new device leaves the whole cap to the devices present, so a full plan answers device_limit_reached, and an account already above its cap is still trimmed back to it. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -14218,5 +14221,1064 @@ comment on function public.firm_seat_cap(uuid) is
 revoke all on function public.tier_case_ceiling(text) from public, anon, authenticated;
 revoke all on function public.firm_seat_cap(uuid) from public, anon, authenticated;
 grant execute on function public.firm_seat_cap(uuid) to authenticated;
+```
+
+## App Version 0.0.565 — Task 22 — The Device Limit
+
+### 0.0.565 · `20261022100000_device_limit_registry.sql`
+
+> **Created 2026-10-22.** Task 22 — The device limit's registry. Every paid card promises a number of devices signed in at once and nothing enforced it. tier_device_cap states the number per rung (Pro 2, every other rung 1) and device_cap answers the caller's own allowance, holding a chamber member — the owner included — to one whatever the chamber buys; user_devices keeps one row per sign-in, keyed by the session_id claim in the access token that a client cannot forge, with the install's device_key beside it so a re-login reuses its own slot; register_device is the decision table — re-registering is idempotent, a free slot is taken, at the cap the least recently seen spare is evicted only when it has been idle seven days or more and the plan is live, and a registration past the cap is admitted and flagged grandfathered until the 2026-11-21 roll-out end; device_state is the launch check, revoke_device frees a slot the lawyer picks and refuses a device revoking itself, ack_device_wipe records that a revoked device flushed its work and erased, device_trim_surplus revokes the surplus after a ceiling falls and revokes nothing without a live plan, and device_tokens gains the device_key a revocation deletes by.
+
+```sql
+-- ===========================================================================
+-- Device limit (1/2) — the registry: one row per signed-in device.
+--
+-- **Why.** Every paid card promises a number of devices at the same time
+-- (Starter 1, Pro 2, one per member on each chamber tier, the owner included),
+-- and the app only *states* it: `payment_plans.dart` carries `deviceCap` with
+-- the note "not enforced yet (user ruling, 2026-10-19)". This migration is the
+-- server half: the cap per tier, the per-device rows, and the RPCs that claim,
+-- list and release a slot. `20261022110000` is the enforcement half.
+--
+-- **Table class.** `user_devices` is **server-managed**: written only by the
+-- RPCs below, never queued, never pulled into Drift. The client reads it
+-- through `device_state()` and nothing else.
+--
+-- **What a device is.** Two keys, and only one of them is trusted:
+--
+--   * `session_id` — read from the access token (`auth.jwt() ->> 'session_id'`),
+--     a claim Supabase documents as always present. Server-issued, one per
+--     sign-in, unforgeable. **This is what the cap counts.**
+--   * `device_key` — the phone's own stable id (Android SSAID) or a stored
+--     install UUID elsewhere. Client-supplied, so it never grants anything; it
+--     only lets a sign-out and back-in on the same phone reuse its own slot
+--     instead of spending a second one.
+--
+-- **The four safety rules the user set (2026-10-21).** A device over the limit
+-- is signed out and emptied, but (1) only after its unsent work has been handed
+-- to the account, (2) never while the account has no live plan, because then
+-- there is nowhere to hand it to, (3) an automatic eviction needs the spare to
+-- have been idle at least seven days, and (4) a free account, which has no cloud
+-- copy at all, is outside the limit.
+--
+-- **Rollout.** On the day the app updates, every install registers for the
+-- first time. Refusing or evicting on that day would punish people for
+-- updating, so registrations before `2026-11-21` that exceed the cap are
+-- admitted and flagged `grandfathered`; the cap binds every device added after
+-- the window. The same date gates unknown sessions in `20261022110000`.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. The cap, per tier — one number, mirroring the client's `deviceCap`.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.tier_device_cap(p_tier text)
+returns integer
+language sql
+immutable
+set search_path = pg_catalog, public
+as $$
+  select case p_tier
+    when 'pro' then 2
+    -- Starter, and every chamber tier, allow one device per person: the
+    -- chamber cards say "one concurrent device each", the owner included.
+    when 'starter' then 1
+    when 'firm' then 1
+    when 'firm_plus' then 1
+    when 'enterprise' then 1
+    -- Free is never synced, so its number only matters as a floor.
+    else 1
+  end;
+$$;
+
+comment on function public.tier_device_cap(text) is
+  'Devices an account may sync at once: pro 2, every other tier 1. Mirrors SubscriptionTier.deviceCap in payment_plans.dart, pinned by a drift test.';
+
+-- ---------------------------------------------------------------------------
+-- 2. The session a request carries.
+-- ---------------------------------------------------------------------------
+
+-- Supabase puts `session_id` in every access token. Reading it here keeps the
+-- cast in one place; a JWT always carries a UUID, so the cast is safe, and an
+-- empty string is normalised to null rather than throwing.
+create or replace function public.current_session_id()
+returns uuid
+language sql
+stable
+set search_path = pg_catalog, public
+as $$
+  select nullif(auth.jwt() ->> 'session_id', '')::uuid;
+$$;
+
+comment on function public.current_session_id() is
+  'The auth.sessions id inside the caller''s access token; null for psql and service-role callers, which carry no JWT.';
+
+-- The roll-out end, overridable by a server-side GUC so a proof can simulate
+-- the day after it. A client cannot set a GUC through PostgREST, so this is a
+-- test seam, not a client input.
+create or replace function public.device_rollout_end()
+returns timestamptz
+language sql
+stable
+set search_path = pg_catalog, public
+as $$
+  select coalesce(
+    nullif(current_setting('app.device_rollout_end', true), '')::timestamptz,
+    timestamptz '2026-11-21 00:00:00+00'
+  );
+$$;
+
+comment on function public.device_rollout_end() is
+  'The instant after which a registration is no longer grandfathered. Overridable through app.device_rollout_end for proofs only.';
+
+-- ---------------------------------------------------------------------------
+-- 3. The registry.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.user_devices (
+  id uuid primary key default gen_random_uuid(),
+  -- Deleting the account takes its device rows with it, like its push tokens.
+  user_id uuid not null references auth.users (id) on delete cascade,
+  -- The sign-in this row belongs to. One session, one device.
+  session_id uuid not null,
+  -- The phone's own key: SSAID on Android, a stored install UUID elsewhere.
+  device_key text not null,
+  platform text not null default 'unknown',
+  label text not null default '',
+  created_at timestamptz not null default now(),
+  -- Server-timed by the trigger below: a device's clock is not evidence.
+  last_seen_at timestamptz not null default now(),
+  revoked_at timestamptz,
+  -- replaced (same phone signed in again), user, cap, lapse.
+  revoked_reason text,
+  -- Set when the device has handed over its unsent work and erased itself.
+  flushed_at timestamptz,
+  -- Admitted past the cap during the rollout window.
+  grandfathered boolean not null default false,
+  constraint user_devices_platform_check
+    check (platform in ('android', 'ios', 'windows', 'unknown')),
+  constraint user_devices_reason_check
+    check (revoked_reason is null or revoked_reason in ('replaced', 'user', 'cap', 'lapse'))
+);
+
+comment on table public.user_devices is
+  'One row per signed-in device: the session that counts toward the plan''s device cap, the device key that lets a re-login reuse its own slot, and the revocation the device erases itself under. Server-managed; read only through device_state().';
+
+-- A session can only ever name one row.
+create unique index if not exists user_devices_session_idx
+  on public.user_devices (session_id);
+
+-- One *active* row per device per account: signing in again on the same phone
+-- replaces its own row instead of spending a second slot.
+create unique index if not exists user_devices_active_device_idx
+  on public.user_devices (user_id, device_key)
+  where revoked_at is null;
+
+-- The cap's own lookup: the active rows of one account.
+create index if not exists user_devices_active_user_idx
+  on public.user_devices (user_id)
+  where revoked_at is null;
+
+create or replace function public.touch_user_device()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, public
+as $$
+begin
+  new.last_seen_at := now();
+  return new;
+end;
+$$;
+
+comment on function public.touch_user_device() is
+  'Keeps user_devices.last_seen_at server-timed on every re-registration; the seven-day eviction floor reads it.';
+
+drop trigger if exists trg_user_devices_touch on public.user_devices;
+create trigger trg_user_devices_touch
+before update on public.user_devices
+for each row execute function public.touch_user_device();
+
+-- RLS with no policy: the RPCs are SECURITY DEFINER and are the only readers
+-- and writers. A client cannot list its own rows directly, which also keeps
+-- session ids out of reach.
+alter table public.user_devices enable row level security;
+
+revoke all on table public.user_devices from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 4. Push tokens learn which device they belong to.
+-- ---------------------------------------------------------------------------
+
+-- Without this a revocation cannot find the right token: `device_tokens` is
+-- keyed by the FCM token, which nothing links to a session. Rows written before
+-- this column existed stay unmatched and are removed by that device's own
+-- sign-out, which is the one path that can name them.
+alter table public.device_tokens add column if not exists device_key text;
+
+comment on column public.device_tokens.device_key is
+  'The install key of the device holding this token, written with it, so a device revocation can delete exactly that device''s push registration.';
+
+-- ---------------------------------------------------------------------------
+-- 5. The caller's cap.
+-- ---------------------------------------------------------------------------
+
+-- A chamber member's allowance is one device, whatever the chamber's tier says:
+-- the card reads "one concurrent device each". An individual reads their own
+-- effective tier, so a queued change applies on its start date, not when it was
+-- bought.
+create or replace function public.device_cap(p_user_id uuid default auth.uid())
+returns integer
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select case
+           when p.firm_id is not null then 1
+           else public.tier_device_cap(
+             public.effective_tier(p.tier, p.tier_pending, p.tier_pending_from)
+           )
+         end
+    from public.profiles p
+   where p.id = p_user_id;
+$$;
+
+comment on function public.device_cap(uuid) is
+  'The caller''s concurrent-device allowance: 1 while they hold a chamber (member or owner), otherwise the effective tier''s cap. Null when there is no profile.';
+
+-- ---------------------------------------------------------------------------
+-- 6. Is this session a registered, active device?
+-- ---------------------------------------------------------------------------
+
+-- Null sessions are the trusted paths — psql, the service role, an admin RPC —
+-- and are always allowed. A client always carries a session.
+create or replace function public.device_is_active(
+  p_user_id uuid default auth.uid(),
+  p_session_id uuid default public.current_session_id()
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select p_session_id is null
+      or exists (
+           select 1
+             from public.user_devices d
+            where d.user_id = p_user_id
+              and d.session_id = p_session_id
+              and d.revoked_at is null
+         );
+$$;
+
+comment on function public.device_is_active(uuid, uuid) is
+  'True when the caller''s session holds an active device row, or when the caller carries no session at all (psql, service role).';
+
+-- ---------------------------------------------------------------------------
+-- 7. The ceiling may have fallen since the devices registered.
+-- ---------------------------------------------------------------------------
+
+-- A downgrade, or a lapse and renewal, can leave more active rows than the cap.
+-- The surplus is revoked as `lapse`, least recently seen first, never the
+-- caller: the phone in hand keeps working (user ruling). Nothing is revoked
+-- while the account has no live plan, because a revoked device with nowhere to
+-- hand its work must not erase.
+create or replace function public.device_trim_surplus(
+  p_user_id uuid,
+  p_session_id uuid,
+  p_cap integer
+)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_ids uuid[];
+  v_keys text[];
+begin
+  if not public.has_sync_entitlement(p_user_id) then
+    return;
+  end if;
+
+  select array_agg(s.id), array_agg(s.device_key)
+    into v_ids, v_keys
+    from (
+      select d.id, d.device_key
+        from public.user_devices d
+       where d.user_id = p_user_id
+         and d.revoked_at is null
+         and d.session_id is distinct from p_session_id
+       order by d.last_seen_at desc
+       offset greatest(p_cap - 1, 0)
+    ) s;
+
+  if v_ids is null then
+    return;
+  end if;
+
+  update public.user_devices d
+     set revoked_at = now(),
+         revoked_reason = 'lapse'
+   where d.id = any(v_ids);
+
+  delete from public.device_tokens t
+   where t.user_id = p_user_id
+     and t.device_key = any(v_keys);
+end;
+$$;
+
+comment on function public.device_trim_surplus(uuid, uuid, integer) is
+  'Revokes the devices above the cap after the ceiling falls (downgrade, lapse and renewal), least recently seen first and never the caller, and only while the account has a live plan.';
+
+-- ---------------------------------------------------------------------------
+-- 8. The decision table: registering a device.
+-- ---------------------------------------------------------------------------
+
+-- Returns one of:
+--   {"status":"ok",            "cap":n, "device":{...}, "evicted":{...}|null}
+--   {"status":"device_limit_reached", "cap":n, "devices":[...]}
+--   {"status":"revoked",       "cap":n, "reason":"cap"|"user"|"replaced"|"lapse"}
+--   {"status":"unauthenticated"}
+--
+-- `devices` names every active device with when it was last seen, so the client
+-- can show the lawyer what is holding the slots.
+create or replace function public.register_device(
+  p_device_key text,
+  p_platform text default 'unknown',
+  p_label text default ''
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  -- Registrations before `device_rollout_end()` never refuse or evict: the
+  -- update itself must not strand anyone. The cap binds every device added
+  -- afterwards.
+  -- The user's own ruling: only a spare this idle may be evicted automatically.
+  c_evict_after constant interval := interval '7 days';
+
+  v_user uuid := auth.uid();
+  v_session uuid := public.current_session_id();
+  v_now timestamptz := now();
+  v_cap integer;
+  v_key text := pg_catalog.btrim(coalesce(p_device_key, ''));
+  v_platform text := case
+                       when p_platform in ('android', 'ios', 'windows') then p_platform
+                       else 'unknown'
+                     end;
+  v_label text := left(pg_catalog.btrim(coalesce(p_label, '')), 120);
+  v_row public.user_devices%rowtype;
+  v_evicted public.user_devices%rowtype;
+  v_active integer;
+  v_devices jsonb;
+begin
+  if v_user is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  -- A caller with no session (psql, service role) has nothing to register.
+  if v_session is null then
+    return jsonb_build_object('status', 'unmanaged');
+  end if;
+
+  if v_key = '' then
+    return jsonb_build_object('status', 'invalid_device_key');
+  end if;
+
+  v_cap := coalesce(public.device_cap(v_user), 1);
+
+  -- Serialise two devices racing for the last slot: without it both could read
+  -- "one free" and both insert.
+  perform pg_advisory_xact_lock(hashtext('user_devices:' || v_user::text));
+
+  -- The ceiling may have fallen since these rows were written. A revoked caller
+  -- is skipped: it cannot take a slot, so trimming for it would be unfair.
+  if not exists (
+    select 1
+      from public.user_devices d
+     where d.session_id = v_session
+       and d.revoked_at is not null
+  ) then
+    perform public.device_trim_surplus(v_user, v_session, v_cap);
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- This session is already known.
+  ---------------------------------------------------------------------------
+  select * into v_row
+    from public.user_devices d
+   where d.session_id = v_session
+     and d.user_id = v_user;
+
+  if found then
+    if v_row.revoked_at is not null then
+      -- It has been revoked: the client must flush and erase, never revive.
+      return jsonb_build_object(
+        'status', 'revoked',
+        'cap', v_cap,
+        'reason', v_row.revoked_reason
+      );
+    end if;
+
+    update public.user_devices d
+       set device_key = v_key,
+           platform = v_platform,
+           label = v_label
+     where d.id = v_row.id;
+
+    return jsonb_build_object(
+      'status', 'ok',
+      'cap', v_cap,
+      'evicted', null,
+      'device', jsonb_build_object('id', v_row.id, 'label', v_label)
+    );
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- The same phone, a different session: it replaces its own row.
+  ---------------------------------------------------------------------------
+  select * into v_row
+    from public.user_devices d
+   where d.user_id = v_user
+     and d.device_key = v_key
+     and d.revoked_at is null
+     for update;
+
+  if found then
+    update public.user_devices d
+       set revoked_at = v_now,
+           revoked_reason = 'replaced',
+           flushed_at = v_now
+     where d.id = v_row.id;
+
+    insert into public.user_devices (user_id, session_id, device_key, platform, label)
+    values (v_user, v_session, v_key, v_platform, v_label)
+    returning * into v_row;
+
+    return jsonb_build_object(
+      'status', 'ok',
+      'cap', v_cap,
+      'evicted', null,
+      'device', jsonb_build_object('id', v_row.id, 'label', v_row.label)
+    );
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- A new device: a free slot, or the eviction rules, or a refusal.
+  ---------------------------------------------------------------------------
+  select count(*) into v_active
+    from public.user_devices d
+   where d.user_id = v_user
+     and d.revoked_at is null;
+
+  if v_active < v_cap then
+    insert into public.user_devices (user_id, session_id, device_key, platform, label)
+    values (v_user, v_session, v_key, v_platform, v_label)
+    returning * into v_row;
+
+    return jsonb_build_object(
+      'status', 'ok',
+      'cap', v_cap,
+      'evicted', null,
+      'device', jsonb_build_object('id', v_row.id, 'label', v_row.label)
+    );
+  end if;
+
+  -- The rollout window: admit, flag, evict nobody.
+  if v_now < public.device_rollout_end() then
+    insert into public.user_devices (
+      user_id, session_id, device_key, platform, label, grandfathered
+    )
+    values (v_user, v_session, v_key, v_platform, v_label, true)
+    returning * into v_row;
+
+    return jsonb_build_object(
+      'status', 'ok',
+      'cap', v_cap,
+      'evicted', null,
+      'device', jsonb_build_object('id', v_row.id, 'label', v_label)
+    );
+  end if;
+
+  -- The least recently seen device, under a row lock so two registrations
+  -- cannot evict the same one.
+  select * into v_evicted
+    from public.user_devices d
+   where d.user_id = v_user
+     and d.revoked_at is null
+   order by d.last_seen_at asc, d.created_at asc
+   limit 1
+   for update;
+
+  -- Rule 2: with no live plan the evicted device has nowhere to hand its work,
+  -- so nothing is evicted and the new device is refused instead.
+  if not public.has_sync_entitlement(v_user) then
+    return jsonb_build_object(
+      'status', 'device_limit_reached',
+      'cap', v_cap,
+      'devices', public.device_list(v_user)
+    );
+  end if;
+
+  -- Rule 3: only a device idle for a week may be evicted automatically.
+  if v_evicted.id is null
+     or v_evicted.last_seen_at > v_now - c_evict_after then
+    return jsonb_build_object(
+      'status', 'device_limit_reached',
+      'cap', v_cap,
+      'devices', public.device_list(v_user)
+    );
+  end if;
+
+  -- Rule 1 starts here: it is revoked now, but it may still push its unsent
+  -- work for the flush window, and only then erases.
+  update public.user_devices d
+     set revoked_at = v_now,
+         revoked_reason = 'cap'
+   where d.id = v_evicted.id;
+
+  -- Its push registration goes with it, in the same transaction (the rule
+  -- `remove_firm_member` already applies to a removed member's devices).
+  delete from public.device_tokens t
+   where t.user_id = v_user
+     and t.device_key = v_evicted.device_key;
+
+  insert into public.user_devices (user_id, session_id, device_key, platform, label)
+  values (v_user, v_session, v_key, v_platform, v_label)
+  returning * into v_row;
+
+  return jsonb_build_object(
+    'status', 'ok',
+    'cap', v_cap,
+    'device', jsonb_build_object('id', v_row.id, 'label', v_row.label),
+    'evicted', jsonb_build_object(
+      'id', v_evicted.id,
+      'label', v_evicted.label,
+      'platform', v_evicted.platform,
+      'last_seen_at', v_evicted.last_seen_at
+    )
+  );
+end;
+$$;
+
+comment on function public.register_device(text, text, text) is
+  'Claims a device slot for the caller''s session: re-registering is idempotent, the same device key replaces its own row, a free slot is taken, and at the cap the least recently seen device is evicted only when it has been idle 7+ days and the account has a live plan; otherwise the call answers device_limit_reached with the list.';
+
+-- ---------------------------------------------------------------------------
+-- 8. The device list, shared by register_device and device_state.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.device_list(p_user_id uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', d.id,
+        'label', d.label,
+        'platform', d.platform,
+        'last_seen_at', d.last_seen_at,
+        'is_current', d.session_id = public.current_session_id()
+      )
+      order by d.last_seen_at desc
+    ),
+    '[]'::jsonb
+  )
+  from public.user_devices d
+  where d.user_id = p_user_id
+    and d.revoked_at is null;
+$$;
+
+comment on function public.device_list(uuid) is
+  'The account''s active devices, newest contact first, each marked is_current for the caller''s session.';
+
+-- ---------------------------------------------------------------------------
+-- 9. What this device is: active, revoked, or never registered.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.device_state()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_session uuid := public.current_session_id();
+  v_row public.user_devices%rowtype;
+begin
+  if v_user is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  if v_session is null then
+    return jsonb_build_object('status', 'unmanaged');
+  end if;
+
+  select * into v_row
+    from public.user_devices d
+   where d.user_id = v_user
+     and d.session_id = v_session;
+
+  if not found then
+    return jsonb_build_object(
+      'status', 'unregistered',
+      'cap', coalesce(public.device_cap(v_user), 1)
+    );
+  end if;
+
+  if v_row.revoked_at is not null then
+    return jsonb_build_object(
+      'status', 'revoked',
+      'cap', coalesce(public.device_cap(v_user), 1),
+      'reason', v_row.revoked_reason,
+      'revoked_at', v_row.revoked_at,
+      'flushed', v_row.flushed_at is not null,
+      'device', jsonb_build_object('id', v_row.id, 'label', v_row.label)
+    );
+  end if;
+
+  return jsonb_build_object(
+    'status', 'active',
+    'cap', coalesce(public.device_cap(v_user), 1),
+    'device', jsonb_build_object('id', v_row.id, 'label', v_row.label),
+    'devices', public.device_list(v_user)
+  );
+end;
+$$;
+
+comment on function public.device_state() is
+  'The launch check: active, revoked (with its reason) or unregistered, plus the cap and the device list.';
+
+-- ---------------------------------------------------------------------------
+-- 10. The lawyer frees a slot themselves.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.revoke_device(p_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_row public.user_devices%rowtype;
+begin
+  if v_user is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  select * into v_row
+    from public.user_devices d
+   where d.id = p_id
+     and d.user_id = v_user
+     for update;
+
+  if not found then
+    return jsonb_build_object('status', 'not_found');
+  end if;
+
+  if v_row.revoked_at is not null then
+    return jsonb_build_object('status', 'already_revoked');
+  end if;
+
+  if v_row.session_id = public.current_session_id() then
+    -- A device removing itself is a sign-out, not a slot to free.
+    return jsonb_build_object('status', 'is_current');
+  end if;
+
+  update public.user_devices d
+     set revoked_at = now(),
+         revoked_reason = 'user'
+   where d.id = v_row.id;
+
+  delete from public.device_tokens t
+   where t.user_id = v_user
+     and t.device_key = v_row.device_key;
+
+  return jsonb_build_object('status', 'revoked', 'id', v_row.id);
+end;
+$$;
+
+comment on function public.revoke_device(uuid) is
+  'Frees one of the caller''s own device slots. The revoked device flushes its unsent work and erases at its next contact; a device cannot revoke itself.';
+
+-- ---------------------------------------------------------------------------
+-- 11. The revoked device reports that it has handed over its work and erased.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.ack_device_wipe(p_device_key text default null)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_session uuid := public.current_session_id();
+  v_count integer;
+begin
+  if v_user is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  update public.user_devices d
+     set flushed_at = now()
+   where d.user_id = v_user
+     and d.revoked_at is not null
+     and d.flushed_at is null
+     and (
+       (v_session is not null and d.session_id = v_session)
+       or (p_device_key is not null and d.device_key = p_device_key)
+     );
+
+  get diagnostics v_count = row_count;
+  return jsonb_build_object('status', 'ok', 'flushed', v_count);
+end;
+$$;
+
+comment on function public.ack_device_wipe(text) is
+  'Records that a revoked device has flushed its unsent work and erased itself, so the eviction is auditable rather than assumed.';
+
+-- ---------------------------------------------------------------------------
+-- 12. Grants: the RPCs are the whole surface.
+-- ---------------------------------------------------------------------------
+
+revoke all on function public.register_device(text, text, text) from public, anon;
+revoke all on function public.revoke_device(uuid) from public, anon;
+revoke all on function public.device_state() from public, anon;
+revoke all on function public.ack_device_wipe(text) from public, anon;
+
+grant execute on function public.register_device(text, text, text) to authenticated;
+grant execute on function public.revoke_device(uuid) to authenticated;
+grant execute on function public.device_state() to authenticated;
+grant execute on function public.ack_device_wipe(text) to authenticated;
+```
+
+### 0.0.565 · `20261022110000_device_limit_enforcement.sql`
+
+> **Created 2026-10-22.** Task 22 — Enforcing the device limit. A limit a client can ignore by never registering is not a limit, so three gates: device_may_push admits an active device, a revoked device inside its 14-day flush window — the window is what lets unsent work reach the account before the device erases — and a caller carrying no session at all (psql, the service role); device_may_read admits only an active device, plus an unregistered session until the same roll-out end so an install that has not updated yet keeps working; and push_changes keeps its body — renamed push_changes_core with its grants, never re-typed — behind a wrapper that refuses a revoked session past its window with device_revoked. The eleven ledger tables and conflict_log gain device_may_read() in their SELECT policies, which is the same condition a Realtime subscription reads. profiles, the billing tables and the firm roster stay readable on purpose: a revoked device needs its own profile to explain itself, and it erases at its next contact anyway.
+
+```sql
+-- ===========================================================================
+-- Device limit (2/2) — enforcement: writes, reads, and the flush window.
+--
+-- **Why.** `20261022100000` gives the server the registry and the decision
+-- table; this migration makes an unregistered or revoked session unable to
+-- write or pull. A limit a client can ignore by not calling `register_device`
+-- is not a limit.
+--
+-- **Three gates.**
+--
+--   1. **Writes** — `push_changes` gains a guard. The existing body is not
+--      re-typed: it is renamed to `push_changes_core` (grants and all) and a
+--      small wrapper checks the device before delegating. Re-typing a 400-line
+--      function to add one `if` is how its rules silently change.
+--   2. **Reads and pulls** — pulls are plain PostgREST selects, so this is an
+--      RLS change: `device_may_read()` is ANDed into the read policy of the
+--      eleven ledger tables and `conflict_log`. Realtime is governed by the
+--      same policies, so a revoked device stops receiving frames on its next
+--      subscription.
+--   3. **The flush window** — a revoked device may still **write** for 14 days
+--      so its unsent work reaches the account before it erases (the user's
+--      rule: nothing is erased that could have been saved). It may not read.
+--
+-- **What is deliberately not gated here.** `profiles` and the billing tables
+-- stay readable: a revoked device needs its own profile to show the refusal
+-- screen, and billing history is the account's, not the chamber's. The roster
+-- (`firms`, `firm_members`) is left readable for the same reason — the device
+-- erases at its next contact anyway. Recorded rather than silently widened.
+--
+-- **Trusted paths.** A caller with no session claim (psql, the service role,
+-- every SQL proof in `supabase/tests`) is allowed through every gate. A
+-- PostgREST request always carries a session claim, so no client can reach that
+-- branch by stripping one.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. The two predicates.
+-- ---------------------------------------------------------------------------
+
+-- Writes: an active device, or a revoked one inside its 14-day flush window.
+create or replace function public.device_may_push(p_at timestamptz default now())
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select public.current_session_id() is null
+      or public.device_is_active()
+      or exists (
+           select 1
+             from public.user_devices d
+            where d.user_id = auth.uid()
+              and d.session_id = public.current_session_id()
+              and d.revoked_at is not null
+              and d.revoked_at + interval '14 days' > p_at
+         );
+$$;
+
+comment on function public.device_may_push(timestamptz) is
+  'True for an active device, a revoked device still inside its 14-day flush window, or a caller with no session claim.';
+
+-- Reads: an active device. A revoked device reads nothing new. A session that
+-- never registered is the roll-out case — an install that has not updated yet —
+-- and is admitted only until the same date registrations stop being
+-- grandfathered, so an old app keeps working through the update and no longer
+-- after it.
+create or replace function public.device_may_read(p_at timestamptz default now())
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select public.current_session_id() is null
+      or public.device_is_active()
+      or (
+           p_at < public.device_rollout_end()
+           and not exists (
+             select 1
+               from public.user_devices d
+              where d.user_id = auth.uid()
+                and d.session_id = public.current_session_id()
+           )
+         );
+$$;
+
+comment on function public.device_may_read(timestamptz) is
+  'True for an active device, a caller with no session claim, or an unregistered session before the roll-out end (2026-11-21). A revoked session is always false.';
+
+-- ---------------------------------------------------------------------------
+-- 2. Writes: one guard in front of the existing push_changes.
+-- ---------------------------------------------------------------------------
+
+do $$
+begin
+  -- Idempotent: a second apply finds the core already in place.
+  if to_regprocedure('public.push_changes_core(jsonb)') is null then
+    alter function public.push_changes(jsonb) rename to push_changes_core;
+  end if;
+end;
+$$;
+
+revoke all on function public.push_changes_core(jsonb) from public, anon, authenticated;
+
+create or replace function public.push_changes(rows jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  if not public.device_may_push() then
+    -- The client maps this message to its "this device was signed out" state.
+    raise exception 'device_revoked' using errcode = '42501';
+  end if;
+
+  return public.push_changes_core(rows);
+end;
+$$;
+
+comment on function public.push_changes(jsonb) is
+  'The device gate in front of push_changes_core: refuses a revoked session that is past its flush window. A caller carrying no session (service role, psql) passes.';
+
+revoke all on function public.push_changes(jsonb) from public, anon;
+grant execute on function public.push_changes(jsonb) to authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
+-- 3. Reads: the ledger tables and the merge log.
+-- ---------------------------------------------------------------------------
+
+-- The four case-data tables: one shape, one loop (copied from
+-- `20261015100000` with `device_may_read()` added), so their spellings cannot
+-- drift.
+do $$
+declare
+  v_table text;
+  v_tables text[] := array['cases', 'case_history', 'notes', 'case_references'];
+begin
+  foreach v_table in array v_tables loop
+    execute format(
+      'drop policy if exists %1$s_select_scoped on public.%1$I',
+      v_table
+    );
+    execute format(
+      'create policy %1$s_select_scoped on public.%1$I for select to '
+      'authenticated using (public.device_may_read() and '
+      '((user_id = auth.uid() and firm_id is null and '
+      'scope_owner_id is null) or firm_id = public.current_firm_id() or '
+      'scope_owner_id = auth.uid()))',
+      v_table
+    );
+  end loop;
+end;
+$$;
+
+-- The six reference tables keep the built-in baseline readable to every
+-- registered install; only a *custom* row is scoped.
+do $$
+declare
+  v_table text;
+  v_tables text[] := array[
+    'court_categories', 'case_categories', 'courts', 'steps', 'case_types',
+    'on_behalfs'
+  ];
+begin
+  foreach v_table in array v_tables loop
+    execute format(
+      'drop policy if exists %1$s_select_scoped on public.%1$I',
+      v_table
+    );
+    execute format(
+      'create policy %1$s_select_scoped on public.%1$I for select to '
+      'authenticated using (public.device_may_read() and '
+      '(is_custom = false or (user_id = auth.uid() and '
+      'firm_id is null and scope_owner_id is null) or firm_id = '
+      'public.current_firm_id() or scope_owner_id = auth.uid()))',
+      v_table
+    );
+  end loop;
+end;
+$$;
+
+-- delete_requests: the author column is `requested_by`.
+drop policy if exists delete_requests_select_firm on public.delete_requests;
+drop policy if exists delete_requests_select_scoped on public.delete_requests;
+create policy delete_requests_select_scoped on public.delete_requests
+  for select to authenticated
+  using (
+    public.device_may_read()
+    and (
+      (requested_by = auth.uid() and firm_id is null and scope_owner_id is null)
+      or firm_id = public.current_firm_id()
+      or scope_owner_id = auth.uid()
+    )
+  );
+
+-- conflict_log: membership condition only, no scope owner.
+drop policy if exists conflict_log_select_own on public.conflict_log;
+create policy conflict_log_select_own on public.conflict_log
+  for select to authenticated
+  using (
+    public.device_may_read()
+    and user_id = auth.uid()
+    and (
+      firm_id is null
+      or firm_id is not distinct from public.current_firm_id()
+    )
+  );
+
+-- ---------------------------------------------------------------------------
+-- 4. Grants.
+-- ---------------------------------------------------------------------------
+
+revoke all on function public.device_may_push(timestamptz) from public, anon;
+revoke all on function public.device_may_read(timestamptz) from public, anon;
+grant execute on function public.device_may_push(timestamptz) to authenticated, service_role;
+grant execute on function public.device_may_read(timestamptz) to authenticated, service_role;
+```
+
+## App Version 0.0.566 — Task 22 — The Device Limit, Made Correct
+
+### 0.0.566 · `20261022120000_device_trim_counts_the_caller.sql`
+
+> **Created 2026-10-22.** Task 22 — Device trim counts the caller only when it holds a slot. The proof caught the first run of the limit admitting a third sign-in on a two-device plan and revoking one of the two devices already there as lapse: device_trim_surplus kept cap-minus-one devices other than the caller, which is right only while the caller already occupies a slot, and register_device trims before it knows. It now asks user_devices whether the caller holds an active row and subtracts one only then; a new device leaves the whole cap to the devices present, so a full plan answers device_limit_reached, and an account already above its cap is still trimmed back to it.
+
+```sql
+-- Device trim counts the caller only when it holds a slot.
+--
+-- The proof `supabase/tests/device_limit_test.sql` caught this on its first run:
+-- a third sign-in on a two-device Pro account was **admitted**, and one of the
+-- two devices already holding the slots was revoked as `lapse` — the plan-full
+-- screen could never appear, and the lawyer's other phone was told the plan had
+-- changed when nothing had.
+--
+-- The cause was here. `register_device` trims before it knows whether the caller
+-- already has a row, and this function always kept `p_cap - 1` devices *other
+-- than the caller* — arithmetic that is right only when the caller occupies one
+-- of the slots. A brand-new device holds none, so the first trim of its
+-- registration threw away a legitimate device and then found a free slot.
+--
+-- The fix is to ask the table instead of assuming: a caller with an active row
+-- keeps the cap minus its own slot, and a caller with no row leaves the whole
+-- cap to the devices that are actually there. Trimming above the cap still
+-- happens for both — a fallen ceiling, or an account that is over it, is
+-- trimmed to the cap and no further, so a new device still meets the plan-full
+-- rules rather than a silent eviction.
+--
+-- Everything else is unchanged: the function returns without touching anything
+-- while the account has no live plan, revokes the surplus as `lapse` (not
+-- `cap`, so the owner is told the plan changed), clears the evicted devices'
+-- push tokens in the same statement pair, and never revokes the caller.
+
+create or replace function public.device_trim_surplus(
+  p_user_id uuid,
+  p_session_id uuid,
+  p_cap integer
+)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_holds_slot boolean;
+  v_ids uuid[];
+  v_keys text[];
+begin
+  if not public.has_sync_entitlement(p_user_id) then
+    return;
+  end if;
+
+  -- Does the caller already hold one of the slots? A brand-new device does not,
+  -- and must not be counted as if it did.
+  v_holds_slot := exists (
+    select 1
+      from public.user_devices d
+     where d.user_id = p_user_id
+       and d.session_id = p_session_id
+       and d.revoked_at is null
+  );
+
+  select array_agg(s.id), array_agg(s.device_key)
+    into v_ids, v_keys
+    from (
+      select d.id, d.device_key
+        from public.user_devices d
+       where d.user_id = p_user_id
+         and d.revoked_at is null
+         and d.session_id is distinct from p_session_id
+       order by d.last_seen_at desc
+       offset greatest(p_cap - case when v_holds_slot then 1 else 0 end, 0)
+    ) s;
+
+  if v_ids is null then
+    return;
+  end if;
+
+  update public.user_devices d
+     set revoked_at = now(),
+         revoked_reason = 'lapse'
+   where d.id = any(v_ids);
+
+  delete from public.device_tokens t
+   where t.user_id = p_user_id
+     and t.device_key = any(v_keys);
+end;
+$$;
+
+comment on function public.device_trim_surplus(uuid, uuid, integer) is
+  'Revokes the devices above the cap after the ceiling falls (downgrade, lapse and renewal), least recently seen first and never the caller, and only while the account has a live plan. The caller counts against the cap only when it already holds an active row, so a device signing in for the first time does not evict a device that does.';
 ```
 

@@ -18,7 +18,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/providers/device_providers.dart';
 import '../core/providers/repository_providers.dart';
+import '../features/auth/data/device_registration.dart';
 import '../database/app_database.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
 import '../shared/providers/database_provider.dart';
@@ -189,9 +191,85 @@ class SyncService {
       if (transport == null) return;
       if (!_isOnline()) return;
       if (!await _isEntitled()) return;
+      if (!await _deviceMaySync()) return;
       await _drain(transport, pull: wantsPull);
     } finally {
       _release();
+    }
+  }
+
+  /// Pushes this device's queued work without a pull, and says whether it did.
+  ///
+  /// The revoked-device flow calls this before erasing anything: the server
+  /// still accepts a revoked device's writes for fourteen days, so its unsent
+  /// notes reach the account first. Unlike [syncNow] this reports the outcome,
+  /// because erasing after a failed push is the one thing the rule forbids.
+  Future<bool> pushBeforeErase() => _flushBeforeErase().timeout(
+    // A save that cannot finish in half a minute is reported as failed, which
+    // keeps the data and the screen usable. A spinner that never ends is the
+    // one outcome the lawyer cannot act on.
+    const Duration(seconds: 30),
+    onTimeout: () => false,
+  );
+
+  /// The flush behind [pushBeforeErase].
+  Future<bool> _flushBeforeErase() async {
+    if (!_isOnline()) return false;
+    // Never erase on a lapse (user ruling, 2026-10-21). Without a live plan the
+    // account has no copy this device could be restored from and sync is off,
+    // so a wipe would leave the lawyer holding nothing — even when the queue is
+    // already empty. Reported as "could not save", which keeps the data and
+    // says so on screen.
+    if (!await _isEntitled()) return false;
+    final transport = _transport();
+    if (transport == null) return false;
+    final db = await _ref.read(databaseProvider.future);
+    if (!_ref.mounted) return false;
+    final queue = SyncQueueDao(db);
+    await queue.compactPending();
+    final worker = PushWorker(
+      db: db,
+      queue: queue,
+      transport: transport,
+      currentUserId: _userId(),
+      firmId: _firmId(),
+    );
+    for (var pass = 0; pass < 20; pass++) {
+      final outcome = await worker.flushBatch();
+      final failure = outcome.failure;
+      if (failure != null) {
+        _noteDeviceRejection(failure);
+        return false;
+      }
+      if (outcome.isEmpty) return true;
+    }
+    return true;
+  }
+
+  /// Turns the server's own refusal into the gate's revoked screen.
+  ///
+  /// `push_changes` answers `device_revoked` when a revoked device is past its
+  /// flush window, or when a device that is still on screen lost its slot
+  /// while it was open. The gate is what explains that and drives the
+  /// flush-and-erase, so it is re-read instead of waiting for the next launch.
+  void _noteDeviceRejection(SyncFailure failure) {
+    if (!failure.message.contains('device_revoked')) return;
+    if (!_ref.mounted) return;
+    unawaited(_ref.read(deviceGateProvider.notifier).refresh(claim: false));
+  }
+
+  /// Whether this device holds a slot on the account.
+  ///
+  /// The registry is the authority and answers `unmanaged` for a build with no
+  /// backend, which must keep syncing exactly as before. A state that cannot be
+  /// read at all fails closed: pushing into an account whose device limit
+  /// cannot be checked is how a refused device would still write.
+  Future<bool> _deviceMaySync() async {
+    try {
+      final gate = await _ref.read(deviceGateProvider.future);
+      return gate.maySync || gate.status == DeviceGateStatus.unmanaged;
+    } on Object {
+      return false;
     }
   }
 
@@ -368,6 +446,7 @@ class SyncService {
         // The link is down; pulling would fail on the same socket. The retry
         // asks for the pull again, so nothing is lost by stopping here.
         _health()?.recordFailure();
+        _noteDeviceRejection(failure);
         _scheduleBackoff(failure, outcome.maxRetryCount);
         return;
       }

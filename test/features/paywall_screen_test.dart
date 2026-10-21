@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
@@ -134,6 +135,7 @@ void main() {
 
     // Starter's own features and its inherited header.
     expect(find.text('Most Popular'), findsOneWidget);
+    _expectBadgeAtCardRight(tester, 'paywall-plan-starter');
     expect(find.text('Includes Everything in Free, plus'), findsOneWidget);
     expect(find.text('Up to 500 cases'), findsOneWidget);
     expect(find.text('Real-time cloud backup'), findsOneWidget);
@@ -233,7 +235,17 @@ void main() {
     expect(find.text('Starter'), findsNothing);
     expect(find.text('Pro'), findsNothing);
 
+    // Most Popular marks **Firm Plus**, not Firm (user ruling 2026-10-21).
     expect(find.text('Most Popular'), findsOneWidget);
+    _expectBadgeAtCardRight(tester, 'paywall-plan-firm_plus');
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('paywall-plan-firm')),
+        matching: find.text('Most Popular'),
+      ),
+      findsNothing,
+      reason: 'Firm is the entry chamber rung; the badge belongs to Firm Plus.',
+    );
     expect(find.text('Includes Everything in Pro, plus'), findsOneWidget);
     expect(find.text('Up to 2,500 cases'), findsOneWidget);
     expect(
@@ -430,7 +442,7 @@ void main() {
       planKey: paymentPlanProAnnual,
     );
 
-    expect(find.text('Your Plan Has Lapsed'), findsOneWidget);
+    expect(find.text('Limited Access Mode'), findsOneWidget);
     expect(find.textContaining('up to 250 cases'), findsOneWidget);
     expect(find.text('Free Plan Limit Reached'), findsNothing);
   });
@@ -534,4 +546,29 @@ void main() {
     expect(tiersForAudience(SubscriptionAudience.individual), hasLength(3));
     expect(tiersForAudience(SubscriptionAudience.firm), hasLength(3));
   });
+}
+
+/// The standing badge ends at the card's right edge, never beside its title.
+///
+/// Measured on the rendered boxes: the badge's own label sits one 8 px inset
+/// inside the pill, and the pill one card-padding inside the card.
+void _expectBadgeAtCardRight(WidgetTester tester, String cardKey) {
+  final card = tester.getRect(find.byKey(ValueKey(cardKey)));
+  final badgeText = tester.getRect(
+    find.descendant(
+      of: find.byKey(ValueKey(cardKey)),
+      matching: find.text('Most Popular'),
+    ),
+  );
+  // 1.5 pt of slack for the card's 1 px border, which the rect includes.
+  expect(
+    badgeText.right,
+    closeTo(card.right - AppSpacing.cardPadding - AppSpacing.sm, 1.5),
+    reason: 'The badge belongs at the card\'s right edge, not after the title.',
+  );
+  expect(
+    badgeText.left,
+    greaterThan(card.center.dx),
+    reason: 'A right-edge badge sits in the card\'s right half.',
+  );
 }

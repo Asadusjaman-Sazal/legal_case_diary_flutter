@@ -542,8 +542,8 @@
           }
       }
   },
-  "paywall_lapsedTitle": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে",
-  "paywall_lapsedBody": "মেয়াদ শেষ হওয়া আপনার সর্বশেষ প্ল্যানে সর্বোচ্চ {limit}টি মামলা যোগ করা যায়। আগের সব মামলা পড়া যাবে; আরও যোগ করা ও সব সম্পাদনা করতে নবায়ন করুন।",
+  "paywall_lapsedTitle": "সীমিত অ্যাক্সেস মোড",
+  "paywall_lapsedBody": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে, তাই অ্যাক্সেস সীমিত: সর্বোচ্চ {limit}টি মামলা যোগ করা যায়। আগের সবকিছু পড়া যাবে; আরও যোগ করা ও সবকিছু সম্পাদনা করতে নবায়ন করুন।",
   "@paywall_lapsedBody": {
       "placeholders": {
           "limit": {
@@ -732,12 +732,12 @@
   "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
   "lapse_readOnlyBadge": "পঠন-কেবল",
   "lapse_renewAction": "নবায়ন",
-  "lapse_bannerCases": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি মামলা সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
-  "lapse_bannerNotes": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি নোট সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
-  "lapse_bannerReferences": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে। সর্বশেষ হালনাগাদ করা {editable}টি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
-  "lapse_readOnlyCase": "প্ল্যানের মেয়াদ শেষ থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
-  "lapse_readOnlyNote": "প্ল্যানের মেয়াদ শেষ থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
-  "lapse_readOnlyReference": "প্ল্যানের মেয়াদ শেষ থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_bannerCases": "আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা {editable}টি মামলা সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_bannerNotes": "আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা {editable}টি নোট সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_bannerReferences": "আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা {editable}টি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি {readOnly}টি নবায়ন পর্যন্ত পঠন-কেবল।",
+  "lapse_readOnlyCase": "অ্যাক্সেস সীমিত থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_readOnlyNote": "অ্যাক্সেস সীমিত থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
+  "lapse_readOnlyReference": "অ্যাক্সেস সীমিত থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।",
   "lapse_noteLimit": "আপনার সর্বশেষ প্ল্যানের নোটের সীমা পূর্ণ হয়েছে। আরও নোট যোগ করতে নবায়ন করুন।",
   "lapse_referenceLimit": "আপনার সর্বশেষ প্ল্যানের কেস রেফারেন্সের সীমা পূর্ণ হয়েছে। আরও রেফারেন্স যোগ করতে নবায়ন করুন।",
   "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
@@ -997,9 +997,17 @@
   "settingsManageAccount_title": "অ্যাকাউন্ট ব্যবস্থাপনা",
   "settingsManageAccount_changePassword": "পাসওয়ার্ড পরিবর্তন",
   "settingsSubscription_freePlanLimitations": "ফ্রি প্ল্যানের সীমাবদ্ধতা",
-  "settingsSubscription_lapsedTitle": "আপনার প্ল্যানের মেয়াদ শেষ হয়েছে",
-  "settingsSubscription_lapsedBody": "সবকিছু এখনও পড়া যাবে। নবায়ন পর্যন্ত সর্বোচ্চ {count}টি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।",
+  "settingsSubscription_lapsedTitle": "সীমিত অ্যাক্সেস মোড",
+  "settingsSubscription_lapsedBody": "আপনার সাবস্ক্রিপশন প্ল্যানের মেয়াদ শেষ হয়েছে। আপনি সবকিছু এখনও পড়তে পারবেন। নবায়ন করার আগ পর্যন্ত সর্বশেষ {count}টি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।",
   "@settingsSubscription_lapsedBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSubscription_lapsedBodyCancelled": "আপনি সম্প্রতি আপনার সাবস্ক্রিপশন প্ল্যান বাতিল করেছেন। আপনি সবকিছু এখনও পড়তে পারবেন। নবায়ন করার আগ পর্যন্ত সর্বশেষ {count}টি মামলা, নোট ও কেস রেফারেন্স সম্পাদনা করা যাবে।",
+  "@settingsSubscription_lapsedBodyCancelled": {
     "placeholders": {
       "count": {
         "type": "String"
@@ -1064,14 +1072,7 @@
   "settingsManageAccount_subscription": "সাবস্ক্রিপশন",
   "settingsManageAccount_planFree": "ফ্রি",
   "settingsManageAccount_planPremium": "প্রিমিয়াম",
-  "settingsManageAccount_planLapsed": "{tier} — মেয়াদোত্তীর্ণ",
-  "@settingsManageAccount_planLapsed": {
-    "placeholders": {
-      "tier": {
-        "type": "String"
-      }
-    }
-  },
+  "settingsManageAccount_planLimitedAccessTag": "[সীমিত অ্যাক্সেস]",
   "settingsManageAccount_premiumUntil": "{date} পর্যন্ত প্রিমিয়াম",
   "@@_section_settingsOnlineSync": "SETTINGS - ONLINE SYNC  |  lib/features/settings/presentation/online_sync_screen.dart",
   "settingsOnlineSync_title": "অনলাইন সিঙ্ক",
@@ -2138,7 +2139,7 @@
   "payments_statusCancelled": "বাতিল",
   "payments_cancelPlan": "বাতিল করুন",
   "payments_cancelTitle": "সাবস্ক্রিপশন বাতিল করবেন?",
-  "payments_cancelWarning": "বাতিল করা প্ল্যান আর ফিরিয়ে আনা যাবে না। নতুন প্ল্যান কেনার আগ পর্যন্ত আপনার অ্যাকাউন্ট ল্যাপ্সড অবস্থায় থাকবে এবং শুধু সীমিত সুবিধা পাবে।",
+  "payments_cancelWarning": "বাতিল করা প্ল্যান আর ফিরিয়ে আনা যাবে না। নতুন প্ল্যান কেনার আগ পর্যন্ত আপনার অ্যাকাউন্ট সীমিত অ্যাক্সেসে থাকবে এবং শুধু সীমিত সুবিধা পাবে।",
   "payments_goBack": "ফিরে যান",
   "payments_confirmCancellation": "বাতিল নিশ্চিত করুন",
   "payments_cancelFailed": "সাবস্ক্রিপশন বাতিল করা যায়নি। আবার চেষ্টা করুন।",

@@ -58,7 +58,7 @@ void main() {
       child: const LapseAllowanceBanner(kind: LapseRowKind.cases),
     );
 
-    expect(find.textContaining('Your plan has lapsed'), findsOneWidget);
+    expect(find.textContaining('Your access is limited'), findsOneWidget);
     expect(find.textContaining('100 most recently updated cases'), findsOneWidget);
     expect(find.textContaining('50 are read-only'), findsOneWidget);
     expect(find.text('Renew'), findsOneWidget);
@@ -82,7 +82,7 @@ void main() {
       child: const LapseAllowanceBanner(kind: LapseRowKind.cases),
     );
 
-    expect(find.textContaining('Your plan has lapsed'), findsNothing);
+    expect(find.textContaining('Your access is limited'), findsNothing);
   });
 
   testWidgets('the banner is silent for a premium account', (tester) async {
@@ -92,7 +92,7 @@ void main() {
       child: const LapseAllowanceBanner(kind: LapseRowKind.cases),
     );
 
-    expect(find.textContaining('Your plan has lapsed'), findsNothing);
+    expect(find.textContaining('Your access is limited'), findsNothing);
   });
 
   testWidgets('a read-only case card carries the lock', (tester) async {
@@ -137,7 +137,7 @@ void main() {
     const plan = (known: true, premium: false, planKey: null);
     expect(
       currentPlanLabel(l, plan, tier: SubscriptionTier.firm),
-      'Firm — Lapsed',
+      'Firm [Limited Access]',
     );
     expect(currentPlanLabel(l, plan), 'Free');
     expect(

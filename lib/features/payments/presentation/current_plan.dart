@@ -15,8 +15,11 @@
 /// read.
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
@@ -75,14 +78,61 @@ final currentPlanProvider = Provider<CurrentPlan>((ref) {
   );
 });
 
+/// The moment the plan in force ended **because it was cancelled**, or null.
+///
+/// A plan stops two ways: its date runs out, or the account cancels it. The
+/// page says which, and the answer comes from the ledger it already shows — the
+/// newest approved purchase of the tier in force against the newest cancellation
+/// of that same tier. A cancellation older than the latest purchase belongs to
+/// a previous cycle, so a renewal hides it again instead of marking a plan that
+/// has since run its course as cancelled.
+///
+/// Null while either ledger is still loading, and for a free tier, which has
+/// nothing to cancel. A chamber **member** has no cancellation row of their own
+/// (the owner's cancellation is the owner's), so a member reads the expired
+/// wording; the screen still marks the plan Limited Access either way.
+final subscriptionCancelledAtProvider = Provider<DateTime?>((ref) {
+  final tier = ref.watch(allowanceTierProvider);
+  if (tier == SubscriptionTier.free) return null;
+  final submissions = ref.watch(myPaymentSubmissionsProvider).value;
+  final cancellations = ref.watch(mySubscriptionCancellationsProvider).value;
+  if (submissions == null || cancellations == null) return null;
+
+  var newestPurchase = 0;
+  for (final submission in submissions) {
+    if (submission.status != 'approved' ||
+        planTier(submission.planType) != tier) {
+      continue;
+    }
+    final at =
+        (submission.approvedAt ?? submission.submittedAt)
+            ?.millisecondsSinceEpoch ??
+        0;
+    if (at > newestPurchase) newestPurchase = at;
+  }
+
+  var newestCancellation = 0;
+  DateTime? cancelledAt;
+  for (final cancellation in cancellations) {
+    final key = cancellation.planType;
+    final at = cancellation.cancelledAt?.millisecondsSinceEpoch ?? 0;
+    if (key == null || planTier(key) != tier || at == 0) continue;
+    if (at > newestCancellation) {
+      newestCancellation = at;
+      cancelledAt = cancellation.cancelledAt;
+    }
+  }
+  return newestCancellation > newestPurchase ? cancelledAt : null;
+});
+
 /// The localized label for [plan]: the dash while entitlement is in flight,
 /// *Free*, *Premium*, or the paid plan's own name.
 ///
-/// Phase 10 adds the lapsed case: a paid account whose period has ended holds a
-/// tier but no entitlement, so calling it *Free* would contradict the allowance
-/// — it names the tier and says it has lapsed instead. [tier] is optional so a
-/// caller without a tier (a test, a surface with no tier yet) keeps the old
-/// answer.
+/// A paid account whose period has ended holds a tier but no entitlement, so
+/// calling it *Free* would contradict the allowance: it names the tier and adds
+/// the **Limited Access** tag beside it instead (it read *— Lapsed* before the
+/// user asked for plainer words). [tier] is optional so a caller without a tier
+/// (a test, a surface with no tier yet) keeps the old answer.
 String currentPlanLabel(
   AppLocalizations l,
   CurrentPlan plan, {
@@ -91,7 +141,8 @@ String currentPlanLabel(
   if (!plan.known) return '—';
   if (!plan.premium) {
     if (tier != null && tier != SubscriptionTier.free) {
-      return l.settingsManageAccount_planLapsed(subscriptionTierLabel(l, tier));
+      return '${subscriptionTierLabel(l, tier)} '
+          '${l.settingsManageAccount_planLimitedAccessTag}';
     }
     return l.settingsManageAccount_planFree;
   }
@@ -99,4 +150,82 @@ String currentPlanLabel(
   return key == null
       ? l.settingsManageAccount_planPremium
       : paymentPlanLabel(l, key);
+}
+
+/// The plan as it reads on screen, with the **Limited Access** tag when it
+/// applies.
+///
+/// One widget rather than a bare string so the tag can be the app's error red
+/// and a little smaller than the name beside it, wherever the plan is printed —
+/// the side menu's plan row and Subscription Details' Current Plan row. The tag
+/// is a pair of square brackets around the words in the ARB, so a translator
+/// owns the bracket style along with the words.
+///
+/// [showTag] is false for the details card's heading: it prints the plan as the
+/// card's title, and the tag is stated once in the Current Plan row below it
+/// rather than twice on one card.
+class CurrentPlanLabel extends ConsumerWidget {
+  /// Creates the label.
+  const CurrentPlanLabel({
+    super.key,
+    this.style,
+    this.textAlign = TextAlign.start,
+    this.maxLines = 1,
+    this.showTag = true,
+  });
+
+  /// The style the caller's surface gives the plan's name.
+  final TextStyle? style;
+
+  /// Alignment of the label in the space it is given.
+  final TextAlign textAlign;
+
+  /// Lines before an ellipsis: one, so a long tier name or tag never wraps a
+  /// row onto a second line.
+  final int maxLines;
+
+  /// Whether a plan that has ended carries its red tag.
+  final bool showTag;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final plan = ref.watch(currentPlanProvider);
+    final tier = ref.watch(allowanceTierProvider);
+    final base = style ?? AppTypography.bodyMd;
+    final limited =
+        showTag &&
+        plan.known &&
+        !plan.premium &&
+        tier != SubscriptionTier.free;
+    if (!limited) {
+      return Text(
+        currentPlanLabel(l, plan, tier: tier),
+        style: base,
+        textAlign: textAlign,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: subscriptionTierLabel(l, tier)),
+          TextSpan(
+            text: ' ${l.settingsManageAccount_planLimitedAccessTag}',
+            style: TextStyle(
+              color: AppColors.error,
+              // Relative, not a size of its own: the tag has to sit inside a
+              // 14 pt row and beside a 20 pt heading alike.
+              fontSize: (base.fontSize ?? 14) * 0.8,
+            ),
+          ),
+        ],
+      ),
+      style: base,
+      textAlign: textAlign,
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
 }

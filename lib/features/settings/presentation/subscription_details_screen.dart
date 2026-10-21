@@ -7,7 +7,10 @@
 ///
 /// **What it states.** **Role** (and the firm, in firm mode) is the account's
 /// standing, **Current Plan** is what is actually running — a plan name or *Free*
-/// — and **Expiry** is when it ends, to the minute. *Current Plan* keeps the
+/// — and **Expiry** is when it ends, to the minute. A plan the account
+/// cancelled says **Cancelled** with the moment it happened instead: the server
+/// backdates that expiry, so it is not the fact the user is looking for.
+/// *Current Plan* keeps the
 /// plan rule the engine uses: an entitlement that has not landed yet reads a
 /// dash rather than *Free*, because a premium user whose profile pull is in
 /// flight must never be told they have nothing (plan §6, the entitlement
@@ -63,6 +66,9 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
     final isLapsed =
         plan.known && !plan.premium && tier != SubscriptionTier.free;
     final isFree = plan.known && !plan.premium && !isLapsed;
+    // Why the plan ended, when it did: a cancellation stamps the card with the
+    // moment it happened, and gives the Limited Access block its own sentence.
+    final cancelledAt = ref.watch(subscriptionCancelledAtProvider);
 
     // The status bar is the user's own. This page is a top-level route (it sits
     // outside the shell so the checkout can push it — see the router), so the
@@ -92,7 +98,11 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
                 _FreePlanLimitations(l: l),
               ] else if (isLapsed) ...[
                 const SizedBox(height: AppSpacing.lg),
-                _LapsedAllowance(l: l, allowance: tier.lapseAllowance),
+                _LapsedAllowance(
+                  l: l,
+                  allowance: tier.lapseAllowance,
+                  cancelled: cancelledAt != null,
+                ),
               ],
               const SizedBox(height: AppSpacing.lg),
               _SubscriptionHistorySection(l: l),
@@ -104,7 +114,8 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
   }
 }
 
-/// Role, current plan and expiry — the three facts about the account's standing.
+/// Role, current plan and expiry (or its cancellation) — the facts about the
+/// account's standing, all set at one size.
 class _SubscriptionSummaryCard extends ConsumerWidget {
   const _SubscriptionSummaryCard();
 
@@ -124,13 +135,17 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     // landed lives there, so both surfaces tell the user the same thing.
     final plan = ref.watch(currentPlanProvider);
     final tier = ref.watch(allowanceTierProvider);
-    final currentPlan = currentPlanLabel(l, plan, tier: tier);
+    final cancelledAt = ref.watch(subscriptionCancelledAtProvider);
     // *Free* only when it is known to be: an entitlement still in flight reads a
     // dash, and a dash is not Free — so neither the hidden expiry nor the
     // limitations belong to it. A lapsed account is not Free either, and keeps
     // its expiry row (it has a date, in the past) and its allowance block.
     final isFree =
         plan.known && !plan.premium && tier == SubscriptionTier.free;
+    // A cancellation is the *reason* the period is over. A plan that simply ran
+    // out has no cancellation behind it and keeps its Expiry row.
+    final endedByCancellation =
+        plan.known && !plan.premium && !isFree && cancelledAt != null;
 
     return _Card(
       child: Column(
@@ -153,12 +168,12 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
+              // The card's title names the plan; the red Limited Access tag is
+              // stated once, in the Current Plan row below it.
               Expanded(
-                child: Text(
-                  currentPlan,
+                child: CurrentPlanLabel(
                   style: AppTypography.titleLg,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  showTag: false,
                 ),
               ),
               // Cancel is offered only while a paid period is running and only
@@ -185,20 +200,35 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
             ),
           _DetailRow(
             label: l.settingsSubscription_currentPlan,
-            value: currentPlan,
-            emphasise: true,
+            // The plan keeps its weight but takes the same size as every other
+            // value on the card (user request).
+            valueChild: CurrentPlanLabel(
+              style: AppTypography.bodyMd.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColors.onSurface,
+              ),
+              textAlign: TextAlign.right,
+            ),
             // A free plan has no expiry, so that row is gone and this is last.
             last: isFree,
           ),
           // Expiry is shown unless the plan is Free: a free account has nothing
           // to expire, and a dash beside "Free" reads as a missing value rather
-          // than "not applicable".
+          // than "not applicable". A plan the account cancelled shows that
+          // cancellation instead — its moment is the fact the user came for, and
+          // the backdated expiry behind it would only confuse.
           if (!isFree)
             _DetailRow(
-              label: l.settingsManageAccount_expiry,
+              label: endedByCancellation
+                  ? l.payments_statusCancelled
+                  : l.settingsManageAccount_expiry,
               // To the minute, like the history below: a renewal is tracked by
               // the hour it was approved, not by a bare date.
-              value: expiryMs == null ? '—' : _dateAndTime(l, expiryMs),
+              value: endedByCancellation
+                  ? _dateAndTime(l, cancelledAt.millisecondsSinceEpoch)
+                  : expiryMs == null
+                  ? '—'
+                  : _dateAndTime(l, expiryMs),
               last: true,
             ),
         ],
@@ -207,14 +237,22 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
   }
 }
 
-/// What a lapsed paid account may still write (Phase 10).
+/// What a paid account on **Limited Access** may still write (Phase 10).
 ///
 /// Shown instead of the free block: the account holds a tier, so the free 50 is
-/// not its rule — its allowance is.
+/// not its rule — its allowance is. The sentence names the reason the access
+/// became limited, because "cancelled" and "expired" are different news.
 class _LapsedAllowance extends StatelessWidget {
-  const _LapsedAllowance({required this.l, required this.allowance});
+  const _LapsedAllowance({
+    required this.l,
+    required this.allowance,
+    required this.cancelled,
+  });
 
   final AppLocalizations l;
+
+  /// Whether the plan ended because the account cancelled it.
+  final bool cancelled;
 
   /// The tier's lapse allowance (Starter 100, Pro 250, Firm 500,
   /// Firm Plus 1,000, Enterprise 2,000).
@@ -237,7 +275,9 @@ class _LapsedAllowance extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         _Card(
           child: Text(
-            l.settingsSubscription_lapsedBody(count),
+            cancelled
+                ? l.settingsSubscription_lapsedBodyCancelled(count)
+                : l.settingsSubscription_lapsedBody(count),
             style: AppTypography.bodyMd,
           ),
         ),
@@ -821,20 +861,25 @@ class _Card extends StatelessWidget {
 }
 
 /// A labelled value row: label left, value right, hairline beneath.
+///
+/// Every value is the same size — the section's own body size — because the card
+/// is a list of facts, not a headline and four footnotes (user request). The
+/// plan keeps only its extra weight.
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
     required this.label,
-    required this.value,
-    this.emphasise = false,
+    this.value,
+    this.valueChild,
     this.last = false,
-  });
+  }) : assert(value != null || valueChild != null, 'a row shows a value');
 
   final String label;
-  final String value;
 
-  /// The plan is the answer a user came here for, so it is set larger than the
-  /// rest rather than reading as one more fact.
-  final bool emphasise;
+  /// The value as plain text; null when [valueChild] draws it.
+  final String? value;
+
+  /// A value that needs more than one style, such as the plan's red tag.
+  final Widget? valueChild;
 
   /// Whether this is the card's final row, and so carries no divider.
   final bool last;
@@ -867,13 +912,14 @@ class _DetailRow extends StatelessWidget {
             // text inside it, so "right" meant "immediately after the label".
             // The value has to take the rest of the row to sit at the edge.
             Expanded(
-              child: Text(
-                value,
-                textAlign: TextAlign.right,
-                style: emphasise
-                    ? AppTypography.titleMd
-                    : AppTypography.bodyLg.copyWith(color: AppColors.onSurface),
-              ),
+              child: valueChild ??
+                  Text(
+                    value!,
+                    textAlign: TextAlign.right,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurface,
+                    ),
+                  ),
             ),
           ],
         ),

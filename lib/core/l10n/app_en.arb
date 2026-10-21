@@ -549,8 +549,8 @@
           }
       }
   },
-  "paywall_lapsedTitle": "Your Plan Has Lapsed",
-  "paywall_lapsedBody": "Your last plan lets you add up to {limit} cases while it is lapsed. Everything you already hold stays readable; renew to add more and edit it all.",
+  "paywall_lapsedTitle": "Limited Access Mode",
+  "paywall_lapsedBody": "Your plan has ended, so your access is limited: you can add up to {limit} cases. Everything you already hold stays readable; renew to add more and edit it all.",
   "@paywall_lapsedBody": {
       "placeholders": {
           "limit": {
@@ -739,30 +739,30 @@
   "@@_section_lapseAllowance": "LAPSE ALLOWANCE (PHASE 10)  |  lib/features/payments/presentation/lapse_allowance_ui.dart",
   "lapse_readOnlyBadge": "Read-only",
   "lapse_renewAction": "Renew",
-  "lapse_bannerCases": "Your plan has lapsed. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.",
+  "lapse_bannerCases": "Your access is limited. The {editable} most recently updated cases stay editable; {readOnly} are read-only until you renew.",
   "@lapse_bannerCases": {
     "placeholders": {
       "editable": { "type": "String" },
       "readOnly": { "type": "String" }
     }
   },
-  "lapse_bannerNotes": "Your plan has lapsed. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.",
+  "lapse_bannerNotes": "Your access is limited. The {editable} most recently updated notes stay editable; {readOnly} are read-only until you renew.",
   "@lapse_bannerNotes": {
     "placeholders": {
       "editable": { "type": "String" },
       "readOnly": { "type": "String" }
     }
   },
-  "lapse_bannerReferences": "Your plan has lapsed. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.",
+  "lapse_bannerReferences": "Your access is limited. The {editable} most recently updated case references stay editable; {readOnly} are read-only until you renew.",
   "@lapse_bannerReferences": {
     "placeholders": {
       "editable": { "type": "String" },
       "readOnly": { "type": "String" }
     }
   },
-  "lapse_readOnlyCase": "This case is read-only while your plan is lapsed. Renew to edit it.",
-  "lapse_readOnlyNote": "This note is read-only while your plan is lapsed. Renew to edit it.",
-  "lapse_readOnlyReference": "This case reference is read-only while your plan is lapsed. Renew to edit it.",
+  "lapse_readOnlyCase": "This case is read-only while your access is limited. Renew to edit it.",
+  "lapse_readOnlyNote": "This note is read-only while your access is limited. Renew to edit it.",
+  "lapse_readOnlyReference": "This case reference is read-only while your access is limited. Renew to edit it.",
   "lapse_noteLimit": "You have reached the notes allowance of your last plan. Renew to add more notes.",
   "lapse_referenceLimit": "You have reached the case references allowance of your last plan. Renew to add more references.",
   "@@_section_adminPanel": "ADMIN PANEL  |  lib/features/admin/presentation/admin_panel_screen.dart",
@@ -1042,9 +1042,18 @@
   "settingsManageAccount_title": "Manage Account",
   "settingsManageAccount_changePassword": "Change Password",
   "settingsSubscription_freePlanLimitations": "Free Plan Limitations",
-  "settingsSubscription_lapsedTitle": "Your Plan Has Lapsed",
-  "settingsSubscription_lapsedBody": "You can still read everything. Up to {count} cases, notes and references stay editable until you renew.",
+  "settingsSubscription_lapsedTitle": "Limited Access Mode",
+  "settingsSubscription_lapsedBody": "Your subscription plan has expired. You can still read everything. Up to {count} most recent cases, notes and case references stay editable until you renew.",
   "@settingsSubscription_lapsedBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSubscription_lapsedBodyCancelled": "You recently cancelled your subscription plan. You can still read everything. Up to {count} most recent cases, notes and case references stay editable until you renew.",
+  "@settingsSubscription_lapsedBodyCancelled": {
+    "description": "Limited Access: the reason is a cancellation, not the date running out.",
     "placeholders": {
       "count": {
         "type": "String"
@@ -1116,14 +1125,7 @@
   "settingsManageAccount_subscription": "Subscription",
   "settingsManageAccount_planFree": "Free",
   "settingsManageAccount_planPremium": "Premium",
-  "settingsManageAccount_planLapsed": "{tier} — Lapsed",
-  "@settingsManageAccount_planLapsed": {
-    "placeholders": {
-      "tier": {
-        "type": "String"
-      }
-    }
-  },
+  "settingsManageAccount_planLimitedAccessTag": "[Limited Access]",
   "settingsManageAccount_premiumUntil": "Premium Until {date}",
   "@settingsManageAccount_premiumUntil": {
     "placeholders": {
@@ -2319,7 +2321,7 @@
   "payments_statusCancelled": "Cancelled",
   "payments_cancelPlan": "Cancel",
   "payments_cancelTitle": "Cancel Subscription?",
-  "payments_cancelWarning": "A cancelled plan cannot be restored. Your account will move to the lapsed stage and keep only its limited allowance until you buy another plan.",
+  "payments_cancelWarning": "A cancelled plan cannot be restored. Your account will move to Limited Access and keep only its reduced allowance until you buy another plan.",
   "payments_goBack": "Go Back",
   "payments_confirmCancellation": "Confirm Cancellation",
   "payments_cancelFailed": "The subscription could not be cancelled. Please try again.",

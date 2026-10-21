@@ -1169,6 +1169,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_featureOfflineBackup => 'অফলাইন ব্যাকআপ ও পুনরুদ্ধার';
 
   @override
+  String get paywall_featureOfflineDataBackup =>
+      'অফলাইন ব্যবহার ও ডেটা ব্যাকআপ';
+
+  @override
   String get paywall_featureCustomization =>
       'ডেটা কাস্টমাইজেশন: আদালতের নাম, ধাপ ও মামলার ধরন';
 
@@ -1177,19 +1181,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_featureDisasterRecovery =>
-      'দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ফোনে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন';
+      'দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ডিভাইসে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন';
 
   @override
   String get paywall_featureSingleDevice => 'একটি ডিভাইসে ব্যবহার';
 
   @override
   String paywall_featureMultiDevice(String count) {
-    return 'একাধিক ডিভাইসে ব্যবহার: সর্বোচ্চ $countটি ডিভাইস';
+    return 'একাধিক ডিভাইসে ব্যবহার: একসঙ্গে সর্বোচ্চ $countটি ডিভাইস';
   }
 
   @override
   String paywall_featureCollaboration(String count) {
-    return 'সহযোগিতা: সর্বোচ্চ $count জন সদস্য (প্রতিজনে একটি ডিভাইস)';
+    return 'সহযোগিতা: সর্বোচ্চ $count জন সদস্য (প্রতিজনে একসঙ্গে একটি ডিভাইস)';
   }
 
   @override

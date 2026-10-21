@@ -12,10 +12,13 @@
 ///   leaves it chosen, so a card always carries a term (and its action) to
 ///   buy. A 6-month or yearly button also
 ///   shows its undiscounted price struck in red with the saving in green;
-/// * paid cards lead their list with **Includes Everything in X, plus** — the
-///   *Includes* heading Free already had, so every card opens its list the same
-///   way — and a card takes the ink outline when it is **touched**, keeping it
-///   until a different card is touched;
+/// * every card's list opens with the **Includes** heading, so all six open the
+///   same way. Starter and Pro list only what they **add**, under *Includes
+///   Everything in X, plus*; the three chamber cards list their whole allowance
+///   under plain *Includes* (user ruling, 2026-10-21), because a buyer comparing
+///   chambers should not have to leave the Firm tab to learn what *Pro* holds;
+/// * a card takes the ink outline when it is **touched**, keeping it until a
+///   different card is touched;
 /// * the card the account holds carries **Current Plan** and its action says
 ///   **Renew**; a queued change carries **Scheduled** and its start date; the
 ///   Starter and Firm Plus cards carry **Most Popular**.
@@ -138,8 +141,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
   /// The tier's own feature rows, in display order.
   ///
-  /// Only what the tier **adds** is listed: the inherited features sit behind
-  /// the card's *Includes Everything in X, plus* header.
+  /// Starter and Pro list only what the tier **adds**: the inherited features
+  /// sit behind their *Includes Everything in X, plus* header. The three chamber
+  /// cards list their **whole** allowance, because a chamber buyer would
+  /// otherwise have to switch to the Individual tab to decode what is inherited
+  /// (user ruling, 2026-10-21).
   List<_PlanFeature> _features(AppLocalizations l, SubscriptionTier tier) {
     String cases(int count) => l.paywall_featureCases(
       AppDateUtils.formatDigits(count, l.localeName, grouping: true),
@@ -179,13 +185,24 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ),
         ),
       ],
-      // The three chamber tiers now sell the same two facts — a case ceiling
-      // and a member cap — differing only in the numbers, so one branch reads
-      // both from the tier and no card can print a limit the app does not hold.
+      // The three chamber tiers sell the same facts — a case ceiling, the
+      // cloud that makes those cases safe, the customization that makes them
+      // yours, and a member cap — differing only in the numbers, so one branch
+      // reads every limit from the tier and no card can print a number the app
+      // does not hold. This is the **whole** allowance, not the added part, so
+      // the card's header is plain *Includes* (see [_inheritsFromLowerTier]).
+      // Disaster recovery is deliberately off these cards (user ruling,
+      // 2026-10-21): the chamber tiers are sold on capacity and collaboration.
       SubscriptionTier.firm ||
       SubscriptionTier.firmPlus ||
       SubscriptionTier.enterprise => <_PlanFeature>[
         _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
+        _PlanFeature(Icons.cloud_upload_outlined, l.paywall_featureCloudBackup),
+        _PlanFeature(
+          Icons.restore_outlined,
+          l.paywall_featureOfflineDataBackup,
+        ),
+        _PlanFeature(Icons.tune_outlined, l.paywall_featureCustomization),
         _PlanFeature(
           Icons.groups_outlined,
           l.paywall_featureCollaboration(
@@ -204,6 +221,15 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// (which the card prints under *Includes*).
   SubscriptionTier _previousTier(SubscriptionTier tier) =>
       SubscriptionTier.values[tier.index - 1];
+
+  /// Whether the card lists only what the tier **adds**, under *Includes
+  /// Everything in X, plus*.
+  ///
+  /// Starter and Pro do. The chamber cards print their whole allowance instead,
+  /// so their header is plain *Includes* — an inherited line plus a complete
+  /// list would contradict itself (user ruling, 2026-10-21).
+  bool _inheritsFromLowerTier(SubscriptionTier tier) =>
+      tier == SubscriptionTier.starter || tier == SubscriptionTier.pro;
 
   /// The term selected for [tier]; **6 Months** by default on every card.
   ///
@@ -524,15 +550,17 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ],
           const SizedBox(height: AppSpacing.md),
           Text(
-            // Every card's feature list opens with *Includes*. On a paid card
-            // it runs straight into the inherited line — *Includes Everything
-            // in Free, plus* — so no comma: the phrase is one sentence.
-            tier == SubscriptionTier.free
-                ? l.paywall_includes
-                : '${l.paywall_includes} '
+            // Every card's feature list opens with *Includes*. Where the rows
+            // list only what the tier adds, the heading runs straight into the
+            // inherited line — *Includes Everything in Free, plus* — so no
+            // comma: the phrase is one sentence. The chamber cards list their
+            // whole allowance, so their heading stands alone.
+            _inheritsFromLowerTier(tier)
+                ? '${l.paywall_includes} '
                       '${l.paywall_everythingIn(
                         subscriptionTierLabel(l, _previousTier(tier)),
-                      )}',
+                      )}'
+                : l.paywall_includes,
             style: AppTypography.titleMd,
           ),
           const SizedBox(height: AppSpacing.sm),

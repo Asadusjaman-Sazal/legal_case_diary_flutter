@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.561 - Side menu: the [Limited Access] tag now sits two spaces off the plan name, while Subscription Details keeps one.
+Version: 0.0.562 - Subscription Plans: the three chamber cards list their whole allowance under a plain Includes heading, and the device sentences now say new device and concurrent devices.
 --------------------------------------
 
 ## Version History Log:
@@ -575,3 +575,4 @@ Version: 0.0.558 - Hold the Individual/Firm pill at 60% on real phones by raisin
 Version: 0.0.559 - Restore the plan card badge to the card's right edge and mark Firm Plus, not Firm, as Most Popular.
 Version: 0.0.560 - Subscription Details: a cancelled plan now says Cancelled with its moment, every Lapsed label reads Limited Access in red brackets, and the card's values share one size.
 Version: 0.0.561 - Side menu: the [Limited Access] tag now sits two spaces off the plan name, while Subscription Details keeps one.
+Version: 0.0.562 - Subscription Plans: the three chamber cards list their whole allowance under a plain Includes heading, and the device sentences now say new device and concurrent devices.

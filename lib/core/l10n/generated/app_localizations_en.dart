@@ -2942,7 +2942,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsEditItems_onBehalf => 'On Behalf';
 
   @override
-  String get settingsCourtNamesSteps_title => 'Court Names, Steps etc';
+  String get settingsCourtNamesSteps_title => 'Case Types, Steps etc';
 
   @override
   String get settingsCourtNamesSteps_catAppellateDivision =>

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.588 - The time picker's gear tick now plays only when the displayed hour or minute changes.
+Version: 0.0.589 - The Case Types, Steps etc header is renamed, and the higher-court divisions no longer offer Steps.
 --------------------------------------
 
 ## Version History Log:
@@ -602,3 +602,4 @@ Version: 0.0.585 - The notification time window now has a bold Select Time title
 Version: 0.0.586 - The time picker plays an audible bundled gear tick on drag, and unselected boxes are white with black text.
 Version: 0.0.587 - Time picker drags now log detection and audio failures so the missing gear tick can be diagnosed.
 Version: 0.0.588 - The time picker's gear tick now plays only when the displayed hour or minute changes.
+Version: 0.0.589 - The Case Types, Steps etc header is renamed, and the higher-court divisions no longer offer Steps.

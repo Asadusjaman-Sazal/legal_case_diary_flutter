@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — Dropdown windows take the Next Date calendar's corners — COMPLETE (0.0.579)
+
+- **What was asked.** Give the dropdown windows the same corner shape as the Next Date calendar in the Update window.
+- **What changed.** That calendar uses **8 px** corners (`AppSpacing.cardRadius * 2`), so the View Settings and Notification Day Offset dropdown windows now use 8 px instead of 16 px. Elevation, the borderless edge, the black 60 px title bar and every row are unchanged.
+- **Mockup kept in step.** The day-offset modal in `mockup_html_screens/settings_notifications/code.html` is back to the 8 px rounding (rule 9).
+- **Proof.** Both dropdown-window tests now expect 8 px; they pass, along with the full suite. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.579** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The day-offset picker adopts the View Settings dropdown design — COMPLETE (0.0.578)
 
 - **What was asked.** Give Settings → Notifications → Notification Day Offset the same dropdown design as Settings → View Settings.

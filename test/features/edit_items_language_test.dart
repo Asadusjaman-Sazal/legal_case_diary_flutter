@@ -112,6 +112,8 @@ void main() {
     expect(find.text(caseTypeLabelBn[seed.id]!), findsOneWidget);
     expect(find.text(seed.labelEn), findsNothing);
     expect(find.text(_customCaseType.name), findsOneWidget);
+    // Only the user-added row offers Delete.
+    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
   });
 
   testWidgets('seeded steps show their Bengali label', (tester) async {
@@ -144,6 +146,8 @@ void main() {
     expect(find.text(stepLabelBn[seed.id]!), findsOneWidget);
     expect(find.text(seed.labelEn), findsNothing);
     expect(find.text(_customStep.stepName), findsOneWidget);
+    // Only the user-added row offers Delete.
+    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
   });
 
   testWidgets('seeded on-behalfs show their Bengali label', (tester) async {
@@ -176,6 +180,8 @@ void main() {
     expect(find.text(onBehalfLabelBn[seed.id]!), findsOneWidget);
     expect(find.text(seed.labelEn), findsNothing);
     expect(find.text(_customOnBehalf.name), findsOneWidget);
+    // Only the user-added row offers Delete.
+    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
   });
 }
 

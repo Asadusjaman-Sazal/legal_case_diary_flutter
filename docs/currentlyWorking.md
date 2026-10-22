@@ -1,5 +1,34 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The View Settings dropdown title bar grows 25%, not 40% — COMPLETE (0.0.577)
+
+- **What was asked.** Change the dropdown title section's growth from 40% to 25%.
+- **What changed.** The View Settings dropdown title bar is now **60 px** (48 × 1.25) instead of 67.2 px. Everything else is unchanged: the same black bar, white title, close button, and the Notifications picker still keeps the standard 48 px header.
+- **Proof.** The dropdown-window test now expects 60 px; it passes. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.577** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
+### 2026-10-22 — The View Settings dropdown title bar grows 40% — COMPLETE (0.0.576)
+
+- **What was asked.** Make the title section of the dropdown window 40% bigger.
+- **What changed.** The black title bar on all five View Settings dropdowns grew from **48 px to 67.2 px** (48 × 1.4). The title text, close button and black/white colours are unchanged, and the bar still sits inside the window's rounded top corners. The Notifications picker, which shares the header, keeps its 48 px bar because the taller size is opt-in.
+- **Proof.** The dropdown-window test now measures the header and expects 67.2 px; it passes. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.576** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
+### 2026-10-22 — The View Settings dropdown edge is removed — COMPLETE (0.0.575)
+
+- **What was asked.** Remove the edge colour from the View Settings dropdown pop-over windows.
+- **What changed.** The window now has no border at all; its 16 px rounded shape and elevation remain, so it still reads as a floating panel. The black title bar and white title are unchanged, and the shared Notifications picker keeps its existing window. Version 0.0.574 had briefly turned this edge black; that edge is now gone entirely.
+- **Proof.** The dropdown-window test now expects no border side; it passes. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.575** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
+### 2026-10-22 — View Settings dropdowns borrow the profile pop-over's window — COMPLETE (0.0.573)
+
+- **What was asked.** The dropdown pop-over windows on Settings → View Settings should look like the pop-over that opens from the side menu's profile icon, while their title bar stays black with white text.
+- **What changed.** All five dropdowns — Upcoming Cases Period, Case List Display, Bottom Navigation, Side Navigation Options and Default Landing Page — now use the profile pop-over's floating window: **16 px rounded corners**, a **thin grey edge**, **elevation 8**, and corners clipped so the black header curves with the window. The header itself is unchanged: the same dark bar and white title, with its close button.
+- **Scope kept.** The multi-select picker is shared with Notifications, so the new look is opt-in (`popoverWindow`) and only the View Settings callers switch it on; the Notifications picker is untouched.
+- **Proof.** A new test opens one single-select and one multi-select dropdown and checks the window's shape, radius, edge, elevation and clipping, plus the header's dark background and white title. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.573** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The Delete Item actions get more air — COMPLETE (0.0.572)
 
 - **What was asked.** Double the space between Cancel and Delete in the Delete Item window.

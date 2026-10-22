@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.572 - The Delete Item window now leaves twice the space between its Cancel and Delete buttons.
+Version: 0.0.577 - The View Settings dropdown title bar is now 25% taller instead of 40%.
 --------------------------------------
 
 ## Version History Log:
@@ -586,3 +586,8 @@ Version: 0.0.569 - The Edit Court/Steps menu cards now drop the word Edit from a
 Version: 0.0.570 - Built-in case types, steps and on-behalfs no longer offer Delete; only user-added rows do.
 Version: 0.0.571 - The Delete Item window now centres its title and buttons, matches the Exit App action size, and shows Delete in red.
 Version: 0.0.572 - The Delete Item window now leaves twice the space between its Cancel and Delete buttons.
+Version: 0.0.573 - View Settings dropdowns now use the side-menu profile pop-over window, keeping their black title bar with white text.
+Version: 0.0.574 - View Settings dropdown pop-over edges are now black.
+Version: 0.0.575 - View Settings dropdown pop-over windows no longer draw an edge.
+Version: 0.0.576 - The View Settings dropdown title bar is now 40% taller.
+Version: 0.0.577 - The View Settings dropdown title bar is now 25% taller instead of 40%.

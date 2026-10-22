@@ -2315,9 +2315,13 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
         widget.canEdit && _permissionResolved && _canEdit && !_saving;
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      // The same 8 px window corner as the Select Day Offset window.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       child: Material(
         clipBehavior: Clip.antiAlias,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
         color: AppColors.surfaceContainerLowest,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480, maxHeight: 680),

@@ -409,14 +409,26 @@ Future<void> _delete<T>(
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(l.settingsItemList_deleteTitle),
+      title: Text(l.settingsItemList_deleteTitle, textAlign: TextAlign.center),
       content: Text(l.settingsItemList_deleteMessage),
+      // Centred, with the Exit App window's action size (112x48, 16 pt).
+      actionsAlignment: MainAxisAlignment.center,
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(112, 48),
+            textStyle: const TextStyle(fontSize: 16),
+          ),
           onPressed: () => Navigator.of(ctx).pop(false),
           child: Text(l.sharedActions_cancel),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.error,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(112, 48),
+            textStyle: const TextStyle(fontSize: 16),
+          ),
           onPressed: () => Navigator.of(ctx).pop(true),
           child: Text(l.sharedActions_delete),
         ),

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -182,6 +183,76 @@ void main() {
     expect(find.text(_customOnBehalf.name), findsOneWidget);
     // Only the user-added row offers Delete.
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+  });
+
+  testWidgets('the Delete Item window is centred and Delete is red', (
+    tester,
+  ) async {
+    final seed = _category.allCaseTypes.first;
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        caseTypesRepositoryProvider.overrideWith(
+          (ref) async => _FakeCaseTypesRepository([
+            CaseType(
+              id: seed.id,
+              courtCategoryId: districtCourtsCivilId,
+              caseCategoryId: seed.caseCategoryId,
+              name: seed.labelEn,
+              orderIndex: 0,
+              isCustom: false,
+              isUserModified: false,
+              updatedAt: 0,
+              isDeleted: false,
+            ),
+            _customCaseType,
+          ]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.pumpAndSettle();
+
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    expect(dialog.actionsAlignment, MainAxisAlignment.center);
+    expect((dialog.title! as Text).textAlign, TextAlign.center);
+
+    // The Exit App window's action size: 112x48 at 16 pt.
+    final cancel = tester.widget<TextButton>(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextButton),
+      ),
+    );
+    expect(
+      cancel.style?.minimumSize?.resolve(<WidgetState>{}),
+      const Size(112, 48),
+    );
+    expect(cancel.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+
+    final delete = tester.widget<FilledButton>(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    expect(
+      delete.style?.minimumSize?.resolve(<WidgetState>{}),
+      const Size(112, 48),
+    );
+    expect(
+      delete.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      delete.style?.foregroundColor?.resolve(<WidgetState>{}),
+      Colors.white,
+    );
   });
 }
 

@@ -64,6 +64,11 @@ class CustomDropdown<T> extends StatelessWidget {
   /// Optional callback when a disabled field is tapped.
   final VoidCallback? onDisabledTap;
 
+  /// Opens a caller-supplied window instead of the built-in picker, while the
+  /// collapsed field keeps its normal appearance. Used by the Day Offset
+  /// fields so they share the Settings picker window.
+  final VoidCallback? onOpenPicker;
+
   /// Whether the field is enabled.
   final bool enabled;
 
@@ -89,6 +94,7 @@ class CustomDropdown<T> extends StatelessWidget {
     this.emptyFillColor,
     this.selectedFillColor,
     this.onDisabledTap,
+    this.onOpenPicker,
     this.enabled = true,
     this.outlined = false,
     super.key,
@@ -107,6 +113,10 @@ class CustomDropdown<T> extends StatelessWidget {
 
   Future<void> _openPicker(BuildContext context) async {
     if (!enabled) return;
+    if (onOpenPicker != null) {
+      onOpenPicker!();
+      return;
+    }
     final l = AppLocalizations.of(context);
     final emptyLabel = hint ?? l.customDropdown_selectOption;
     final size = MediaQuery.sizeOf(context);

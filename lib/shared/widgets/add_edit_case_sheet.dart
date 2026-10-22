@@ -27,6 +27,7 @@ import '../../core/services/local_identity_service.dart';
 import '../../features/accounts_and_profile/data/account_mode.dart';
 import '../../core/utils/date_utils.dart';
 import '../../database/app_database.dart';
+import '../../features/settings/presentation/settings_controls.dart';
 import '../../features/settings/presentation/settings_notifications/notification_time_picker.dart';
 import '../../features/accounts_and_profile/data/local/firm_members_dao.dart';
 import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
@@ -1060,14 +1061,14 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                       emptyFillColor: AppColors.surface,
                       selectedFillColor: AppColors.surfaceVariant,
                       outlined: true,
+                      // The same window Settings → Notifications uses.
+                      onOpenPicker: () => _pickNotificationOffsets(context),
                       onMultiChanged: (values) =>
                           setState(() => _selectedNotificationOffsets = values),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _notificationTimeField(context, editable),
-                  ),
+                  Expanded(child: _notificationTimeField(context, editable)),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -1418,6 +1419,25 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
+  /// Opens the same day-offset window Settings → Notifications uses.
+  Future<void> _pickNotificationOffsets(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => SettingsMultiSelectDialog<int>(
+        title: l.settingsNotifications_selectDayOffsetTitle,
+        order: _lookupData?.notificationOffsets ?? notificationDayOffsetOptions,
+        selected: _selectedNotificationOffsets.toSet(),
+        labelOf: (offset) => _offsetLabel(context, offset),
+        popoverWindow: true,
+        minSelected: 1,
+        minSelectedMessage: l.settingsNotifications_keepOneOffset,
+        onChanged: (_, chosen) =>
+            setState(() => _selectedNotificationOffsets = chosen),
+      ),
+    );
+  }
+
   String _offsetLabel(BuildContext context, int offset) {
     final l = AppLocalizations.of(context);
     return offset == 0
@@ -1459,9 +1479,8 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                       key: const ValueKey('add-edit-notification-time-reset'),
                       tooltip: l.settingsViewSettings_fontSizeReset,
                       onPressed: editable
-                          ? () => setState(
-                              () => _notificationTimeMinutes = null,
-                            )
+                          ? () =>
+                                setState(() => _notificationTimeMinutes = null)
                           : null,
                       icon: const Icon(Icons.restart_alt),
                     )
@@ -1486,9 +1505,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       initialMinutes: initialMinutes,
     );
     if (picked == null || !mounted) return;
-    setState(
-      () => _notificationTimeMinutes = picked.hour * 60 + picked.minute,
-    );
+    setState(() => _notificationTimeMinutes = picked.hour * 60 + picked.minute);
   }
 
   Future<void> _pickNextDate() async {
@@ -1661,10 +1678,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       // paid account keeps writing up to its tier's allowance, premium has no
       // ceiling. Premium entitlement is derived from subscription expiry, never
       // from the display-only status flag or a per-user view preference.
-      final hasPremiumAccess = await resolvePremiumAccess(
-        db,
-        identity.getId(),
-      );
+      final hasPremiumAccess = await resolvePremiumAccess(db, identity.getId());
       final allowance = await resolveWriteAllowance(
         db,
         tier: ref.read(allowanceTierProvider),
@@ -2152,9 +2166,8 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                       ),
                       tooltip: l.settingsViewSettings_fontSizeReset,
                       onPressed: editable
-                          ? () => setState(
-                              () => _notificationTimeMinutes = null,
-                            )
+                          ? () =>
+                                setState(() => _notificationTimeMinutes = null)
                           : null,
                       icon: const Icon(Icons.restart_alt),
                     )
@@ -2179,8 +2192,25 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       initialMinutes: initialMinutes,
     );
     if (picked == null || !mounted) return;
-    setState(
-      () => _notificationTimeMinutes = picked.hour * 60 + picked.minute,
+    setState(() => _notificationTimeMinutes = picked.hour * 60 + picked.minute);
+  }
+
+  /// Opens the same day-offset window Settings → Notifications uses.
+  Future<void> _pickNotificationOffsets(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => SettingsMultiSelectDialog<int>(
+        title: l.settingsNotifications_selectDayOffsetTitle,
+        order: _notificationOffsets,
+        selected: _selectedNotificationOffsets.toSet(),
+        labelOf: (offset) => _offsetLabel(context, offset),
+        popoverWindow: true,
+        minSelected: 1,
+        minSelectedMessage: l.settingsNotifications_keepOneOffset,
+        onChanged: (_, chosen) =>
+            setState(() => _selectedNotificationOffsets = chosen),
+      ),
     );
   }
 
@@ -2394,6 +2424,10 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
                                 emptyFillColor: AppColors.surface,
                                 selectedFillColor: AppColors.surfaceVariant,
                                 outlined: true,
+                                // The same window Settings → Notifications
+                                // uses.
+                                onOpenPicker: () =>
+                                    _pickNotificationOffsets(context),
                                 onMultiChanged: (values) => setState(
                                   () => _selectedNotificationOffsets = values,
                                 ),

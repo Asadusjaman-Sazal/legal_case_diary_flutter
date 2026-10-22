@@ -609,7 +609,7 @@ void main() {
       expect(find.text('Before 7 days'), findsOneWidget);
       expect(find.text('Before 15 days'), findsOneWidget);
       expect(find.text('Before 30 days'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('custom-dropdown-close')));
+      await tester.tap(find.byKey(const ValueKey('settings-picker-close')));
       await tester.pumpAndSettle();
 
       // AD/HCD cases hide the Step picker and show the Result field instead.
@@ -1510,8 +1510,10 @@ Future<void> _selectOffsets(WidgetTester tester, List<int> offsets) async {
     final item = find.byKey(ValueKey<int>(offset));
     expect(item, findsOneWidget);
     await tester.tap(item);
+    await tester.pumpAndSettle();
   }
-  await tester.tap(find.byKey(const ValueKey('custom-dropdown-done')));
+  // The Settings-style window saves every tick; its header closes it.
+  await tester.tap(find.byKey(const ValueKey('settings-picker-close')));
   await tester.pumpAndSettle();
 }
 

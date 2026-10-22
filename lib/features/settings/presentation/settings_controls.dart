@@ -359,6 +359,13 @@ class _SettingsMultiSelectDialogState<T extends Object>
   /// Currently ticked values.
   late final Set<T> _selected = Set<T>.of(widget.selected);
 
+  /// The in-window warning shown when the last required tick is refused.
+  ///
+  /// It lives inside the dialog rather than in a SnackBar: the dialogs above
+  /// the Add/Update Case windows cover the screen, so a SnackBar behind the
+  /// barrier would never be seen.
+  String? _minSelectionWarning;
+
   /// The ticked values in display order — the order the caller stores them in.
   List<T> get _orderedSelection => <T>[
     for (final value in _order)
@@ -371,13 +378,12 @@ class _SettingsMultiSelectDialogState<T extends Object>
     if (removing && _selected.length <= widget.minSelected) {
       final message = widget.minSelectedMessage;
       if (message != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        setState(() => _minSelectionWarning = message);
       }
       return;
     }
     setState(() {
+      _minSelectionWarning = null;
       if (removing) {
         _selected.remove(value);
       } else {
@@ -458,6 +464,7 @@ class _SettingsMultiSelectDialogState<T extends Object>
         if (index > 0)
           const Divider(height: 1, color: AppColors.outlineVariant),
         SettingsOptionRow(
+          key: ValueKey<T>(value),
           label: widget.labelOf(value),
           selected: _selected.contains(value),
           onTap: () => _toggle(value),
@@ -510,6 +517,7 @@ class SettingsPickerDialogHeader extends StatelessWidget {
           ),
         ),
         IconButton(
+          key: const ValueKey('settings-picker-close'),
           icon: const Icon(Icons.close, color: AppColors.onPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),

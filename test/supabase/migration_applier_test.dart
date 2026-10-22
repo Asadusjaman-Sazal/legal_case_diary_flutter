@@ -59,8 +59,9 @@ void main() {
 
       expect(
         versions,
-        hasLength(62),
+        hasLength(63),
         reason:
+            'The device grace-period closure (2026-10-22) added one file. '
             'The payment identity snapshots (2026-10-22) added one file. '
             'The device limit (2026-10-21) added its registry, its '
             'enforcement pair, the trim correction its proof caught and the '
@@ -137,7 +138,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(62),
+        hasLength(63),
         reason: 'versions must be unique',
       );
       expect(
@@ -146,7 +147,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261022140000');
+      expect(versions.last, '20261022150000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.591 - The Your Access Ended explanation is now justified instead of centred.
+Version: 0.0.592 - The device grace is closed; no grandfathering or unregistered sessions, revoked devices cannot push, and sign-out/heartbeat RPCs are live.
 --------------------------------------
 
 ## Version History Log:
@@ -605,3 +605,4 @@ Version: 0.0.588 - The time picker's gear tick now plays only when the displayed
 Version: 0.0.589 - The Case Types, Steps etc header is renamed, and the higher-court divisions no longer offer Steps.
 Version: 0.0.590 - Payment submissions and approval events now carry the payer's full name and email, filled on insert and backfilled.
 Version: 0.0.591 - The Your Access Ended explanation is now justified instead of centred.
+Version: 0.0.592 - The device grace is closed; no grandfathering or unregistered sessions, revoked devices cannot push, and sign-out/heartbeat RPCs are live.

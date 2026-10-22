@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The device grace is closed on the server — COMPLETE (0.0.592)
+
+- **Context.** The app is in **active development, currently alpha**, tested only by the owner and family. The device-limit roll-out exemption was written for a public update and is unnecessary here.
+- **What changed.** `20261022150000_device_no_grace.sql`:
+  - `device_may_read` and `device_may_push` are **active-device only**: an unregistered session reads and pushes nothing, and a revoked device has **no 14-day flush** because every removal will discard.
+  - `register_device` no longer grandfathers a registration past the cap; it refuses (or evicts a spare idle seven days) and now returns the **active-device list** on success.
+  - Added the `signed_out` reason and `sign_out_device()` for the third-device window, and `touch_device()` for the real-use heartbeat that keeps the seven-day idle rule honest.
+  - One-time cleanup revokes any row above its cap and clears the obsolete `grandfathered` flag.
+- **Applied live** to `lsthasywrdrhuuxnykau` — **63 of 63 versions recorded, 0 to apply**.
+- **Proof.** The updated `supabase/tests/device_limit_test.sql` prints **DEVICE OK** against the live project: third device refused, unregistered refused, revoked cannot push, `signed_out` and the heartbeat work. `flutter analyze` clean; full `flutter test` green; ledger regenerated and `--check` clean; the two count guards now expect 63 and `versions.last` is the new file.
+- **Live state.** No account is over its cap: the test **Pro** account has 2 active (cap 2) and a separate **free** account has 1 (cap 1). The earlier “three devices on one Pro account” was the grace admitting past the cap; the empty Devices screen was the missing list in `register_device`, now fixed server-side (it fills on the next registration).
+- **Still to build (Phases 2–4).** The *Device Limit Reached* window with red Sign Out buttons, fresh checks on every login, client discard-and-wipe, the same-install `replaced` exception, the client heartbeat call, the explicit on-open Devices read, and install-secret clone protection.
+- **Resume point, next session.** Start **Phase 2** (the window) and wire the existing Devices screen to read the list on open.
+
 ### 2026-10-22 — The removal notice's paragraph is justified — COMPLETE (0.0.591)
 
 - **What was asked.** On **Your Access Ended**, the removal notice shown to an associate, the text was centred; it should be justified.

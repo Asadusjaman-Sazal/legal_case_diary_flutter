@@ -828,11 +828,25 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'profile they already point at, so troubleshooting no longer needs a '
         'join to identify who paid.',
   ),
+  LedgerSection(
+    file: '20261022150000_device_no_grace.sql',
+    version: '0.0.592',
+    label:
+        'Device limit — the grace period is closed. The roll-out row is '
+        'removed: a third device at the cap is refused unless an idle spare '
+        'may be evicted, an unregistered session reads and pushes nothing, and '
+        'a revoked device loses the 14-day flush. register_device now returns '
+        'the active-device list, and two RPCs are added: sign_out_device for '
+        'the third-device window (reason signed_out) and touch_device for the '
+        'real-use heartbeat. One-time cleanup revokes any row above its cap and '
+        'clears the obsolete grandfathered flag.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.592': 'Device Limit — The Grace Period Is Closed',
   '0.0.590': 'Payment Support — The Payer\'s Name And E-mail On Both Ledgers',
   '0.0.567': 'Task 22 — The Device Limit, Rolled Out On Both Sides',
   '0.0.566': 'Task 22 — The Device Limit, Made Correct',

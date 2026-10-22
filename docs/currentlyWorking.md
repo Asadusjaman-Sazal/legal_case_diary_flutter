@@ -1,5 +1,22 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — Phase 5: the alpha scope is recorded and the last automated gaps are closed — COMPLETE (0.0.596)
+
+- **What Phase 5 is.** The last step of the approved device-limit plan: record the alpha scope, make sure every promised scenario has a test, and hand the physical device pass to the owner. No server or product behaviour changed in this phase.
+- **Alpha scope, recorded in Task 22.** The app is in **active development, currently alpha**, tested only by the owner and family members' devices and accounts. There is **no grace period**, the Pro cap is hard at **2**, and the third-device window is the only way in when both slots are in recent use. This was already enforced by the server and stated in `AGENTS.md`; Task 22 now says it in one place beside the scenarios.
+- **Automated coverage completed.**
+  - Added a **removed-from-the-list** (`user`) test: the phone reads *You removed this device from your device list*, discards, and shows the erase-retry screen. That was the one discard reason without its own test.
+  - Added a **same-install re-login** (`replaced`) test: the screen says the sign-in ended and the local data is kept, the auth sign-out runs once, the erase path is **never read**, and the app moves to Login. This pins the one keep-data exception.
+  - Already covered and re-run: the full-plan window with the separate warning line and red Sign Out buttons, the fresh-login fail-closed check, `cap`, `lapse`, `signed_out` and `session_in_use` discard, the Devices list and its on-open read, and the install-secret store.
+- **Server proof.** No server change in this phase; `supabase/tests/device_limit_test.sql` last printed **DEVICE OK** on 0.0.595, and 64 versions remain applied.
+- **Proof.** `flutter analyze` clean; full `flutter test` **1950 passed**; version **0.0.596** recorded with the script. Task 22's two stale notes (the old save-then-erase and the on-open read being “not yet built”) were corrected.
+- **The only thing left is the physical device pass**, which only the owner can run:
+  1. On the Pro account, sign in on A and B; use both; sign in on C — C shows **Device Limit Reached** and names A and B.
+  2. Tap **Sign Out** beside A; C enters only after the fresh check.
+  3. On A, its next online launch cancels its alarms, discards its local copy and shows Login.
+  4. Settings → Manage Account → Devices lists B and C with the correct names and *This device* on C, and A is gone.
+- **Optional eviction check.** Leave B unused for eight days (or age its server row), then sign in on C: B is evicted automatically, C enters without the window, and B discards on its next online launch.
+
 ### 2026-10-22 — A sign-in now belongs to one phone, and the heartbeat is wired — COMPLETE (0.0.595)
 
 - **What changed.** Each install creates a random secret once, keeps it only on that phone, and sends it with every server call. The server stores a scrambled copy (SHA-256), not the secret. If the same sign-in is presented from a different phone, the server answers **session_in_use** instead of accepting it, and that phone discards its local copy and shows Login. A registration with **no** secret is refused outright (`invalid_install_secret`) and lands on the same discard screen, so a caller cannot skip the binding.

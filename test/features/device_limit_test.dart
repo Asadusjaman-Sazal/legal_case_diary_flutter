@@ -16,10 +16,12 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/notifications/notification_scheduler.dart';
 import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/encryption_key_manager.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/presentation/device_gate_scope.dart';
 
 /// A gate whose answer the test decides, with the actions recorded.
@@ -86,6 +88,29 @@ class _NoopScheduler implements NotificationScheduler {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+/// An auth view model that records the sign-out without touching the SDK.
+class _FakeAuth extends AuthViewModel {
+  /// Sign-outs requested by the gate.
+  int signOutCalls = 0;
+
+  @override
+  Future<AuthState> build() async => const AuthState();
+
+  @override
+  Future<void> signOut() async => signOutCalls++;
+}
+
+/// A router that knows both the gate's home and the Login screen.
+GoRouter _router() => GoRouter(
+  routes: [
+    GoRoute(path: '/', builder: (context, _) => const SizedBox()),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, _) => const Scaffold(body: Text('login')),
+    ),
+  ],
+);
 
 /// A gate that cannot reach the server, for the fresh-login check.
 class _OfflineGate extends DeviceGateController {
@@ -395,6 +420,104 @@ void main() {
     );
     expect(find.textContaining('another device took this one'), findsNothing);
     expect(find.textContaining('nothing has been erased'), findsNothing);
+  });
+
+  testWidgets('a device removed from the list discards and offers a retry', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const DeviceGateState(
+        status: DeviceGateStatus.revoked,
+        cap: 2,
+        revokedReason: 'user',
+      ),
+      child: DeviceGateScope(
+        router: _router(),
+        child: const Scaffold(body: Text('the app')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('This Device Was Signed Out'), findsOneWidget);
+    expect(
+      find.text(
+        'You removed this device from your device list. Any unsaved work on this device is discarded.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Could not erase this device. Try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('the app'), findsNothing);
+  });
+
+  testWidgets('a same-install re-login ends the old sign-in and keeps data', (
+    tester,
+  ) async {
+    var logoutReads = 0;
+    // The gate navigates on this path, so the router must actually drive the
+    // app rather than sit beside a plain MaterialApp.
+    late final GoRouter router;
+    router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, _) => DeviceGateScope(
+            router: router,
+            child: const Scaffold(body: Text('the app')),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (context, _) => const Scaffold(body: Text('login')),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          deviceGateProvider.overrideWith(
+            () => _FakeGate(
+              const DeviceGateState(
+                status: DeviceGateStatus.revoked,
+                cap: 2,
+                revokedReason: 'replaced',
+              ),
+            ),
+          ),
+          authViewModelProvider.overrideWith(_FakeAuth.new),
+          // The keep-data path must never reach the erasure.
+          logoutFlowProvider.overrideWith((ref) async {
+            logoutReads++;
+            throw StateError('a replaced sign-in must not wipe');
+          }),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final auth = ProviderScope.containerOf(
+      tester.element(find.byType(DeviceGateScope)),
+    ).read(authViewModelProvider.notifier) as _FakeAuth;
+
+    expect(find.text('This Sign-In Has Ended'), findsOneWidget);
+    expect(find.textContaining('Your local data is kept.'), findsOneWidget);
+    expect(find.text('the app'), findsNothing);
+
+    await tester.pumpAndSettle();
+
+    expect(auth.signOutCalls, 1);
+    expect(logoutReads, 0);
+    expect(find.text('Could not erase this device. Try again.'), findsNothing);
+    expect(find.text('login'), findsOneWidget);
   });
 
   testWidgets('a cloned session is ended and its local copy discarded', (

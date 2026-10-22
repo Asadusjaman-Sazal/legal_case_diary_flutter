@@ -49,6 +49,20 @@ class FlutterSecureKeyStorage implements KeyStorage {
 
   const FlutterSecureKeyStorage() : _storage = const FlutterSecureStorage();
 
+  /// This-device-only storage for the Supabase session and the install secret.
+  ///
+  /// iOS keychain items are not migrated by a device backup, and Android's
+  /// default Keystore-backed ciphers are not restorable elsewhere, so a
+  /// restored copy cannot carry the session to another phone. The database key
+  /// keeps the default constructor: its backup behaviour is a separate product
+  /// decision.
+  const FlutterSecureKeyStorage.sessionOnly()
+    : _storage = const FlutterSecureStorage(
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+      );
+
   @override
   Future<String?> read({required String key}) => _storage.read(key: key);
 

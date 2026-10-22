@@ -193,6 +193,8 @@ class SyncService {
       if (!await _isEntitled()) return;
       if (!await _deviceMaySync()) return;
       await _drain(transport, pull: wantsPull);
+      // Real use, not just app launches, is what the seven-day idle rule reads.
+      unawaited(_ref.read(deviceGateProvider.notifier).touch());
     } finally {
       _release();
     }

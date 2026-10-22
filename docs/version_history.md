@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.594 - Every revoked device now discards its local copy and signs out; a same-install re-login keeps its data.
+Version: 0.0.595 - Phase 4 complete: every install binds its session with a device-only secret, so a copied token is refused as session_in_use and a restored backup is a new device.
 --------------------------------------
 
 ## Version History Log:
@@ -608,3 +608,4 @@ Version: 0.0.591 - The Your Access Ended explanation is now justified instead of
 Version: 0.0.592 - The device grace is closed; no grandfathering or unregistered sessions, revoked devices cannot push, and sign-out/heartbeat RPCs are live.
 Version: 0.0.593 - The third-device window signs one out, re-checks the slot, and blocks a fresh login until the server answers; Devices now reads its list on open.
 Version: 0.0.594 - Every revoked device now discards its local copy and signs out; a same-install re-login keeps its data.
+Version: 0.0.595 - Phase 4 complete: every install binds its session with a device-only secret, so a copied token is refused as session_in_use and a restored backup is a new device.

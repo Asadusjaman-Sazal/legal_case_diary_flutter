@@ -11,10 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/devices/device_install_secret.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/notifications/notification_scheduler.dart';
 import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
+import 'package:legal_case_diary/database/encryption_key_manager.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
@@ -393,5 +395,66 @@ void main() {
     );
     expect(find.textContaining('another device took this one'), findsNothing);
     expect(find.textContaining('nothing has been erased'), findsNothing);
+  });
+
+  testWidgets('a cloned session is ended and its local copy discarded', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const DeviceGateState(
+        status: DeviceGateStatus.sessionInUse,
+        cap: 2,
+        revokedReason: 'session_in_use',
+      ),
+      child: DeviceGateScope(
+        router: GoRouter(
+          routes: [
+            GoRoute(path: '/', builder: (context, _) => const SizedBox()),
+          ],
+        ),
+        child: const Scaffold(body: Text('the app')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('This Sign-In Was Ended'), findsOneWidget);
+    expect(
+      find.text(
+        "This sign-in was opened somewhere else, so the app ended it here to protect your diary. This device's local copy is being erased.",
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Could not erase this device. Try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('the app'), findsNothing);
+  });
+
+  group('DeviceInstallSecretStore', () {
+    test('mints one secret and reuses it', () async {
+      final storage = InMemoryKeyStorage();
+      final store = DeviceInstallSecretStore(storage);
+
+      final first = await store.loadOrCreate();
+      final second = await store.loadOrCreate();
+
+      // 32 random bytes in base64url are 44 characters, all safe in a header.
+      expect(first.length, greaterThanOrEqualTo(32));
+      expect(first, matches(RegExp(r'^[A-Za-z0-9_=-]+$')));
+      expect(second, first);
+      expect(await storage.read(key: installSecretStorageKey), first);
+    });
+
+    test('replaces a value too short to be a secret', () async {
+      final storage = InMemoryKeyStorage();
+      await storage.write(key: installSecretStorageKey, value: 'short');
+
+      final secret = await DeviceInstallSecretStore(storage).loadOrCreate();
+
+      expect(secret, isNot('short'));
+      expect(secret.length, greaterThanOrEqualTo(32));
+    });
   });
 }

@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        63,
+        64,
         reason:
+            'The install-secret binding (2026-10-22) added one file. '
             'The device grace-period closure (2026-10-22) added one file. '
             'The payment identity snapshots (2026-10-22) added one file. '
             'The device limit (2026-10-21) added its registry, its '

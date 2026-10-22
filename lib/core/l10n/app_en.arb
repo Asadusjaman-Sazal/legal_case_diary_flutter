@@ -1074,6 +1074,8 @@
   "devices_signingOut": "Signing out…",
   "devices_signedOutBody": "This device was signed out from another device. Its local copy is being erased.",
   "devices_signedOutFailed": "Could not erase this device. Try again.",
+  "devices_sessionInUseTitle": "This Sign-In Was Ended",
+  "devices_sessionInUseBody": "This sign-in was opened somewhere else, so the app ended it here to protect your diary. This device's local copy is being erased.",
   "devices_replacedTitle": "This Sign-In Has Ended",
   "devices_replacedBody": "You signed in again on this device, so this sign-in has ended. Your local data is kept.",
   "devices_revokedTitle": "This Device Was Signed Out",

@@ -3,7 +3,7 @@
 /// The Supabase session (access token + refresh token) is the one credential
 /// the app keeps on the device, so it is written to `flutter_secure_storage`
 /// instead of plain preferences — Android Keystore, iOS Keychain, Windows DPAPI
-/// — reusing the same secure store the encrypted database already uses.
+/// — with this-device-only options, so a backup cannot carry it elsewhere.
 ///
 /// Nothing else about a session is stored, and no password, recovery code or
 /// recovery secret is ever written here: Supabase Auth owns credentials.
@@ -24,7 +24,7 @@ const String sessionStorageKey = 'supabase_session';
 class SecureSessionStorage extends LocalStorage {
   /// Creates a store backed by [storage], keyed by [key].
   SecureSessionStorage({
-    this.storage = const FlutterSecureKeyStorage(),
+    this.storage = const FlutterSecureKeyStorage.sessionOnly(),
     this.key = sessionStorageKey,
   });
 

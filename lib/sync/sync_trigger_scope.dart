@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/providers/device_providers.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
 import '../features/payments/data/subscription_activation.dart';
 import 'connectivity_monitor.dart';
@@ -106,6 +107,7 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
         // resume entry point pulls unless continuity plus the 60 s window allow
         // skipping it.
         health.setForeground(true);
+        unawaited(ref.read(deviceGateProvider.notifier).touch());
         ref.read(syncServiceProvider).requestResumeSync();
       case AppLifecycleState.inactive:
         // Transiently not accepting input: a call arriving, the app switcher, a

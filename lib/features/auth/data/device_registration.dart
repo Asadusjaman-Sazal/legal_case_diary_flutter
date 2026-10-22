@@ -29,6 +29,11 @@ enum DeviceGateStatus {
   /// The caller has a session but no device row (a read-only state check).
   unregistered,
 
+  /// This session is being presented from a different install; it is a clone.
+  /// A registration that carried no install secret at all lands here too, so
+  /// no client can skip the binding.
+  sessionInUse,
+
   /// The server gave an answer this build does not understand. It never means
   /// "allowed": the gate blocks until the answer can be read again.
   unknown,
@@ -126,27 +131,40 @@ abstract class DeviceRegistrationRepository {
 
   /// Records that this device has flushed its work and erased itself.
   Future<void> acknowledgeWipe(DeviceIdentity identity);
+
+  /// Refreshes this active device's `last_seen_at` (the real-use heartbeat).
+  Future<void> touch();
 }
 
 /// Talks to the registry RPCs under the caller's own session.
 class SupabaseDeviceRegistrationRepository
     implements DeviceRegistrationRepository {
   /// Creates a repository over [client].
-  SupabaseDeviceRegistrationRepository(this._client);
+  SupabaseDeviceRegistrationRepository(
+    this._client, {
+    required this.installSecret,
+  });
 
   final SupabaseClient _client;
 
+  /// Reads this install's secret for `register_device`.
+  final Future<String> Function() installSecret;
+
   @override
-  Future<DeviceGateState> register(DeviceIdentity identity) async => _read(
-    () => _client.rpc<Map<String, dynamic>>(
-      'register_device',
-      params: <String, Object?>{
-        'p_device_key': identity.key,
-        'p_platform': identity.platform,
-        'p_label': identity.label,
-      },
-    ),
-  );
+  Future<DeviceGateState> register(DeviceIdentity identity) async {
+    final secret = await installSecret();
+    return _read(
+      () => _client.rpc<Map<String, dynamic>>(
+        'register_device',
+        params: <String, Object?>{
+          'p_device_key': identity.key,
+          'p_platform': identity.platform,
+          'p_label': identity.label,
+          'p_install_secret': secret,
+        },
+      ),
+    );
+  }
 
   @override
   Future<DeviceGateState> state() async =>
@@ -198,6 +216,11 @@ class SupabaseDeviceRegistrationRepository
     );
   }
 
+  @override
+  Future<void> touch() async {
+    await _client.rpc<Object?>('touch_device');
+  }
+
   /// Maps one RPC answer onto the app's state.
   DeviceGateState _fromJson(Map<String, dynamic> data) {
     final status = switch (data['status']) {
@@ -205,6 +228,8 @@ class SupabaseDeviceRegistrationRepository
       'device_limit_reached' => DeviceGateStatus.limitReached,
       'revoked' => DeviceGateStatus.revoked,
       'unregistered' => DeviceGateStatus.unregistered,
+      'session_in_use' || 'invalid_install_secret' =>
+        DeviceGateStatus.sessionInUse,
       'unmanaged' => DeviceGateStatus.unmanaged,
       _ => DeviceGateStatus.unknown,
     };
@@ -212,7 +237,8 @@ class SupabaseDeviceRegistrationRepository
     return DeviceGateState(
       status: status,
       cap: (data['cap'] as num?)?.toInt() ?? 1,
-      revokedReason: data['reason'] as String?,
+      revokedReason: data['reason'] as String? ??
+          (status == DeviceGateStatus.sessionInUse ? 'session_in_use' : null),
       evictedLabel: evicted is Map<String, dynamic>
           ? evicted['label'] as String?
           : null,
@@ -264,4 +290,7 @@ class UnavailableDeviceRegistrationRepository
 
   @override
   Future<void> acknowledgeWipe(DeviceIdentity identity) async {}
+
+  @override
+  Future<void> touch() async {}
 }

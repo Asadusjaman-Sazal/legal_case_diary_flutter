@@ -3789,6 +3789,18 @@ abstract class AppLocalizations {
   /// **'Could not erase this device. Try again.'**
   String get devices_signedOutFailed;
 
+  /// No description provided for @devices_sessionInUseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Sign-In Was Ended'**
+  String get devices_sessionInUseTitle;
+
+  /// No description provided for @devices_sessionInUseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This sign-in was opened somewhere else, so the app ended it here to protect your diary. This device\'s local copy is being erased.'**
+  String get devices_sessionInUseBody;
+
   /// No description provided for @devices_replacedTitle.
   ///
   /// In en, this message translates to:

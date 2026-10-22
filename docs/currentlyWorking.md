@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The Delete Item window matches the Exit App window — COMPLETE (0.0.571)
+
+- **What was asked.** The Delete Item pop-over in Settings → Edit Court/Steps should centre its title and its two buttons, size Cancel and Delete like the Exit App window's buttons, and paint Delete red with white text.
+- **What changed.** The dialog now centres the title and the action row. Cancel and Delete are **112×48 at 16 pt**, the same measurements the Exit App and the app-wide delete confirmation use. Delete takes `AppColors.error` with white text; Cancel keeps the plain text-button look.
+- **What was deliberately not changed.** The shared delete confirmation used by cases, history and notes was left alone, because its title and message differ and other screens depend on it; this window keeps its own “Delete Item” wording.
+- **Proof.** A new widget test opens the window from a custom row and checks the centred title and actions, both button sizes, and Delete's red background with white text. `flutter analyze` clean; full `flutter test` **1938 passed**; version **0.0.571** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — Delete is offered only on rows the lawyer added — COMPLETE (0.0.570)
 
 - **What was wrong.** The Case Types, Steps and On Behalf lists showed a Delete button on every row, including the built-in seed options. Those rows cannot be deleted — the repository refuses with an error — so the button was a dead end.

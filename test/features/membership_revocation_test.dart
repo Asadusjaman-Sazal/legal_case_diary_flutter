@@ -191,14 +191,15 @@ void main() {
             // (user ruling) — and this is how the test waits for it. Pumps alone
             // cannot say when the wipe finished.
             onEraseStarted: (erasure) => startedErasure = erasure,
-            child: const Scaffold(body: Center(child: Text(revocationDiaryMarker))),
+            child: const Scaffold(
+              body: Center(child: Text(revocationDiaryMarker)),
+            ),
           ),
         ),
         GoRoute(
           path: AppRoutes.login,
-          builder: (_, _) => const Scaffold(
-            body: Center(child: Text(revocationLoginMarker)),
-          ),
+          builder: (_, _) =>
+              const Scaffold(body: Center(child: Text(revocationLoginMarker))),
         ),
       ],
     );
@@ -265,6 +266,11 @@ void main() {
       sawNotice,
       isTrue,
       reason: 'the member is told what happened, before the app leaves',
+    );
+    // The explanation is a paragraph, so both edges are flush.
+    expect(
+      tester.widget<Text>(find.text(l.membershipRevoked_body)).textAlign,
+      TextAlign.justify,
     );
     expect(find.text(revocationDiaryMarker), findsNothing);
     expect(
@@ -364,7 +370,9 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('an individual account is left exactly as it was', (tester) async {
+  testWidgets('an individual account is left exactly as it was', (
+    tester,
+  ) async {
     await pumpRevocationScope(tester);
     // No cached membership row: this device has never been in a firm, so the
     // null firm id is the server's ordinary answer and not a removal.

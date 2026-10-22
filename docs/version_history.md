@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.590 - Payment submissions and approval events now carry the payer's full name and email, filled on insert and backfilled.
+Version: 0.0.591 - The Your Access Ended explanation is now justified instead of centred.
 --------------------------------------
 
 ## Version History Log:
@@ -604,3 +604,4 @@ Version: 0.0.587 - Time picker drags now log detection and audio failures so the
 Version: 0.0.588 - The time picker's gear tick now plays only when the displayed hour or minute changes.
 Version: 0.0.589 - The Case Types, Steps etc header is renamed, and the higher-court divisions no longer offer Steps.
 Version: 0.0.590 - Payment submissions and approval events now carry the payer's full name and email, filled on insert and backfilled.
+Version: 0.0.591 - The Your Access Ended explanation is now justified instead of centred.

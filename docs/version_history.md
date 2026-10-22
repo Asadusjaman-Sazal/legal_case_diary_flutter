@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.586 - The time picker plays an audible bundled gear tick on drag, and unselected boxes are white with black text.
+Version: 0.0.588 - The time picker's gear tick now plays only when the displayed hour or minute changes.
 --------------------------------------
 
 ## Version History Log:
@@ -600,3 +600,5 @@ Version: 0.0.583 - The Select Day Offset title bar now uses the app's main black
 Version: 0.0.584 - The Update window now uses the Select Day Offset window's 8 px corners.
 Version: 0.0.585 - The notification time window now has a bold Select Time title, white box text and a click on hand drag.
 Version: 0.0.586 - The time picker plays an audible bundled gear tick on drag, and unselected boxes are white with black text.
+Version: 0.0.587 - Time picker drags now log detection and audio failures so the missing gear tick can be diagnosed.
+Version: 0.0.588 - The time picker's gear tick now plays only when the displayed hour or minute changes.

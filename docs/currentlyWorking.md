@@ -1,5 +1,24 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The gear tick follows the actual time change — COMPLETE (0.0.588)
+
+- **What was wrong.** The tick was tied to pointer movement, so holding a dial and dragging over any part of the window — even where the hour/minute no longer changed — kept ticking.
+- **The fix.** The window now reads its own visible hour/minute after each frame and plays only when the displayed time **actually changed**. A drag over the title, buttons or an unrelated part of the window is silent; moving the hand so the hour or minute changes ticks. A tap on a dial number that changes the time ticks too.
+- **Why it needs no picker fork.** Flutter still does not report dial changes, so the wrapper watches the picker's own header text, which is the same value the lawyer sees. One comparison per frame keeps a fast drag from flooding the sound.
+- **Proof.** The test now drags across the title (no tick) and then across the dial (tick), so it fails if any movement alone plays the sound. `flutter analyze` clean; full `flutter test` **1941 passed**; version **0.0.588** recorded with the script.
+- **Resume point, next session.** A device pass: drag the hand outside the dial — silence; move it across hours or minutes — a tick per change.
+
+### 2026-10-22 — Audited the silent gear tick — COMPLETE (0.0.587)
+
+- **The question.** Why is there still no sound while the time picker's hand is dragged?
+- **What the audit proved.** A fresh **debug APK** contains `assets/sounds/gear_click.wav` (and its `AssetManifest` entry) and registers the `audioplayers` plugin. The drag listener is reached in widget tests, and the tick's WAV is valid (44.1 kHz mono, 55 ms, peak 0.82). So the code path and packaging are correct in a full build.
+- **The most likely reason: a stale install.** Adding a native plugin and a new asset needs a full stop and rebuild. Hot reload/restart cannot register `audioplayers` or bundle the sound, and the old catch swallowed the resulting error, so the failure looked exactly like silence.
+- **Other possibilities.** The phone's **media stream volume is zero**, or audio goes to a muted Bluetooth route. The tick is on the media stream; iOS silent mode is bypassed by default.
+- **One real weakness found.** The audio call caught every error silently, and the first tick loads the asset while the code stops/replays on each 80 ms step; on a slow first load a very short drag can be silent.
+- **Diagnostics added.** A debug build now prints **Gear tick: hand drag detected** on the first tick of a drag, and **Gear tick failed: …** with the stack if the audio call throws. If neither line appears, the running app is not this build.
+- **Next step.** Run a full `flutter run` (stop the old app first), drag the hand with media volume up, and report the console line if it is still silent.
+- **Proof.** `flutter analyze` clean; full `flutter test` **1941 passed**; version **0.0.587** recorded with the script.
+
 ### 2026-10-22 — The time picker's drag tick becomes audible — COMPLETE (0.0.586)
 
 - **What was wrong.** The drag click was the phone's **system** click, which is silent when the phone's touch-sound setting is off — the lawyer heard nothing. The unselected Hour/Minute/AM-PM boxes had also been made dark by mistake.

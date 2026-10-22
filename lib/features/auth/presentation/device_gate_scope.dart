@@ -3,16 +3,17 @@
 /// Two states, both decided by the server (`register_device`):
 ///
 /// * **The plan is full** — nothing was evicted, because every other device was
-///   used in the last seven days. The screen names them, frees one on request,
-///   and offers to try again. The lawyer's own work is untouched: this device
-///   simply may not sync until it holds a slot.
+///   used in the last seven days. A pop-over names them and signs one out on
+///   request. Signing one out revokes it, then **re-checks this device's own
+///   slot**; it enters only when the server confirms a slot is free.
 /// * **This device was revoked** — another device took the slot, or the lawyer
-///   removed it. The device **hands over its unsent work first**, records that
-///   it did, and only then erases itself and signs out (user ruling, 2026-10-21).
-///   If it cannot reach the account, it says so and erases nothing: a limit must
-///   never destroy a note that was not yet saved. The escape hatch is an
-///   explicit *Sign out and discard*, because a device that can never connect
-///   must still be usable by the next person.
+///   removed it. `signed_out` (the third-device window) discards and wipes at
+///   once; the other reasons keep the older save-then-erase path until the
+///   discard-everywhere change lands.
+///
+/// A **fresh login** waits for the server's answer and fails closed if it cannot
+/// be read; a cold start with an existing session may use its local copy while
+/// offline, which is the accepted “next online” rule.
 library;
 
 import 'dart:async';
@@ -26,7 +27,9 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
+import '../../../core/providers/notification_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../sync/sync_service.dart';
 import '../data/device_registration.dart';
 import '../data/logout_flow.dart';
@@ -53,65 +56,378 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   bool _saveFailed = false;
   bool _erased = false;
 
+  /// The signed-out discard failed and may be retried.
+  bool _discardFailed = false;
+
+  /// The device whose row is currently being signed out, if any.
+  String? _signingOutId;
+
   /// Set once the eviction notice has been shown.
   String? _announcedEviction;
+
+  /// The last answer the server gave. A later `null` (a refresh in flight) is
+  /// read against it: from the full-plan/revoked screens this is a check, while
+  /// from the active app it is a background read.
+  DeviceGateStatus? _lastStatus;
+
+  /// Prevents more than one post-frame reset of the fresh-login flag.
+  bool _freshClearScheduled = false;
 
   @override
   Widget build(BuildContext context) {
     final gate = ref.watch(deviceGateProvider);
     final state = gate.value;
+    final fresh = ref.watch(freshDeviceCheckProvider);
 
-    // Loading or a failed read is not a reason to lock the diary: the sync gate
-    // already refuses to push without a confirmed slot, which is the part that
-    // protects the plan. Only a confirmed answer blocks the screen.
-    if (state == null) return widget.child;
-
-    if (state.status == DeviceGateStatus.limitReached) {
-      return _PlanFullScreen(
-        state: state,
-        onRemove: (id) => ref.read(deviceGateProvider.notifier).remove(id),
-        onRetry: () =>
-            ref.read(deviceGateProvider.notifier).refresh(claim: true),
-        onSignOut: _signOut,
-      );
+    if (state != null) {
+      _lastStatus = state.status;
+      if (fresh) _clearFreshAfterFrame();
     }
 
-    if (state.status == DeviceGateStatus.revoked) {
-      if (!_started) {
-        _started = true;
-        unawaited(Future<void>.microtask(_saveThenErase));
+    if (state == null) {
+      // A fresh login must not open the cached diary while the slot check is in
+      // flight. A cold start with an existing session keeps the offline rule.
+      if (_blocksWithoutAnswer(fresh)) {
+        return _checkGate(context, failed: gate.hasError);
       }
-      return _RevokedScreen(
-        state: state,
-        saving: _saving,
-        failed: _saveFailed,
-        erased: _erased,
-        onRetry: _saveThenErase,
-        onDiscard: _discardAndSignOut,
-      );
+      return widget.child;
     }
 
-    // Active again: say so when this registration evicted another device, so the
-    // lawyer knows why their spare stopped working.
-    final evicted = state.evictedLabel;
-    if (evicted != null && evicted != _announcedEviction) {
-      _announcedEviction = evicted;
+    switch (state.status) {
+      case DeviceGateStatus.limitReached:
+        return _limitGate(context, state);
+
+      case DeviceGateStatus.revoked:
+        if (state.revokedReason == 'signed_out') {
+          if (!_started) {
+            _started = true;
+            unawaited(Future<void>.microtask(_discardAndSignOut));
+          }
+          return _signedOutGate(context);
+        }
+        if (!_started) {
+          _started = true;
+          unawaited(Future<void>.microtask(_saveThenErase));
+        }
+        return _RevokedScreen(
+          state: state,
+          saving: _saving,
+          failed: _saveFailed,
+          erased: _erased,
+          onRetry: _saveThenErase,
+          onDiscard: _signOutThisDevice,
+        );
+
+      case DeviceGateStatus.unregistered:
+      case DeviceGateStatus.unknown:
+        return _checkGate(context, failed: true);
+
+      case DeviceGateStatus.active:
+        final evicted = state.evictedLabel;
+        if (evicted != null && evicted != _announcedEviction) {
+          _announcedEviction = evicted;
+          final l = AppLocalizations.of(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(l.devices_evicted(evicted))));
+          });
+        }
+        return widget.child;
+
+      case DeviceGateStatus.unmanaged:
+        return widget.child;
+    }
+  }
+
+  bool _blocksWithoutAnswer(bool fresh) =>
+      fresh ||
+      _lastStatus == DeviceGateStatus.limitReached ||
+      _lastStatus == DeviceGateStatus.revoked ||
+      _lastStatus == DeviceGateStatus.unregistered ||
+      _lastStatus == DeviceGateStatus.unknown;
+
+  void _clearFreshAfterFrame() {
+    if (_freshClearScheduled) return;
+    _freshClearScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _freshClearScheduled = false;
+      if (!mounted) return;
+      ref.read(freshDeviceCheckProvider.notifier).clear();
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // The full-plan window
+  // ---------------------------------------------------------------------------
+
+  Widget _limitGate(BuildContext context, DeviceGateState state) {
+    final l = AppLocalizations.of(context);
+    final busy = _signingOutId != null;
+    return _popOver(
+      context,
+      title: l.devices_planFullTitle,
+      children: [
+        Text(
+          l.devices_planFullBody(_digits(context, state.cap)),
+          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        // Deliberately its own block, on the next line, with the label bold.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l.devices_planFullWarningLabel,
+              style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                l.devices_planFullWarning,
+                style: AppTypography.bodyMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        for (final device in state.devices) ...[
+          _deviceRow(
+            device: device,
+            busy: busy,
+            signingOut: _signingOutId == device.id,
+            onSignOut: () => _signOutDevice(device.id),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        const SizedBox(height: AppSpacing.xs),
+        TextButton(
+          onPressed: busy ? null : _retry,
+          child: Text(l.devices_tryAgain),
+        ),
+        TextButton(
+          onPressed: busy ? null : _signOutThisDevice,
+          child: Text(l.devices_signOutThisDevice),
+        ),
+      ],
+    );
+  }
+
+  /// One device on the full-plan window.
+  Widget _deviceRow({
+    required RegisteredDevice device,
+    required bool busy,
+    required bool signingOut,
+    required VoidCallback onSignOut,
+  }) {
+    final l = AppLocalizations.of(context);
+    final seen = device.lastSeenAt;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  device.label,
+                  style: AppTypography.labelLg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (seen != null)
+                  Text(
+                    l.devices_lastUsed(
+                      MaterialLocalizations.of(context).formatShortDate(seen),
+                    ),
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          FilledButton(
+            key: ValueKey<String>('device-sign-out-${device.id}'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.onError,
+              disabledBackgroundColor: AppColors.surfaceContainer,
+              disabledForegroundColor: AppColors.onSurfaceVariant,
+              minimumSize: const Size(112, 48),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
+            onPressed: busy ? null : onSignOut,
+            child: signingOut
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.onError,
+                    ),
+                  )
+                : Text(l.devices_signOut),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Signs out one of the other devices, then re-checks this device's slot.
+  Future<void> _signOutDevice(String deviceId) async {
+    if (_signingOutId != null) return;
+    setState(() => _signingOutId = deviceId);
+    var signedOut = false;
+    try {
+      signedOut = await ref.read(deviceGateProvider.notifier).signOut(deviceId);
+    } on Object {
+      signedOut = false;
+    }
+    if (!mounted) return;
+    setState(() => _signingOutId = null);
+    if (!signedOut) {
       final l = AppLocalizations.of(context);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l.devices_evicted(evicted))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.devices_signOutFailed)));
+    }
+  }
+
+  /// Re-asks the server without claiming anything new.
+  void _retry() {
+    unawaited(ref.read(deviceGateProvider.notifier).refresh(claim: true));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Checking / failure window
+  // ---------------------------------------------------------------------------
+
+  Widget _checkGate(BuildContext context, {required bool failed}) {
+    final l = AppLocalizations.of(context);
+    return _popOver(
+      context,
+      title: failed ? l.devices_checkFailedTitle : l.devices_checkingTitle,
+      children: [
+        Text(
+          failed ? l.devices_checkFailedBody : l.devices_checkingBody,
+          style: AppTypography.bodyMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        if (!failed) ...[
+          const SizedBox(height: AppSpacing.xl),
+          const Center(child: CircularProgressIndicator()),
+        ] else ...[
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton(onPressed: _retry, child: Text(l.devices_tryAgain)),
+          TextButton(
+            onPressed: _signOutThisDevice,
+            child: Text(l.devices_signOutThisDevice),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Signed-out discard
+  // ---------------------------------------------------------------------------
+
+  Widget _signedOutGate(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return _popOver(
+      context,
+      title: l.devices_revokedTitle,
+      children: [
+        Text(
+          l.devices_signedOutBody,
+          style: AppTypography.bodyMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        if (_discardFailed) ...[
+          Text(
+            l.devices_signedOutFailed,
+            style: AppTypography.bodyMd.copyWith(color: AppColors.error),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          FilledButton(
+            onPressed: _discardAndSignOut,
+            child: Text(l.devices_tryAgain),
+          ),
+        ] else
+          Column(
+            children: [
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l.devices_signingOut,
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Work
+  // ---------------------------------------------------------------------------
+
+  /// Discards the queue and local database, cancels alarms, then signs out.
+  ///
+  /// There is deliberately no push here: `signed_out` means the work is lost,
+  /// which the window warned about before the button was pressed.
+  Future<void> _discardAndSignOut() async {
+    if (_saving || _erased) return;
+    setState(() {
+      _saving = true;
+      _discardFailed = false;
+    });
+    try {
+      try {
+        await ref.read(notificationSchedulerProvider).cancelAll();
+      } on Object {
+        // A scheduler that cannot cancel must not block the wipe.
+      }
+      await (await ref.read(logoutFlowProvider.future)).wipeAndComplete();
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _erased = true;
+      });
+      widget.router.go(AppRoutes.login);
+    } on Object {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _discardFailed = true;
       });
     }
-
-    return widget.child;
   }
 
   /// Saves the queued work, records the flush, then wipes and signs out.
   ///
-  /// The order is the whole point: nothing is erased until the account has the
-  /// work. A push that cannot reach the server leaves the device intact.
+  /// This remains for `cap`, `lapse`, `user` and `replaced` until the
+  /// discard-everywhere change lands.
   Future<void> _saveThenErase() async {
     if (_saving || _erased) return;
     setState(() {
@@ -152,132 +468,104 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
     }
   }
 
-  /// The explicit escape: sign out without erasing, discarding the queue.
-  Future<void> _discardAndSignOut() async {
+  /// The explicit escape: sign out of this device without using a slot.
+  ///
+  /// The local queue is discarded because this device cannot push without one;
+  /// the window's Sign Out This Device is the lawyer's deliberate choice.
+  Future<void> _signOutThisDevice() async {
     try {
       await (await ref.read(logoutFlowProvider.future)).wipeAndComplete();
     } on Object {
-      // A wipe that fails leaves the device as it was; the screen stays up and
-      // the action can be tried again.
-      return;
-    }
-    if (!mounted) return;
-    setState(() => _erased = true);
-    widget.router.go(AppRoutes.login);
-  }
-
-  /// Ends the session from the plan-full screen, keeping local data.
-  Future<void> _signOut() async {
-    try {
-      await (await ref.read(logoutFlowProvider.future)).syncThenComplete();
-    } on Object {
       return;
     }
     if (!mounted) return;
     widget.router.go(AppRoutes.login);
   }
-}
 
-/// The plan-full screen: what holds the slots, and how to free one.
-class _PlanFullScreen extends StatelessWidget {
-  const _PlanFullScreen({
-    required this.state,
-    required this.onRemove,
-    required this.onRetry,
-    required this.onSignOut,
-  });
+  // ---------------------------------------------------------------------------
+  // The window shape
+  // ---------------------------------------------------------------------------
 
-  final DeviceGateState state;
-  final Future<bool> Function(String id) onRemove;
-  final VoidCallback onRetry;
-  final Future<void> Function() onSignOut;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            children: [
-              const SizedBox(height: AppSpacing.xl),
-              const Icon(
-                Icons.devices_other_outlined,
-                size: 48,
-                color: AppColors.primary,
+  Widget _popOver(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) => PopScope(
+    canPop: false,
+    child: Scaffold(
+      backgroundColor: Colors.black54,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Material(
+              color: AppColors.surfaceContainerLowest,
+              elevation: 8,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
               ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                l.devices_planFullTitle,
-                textAlign: TextAlign.center,
-                style: AppTypography.titleLg,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                l.devices_planFullBody('${state.cap}'),
-                textAlign: TextAlign.center,
-                style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 420,
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.85,
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              for (final device in state.devices) ...[
-                _DeviceLine(
-                  device: device,
-                  onRemove: device.isCurrent ? null : () => onRemove(device.id),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 60,
+                      width: double.infinity,
+                      color: AppColors.secondary,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.titleLg.copyWith(
+                          color: AppColors.onPrimary,
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: children,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-              const SizedBox(height: AppSpacing.md),
-              FilledButton(onPressed: onRetry, child: Text(l.devices_tryAgain)),
-              TextButton(onPressed: onSignOut, child: Text(l.devices_signOut)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// One device on the plan-full screen.
-class _DeviceLine extends StatelessWidget {
-  const _DeviceLine({required this.device, required this.onRemove});
-
-  final RegisteredDevice device;
-  final VoidCallback? onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        border: Border.all(color: AppColors.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              device.label,
-              style: AppTypography.labelLg.copyWith(
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          if (onRemove != null)
-            TextButton(onPressed: onRemove, child: Text(l.devices_remove)),
-        ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+
+  String _digits(BuildContext context, int value) => AppDateUtils.formatDigits(
+    value,
+    Localizations.localeOf(context).toLanguageTag(),
+    grouping: false,
+  );
 }
 
-/// The revoked screen: saving, then erased.
+/// The revoked screen for reasons that still save before erasing.
 class _RevokedScreen extends StatelessWidget {
+  final DeviceGateState state;
+  final bool saving;
+  final bool failed;
+  final bool erased;
+  final Future<void> Function() onRetry;
+  final Future<void> Function() onDiscard;
+
   const _RevokedScreen({
     required this.state,
     required this.saving,
@@ -287,19 +575,6 @@ class _RevokedScreen extends StatelessWidget {
     required this.onDiscard,
   });
 
-  final DeviceGateState state;
-  final bool saving;
-  final bool failed;
-  final bool erased;
-  final Future<void> Function() onRetry;
-  final Future<void> Function() onDiscard;
-
-  /// Why this device lost its slot, in the lawyer's words.
-  ///
-  /// The reason comes from the server, which also wrote it into the row: a
-  /// fallen ceiling reads as a plan change, a removal as the lawyer's own
-  /// action, a second sign-in as that sign-in ending. Everything else — a new
-  /// device taking the slot — keeps the shared sentence.
   String _body(AppLocalizations l) => switch (state.revokedReason) {
     'lapse' => l.devices_revokedLapseBody('${state.cap}'),
     'user' => l.devices_revokedRemovedBody,
@@ -332,9 +607,6 @@ class _RevokedScreen extends StatelessWidget {
                     style: AppTypography.titleLg,
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  // Why it happened, kept on screen while the save runs: the
-                  // reason and the save's outcome are two different facts, and
-                  // replacing one with the other lost the explanation.
                   Text(
                     _body(l),
                     textAlign: TextAlign.center,

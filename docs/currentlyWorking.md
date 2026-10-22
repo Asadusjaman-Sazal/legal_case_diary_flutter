@@ -1,5 +1,18 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The third-device window is built — COMPLETE (0.0.593)
+
+- **What was built.**
+  - **Device Limit Reached** pop-over: 8 px corners, elevation, black 60 px header, centred white title; the explanation uses the plan's cap (2 for Pro); **Warning:** starts on its own line; each active device has a name, last-used date and a red **Sign Out** button with white text.
+  - Sign Out calls `sign_out_device`, then **re-registers this device**; it enters only on a fresh `ok`. If the answer is still full, the window returns with the updated list. A race cannot trap it: **Sign Out per device**, **Try Again**, and **Sign Out This Device** are all available.
+  - A **fresh login** marks a pending check; the gate shows *Checking This Device* and fails closed to *Could Not Check This Device* (Try Again / Sign Out This Device) if the server cannot be read. A cold start with an existing session keeps the accepted offline rule.
+  - `unregistered` and unknown server answers are explicit blocking states; only `unmanaged` (no backend) still opens the app.
+  - Manage Account → Devices reads `device_state()` when it opens, so it no longer depends on the registration response.
+  - A `signed_out` device cancels its alarms, discards its queue and local database, signs out and shows Login; no save attempt, because the server no longer accepts a revoked device's push.
+- **Tests.** The gate tests now cover the window's title, body, separate warning line, two red Sign Out buttons, a sign-out that re-checks and enters, an unregistered answer that blocks the app, and a fresh login failing closed offline. The Devices test confirms the on-open read. `flutter analyze` clean; full `flutter test` **1944 passed**.
+- **Not done yet (Phases 3–4).** `cap`, `lapse`, `user` and `replaced` still use the old save-then-erase path (the server will refuse their push, so they need the discard-everywhere change); the heartbeat RPC is live but the client does not call it; the same-install `replaced` rule and install-secret clone protection remain.
+- **Version.** **0.0.593** recorded with the script; plan and Task 22 updated.
+
 ### 2026-10-22 — The device grace is closed on the server — COMPLETE (0.0.592)
 
 - **Context.** The app is in **active development, currently alpha**, tested only by the owner and family. The device-limit roll-out exemption was written for a public update and is unnecessary here.

@@ -32,6 +32,27 @@ final deviceRegistrationRepositoryProvider =
       return SupabaseDeviceRegistrationRepository(client);
     });
 
+/// True between a fresh sign-in and the first device answer.
+///
+/// A cold start with an existing session may work offline, but a **new login**
+/// must wait for the server's slot answer; this flag is what tells the gate the
+/// difference.
+class FreshDeviceCheckNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// A sign-in just completed; wait for the server.
+  void mark() => state = true;
+
+  /// The server answered (whatever it said); stop blocking on the flag.
+  void clear() => state = false;
+}
+
+final freshDeviceCheckProvider =
+    NotifierProvider<FreshDeviceCheckNotifier, bool>(
+      FreshDeviceCheckNotifier.new,
+    );
+
 /// This device's registration state, the app's one source for the limit.
 final deviceGateProvider =
     AsyncNotifierProvider<DeviceGateController, DeviceGateState>(
@@ -68,6 +89,18 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
         .revoke(deviceId);
     if (removed) await refresh(claim: false);
     return removed;
+  }
+
+  /// Signs out another device from the third-device window, then re-checks this
+  /// device's own slot. Returns true when this device is now active.
+  Future<bool> signOut(String deviceId) async {
+    final signedOut = await ref
+        .read(deviceRegistrationRepositoryProvider)
+        .signOut(deviceId);
+
+    // Always re-ask: another device may have taken the freed slot first.
+    await refresh(claim: true);
+    return signedOut || state.value?.status == DeviceGateStatus.active;
   }
 
   /// Records that this device has flushed its work and erased itself.

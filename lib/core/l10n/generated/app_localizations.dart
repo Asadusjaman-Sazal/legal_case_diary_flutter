@@ -3714,14 +3714,80 @@ abstract class AppLocalizations {
   /// No description provided for @devices_planFullTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your Plan Is Full'**
+  /// **'Device Limit Reached'**
   String get devices_planFullTitle;
 
   /// No description provided for @devices_planFullBody.
   ///
   /// In en, this message translates to:
-  /// **'This account is already in use on {cap} devices, and every one of them was used in the last seven days. Remove one to use this device.'**
-  String devices_planFullBody(String cap);
+  /// **'You’re already signed in on {count} devices, which is the maximum allowed by your plan. To sign in on this device, please sign out from one of the devices listed below.'**
+  String devices_planFullBody(String count);
+
+  /// No description provided for @devices_planFullWarningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning:'**
+  String get devices_planFullWarningLabel;
+
+  /// No description provided for @devices_planFullWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Any unsaved or unsynced work on the device you sign out from may be lost.'**
+  String get devices_planFullWarning;
+
+  /// No description provided for @devices_signOutThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out This Device'**
+  String get devices_signOutThisDevice;
+
+  /// No description provided for @devices_signOutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign out this device. Try again.'**
+  String get devices_signOutFailed;
+
+  /// No description provided for @devices_checkingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking This Device'**
+  String get devices_checkingTitle;
+
+  /// No description provided for @devices_checkingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming that this device has a free slot on your plan.'**
+  String get devices_checkingBody;
+
+  /// No description provided for @devices_checkFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could Not Check This Device'**
+  String get devices_checkFailedTitle;
+
+  /// No description provided for @devices_checkFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet and try again, or sign out of this device.'**
+  String get devices_checkFailedBody;
+
+  /// No description provided for @devices_signingOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out…'**
+  String get devices_signingOut;
+
+  /// No description provided for @devices_signedOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out from another device. Its local copy is being erased.'**
+  String get devices_signedOutBody;
+
+  /// No description provided for @devices_signedOutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not erase this device. Try again.'**
+  String get devices_signedOutFailed;
 
   /// No description provided for @devices_revokedTitle.
   ///

@@ -26,6 +26,13 @@ enum DeviceGateStatus {
   /// This device lost its slot; it must flush and erase.
   revoked,
 
+  /// The caller has a session but no device row (a read-only state check).
+  unregistered,
+
+  /// The server gave an answer this build does not understand. It never means
+  /// "allowed": the gate blocks until the answer can be read again.
+  unknown,
+
   /// This build carries no backend, or the caller has no session claim.
   unmanaged,
 }
@@ -113,6 +120,10 @@ abstract class DeviceRegistrationRepository {
   /// Frees another device's slot. Returns true when it was revoked.
   Future<bool> revoke(String deviceId);
 
+  /// Signs out another device from the third-device window (reason
+  /// `signed_out`). Returns true when the server revoked it.
+  Future<bool> signOut(String deviceId);
+
   /// Records that this device has flushed its work and erased itself.
   Future<void> acknowledgeWipe(DeviceIdentity identity);
 }
@@ -171,6 +182,15 @@ class SupabaseDeviceRegistrationRepository
   }
 
   @override
+  Future<bool> signOut(String deviceId) async {
+    final data = await _client.rpc<Map<String, dynamic>>(
+      'sign_out_device',
+      params: <String, Object?>{'p_id': deviceId},
+    );
+    return data['status'] == 'revoked';
+  }
+
+  @override
   Future<void> acknowledgeWipe(DeviceIdentity identity) async {
     await _client.rpc<Object?>(
       'ack_device_wipe',
@@ -184,7 +204,9 @@ class SupabaseDeviceRegistrationRepository
       'ok' || 'active' => DeviceGateStatus.active,
       'device_limit_reached' => DeviceGateStatus.limitReached,
       'revoked' => DeviceGateStatus.revoked,
-      _ => DeviceGateStatus.unmanaged,
+      'unregistered' => DeviceGateStatus.unregistered,
+      'unmanaged' => DeviceGateStatus.unmanaged,
+      _ => DeviceGateStatus.unknown,
     };
     final evicted = data['evicted'];
     return DeviceGateState(
@@ -236,6 +258,9 @@ class UnavailableDeviceRegistrationRepository
 
   @override
   Future<bool> revoke(String deviceId) async => false;
+
+  @override
+  Future<bool> signOut(String deviceId) async => false;
 
   @override
   Future<void> acknowledgeWipe(DeviceIdentity identity) async {}

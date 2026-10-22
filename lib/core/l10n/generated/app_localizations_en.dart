@@ -2075,12 +2075,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devices_signOut => 'Sign Out';
 
   @override
-  String get devices_planFullTitle => 'Your Plan Is Full';
+  String get devices_planFullTitle => 'Device Limit Reached';
 
   @override
-  String devices_planFullBody(String cap) {
-    return 'This account is already in use on $cap devices, and every one of them was used in the last seven days. Remove one to use this device.';
+  String devices_planFullBody(String count) {
+    return 'You’re already signed in on $count devices, which is the maximum allowed by your plan. To sign in on this device, please sign out from one of the devices listed below.';
   }
+
+  @override
+  String get devices_planFullWarningLabel => 'Warning:';
+
+  @override
+  String get devices_planFullWarning =>
+      'Any unsaved or unsynced work on the device you sign out from may be lost.';
+
+  @override
+  String get devices_signOutThisDevice => 'Sign Out This Device';
+
+  @override
+  String get devices_signOutFailed =>
+      'Could not sign out this device. Try again.';
+
+  @override
+  String get devices_checkingTitle => 'Checking This Device';
+
+  @override
+  String get devices_checkingBody =>
+      'Confirming that this device has a free slot on your plan.';
+
+  @override
+  String get devices_checkFailedTitle => 'Could Not Check This Device';
+
+  @override
+  String get devices_checkFailedBody =>
+      'Connect to the internet and try again, or sign out of this device.';
+
+  @override
+  String get devices_signingOut => 'Signing out…';
+
+  @override
+  String get devices_signedOutBody =>
+      'This device was signed out from another device. Its local copy is being erased.';
+
+  @override
+  String get devices_signedOutFailed =>
+      'Could not erase this device. Try again.';
 
   @override
   String get devices_revokedTitle => 'This Device Was Signed Out';

@@ -10,27 +10,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/auth/presentation/device_gate_scope.dart';
 
-/// A gate whose answer the test decides, with removal recorded.
+/// A gate whose answer the test decides, with the actions recorded.
 class _FakeGate extends DeviceGateController {
   _FakeGate(this.currentState);
 
-  /// The state this gate builds with, and after a removal.
+  /// The state this gate builds with, and after an action.
   DeviceGateState currentState;
 
   /// Device ids removed, in order.
   final List<String> removed = <String>[];
 
+  /// Device ids signed out from the third-device window, in order.
+  final List<String> signedOut = <String>[];
+
+  /// Read-only refreshes requested by the Devices screen.
+  int readCalls = 0;
+
   @override
   Future<DeviceGateState> build() async => currentState;
 
   @override
-  Future<void> refresh({bool claim = true}) async {}
+  Future<void> refresh({bool claim = true}) async {
+    if (!claim) readCalls++;
+  }
 
   @override
   Future<bool> remove(String deviceId) async {
@@ -45,6 +54,36 @@ class _FakeGate extends DeviceGateController {
     state = AsyncData(currentState);
     return true;
   }
+
+  @override
+  Future<bool> signOut(String deviceId) async {
+    signedOut.add(deviceId);
+    currentState = DeviceGateState(
+      status: DeviceGateStatus.active,
+      cap: currentState.cap,
+      devices: currentState.devices
+          .where((device) => device.id != deviceId)
+          .toList(growable: false),
+    );
+    state = AsyncData(currentState);
+    return true;
+  }
+}
+
+/// A gate that cannot reach the server, for the fresh-login check.
+class _OfflineGate extends DeviceGateController {
+  @override
+  Future<DeviceGateState> build() async =>
+      throw StateError('offline during the device check');
+
+  @override
+  Future<void> refresh({bool claim = true}) async {}
+}
+
+/// Makes the first device check after a sign-in fail closed.
+class _FreshFlag extends FreshDeviceCheckNotifier {
+  @override
+  bool build() => true;
 }
 
 /// One registered device for the fixtures.
@@ -98,6 +137,8 @@ void main() {
     expect(find.text('2 of 3 devices in use'), findsOneWidget);
     expect(find.text('Samsung SM-A525F · This device'), findsOneWidget);
     expect(find.text('Xiaomi 13'), findsOneWidget);
+    // Opening the screen reads the authoritative list from device_state.
+    expect(gate.readCalls, 1);
 
     // The current device cannot remove itself; the other can.
     expect(find.text('Remove'), findsOneWidget);
@@ -111,17 +152,17 @@ void main() {
     expect(find.text('Xiaomi 13'), findsNothing);
   });
 
-  testWidgets('a full plan names every device and offers no silent eviction', (
+  testWidgets('a full plan names every device and warns before signing out', (
     tester,
   ) async {
-    await _pump(
+    final gate = await _pump(
       tester,
       DeviceGateState(
         status: DeviceGateStatus.limitReached,
         cap: 2,
         devices: [
           _device('d1', 'Samsung SM-A525F'),
-          _device('d2', 'Xiaomi 13', current: true),
+          _device('d2', 'Xiaomi 13'),
         ],
       ),
       child: DeviceGateScope(
@@ -134,11 +175,95 @@ void main() {
       ),
     );
 
-    expect(find.text('Your Plan Is Full'), findsOneWidget);
-    expect(find.textContaining('already in use on 2 devices'), findsOneWidget);
+    expect(find.text('Device Limit Reached'), findsOneWidget);
+    expect(
+      find.textContaining('already signed in on 2 devices'),
+      findsOneWidget,
+    );
+    // The warning is its own block, below the explanation.
+    final explanation = tester.getBottomLeft(
+      find.textContaining('already signed in on 2 devices'),
+    );
+    final warning = tester.getTopLeft(find.text('Warning:'));
+    expect(warning.dy, greaterThan(explanation.dy));
+    expect(
+      find.text(
+        'Any unsaved or unsynced work on the device you sign out from may be lost.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Samsung SM-A525F'), findsOneWidget);
     expect(find.text('Xiaomi 13'), findsOneWidget);
+    expect(find.text('Sign Out'), findsNWidgets(2));
+    expect(find.text('Sign Out This Device'), findsOneWidget);
     // The app itself is not reachable behind the gate.
+    expect(find.text('the app'), findsNothing);
+
+    for (final button in tester.widgetList<FilledButton>(
+      find.widgetWithText(FilledButton, 'Sign Out'),
+    )) {
+      expect(
+        button.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+      expect(
+        button.style?.foregroundColor?.resolve(<WidgetState>{}),
+        AppColors.onError,
+      );
+    }
+
+    // Signing one out revokes it and the fake's fresh check admits this device.
+    await tester.tap(find.byKey(const ValueKey('device-sign-out-d1')));
+    await tester.pumpAndSettle();
+    expect(gate.signedOut, ['d1']);
+    expect(find.text('the app'), findsOneWidget);
+  });
+
+  testWidgets('an unregistered answer blocks the app', (tester) async {
+    await _pump(
+      tester,
+      const DeviceGateState(status: DeviceGateStatus.unregistered, cap: 2),
+      child: DeviceGateScope(
+        router: GoRouter(
+          routes: [
+            GoRoute(path: '/', builder: (context, _) => const SizedBox()),
+          ],
+        ),
+        child: const Scaffold(body: Text('the app')),
+      ),
+    );
+
+    expect(find.text('Could Not Check This Device'), findsOneWidget);
+    expect(find.text('Try Again'), findsOneWidget);
+    expect(find.text('the app'), findsNothing);
+  });
+
+  testWidgets('a fresh login fails closed when the slot cannot be checked', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          deviceGateProvider.overrideWith(_OfflineGate.new),
+          freshDeviceCheckProvider.overrideWith(_FreshFlag.new),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DeviceGateScope(
+            router: GoRouter(
+              routes: [
+                GoRoute(path: '/', builder: (context, _) => const SizedBox()),
+              ],
+            ),
+            child: const Scaffold(body: Text('the app')),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Could Not Check This Device'), findsOneWidget);
     expect(find.text('the app'), findsNothing);
   });
 

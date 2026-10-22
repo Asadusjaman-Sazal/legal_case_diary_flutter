@@ -2082,12 +2082,51 @@ class AppLocalizationsBn extends AppLocalizations {
   String get devices_signOut => 'সাইন আউট';
 
   @override
-  String get devices_planFullTitle => 'আপনার প্ল্যান পূর্ণ';
+  String get devices_planFullTitle => 'ডিভাইসের সীমা পূর্ণ হয়েছে';
 
   @override
-  String devices_planFullBody(String cap) {
-    return 'এই অ্যাকাউন্টটি ইতিমধ্যে $capটি ডিভাইসে ব্যবহৃত হচ্ছে, আর প্রতিটিই গত সাত দিনে ব্যবহৃত হয়েছে। এই ডিভাইসটি ব্যবহার করতে একটি সরিয়ে ফেলুন।';
+  String devices_planFullBody(String count) {
+    return 'আপনি ইতিমধ্যেই $countটি ডিভাইসে সাইন ইন করেছেন, যা আপনার প্ল্যানে সর্বোচ্চ অনুমোদিত। এই ডিভাইসে সাইন ইন করতে অনুগ্রহ করে নিচের তালিকা থেকে একটি ডিভাইস থেকে সাইন আউট করুন।';
   }
+
+  @override
+  String get devices_planFullWarningLabel => 'সতর্কতা:';
+
+  @override
+  String get devices_planFullWarning =>
+      'যে ডিভাইস থেকে আপনি সাইন আউট করবেন, তার অসংরক্ষিত বা অসিঙ্ক করা কাজ হারিয়ে যেতে পারে।';
+
+  @override
+  String get devices_signOutThisDevice => 'এই ডিভাইস থেকে সাইন আউট করুন';
+
+  @override
+  String get devices_signOutFailed =>
+      'এই ডিভাইস থেকে সাইন আউট করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get devices_checkingTitle => 'এই ডিভাইস যাচাই করা হচ্ছে';
+
+  @override
+  String get devices_checkingBody =>
+      'আপনার প্ল্যানে এই ডিভাইসের জন্য খালি স্লট আছে কি না তা নিশ্চিত করা হচ্ছে।';
+
+  @override
+  String get devices_checkFailedTitle => 'এই ডিভাইস যাচাই করা যায়নি';
+
+  @override
+  String get devices_checkFailedBody =>
+      'ইন্টারনেটে সংযোগ করে আবার চেষ্টা করুন, অথবা এই ডিভাইস থেকে সাইন আউট করুন।';
+
+  @override
+  String get devices_signingOut => 'সাইন আউট করা হচ্ছে…';
+
+  @override
+  String get devices_signedOutBody =>
+      'অন্য একটি ডিভাইস থেকে এই ডিভাইসটি সাইন আউট করা হয়েছে। এর স্থানীয় কপি মুছে ফেলা হচ্ছে।';
+
+  @override
+  String get devices_signedOutFailed =>
+      'এই ডিভাইসটি মোছা যায়নি। আবার চেষ্টা করুন।';
 
   @override
   String get devices_revokedTitle => 'এই ডিভাইসটি সাইন আউট হয়েছে';

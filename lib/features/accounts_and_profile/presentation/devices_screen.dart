@@ -18,12 +18,30 @@ import '../../../core/providers/device_providers.dart';
 import '../../auth/data/device_registration.dart';
 
 /// The account's devices, newest contact first, with one Remove per row.
-class DevicesScreen extends ConsumerWidget {
+class DevicesScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const DevicesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DevicesScreen> createState() => _DevicesScreenState();
+}
+
+class _DevicesScreenState extends ConsumerState<DevicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // The gate's registration answer carries the list now, but it may have been
+    // built before this screen opened (or before a server change). Read the
+    // authoritative `device_state` when the screen appears, without claiming a
+    // slot.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(deviceGateProvider.notifier).refresh(claim: false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final gate = ref.watch(deviceGateProvider);
     return Scaffold(
@@ -68,7 +86,7 @@ class DevicesScreen extends ConsumerWidget {
                     device: device,
                     onRemove: device.isCurrent
                         ? null
-                        : () => _confirmRemove(context, ref, device),
+                        : () => _confirmRemove(context, device),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                 ],
@@ -83,7 +101,6 @@ class DevicesScreen extends ConsumerWidget {
   /// Confirms, then frees the row's slot.
   Future<void> _confirmRemove(
     BuildContext context,
-    WidgetRef ref,
     RegisteredDevice device,
   ) async {
     final l = AppLocalizations.of(context);

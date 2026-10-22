@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
+import '../../../core/providers/device_providers.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/push/push_gateway.dart';
 import '../../../core/services/local_identity_service.dart';
@@ -166,6 +167,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     required String password,
     String? firmId,
   }) => _guard('auth.signIn', () async {
+    _markFreshDeviceCheck();
     final identity = await _repository.signInWithPassword(
       email: email,
       password: password,
@@ -177,6 +179,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// Signs in with Google, adopting any offline data first.
   Future<AuthIdentity> signInWithGoogle({String? firmId}) =>
       _guard('auth.signInWithGoogle', () async {
+        _markFreshDeviceCheck();
         final identity = await _repository.signInWithGoogle();
         await _completeSignIn(identity, firmId: firmId);
         return identity;
@@ -196,6 +199,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     String barAssociation = '',
     String? inviteCode,
   }) => _guard('auth.signUpIndividual', () async {
+    _markFreshDeviceCheck();
     final code = inviteCode?.trim();
     if (code != null && code.isNotEmpty) {
       await _local.setPendingInviteCode(code);
@@ -233,26 +237,24 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// Throws [AuthFailure] on an invalid code, the rate limit, or no network.
   /// The code is deliberately kept in every failure case: onboarding stays
   /// retryable, which is what the Addendum requires.
-  Future<InviteRedemption> redeemPendingInvite() => _guard(
-    'auth.redeemInvite',
-    () async {
-      final code = _local.pendingInviteCode;
-      if (code == null) {
-        throw const AuthFailure(AuthFailureKind.invalidCode);
-      }
+  Future<InviteRedemption>
+  redeemPendingInvite() => _guard('auth.redeemInvite', () async {
+    final code = _local.pendingInviteCode;
+    if (code == null) {
+      throw const AuthFailure(AuthFailureKind.invalidCode);
+    }
 
-      final redemption = await ref
-          .read(firmRepositoryProvider)
-          .redeemInvite(code);
-      await _local.clearPendingInviteCode();
-      // Pull the new membership straight away, so the permission flags and their
-      // freshness stamp are cached before the first case write reads them. A
-      // failed pull leaves the reachable default (fail closed), and the launch /
-      // resume refresh will fill it in.
-      await (await ref.read(profileRepositoryProvider.future)).refresh();
-      return redemption;
-    },
-  );
+    final redemption = await ref
+        .read(firmRepositoryProvider)
+        .redeemInvite(code);
+    await _local.clearPendingInviteCode();
+    // Pull the new membership straight away, so the permission flags and their
+    // freshness stamp are cached before the first case write reads them. A
+    // failed pull leaves the reachable default (fail closed), and the launch /
+    // resume refresh will fill it in.
+    await (await ref.read(profileRepositoryProvider.future)).refresh();
+    return redemption;
+  });
 
   /// Sends the sign-up confirmation mail for [email] again.
   ///
@@ -515,7 +517,11 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
       // Swallowed, but not forgotten: this is the one failure in the app that
       // reaches nobody at all, and "signed out, yet the abandoned account is
       // still on the server" is exactly what the log exists to explain.
-      recordFailure(ref.read(errorLogProvider), 'auth.abandonOnboarding', error);
+      recordFailure(
+        ref.read(errorLogProvider),
+        'auth.abandonOnboarding',
+        error,
+      );
     }
   }
 
@@ -543,9 +549,13 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     // A session can only exist for a confirmed address, so any sign-up that was
     // waiting for its confirmation mail is finished.
     await _local.clearPendingConfirmationEmail();
-    state = AsyncData(
-      AuthState(identity: identity, adoptionBlocked: blocked),
-    );
+    state = AsyncData(AuthState(identity: identity, adoptionBlocked: blocked));
+  }
+
+  /// Marks this as a fresh login, so the gate waits for the server's slot answer
+  /// instead of opening the cached diary while the check is in flight.
+  void _markFreshDeviceCheck() {
+    ref.read(freshDeviceCheckProvider.notifier).mark();
   }
 
   /// Runs adoption, turning a cross-account refusal into a flag.
@@ -573,9 +583,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   void _onSessionEvent(AuthSessionEvent event) {
     final current = state.value ?? const AuthState();
     if (event.identity == null) {
-      state = AsyncData(
-        AuthState(sessionExpired: event.sessionExpired),
-      );
+      state = AsyncData(AuthState(sessionExpired: event.sessionExpired));
       return;
     }
     // A recovery session: adopt the identity like any other sign-in. Whether it
@@ -605,6 +613,7 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
     AuthIdentity identity, {
     required bool raiseFlag,
   }) async {
+    _markFreshDeviceCheck();
     await _completeSignIn(identity);
     if (!raiseFlag) return;
     final completed = state.value;

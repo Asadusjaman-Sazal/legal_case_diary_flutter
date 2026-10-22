@@ -184,7 +184,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
   ///
   /// Without the permission the alert would be silently dropped by Android, so
   /// a refusal is reported instead of being papered over with a success message.
-  Future<void> _sendTestNotification(BuildContext context, WidgetRef ref) async {
+  Future<void> _sendTestNotification(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final l = AppLocalizations.of(context);
     final scheduler = ref.read(notificationSchedulerProvider);
     if (!await scheduler.notificationsAllowed()) {
@@ -262,6 +265,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
         order: notificationDayOffsetOptions,
         selected: _tickedDayOffsets(settings).toSet(),
         labelOf: (offset) => _dayOffsetLabel(l, offset),
+        // Same window and taller title bar as the View Settings dropdowns.
+        popoverWindow: true,
         minSelected: 1,
         minSelectedMessage: l.settingsNotifications_keepOneOffset,
         onChanged: (_, chosen) => _storeDayOffsets(ref, chosen),

@@ -59,11 +59,12 @@ void main() {
 
       expect(
         versions,
-        hasLength(60),
+        hasLength(61),
         reason:
             'The device limit (2026-10-21) added its registry, its '
-            'enforcement pair and the trim correction its proof caught, so the '
-            'folder is three files longer. '
+            'enforcement pair, the trim correction its proof caught and the '
+            'roll-out window writes were missing, so the folder is four files '
+            'longer. '
             'Task 16 shipped fourteen files; the audit closure added one, '
             'Task 17 Phase 5 added ensure_firm, Task 17\'s audit added the '
             'abandoned-onboarding cleanup, the Profile details follow-up added '
@@ -135,7 +136,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(60),
+        hasLength(61),
         reason: 'versions must be unique',
       );
       expect(
@@ -144,7 +145,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261022120000');
+      expect(versions.last, '20261022130000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

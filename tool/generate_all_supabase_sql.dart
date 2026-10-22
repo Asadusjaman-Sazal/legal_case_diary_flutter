@@ -801,11 +801,28 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'devices present, so a full plan answers device_limit_reached, and an '
         'account already above its cap is still trimmed back to it.',
   ),
+  LedgerSection(
+    file: '20261022130000_device_push_rollout_window.sql',
+    version: '0.0.567',
+    label:
+        'Task 22 — Writes get the roll-out window reads already had. The '
+        'enforcement migration admitted an unregistered session to READ until '
+        'the 2026-11-21 roll-out end and gave it no such allowance to WRITE, so '
+        'an install that had not updated could pull the diary down and could '
+        'not hand one edit back up: its first push was refused as '
+        'device_revoked, and because a refusal is not retryable the client '
+        'blocked every queued change. device_may_push now admits a session '
+        'with no user_devices row at all until the same date; a revoked device '
+        'is unaffected because revocation stamps revoked_at on a row rather '
+        'than deleting it, so the branch is reachable only by a session that '
+        'never registered, and both gates close on one date.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.567': 'Task 22 — The Device Limit, Rolled Out On Both Sides',
   '0.0.566': 'Task 22 — The Device Limit, Made Correct',
   '0.0.565': 'Task 22 — The Device Limit',
   '0.0.289':

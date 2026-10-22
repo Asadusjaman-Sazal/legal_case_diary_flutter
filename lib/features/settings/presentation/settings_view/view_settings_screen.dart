@@ -165,8 +165,7 @@ class ViewSettingsScreen extends ConsumerWidget {
                   settings.bottomNavTabs.length,
                 ),
                 icon: Icons.expand_more,
-                onTap: () =>
-                    _pickBottomTabs(context, ref, settings, available),
+                onTap: () => _pickBottomTabs(context, ref, settings, available),
               ),
               const SizedBox(height: AppSpacing.xl),
               // Side navigation options: which drawer sections stay visible.
@@ -233,6 +232,7 @@ class ViewSettingsScreen extends ConsumerWidget {
             .toSet(),
         labelOf: (key) => _screenLabel(l, key),
         reorderable: true,
+        popoverWindow: true,
         minSelected: 1,
         minSelectedMessage: l.settingsViewSettings_keepOneTab,
         // The dragged serial is saved with the selection, so the dropdown and
@@ -268,6 +268,7 @@ class ViewSettingsScreen extends ConsumerWidget {
         },
         labelOf: (route) => _screenLabel(l, route),
         reorderable: false,
+        popoverWindow: true,
         onChanged: (order, visible) => _update(
           ref,
           (current) => current.copyWith(
@@ -518,7 +519,6 @@ class _SectionCard extends StatelessWidget {
   );
 }
 
-
 /// Single-select dialog used by the period, density and landing-page pickers.
 class _OptionDialog<T> extends StatelessWidget {
   final String title;
@@ -537,13 +537,15 @@ class _OptionDialog<T> extends StatelessWidget {
   Widget build(BuildContext context) => Dialog(
     insetPadding: const EdgeInsets.all(AppSpacing.md),
     backgroundColor: AppColors.surfaceContainerLowest,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-    ),
+    // The drawer account popover's floating window, with the black header
+    // still painted by [SettingsPickerDialogHeader].
+    elevation: settingsPopoverWindowElevation,
+    clipBehavior: Clip.antiAlias,
+    shape: settingsPopoverWindowShape,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SettingsPickerDialogHeader(title: title),
+        SettingsPickerDialogHeader(title: title, enlarged: true),
         Flexible(
           child: ListView(
             shrinkWrap: true,

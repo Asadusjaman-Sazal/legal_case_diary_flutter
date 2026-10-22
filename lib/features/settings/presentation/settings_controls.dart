@@ -13,6 +13,15 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 
+/// The drawer account popover's window shape: 16 px corners, with no edge of
+/// its own — the elevation alone lifts the white panel off the screen.
+final ShapeBorder settingsPopoverWindowShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.circular(16),
+);
+
+/// The drawer account popover's elevation, reused by the View Settings pickers.
+const double settingsPopoverWindowElevation = 8;
+
 /// White bordered card used by every Settings sub-page section.
 BoxDecoration settingsCardDecoration({
   Color color = AppColors.surfaceContainerLowest,
@@ -318,6 +327,11 @@ class SettingsMultiSelectDialog<T extends Object> extends StatefulWidget {
   /// Shown when the user tries to go below [minSelected].
   final String? minSelectedMessage;
 
+  /// Draws the window like the drawer's account popover — rounded, bordered and
+  /// floating — instead of the plain Settings dialog. Off by default so screens
+  /// outside View Settings keep their current window.
+  final bool popoverWindow;
+
   const SettingsMultiSelectDialog({
     super.key,
     required this.title,
@@ -328,6 +342,7 @@ class SettingsMultiSelectDialog<T extends Object> extends StatefulWidget {
     this.reorderable = false,
     this.minSelected = 0,
     this.minSelectedMessage,
+    this.popoverWindow = false,
   });
 
   @override
@@ -384,13 +399,20 @@ class _SettingsMultiSelectDialogState<T extends Object>
   Widget build(BuildContext context) => Dialog(
     insetPadding: const EdgeInsets.all(AppSpacing.md),
     backgroundColor: AppColors.surfaceContainerLowest,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-    ),
+    elevation: widget.popoverWindow ? settingsPopoverWindowElevation : null,
+    clipBehavior: widget.popoverWindow ? Clip.antiAlias : Clip.none,
+    shape: widget.popoverWindow
+        ? settingsPopoverWindowShape
+        : RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+          ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SettingsPickerDialogHeader(title: widget.title),
+        SettingsPickerDialogHeader(
+          title: widget.title,
+          enlarged: widget.popoverWindow,
+        ),
         Flexible(child: widget.reorderable ? _draggableRows() : _rows()),
       ],
     ),
@@ -454,11 +476,21 @@ class SettingsPickerDialogHeader extends StatelessWidget {
   /// Dialog title.
   final String title;
 
-  const SettingsPickerDialogHeader({super.key, required this.title});
+  /// Grows the bar to 1.25× its normal 48 px height, for the View Settings
+  /// dropdown windows. Off by default so the Notifications picker keeps its
+  /// current header.
+  final bool enlarged;
+
+  const SettingsPickerDialogHeader({
+    super.key,
+    required this.title,
+    this.enlarged = false,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
     color: AppColors.primaryContainer,
+    constraints: BoxConstraints(minHeight: enlarged ? 48 * 1.25 : 0),
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
     child: Row(
       children: [

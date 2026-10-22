@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
@@ -317,6 +318,51 @@ void main() {
         lessThanOrEqualTo(content.right + 0.5),
         reason: '"$title" overflows the header',
       );
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('every dropdown window matches the drawer profile pop-over', (
+    tester,
+  ) async {
+    await pumpScreen(tester);
+
+    // A single-select and the multi-select picker must look the same.
+    for (final rowText in <String>['7 Days', '4 Screens Selected']) {
+      await openDropdown(tester, rowText);
+      await tester.pumpAndSettle();
+
+      final dialog = tester.widget<Dialog>(find.byType(Dialog));
+      expect(dialog.elevation, settingsPopoverWindowElevation);
+      expect(dialog.clipBehavior, Clip.antiAlias);
+      final shape = dialog.shape! as RoundedRectangleBorder;
+      expect(shape.borderRadius, BorderRadius.circular(16));
+      expect(shape.side, BorderSide.none);
+
+      // The title bar itself stays black with white text.
+      final header = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(SettingsPickerDialogHeader),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(header.color, AppColors.primaryContainer);
+      // The title section is 25% taller than the shared 48 px header.
+      expect(
+        tester.getSize(find.byType(SettingsPickerDialogHeader)).height,
+        moreOrLessEquals(48 * 1.25, epsilon: 0.1),
+      );
+      final title = tester.widget<Text>(
+        find.descendant(
+          of: find.byType(SettingsPickerDialogHeader),
+          matching: find.byType(Text),
+        ),
+      );
+      expect(title.style?.color, AppColors.onPrimary);
 
       await tester.tap(find.byIcon(Icons.close));
       await tester.pumpAndSettle();

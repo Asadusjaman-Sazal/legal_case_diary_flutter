@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.568 - Seeded case types, steps and on-behalfs now show their Bengali labels in the Edit Court/Steps lists.
+Version: 0.0.569 - The Edit Court/Steps menu cards now drop the word Edit from all three labels.
 --------------------------------------
 
 ## Version History Log:
@@ -582,3 +582,4 @@ Version: 0.0.565 - The plans' concurrent-device numbers are now enforced on the 
 Version: 0.0.566 - The device limit is live on the server and its proof passes, after catching a real bug: a third sign-in evicted an active device instead of being refused.
 Version: 0.0.567 - Writes now get the same 21 November roll-out window as reads, so an install that has not updated keeps backing up instead of blocking every queued change.
 Version: 0.0.568 - Seeded case types, steps and on-behalfs now show their Bengali labels in the Edit Court/Steps lists.
+Version: 0.0.569 - The Edit Court/Steps menu cards now drop the word Edit from all three labels.

@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The Edit Court/Steps menu drops the word “Edit” — COMPLETE (0.0.569)
+
+- **What was asked.** The three cards on Settings → Edit Court/Steps each began with “Edit”, repeating the screen's own title. The words were removed.
+- **What a lawyer now reads.** *Lower Court Categories*, *Court Names* and *Case Types, Step etc*. The Bengali labels dropped *সম্পাদনা* where it appeared; the third Bengali card had none to remove.
+- **What changed.** Three English and two Bengali values in the ARB files, regenerated into `app_localizations_en.dart` and `app_localizations_bn.dart`; the mockup `mockup_html_screens/settings_editCourtSteps/code.html` was updated to match (rule 9). No layout or code changed.
+- **Proof.** `flutter analyze` clean; full `flutter test` **1937 passed**; version **0.0.569** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The Edit Court/Steps lists follow বাংলা — COMPLETE (0.0.568)
 
 - **What was wrong.** Settings → Edit Court/Steps → Case Types, Steps and On Behalf printed the stored row text. Seeded rows are stored in English, so these three lists stayed English after the lawyer chose বাংলা, while the court list and the Add/Edit Case form already translated the same rows.

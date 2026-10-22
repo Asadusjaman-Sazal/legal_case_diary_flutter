@@ -5038,7 +5038,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtSteps_editItemTypes.
   ///
   /// In en, this message translates to:
-  /// **'Edit Case Types, Step etc'**
+  /// **'Case Types, Step etc'**
   String get settingsEditCourtSteps_editItemTypes;
 
   /// No description provided for @settingsEditCourtSteps_editItemTypesSubtitle.
@@ -5050,7 +5050,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtSteps_courtNamesCategories.
   ///
   /// In en, this message translates to:
-  /// **'Edit Court Names'**
+  /// **'Court Names'**
   String get settingsEditCourtSteps_courtNamesCategories;
 
   /// No description provided for @settingsEditCourtSteps_courtNamesCategoriesSubtitle.
@@ -5062,7 +5062,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsEditCourtSteps_lowerCourtCategories.
   ///
   /// In en, this message translates to:
-  /// **'Edit Lower Court Categories'**
+  /// **'Lower Court Categories'**
   String get settingsEditCourtSteps_lowerCourtCategories;
 
   /// No description provided for @settingsEditCourtSteps_lowerCourtCategoriesSubtitle.

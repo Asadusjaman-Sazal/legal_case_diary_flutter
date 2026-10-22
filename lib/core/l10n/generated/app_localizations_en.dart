@@ -2891,15 +2891,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'The sheets in this file replace those records on this device. Everything else is kept.';
 
   @override
-  String get settingsEditCourtSteps_editItemTypes =>
-      'Edit Case Types, Step etc';
+  String get settingsEditCourtSteps_editItemTypes => 'Case Types, Step etc';
 
   @override
   String get settingsEditCourtSteps_editItemTypesSubtitle =>
       'Manage case types, procedural steps, and on-behalf roles';
 
   @override
-  String get settingsEditCourtSteps_courtNamesCategories => 'Edit Court Names';
+  String get settingsEditCourtSteps_courtNamesCategories => 'Court Names';
 
   @override
   String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>
@@ -2907,7 +2906,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsEditCourtSteps_lowerCourtCategories =>
-      'Edit Lower Court Categories';
+      'Lower Court Categories';
 
   @override
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>

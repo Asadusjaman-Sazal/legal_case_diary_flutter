@@ -2903,8 +2903,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ফাইলের শিটগুলো এই ডিভাইসের সেই রেকর্ডগুলো প্রতিস্থাপন করবে। বাকি সব অপরিবর্তিত থাকবে।';
 
   @override
-  String get settingsEditCourtSteps_editItemTypes =>
-      'মামলার ধরন, ধাপ ইত্যাদি সম্পাদনা';
+  String get settingsEditCourtSteps_editItemTypes => 'মামলার ধরন, ধাপ ইত্যাদি';
 
   @override
   String get settingsEditCourtSteps_editItemTypesSubtitle =>
@@ -2912,7 +2911,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsEditCourtSteps_courtNamesCategories =>
-      'আদালতের নাম ও ক্যাটেগরি সম্পাদনা';
+      'আদালতের নাম ও ক্যাটেগরি';
 
   @override
   String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>

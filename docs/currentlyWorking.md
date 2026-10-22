@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The day-offset warning moves inside the window — COMPLETE (0.0.582)
+
+- **What was asked.** Reword the warning to **Select at least one Day Offset.**, and make it visible in the Add Case and Update windows, where it was being drawn behind the open picker.
+- **What changed.** The picker no longer uses a SnackBar. When the lawyer tries to untick the last offset, a red line appears **inside the picker window**, just under its title bar; the next successful tick clears it. The words changed in English and Bengali.
+- **Why it was invisible.** The picker sits over the Add/Update window, and a SnackBar belongs to the screen underneath both, so the window covered it.
+- **Proof.** The Notifications test and a new Add Case test both check that the message is found *inside* the dialog. `flutter analyze` clean; full `flutter test` **1940 passed**; version **0.0.582** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — Add Case and Update share the Settings Day Offset window — COMPLETE (0.0.581)
 
 - **What was asked.** The Day Offset dropdown in the Add Case and Update windows should open the same picker window as Settings → Notifications → Notification Day Offset.

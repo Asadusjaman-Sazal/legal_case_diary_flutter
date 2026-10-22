@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.581 - Add Case and Update Day Offset pickers now open the same window as Settings > Notifications.
+Version: 0.0.582 - The day-offset warning now reads 'Select at least one Day Offset.' and appears inside the picker window.
 --------------------------------------
 
 ## Version History Log:
@@ -595,3 +595,4 @@ Version: 0.0.578 - The Notification Day Offset dropdown now uses the View Settin
 Version: 0.0.579 - The View Settings and day-offset dropdown windows now use the Next Date calendar's 8 px corners.
 Version: 0.0.580 - All dropdown and pop-over windows now use the app's 8 px window corner.
 Version: 0.0.581 - Add Case and Update Day Offset pickers now open the same window as Settings > Notifications.
+Version: 0.0.582 - The day-offset warning now reads 'Select at least one Day Offset.' and appears inside the picker window.

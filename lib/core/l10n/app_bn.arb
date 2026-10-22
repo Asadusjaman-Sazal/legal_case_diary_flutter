@@ -1388,7 +1388,7 @@
   "settingsNotifications_off": "বন্ধ",
   "settingsNotifications_dayOffsetLabel": "নোটিফিকেশনের দিনের ব্যবধান",
   "settingsNotifications_selectDayOffsetTitle": "দিনের ব্যবধান নির্বাচন করুন",
-  "settingsNotifications_keepOneOffset": "অন্তত একটি দিনের ব্যবধান রাখুন।",
+  "settingsNotifications_keepOneOffset": "অন্তত একটি দিনের ব্যবধান নির্বাচন করুন।",
   "settingsNotifications_offsetSameDay": "একই দিনে",
   "settingsNotifications_offsetDayBefore": "একদিন আগে",
   "settingsNotifications_offsetBeforeDays": "{days} দিন আগে",

@@ -5404,7 +5404,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_keepOneOffset.
   ///
   /// In en, this message translates to:
-  /// **'Keep at Least One Day Offset.'**
+  /// **'Select at least one Day Offset.'**
   String get settingsNotifications_keepOneOffset;
 
   /// No description provided for @settingsNotifications_offsetSameDay.

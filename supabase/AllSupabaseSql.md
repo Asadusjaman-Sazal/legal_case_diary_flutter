@@ -94,6 +94,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.565 | 2026-10-22 | `20261022100000_device_limit_registry.sql` | Task 22 — The device limit's registry. Every paid card promises a number of devices signed in at once and nothing enforced it. tier_device_cap states the number per rung (Pro 2, every other rung 1) and device_cap answers the caller's own allowance, holding a chamber member — the owner included — to one whatever the chamber buys; user_devices keeps one row per sign-in, keyed by the session_id claim in the access token that a client cannot forge, with the install's device_key beside it so a re-login reuses its own slot; register_device is the decision table — re-registering is idempotent, a free slot is taken, at the cap the least recently seen spare is evicted only when it has been idle seven days or more and the plan is live, and a registration past the cap is admitted and flagged grandfathered until the 2026-11-21 roll-out end; device_state is the launch check, revoke_device frees a slot the lawyer picks and refuses a device revoking itself, ack_device_wipe records that a revoked device flushed its work and erased, device_trim_surplus revokes the surplus after a ceiling falls and revokes nothing without a live plan, and device_tokens gains the device_key a revocation deletes by. |
 | 0.0.565 | 2026-10-22 | `20261022110000_device_limit_enforcement.sql` | Task 22 — Enforcing the device limit. A limit a client can ignore by never registering is not a limit, so three gates: device_may_push admits an active device, a revoked device inside its 14-day flush window — the window is what lets unsent work reach the account before the device erases — and a caller carrying no session at all (psql, the service role); device_may_read admits only an active device, plus an unregistered session until the same roll-out end so an install that has not updated yet keeps working; and push_changes keeps its body — renamed push_changes_core with its grants, never re-typed — behind a wrapper that refuses a revoked session past its window with device_revoked. The eleven ledger tables and conflict_log gain device_may_read() in their SELECT policies, which is the same condition a Realtime subscription reads. profiles, the billing tables and the firm roster stay readable on purpose: a revoked device needs its own profile to explain itself, and it erases at its next contact anyway. |
 | 0.0.566 | 2026-10-22 | `20261022120000_device_trim_counts_the_caller.sql` | Task 22 — Device trim counts the caller only when it holds a slot. The proof caught the first run of the limit admitting a third sign-in on a two-device plan and revoking one of the two devices already there as lapse: device_trim_surplus kept cap-minus-one devices other than the caller, which is right only while the caller already occupies a slot, and register_device trims before it knows. It now asks user_devices whether the caller holds an active row and subtracts one only then; a new device leaves the whole cap to the devices present, so a full plan answers device_limit_reached, and an account already above its cap is still trimmed back to it. |
+| 0.0.567 | 2026-10-22 | `20261022130000_device_push_rollout_window.sql` | Task 22 — Writes get the roll-out window reads already had. The enforcement migration admitted an unregistered session to READ until the 2026-11-21 roll-out end and gave it no such allowance to WRITE, so an install that had not updated could pull the diary down and could not hand one edit back up: its first push was refused as device_revoked, and because a refusal is not retryable the client blocked every queued change. device_may_push now admits a session with no user_devices row at all until the same date; a revoked device is unaffected because revocation stamps revoked_at on a row rather than deleting it, so the branch is reachable only by a session that never registered, and both gates close on one date. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -15280,5 +15281,81 @@ $$;
 
 comment on function public.device_trim_surplus(uuid, uuid, integer) is
   'Revokes the devices above the cap after the ceiling falls (downgrade, lapse and renewal), least recently seen first and never the caller, and only while the account has a live plan. The caller counts against the cap only when it already holds an active row, so a device signing in for the first time does not evict a device that does.';
+```
+
+## App Version 0.0.567 — Task 22 — The Device Limit, Rolled Out On Both Sides
+
+### 0.0.567 · `20261022130000_device_push_rollout_window.sql`
+
+> **Created 2026-10-22.** Task 22 — Writes get the roll-out window reads already had. The enforcement migration admitted an unregistered session to READ until the 2026-11-21 roll-out end and gave it no such allowance to WRITE, so an install that had not updated could pull the diary down and could not hand one edit back up: its first push was refused as device_revoked, and because a refusal is not retryable the client blocked every queued change. device_may_push now admits a session with no user_devices row at all until the same date; a revoked device is unaffected because revocation stamps revoked_at on a row rather than deleting it, so the branch is reachable only by a session that never registered, and both gates close on one date.
+
+```sql
+-- ===========================================================================
+-- Device limit (3/3) — writes get the same roll-out window as reads.
+--
+-- **Why.** `20261022110000` gave an unregistered session ("an install that has
+-- not updated yet") until `device_rollout_end()` to READ, so the update strands
+-- nobody, but gave it no such allowance to WRITE. The result was the opposite
+-- of the promise in the plan: an install that had not updated could pull the
+-- account's diary down and could not hand a single edit back up. Its queued
+-- mutations were refused as `device_revoked` on the first push, and because a
+-- refusal is not retryable the client marked each one `blocked` — visible in
+-- Sync Status as *the server refused this change*, but never sent again on its
+-- own. A limit that turns a lawyer's backup off silently is worse than one that
+-- arrives a month later.
+--
+-- **What changes.** One branch, the same shape and the same date as
+-- `device_may_read`'s: a session with **no row in `user_devices` at all** is
+-- admitted to push while `now() < device_rollout_end()`. A session that has a
+-- row is not affected in the slightest — an active device is admitted as
+-- before, and a revoked device keeps exactly its 14-day flush window.
+--
+-- **Why this cannot become a loophole.** Revocation in this registry is a
+-- timestamp on a row, never a deletion: `revoke_device` and
+-- `device_trim_surplus` both `update` `revoked_at`, so every session the server
+-- has ever seen a registration for still has its row. The unregistered branch is
+-- therefore reachable only by a session that has never called `register_device`
+-- — the old install, and nobody else. A device the server revoked, by any
+-- reason and at any time, stays refused, including during the window.
+--
+-- **After the window nothing changes for a revoked device**, and an old install
+-- stops writing at the same instant it stops reading: one date closes both
+-- gates, so the two halves cannot drift apart again.
+-- ===========================================================================
+
+create or replace function public.device_may_push(p_at timestamptz default now())
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select public.current_session_id() is null
+      or public.device_is_active()
+      -- The roll-out case, identical to device_may_read's: a session that never
+      -- registered is an install that has not updated yet, admitted only until
+      -- the same date registrations stop being grandfathered.
+      or (
+           p_at < public.device_rollout_end()
+           and not exists (
+             select 1
+               from public.user_devices d
+              where d.user_id = auth.uid()
+                and d.session_id = public.current_session_id()
+           )
+         )
+      -- A revoked device may still hand its unsent work over before it erases.
+      or exists (
+           select 1
+             from public.user_devices d
+            where d.user_id = auth.uid()
+              and d.session_id = public.current_session_id()
+              and d.revoked_at is not null
+              and d.revoked_at + interval '14 days' > p_at
+         );
+$$;
+
+comment on function public.device_may_push(timestamptz) is
+  'True for an active device, a revoked device still inside its 14-day flush window, an unregistered session before the roll-out end (2026-11-21), or a caller with no session claim. A revoked session is never admitted by the roll-out branch, because revocation stamps a row rather than deleting it.';
 ```
 

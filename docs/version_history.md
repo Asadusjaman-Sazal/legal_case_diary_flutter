@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.566 - The device limit is live on the server and its proof passes, after catching a real bug: a third sign-in evicted an active device instead of being refused.
+Version: 0.0.568 - Seeded case types, steps and on-behalfs now show their Bengali labels in the Edit Court/Steps lists.
 --------------------------------------
 
 ## Version History Log:
@@ -580,3 +580,5 @@ Version: 0.0.563 - The scheduled-start warning now counts a month the way the se
 Version: 0.0.564 - AGENTS.md and CLAUDE.md now require a finished to-do list to be cleared in the same turn, so nothing is left hanging on the user's screen.
 Version: 0.0.565 - The plans' concurrent-device numbers are now enforced on the server: a device over the limit is freed only when idle seven days, after saving its unsent work, and never during a lapse.
 Version: 0.0.566 - The device limit is live on the server and its proof passes, after catching a real bug: a third sign-in evicted an active device instead of being refused.
+Version: 0.0.567 - Writes now get the same 21 November roll-out window as reads, so an install that has not updated keeps backing up instead of blocking every queued change.
+Version: 0.0.568 - Seeded case types, steps and on-behalfs now show their Bengali labels in the Edit Court/Steps lists.

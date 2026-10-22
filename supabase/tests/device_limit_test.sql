@@ -122,6 +122,10 @@ declare
   v_s3 uuid := gen_random_uuid();
   v_s4 uuid := gen_random_uuid();
   v_s5 uuid := gen_random_uuid();
+  -- A session that never registers (an install that has not updated yet) and a
+  -- revoked one, both used around the roll-out window.
+  v_old uuid := gen_random_uuid();
+  v_rev uuid := gen_random_uuid();
 
   v_result jsonb;
   v_row public.user_devices%rowtype;
@@ -323,7 +327,7 @@ begin
   -- The window is pushed far out so this pair of checks does not go stale with
   -- the calendar: one instant well inside it, and the instant it closes.
   perform set_config('app.device_rollout_end', '2030-01-01 00:00:00+00', true);
-  perform pg_temp.as_session(v_pro, gen_random_uuid());
+  perform pg_temp.as_session(v_pro, v_old);
   perform pg_temp.assert_true(
     public.device_may_read(now()) is true,
     'an unregistered session is admitted during the roll-out window'
@@ -332,6 +336,62 @@ begin
     public.device_may_read(timestamptz '2030-01-01 00:00:00+00') is false,
     'after the window an unregistered session reads nothing'
   );
+
+  -- The same window on the write side: an install that has not updated must be
+  -- able to hand its work over, not only read the account back down.
+  perform pg_temp.assert_true(
+    public.device_may_push(now()) is true,
+    'an unregistered session may push during the roll-out window'
+  );
+  v_result := public.push_changes('[]'::jsonb);
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(
+    v_result -> 'results' = '[]'::jsonb,
+    'and the guard in front of push_changes lets it through'
+  );
+
+  -- The safety side of that branch, while the window is still open: a session
+  -- the server revoked has a row, so it is never mistaken for an old install.
+  insert into public.user_devices (
+    user_id, session_id, device_key, platform, label, last_seen_at,
+    revoked_at, revoked_reason
+  )
+  values (
+    v_pro, v_rev, 'revoked-in-window', 'android', 'Revoked In Window',
+    now() - interval '30 days', now() - interval '15 days', 'cap'
+  );
+  perform pg_temp.as_session(v_pro, v_rev);
+  begin
+    perform public.push_changes('[]'::jsonb);
+    perform pg_temp.as_owner();
+    raise exception 'DEVICE FAIL: a revoked device pushed inside the roll-out window';
+  exception when others then
+    perform pg_temp.as_owner();
+    perform pg_temp.assert_true(
+      position('device_revoked' in sqlerrm) > 0,
+      'a revoked device past its flush window is still refused while the roll-out window is open'
+    );
+  end;
+
+  -- And the window closes both gates together: an unregistered session that may
+  -- not read may not push either.
+  perform set_config('app.device_rollout_end', c_after_rollout, true);
+  perform pg_temp.as_session(v_pro, gen_random_uuid());
+  perform pg_temp.assert_true(
+    public.device_may_push(now()) is false,
+    'after the window an unregistered session may not push'
+  );
+  begin
+    perform public.push_changes('[]'::jsonb);
+    perform pg_temp.as_owner();
+    raise exception 'DEVICE FAIL: an unregistered session pushed after the window';
+  exception when others then
+    perform pg_temp.as_owner();
+    perform pg_temp.assert_true(
+      position('device_revoked' in sqlerrm) > 0,
+      'and push_changes refuses it with device_revoked'
+    );
+  end;
   perform pg_temp.as_owner();
 
   ---------------------------------------------------------------------------

@@ -57,11 +57,12 @@ void main() {
       );
       expect(
         onDisk.length,
-        60,
+        61,
         reason:
             'The device limit (2026-10-21) added its registry, its '
-            'enforcement pair and the trim correction its proof caught, so the '
-            'folder is three files longer. '
+            'enforcement pair, the trim correction its proof caught and the '
+            'roll-out window writes were missing, so the folder is four files '
+            'longer. '
             'Task 16 shipped fourteen; the audit closure added one, '
             'Task 17 Phase 5 added the owner-side ensure_firm conversion, '
             'Task 17\'s audit added the abandoned-onboarding cleanup, the '

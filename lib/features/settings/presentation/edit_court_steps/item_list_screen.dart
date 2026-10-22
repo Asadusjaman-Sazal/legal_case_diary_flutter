@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
@@ -344,7 +345,13 @@ class _ListBody<T> extends StatelessWidget {
               Icons.drag_indicator,
               color: AppColors.tertiary,
             ),
-            title: Text(getName(item), style: AppTypography.bodyLg),
+            // Seeded rows are stored in English; resolve them from the seed
+            // data so the list follows the active language, like the court
+            // list does. User-added rows fall back to their stored name.
+            title: Text(
+              context.l10n.seedLabel(getId(item), fallbackEn: getName(item)),
+              style: AppTypography.bodyLg,
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

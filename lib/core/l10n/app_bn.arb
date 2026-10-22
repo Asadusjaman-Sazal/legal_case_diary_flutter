@@ -191,6 +191,7 @@
   "addEditCaseSheet_pickDate": "তারিখ নির্বাচন করুন",
   "addEditCaseSheet_notification": "নোটিফিকেশন",
   "addEditCaseSheet_dayOffset": "দিনের অফসেট",
+  "notificationTimePicker_title": "সময় নির্বাচন করুন",
   "addEditCaseSheet_offsetSameDay": "একই দিন",
   "addEditCaseSheet_offsetDayBefore": "আগের দিন",
   "addEditCaseSheet_offsetDaysBefore": "{count} দিন আগে",

@@ -191,6 +191,7 @@
   "addEditCaseSheet_pickDate": "Pick a date",
   "addEditCaseSheet_notification": "Notification",
   "addEditCaseSheet_dayOffset": "Day Offset",
+  "notificationTimePicker_title": "Select Time",
   "addEditCaseSheet_offsetSameDay": "The same day",
   "addEditCaseSheet_offsetDayBefore": "The day before",
   "addEditCaseSheet_offsetDaysBefore": "Before {count} days",

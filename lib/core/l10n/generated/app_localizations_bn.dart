@@ -419,6 +419,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_dayOffset => 'দিনের অফসেট';
 
   @override
+  String get notificationTimePicker_title => 'সময় নির্বাচন করুন';
+
+  @override
   String get addEditCaseSheet_offsetSameDay => 'একই দিন';
 
   @override

@@ -419,6 +419,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_dayOffset => 'Day Offset';
 
   @override
+  String get notificationTimePicker_title => 'Select Time';
+
+  @override
   String get addEditCaseSheet_offsetSameDay => 'The same day';
 
   @override

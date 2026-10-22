@@ -21,12 +21,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/notification_settings_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_notifications/notification_time_picker.dart';
 
 import '../core/notification_test_support.dart';
 import 'settings_test_support.dart';
@@ -176,12 +178,53 @@ void main() {
     // The approved deviation from the mockup: the platform time picker.
     expect(find.byType(TimePickerDialog), findsOneWidget);
 
+    // The title is Select Time, bold.
+    expect(
+      tester.widget<Text>(find.text('Select Time')).style?.fontWeight,
+      FontWeight.w700,
+    );
+    // The active box is white on black; unselected boxes stay white with
+    // black text, as they looked before.
+    Color? textColor(String label) =>
+        tester.widget<Text>(find.text(label)).style?.color;
+    Color? boxColor(String label) => tester
+        .widget<Material>(
+          find
+              .ancestor(of: find.text(label), matching: find.byType(Material))
+              .first,
+        )
+        .color;
+    expect(textColor('5'), Colors.white);
+    expect(boxColor('5'), AppColors.secondary);
+    expect(textColor('00'), AppColors.secondary);
+    expect(boxColor('00'), Colors.white);
+    expect(textColor('PM'), Colors.white);
+    expect(boxColor('PM'), AppColors.secondary);
+    expect(textColor('AM'), AppColors.secondary);
+    expect(boxColor('AM'), Colors.white);
+
     // Confirming the mockup's placeholder (05:00 PM) stores it; the clock
     // face itself is Flutter's, so this only verifies our wiring.
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     expect(repo.settings.notificationTime, 17 * 60);
+  });
+
+  testWidgets('moving the time hand plays the gear tick', (tester) async {
+    var clicks = 0;
+    final original = gearClickPlayer;
+    gearClickPlayer = () => clicks++;
+    addTearDown(() => gearClickPlayer = original);
+
+    await pumpScreen(tester);
+    await tester.tap(find.text('05:00 PM'));
+    await tester.pumpAndSettle();
+    expect(clicks, 0, reason: 'opening the window makes no tick');
+
+    await tester.drag(find.byType(TimePickerDialog), const Offset(40, 40));
+    await tester.pumpAndSettle();
+    expect(clicks, 1);
   });
 
   testWidgets('renders a stored notification time as HH:MM AM/PM', (

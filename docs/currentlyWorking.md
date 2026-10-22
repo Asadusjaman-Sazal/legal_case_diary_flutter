@@ -1,5 +1,24 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The time picker's drag tick becomes audible — COMPLETE (0.0.586)
+
+- **What was wrong.** The drag click was the phone's **system** click, which is silent when the phone's touch-sound setting is off — the lawyer heard nothing. The unselected Hour/Minute/AM-PM boxes had also been made dark by mistake.
+- **Fix one: a real sound.** The app now bundles a short **gear tick** (`assets/sounds/gear_click.wav`) and plays it through **`audioplayers`** in low-latency mode as the hand is dragged, at most once every 80 ms. It does not depend on the phone's touch-sound setting. This adds one dependency and one small asset.
+- **Fix two: the boxes.** The **selected** box stays black with white text; every **unselected** Hour, Minute and AM-PM box is **white with black text**, as before, with a light outline so the white boxes read against the white window.
+- **No test plugin noise.** The tick player is a replaceable hook, so widget tests count ticks instead of touching the audio plugin; a new check proves one tick per drag.
+- **Proof.** `flutter analyze` clean; full `flutter test` **1941 passed**; version **0.0.586** recorded with the script. The mockup shows the white unselected boxes.
+- **Resume point, next session.** A device pass on a phone with touch sounds **off**: dragging the hand should tick audibly; the selected box black/white and the others white/black.
+
+### 2026-10-22 — The notification time window gets its title, white boxes and a click — COMPLETE (0.0.585)
+
+- **What was asked.** In the time window used by Settings → Notifications, the Update window and the Add Case form: title **Select Time**, bold and centred; white text in the Hour, Minute and AM/PM boxes; a gear-like click while the hour/minute hand moves.
+- **Title.** The words are now **Select Time** in English (সময় নির্বাচন করুন in Bengali) and the line is **bold**. It stays **left-aligned**: Flutter's stock window fixes that title to the left and exposes no setting to centre it. You chose to keep the stock window rather than rebuild the clock.
+- **Boxes.** Hour, Minute and AM/PM now use **white text**. Their backgrounds were made dark — the active choice black, the other dark grey — because white on the old pale boxes would have been unreadable.
+- **Sound.** Dragging the hour/minute hand plays the phone's **platform click**, throttled to a ratchet pace (one click at most every 80 ms). It is the same click the month/year selector already uses; the phone's touch-sound setting decides whether it is heard. Flutter exposes no dial-change callback, so the window hears the drags directly.
+- **Mockup.** The time window in `mockup_html_screens/settings_notifications/code.html` now shows the bold title, dark Hour/Minute boxes and white AM/PM text (rule 9).
+- **Proof.** New checks assert the bold title, white box text and one click on a drag. `flutter analyze` clean; full `flutter test` **1941 passed**; version **0.0.585** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The Update window takes the 8 px corners — COMPLETE (0.0.584)
 
 - **What was asked.** The Update window should use the same corner size as the Select Day Offset window.

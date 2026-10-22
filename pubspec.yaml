@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.584
+version: 0.0.586
 
 environment:
   sdk: ^3.12.2
@@ -90,6 +90,7 @@ dependencies:
   local_auth: ^3.0.2
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -154,6 +155,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    # The gear tick played as the notification-time hands are dragged.
+    - assets/sounds/
     # The legal documents shown by Settings > About. They are bundled from
     # `docs/legal/` on purpose: it is the single copy, so the text the app shows
     # can never drift from the text in the repository.

@@ -848,6 +848,12 @@ abstract class AppLocalizations {
   /// **'Day Offset'**
   String get addEditCaseSheet_dayOffset;
 
+  /// No description provided for @notificationTimePicker_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Time'**
+  String get notificationTimePicker_title;
+
   /// No description provided for @addEditCaseSheet_offsetSameDay.
   ///
   /// In en, this message translates to:

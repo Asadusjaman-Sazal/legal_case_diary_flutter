@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.584 - The Update window now uses the Select Day Offset window's 8 px corners.
+Version: 0.0.586 - The time picker plays an audible bundled gear tick on drag, and unselected boxes are white with black text.
 --------------------------------------
 
 ## Version History Log:
@@ -598,3 +598,5 @@ Version: 0.0.581 - Add Case and Update Day Offset pickers now open the same wind
 Version: 0.0.582 - The day-offset warning now reads 'Select at least one Day Offset.' and appears inside the picker window.
 Version: 0.0.583 - The Select Day Offset title bar now uses the app's main black.
 Version: 0.0.584 - The Update window now uses the Select Day Offset window's 8 px corners.
+Version: 0.0.585 - The notification time window now has a bold Select Time title, white box text and a click on hand drag.
+Version: 0.0.586 - The time picker plays an audible bundled gear tick on drag, and unselected boxes are white with black text.

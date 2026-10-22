@@ -668,6 +668,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The Update window shares the Select Day Offset window's 8 px corners.
+    final windowShape =
+        tester.widget<Dialog>(find.byType(Dialog)).shape
+            as RoundedRectangleBorder;
+    expect(windowShape.borderRadius, BorderRadius.circular(8));
+
     await tester.tap(find.byKey(const ValueKey('quick-update-day-offset')));
     await tester.pumpAndSettle();
 

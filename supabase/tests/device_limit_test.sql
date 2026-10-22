@@ -1,5 +1,6 @@
--- Device limit test — proves the registry/enforcement pair and the
--- `20261022150000_device_no_grace.sql` closure.
+-- Device limit test — proves the registry/enforcement pair, the
+-- `20261022150000_device_no_grace.sql` closure, and the install binding from
+-- `20261022160000_device_install_secret.sql`.
 --
 -- Self-contained: throwaway accounts are created inside one transaction that is
 -- rolled back, so no fixture survives. The client paths are exercised the way
@@ -47,9 +48,12 @@ end;
 $$;
 
 -- A signed-in device: role + claims, including the session the cap counts.
+-- `request.headers` stands in for the PostgREST GUC that carries the install's
+-- `x-install-secret`; passing a different secret is how a clone is simulated.
 create or replace function pg_temp.as_session(
   p_user uuid,
-  p_session uuid
+  p_session uuid,
+  p_secret text default 'secret-1'
 )
 returns void
 language plpgsql
@@ -64,6 +68,11 @@ begin
     )::text,
     true
   );
+  perform set_config(
+    'request.headers',
+    jsonb_build_object('x-install-secret', p_secret)::text,
+    true
+  );
   execute 'set local role authenticated';
 end;
 $$;
@@ -75,6 +84,7 @@ language plpgsql
 as $$
 begin
   perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.headers', '', true);
   execute 'reset role';
 end;
 $$;
@@ -125,6 +135,7 @@ declare
   v_idle uuid;
   v_first uuid;
   v_second uuid;
+  v_free_session uuid := gen_random_uuid();
 begin
   -- Two live accounts and one lapsed one.
   update public.profiles
@@ -531,6 +542,98 @@ begin
   perform pg_temp.assert_true(
     v_row.last_seen_at > now() - interval '1 minute',
     'the heartbeat refreshes last_seen_at'
+  );
+
+  ---------------------------------------------------------------------------
+  -- 13. A session is bound to the install that claimed it.
+  ---------------------------------------------------------------------------
+  -- A registration writes the hash, never the secret itself.
+  perform pg_temp.as_session(v_free, v_free_session, 'free-secret');
+  v_result := public.register_device('free-phone', 'android', 'Free Phone',
+                                     'free-secret');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'a fresh install registers with its secret');
+  select * into v_row
+    from public.user_devices d
+   where d.session_id = v_free_session;
+  perform pg_temp.assert_true(
+    v_row.install_secret_hash = public.sha256_hex('free-secret'),
+    'only the sha256 of the install secret is stored'
+  );
+
+  -- The same token replayed from another install is refused, and the real
+  -- row is untouched so the real device keeps its slot.
+  perform pg_temp.as_session(v_starter, v_s5, 'clone-secret');
+  v_result := public.register_device('new-phone', 'android', 'New Phone',
+                                     'clone-secret');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'session_in_use',
+    'a different install secret is refused as session_in_use');
+  select * into v_row
+    from public.user_devices d
+   where d.session_id = v_s5;
+  perform pg_temp.assert_true(
+    v_row.revoked_at is null
+      and v_row.install_secret_hash = public.sha256_hex('secret-1'),
+    'the cloned registration leaves the real device untouched'
+  );
+
+  perform pg_temp.as_session(v_starter, v_s5, 'clone-secret');
+  v_result := public.device_state();
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'session_in_use',
+    'the launch check reports the clone instead of active');
+
+  perform pg_temp.as_session(v_starter, v_s5, 'clone-secret');
+  perform pg_temp.assert_true(public.device_may_push() is false,
+    'a clone may not push');
+  perform pg_temp.assert_true(public.device_may_read() is false,
+    'a clone presenting a wrong secret reads nothing');
+  begin
+    perform public.push_changes('[]'::jsonb);
+    perform pg_temp.as_owner();
+    raise exception 'DEVICE FAIL: a cloned session pushed';
+  exception when others then
+    perform pg_temp.as_owner();
+    perform pg_temp.assert_true(
+      position('device_revoked' in sqlerrm) > 0,
+      'push_changes refuses a clone with device_revoked'
+    );
+  end;
+
+  -- Omitting the secret is not an escape: a caller with neither the parameter
+  -- nor the header cannot register at all.
+  perform pg_temp.as_session(v_starter, v_s5, null);
+  v_result := public.register_device('new-phone', 'android', 'New Phone');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'invalid_install_secret',
+    'a registration with no install secret is refused');
+
+  -- The real install keeps working.
+  perform pg_temp.as_session(v_starter, v_s5);
+  v_result := public.register_device('new-phone', 'android', 'New Phone',
+                                     'secret-1');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'the install that bound the session still registers');
+  perform pg_temp.assert_true(public.sha256_hex('secret-1') <> public.sha256_hex('clone-secret'),
+    'different secrets hash differently');
+
+  -- A restored copy has the same device key but not the this-device-only
+  -- secret, so it is a new device, not a `replaced` sign-in.
+  perform pg_temp.as_session(v_starter, gen_random_uuid(), 'restored-secret');
+  v_result := public.register_device('new-phone', 'android', 'Restored Phone',
+                                     'restored-secret');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'device_limit_reached',
+    'a restored copy does not replace the original device');
+  perform pg_temp.assert_true(
+    not exists (
+      select 1 from public.user_devices d
+       where d.user_id = v_starter and d.revoked_reason = 'replaced'
+    ),
+    'the original row is not marked replaced'
   );
 
   raise notice 'DEVICE OK';

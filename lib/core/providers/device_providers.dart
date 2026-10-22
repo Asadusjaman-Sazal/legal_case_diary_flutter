@@ -8,8 +8,10 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../database/encryption_key_manager.dart';
 import '../../features/auth/data/device_registration.dart';
 import '../devices/device_identity.dart';
+import '../devices/device_install_secret.dart';
 import 'repository_providers.dart';
 
 /// Resolves and caches this install's identity.
@@ -22,6 +24,13 @@ final deviceIdentityProvider = FutureProvider<DeviceIdentity>(
   (ref) => ref.watch(deviceIdentityServiceProvider).resolve(),
 );
 
+/// This install's secret, read once from this-device-only secure storage.
+final deviceInstallSecretProvider = FutureProvider<String>(
+  (ref) => const DeviceInstallSecretStore(
+    FlutterSecureKeyStorage.sessionOnly(),
+  ).loadOrCreate(),
+);
+
 /// The registry, or the inert one when this build carries no backend.
 final deviceRegistrationRepositoryProvider =
     Provider<DeviceRegistrationRepository>((ref) {
@@ -29,7 +38,10 @@ final deviceRegistrationRepositoryProvider =
       if (client == null) {
         return const UnavailableDeviceRegistrationRepository();
       }
-      return SupabaseDeviceRegistrationRepository(client);
+      return SupabaseDeviceRegistrationRepository(
+        client,
+        installSecret: () => ref.read(deviceInstallSecretProvider.future),
+      );
     });
 
 /// True between a fresh sign-in and the first device answer.
@@ -61,6 +73,9 @@ final deviceGateProvider =
 
 /// Registers the device and answers what it is allowed to do.
 class DeviceGateController extends AsyncNotifier<DeviceGateState> {
+  /// The last heartbeat sent, so a busy sync does not call the server each time.
+  DateTime? _lastTouch;
+
   @override
   Future<DeviceGateState> build() async {
     // Watched, not read: a sign-out or a new account rebuilds this and registers
@@ -109,5 +124,24 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
     await ref
         .read(deviceRegistrationRepositoryProvider)
         .acknowledgeWipe(identity);
+  }
+
+  /// Marks this device as really used, at most once an hour.
+  ///
+  /// The seven-day idle eviction must measure contact, not app launches; a
+  /// device used all day without being restarted would otherwise look idle.
+  Future<void> touch() async {
+    final now = DateTime.now();
+    final last = _lastTouch;
+    if (last != null && now.difference(last) < const Duration(hours: 1)) {
+      return;
+    }
+    _lastTouch = now;
+    try {
+      await ref.read(deviceRegistrationRepositoryProvider).touch();
+    } on Object {
+      // A failed heartbeat is not a reason to fail anything else; retry later.
+      _lastTouch = null;
+    }
   }
 }

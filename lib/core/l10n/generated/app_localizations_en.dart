@@ -2122,6 +2122,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not erase this device. Try again.';
 
   @override
+  String get devices_sessionInUseTitle => 'This Sign-In Was Ended';
+
+  @override
+  String get devices_sessionInUseBody =>
+      'This sign-in was opened somewhere else, so the app ended it here to protect your diary. This device\'s local copy is being erased.';
+
+  @override
   String get devices_replacedTitle => 'This Sign-In Has Ended';
 
   @override

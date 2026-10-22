@@ -841,11 +841,26 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'real-use heartbeat. One-time cleanup revokes any row above its cap and '
         'clears the obsolete grandfathered flag.',
   ),
+  LedgerSection(
+    file: '20261022160000_device_install_secret.sql',
+    version: '0.0.595',
+    label:
+        'Device limit — a session belongs to its install. Every install mints '
+        'a 32-byte secret kept in this-device-only secure storage and sends it '
+        'as x-install-secret (and p_install_secret); user_devices stores only '
+        'its sha256. A known session presented with a different secret answers '
+        'session_in_use, no secret at all answers invalid_install_secret, and '
+        'replaced now needs the same device key and the same secret, so a '
+        'restored backup is a new device. Push and heartbeat fail closed on a '
+        'mismatch; reads keep a permissive fallback when no secret is present '
+        'because Realtime does not reliably forward custom headers.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.595': 'Device Limit — A Session Belongs To Its Install',
   '0.0.592': 'Device Limit — The Grace Period Is Closed',
   '0.0.590': 'Payment Support — The Payer\'s Name And E-mail On Both Ledgers',
   '0.0.567': 'Task 22 — The Device Limit, Rolled Out On Both Sides',

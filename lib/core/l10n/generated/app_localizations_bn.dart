@@ -2129,6 +2129,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ডিভাইসটি মোছা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get devices_sessionInUseTitle => 'এই সাইন-ইনটি বন্ধ করা হয়েছে';
+
+  @override
+  String get devices_sessionInUseBody =>
+      'এই সাইন-ইনটি অন্য জায়গায় খোলা হয়েছে, তাই আপনার ডায়েরি সুরক্ষার জন্য অ্যাপটি এখানে এটি বন্ধ করেছে। এই ডিভাইসের স্থানীয় কপি মুছে ফেলা হচ্ছে।';
+
+  @override
   String get devices_replacedTitle => 'এই সাইন-ইন শেষ হয়েছে';
 
   @override

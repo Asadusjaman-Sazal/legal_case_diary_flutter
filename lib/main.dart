@@ -6,10 +6,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/constants/supabase_config.dart';
+import 'core/devices/device_install_secret.dart';
 import 'core/errors/error_capture.dart';
 import 'core/errors/error_log.dart';
 import 'core/errors/error_log_provider.dart';
 import 'core/errors/error_log_store.dart';
+import 'database/encryption_key_manager.dart';
 import 'features/auth/data/session_store.dart';
 import 'features/auth/data/supabase_auth_repository.dart';
 import 'shared/providers/shared_preferences_provider.dart';
@@ -69,11 +71,17 @@ Future<void> _initializeSupabase(ErrorLog log) async {
   }
 
   try {
+    // The install secret is generated before the client so every HTTP request
+    // carries it from the first call.
+    final installSecret = await const DeviceInstallSecretStore(
+      FlutterSecureKeyStorage.sessionOnly(),
+    ).loadOrCreate();
     final client = await Supabase.initialize(
       url: SupabaseConfig.url,
       // The publishable (anon) key: public by design, and every table is
       // protected by RLS. The secret key must never ship in the app.
       publishableKey: SupabaseConfig.publishableKey,
+      headers: <String, String>{'x-install-secret': installSecret},
       authOptions: FlutterAuthClientOptions(
         // The session is a credential, so it goes to secure storage instead of
         // plain preferences.

@@ -119,6 +119,19 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
       case DeviceGateStatus.unknown:
         return _checkGate(context, failed: true);
 
+      case DeviceGateStatus.sessionInUse:
+        if (!_started) {
+          _started = true;
+          unawaited(Future<void>.microtask(_discardAndSignOut));
+        }
+        return _RevokedScreen(
+          title: AppLocalizations.of(context).devices_sessionInUseTitle,
+          state: state,
+          saving: _saving,
+          failed: _discardFailed,
+          onRetry: _discardAndSignOut,
+        );
+
       case DeviceGateStatus.active:
         final evicted = state.evictedLabel;
         if (evicted != null && evicted != _announcedEviction) {
@@ -524,12 +537,14 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
 /// The device is discarding its local copy, not saving it; the screen says so
 /// and offers a retry when the wipe cannot run.
 class _RevokedScreen extends StatelessWidget {
+  final String? title;
   final DeviceGateState state;
   final bool saving;
   final bool failed;
   final Future<void> Function() onRetry;
 
   const _RevokedScreen({
+    this.title,
     required this.state,
     required this.saving,
     required this.failed,
@@ -540,6 +555,7 @@ class _RevokedScreen extends StatelessWidget {
     'lapse' => l.devices_revokedLapseBody('${state.cap}'),
     'user' => l.devices_revokedRemovedBody,
     'signed_out' => l.devices_signedOutBody,
+    'session_in_use' => l.devices_sessionInUseBody,
     _ => l.devices_revokedBody('${state.cap}'),
   };
 
@@ -563,7 +579,7 @@ class _RevokedScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    l.devices_revokedTitle,
+                    title ?? l.devices_revokedTitle,
                     textAlign: TextAlign.center,
                     style: AppTypography.titleLg,
                   ),

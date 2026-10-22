@@ -198,6 +198,8 @@ class _CaseTypeListView extends ConsumerWidget {
             ),
           ),
           onDelete: (c) => _delete(context, c, repo.delete),
+          // Built-in seed options cannot be deleted; only what the user added.
+          isDeletable: (c) => c.isCustom,
           onReorder: (items, oldIndex, newIndex) => _reorder(
             items,
             oldIndex,
@@ -233,6 +235,8 @@ class _StepListView extends ConsumerWidget {
             ),
           ),
           onDelete: (c) => _delete(context, c, repo.delete),
+          // Built-in seed options cannot be deleted; only what the user added.
+          isDeletable: (c) => c.isCustom,
           onReorder: (items, oldIndex, newIndex) => _reorder(
             items,
             oldIndex,
@@ -274,7 +278,7 @@ class _OnBehalfListView extends ConsumerWidget {
             base: c,
           ),
         ),
-        isDeletable: (c) => !inUse.onBehalfIds.contains(c.id),
+        isDeletable: (c) => c.isCustom && !inUse.onBehalfIds.contains(c.id),
         onDelete: (c) => _delete(context, c, repo.delete),
         onReorder: (items, oldIndex, newIndex) => _reorder(
           items,

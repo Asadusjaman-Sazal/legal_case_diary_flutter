@@ -817,11 +817,23 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'than deleting it, so the branch is reachable only by a session that '
         'never registered, and both gates close on one date.',
   ),
+  LedgerSection(
+    file: '20261022140000_payment_party_identity.sql',
+    version: '0.0.590',
+    label:
+        'Payment support — both payment ledgers carry the payer. '
+        'payment_submissions and payment_approval_events gain full_name and '
+        'email snapshots, filled from profiles by a BEFORE INSERT trigger that '
+        'overrides any client text; existing rows are backfilled from the '
+        'profile they already point at, so troubleshooting no longer needs a '
+        'join to identify who paid.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.590': 'Payment Support — The Payer\'s Name And E-mail On Both Ledgers',
   '0.0.567': 'Task 22 — The Device Limit, Rolled Out On Both Sides',
   '0.0.566': 'Task 22 — The Device Limit, Made Correct',
   '0.0.565': 'Task 22 — The Device Limit',

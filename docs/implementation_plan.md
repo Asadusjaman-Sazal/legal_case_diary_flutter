@@ -1040,6 +1040,8 @@ lib/
 |---|---|---|
 | `id` | UUID PK | |
 | `user_id` | UUID FK → `auth.users` | |
+| `full_name` | TEXT | Payer's display name snapshot, copied from `profiles` by `fill_payment_party_identity()` when the row is inserted (`0.0.590`). |
+| `email` | TEXT | Payer's login e-mail snapshot, copied from `profiles` at insert; makes the table readable without a join. |
 | `plan_type` | TEXT | `monthly`, `quarterly`, `half_yearly` or `annual` — the machine key, not a label |
 | `plan_name` | TEXT | Readable name beside the key — `1 Month`, `3 Months`, `6 Months` or `1 Year` — **generated** from `plan_type` (`0.0.385`). Read-only and never written, so it cannot drift from the key; it exists so the raw table reads plainly in Studio. |
 | `amount` | INTEGER | Exact BDT amount paid |
@@ -1073,6 +1075,8 @@ lib/
 > | `id` | UUID PK | Server-generated |
 > | `payment_submission_id` | UUID UNIQUE FK → `payment_submissions` | One approval event maximum per submission |
 > | `user_id` | UUID FK → `auth.users` | Subscription owner |
+> | `full_name` | TEXT | Payer's display name snapshot, copied from `profiles` by `fill_payment_party_identity()` at insert (`0.0.590`). |
+> | `email` | TEXT | Payer's login e-mail snapshot, copied from `profiles` at insert. |
 > | `approved_by` | UUID FK → `auth.users` | Authorized admin actor |
 > | `plan_type` | TEXT | Validated `monthly`, `quarterly`, `half_yearly` or `annual` |
 > | `plan_name` | TEXT | The same **generated** readable name of `plan_type` (`0.0.385`), so the immutable ledger reads plainly in Studio without its key becoming a label. |
@@ -1082,6 +1086,8 @@ lib/
 > | `created_at` | TIMESTAMPTZ | `NOT NULL DEFAULT now()` |
 >
 > RLS denies every direct client INSERT/UPDATE/DELETE on this ledger; authenticated owners may read only their own events if the product exposes receipts, while admins may read all. No update/delete policy or mutable audit RPC is provided.
+>
+> **Who paid is readable (2026-10-22, `0.0.590`):** both ledgers carry `full_name` and `email`, filled from `profiles` by `fill_payment_party_identity()` on insert — overriding any client-supplied text — and backfilled for existing rows in `20261022140000_payment_party_identity.sql`. They are support snapshots at write time, not live joins.
 
 > ### `payment_configuration` (MFS receiving numbers — server-managed configuration)
 > | Column | Type | Notes |

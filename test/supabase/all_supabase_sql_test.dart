@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        61,
+        62,
         reason:
+            'The payment identity snapshots (2026-10-22) added one file. '
             'The device limit (2026-10-21) added its registry, its '
             'enforcement pair, the trim correction its proof caught and the '
             'roll-out window writes were missing, so the folder is four files '

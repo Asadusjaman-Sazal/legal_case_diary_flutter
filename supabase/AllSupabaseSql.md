@@ -95,6 +95,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.565 | 2026-10-22 | `20261022110000_device_limit_enforcement.sql` | Task 22 — Enforcing the device limit. A limit a client can ignore by never registering is not a limit, so three gates: device_may_push admits an active device, a revoked device inside its 14-day flush window — the window is what lets unsent work reach the account before the device erases — and a caller carrying no session at all (psql, the service role); device_may_read admits only an active device, plus an unregistered session until the same roll-out end so an install that has not updated yet keeps working; and push_changes keeps its body — renamed push_changes_core with its grants, never re-typed — behind a wrapper that refuses a revoked session past its window with device_revoked. The eleven ledger tables and conflict_log gain device_may_read() in their SELECT policies, which is the same condition a Realtime subscription reads. profiles, the billing tables and the firm roster stay readable on purpose: a revoked device needs its own profile to explain itself, and it erases at its next contact anyway. |
 | 0.0.566 | 2026-10-22 | `20261022120000_device_trim_counts_the_caller.sql` | Task 22 — Device trim counts the caller only when it holds a slot. The proof caught the first run of the limit admitting a third sign-in on a two-device plan and revoking one of the two devices already there as lapse: device_trim_surplus kept cap-minus-one devices other than the caller, which is right only while the caller already occupies a slot, and register_device trims before it knows. It now asks user_devices whether the caller holds an active row and subtracts one only then; a new device leaves the whole cap to the devices present, so a full plan answers device_limit_reached, and an account already above its cap is still trimmed back to it. |
 | 0.0.567 | 2026-10-22 | `20261022130000_device_push_rollout_window.sql` | Task 22 — Writes get the roll-out window reads already had. The enforcement migration admitted an unregistered session to READ until the 2026-11-21 roll-out end and gave it no such allowance to WRITE, so an install that had not updated could pull the diary down and could not hand one edit back up: its first push was refused as device_revoked, and because a refusal is not retryable the client blocked every queued change. device_may_push now admits a session with no user_devices row at all until the same date; a revoked device is unaffected because revocation stamps revoked_at on a row rather than deleting it, so the branch is reachable only by a session that never registered, and both gates close on one date. |
+| 0.0.590 | 2026-10-22 | `20261022140000_payment_party_identity.sql` | Payment support — both payment ledgers carry the payer. payment_submissions and payment_approval_events gain full_name and email snapshots, filled from profiles by a BEFORE INSERT trigger that overrides any client text; existing rows are backfilled from the profile they already point at, so troubleshooting no longer needs a join to identify who paid. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -15357,5 +15358,110 @@ $$;
 
 comment on function public.device_may_push(timestamptz) is
   'True for an active device, a revoked device still inside its 14-day flush window, an unregistered session before the roll-out end (2026-11-21), or a caller with no session claim. A revoked session is never admitted by the roll-out branch, because revocation stamps a row rather than deleting it.';
+```
+
+## App Version 0.0.590 — Payment Support — The Payer's Name And E-mail On Both Ledgers
+
+### 0.0.590 · `20261022140000_payment_party_identity.sql`
+
+> **Created 2026-10-22.** Payment support — both payment ledgers carry the payer. payment_submissions and payment_approval_events gain full_name and email snapshots, filled from profiles by a BEFORE INSERT trigger that overrides any client text; existing rows are backfilled from the profile they already point at, so troubleshooting no longer needs a join to identify who paid.
+
+```sql
+-- ===========================================================================
+-- Payment identity snapshots
+--
+-- The payment tables are read by the payer and by admins for troubleshooting,
+-- but a bare user_id forces a join to profiles/auth before anyone can tell who
+-- paid. Both now carry the payer's display name and login e-mail as they stood
+-- when the row was written.
+--
+-- A BEFORE INSERT trigger fills them from profiles and overwrites anything a
+-- client sends, so the columns stay trustworthy even though `authenticated`
+-- holds a table-wide INSERT grant on payment_submissions.
+-- ===========================================================================
+
+alter table public.payment_submissions
+  add column if not exists full_name text not null default '',
+  add column if not exists email text not null default '';
+
+alter table public.payment_approval_events
+  add column if not exists full_name text not null default '',
+  add column if not exists email text not null default '';
+
+comment on column public.payment_submissions.full_name is
+  'Payer display name at submission time, copied from profiles by fill_payment_party_identity(); a snapshot for support, not a live join.';
+comment on column public.payment_submissions.email is
+  'Payer login e-mail at submission time, copied from profiles by fill_payment_party_identity(); a snapshot for support, not a live join.';
+comment on column public.payment_approval_events.full_name is
+  'Payer display name at approval time, copied from profiles by fill_payment_party_identity(); a snapshot for support, not a live join.';
+comment on column public.payment_approval_events.email is
+  'Payer login e-mail at approval time, copied from profiles by fill_payment_party_identity(); a snapshot for support, not a live join.';
+
+-- Backfill existing rows from the profile they already point at. A row whose
+-- profile has since been deleted keeps the blank default.
+update public.payment_submissions s
+   set full_name = p.full_name,
+       email = p.email
+  from public.profiles p
+ where p.id = s.user_id
+   and (s.full_name = '' or s.email = '');
+
+-- The approval ledger refuses every UPDATE by its immutability trigger. This
+-- one administrative backfill is the exception: the trigger is disabled and
+-- re-enabled inside the same transaction, so a failure rolls the disable back
+-- and the ledger is never left mutable.
+alter table public.payment_approval_events
+  disable trigger trg_payment_approval_events_immutable;
+
+update public.payment_approval_events e
+   set full_name = p.full_name,
+       email = p.email
+  from public.profiles p
+ where p.id = e.user_id
+   and (e.full_name = '' or e.email = '');
+
+alter table public.payment_approval_events
+  enable trigger trg_payment_approval_events_immutable;
+
+-- The identity always comes from the row's user_id, never from client text.
+-- SECURITY DEFINER so a PostgREST insert made by `authenticated` can read the
+-- profile row it is copying.
+create or replace function public.fill_payment_party_identity()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  select p.full_name, p.email
+    into new.full_name, new.email
+    from public.profiles p
+   where p.id = new.user_id;
+
+  if not found then
+    new.full_name := '';
+    new.email := '';
+  end if;
+
+  return new;
+end;
+$$;
+
+comment on function public.fill_payment_party_identity() is
+  'Copies the payer profile''s full_name and email onto a new payment row; both payment tables keep the snapshot for support.';
+
+drop trigger if exists trg_payment_submissions_party_identity
+  on public.payment_submissions;
+create trigger trg_payment_submissions_party_identity
+  before insert on public.payment_submissions
+  for each row
+  execute function public.fill_payment_party_identity();
+
+drop trigger if exists trg_payment_approval_events_party_identity
+  on public.payment_approval_events;
+create trigger trg_payment_approval_events_party_identity
+  before insert on public.payment_approval_events
+  for each row
+  execute function public.fill_payment_party_identity();
 ```
 

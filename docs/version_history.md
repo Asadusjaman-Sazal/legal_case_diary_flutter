@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.571 - The Delete Item window now centres its title and buttons, matches the Exit App action size, and shows Delete in red.
+Version: 0.0.572 - The Delete Item window now leaves twice the space between its Cancel and Delete buttons.
 --------------------------------------
 
 ## Version History Log:
@@ -585,3 +585,4 @@ Version: 0.0.568 - Seeded case types, steps and on-behalfs now show their Bengal
 Version: 0.0.569 - The Edit Court/Steps menu cards now drop the word Edit from all three labels.
 Version: 0.0.570 - Built-in case types, steps and on-behalfs no longer offer Delete; only user-added rows do.
 Version: 0.0.571 - The Delete Item window now centres its title and buttons, matches the Exit App action size, and shows Delete in red.
+Version: 0.0.572 - The Delete Item window now leaves twice the space between its Cancel and Delete buttons.

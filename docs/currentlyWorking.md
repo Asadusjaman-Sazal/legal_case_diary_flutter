@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The removal notice's paragraph is justified — COMPLETE (0.0.591)
+
+- **What was asked.** On **Your Access Ended**, the removal notice shown to an associate, the text was centred; it should be justified.
+- **What changed.** The explanatory paragraph is now `TextAlign.justify`, so both edges are flush. The heading stays centred above it, beside the removal icon. Nothing else on the screen changed.
+- **Proof.** The revocation test now asserts the paragraph's alignment; it passes. `flutter analyze` clean; full `flutter test` **1942 passed**; version **0.0.591** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — Both payment ledgers now say who paid — COMPLETE (0.0.590)
 
 - **What was asked.** `payment_submissions` and `payment_approval_events` should carry the payer's **full name** and **email** so a support check does not need a join to `profiles` or `auth.users`.

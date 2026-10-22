@@ -137,7 +137,7 @@ class _MembershipRevokedScopeState
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   AppLocalizations.of(context).membershipRevoked_body,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.justify,
                   style: AppTypography.bodyMd.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),

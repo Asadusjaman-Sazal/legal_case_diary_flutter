@@ -353,7 +353,7 @@ void main() {
             )
             .first,
       );
-      expect(header.color, AppColors.primaryContainer);
+      expect(header.color, AppColors.secondary);
       // The title section is 25% taller than the shared 48 px header.
       expect(
         tester.getSize(find.byType(SettingsPickerDialogHeader)).height,

@@ -15,9 +15,8 @@
 /// Profile, Manage Account and Logout, each of which does what it says.
 ///
 /// The panel itself is a **rounded window with transparent option rows** (user
-/// request): corners far rounder than the card radius, the address line marked
-/// by its `@` icon alone, and its three options reading at the side menu's own
-/// text size.
+/// request): the app's 8 px window corner, the address line marked by its `@`
+/// icon alone, and its three options reading at the side menu's own text size.
 library;
 
 import 'dart:async';
@@ -85,8 +84,7 @@ class _FakeUpdateRepository extends UpdateRepository {
   @override
   Future<UpdateCheckOutcome> checkForLatestRelease() async {
     checks++;
-    return outcome ??
-        const UpdateCheckOutcome(ReleaseCheckResult.upToDate);
+    return outcome ?? const UpdateCheckOutcome(ReleaseCheckResult.upToDate);
   }
 }
 
@@ -169,7 +167,11 @@ void main() {
   /// the event loop between bounded pumps, so a fixed-window pump is the honest
   /// way to wait for it.
   Future<void> pumpLogoutToDone(WidgetTester tester) async {
-    for (var i = 0; i < 40 && tester.any(find.byKey(const ValueKey('drawer-account-logout'))); i++) {
+    for (
+      var i = 0;
+      i < 40 && tester.any(find.byKey(const ValueKey('drawer-account-logout')));
+      i++
+    ) {
       await tester.pump(const Duration(milliseconds: 50));
     }
   }
@@ -448,13 +450,10 @@ void main() {
       if (span is TextSpan && span.text != null) spans.add(span);
       return true;
     });
-    expect(
-      spans.map((span) => span.text),
-      <String>[
-        l.paywall_tierPro,
-        '  ${l.settingsManageAccount_planLimitedAccessTag}',
-      ],
-    );
+    expect(spans.map((span) => span.text), <String>[
+      l.paywall_tierPro,
+      '  ${l.settingsManageAccount_planLimitedAccessTag}',
+    ]);
     expect(spans[1].style?.color, AppColors.error);
   });
 
@@ -477,7 +476,9 @@ void main() {
     expect(drawerText(l.paywall_title), findsNothing);
   });
 
-  testWidgets('Subscription Details opens the details sub-page', (tester) async {
+  testWidgets('Subscription Details opens the details sub-page', (
+    tester,
+  ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final router = await pumpDrawerOnRouter(tester);
 
@@ -487,10 +488,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(subscriptionDetailsMarker), findsOneWidget);
-    expect(
-      router.state.matchedLocation,
-      AppRoutes.settingsSubscriptionDetails,
-    );
+    expect(router.state.matchedLocation, AppRoutes.settingsSubscriptionDetails);
   });
 
   testWidgets('Subscription Plans opens the paywall', (tester) async {
@@ -508,7 +506,9 @@ void main() {
     expect(router.state.matchedLocation, AppRoutes.paywall);
   });
 
-  testWidgets('the row is already open on a screen it leads to', (tester) async {
+  testWidgets('the row is already open on a screen it leads to', (
+    tester,
+  ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     // Opened from the details sub-page itself: its row must be visible and
     // filled, not hidden inside a collapsed header.
@@ -556,7 +556,10 @@ void main() {
       reason: 'the icon stays; only the caption went',
     );
     // The three options, in the app's own words for them.
-    expect(find.byKey(const ValueKey('drawer-account-profile')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('drawer-account-profile')),
+      findsOneWidget,
+    );
     expect(find.text(l.settingsScreen_profile), findsOneWidget);
     expect(find.byKey(const ValueKey('drawer-account-manage')), findsOneWidget);
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
@@ -570,7 +573,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
 
-    // Far rounder than the 4 px card radius: the reference panel's own shape.
+    // The same 8 px window corner as the app's dropdown windows.
     final shape =
         tester
                 .widget<Material>(
@@ -578,7 +581,10 @@ void main() {
                 )
                 .shape
             as RoundedRectangleBorder;
-    expect(shape.borderRadius, BorderRadius.circular(16));
+    expect(
+      shape.borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
   });
 
   testWidgets('the popover options read at the side menu\'s text size', (
@@ -601,7 +607,10 @@ void main() {
     ]) {
       final style = tester
           .widget<Text>(
-            find.descendant(of: find.byKey(option.$1), matching: find.text(option.$2)),
+            find.descendant(
+              of: find.byKey(option.$1),
+              matching: find.text(option.$2),
+            ),
           )
           .style;
       expect(style?.fontSize, menuStyle?.fontSize);
@@ -659,7 +668,9 @@ void main() {
     expect(popover.left, lessThan(iconRect.left));
   });
 
-  testWidgets('the account popover carries a thin grey outline', (tester) async {
+  testWidgets('the account popover carries a thin grey outline', (
+    tester,
+  ) async {
     await pumpDrawerOnRouter(tester);
 
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
@@ -820,137 +831,136 @@ void main() {
     );
   });
 
-  testWidgets(
-    'Logout survives the drawer being unmounted under the popover',
-    (tester) async {
-      // A shell-shaped router, like the real app's: the drawer's screen sits on
-      // the shell's **nested** navigator, so the popover's close pops that screen
-      // and the drawer is deactivated while the panel is still up. The popover's
-      // page is then rebuilt — a logout window opens above it — and a panel whose
-      // builder still read the drawer's `ref` threw
-      // "Using \"ref\" when a widget is about to or has been unmounted". The
-      // address, the navigator and the router are now read while the drawer is
-      // certainly mounted, so the rebuild is harmless. This test fails on the
-      // pre-fix code with that StateError.
-      await tester.binding.setSurfaceSize(const Size(500, 1400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+  testWidgets('Logout survives the drawer being unmounted under the popover', (
+    tester,
+  ) async {
+    // A shell-shaped router, like the real app's: the drawer's screen sits on
+    // the shell's **nested** navigator, so the popover's close pops that screen
+    // and the drawer is deactivated while the panel is still up. The popover's
+    // page is then rebuilt — a logout window opens above it — and a panel whose
+    // builder still read the drawer's `ref` threw
+    // "Using \"ref\" when a widget is about to or has been unmounted". The
+    // address, the navigator and the router are now read while the drawer is
+    // certainly mounted, so the rebuild is harmless. This test fails on the
+    // pre-fix code with that StateError.
+    await tester.binding.setSurfaceSize(const Size(500, 1400));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      final db = AppDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
-      // A row only the user could have authored: the free branch then offers the
-      // safety copy, which is the window that rebuilds the popover's page.
-      await db
-          .into(db.courtCategories)
-          .insert(
-            const CourtCategoriesCompanion(
-              id: Value('drawer-category'),
-              nameKey: Value('courtCategory_districtCourtsCivil'),
-              courtLevel: Value('lower'),
-              orderIndex: Value(1),
-              updatedAt: Value(1),
-            ),
-          );
-      await db
-          .into(db.courts)
-          .insert(
-            const CourtsCompanion(
-              id: Value('drawer-court'),
-              courtName: Value('Drawer Court'),
-              higherLowerCourts: Value('lower_courts'),
-              courtCategoryId: Value('drawer-category'),
-              isCustom: Value(true),
-              orderIndex: Value(0),
-              updatedAt: Value(1),
-            ),
-          );
-      var sessionsEnded = 0;
-      final flow = LogoutFlow(
-        db: db,
-        premium: false,
-        online: false,
-        runBacklogPush: () async => null,
-        endSession: () async => sessionsEnded++,
-      );
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    // A row only the user could have authored: the free branch then offers the
+    // safety copy, which is the window that rebuilds the popover's page.
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value('drawer-category'),
+            nameKey: Value('courtCategory_districtCourtsCivil'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(1),
+            updatedAt: Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value('drawer-court'),
+            courtName: Value('Drawer Court'),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value('drawer-category'),
+            isCustom: Value(true),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+        );
+    var sessionsEnded = 0;
+    final flow = LogoutFlow(
+      db: db,
+      premium: false,
+      online: false,
+      runBacklogPush: () async => null,
+      endSession: () async => sessionsEnded++,
+    );
 
-      final router = GoRouter(
-        initialLocation: AppRoutes.dailyCauseList,
-        routes: [
-          ShellRoute(
-            builder: (_, _, child) => Scaffold(body: child),
-            routes: [
-              GoRoute(
-                path: AppRoutes.dailyCauseList,
-                builder: (_, _) => Scaffold(
-                  drawer: AppNavigationDrawer(
-                    currentRoute: AppRoutes.dailyCauseList,
-                  ),
-                  body: const SizedBox.shrink(),
+    final router = GoRouter(
+      initialLocation: AppRoutes.dailyCauseList,
+      routes: [
+        ShellRoute(
+          builder: (_, _, child) => Scaffold(body: child),
+          routes: [
+            GoRoute(
+              path: AppRoutes.dailyCauseList,
+              builder: (_, _) => Scaffold(
+                drawer: AppNavigationDrawer(
+                  currentRoute: AppRoutes.dailyCauseList,
                 ),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: AppRoutes.login,
-            builder: (_, _) => const Scaffold(body: Text(loginMarker)),
-          ),
-        ],
-      );
-      addTearDown(router.dispose);
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            sharedPreferencesProvider.overrideWithValue(prefs),
-            currentPlanProvider.overrideWithValue(freePlan),
-            authIdentityProvider.overrideWithValue(
-              const AuthIdentity(
-                userId: 'drawer-test-user',
-                email: signedInEmail,
+                body: const SizedBox.shrink(),
               ),
             ),
-            logoutFlowProvider.overrideWith((_) async => flow),
           ],
-          child: MaterialApp.router(
-            routerConfig: router,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: const Locale('en'),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (_, _) => const Scaffold(body: Text(loginMarker)),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          currentPlanProvider.overrideWithValue(freePlan),
+          authIdentityProvider.overrideWithValue(
+            const AuthIdentity(
+              userId: 'drawer-test-user',
+              email: signedInEmail,
+            ),
           ),
+          logoutFlowProvider.overrideWith((_) async => flow),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
         ),
-      );
-      await tester.pumpAndSettle();
-      // The screen's own Scaffold, the one carrying the drawer.
-      tester
-          .state<ScaffoldState>(
-            find
-                .byWidgetPredicate((w) => w is Scaffold && w.drawer != null)
-                .first,
-          )
-          .openDrawer();
-      await tester.pumpAndSettle();
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The screen's own Scaffold, the one carrying the drawer.
+    tester
+        .state<ScaffoldState>(
+          find
+              .byWidgetPredicate((w) => w is Scaffold && w.drawer != null)
+              .first,
+        )
+        .openDrawer();
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
-      // The spinner is up from this tap; a bounded pump lets the confirmation
-      // window animate in over it (pumpAndSettle cannot settle an infinite
-      // animation).
-      await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
+    // The spinner is up from this tap; a bounded pump lets the confirmation
+    // window animate in over it (pumpAndSettle cannot settle an infinite
+    // animation).
+    await tester.pump(const Duration(milliseconds: 300));
 
-      // The copy is offered before anything is deleted; No wipes without one.
-      final l = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(l.logout_backupPromptTitle), findsOneWidget);
-      await tester.tap(
-        find.descendant(
-          of: find.byType(AlertDialog),
-          matching: find.text(l.sharedActions_no),
-        ),
-      );
-      await pumpLogoutToDone(tester);
+    // The copy is offered before anything is deleted; No wipes without one.
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(find.text(l.logout_backupPromptTitle), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text(l.sharedActions_no),
+      ),
+    );
+    await pumpLogoutToDone(tester);
 
-      expect(sessionsEnded, 1, reason: 'the logout ended the session');
-      expect(router.state.matchedLocation, AppRoutes.login);
-    },
-  );
+    expect(sessionsEnded, 1, reason: 'the logout ended the session');
+    expect(router.state.matchedLocation, AppRoutes.login);
+  });
 
   testWidgets('Logout leaves the side menu open while its windows run', (
     tester,
@@ -1094,9 +1104,12 @@ void main() {
     expect(find.text('Admin Panel'), findsOneWidget);
     final badge = tester.widget<Badge>(find.byType(Badge));
     expect(badge.isLabelVisible, isTrue);
-    expect(find.descendant(of: find.byType(Badge), matching: find.text('4')),
-        findsOneWidget);
-  });  testWidgets("the Admin row's count uses the language's own digits", (
+    expect(
+      find.descendant(of: find.byType(Badge), matching: find.text('4')),
+      findsOneWidget,
+    );
+  });
+  testWidgets("the Admin row's count uses the language's own digits", (
     tester,
   ) async {
     await pumpDrawerOnRouter(
@@ -1125,7 +1138,6 @@ void main() {
   testWidgets('the Admin row carries no badge when nothing is waiting', (
     tester,
   ) async {
-
     await pumpDrawerOnRouter(tester, adminBadgeCount: 0);
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
@@ -1135,18 +1147,21 @@ void main() {
     expect(find.byType(Badge), findsNothing);
   });
 
-  testWidgets('Check for update sits below Share, and opens the drawer no wider', (
-    tester,
-  ) async {
-    useTallViewport(tester);
-    await pumpDrawer(tester, locale: const Locale('en'));
-    final l = await AppLocalizations.delegate.load(const Locale('en'));
+  testWidgets(
+    'Check for update sits below Share, and opens the drawer no wider',
+    (tester) async {
+      useTallViewport(tester);
+      await pumpDrawer(tester, locale: const Locale('en'));
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
 
-    // Below Share, as asked.
-    final share = tester.getRect(drawerText(l.nav_share)).top;
-    final update = tester.getRect(drawerText(l.settingsUpdate_checkForUpdate)).top;
-    expect(update, greaterThan(share));
-  });
+      // Below Share, as asked.
+      final share = tester.getRect(drawerText(l.nav_share)).top;
+      final update = tester
+          .getRect(drawerText(l.settingsUpdate_checkForUpdate))
+          .top;
+      expect(update, greaterThan(share));
+    },
+  );
 
   testWidgets('tapping it checks and cascades the result underneath', (
     tester,
@@ -1287,28 +1302,29 @@ void main() {
     expect(active, lessThan(daily));
   });
 
-  testWidgets('the expanded list follows the saved serial, not the canonical one', (
-    tester,
-  ) async {
-    useTallViewport(tester);
-    await pumpDrawer(
-      tester,
-      locale: const Locale('en'),
-      // The user dragged Disposed to the front in View Settings.
-      bottomNavTabs: const <String>['all_cases'],
-      bottomNavOrder: const <String>['disposed', 'notes', 'upcoming'],
-    );
+  testWidgets(
+    'the expanded list follows the saved serial, not the canonical one',
+    (tester) async {
+      useTallViewport(tester);
+      await pumpDrawer(
+        tester,
+        locale: const Locale('en'),
+        // The user dragged Disposed to the front in View Settings.
+        bottomNavTabs: const <String>['all_cases'],
+        bottomNavOrder: const <String>['disposed', 'notes', 'upcoming'],
+      );
 
-    await tester.tap(drawerKey('drawer-case-expander'));
-    await tester.pumpAndSettle();
+      await tester.tap(drawerKey('drawer-case-expander'));
+      await tester.pumpAndSettle();
 
-    // Disposed leads, because that is the serial the user set.
-    final disposed = tester.getRect(drawerText('Disposed Cases')).top;
-    final upcoming = tester.getRect(drawerText('Upcoming Cases')).top;
-    final daily = tester.getRect(drawerText('Daily Cause List')).top;
-    expect(disposed, lessThan(upcoming));
-    expect(upcoming, lessThan(daily));
-  });
+      // Disposed leads, because that is the serial the user set.
+      final disposed = tester.getRect(drawerText('Disposed Cases')).top;
+      final upcoming = tester.getRect(drawerText('Upcoming Cases')).top;
+      final daily = tester.getRect(drawerText('Daily Cause List')).top;
+      expect(disposed, lessThan(upcoming));
+      expect(upcoming, lessThan(daily));
+    },
+  );
 
   testWidgets('no arrow when the bar carries no case screen', (tester) async {
     useTallViewport(tester);
@@ -1437,9 +1453,7 @@ void main() {
     expect(find.byType(Drawer), findsNothing);
   });
 
-  testWidgets('a stored offer turns the row into Update now', (
-    tester,
-  ) async {
+  testWidgets('a stored offer turns the row into Update now', (tester) async {
     useTallViewport(tester);
     // Seeded before the pump: the store reads preferences once when built. This
     // is a release the *launch check* found — this row's own controller never
@@ -1526,20 +1540,22 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
     expect(drawerText(l.settingsUpdate_checkForUpdate), findsOneWidget);
-    expect(updateRowInk(tester, l.settingsUpdate_checkForUpdate),
-        AppColors.onSurfaceVariant);
+    expect(
+      updateRowInk(tester, l.settingsUpdate_checkForUpdate),
+      AppColors.onSurfaceVariant,
+    );
 
     // A check elsewhere — exactly the launch check — stores what it found.
-    ProviderScope.containerOf(
-      tester.element(find.byType(Drawer)),
-    ).read(updateMetadataProvider.notifier).recordCheck(
-      atEpochMs: 0,
-      offline: false,
-      release: const AppRelease(
-        version: '99.99.999',
-        downloadUrl: 'https://example.test/app.apk',
-      ),
-    );
+    ProviderScope.containerOf(tester.element(find.byType(Drawer)))
+        .read(updateMetadataProvider.notifier)
+        .recordCheck(
+          atEpochMs: 0,
+          offline: false,
+          release: const AppRelease(
+            version: '99.99.999',
+            downloadUrl: 'https://example.test/app.apk',
+          ),
+        );
     await tester.pumpAndSettle();
 
     expect(drawerText(l.settingsUpdate_updateNow), findsOneWidget);

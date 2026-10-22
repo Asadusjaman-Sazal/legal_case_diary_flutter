@@ -311,7 +311,10 @@ void main() {
 
         final dialog = tester.widget<Dialog>(find.byType(Dialog));
         final dialogShape = dialog.shape! as RoundedRectangleBorder;
-        expect(dialogShape.borderRadius, BorderRadius.circular(4));
+        expect(
+          dialogShape.borderRadius,
+          BorderRadius.circular(AppSpacing.cardRadius * 2),
+        );
         final dialogSize = tester.getSize(
           find.byKey(const ValueKey('custom-dropdown-dialog')),
         );

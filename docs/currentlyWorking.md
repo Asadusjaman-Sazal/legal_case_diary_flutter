@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The Delete Item actions get more air — COMPLETE (0.0.572)
+
+- **What was asked.** Double the space between Cancel and Delete in the Delete Item window.
+- **What changed.** Flutter fixes the action gap at 8 px and does not expose it, so each button gained 4 px of padding on both sides. The visible gap is now **16 px**, twice the old one, and the pair stays centred; the dialog's existing wrap-to-two-rows behaviour at narrow widths is kept.
+- **Proof.** The dialog test now measures the rendered gap between the two buttons and expects 16 px, which fails on the old 8 px. `flutter analyze` clean; full `flutter test` **1938 passed**; version **0.0.572** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The Delete Item window matches the Exit App window — COMPLETE (0.0.571)
 
 - **What was asked.** The Delete Item pop-over in Settings → Edit Court/Steps should centre its title and its two buttons, size Cancel and Delete like the Exit App window's buttons, and paint Delete red with white text.

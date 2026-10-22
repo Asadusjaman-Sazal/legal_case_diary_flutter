@@ -253,6 +253,21 @@ void main() {
       delete.style?.foregroundColor?.resolve(<WidgetState>{}),
       Colors.white,
     );
+
+    // Twice AlertDialog's fixed 8 px gap between actions.
+    final cancelRect = tester.getRect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextButton),
+      ),
+    );
+    final deleteRect = tester.getRect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    expect(deleteRect.left - cancelRect.right, 16);
   });
 }
 

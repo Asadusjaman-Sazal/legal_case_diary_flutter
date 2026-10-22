@@ -1,5 +1,15 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — Every revocation discards, except a same-install re-login — COMPLETE (0.0.594)
+
+- **What changed.**
+  - Every revocation reason except `replaced` — `signed_out` (the window), `user` (Settings → Devices Remove), `cap` (idle eviction) and `lapse` (plan change) — now **cancels alarms, acknowledges where possible, discards the queue and local database, signs out and shows Login**. There is no save attempt.
+  - The old save-before-erase screen, its “Saving…”/“Try Again” flow, `devices_discard`, and `SyncService.pushBeforeErase` are deleted. The Remove confirmation and every revoked body now say the local copy and unsaved work are **discarded**.
+  - `replaced` is the one keep-data case: the old sign-in ends through `AuthViewModel.signOut()` **without wiping**, the screen says *This Sign-In Has Ended*, and the local database stays for the new session on the same install.
+- **Tests.** The revoked tests now assert the discard copy and the erase-retry screen for `cap`, `signed_out` and `lapse`; the old “Save”/“Sign Out and Discard” wording is asserted absent. `flutter analyze` clean; full `flutter test` **1945 passed**; version **0.0.594** recorded.
+- **Not done yet (Phase 4).** The client does not call the `touch_device` heartbeat yet; `replaced` still trusts the client-supplied `device_key` until the install-secret rule lands; and session cloning remains open.
+- **Device pass.** Sign a device out from the window → that phone discards and shows Login on its next online launch; Remove from Devices does the same; a re-login on the same phone keeps its local data. **Discarding is irreversible**, as the warning says.
+
 ### 2026-10-22 — The third-device window is built — COMPLETE (0.0.593)
 
 - **What was built.**

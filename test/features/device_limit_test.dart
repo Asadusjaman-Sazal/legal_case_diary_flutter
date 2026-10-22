@@ -12,9 +12,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/notifications/notification_scheduler.dart';
 import 'package:legal_case_diary/core/providers/device_providers.dart';
+import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
+import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
 import 'package:legal_case_diary/features/auth/presentation/device_gate_scope.dart';
 
 /// A gate whose answer the test decides, with the actions recorded.
@@ -68,6 +71,18 @@ class _FakeGate extends DeviceGateController {
     state = AsyncData(currentState);
     return true;
   }
+
+  @override
+  Future<void> acknowledgeWipe() async {}
+}
+
+/// A scheduler that does nothing, for the revoked screen's discard.
+class _NoopScheduler implements NotificationScheduler {
+  @override
+  Future<void> cancelAll() async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// A gate that cannot reach the server, for the fresh-login check.
@@ -105,7 +120,15 @@ Future<_FakeGate> _pump(
   final gate = _FakeGate(state);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [deviceGateProvider.overrideWith(() => gate)],
+      overrides: [
+        deviceGateProvider.overrideWith(() => gate),
+        notificationSchedulerProvider.overrideWithValue(_NoopScheduler()),
+        // The revoked screens start an erasure; in a widget test there is no
+        // logout flow, so the screen shows its retry rather than spinning.
+        logoutFlowProvider.overrideWith(
+          (ref) async => throw StateError('no logout flow in a widget test'),
+        ),
+      ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -267,7 +290,7 @@ void main() {
     expect(find.text('the app'), findsNothing);
   });
 
-  testWidgets('a revoked device says it could not save, and erases nothing', (
+  testWidgets('a revoked device discards its local copy and offers a retry', (
     tester,
   ) async {
     await _pump(
@@ -286,13 +309,56 @@ void main() {
         child: const Scaffold(body: Text('the app')),
       ),
     );
-    // The push cannot run in a test host, so the screen must stay on the failed
-    // branch: nothing has been erased, and the copy says so.
+    // The erasure cannot run in a test host, so the screen must stay on the
+    // failed branch: nothing has been erased, and the copy says so.
     await tester.pumpAndSettle();
 
     expect(find.text('This Device Was Signed Out'), findsOneWidget);
+    expect(
+      find.textContaining('Any unsaved work on this device is discarded'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Could not erase this device. Try again.'),
+      findsOneWidget,
+    );
     expect(find.text('Try Again'), findsOneWidget);
-    expect(find.text('Sign Out and Discard'), findsOneWidget);
+    expect(find.text('Sign Out and Discard'), findsNothing);
+    expect(find.text('the app'), findsNothing);
+  });
+
+  testWidgets('a signed-out device discards and offers a retry', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const DeviceGateState(
+        status: DeviceGateStatus.revoked,
+        cap: 2,
+        revokedReason: 'signed_out',
+      ),
+      child: DeviceGateScope(
+        router: GoRouter(
+          routes: [
+            GoRoute(path: '/', builder: (context, _) => const SizedBox()),
+          ],
+        ),
+        child: const Scaffold(body: Text('the app')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('This Device Was Signed Out'), findsOneWidget);
+    expect(
+      find.text(
+        'This device was signed out from another device. Its local copy is being erased.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Could not erase this device. Try again.'),
+      findsOneWidget,
+    );
     expect(find.text('the app'), findsNothing);
   });
 
@@ -316,13 +382,16 @@ void main() {
     await tester.pumpAndSettle();
 
     // A fallen ceiling is not another device taking the slot: the sentence says
-    // the plan changed, and the failed save sits beside it rather than replacing
-    // it.
+    // the plan changed, and it says the unsaved work is discarded.
     expect(
       find.textContaining('Your plan changed and now allows 1 device'),
       findsOneWidget,
     );
+    expect(
+      find.textContaining('Any unsaved work on this device is discarded'),
+      findsOneWidget,
+    );
     expect(find.textContaining('another device took this one'), findsNothing);
-    expect(find.textContaining('nothing has been erased'), findsOneWidget);
+    expect(find.textContaining('nothing has been erased'), findsNothing);
   });
 }

@@ -130,7 +130,7 @@
     <button aria-label="Go back" class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-primary hover:bg-surface-container transition-colors active:opacity-80">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
-    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Court Names, Steps etc</h1>
+    <h1 class="ml-sm font-headline-md text-headline-md font-bold text-primary">Case Types, Steps etc</h1>
   </div>
 </header>
 
@@ -140,7 +140,8 @@
 <main class="max-w-lg mx-auto w-full">
   <div class="p-md flex flex-col gap-xs">
 
-    <!-- Open card: name row plus the three management buttons. -->
+    <!-- Open card: name row plus its management buttons. The higher-court
+         divisions have no Steps: their cases use the plain Result text box. -->
     <div class="bg-surface border border-surface-container rounded-xl p-md">
       <div class="flex items-center min-h-[44px]">
         <p class="flex-1 font-body-lg text-body-lg text-on-surface">Appellate Division</p>
@@ -148,7 +149,6 @@
       </div>
       <div class="mt-sm flex gap-sm">
         <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">Case Types</button>
-        <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">Steps</button>
         <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">On Behalf</button>
       </div>
     </div>

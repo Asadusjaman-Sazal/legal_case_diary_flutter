@@ -1306,7 +1306,7 @@
   "settingsEditItems_caseTypes": "মামলার ধরন",
   "settingsEditItems_steps": "ধাপ",
   "settingsEditItems_onBehalf": "পক্ষে",
-  "settingsCourtNamesSteps_title": "আদালতের নাম, ধাপ ইত্যাদি",
+  "settingsCourtNamesSteps_title": "মামলার ধরন, ধাপ ইত্যাদি",
   "settingsCourtNamesSteps_catAppellateDivision": "আপিল বিভাগ",
   "settingsCourtNamesSteps_catHighCourtDivision": "হাইকোর্ট বিভাগ",
   "settingsCourtNamesSteps_catDistrictSessions": "জেলা ও দায়রা (ফৌজদারি)",

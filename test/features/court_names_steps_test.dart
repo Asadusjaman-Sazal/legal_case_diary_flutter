@@ -1,9 +1,10 @@
-/// Tests for the Court Names, Steps etc category cards (Task 12 Phase 3).
+/// Tests for the Case Types, Steps etc category cards (Task 12 Phase 3).
 ///
 /// The screen lists the seeded court hierarchy only (the two higher-court
 /// divisions plus the 6 lower-court categories) and every card starts
-/// collapsed: the category name is visible, the three management buttons are
-/// not, and tapping the card opens it — one card at a time.
+/// collapsed: the category name is visible, its management buttons are not,
+/// and tapping the card opens it — one card at a time. The higher-court
+/// divisions offer no Steps button: their cases use the Result text box.
 library;
 
 import 'package:flutter/material.dart';
@@ -79,6 +80,7 @@ void main() {
   ) async {
     await _pumpCards(tester);
 
+    expect(find.text('Case Types, Steps etc'), findsOneWidget);
     for (final label in _labels) {
       expect(find.text(label), findsOneWidget, reason: label);
     }
@@ -114,16 +116,14 @@ void main() {
       greaterThan(collapsed.height),
     );
     expect(find.text('Case Types'), findsOneWidget);
-    expect(find.text('Steps'), findsOneWidget);
     expect(find.text('On Behalf'), findsOneWidget);
+    // The higher-court divisions have no steps: their cases use Result.
+    expect(find.text('Steps'), findsNothing);
 
     // Only this card opened: the other seven still show no buttons.
     expect(
-      find.descendant(
-        of: find.byType(Card),
-        matching: find.byType(Container),
-      ),
-      findsNWidgets(3),
+      find.descendant(of: find.byType(Card), matching: find.byType(Container)),
+      findsNWidgets(2),
     );
 
     await tester.tap(find.text('Appellate Division'));
@@ -163,10 +163,7 @@ void main() {
       findsNothing,
     );
     expect(
-      find.descendant(
-        of: find.byType(Card),
-        matching: find.byType(Container),
-      ),
+      find.descendant(of: find.byType(Card), matching: find.byType(Container)),
       findsNWidgets(3),
       reason: 'only the newly opened card carries buttons',
     );
@@ -178,7 +175,7 @@ void main() {
     tester,
   ) async {
     await _pumpCards(tester);
-    await tester.tap(find.text('High Court Division'));
+    await tester.tap(find.text('District Courts (Civil)'));
     await tester.pumpAndSettle();
 
     const buttonLabels = <String>['Case Types', 'Steps', 'On Behalf'];
@@ -207,7 +204,7 @@ void main() {
         .getSize(
           find
               .ancestor(
-                of: find.text('High Court Division'),
+                of: find.text('District Courts (Civil)'),
                 matching: find.byType(ConstrainedBox),
               )
               .first,
@@ -236,6 +233,34 @@ void main() {
         BorderRadius.circular(settingsMenuCardRadius),
         reason: label,
       );
+    }
+  });
+
+  testWidgets('higher-court divisions offer no Steps', (tester) async {
+    await _pumpCards(tester);
+
+    for (final label in <String>['Appellate Division', 'High Court Division']) {
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
+      final card = find.ancestor(
+        of: find.text(label),
+        matching: find.byType(Card),
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('Case Types')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('On Behalf')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('Steps')),
+        findsNothing,
+        reason: '$label has no steps',
+      );
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
     }
   });
 

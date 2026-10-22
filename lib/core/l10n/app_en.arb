@@ -1471,7 +1471,7 @@
   "settingsEditItems_caseTypes": "Case Types",
   "settingsEditItems_steps": "Steps",
   "settingsEditItems_onBehalf": "On Behalf",
-  "settingsCourtNamesSteps_title": "Court Names, Steps etc",
+  "settingsCourtNamesSteps_title": "Case Types, Steps etc",
   "settingsCourtNamesSteps_catAppellateDivision": "Appellate Division",
   "settingsCourtNamesSteps_catHighCourtDivision": "High Court Division",
   "settingsCourtNamesSteps_catDistrictSessions": "Sessions Courts (Criminal)",

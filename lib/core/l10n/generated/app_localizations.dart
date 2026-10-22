@@ -5128,7 +5128,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCourtNamesSteps_title.
   ///
   /// In en, this message translates to:
-  /// **'Court Names, Steps etc'**
+  /// **'Case Types, Steps etc'**
   String get settingsCourtNamesSteps_title;
 
   /// No description provided for @settingsCourtNamesSteps_catAppellateDivision.

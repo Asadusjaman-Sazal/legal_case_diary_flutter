@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The category screen loses “Court Names” and the higher courts lose Steps — COMPLETE (0.0.589)
+
+- **What was asked.** In Settings → Edit Court/Steps → Case Types, Steps etc: rename the header from **Court Names, Steps etc** to **Case Types, Steps etc**, and stop offering **Steps** for the Appellate Division and High Court Division because their cases use the plain **Result** text box.
+- **What changed.** The header text changed in English and Bengali. The two higher-court cards now expand to **Case Types** and **On Behalf** only; the six lower-court categories keep all three buttons. The screen's mockup was updated to the new title and the two-button higher-court card (rule 9).
+- **Proof.** The card tests now assert the new header, the two-button higher-court cards, and that only lower categories show Steps; all pass. `flutter analyze` clean; full `flutter test` **1942 passed**; version **0.0.589** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The gear tick follows the actual time change — COMPLETE (0.0.588)
 
 - **What was wrong.** The tick was tied to pointer movement, so holding a dial and dragging over any part of the window — even where the hour/minute no longer changed — kept ticking.

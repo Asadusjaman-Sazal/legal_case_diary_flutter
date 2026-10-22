@@ -1,6 +1,8 @@
-/// Court Names, Steps etc screen: the canonical court categories as collapsible
+/// Case Types, Steps etc screen: the canonical court categories as collapsible
 /// cards. A card normally shows only the category name; tapping it expands the
-/// three management buttons (Case Types / Steps / On Behalf) below the name.
+/// management buttons (Case Types / Steps / On Behalf) below the name. The
+/// higher-court divisions offer only Case Types and On Behalf: their cases use
+/// the plain "Result" text box instead of steps.
 /// The per-kind list is also rendered by this route when `?kind=` and
 /// `?category=` query params are set. Mirrors `settings_courtNamesSteps`.
 library;
@@ -33,11 +35,10 @@ const double _actionButtonGap = AppSpacing.sm;
 /// The categories listed on this screen, in [allCategoryIds] order: the two
 /// higher-court divisions followed by the 6 lower-court categories. Both halves
 /// come from the seeded hierarchy, so the list cannot drift from the data.
-Map<String, String> _courtCategoryLabels(
-  AppLocalizations l,
-) => <String, String>{
-  for (final id in allCategoryIds) id: _categoryLabel(l, id),
-};
+Map<String, String> _courtCategoryLabels(AppLocalizations l) =>
+    <String, String>{
+      for (final id in allCategoryIds) id: _categoryLabel(l, id),
+    };
 
 /// Localized name of a seeded court category; an unknown id is shown as-is.
 String _categoryLabel(AppLocalizations l, String id) => switch (id) {
@@ -53,7 +54,13 @@ String _categoryLabel(AppLocalizations l, String id) => switch (id) {
   _ => id,
 };
 
-/// Court Names, Steps etc entry screen (collapsible category cards).
+/// The higher-court divisions have no procedural steps: their cases record the
+/// outcome in the plain "Result" text box instead, so they offer no Steps
+/// button.
+bool _hasSteps(String categoryId) =>
+    categoryId != appellateDivisionId && categoryId != highCourtDivisionId;
+
+/// Case Types, Steps etc entry screen (collapsible category cards).
 ///
 /// At most one card is open at a time, so the screen — not each card — keeps the
 /// id of whichever card that is.
@@ -151,9 +158,7 @@ class _CategoryCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: Text(label, style: AppTypography.bodyLg),
-                    ),
+                    Expanded(child: Text(label, style: AppTypography.bodyLg)),
                     Icon(
                       isExpanded ? Icons.expand_less : Icons.expand_more,
                       color: AppColors.tertiary,
@@ -178,14 +183,16 @@ class _CategoryCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: _actionButtonGap),
-                            Expanded(
-                              child: _ActionButton(
-                                label: l.settingsEditItems_steps,
-                                onTap: () =>
-                                    context.push(_route(_ItemKind.steps)),
+                            if (_hasSteps(categoryId)) ...[
+                              Expanded(
+                                child: _ActionButton(
+                                  label: l.settingsEditItems_steps,
+                                  onTap: () =>
+                                      context.push(_route(_ItemKind.steps)),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: _actionButtonGap),
+                              const SizedBox(width: _actionButtonGap),
+                            ],
                             Expanded(
                               child: _ActionButton(
                                 label: l.settingsEditItems_onBehalf,

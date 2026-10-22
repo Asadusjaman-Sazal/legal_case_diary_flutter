@@ -2955,7 +2955,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsEditItems_onBehalf => 'পক্ষে';
 
   @override
-  String get settingsCourtNamesSteps_title => 'আদালতের নাম, ধাপ ইত্যাদি';
+  String get settingsCourtNamesSteps_title => 'মামলার ধরন, ধাপ ইত্যাদি';
 
   @override
   String get settingsCourtNamesSteps_catAppellateDivision => 'আপিল বিভাগ';

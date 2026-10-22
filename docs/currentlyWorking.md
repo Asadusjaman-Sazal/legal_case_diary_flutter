@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — Add Case and Update share the Settings Day Offset window — COMPLETE (0.0.581)
+
+- **What was asked.** The Day Offset dropdown in the Add Case and Update windows should open the same picker window as Settings → Notifications → Notification Day Offset.
+- **What changed.** The two Day Offset fields keep their collapsed control, but tapping them now opens the shared Settings multi-select window: **8 px corners**, elevation 8, the black **60 px** title bar, a centred title with the close button, and the same tick rows. Ticking saves into the form straight away, as in Settings, and the last offset cannot be removed.
+- **Kept intact.** Other dropdowns in the form (court, case type, steps, and so on) keep their existing picker. Nothing about how the form stores or saves a case changed.
+- **Proof.** The Case and Update suites pass with the new window; the acceptance helper now selects the offset rows by their key and closes the window with its header button. `flutter analyze` clean; full `flutter test` **1939 passed**; version **0.0.581** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — Every dropdown and pop-over window takes the 8 px corner — COMPLETE (0.0.580)
 
 - **What was asked.** Apply the Next Date calendar's corner shape to every dropdown and pop-over window in the app, not just View Settings.

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.577 - The View Settings dropdown title bar is now 25% taller instead of 40%.
+Version: 0.0.578 - The Notification Day Offset dropdown now uses the View Settings dropdown window and title bar.
 --------------------------------------
 
 ## Version History Log:
@@ -591,3 +591,4 @@ Version: 0.0.574 - View Settings dropdown pop-over edges are now black.
 Version: 0.0.575 - View Settings dropdown pop-over windows no longer draw an edge.
 Version: 0.0.576 - The View Settings dropdown title bar is now 40% taller.
 Version: 0.0.577 - The View Settings dropdown title bar is now 25% taller instead of 40%.
+Version: 0.0.578 - The Notification Day Offset dropdown now uses the View Settings dropdown window and title bar.

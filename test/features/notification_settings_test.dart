@@ -81,6 +81,17 @@ void main() {
     await tester.tap(find.text('The Day Before'));
     await tester.pumpAndSettle();
     expect(find.text('Select Day Offset'), findsOneWidget);
+    // The same window the View Settings dropdowns use.
+    final dialog = tester.widget<Dialog>(find.byType(Dialog));
+    expect(dialog.elevation, settingsPopoverWindowElevation);
+    expect(dialog.clipBehavior, Clip.antiAlias);
+    final shape = dialog.shape! as RoundedRectangleBorder;
+    expect(shape.borderRadius, BorderRadius.circular(16));
+    expect(shape.side, BorderSide.none);
+    expect(
+      tester.getSize(find.byType(SettingsPickerDialogHeader)).height,
+      moreOrLessEquals(48 * 1.25, epsilon: 0.1),
+    );
     // The shared list: the mockup's days plus Before 15 Days and Before 30 Days.
     expect(find.text('The Same Day'), findsOneWidget);
     expect(find.text('Before 2 Days'), findsOneWidget);
@@ -209,9 +220,7 @@ void main() {
       const NotificationSettingsScreen(),
       repo: repo,
       locale: const Locale('bn'),
-      overrides: [
-        notificationSchedulerProvider.overrideWithValue(scheduler),
-      ],
+      overrides: [notificationSchedulerProvider.overrideWithValue(scheduler)],
     );
 
     await tester.tap(find.text('০৮:৩০ AM'));
@@ -254,9 +263,7 @@ void main() {
       tester,
       const NotificationSettingsScreen(),
       repo: repo,
-      overrides: [
-        notificationSchedulerProvider.overrideWithValue(scheduler),
-      ],
+      overrides: [notificationSchedulerProvider.overrideWithValue(scheduler)],
     );
 
     await tester.tap(find.text('On'));
@@ -314,36 +321,37 @@ void main() {
     expect(find.text('Off'), findsOneWidget);
   });
 
-  testWidgets('an administrator sees the payment-alert pair and its stored value', (
-    tester,
-  ) async {
-    useTallViewport(tester);
-    repo = FakeSettingsRepository(
-      const UserSettings(paymentAlertsEnabled: false),
-    );
-    final scheduler = FakeNotificationScheduler();
-    await pumpSettingsScreen(
-      tester,
-      const NotificationSettingsScreen(),
-      repo: repo,
-      overrides: [
-        adminStatus(true),
-        notificationSchedulerProvider.overrideWithValue(scheduler),
-      ],
-    );
+  testWidgets(
+    'an administrator sees the payment-alert pair and its stored value',
+    (tester) async {
+      useTallViewport(tester);
+      repo = FakeSettingsRepository(
+        const UserSettings(paymentAlertsEnabled: false),
+      );
+      final scheduler = FakeNotificationScheduler();
+      await pumpSettingsScreen(
+        tester,
+        const NotificationSettingsScreen(),
+        repo: repo,
+        overrides: [
+          adminStatus(true),
+          notificationSchedulerProvider.overrideWithValue(scheduler),
+        ],
+      );
 
-    expect(find.text('Admin Panel Notification'), findsOneWidget);
-    // Two pairs now, the administrator's last — the switch defaults to on, so
-    // OFF here is the stored value rather than the default.
-    await tester.tap(find.text('On').at(1));
-    await tester.pumpAndSettle();
+      expect(find.text('Admin Panel Notification'), findsOneWidget);
+      // Two pairs now, the administrator's last — the switch defaults to on, so
+      // OFF here is the stored value rather than the default.
+      await tester.tap(find.text('On').at(1));
+      await tester.pumpAndSettle();
 
-    expect(repo.settings.paymentAlertsEnabled, isTrue);
-    // Nothing local is scheduled for it: the count is pushed by the server.
-    expect(scheduler.syncScheduleCalls, 0);
-    // The OS permission was already granted, so it is not asked for again.
-    expect(scheduler.permissionRequests, 0);
-  });
+      expect(repo.settings.paymentAlertsEnabled, isTrue);
+      // Nothing local is scheduled for it: the count is pushed by the server.
+      expect(scheduler.syncScheduleCalls, 0);
+      // The OS permission was already granted, so it is not asked for again.
+      expect(scheduler.permissionRequests, 0);
+    },
+  );
 
   testWidgets('switching payment alerts on asks for the OS permission once', (
     tester,
@@ -423,9 +431,7 @@ void main() {
       tester,
       const NotificationSettingsScreen(),
       repo: repo,
-      overrides: [
-        notificationSchedulerProvider.overrideWithValue(scheduler),
-      ],
+      overrides: [notificationSchedulerProvider.overrideWithValue(scheduler)],
     );
 
     await tester.tap(find.text('Send Test Notification'));
@@ -450,9 +456,7 @@ void main() {
       tester,
       const NotificationSettingsScreen(),
       repo: repo,
-      overrides: [
-        notificationSchedulerProvider.overrideWithValue(scheduler),
-      ],
+      overrides: [notificationSchedulerProvider.overrideWithValue(scheduler)],
     );
 
     await tester.tap(find.text('Send Test Notification'));

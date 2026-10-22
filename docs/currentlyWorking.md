@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — The day-offset title bar takes the main black — COMPLETE (0.0.583)
+
+- **What was asked.** The Select Day Offset window's title background should be the app's main black.
+- **What changed.** The shared picker header moved from the slightly blue `primaryContainer` to **`AppColors.secondary` (pure black)**, the same ink the buttons, side menu and the Add/Edit Case dropdowns already use. The title and close icon stay white on it.
+- **Scope.** This is one shared header, so the View Settings dropdowns — which use the same title bar — turn the same black, keeping the two windows identical. The day-offset mockup was updated to match (rule 9).
+- **Proof.** The dropdown-window test now expects the black header and passes. `flutter analyze` clean; full `flutter test` **1940 passed**; version **0.0.583** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The day-offset warning moves inside the window — COMPLETE (0.0.582)
 
 - **What was asked.** Reword the warning to **Select at least one Day Offset.**, and make it visible in the Add Case and Update windows, where it was being drawn behind the open picker.

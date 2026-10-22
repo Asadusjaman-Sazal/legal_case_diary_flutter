@@ -511,7 +511,8 @@ class SettingsPickerDialogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    color: AppColors.primaryContainer,
+    // The app's main black, the same ink as the buttons and side menu.
+    color: AppColors.secondary,
     constraints: BoxConstraints(minHeight: enlarged ? 48 * 1.25 : 0),
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
     child: Row(

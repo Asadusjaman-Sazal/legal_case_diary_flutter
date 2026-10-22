@@ -198,54 +198,6 @@ class SyncService {
     }
   }
 
-  /// Pushes this device's queued work without a pull, and says whether it did.
-  ///
-  /// The revoked-device flow calls this before erasing anything: the server
-  /// still accepts a revoked device's writes for fourteen days, so its unsent
-  /// notes reach the account first. Unlike [syncNow] this reports the outcome,
-  /// because erasing after a failed push is the one thing the rule forbids.
-  Future<bool> pushBeforeErase() => _flushBeforeErase().timeout(
-    // A save that cannot finish in half a minute is reported as failed, which
-    // keeps the data and the screen usable. A spinner that never ends is the
-    // one outcome the lawyer cannot act on.
-    const Duration(seconds: 30),
-    onTimeout: () => false,
-  );
-
-  /// The flush behind [pushBeforeErase].
-  Future<bool> _flushBeforeErase() async {
-    if (!_isOnline()) return false;
-    // Never erase on a lapse (user ruling, 2026-10-21). Without a live plan the
-    // account has no copy this device could be restored from and sync is off,
-    // so a wipe would leave the lawyer holding nothing — even when the queue is
-    // already empty. Reported as "could not save", which keeps the data and
-    // says so on screen.
-    if (!await _isEntitled()) return false;
-    final transport = _transport();
-    if (transport == null) return false;
-    final db = await _ref.read(databaseProvider.future);
-    if (!_ref.mounted) return false;
-    final queue = SyncQueueDao(db);
-    await queue.compactPending();
-    final worker = PushWorker(
-      db: db,
-      queue: queue,
-      transport: transport,
-      currentUserId: _userId(),
-      firmId: _firmId(),
-    );
-    for (var pass = 0; pass < 20; pass++) {
-      final outcome = await worker.flushBatch();
-      final failure = outcome.failure;
-      if (failure != null) {
-        _noteDeviceRejection(failure);
-        return false;
-      }
-      if (outcome.isEmpty) return true;
-    }
-    return true;
-  }
-
   /// Turns the server's own refusal into the gate's revoked screen.
   ///
   /// `push_changes` answers `device_revoked` when a revoked device is past its

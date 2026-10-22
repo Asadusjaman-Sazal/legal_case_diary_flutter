@@ -2052,7 +2052,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String devices_removeBody(String name) {
-    return '$name will be signed out, and its local copy erased once its unsaved work has reached your account.';
+    return '$name will be signed out, and its local copy and any unsaved work will be discarded at its next connection.';
   }
 
   @override
@@ -2122,39 +2122,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not erase this device. Try again.';
 
   @override
+  String get devices_replacedTitle => 'This Sign-In Has Ended';
+
+  @override
+  String get devices_replacedBody =>
+      'You signed in again on this device, so this sign-in has ended. Your local data is kept.';
+
+  @override
   String get devices_revokedTitle => 'This Device Was Signed Out';
 
   @override
   String devices_revokedBody(String cap) {
-    return 'Your plan allows $cap device(s) at a time, and another device took this one\'s place. Your unsaved work will be sent to your account before this device is erased.';
+    return 'Your plan allows $cap device(s) at a time, and another device took this one\'s place. Any unsaved work on this device is discarded.';
   }
 
   @override
-  String get devices_revokedSaving => 'Saving your unsaved work…';
-
-  @override
-  String get devices_revokedSaved =>
-      'Your work was saved. This device has been erased.';
-
-  @override
-  String get devices_revokedSaveFailed =>
-      'Your work could not reach your account, so nothing has been erased. Everything is still on this device.';
-
-  @override
   String devices_revokedLapseBody(String cap) {
-    return 'Your plan changed and now allows $cap device(s) at a time, so this device gave up its place. Your unsaved work will be sent to your account before this device is erased.';
+    return 'Your plan changed and now allows $cap device(s) at a time, so this device gave up its place. Any unsaved work on this device is discarded.';
   }
 
   @override
   String get devices_revokedRemovedBody =>
-      'You removed this device from your device list. Your unsaved work will be sent to your account before this device is erased.';
-
-  @override
-  String get devices_revokedReplacedBody =>
-      'You signed in again on this device, so this sign-in has ended. Your unsaved work will be sent to your account before this device is erased.';
-
-  @override
-  String get devices_discard => 'Sign Out and Discard';
+      'You removed this device from your device list. Any unsaved work on this device is discarded.';
 
   @override
   String devices_evicted(String name) {

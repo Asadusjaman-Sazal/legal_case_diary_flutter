@@ -30,9 +30,9 @@ import '../../../core/providers/device_providers.dart';
 import '../../../core/providers/notification_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
-import '../../../sync/sync_service.dart';
 import '../data/device_registration.dart';
 import '../data/logout_flow.dart';
+import 'auth_viewmodel.dart';
 
 /// Replaces the app with the gate's screen while this device holds no slot.
 class DeviceGateScope extends ConsumerStatefulWidget {
@@ -53,7 +53,6 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   /// The revocation work runs once per screen.
   bool _started = false;
   bool _saving = false;
-  bool _saveFailed = false;
   bool _erased = false;
 
   /// The signed-out discard failed and may be retried.
@@ -98,24 +97,22 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         return _limitGate(context, state);
 
       case DeviceGateStatus.revoked:
-        if (state.revokedReason == 'signed_out') {
+        if (state.revokedReason == 'replaced') {
           if (!_started) {
             _started = true;
-            unawaited(Future<void>.microtask(_discardAndSignOut));
+            unawaited(Future<void>.microtask(_endReplacedSession));
           }
-          return _signedOutGate(context);
+          return _replacedGate(context);
         }
         if (!_started) {
           _started = true;
-          unawaited(Future<void>.microtask(_saveThenErase));
+          unawaited(Future<void>.microtask(_discardAndSignOut));
         }
         return _RevokedScreen(
           state: state,
           saving: _saving,
-          failed: _saveFailed,
-          erased: _erased,
-          onRetry: _saveThenErase,
-          onDiscard: _signOutThisDevice,
+          failed: _discardFailed,
+          onRetry: _discardAndSignOut,
         );
 
       case DeviceGateStatus.unregistered:
@@ -341,49 +338,38 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   }
 
   // ---------------------------------------------------------------------------
-  // Signed-out discard
+  // Same-install re-login: end the old sign-in, keep the data
   // ---------------------------------------------------------------------------
 
-  Widget _signedOutGate(BuildContext context) {
+  Widget _replacedGate(BuildContext context) {
     final l = AppLocalizations.of(context);
     return _popOver(
       context,
-      title: l.devices_revokedTitle,
+      title: l.devices_replacedTitle,
       children: [
         Text(
-          l.devices_signedOutBody,
+          l.devices_replacedBody,
           style: AppTypography.bodyMd.copyWith(
             color: AppColors.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        if (_discardFailed) ...[
-          Text(
-            l.devices_signedOutFailed,
-            style: AppTypography.bodyMd.copyWith(color: AppColors.error),
+        const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          const SizedBox(height: AppSpacing.md),
-          FilledButton(
-            onPressed: _discardAndSignOut,
-            child: Text(l.devices_tryAgain),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Center(
+          child: Text(
+            l.devices_signingOut,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
-        ] else
-          Column(
-            children: [
-              const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                l.devices_signingOut,
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+        ),
       ],
     );
   }
@@ -392,10 +378,25 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   // Work
   // ---------------------------------------------------------------------------
 
+  /// Ends the old sign-in without touching the local database.
+  ///
+  /// `replaced` means the same install signed in again; the local data belongs
+  /// to the new session and must survive.
+  Future<void> _endReplacedSession() async {
+    try {
+      await ref.read(authViewModelProvider.notifier).signOut();
+    } on Object {
+      // Even a failed SDK sign-out must not trap this screen.
+    }
+    if (!mounted) return;
+    widget.router.go(AppRoutes.login);
+  }
+
   /// Discards the queue and local database, cancels alarms, then signs out.
   ///
-  /// There is deliberately no push here: `signed_out` means the work is lost,
-  /// which the window warned about before the button was pressed.
+  /// There is deliberately no push here: every non-`replaced` revocation means
+  /// the work is lost, which the window warned about before the button was
+  /// pressed.
   Future<void> _discardAndSignOut() async {
     if (_saving || _erased) return;
     setState(() {
@@ -407,6 +408,11 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         await ref.read(notificationSchedulerProvider).cancelAll();
       } on Object {
         // A scheduler that cannot cancel must not block the wipe.
+      }
+      try {
+        await ref.read(deviceGateProvider.notifier).acknowledgeWipe();
+      } on Object {
+        // Offline acknowledgement is best-effort; the wipe still proceeds.
       }
       await (await ref.read(logoutFlowProvider.future)).wipeAndComplete();
       if (!mounted) return;
@@ -420,50 +426,6 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
       setState(() {
         _saving = false;
         _discardFailed = true;
-      });
-    }
-  }
-
-  /// Saves the queued work, records the flush, then wipes and signs out.
-  ///
-  /// This remains for `cap`, `lapse`, `user` and `replaced` until the
-  /// discard-everywhere change lands.
-  Future<void> _saveThenErase() async {
-    if (_saving || _erased) return;
-    setState(() {
-      _saving = true;
-      _saveFailed = false;
-    });
-    var saved = false;
-    try {
-      saved = await ref.read(syncServiceProvider).pushBeforeErase();
-    } on Object {
-      saved = false;
-    }
-    if (!mounted) return;
-
-    if (!saved) {
-      setState(() {
-        _saving = false;
-        _saveFailed = true;
-      });
-      return;
-    }
-
-    try {
-      await ref.read(deviceGateProvider.notifier).acknowledgeWipe();
-      await (await ref.read(logoutFlowProvider.future)).wipeAndComplete();
-      if (!mounted) return;
-      setState(() {
-        _saving = false;
-        _erased = true;
-      });
-      widget.router.go(AppRoutes.login);
-    } on Object {
-      if (!mounted) return;
-      setState(() {
-        _saving = false;
-        _saveFailed = true;
       });
     }
   }
@@ -557,28 +519,27 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   );
 }
 
-/// The revoked screen for reasons that still save before erasing.
+/// The revoked screen for every reason except a same-install re-login.
+///
+/// The device is discarding its local copy, not saving it; the screen says so
+/// and offers a retry when the wipe cannot run.
 class _RevokedScreen extends StatelessWidget {
   final DeviceGateState state;
   final bool saving;
   final bool failed;
-  final bool erased;
   final Future<void> Function() onRetry;
-  final Future<void> Function() onDiscard;
 
   const _RevokedScreen({
     required this.state,
     required this.saving,
     required this.failed,
-    required this.erased,
     required this.onRetry,
-    required this.onDiscard,
   });
 
   String _body(AppLocalizations l) => switch (state.revokedReason) {
     'lapse' => l.devices_revokedLapseBody('${state.cap}'),
     'user' => l.devices_revokedRemovedBody,
-    'replaced' => l.devices_revokedReplacedBody,
+    'signed_out' => l.devices_signedOutBody,
     _ => l.devices_revokedBody('${state.cap}'),
   };
 
@@ -625,7 +586,7 @@ class _RevokedScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          l.devices_revokedSaving,
+                          l.devices_signingOut,
                           style: AppTypography.bodySm.copyWith(
                             color: AppColors.onSurfaceVariant,
                           ),
@@ -634,7 +595,7 @@ class _RevokedScreen extends StatelessWidget {
                     )
                   else if (failed) ...[
                     Text(
-                      l.devices_revokedSaveFailed,
+                      l.devices_signedOutFailed,
                       textAlign: TextAlign.center,
                       style: AppTypography.bodyMd.copyWith(
                         color: AppColors.error,
@@ -645,19 +606,7 @@ class _RevokedScreen extends StatelessWidget {
                       onPressed: onRetry,
                       child: Text(l.devices_tryAgain),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    TextButton(
-                      onPressed: onDiscard,
-                      child: Text(l.devices_discard),
-                    ),
-                  ] else if (erased)
-                    Text(
-                      l.devices_revokedSaved,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodyMd.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
+                  ],
                 ],
               ),
             ),

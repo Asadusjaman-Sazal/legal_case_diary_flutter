@@ -2059,7 +2059,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String devices_removeBody(String name) {
-    return '$name সাইন আউট হবে, আর তার অসংরক্ষিত কাজ আপনার অ্যাকাউন্টে পৌঁছানোর পর স্থানীয় কপি মুছে ফেলা হবে।';
+    return '$name সাইন আউট হবে, আর তার স্থানীয় কপি ও অসংরক্ষিত কাজ পরের সংযোগে বাদ দেওয়া হবে।';
   }
 
   @override
@@ -2129,39 +2129,28 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ডিভাইসটি মোছা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get devices_replacedTitle => 'এই সাইন-ইন শেষ হয়েছে';
+
+  @override
+  String get devices_replacedBody =>
+      'এই ডিভাইসে আবার সাইন ইন করেছেন, তাই এই সাইন-ইনটি শেষ হয়েছে। আপনার স্থানীয় ডেটা রাখা হয়েছে।';
+
+  @override
   String get devices_revokedTitle => 'এই ডিভাইসটি সাইন আউট হয়েছে';
 
   @override
   String devices_revokedBody(String cap) {
-    return 'আপনার প্ল্যানে একসঙ্গে $capটি ডিভাইস চলে, আর অন্য একটি ডিভাইস এর জায়গা নিয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+    return 'আপনার প্ল্যানে একসঙ্গে $capটি ডিভাইস চলে, আর অন্য একটি ডিভাইস এর জায়গা নিয়েছে। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।';
   }
 
   @override
-  String get devices_revokedSaving => 'আপনার অসংরক্ষিত কাজ সংরক্ষণ করা হচ্ছে…';
-
-  @override
-  String get devices_revokedSaved =>
-      'আপনার কাজ সংরক্ষিত হয়েছে। এই ডিভাইসটি মুছে ফেলা হয়েছে।';
-
-  @override
-  String get devices_revokedSaveFailed =>
-      'আপনার কাজ অ্যাকাউন্টে পৌঁছায়নি, তাই কিছুই মোছা হয়নি। সবকিছু এখনো এই ডিভাইসে আছে।';
-
-  @override
   String devices_revokedLapseBody(String cap) {
-    return 'আপনার প্ল্যান বদলেছে এবং এখন একসঙ্গে $capটি ডিভাইস চলে, তাই এই ডিভাইসটি জায়গা ছেড়ে দিয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
+    return 'আপনার প্ল্যান বদলেছে এবং এখন একসঙ্গে $capটি ডিভাইস চলে, তাই এই ডিভাইসটি জায়গা ছেড়ে দিয়েছে। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।';
   }
 
   @override
   String get devices_revokedRemovedBody =>
-      'আপনি ডিভাইসের তালিকা থেকে এই ডিভাইসটি সরিয়েছেন। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
-
-  @override
-  String get devices_revokedReplacedBody =>
-      'এই ডিভাইসে আবার সাইন ইন করেছেন, তাই আগের সাইন-ইনটি শেষ হয়েছে। এই ডিভাইস মোছার আগে আপনার অসংরক্ষিত কাজ অ্যাকাউন্টে পাঠানো হবে।';
-
-  @override
-  String get devices_discard => 'সাইন আউট করে বাদ দিন';
+      'আপনি ডিভাইসের তালিকা থেকে এই ডিভাইসটি সরিয়েছেন। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।';
 
   @override
   String devices_evicted(String name) {

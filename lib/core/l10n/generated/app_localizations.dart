@@ -3672,7 +3672,7 @@ abstract class AppLocalizations {
   /// No description provided for @devices_removeBody.
   ///
   /// In en, this message translates to:
-  /// **'{name} will be signed out, and its local copy erased once its unsaved work has reached your account.'**
+  /// **'{name} will be signed out, and its local copy and any unsaved work will be discarded at its next connection.'**
   String devices_removeBody(String name);
 
   /// No description provided for @devices_cancel.
@@ -3789,6 +3789,18 @@ abstract class AppLocalizations {
   /// **'Could not erase this device. Try again.'**
   String get devices_signedOutFailed;
 
+  /// No description provided for @devices_replacedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Sign-In Has Ended'**
+  String get devices_replacedTitle;
+
+  /// No description provided for @devices_replacedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You signed in again on this device, so this sign-in has ended. Your local data is kept.'**
+  String get devices_replacedBody;
+
   /// No description provided for @devices_revokedTitle.
   ///
   /// In en, this message translates to:
@@ -3798,50 +3810,20 @@ abstract class AppLocalizations {
   /// No description provided for @devices_revokedBody.
   ///
   /// In en, this message translates to:
-  /// **'Your plan allows {cap} device(s) at a time, and another device took this one\'s place. Your unsaved work will be sent to your account before this device is erased.'**
+  /// **'Your plan allows {cap} device(s) at a time, and another device took this one\'s place. Any unsaved work on this device is discarded.'**
   String devices_revokedBody(String cap);
-
-  /// No description provided for @devices_revokedSaving.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving your unsaved work…'**
-  String get devices_revokedSaving;
-
-  /// No description provided for @devices_revokedSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Your work was saved. This device has been erased.'**
-  String get devices_revokedSaved;
-
-  /// No description provided for @devices_revokedSaveFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Your work could not reach your account, so nothing has been erased. Everything is still on this device.'**
-  String get devices_revokedSaveFailed;
 
   /// No description provided for @devices_revokedLapseBody.
   ///
   /// In en, this message translates to:
-  /// **'Your plan changed and now allows {cap} device(s) at a time, so this device gave up its place. Your unsaved work will be sent to your account before this device is erased.'**
+  /// **'Your plan changed and now allows {cap} device(s) at a time, so this device gave up its place. Any unsaved work on this device is discarded.'**
   String devices_revokedLapseBody(String cap);
 
   /// No description provided for @devices_revokedRemovedBody.
   ///
   /// In en, this message translates to:
-  /// **'You removed this device from your device list. Your unsaved work will be sent to your account before this device is erased.'**
+  /// **'You removed this device from your device list. Any unsaved work on this device is discarded.'**
   String get devices_revokedRemovedBody;
-
-  /// No description provided for @devices_revokedReplacedBody.
-  ///
-  /// In en, this message translates to:
-  /// **'You signed in again on this device, so this sign-in has ended. Your unsaved work will be sent to your account before this device is erased.'**
-  String get devices_revokedReplacedBody;
-
-  /// No description provided for @devices_discard.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Out and Discard'**
-  String get devices_discard;
 
   /// No description provided for @devices_evicted.
   ///

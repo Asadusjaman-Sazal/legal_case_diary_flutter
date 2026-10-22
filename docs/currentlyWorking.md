@@ -1,5 +1,15 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — Both payment ledgers now say who paid — COMPLETE (0.0.590)
+
+- **What was asked.** `payment_submissions` and `payment_approval_events` should carry the payer's **full name** and **email** so a support check does not need a join to `profiles` or `auth.users`.
+- **What changed.** Both tables gained `full_name` and `email`, **NOT NULL DEFAULT ''**. A `BEFORE INSERT` trigger, `fill_payment_party_identity()`, copies both from `profiles` by the row's `user_id` and **overrides any client-supplied text**, so the columns cannot be forged even though `authenticated` holds a table-wide insert grant.
+- **Existing rows.** Backfilled from the profile each row already points at. The approval ledger's immutability trigger **refused that UPDATE on the first apply** (by design), so the migration now disables it, backfills and re-enables it inside the same transaction; the whole file is one transaction, so a failure would roll the disable back too.
+- **Applied live.** `20261022140000_payment_party_identity.sql` applied to `lsthasywrdrhuuxnykau` through the guarded applier — **62 of 62 versions recorded, 0 to apply**.
+- **Verified live.** Both tables show `full_name` and `email` as `NOT NULL DEFAULT ''`; **8 of 8** submissions and **2 of 2** approval events carry an identity; both new triggers are enabled and the immutability trigger is still enabled.
+- **Proof.** Ledger regenerated (62 migrations), `--check` clean, the two migration-count guards now expect 62 and `versions.last` is the new file. `flutter analyze` clean; full `flutter test` **1942 passed**; version **0.0.590** recorded with the script. Plan and Task 21 updated per rule 14.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — The category screen loses “Court Names” and the higher courts lose Steps — COMPLETE (0.0.589)
 
 - **What was asked.** In Settings → Edit Court/Steps → Case Types, Steps etc: rename the header from **Court Names, Steps etc** to **Case Types, Steps etc**, and stop offering **Steps** for the Appellate Division and High Court Division because their cases use the plain **Result** text box.

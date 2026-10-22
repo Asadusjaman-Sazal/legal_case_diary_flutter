@@ -142,7 +142,14 @@ void main() {
 
     // An empty list would read as "never alert", so the last tick stays on.
     expect(repo.settings.notificationDefaultOffsets, <int>[1]);
-    expect(find.text('Keep at Least One Day Offset.'), findsOneWidget);
+    // The warning is drawn inside the window, not behind it.
+    expect(
+      find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text('Select at least one Day Offset.'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('stores the two added long-range offsets', (tester) async {

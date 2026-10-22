@@ -1553,7 +1553,7 @@
   "settingsNotifications_off": "Off",
   "settingsNotifications_dayOffsetLabel": "Notification Day Offset",
   "settingsNotifications_selectDayOffsetTitle": "Select Day Offset",
-  "settingsNotifications_keepOneOffset": "Keep at Least One Day Offset.",
+  "settingsNotifications_keepOneOffset": "Select at least one Day Offset.",
   "settingsNotifications_offsetSameDay": "The Same Day",
   "settingsNotifications_offsetDayBefore": "The Day Before",
   "settingsNotifications_offsetBeforeDays": "Before {days} Days",

@@ -278,6 +278,39 @@ void main() {
       expect(find.text('Before 30 days'), findsOneWidget);
     });
 
+    testWidgets('the last Day Offset warning is visible inside the window', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(lookupData: AddEditCaseLookupData()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-day-offset')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      tester
+          .widget<InkWell>(find.byKey(const ValueKey('add-edit-day-offset')))
+          .onTap!();
+      await tester.pumpAndSettle();
+
+      // Only "The day before" is ticked; removing it is refused, and the
+      // warning must be inside the window or the window covers it.
+      await tester.tap(find.byKey(const ValueKey<int>(1)));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.text('Select at least one Day Offset.'),
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('the Day Offset starts from the Settings choice', (
       WidgetTester tester,
     ) async {

@@ -3114,7 +3114,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsNotifications_keepOneOffset =>
-      'অন্তত একটি দিনের ব্যবধান রাখুন।';
+      'অন্তত একটি দিনের ব্যবধান নির্বাচন করুন।';
 
   @override
   String get settingsNotifications_offsetSameDay => 'একই দিনে';

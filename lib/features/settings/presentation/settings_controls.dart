@@ -420,6 +420,20 @@ class _SettingsMultiSelectDialogState<T extends Object>
           title: widget.title,
           enlarged: widget.popoverWindow,
         ),
+        if (_minSelectionWarning != null)
+          Padding(
+            key: const ValueKey('settings-picker-min-selection'),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              0,
+            ),
+            child: Text(
+              _minSelectionWarning!,
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
+            ),
+          ),
         Flexible(child: widget.reorderable ? _draggableRows() : _rows()),
       ],
     ),

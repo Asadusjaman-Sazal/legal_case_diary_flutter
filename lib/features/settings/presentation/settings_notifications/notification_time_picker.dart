@@ -11,6 +11,7 @@ library;
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -121,18 +122,24 @@ Future<void> _playGearClickAsync() async {
     }
     await player.stop();
     await player.play(AssetSource('sounds/gear_click.wav'));
-  } catch (_) {
-    // A device with no audio route must never break the time window.
+  } catch (error, stackTrace) {
+    // Never break the picker, but leave a trace in debug: a missing plugin or
+    // asset would otherwise be indistinguishable from "the phone is silent".
+    assert(() {
+      debugPrint('Gear tick failed: $error\n$stackTrace');
+      return true;
+    }());
   }
 }
 
 void _playGearClick() => unawaited(_playGearClickAsync());
 
-/// Plays the gear tick as the hour/minute hand is dragged.
+/// Plays the gear tick when the visible hour/minute actually changes.
 ///
-/// Flutter's time window reports no dial-move callback, so a [Listener] hears
-/// the drags that move it. The ticks are throttled to a ratchet-like pace
-/// instead of firing on every pointer sample.
+/// Flutter's time window reports no dial-change callback, so a [Listener] hears
+/// the drag and the picker's own header is read after each frame: a tick plays
+/// only when the displayed hour/minute changed, not for a drag that moves over
+/// the window without changing the time.
 class _ClickingTimePicker extends StatefulWidget {
   /// The stock time window.
   final Widget child;
@@ -144,30 +151,77 @@ class _ClickingTimePicker extends StatefulWidget {
 }
 
 class _ClickingTimePickerState extends State<_ClickingTimePicker> {
-  /// Shortest gap between two clicks while a hand is dragged.
-  static const Duration _clickGap = Duration(milliseconds: 80);
+  /// Addresses the time window's subtree so its texts can be read.
+  final GlobalKey _subtreeKey = GlobalKey();
 
-  DateTime? _lastClick;
-
-  /// True while a finger is down, so a stray move with no press stays silent.
+  /// True while a finger is down, so hover or a stray move stays silent.
   bool _dragging = false;
 
-  void _playClick(PointerMoveEvent event) {
-    if (!_dragging) return;
-    final now = DateTime.now();
-    final last = _lastClick;
-    if (last != null && now.difference(last) < _clickGap) return;
-    _lastClick = now;
-    gearClickPlayer();
+  /// One comparison per frame is enough; extra pointer samples share it.
+  bool _checkScheduled = false;
+
+  /// The texts the window showed at the last comparison.
+  List<String> _lastTexts = const <String>[];
+
+  /// Logs the first real change of a drag once.
+  bool _loggedChange = false;
+
+  /// Every text the open window currently shows, in tree order.
+  List<String> _visibleTexts() {
+    final context = _subtreeKey.currentContext;
+    if (context == null) return const <String>[];
+    final texts = <String>[];
+    void visit(Element element) {
+      final widget = element.widget;
+      if (widget is Text && widget.data != null) texts.add(widget.data!);
+      element.visitChildren(visit);
+    }
+
+    visit(context as Element);
+    return texts;
+  }
+
+  /// Compares the window's texts after the next frame; a changed hour or minute
+  /// is the only thing that may play the tick.
+  void _scheduleCheck() {
+    if (_checkScheduled) return;
+    _checkScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkScheduled = false;
+      if (!mounted) return;
+      final texts = _visibleTexts();
+      if (listEquals(texts, _lastTexts)) return;
+      _lastTexts = texts;
+      assert(() {
+        if (!_loggedChange) {
+          _loggedChange = true;
+          debugPrint('Gear tick: time changed');
+        }
+        return true;
+      }());
+      gearClickPlayer();
+    });
   }
 
   @override
   Widget build(BuildContext context) => Listener(
     behavior: HitTestBehavior.translucent,
-    onPointerDown: (_) => _dragging = true,
-    onPointerMove: _playClick,
-    onPointerUp: (_) => _dragging = false,
-    onPointerCancel: (_) => _dragging = false,
-    child: widget.child,
+    onPointerDown: (_) {
+      _dragging = true;
+      _loggedChange = false;
+      _lastTexts = _visibleTexts();
+    },
+    onPointerMove: (_) {
+      if (_dragging) _scheduleCheck();
+    },
+    onPointerUp: (_) {
+      _dragging = false;
+      _scheduleCheck();
+    },
+    onPointerCancel: (_) {
+      _dragging = false;
+      _scheduleCheck();
+    },
+    child: KeyedSubtree(key: _subtreeKey, child: widget.child),
   );
 }

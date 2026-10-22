@@ -211,7 +211,11 @@ void main() {
     expect(repo.settings.notificationTime, 17 * 60);
   });
 
-  testWidgets('moving the time hand plays the gear tick', (tester) async {
+  testWidgets('the gear tick plays only when the time changes', (tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     var clicks = 0;
     final original = gearClickPlayer;
     gearClickPlayer = () => clicks++;
@@ -222,9 +226,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(clicks, 0, reason: 'opening the window makes no tick');
 
-    await tester.drag(find.byType(TimePickerDialog), const Offset(40, 40));
+    // Dragging over the header changes no hour or minute: silent.
+    await tester.dragFrom(
+      tester.getCenter(find.text('Select Time')),
+      const Offset(60, 0),
+    );
     await tester.pumpAndSettle();
-    expect(clicks, 1);
+    expect(clicks, 0);
+
+    // Dragging the hand between dial numbers changes the hour: it ticks.
+    final start = tester.getCenter(find.byType(TimePickerDialog));
+    await tester.dragFrom(start, const Offset(90, 0));
+    await tester.pumpAndSettle();
+    expect(clicks, greaterThan(0));
   });
 
   testWidgets('renders a stored notification time as HH:MM AM/PM', (

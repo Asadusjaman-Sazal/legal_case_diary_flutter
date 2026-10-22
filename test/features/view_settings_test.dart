@@ -338,7 +338,10 @@ void main() {
       expect(dialog.elevation, settingsPopoverWindowElevation);
       expect(dialog.clipBehavior, Clip.antiAlias);
       final shape = dialog.shape! as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(16));
+      expect(
+        shape.borderRadius,
+        BorderRadius.circular(AppSpacing.cardRadius * 2),
+      );
       expect(shape.side, BorderSide.none);
 
       // The title bar itself stays black with white text.

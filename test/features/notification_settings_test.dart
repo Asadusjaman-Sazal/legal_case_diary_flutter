@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
@@ -86,7 +87,10 @@ void main() {
     expect(dialog.elevation, settingsPopoverWindowElevation);
     expect(dialog.clipBehavior, Clip.antiAlias);
     final shape = dialog.shape! as RoundedRectangleBorder;
-    expect(shape.borderRadius, BorderRadius.circular(16));
+    expect(
+      shape.borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
     expect(shape.side, BorderSide.none);
     expect(
       tester.getSize(find.byType(SettingsPickerDialogHeader)).height,

@@ -13,10 +13,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 
-/// The drawer account popover's window shape: 16 px corners, with no edge of
-/// its own — the elevation alone lifts the white panel off the screen.
+/// The dropdown window's shape: the same 8 px corners as the Update window's
+/// Next Date calendar, with no edge of its own — the elevation alone lifts the
+/// white panel off the screen.
 final ShapeBorder settingsPopoverWindowShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.circular(16),
+  borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
 );
 
 /// The drawer account popover's elevation, reused by the View Settings pickers.

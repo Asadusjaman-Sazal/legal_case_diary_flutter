@@ -163,10 +163,7 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   /// Opens the shared Phone/Message chooser for the represented party
   /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
   /// the case's single `party_phone`, and the message from the ARB template.
-  Future<void> _contactParty(
-    Case currentCase, {
-    required bool message,
-  }) async {
+  Future<void> _contactParty(Case currentCase, {required bool message}) async {
     await showCaseContactActions(
       context,
       currentCase: currentCase,
@@ -197,11 +194,15 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
   /// of its own.
   PrintDocument _printDocument(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final grouped = groupCasesByCourt(context.l10n, _visibleCases(), _courtsById);
+    final grouped = groupCasesByCourt(
+      context.l10n,
+      _visibleCases(),
+      _courtsById,
+    );
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-      title: l.allCasesScreen_title,
+        title: l.allCasesScreen_title,
         cases: grouped.cases,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
@@ -508,14 +509,13 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             child: DropdownButtonFormField<String?>(
               initialValue: _courtCategoryId,
               isExpanded: true,
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
               // The dropdown's own text carries the count boxes' title font
               // size, so the summary row and the filter row read as one block.
               style: AppTypography.titleMd.copyWith(fontSize: 14 * 0.6),
               decoration: InputDecoration(
                 labelText: l.allCasesScreen_filterByCourt,
-                labelStyle: AppTypography.labelLg.copyWith(
-                  fontSize: 14 * 0.6,
-                ),
+                labelStyle: AppTypography.labelLg.copyWith(fontSize: 14 * 0.6),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
@@ -542,12 +542,11 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
             child: DropdownButtonFormField<bool>(
               initialValue: _newestFirst,
               isExpanded: true,
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
               style: AppTypography.titleMd.copyWith(fontSize: 14 * 0.6),
               decoration: InputDecoration(
                 labelText: l.allCasesScreen_newestFirst,
-                labelStyle: AppTypography.labelLg.copyWith(
-                  fontSize: 14 * 0.6,
-                ),
+                labelStyle: AppTypography.labelLg.copyWith(fontSize: 14 * 0.6),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,

@@ -25,11 +25,11 @@
 /// Account & Profile.
 ///
 /// **The popover is a rounded window with transparent option rows** (user
-/// request, 0.0.435): its corners are rounded well past the 4 px card radius so
-/// it reads as a floating menu, the thin grey edge is kept, the address line
-/// carries no "Email" caption (the `@` icon says what it is), and its three
-/// options are the drawer's own nav rows — the same text size and metrics as
-/// the side menu's buttons — on no fill of their own.
+/// request, 0.0.435): its corners use the app's 8 px window radius so it reads
+/// as a floating menu, the thin grey edge is kept, the address line carries no
+/// "Email" caption (the `@` icon says what it is), and its three options are the
+/// drawer's own nav rows — the same text size and metrics as the side menu's
+/// buttons — on no fill of their own.
 library;
 
 import 'package:flutter/material.dart';
@@ -1229,12 +1229,11 @@ class _ProfileIconButton extends StatelessWidget {
   );
 }
 
-/// Corner radius of the account popover's window (user request, 0.0.435).
+/// Corner radius of the account popover's window.
 ///
-/// The reference panel the user attached rounds its corners far more than the
-/// 4 px card radius, so the panel reads as a floating menu rather than a card.
-/// 16 px keeps that rounding on the 8 px spacing grid.
-const double _accountPopoverRadius = 16;
+/// Matches the app's dropdown windows and the Next Date calendar: 8 px, twice
+/// the 4 px card radius.
+const double _accountPopoverRadius = AppSpacing.cardRadius * 2;
 
 /// The account popover (user request): the signed-in e-mail and the three
 /// account actions, shown at the drawer's profile icon.

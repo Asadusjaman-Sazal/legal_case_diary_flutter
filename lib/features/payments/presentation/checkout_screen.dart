@@ -84,14 +84,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   /// Saves the current form as the draft. Cheap enough for every keystroke.
   void _persistDraft() {
-    ref.read(paymentDraftProvider.notifier).save(
-      PaymentDraft(
-        planKey: _planKey,
-        method: _method,
-        phone: _phone.text,
-        trx: _trx.text,
-      ),
-    );
+    ref
+        .read(paymentDraftProvider.notifier)
+        .save(
+          PaymentDraft(
+            planKey: _planKey,
+            method: _method,
+            phone: _phone.text,
+            trx: _trx.text,
+          ),
+        );
   }
 
   void _copyNumber(String number, AppLocalizations l) {
@@ -194,8 +196,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         data: (configuration) {
           if (!configuration.hasAnyMethod) return _Unavailable(l: l);
           final methods = configuration.orderedMethods;
-          final selected = _method != null &&
-                  methods.any((m) => m.provider == _method)
+          final selected =
+              _method != null && methods.any((m) => m.provider == _method)
               ? _method!
               : methods.first.provider;
           return ListView(
@@ -252,9 +254,12 @@ class _PlanSummaryCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.payments_planSummaryTitle, style: AppTypography.labelLg.copyWith(
-          color: AppColors.onSurfaceVariant,
-        )),
+        Text(
+          l.payments_planSummaryTitle,
+          style: AppTypography.labelLg.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
         const SizedBox(height: AppSpacing.xs),
         Row(
           children: [
@@ -338,7 +343,11 @@ class _TransferCard extends StatelessWidget {
         _sentence(),
         const SizedBox(height: AppSpacing.md),
         for (var i = 0; i < methods.length; i++) ...[
-          if (i > 0) const Divider(height: AppSpacing.lg, color: AppColors.outlineVariant),
+          if (i > 0)
+            const Divider(
+              height: AppSpacing.lg,
+              color: AppColors.outlineVariant,
+            ),
           Row(
             children: [
               Expanded(
@@ -406,6 +415,7 @@ class _FormCard extends StatelessWidget {
         DropdownButtonFormField<String>(
           key: const ValueKey('checkout-method'),
           initialValue: selected,
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
           decoration: _fieldDecoration,
           items: [
             for (final method in methods)
@@ -424,9 +434,7 @@ class _FormCard extends StatelessWidget {
           controller: phone,
           keyboardType: TextInputType.phone,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: _fieldDecoration.copyWith(
-            hintText: l.payments_phoneHint,
-          ),
+          decoration: _fieldDecoration.copyWith(hintText: l.payments_phoneHint),
         ),
         const SizedBox(height: AppSpacing.md),
         Text(l.payments_trxLabel, style: AppTypography.labelLg),
@@ -435,9 +443,7 @@ class _FormCard extends StatelessWidget {
           key: const ValueKey('checkout-trx'),
           controller: trx,
           textCapitalization: TextCapitalization.characters,
-          decoration: _fieldDecoration.copyWith(
-            hintText: l.payments_trxHint,
-          ),
+          decoration: _fieldDecoration.copyWith(hintText: l.payments_trxHint),
         ),
         const SizedBox(height: AppSpacing.lg),
         FilledButton(

@@ -1,5 +1,17 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-22 — Every dropdown and pop-over window takes the 8 px corner — COMPLETE (0.0.580)
+
+- **What was asked.** Apply the Next Date calendar's corner shape to every dropdown and pop-over window in the app, not just View Settings.
+- **What changed.**
+  - The shared Add/Edit Case picker (`CustomDropdown`) was **4 px**, now 8.
+  - The side-menu profile pop-over was **16 px**, now 8.
+  - `PopupMenuButton` menus (Sync Status, Case Reference) now get 8 px from a single `popupMenuTheme`.
+  - The three `DropdownButtonFormField` menus (All Cases filter and order, Checkout payment method) were square, now 8 px.
+  - View Settings, the Notification Day Offset picker and both calendars were already on 8 px.
+- **Proof.** The two tests that pinned the old corners now expect 8 px and pass; `flutter analyze` is clean; full `flutter test` **1939 passed**; version **0.0.580** recorded with the script.
+- **Resume point, next session.** Nothing outstanding here. Still open from before: the device pass for the Bengali item lists.
+
 ### 2026-10-22 — Dropdown windows take the Next Date calendar's corners — COMPLETE (0.0.579)
 
 - **What was asked.** Give the dropdown windows the same corner shape as the Next Date calendar in the Update window.

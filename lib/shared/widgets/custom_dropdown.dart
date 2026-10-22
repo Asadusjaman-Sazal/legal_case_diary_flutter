@@ -118,7 +118,7 @@ class CustomDropdown<T> extends StatelessWidget {
         insetPadding: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
         ),
         child: SizedBox(
           key: const ValueKey('custom-dropdown-dialog'),

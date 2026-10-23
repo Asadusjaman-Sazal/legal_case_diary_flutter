@@ -3,12 +3,18 @@
 /// The limit itself is enforced by the server on the **session** a sign-in
 /// creates, which a client cannot forge. This key exists for the one thing a
 /// session cannot do: recognise the same phone signing in again, so it reuses
-/// its own slot instead of spending a second one. Android's SSAID (the value
-/// `device_info_plus` calls `id`) survives a reinstall; elsewhere a UUID minted
-/// once and kept in SharedPreferences is used, so a Windows reinstall counts as
-/// a new device — which the device list can then free.
+/// its own slot instead of spending a second one.
+///
+/// **The key is a UUID minted once and kept in SharedPreferences on Android and
+/// Windows.** `device_info_plus`'s Android `id` is the *build ID*, not the
+/// SSAID, and two identical phones on the same firmware report the same value —
+/// using it made two Redmi Note 10 Pro handsets collide on the server's
+/// active-device index. iOS keeps `identifierForVendor` when the plugin answers;
+/// the stored UUID is the fallback there too. A reinstall mints a new key and
+/// counts as a new device, which the device list can then free.
 library;
 
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -38,14 +44,17 @@ class DeviceIdentity {
   static const fallback = DeviceIdentity(
     key: 'unknown-device',
     platform: 'unknown',
-    label: 'This device',
+    label: 'Unknown device',
   );
 }
 
 /// Resolves the identity once per install and caches it in memory.
 class DeviceIdentityService {
-  /// The SharedPreferences key holding the minted fallback key.
+  /// The SharedPreferences key holding the minted install key.
   static const keyPreference = 'device_install_key';
+
+  /// The SharedPreferences key holding the last model name the plugin reported.
+  static const labelPreference = 'device_label';
 
   /// Cached after the first resolve, so every caller sees the same key.
   DeviceIdentity? _cached;
@@ -57,60 +66,75 @@ class DeviceIdentityService {
   /// the device gate's own launch calls [resolve] and fills it in.
   String? get cachedKey => _cached?.key;
 
-  /// How long the platform may take to answer before a key is minted for this
-  /// process instead.
+  /// How long the platform may take to answer before the label falls back to
+  /// the last one it reported.
   ///
   /// A platform channel that never answers is a real case — an emulator, a test
   /// host, a device whose service is wedged — and it must not hold up
-  /// registration: the session, not this key, is what the limit counts, so a
-  /// usable stand-in keeps sync working and only costs a second slot on the one
-  /// device whose storage is already broken.
+  /// registration. The key is read from storage before this wait, so a timeout
+  /// costs only the label, never the install's identity.
   static const resolveTimeout = Duration(seconds: 2);
 
   /// Reads the device's own identifiers, falling back to a stored UUID.
   ///
   /// Never throws and never waits longer than [resolveTimeout]: a platform the
-  /// plugin cannot answer for still needs a usable device key, because the
-  /// alternative is an app that cannot register and therefore cannot sync.
+  /// plugin cannot answer for still has a stable key and the last model name it
+  /// reported, because the alternative is an app that cannot register and
+  /// therefore cannot sync.
   Future<DeviceIdentity> resolve() async {
     final cached = _cached;
     if (cached != null) return cached;
 
-    final identity = await _resolve().timeout(
-      resolveTimeout,
-      onTimeout: () => DeviceIdentity(
-        key: const Uuid().v4(),
+    // The key is read first and never depends on the plugin: it must be the
+    // same value on every launch, and the Android build ID is not unique.
+    final storedKey = await _storedKey();
+    final storedLabel = await _storedLabel();
+
+    DeviceIdentity identity;
+    try {
+      identity = await _resolve(storedKey).timeout(
+        resolveTimeout,
+        onTimeout: () => DeviceIdentity(
+          key: storedKey,
+          platform: 'unknown',
+          label: storedLabel ?? 'Unknown device',
+        ),
+      );
+    } on Object {
+      identity = DeviceIdentity(
+        key: storedKey,
         platform: 'unknown',
-        label: 'This device',
-      ),
-    );
+        label: storedLabel ?? 'Unknown device',
+      );
+    }
+
     _cached = identity;
     return identity;
   }
 
-  /// The plugin and storage reads behind [resolve].
-  Future<DeviceIdentity> _resolve() async {
+  /// The plugin read behind [resolve]; [storedKey] is the install's own key.
+  Future<DeviceIdentity> _resolve(String storedKey) async {
     DeviceIdentity identity = DeviceIdentity.fallback;
     try {
       final plugin = DeviceInfoPlugin();
       if (Platform.isAndroid) {
         final info = await plugin.androidInfo;
         identity = DeviceIdentity(
-          key: info.id.trim().isEmpty ? await _storedKey() : info.id.trim(),
+          key: storedKey,
           platform: 'android',
           label: _join([info.manufacturer, info.model]),
         );
       } else if (Platform.isIOS) {
         final info = await plugin.iosInfo;
         identity = DeviceIdentity(
-          key: info.identifierForVendor ?? await _storedKey(),
+          key: info.identifierForVendor ?? storedKey,
           platform: 'ios',
           label: info.name.trim().isEmpty ? info.model : info.name,
         );
       } else if (Platform.isWindows) {
         final info = await plugin.windowsInfo;
         identity = DeviceIdentity(
-          key: await _storedKey(),
+          key: storedKey,
           platform: 'windows',
           label: info.computerName.trim().isEmpty
               ? 'Windows PC'
@@ -118,16 +142,20 @@ class DeviceIdentityService {
         );
       }
     } on Object {
-      // A plugin that cannot answer is not a reason to fail: fall through to the
-      // stored key below.
+      // A plugin that cannot answer is not a reason to fail: the stored key and
+      // the last known label still register the device.
     }
 
     if (identity.key == DeviceIdentity.fallback.key) {
       identity = DeviceIdentity(
-        key: await _storedKey(),
+        key: storedKey,
         platform: identity.platform,
         label: identity.label,
       );
+    }
+
+    if (identity.label != DeviceIdentity.fallback.label) {
+      unawaited(_rememberLabel(identity.label));
     }
 
     return identity;
@@ -143,12 +171,25 @@ class DeviceIdentityService {
     return minted;
   }
 
+  /// The last model name the plugin reported, for a launch where it is slow.
+  Future<String?> _storedLabel() async {
+    final prefs = await SharedPreferences.getInstance();
+    final label = prefs.getString(labelPreference)?.trim();
+    return label == null || label.isEmpty ? null : label;
+  }
+
+  /// Remembers a resolved model name for the next launch.
+  Future<void> _rememberLabel(String label) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(labelPreference, label);
+  }
+
   /// Joins the non-empty parts of a label.
   String _join(List<String> parts) {
     final text = parts
         .map((part) => part.trim())
         .where((part) => part.isNotEmpty)
         .join(' ');
-    return text.isEmpty ? 'This device' : text;
+    return text.isEmpty ? 'Unknown device' : text;
   }
 }

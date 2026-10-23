@@ -96,6 +96,14 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
   /// Re-asks the server. `claim` false only reads, for a device that must not
   /// try to take a slot it has lost.
   Future<void> refresh({bool claim = true}) async {
+    // Signed out: the Login screen is the whole app, and an RPC here would run
+    // as `anon` and be refused.
+    if (ref.read(authIdentityProvider) == null) {
+      state = const AsyncData(
+        DeviceGateState(status: DeviceGateStatus.unmanaged),
+      );
+      return;
+    }
     final repository = ref.read(deviceRegistrationRepositoryProvider);
     final identity = await ref.read(deviceIdentityProvider.future);
     state = await AsyncValue.guard(
@@ -137,6 +145,8 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
   /// The seven-day idle eviction must measure contact, not app launches; a
   /// device used all day without being restarted would otherwise look idle.
   Future<void> touch() async {
+    // A resume on the Login screen has no session to mark.
+    if (ref.read(authIdentityProvider) == null) return;
     final now = DateTime.now();
     final last = _lastTouch;
     if (last != null && now.difference(last) < const Duration(hours: 1)) {
@@ -144,7 +154,10 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
     }
     _lastTouch = now;
     try {
-      await ref.read(deviceRegistrationRepositoryProvider).touch();
+      final used = await ref.read(deviceRegistrationRepositoryProvider).touch();
+      // The server says this device no longer holds a slot: the gate must show
+      // the revocation and start the discard now, not when a push happens.
+      if (!used) await refresh(claim: false);
     } on Object {
       // A failed heartbeat is not a reason to fail anything else; retry later.
       _lastTouch = null;

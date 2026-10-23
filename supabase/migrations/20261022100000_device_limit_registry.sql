@@ -12,6 +12,11 @@
 -- RPCs below, never queued, never pulled into Drift. The client reads it
 -- through `device_state()` and nothing else.
 --
+-- **Correction (2026-10-23).** Android's `device_info_plus` `id` is the *build
+-- ID*, not the SSAID, so two identical phones shared it. The client now keys
+-- installs with a persisted UUID; see
+-- `20261023100000_device_identity_and_collision_guard.sql`.
+--
 -- **What a device is.** Two keys, and only one of them is trusted:
 --
 --   * `session_id` — read from the access token (`auth.jwt() ->> 'session_id'`),

@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The white Device Limit Reached window loses its card — COMPLETE (0.0.599)
+
+- **What was wrong.** After the window became a white page, the old white card behind the content was still drawn with its elevation and rounded edge, so a faint panel was visible on the page.
+- **What changed** (this window only): the content now sits directly on the white page — no card colour, no elevation, no rounded panel. The checking and same-install windows keep their card because they sit over the app.
+- **Button spacing.** **Try Again** and **Sign Out This Device** now have an even 8 px gap between them, in addition to their 48 px height.
+- **Tests.** The window test now asserts no elevated card is present and measures the gap between the two buttons. `flutter analyze` clean; full `flutter test` **1951 passed**; version **0.0.599** recorded.
+- **Not run on a phone.** Please confirm the page now looks completely flat and the gap reads evenly on the device.
+
 ### 2026-10-23 — The login Device Limit Reached window turns white — COMPLETE (0.0.598)
 
 - **What was asked.** On the **Device Limit Reached** window shown at login when a Pro account already has two devices: the black background should be white with the title in black text, **Warning:** should sit on its own line above the warning, and **Try Again** / **Sign Out This Device** should be a little taller.

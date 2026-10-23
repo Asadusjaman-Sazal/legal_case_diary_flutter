@@ -289,7 +289,8 @@ void main() {
     expect(find.text('Xiaomi 13'), findsOneWidget);
     expect(find.text('Sign Out'), findsNWidgets(2));
     expect(find.text('Sign Out This Device'), findsOneWidget);
-    // Both secondary actions are a touch taller than a default text button.
+    // Both secondary actions are a touch taller than a default text button,
+    // with an even gap between them.
     for (final label in ['Try Again', 'Sign Out This Device']) {
       final button = tester.widget<TextButton>(
         find.widgetWithText(TextButton, label),
@@ -300,6 +301,19 @@ void main() {
         reason: '$label should be taller',
       );
     }
+    final gap =
+        tester
+            .getTopLeft(find.widgetWithText(TextButton, 'Sign Out This Device'))
+            .dy -
+        tester.getBottomLeft(find.widgetWithText(TextButton, 'Try Again')).dy;
+    expect(gap, closeTo(8, 0.5));
+    // The white page has no card behind it any more.
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is Material && widget.elevation == 8,
+      ),
+      findsNothing,
+    );
     // The app itself is not reachable behind the gate.
     expect(find.text('the app'), findsNothing);
 

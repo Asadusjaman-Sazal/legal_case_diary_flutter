@@ -21,6 +21,9 @@ class _FakeDeviceRepository implements DeviceRegistrationRepository {
   DeviceGateState stateResult = const DeviceGateState(
     status: DeviceGateStatus.active,
   );
+  DeviceGateState registerResult = const DeviceGateState(
+    status: DeviceGateStatus.active,
+  );
   bool touchResult = true;
   bool throwOnTouch = false;
   int touchCalls = 0;
@@ -30,7 +33,7 @@ class _FakeDeviceRepository implements DeviceRegistrationRepository {
   @override
   Future<DeviceGateState> register(DeviceIdentity identity) async {
     registerCalls++;
-    return const DeviceGateState(status: DeviceGateStatus.active);
+    return registerResult;
   }
 
   @override
@@ -96,6 +99,31 @@ void main() {
 
     await gate.touch(force: true);
     expect(repository.touchCalls, 2);
+  });
+
+  test('a phone with no slot is never checked by a stray signal', () async {
+    final repository = _FakeDeviceRepository()
+      ..registerResult = const DeviceGateState(
+        status: DeviceGateStatus.limitReached,
+        cap: 2,
+      );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    await container.read(deviceGateProvider.future);
+    expect(
+      container.read(deviceGateProvider).value?.status,
+      DeviceGateStatus.limitReached,
+    );
+
+    // A channel join or another device's revocation arriving on this phone
+    // must not turn the full-plan window into "unregistered".
+    await container.read(deviceGateProvider.notifier).touch(force: true);
+
+    expect(repository.touchCalls, 0);
+    expect(
+      container.read(deviceGateProvider).value?.status,
+      DeviceGateStatus.limitReached,
+    );
   });
 
   test('a not-active answer re-reads the state and revokes the gate', () async {

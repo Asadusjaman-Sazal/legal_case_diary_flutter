@@ -3825,11 +3825,47 @@ abstract class AppLocalizations {
   /// **'Your plan allows {cap} device(s) at a time, and another device took this one\'s place. Any unsaved work on this device is discarded.'**
   String devices_revokedBody(String cap);
 
-  /// No description provided for @devices_revokedLapseBody.
+  /// No description provided for @devices_limitRevokedLeadPro.
   ///
   /// In en, this message translates to:
-  /// **'Your plan changed and now allows {cap} device(s) at a time, so this device gave up its place. Any unsaved work on this device is discarded.'**
-  String devices_revokedLapseBody(String cap);
+  /// **'Your Pro plan allows a maximum of'**
+  String get devices_limitRevokedLeadPro;
+
+  /// No description provided for @devices_limitRevokedLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan allows a maximum of'**
+  String get devices_limitRevokedLead;
+
+  /// No description provided for @devices_limitRevokedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 device to be signed in at the same time} other{{count} devices to be signed in at the same time}}'**
+  String devices_limitRevokedLimit(int count);
+
+  /// No description provided for @devices_limitRevokedTally.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{. You’re already signed in on 1 device, so you’ve been signed out on this device.} other{. You’re already signed in on {count} devices, so you’ve been signed out on this device.}}'**
+  String devices_limitRevokedTally(int count);
+
+  /// No description provided for @devices_limitRevokedDiscarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Any unsaved or unsynced work on this device has been discarded.'**
+  String get devices_limitRevokedDiscarded;
+
+  /// No description provided for @devices_limitRevokedRelogin.
+  ///
+  /// In en, this message translates to:
+  /// **'To continue using this device, please log in again using the button below.'**
+  String get devices_limitRevokedRelogin;
+
+  /// No description provided for @devices_backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Login'**
+  String get devices_backToLogin;
 
   /// No description provided for @devices_revokedRemovedBody.
   ///

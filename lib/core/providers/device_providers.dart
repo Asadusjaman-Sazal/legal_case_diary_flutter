@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../database/encryption_key_manager.dart';
 import '../../features/auth/data/device_registration.dart';
+import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../devices/device_identity.dart';
 import '../devices/device_install_secret.dart';
 import 'repository_providers.dart';
@@ -81,6 +82,11 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
     // Watched, not read: a sign-out or a new account rebuilds this and registers
     // the device against the new session.
     if (ref.watch(activeSupabaseClientProvider) == null) {
+      return const DeviceGateState(status: DeviceGateStatus.unmanaged);
+    }
+    // Signed out is not a device state: the Login screen is the whole app. A new
+    // sign-in rebuilds this provider, so the gate answers for the new session.
+    if (ref.watch(authIdentityProvider) == null) {
       return const DeviceGateState(status: DeviceGateStatus.unmanaged);
     }
     final identity = await ref.watch(deviceIdentityProvider.future);

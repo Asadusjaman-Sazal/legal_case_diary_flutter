@@ -2151,9 +2151,46 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String devices_revokedLapseBody(String cap) {
-    return 'আপনার প্ল্যান বদলেছে এবং এখন একসঙ্গে $capটি ডিভাইস চলে, তাই এই ডিভাইসটি জায়গা ছেড়ে দিয়েছে। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।';
+  String get devices_limitRevokedLeadPro =>
+      'আপনার প্রো প্ল্যানে একসঙ্গে সর্বোচ্চ';
+
+  @override
+  String get devices_limitRevokedLead => 'আপনার প্ল্যানে একসঙ্গে সর্বোচ্চ';
+
+  @override
+  String devices_limitRevokedLimit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি ডিভাইস সাইন ইন থাকতে পারে',
+      one: '১টি ডিভাইস সাইন ইন থাকতে পারে',
+    );
+    return '$_temp0';
   }
+
+  @override
+  String devices_limitRevokedTally(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '। আপনি ইতিমধ্যে $countটি ডিভাইসে সাইন ইন আছেন, তাই এই ডিভাইস থেকে আপনাকে সাইন আউট করা হয়েছে।',
+      one:
+          '। আপনি ইতিমধ্যে ১টি ডিভাইসে সাইন ইন আছেন, তাই এই ডিভাইস থেকে আপনাকে সাইন আউট করা হয়েছে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devices_limitRevokedDiscarded =>
+      'এই ডিভাইসের যেকোনো অসংরক্ষিত বা অসিঙ্ক করা কাজ বাদ দেওয়া হয়েছে।';
+
+  @override
+  String get devices_limitRevokedRelogin =>
+      'এই ডিভাইসটি ব্যবহার চালিয়ে যেতে, নিচের বোতামটি ব্যবহার করে আবার লগ ইন করুন।';
+
+  @override
+  String get devices_backToLogin => 'লগ ইনে ফিরুন';
 
   @override
   String get devices_revokedRemovedBody =>

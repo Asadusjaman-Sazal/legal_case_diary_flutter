@@ -261,6 +261,7 @@ A full-screen modal sheet for adding a new case or editing an existing one.
   - **Line 3:** taken from `case_title_and_section` column (description of the case or specific legal sections, e.g., "Land Dispute" or "Section 302 IPC")
   - **Line 4:** Left: **last_step** | Right: **Note** (data taken from `notes_results` column. No Next Date field is present on this card).
   - **Line 5:** **Phone** icon/button, **Message** icon/button, and **Update** button.
+- **Pull-to-refresh (0.0.605, user request):** the compact card list now carries the same `RefreshIndicator` as the other case lists, and both its card and table views use `AlwaysScrollableScrollPhysics` so a day with a single hearing can still be pulled. The header sync button and the empty-state pull-to-sync are unchanged.
   ### 2.1. Badge Calendar Picker (Daily Cause List Page Only)
 UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. The mockup html page hase the design of the calendar picker model we want to build.
 - Displays hearing counts dynamically on the calendar:

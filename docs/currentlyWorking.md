@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — Daily Cause List can be pulled to refresh — COMPLETE (0.0.605)
+
+- **What was asked.** The Daily Cause List was missing the pull-down-to-refresh gesture the other case-list screens have. The table view already had a `RefreshIndicator`; the compact card list had none.
+- **What changed** (only `daily_cause_list_screen.dart`): the compact card list is now wrapped in the same `RefreshIndicator` the other lists use, with `onRefresh: _loadCases`. Both the card and table views use `AlwaysScrollableScrollPhysics`, so the pull works on a day with a single hearing instead of only when the list overflows. The header sync button and the empty-state pull-to-sync are unchanged.
+- **Scope.** No shared widget, no other screen and no server change. The mockup is untouched: this is a gesture, not a body layout (rule 9).
+- **Tests.** A new Daily Cause List test seeds one hearing (a short list), finds the indicator, drags the list and lets the refresh settle. `flutter analyze` clean; full `flutter test` **1968 passed**; version **0.0.605** recorded. Plan and Task 08 were updated where the old “Daily Cause List has no pull” exception was documented.
+
 ### 2026-10-23 — Revoked device rows are pruned after six months — COMPLETE (0.0.604)
 
 - **The policy.** Keep every `user_devices` row from the last six months; never delete an active row; for each `(user_id, device_key)` keep the newest revoked row even when it is older than six months; delete only revoked rows older than six months that have a strictly newer revoked row for the same account/device key. Rows tied at the newest instant all survive. Age is `revoked_at`, never `last_seen_at` (the touch trigger rewrites that on every update).

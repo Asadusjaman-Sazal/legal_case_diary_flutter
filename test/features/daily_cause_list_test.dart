@@ -257,4 +257,22 @@ void main() {
 
     await unmount(tester);
   });
+
+  testWidgets('the compact list can be pulled to refresh', (tester) async {
+    await seedHearing('DCL-PULL', AppDateUtils.bangladeshTodayStartOfDay());
+    await pumpScreen(tester);
+
+    final indicator = tester.widget<RefreshIndicator>(
+      find.byType(RefreshIndicator),
+    );
+    expect(indicator.onRefresh, isNotNull);
+
+    // One hearing leaves the list shorter than the viewport; the pull must
+    // still reach the indicator.
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, 300));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    await unmount(tester);
+  });
 }

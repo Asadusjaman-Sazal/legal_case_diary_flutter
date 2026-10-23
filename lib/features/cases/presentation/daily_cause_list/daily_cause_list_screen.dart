@@ -115,8 +115,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       scope: CaseSearchScope(
         disposal: CaseSearchDisposal.activeOnly,
         nextDateStart: _selectedDate,
-        nextDateEnd:
-            _selectedDate + const Duration(days: 1).inMilliseconds - 1,
+        nextDateEnd: _selectedDate + const Duration(days: 1).inMilliseconds - 1,
       ),
     );
   }
@@ -193,10 +192,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   /// Opens the shared Phone/Message chooser for the represented party
   /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
   /// the case's single `party_phone`, and the message from the ARB template.
-  Future<void> _contactParty(
-    Case currentCase, {
-    required bool message,
-  }) async {
+  Future<void> _contactParty(Case currentCase, {required bool message}) async {
     await showCaseContactActions(
       context,
       currentCase: currentCase,
@@ -240,7 +236,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-      title: l.dailyCauseListScreen_title,
+        title: l.dailyCauseListScreen_title,
         cases: rows,
         subtitle: AppDateUtils.formatDailyCauseCalendarDate(
           _selectedDate,
@@ -386,22 +382,28 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     // long as that court's own cards are on screen, and tapping it folds that
     // court's cases away — the same heading the extended view draws, only over
     // cards instead of rows.
-    Widget buildList() => CustomScrollView(
-      slivers: [
-        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-        for (final group in groups)
-          CaseTableGroup(
-            key: ValueKey('court-header-${group.court.id}'),
-            heading: _courtHeading(group, l),
-            headingHeight: caseTableGroupHeaderHeight(context),
-            initiallyCollapsed: collapsedCourts.contains(group.court.id),
-            onToggle: (collapsed) => toggleCourt(group.court.id, collapsed),
-            rows: [
-              for (final currentCase in group.cases) _buildCard(currentCase, l),
-            ],
-          ),
-        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-      ],
+    Widget buildList() => RefreshIndicator(
+      onRefresh: _loadCases,
+      child: CustomScrollView(
+        // Always scrollable so the pull works even on a day with one hearing.
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+          for (final group in groups)
+            CaseTableGroup(
+              key: ValueKey('court-header-${group.court.id}'),
+              heading: _courtHeading(group, l),
+              headingHeight: caseTableGroupHeaderHeight(context),
+              initiallyCollapsed: collapsedCourts.contains(group.court.id),
+              onToggle: (collapsed) => toggleCourt(group.court.id, collapsed),
+              rows: [
+                for (final currentCase in group.cases)
+                  _buildCard(currentCase, l),
+              ],
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+        ],
+      ),
     );
 
     // The extended view pins the same court headings over its rows: a heading
@@ -411,6 +413,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
         RefreshIndicator(
           onRefresh: _loadCases,
           child: CustomScrollView(
+            // The same pull in the table view, however short the day is.
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
               for (final group in groups)
@@ -419,10 +423,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
                   heading: _courtHeading(group, l),
                   headingHeight: caseTableGroupHeaderHeight(context),
                   initiallyCollapsed: collapsedCourts.contains(group.court.id),
-                  onToggle: (collapsed) => toggleCourt(
-                    group.court.id,
-                    collapsed,
-                  ),
+                  onToggle: (collapsed) =>
+                      toggleCourt(group.court.id, collapsed),
                   rows: [
                     for (final currentCase in group.cases)
                       _buildRow(
@@ -521,10 +523,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       note: currentCase.notesResults,
       showPhoneButton: true,
       showMessageButton: true,
-      onPhone: () =>
-          _contactParty(currentCase, message: false),
-      onMessage: () =>
-          _contactParty(currentCase, message: true),
+      onPhone: () => _contactParty(currentCase, message: false),
+      onMessage: () => _contactParty(currentCase, message: true),
       isReadOnly: isCaseReadOnly(ref, currentCase.id),
       onUpdate: () => _updateIfWritable(currentCase),
       onTap: () => _openCaseDetail(currentCase),

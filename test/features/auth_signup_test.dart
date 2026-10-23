@@ -326,6 +326,9 @@ void main() {
     expect(find.text(l.auth_fullNameLabel), findsOneWidget);
     expect(find.text(l.auth_barAssociationLabel), findsOneWidget);
     expect(find.text(l.auth_emailAddressLabel), findsOneWidget);
+    // The address box is the one with the clear cross and the domain window
+    // (user request); behaviour lives in `auth_email_field_test.dart`.
+    expect(find.byType(AuthEmailField), findsOneWidget);
     expect(find.text(l.auth_passwordLabel), findsOneWidget);
     expect(find.text(l.auth_passwordHelper), findsOneWidget);
     expect(find.text(l.auth_confirmPasswordLabel), findsOneWidget);

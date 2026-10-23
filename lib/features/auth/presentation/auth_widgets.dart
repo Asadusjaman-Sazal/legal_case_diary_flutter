@@ -85,10 +85,7 @@ class AuthScaffold extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (trailing != null && !pinned) ...[
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: trailing,
-                    ),
+                    Align(alignment: Alignment.centerRight, child: trailing),
                     const SizedBox(height: AppSpacing.md),
                   ],
                   child,
@@ -284,11 +281,7 @@ class AuthCard extends StatelessWidget {
         child: child,
       );
     }
-    return Container(
-      decoration: decoration,
-      padding: padding,
-      child: child,
-    );
+    return Container(decoration: decoration, padding: padding, child: child);
   }
 }
 
@@ -484,6 +477,8 @@ class AuthTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.fillColor,
     this.emptyMessage,
+    this.focusNode,
+    this.groupId,
     super.key,
   });
 
@@ -546,6 +541,20 @@ class AuthTextField extends StatelessWidget {
   /// both on one field.
   final String? emptyMessage;
 
+  /// Optional focus node, forwarded to the field.
+  ///
+  /// The Email box owns one ([AuthEmailField]) so its clear cross can put the
+  /// keyboard away and its domain window can follow the focus.
+  final FocusNode? focusNode;
+
+  /// Optional tap-region group, forwarded to the field.
+  ///
+  /// A tap outside a [TapRegion] group's members is what Flutter counts as
+  /// "outside the field". [AuthEmailField] shares one group between the box and
+  /// its domain window, so choosing a domain is not a tap outside the field;
+  /// every other field leaves this null and keeps the default.
+  final Object? groupId;
+
   @override
   Widget build(BuildContext context) {
     final message = emptyMessage;
@@ -554,10 +563,8 @@ class AuthTextField extends StatelessWidget {
     // empty and goes the moment something is typed into it.
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, _) => _buildField(
-        context,
-        controller.text.trim().isEmpty ? message : null,
-      ),
+      builder: (context, _) =>
+          _buildField(context, controller.text.trim().isEmpty ? message : null),
     );
   }
 
@@ -566,6 +573,10 @@ class AuthTextField extends StatelessWidget {
   Widget _buildField(BuildContext context, String? emptyState) {
     final mandatoryEmpty = emptyState != null;
     return Column(
+      // As tall as its own label, box and helper, never the page: the field is a
+      // part of a form, and its height is what [AuthEmailField] hangs its domain
+      // window under.
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -589,6 +600,8 @@ class AuthTextField extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         TextFormField(
           controller: controller,
+          focusNode: focusNode,
+          groupId: groupId ?? EditableText,
           obscureText: obscureText,
           keyboardType: keyboardType,
           textInputAction: textInputAction,
@@ -626,6 +639,416 @@ class AuthTextField extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// The Email box: its clear cross and its domain window
+// ---------------------------------------------------------------------------
+
+/// The domains the Email box offers once the user has typed something.
+///
+/// Offered in this order, as they are written here, so both auth screens show
+/// the same list and it can be read top to bottom (user request).
+const List<String> emailDomainSuggestions = <String>[
+  '@gmail.com',
+  '@yahoo.com',
+  '@hotmail.com',
+  '@outlook.com',
+  '@protonmail.com',
+  '@proton.me',
+];
+
+/// Any letter, either script's: the domain window waits for one.
+final RegExp _hasLetter = RegExp('[A-Za-z]');
+
+/// Room left between the box and its window: close enough to read as attached,
+/// far enough not to touch it.
+const double _authEmailPopoverGap = 4.0;
+
+/// Height of one domain row.
+const double _authEmailRowHeight = 44.0;
+
+/// Air above the first row and under the last one.
+const double _authEmailWindowPadding = 4.0;
+
+/// The domain window's corner radius: the same rounded window the account
+/// popover uses, so the app has one pop-over shape.
+const double _authEmailWindowRadius = 16.0;
+
+/// The Email box: [AuthTextField] plus a clear cross and a domain window.
+///
+/// The box reads and behaves like every other auth field. Two things are added
+/// to it here, because they belong to the address rather than to the form (user
+/// request):
+///
+/// * a **clear cross** at the box's trailing edge, shown while there is
+///   something to clear, which empties the box and puts the keyboard away;
+/// * the **domain window** — the six [emailDomainSuggestions] under the box as a
+///   floating panel, offered once at least one letter has been typed, so an
+///   address can be finished with one tap instead of the keyboard's `@` row. The
+///   window narrows to the domains matching what was typed after the `@`
+///   (`@g` leaves `@gmail.com`), and a chosen domain replaces whatever part of a
+///   domain was typed, so one address can never end up with two of them.
+///
+/// The window stays up for as long as the user is working in the box, and closes
+/// on an outside tap, on an emptied box, and once a whole domain is in place. A
+/// tap in the window is not an outside tap (both share one tap-region group), so
+/// the keyboard stays up while the domain is chosen; the window is drawn in an
+/// [OverlayPortal] rather than pushed as a route for the same reason — a route
+/// would take the keyboard with it.
+class AuthEmailField extends StatefulWidget {
+  /// Creates the box.
+  const AuthEmailField({
+    required this.controller,
+    required this.label,
+    this.hint,
+    this.helper,
+    this.validator,
+    this.emptyMessage,
+    this.textInputAction,
+    this.autofillHints,
+    super.key,
+  });
+
+  /// Field controller.
+  final TextEditingController controller;
+
+  /// Label drawn above the box.
+  final String label;
+
+  /// Placeholder text.
+  final String? hint;
+
+  /// Helper line below the box.
+  final String? helper;
+
+  /// Validator for the surrounding [Form].
+  final String? Function(String?)? validator;
+
+  /// The mandatory sentence shown inside an empty box, as on Sign Up.
+  final String? emptyMessage;
+
+  /// Keyboard action.
+  final TextInputAction? textInputAction;
+
+  /// Autofill hints.
+  final Iterable<String>? autofillHints;
+
+  @override
+  State<AuthEmailField> createState() => _AuthEmailFieldState();
+}
+
+class _AuthEmailFieldState extends State<AuthEmailField> {
+  /// The box's own focus node: the cross unfocuses through it, and the window
+  /// follows it.
+  final FocusNode _focusNode = FocusNode();
+
+  /// Links the window to the box, so it follows the box wherever the page
+  /// scrolls it.
+  final LayerLink _link = LayerLink();
+
+  /// Draws and removes the window.
+  final OverlayPortalController _portal = OverlayPortalController();
+
+  /// The box as laid out, measured to decide whether the window fits under it.
+  final GlobalKey _boxKey = GlobalKey();
+
+  /// One group for the box and its window: a tap inside either is not an outside
+  /// tap, so choosing a domain leaves the keyboard where it is.
+  late final Object _groupId = this;
+
+  /// Set by an outside tap. Typing again, or coming back to the box, brings the
+  /// window back — so a dismissed window is a pause, not a setting.
+  bool _dismissed = false;
+
+  /// The text the last change was answered for, so a selection change (which
+  /// also notifies the controller) is not mistaken for a keystroke.
+  String _lastText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _lastText = widget.controller.text;
+    widget.controller.addListener(_onTextChanged);
+    _focusNode.addListener(_onFocusChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant AuthEmailField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onTextChanged);
+      widget.controller.addListener(_onTextChanged);
+      _lastText = widget.controller.text;
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onTextChanged);
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  /// Rebuilds the box after a keystroke or a focus change.
+  void _onTextChanged() {
+    final text = widget.controller.text;
+    if (text != _lastText) {
+      _lastText = text;
+      _dismissed = false;
+    }
+    _refresh();
+  }
+
+  /// Coming back to the box re-opens a window an outside tap had closed.
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus) _dismissed = false;
+    _refresh();
+  }
+
+  /// Rebuilds the box and brings the window up or down for the current state.
+  void _refresh() {
+    if (!mounted) return;
+    setState(() {});
+    final shows = _windowShown;
+    if (shows == _portal.isShowing) return;
+    if (shows) {
+      _portal.show();
+    } else {
+      _portal.hide();
+    }
+  }
+
+  /// Whether the window belongs on screen now: a focused box holding at least one
+  /// letter, whose domain still has something to complete.
+  bool get _windowShown =>
+      !_dismissed &&
+      _focusNode.hasFocus &&
+      _offersFor(widget.controller.text) != null;
+
+  /// The domains worth offering for [text], or null when there is nothing left
+  /// to complete.
+  ///
+  /// Before an `@` the whole list is offered; after one, only the domains that
+  /// still start with what has been typed. A domain already typed whole offers
+  /// nothing, which is also what closes the window once one is chosen.
+  static List<String>? _offersFor(String text) {
+    if (text.isEmpty || !_hasLetter.hasMatch(text)) return null;
+    final at = text.indexOf('@');
+    if (at < 0) return emailDomainSuggestions;
+    final typed = text.substring(at).toLowerCase();
+    final offers = <String>[
+      for (final domain in emailDomainSuggestions)
+        if (domain.startsWith(typed)) domain,
+    ];
+    if (offers.length == 1 && offers.single == typed) return null;
+    return offers.isEmpty ? null : offers;
+  }
+
+  /// Closes the window until the next keystroke or the next visit to the box.
+  void _dismiss() {
+    if (!mounted || _dismissed) return;
+    setState(() => _dismissed = true);
+    if (_portal.isShowing) _portal.hide();
+  }
+
+  /// Puts [domain] on the address: the name the user typed, then this domain,
+  /// with no space between them.
+  ///
+  /// Anything already typed after the `@` is replaced rather than added to it, so
+  /// `john@g` + `@gmail.com` reads `john@gmail.com`.
+  void _pick(String domain) {
+    final text = widget.controller.text;
+    final at = text.indexOf('@');
+    final address = '${at < 0 ? text : text.substring(0, at)}$domain';
+    widget.controller.value = TextEditingValue(
+      text: address,
+      selection: TextSelection.collapsed(offset: address.length),
+    );
+    // A domain is a step in typing, not the end of it: the box keeps the focus
+    // and the keyboard for the next keystroke.
+    _focusNode.requestFocus();
+  }
+
+  /// Empties the box and puts the keyboard away (user request).
+  void _clear() {
+    widget.controller.clear();
+    _focusNode.unfocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final offers = _offersFor(widget.controller.text);
+    return TapRegion(
+      groupId: _groupId,
+      child: CompositedTransformTarget(
+        link: _link,
+        child: OverlayPortal(
+          controller: _portal,
+          overlayChildBuilder: (_) => _DomainWindow(
+            link: _link,
+            boxKey: _boxKey,
+            groupId: _groupId,
+            domains: offers ?? const <String>[],
+            onPicked: _pick,
+            onDismissed: _dismiss,
+          ),
+          child: AuthTextField(
+            key: _boxKey,
+            controller: widget.controller,
+            focusNode: _focusNode,
+            groupId: _groupId,
+            label: widget.label,
+            hint: widget.hint,
+            helper: widget.helper,
+            validator: widget.validator,
+            emptyMessage: widget.emptyMessage,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: widget.textInputAction,
+            autofillHints: widget.autofillHints,
+            // Shown while there is something to clear: a cross over an empty box
+            // would be a button with nothing to do.
+            trailing: widget.controller.text.isEmpty
+                ? null
+                : IconButton(
+                    key: const ValueKey('auth-email-clear'),
+                    onPressed: _clear,
+                    tooltip: l.auth_clearEmail,
+                    icon: const Icon(
+                      Icons.close,
+                      size: 20,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The domain window itself: the app's pop-over shape, hung under (or above, when
+/// the keyboard leaves no room below) the Email box.
+class _DomainWindow extends StatelessWidget {
+  const _DomainWindow({
+    required this.link,
+    required this.boxKey,
+    required this.groupId,
+    required this.domains,
+    required this.onPicked,
+    required this.onDismissed,
+  });
+
+  /// Links the window to the box it belongs to.
+  final LayerLink link;
+
+  /// The box, measured to choose the window's side and height.
+  final GlobalKey boxKey;
+
+  /// The tap-region group the box shares, so taps in here are not outside taps.
+  final Object groupId;
+
+  /// The domains to offer, in order.
+  final List<String> domains;
+
+  /// Called with the tapped domain.
+  final ValueChanged<String> onPicked;
+
+  /// Called when a tap lands outside the box and the window.
+  final VoidCallback onDismissed;
+
+  @override
+  Widget build(BuildContext context) {
+    final box = boxKey.currentContext?.findRenderObject() as RenderBox?;
+    // Nothing to hang the window under until the box has been laid out.
+    if (box == null || !box.hasSize) return const SizedBox.shrink();
+    final rect = box.localToGlobal(Offset.zero) & box.size;
+    // The overlay is the full window, so the keyboard covers its foot: that is
+    // how far under the box the window may reach.
+    final media = MediaQuery.of(context);
+    final floor = media.size.height - media.viewInsets.bottom;
+    final needed =
+        domains.length * _authEmailRowHeight + _authEmailWindowPadding * 2;
+    final roomBelow = floor - rect.bottom - _authEmailPopoverGap;
+    // Above the box when the keyboard leaves no room under it and there is more
+    // room above — the list is never cut off by the keyboard.
+    final above = roomBelow < needed && rect.top > roomBelow;
+    final available = above ? rect.top - _authEmailPopoverGap : roomBelow;
+    final maxHeight = available.clamp(0.0, needed);
+
+    // The overlay sizes its children to the whole screen; the follower must be
+    // sized to the window itself instead, or it would anchor the screen's foot
+    // to the box's foot. [Align] hands it loose constraints and keeps its own
+    // box on screen, which is also what keeps the window tappable.
+    return Align(
+      alignment: Alignment.topLeft,
+      child: CompositedTransformFollower(
+        link: link,
+        showWhenUnlinked: false,
+        targetAnchor: above ? Alignment.topLeft : Alignment.bottomLeft,
+        followerAnchor: above ? Alignment.bottomLeft : Alignment.topLeft,
+        offset: Offset(0, above ? -_authEmailPopoverGap : _authEmailPopoverGap),
+        child: SizedBox(
+          // The box's own width: the window is a list under the Email field, not a
+          // panel over the screen.
+          width: rect.width,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            // A tap outside both the box and this window closes it — the app's own
+            // dismiss rule for its pop-overs, with no dimming behind it.
+            child: TapRegion(
+              groupId: groupId,
+              onTapOutside: (_) => onDismissed(),
+              child: Material(
+                key: const ValueKey('auth-email-domains'),
+                color: AppColors.surfaceContainerLowest,
+                elevation: 8,
+                // The rounded window the account popover uses, with its thin grey
+                // edge: a white panel over a white card still needs an outline.
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(_authEmailWindowRadius),
+                  side: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: _authEmailWindowPadding,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final domain in domains)
+                        InkWell(
+                          key: ValueKey('auth-email-domain-$domain'),
+                          onTap: () => onPicked(domain),
+                          child: SizedBox(
+                            height: _authEmailRowHeight,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.gutter,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  domain,
+                                  style: AppTypography.bodyMd,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -779,7 +1202,9 @@ class AuthDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      const Expanded(child: Divider(color: AppColors.outlineVariant, height: 1)),
+      const Expanded(
+        child: Divider(color: AppColors.outlineVariant, height: 1),
+      ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
         child: Text(
@@ -789,7 +1214,9 @@ class AuthDivider extends StatelessWidget {
           ),
         ),
       ),
-      const Expanded(child: Divider(color: AppColors.outlineVariant, height: 1)),
+      const Expanded(
+        child: Divider(color: AppColors.outlineVariant, height: 1),
+      ),
     ],
   );
 }
@@ -1061,25 +1488,26 @@ class _GoogleMarkPainter extends CustomPainter {
 
 /// The localized message for a failure kind, or null when there is nothing to
 /// show (a cancelled Google sheet is not an error).
-String? authErrorText(AppLocalizations l, AuthFailureKind? kind) => switch (kind) {
-  null => null,
-  AuthFailureKind.cancelled => null,
-  AuthFailureKind.googleSignInFailed => l.auth_errorGoogleFailed,
-  AuthFailureKind.invalidCredentials => l.auth_errorInvalidCredentials,
-  AuthFailureKind.emailNotConfirmed => l.auth_errorEmailNotConfirmed,
-  AuthFailureKind.emailInUse => l.auth_errorEmailInUse,
-  AuthFailureKind.weakPassword => l.auth_errorWeakPassword,
-  AuthFailureKind.rateLimited => l.auth_errorRateLimited,
-  AuthFailureKind.invalidCode => l.auth_errorInvalidCode,
-  AuthFailureKind.tooManyAttempts => l.auth_errorTooManyAttempts,
-  AuthFailureKind.firmAdminOffline => l.auth_errorFirmAdminOffline,
-  AuthFailureKind.premiumRequired => l.auth_errorPremiumRequired,
-  AuthFailureKind.alreadyMember => l.auth_errorAlreadyMember,
-  AuthFailureKind.accountMismatch => l.auth_errorAccountMismatch,
-  AuthFailureKind.network => l.auth_errorNetwork,
-  AuthFailureKind.unavailable => l.auth_errorUnavailable,
-  AuthFailureKind.unknown => l.auth_errorUnknown,
-};
+String? authErrorText(AppLocalizations l, AuthFailureKind? kind) =>
+    switch (kind) {
+      null => null,
+      AuthFailureKind.cancelled => null,
+      AuthFailureKind.googleSignInFailed => l.auth_errorGoogleFailed,
+      AuthFailureKind.invalidCredentials => l.auth_errorInvalidCredentials,
+      AuthFailureKind.emailNotConfirmed => l.auth_errorEmailNotConfirmed,
+      AuthFailureKind.emailInUse => l.auth_errorEmailInUse,
+      AuthFailureKind.weakPassword => l.auth_errorWeakPassword,
+      AuthFailureKind.rateLimited => l.auth_errorRateLimited,
+      AuthFailureKind.invalidCode => l.auth_errorInvalidCode,
+      AuthFailureKind.tooManyAttempts => l.auth_errorTooManyAttempts,
+      AuthFailureKind.firmAdminOffline => l.auth_errorFirmAdminOffline,
+      AuthFailureKind.premiumRequired => l.auth_errorPremiumRequired,
+      AuthFailureKind.alreadyMember => l.auth_errorAlreadyMember,
+      AuthFailureKind.accountMismatch => l.auth_errorAccountMismatch,
+      AuthFailureKind.network => l.auth_errorNetwork,
+      AuthFailureKind.unavailable => l.auth_errorUnavailable,
+      AuthFailureKind.unknown => l.auth_errorUnknown,
+    };
 
 /// The localized message for a firm failure kind, or null when there is nothing
 /// to show.

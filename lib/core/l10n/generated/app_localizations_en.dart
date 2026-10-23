@@ -4301,6 +4301,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_hidePassword => 'Hide Password';
 
   @override
+  String get auth_clearEmail => 'Clear Email';
+
+  @override
   String get auth_continueWithoutAccount => 'Continue Without An Account';
 
   @override

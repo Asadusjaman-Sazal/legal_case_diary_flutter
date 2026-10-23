@@ -172,11 +172,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AuthTextField(
+                // The Email box carries the clear cross and the domain window
+                // (user request); every other field stays the shared one.
+                AuthEmailField(
                   controller: _email,
                   label: l.auth_emailLabel,
                   hint: l.auth_emailHint,
-                  keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.username],
                   validator: (value) => authEmailError(l, value),

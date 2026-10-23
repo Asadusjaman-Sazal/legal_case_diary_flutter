@@ -588,12 +588,13 @@ Object? _error;
                             textInputAction: TextInputAction.next,
                           ),
                           const SizedBox(height: AppSpacing.md),
-                          AuthTextField(
+                          // The Email box carries the clear cross and the domain
+                          // window (user request).
+                          AuthEmailField(
                             controller: _email,
                             label: l.auth_emailAddressLabel,
                             hint: l.auth_emailAddressHint,
                             emptyMessage: mandatory,
-                            keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             autofillHints: const [AutofillHints.email],
                             // Empty is the field's own mandatory sentence, so

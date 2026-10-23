@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — Revoked device rows are pruned after six months — COMPLETE (0.0.604)
+
+- **The policy.** Keep every `user_devices` row from the last six months; never delete an active row; for each `(user_id, device_key)` keep the newest revoked row even when it is older than six months; delete only revoked rows older than six months that have a strictly newer revoked row for the same account/device key. Rows tied at the newest instant all survive. Age is `revoked_at`, never `last_seen_at` (the touch trigger rewrites that on every update).
+- **Server — `20261023120000_user_devices_retention.sql`, applied (67 versions).**
+  - Partial index `user_devices_revoked_retention_idx (user_id, device_key, revoked_at desc) where revoked_at is not null` supports the newest-revoked lookup.
+  - `public.prune_user_devices(p_retention interval default interval '6 months')` is `security definer`, validates a positive interval, performs one set-based DELETE with a correlated “newer revoked row” check, reports the count and returns it.
+  - It is **internal**: `revoke all ... from public, anon, authenticated`. The owner and pg_cron can execute. (`purge_tombstones` has a pre-existing grant gap; this deliberately does not copy it.)
+  - pg_cron job **`prune-user-devices`** runs daily at **03:45**, after `purge-tombstones` at 03:15. The job is unscheduled-then-scheduled, so re-applying does not stack duplicates.
+  - No delete runs in the migration; the first scheduled run performs it.
+- **Proof.** `DEVICE OK` with 8 fixture deletions and 0 on a second run. It covers: old build-ID key with two phones, recent/old mix, tied newest rows, the exact six-month boundary, a NULL reason, `flushed_at`, a newer `last_seen_at`, old active rows, an active plus its only revoked row, two accounts sharing a key, separate install keys, and all-recent rows. It also asserts the grant deny for `anon`/`authenticated`, the definer/search_path, and both cron jobs.
+- **Live.** 67 versions applied; both cron jobs active (`purge-tombstones` 03:15, `prune-user-devices` 03:45); `anon`/`authenticated` cannot execute the pruner; the pre-check for old non-newest rows is **0**.
+- **Tests.** `flutter analyze` clean; full `flutter test` **1967 passed**; ledger regenerated (67, `--check` clean); version **0.0.604** recorded.
+- **Residual risks.** A token older than six months from a full clone kept alive could still look unknown after its row is pruned; the newest revoked row per key and the six-month window make that unlikely. One permanent row remains per historical install key (reinstalls add keys). The **18 recent test rows survive** — the policy only removes rows older than six months; removing those test rows would be a separate owner-approved cleanup.
+
 ### 2026-10-23 — The third device's first Sign Out no longer hits Could Not Check — COMPLETE (0.0.603)
 
 - **The report.** On a third phone at the **Device Limit Reached** window, the first **Sign Out** tap produced *Could Not Check This Device*; **Try Again** showed the window again, and the second Sign Out worked.

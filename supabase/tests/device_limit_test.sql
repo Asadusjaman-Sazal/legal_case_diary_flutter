@@ -149,6 +149,12 @@ declare
   v_broadcast_firm uuid := gen_random_uuid();
   v_broadcast_firm_device uuid;
   v_messages bigint;
+  v_retention_a uuid := pg_temp.sign_up('device-retention-a@test.local');
+  v_retention_b uuid := pg_temp.sign_up('device-retention-b@test.local');
+  v_deleted bigint;
+  v_id uuid;
+  v_prosecdef boolean;
+  v_proconfig text[];
 begin
   -- Two live accounts and one lapsed one.
   update public.profiles
@@ -812,6 +818,245 @@ begin
        and m.payload ->> 'id' = v_broadcast_firm_device::text;
     perform pg_temp.assert_true(v_messages = 0,
       'the firm member''s revocation is not sent to the user topic');
+  end if;
+
+  ---------------------------------------------------------------------------
+  -- 17. Device-row retention: six months, plus the newest revoked per device.
+  ---------------------------------------------------------------------------
+  insert into public.user_devices (
+    id, user_id, session_id, device_key, platform, label,
+    created_at, last_seen_at, revoked_at, revoked_reason, flushed_at
+  )
+  values
+    -- An old build-ID key shared by two phones: only the newest survives.
+    ('00000000-0000-4000-8000-000000000001'::uuid, v_retention_a,
+     gen_random_uuid(), 'SKQ1.210908.001', 'android', 'Old Pro 1',
+     now(), now(), now() - interval '18 months', 'replaced', null),
+    ('00000000-0000-4000-8000-000000000002'::uuid, v_retention_a,
+     gen_random_uuid(), 'SKQ1.210908.001', 'android', 'Old Pro 2',
+     now(), now(), now() - interval '12 months', 'replaced', null),
+    -- An old row with a recent newer revocation.
+    ('00000000-0000-4000-8000-000000000003'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-recent', 'android', 'Recent 1',
+     now(), now(), now() - interval '18 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000004'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-recent', 'android', 'Recent 2',
+     now(), now(), now() - interval '5 months', 'user', null),
+    -- Two rows at the same newest instant: both survive.
+    ('00000000-0000-4000-8000-000000000005'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-tie', 'android', 'Tie 1',
+     now(), now(), now() - interval '14 months', 'cap', null),
+    ('00000000-0000-4000-8000-000000000006'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-tie', 'android', 'Tie 2',
+     now(), now(), now() - interval '14 months', 'cap', null),
+    -- Exactly six months old survives; one second older is deleted.
+    ('00000000-0000-4000-8000-000000000007'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-boundary', 'android', 'Boundary',
+     now(), now(), now() - interval '6 months', 'lapse', null),
+    ('00000000-0000-4000-8000-000000000008'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-boundary', 'android', 'Boundary Older',
+     now(), now(), now() - interval '6 months' - interval '1 second',
+     'lapse', null),
+    ('00000000-0000-4000-8000-000000000009'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-boundary', 'android', 'Boundary Newer',
+     now(), now(), now() - interval '5 months', 'lapse', null),
+    -- A missing reason is still a revoked row.
+    ('00000000-0000-4000-8000-000000000010'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-null-reason', 'android', 'Null Reason 1',
+     now(), now(), now() - interval '20 months', null, null),
+    ('00000000-0000-4000-8000-000000000011'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-null-reason', 'android', 'Null Reason 2',
+     now(), now(), now() - interval '10 months', null, null),
+    -- The wipe acknowledgement is not the age.
+    ('00000000-0000-4000-8000-000000000012'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-flushed', 'android', 'Flushed 1',
+     now(), now(), now() - interval '24 months', 'signed_out', now()),
+    ('00000000-0000-4000-8000-000000000013'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-flushed', 'android', 'Flushed 2',
+     now(), now(), now() - interval '13 months', 'signed_out', now()),
+    -- A newer last_seen_at does not keep an old revoked row.
+    ('00000000-0000-4000-8000-000000000014'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-heartbeat', 'android', 'Heartbeat Old',
+     now(), now(), now() - interval '18 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000015'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-heartbeat', 'android', 'Heartbeat New',
+     now(), now(), now() - interval '12 months', 'user', null),
+    -- An active row is never a candidate, however old it is.
+    ('00000000-0000-4000-8000-000000000016'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-active', 'android', 'Active Old',
+     now() - interval '24 months', now(), null, null, null),
+    -- An active row plus its only revoked row: both survive.
+    ('00000000-0000-4000-8000-000000000017'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-active-one-revoked', 'android', 'Active',
+     now(), now(), null, null, null),
+    ('00000000-0000-4000-8000-000000000018'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-active-one-revoked', 'android',
+     'Only Revoked', now(), now(), now() - interval '24 months', 'cap', null),
+    -- Two accounts share a key; each keeps its own newest revoked row.
+    ('00000000-0000-4000-8000-000000000019'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-shared', 'android', 'Shared A Old',
+     now(), now(), now() - interval '20 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000020'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-shared', 'android', 'Shared A New',
+     now(), now(), now() - interval '11 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000021'::uuid, v_retention_b,
+     gen_random_uuid(), 'retention-shared', 'android', 'Shared B Old',
+     now(), now(), now() - interval '20 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000022'::uuid, v_retention_b,
+     gen_random_uuid(), 'retention-shared', 'android', 'Shared B New',
+     now(), now(), now() - interval '11 months', 'user', null),
+    -- Separate install keys each keep their only revoked row.
+    ('00000000-0000-4000-8000-000000000023'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-install-1', 'android', 'Install 1',
+     now(), now(), now() - interval '15 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000024'::uuid, v_retention_a,
+     gen_random_uuid(), 'retention-install-2', 'android', 'Install 2',
+     now(), now(), now() - interval '9 months', 'user', null),
+    -- Everything inside six months is kept.
+    ('00000000-0000-4000-8000-000000000025'::uuid, v_retention_b,
+     gen_random_uuid(), 'retention-all-recent', 'android', 'Recent A',
+     now(), now(), now() - interval '4 months', 'user', null),
+    ('00000000-0000-4000-8000-000000000026'::uuid, v_retention_b,
+     gen_random_uuid(), 'retention-all-recent', 'android', 'Recent B',
+     now(), now(), now() - interval '2 months', 'user', null);
+
+  perform pg_temp.as_owner();
+  v_deleted := public.prune_user_devices();
+  perform pg_temp.assert_true(
+    v_deleted >= 8,
+    'retention: at least the eight old non-newest fixtures are deleted'
+  );
+
+  foreach v_id in array array[
+    '00000000-0000-4000-8000-000000000002'::uuid,
+    '00000000-0000-4000-8000-000000000004'::uuid,
+    '00000000-0000-4000-8000-000000000005'::uuid,
+    '00000000-0000-4000-8000-000000000006'::uuid,
+    '00000000-0000-4000-8000-000000000007'::uuid,
+    '00000000-0000-4000-8000-000000000009'::uuid,
+    '00000000-0000-4000-8000-000000000011'::uuid,
+    '00000000-0000-4000-8000-000000000013'::uuid,
+    '00000000-0000-4000-8000-000000000015'::uuid,
+    '00000000-0000-4000-8000-000000000016'::uuid,
+    '00000000-0000-4000-8000-000000000017'::uuid,
+    '00000000-0000-4000-8000-000000000018'::uuid,
+    '00000000-0000-4000-8000-000000000020'::uuid,
+    '00000000-0000-4000-8000-000000000022'::uuid,
+    '00000000-0000-4000-8000-000000000023'::uuid,
+    '00000000-0000-4000-8000-000000000024'::uuid,
+    '00000000-0000-4000-8000-000000000025'::uuid,
+    '00000000-0000-4000-8000-000000000026'::uuid
+  ] loop
+    perform pg_temp.assert_true(
+      exists (select 1 from public.user_devices d where d.id = v_id),
+      format('retention: expected survivor %s is missing', v_id)
+    );
+  end loop;
+
+  foreach v_id in array array[
+    '00000000-0000-4000-8000-000000000001'::uuid,
+    '00000000-0000-4000-8000-000000000003'::uuid,
+    '00000000-0000-4000-8000-000000000008'::uuid,
+    '00000000-0000-4000-8000-000000000010'::uuid,
+    '00000000-0000-4000-8000-000000000012'::uuid,
+    '00000000-0000-4000-8000-000000000014'::uuid,
+    '00000000-0000-4000-8000-000000000019'::uuid,
+    '00000000-0000-4000-8000-000000000021'::uuid
+  ] loop
+    perform pg_temp.assert_true(
+      not exists (select 1 from public.user_devices d where d.id = v_id),
+      format('retention: %s should have been deleted', v_id)
+    );
+  end loop;
+
+  perform pg_temp.assert_true(
+    exists (
+      select 1 from public.user_devices d
+       where d.id = '00000000-0000-4000-8000-000000000016'::uuid
+         and d.revoked_at is null
+    ),
+    'retention: an old active device is untouched'
+  );
+  perform pg_temp.assert_true(
+    exists (
+      select 1 from public.user_devices d
+       where d.id = '00000000-0000-4000-8000-000000000017'::uuid
+         and d.revoked_at is null
+    ),
+    'retention: the second active device is untouched'
+  );
+  perform pg_temp.assert_true(
+    exists (
+      select 1 from public.user_devices d
+       where d.id = '00000000-0000-4000-8000-000000000007'::uuid
+    ),
+    'retention: a row exactly six months old survives'
+  );
+  perform pg_temp.assert_true(
+    exists (
+      select 1 from public.user_devices d
+       where d.id = '00000000-0000-4000-8000-000000000005'::uuid
+    )
+    and exists (
+      select 1 from public.user_devices d
+       where d.id = '00000000-0000-4000-8000-000000000006'::uuid
+    ),
+    'retention: tied newest rows both survive'
+  );
+
+  v_deleted := public.prune_user_devices();
+  perform pg_temp.assert_true(
+    v_deleted = 0,
+    'retention: a second run deletes nothing'
+  );
+
+  perform pg_temp.assert_true(
+    not has_function_privilege('anon',
+      'public.prune_user_devices(interval)', 'execute'),
+    'retention: anon cannot execute the pruner'
+  );
+  perform pg_temp.assert_true(
+    not has_function_privilege('authenticated',
+      'public.prune_user_devices(interval)', 'execute'),
+    'retention: authenticated cannot execute the pruner'
+  );
+  perform pg_temp.assert_true(
+    has_function_privilege(current_user,
+      'public.prune_user_devices(interval)', 'execute'),
+    'retention: the owner can execute the pruner'
+  );
+
+  select p.prosecdef, p.proconfig
+    into v_prosecdef, v_proconfig
+    from pg_proc p
+   where p.oid = 'public.prune_user_devices(interval)'::regprocedure;
+  perform pg_temp.assert_true(v_prosecdef,
+    'retention: the pruner is security definer');
+  perform pg_temp.assert_true(
+    array_to_string(v_proconfig, ',') like '%pg_catalog%'
+    and array_to_string(v_proconfig, ',') like '%public%',
+    'retention: the pruner pins its search_path'
+  );
+
+  if to_regclass('cron.job') is not null then
+    perform pg_temp.assert_true(
+      exists (
+        select 1 from cron.job
+         where jobname = 'prune-user-devices'
+           and schedule = '45 3 * * *'
+           and command like '%public.prune_user_devices%'
+           and active
+      ),
+      'retention: the daily prune job is missing or inactive'
+    );
+    perform pg_temp.assert_true(
+      (select count(*) from cron.job where jobname = 'prune-user-devices') = 1,
+      'retention: the prune job is scheduled once'
+    );
+    perform pg_temp.assert_true(
+      exists (select 1 from cron.job where jobname = 'purge-tombstones'),
+      'retention: the tombstone job is untouched'
+    );
   end if;
 
   raise notice 'DEVICE OK';

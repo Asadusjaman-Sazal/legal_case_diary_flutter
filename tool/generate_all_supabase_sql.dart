@@ -881,11 +881,25 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'immediately without polling; a Realtime failure is swallowed and the '
         'revocation still commits.',
   ),
+  LedgerSection(
+    file: '20261023120000_user_devices_retention.sql',
+    version: '0.0.604',
+    label:
+        'Device registry retention — six months of revoked rows, plus the '
+        'newest revoked row per (user_id, device_key) forever. A partial '
+        '(user_id, device_key, revoked_at desc) index supports the lookup; '
+        'public.prune_user_devices(interval default 6 months) deletes only old '
+        'rows with a strictly newer revoked row for the same key, never active '
+        'rows, and is internal-only (revoked from public, anon, authenticated). '
+        'A guarded pg_cron job, prune-user-devices, runs daily at 03:45 after '
+        'purge-tombstones.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.604': 'Device Retention — Six Months Of Revoked Rows',
   '0.0.602': 'Device Revocation — A Realtime Push Instead Of Polling',
   '0.0.600': 'Device Registry — Unique Install Keys And Support Identity',
   '0.0.595': 'Device Limit — A Session Belongs To Its Install',

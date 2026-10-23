@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        66,
+        67,
         reason:
+            'The user_devices retention pruner (2026-10-23) added one file. '
             'The device revocation broadcast (2026-10-23) added one file. '
             'The device identity columns and collision guard (2026-10-23) '
             'added one file. '

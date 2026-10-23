@@ -1004,6 +1004,46 @@ void main() {
     });
   });
 
+  group('device retention', () {
+    File retentionFile() => migrationFiles().firstWhere(
+      (file) => file.path.contains('user_devices_retention'),
+    );
+
+    test('keeps six months and the newest revoked row per device', () {
+      final text = retentionFile().readAsStringSync();
+      expect(text, contains('user_devices_revoked_retention_idx'));
+      expect(text, contains('where revoked_at is not null'));
+      expect(
+        text,
+        contains("p_retention interval default interval '6 months'"),
+      );
+      expect(text, contains("p_retention <= interval '0'"));
+      expect(text, contains('security definer'));
+      expect(text, contains('set search_path = pg_catalog, public'));
+      expect(text, contains('d.revoked_at < v_cutoff'));
+      expect(text, contains('newer.revoked_at > d.revoked_at'));
+      // Active rows and clock-derived columns never decide the prune.
+      expect(text, contains('d.revoked_at is not null'));
+      expect(text, isNot(contains('last_seen_at <')));
+    });
+
+    test('is internal and schedules a separate daily job', () {
+      final text = retentionFile().readAsStringSync();
+      expect(
+        text,
+        contains(
+          'revoke all on function public.prune_user_devices(interval)',
+        ),
+      );
+      expect(text, contains('public, anon, authenticated'));
+      expect(text, contains('create extension if not exists pg_cron'));
+      expect(text, contains("cron.unschedule('prune-user-devices')"));
+      expect(text, contains("'prune-user-devices'"));
+      expect(text, contains("'45 3 * * *'"));
+      expect(text, contains('public.prune_user_devices()'));
+    });
+  });
+
   group('reference in-use guard', () {
     File inUseGuardFile() => migrationFiles().firstWhere(
       (file) => file.path.contains('firm_mode_reference_in_use_guard'),

@@ -13,7 +13,8 @@
 /// type step and by weight. The Month column centres its labels in its own half
 /// and the Year column sits just past the seam between them, so the pair keeps a
 /// fixed, readable gap whatever month is showing. Each row that passes the middle
-/// plays a light platform click; tapping a row confirms the pair.
+/// plays a light platform click — unless the caller plays its own tick instead,
+/// as the Daily Cause List's calendar does — and tapping a row confirms the pair.
 library;
 
 import 'package:flutter/material.dart';
@@ -89,6 +90,14 @@ class MonthYearPickerColumns extends StatefulWidget {
   /// date pickers) leaves it out.
   final void Function(int month, int year)? onChanged;
 
+  /// Whether a row passing the middle plays the platform click.
+  ///
+  /// On by default, so every caller keeps the light click. The Daily Cause List's
+  /// calendar turns it off because it plays its own bundled gear tick (the same
+  /// sound as the Notification Time window) through [onChanged] instead; leaving
+  /// both on would click and tick at once.
+  final bool playRowClick;
+
   const MonthYearPickerColumns({
     super.key,
     required this.firstYear,
@@ -97,6 +106,7 @@ class MonthYearPickerColumns extends StatefulWidget {
     required this.year,
     required this.onPicked,
     this.onChanged,
+    this.playRowClick = true,
   });
 
   @override
@@ -138,6 +148,7 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                 },
                 onRowTapped: (index) => widget.onPicked(index + 1, _year),
                 labelAlignment: Alignment.center,
+                playRowClick: widget.playRowClick,
               ),
             ),
             Expanded(
@@ -158,6 +169,7 @@ class _MonthYearPickerColumnsState extends State<MonthYearPickerColumns> {
                 onRowTapped: (index) =>
                     widget.onPicked(_month, widget.firstYear + index),
                 labelAlignment: Alignment.centerLeft,
+                playRowClick: widget.playRowClick,
                 seamInset: const EdgeInsets.only(
                   left: monthYearPickerSeamGap,
                 ),
@@ -192,6 +204,10 @@ class _PickerColumn extends StatefulWidget {
   /// Distance this column's labels keep from the seam.
   final EdgeInsets seamInset;
 
+  /// Whether a row passing the middle plays the platform click; see
+  /// [MonthYearPickerColumns.playRowClick].
+  final bool playRowClick;
+
   const _PickerColumn({
     super.key,
     required this.labels,
@@ -200,6 +216,7 @@ class _PickerColumn extends StatefulWidget {
     required this.onRowTapped,
     required this.labelAlignment,
     this.seamInset = EdgeInsets.zero,
+    this.playRowClick = true,
   });
 
   @override
@@ -235,8 +252,8 @@ class _PickerColumnState extends State<_PickerColumn> {
       onSelectedItemChanged: (index) {
         // A light click as each row passes the middle, played through the
         // platform so the phone's own touch-sound setting decides whether it is
-        // heard at all.
-        SystemSound.play(SystemSoundType.click);
+        // heard at all. A caller that brings its own tick switches this off.
+        if (widget.playRowClick) SystemSound.play(SystemSoundType.click);
         widget.onChanged(index);
       },
       childDelegate: ListWheelChildBuilderDelegate(

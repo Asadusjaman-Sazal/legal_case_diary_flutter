@@ -9,8 +9,16 @@
 /// the wheel is pointing at, so the header follows the spin before any tap. The
 /// total is summed from the per-date hearing counts. Used only on the Daily
 /// Cause List screen (per the design plan).
+///
+/// Every month or year the Month | Year columns move to plays the bundled gear
+/// tick — the same sound the Notification Time window plays — so a spin is heard
+/// rather than only seen. Opening or closing the columns, a tap on the row the
+/// wheel already holds, the header's ‹ › arrows and a day-grid swipe stay silent.
 library;
 
+import 'dart:async';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +32,44 @@ import 'month_year_picker.dart';
 /// inside, so a month step can never leave what the year column can select.
 const int _calendarMinYear = 1900;
 const int _calendarMaxYear = 2100;
+
+/// Plays the gear tick for one month or year move in the selector.
+///
+/// It is the very sound the Notification Time window plays while its hand is
+/// dragged — the same `sounds/gear_click.wav`, in the same low-latency mode — so
+/// the two pickers sound alike. Tests replace this with a counter so the audio
+/// plugin is never touched in a widget test.
+@visibleForTesting
+void Function() monthYearTickPlayer = _playMonthYearTick;
+
+/// The one player for this screen's tick, created on first use.
+AudioPlayer? _tickAudio;
+
+/// Plays the gear tick, replacing a still-playing tick so a fast spin keeps a
+/// crisp ratchet instead of a queue of ticks.
+Future<void> _playMonthYearTickAsync() async {
+  try {
+    var player = _tickAudio;
+    if (player == null) {
+      player = AudioPlayer(playerId: 'daily-cause-list-month-year');
+      // Low latency keeps the tick on the row's movement instead of after it.
+      await player.setPlayerMode(PlayerMode.lowLatency);
+      await player.setReleaseMode(ReleaseMode.stop);
+      _tickAudio = player;
+    }
+    await player.stop();
+    await player.play(AssetSource('sounds/gear_click.wav'));
+  } catch (error, stackTrace) {
+    // Never break the picker, but leave a trace in debug: a missing plugin or
+    // asset would otherwise be indistinguishable from "the phone is silent".
+    assert(() {
+      debugPrint('Month/year tick failed: $error\n$stackTrace');
+      return true;
+    }());
+  }
+}
+
+void _playMonthYearTick() => unawaited(_playMonthYearTickAsync());
 
 /// A dialog shell hosting the Daily Cause List badge calendar.
 ///
@@ -106,6 +152,11 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
   /// the columns start from the month the grid is on.
   DateTime? _previewMonth;
 
+  /// The month the selector has already ticked for. Opening the columns seeds
+  /// it with the month the grid is on, so confirming the row the wheel already
+  /// holds stays silent; any move to another month or year ticks once.
+  DateTime? _lastTickedMonth;
+
   @override
   void initState() {
     super.initState();
@@ -120,12 +171,25 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     setState(() => _focusedMonth = next);
   }
 
+  /// Plays the gear tick for a move to [month], once per month it lands on.
+  void _tickMonthMove(DateTime month) {
+    if (_lastTickedMonth == month) return;
+    _lastTickedMonth = month;
+    monthYearTickPlayer();
+  }
+
   /// Applies the month and year confirmed by a tap and returns to the day grid.
-  void _pickMonthYear(int month, int year) => setState(() {
-        _focusedMonth = DateTime(year, month, 1);
-        _previewMonth = null;
-        _mode = _PickerMode.day;
-      });
+  void _pickMonthYear(int month, int year) {
+    final picked = DateTime(year, month, 1);
+    // A tap on another month moves the grid to it, so it is heard; a tap on the
+    // month the wheel already holds (already ticked while spinning) is not.
+    _tickMonthMove(picked);
+    setState(() {
+      _focusedMonth = picked;
+      _previewMonth = null;
+      _mode = _PickerMode.day;
+    });
+  }
 
   /// Opens the month/year columns, or closes them back to the day grid. Both
   /// columns appear together, whichever header opened them.
@@ -137,6 +201,8 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
           _previewMonth = null;
         } else {
           _mode = _PickerMode.monthYear;
+          // The columns open on the grid's month, so that month is not a move.
+          _lastTickedMonth = _focusedMonth;
         }
       });
 
@@ -288,11 +354,17 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                   month: month,
                   year: year,
                   onPicked: _pickMonthYear,
+                  // The gear tick replaces the columns' platform click here, so a
+                  // month move is heard as one tick, not a click plus a tick.
+                  playRowClick: false,
                   // The header follows the wheel as it spins, so the title and
-                  // the total already describe the month a tap will confirm.
-                  onChanged: (wheelMonth, wheelYear) => setState(
-                    () => _previewMonth = DateTime(wheelYear, wheelMonth, 1),
-                  ),
+                  // the total already describe the month a tap will confirm —
+                  // and each month the wheel lands on is heard once.
+                  onChanged: (wheelMonth, wheelYear) {
+                    final shown = DateTime(wheelYear, wheelMonth, 1);
+                    _tickMonthMove(shown);
+                    setState(() => _previewMonth = shown);
+                  },
                 )
               : _DayGridView(
                   year: year,

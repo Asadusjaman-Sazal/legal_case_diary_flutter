@@ -268,6 +268,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - Over date: Red/Gray badge showing count of hearings for that date.
   - Under month title: Monthly total hearing count.
 - Keep the calendar at a fixed seven-row height: one weekday-header row plus six date rows. Fill leading/trailing cells as needed so the dialog does not shift vertically between months.
+- **The month/year spin is heard (0.0.607, user request):** scrolling the Month | Year columns now plays the bundled gear tick the Notification Time window plays (`sounds/gear_click.wav`, low latency) once for each month or year the columns move to. Before this the calendar had only the columns' platform click, which a phone with touch sounds switched off never plays, so the spin was silent. Nothing sounds when the columns open or close, when the row the wheel already holds is tapped, on the header's ‹ › arrows or on a day-grid swipe; the calendar turns the columns' own click off (`MonthYearPickerColumns.playRowClick`) so one move is one tick rather than a click plus a tick, and every other picker in the app keeps that click unchanged.
 - All other date pickers in forms are simple native scroll/popup pickers defaulting to today's date.
 
 ### 3. Upcoming Cases Screen

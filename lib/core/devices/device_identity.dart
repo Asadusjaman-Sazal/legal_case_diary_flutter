@@ -80,10 +80,12 @@ class DeviceIdentityService {
   /// Never throws and never waits longer than [resolveTimeout]: a platform the
   /// plugin cannot answer for still has a stable key and the last model name it
   /// reported, because the alternative is an app that cannot register and
-  /// therefore cannot sync.
-  Future<DeviceIdentity> resolve() async {
+  /// therefore cannot sync. [refresh] re-asks the platform even when a cached
+  /// answer exists, which is how a launch whose lookup timed out gets its model
+  /// name on the next heartbeat.
+  Future<DeviceIdentity> resolve({bool refresh = false}) async {
     final cached = _cached;
-    if (cached != null) return cached;
+    if (cached != null && !refresh) return cached;
 
     // The key is read first and never depends on the plugin: it must be the
     // same value on every launch, and the Android build ID is not unique.

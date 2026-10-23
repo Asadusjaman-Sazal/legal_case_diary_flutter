@@ -13,8 +13,10 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/payments/data/subscription_activation.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
@@ -56,6 +58,19 @@ class _SilentActivation extends SubscriptionActivation {
   Future<bool> observe(bool premium) async => false;
 }
 
+/// A gate that counts the heartbeat without touching a server.
+class _TouchGate extends DeviceGateController {
+  /// Heartbeats requested by the scope.
+  int touches = 0;
+
+  @override
+  Future<DeviceGateState> build() async =>
+      const DeviceGateState(status: DeviceGateStatus.unmanaged);
+
+  @override
+  Future<void> touch() async => touches++;
+}
+
 /// Stands in for the device's preferences; the silent detector never reads it.
 late SharedPreferences _prefs;
 
@@ -69,13 +84,17 @@ void main() {
   /// a test can flip the switch the way the screen does.
   Future<ProviderContainer> pumpScope(
     WidgetTester tester,
-    _FakeSocket socket,
-  ) async {
+    _FakeSocket socket, {
+    List<Override> extra = const <Override>[],
+  }) async {
     final overrides = <Override>[
+      ...extra,
       // The three facts that decide whether the channel may open at all.
       premiumAccessProvider.overrideWith((ref) async => true),
       isOnlineProvider.overrideWith((ref) => Stream<bool>.value(true)),
-      accountProfileProvider.overrideWith((ref) => Stream<Profile?>.value(null)),
+      accountProfileProvider.overrideWith(
+        (ref) => Stream<Profile?>.value(null),
+      ),
       sharedPreferencesProvider.overrideWithValue(_prefs),
       subscriptionActivationProvider.overrideWithValue(_SilentActivation()),
       // The channel under test: the app's own listener over a socket that needs
@@ -109,6 +128,25 @@ void main() {
       listen: false,
     );
   }
+
+  testWidgets('the foreground heartbeat asks the gate every 30 seconds', (
+    tester,
+  ) async {
+    final socket = _FakeSocket();
+    final gate = _TouchGate();
+    await pumpScope(
+      tester,
+      socket,
+      extra: [deviceGateProvider.overrideWith(() => gate)],
+    );
+    expect(gate.touches, 0);
+
+    await tester.pump(const Duration(seconds: 31));
+    expect(gate.touches, 1);
+
+    // Unmount so the periodic timer is cancelled by dispose.
+    await tester.pumpWidget(const SizedBox());
+  });
 
   testWidgets('switching sync off closes the channel, and on reopens it', (
     tester,

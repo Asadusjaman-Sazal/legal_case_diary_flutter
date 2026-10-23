@@ -140,24 +140,25 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
         .acknowledgeWipe(identity);
   }
 
-  /// How often a foregrounded app may ask the server about this device.
+  /// How often an ordinary check may ask the server about this device.
   ///
-  /// The seven-day idle rule needs real contact, and a revocation made on
-  /// another phone must reach this one without waiting for a push or the
-  /// Devices screen; 30 seconds is frequent enough to feel immediate and cheap
-  /// enough to run only while the app is in front.
+  /// [touch] also runs after a successful sync drain, which can happen often in
+  /// a busy session; this window keeps that from repeating the same query. It is
+  /// not a heartbeat: forced checks bypass it, and no timer polls in between.
   static const touchInterval = Duration(seconds: 30);
 
   /// Marks this device as really used and notices a revocation.
   ///
   /// The seven-day idle eviction must measure contact, not app launches; a
   /// device used all day without being restarted would otherwise look idle.
-  Future<void> touch() async {
+  /// [force] bypasses [touchInterval] for a resume, a channel rejoin or a
+  /// device-row ping, where a recent ordinary check must not hide a change.
+  Future<void> touch({bool force = false}) async {
     // A resume on the Login screen has no session to mark.
     if (ref.read(authIdentityProvider) == null) return;
     final now = DateTime.now();
     final last = _lastTouch;
-    if (last != null && now.difference(last) < touchInterval) return;
+    if (!force && last != null && now.difference(last) < touchInterval) return;
     _lastTouch = now;
     try {
       // A launch whose model lookup timed out wrote "Unknown device" onto the
@@ -180,7 +181,7 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
       // the revocation and start the discard now, not when a push happens.
       if (!used) await refresh(claim: false);
     } on Object {
-      // A failed heartbeat is not a reason to fail anything else; retry later.
+      // A failed check is not a reason to fail anything else; retry later.
       _lastTouch = null;
     }
   }

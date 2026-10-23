@@ -140,6 +140,15 @@ declare
   v_collision uuid := pg_temp.sign_up('device-collision@test.local');
   v_collision_session uuid := gen_random_uuid();
   v_second_session uuid := gen_random_uuid();
+  v_broadcast_solo uuid := pg_temp.sign_up('device-broadcast@test.local');
+  v_broadcast_solo_session uuid := gen_random_uuid();
+  v_broadcast_solo_device uuid;
+  v_broadcast_firm_user uuid :=
+    pg_temp.sign_up('device-broadcast-firm@test.local');
+  v_broadcast_firm_session uuid := gen_random_uuid();
+  v_broadcast_firm uuid := gen_random_uuid();
+  v_broadcast_firm_device uuid;
+  v_messages bigint;
 begin
   -- Two live accounts and one lapsed one.
   update public.profiles
@@ -722,6 +731,88 @@ begin
    where d.session_id = v_collision_session;
   perform pg_temp.assert_true(v_row.device_key = 'shared-key',
     'the known session keeps its own key');
+
+  ---------------------------------------------------------------------------
+  -- 16. A revocation is broadcast on the topic the device actually joined.
+  ---------------------------------------------------------------------------
+  if to_regclass('realtime.messages') is not null
+     and to_regprocedure('realtime.send(jsonb,text,text,boolean)') is not null
+  then
+    -- An individual device listens on user:<user_id>.
+    perform pg_temp.as_session(v_broadcast_solo, v_broadcast_solo_session,
+                               'secret-1');
+    v_result := public.register_device('broadcast-solo', 'android',
+                                       'Broadcast Solo', 'secret-1');
+    perform pg_temp.as_owner();
+    v_broadcast_solo_device := (v_result -> 'device' ->> 'id')::uuid;
+
+    update public.user_devices d
+       set revoked_at = now(),
+           revoked_reason = 'user'
+     where d.id = v_broadcast_solo_device;
+
+    select count(*) into v_messages
+      from realtime.messages m
+     where m.topic = 'user:' || v_broadcast_solo::text
+       and m.event = 'row_change'
+       and m.payload ->> 'table' = 'user_devices'
+       and m.payload ->> 'id' = v_broadcast_solo_device::text
+       and m.private;
+    perform pg_temp.assert_true(v_messages = 1,
+      'an individual revocation broadcasts on the user topic');
+
+    -- The second update is not a revocation transition.
+    update public.user_devices d
+       set revoked_at = now()
+     where d.id = v_broadcast_solo_device;
+
+    select count(*) into v_messages
+      from realtime.messages m
+     where m.topic = 'user:' || v_broadcast_solo::text
+       and m.payload ->> 'id' = v_broadcast_solo_device::text;
+    perform pg_temp.assert_true(v_messages = 1,
+      'revoking an already-revoked row sends no second message');
+
+    -- A firm member listens on firm:<firm_id>, so the ping must go there.
+    insert into public.firms (
+      id, name, owner_id, subscription_status, subscription_expiry
+    )
+    values (
+      v_broadcast_firm, 'Broadcast Chamber', v_broadcast_firm_user,
+      'premium', now() + interval '30 days'
+    );
+    update public.profiles
+       set firm_id = v_broadcast_firm
+     where id = v_broadcast_firm_user;
+
+    perform pg_temp.as_session(v_broadcast_firm_user,
+                               v_broadcast_firm_session, 'secret-1');
+    v_result := public.register_device('broadcast-firm', 'android',
+                                       'Broadcast Firm', 'secret-1');
+    perform pg_temp.as_owner();
+    v_broadcast_firm_device := (v_result -> 'device' ->> 'id')::uuid;
+
+    update public.user_devices d
+       set revoked_at = now(),
+           revoked_reason = 'user'
+     where d.id = v_broadcast_firm_device;
+
+    select count(*) into v_messages
+      from realtime.messages m
+     where m.topic = 'firm:' || v_broadcast_firm::text
+       and m.event = 'row_change'
+       and m.payload ->> 'id' = v_broadcast_firm_device::text
+       and m.private;
+    perform pg_temp.assert_true(v_messages = 1,
+      'a firm member''s revocation broadcasts on the firm topic');
+
+    select count(*) into v_messages
+      from realtime.messages m
+     where m.topic = 'user:' || v_broadcast_firm_user::text
+       and m.payload ->> 'id' = v_broadcast_firm_device::text;
+    perform pg_temp.assert_true(v_messages = 0,
+      'the firm member''s revocation is not sent to the user topic');
+  end if;
 
   raise notice 'DEVICE OK';
 end;

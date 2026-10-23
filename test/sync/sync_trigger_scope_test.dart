@@ -58,17 +58,17 @@ class _SilentActivation extends SubscriptionActivation {
   Future<bool> observe(bool premium) async => false;
 }
 
-/// A gate that counts the heartbeat without touching a server.
+/// A gate that records the slot checks the scope asks for.
 class _TouchGate extends DeviceGateController {
-  /// Heartbeats requested by the scope.
-  int touches = 0;
+  /// Each check, with whether it was forced.
+  final List<bool> touches = <bool>[];
 
   @override
   Future<DeviceGateState> build() async =>
       const DeviceGateState(status: DeviceGateStatus.unmanaged);
 
   @override
-  Future<void> touch() async => touches++;
+  Future<void> touch({bool force = false}) async => touches.add(force);
 }
 
 /// Stands in for the device's preferences; the silent detector never reads it.
@@ -129,9 +129,7 @@ void main() {
     );
   }
 
-  testWidgets('the foreground heartbeat asks the gate every 30 seconds', (
-    tester,
-  ) async {
+  testWidgets('a resume forces the slot check', (tester) async {
     final socket = _FakeSocket();
     final gate = _TouchGate();
     await pumpScope(
@@ -139,13 +137,14 @@ void main() {
       socket,
       extra: [deviceGateProvider.overrideWith(() => gate)],
     );
-    expect(gate.touches, 0);
+    gate.touches.clear();
 
-    await tester.pump(const Duration(seconds: 31));
-    expect(gate.touches, 1);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
 
-    // Unmount so the periodic timer is cancelled by dispose.
-    await tester.pumpWidget(const SizedBox());
+    expect(gate.touches, <bool>[true]);
   });
 
   testWidgets('switching sync off closes the channel, and on reopens it', (

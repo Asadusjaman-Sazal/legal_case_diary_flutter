@@ -96,6 +96,8 @@ class _AdminPaymentRequestsScreenState
       },
       child: SettingsSubPageModal(
         title: l.adminPanel_paymentRequests,
+        // The page has its own pull that syncs and reloads the server list.
+        pullToSync: false,
         onBack: _back,
         actions: [
           const AdminSyncButton(),
@@ -749,7 +751,9 @@ class _RejectNoteDialogState extends ConsumerState<_RejectNoteDialog> {
   Future<void> _removeOwn(String message) async {
     final confirmed = await confirmDeleteDialog(context);
     if (confirmed != true) return;
-    final next = _own.where((entry) => entry != message).toList(growable: false);
+    final next = _own
+        .where((entry) => entry != message)
+        .toList(growable: false);
     setState(() => _own = next);
     widget.onSavedMessagesChanged(next);
   }

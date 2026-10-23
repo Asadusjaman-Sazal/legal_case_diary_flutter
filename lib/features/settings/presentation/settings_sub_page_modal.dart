@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../shared/widgets/pull_to_sync.dart';
 
 /// A mobile-first Settings sub-page with a standard app header and back action.
 class SettingsSubPageModal extends StatelessWidget {
@@ -30,6 +31,13 @@ class SettingsSubPageModal extends StatelessWidget {
   /// Optional custom back handler; defaults to popping the current route.
   final VoidCallback? onBack;
 
+  /// Whether this page gets the premium pull-to-sync gesture.
+  ///
+  /// The two admin sub-pages and Backup & Restore opt out: the former already
+  /// own a pull that syncs and reloads their server lists, and a sync during a
+  /// running backup or restore must not be possible by accident.
+  final bool pullToSync;
+
   /// Creates a reusable Settings sub-page shell.
   const SettingsSubPageModal({
     required this.title,
@@ -38,6 +46,7 @@ class SettingsSubPageModal extends StatelessWidget {
     this.actions,
     this.floatingActionButton,
     this.onBack,
+    this.pullToSync = true,
     super.key,
   });
 
@@ -65,7 +74,7 @@ class SettingsSubPageModal extends StatelessWidget {
         actions: actions,
         titleSpacing: AppSpacing.sm,
       ),
-      body: SafeArea(child: child),
+      body: SafeArea(child: pullToSync ? PullToSync(child: child) : child),
       floatingActionButton: floatingActionButton,
     );
   }

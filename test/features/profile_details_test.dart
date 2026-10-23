@@ -194,6 +194,14 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    /// Drift closes a query stream on a zero-duration timer. The page's premium
+    /// gate watches the cached profile, so the tree is unmounted here and given
+    /// one frame to run that timer — otherwise the test ends with it pending.
+    Future<void> unmount(WidgetTester tester) async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 1));
+    }
+
     testWidgets('Save mirrors the record onto the account', (tester) async {
       await pumpScreen(tester);
       await saveProfile(tester);
@@ -210,6 +218,8 @@ void main() {
         reason: 'the push landed, so the toast is not the offline wording',
       );
       expect(find.text('Profile saved (offline)'), findsNothing);
+
+      await unmount(tester);
     });
 
     testWidgets('a save the account never saw is still saved, and owed', (
@@ -230,6 +240,8 @@ void main() {
         reason: 'a push the account has not seen is the one offline case',
       );
       expect(find.text('Profile saved'), findsNothing);
+
+      await unmount(tester);
     });
   });
 

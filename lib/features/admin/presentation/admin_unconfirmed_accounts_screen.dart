@@ -61,6 +61,8 @@ class _AdminUnconfirmedAccountsScreenState
 
     return SettingsSubPageModal(
       title: l.adminPanel_unverifiedTitle,
+      // The page has its own pull that syncs and reloads the server list.
+      pullToSync: false,
       actions: [
         const AdminSyncButton(),
         IconButton(

@@ -28,6 +28,7 @@ import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/print_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
+import '../case_search.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/on_behalf_side.dart';
 import '../../../../database/app_database.dart';
@@ -605,7 +606,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: () => pullCaseListToSync(ref, _load),
         // CustomScrollView (sliver twin of the previous ListView) so the
         // expanded Case History title can pin to the top via
         // [PinnedHeaderSliver].
@@ -739,9 +740,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     AppLocalizations l,
     Case current,
   ) {
-    final clientSide = _onBehalf == null
-        ? null
-        : representedSideOf(_onBehalf);
+    final clientSide = _onBehalf == null ? null : representedSideOf(_onBehalf);
     final clientPhone = current.partyPhone?.trim();
     return _kanbanCard(
       child: Column(

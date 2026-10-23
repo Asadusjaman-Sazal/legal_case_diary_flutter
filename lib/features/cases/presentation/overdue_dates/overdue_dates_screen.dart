@@ -187,10 +187,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
   /// Opens the shared Phone/Message chooser for the represented party
   /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
   /// the case's single `party_phone`, and the message from the ARB template.
-  Future<void> _contactParty(
-    Case currentCase, {
-    required bool message,
-  }) async {
+  Future<void> _contactParty(Case currentCase, {required bool message}) async {
     await showCaseContactActions(
       context,
       currentCase: currentCase,
@@ -232,7 +229,7 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-      title: l.overdueDatesScreen_title,
+        title: l.overdueDatesScreen_title,
         cases: rows,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
@@ -356,8 +353,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     // court's cases away — the same heading the extended view draws, only over
     // cards instead of rows.
     Widget buildList() => RefreshIndicator(
-      onRefresh: _loadCases,
+      onRefresh: () => pullCaseListToSync(ref, _loadCases),
       child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
           for (final group in groups)
@@ -382,8 +380,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
     // the court a row belongs to stays on screen for as long as its cases do.
     Widget buildTableList(Map<CaseTableColumn, double> widths) =>
         RefreshIndicator(
-          onRefresh: _loadCases,
+          onRefresh: () => pullCaseListToSync(ref, _loadCases),
           child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
               for (final group in groups)
@@ -392,10 +391,8 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
                   heading: _courtHeading(group, l),
                   headingHeight: caseTableGroupHeaderHeight(context),
                   initiallyCollapsed: collapsedCourts.contains(group.court.id),
-                  onToggle: (collapsed) => toggleCourt(
-                    group.court.id,
-                    collapsed,
-                  ),
+                  onToggle: (collapsed) =>
+                      toggleCourt(group.court.id, collapsed),
                   rows: [
                     for (final currentCase in group.cases)
                       _buildRow(

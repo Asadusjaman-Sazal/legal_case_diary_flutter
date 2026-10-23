@@ -15,6 +15,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/settings_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
+import '../../../shared/widgets/pull_to_sync.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../data/update_metadata_store.dart';
@@ -255,50 +256,56 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
                         style: AppTypography.bodyMd,
                       ),
                     )
-                  : ListView(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      children: [
-                        for (var s = 0; s < visible.length; s++) ...[
-                          if (s > 0) const SizedBox(height: AppSpacing.lg),
-                          _SectionHeader(title: visible[s].header),
-                          // A shaped Material rather than a decorated Container
-                          // (0.0.407): a ListTile paints its background and ink
-                          // splashes on its nearest Material ancestor, and a
-                          // DecoratedBox with a background colour in between
-                          // hides them — the framework asserts about exactly
-                          // this, once per row per build, which is what had been
-                          // filling the app's error log. Same white card and
-                          // top/bottom hairlines per the settings_main mockup.
-                          Material(
-                            color: AppColors.surface,
-                            shape: Border(
-                              top: BorderSide(color: AppColors.outlineVariant),
-                              bottom: BorderSide(
-                                color: AppColors.outlineVariant,
+                  : PullToSync(
+                      child: ListView(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                        children: [
+                          for (var s = 0; s < visible.length; s++) ...[
+                            if (s > 0) const SizedBox(height: AppSpacing.lg),
+                            _SectionHeader(title: visible[s].header),
+                            // A shaped Material rather than a decorated Container
+                            // (0.0.407): a ListTile paints its background and ink
+                            // splashes on its nearest Material ancestor, and a
+                            // DecoratedBox with a background colour in between
+                            // hides them — the framework asserts about exactly
+                            // this, once per row per build, which is what had been
+                            // filling the app's error log. Same white card and
+                            // top/bottom hairlines per the settings_main mockup.
+                            Material(
+                              color: AppColors.surface,
+                              shape: Border(
+                                top: BorderSide(
+                                  color: AppColors.outlineVariant,
+                                ),
+                                bottom: BorderSide(
+                                  color: AppColors.outlineVariant,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  for (
+                                    var i = 0;
+                                    i < visible[s].items.length;
+                                    i++
+                                  ) ...[
+                                    _SettingsListTile(
+                                      item: visible[s].items[i],
+                                    ),
+                                    if (i < visible[s].items.length - 1)
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 1,
+                                        indent: AppSpacing.md,
+                                        endIndent: AppSpacing.md,
+                                        color: AppColors.outlineVariant,
+                                      ),
+                                  ],
+                                ],
                               ),
                             ),
-                            child: Column(
-                              children: [
-                                for (
-                                  var i = 0;
-                                  i < visible[s].items.length;
-                                  i++
-                                ) ...[
-                                  _SettingsListTile(item: visible[s].items[i]),
-                                  if (i < visible[s].items.length - 1)
-                                    const Divider(
-                                      height: 1,
-                                      thickness: 1,
-                                      indent: AppSpacing.md,
-                                      endIndent: AppSpacing.md,
-                                      color: AppColors.outlineVariant,
-                                    ),
-                                ],
-                              ],
-                            ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
             ),
           ],

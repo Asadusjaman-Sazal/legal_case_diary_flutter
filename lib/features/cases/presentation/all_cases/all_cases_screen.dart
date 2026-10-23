@@ -308,8 +308,9 @@ class _AllCasesScreenState extends ConsumerState<AllCasesScreen> {
     // [widths] is set only in the extended view, where the table's columns
     // decide each cell's width; the compact list keeps the cards.
     Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
-      onRefresh: _loadCases,
+      onRefresh: () => pullCaseListToSync(ref, _loadCases),
       child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: visible.length,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),

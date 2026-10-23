@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.598 - The login Device Limit Reached window is now white with a black title, the warning on two lines, and taller Try Again and Sign Out This Device buttons.
+Version: 0.0.599 - The login Device Limit Reached window now sits directly on the white page with no card shadow, and Try Again and Sign Out This Device have an even gap between them.
 --------------------------------------
 
 ## Version History Log:
@@ -612,3 +612,4 @@ Version: 0.0.595 - Phase 4 complete: every install binds its session with a devi
 Version: 0.0.596 - Phase 5 complete: alpha scope recorded, every discard reason and the keep-data same-install path now tested; the physical device pass is the only step left.
 Version: 0.0.597 - The plan-limit rejection screen now shows Device Limit Reached with justified copy, bold warnings and a Back to Login button after the discard; the gate releases on sign-out.
 Version: 0.0.598 - The login Device Limit Reached window is now white with a black title, the warning on two lines, and taller Try Again and Sign Out This Device buttons.
+Version: 0.0.599 - The login Device Limit Reached window now sits directly on the white page with no card shadow, and Try Again and Sign Out This Device have an even gap between them.

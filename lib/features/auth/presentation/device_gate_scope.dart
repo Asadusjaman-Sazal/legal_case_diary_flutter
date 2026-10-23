@@ -253,6 +253,7 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
           onPressed: busy ? null : _retry,
           child: Text(l.devices_tryAgain),
         ),
+        const SizedBox(height: AppSpacing.sm),
         TextButton(
           style: _tallerTextButton,
           onPressed: busy ? null : _signOutThisDevice,
@@ -572,73 +573,79 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
     required String title,
     required List<Widget> children,
     bool lightHeader = false,
-  }) => PopScope(
-    canPop: false,
-    child: Scaffold(
-      // The plan-full window is a white page; the other gate windows keep the
-      // dimmed overlay that marks them as interruptions.
-      backgroundColor: lightHeader
-          ? AppColors.surfaceContainerLowest
-          : Colors.black54,
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Material(
-              color: AppColors.surfaceContainerLowest,
-              elevation: 8,
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+  }) {
+    final content = ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: 420,
+        maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 60,
+            width: double.infinity,
+            color: lightHeader
+                ? AppColors.surfaceContainerLowest
+                : AppColors.secondary,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.titleLg.copyWith(
+                color: lightHeader ? AppColors.onSurface : AppColors.onPrimary,
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: 420,
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 60,
-                      width: double.infinity,
-                      color: lightHeader
-                          ? AppColors.surfaceContainerLowest
-                          : AppColors.secondary,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                      ),
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.titleLg.copyWith(
-                          color: lightHeader
-                              ? AppColors.onSurface
-                              : AppColors.onPrimary,
+            ),
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        // The plan-full window is a white page; the other gate windows keep the
+        // dimmed overlay that marks them as interruptions.
+        backgroundColor: lightHeader
+            ? AppColors.surfaceContainerLowest
+            : Colors.black54,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              // The white page needs no card behind it, so the old shadowed
+              // panel is kept only for the windows that sit over the app.
+              child: lightHeader
+                  ? content
+                  : Material(
+                      color: AppColors.surfaceContainerLowest,
+                      elevation: 8,
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.cardRadius * 2,
                         ),
                       ),
+                      child: content,
                     ),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: children,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   String _digits(BuildContext context, int value) => AppDateUtils.formatDigits(
     value,

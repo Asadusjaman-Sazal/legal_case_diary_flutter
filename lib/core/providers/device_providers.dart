@@ -156,6 +156,16 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
   Future<void> touch({bool force = false}) async {
     // A resume on the Login screen has no session to mark.
     if (ref.read(authIdentityProvider) == null) return;
+
+    // Only an admitted device is checked. A channel join or another device's
+    // revocation can signal a check while this phone is still on the full-plan
+    // window, where it has no row at all: `not_active` would be read as
+    // `unregistered` and the window would flash "Could Not Check This Device"
+    // before the sign-out's own register runs. The window's sign-out/refresh is
+    // the authority for a phone that holds no slot.
+    final current = state.value;
+    if (current == null || current.status != DeviceGateStatus.active) return;
+
     final now = DateTime.now();
     final last = _lastTouch;
     if (!force && last != null && now.difference(last) < touchInterval) return;

@@ -137,9 +137,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   _Section? _openSection;
 
   /// Opens [section] and closes whichever was open, so only one is ever open.
-  void _toggleSection(_Section section) => setState(
-    () => _openSection = _openSection == section ? null : section,
-  );
+  void _toggleSection(_Section section) =>
+      setState(() => _openSection = _openSection == section ? null : section);
 
   /// Runs the export every backup action shares.
   ///
@@ -204,9 +203,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     final result = await _exportBackup(ref.read(backupFolderSinkProvider));
     if (result == null || !mounted) return;
     _showMessage(
-      AppLocalizations.of(context).settingsBackupRestore_backupSaved(
-        result.path,
-      ),
+      AppLocalizations.of(
+        context,
+      ).settingsBackupRestore_backupSaved(result.path),
     );
   }
 
@@ -431,7 +430,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           : await runWithBackupProgress(
               context,
               l.settingsBackupRestore_restoreProgress,
-              () => openBackupFile(bytes: picked!.bytes, recoverySecret: secret),
+              () =>
+                  openBackupFile(bytes: picked!.bytes, recoverySecret: secret),
             );
       if (!mounted) return;
 
@@ -439,11 +439,7 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       // belongs to another account is refused without ever offering to wipe this
       // diary for it. A file naming no owner (a sample workbook filled in by
       // hand) passes and has this device's identity stamped onto its rows.
-      repository.checkRestorable(
-        opened,
-        ownerId: identity,
-        firmId: firmId,
-      );
+      repository.checkRestorable(opened, ownerId: identity, firmId: firmId);
       if (!mounted) return;
 
       // Restores never merge silently: existing data asks first. The check is
@@ -585,8 +581,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         l.settingsBackupRestore_excelUnknownColumn(sheet, column),
       ExcelRefusalReason.missingColumn =>
         l.settingsBackupRestore_excelMissingColumn(sheet, column),
-      ExcelRefusalReason.emptySheet =>
-        l.settingsBackupRestore_excelEmptySheet(sheet),
+      ExcelRefusalReason.emptySheet => l.settingsBackupRestore_excelEmptySheet(
+        sheet,
+      ),
       ExcelRefusalReason.missingValue =>
         l.settingsBackupRestore_excelMissingValue(
           sheet,
@@ -619,6 +616,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     if (ref.watch(firmMemberProvider)) {
       return SettingsSubPageModal(
         title: l.settingsBackupRestore_title,
+        // A sync must not start while a backup or restore is running.
+        pullToSync: false,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.edgeMargin,
@@ -633,6 +632,8 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     final metadata = ref.watch(backupMetadataProvider);
     return SettingsSubPageModal(
       title: l.settingsBackupRestore_title,
+      // A sync must not start while a backup or restore is running.
+      pullToSync: false,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.edgeMargin,
@@ -1024,10 +1025,7 @@ class _BackupNote extends StatelessWidget {
           ),
           // The Excel exception to the line above, stated where the user is about
           // to press the button rather than buried in a help page.
-          Text(
-            l.settingsBackupRestore_excelNote,
-            style: AppTypography.bodySm,
-          ),
+          Text(l.settingsBackupRestore_excelNote, style: AppTypography.bodySm),
           Text(
             l.settingsBackupRestore_offlineNote,
             style: AppTypography.bodySm,
@@ -1078,7 +1076,10 @@ class _EncryptionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.settingsBackupRestore_encryptionWhy, style: AppTypography.bodyMd),
+          Text(
+            l.settingsBackupRestore_encryptionWhy,
+            style: AppTypography.bodyMd,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(l.settingsBackupRestore_encryptionCost, style: hint),
           const SizedBox(height: AppSpacing.md),
@@ -1151,7 +1152,9 @@ class _ChoiceButton extends StatelessWidget {
             onPressed: onPressed,
             style: style.copyWith(
               backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
-              foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+              foregroundColor: const WidgetStatePropertyAll(
+                AppColors.onPrimary,
+              ),
             ),
             child: Text(label),
           )

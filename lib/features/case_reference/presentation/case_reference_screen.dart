@@ -21,6 +21,7 @@ import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/pull_to_sync.dart';
 import '../../../shared/widgets/read_only_lock.dart';
 import '../../../sync/sync_service.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
@@ -170,15 +171,20 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
       onAddCase: () => _openSheet(),
-      body: _ReferenceList(
-        isSearching: _isSearching,
-        references: visible,
-        totalCount: references.length,
-        writableReferenceIds: allowance?.writableReferenceIds,
-        onEdit: _editIfWritable,
-        onDelete: _confirmDelete,
-        onTogglePin: _togglePin,
-        onRefresh: _onRefresh,
+      // A short library must still be pullable, and the pull must not drag the
+      // cards under the finger while the indicator spins.
+      body: ScrollConfiguration(
+        behavior: pullScrollBehavior(context),
+        child: _ReferenceList(
+          isSearching: _isSearching,
+          references: visible,
+          totalCount: references.length,
+          writableReferenceIds: allowance?.writableReferenceIds,
+          onEdit: _editIfWritable,
+          onDelete: _confirmDelete,
+          onTogglePin: _togglePin,
+          onRefresh: _onRefresh,
+        ),
       ),
     );
   }

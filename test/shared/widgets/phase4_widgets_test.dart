@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
@@ -15,12 +17,15 @@ void main() {
       var backPressed = false;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SettingsSubPageModal(
-            title: 'View Settings',
-            onBack: () => backPressed = true,
-            actions: const [Icon(Icons.more_vert)],
-            child: const Text('Settings content'),
+        ProviderScope(
+          overrides: [premiumAccessProvider.overrideWith((ref) async => false)],
+          child: MaterialApp(
+            home: SettingsSubPageModal(
+              title: 'View Settings',
+              onBack: () => backPressed = true,
+              actions: const [Icon(Icons.more_vert)],
+              child: const Text('Settings content'),
+            ),
           ),
         ),
       );
@@ -38,20 +43,23 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push<void>(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const SettingsSubPageModal(
-                      title: 'Profile',
-                      child: Text('Profile content'),
+        ProviderScope(
+          overrides: [premiumAccessProvider.overrideWith((ref) async => false)],
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SettingsSubPageModal(
+                        title: 'Profile',
+                        child: Text('Profile content'),
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: const Text('Open settings'),
+                  );
+                },
+                child: const Text('Open settings'),
+              ),
             ),
           ),
         ),
@@ -65,6 +73,25 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Open settings'), findsOneWidget);
       expect(find.text('Profile content'), findsNothing);
+    });
+
+    testWidgets('premium sub-pages get the pull-to-sync gesture', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [premiumAccessProvider.overrideWith((ref) async => true)],
+          child: MaterialApp(
+            home: SettingsSubPageModal(
+              title: 'View Settings',
+              child: ListView(children: const [Text('Settings content')]),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RefreshIndicator), findsOneWidget);
     });
   });
 
@@ -161,12 +188,16 @@ void main() {
       // The header month opens both columns; spin the year and then the month.
       await tester.tap(
         find.text(
-          intl.DateFormat('MMMM')
-              .format(DateTime(todayCivil.year, todayCivil.month, 1)),
+          intl.DateFormat(
+            'MMMM',
+          ).format(DateTime(todayCivil.year, todayCivil.month, 1)),
         ),
       );
       await tester.pumpAndSettle();
-      columnOf(tester, monthYearPickerYearColumnKey).jumpToItem(nextYear - 1900);
+      columnOf(
+        tester,
+        monthYearPickerYearColumnKey,
+      ).jumpToItem(nextYear - 1900);
       await tester.pumpAndSettle();
       columnOf(tester, monthYearPickerMonthColumnKey).jumpToItem(2);
       await tester.pumpAndSettle();

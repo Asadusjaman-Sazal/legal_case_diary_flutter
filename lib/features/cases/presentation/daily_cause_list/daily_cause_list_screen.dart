@@ -383,7 +383,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     // court's cases away — the same heading the extended view draws, only over
     // cards instead of rows.
     Widget buildList() => RefreshIndicator(
-      onRefresh: _loadCases,
+      onRefresh: () => pullCaseListToSync(ref, _loadCases),
       child: CustomScrollView(
         // Always scrollable so the pull works even on a day with one hearing.
         physics: const AlwaysScrollableScrollPhysics(),
@@ -411,7 +411,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     // the court a row belongs to stays on screen for as long as its cases do.
     Widget buildTableList(Map<CaseTableColumn, double> widths) =>
         RefreshIndicator(
-          onRefresh: _loadCases,
+          onRefresh: () => pullCaseListToSync(ref, _loadCases),
           child: CustomScrollView(
             // The same pull in the table view, however short the day is.
             physics: const AlwaysScrollableScrollPhysics(),

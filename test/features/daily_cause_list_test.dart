@@ -11,7 +11,9 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/sync/sync_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +34,16 @@ import 'package:legal_case_diary/shared/providers/shared_preferences_provider.da
 import 'package:legal_case_diary/shared/widgets/add_edit_case_sheet.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
+
+/// A sync engine that records a manual retry without touching the network.
+class _RecordingSyncService extends SyncService {
+  _RecordingSyncService(super._ref);
+
+  int retries = 0;
+
+  @override
+  Future<void> retryNow() async => retries++;
+}
 
 void main() {
   late AppDatabase db;
@@ -108,6 +120,7 @@ void main() {
   Future<void> pumpScreen(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    List<Override> extra = const <Override>[],
   }) async {
     final router = GoRouter(
       routes: [
@@ -121,6 +134,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          ...extra,
           sharedPreferencesProvider.overrideWithValue(prefs),
           databaseProvider.overrideWith((_) async => db),
           caseRepositoryProvider.overrideWith((_) async => caseRepository),
@@ -258,9 +272,18 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('the compact list can be pulled to refresh', (tester) async {
+  testWidgets('the compact list pulls to sync and reload', (tester) async {
     await seedHearing('DCL-PULL', AppDateUtils.bangladeshTodayStartOfDay());
-    await pumpScreen(tester);
+    late _RecordingSyncService sync;
+    await pumpScreen(
+      tester,
+      extra: [
+        syncServiceProvider.overrideWith((ref) {
+          sync = _RecordingSyncService(ref);
+          return sync;
+        }),
+      ],
+    );
 
     final indicator = tester.widget<RefreshIndicator>(
       find.byType(RefreshIndicator),
@@ -268,10 +291,12 @@ void main() {
     expect(indicator.onRefresh, isNotNull);
 
     // One hearing leaves the list shorter than the viewport; the pull must
-    // still reach the indicator.
+    // still reach the indicator and run the header button's action.
     await tester.drag(find.byType(CustomScrollView), const Offset(0, 300));
     await tester.pump();
     await tester.pumpAndSettle();
+
+    expect(sync.retries, 1);
 
     await unmount(tester);
   });

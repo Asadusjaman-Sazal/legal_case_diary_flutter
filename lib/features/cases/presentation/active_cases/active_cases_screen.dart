@@ -96,9 +96,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     final repository = await ref.read(caseRepositoryProvider.future);
     return repository.searchScoped(
       query,
-      scope: const CaseSearchScope(
-        disposal: CaseSearchDisposal.activeOnly,
-      ),
+      scope: const CaseSearchScope(disposal: CaseSearchDisposal.activeOnly),
     );
   }
 
@@ -151,10 +149,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   /// Opens the shared Phone/Message chooser for the represented party
   /// (Task 14 Phase 4): the party comes from `on_behalf_id`, the number from
   /// the case's single `party_phone`, and the message from the ARB template.
-  Future<void> _contactParty(
-    Case currentCase, {
-    required bool message,
-  }) async {
+  Future<void> _contactParty(Case currentCase, {required bool message}) async {
     await showCaseContactActions(
       context,
       currentCase: currentCase,
@@ -187,7 +182,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     return buildCaseListPrintDocument(
       context,
       CaseListPrintRequest(
-      title: l.activeCasesScreen_title,
+        title: l.activeCasesScreen_title,
         cases: grouped.cases,
         courtsById: _courtsById,
         onBehalfsById: _onBehalfsById,
@@ -259,8 +254,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     // [widths] is set only in the extended view, where the table's columns
     // decide each cell's width; the compact list keeps the cards.
     Widget buildList(Map<CaseTableColumn, double>? widths) => RefreshIndicator(
-      onRefresh: _loadCases,
+      onRefresh: () => pullCaseListToSync(ref, _loadCases),
       child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: visible.length,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),

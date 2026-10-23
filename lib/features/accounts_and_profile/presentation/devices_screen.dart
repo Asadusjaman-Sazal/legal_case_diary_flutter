@@ -15,6 +15,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
+import '../../../shared/widgets/pull_to_sync.dart';
 import '../../auth/data/device_registration.dart';
 
 /// The account's devices, newest contact first, with one Remove per row.
@@ -66,31 +67,37 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                 text: l.devices_empty,
               );
             }
-            return ListView(
-              padding: const EdgeInsets.all(AppSpacing.edgeMargin),
-              children: [
-                Text(
-                  l.devices_limitLabel('${devices.length}', '${state.cap}'),
-                  style: AppTypography.titleMd,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  l.devices_subtitle,
-                  style: AppTypography.bodyMd.copyWith(
-                    color: AppColors.onSurfaceVariant,
+            return PullToSync(
+              // The registry lives on the server, so the pull re-reads it as
+              // well as running the sync.
+              onReload: () =>
+                  ref.read(deviceGateProvider.notifier).refresh(claim: false),
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.edgeMargin),
+                children: [
+                  Text(
+                    l.devices_limitLabel('${devices.length}', '${state.cap}'),
+                    style: AppTypography.titleMd,
                   ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                for (final device in devices) ...[
-                  _DeviceRow(
-                    device: device,
-                    onRemove: device.isCurrent
-                        ? null
-                        : () => _confirmRemove(context, device),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    l.devices_subtitle,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: AppSpacing.md),
+                  for (final device in devices) ...[
+                    _DeviceRow(
+                      device: device,
+                      onRemove: device.isCurrent
+                          ? null
+                          : () => _confirmRemove(context, device),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
                 ],
-              ],
+              ),
             );
           },
         ),

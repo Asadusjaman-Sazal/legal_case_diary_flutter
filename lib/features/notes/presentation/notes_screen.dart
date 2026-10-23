@@ -24,6 +24,7 @@ import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
 import '../../payments/presentation/lapse_allowance_ui.dart';
 import '../../settings/presentation/delete_request_flow.dart';
+import '../../../shared/widgets/pull_to_sync.dart';
 import '../../../shared/widgets/read_only_lock.dart';
 import '../data/note_items.dart';
 import 'note_detail_screen.dart';
@@ -229,16 +230,21 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
       onAddCase: _chooseNoteKind,
-      body: _NotesList(
-        isSearching: _isSearching,
-        notes: visible,
-        totalCount: notes.length,
-        locale: Localizations.localeOf(context).toLanguageTag(),
-        writableNoteIds: allowance?.writableNoteIds,
-        onEdit: _editIfWritable,
-        onDelete: _confirmDelete,
-        onTogglePin: _togglePin,
-        onRefresh: _onRefresh,
+      // A short library must still be pullable, and the pull must not drag the
+      // cards under the finger while the indicator spins.
+      body: ScrollConfiguration(
+        behavior: pullScrollBehavior(context),
+        child: _NotesList(
+          isSearching: _isSearching,
+          notes: visible,
+          totalCount: notes.length,
+          locale: Localizations.localeOf(context).toLanguageTag(),
+          writableNoteIds: allowance?.writableNoteIds,
+          onEdit: _editIfWritable,
+          onDelete: _confirmDelete,
+          onTogglePin: _togglePin,
+          onRefresh: _onRefresh,
+        ),
       ),
     );
   }

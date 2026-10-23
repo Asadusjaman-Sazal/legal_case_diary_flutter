@@ -100,6 +100,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.595 | 2026-10-22 | `20261022160000_device_install_secret.sql` | Device limit — a session belongs to its install. Every install mints a 32-byte secret kept in this-device-only secure storage and sends it as x-install-secret (and p_install_secret); user_devices stores only its sha256. A known session presented with a different secret answers session_in_use, no secret at all answers invalid_install_secret, and replaced now needs the same device key and the same secret, so a restored backup is a new device. Push and heartbeat fail closed on a mismatch; reads keep a permissive fallback when no secret is present because Realtime does not reliably forward custom headers. |
 | 0.0.600 | 2026-10-23 | `20261023100000_device_identity_and_collision_guard.sql` | Device registry — unique install keys and support identity. user_devices gains full_name and email, filled from profiles by a BEFORE INSERT trigger and backfilled for existing rows. The client now keys Android installs by a persisted UUID because device_info_plus's Android id is the build ID, which two identical phones share; register_device answers a key already held by another active device with device_limit_reached instead of raising 23505 on user_devices_active_device_idx, and a known session never rewrites its device_key to a key another active row holds. |
 | 0.0.602 | 2026-10-23 | `20261023110000_device_revocation_broadcast.sql` | Device revocation — the server tells the device over the channel it already holds. A guarded AFTER UPDATE trigger on user_devices, only on the null-to-non-null revoked_at transition, sends the existing row_change {table,id} ping to firm:<firm_id> for a chamber member or user:<user_id> for an individual, so a signed-out phone discards immediately without polling; a Realtime failure is swallowed and the revocation still commits. |
+| 0.0.604 | 2026-10-23 | `20261023120000_user_devices_retention.sql` | Device registry retention — six months of revoked rows, plus the newest revoked row per (user_id, device_key) forever. A partial (user_id, device_key, revoked_at desc) index supports the lookup; public.prune_user_devices(interval default 6 months) deletes only old rows with a strictly newer revoked row for the same key, never active rows, and is internal-only (revoked from public, anon, authenticated). A guarded pg_cron job, prune-user-devices, runs daily at 03:45 after purge-tombstones. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -16902,5 +16903,148 @@ after update on public.user_devices
 for each row
 when (old.revoked_at is null and new.revoked_at is not null)
 execute function public.broadcast_device_revoked();
+```
+
+## App Version 0.0.604 — Device Retention — Six Months Of Revoked Rows
+
+### 0.0.604 · `20261023120000_user_devices_retention.sql`
+
+> **Created 2026-10-23.** Device registry retention — six months of revoked rows, plus the newest revoked row per (user_id, device_key) forever. A partial (user_id, device_key, revoked_at desc) index supports the lookup; public.prune_user_devices(interval default 6 months) deletes only old rows with a strictly newer revoked row for the same key, never active rows, and is internal-only (revoked from public, anon, authenticated). A guarded pg_cron job, prune-user-devices, runs daily at 03:45 after purge-tombstones.
+
+```sql
+-- ===========================================================================
+-- Device registry retention — six months of history, the newest revoked row.
+--
+-- Every sign-in creates one `user_devices` row; the revoked ones are history,
+-- and without a policy they accumulate forever. The owner chose this rule:
+--
+--   * every row from the last six months is kept;
+--   * an active row (`revoked_at is null`) is never deleted;
+--   * for each `(user_id, device_key)` the newest revoked row is kept even
+--     when it is older than six months, so a device that returns late still
+--     sees the revocation and discards;
+--   * only revoked rows older than six months that have a strictly newer
+--     revoked row for the same account/device key are deleted.
+--
+-- **Age is `revoked_at`, never `last_seen_at`:** the BEFORE UPDATE trigger
+-- `trg_user_devices_touch` rewrites `last_seen_at := now()` on every update,
+-- including the revocation itself and a later wipe acknowledgement, so it
+-- cannot measure how long a session has been revoked.
+--
+-- **A DELETE here is silent:** no table references `user_devices`, no DELETE
+-- trigger exists, and `device_tokens.device_key` is plain text with no foreign
+-- key. Nothing cascades and no Realtime frame is sent.
+--
+-- **This function is deliberately internal.** `purge_tombstones` has no revoke
+-- and is therefore callable by client roles with a caller-chosen retention; a
+-- retention job for the device registry must not repeat that. Only the owner
+-- and the pg_cron job may execute this one.
+--
+-- There is no delete in this migration. The first scheduled run (or a
+-- deliberate manual run) performs the first deletion.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. The revoked-row lookup behind the "newest revoked per device" check.
+-- ---------------------------------------------------------------------------
+
+create index if not exists user_devices_revoked_retention_idx
+  on public.user_devices (user_id, device_key, revoked_at desc)
+  where revoked_at is not null;
+
+comment on index public.user_devices_revoked_retention_idx is
+  'Retention lookup: the newest revoked row for one (user_id, device_key). Partial because active rows are never pruned.';
+
+-- ---------------------------------------------------------------------------
+-- 2. The pruner.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.prune_user_devices(
+  p_retention interval default interval '6 months'
+)
+returns bigint
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_cutoff timestamptz;
+  v_deleted bigint;
+begin
+  if p_retention is null or p_retention <= interval '0' then
+    raise exception
+      'prune_user_devices: p_retention must be a positive interval, got %',
+      p_retention;
+  end if;
+
+  v_cutoff := now() - p_retention;
+
+  -- The correlated EXISTS is the rule itself: an old row survives only when no
+  -- newer revoked row exists for the same account/device key. Rows tied at the
+  -- newest instant are all kept; none is strictly older than another.
+  delete from public.user_devices d
+   where d.revoked_at is not null
+     and d.revoked_at < v_cutoff
+     and exists (
+       select 1
+         from public.user_devices newer
+        where newer.user_id = d.user_id
+          and newer.device_key = d.device_key
+          and newer.revoked_at is not null
+          and newer.revoked_at > d.revoked_at
+     );
+
+  get diagnostics v_deleted = row_count;
+
+  raise notice
+    'prune_user_devices: % row(s) deleted; revoked before %, newest revoked per (user_id, device_key) kept',
+    v_deleted, v_cutoff;
+
+  return v_deleted;
+end;
+$$;
+
+comment on function public.prune_user_devices(interval) is
+  'Deletes revoked user_devices rows older than p_retention (six months by default) except the newest revoked row(s) for each (user_id, device_key); active rows are never touched. Internal: no client role may execute.';
+
+-- A new function in public reaches anon/authenticated through Supabase's default
+-- privileges, so the revoke is explicit. The owner and the pg_cron job keep it.
+revoke all on function public.prune_user_devices(interval) from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 3. Schedule it daily, after the tombstone purge.
+-- ---------------------------------------------------------------------------
+
+do $$
+begin
+  begin
+    create extension if not exists pg_cron;
+  exception
+    when others then
+      raise notice
+        'pg_cron could not be created (%); schedule public.prune_user_devices() '
+        'from the dashboard.', sqlerrm;
+  end;
+
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    -- Re-running replaces the job instead of stacking a second one. The
+    -- tombstone job is a different name and is never touched here.
+    perform cron.unschedule('prune-user-devices')
+     where exists (select 1 from cron.job where jobname = 'prune-user-devices');
+
+    perform cron.schedule(
+      'prune-user-devices',
+      '45 3 * * *',
+      'select public.prune_user_devices()'
+    );
+
+    raise notice 'pg_cron: prune-user-devices scheduled daily at 03:45.';
+  else
+    raise notice
+      'pg_cron is not installed; public.prune_user_devices() exists but is not '
+      'scheduled yet.';
+  end if;
+end;
+$$;
 ```
 

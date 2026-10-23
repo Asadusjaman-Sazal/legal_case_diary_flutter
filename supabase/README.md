@@ -367,9 +367,14 @@ Task 16 does not work until it is on:
 **pg_cron needed nothing**: the last migration installs it (`create extension if
 not exists pg_cron`) and schedules the purge itself, and the apply confirmed it —
 the project runs `pg_cron 1.6.4` with a job named `purge-tombstones`
-(`15 3 * * *`) active. On a project where the extension may not be installed, the
-guarded block raises a notice instead and the schedule can be added by hand with
-`select cron.schedule('purge-tombstones', '15 3 * * *', 'select public.purge_tombstones()');`.
+(`15 3 * * *`) active. A second job, `prune-user-devices` (`45 3 * * *`),
+prunes revoked `user_devices` rows older than six months while keeping the
+newest revoked row per account/device key. On a project where the extension may
+not be installed, the guarded block raises a notice instead and the schedule can
+be added by hand with
+`select cron.schedule('purge-tombstones', '15 3 * * *', 'select public.purge_tombstones()');`
+and
+`select cron.schedule('prune-user-devices', '45 3 * * *', 'select public.prune_user_devices()');`.
 
 `app_admins` ships **empty** on purpose: admin membership is granted through an
 audited migration or service-role operation, never by a client. Bootstrap with

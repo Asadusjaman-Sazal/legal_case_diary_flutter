@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.603 - The device check now runs only on an admitted device, so a Realtime signal can no longer turn the third device's Device Limit Reached window into Could Not Check before its sign-out registers.
+Version: 0.0.604 - Revoked device rows older than six months are pruned daily, keeping the newest revoked row per account and device key; the pruner is internal-only and current rows are untouched.
 --------------------------------------
 
 ## Version History Log:
@@ -617,3 +617,4 @@ Version: 0.0.600 - Android installs now use a unique stored key instead of the s
 Version: 0.0.601 - The foreground app checks its slot every 30 seconds, so a device signed out elsewhere signs out here without opening Devices; a timed-out model name is retried and rewritten.
 Version: 0.0.602 - Device revocation is now pushed over Realtime to the topic the device joined, with forced checks on resume and reconnect; the 30-second polling timer is removed.
 Version: 0.0.603 - The device check now runs only on an admitted device, so a Realtime signal can no longer turn the third device's Device Limit Reached window into Could Not Check before its sign-out registers.
+Version: 0.0.604 - Revoked device rows older than six months are pruned daily, keeping the newest revoked row per account and device key; the pruner is internal-only and current rows are untouched.

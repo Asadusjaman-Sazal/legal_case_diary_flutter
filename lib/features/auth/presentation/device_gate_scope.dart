@@ -69,6 +69,12 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   /// from the active app it is a background read.
   DeviceGateStatus? _lastStatus;
 
+  /// The plan-limit revocation being explained after its discard and sign-out.
+  ///
+  /// Signing out turns the gate's provider `unmanaged`, but this screen must
+  /// survive so its explanation can be read; Back to Login clears it.
+  DeviceGateState? _stayedPlanState;
+
   /// Prevents more than one post-frame reset of the fresh-login flag.
   bool _freshClearScheduled = false;
 
@@ -78,12 +84,17 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
     final state = gate.value;
     final fresh = ref.watch(freshDeviceCheckProvider);
 
-    if (state != null) {
+    final stayed = _stayedPlanState;
+    if (stayed != null) return _planLimitGate(context, stayed);
+
+    // A rebuild in flight is not an answer yet: the fresh-login check must not
+    // read the previous `unmanaged` value as permission to open the diary.
+    if (state != null && !gate.isLoading) {
       _lastStatus = state.status;
       if (fresh) _clearFreshAfterFrame();
     }
 
-    if (state == null) {
+    if (state == null || (fresh && gate.isLoading)) {
       // A fresh login must not open the cached diary while the slot check is in
       // flight. A cold start with an existing session keeps the offline rule.
       if (_blocksWithoutAnswer(fresh)) {
@@ -104,9 +115,21 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
           }
           return _replacedGate(context);
         }
+        // The two plan-limit reasons keep the screen after the discard so the
+        // lawyer can read what happened and leave through Back to Login.
+        final planLimit =
+            state.revokedReason == 'cap' || state.revokedReason == 'lapse';
         if (!_started) {
           _started = true;
-          unawaited(Future<void>.microtask(_discardAndSignOut));
+          unawaited(
+            Future<void>.microtask(() => _discardAndSignOut(stay: planLimit)),
+          );
+        }
+        if (planLimit) {
+          // Kept for the rebuild that follows the sign-out, when the provider
+          // itself turns `unmanaged`.
+          _stayedPlanState = state;
+          return _planLimitGate(context, state);
         }
         return _RevokedScreen(
           state: state,
@@ -133,6 +156,9 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         );
 
       case DeviceGateStatus.active:
+        // A new session on this screen: the next revocation must do its work
+        // again, and a fresh eviction notice must be allowed to appear.
+        if (_started || _erased || _discardFailed) _resetRevocationState();
         final evicted = state.evictedLabel;
         if (evicted != null && evicted != _announcedEviction) {
           _announcedEviction = evicted;
@@ -147,8 +173,18 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         return widget.child;
 
       case DeviceGateStatus.unmanaged:
+        if (_started || _erased || _discardFailed) _resetRevocationState();
         return widget.child;
     }
+  }
+
+  /// Clears the one-revocation flags so a later sign-in is gated from scratch.
+  void _resetRevocationState() {
+    _started = false;
+    _saving = false;
+    _erased = false;
+    _discardFailed = false;
+    _announcedEviction = null;
   }
 
   bool _blocksWithoutAnswer(bool fresh) =>
@@ -388,6 +424,69 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   }
 
   // ---------------------------------------------------------------------------
+  // The plan's device limit: the slots were full, so this device was signed out
+  // ---------------------------------------------------------------------------
+
+  Widget _planLimitGate(BuildContext context, DeviceGateState state) {
+    final l = AppLocalizations.of(context);
+    // Two concurrent devices exists only on Pro; every other tier allows one,
+    // so a cap of two can state the plan by name and the rest stay generic.
+    final lead = state.cap == 2
+        ? l.devices_limitRevokedLeadPro
+        : l.devices_limitRevokedLead;
+    final bodyStyle = AppTypography.bodyMd.copyWith(
+      color: AppColors.onSurfaceVariant,
+    );
+    return _RevokedScreen(
+      title: l.devices_planFullTitle,
+      state: state,
+      saving: _saving,
+      failed: _discardFailed,
+      onRetry: () => _discardAndSignOut(stay: true),
+      onBackToLogin: _erased
+          ? () {
+              widget.router.go(AppRoutes.login);
+              setState(() {
+                _stayedPlanState = null;
+                _resetRevocationState();
+              });
+            }
+          : null,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text.rich(
+            TextSpan(
+              style: bodyStyle,
+              children: [
+                TextSpan(text: '$lead '),
+                TextSpan(
+                  text: l.devices_limitRevokedLimit(state.cap),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                TextSpan(text: l.devices_limitRevokedTally(state.cap)),
+              ],
+            ),
+            textAlign: TextAlign.justify,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l.devices_limitRevokedDiscarded,
+            textAlign: TextAlign.justify,
+            style: bodyStyle.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l.devices_limitRevokedRelogin,
+            textAlign: TextAlign.justify,
+            style: bodyStyle,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Work
   // ---------------------------------------------------------------------------
 
@@ -409,8 +508,9 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   ///
   /// There is deliberately no push here: every non-`replaced` revocation means
   /// the work is lost, which the window warned about before the button was
-  /// pressed.
-  Future<void> _discardAndSignOut() async {
+  /// pressed. `stay` keeps the plan-limit screen visible after the discard so
+  /// its explanation can be read; that screen carries Back to Login.
+  Future<void> _discardAndSignOut({bool stay = false}) async {
     if (_saving || _erased) return;
     setState(() {
       _saving = true;
@@ -433,7 +533,7 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         _saving = false;
         _erased = true;
       });
-      widget.router.go(AppRoutes.login);
+      if (!stay) widget.router.go(AppRoutes.login);
     } on Object {
       if (!mounted) return;
       setState(() {
@@ -543,16 +643,25 @@ class _RevokedScreen extends StatelessWidget {
   final bool failed;
   final Future<void> Function() onRetry;
 
+  /// A richer body than the reason's default sentence, when the screen needs one.
+  final Widget? body;
+
+  /// The way out once the discard has completed; null while it is running or
+  /// after it fails, because leaving with the local copy still on the device is
+  /// exactly what this screen exists to prevent.
+  final VoidCallback? onBackToLogin;
+
   const _RevokedScreen({
     this.title,
     required this.state,
     required this.saving,
     required this.failed,
     required this.onRetry,
+    this.body,
+    this.onBackToLogin,
   });
 
   String _body(AppLocalizations l) => switch (state.revokedReason) {
-    'lapse' => l.devices_revokedLapseBody('${state.cap}'),
     'user' => l.devices_revokedRemovedBody,
     'signed_out' => l.devices_signedOutBody,
     'session_in_use' => l.devices_sessionInUseBody,
@@ -566,64 +675,85 @@ class _RevokedScreen extends StatelessWidget {
       canPop: false,
       child: Scaffold(
         body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.phonelink_erase_outlined,
-                    size: 48,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    title ?? l.devices_revokedTitle,
-                    textAlign: TextAlign.center,
-                    style: AppTypography.titleLg,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    _body(l),
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  if (saving)
-                    Column(
-                      children: [
-                        const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
+          // The plan-limit copy is long enough to overflow a short phone, so
+          // the column centres when it fits and scrolls when it does not.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.phonelink_erase_outlined,
+                        size: 48,
+                        color: AppColors.error,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        title ?? l.devices_revokedTitle,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.titleLg,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      SizedBox(
+                        width: double.infinity,
+                        child:
+                            body ??
+                            Text(
+                              _body(l),
+                              textAlign: TextAlign.center,
+                              style: AppTypography.bodyMd.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      if (saving)
+                        Column(
+                          children: [
+                            const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              l.devices_signingOut,
+                              style: AppTypography.bodySm.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        )
+                      else if (failed) ...[
                         Text(
-                          l.devices_signingOut,
-                          style: AppTypography.bodySm.copyWith(
-                            color: AppColors.onSurfaceVariant,
+                          l.devices_signedOutFailed,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyMd.copyWith(
+                            color: AppColors.error,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        FilledButton(
+                          onPressed: onRetry,
+                          child: Text(l.devices_tryAgain),
+                        ),
+                      ],
+                      if (onBackToLogin != null) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Center(
+                          child: FilledButton(
+                            onPressed: onBackToLogin,
+                            child: Text(l.devices_backToLogin),
                           ),
                         ),
                       ],
-                    )
-                  else if (failed) ...[
-                    Text(
-                      l.devices_signedOutFailed,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodyMd.copyWith(
-                        color: AppColors.error,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    FilledButton(
-                      onPressed: onRetry,
-                      child: Text(l.devices_tryAgain),
-                    ),
-                  ],
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

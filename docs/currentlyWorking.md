@@ -1,5 +1,22 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The plan-limit rejection reads like a real screen — COMPLETE (0.0.597)
+
+- **What was wrong.** A device refused because the plan's slots were full showed *This Device Was Signed Out* and *Your plan changed and now allows 2 …* — wording meant for a downgrade, not for a third sign-in, and centred, with no way back to Login except an automatic jump the user never saw.
+- **The new screen**, for both plan-limit reasons (`cap`, an idle eviction, and `lapse`, a fallen ceiling):
+  - Title **Device Limit Reached**.
+  - The requested copy, with the plan and cap filled in: *Your Pro plan allows a maximum of* **2 devices to be signed in at the same time**. *You’re already signed in on 2 devices, so you’ve been signed out on this device.*
+  - **Any unsaved or unsynced work on this device has been discarded.** — its own paragraph, bold.
+  - *To continue using this device, please log in again using the button below.*
+  - All three paragraphs **justified**; the title stays centred.
+  - A centred **Back to Login** button.
+- **When the button appears.** The discard still starts immediately. The screen now **stays** after it completes so the explanation can be read, and Back to Login appears only once the local copy really is gone. If the erase fails, the screen shows the failure and **Try Again** and deliberately offers no exit, because leaving with the data still on the phone is what the screen exists to prevent.
+- **The plan name.** A cap of two exists only on Pro, so that case says **Pro**; every other tier says **Your plan** rather than naming a plan the screen cannot verify.
+- **A gate bug found while wiring the button.** The gate never watched the sign-in state, so after any discard it stayed on the revoked screen even though the session had ended, and a new sign-in did not re-register the device until the app restarted. `deviceGateProvider` now watches the signed-in identity: signed out answers `unmanaged` (Login is the whole app), signed in registers. The plan screen is held locally until Back to Login, so the sign-out cannot wipe it off the screen, and the per-revocation flags reset on leaving it so a **later** sign-in is gated and discarded from scratch.
+- **Layout.** The revoked screen scrolls when the copy is taller than a short phone, and centres when it fits.
+- **Tests.** New checks for the exact justified copy, both bold phrases, the generic and Pro leads, the failure path offering no exit, the success path where the gate turns `unmanaged` and the screen still offers Back to Login, and a **second** sign-in that is gated and discarded again. The redundant old cap test was removed. `flutter analyze` clean; full `flutter test` **1951 passed**; version **0.0.597** recorded. No mockup exists for the device-gate screens, so none was added (rule 9).
+- **Not run on a phone.** The visual result and the real discard must be confirmed in the device pass.
+
 ### 2026-10-23 — Phase 5: the alpha scope is recorded and the last automated gaps are closed — COMPLETE (0.0.596)
 
 - **What Phase 5 is.** The last step of the approved device-limit plan: record the alpha scope, make sure every promised scenario has a test, and hand the physical device pass to the owner. No server or product behaviour changed in this phase.

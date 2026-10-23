@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.596 - Phase 5 complete: alpha scope recorded, every discard reason and the keep-data same-install path now tested; the physical device pass is the only step left.
+Version: 0.0.597 - The plan-limit rejection screen now shows Device Limit Reached with justified copy, bold warnings and a Back to Login button after the discard; the gate releases on sign-out.
 --------------------------------------
 
 ## Version History Log:
@@ -610,3 +610,4 @@ Version: 0.0.593 - The third-device window signs one out, re-checks the slot, an
 Version: 0.0.594 - Every revoked device now discards its local copy and signs out; a same-install re-login keeps its data.
 Version: 0.0.595 - Phase 4 complete: every install binds its session with a device-only secret, so a copied token is refused as session_in_use and a restored backup is a new device.
 Version: 0.0.596 - Phase 5 complete: alpha scope recorded, every discard reason and the keep-data same-install path now tested; the physical device pass is the only step left.
+Version: 0.0.597 - The plan-limit rejection screen now shows Device Limit Reached with justified copy, bold warnings and a Back to Login button after the discard; the gate releases on sign-out.

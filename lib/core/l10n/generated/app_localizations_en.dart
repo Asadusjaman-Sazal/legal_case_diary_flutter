@@ -2144,9 +2144,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String devices_revokedLapseBody(String cap) {
-    return 'Your plan changed and now allows $cap device(s) at a time, so this device gave up its place. Any unsaved work on this device is discarded.';
+  String get devices_limitRevokedLeadPro => 'Your Pro plan allows a maximum of';
+
+  @override
+  String get devices_limitRevokedLead => 'Your plan allows a maximum of';
+
+  @override
+  String devices_limitRevokedLimit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices to be signed in at the same time',
+      one: '1 device to be signed in at the same time',
+    );
+    return '$_temp0';
   }
+
+  @override
+  String devices_limitRevokedTally(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '. You’re already signed in on $count devices, so you’ve been signed out on this device.',
+      one:
+          '. You’re already signed in on 1 device, so you’ve been signed out on this device.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get devices_limitRevokedDiscarded =>
+      'Any unsaved or unsynced work on this device has been discarded.';
+
+  @override
+  String get devices_limitRevokedRelogin =>
+      'To continue using this device, please log in again using the button below.';
+
+  @override
+  String get devices_backToLogin => 'Back to Login';
 
   @override
   String get devices_revokedRemovedBody =>

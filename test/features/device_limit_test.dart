@@ -5,6 +5,7 @@
 /// whether its work was saved before it was erased.
 library;
 
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +18,7 @@ import 'package:legal_case_diary/core/notifications/notification_scheduler.dart'
 import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
+import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/database/encryption_key_manager.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
@@ -99,6 +101,35 @@ class _FakeAuth extends AuthViewModel {
 
   @override
   Future<void> signOut() async => signOutCalls++;
+}
+
+/// A logout flow that completes without touching a database or the SDK.
+class _InstantLogout extends LogoutFlow {
+  _InstantLogout({Future<void> Function()? endSession, this.onWipe})
+    : super(
+        db: AppDatabase(NativeDatabase.memory()),
+        premium: true,
+        online: true,
+        runBacklogPush: () async => null,
+        endSession: endSession ?? () async {},
+      );
+
+  final void Function()? onWipe;
+
+  @override
+  Future<LogoutResult> wipeAndComplete() async {
+    onWipe?.call();
+    await endSession();
+    return LogoutResult.completed;
+  }
+}
+
+/// The justified first paragraph of the plan-limit screen, as spans.
+List<TextSpan> _planBodySpans(WidgetTester tester) {
+  final text = tester
+      .widgetList<Text>(find.byType(Text))
+      .firstWhere((widget) => widget.textSpan is TextSpan);
+  return (text.textSpan! as TextSpan).children!.cast<TextSpan>();
 }
 
 /// A router that knows both the gate's home and the Login screen.
@@ -317,43 +348,6 @@ void main() {
     expect(find.text('the app'), findsNothing);
   });
 
-  testWidgets('a revoked device discards its local copy and offers a retry', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      const DeviceGateState(
-        status: DeviceGateStatus.revoked,
-        cap: 2,
-        revokedReason: 'cap',
-      ),
-      child: DeviceGateScope(
-        router: GoRouter(
-          routes: [
-            GoRoute(path: '/', builder: (context, _) => const SizedBox()),
-          ],
-        ),
-        child: const Scaffold(body: Text('the app')),
-      ),
-    );
-    // The erasure cannot run in a test host, so the screen must stay on the
-    // failed branch: nothing has been erased, and the copy says so.
-    await tester.pumpAndSettle();
-
-    expect(find.text('This Device Was Signed Out'), findsOneWidget);
-    expect(
-      find.textContaining('Any unsaved work on this device is discarded'),
-      findsOneWidget,
-    );
-    expect(
-      find.text('Could not erase this device. Try again.'),
-      findsOneWidget,
-    );
-    expect(find.text('Try Again'), findsOneWidget);
-    expect(find.text('Sign Out and Discard'), findsNothing);
-    expect(find.text('the app'), findsNothing);
-  });
-
   testWidgets('a signed-out device discards and offers a retry', (
     tester,
   ) async {
@@ -389,7 +383,9 @@ void main() {
     expect(find.text('the app'), findsNothing);
   });
 
-  testWidgets('a revoked device is told why it lost its slot', (tester) async {
+  testWidgets('a plan-limit revocation states the cap and the discard', (
+    tester,
+  ) async {
     await _pump(
       tester,
       const DeviceGateState(
@@ -408,18 +404,191 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // A fallen ceiling is not another device taking the slot: the sentence says
-    // the plan changed, and it says the unsaved work is discarded.
+    // A cap of one is not Pro, so the plan is named generically.
+    expect(find.text('Device Limit Reached'), findsOneWidget);
+    final spans = _planBodySpans(tester);
+    expect(spans[0].text, 'Your plan allows a maximum of ');
+    expect(spans[1].text, '1 device to be signed in at the same time');
+    expect(spans[1].style?.fontWeight, FontWeight.w700);
     expect(
-      find.textContaining('Your plan changed and now allows 1 device'),
+      spans[2].text,
+      '. You’re already signed in on 1 device, so you’ve been signed out on this device.',
+    );
+
+    final discarded = tester.widget<Text>(
+      find.text(
+        'Any unsaved or unsynced work on this device has been discarded.',
+      ),
+    );
+    expect(discarded.textAlign, TextAlign.justify);
+    expect(discarded.style?.fontWeight, FontWeight.w700);
+    expect(
+      find.text(
+        'To continue using this device, please log in again using the button below.',
+      ),
       findsOneWidget,
     );
+
+    // The widget-test erase fails, so the screen must not offer a way out that
+    // would leave the local copy behind.
     expect(
-      find.textContaining('Any unsaved work on this device is discarded'),
+      find.text('Could not erase this device. Try again.'),
       findsOneWidget,
     );
-    expect(find.textContaining('another device took this one'), findsNothing);
-    expect(find.textContaining('nothing has been erased'), findsNothing);
+    expect(find.text('Try Again'), findsOneWidget);
+    expect(find.text('Back to Login'), findsNothing);
+  });
+
+  testWidgets('after the discard, the plan screen offers Back to Login', (
+    tester,
+  ) async {
+    late final GoRouter router;
+    router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, _) => DeviceGateScope(
+            router: router,
+            child: const Scaffold(body: Text('the app')),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (context, _) => const Scaffold(body: Text('login')),
+        ),
+      ],
+    );
+    final gate = _FakeGate(
+      const DeviceGateState(
+        status: DeviceGateStatus.revoked,
+        cap: 2,
+        revokedReason: 'cap',
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          deviceGateProvider.overrideWith(() => gate),
+          notificationSchedulerProvider.overrideWithValue(_NoopScheduler()),
+          logoutFlowProvider.overrideWith(
+            (ref) async => _InstantLogout(
+              // A real sign-out turns the gate provider `unmanaged`; the
+              // explanation must survive that rebuild.
+              endSession: () async {
+                gate.currentState = const DeviceGateState(
+                  status: DeviceGateStatus.unmanaged,
+                );
+                gate.state = const AsyncData(
+                  DeviceGateState(status: DeviceGateStatus.unmanaged),
+                );
+              },
+            ),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Two devices is Pro, so the plan is named; the limit phrase stays bold.
+    expect(find.text('Device Limit Reached'), findsOneWidget);
+    final spans = _planBodySpans(tester);
+    expect(spans[0].text, 'Your Pro plan allows a maximum of ');
+    expect(spans[1].text, '2 devices to be signed in at the same time');
+    expect(spans[1].style?.fontWeight, FontWeight.w700);
+    expect(
+      spans[2].text,
+      '. You’re already signed in on 2 devices, so you’ve been signed out on this device.',
+    );
+    expect(find.text('the app'), findsNothing);
+
+    // The discard completed, so the way out is offered.
+    expect(find.text('Could not erase this device. Try again.'), findsNothing);
+    final backToLogin = find.text('Back to Login');
+    expect(backToLogin, findsOneWidget);
+
+    await tester.tap(backToLogin);
+    await tester.pumpAndSettle();
+    expect(find.text('login'), findsOneWidget);
+  });
+
+  testWidgets('a later sign-in is gated from scratch', (tester) async {
+    var wipes = 0;
+    final gate = _FakeGate(
+      const DeviceGateState(
+        status: DeviceGateStatus.revoked,
+        cap: 2,
+        revokedReason: 'cap',
+      ),
+    );
+    late final GoRouter router;
+    router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, _) => const Scaffold(body: Text('the app')),
+        ),
+        GoRoute(
+          path: AppRoutes.login,
+          builder: (context, _) => const Scaffold(body: Text('login')),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          deviceGateProvider.overrideWith(() => gate),
+          notificationSchedulerProvider.overrideWithValue(_NoopScheduler()),
+          logoutFlowProvider.overrideWith(
+            (ref) async => _InstantLogout(
+              onWipe: () => wipes++,
+              endSession: () async {
+                gate.currentState = const DeviceGateState(
+                  status: DeviceGateStatus.unmanaged,
+                );
+                gate.state = const AsyncData(
+                  DeviceGateState(status: DeviceGateStatus.unmanaged),
+                );
+              },
+            ),
+          ),
+        ],
+        // The gate sits above the navigator, as it does in `app.dart`, so it
+        // survives the move to Login.
+        child: MaterialApp.router(
+          routerConfig: router,
+          builder: (context, child) =>
+              DeviceGateScope(router: router, child: child ?? const SizedBox()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(wipes, 1);
+
+    await tester.tap(find.text('Back to Login'));
+    await tester.pumpAndSettle();
+    expect(find.text('login'), findsOneWidget);
+
+    // A new sign-in is refused again: the gate must discard this session too,
+    // not remember the previous one as already handled.
+    gate.currentState = const DeviceGateState(
+      status: DeviceGateStatus.revoked,
+      cap: 2,
+      revokedReason: 'cap',
+    );
+    gate.state = AsyncData(gate.currentState);
+    await tester.pumpAndSettle();
+
+    expect(wipes, 2);
+    expect(find.text('Device Limit Reached'), findsOneWidget);
   });
 
   testWidgets('a device removed from the list discards and offers a retry', (
@@ -504,9 +673,11 @@ void main() {
     );
     await tester.pump();
 
-    final auth = ProviderScope.containerOf(
-      tester.element(find.byType(DeviceGateScope)),
-    ).read(authViewModelProvider.notifier) as _FakeAuth;
+    final auth =
+        ProviderScope.containerOf(
+              tester.element(find.byType(DeviceGateScope)),
+            ).read(authViewModelProvider.notifier)
+            as _FakeAuth;
 
     expect(find.text('This Sign-In Has Ended'), findsOneWidget);
     expect(find.textContaining('Your local data is kept.'), findsOneWidget);

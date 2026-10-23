@@ -7372,6 +7372,12 @@ abstract class AppLocalizations {
   /// **'Hide Password'**
   String get auth_hidePassword;
 
+  /// No description provided for @auth_clearEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Email'**
+  String get auth_clearEmail;
+
   /// No description provided for @auth_continueWithoutAccount.
   ///
   /// In en, this message translates to:

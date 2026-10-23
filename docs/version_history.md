@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.607 - The Daily Cause List's month/year spin now plays the same bundled gear tick as the Notification Time window, once per month or year moved.
+Version: 0.0.608 - The Login and Sign Up Email boxes gained a clear cross and a pop-over list of six mail domains that narrows as the user types.
 --------------------------------------
 
 ## Version History Log:
@@ -621,3 +621,4 @@ Version: 0.0.604 - Revoked device rows older than six months are pruned daily, k
 Version: 0.0.605 - Daily Cause List now pulls down to refresh in both the card and table views, including a day with only one hearing.
 Version: 0.0.606 - Settings and every sub-page now pull to sync for premium accounts without dragging the page; Notes and Case Reference short lists pull too.
 Version: 0.0.607 - The Daily Cause List's month/year spin now plays the same bundled gear tick as the Notification Time window, once per month or year moved.
+Version: 0.0.608 - The Login and Sign Up Email boxes gained a clear cross and a pop-over list of six mail domains that narrows as the user types.

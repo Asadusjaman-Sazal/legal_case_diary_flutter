@@ -4321,6 +4321,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_hidePassword => 'পাসওয়ার্ড লুকান';
 
   @override
+  String get auth_clearEmail => 'ইমেইল মুছুন';
+
+  @override
   String get auth_continueWithoutAccount => 'অ্যাকাউন্ট ছাড়া চালিয়ে যান';
 
   @override

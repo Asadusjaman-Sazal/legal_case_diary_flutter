@@ -2072,6 +2072,7 @@
   "auth_signUpButton": "Sign Up",
   "auth_showPassword": "Show Password",
   "auth_hidePassword": "Hide Password",
+  "auth_clearEmail": "Clear Email",
   "auth_continueWithoutAccount": "Continue Without An Account",
   "auth_continueWithoutAccountNote": "Your cases stay on this device.",
   "auth_checkEmailTitle": "Check Your Email",

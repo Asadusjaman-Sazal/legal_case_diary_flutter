@@ -91,6 +91,9 @@ void main() {
     // window's copy is) so a later copy edit has to be deliberate.
     expect(find.text('Log in to the app'), findsOneWidget);
     expect(find.text(l.auth_emailLabel), findsOneWidget);
+    // The address box is the one with the clear cross and the domain window
+    // (user request); behaviour lives in `auth_email_field_test.dart`.
+    expect(find.byType(AuthEmailField), findsOneWidget);
     // The placeholder the user asked the field to carry.
     expect(emailDecoration(tester).hintText, 'example@gmail.com');
     expect(find.text(l.auth_passwordLabel), findsOneWidget);

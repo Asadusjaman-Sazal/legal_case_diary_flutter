@@ -214,27 +214,25 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
     return _popOver(
       context,
       title: l.devices_planFullTitle,
+      lightHeader: true,
       children: [
         Text(
           l.devices_planFullBody(_digits(context, state.cap)),
           style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
         ),
         const SizedBox(height: AppSpacing.md),
-        // Deliberately its own block, on the next line, with the label bold.
-        Row(
+        // Deliberately its own block: the label, then the warning beneath it.
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l.devices_planFullWarningLabel,
               style: AppTypography.bodyMd.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Text(
-                l.devices_planFullWarning,
-                style: AppTypography.bodyMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+            Text(
+              l.devices_planFullWarning,
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ],
@@ -251,10 +249,12 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
         ],
         const SizedBox(height: AppSpacing.xs),
         TextButton(
+          style: _tallerTextButton,
           onPressed: busy ? null : _retry,
           child: Text(l.devices_tryAgain),
         ),
         TextButton(
+          style: _tallerTextButton,
           onPressed: busy ? null : _signOutThisDevice,
           child: Text(l.devices_signOutThisDevice),
         ),
@@ -561,14 +561,25 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
   // The window shape
   // ---------------------------------------------------------------------------
 
+  /// The two secondary actions under the device list, a touch taller than the
+  /// default text button.
+  static final ButtonStyle _tallerTextButton = TextButton.styleFrom(
+    minimumSize: const Size(0, 48),
+  );
+
   Widget _popOver(
     BuildContext context, {
     required String title,
     required List<Widget> children,
+    bool lightHeader = false,
   }) => PopScope(
     canPop: false,
     child: Scaffold(
-      backgroundColor: Colors.black54,
+      // The plan-full window is a white page; the other gate windows keep the
+      // dimmed overlay that marks them as interruptions.
+      backgroundColor: lightHeader
+          ? AppColors.surfaceContainerLowest
+          : Colors.black54,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -591,7 +602,9 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
                     Container(
                       height: 60,
                       width: double.infinity,
-                      color: AppColors.secondary,
+                      color: lightHeader
+                          ? AppColors.surfaceContainerLowest
+                          : AppColors.secondary,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.md,
@@ -602,7 +615,9 @@ class _DeviceGateScopeState extends ConsumerState<DeviceGateScope> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.titleLg.copyWith(
-                          color: AppColors.onPrimary,
+                          color: lightHeader
+                              ? AppColors.onSurface
+                              : AppColors.onPrimary,
                         ),
                       ),
                     ),

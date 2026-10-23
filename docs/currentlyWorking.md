@@ -1,5 +1,16 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The login Device Limit Reached window turns white — COMPLETE (0.0.598)
+
+- **What was asked.** On the **Device Limit Reached** window shown at login when a Pro account already has two devices: the black background should be white with the title in black text, **Warning:** should sit on its own line above the warning, and **Try Again** / **Sign Out This Device** should be a little taller.
+- **What changed** (this window only):
+  - The screen is now a **white page** instead of the dimmed black overlay, and the title bar is white with **black title text** at the same 60 px height.
+  - The warning is a small block: **Warning:** on the first line, the warning sentence directly beneath it.
+  - **Try Again** and **Sign Out This Device** have a 48 px minimum height, up from the default text-button height.
+- **Scope.** The checking and same-install windows keep the dimmed overlay and black title bar; the shared pop-over gained a `lightHeader` flag so only the plan-full window changes.
+- **Tests.** The window test now pins the black title, the white screen, the label and warning on separate lines, and both button heights. `flutter analyze` clean; full `flutter test` **1951 passed**; version **0.0.598** recorded. No mockup exists for the device-gate windows, so none was added (rule 9).
+- **Not run on a phone.** Please check the spacing and the white page on the device.
+
 ### 2026-10-23 — The plan-limit rejection reads like a real screen — COMPLETE (0.0.597)
 
 - **What was wrong.** A device refused because the plan's slots were full showed *This Device Was Signed Out* and *Your plan changed and now allows 2 …* — wording meant for a downgrade, not for a third sign-in, and centred, with no way back to Login except an automatic jump the user never saw.

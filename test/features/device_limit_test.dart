@@ -258,25 +258,48 @@ void main() {
 
     expect(find.text('Device Limit Reached'), findsOneWidget);
     expect(
-      find.textContaining('already signed in on 2 devices'),
-      findsOneWidget,
+      tester.widget<Text>(find.text('Device Limit Reached')).style?.color,
+      AppColors.onSurface,
     );
-    // The warning is its own block, below the explanation.
-    final explanation = tester.getBottomLeft(
-      find.textContaining('already signed in on 2 devices'),
-    );
-    final warning = tester.getTopLeft(find.text('Warning:'));
-    expect(warning.dy, greaterThan(explanation.dy));
     expect(
-      find.text(
-        'Any unsaved or unsynced work on the device you sign out from may be lost.',
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Scaffold &&
+            widget.backgroundColor == AppColors.surfaceContainerLowest,
       ),
       findsOneWidget,
     );
+    expect(
+      find.textContaining('already signed in on 2 devices'),
+      findsOneWidget,
+    );
+    // The warning label starts its own block, and the warning sits beneath it.
+    final explanation = tester.getBottomLeft(
+      find.textContaining('already signed in on 2 devices'),
+    );
+    final warningLabel = tester.getTopLeft(find.text('Warning:'));
+    expect(warningLabel.dy, greaterThan(explanation.dy));
+    final warningText = tester.getTopLeft(
+      find.text(
+        'Any unsaved or unsynced work on the device you sign out from may be lost.',
+      ),
+    );
+    expect(warningText.dy, greaterThan(warningLabel.dy));
     expect(find.text('Samsung SM-A525F'), findsOneWidget);
     expect(find.text('Xiaomi 13'), findsOneWidget);
     expect(find.text('Sign Out'), findsNWidgets(2));
     expect(find.text('Sign Out This Device'), findsOneWidget);
+    // Both secondary actions are a touch taller than a default text button.
+    for (final label in ['Try Again', 'Sign Out This Device']) {
+      final button = tester.widget<TextButton>(
+        find.widgetWithText(TextButton, label),
+      );
+      expect(
+        button.style?.minimumSize?.resolve(<WidgetState>{}),
+        const Size(0, 48),
+        reason: '$label should be taller',
+      );
+    }
     // The app itself is not reachable behind the gate.
     expect(find.text('the app'), findsNothing);
 

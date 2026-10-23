@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
@@ -96,6 +97,19 @@ void main() {
   });
 
   group('CalendarPickerDialog', () {
+    /// The real tick player, so every test can put it back afterwards.
+    final realTickPlayer = monthYearTickPlayer;
+
+    /// Ticks counted instead of played: the audio plugin must never be touched
+    /// in a widget test.
+    var ticks = 0;
+
+    setUp(() {
+      ticks = 0;
+      monthYearTickPlayer = () => ticks++;
+    });
+    tearDown(() => monthYearTickPlayer = realTickPlayer);
+
     /// The scroll view behind one month/year column, so a test can spin it.
     FixedExtentScrollController columnOf(WidgetTester tester, Key key) =>
         tester
@@ -320,6 +334,92 @@ void main() {
         expect(cell.data, matches(RegExp(r'^[০-৯]+$')), reason: cell.data);
       }
     });
+
+    testWidgets(
+      'only a month or year move plays the gear tick, once each',
+      (WidgetTester tester) async {
+        // The platform click is silenced on this calendar, so no sound of the
+        // framework's may be heard — only the bundled tick.
+        final platformSounds = <String>[];
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'SystemSound.play') {
+            platformSounds.add(call.arguments as String);
+          }
+          return null;
+        });
+        addTearDown(
+          () => TestDefaultBinaryMessengerBinding
+              .instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(SystemChannels.platform, null),
+        );
+
+        final today = AppDateUtils.bangladeshTodayStartOfDay();
+        final todayCivil = AppDateUtils.bangladeshDateTime(today);
+        final monthLabel = intl.DateFormat(
+          'MMMM',
+        ).format(DateTime(todayCivil.year, todayCivil.month, 1));
+        // A month the grid is not on, whichever month the test runs in.
+        final targetMonth = todayCivil.month == 1 ? 2 : 1;
+        final targetLabel = intl.DateFormat(
+          'MMMM',
+        ).format(DateTime(2023, targetMonth, 1));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CalendarPickerDialog(
+                initialDate: today,
+                hearingCounts: const {},
+                onDateSelected: (_) {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Opening the columns is not a move, so it is silent.
+        await tester.tap(find.text(monthLabel));
+        await tester.pumpAndSettle();
+        expect(ticks, 0, reason: 'opening the selector makes no sound');
+        // A tap's own platform feedback is not the picker's row click, so the
+        // recorded sounds start from here: moving a row must add none.
+        platformSounds.clear();
+
+        // One year move, one tick.
+        columnOf(
+          tester,
+          monthYearPickerYearColumnKey,
+        ).jumpToItem(todayCivil.year + 1 - 1900);
+        await tester.pumpAndSettle();
+        expect(ticks, 1);
+
+        // One month move, one more tick.
+        columnOf(tester, monthYearPickerMonthColumnKey)
+            .jumpToItem(targetMonth - 1);
+        await tester.pumpAndSettle();
+        expect(ticks, 2);
+        expect(
+          platformSounds,
+          isEmpty,
+          reason: 'the tick replaces the platform click here, never joins it',
+        );
+
+        // Tapping the row the wheel already holds confirms the month the header
+        // is already showing, so it is not a second move and stays silent.
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(monthYearPickerMonthColumnKey),
+            matching: find.text(targetLabel),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(ticks, 2);
+        expect(find.byType(ListWheelScrollView), findsNothing);
+      },
+    );
 
     testWidgets(
       'month and year are straight columns, 1900-2100, confirmed by a tap',

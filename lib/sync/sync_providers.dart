@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/providers/device_providers.dart';
 import '../core/providers/repository_providers.dart';
 import '../database/app_database.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
@@ -19,6 +20,20 @@ import 'realtime_listener.dart';
 import 'sync_health.dart';
 import 'sync_queue_dao.dart';
 import 'sync_service.dart';
+
+/// Re-checks this device's slot after a Realtime signal or a channel rejoin.
+///
+/// Deferred to a microtask so a socket callback is never re-entered by provider
+/// state (a revocation signs the account out, which stops the listener). Read
+/// lazily so merely building the listener does not instantiate — and claim a
+/// slot with — the device gate.
+void scheduleDeviceCheck(Ref ref, {required bool force}) {
+  if (!ref.mounted) return;
+  scheduleMicrotask(() {
+    if (!ref.mounted) return;
+    unawaited(ref.read(deviceGateProvider.notifier).touch(force: force));
+  });
+}
 
 /// The app's single Realtime listener.
 ///
@@ -41,13 +56,18 @@ final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
       if (firmId != null && firmId.isNotEmpty) return 'firm:$firmId';
       return 'user:${identity.userId}';
     },
-    onPings: (pings) => ref.read(syncServiceProvider).requestRealtimePull(pings),
+    onPings: (pings) =>
+        ref.read(syncServiceProvider).requestRealtimePull(pings),
     // A membership or permission change is not a row to pull: it changes what
     // this account *is* and what it may do. The one refresh entry point re-reads
     // the profile, the firm and the membership together — which is also how a
     // removal is noticed (the profile's `firm_id` goes null while the cached
     // membership row is still there).
     onMembershipChange: () => unawaited(ref.read(accountRefreshProvider)()),
+    // A device row became revoked: check this device now. A rejoin checks too,
+    // because a broadcast sent while the socket was down is not replayed.
+    onDeviceChanged: () => scheduleDeviceCheck(ref, force: true),
+    onSubscribed: () => scheduleDeviceCheck(ref, force: true),
   );
   ref.onDispose(listener.dispose);
   return listener;
@@ -104,18 +124,22 @@ final syncNoticeProvider = StreamProvider<SyncNotice?>((ref) {
 /// The app-wide banner watches this. The list shrinks only when a resolution is
 /// written — `resolution_state` leaves `unresolved` — so a dismissal or the
 /// passage of time never makes a conflict look answered (Task 19 Phase 3).
-final unresolvedConflictsProvider =
-    StreamProvider<List<ConflictLogRow>>((ref) async* {
+final unresolvedConflictsProvider = StreamProvider<List<ConflictLogRow>>((
+  ref,
+) async* {
   final db = await ref.watch(databaseProvider.future);
   yield* ConflictLogDao(db).watchUnresolved();
 });
 
 /// One conflict by id, live, for the Review Conflict screen.
-final conflictByIdProvider =
-    StreamProvider.family<ConflictLogRow?, String>((ref, id) async* {
+final conflictByIdProvider = StreamProvider.family<ConflictLogRow?, String>((
+  ref,
+  id,
+) async* {
   final db = await ref.watch(databaseProvider.future);
-  yield* (db.select(db.conflictLog)..where((row) => row.id.equals(id)))
-      .watchSingleOrNull();
+  yield* (db.select(
+    db.conflictLog,
+  )..where((row) => row.id.equals(id))).watchSingleOrNull();
 });
 
 /// The one resolver the UI answers conflicts through.
@@ -162,8 +186,7 @@ final syncEnabledProvider = NotifierProvider<SyncEnabledNotifier, bool>(
 /// resolved` churn does not look like new work.
 final syncQueuePendingCountProvider = StreamProvider<int>((ref) async* {
   final db = await ref.watch(databaseProvider.future);
-  yield* (db.select(db.syncQueue)
-        ..where((row) => row.state.equals('pending')))
+  yield* (db.select(db.syncQueue)..where((row) => row.state.equals('pending')))
       .watch()
       .map((rows) => rows.length);
 });

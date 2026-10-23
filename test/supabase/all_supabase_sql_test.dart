@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        65,
+        66,
         reason:
+            'The device revocation broadcast (2026-10-23) added one file. '
             'The device identity columns and collision guard (2026-10-23) '
             'added one file. '
             'The install-secret binding (2026-10-22) added one file. '

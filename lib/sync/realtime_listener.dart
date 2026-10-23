@@ -20,6 +20,11 @@
 /// [generation]. That is how the service proves continuity before it may skip a
 /// resume pull (plan §1): equality of the generation means one uninterrupted
 /// subscription since the last successful pull was recorded.
+///
+/// `user_devices` is the second routed table: a ping for it is not data to pull
+/// but a signal that this device's slot may have changed, so the app re-asks its
+/// own registration. A rejoined channel also fires the subscription callback,
+/// because a broadcast sent while the socket was down is never replayed.
 library;
 
 import 'dart:async';
@@ -53,6 +58,10 @@ const Duration syncRealtimeJoinTimeout = Duration(seconds: 10);
 /// server half is Task 20 Phase 2's `remove_firm_member` and the trigger this
 /// migration attaches to `firm_members`.
 const String syncRealtimeMembershipTable = 'firm_members';
+
+/// The second routed table: a device row is server-managed and never pulled, so
+/// a revocation ping triggers a light slot check on this device instead.
+const String syncRealtimeDeviceTable = 'user_devices';
 
 /// One `{table, id}` notification.
 @immutable
@@ -235,11 +244,18 @@ class RealtimeListener {
   /// [syncRealtimeMembershipTable] arrives, however many of them there were: the
   /// reaction to a membership or permission change is one account refresh, not
   /// one per frame.
+  ///
+  /// [onDeviceChanged] fires the same way for a [syncRealtimeDeviceTable] ping:
+  /// one slot check per burst, never a sync pull. [onSubscribed] fires once on
+  /// every transition into a subscribed channel, including a rejoin, because a
+  /// broadcast missed while the socket was down is not replayed.
   RealtimeListener({
     required this.socket,
     required this.topic,
     required this.onPings,
     this.onMembershipChange,
+    this.onDeviceChanged,
+    this.onSubscribed,
     this.pingWindow = syncRealtimePingWindow,
   });
 
@@ -256,17 +272,27 @@ class RealtimeListener {
   /// handle only the domain tables.
   final void Function()? onMembershipChange;
 
+  /// Fires when a device-row ping arrived; null in builds without the gate.
+  final void Function()? onDeviceChanged;
+
+  /// Fires on every successful join, including an automatic re-join.
+  final void Function()? onSubscribed;
+
   /// How long pings are collected before they are handed over.
   final Duration pingWindow;
 
   /// The observable status, for the header's sync state.
-  final ValueNotifier<RealtimeStatus> status =
-      ValueNotifier<RealtimeStatus>(RealtimeStatus.stopped);
+  final ValueNotifier<RealtimeStatus> status = ValueNotifier<RealtimeStatus>(
+    RealtimeStatus.stopped,
+  );
 
   final Set<SyncPing> _pending = <SyncPing>{};
 
   /// Set by a membership ping, cleared when it is handed over.
   bool _membershipPending = false;
+
+  /// Set by a device ping, cleared when it is handed over.
+  bool _devicePending = false;
 
   Timer? _flushTimer;
   bool _starting = false;
@@ -335,6 +361,7 @@ class RealtimeListener {
     _flushTimer = null;
     _pending.clear();
     _membershipPending = false;
+    _devicePending = false;
     _subscribed = false;
     try {
       await socket.unsubscribe();
@@ -364,8 +391,13 @@ class RealtimeListener {
     if (next == RealtimeStatus.subscribed) {
       // Every successful join is a new generation, including an automatic
       // re-join after a socket drop: continuity cannot be assumed across it.
-      if (!_subscribed) _generation++;
-      _subscribed = true;
+      if (!_subscribed) {
+        _generation++;
+        _subscribed = true;
+        // A broadcast sent while the socket was down is not replayed, so the
+        // rejoin is the recovery boundary for a missed device revocation.
+        onSubscribed?.call();
+      }
     } else {
       _subscribed = false;
     }
@@ -378,6 +410,14 @@ class RealtimeListener {
     if (ping.table == syncRealtimeMembershipTable) {
       if (onMembershipChange == null) return;
       _membershipPending = true;
+      _armFlush();
+      return;
+    }
+    // A device row is not data to pull: the ping means this device's slot may
+    // have changed, so the gate runs one light registration check per burst.
+    if (ping.table == syncRealtimeDeviceTable) {
+      if (onDeviceChanged == null) return;
+      _devicePending = true;
       _armFlush();
       return;
     }
@@ -400,9 +440,12 @@ class RealtimeListener {
         ? const <SyncPing>[]
         : _pending.toList(growable: false);
     final membership = _membershipPending;
+    final deviceChanged = _devicePending;
     _pending.clear();
     _membershipPending = false;
+    _devicePending = false;
     if (membership) onMembershipChange?.call();
+    if (deviceChanged) onDeviceChanged?.call();
     if (pings.isNotEmpty) onPings(pings);
   }
 

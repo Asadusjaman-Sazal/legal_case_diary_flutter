@@ -99,6 +99,7 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.592 | 2026-10-22 | `20261022150000_device_no_grace.sql` | Device limit — the grace period is closed. The roll-out row is removed: a third device at the cap is refused unless an idle spare may be evicted, an unregistered session reads and pushes nothing, and a revoked device loses the 14-day flush. register_device now returns the active-device list, and two RPCs are added: sign_out_device for the third-device window (reason signed_out) and touch_device for the real-use heartbeat. One-time cleanup revokes any row above its cap and clears the obsolete grandfathered flag. |
 | 0.0.595 | 2026-10-22 | `20261022160000_device_install_secret.sql` | Device limit — a session belongs to its install. Every install mints a 32-byte secret kept in this-device-only secure storage and sends it as x-install-secret (and p_install_secret); user_devices stores only its sha256. A known session presented with a different secret answers session_in_use, no secret at all answers invalid_install_secret, and replaced now needs the same device key and the same secret, so a restored backup is a new device. Push and heartbeat fail closed on a mismatch; reads keep a permissive fallback when no secret is present because Realtime does not reliably forward custom headers. |
 | 0.0.600 | 2026-10-23 | `20261023100000_device_identity_and_collision_guard.sql` | Device registry — unique install keys and support identity. user_devices gains full_name and email, filled from profiles by a BEFORE INSERT trigger and backfilled for existing rows. The client now keys Android installs by a persisted UUID because device_info_plus's Android id is the build ID, which two identical phones share; register_device answers a key already held by another active device with device_limit_reached instead of raising 23505 on user_devices_active_device_idx, and a known session never rewrites its device_key to a key another active row holds. |
+| 0.0.602 | 2026-10-23 | `20261023110000_device_revocation_broadcast.sql` | Device revocation — the server tells the device over the channel it already holds. A guarded AFTER UPDATE trigger on user_devices, only on the null-to-non-null revoked_at transition, sends the existing row_change {table,id} ping to firm:<firm_id> for a chamber member or user:<user_id> for an individual, so a signed-out phone discards immediately without polling; a Realtime failure is swallowed and the revocation still commits. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -16817,5 +16818,89 @@ $$;
 
 comment on function public.register_device(text, text, text, text) is
   'Claims a device slot for the caller''s session and binds it to the install secret: a different secret answers session_in_use, no secret answers invalid_install_secret, a key held by another active device answers device_limit_reached instead of failing the unique index, the same device key and secret replace their own row, and at the cap the least recently seen device is evicted only when idle 7+ days on a live plan. Every success carries the active-device list.';
+```
+
+## App Version 0.0.602 — Device Revocation — A Realtime Push Instead Of Polling
+
+### 0.0.602 · `20261023110000_device_revocation_broadcast.sql`
+
+> **Created 2026-10-23.** Device revocation — the server tells the device over the channel it already holds. A guarded AFTER UPDATE trigger on user_devices, only on the null-to-non-null revoked_at transition, sends the existing row_change {table,id} ping to firm:<firm_id> for a chamber member or user:<user_id> for an individual, so a signed-out phone discards immediately without polling; a Realtime failure is swallowed and the revocation still commits.
+
+```sql
+-- ===========================================================================
+-- Device revocation — tell the device itself, over the channel it already holds.
+--
+-- A device signed out from another phone used to learn about it on its next
+-- launch, resume, refused push or Devices-screen read. The foreground heartbeat
+-- added in 0.0.601 covered an idle open app by polling every 30 seconds, but
+-- that is two requests a minute for a rare event.
+--
+-- This migration reuses the app's **one** private Realtime channel. When a
+-- `user_devices` row turns revoked, the trigger sends the existing `row_change`
+-- `{table,id}` ping on the topic the device actually joined:
+--
+--   * `firm:<firm_id>` when the owner's profile holds a firm (the app joins the
+--     firm topic in firm mode);
+--   * `user:<user_id>` for an individual.
+--
+-- The client routes a `user_devices` ping to a light `touch_device` check, not
+-- to the sync pull. The send is deliberately guarded: Realtime is a
+-- notification, never the source of truth, so a failed send must not roll back
+-- the revocation. The device still discovers it on launch, resume, rejoin or a
+-- refused push.
+--
+-- Only the null -> non-null transition broadcasts. The BEFORE trigger rewrites
+-- `last_seen_at` on every update, and re-registration, wipe acknowledgements and
+-- the identity backfill must stay silent.
+-- ===========================================================================
+
+create or replace function public.broadcast_device_revoked()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_firm_id uuid;
+  v_topic text;
+begin
+  select p.firm_id
+    into v_firm_id
+    from public.profiles p
+   where p.id = new.user_id;
+
+  if v_firm_id is not null then
+    v_topic := 'firm:' || v_firm_id::text;
+  else
+    v_topic := 'user:' || new.user_id::text;
+  end if;
+
+  begin
+    perform realtime.send(
+      jsonb_build_object('table', TG_TABLE_NAME, 'id', new.id::text),
+      'row_change',
+      v_topic,
+      true
+    );
+  exception when others then
+    -- A Realtime failure must never undo a revocation: the device still learns
+    -- on resume, on its next join, or from a refused push.
+    raise warning 'device revocation broadcast failed (device %, topic %): %',
+      new.id, v_topic, sqlerrm;
+  end;
+
+  return null;
+end;
+$$;
+
+comment on function public.broadcast_device_revoked() is
+  'AFTER UPDATE on user_devices, only when revoked_at turns from null to non-null: sends the existing row_change {table,id} ping to the owner''s firm topic or user topic, and never fails the revocation.';
+
+drop trigger if exists trg_user_devices_revoked on public.user_devices;
+create trigger trg_user_devices_revoked
+after update on public.user_devices
+for each row
+when (old.revoked_at is null and new.revoked_at is not null)
+execute function public.broadcast_device_revoked();
 ```
 

@@ -869,11 +869,24 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'user_devices_active_device_idx, and a known session never rewrites '
         'its device_key to a key another active row holds.',
   ),
+  LedgerSection(
+    file: '20261023110000_device_revocation_broadcast.sql',
+    version: '0.0.602',
+    label:
+        'Device revocation — the server tells the device over the channel it '
+        'already holds. A guarded AFTER UPDATE trigger on user_devices, only on '
+        'the null-to-non-null revoked_at transition, sends the existing '
+        'row_change {table,id} ping to firm:<firm_id> for a chamber member or '
+        'user:<user_id> for an individual, so a signed-out phone discards '
+        'immediately without polling; a Realtime failure is swallowed and the '
+        'revocation still commits.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.602': 'Device Revocation — A Realtime Push Instead Of Polling',
   '0.0.600': 'Device Registry — Unique Install Keys And Support Identity',
   '0.0.595': 'Device Limit — A Session Belongs To Its Install',
   '0.0.592': 'Device Limit — The Grace Period Is Closed',

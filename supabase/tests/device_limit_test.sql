@@ -136,6 +136,10 @@ declare
   v_first uuid;
   v_second uuid;
   v_free_session uuid := gen_random_uuid();
+  v_identity uuid := pg_temp.sign_up('device-identity@test.local');
+  v_collision uuid := pg_temp.sign_up('device-collision@test.local');
+  v_collision_session uuid := gen_random_uuid();
+  v_second_session uuid := gen_random_uuid();
 begin
   -- Two live accounts and one lapsed one.
   update public.profiles
@@ -635,6 +639,89 @@ begin
     ),
     'the original row is not marked replaced'
   );
+
+  ---------------------------------------------------------------------------
+  -- 14. Every row carries the account holder's identity.
+  ---------------------------------------------------------------------------
+  update public.profiles
+     set subscription_status = 'premium',
+         subscription_expiry = now() + interval '30 days',
+         tier = 'pro',
+         full_name = 'Device Owner'
+   where id = v_identity;
+
+  perform pg_temp.as_session(v_identity, gen_random_uuid(), 'secret-1');
+  v_result := public.register_device('identity-phone', 'android',
+                                     'Identity Phone', 'secret-1');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'the identity fixture registers');
+
+  select * into v_row
+    from public.user_devices d
+   where d.user_id = v_identity and d.revoked_at is null;
+  perform pg_temp.assert_true(v_row.full_name = 'Device Owner',
+    'the device row carries the account holder''s name');
+  perform pg_temp.assert_true(v_row.email = 'device-identity@test.local',
+    'the device row carries the login e-mail');
+
+  ---------------------------------------------------------------------------
+  -- 15. Two installs presenting one key do not fail the unique index.
+  ---------------------------------------------------------------------------
+  update public.profiles
+     set subscription_status = 'premium',
+         subscription_expiry = now() + interval '30 days',
+         tier = 'pro'
+   where id = v_collision;
+
+  perform pg_temp.as_session(v_collision, v_collision_session, 'secret-1');
+  v_result := public.register_device('shared-key', 'android', 'First Phone',
+                                     'secret-1');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'the first phone claims the key');
+
+  -- A different install with the same key and its own secret: the same-phone
+  -- branch cannot take it, and an insert would violate the active-device index.
+  perform pg_temp.as_session(v_collision, gen_random_uuid(), 'secret-2');
+  v_result := public.register_device('shared-key', 'android', 'Second Phone',
+                                     'secret-2');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'device_limit_reached',
+    'a colliding key is refused as a full plan, not raised as 23505');
+  perform pg_temp.assert_true(
+    (select count(*) from public.user_devices d
+      where d.user_id = v_collision and d.revoked_at is null) = 1,
+    'the collision leaves exactly one active row'
+  );
+  select * into v_row
+    from public.user_devices d
+   where d.user_id = v_collision and d.revoked_at is null;
+  perform pg_temp.assert_true(
+    v_row.label = 'First Phone' and v_row.device_key = 'shared-key',
+    'the existing device is untouched'
+  );
+
+  -- A known session re-registering with a key another active row holds keeps
+  -- its own key and still succeeds.
+  perform pg_temp.as_session(v_collision, v_second_session, 'secret-2');
+  v_result := public.register_device('second-key', 'android', 'Second Phone',
+                                     'secret-2');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'the second device takes a free slot');
+
+  perform pg_temp.as_session(v_collision, v_collision_session, 'secret-1');
+  v_result := public.register_device('second-key', 'android', 'First Phone',
+                                     'secret-1');
+  perform pg_temp.as_owner();
+  perform pg_temp.assert_true(v_result ->> 'status' = 'ok',
+    'a known session may not steal another active row''s key');
+  select * into v_row
+    from public.user_devices d
+   where d.session_id = v_collision_session;
+  perform pg_temp.assert_true(v_row.device_key = 'shared-key',
+    'the known session keeps its own key');
 
   raise notice 'DEVICE OK';
 end;

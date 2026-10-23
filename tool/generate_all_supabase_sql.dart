@@ -855,11 +855,26 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'mismatch; reads keep a permissive fallback when no secret is present '
         'because Realtime does not reliably forward custom headers.',
   ),
+  LedgerSection(
+    file: '20261023100000_device_identity_and_collision_guard.sql',
+    version: '0.0.600',
+    label:
+        'Device registry — unique install keys and support identity. '
+        'user_devices gains full_name and email, filled from profiles by a '
+        'BEFORE INSERT trigger and backfilled for existing rows. The client '
+        'now keys Android installs by a persisted UUID because '
+        'device_info_plus\'s Android id is the build ID, which two identical '
+        'phones share; register_device answers a key already held by another '
+        'active device with device_limit_reached instead of raising 23505 on '
+        'user_devices_active_device_idx, and a known session never rewrites '
+        'its device_key to a key another active row holds.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.600': 'Device Registry — Unique Install Keys And Support Identity',
   '0.0.595': 'Device Limit — A Session Belongs To Its Install',
   '0.0.592': 'Device Limit — The Grace Period Is Closed',
   '0.0.590': 'Payment Support — The Payer\'s Name And E-mail On Both Ledgers',

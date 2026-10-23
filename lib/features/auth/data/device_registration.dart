@@ -133,7 +133,11 @@ abstract class DeviceRegistrationRepository {
   Future<void> acknowledgeWipe(DeviceIdentity identity);
 
   /// Refreshes this active device's `last_seen_at` (the real-use heartbeat).
-  Future<void> touch();
+  ///
+  /// False means the server no longer counts this device as active — it was
+  /// revoked or never registered — and the gate must re-read its state so the
+  /// discard starts without waiting for a push or the Devices screen.
+  Future<bool> touch();
 }
 
 /// Talks to the registry RPCs under the caller's own session.
@@ -196,7 +200,7 @@ class SupabaseDeviceRegistrationRepository
       'revoke_device',
       params: <String, Object?>{'p_id': deviceId},
     );
-    return data['status'] == 'revoked';
+    return _isRevoked(data);
   }
 
   @override
@@ -205,8 +209,13 @@ class SupabaseDeviceRegistrationRepository
       'sign_out_device',
       params: <String, Object?>{'p_id': deviceId},
     );
-    return data['status'] == 'revoked';
+    return _isRevoked(data);
   }
+
+  /// `already_revoked` means the device is out, which is what the caller asked
+  /// for; treating it as a failure showed a misleading error on a second tap.
+  bool _isRevoked(Map<String, dynamic> data) =>
+      data['status'] == 'revoked' || data['status'] == 'already_revoked';
 
   @override
   Future<void> acknowledgeWipe(DeviceIdentity identity) async {
@@ -217,8 +226,9 @@ class SupabaseDeviceRegistrationRepository
   }
 
   @override
-  Future<void> touch() async {
-    await _client.rpc<Object?>('touch_device');
+  Future<bool> touch() async {
+    final data = await _client.rpc<Map<String, dynamic>>('touch_device');
+    return data['status'] == 'ok';
   }
 
   /// Maps one RPC answer onto the app's state.
@@ -228,8 +238,8 @@ class SupabaseDeviceRegistrationRepository
       'device_limit_reached' => DeviceGateStatus.limitReached,
       'revoked' => DeviceGateStatus.revoked,
       'unregistered' => DeviceGateStatus.unregistered,
-      'session_in_use' || 'invalid_install_secret' =>
-        DeviceGateStatus.sessionInUse,
+      'session_in_use' ||
+      'invalid_install_secret' => DeviceGateStatus.sessionInUse,
       'unmanaged' => DeviceGateStatus.unmanaged,
       _ => DeviceGateStatus.unknown,
     };
@@ -237,7 +247,8 @@ class SupabaseDeviceRegistrationRepository
     return DeviceGateState(
       status: status,
       cap: (data['cap'] as num?)?.toInt() ?? 1,
-      revokedReason: data['reason'] as String? ??
+      revokedReason:
+          data['reason'] as String? ??
           (status == DeviceGateStatus.sessionInUse ? 'session_in_use' : null),
       evictedLabel: evicted is Map<String, dynamic>
           ? evicted['label'] as String?
@@ -256,7 +267,7 @@ class SupabaseDeviceRegistrationRepository
             id: row['id'] as String? ?? '',
             label: (row['label'] as String?)?.trim().isNotEmpty == true
                 ? row['label'] as String
-                : 'This device',
+                : 'Unknown device',
             platform: row['platform'] as String? ?? 'unknown',
             lastSeenAt: DateTime.tryParse(
               row['last_seen_at'] as String? ?? '',
@@ -292,5 +303,5 @@ class UnavailableDeviceRegistrationRepository
   Future<void> acknowledgeWipe(DeviceIdentity identity) async {}
 
   @override
-  Future<void> touch() async {}
+  Future<bool> touch() async => true;
 }

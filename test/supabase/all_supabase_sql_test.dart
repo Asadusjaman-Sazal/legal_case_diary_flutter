@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        64,
+        65,
         reason:
+            'The device identity columns and collision guard (2026-10-23) '
+            'added one file. '
             'The install-secret binding (2026-10-22) added one file. '
             'The device grace-period closure (2026-10-22) added one file. '
             'The payment identity snapshots (2026-10-22) added one file. '

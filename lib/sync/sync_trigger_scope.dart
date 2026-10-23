@@ -30,6 +30,11 @@ import 'recovery_flow.dart';
 import 'sync_providers.dart';
 import 'sync_service.dart';
 
+/// How often the foreground heartbeat asks the server whether this device still
+/// holds its slot. A sign-out made on another phone must not wait for a resume,
+/// a push or the Devices screen.
+const _deviceHeartbeatInterval = Duration(seconds: 30);
+
 /// Triggers sync on the app lifecycle and on connectivity changes.
 class SyncTriggerScope extends ConsumerStatefulWidget {
   /// Creates the scope around [child].
@@ -44,6 +49,9 @@ class SyncTriggerScope extends ConsumerStatefulWidget {
 
 class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
     with WidgetsBindingObserver {
+  /// The foreground device heartbeat; null while backgrounded.
+  Timer? _deviceHeartbeat;
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +62,24 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(syncServiceProvider).requestSync(pull: true);
       unawaited(_openChannelIfEntitled());
+      _startDeviceHeartbeat();
     });
+  }
+
+  /// Starts the foreground check that notices a revocation made elsewhere.
+  void _startDeviceHeartbeat() {
+    _deviceHeartbeat?.cancel();
+    _deviceHeartbeat = Timer.periodic(_deviceHeartbeatInterval, (_) {
+      if (!mounted) return;
+      unawaited(ref.read(deviceGateProvider.notifier).touch());
+    });
+  }
+
+  /// Stops it as soon as the app leaves the foreground; an idle app pays
+  /// nothing.
+  void _stopDeviceHeartbeat() {
+    _deviceHeartbeat?.cancel();
+    _deviceHeartbeat = null;
   }
 
   /// Runs the extended-offline check for this device.
@@ -92,6 +117,7 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
 
   @override
   void dispose() {
+    _stopDeviceHeartbeat();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -108,6 +134,7 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
         // skipping it.
         health.setForeground(true);
         unawaited(ref.read(deviceGateProvider.notifier).touch());
+        _startDeviceHeartbeat();
         ref.read(syncServiceProvider).requestResumeSync();
       case AppLifecycleState.inactive:
         // Transiently not accepting input: a call arriving, the app switcher, a
@@ -119,8 +146,10 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         // Backgrounded, the screen locked, or being torn down: close the channel
-        // immediately so an idle app holds no socket and burns no radio.
+        // immediately so an idle app holds no socket and burns no radio, and
+        // stop the device heartbeat with it.
         health.setForeground(false);
+        _stopDeviceHeartbeat();
         unawaited(listener.stop());
     }
   }
@@ -191,9 +220,7 @@ class _SyncTriggerScopeState extends ConsumerState<SyncTriggerScope>
       // approval lands — run the free → premium backlog pass exactly once.
       final premium = next.value;
       if (premium != null) {
-        unawaited(
-          ref.read(subscriptionActivationProvider).observe(premium),
-        );
+        unawaited(ref.read(subscriptionActivationProvider).observe(premium));
       }
     });
 

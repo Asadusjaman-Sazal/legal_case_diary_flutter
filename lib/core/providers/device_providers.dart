@@ -140,7 +140,15 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
         .acknowledgeWipe(identity);
   }
 
-  /// Marks this device as really used, at most once an hour.
+  /// How often a foregrounded app may ask the server about this device.
+  ///
+  /// The seven-day idle rule needs real contact, and a revocation made on
+  /// another phone must reach this one without waiting for a push or the
+  /// Devices screen; 30 seconds is frequent enough to feel immediate and cheap
+  /// enough to run only while the app is in front.
+  static const touchInterval = Duration(seconds: 30);
+
+  /// Marks this device as really used and notices a revocation.
   ///
   /// The seven-day idle eviction must measure contact, not app launches; a
   /// device used all day without being restarted would otherwise look idle.
@@ -149,11 +157,24 @@ class DeviceGateController extends AsyncNotifier<DeviceGateState> {
     if (ref.read(authIdentityProvider) == null) return;
     final now = DateTime.now();
     final last = _lastTouch;
-    if (last != null && now.difference(last) < const Duration(hours: 1)) {
-      return;
-    }
+    if (last != null && now.difference(last) < touchInterval) return;
     _lastTouch = now;
     try {
+      // A launch whose model lookup timed out wrote "Unknown device" onto the
+      // server row. The app is warm now, so ask again and re-register to put
+      // the real model on the row; the next launch is not needed.
+      final identity = await ref.read(deviceIdentityProvider.future);
+      if (identity.label == DeviceIdentity.fallback.label) {
+        final refreshed = await ref
+            .read(deviceIdentityServiceProvider)
+            .resolve(refresh: true);
+        if (refreshed.label != DeviceIdentity.fallback.label) {
+          ref.invalidate(deviceIdentityProvider);
+          await refresh(claim: true);
+          return;
+        }
+      }
+
       final used = await ref.read(deviceRegistrationRepositoryProvider).touch();
       // The server says this device no longer holds a slot: the gate must show
       // the revocation and start the discard now, not when a push happens.

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.600 - Android installs now use a unique stored key instead of the shared build ID; the server refuses key collisions cleanly, user_devices carries full_name/email, and the heartbeat acts on a revoked device.
+Version: 0.0.601 - The foreground app checks its slot every 30 seconds, so a device signed out elsewhere signs out here without opening Devices; a timed-out model name is retried and rewritten.
 --------------------------------------
 
 ## Version History Log:
@@ -614,3 +614,4 @@ Version: 0.0.597 - The plan-limit rejection screen now shows Device Limit Reache
 Version: 0.0.598 - The login Device Limit Reached window is now white with a black title, the warning on two lines, and taller Try Again and Sign Out This Device buttons.
 Version: 0.0.599 - The login Device Limit Reached window now sits directly on the white page with no card shadow, and Try Again and Sign Out This Device have an even gap between them.
 Version: 0.0.600 - Android installs now use a unique stored key instead of the shared build ID; the server refuses key collisions cleanly, user_devices carries full_name/email, and the heartbeat acts on a revoked device.
+Version: 0.0.601 - The foreground app checks its slot every 30 seconds, so a device signed out elsewhere signs out here without opening Devices; a timed-out model name is retried and rewritten.

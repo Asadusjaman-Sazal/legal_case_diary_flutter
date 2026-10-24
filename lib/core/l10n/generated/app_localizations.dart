@@ -3448,6 +3448,12 @@ abstract class AppLocalizations {
   /// **'Remember my choice'**
   String get clientNotification_rememberChoice;
 
+  /// No description provided for @clientNotification_exampleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example:'**
+  String get clientNotification_exampleLabel;
+
   /// No description provided for @clientNotification_previewClient.
   ///
   /// In en, this message translates to:

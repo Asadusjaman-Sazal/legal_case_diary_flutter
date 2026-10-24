@@ -1950,6 +1950,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clientNotification_rememberChoice => 'Remember my choice';
 
   @override
+  String get clientNotification_exampleLabel => 'Example:';
+
+  @override
   String get clientNotification_previewClient => 'Ali Hayder';
 
   @override

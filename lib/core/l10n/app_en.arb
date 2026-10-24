@@ -1066,6 +1066,7 @@
   "clientNotification_promptTitle": "Send Message to Client?",
   "clientNotification_promptBody": "Would you like to send your client a message notifying them of the next court date?",
   "clientNotification_rememberChoice": "Remember my choice",
+  "clientNotification_exampleLabel": "Example:",
   "clientNotification_previewClient": "Ali Hayder",
   "clientNotification_previewCase": "Civil-123/26",
   "clientNotification_previewCourt": "Senior Civil Judge Court, Sonargaon, Narayanganj",

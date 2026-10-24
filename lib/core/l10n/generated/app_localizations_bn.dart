@@ -1954,6 +1954,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get clientNotification_rememberChoice => 'আমার পছন্দ মনে রাখুন';
 
   @override
+  String get clientNotification_exampleLabel => 'উদাহরণ:';
+
+  @override
   String get clientNotification_previewClient => 'জনাব আলী হায়দার';
 
   @override

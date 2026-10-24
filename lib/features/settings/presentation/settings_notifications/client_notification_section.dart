@@ -356,34 +356,47 @@ class _TemplateRow extends StatelessWidget {
   }
 }
 
-/// The quotation box: centred on the card, text justified.
+/// The example message: "Example:" over the justified text, in the low box.
 class _Quotation extends StatelessWidget {
   const _Quotation({required this.message, super.key});
 
   final String message;
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 420),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(settingsMenuCardRadius),
-          border: const Border(
-            left: BorderSide(color: AppColors.secondary, width: 4),
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(settingsMenuCardRadius),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.clientNotification_exampleLabel,
+                style: AppTypography.labelLg.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                message,
+                textAlign: TextAlign.justify,
+                style: AppTypography.bodySm,
+              ),
+            ],
           ),
         ),
-        child: Text(
-          message,
-          textAlign: TextAlign.justify,
-          style: AppTypography.bodySm,
-        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The small editor for the call-back number: digits only, empty clears it.
@@ -412,6 +425,10 @@ class _ContactNumberDialogState extends State<_ContactNumberDialog> {
     final l = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('client-notification-contact-dialog'),
+      // The Update window's corner (user request, 0.0.619).
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       title: Text(
         l.clientNotification_contactLabel,
         textAlign: TextAlign.center,
@@ -443,16 +460,32 @@ class _ContactNumberDialogState extends State<_ContactNumberDialog> {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
-          key: const ValueKey('client-notification-contact-cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+        // The Exit App window's action size; 2 px on each side lifts the
+        // dialog's 8 px action gap to 12 (50% more, user request).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: TextButton(
+            key: const ValueKey('client-notification-contact-cancel'),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(112, 48),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l.sharedActions_cancel),
+          ),
         ),
-        FilledButton(
-          key: const ValueKey('client-notification-contact-save'),
-          onPressed: () =>
-              Navigator.of(context).pop(_controller.text.trim()),
-          child: Text(l.sharedActions_save),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: FilledButton(
+            key: const ValueKey('client-notification-contact-save'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(112, 48),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
+            onPressed: () =>
+                Navigator.of(context).pop(_controller.text.trim()),
+            child: Text(l.sharedActions_save),
+          ),
         ),
       ],
     );

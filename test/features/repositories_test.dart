@@ -337,7 +337,6 @@ void main() {
         defaults.automatedNotificationChannel,
         clientNotificationChannelWhatsApp,
       );
-      expect(defaults.automatedNotificationRememberedAnswer, isEmpty);
       expect(
         defaults.automatedNotificationWhatsAppTemplate,
         clientNotificationTemplateLong,
@@ -352,7 +351,6 @@ void main() {
         automatedNotificationEnabled: true,
         automatedNotificationAskBeforeSending: false,
         automatedNotificationChannel: clientNotificationChannelSms,
-        automatedNotificationRememberedAnswer: clientNotificationRememberedYes,
         automatedNotificationWhatsAppTemplate: clientNotificationTemplateShort,
         automatedNotificationSmsTemplate: clientNotificationTemplateLong,
         notificationContactNumber: '01800000000',
@@ -371,10 +369,6 @@ void main() {
       expect(
         restored.automatedNotificationChannel,
         clientNotificationChannelSms,
-      );
-      expect(
-        restored.automatedNotificationRememberedAnswer,
-        clientNotificationRememberedYes,
       );
       expect(
         restored.automatedNotificationWhatsAppTemplate,
@@ -397,10 +391,6 @@ void main() {
         afterAdd.automatedNotificationChannel,
         clientNotificationChannelSms,
       );
-      expect(
-        afterAdd.automatedNotificationRememberedAnswer,
-        clientNotificationRememberedYes,
-      );
       expect(afterAdd.notificationContactNumber, '01800000000');
 
       // An unknown or hand-edited blob reads as the safe defaults.
@@ -412,7 +402,6 @@ void main() {
           viewSettingsJson: jsonEncode(<String, Object?>{
             'automated_notification_channel': 'telegraph',
             'automated_notification_whatsapp_template': 'epic',
-            'automated_notification_remembered_answer': 'maybe',
             'notification_contact_number': '018-0000 0000',
           }),
           updatedAt: 1,
@@ -426,7 +415,6 @@ void main() {
         odd.automatedNotificationWhatsAppTemplate,
         clientNotificationTemplateLong,
       );
-      expect(odd.automatedNotificationRememberedAnswer, isEmpty);
       expect(odd.notificationContactNumber, '01800000000');
     });
 

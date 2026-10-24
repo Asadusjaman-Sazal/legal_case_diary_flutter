@@ -1870,7 +1870,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String lawyerName,
     String contactLine,
   ) {
-    return '$clientName,\nyour case, $caseLine, is scheduled for hearing on $nextDate$stepsClause at $court.\nBest regards,\n$lawyerName$contactLine';
+    return '$clientName,\nyour case, $caseLine, is scheduled for hearing on $nextDate$stepsClause at $court.\n\nBest regards,\n$lawyerName$contactLine';
   }
 
   @override

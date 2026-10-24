@@ -186,32 +186,6 @@
     </div>
   </div>
 
-  <!-- OEM battery reminder; hides once the setup guide is finished. -->
-  <div class="mt-lg bg-error-container rounded-lg p-md flex items-start gap-md">
-    <span class="material-symbols-outlined text-error">warning</span>
-    <p class="flex-1 font-body-md text-body-md text-on-error-container">Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.</p>
-  </div>
-
-  <!-- Battery & auto-start setup guide. -->
-  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
-    <span class="material-symbols-outlined text-primary text-[28px]">battery_charging_full</span>
-    <div class="ml-md flex-1">
-      <p class="font-body-lg text-body-lg text-on-surface">Battery &amp; Auto-Start Setup Guide</p>
-      <p class="mt-xs font-body-sm text-body-sm text-on-surface">Required on Xiaomi, Oppo, Vivo and Realme Phones</p>
-    </div>
-    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
-  </button>
-
-  <!-- Test notification. -->
-  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
-    <span class="material-symbols-outlined text-primary text-[28px]">notifications_active</span>
-    <div class="ml-md flex-1">
-      <p class="font-body-lg text-body-lg text-on-surface">Send Test Notification</p>
-      <p class="mt-xs font-body-sm text-body-sm text-on-surface">See How a Hearing Alert Looks on This Phone</p>
-    </div>
-    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
-  </button>
-
   <!-- Client Notification (0.0.614): the automated message offered when a
        hearing date changes. Every account sees it. The master and Ask pairs use
        the same filled-black active half; each channel's Long / Short pair sits
@@ -245,9 +219,8 @@
 
     <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Default Notification Template</p>
     <p class="mt-md font-body-lg text-body-lg text-on-surface">WhatsApp</p>
-    <div class="mt-sm flex items-center gap-xs">
+    <div class="mt-sm flex items-center gap-sm">
       <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Long</button>
-      <span class="font-label-lg text-label-lg text-on-surface-variant">/</span>
       <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">Short</button>
     </div>
     <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
@@ -255,9 +228,8 @@
     </div>
 
     <p class="mt-lg font-body-lg text-body-lg text-on-surface">SMS</p>
-    <div class="mt-sm flex items-center gap-xs">
+    <div class="mt-sm flex items-center gap-sm">
       <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">Long</button>
-      <span class="font-label-lg text-label-lg text-on-surface-variant">/</span>
       <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Short</button>
     </div>
     <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
@@ -278,6 +250,33 @@
       </button>
     </div>
   </div>
+
+  <!-- OEM battery reminder; hides once the setup guide is finished. -->
+  <div class="mt-lg bg-error-container rounded-lg p-md flex items-start gap-md">
+    <span class="material-symbols-outlined text-error">warning</span>
+    <p class="flex-1 font-body-md text-body-md text-on-error-container">Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.</p>
+  </div>
+
+  <!-- Battery & auto-start setup guide. -->
+  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">battery_charging_full</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Battery &amp; Auto-Start Setup Guide</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">Required on Xiaomi, Oppo, Vivo and Realme Phones</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
+  <!-- Test notification. -->
+  <button class="mt-md w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
+    <span class="material-symbols-outlined text-primary text-[28px]">notifications_active</span>
+    <div class="ml-md flex-1">
+      <p class="font-body-lg text-body-lg text-on-surface">Send Test Notification</p>
+      <p class="mt-xs font-body-sm text-body-sm text-on-surface">See How a Hearing Alert Looks on This Phone</p>
+    </div>
+    <span class="material-symbols-outlined text-tertiary">chevron_right</span>
+  </button>
+
 </main>
 
 <!-- Day-offset picker: dark header over one check row per offset. Several

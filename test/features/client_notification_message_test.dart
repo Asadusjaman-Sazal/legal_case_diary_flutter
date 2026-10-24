@@ -112,6 +112,7 @@ void main() {
         'your case, Custom Suit 123/26, is scheduled for hearing on '
         '17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, '
         'Narayanganj.\n'
+        '\n'
         'Best regards,\n'
         'Adv. Shafiullah Sourov\n'
         'Contact: 01800000000',
@@ -130,6 +131,7 @@ void main() {
         'জনাব আলী হায়দার,\n'
         'আপনার মামলা, Custom Suit 123/26, সিনিয়র সিভিল জজ আদালত, সোনারগাঁও '
         'কোর্টে আগামী ১৭/১১/২০২৬ ইং তারিখ WS/WO এর জন্য দিন ধার্য্য আছে।\n'
+        '\n'
         'শুভেচ্ছান্তে,\n'
         'অ্যাডঃ শফিউল্লাহ সৌরভ\n'
         'যোগাযোগ: 01800000000',
@@ -252,22 +254,19 @@ void main() {
       );
     });
 
-    test('a remembered answer wins over Ask', () {
+    test('the master and Ask switches are the whole rule', () {
+      // A remembered Yes is stored as on + Ask off; a remembered No as off.
       expect(
         decide(
-          base.copyWith(
-            automatedNotificationRememberedAnswer:
-                clientNotificationRememberedYes,
-          ),
+          base.copyWith(automatedNotificationAskBeforeSending: false),
         ),
         ClientNotificationDecision.send,
       );
       expect(
         decide(
-          base.copyWith(
+          const UserSettings(
+            automatedNotificationEnabled: false,
             automatedNotificationAskBeforeSending: false,
-            automatedNotificationRememberedAnswer:
-                clientNotificationRememberedNo,
           ),
         ),
         ClientNotificationDecision.none,

@@ -68,12 +68,12 @@ Future<void> maybeSendAutomatedClientNotification(
       // remembered.
       if (answer == null || !answer.send) {
         if (answer != null && answer.remember) {
-          await _rememberQuietly(ref, send: false);
+          await _rememberAnswer(ref, send: false);
         }
         return;
       }
       send = true;
-      if (answer.remember) await _rememberQuietly(ref, send: true);
+      if (answer.remember) await _rememberAnswer(ref, send: true);
     }
     if (!send || !context.mounted) return;
 
@@ -145,19 +145,21 @@ Future<void> maybeSendAutomatedClientNotification(
   }
 }
 
-/// Stores the answer the lawyer asked the app to remember.
+/// Writes the answer into the two switches the section shows.
 ///
-/// A failure here must not lose the answer for this save: the caller keeps the
-/// decision it already made and only the next prompt would reappear.
-Future<void> _rememberQuietly(WidgetRef ref, {required bool send}) async {
+/// Remembered Yes keeps the feature on and stops asking; remembered No turns the
+/// feature and Ask off, so nothing is sent or asked again. A later manual change
+/// to the master and Ask switches is therefore what brings the prompt back.
+/// A failure here must not lose this save's answer: the caller already decided to
+/// send, and only the next prompt reappears.
+Future<void> _rememberAnswer(WidgetRef ref, {required bool send}) async {
   try {
     await ref
         .read(settingsViewModelProvider.notifier)
         .updateSettings(
           (current) => current.copyWith(
-            automatedNotificationRememberedAnswer: send
-                ? clientNotificationRememberedYes
-                : clientNotificationRememberedNo,
+            automatedNotificationEnabled: send,
+            automatedNotificationAskBeforeSending: false,
           ),
         );
   } catch (_) {

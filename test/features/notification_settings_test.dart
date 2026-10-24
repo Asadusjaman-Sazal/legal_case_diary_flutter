@@ -377,7 +377,7 @@ void main() {
   /// A viewport tall enough for the whole card plus the rows under it, for the
   /// cases that reach the bottom pair: an off-screen row is not built at all.
   void useTallViewport(WidgetTester tester) {
-    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.physicalSize = const Size(1200, 4600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
   }
@@ -484,6 +484,7 @@ void main() {
   testWidgets('shows the OEM reminder banner and setup-guide entry', (
     tester,
   ) async {
+    useTallViewport(tester);
     await pumpScreen(tester);
 
     expect(
@@ -499,6 +500,7 @@ void main() {
   testWidgets('the reminder banner goes away once the setup is completed', (
     tester,
   ) async {
+    useTallViewport(tester);
     repo = FakeSettingsRepository(
       const UserSettings(notificationSetupDone: true),
     );
@@ -520,7 +522,7 @@ void main() {
   ) async {
     // Tall viewport: the test-alert card sits below the three mockup controls,
     // and an off-screen card is not built at all.
-    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.physicalSize = const Size(1200, 4600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
@@ -544,7 +546,7 @@ void main() {
   testWidgets('a blocked permission is reported, not papered over', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1200, 3000);
+    tester.view.physicalSize = const Size(1200, 4600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 

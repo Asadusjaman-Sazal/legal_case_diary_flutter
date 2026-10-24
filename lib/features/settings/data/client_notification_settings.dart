@@ -23,9 +23,10 @@ enum ClientNotificationDecision {
 
 /// Decides the action for a changed date from the stored settings.
 ///
-/// A remembered answer wins: yes sends, no does nothing, whatever the Ask
-/// setting says (changing Ask clears the remembered answer). With no memory,
-/// Ask off means send, Ask on means ask.
+/// The two switches are the whole rule: off does nothing; on with Ask asks; on
+/// without Ask sends. Remembering an answer writes those switches (Yes turns Ask
+/// off, No turns both off), so a later manual change is what brings the prompt
+/// back.
 ClientNotificationDecision resolveClientNotificationDecision({
   required UserSettings settings,
   required bool dateChanged,
@@ -35,12 +36,6 @@ ClientNotificationDecision resolveClientNotificationDecision({
       !dateChanged ||
       !hasRecipient) {
     return ClientNotificationDecision.none;
-  }
-  switch (settings.automatedNotificationRememberedAnswer) {
-    case clientNotificationRememberedYes:
-      return ClientNotificationDecision.send;
-    case clientNotificationRememberedNo:
-      return ClientNotificationDecision.none;
   }
   return settings.automatedNotificationAskBeforeSending
       ? ClientNotificationDecision.ask
